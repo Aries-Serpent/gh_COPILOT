@@ -18,7 +18,9 @@ import re
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Optional
+
+from copilot.common import get_workspace_path
 import json
 import shutil
 import subprocess
@@ -26,9 +28,9 @@ import subprocess
 class EnterpriseUnicodeCompatibilityFix:
     """Enterprise-grade Unicode compatibility fix for Windows systems."""
     
-    def __init__(self):
-        self.workspace_path = Path("e:/gh_COPILOT")
-        self.staging_path = Path("e:/gh_COPILOT")
+    def __init__(self, workspace_path: Optional[str] = None, staging_path: Optional[str] = None):
+        self.workspace_path = get_workspace_path(workspace_path)
+        self.staging_path = get_workspace_path(staging_path)
         self.backup_dir = self.workspace_path / f"_unicode_fix_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.results = {
             'fix_timestamp': datetime.now().isoformat(),

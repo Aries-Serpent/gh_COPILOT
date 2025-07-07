@@ -17,15 +17,17 @@ import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Union
+
+from copilot.common import get_workspace_path
 import logging
 from dataclasses import dataclass, asdict
 
 class EnterpriseJSONSerializer:
     """Enterprise-grade JSON serializer with datetime handling."""
     
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
-        self.staging_path = Path("e:/gh_COPILOT")
+    def __init__(self, workspace_path: Optional[str] = None):
+        self.workspace_path = get_workspace_path(workspace_path)
+        self.staging_path = get_workspace_path(workspace_path)
         
         # Setup logging
         logging.basicConfig(
@@ -329,9 +331,9 @@ class OptimizationReport:
 
 class EnterpriseReportGenerator:
     """Enterprise report generator with proper datetime handling."""
-    
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
+
+    def __init__(self, workspace_path: Optional[str] = None):
+        self.workspace_path = get_workspace_path(workspace_path)
         self.serializer = EnterpriseJSONSerializer(workspace_path)
         
     def generate_optimization_report(self, optimization_data: Dict[str, Any]) -> OptimizationReport:

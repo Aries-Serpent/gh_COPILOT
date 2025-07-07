@@ -27,10 +27,11 @@ pip install -e .
 ### 1. Initialize the Platform
 ```python
 from template_intelligence import TemplateIntelligencePlatform
+import os
 
 # Initialize with your environment
 platform = TemplateIntelligencePlatform(
-    environment_root="e:/gh_COPILOT",
+    environment_root=os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"),
     environment_type="development"
 )
 ```

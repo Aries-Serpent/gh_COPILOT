@@ -12,6 +12,9 @@ from datetime import datetime
 from pathlib import Path
 import re
 import traceback
+from typing import Optional
+
+from copilot.common import get_workspace_path
 
 # Professional logging setup
 logging.basicConfig(
@@ -25,8 +28,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class FinalDeploymentValidator:
-    def __init__(self):
-        self.workspace_path = Path("e:/gh_COPILOT")
+    def __init__(self, workspace_path: Optional[str] = None):
+        self.workspace_path = get_workspace_path(workspace_path)
         self.validation_results = {
             "timestamp": datetime.now().isoformat(),
             "validation_status": "PENDING",

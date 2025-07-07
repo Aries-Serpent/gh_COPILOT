@@ -36,6 +36,8 @@ import psutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple, Set
+
+from copilot.common import get_workspace_path
 from dataclasses import dataclass, asdict
 from tqdm import tqdm
 import logging
@@ -192,8 +194,8 @@ class UnifiedSessionManagementSystem:
     lifecycle management, and compliance certification.
     """
     
-    def __init__(self, workspace_root: str = r"e:\gh_COPILOT"):
-        self.workspace_root = Path(workspace_root)
+    def __init__(self, workspace_root: Optional[str] = None):
+        self.workspace_root = get_workspace_path(workspace_root)
         self.session_id = f"UNIFIED_SESSION_{int(time.time())}"
         self.start_time = datetime.now()
         
