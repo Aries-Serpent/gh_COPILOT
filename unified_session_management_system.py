@@ -187,8 +187,6 @@ class UnifiedSessionManagementSystem:
     def __init__(self, workspace_root: str = r"e:\gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.logger = setup_logging(self.workspace_root / 'unified_session_management.log')
-        global logger
-        logger = self.logger
         self.session_id = f"UNIFIED_SESSION_{int(time.time())}"
         self.start_time = datetime.now()
         
