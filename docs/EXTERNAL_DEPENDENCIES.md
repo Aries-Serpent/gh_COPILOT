@@ -13,5 +13,14 @@ Install Python dependencies using:
 pip install -r requirements.txt
 ```
 
+For local testing or CI pipelines, use the provided `Makefile`:
+
+```bash
+make test
+```
+
+The `test` target installs the packages listed in `requirements-test.txt`
+(including `requests`) before invoking `pytest`.
+
 Some scripts expect certain JSON reports or configuration files to be present in
 the working directory. Review the README files for details on each module.
