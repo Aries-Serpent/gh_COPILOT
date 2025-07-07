@@ -18,6 +18,7 @@ import time
 import webbrowser
 from datetime import datetime
 from pathlib import Path
+import os
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 import threading
@@ -40,7 +41,7 @@ class WebGUILauncher:
     
     def __init__(self):
         self.launcher_id = f"WEBGUI_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        self.workspace_root = Path("E:/gh_COPILOT")
+        self.workspace_root = Path(os.environ.get("GH_COPILOT_ROOT", os.getcwd()))
         self.production_db = self.workspace_root / "databases" / "production.db"
         self.start_time = datetime.now()
         

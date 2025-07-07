@@ -18,6 +18,7 @@ import time
 import threading
 from datetime import datetime, timedelta
 from pathlib import Path
+import os
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from tqdm import tqdm
@@ -39,7 +40,7 @@ class EnterpriseOrchestrator:
     
     def __init__(self):
         self.orchestrator_id = f"ORCHESTRATOR_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        self.workspace_root = Path("E:/gh_COPILOT")
+        self.workspace_root = Path(os.environ.get("GH_COPILOT_ROOT", os.getcwd()))
         self.production_db = self.workspace_root / "databases" / "production.db"
         self.start_time = datetime.now()
         
