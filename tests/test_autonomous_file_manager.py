@@ -2,7 +2,7 @@ import sqlite3
 import tempfile
 from pathlib import Path
 
-from core.autonomous_file_manager import (
+from copilot.core.autonomous_file_manager import (
     AutonomousFileManager,
     IntelligentFileClassifier,
     AutonomousBackupManager,
@@ -11,11 +11,9 @@ from core.autonomous_file_manager import (
 
 import pytest
 
-@pytest.fixture
-def setup_db(tmp_path) -> Path:
-    db_path = tmp_path / "production.db"
+def _setup_db(db_path: Path, base: Path) -> None:
+    """Create a minimal production.db used by the tests."""
     conn = sqlite3.connect(db_path)
-    base = tmp_path
     conn.execute(
         """
         CREATE TABLE enhanced_script_tracking(
@@ -38,9 +36,11 @@ def setup_db(tmp_path) -> Path:
     conn.close()
 
 
+
+
 def test_organize_files_autonomously(tmp_path):
     db = tmp_path / "production.db"
-    _setup_db(db)
+    _setup_db(db, tmp_path)
 
     mgr = AutonomousFileManager(workspace_path=str(tmp_path))
     result = mgr.organize_files_autonomously(["foo.py", "bar.sh"])
@@ -51,7 +51,7 @@ def test_organize_files_autonomously(tmp_path):
 
 def test_classify_file_autonomously(tmp_path):
     db = tmp_path / "production.db"
-    _setup_db(db)
+    _setup_db(db, tmp_path)
 
     classifier = IntelligentFileClassifier(workspace_path=str(tmp_path))
     info = classifier.classify_file_autonomously("foo.py")
@@ -63,7 +63,7 @@ def test_classify_file_autonomously(tmp_path):
 
 def test_create_intelligent_backup(tmp_path, monkeypatch):
     db = tmp_path / "production.db"
-    _setup_db(db)
+    _setup_db(db, tmp_path)
 
     (tmp_path / "a.py").write_text("print('a')")
     (tmp_path / "b.sh").write_text("echo b")
