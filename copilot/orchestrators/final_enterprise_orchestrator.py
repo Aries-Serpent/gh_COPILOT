@@ -164,7 +164,7 @@ class FinalEnterpriseOrchestrator:
         services_config = [
             {
                 'name': 'Enterprise Dashboard',
-                'script': 'web_gui/scripts/flask_apps/enterprise_dashboard.py',
+                'script': 'web_gui_scripts/flask_apps/enterprise_dashboard.py',
                 'port': 5000,
                 'cwd': str(self.workspace_root)
             },

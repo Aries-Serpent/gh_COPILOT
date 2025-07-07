@@ -48,19 +48,22 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
    pip install -r requirements.txt  # only install if using the web dashboard
    ```
 
-2. **Start the Flask Dashboard**:
+2. **Generate the Dashboard Script** (run once):
    ```bash
-   cd flask_apps
-   python enterprise_dashboard.py
+   python ../web_gui/database_driven_web_gui_generator.py
    ```
 
-3. **Access Web Interface**:
+3. **Start the Flask Dashboard**:
+   ```bash
+   python flask_apps/enterprise_dashboard.py
+   ```
+4. **Access Web Interface**:
    - Dashboard: http://localhost:5000
    - Database: http://localhost:5000/database
    - Backup: http://localhost:5000/backup
    - Migration: http://localhost:5000/migration
 
-4. **API Endpoints**:
+5. **API Endpoints**:
    - Health Check: http://localhost:5000/api/health
    - Scripts Data: http://localhost:5000/api/scripts
 
