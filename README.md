@@ -69,7 +69,6 @@ Many helper scripts live in the `scripts/` folder. An older copy exists under `s
 - `scripts/conversation_wrap_up_generator.py` – generate conversation summary
 - `scripts/final_session_closure.py` – finalize logs and close the session
 
-
 ### Autonomous File Management Usage
 
 The `core.autonomous_file_manager` module provides database-driven file organization, classification, intelligent backup creation, and workspace optimization. All operations rely on `production.db` for guidance and enforce anti-recursion protection.
