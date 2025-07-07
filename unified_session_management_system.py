@@ -42,6 +42,7 @@ import logging
 import threading
 import queue
 import zipfile
+from session_protocol_validator import SessionProtocolValidator
 
 # Configure enterprise logging
 logging.basicConfig(
@@ -199,6 +200,7 @@ class UnifiedSessionManagementSystem:
         # Initialize components
         self.anti_recursion_protection = AntiRecursionGuard()
         self.visual_processing_indicators = VisualProcessingIndicators()
+        self.protocol_validator = SessionProtocolValidator(workspace_root)
         
         # Protected file extensions and patterns
         self.protected_extensions = {'.py', '.ps1', '.md', '.json', '.db', '.sqlite', '.js', '.html', '.css'}
@@ -368,7 +370,12 @@ class UnifiedSessionManagementSystem:
     def start_session(self) -> bool:
         """Start a new session with full validation"""
         logger.info(f"{self.visual_processing_indicators.get_indicator('session_start')} Starting new session: {self.session_id}")
-        
+
+        # Validate startup protocol
+        if not self.protocol_validator.validate_startup():
+            logger.error(f"{self.visual_processing_indicators.get_indicator('error')} Startup protocol validation failed")
+            return False
+
         # Register session with anti-recursion protection
         if not self.anti_recursion_protection.register_session(self.session_id):
             logger.error(f"{self.visual_processing_indicators.get_indicator('error')} Failed to register session")
@@ -624,7 +631,11 @@ class UnifiedSessionManagementSystem:
             
             # Generate compliance certificate
             compliance_cert = self.generate_compliance_certificate()
-            
+
+            # Validate shutdown protocol
+            if not self.protocol_validator.validate_shutdown():
+                logger.error(f"{self.visual_processing_indicators.get_indicator('error')} Shutdown protocol validation failed")
+
             # Unregister session
             self.anti_recursion_protection.unregister_session(self.session_id)
             

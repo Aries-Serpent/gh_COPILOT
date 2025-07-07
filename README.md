@@ -69,3 +69,6 @@ Many helper scripts live in the `scripts/` folder. An older copy exists under `s
 - `scripts/conversation_wrap_up_generator.py` – generate conversation summary
 - `scripts/final_session_closure.py` – finalize logs and close the session
 
+### Session Protocol Validation
+- `session_protocol_validator.py` – enforce startup and shutdown checks for `unified_session_management_system.py`
+
