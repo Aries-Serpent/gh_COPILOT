@@ -45,3 +45,27 @@
 ## Support
 All components are validated for deployment.
 Environment is compatible with Windows systems.
+
+
+## Script Categories
+
+Many helper scripts live in the `scripts/` folder. An older copy exists under `scripts/deployment/`, but the files in `scripts/` are treated as canonical. Update these versions if you add fixes or new features.
+
+### Deployment
+- `scripts/enterprise_gh_copilot_deployment_orchestrator.py` – orchestrates full enterprise deployment
+- `scripts/final_enterprise_deployment_executor.py` – executes final production rollout
+
+### Database Management
+- `scripts/DATABASE_CLEANUP_EXECUTOR.py` – remove stale or invalid records
+- `scripts/PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py` – consolidate production databases
+- `scripts/database_organization_manager.py` – maintain schema organization
+
+### Disaster Recovery
+- `scripts/disaster_recovery_enhancer.py` – automate backup and restoration
+- `scripts/disaster_recovery_validator.py` – verify disaster recovery procedures
+
+### Session Wrap‑Up
+- `scripts/comprehensive_session_wrap_up.py` – consolidate session data
+- `scripts/conversation_wrap_up_generator.py` – generate conversation summary
+- `scripts/final_session_closure.py` – finalize logs and close the session
+
