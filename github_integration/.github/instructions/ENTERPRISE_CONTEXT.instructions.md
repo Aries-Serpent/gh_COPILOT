@@ -70,12 +70,10 @@ applyTo: '**'
 
 **Primary Databases (32 Total):**
 - **production.db**: Main operational database
-- **zendesk_core.db**: Zendesk entity management
-- **agent_workspace.db**: Agent activity tracking
-- **performance_metrics.db**: System performance data
-- **json_collection.db**: JSON data aggregation
-- **validation_results.db**: System validation tracking
-- **[Additional 16 specialized databases]**
+- **analytics.db**: Data analytics
+- **monitoring.db**: Runtime monitoring
+- **testing.db**: Automated test logs
+- **[Additional specialized databases in `databases/`]**
 
 **Database Standards:**
 - SQLite-based architecture
