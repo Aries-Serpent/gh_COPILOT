@@ -109,22 +109,23 @@ class AutonomousBackupManager(BaseDatabaseManager):
     """💾 Autonomous Backup System with Anti-Recursion Protection."""
 
     FORBIDDEN_BACKUP_LOCATIONS = [
-        "e:/gh_COPILOT",
-        "C:/temp/",
-        "./backup/",
+        Path("e:/gh_COPILOT").resolve(),
+        Path("C:/temp/").resolve(),
+        Path("./backup/").resolve(),
     ]
-    APPROVED_BACKUP_ROOT = Path("E:/temp/gh_COPILOT_Backups")
+    APPROVED_BACKUP_ROOT = Path("E:/temp/gh_COPILOT_Backups").resolve()
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT") -> None:
         super().__init__(workspace_path)
         self.backup_root = self.APPROVED_BACKUP_ROOT
 
     def validate_backup_location(self) -> bool:
-        path_lower = str(self.backup_root).lower()
-        if any(path_lower.startswith(p.lower()) for p in self.FORBIDDEN_BACKUP_LOCATIONS):
+        resolved_backup_root = self.backup_root.resolve()
+        if any(resolved_backup_root == forbidden_path or resolved_backup_root in forbidden_path.parents
+               for forbidden_path in self.FORBIDDEN_BACKUP_LOCATIONS):
             return False
         # Prevent backups inside workspace
-        return not str(self.workspace_path).lower().startswith(path_lower)
+        return not resolved_backup_root in self.workspace_path.resolve().parents
 
     def get_priority_threshold(self, priority: str) -> int:
         mapping = {"HIGH": 75, "MEDIUM": 50, "LOW": 0}
