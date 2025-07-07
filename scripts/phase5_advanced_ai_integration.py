@@ -31,6 +31,7 @@ from dataclasses import dataclass, asdict
 import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import argparse
 
 # Enhanced Logging Configuration
 logging.basicConfig(
@@ -710,8 +711,8 @@ class AdvancedAIIntegrationSystem:
             
         return ai_report
 
-def main():
-    """Main execution function"""
+def run_integration() -> Dict[str, Any]:
+    """Run the full AI integration workflow and return the report."""
     print("[ANALYSIS] PHASE 5: ADVANCED AI INTEGRATION SYSTEM")
     print("=" * 60)
     print("[?] Next-generation AI capabilities and autonomous systems")
@@ -721,8 +722,7 @@ def main():
     print("[?] Autonomous system management and self-healing")
     print("[SUCCESS] DUAL COPILOT AI validation throughout")
     print()
-    
-    # Configure advanced AI integration
+
     config = AdvancedAIConfig(
         ml_pipeline_automation=True,
         autonomous_management=True,
@@ -735,25 +735,22 @@ def main():
         training_epochs=100,
         inference_optimization=True,
         edge_deployment=True,
-        ai_safety_protocols=True
+        ai_safety_protocols=True,
     )
-    
-    # Create advanced AI integration system
+
     ai_system = AdvancedAIIntegrationSystem(config)
-    
-    # Run AI integration
+
     async def run_ai_integration():
         return await ai_system.run_full_ai_integration()
-    
-    # Execute AI integration
+
     ai_report = asyncio.run(run_ai_integration())
-    
-    # Save AI report
-    report_filename = f"phase5_advanced_ai_integration_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-    with open(report_filename, 'w') as f:
+
+    report_filename = (
+        f"phase5_advanced_ai_integration_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
+    with open(report_filename, "w") as f:
         json.dump(ai_report, f, indent=2, default=str)
-    
-    # Display results
+
     print("\n[ANALYSIS] ADVANCED AI INTEGRATION COMPLETED!")
     print("=" * 50)
     print(f"[?] AI System ID: {ai_report['ai_system_id']}")
@@ -763,14 +760,36 @@ def main():
     print(f"[?] Autonomous Systems: {'ACTIVE' if ai_report.get('autonomous_systems_active', False) else 'INACTIVE'}")
     print(f"[?][?] Duration: {ai_report.get('total_duration', 0):.2f} seconds")
     print(f"[?] Report saved: {report_filename}")
-    
-    if ai_report.get('ai_ready', False):
+
+    if ai_report.get("ai_ready", False):
         print("\n[HIGHLIGHT] ADVANCED AI INTEGRATION: NEXT-GENERATION AI READY!")
         print("[LAUNCH] Autonomous systems operational")
     else:
         print("\n[WARNING] AI integration needs optimization")
-        
+
     return ai_report
 
+
+def main() -> Dict[str, Any]:
+    """Parse arguments and execute the requested action."""
+    parser = argparse.ArgumentParser(description="Phase 5 Advanced AI Integration")
+    parser.add_argument(
+        "--excellence-verification",
+        action="store_true",
+        help="Run AI integration and verify excellence readiness",
+    )
+    args = parser.parse_args()
+
+    report = run_integration()
+
+    if args.excellence_verification:
+        if report.get("ai_ready", False):
+            print("[SUCCESS] Excellence verification passed")
+        else:
+            print("[ERROR] Excellence verification failed")
+
+    return report
+
+
 if __name__ == "__main__":
-    ai_report = main()
+    main()

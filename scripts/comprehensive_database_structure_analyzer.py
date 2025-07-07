@@ -36,6 +36,7 @@ from typing import Dict, List, Tuple, Optional, Any
 import logging
 from tqdm import tqdm
 import traceback
+import argparse
 
 class ComprehensiveDatabaseAnalyzer:
     """Enterprise-grade database structure analysis and documentation system"""
@@ -325,6 +326,39 @@ class ComprehensiveDatabaseAnalyzer:
         self.logger.info(f"[BAR_CHART] Found {len(db_files)} database files")
         
         return db_files
+
+    def verify_schema_sync(self) -> bool:
+        """Ensure all database schemas match."""
+        db_files = self.scan_databases()
+        base_schema = None
+        mismatched = []
+
+        for db_file in db_files:
+            schema = {}
+            try:
+                with sqlite3.connect(str(db_file)) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+                    tables = [row[0] for row in cursor.fetchall()]
+                    for table in tables:
+                        cursor.execute(f"PRAGMA table_info([{table}])")
+                        cols = [(col[1], col[2]) for col in cursor.fetchall()]
+                        schema[table] = cols
+            except Exception:
+                mismatched.append(str(db_file))
+                continue
+
+            if base_schema is None:
+                base_schema = schema
+            elif schema != base_schema:
+                mismatched.append(str(db_file))
+
+        if mismatched:
+            self.logger.warning(f"[WARNING] Schema mismatch found in {len(mismatched)} database(s)")
+            return False
+
+        self.logger.info("[SUCCESS] All database schemas are synchronized")
+        return True
     
     def analyze_all_databases(self) -> Dict[str, Any]:
         """Perform comprehensive analysis of all databases"""
@@ -610,29 +644,38 @@ class ComprehensiveDatabaseAnalyzer:
         print(f"Failed Analyses: {self.analysis_results['failed_analyses']}")
         print("="*80)
 
-def main():
-    """Main execution function"""
+def main() -> int:
+    """Command line interface for the analyzer."""
+    parser = argparse.ArgumentParser(description="Comprehensive Database Structure Analyzer")
+    parser.add_argument(
+        "--verify-sync",
+        action="store_true",
+        help="Ensure all database schemas match",
+    )
+    args = parser.parse_args()
+
     print("Comprehensive Database Structure Analyzer")
     print("========================================")
     print("Enterprise 6-Step Framework - Database Analysis Tool")
     print("Part 1 of 3: Database Structure Analysis\n")
-    
-    # Initialize analyzer
+
     analyzer = ComprehensiveDatabaseAnalyzer()
-    
-    # Run complete analysis
+
+    if args.verify_sync:
+        success = analyzer.verify_schema_sync()
+        return 0 if success else 1
+
     success = analyzer.run_complete_analysis()
-    
+
     if success:
         print("\n[SUCCESS] Database structure analysis completed successfully!")
         print("[?] Comprehensive report and JSON results generated.")
         print("[TARGET] Ready for Part 2 of 3: Database Query Validation & Performance Testing")
+        return 0
     else:
         print("\n[ERROR] Database structure analysis completed with errors.")
         print("[CLIPBOARD] Please review log files for detailed error information.")
         return 1
-    
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())
