@@ -4,6 +4,9 @@
 
 This guide explains how the gh_COPILOT environment uses a single deployment orchestrator instead of multiple legacy scripts.
 
+### Disclaimer
+As stated in the **AGENTS guide**, any references to quantum optimization or quantum algorithms describe future goals only. These capabilities are **not implemented** in the current system.
+
 ## Consolidated Orchestrator
 
 ### Primary Orchestrator
@@ -12,7 +15,7 @@ This guide explains how the gh_COPILOT environment uses a single deployment orch
 - **Visual Processing Indicators**: MANDATORY compliance
 - 🛡️ **Anti-Recursion Protection**: ENABLED
 - 🌐 **Cross-Platform Support**: Windows/Linux/macOS
-- ⚛️ **Quantum Optimization**: ENABLED
+- ⚛️ **Quantum Optimization**: *aspirational (not implemented)*
 - 🚀 **Phase 4 & Phase 5 Integration**: ENABLED
 - 🔄 **Continuous Operation Mode**: ENABLED
 
@@ -27,7 +30,7 @@ This guide explains how the gh_COPILOT environment uses a single deployment orch
 8. **Intelligent Scripts** - Deploy intelligent scripts
 9. **Configuration Setup** - Setup configuration files
 10. **GitHub Integration** - Deploy GitHub Copilot integration
-11. **Quantum Algorithms** - Deploy quantum optimization
+11. **Quantum Algorithms** - *aspirational placeholder for future quantum optimization*
 12. **Phase 4 & 5 Systems** - Deploy advanced analytics and AI
 13. **Documentation** - Generate comprehensive documentation
 14. **System Validation** - Comprehensive system validation
