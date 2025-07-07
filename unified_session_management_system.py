@@ -635,6 +635,7 @@ class UnifiedSessionManagementSystem:
             # Validate shutdown protocol
             if not self.protocol_validator.validate_shutdown():
                 logger.error(f"{self.visual_processing_indicators.get_indicator('error')} Shutdown protocol validation failed")
+                return False
 
             # Unregister session
             self.anti_recursion_protection.unregister_session(self.session_id)
