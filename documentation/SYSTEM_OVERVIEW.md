@@ -10,7 +10,7 @@
 
 ### Core Systems
 - template_intelligence_platform.py: Template Intelligence Platform
-- enterprise_performance_monitor_windows.py: Performance Monitor
+- unified_monitoring_optimization_system.py: Monitoring & Optimization
 - enterprise_unicode_compatibility_fix.py: Unicode Compatibility
 - enterprise_json_serialization_fix.py: JSON Serialization
 - advanced_analytics_phase4_phase5_enhancement.py: Advanced Analytics
