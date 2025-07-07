@@ -20,18 +20,18 @@ AUTONOMOUS_FILE_MANAGEMENT:
 - Canonical system preservation
 """
 
-import os
-import sys
+import hashlib
 import json
-import shutil
-import sqlite3
 import logging
+import sqlite3
+import sys
+import uuid
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Set
-from collections import defaultdict
-import hashlib
-import uuid
+from typing import Any, Dict, List
+
+from base_consolidation_executor import BaseConsolidationExecutor
 
 # Configure logging
 LOG_DIR = Path("logs")
@@ -40,34 +40,35 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(LOG_DIR / 'script_generation_consolidation.log', encoding='utf-8'),
+        logging.FileHandler(
+            LOG_DIR / 'script_generation_consolidation.log', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
 
-class ScriptGenerationConsolidationExecutor:
+
+class ScriptGenerationConsolidationExecutor(BaseConsolidationExecutor):
     """Autonomous script generation consolidation system"""
-    
+
     def __init__(self, workspace_path: str = r"e:\gh_COPILOT"):
+        super().__init__(
+            workspace_root=workspace_path,
+            archive_root=r"E:\TEMP\gh_copilot_backup",
+            group_name="script_generation",
+            logger=logger,
+        )
         self.workspace_path = Path(workspace_path)
-        self.backup_base = Path(r"E:\TEMP\gh_copilot_backup")
-        self.backup_dir = self.backup_base / "consolidated_scripts" / "script_generation"
-        self.manifest_dir = self.backup_base / "manifests"
-        self.timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        
-        # Create directories
-        self.backup_dir.mkdir(parents=True, exist_ok=True)
-        self.manifest_dir.mkdir(parents=True, exist_ok=True)
-        
+        self.backup_dir = self.archive_dir
+
         # Initialize database
         self.db_path = self.workspace_path / "databases" / "consolidation_tracking.db"
         self.db_path.parent.mkdir(exist_ok=True)
         self._init_database()
-        
+
         # Define canonical system
         self.canonical_system = "unified_script_generation_system.py"
-        
+
         # Define script generation patterns
         self.script_generation_patterns = [
             "*script*generation*.py",
@@ -80,7 +81,7 @@ class ScriptGenerationConsolidationExecutor:
             "*generation*demo*.py",
             "*regeneration*.py"
         ]
-        
+
         logger.info(f"🎯 Script Generation Consolidation Executor initialized")
         logger.info(f"📁 Workspace: {self.workspace_path}")
         logger.info(f"🔒 Backup: {self.backup_dir}")
@@ -100,7 +101,7 @@ class ScriptGenerationConsolidationExecutor:
                     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
+
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS consolidation_manifest (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -113,48 +114,37 @@ class ScriptGenerationConsolidationExecutor:
                     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
+
             conn.commit()
 
     def discover_script_generation_files(self) -> List[Dict[str, Any]]:
         """Discover all script generation-related files using database-driven approach"""
         logger.info("🔍 [DISCOVERY] Discovering script generation files...")
-        
+
         discovered_files = []
-        
-        # Search patterns
-        for pattern in self.script_generation_patterns:
-            try:
-                files = list(self.workspace_path.rglob(pattern))
-                for file_path in files:
-                    if file_path.is_file() and file_path.suffix == '.py':
-                        # Skip canonical system
-                        if file_path.name == self.canonical_system:
-                            logger.info(f"⚡ [PRESERVE] Canonical system preserved: {file_path}")
-                            continue
-                        
-                        # Skip consolidation executors
-                        if 'consolidation' in file_path.name.lower():
-                            logger.info(f"⚡ [PRESERVE] Consolidation executor preserved: {file_path}")
-                            continue
-                        
-                        # Calculate file hash
-                        file_hash = self._calculate_file_hash(file_path)
-                        
-                        discovered_files.append({
-                            'path': file_path,
-                            'name': file_path.name,
-                            'size': file_path.stat().st_size,
-                            'hash': file_hash,
-                            'modified': datetime.fromtimestamp(file_path.stat().st_mtime).isoformat(),
-                            'relative_path': file_path.relative_to(self.workspace_path)
-                        })
-                        
-            except Exception as e:
-                logger.error(f"❌ [ERROR] Pattern search failed for {pattern}: {e}")
+
+        files = self.discover_files(self.script_generation_patterns, [
+                                    self.canonical_system])
+        for file_path in files:
+            if file_path.suffix != '.py':
                 continue
-        
-        logger.info(f"📊 [DISCOVERY] Found {len(discovered_files)} script generation files")
+            if 'consolidation' in file_path.name.lower():
+                logger.info(
+                    f"⚡ [PRESERVE] Consolidation executor preserved: {file_path}")
+                continue
+
+            file_hash = self._calculate_file_hash(file_path)
+            discovered_files.append({
+                'path': file_path,
+                'name': file_path.name,
+                'size': file_path.stat().st_size,
+                'hash': file_hash,
+                'modified': datetime.fromtimestamp(file_path.stat().st_mtime).isoformat(),
+                'relative_path': file_path.relative_to(self.workspace_path)
+            })
+
+        logger.info(
+            f"📊 [DISCOVERY] Found {len(discovered_files)} script generation files")
         return discovered_files
 
     def _calculate_file_hash(self, file_path: Path) -> str:
@@ -163,34 +153,27 @@ class ScriptGenerationConsolidationExecutor:
             with open(file_path, 'rb') as f:
                 return hashlib.sha256(f.read()).hexdigest()[:16]
         except Exception as e:
-            logger.error(f"❌ [ERROR] Hash calculation failed for {file_path}: {e}")
+            logger.error(
+                f"❌ [ERROR] Hash calculation failed for {file_path}: {e}")
             return "error"
 
     def archive_legacy_files(self, files: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Archive legacy script generation files"""
         logger.info(f"📦 [ARCHIVE] Archiving {len(files)} legacy files...")
-        
-        # Create timestamped archive directory
-        archive_dir = self.backup_dir / self.timestamp
-        archive_dir.mkdir(parents=True, exist_ok=True)
-        
+
+        archive_dir = self.archive_dir
+
         archived_files = []
         failed_files = []
-        
+
         for file_info in files:
             try:
                 source_path = file_info['path']
                 relative_path = file_info['relative_path']
-                
-                # Create backup path maintaining directory structure
-                backup_path = archive_dir / relative_path
-                backup_path.parent.mkdir(parents=True, exist_ok=True)
-                
-                # Copy file to backup
-                shutil.copy2(source_path, backup_path)
-                
-                # Verify backup
-                if backup_path.exists():
+
+                result = self.archive_files([source_path])
+                if result:
+                    _, backup_path = result[0]
                     # Store in database
                     with sqlite3.connect(self.db_path) as conn:
                         cursor = conn.cursor()
@@ -206,25 +189,26 @@ class ScriptGenerationConsolidationExecutor:
                             'archived'
                         ))
                         conn.commit()
-                    
+
                     archived_files.append({
                         'source': str(source_path),
                         'backup': str(backup_path),
                         'hash': file_info['hash'],
-                        'size': file_info['size']
+                        'size': file_info['size'],
                     })
-                    
+
                     logger.info(f"✅ [ARCHIVED] {relative_path}")
                 else:
-                    raise Exception("Backup verification failed")
-                    
+                    raise Exception("Backup failed")
+
             except Exception as e:
-                logger.error(f"❌ [ERROR] Archive failed for {file_info['path']}: {e}")
+                logger.error(
+                    f"❌ [ERROR] Archive failed for {file_info['path']}: {e}")
                 failed_files.append({
                     'file': str(file_info['path']),
                     'error': str(e)
                 })
-        
+
         return {
             'archived_count': len(archived_files),
             'failed_count': len(failed_files),
@@ -236,14 +220,14 @@ class ScriptGenerationConsolidationExecutor:
     def remove_legacy_files(self, files: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Remove legacy files from workspace after archiving"""
         logger.info(f"🗑️ [CLEANUP] Removing {len(files)} legacy files...")
-        
+
         removed_files = []
         failed_removals = []
-        
+
         for file_info in files:
             try:
                 source_path = file_info['path']
-                
+
                 # Verify file is archived
                 with sqlite3.connect(self.db_path) as conn:
                     cursor = conn.cursor()
@@ -251,14 +235,14 @@ class ScriptGenerationConsolidationExecutor:
                         SELECT COUNT(*) FROM script_generation_consolidation 
                         WHERE file_path = ? AND status = 'archived'
                     ''', (str(source_path),))
-                    
+
                     if cursor.fetchone()[0] == 0:
                         raise Exception("File not confirmed as archived")
-                
+
                 # Remove file
                 if source_path.exists():
                     source_path.unlink()
-                    
+
                     # Update database
                     with sqlite3.connect(self.db_path) as conn:
                         cursor = conn.cursor()
@@ -268,17 +252,18 @@ class ScriptGenerationConsolidationExecutor:
                             WHERE file_path = ?
                         ''', (str(source_path),))
                         conn.commit()
-                    
+
                     removed_files.append(str(source_path))
                     logger.info(f"🗑️ [REMOVED] {file_info['relative_path']}")
-                
+
             except Exception as e:
-                logger.error(f"❌ [ERROR] Removal failed for {file_info['path']}: {e}")
+                logger.error(
+                    f"❌ [ERROR] Removal failed for {file_info['path']}: {e}")
                 failed_removals.append({
                     'file': str(file_info['path']),
                     'error': str(e)
                 })
-        
+
         return {
             'removed_count': len(removed_files),
             'failed_count': len(failed_removals),
@@ -289,11 +274,11 @@ class ScriptGenerationConsolidationExecutor:
     def validate_consolidation(self) -> Dict[str, Any]:
         """Validate consolidation results"""
         logger.info("🔍 [VALIDATION] Validating consolidation results...")
-        
+
         # Check canonical system exists
         canonical_path = self.workspace_path / self.canonical_system
         canonical_exists = canonical_path.exists()
-        
+
         # Check for remaining legacy files
         remaining_files = []
         for pattern in self.script_generation_patterns:
@@ -304,17 +289,20 @@ class ScriptGenerationConsolidationExecutor:
                         if file_path.name != self.canonical_system and 'consolidation' not in file_path.name.lower():
                             remaining_files.append(str(file_path))
             except Exception as e:
-                logger.error(f"❌ [ERROR] Validation pattern search failed: {e}")
-        
+                logger.error(
+                    f"❌ [ERROR] Validation pattern search failed: {e}")
+
         # Get database statistics
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            cursor.execute('SELECT COUNT(*) FROM script_generation_consolidation WHERE status = "removed"')
+            cursor.execute(
+                'SELECT COUNT(*) FROM script_generation_consolidation WHERE status = "removed"')
             removed_count = cursor.fetchone()[0]
-            
-            cursor.execute('SELECT COUNT(*) FROM script_generation_consolidation WHERE status = "archived"')
+
+            cursor.execute(
+                'SELECT COUNT(*) FROM script_generation_consolidation WHERE status = "archived"')
             archived_count = cursor.fetchone()[0]
-        
+
         validation_results = {
             'canonical_system_exists': canonical_exists,
             'canonical_system_path': str(canonical_path) if canonical_exists else None,
@@ -324,24 +312,26 @@ class ScriptGenerationConsolidationExecutor:
             'removed_count': removed_count,
             'consolidation_successful': canonical_exists and len(remaining_files) == 0
         }
-        
+
         if validation_results['consolidation_successful']:
-            logger.info("✅ [SUCCESS] Script generation consolidation completed successfully")
+            logger.info(
+                "✅ [SUCCESS] Script generation consolidation completed successfully")
         else:
-            logger.warning("⚠️ [WARNING] Consolidation validation found issues")
-        
+            logger.warning(
+                "⚠️ [WARNING] Consolidation validation found issues")
+
         return validation_results
 
-    def generate_consolidation_manifest(self, 
-                                       discovered_files: List[Dict[str, Any]],
-                                       archive_results: Dict[str, Any],
-                                       removal_results: Dict[str, Any],
-                                       validation_results: Dict[str, Any]) -> str:
+    def generate_consolidation_manifest(self,
+                                        discovered_files: List[Dict[str, Any]],
+                                        archive_results: Dict[str, Any],
+                                        removal_results: Dict[str, Any],
+                                        validation_results: Dict[str, Any]) -> str:
         """Generate consolidation manifest"""
         logger.info("📋 [MANIFEST] Generating consolidation manifest...")
-        
+
         consolidation_id = str(uuid.uuid4())
-        
+
         manifest = {
             'consolidation_metadata': {
                 'id': consolidation_id,
@@ -373,12 +363,9 @@ class ScriptGenerationConsolidationExecutor:
                 'consolidation_successful': validation_results['consolidation_successful']
             }
         }
-        
-        # Save manifest
-        manifest_file = self.manifest_dir / f"script_generation_consolidation_{self.timestamp}.json"
-        with open(manifest_file, 'w', encoding='utf-8') as f:
-            json.dump(manifest, f, indent=2, default=str)
-        
+
+        manifest_file = Path(self.generate_manifest(manifest))
+
         # Store in database
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
@@ -396,17 +383,17 @@ class ScriptGenerationConsolidationExecutor:
                 json.dumps(manifest, default=str)
             ))
             conn.commit()
-        
+
         logger.info(f"📋 [MANIFEST] Saved: {manifest_file}")
         return str(manifest_file)
 
     def _categorize_files(self, files: List[Dict[str, Any]]) -> Dict[str, List[str]]:
         """Categorize files by type"""
         categories = defaultdict(list)
-        
+
         for file_info in files:
             file_name = file_info['name'].lower()
-            
+
             if 'platform' in file_name:
                 categories['platforms'].append(file_info['name'])
             elif 'framework' in file_name:
@@ -425,40 +412,41 @@ class ScriptGenerationConsolidationExecutor:
                 categories['enhancers'].append(file_info['name'])
             else:
                 categories['other'].append(file_info['name'])
-        
+
         return dict(categories)
 
     def execute_consolidation(self) -> Dict[str, Any]:
         """Execute complete script generation consolidation"""
         logger.info("🚀 [EXECUTE] Starting script generation consolidation...")
-        
+
         try:
             # Phase 1: Discovery
             discovered_files = self.discover_script_generation_files()
-            
+
             if not discovered_files:
-                logger.info("ℹ️ [INFO] No script generation files found to consolidate")
+                logger.info(
+                    "ℹ️ [INFO] No script generation files found to consolidate")
                 return {
                     'success': True,
                     'message': 'No files to consolidate',
                     'consolidation_id': str(uuid.uuid4()),
                     'timestamp': self.timestamp
                 }
-            
+
             # Phase 2: Archive
             archive_results = self.archive_legacy_files(discovered_files)
-            
+
             # Phase 3: Remove
             removal_results = self.remove_legacy_files(discovered_files)
-            
+
             # Phase 4: Validate
             validation_results = self.validate_consolidation()
-            
+
             # Phase 5: Generate manifest
             manifest_file = self.generate_consolidation_manifest(
                 discovered_files, archive_results, removal_results, validation_results
             )
-            
+
             # Generate summary
             summary = {
                 'success': validation_results['consolidation_successful'],
@@ -476,10 +464,11 @@ class ScriptGenerationConsolidationExecutor:
                 'manifest_file': manifest_file,
                 'archive_directory': archive_results['archive_directory']
             }
-            
-            logger.info("✅ [SUCCESS] Script generation consolidation completed")
+
+            logger.info(
+                "✅ [SUCCESS] Script generation consolidation completed")
             return summary
-            
+
         except Exception as e:
             logger.error(f"❌ [ERROR] Consolidation execution failed: {e}")
             return {
@@ -488,27 +477,31 @@ class ScriptGenerationConsolidationExecutor:
                 'timestamp': self.timestamp
             }
 
+
 def main():
     """Main execution function"""
     logger.info("🎯 Starting Script Generation Consolidation Executor")
-    
+
     try:
         executor = ScriptGenerationConsolidationExecutor()
         results = executor.execute_consolidation()
-        
+
         if results['success']:
-            logger.info("🎉 [COMPLETE] Script generation consolidation successful!")
+            logger.info(
+                "🎉 [COMPLETE] Script generation consolidation successful!")
             logger.info(f"📊 Statistics: {results['statistics']}")
             logger.info(f"📋 Manifest: {results['manifest_file']}")
             logger.info(f"📁 Archive: {results['archive_directory']}")
             return 0
         else:
-            logger.error(f"❌ [FAILED] Consolidation failed: {results.get('error', 'Unknown error')}")
+            logger.error(
+                f"❌ [FAILED] Consolidation failed: {results.get('error', 'Unknown error')}")
             return 1
-            
+
     except Exception as e:
         logger.error(f"❌ [FATAL] Execution failed: {e}")
         return 1
+
 
 if __name__ == "__main__":
     exit_code = main()
