@@ -1,18 +1,9 @@
 #!/usr/bin/env python3
 """
-UNIFIED LEGACY CLEANUP SYSTEM
-=============================
-Centralized cleanup manager merging functionality from legacy cleanup scripts.
+Unified Legacy Cleanup System.
 
-Features:
-- Legacy deployment orchestrator archival and removal
-- Temporary path violation fixes (C:\\Temp replacements)
-- Redundant database file cleanup
-- Zero-byte file prevention
-- Anti-recursion lock
-- Database-driven action tracking
+Coordinates removal of obsolete files and maintains audit logging.
 """
-
 import os
 import sys
 import sqlite3

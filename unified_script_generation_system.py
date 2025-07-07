@@ -1,26 +1,8 @@
 #!/usr/bin/env python3
 """
-Unified Script Generation System
-DUAL COPILOT PATTERN - Enterprise Compliance Certified
-Anti-Recursion Protected Quantum-Optimized Generation Platform
+Unified Script Generation System.
 
-This unified system consolidates all script generation capabilities including:
-- Intelligent template-based generation
-- Environment-adaptive code creation
-- GitHub Copilot integration
-- Pattern-based code enhancement
-- Enterprise compliance validation
-- Quantum optimization algorithms
-- Phase 4/5 integration compatibility
-
-DUAL COPILOT PATTERN COMPLIANCE:
-✓ Visual processing indicators
-✓ Anti-recursion protection 
-✓ Quantum optimization
-✓ Phase 4/5 integration
-✓ Enterprise compliance certification
-✓ Autonomous file management
-✓ Database-driven operations
+Generates scripts using templates with compliance validation.
 """
 
 import os
