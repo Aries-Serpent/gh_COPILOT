@@ -63,7 +63,7 @@ class DeploymentStatusChecker:
             'enterprise_intelligence_deployment_orchestrator.py',
             'enterprise_business_rules_customization.py',
             'quick_start_intelligence_platform.py',
-            'web_gui_scripts/flask_apps/enterprise_dashboard.py'
+            'web_gui/scripts/flask_apps/enterprise_dashboard.py'
         ]
         
         file_status = {}
@@ -126,7 +126,7 @@ class DeploymentStatusChecker:
             f"Q:/python_venv/.venv_clean/Scripts/python.exe enhanced_analytics_intelligence_platform.py",
             "",
             "# 2. Start Enterprise Dashboard",
-            f"Q:/python_venv/.venv_clean/Scripts/python.exe web_gui_scripts/flask_apps/enterprise_dashboard.py",
+            f"Q:/python_venv/.venv_clean/Scripts/python.exe web_gui/scripts/flask_apps/enterprise_dashboard.py",
             "",
             "# 3. Configure Business Rules",
             f"Q:/python_venv/.venv_clean/Scripts/python.exe enterprise_business_rules_customization.py",

@@ -370,7 +370,7 @@ class EnterpriseGhCopilotDeploymentOrchestrator:
             web_gui_dir = self.target_path / "web_gui"
             
             # Copy web GUI scripts
-            web_gui_source = self.sandbox_path / "web_gui_scripts"
+            web_gui_source = self.sandbox_path / "web_gui/scripts"
             if web_gui_source.exists():
                 shutil.copytree(web_gui_source, web_gui_dir / "scripts", dirs_exist_ok=True)
                 logger.info("📁 Copied web GUI scripts")

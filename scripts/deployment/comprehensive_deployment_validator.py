@@ -255,7 +255,7 @@ class ComprehensiveDeploymentValidator:
         # Enterprise compliance checks
         compliance_checks = [
             ('instructions_directory', env_path / '.github' / 'instructions'),
-            ('web_gui_scripts', env_path / 'web_gui_scripts'),
+            ('web_gui/scripts', env_path / 'web_gui/scripts'),
             ('templates_directory', env_path / 'templates'),
             ('databases_directory', env_path / 'databases'),
             ('production_db', env_path / 'databases' / 'production.db'),

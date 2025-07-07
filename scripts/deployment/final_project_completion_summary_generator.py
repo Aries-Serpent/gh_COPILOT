@@ -35,7 +35,7 @@ def generate_final_project_summary():
                 "status": "[SUCCESS] COMPLETE",
                 "endpoints": 7,
                 "templates": 5,
-                "location": "web_gui_scripts/flask_apps/enterprise_dashboard.py"
+                "location": "web_gui/scripts/flask_apps/enterprise_dashboard.py"
             },
             "html_templates": {
                 "status": "[SUCCESS] COMPLETE",
