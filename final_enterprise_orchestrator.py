@@ -106,7 +106,7 @@ class FinalEnterpriseOrchestrator:
                 return False
 
         except Exception as e:
-            self.logger.error(f"Failed to start {service_name}: {e}")
+            self.logger.error(f"{service_name} failed to start: {e}")
             return False
     
     def check_service_health(self, service_name: str, port: Optional[int] = None) -> bool:
