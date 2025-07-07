@@ -3,8 +3,8 @@
 Enterprise Flask Dashboard - Database-Driven Web Interface
 =========================================================
 
-[SHIELD] DUAL COPILOT [SUCCESS] | Anti-Recursion [SUCCESS] | Visual Processing [SUCCESS]
-Generated from Database Pattern Analysis
+This module provides a database-driven web interface for enterprise-level dashboard management.
+It includes features such as anti-recursion handling, visual processing, and database pattern analysis.
 
 Features:
 - Executive dashboard with real-time metrics
