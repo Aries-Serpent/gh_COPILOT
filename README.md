@@ -9,6 +9,10 @@
 - **Target Environment**: `e:/gh_COPILOT` (override with `GH_COPILOT_WORKSPACE`)
 - **Validation Status**: PASSED - Ready for Professional Deployment
 
+> **Note**: Early drafts referenced quantum algorithms and other experimental
+> features, but those components are not implemented. Quantum optimization and
+> other advanced capabilities remain future plans.
+
 ## Deployment Status
 [SUCCESS] All critical issues have been resolved and the environment is ready for professional deployment.
 
