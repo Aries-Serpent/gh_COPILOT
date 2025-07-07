@@ -13,7 +13,10 @@ should be treated as future plans only.
   - `pip install -r requirements-web.txt` – web dashboard
   - `pip install -r requirements-ml.txt` – machine learning features
 - Run tests with `make test`. This installs `requirements-test.txt` and executes `pytest`.
-- The default workspace root is `E:/gh_COPILOT` (override with `GH_COPILOT_WORKSPACE`).
+- The default workspace root is `/path/to/workspace` (override with `GH_COPILOT_WORKSPACE`).
+  Example overrides:
+    - Windows: `set GH_COPILOT_WORKSPACE=C:\Users\YourName\workspace`
+    - Linux/macOS: `export GH_COPILOT_WORKSPACE=/home/yourname/workspace`
 
 ## Working Directories
 - Canonical scripts live in `scripts/`; files under `scripts/deployment/` are legacy references.
