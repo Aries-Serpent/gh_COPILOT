@@ -11,7 +11,14 @@
 
 > **Note**: Early drafts referenced quantum algorithms and other experimental
 > features, but those components are not implemented. Quantum optimization and
-> other advanced capabilities remain future plans.
+> other advanced capabilities remain future plans. Any mention of dramatic
+> performance increases or quantum speedups refers to planned functionality and
+> is not backed by working code.
+
+The project currently tracks **32** SQLite databases under `databases/`. Claims
+about algorithmic completion rates or optimization should be treated as
+informational placeholders until corresponding implementations and tests are
+available.
 
 ## Deployment Status
 [SUCCESS] All critical issues have been resolved and the environment is ready for professional deployment.
