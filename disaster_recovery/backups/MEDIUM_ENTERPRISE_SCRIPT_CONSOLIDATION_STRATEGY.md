@@ -62,7 +62,7 @@
 ### **6. 📊 MONITORING & OPTIMIZATION** (REQUIRES CONSOLIDATION)
 **Current Scripts:**
 - `enterprise_performance_monitor.py` (scripts/ & scripts/deployment/)
-- `enterprise_performance_monitor_windows.py` (root & core/ & scripts/deployment/)
+- `unified_monitoring_optimization_system.py` (root)
 - `phase4_continuous_optimization_engine.py` (scripts/ & scripts/deployment/)
 - `enterprise_continuous_optimization_engine.py` (core/ & scripts/deployment/)
 - `master_framework_orchestrator.py` (scripts/ & scripts/deployment/ & scripts/regenerated/)
