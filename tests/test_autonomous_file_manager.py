@@ -9,9 +9,13 @@ from core.autonomous_file_manager import (
 )
 
 
-def _setup_db(path: Path) -> None:
-    conn = sqlite3.connect(path)
-    base = path.parent
+import pytest
+
+@pytest.fixture
+def setup_db(tmp_path) -> Path:
+    db_path = tmp_path / "production.db"
+    conn = sqlite3.connect(db_path)
+    base = tmp_path
     conn.execute(
         """
         CREATE TABLE enhanced_script_tracking(
