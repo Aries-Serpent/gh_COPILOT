@@ -72,7 +72,7 @@
 
 ### **7. 🧹 CLEANUP & LEGACY HANDLING** (ACTIVE)
 **Current Scripts:**
-- `LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py` (root)
+- Legacy cleanup tools (e.g., `LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py`)
 - Multiple cleanup scripts in archived directories
 
 **Consolidation Target:** `unified_legacy_cleanup_system.py`

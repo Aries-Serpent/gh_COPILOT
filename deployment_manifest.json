@@ -11,7 +11,8 @@
     "enterprise_json_serialization_fix.py",
     "advanced_analytics_phase4_phase5_enhancement.py",
     "final_deployment_validator.py",
-    "ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py"
+    "ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py",
+    "unified_legacy_cleanup_system.py"
   ],
   "enhancements": [],
   "fixes_applied": [
