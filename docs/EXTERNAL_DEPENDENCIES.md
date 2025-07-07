@@ -7,10 +7,14 @@ The project relies on several external packages and services:
 - **Flask** and related packages: used by the optional web dashboard in `web_gui/`.
 - **tqdm** and **rich**: provide progress bars and colored console output.
 
-Install Python dependencies using:
+Install the core dependencies using:
 
 ```bash
 pip install -r requirements.txt
+
+The `requirements.txt` file groups optional packages under comments (Web GUI,
+Machine Learning, Quantum, etc.). Install only the sections you need by
+selecting the relevant packages.
 ```
 
 For local testing or CI pipelines, use the provided `Makefile`:

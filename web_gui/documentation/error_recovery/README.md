@@ -14,10 +14,10 @@
 - Port binding errors
 
 **Recovery Steps**:
-1. **Check Dependencies**:
+1. **Check Dependencies** (for the web dashboard only):
    ```bash
    pip install flask
-   pip install -r requirements.txt
+   pip install -r requirements.txt  # required only for the dashboard
    ```
 
 2. **Verify Port Availability**:
@@ -245,8 +245,8 @@ cp -r e:/gh_COPILOT e:/gh_COPILOT_backup
 # 3. Restore from known good backup
 python backup_scripts/restore_latest_backup.py
 
-# 4. Reinstall dependencies
-pip install -r web_gui_scripts/requirements.txt
+# 4. Reinstall dashboard dependencies
+pip install -r web_gui_scripts/requirements.txt  # only needed for the dashboard
 
 # 5. Restart all services
 cd web_gui_scripts/flask_apps
@@ -268,9 +268,9 @@ cp e:/gh_COPILOT/production.db e:/gh_COPILOT_fresh/
 mv e:/gh_COPILOT e:/gh_COPILOT_failed
 mv e:/gh_COPILOT_fresh e:/gh_COPILOT
 
-# 4. Reinstall and restart
+# 4. Reinstall and restart (dashboard only)
 cd e:/gh_COPILOT
-pip install -r web_gui_scripts/requirements.txt
+pip install -r web_gui_scripts/requirements.txt  # reinstall dashboard packages
 cd web_gui_scripts/flask_apps
 python enterprise_dashboard.py
 ```

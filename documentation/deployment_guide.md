@@ -20,8 +20,12 @@ source venv_production/bin/activate  # Linux/Mac
 # or
 venv_production\Scripts\activate  # Windows
 
-# Install dependencies
+# Install core dependencies
 pip install -r requirements.txt
+
+# Optional sections in `requirements.txt` contain packages for the web
+# interface, machine learning, and quantum features. Install only those
+# required for your deployment.
 ```
 
 ### 2. Database Configuration

@@ -7,7 +7,7 @@
 
 - [ ] Database backup completed
 - [ ] Configuration files validated
-- [ ] Dependencies installed (pip install -r requirements.txt)
+- [ ] Dependencies installed (pip install -r requirements.txt)  # only if web GUI is needed
 - [ ] Security certificates updated
 - [ ] Monitoring systems ready
 - [ ] Flask template paths configured
@@ -20,9 +20,9 @@
 # Backup current staging
 python backup_scripts/create_backup.py --env staging
 
-# Install dependencies
+# Install dependencies for the dashboard
 cd web_gui_scripts
-pip install -r requirements.txt
+pip install -r requirements.txt  # install only if the web dashboard is required
 
 # Deploy to staging
 python deployment_scripts/deploy_to_staging.py
