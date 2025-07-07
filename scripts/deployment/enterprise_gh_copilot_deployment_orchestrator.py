@@ -347,7 +347,7 @@ class EnterpriseGhCopilotDeploymentOrchestrator:
                     self.deployment_results["total_files_copied"] += 1
             
             # Copy template directories if they exist
-            template_dirs = ["templates", "enterprise_placeholders"]
+            template_dirs = [Path("templates"), Path("templates") / "enterprise_placeholders"]
             for template_dir in template_dirs:
                 source_dir = self.sandbox_path / template_dir
                 if source_dir.exists():
