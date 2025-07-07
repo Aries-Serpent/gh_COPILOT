@@ -439,7 +439,7 @@ class UnifiedEnterpriseDeploymentOrchestrator:
             # Finalize deployment
             self._finalize_deployment()
             
-            logger.info("🎉 UNIFIED DEPLOYMENT COMPLETED SUCCESSFULLY!")
+            logger.info("Unified deployment completed.")
             self.metrics.overall_status = "SUCCESS"
             
         except Exception as e:
@@ -1451,7 +1451,7 @@ def main():
         
         # Display results
         logger.info("=" * 80)
-        logger.info("🎉 UNIFIED DEPLOYMENT COMPLETED!")
+        logger.info("Unified deployment completed.")
         logger.info(f"Status: {result['status']['overall']}")
         logger.info(f"Health Score: {result['status']['health_score']}")
         logger.info(f"Certification: {result['status']['certification']}")
