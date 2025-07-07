@@ -59,7 +59,7 @@
 
 ## Directory Structure
 - core: Core system components
-- databases: about 60 SQLite databases
+- databases: 32 SQLite databases
 - templates: Template Intelligence Platform
 - web_gui: Flask enterprise dashboard
 - scripts: about 440 Python scripts
