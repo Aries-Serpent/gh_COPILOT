@@ -395,7 +395,7 @@ class FinalEfficiencyAchievementEngine:
         
         print(f"📊 FINAL EFFICIENCY: {final_efficiency:.1f}%")
         print(f"🎯 TARGET: 100.0%")
-        print(f"✅ TARGET ACHIEVED: {'YES' if final_efficiency >= 100.0 else 'NO'}")
+        print(f"TARGET ACHIEVED: {'YES' if final_efficiency >= 100.0 else 'NO'}")
         
         if final_efficiency >= 100.0:
             print(f"\nFinal efficiency achieved: 100%")
