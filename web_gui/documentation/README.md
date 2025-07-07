@@ -42,10 +42,10 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 
 ### 🚀 Quick Start
 
-1. **Install Dependencies**:
+1. **Install Dependencies** (only if you plan to use the web dashboard):
    ```bash
    cd web_gui_scripts
-   pip install -r requirements.txt
+   pip install -r requirements.txt  # only install if using the web dashboard
    ```
 
 2. **Start the Flask Dashboard**:

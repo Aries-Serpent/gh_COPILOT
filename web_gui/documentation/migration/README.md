@@ -93,8 +93,8 @@ python -m venv .venv
 source .venv/bin/activate  # Linux/Mac
 # or .venv\Scripts\activate  # Windows
 
-# Install dependencies
-pip install -r ../requirements.txt
+# Install web dashboard dependencies
+pip install -r ../requirements.txt  # install only if migrating the dashboard
 ```
 
 #### Step 2: Database Migration

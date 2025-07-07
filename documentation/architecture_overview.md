@@ -27,8 +27,11 @@ This document provides comprehensive information about architecture overview in 
 ## Installation
 
 ```bash
-# Install dependencies
+# Install core dependencies
 pip install -r requirements.txt
+
+# Optional groups (Web, ML, Quantum, etc.) are commented in
+# `requirements.txt`. Install only those you require.
 
 # Configure system
 python configure_system.py

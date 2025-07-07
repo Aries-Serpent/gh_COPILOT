@@ -27,8 +27,11 @@ This document provides comprehensive information about getting started in the gh
 ## Installation
 
 ```bash
-# Install dependencies
+# Install core dependencies
 pip install -r requirements.txt
+
+# Optional packages are grouped in `requirements.txt`. Install only the
+# sections you need (e.g., Web GUI or ML) by selecting those packages.
 
 # Configure system
 python configure_system.py
