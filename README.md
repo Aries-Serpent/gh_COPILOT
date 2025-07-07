@@ -89,6 +89,8 @@ Many helper scripts live in the `scripts/` folder. An older copy exists under `s
 - `scripts/PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py` – consolidate production databases
 - `scripts/database_organization_manager.py` – maintain schema organization
 
+The primary application database lives in `databases/production.db`. Earlier revisions included a zero-byte `production.db` at the repository root which is no longer needed and has been removed.
+
 ### Disaster Recovery
 - `scripts/disaster_recovery_enhancer.py` – automate backup and restoration
 - `scripts/disaster_recovery_validator.py` – verify disaster recovery procedures
@@ -100,7 +102,7 @@ Many helper scripts live in the `scripts/` folder. An older copy exists under `s
 
 ### Autonomous File Management Usage
 
-The `copilot.core.autonomous_file_manager` module provides database-driven file organization, classification, intelligent backup creation, and workspace optimization. All operations rely on `production.db` for guidance and enforce anti-recursion protection.
+The `copilot.core.autonomous_file_manager` module provides database-driven file organization, classification, intelligent backup creation, and workspace optimization. All operations rely on `databases/production.db` for guidance and enforce anti-recursion protection.
 
 ```python
 from copilot.core.autonomous_file_manager import (
