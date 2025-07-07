@@ -21,7 +21,12 @@ import json
 from datetime import datetime
 from pathlib import Path
 import os
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_development_secret_key')
 
@@ -131,6 +136,7 @@ def deployment_interface():
     return render_template('deployment.html')
 
 @app.route('/api/health')
+@app.route('/health')
 def health_check():
     """[?] Health check endpoint"""
     return jsonify({
@@ -148,4 +154,6 @@ if __name__ == '__main__':
     print("[NETWORK] Starting Enterprise Flask Dashboard...")
     port = int(os.environ.get('FLASK_RUN_PORT', 5000))
     print(f"[CHAIN] Access at: http://localhost:{port}")
+    app.run(debug=True, host='0.0.0.0', port=port)
+
     app.run(host='0.0.0.0', port=port)
