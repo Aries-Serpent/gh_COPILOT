@@ -104,7 +104,7 @@ class UnifiedDeploymentConfig:
     """🔧 Unified deployment configuration combining all orchestrator features"""
     
     # Core deployment settings
-    source_workspace: str = str(get_workspace_root())
+    source_workspace: str = field(default_factory=lambda: str(get_workspace_root()))
     deployment_mode: DeploymentMode = DeploymentMode.SANDBOX
     target_base: str = "E:\\"
     
