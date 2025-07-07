@@ -936,7 +936,11 @@ class UnifiedEnterpriseDeploymentOrchestrator:
         return deployed_count > 0
     
     def _deploy_quantum_algorithms(self) -> bool:
-        """⚛️ Phase 11: Deploy quantum optimization algorithms"""
+        """⚛️ Phase 11: Deploy quantum optimization algorithms
+
+        NOTE: This phase only creates placeholder files. No real quantum
+        optimization logic is implemented yet.
+        """
         
         if not self.config.enable_quantum_optimization:
             logger.info("⏩ Quantum optimization disabled")
@@ -957,7 +961,8 @@ class UnifiedEnterpriseDeploymentOrchestrator:
         quantum_stub = '''#!/usr/bin/env python3
 """
 ⚛️ Quantum Optimization Algorithm Stub
-This is a placeholder for future quantum algorithm implementation
+This file is generated automatically.
+STUB: Quantum optimization logic is not implemented.
 """
 
 class QuantumOptimizer:
