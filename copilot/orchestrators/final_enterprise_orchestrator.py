@@ -177,14 +177,14 @@ class FinalEnterpriseOrchestrator:
                 'cwd': str(self.workspace_root)
             },
             {
-                'name': 'Advanced Analytics Engine',
-                'script': 'advanced_analytics_phase4_phase5_enhancement.py',
+                'name': 'Monitoring & Optimization System',
+                'script': 'unified_monitoring_optimization_system.py',
                 'port': None,
                 'cwd': str(self.workspace_root)
             },
             {
-                'name': 'Continuous Optimization Engine',
-                'script': 'core/enterprise_continuous_optimization_engine.py',
+                'name': 'Monitoring & Optimization System',
+                'script': 'unified_monitoring_optimization_system.py',
                 'port': None,
                 'cwd': str(self.workspace_root)
             },

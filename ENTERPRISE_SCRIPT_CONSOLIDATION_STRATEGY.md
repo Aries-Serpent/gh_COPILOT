@@ -63,8 +63,6 @@
 **Current Scripts:**
 - `enterprise_performance_monitor.py` (scripts/ & scripts/deployment/)
 - `unified_monitoring_optimization_system.py` (root)
-- `phase4_continuous_optimization_engine.py` (scripts/ & scripts/deployment/)
-- `enterprise_continuous_optimization_engine.py` (core/ & scripts/deployment/)
 - `master_framework_orchestrator.py` (scripts/ & scripts/deployment/ & scripts/regenerated/)
 - `final_enterprise_orchestrator.py` (root)
 

@@ -61,10 +61,10 @@ def validate_deployment_structure():
     core_components = [
         "template_intelligence_platform.py",
         "enterprise_performance_monitor_windows.py",
+        "unified_monitoring_optimization_system.py",
         "enterprise_unicode_compatibility_fix.py",
         "enterprise_json_serialization_fix.py",
-        "advanced_analytics_phase4_phase5_enhancement.py",
-        "enterprise_continuous_optimization_engine.py",
+        "phase5_advanced_ai_integration.py",
         "final_deployment_validator.py",
         "ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py"
     ]
