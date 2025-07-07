@@ -1,0 +1,32 @@
+2025-07-06 20:36:28,649 - __main__ - INFO - [LAUNCH] ADVANCED AUTONOMOUS FRAMEWORK 7-PHASE SCOPE INITIALIZED
+2025-07-06 20:36:28,649 - __main__ - INFO - [BAR_CHART] Framework Version: 7.0.0-enterprise
+2025-07-06 20:36:28,649 - __main__ - INFO - [?] Timestamp: 20250706_203628
+2025-07-06 20:36:28,649 - __main__ - INFO - [LAUNCH] Starting Advanced Autonomous Framework 7-Phase Scope Generation...
+2025-07-06 20:36:28,649 - __main__ - INFO - [SEARCH] Generating comprehensive 7-phase scope report...
+2025-07-06 20:36:28,649 - __main__ - INFO - [SUCCESS] Comprehensive scope report generated successfully
+2025-07-06 20:36:28,655 - __main__ - ERROR - [ERROR] Error saving scope report: Object of type PhaseSpec is not JSON serializable
+2025-07-06 20:36:28,658 - __main__ - ERROR - [ERROR] SCOPE GENERATION FAILED: Object of type PhaseSpec is not JSON serializable
+2025-07-06 20:49:03,835 - __main__ - INFO - [LAUNCH] ADVANCED AUTONOMOUS FRAMEWORK 7-PHASE SCOPE INITIALIZED
+2025-07-06 20:49:03,837 - __main__ - INFO - [BAR_CHART] Framework Version: 7.0.0-enterprise
+2025-07-06 20:49:03,837 - __main__ - INFO - [?] Timestamp: 20250706_204903
+2025-07-06 20:49:03,837 - __main__ - INFO - [LAUNCH] Starting Advanced Autonomous Framework 7-Phase Scope Generation...
+2025-07-06 20:49:03,837 - __main__ - INFO - [SEARCH] Generating comprehensive 7-phase scope report...
+2025-07-06 20:49:03,837 - __main__ - INFO - [SUCCESS] Comprehensive scope report generated successfully
+2025-07-06 20:49:03,837 - __main__ - ERROR - [ERROR] Error saving scope report: Object of type PhaseSpec is not JSON serializable
+2025-07-06 20:49:03,837 - __main__ - ERROR - [ERROR] SCOPE GENERATION FAILED: Object of type PhaseSpec is not JSON serializable
+2025-07-06 20:55:03,583 - __main__ - INFO - [LAUNCH] ADVANCED AUTONOMOUS FRAMEWORK 7-PHASE SCOPE INITIALIZED
+2025-07-06 20:55:03,583 - __main__ - INFO - [BAR_CHART] Framework Version: 7.0.0-enterprise
+2025-07-06 20:55:03,583 - __main__ - INFO - [?] Timestamp: 20250706_205503
+2025-07-06 20:55:03,583 - __main__ - INFO - [LAUNCH] Starting Advanced Autonomous Framework 7-Phase Scope Generation...
+2025-07-06 20:55:03,583 - __main__ - INFO - [SEARCH] Generating comprehensive 7-phase scope report...
+2025-07-06 20:55:03,583 - __main__ - INFO - [SUCCESS] Comprehensive scope report generated successfully
+2025-07-06 20:55:03,583 - __main__ - ERROR - [ERROR] Error saving scope report: Object of type PhaseSpec is not JSON serializable
+2025-07-06 20:55:03,583 - __main__ - ERROR - [ERROR] SCOPE GENERATION FAILED: Object of type PhaseSpec is not JSON serializable
+2025-07-06 21:12:59,728 - __main__ - INFO - [LAUNCH] ADVANCED AUTONOMOUS FRAMEWORK 7-PHASE SCOPE INITIALIZED
+2025-07-06 21:12:59,728 - __main__ - INFO - [BAR_CHART] Framework Version: 7.0.0-enterprise
+2025-07-06 21:12:59,728 - __main__ - INFO - [?] Timestamp: 20250706_211259
+2025-07-06 21:12:59,728 - __main__ - INFO - [LAUNCH] Starting Advanced Autonomous Framework 7-Phase Scope Generation...
+2025-07-06 21:12:59,728 - __main__ - INFO - [SEARCH] Generating comprehensive 7-phase scope report...
+2025-07-06 21:12:59,728 - __main__ - INFO - [SUCCESS] Comprehensive scope report generated successfully
+2025-07-06 21:12:59,728 - __main__ - ERROR - [ERROR] Error saving scope report: Object of type PhaseSpec is not JSON serializable
+2025-07-06 21:12:59,728 - __main__ - ERROR - [ERROR] SCOPE GENERATION FAILED: Object of type PhaseSpec is not JSON serializable
