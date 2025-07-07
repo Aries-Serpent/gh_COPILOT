@@ -681,8 +681,7 @@ class UnifiedEnterpriseDeploymentOrchestrator:
             "enterprise_performance_monitor_windows.py": "Performance Monitor",
             "enterprise_unicode_compatibility_fix.py": "Unicode Compatibility",
             "enterprise_json_serialization_fix.py": "JSON Serialization",
-            "advanced_analytics_phase4_phase5_enhancement.py": "Advanced Analytics",
-            "enterprise_continuous_optimization_engine.py": "Optimization Engine",
+            "unified_monitoring_optimization_system.py": "Monitoring & Optimization",
             "final_deployment_validator.py": "Deployment Validator",
             "ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py": "Autonomous Framework",
             "efficiency_optimization_engine_100_percent.py": "Efficiency Optimizer",
@@ -999,8 +998,7 @@ class QuantumOptimizer:
         
         # Phase 4 & 5 components
         phase_components = [
-            "advanced_analytics_phase4_phase5_enhancement.py",
-            "phase4_continuous_optimization.py",
+            "unified_monitoring_optimization_system.py",
             "phase5_advanced_ai_integration.py",
             "continuous_operation_monitor.py"
         ]

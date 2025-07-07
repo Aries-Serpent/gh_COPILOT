@@ -110,14 +110,14 @@ class EnterpriseOrchestrator:
                 timeout=30
             ),
             'advanced_analytics': ServiceConfig(
-                name='Advanced Analytics Engine',
-                script_path='core/advanced_analytics_phase4_phase5_enhancement.py',
+                name='Monitoring & Optimization System',
+                script_path='unified_monitoring_optimization_system.py',
                 critical=True,
                 timeout=45
             ),
             'continuous_optimization': ServiceConfig(
-                name='Continuous Optimization Engine',
-                script_path='core/enterprise_continuous_optimization_engine.py',
+                name='Monitoring & Optimization System',
+                script_path='unified_monitoring_optimization_system.py',
                 critical=True,
                 timeout=30
             ),

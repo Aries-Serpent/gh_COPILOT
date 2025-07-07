@@ -165,12 +165,12 @@ class FinalDeploymentValidator:
         """Validate advanced analytics enhancement"""
         logger.info("Validating analytics enhancement...")
         
-        analytics_path = self.workspace_path / "advanced_analytics_phase4_phase5_enhancement.py"
+        analytics_path = self.workspace_path / "unified_monitoring_optimization_system.py"
         
         if not analytics_path.exists():
             self.validation_results["issues_found"].append({
                 "type": "analytics_enhancement",
-                "error": "Advanced analytics enhancement not found",
+                "error": "Monitoring & optimization system not found",
                 "severity": "medium"
             })
             return False

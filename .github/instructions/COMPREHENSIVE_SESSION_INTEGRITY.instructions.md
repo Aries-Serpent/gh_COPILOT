@@ -33,7 +33,7 @@ The gh_COPILOT Enterprise Toolkit has achieved exceptional results:
 python emergency_c_temp_violation_prevention.py --emergency-cleanup
 
 # NEW: Phase 4 & Phase 5 validation
-python phase4_continuous_optimization_engine.py --validate-session
+python unified_monitoring_optimization_system.py --validate-session
 python phase5_advanced_ai_integration.py --validate-excellence
 
 # NEW: Continuous operation mode validation
