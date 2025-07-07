@@ -21,6 +21,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 import os
+import logging
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_development_secret_key')
@@ -143,20 +144,3 @@ if __name__ == '__main__':
     print("[NETWORK] Starting Enterprise Flask Dashboard...")
     print("[CHAIN] Access at: http://localhost:5000")
     app.run(debug=True, host='0.0.0.0', port=5000)
-=======
-from flask import Flask, jsonify
-import os
-
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return 'Enterprise Dashboard'
-
-@app.route('/health')
-def health():
-    return jsonify(status='ok')
-
-if __name__ == '__main__':
-    port = int(os.environ.get('FLASK_RUN_PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
