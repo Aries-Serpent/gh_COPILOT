@@ -11,6 +11,7 @@ Due to terminal execution issues, here are manual startup instructions for all e
    pip install flask flask-socketio psutil
    ```
 3. **Working Directory**: Navigate to the project root: `e:\_COPILOT`
+4. **Generate Dashboard Script**: Run `python web_gui/database_driven_web_gui_generator.py` to create `web_gui_scripts/flask_apps/enterprise_dashboard.py`
 
 ## Service Startup Commands
 
@@ -38,7 +39,7 @@ python file_browser_websocket.py
 python copilot_cli_relay_websocket.py
 
 # Terminal 7 - Enterprise Dashboard
-python enterprise_dashboard.py
+python web_gui_scripts/flask_apps/enterprise_dashboard.py
 ```
 
 ### Method 2: Batch Startup Scripts
