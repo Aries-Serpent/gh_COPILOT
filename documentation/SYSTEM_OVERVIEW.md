@@ -59,10 +59,10 @@
 
 ## Directory Structure
 - core: Core system components
-- databases: 73 enterprise databases
+- databases: about 60 SQLite databases
 - templates: Template Intelligence Platform
 - web_gui: Flask enterprise dashboard
-- scripts: 743 intelligent scripts
+- scripts: about 440 Python scripts
 - optimization: Continuous optimization engine
 - documentation: Complete enterprise documentation
 - deployment: Installation and configuration

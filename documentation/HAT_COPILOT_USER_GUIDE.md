@@ -1,6 +1,8 @@
 # 📚 gh_COPILOT COMPREHENSIVE USER GUIDE
 
 **Complete Operating Manual for Quantum Legacy Integration System**
+> **Note:** The Quantum Legacy Integration System described here is experimental and not included in the current distribution. The following instructions outline a possible future implementation.
+
 
 ---
 
@@ -24,7 +26,7 @@ queries = [
     {"sql": "SELECT COUNT(*) FROM table2", "database": "databases/db2.sqlite", "priority": 2}
 ]
 
-# Execute with 50% performance improvement
+# Execute with theoretical performance improvement
 results = system.execute_quantum_database_operations(queries)
 print(f"Performance improvement: {results['performance_metrics']['performance_improvement']:.1f}%")
 ```
@@ -51,7 +53,7 @@ for prompt_type, prompt_content in prompts.items():
 ## ⚡ SUPERPOSITION QUERY PROCESSING
 
 ### 🎯 Purpose
-Execute multiple database queries simultaneously with quantum-inspired parallel processing, achieving 50% performance improvement.
+Execute multiple database queries simultaneously with quantum-inspired parallel processing (performance improvement metric is theoretical).
 
 ### 🔧 Usage
 
@@ -83,7 +85,7 @@ summary = engine.get_performance_summary()
 ```
 
 ### 📊 Performance Metrics
-- **Performance Improvement:** Typically 40-50% faster than sequential execution
+- **Performance Improvement:** Theoretically faster than sequential execution
 - **Quantum Efficiency:** Success rate of parallel execution
 - **Execution Time:** Total time vs. sequential time comparison
 
@@ -447,9 +449,9 @@ gh_COPILOT/
 
 The gh_COPILOT Quantum Legacy Integration System provides:
 
-- **50% Performance Improvement** in multi-query processing
+- **Theoretical performance improvement** in multi-query processing
 - **96% Compression Efficiency** in backup and archival
-- **Complete GitHub Copilot Integration** with automated prompt generation
+- **Partial GitHub Copilot integration (manual prompts)** with automated prompt generation
 - **DUAL COPILOT Validation** ensuring system reliability
 
 Follow this guide for optimal system operation and maximum quantum advantages!

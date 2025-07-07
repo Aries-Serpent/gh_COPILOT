@@ -136,6 +136,7 @@ def deployment_interface():
     return render_template('deployment.html')
 
 @app.route('/api/health')
+@app.route('/health')
 def health_check():
     """[?] Health check endpoint"""
     return jsonify({
@@ -148,3 +149,16 @@ if __name__ == '__main__':
     logging.info("[NETWORK] Starting Enterprise Flask Dashboard...")
     logging.info("[CHAIN] Access at: http://localhost:5000")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+# Simplified health endpoint used by automated tests
+@app.route('/health')
+def health_root():
+    return jsonify(status="ok")
+
+if __name__ == '__main__':
+    print("[NETWORK] Starting Enterprise Flask Dashboard...")
+    port = int(os.environ.get('FLASK_RUN_PORT', 5000))
+    print(f"[CHAIN] Access at: http://localhost:{port}")
+    app.run(debug=True, host='0.0.0.0', port=port)
+
+    app.run(host='0.0.0.0', port=port)
