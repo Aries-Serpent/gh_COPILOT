@@ -187,7 +187,7 @@ class MonitoringOptimizationConsolidationExecutor:
         }
         
         # Write manifest to file
-        with open(MANIFEST_FILE, 'w') as f:
+        with open(MANIFEST_FILE, "w", encoding="utf-8") as f:
             json.dump(manifest, f, indent=2)
         
         logger.info(f"Manifest written to {MANIFEST_FILE}")
