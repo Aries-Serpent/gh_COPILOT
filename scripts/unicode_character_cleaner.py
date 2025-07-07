@@ -99,19 +99,19 @@ class UnicodeCharacterCleaner:
             '[STAR_EMOJI]': '[STAR]',
             '[CIRCUS_EMOJI]': '[CIRCUS]',
             # Smart quotes and dashes
-            '"': '"',
-            '"': '"',
-            '''''''''': '-',
-            '': '--',
-            '': '...',
+            '“': '"',
+            '”': '"',
+            '—': '-',
+            '–': '--',
+            '…': '...',
             # Other common Unicode characters
-            '': '(c)',
-            '': '(r)',
-            '': '(tm)',
-            '': ' degrees',
-            '': '+/-',
-            '': 'x',
-            '': '/',
+            '©': '(c)',
+            '®': '(r)',
+            '™': '(tm)',
+            '°': ' degrees',
+            '±': '+/-',
+            '×': 'x',
+            '÷': '/',
         }
         
         # Apply replacements

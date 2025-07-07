@@ -456,7 +456,7 @@ class MediaBackupManager:
         self.local_media_path = '/app/media'
     
     def backup_media_files(self):
-        """Backup all media files to S3"""
+        '''Backup all media files to S3'''
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         for root, dirs, files in os.walk(self.local_media_path):
@@ -472,7 +472,7 @@ class MediaBackupManager:
                     print(f"[ERROR] Failed to upload {relative_path}: {e}")
     
     def restore_media_files(self, backup_timestamp):
-        """Restore media files from specific backup"""
+        '''Restore media files from specific backup'''
         prefix = f"media_backup_{backup_timestamp}/"
         
         response = self.s3_client.list_objects_v2(
@@ -609,7 +609,7 @@ class BackupValidator:
         self.backup_file = backup_file
     
     def validate_database_backup(self):
-        """Validate database backup integrity"""
+        '''Validate database backup integrity'''
         try:
             # Create temporary database for validation
             temp_db = f"backup_test_{int(time.time())}"
@@ -640,7 +640,7 @@ class BackupValidator:
             return False
     
     def generate_validation_report(self):
-        """Generate backup validation report"""
+        '''Generate backup validation report'''
         report = {
             "backup_file": self.backup_file,
             "validation_time": datetime.now().isoformat(),
@@ -1250,7 +1250,7 @@ class IntegrationTester:
         self.config = integration_config
     
     def test_api_connectivity(self):
-        """Test external API connectivity"""
+        '''Test external API connectivity'''
         try:
             response = requests.get(
                 f"{{self.config['endpoint']}}/health",
@@ -1261,7 +1261,7 @@ class IntegrationTester:
             return False
     
     def test_webhook_delivery(self):
-        """Test webhook delivery mechanism"""
+        '''Test webhook delivery mechanism'''
         test_payload = {{
             "event": "test_event",
             "timestamp": "2025-01-02T00:00:00Z",
