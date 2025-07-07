@@ -11,6 +11,9 @@ This is the **gh_COPILOT Enterprise Toolkit**, a collection of deployment and ma
 - **Algorithm Performance:** modest improvements over baseline
 - **Template Completion:** automation scripts demonstrate partial coverage
 - **Quantum Optimization:** planned feature (not implemented)
+- **Quantum Optimizer Stubs:** the `QuantumOptimizer` class and the
+  `_deploy_quantum_algorithms()` method are placeholders with no real
+  quantum functionality
 - **Enterprise Systems:** monitoring and validation modules operational
 - **Security Compliance:** Anti-recursion, zero-byte protection, DUAL COPILOT pattern
 - **Performance Monitoring:** monitoring scripts available
@@ -42,6 +45,7 @@ This is the **gh_COPILOT Enterprise Toolkit**, a collection of deployment and ma
 
 - These items describe aspirational functionality and are not part of the current release.
 - **Quantum Algorithm Optimization**: superposition and entanglement processing (not implemented)
+- **Quantum Optimizer Stubs:** `QuantumOptimizer` and related functions are present only as illustrative placeholders
 - **Ultra-Aggressive Template Completion**: target completion rate subject to future development
 - **Real-time Performance Monitoring**: conceptual self-learning analytics
 - **Substantial Algorithm Boost**: planned quantum-inspired performance enhancements
@@ -142,6 +146,9 @@ print(f"Algorithm Boost: {result['algorithm_boost']}%")
 ```python
 from quantum_algorithm_optimizer import QuantumAlgorithmOptimizer
 
+# NOTE: QuantumAlgorithmOptimizer is a stub. This example illustrates
+# planned functionality and will not perform real quantum optimization.
+
 # Run quantum-inspired optimization
 optimizer = QuantumAlgorithmOptimizer()
 results = optimizer.optimize(
@@ -176,6 +183,8 @@ print(f"Zero-byte Protection: {validation['zero_byte_protection']}")
 - **Quality Score:** stable baseline
 ### Planned Quantum Optimization
 - The following metrics describe aspirational features and are not active in the current release.
+- **Note:** `QuantumOptimizer` and other quantum-related functions are stubs and
+  currently perform no real optimization.
 - **Superposition Enhancement:** concept only
 - **Entanglement Optimization:** concept only
 - **Coherence Stability:** concept only

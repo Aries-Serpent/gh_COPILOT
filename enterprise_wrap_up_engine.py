@@ -170,8 +170,12 @@ class EnterpriseWrapUpEngine:
         }
     
     def check_quantum_integration(self) -> Dict[str, Any]:
-        """⚛️ Check quantum optimization integration"""
-        
+        """⚛️ Check quantum optimization integration
+
+        NOTE: This function only searches for placeholder files. Quantum
+        optimization has not been implemented yet.
+        """
+
         # Check for quantum-related files
         quantum_files = list(self.workspace_root.glob("**/*quantum*.py"))
         
