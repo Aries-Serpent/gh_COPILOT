@@ -49,7 +49,13 @@ class DatabaseDrivenWebGUIGenerator:
         
         # Database-discovered patterns from analysis
         self.discovered_patterns = {
-            "web_templates": ["dashboard.html", "certification.html", "database.html", "deployment_wizard.html"],
+            "web_templates": [
+                "dashboard.html",
+                "database.html",
+                "deployment.html",
+                "migration.html",
+                "backup_restore.html",
+            ],
             "dashboard_components": ["ExecutiveDashboardUnifier", "EnterpriseDatabaseDashboardManager"],
             "html_generation": ["generate_html_dashboard", "generate_test_report"],
             "template_patterns": ["Template Generation Pattern", "template creation and generation infrastructure"]

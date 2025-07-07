@@ -43,9 +43,10 @@ class WebGUICompletionReporter:
             "patterns_discovered": {
                 "web_templates": [
                     "dashboard.html",
-                    "certification.html", 
                     "database.html",
-                    "deployment_wizard.html"
+                    "deployment.html",
+                    "migration.html",
+                    "backup_restore.html"
                 ],
                 "dashboard_components": [
                     "ExecutiveDashboardUnifier",
