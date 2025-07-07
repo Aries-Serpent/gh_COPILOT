@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
-"""
-🎯 ENTERPRISE WRAP-UP ENGINE - 100% EFFICIENCY CERTIFICATION
-========================================================
+"""Enterprise Wrap-Up Engine
+===========================
 
-DUAL COPILOT PATTERN: Primary Executor + Secondary Validator
-- Comprehensive project wrap-up validation
-- 100% efficiency certification and documentation
-- Enterprise compliance reporting
-- Final deployment readiness confirmation
-
-MANDATE: Complete wrap-up process with visual indicators and database validation
+Handles project wrap-up validation and reporting. This module consolidates
+final metrics and ensures compliance checks are performed before deployment.
 """
 
 import os
@@ -21,27 +15,12 @@ import time
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from tqdm import tqdm
-import logging
+from common.logging_utils import setup_logging
 
-# Configure enterprise logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('enterprise_wrap_up.log'),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
+logger = setup_logging(Path('enterprise_wrap_up.log'))
 
 class EnterpriseWrapUpEngine:
-    """
-    🎯 Enterprise Wrap-Up Engine - 100% Efficiency Certification
-    
-    DUAL COPILOT PATTERN IMPLEMENTATION:
-    - Primary Executor: Comprehensive wrap-up validation
-    - Secondary Validator: Quality assurance and compliance
-    """
+    """Engine responsible for final wrap-up validation and reporting."""
     
     def __init__(self):
         self.start_time = datetime.datetime.now()
@@ -50,8 +29,8 @@ class EnterpriseWrapUpEngine:
         self.validation_results = {}
         self.final_metrics = {}
         
-        # Initialize enterprise logging
-        logger.info(f"🚀 ENTERPRISE WRAP-UP ENGINE INITIATED")
+        # Initialize logging
+        logger.info("Enterprise wrap-up engine initiated")
         logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"Process ID: {self.process_id}")
         logger.info(f"Workspace: {self.workspace_root}")
@@ -86,8 +65,8 @@ class EnterpriseWrapUpEngine:
         return compliance_score >= 95
     
     def validate_efficiency_achievement(self) -> Dict[str, Any]:
-        """📊 Validate 100% efficiency achievement"""
-        logger.info("📊 VALIDATING 100% EFFICIENCY ACHIEVEMENT...")
+        """Validate efficiency based on recent reports."""
+        logger.info("Validating efficiency achievement...")
         
         # Load latest efficiency reports
         efficiency_reports = []
@@ -108,7 +87,7 @@ class EnterpriseWrapUpEngine:
             # Apply enterprise-grade calibration
             certified_efficiency = min(final_efficiency * calibration_multiplier, 100.0)
         else:
-            certified_efficiency = 100.0  # Default to 100% if reports exist
+            certified_efficiency = final_efficiency
         
         efficiency_achievement = {
             'certified_efficiency': certified_efficiency,
@@ -247,7 +226,7 @@ class EnterpriseWrapUpEngine:
         final_report = {
             'project_info': {
                 'project_name': 'gh_COPILOT Enterprise Environment Optimization',
-                'objective': 'Raise efficiency from 86.3% to 100%',
+                'objective': 'Increase efficiency from 86.3% toward 100%',
                 'start_date': '2025-07-06',
                 'completion_date': end_time.strftime('%Y-%m-%d'),
                 'total_duration': str(duration),
@@ -323,32 +302,32 @@ class EnterpriseWrapUpEngine:
             return ""
     
     def display_wrap_up_summary(self, report: Dict[str, Any]):
-        """📊 Display comprehensive wrap-up summary"""
-        print("\n" + "="*80)
-        print("🎯 ENTERPRISE WRAP-UP SUMMARY - 100% EFFICIENCY CERTIFICATION")
-        print("="*80)
+        """Display wrap-up summary"""
+        print("\n" + "="*60)
+        print("Enterprise Wrap-Up Summary")
+        print("="*60)
         
         # Project Achievement
         achievement = report['achievement_summary']
-        print(f"\n🏆 PROJECT ACHIEVEMENT:")
-        print(f"   ✅ Target Efficiency: {achievement['target_efficiency']}%")
-        print(f"   ✅ Achieved Efficiency: {achievement['achieved_efficiency']}%")
-        print(f"   ✅ Improvement: +{achievement['efficiency_improvement']}%")
-        print(f"   ✅ Status: {achievement['achievement_status']}")
+        print("\nProject Achievement:")
+        print(f"  Target Efficiency: {achievement['target_efficiency']}%")
+        print(f"  Achieved Efficiency: {achievement['achieved_efficiency']}%")
+        print(f"  Improvement: +{achievement['efficiency_improvement']}%")
+        print(f"  Status: {achievement['achievement_status']}")
         
         # Enterprise Certifications
         certifications = report['enterprise_certifications']
-        print(f"\n🏢 ENTERPRISE CERTIFICATIONS:")
-        print(f"   ✅ Anti-Recursion: {certifications['anti_recursion_compliance']}")
-        print(f"   ✅ Enterprise Compliance: {certifications['enterprise_compliance']}")
-        print(f"   ✅ Certification Level: {certifications['certification_level']}")
+        print("\nEnterprise Certifications:")
+        print(f"  Anti-Recursion: {certifications['anti_recursion_compliance']}")
+        print(f"  Enterprise Compliance: {certifications['enterprise_compliance']}")
+        print(f"  Certification Level: {certifications['certification_level']}")
         
         # System Health
         health = report['system_health']
-        print(f"\n📊 SYSTEM HEALTH:")
-        print(f"   ✅ Databases: {health['database_count']}")
-        print(f"   ✅ Scripts: {health['script_count']}")
-        print(f"   ✅ Reports: {health['report_count']}")
+        print("\nSystem Health:")
+        print(f"  Databases: {health['database_count']}")
+        print(f"  Scripts: {health['script_count']}")
+        print(f"  Reports: {health['report_count']}")
         print(f"   ✅ Workspace Size: {health['workspace_size_mb']} MB")
         
         # Deployment Readiness
@@ -368,7 +347,7 @@ class EnterpriseWrapUpEngine:
         # Define wrap-up phases
         phases = [
             ("Anti-Recursion Compliance", "Validating anti-recursion compliance"),
-            ("Efficiency Achievement", "Validating 100% efficiency achievement"),
+            ("Efficiency Achievement", "Validating efficiency achievement"),
             ("Enterprise Compliance", "Validating enterprise compliance standards"),
             ("Final Report Generation", "Generating comprehensive wrap-up report"),
             ("Report Saving", "Saving wrap-up report to file"),
