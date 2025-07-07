@@ -110,7 +110,7 @@ python migration_scripts/verify_database.py \
 #### Step 3: Application Migration
 ```bash
 # Copy web GUI components
-cp -r e:/gh_COPILOT/web_gui_scripts e:/gh_COPILOT/
+cp -r e:/gh_COPILOT/web_gui/scripts e:/gh_COPILOT/
 cp -r e:/gh_COPILOT/templates e:/gh_COPILOT/
 cp -r e:/gh_COPILOT/web_gui_documentation e:/gh_COPILOT/
 
@@ -122,7 +122,7 @@ python migration_scripts/update_config_paths.py \
 #### Step 4: Validation
 ```bash
 # Start staging application
-cd e:/gh_COPILOT/web_gui_scripts/flask_apps
+cd e:/gh_COPILOT/web_gui/scripts/flask_apps
 python enterprise_dashboard.py &
 
 # Run validation tests
@@ -155,7 +155,7 @@ python migration_scripts/deploy_to_production.py \
 #### Step 3: Production Validation
 ```bash
 # Start production services
-cd e:/_copilot_production/web_gui_scripts/flask_apps
+cd e:/_copilot_production/web_gui/scripts/flask_apps
 python enterprise_dashboard.py &
 
 # Run production validation
@@ -214,7 +214,7 @@ python migration_scripts/cross_platform_migrate.py \
   --platform-conversion
 
 # Fix file permissions (Linux)
-chmod +x /opt/copilot/production/web_gui_scripts/flask_apps/*.py
+chmod +x /opt/copilot/production/web_gui/scripts/flask_apps/*.py
 ```
 
 ### Database Schema Migration
@@ -274,7 +274,7 @@ python backup_scripts/restore_backup.py \
   --target e:/_copilot_production
 
 # Restart services
-cd e:/_copilot_production/web_gui_scripts/flask_apps
+cd e:/_copilot_production/web_gui/scripts/flask_apps
 python enterprise_dashboard.py
 ```
 

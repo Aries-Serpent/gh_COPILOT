@@ -39,7 +39,7 @@ applyTo: '**'
 ### 🌐 **WEB-GUI ENTERPRISE DEPLOYMENT**
 
 **Flask Enterprise Dashboard (PRODUCTION READY):**
-- **Location**: `web_gui_scripts/flask_apps/enterprise_dashboard.py`
+- **Location**: `web_gui/scripts/flask_apps/enterprise_dashboard.py`
 - **Endpoints**: 7 production-ready API endpoints
 - **Templates**: 5 responsive HTML templates (100% coverage)
 - **Database Integration**: Real-time metrics from production.db
@@ -48,7 +48,7 @@ applyTo: '**'
 
 **Web Interface Components:**
 ```
-├── web_gui_scripts/
+├── web_gui/scripts/
 │   ├── flask_apps/enterprise_dashboard.py (7 endpoints)
 │   └── requirements.txt (Flask dependencies)
 ├── templates/html/ (5 responsive templates)

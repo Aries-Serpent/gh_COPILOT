@@ -38,7 +38,7 @@ class DatabaseDrivenWebGUIGenerator:
         self.enhanced_intelligence_db_path = self.workspace_path / "enhanced_intelligence.db"
         
         # [TARGET] VISUAL PROCESSING INDICATOR: Web-GUI Generator Initialization
-        self.web_scripts_path = self.workspace_path / "web_gui_scripts"
+        self.web_scripts_path = self.workspace_path / "web_gui/scripts"
         self.templates_path = self.workspace_path / "templates"
         self.documentation_path = self.workspace_path / "web_gui_documentation"
         
@@ -797,7 +797,7 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 ### [NETWORK] Web GUI Components
 
 #### Flask Dashboard Application
-- **File**: `web_gui_scripts/flask_apps/enterprise_dashboard.py`
+- **File**: `web_gui/scripts/flask_apps/enterprise_dashboard.py`
 - **Features**: Executive dashboard, database management, real-time metrics
 - **Access**: http://localhost:5000
 
@@ -821,7 +821,7 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 
 1. **Start the Flask Dashboard**:
    ```bash
-   cd web_gui_scripts/flask_apps
+   cd web_gui/scripts/flask_apps
    python enterprise_dashboard.py
    ```
 

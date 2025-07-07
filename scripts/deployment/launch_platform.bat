@@ -37,7 +37,7 @@ if %choice%==2 (
     echo 🌐 Launching Enterprise Dashboard...
     echo Dashboard will be available at: http://localhost:5001
     echo.
-    cd web_gui_scripts\flask_apps
+    cd web_gui\scripts\flask_apps
     Q:/python_venv/.venv_clean/Scripts/python.exe enterprise_dashboard.py
 )
 
@@ -62,7 +62,7 @@ if %choice%==5 (
     echo Critical Files:
     if exist enhanced_analytics_intelligence_platform.py (echo ✅ Main Platform: Found) else (echo ❌ Main Platform: Missing)
     if exist enterprise_business_rules_customization.py (echo ✅ Business Rules: Found) else (echo ❌ Business Rules: Missing)
-    if exist web_gui_scripts\flask_apps\enterprise_dashboard.py (echo ✅ Enterprise Dashboard: Found) else (echo ❌ Enterprise Dashboard: Missing)
+    if exist web_gui\scripts\flask_apps\enterprise_dashboard.py (echo ✅ Enterprise Dashboard: Found) else (echo ❌ Enterprise Dashboard: Missing)
     echo.
     echo Configuration Files:
     if exist enterprise_deployment\active_customization_config.json (echo ✅ Active Config: Found) else (echo ❌ Active Config: Missing)

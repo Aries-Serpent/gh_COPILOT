@@ -21,7 +21,7 @@
 python backup_scripts/create_backup.py --env staging
 
 # Install dependencies for the dashboard
-cd web_gui_scripts
+cd web_gui/scripts
 pip install -r requirements.txt  # install only if the web dashboard is required
 
 # Deploy to staging
@@ -40,7 +40,7 @@ python validation_scripts/pre_production_check.py
 python deployment_scripts/deploy_to_production.py
 
 # Start Flask application
-cd web_gui_scripts/flask_apps
+cd web_gui/scripts/flask_apps
 python enterprise_dashboard.py
 
 # Post-deployment verification
@@ -50,7 +50,7 @@ python validation_scripts/post_production_check.py
 ### 3. Flask Application Deployment
 ```bash
 # Production deployment with Gunicorn
-cd web_gui_scripts/flask_apps
+cd web_gui/scripts/flask_apps
 gunicorn -w 4 -b 0.0.0.0:5000 enterprise_dashboard:app
 
 # Or with Waitress (Windows-friendly)

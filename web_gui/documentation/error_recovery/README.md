@@ -227,7 +227,7 @@ ls -la e:/gh_COPILOT/production.db
 ls -la e:/gh_COPILOT/templates/html/
 
 # 3. Restart services
-cd e:/gh_COPILOT/web_gui_scripts/flask_apps
+cd e:/gh_COPILOT/web_gui/scripts/flask_apps
 python enterprise_dashboard.py
 
 # 4. Verify functionality
@@ -246,10 +246,10 @@ cp -r e:/gh_COPILOT e:/gh_COPILOT_backup
 python backup_scripts/restore_latest_backup.py
 
 # 4. Reinstall dashboard dependencies
-pip install -r web_gui_scripts/requirements.txt  # only needed for the dashboard
+pip install -r web_gui/scripts/requirements.txt  # only needed for the dashboard
 
 # 5. Restart all services
-cd web_gui_scripts/flask_apps
+cd web_gui/scripts/flask_apps
 python enterprise_dashboard.py
 
 # 6. Validate recovery
@@ -270,8 +270,8 @@ mv e:/gh_COPILOT_fresh e:/gh_COPILOT
 
 # 4. Reinstall and restart (dashboard only)
 cd e:/gh_COPILOT
-pip install -r web_gui_scripts/requirements.txt  # reinstall dashboard packages
-cd web_gui_scripts/flask_apps
+pip install -r web_gui/scripts/requirements.txt  # reinstall dashboard packages
+cd web_gui/scripts/flask_apps
 python enterprise_dashboard.py
 ```
 
@@ -309,7 +309,7 @@ BACKUP_DIR="e:/_copilot_backups"
 
 # Backup web GUI components
 tar -czf $BACKUP_DIR/web_gui_$DATE.tar.gz \
-    web_gui_scripts/ \
+    web_gui/scripts/ \
     templates/ \
     web_gui_documentation/
 

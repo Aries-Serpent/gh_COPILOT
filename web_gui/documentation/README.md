@@ -20,7 +20,7 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 ### 🌐 Web GUI Components
 
 #### Flask Dashboard Application
-- **File**: `web_gui_scripts/flask_apps/enterprise_dashboard.py`
+- **File**: `web_gui/scripts/flask_apps/enterprise_dashboard.py`
 - **Features**: Executive dashboard, database management, real-time metrics
 - **Access**: http://localhost:5000
 
@@ -44,7 +44,7 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 
 1. **Install Dependencies** (only if you plan to use the web dashboard):
    ```bash
-   cd web_gui_scripts
+   cd web_gui/scripts
    pip install -r requirements.txt  # only install if using the web dashboard
    ```
 
