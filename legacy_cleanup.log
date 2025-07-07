@@ -1,0 +1,139 @@
+2025-07-07 06:28:43,878 - INFO - 🧹 LEGACY DEPLOYMENT ORCHESTRATOR CLEANUP SCRIPT
+2025-07-07 06:28:43,878 - INFO - ================================================================================
+2025-07-07 06:28:43,879 - INFO - DUAL COPILOT PATTERN: Primary Cleanup + Secondary Validation
+2025-07-07 06:28:43,879 - INFO - Visual Processing Indicators: MANDATORY
+2025-07-07 06:28:43,879 - INFO - Anti-Recursion Protection: ENABLED
+2025-07-07 06:28:43,880 - INFO - ================================================================================
+2025-07-07 06:28:43,880 - INFO - 🧹 LEGACY DEPLOYMENT ORCHESTRATOR CLEANUP INITIATED
+2025-07-07 06:28:43,880 - INFO - Cleanup Session ID: CLEANUP_1751887723
+2025-07-07 06:28:43,883 - INFO - Workspace Root: e:\gh_COPILOT
+2025-07-07 06:28:43,884 - INFO - Archive Root: e:\gh_COPILOT\backup\legacy_deployment_orchestrators
+2025-07-07 06:28:43,884 - INFO - Dry Run: False
+2025-07-07 06:28:43,885 - INFO - 🚀 EXECUTING LEGACY DEPLOYMENT ORCHESTRATOR CLEANUP...
+2025-07-07 06:28:43,885 - INFO - ================================================================================
+2025-07-07 06:28:43,885 - INFO - 📋 Phase 1: Identifying legacy scripts...
+2025-07-07 06:28:43,886 - INFO - 🔍 IDENTIFYING LEGACY DEPLOYMENT ORCHESTRATOR SCRIPTS...
+2025-07-07 06:28:43,890 - INFO - 📄 Found legacy script: scripts\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:43,953 - INFO - 📄 Found legacy script: scripts\deployment\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:43,957 - INFO - 📄 Found legacy script: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:43,980 - INFO - 📄 Found legacy script: scripts\enterprise_gh_copilot_deployment_orchestrator_windows.py
+2025-07-07 06:28:44,075 - INFO - 📄 Found legacy script: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator_windows.py
+2025-07-07 06:28:44,089 - INFO - 📄 Found legacy script: scripts\integrated_deployment_orchestrator.py
+2025-07-07 06:28:44,164 - INFO - 📄 Found legacy script: scripts\deployment\integrated_deployment_orchestrator.py
+2025-07-07 06:28:44,166 - INFO - 📄 Found legacy script: scripts\regenerated\integrated_deployment_orchestrator.py
+2025-07-07 06:28:44,168 - INFO - 📄 Found legacy script: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\integrated_deployment_orchestrator.py
+2025-07-07 06:28:44,187 - INFO - 📄 Found legacy script: scripts\production_deployment_orchestrator.py
+2025-07-07 06:28:44,257 - INFO - 📄 Found legacy script: scripts\deployment\production_deployment_orchestrator.py
+2025-07-07 06:28:44,275 - INFO - 📄 Found legacy script: scripts\comprehensive_deployment_manager.py
+2025-07-07 06:28:44,349 - INFO - 📄 Found legacy script: core\frameworks\comprehensive_deployment_manager.py
+2025-07-07 06:28:44,364 - INFO - 📄 Found legacy script: scripts\deployment\comprehensive_deployment_manager.py
+2025-07-07 06:28:44,367 - INFO - 📄 Found legacy script: scripts\regenerated\comprehensive_deployment_manager.py
+2025-07-07 06:28:44,369 - INFO - 📄 Found legacy script: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\comprehensive_deployment_manager.py
+2025-07-07 06:28:44,388 - INFO - 📄 Found legacy script: scripts\FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py
+2025-07-07 06:28:44,474 - INFO - 📄 Found legacy script: scripts\deployment\FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py
+2025-07-07 06:28:44,495 - INFO - 📄 Found legacy script: scripts\final_enterprise_deployment_executor.py
+2025-07-07 06:28:44,578 - INFO - 📄 Found legacy script: scripts\deployment\final_enterprise_deployment_executor.py
+2025-07-07 06:28:44,581 - INFO - 📄 Found legacy script: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\final_enterprise_deployment_executor.py
+2025-07-07 06:28:44,598 - INFO - 📄 Found legacy script: scripts\enterprise_gh_copilot_deployment_orchestrator_backup.py
+2025-07-07 06:28:44,691 - INFO - 📄 Found legacy script: scripts\enterprise_gh_copilot_deployment_orchestrator_deprecated.py
+2025-07-07 06:28:44,787 - INFO - 📄 Found legacy script: scripts\integrated_deployment_orchestrator_backup.py
+2025-07-07 06:28:44,866 - INFO - 📄 Found legacy script: scripts\integrated_deployment_orchestrator_deprecated.py
+2025-07-07 06:28:44,944 - INFO - 📄 Found legacy script: scripts\regenerated\integrated_deployment_orchestrator.py
+2025-07-07 06:28:45,025 - INFO - 📄 Found legacy script: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:45,107 - INFO - 📄 Found legacy script: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\integrated_deployment_orchestrator.py
+2025-07-07 06:28:45,191 - INFO - 📄 Found legacy script: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator_windows.py
+2025-07-07 06:28:45,267 - INFO - 📄 Found legacy script: scripts\deployment\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:45,341 - INFO - 📄 Found legacy script: scripts\deployment\integrated_deployment_orchestrator.py
+2025-07-07 06:28:45,415 - INFO - 📄 Found legacy script: scripts\deployment\production_deployment_orchestrator.py
+2025-07-07 06:28:45,487 - INFO - 📄 Found legacy script: scripts\deployment\FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py
+2025-07-07 06:28:45,561 - INFO - 📄 Found legacy script: scripts\deployment\final_enterprise_deployment_executor.py
+2025-07-07 06:28:45,634 - INFO - 📄 Found legacy script: scripts\deployment\comprehensive_deployment_manager.py
+2025-07-07 06:28:45,704 - INFO - 📄 Found legacy script: scripts\enterprise_intelligence_deployment_orchestrator.py
+2025-07-07 06:28:45,754 - INFO - 📄 Found legacy script: core\frameworks\enterprise_intelligence_deployment_orchestrator.py
+2025-07-07 06:28:45,765 - INFO - 📄 Found legacy script: scripts\deployment\enterprise_intelligence_deployment_orchestrator.py
+2025-07-07 06:28:45,905 - INFO - ✅ Identified 38 legacy deployment orchestrator scripts
+2025-07-07 06:28:45,906 - INFO - 📦 Phase 2: Creating backup archive...
+2025-07-07 06:28:45,906 - INFO - 📦 CREATING BACKUP ARCHIVE...
+2025-07-07 06:28:45,908 - INFO - 📄 Added to archive: scripts\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:45,911 - INFO - 📄 Added to archive: scripts\deployment\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:45,914 - INFO - 📄 Added to archive: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:45,916 - INFO - 📄 Added to archive: scripts\enterprise_gh_copilot_deployment_orchestrator_windows.py
+2025-07-07 06:28:45,918 - INFO - 📄 Added to archive: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator_windows.py
+2025-07-07 06:28:45,919 - INFO - 📄 Added to archive: scripts\integrated_deployment_orchestrator.py
+2025-07-07 06:28:45,921 - INFO - 📄 Added to archive: scripts\deployment\integrated_deployment_orchestrator.py
+2025-07-07 06:28:45,922 - INFO - 📄 Added to archive: scripts\regenerated\integrated_deployment_orchestrator.py
+2025-07-07 06:28:45,924 - INFO - 📄 Added to archive: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\integrated_deployment_orchestrator.py
+2025-07-07 06:28:45,926 - INFO - 📄 Added to archive: scripts\production_deployment_orchestrator.py
+2025-07-07 06:28:45,928 - INFO - 📄 Added to archive: scripts\deployment\production_deployment_orchestrator.py
+2025-07-07 06:28:45,931 - INFO - 📄 Added to archive: scripts\comprehensive_deployment_manager.py
+2025-07-07 06:28:45,934 - INFO - 📄 Added to archive: core\frameworks\comprehensive_deployment_manager.py
+2025-07-07 06:28:45,936 - INFO - 📄 Added to archive: scripts\deployment\comprehensive_deployment_manager.py
+2025-07-07 06:28:45,938 - INFO - 📄 Added to archive: scripts\regenerated\comprehensive_deployment_manager.py
+2025-07-07 06:28:45,940 - INFO - 📄 Added to archive: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\comprehensive_deployment_manager.py
+2025-07-07 06:28:45,941 - INFO - 📄 Added to archive: scripts\FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py
+2025-07-07 06:28:45,943 - INFO - 📄 Added to archive: scripts\deployment\FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py
+2025-07-07 06:28:45,947 - INFO - 📄 Added to archive: scripts\final_enterprise_deployment_executor.py
+2025-07-07 06:28:45,950 - INFO - 📄 Added to archive: scripts\deployment\final_enterprise_deployment_executor.py
+2025-07-07 06:28:45,952 - INFO - 📄 Added to archive: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\final_enterprise_deployment_executor.py
+2025-07-07 06:28:45,954 - INFO - 📄 Added to archive: scripts\enterprise_gh_copilot_deployment_orchestrator_backup.py
+2025-07-07 06:28:45,955 - INFO - 📄 Added to archive: scripts\enterprise_gh_copilot_deployment_orchestrator_deprecated.py
+2025-07-07 06:28:45,957 - INFO - 📄 Added to archive: scripts\integrated_deployment_orchestrator_backup.py
+2025-07-07 06:28:45,958 - INFO - 📄 Added to archive: scripts\integrated_deployment_orchestrator_deprecated.py
+2025-07-07 06:28:45,964 - INFO - 📄 Added to archive: scripts\regenerated\integrated_deployment_orchestrator.py
+2025-07-07 06:28:45,967 - INFO - 📄 Added to archive: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:45,970 - INFO - 📄 Added to archive: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\integrated_deployment_orchestrator.py
+2025-07-07 06:28:45,972 - INFO - 📄 Added to archive: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator_windows.py
+2025-07-07 06:28:45,975 - INFO - 📄 Added to archive: scripts\deployment\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:45,978 - INFO - 📄 Added to archive: scripts\deployment\integrated_deployment_orchestrator.py
+2025-07-07 06:28:45,980 - INFO - 📄 Added to archive: scripts\deployment\production_deployment_orchestrator.py
+2025-07-07 06:28:45,982 - INFO - 📄 Added to archive: scripts\deployment\FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py
+2025-07-07 06:28:45,985 - INFO - 📄 Added to archive: scripts\deployment\final_enterprise_deployment_executor.py
+2025-07-07 06:28:45,987 - INFO - 📄 Added to archive: scripts\deployment\comprehensive_deployment_manager.py
+2025-07-07 06:28:45,990 - INFO - 📄 Added to archive: scripts\enterprise_intelligence_deployment_orchestrator.py
+2025-07-07 06:28:45,993 - INFO - 📄 Added to archive: core\frameworks\enterprise_intelligence_deployment_orchestrator.py
+2025-07-07 06:28:45,997 - INFO - 📄 Added to archive: scripts\deployment\enterprise_intelligence_deployment_orchestrator.py
+2025-07-07 06:28:46,001 - INFO - ✅ Backup archive created: e:\gh_COPILOT\backup\legacy_deployment_orchestrators\legacy_deployment_orchestrators_backup_20250707_062845.zip
+2025-07-07 06:28:46,001 - INFO - 📁 Phase 3: Archiving legacy scripts...
+2025-07-07 06:28:46,002 - INFO - 📁 ARCHIVING LEGACY SCRIPTS...
+2025-07-07 06:28:46,010 - INFO - 📄 Archived: scripts\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:46,015 - INFO - 📄 Archived: scripts\deployment\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:46,021 - INFO - 📄 Archived: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:46,026 - INFO - 📄 Archived: scripts\enterprise_gh_copilot_deployment_orchestrator_windows.py
+2025-07-07 06:28:46,031 - INFO - 📄 Archived: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator_windows.py
+2025-07-07 06:28:46,036 - INFO - 📄 Archived: scripts\integrated_deployment_orchestrator.py
+2025-07-07 06:28:46,040 - INFO - 📄 Archived: scripts\deployment\integrated_deployment_orchestrator.py
+2025-07-07 06:28:46,045 - INFO - 📄 Archived: scripts\regenerated\integrated_deployment_orchestrator.py
+2025-07-07 06:28:46,050 - INFO - 📄 Archived: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\integrated_deployment_orchestrator.py
+2025-07-07 06:28:46,055 - INFO - 📄 Archived: scripts\production_deployment_orchestrator.py
+2025-07-07 06:28:46,060 - INFO - 📄 Archived: scripts\deployment\production_deployment_orchestrator.py
+2025-07-07 06:28:46,065 - INFO - 📄 Archived: scripts\comprehensive_deployment_manager.py
+2025-07-07 06:28:46,070 - INFO - 📄 Archived: core\frameworks\comprehensive_deployment_manager.py
+2025-07-07 06:28:46,074 - INFO - 📄 Archived: scripts\deployment\comprehensive_deployment_manager.py
+2025-07-07 06:28:46,078 - INFO - 📄 Archived: scripts\regenerated\comprehensive_deployment_manager.py
+2025-07-07 06:28:46,086 - INFO - 📄 Archived: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\comprehensive_deployment_manager.py
+2025-07-07 06:28:46,090 - INFO - 📄 Archived: scripts\FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py
+2025-07-07 06:28:46,096 - INFO - 📄 Archived: scripts\deployment\FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py
+2025-07-07 06:28:46,101 - INFO - 📄 Archived: scripts\final_enterprise_deployment_executor.py
+2025-07-07 06:28:46,105 - INFO - 📄 Archived: scripts\deployment\final_enterprise_deployment_executor.py
+2025-07-07 06:28:46,112 - INFO - 📄 Archived: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\final_enterprise_deployment_executor.py
+2025-07-07 06:28:46,118 - INFO - 📄 Archived: scripts\enterprise_gh_copilot_deployment_orchestrator_backup.py
+2025-07-07 06:28:46,121 - INFO - 📄 Archived: scripts\enterprise_gh_copilot_deployment_orchestrator_deprecated.py
+2025-07-07 06:28:46,126 - INFO - 📄 Archived: scripts\integrated_deployment_orchestrator_backup.py
+2025-07-07 06:28:46,130 - INFO - 📄 Archived: scripts\integrated_deployment_orchestrator_deprecated.py
+2025-07-07 06:28:46,135 - INFO - 📄 Archived: scripts\regenerated\integrated_deployment_orchestrator.py
+2025-07-07 06:28:46,138 - INFO - 📄 Archived: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:46,140 - INFO - 📄 Archived: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\integrated_deployment_orchestrator.py
+2025-07-07 06:28:46,144 - INFO - 📄 Archived: scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator_windows.py
+2025-07-07 06:28:46,151 - INFO - 📄 Archived: scripts\deployment\enterprise_gh_copilot_deployment_orchestrator.py
+2025-07-07 06:28:46,154 - INFO - 📄 Archived: scripts\deployment\integrated_deployment_orchestrator.py
+2025-07-07 06:28:46,156 - INFO - 📄 Archived: scripts\deployment\production_deployment_orchestrator.py
+2025-07-07 06:28:46,160 - INFO - 📄 Archived: scripts\deployment\FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py
+2025-07-07 06:28:46,165 - INFO - 📄 Archived: scripts\deployment\final_enterprise_deployment_executor.py
+2025-07-07 06:28:46,168 - INFO - 📄 Archived: scripts\deployment\comprehensive_deployment_manager.py
+2025-07-07 06:28:46,172 - INFO - 📄 Archived: scripts\enterprise_intelligence_deployment_orchestrator.py
+2025-07-07 06:28:46,179 - INFO - 📄 Archived: core\frameworks\enterprise_intelligence_deployment_orchestrator.py
+2025-07-07 06:28:46,185 - INFO - 📄 Archived: scripts\deployment\enterprise_intelligence_deployment_orchestrator.py
+2025-07-07 06:28:46,185 - INFO - ✅ Archived 38 legacy scripts
+2025-07-07 06:28:46,186 - INFO - 🗑️ Phase 4: Removing legacy scripts...
+2025-07-07 06:28:46,186 - INFO - ⚠️ CONFIRMATION REQUIRED
+2025-07-07 06:28:46,186 - INFO - About to remove 38 legacy deployment orchestrator scripts

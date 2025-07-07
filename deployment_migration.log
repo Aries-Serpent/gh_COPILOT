@@ -1,0 +1,38 @@
+2025-07-07 06:14:05,633 - INFO - 🔄 DEPLOYMENT MIGRATION ORCHESTRATOR INITIALIZED
+2025-07-07 06:14:05,633 - INFO - Migration ID: MIGRATION_20250707_061405
+2025-07-07 06:14:05,633 - INFO - Workspace: e:\gh_COPILOT
+2025-07-07 06:14:05,634 - INFO - Scripts to migrate: 9
+2025-07-07 06:14:05,634 - INFO - ============================================================
+2025-07-07 06:14:05,634 - INFO - 🚀 EXECUTING DEPLOYMENT SCRIPT MIGRATION...
+2025-07-07 06:14:05,692 - INFO - 🔍 Analyzing migration impact...
+2025-07-07 06:14:05,701 - INFO - 📊 Migration impact: 9 scripts → 1 unified orchestrator
+2025-07-07 06:14:05,702 - INFO - 📊 Size reduction: 0.3MB consolidated
+2025-07-07 06:14:05,702 - INFO - ✅ 🔍 Analysis: SUCCESS
+2025-07-07 06:14:05,704 - INFO - 📋 Creating migration plan...
+2025-07-07 06:14:05,706 - INFO - 📋 Migration plan saved: e:\gh_COPILOT\migration_plan_MIGRATION_20250707_061405.json
+2025-07-07 06:14:05,706 - INFO - ✅ 📋 Planning: SUCCESS
+2025-07-07 06:14:05,707 - INFO - 📦 Archiving old deployment scripts...
+2025-07-07 06:14:05,773 - INFO - 📦 Archived 9 scripts to e:\gh_COPILOT\scripts\archived_deployment_scripts\MIGRATION_20250707_061405
+2025-07-07 06:14:05,774 - INFO - ✅ 📦 Archiving: SUCCESS
+2025-07-07 06:14:05,775 - INFO - 🔄 Executing script migration...
+2025-07-07 06:14:06,400 - INFO - 📚 Migration guide created: e:\gh_COPILOT\documentation\deployment_migration_guide_MIGRATION_20250707_061405.md
+2025-07-07 06:14:06,402 - INFO - 🔄 Migration completed: 9 scripts
+2025-07-07 06:14:06,403 - INFO - ✅ 🔄 Migration: SUCCESS
+2025-07-07 06:14:06,405 - INFO - ✅ Validating migration...
+2025-07-07 06:14:06,407 - INFO - ✅ Migration validation passed
+2025-07-07 06:14:06,408 - INFO - ✅ ✅ Validation: SUCCESS
+2025-07-07 06:14:06,411 - INFO - 📊 Generating migration report...
+2025-07-07 06:14:06,414 - INFO - 📊 Migration report saved: e:\gh_COPILOT\deployment_migration_report_MIGRATION_20250707_061405.json
+2025-07-07 06:14:06,415 - INFO - ✅ 📊 Reporting: SUCCESS
+2025-07-07 06:14:06,417 - INFO - 🎯 Finalizing migration...
+2025-07-07 06:14:06,420 - INFO - ============================================================
+2025-07-07 06:14:06,421 - INFO - 🎯 DEPLOYMENT MIGRATION SUMMARY
+2025-07-07 06:14:06,423 - INFO - ============================================================
+2025-07-07 06:14:06,423 - INFO - Migration ID: MIGRATION_20250707_061405
+2025-07-07 06:14:06,426 - INFO - Scripts identified: 9
+2025-07-07 06:14:06,426 - INFO - Scripts migrated: 9
+2025-07-07 06:14:06,428 - INFO - Scripts archived: 9
+2025-07-07 06:14:06,429 - INFO - Success rate: 100.0%
+2025-07-07 06:14:06,429 - INFO - Errors: 0
+2025-07-07 06:14:06,430 - INFO - ============================================================
+2025-07-07 06:14:06,430 - INFO - ✅ DEPLOYMENT MIGRATION COMPLETED
