@@ -22,8 +22,14 @@ def test_enterprise_dashboard_launch(tmp_path):
     started = orch.start_service("Dashboard", str(script), cwd=str(script.parent))
     try:
         assert started is True
-        time.sleep(1)
-        healthy = orch.check_service_health("Dashboard", port=port)
+        timeout = 10  # seconds
+        interval = 0.1  # seconds
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            healthy = orch.check_service_health("Dashboard", port=port)
+            if healthy:
+                break
+            time.sleep(interval)
         assert healthy is True
     finally:
         proc = orch.services["Dashboard"]["process"]
