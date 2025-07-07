@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence, Tuple
 
 
-logging.basicConfig(level=logging.INFO)
+# Note: Logging configuration should be handled by the application using this module.
 logger = logging.getLogger(__name__)
 
 
