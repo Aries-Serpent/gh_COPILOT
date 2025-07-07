@@ -583,7 +583,7 @@ class ProductionDBScriptAnalyzer:
                 f.write(f"**Recommendation:** {rec.get('recommendation', 'N/A')}\n\n")
 
 def main():
-    workspace_path = r"e:\_copilot_sandbox"
+    workspace_path = r"e:\gh_COPILOT"
     
     analyzer = ProductionDBScriptAnalyzer(workspace_path)
     results = analyzer.run_complete_analysis()

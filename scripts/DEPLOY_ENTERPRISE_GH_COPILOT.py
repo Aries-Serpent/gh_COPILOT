@@ -38,7 +38,7 @@ class EnterpriseDeploymentRunner:
     """Main runner for enterprise gh_COPILOT deployment"""
     
     def __init__(self):
-        self.workspace_path = Path("e:/_copilot_sandbox")
+        self.workspace_path = Path("e:/gh_COPILOT")
         self.target_path = Path("e:/gh_COPILOT")
         self.deployment_scripts = [
             "enterprise_gh_copilot_deployment_orchestrator.py",

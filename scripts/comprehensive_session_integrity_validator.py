@@ -56,7 +56,7 @@ class ComprehensiveSessionIntegrityValidator:
     - Emergency cleanup
     """
     
-    def __init__(self, workspace_root: str = r"e:\_copilot_sandbox"):
+    def __init__(self, workspace_root: str = r"e:\gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.session_id = f"SESSION_{int(time.time())}"
         self.start_time = datetime.now()
@@ -96,7 +96,7 @@ class ComprehensiveSessionIntegrityValidator:
             recursive_violations = self._validate_anti_recursion()
             pbar.update(20)
             
-            # Phase 3: E:\_copilot_sandbox	emp violation check
+            # Phase 3: E:\gh_COPILOT	emp violation check
             logger.info("[WARNING] Phase 3: C:\\Temp violation detection")
             c_temp_violations = self._check_c_temp_violations()
             pbar.update(20)
@@ -186,7 +186,7 @@ class ComprehensiveSessionIntegrityValidator:
         violations = []
         
         try:
-            # Check for any references to E:\_copilot_sandbox	emp in files
+            # Check for any references to E:\gh_COPILOT	emp in files
             for root, dirs, files in os.walk(self.workspace_root):
                 for file in files:
                     if file.endswith('.py'):

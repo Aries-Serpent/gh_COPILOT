@@ -17,7 +17,7 @@ def main():
     print("=" * 80)
     
     # Define paths
-    sandbox_path = Path("e:/_copilot_sandbox")
+    sandbox_path = Path("e:/gh_COPILOT")
     production_path = Path("e:/_copilot_production-001")
     
     print(f"[FOLDER] Sandbox: {sandbox_path}")

@@ -58,8 +58,8 @@ class EnterpriseGhCopilotDeploymentOrchestrator:
     
     def __init__(self, target_path: str = "e:/gh_COPILOT"):
         self.target_path = Path(target_path)
-        self.sandbox_path = Path("e:/_copilot_sandbox")
-        self.staging_path = Path("e:/_copilot_staging")
+        self.sandbox_path = Path("e:/gh_COPILOT")
+        self.staging_path = Path("e:/gh_COPILOT")
         
         # Deployment configuration
         self.deployment_config = {

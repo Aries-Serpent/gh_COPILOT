@@ -38,7 +38,7 @@ def generate_mission_completion_summary():
     print("[SHIELD]  CRITICAL ISSUES RESOLVED:")
     issues_resolved = [
         "[SUCCESS] Backup folder anti-recursion violation - moved to external location",
-        "[SUCCESS] Missing staging directory - created E:/_copilot_staging",
+        "[SUCCESS] Missing staging directory - created E:/gh_COPILOT",
         "[SUCCESS] Phase lookup mismatch - fixed deployment executor logic",
         "[SUCCESS] Enhanced ML patterns - integrated from refined enterprise script"
     ]
@@ -84,7 +84,7 @@ def generate_mission_completion_summary():
     # Staging Environment Status
     print("[BAR_CHART] STAGING ENVIRONMENT STATUS:")
     staging_status = [
-        "[PIN_ROUND] Location: E:/_copilot_staging",
+        "[PIN_ROUND] Location: E:/gh_COPILOT",
         "[PACKAGE] Total Files: 63",
         "[FILE_CABINET]  Database Files: 17",
         "[?] Python Scripts: 11",

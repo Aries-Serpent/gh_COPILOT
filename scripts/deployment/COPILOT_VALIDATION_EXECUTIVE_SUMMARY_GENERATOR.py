@@ -34,7 +34,7 @@ def generate_executive_summary():
     print()
     
     print("[BAR_CHART] INSTANCE PERFORMANCE:")
-    print("   [?] Sandbox (_copilot_sandbox): 91.7% - EXCELLENT")
+    print("   [?] Sandbox (gh_COPILOT): 91.7% - EXCELLENT")
     print("     - Database Integration: 100% [SUCCESS]")
     print("     - File Operations: 100% [SUCCESS]")
     print("     - Python Execution: 100% [SUCCESS]")
@@ -42,7 +42,7 @@ def generate_executive_summary():
     print("     - Copilot Patterns: 100% [SUCCESS] (49 DUAL COPILOT files, 32 visual indicators)")
     print()
     
-    print("   [?] Staging (_copilot_staging): 80.0% - GOOD")
+    print("   [?] Staging (gh_COPILOT): 80.0% - GOOD")
     print("     - Database Integration: 100% [SUCCESS]")
     print("     - File Operations: 100% [SUCCESS]")
     print("     - Python Execution: 100% [SUCCESS]")
@@ -191,7 +191,7 @@ def main():
     
     # Save timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    summary_file = f"E:/_copilot_sandbox/COPILOT_VALIDATION_EXECUTIVE_SUMMARY_{timestamp}.md"
+    summary_file = f"E:/gh_COPILOT/COPILOT_VALIDATION_EXECUTIVE_SUMMARY_{timestamp}.md"
     
     print(f"\n[STORAGE] Executive Summary: {summary_file}")
     print("[FOLDER] Related Files:")

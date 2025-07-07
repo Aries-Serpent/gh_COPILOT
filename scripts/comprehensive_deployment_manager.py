@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
 Comprehensive Enterprise Deployment Manager
-- Deploy Enterprise 6-Step Framework to _copilot_sandbox
+- Deploy Enterprise 6-Step Framework to gh_COPILOT
 - Upgrade to Python 3.12 environment at Q:\\python_venv\\.venv_clean
 - Full DUAL COPILOT validation and anti-recursion protection
 
-DEPLOYMENT TARGET: E:\\_copilot_sandbox
+DEPLOYMENT TARGET: E:\\gh_COPILOT
 PYTHON TARGET: Q:\\python_venv\\.venv_clean
 """
 
@@ -38,7 +38,7 @@ class ComprehensiveDeploymentConfig:
     """Complete deployment configuration"""
     # Deployment settings
     framework_source: str = "E:\\_COPILOT"
-    sandbox_target: str = "E:\\_copilot_sandbox"
+    sandbox_target: str = "E:\\gh_COPILOT"
     
     # Python 3.12 settings
     python_target: str = "Q:\\python_venv\\.venv_clean"
@@ -67,7 +67,7 @@ class AntiRecursionProtector:
     
     def __init__(self):
         self.forbidden_patterns = [
-            "backups", "temp", "tmp", "_copilot_sandbox", "TEST_DEPLOYMENT"
+            "backups", "temp", "tmp", "gh_COPILOT", "TEST_DEPLOYMENT"
         ]
         logger.info("Anti-Recursion Protector INITIALIZED")
     
@@ -78,7 +78,7 @@ class AntiRecursionProtector:
             logger.info(f"Validating path for {operation}: {path}")
             
             # Special handling for legitimate deployment targets
-            if operation == "sandbox" and path.endswith("_copilot_sandbox"):
+            if operation == "sandbox" and path.endswith("gh_COPILOT"):
                 logger.info(f"Sandbox target path allowed: {path}")
                 return True
             
@@ -89,7 +89,7 @@ class AntiRecursionProtector:
             # Check each path component for violations
             for part in path_obj.parts:
                 # Skip checking the final component if it's our target
-                if part.endswith("_copilot_sandbox") and operation == "sandbox":
+                if part.endswith("gh_COPILOT") and operation == "sandbox":
                     continue
                 
                 # Skip backup validation for Q: drive python operations

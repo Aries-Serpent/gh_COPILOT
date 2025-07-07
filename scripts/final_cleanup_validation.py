@@ -13,7 +13,7 @@ def main():
     print('FINAL VERIFICATION: STAGING DATABASE CLEANUP')
     print('=' * 50)
     
-    staging_path = Path('E:/_copilot_staging/databases')
+    staging_path = Path('E:/gh_COPILOT/databases')
     
     if staging_path.exists():
         remaining_files = list(staging_path.rglob('*'))

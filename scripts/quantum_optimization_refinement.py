@@ -53,7 +53,7 @@ logger.addHandler(console_handler)
 class QuantumOptimizationRefinement:
     """[?][?] Phase 2: Quantum Optimization Refinement Engine"""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.start_time = datetime.now()
         self.optimization_id = f"QUANTREF_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -394,7 +394,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(description="Quantum Optimization Refinement - Phase 2")
-    parser.add_argument('--workspace', type=str, default="e:/_copilot_sandbox",
+    parser.add_argument('--workspace', type=str, default="e:/gh_COPILOT",
                        help='Workspace path')
     
     args = parser.parse_args()

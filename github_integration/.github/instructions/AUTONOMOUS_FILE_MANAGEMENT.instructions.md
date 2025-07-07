@@ -23,7 +23,7 @@ applyTo: '**'
 class AutonomousFileManager:
     """🎯 Autonomous File System Manager with Database Intelligence"""
     
-    def __init__(self, workspace_path="e:/_copilot_sandbox"):
+    def __init__(self, workspace_path="e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.production_db = self.workspace_path / "production.db"
         
@@ -93,7 +93,7 @@ class AutonomousBackupManager:
     """💾 Autonomous Backup System with Anti-Recursion Protection"""
     
     FORBIDDEN_BACKUP_LOCATIONS = [
-        "e:/_copilot_sandbox",  # NEVER backup within workspace
+        "e:/gh_COPILOT",  # NEVER backup within workspace
         "C:/temp/",  # NEVER use C:/temp
         "./backup/",  # NEVER use relative backup paths
     ]

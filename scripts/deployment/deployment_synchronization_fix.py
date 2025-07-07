@@ -47,8 +47,8 @@ ENTERPRISE_CHUNK_SIZE = 1000
 ENTERPRISE_ANTI_RECURSION_DEPTH = 10
 
 # Environment Paths
-SANDBOX_PATH = Path(r"E:\_copilot_sandbox")
-STAGING_PATH = Path(r"E:\_copilot_staging")
+SANDBOX_PATH = Path(r"E:\gh_COPILOT")
+STAGING_PATH = Path(r"E:\gh_COPILOT")
 
 # Critical Files to Sync
 CRITICAL_FILES = [

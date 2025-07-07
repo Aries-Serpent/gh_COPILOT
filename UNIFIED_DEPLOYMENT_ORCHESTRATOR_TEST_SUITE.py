@@ -478,8 +478,8 @@ class UnifiedDeploymentOrchestratorTestSuite(unittest.TestCase):
             
             # Test different deployment modes
             test_cases = [
-                (DeploymentMode.SANDBOX, "_copilot_sandbox"),
-                (DeploymentMode.STAGING, "_copilot_staging"),
+                (DeploymentMode.SANDBOX, "gh_COPILOT"),
+                (DeploymentMode.STAGING, "gh_COPILOT"),
                 (DeploymentMode.PRODUCTION, "gh_COPILOT"),
                 (DeploymentMode.DEVELOPMENT, "_copilot_dev"),
                 (DeploymentMode.TESTING, "_copilot_test")

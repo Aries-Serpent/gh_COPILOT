@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 class AdvancedDatabaseOptimizer:
     """[WRENCH] Advanced Database Optimization Engine"""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.databases_path = self.workspace_path / "databases"
         self.start_time = datetime.now()
@@ -380,7 +380,7 @@ def main():
     parser = argparse.ArgumentParser(description="Advanced Database Optimizer - Phase 1")
     parser.add_argument('--target-performance', type=float, default=2.0,
                        help='Target performance in seconds (default: 2.0)')
-    parser.add_argument('--workspace', type=str, default="e:/_copilot_sandbox",
+    parser.add_argument('--workspace', type=str, default="e:/gh_COPILOT",
                        help='Workspace path')
     
     args = parser.parse_args()

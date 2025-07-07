@@ -65,7 +65,7 @@ class DocumentationGenerationSystem:
     DUAL COPILOT Pattern: Primary generator + Secondary validator
     """
     
-    def __init__(self, workspace_root: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_root: str = "e:/gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.databases_dir = self.workspace_root / "databases"
         self.documentation_dir = self.workspace_root / "documentation"
@@ -97,7 +97,7 @@ class DocumentationGenerationSystem:
         """CRITICAL: Validate environment and prevent recursion"""
         
         # Check workspace integrity
-        if not str(self.workspace_root).endswith("_copilot_sandbox"):
+        if not str(self.workspace_root).endswith("gh_COPILOT"):
             logger.warning(f"Non-standard workspace: {self.workspace_root}")
             
         # Prevent recursive operations
@@ -1240,7 +1240,7 @@ def system_health_check():
 
 ### 1. System Initialization
 ```bash
-cd e:\_copilot_sandbox
+cd e:\gh_COPILOT
 python template_intelligence_platform.py
 ```
 

@@ -197,7 +197,7 @@ def generate_enterprise_recommendation(comparison):
             "both_accessible": True
         },
         "enterprise_compliance": {
-            "proper_location": "E:/_copilot_staging/databases/production.db",
+            "proper_location": "E:/gh_COPILOT/databases/production.db",
             "rationale": "Database files should be organized in dedicated /databases/ folder",
             "backup_protocol": "Create backup before any changes"
         },
@@ -212,19 +212,19 @@ def generate_enterprise_recommendation(comparison):
                 "priority": 1,
                 "action": "BACKUP_ROOT_DATABASE",
                 "description": "Create backup of root production.db",
-                "command": "cp 'E:/_copilot_staging/production.db' 'E:/_copilot_staging/databases/production_backup_$(date +%Y%m%d_%H%M%S).db'"
+                "command": "cp 'E:/gh_COPILOT/production.db' 'E:/gh_COPILOT/databases/production_backup_$(date +%Y%m%d_%H%M%S).db'"
             },
             {
                 "priority": 2,
                 "action": "VERIFY_IDENTICAL",
                 "description": "Verify files are truly identical",
-                "command": "diff 'E:/_copilot_staging/production.db' 'E:/_copilot_staging/databases/production.db'"
+                "command": "diff 'E:/gh_COPILOT/production.db' 'E:/gh_COPILOT/databases/production.db'"
             },
             {
                 "priority": 3,
                 "action": "SAFE_DELETE",
                 "description": "Remove duplicate from root location",
-                "command": "rm 'E:/_copilot_staging/production.db'"
+                "command": "rm 'E:/gh_COPILOT/production.db'"
             }
         ]
         recommendation["risk_assessment"] = "MINIMAL"
@@ -273,7 +273,7 @@ def generate_enterprise_recommendation(comparison):
                     "priority": 3,
                     "action": "SAFE_DELETE_ROOT",
                     "description": "Remove outdated root database",
-                    "command": "rm 'E:/_copilot_staging/production.db'"
+                    "command": "rm 'E:/gh_COPILOT/production.db'"
                 }
             ]
             recommendation["risk_assessment"] = "LOW"
@@ -286,8 +286,8 @@ def main():
     print("=" * 60)
     
     # Define database paths
-    root_db = Path("E:/_copilot_staging/production.db")
-    databases_db = Path("E:/_copilot_staging/databases/production.db")
+    root_db = Path("E:/gh_COPILOT/production.db")
+    databases_db = Path("E:/gh_COPILOT/databases/production.db")
     
     # Check if both files exist
     if not root_db.exists():
@@ -322,7 +322,7 @@ def main():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     
     # Save detailed analysis
-    analysis_file = f"E:/_copilot_sandbox/production_db_analysis_{timestamp}.json"
+    analysis_file = f"E:/gh_COPILOT/production_db_analysis_{timestamp}.json"
     with open(analysis_file, 'w') as f:
         json.dump({
             "root_database": root_analysis,

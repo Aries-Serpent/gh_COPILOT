@@ -38,9 +38,9 @@ class PythonEnvironmentConfig:
     target_path: str = "Q:\\python_venv\\.venv_clean"
     python_version: str = "3.12"
     framework_root: str = "E:\\_COPILOT"
-    sandbox_root: str = "E:\\_copilot_sandbox" 
+    sandbox_root: str = "E:\\gh_COPILOT" 
     backup_location: str = "Q:\\python_venv\\backups"
-    deployment_target: str = "E:\\_copilot_sandbox"
+    deployment_target: str = "E:\\gh_COPILOT"
     environment_root: str = "C:\\temp\\Auto_Build\\HAR_Analyzer\\har-analyzer-toolkit\\New Environment Setup\\Persona"
     requirements_files: Optional[List[str]] = None
     
@@ -67,7 +67,7 @@ class AntiRecursionValidator:
     
     def __init__(self):
         self.forbidden_patterns = [
-            "_copilot_sandbox",
+            "gh_COPILOT",
             "TEST_DEPLOYMENT", 
             "backups",
             "temp",

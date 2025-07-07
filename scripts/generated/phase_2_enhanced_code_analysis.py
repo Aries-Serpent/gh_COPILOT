@@ -24,8 +24,8 @@ import hashlib
 class EnhancedCodeAnalyzer:
     def __init__(self):
         # 🎯 VISUAL PROCESSING INDICATOR: Code Analysis Initialization
-        self.workspace_path = "e:/_copilot_sandbox"
-        self.db_path = "e:/_copilot_sandbox/databases/learning_monitor.db"
+        self.workspace_path = "e:/gh_COPILOT"
+        self.db_path = "e:/gh_COPILOT/databases/learning_monitor.db"
         
         # DUAL COPILOT: Initialize with anti-recursion protection
         self.recursion_depth = 0
@@ -460,12 +460,12 @@ class EnhancedCodeAnalyzer:
         }
         
         # Save detailed report
-        report_path = "e:/_copilot_sandbox/generated_scripts/phase_2_completion_report.json"
+        report_path = "e:/gh_COPILOT/generated_scripts/phase_2_completion_report.json"
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2)
         
         # Save recommendations
-        recommendations_path = "e:/_copilot_sandbox/generated_scripts/placeholder_conversion_recommendations.json"
+        recommendations_path = "e:/gh_COPILOT/generated_scripts/placeholder_conversion_recommendations.json"
         with open(recommendations_path, 'w') as f:
             json.dump(recommendations, f, indent=2)
             

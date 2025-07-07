@@ -3,7 +3,7 @@
 DATABASE REGENERATION CAPABILITY VALIDATOR - Enterprise GitHub Copilot System
 ============================================================================
 
-MISSION: Comprehensively validate that both E:/_copilot_sandbox and E:/_copilot_staging 
+MISSION: Comprehensively validate that both E:/gh_COPILOT and E:/gh_COPILOT 
          databases are fully capable of reproducing any and all system required files, 
          docs, scripts, etc. directly from sourcing the databases within each environment.
 
@@ -51,8 +51,8 @@ ENTERPRISE_TIMEOUT = 600  # 10 minutes max
 ENTERPRISE_CHUNK_SIZE = 1000
 
 # Environment Paths
-SANDBOX_PATH = Path(r"E:\_copilot_sandbox")
-STAGING_PATH = Path(r"E:\_copilot_staging")
+SANDBOX_PATH = Path(r"E:\gh_COPILOT")
+STAGING_PATH = Path(r"E:\gh_COPILOT")
 
 @dataclass
 class DatabaseCapability:

@@ -16,7 +16,7 @@ def create_session_wrap_up():
         "session_completed": datetime.now().isoformat(),
         "mission_status": "SUCCESSFULLY COMPLETED",
         "deployment_summary": {
-            "source_environments": ["E:/_copilot_sandbox", "E:/_copilot_staging"],
+            "source_environments": ["E:/gh_COPILOT", "E:/gh_COPILOT"],
             "target_deployment": "E:/gh_COPILOT",
             "deployment_metrics": {
                 "total_files_deployed": 891,

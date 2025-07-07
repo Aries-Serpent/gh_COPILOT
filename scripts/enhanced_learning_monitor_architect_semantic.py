@@ -108,7 +108,7 @@ class SemanticSearchEnhancedArchitect:
         self.start_time = datetime.now()
         
         # Setup configuration
-        workspace_root = Path(workspace_path) if workspace_path else Path("e:/_copilot_sandbox")
+        workspace_root = Path(workspace_path) if workspace_path else Path("e:/gh_COPILOT")
         self.config = DatabaseConfig(
             workspace_root=workspace_root,
             db_path=workspace_root / "databases" / "learning_monitor.db"
@@ -172,7 +172,7 @@ class SemanticSearchEnhancedArchitect:
             self._validate_no_recursive_folders()
             
             # Validate proper workspace context
-            if not str(os.getcwd()).endswith("_copilot_sandbox"):
+            if not str(os.getcwd()).endswith("gh_COPILOT"):
                 self.logger.warning(f"Non-standard workspace context: {os.getcwd()}")
             
             self.logger.info("[SUCCESS] Environment validation completed successfully")

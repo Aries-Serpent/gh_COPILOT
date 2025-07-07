@@ -5,7 +5,7 @@ DATABASE REGENERATION ENHANCEMENT SYSTEM - Enterprise GitHub Copilot
 
 MISSION: Enhance database regeneration capabilities by populating databases with 
          comprehensive templates, patterns, and content needed for full system 
-         reproduction across both E:/_copilot_sandbox and E:/_copilot_staging.
+         reproduction across both E:/gh_COPILOT and E:/gh_COPILOT.
 
 ENTERPRISE PROTOCOLS:
 - Template Intelligence Platform enhancement
@@ -46,8 +46,8 @@ ENTERPRISE_LOG_LEVEL = logging.INFO
 ENTERPRISE_MAX_WORKERS = 8
 
 # Environment Paths
-SANDBOX_PATH = Path(r"E:\_copilot_sandbox")
-STAGING_PATH = Path(r"E:\_copilot_staging")
+SANDBOX_PATH = Path(r"E:\gh_COPILOT")
+STAGING_PATH = Path(r"E:\gh_COPILOT")
 
 class DatabaseRegenerationEnhancer:
     """Enterprise database regeneration enhancement system"""

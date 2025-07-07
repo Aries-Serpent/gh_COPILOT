@@ -11,7 +11,7 @@ Enterprise deployment system combining framework deployment with Python environm
 DUAL COPILOT PATTERN: PRIMARY EXECUTOR + SECONDARY VALIDATOR
 Anti-Recursion Protection: ENABLED
 Visual Processing Indicators: MANDATORY
-Target: E:\\_copilot_sandbox with Python 3.12 at Q:\\python_venv\\.venv_clean
+Target: E:\\gh_COPILOT with Python 3.12 at Q:\\python_venv\\.venv_clean
 """
 
 import os
@@ -51,7 +51,7 @@ class IntegratedDeploymentConfig:
     
     # Deployment paths
     source_workspace: str = "e:\\_COPILOT"
-    deployment_target: str = "E:\\_copilot_sandbox"
+    deployment_target: str = "E:\\gh_COPILOT"
     python_venv_target: str = "Q:\\python_venv\\.venv_clean"
     
     # Environment paths (CRITICAL: Anti-recursion protection)
@@ -244,7 +244,7 @@ class IntegratedDeploymentOrchestrator:
         
         # Check for unauthorized folders in workspace
         unauthorized_patterns = [
-            "_copilot_sandbox",
+            "gh_COPILOT",
             "temp", 
             "backup",
             "_temp",
@@ -625,7 +625,7 @@ class IntegratedDeploymentOrchestrator:
         logger.info(" No recursive folder violations detected throughout deployment")
         logger.info(" Environment root compliance maintained")
         logger.info(" Python 3.12 upgrade completed successfully")
-        logger.info(" Framework components deployed to E:\\_copilot_sandbox")
+        logger.info(" Framework components deployed to E:\\gh_COPILOT")
         logger.info(" Database components migrated successfully")
         logger.info(" Post-deployment validation completed")
         logger.info(" INTEGRATED DEPLOYMENT COMPLETED SUCCESSFULLY")

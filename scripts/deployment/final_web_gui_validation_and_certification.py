@@ -19,7 +19,7 @@ from pathlib import Path
 class FinalWebGUIValidator:
     """[TARGET] Final Web-GUI Validation and Certification Engine"""
     
-    def __init__(self, workspace_path="e:/_copilot_sandbox"):
+    def __init__(self, workspace_path="e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.validation_results = {
             "validation_timestamp": datetime.now().isoformat(),
@@ -327,7 +327,7 @@ class FinalWebGUIValidator:
 - **Enterprise Compliance:** [SUCCESS] Certified
 
 ## [CHART_INCREASING] NEXT STEPS
-1. Deploy to E:/_copilot_staging for final integration testing
+1. Deploy to E:/gh_COPILOT for final integration testing
 2. Configure production environment variables
 3. Set up monitoring and logging
 4. Implement backup/restore procedures

@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 class FinalDeploymentValidator:
     def __init__(self):
-        self.workspace_path = Path("e:/_copilot_sandbox")
+        self.workspace_path = Path("e:/gh_COPILOT")
         self.validation_results = {
             "timestamp": datetime.now().isoformat(),
             "validation_status": "PENDING",

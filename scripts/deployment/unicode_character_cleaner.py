@@ -4,14 +4,14 @@ Unicode Character Cleaner for Enterprise Compliance
 ===================================================
 
 This script performs targeted removal of any remaining Unicode/emoji characters
-in the deployed E:/_copilot_sandbox environment to achieve 100% compliance.
+in the deployed E:/gh_COPILOT environment to achieve 100% compliance.
 
 DUAL COPILOT PATTERN: Primary Cleaner with Secondary Validator
 - Primary: Identifies and removes remaining Unicode characters
 - Secondary: Validates complete Unicode elimination
 - Certification: Provides final Unicode compliance validation
 
-TARGET: Deployed E:/_copilot_sandbox environment
+TARGET: Deployed E:/gh_COPILOT environment
 """
 
 import os
@@ -28,11 +28,11 @@ class UnicodeCharacterCleaner:
     """Unicode character cleaner for enterprise compliance."""
     
     def __init__(self):
-        self.deployed_base_path = Path("E:/_copilot_sandbox")
+        self.deployed_base_path = Path("E:/gh_COPILOT")
         self.backup_dir = self.deployed_base_path / f"_backup_unicode_cleanup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.results = {
             'cleanup_timestamp': datetime.now().isoformat(),
-            'environment': 'DEPLOYED E:/_copilot_sandbox',
+            'environment': 'DEPLOYED E:/gh_COPILOT',
             'files_processed': 0,
             'unicode_chars_found': 0,
             'unicode_chars_removed': 0,
@@ -247,7 +247,7 @@ class UnicodeCharacterCleaner:
 def main():
     """Main execution function."""
     print("\\n=== UNICODE CHARACTER CLEANER ===")
-    print("Target: E:/_copilot_sandbox (DEPLOYED ENVIRONMENT)")
+    print("Target: E:/gh_COPILOT (DEPLOYED ENVIRONMENT)")
     print("============================================================")
     
     try:

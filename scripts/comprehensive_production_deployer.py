@@ -3,7 +3,7 @@
 [LAUNCH] COMPREHENSIVE PRODUCTION DEPLOYMENT ENGINE
 [TARGET] DUAL COPILOT PATTERN: SUPREME DEPLOYMENT AUTHORITY
 
-Complete migration and deployment of ALL capabilities from _copilot_sandbox 
+Complete migration and deployment of ALL capabilities from gh_COPILOT 
 to _copilot_production-001 with 100% parity guarantee.
 
 This script performs:
@@ -63,14 +63,14 @@ class ComprehensiveProductionDeployer:
     """
     [LAUNCH] SUPREME DEPLOYMENT AUTHORITY
     Complete production deployment engine ensuring 100% capability migration
-    from _copilot_sandbox to _copilot_production-001
+    from gh_COPILOT to _copilot_production-001
     """
     
     def __init__(self):
         # MANDATORY: Safety and anti-recursion validation
         self.validate_deployment_safety()
         
-        self.sandbox_path = Path("e:/_copilot_sandbox")
+        self.sandbox_path = Path("e:/gh_COPILOT")
         self.production_path = Path("e:/_copilot_production-001")
         self.deployment_id = f"DEPLOY_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
         
@@ -96,7 +96,7 @@ class ComprehensiveProductionDeployer:
             raise RuntimeError("CRITICAL: Recursive pattern detected - aborting deployment")
         
         # Validate source exists
-        if not os.path.exists("e:/_copilot_sandbox"):
+        if not os.path.exists("e:/gh_COPILOT"):
             raise RuntimeError("CRITICAL: Source sandbox does not exist")
         
         # Validate production path is safe
@@ -847,7 +847,7 @@ if __name__ == "__main__":
         print("\n[PROCESSING] RUNNING POST-DEPLOYMENT PARITY VALIDATION...")
         try:
             subprocess.run([sys.executable, "ultimate_production_parity_validator.py"], 
-                         cwd="e:/_copilot_sandbox", check=False)
+                         cwd="e:/gh_COPILOT", check=False)
         except Exception as e:
             print(f"[WARNING]  Post-deployment validation error: {e}")
     else:

@@ -1,6 +1,6 @@
 {
   "framework_version": "1.0.0",
-  "deployment_target": "_copilot_sandbox",
+  "deployment_target": "gh_COPILOT",
   "required_components": [
     "master_framework_orchestrator.py",
     "scaling_innovation_framework.py", 

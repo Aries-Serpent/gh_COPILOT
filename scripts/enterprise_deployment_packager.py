@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 class EnterpriseDeploymentPackager:
     def __init__(self):
-        self.source_path = Path("e:/_copilot_sandbox")
+        self.source_path = Path("e:/gh_COPILOT")
         self.target_path = Path("e:/gh_COPILOT")
         self.package_name = f"gh_COPILOT_Enterprise_Package_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         
@@ -48,7 +48,7 @@ class EnterpriseDeploymentPackager:
         self.deployment_manifest = {
             "package_name": self.package_name,
             "created_at": datetime.now().isoformat(),
-            "source_environment": "e:/_copilot_sandbox",
+            "source_environment": "e:/gh_COPILOT",
             "target_environment": "e:/gh_COPILOT",
             "validation_status": "PASSED",
             "deployment_ready": True,
@@ -150,7 +150,7 @@ class EnterpriseDeploymentPackager:
 ## Package Information
 - **Package Name**: {self.package_name}
 - **Created**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-- **Source Environment**: e:/_copilot_sandbox
+- **Source Environment**: e:/gh_COPILOT
 - **Target Environment**: e:/gh_COPILOT
 - **Validation Status**: PASSED - Ready for Professional Deployment
 

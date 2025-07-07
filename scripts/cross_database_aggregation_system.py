@@ -78,7 +78,7 @@ class CrossDatabaseAggregator:
     DUAL COPILOT Pattern: Primary aggregator + Secondary validator
     """
     
-    def __init__(self, workspace_root: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_root: str = "e:/gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.databases_dir = self.workspace_root / "databases"
         self.start_time = datetime.now()
@@ -110,7 +110,7 @@ class CrossDatabaseAggregator:
             raise RuntimeError(f"CRITICAL: Database directory not found: {self.databases_dir}")
             
         # Validate workspace integrity
-        if not str(self.workspace_root).endswith("_copilot_sandbox"):
+        if not str(self.workspace_root).endswith("gh_COPILOT"):
             logger.warning(f"Non-standard workspace: {self.workspace_root}")
             
         # Prevent recursive operations

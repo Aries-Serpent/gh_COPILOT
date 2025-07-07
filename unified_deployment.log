@@ -2,7 +2,7 @@
 2025-07-07 06:14:11,962 - INFO - Deployment ID: UNIFIED_20250707_061411
 2025-07-07 06:14:11,963 - INFO - Platform: windows
 2025-07-07 06:14:11,963 - INFO - Mode: sandbox
-2025-07-07 06:14:11,964 - INFO - Target: E:\_copilot_sandbox
+2025-07-07 06:14:11,964 - INFO - Target: E:\gh_COPILOT
 2025-07-07 06:14:11,964 - INFO - ============================================================
 2025-07-07 06:14:11,965 - INFO - 🚀 EXECUTING UNIFIED ENTERPRISE DEPLOYMENT...
 2025-07-07 06:14:11,996 - INFO - 🔄 Phase 1: Pre-Deployment Validation
@@ -34,7 +34,7 @@
 2025-07-07 06:14:19,199 - INFO - Description: Setup backup and recovery systems
 2025-07-07 06:14:19,200 - INFO - 🔄 Phase 12: Final Validation and Certification
 2025-07-07 06:14:19,200 - INFO - Description: Final validation and certification
-2025-07-07 06:14:19,203 - INFO - 📋 Deployment report saved: E:\_copilot_sandbox\logs\deployment_report_UNIFIED_20250707_061411.json
+2025-07-07 06:14:19,203 - INFO - 📋 Deployment report saved: E:\gh_COPILOT\logs\deployment_report_UNIFIED_20250707_061411.json
 2025-07-07 06:14:19,203 - INFO - ✅ UNIFIED DEPLOYMENT COMPLETED
 2025-07-07 06:14:19,204 - INFO - 🎯 Finalizing deployment process...
 2025-07-07 06:14:19,204 - INFO - ============================================================
@@ -51,7 +51,7 @@
 2025-07-07 06:16:22,740 - INFO - Deployment ID: UNIFIED_20250707_061622
 2025-07-07 06:16:22,741 - INFO - Platform: windows
 2025-07-07 06:16:22,741 - INFO - Mode: sandbox
-2025-07-07 06:16:22,741 - INFO - Target: E:\_copilot_sandbox
+2025-07-07 06:16:22,741 - INFO - Target: E:\gh_COPILOT
 2025-07-07 06:16:22,741 - INFO - ============================================================
 2025-07-07 06:16:22,742 - INFO - 🚀 EXECUTING UNIFIED ENTERPRISE DEPLOYMENT...
 2025-07-07 06:16:22,769 - INFO - 🔄 Phase 1: Pre-Deployment Validation
@@ -83,7 +83,7 @@
 2025-07-07 06:16:27,808 - INFO - Description: Setup backup and recovery systems
 2025-07-07 06:16:27,809 - INFO - 🔄 Phase 12: Final Validation and Certification
 2025-07-07 06:16:27,810 - INFO - Description: Final validation and certification
-2025-07-07 06:16:27,815 - INFO - 📋 Deployment report saved: E:\_copilot_sandbox\logs\deployment_report_UNIFIED_20250707_061622.json
+2025-07-07 06:16:27,815 - INFO - 📋 Deployment report saved: E:\gh_COPILOT\logs\deployment_report_UNIFIED_20250707_061622.json
 2025-07-07 06:16:27,815 - INFO - ✅ UNIFIED DEPLOYMENT COMPLETED
 2025-07-07 06:16:27,816 - INFO - 🎯 Finalizing deployment process...
 2025-07-07 06:16:27,816 - INFO - ============================================================

@@ -17,7 +17,7 @@ def main():
     print("=" * 70)
     
     production_path = Path("e:/_copilot_production-001")
-    sandbox_path = Path("e:/_copilot_sandbox")
+    sandbox_path = Path("e:/gh_COPILOT")
     
     # Phase 3: Documentation Migration
     print(f"\n[BOOKS] PHASE 3: DOCUMENTATION MIGRATION")

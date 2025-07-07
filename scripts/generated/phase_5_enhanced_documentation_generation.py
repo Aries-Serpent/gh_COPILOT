@@ -22,11 +22,11 @@ import textwrap
 class EnhancedDocumentationGenerator:
     def __init__(self):
         # 🎯 VISUAL PROCESSING INDICATOR: Documentation Generation Initialization
-        self.workspace_path = "e:/_copilot_sandbox"
-        self.db_path = "e:/_copilot_sandbox/databases/learning_monitor.db"
-        self.documentation_dir = "e:/_copilot_sandbox/documentation"
-        self.diagrams_dir = "e:/_copilot_sandbox/documentation/diagrams"
-        self.compliance_dir = "e:/_copilot_sandbox/documentation/compliance"
+        self.workspace_path = "e:/gh_COPILOT"
+        self.db_path = "e:/gh_COPILOT/databases/learning_monitor.db"
+        self.documentation_dir = "e:/gh_COPILOT/documentation"
+        self.diagrams_dir = "e:/gh_COPILOT/documentation/diagrams"
+        self.compliance_dir = "e:/gh_COPILOT/documentation/compliance"
         
         # DUAL COPILOT: Initialize with strict anti-recursion protection
         self.max_documents = 50
@@ -57,7 +57,7 @@ class EnhancedDocumentationGenerator:
         """🎯 VISUAL PROCESSING: Analyze all database schemas for documentation"""
         print("🎯 Analyzing database schemas...")
         
-        databases_dir = "e:/_copilot_sandbox/databases"
+        databases_dir = "e:/gh_COPILOT/databases"
         db_files = [f for f in os.listdir(databases_dir) if f.endswith('.db')]
         
         for db_file in db_files:
@@ -1373,7 +1373,7 @@ This Advanced Template Intelligence Platform represents a significant achievemen
         }
         
         # Save report
-        report_path = "e:/_copilot_sandbox/generated_scripts/phase_5_completion_report.json"
+        report_path = "e:/gh_COPILOT/generated_scripts/phase_5_completion_report.json"
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2)
             

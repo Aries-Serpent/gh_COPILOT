@@ -7,7 +7,7 @@
 
 ### 1. System Initialization
 ```bash
-cd e:\_copilot_sandbox
+cd e:\gh_COPILOT
 python template_intelligence_platform.py
 ```
 

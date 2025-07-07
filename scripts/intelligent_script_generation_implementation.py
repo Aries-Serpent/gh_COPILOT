@@ -73,7 +73,7 @@ class TemplateMetadata:
 class IntelligentScriptGenerationPlatform:
     """Complete implementation of intelligent script generation platform"""
     
-    def __init__(self, workspace_path: str = r"e:\_copilot_sandbox"):
+    def __init__(self, workspace_path: str = r"e:\gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.databases_path = self.workspace_path / "databases"
         self.production_db = self.databases_path / "production.db"
@@ -239,7 +239,7 @@ class TemplateEngine:
             # Read script content
             full_path = Path(script_path)
             if not full_path.exists():
-                full_path = Path("e:\_copilot_sandbox") / script_path
+                full_path = Path("e:\gh_COPILOT") / script_path
             
             content = full_path.read_text(encoding='utf-8')
             

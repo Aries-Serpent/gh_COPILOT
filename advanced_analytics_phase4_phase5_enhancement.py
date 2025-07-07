@@ -64,9 +64,9 @@ class PredictiveModel:
 class AdvancedAnalyticsEngine:
     """Advanced analytics engine for Phase 4/5 enhancements."""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
-        self.staging_path = Path("e:/_copilot_staging")
+        self.staging_path = Path("e:/gh_COPILOT")
         self.analytics_db_path = self.workspace_path / 'databases' / 'advanced_analytics.db'
         
         # Setup logging

@@ -11,7 +11,7 @@ import glob
 
 class SessionTransitionLogger:
     def __init__(self):
-        self.workspace_root = "e:\\_copilot_sandbox"
+        self.workspace_root = "e:\\gh_COPILOT"
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
     def scan_for_open_entropy(self):

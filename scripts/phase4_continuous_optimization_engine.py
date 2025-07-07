@@ -106,7 +106,7 @@ class ContinuousOptimizationEngine:
     Advanced ML-powered optimization with real-time analytics and scalability enhancements
     """
     
-    def __init__(self, workspace_path: str = "E:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "E:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.session_id = f"phase4_optimization_{int(datetime.now().timestamp())}"
         self.optimization_db = self.workspace_path / "phase4_continuous_optimization.db"

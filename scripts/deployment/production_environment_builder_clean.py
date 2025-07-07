@@ -41,7 +41,7 @@ class ProductionEnvironmentBuilder:
     
     def __init__(self):
         self.start_time = datetime.datetime.now()
-        self.sandbox_path = Path("e:/_copilot_sandbox")
+        self.sandbox_path = Path("e:/gh_COPILOT")
         self.production_path = Path("e:/_copilot_production-001")
         self.results = {
             "timestamp": self.start_time.isoformat(),

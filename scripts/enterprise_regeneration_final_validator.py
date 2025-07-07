@@ -35,8 +35,8 @@ class EnterpriseRegenerationValidator:
         self.session_id = f"FINAL_VALIDATION_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.start_time = datetime.now()
         self.environments = {
-            'sandbox': Path('E:/_copilot_sandbox'),
-            'staging': Path('E:/_copilot_staging')
+            'sandbox': Path('E:/gh_COPILOT'),
+            'staging': Path('E:/gh_COPILOT')
         }
         self.validation_results = {
             'database_validation': {},

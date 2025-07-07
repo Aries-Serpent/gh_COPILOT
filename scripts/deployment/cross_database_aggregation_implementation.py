@@ -32,7 +32,7 @@ def validate_environment_compliance() -> bool:
     current_path = Path(os.getcwd())
     
     # Check for proper workspace root
-    if not str(current_path).endswith("_copilot_sandbox"):
+    if not str(current_path).endswith("gh_COPILOT"):
         logging.warning(f"[WARNING] Non-standard workspace: {current_path}")
     
     # Enhanced recursive violation detection
@@ -176,7 +176,7 @@ class CrossDatabaseAggregator:
     Aggregates data across all 8 databases with template enhancement
     """
     
-    def __init__(self, workspace_path: str = "e:\\_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:\\gh_COPILOT"):
         # CRITICAL: Validate environment before initialization
         validate_environment_compliance()
         

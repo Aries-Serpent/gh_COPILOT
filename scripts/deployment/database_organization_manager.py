@@ -3,7 +3,7 @@
 Database Organization Manager for Enterprise Compliance
 =======================================================
 
-This script organizes all database files in the deployed E:/_copilot_sandbox
+This script organizes all database files in the deployed E:/gh_COPILOT
 environment to comply with enterprise database management standards.
 
 DUAL COPILOT PATTERN: Primary Organizer with Secondary Validator
@@ -18,7 +18,7 @@ ENTERPRISE FEATURES:
 - Enterprise-grade audit trails
 - Database location standardization
 
-TARGET: Deployed E:/_copilot_sandbox environment
+TARGET: Deployed E:/gh_COPILOT environment
 """
 
 import os
@@ -34,12 +34,12 @@ class DatabaseOrganizationManager:
     """Database organization manager for enterprise compliance."""
     
     def __init__(self):
-        self.deployed_base_path = Path("E:/_copilot_sandbox")
+        self.deployed_base_path = Path("E:/gh_COPILOT")
         self.databases_dir = self.deployed_base_path / "databases"
         self.backup_dir = self.deployed_base_path / f"_backup_database_organization_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.results = {
             'scan_timestamp': datetime.now().isoformat(),
-            'environment': 'DEPLOYED E:/_copilot_sandbox',
+            'environment': 'DEPLOYED E:/gh_COPILOT',
             'databases_found': 0,
             'databases_moved': 0,
             'databases_organized': {},
@@ -173,7 +173,7 @@ Original files backed up to: `{self.results['backup_directory']}`
 The deployed environment database organization is {'CERTIFIED' if self.results['enterprise_compliant'] else 'NOT CERTIFIED'} as enterprise-compliant.
 
 ---
-*This report validates database organization compliance for the DEPLOYED E:/_copilot_sandbox environment.*
+*This report validates database organization compliance for the DEPLOYED E:/gh_COPILOT environment.*
 """
         
         # Save report
@@ -240,7 +240,7 @@ The deployed environment database organization is {'CERTIFIED' if self.results['
 def main():
     """Main execution function."""
     print("\\n=== DATABASE ORGANIZATION MANAGER ===")
-    print("Target: E:/_copilot_sandbox (DEPLOYED ENVIRONMENT)")
+    print("Target: E:/gh_COPILOT (DEPLOYED ENVIRONMENT)")
     print("============================================================")
     
     try:

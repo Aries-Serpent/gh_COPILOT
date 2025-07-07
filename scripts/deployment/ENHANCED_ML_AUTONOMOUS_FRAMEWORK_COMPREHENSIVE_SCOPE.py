@@ -105,7 +105,7 @@ def generate_comprehensive_autonomous_framework_scope():
         
         "core_components": {
             "DatabaseOptimizationEngine": {
-                "file_location": "e:/_copilot_sandbox/databases/database_optimization_engine.py",
+                "file_location": "e:/gh_COPILOT/databases/database_optimization_engine.py",
                 "dependencies": ["sqlite3", "pandas", "numpy", "sqlalchemy"],
                 "functions": [
                     "analyze_database_performance_ml()",
@@ -117,7 +117,7 @@ def generate_comprehensive_autonomous_framework_scope():
             },
             
             "SchemaIntelligenceAnalyzer": {
-                "file_location": "e:/_copilot_sandbox/databases/schema_intelligence_analyzer.py",
+                "file_location": "e:/gh_COPILOT/databases/schema_intelligence_analyzer.py",
                 "dependencies": ["sqlite3", "networkx", "pandas"],
                 "functions": [
                     "analyze_table_relationships_ml()",
@@ -128,7 +128,7 @@ def generate_comprehensive_autonomous_framework_scope():
             },
             
             "QueryOptimizationML": {
-                "file_location": "e:/_copilot_sandbox/databases/query_optimization_ml.py", 
+                "file_location": "e:/gh_COPILOT/databases/query_optimization_ml.py", 
                 "dependencies": ["sklearn", "pandas", "sqlite3"],
                 "functions": [
                     "analyze_query_patterns_ml()",
@@ -208,7 +208,7 @@ def generate_comprehensive_autonomous_framework_scope():
         
         "core_components": {
             "AutonomousOptimizationEngine": {
-                "file_location": "e:/_copilot_sandbox/databases/autonomous_optimization_engine.py",
+                "file_location": "e:/gh_COPILOT/databases/autonomous_optimization_engine.py",
                 "dependencies": ["scikit-learn", "pandas", "numpy", "psutil", "threading"],
                 "functions": [
                     "autonomous_performance_optimization()",
@@ -220,7 +220,7 @@ def generate_comprehensive_autonomous_framework_scope():
             },
             
             "SelfLearningOptimizer": {
-                "file_location": "e:/_copilot_sandbox/databases/self_learning_optimizer.py", 
+                "file_location": "e:/gh_COPILOT/databases/self_learning_optimizer.py", 
                 "dependencies": ["tensorflow", "keras", "numpy", "pandas"],
                 "functions": [
                     "continuous_learning_loop()",
@@ -232,7 +232,7 @@ def generate_comprehensive_autonomous_framework_scope():
             },
             
             "PredictiveAnalyticsEngine": {
-                "file_location": "e:/_copilot_sandbox/databases/predictive_analytics_engine.py",
+                "file_location": "e:/gh_COPILOT/databases/predictive_analytics_engine.py",
                 "dependencies": ["prophet", "scikit-learn", "pandas", "numpy"],
                 "functions": [
                     "predict_system_performance_trends()",
@@ -244,7 +244,7 @@ def generate_comprehensive_autonomous_framework_scope():
             },
             
             "IntelligentDecisionEngine": {
-                "file_location": "e:/_copilot_sandbox/databases/intelligent_decision_engine.py",
+                "file_location": "e:/gh_COPILOT/databases/intelligent_decision_engine.py",
                 "dependencies": ["scikit-learn", "numpy", "json", "datetime"],
                 "functions": [
                     "autonomous_optimization_decisions()",
@@ -476,7 +476,7 @@ def generate_comprehensive_autonomous_framework_scope():
     print("=" * 60)
     
     file_structure = {
-        "e:/_copilot_sandbox/databases/": {
+        "e:/gh_COPILOT/databases/": {
             "core_deployment_files": [
                 "ENHANCED_ML_STAGING_DEPLOYMENT_EXECUTOR_ADVANCED.py",
                 "autonomous_optimization_engine.py",
@@ -505,7 +505,7 @@ def generate_comprehensive_autonomous_framework_scope():
             ]
         },
         
-        "e:/_copilot_sandbox/databases/logs/": [
+        "e:/gh_COPILOT/databases/logs/": [
             "enhanced_staging_deployment.log",
             "autonomous_optimization.log",
             "database_optimization.log",
@@ -513,7 +513,7 @@ def generate_comprehensive_autonomous_framework_scope():
             "performance_monitoring.log"
         ],
         
-        "e:/_copilot_sandbox/databases/models/": [
+        "e:/gh_COPILOT/databases/models/": [
             "deployment_success_predictor.pkl",
             "performance_optimizer.pkl",
             "risk_assessor.pkl",
@@ -521,7 +521,7 @@ def generate_comprehensive_autonomous_framework_scope():
             "anomaly_detector.pkl"
         ],
         
-        "e:/_copilot_sandbox/databases/configs/": [
+        "e:/gh_COPILOT/databases/configs/": [
             "autonomous_optimization_config.json",
             "ml_model_hyperparameters.json",
             "database_optimization_config.json",
@@ -529,7 +529,7 @@ def generate_comprehensive_autonomous_framework_scope():
             "validation_checkpoints_config.json"
         ],
         
-        "e:/_copilot_staging/": {
+        "e:/gh_COPILOT/": {
             "deployed_structure": [
                 "databases/ (all optimized databases)",
                 ".github/ (GitHub integration files)", 

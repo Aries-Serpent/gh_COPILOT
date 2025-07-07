@@ -11,7 +11,7 @@ from pathlib import Path
 def generate_chunk3_final_summary():
     """Generate final CHUNK 3 completion summary"""
     
-    workspace_path = Path("E:/_copilot_sandbox")
+    workspace_path = Path("E:/gh_COPILOT")
     
     summary = {
         "chunk_3_completion_status": "COMPLETE",

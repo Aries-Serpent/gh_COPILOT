@@ -2,7 +2,7 @@
 """
 [TARGET] ULTIMATE PRODUCTION PARITY VALIDATION FRAMEWORK
 [LAUNCH] DUAL COPILOT PATTERN: SUPREME VALIDATION AUTHORITY
-Complete Capability Parity Verification Between _copilot_sandbox and _copilot_production-001
+Complete Capability Parity Verification Between gh_COPILOT and _copilot_production-001
 
 This is the DEFINITIVE test that validates 100% capability parity with:
 - Database-first comprehensive scanning
@@ -70,14 +70,14 @@ class UltimateProductionParityValidator:
     """
     [TARGET] SUPREME VALIDATION AUTHORITY
     The definitive capability parity validator ensuring _copilot_production-001
-    has EXACTLY the same capabilities as _copilot_sandbox
+    has EXACTLY the same capabilities as gh_COPILOT
     """
     
     def __init__(self):
         # MANDATORY: Anti-recursion and safety validation
         self.validate_execution_safety()
         
-        self.sandbox_path = Path("e:/_copilot_sandbox")
+        self.sandbox_path = Path("e:/gh_COPILOT")
         self.production_path = Path("e:/_copilot_production-001")
         self.session_id = f"ULTIMATE_PARITY_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
         
@@ -100,7 +100,7 @@ class UltimateProductionParityValidator:
         
         # Check for recursive patterns
         forbidden_patterns = [
-            "backup/backup", "temp/temp", "_copilot_sandbox/_copilot_sandbox",
+            "backup/backup", "temp/temp", "gh_COPILOT/gh_COPILOT",
             "_copilot_production/_copilot_production", "test/test"
         ]
         

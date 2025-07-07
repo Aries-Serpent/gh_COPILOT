@@ -23,9 +23,9 @@ from dataclasses import dataclass, asdict
 class EnterpriseJSONSerializer:
     """Enterprise-grade JSON serializer with datetime handling."""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
-        self.staging_path = Path("e:/_copilot_staging")
+        self.staging_path = Path("e:/gh_COPILOT")
         
         # Setup logging
         logging.basicConfig(
@@ -330,7 +330,7 @@ class OptimizationReport:
 class EnterpriseReportGenerator:
     """Enterprise report generator with proper datetime handling."""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.serializer = EnterpriseJSONSerializer(workspace_path)
         

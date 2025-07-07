@@ -69,7 +69,7 @@ class DatabaseAnalysisResult:
 class ProductionDatabaseAnalyzer:
     """Comprehensive production database and codebase analyzer"""
     
-    def __init__(self, workspace_root: str = "E:/_copilot_sandbox"):
+    def __init__(self, workspace_root: str = "E:/gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.db_path = self.workspace_root / "databases" / "production.db"
         self.session_id = f"PROD_DB_ANALYSIS_{int(datetime.now().timestamp())}"

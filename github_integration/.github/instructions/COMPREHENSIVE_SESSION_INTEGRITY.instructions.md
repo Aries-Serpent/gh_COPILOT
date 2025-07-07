@@ -242,7 +242,7 @@ move_to_subdirectories:
 # CRITICAL: Backup creation with ZERO RECURSION enforcement
 def create_safe_backup(file_path):
     # ENFORCE: Proper environment root only
-    proper_root = r"E:/_copilot_sandbox"
+    proper_root = r"E:/gh_COPILOT"
     
     # CRITICAL: External backup location only
     backup_root = r"E:/temp/Auto_Build\HAR_Analyzer_EXTERNAL_BACKUPS"

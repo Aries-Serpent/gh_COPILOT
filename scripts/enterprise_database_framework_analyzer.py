@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 class EnterpriseDatabaseFrameworkAnalyzer:
     """Enterprise database analysis and script generation framework"""
     
-    def __init__(self, workspace_path: str = "e:\\_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:\\gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.databases_path = self.workspace_path / "databases"
         self.production_db = self.databases_path / "production.db"

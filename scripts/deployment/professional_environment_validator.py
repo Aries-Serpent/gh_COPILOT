@@ -25,8 +25,8 @@ class ProfessionalEnvironmentValidator:
     """Professional environment validation for gh_COPILOT deployment."""
     
     def __init__(self):
-        self.workspace_path = Path("e:/_copilot_sandbox")
-        self.staging_path = Path("e:/_copilot_staging")
+        self.workspace_path = Path("e:/gh_COPILOT")
+        self.staging_path = Path("e:/gh_COPILOT")
         self.validation_results = {
             'validation_timestamp': datetime.now().isoformat(),
             'unicode_compatibility': False,

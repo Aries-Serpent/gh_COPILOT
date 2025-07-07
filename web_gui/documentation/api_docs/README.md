@@ -280,7 +280,7 @@ import sqlite3
 from pathlib import Path
 
 def get_database_metrics():
-    db_path = Path("e:/_copilot_sandbox/production.db")
+    db_path = Path("e:/gh_COPILOT/production.db")
     with sqlite3.connect(str(db_path)) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM enhanced_script_tracking")
