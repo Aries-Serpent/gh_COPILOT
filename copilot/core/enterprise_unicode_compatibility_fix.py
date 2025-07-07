@@ -14,7 +14,7 @@ DUAL COPILOT PATTERN: Primary Converter with Secondary Validator
 
 Features:
 - Windows CP1252 compatibility
-- Professional ASCII alternatives  
+- Professional ASCII alternatives
 - Comprehensive Unicode detection
 - Enterprise logging standards
 - Zero functionality impact
@@ -24,26 +24,28 @@ Version: 2.0.0
 Last Updated: 2025-07-06
 """
 
-import os
-import sys
-import re
+import json
 import logging
+import shutil
+import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Any, Dict, Optional, Tuple
 
 from copilot.common import get_workspace_path
-import json
-import shutil
-import subprocess
+
 
 class EnterpriseUnicodeCompatibilityFix:
     """Enterprise-grade Unicode compatibility fix for Windows systems."""
-    
-    def __init__(self, workspace_path: Optional[str] = None, staging_path: Optional[str] = None):
+
+    def __init__(
+        self, workspace_path: Optional[str] = None,
+        staging_path: Optional[str] = None
+    ):
         self.workspace_path = get_workspace_path(workspace_path)
         self.staging_path = get_workspace_path(staging_path)
-        self.backup_dir = self.workspace_path / f"_unicode_fix_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.backup_dir = self.workspace_path / \
+            f"_unicode_fix_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.results = {
             'fix_timestamp': datetime.now().isoformat(),
             'files_processed': 0,
@@ -53,18 +55,19 @@ class EnterpriseUnicodeCompatibilityFix:
             'compatibility_achieved': False,
             'environments_fixed': []
         }
-        
+
         # Setup logging with ASCII-only format
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
                 logging.StreamHandler(),
-                logging.FileHandler(self.workspace_path / 'unicode_compatibility_fix.log')
+                logging.FileHandler(self.workspace_path /
+                                    'unicode_compatibility_fix.log')
             ]
         )
         self.logger = logging.getLogger(__name__)
-        
+
         # Unicode to ASCII mapping for professional output
         self.unicode_replacements = {
             # Emojis to professional text
@@ -110,9 +113,7 @@ class EnterpriseUnicodeCompatibilityFix:
             '[DISPLAY]': '[DISPLAY]',
             '[PIN_ROUND]': '[LOCATION]',
             '[RAINBOW]': '[RAINBOW]',
-            '[CIRCUS]': '[CIRCUS]',
             '[THEATER]': '[THEATER]',
-            '[ART]': '[ART]',
             '[MOVIE]': '[MOVIE]',
             '[GAME]': '[GAME]',
             '[MUSIC]': '[MUSIC]',
@@ -134,13 +135,10 @@ class EnterpriseUnicodeCompatibilityFix:
             '[CALL]': '[CALL]',
             '[PAGER]': '[PAGER]',
             '[MOBILE]': '[MOBILE]',
-            '[MOBILE_IN]': '[MOBILE_IN]',
-            '[LAPTOP]': '[LAPTOP]',
             '[WATCH]': '[WATCH]',
             '[ANTENNA]': '[ANTENNA]',
             '[BATTERY]': '[BATTERY]',
             '[PLUG]': '[PLUG]',
-            '[LIGHTBULB]': '[LIGHTBULB]',
             '[FLASHLIGHT]': '[FLASHLIGHT]',
             '[CANDLE]': '[CANDLE]',
             '[LAMP]': '[LAMP]',
@@ -166,12 +164,8 @@ class EnterpriseUnicodeCompatibilityFix:
             '[CREDIT_CARD]': '[CREDIT_CARD]',
             '[RECEIPT]': '[RECEIPT]',
             '[CHART_UP]': '[CHART_UP]',
-            '[BAR_CHART]': '[BAR_CHART]',
-            '[CHART_INCREASING]': '[CHART_INCREASING]',
             '[CHART_DECREASING]': '[CHART_DECREASING]',
-            '[CLIPBOARD]': '[CLIPBOARD]',
             '[PIN]': '[PIN]',
-            '[PIN_ROUND]': '[PIN_ROUND]',
             '[PAPERCLIP]': '[PAPERCLIP]',
             '[PAPERCLIPS]': '[PAPERCLIPS]',
             '[RULER]': '[RULER]',
@@ -183,29 +177,23 @@ class EnterpriseUnicodeCompatibilityFix:
             '[LOCK]': '[LOCK]',
             '[UNLOCK]': '[UNLOCK]',
             '[LOCK_INK]': '[LOCK_INK]',
-            '[LOCK_KEY]': '[LOCK_KEY]',
             '[KEY]': '[KEY]',
             '[OLD_KEY]': '[OLD_KEY]',
             '[HAMMER]': '[HAMMER]',
             '[AXE]': '[AXE]',
             '[PICKAXE]': '[PICKAXE]',
             '[HAMMER_PICK]': '[HAMMER_PICK]',
-            '[HAMMER_WRENCH]': '[HAMMER_WRENCH]',
             '[DAGGER]': '[DAGGER]',
             '[CROSSED_SWORDS]': '[CROSSED_SWORDS]',
             '[PISTOL]': '[PISTOL]',
             '[BOOMERANG]': '[BOOMERANG]',
             '[BOW_ARROW]': '[BOW_ARROW]',
-            '[SHIELD]': '[SHIELD]',
             '[CARPENTRY_SAW]': '[CARPENTRY_SAW]',
-            '[WRENCH]': '[WRENCH]',
             '[SCREWDRIVER]': '[SCREWDRIVER]',
             '[NUT_BOLT]': '[NUT_BOLT]',
-            '[GEAR]': '[GEAR]',
             '[CLAMP]': '[CLAMP]',
             '[BALANCE]': '[BALANCE]',
             '[PROBING_CANE]': '[PROBING_CANE]',
-            '[CHAIN]': '[CHAIN]',
             '[CHAINS]': '[CHAINS]',
             '[HOOK]': '[HOOK]',
             '[TOOLBOX]': '[TOOLBOX]',
@@ -266,7 +254,6 @@ class EnterpriseUnicodeCompatibilityFix:
             'or': 'or',
             'not': 'not',
             'true': 'true',
-            'false': 'false',
             'proves': 'proves',
             'reverse proves': 'reverse proves',
             'models': 'models',
@@ -407,22 +394,23 @@ class EnterpriseUnicodeCompatibilityFix:
             'Psi': 'Psi',
             'Omega': 'Omega',
         }
-        
+
     def is_unicode_char(self, char: str) -> bool:
         """Check if a character is non-ASCII Unicode."""
         return ord(char) > 127
-        
+
     def clean_unicode_from_content(self, content: str) -> Tuple[str, int]:
         """Clean Unicode characters from content and return cleaned content and count."""
         unicode_count = 0
         cleaned_content = content
-        
+
         # Apply professional replacements
         for unicode_char, replacement in self.unicode_replacements.items():
             if unicode_char in cleaned_content:
-                cleaned_content = cleaned_content.replace(unicode_char, replacement)
+                cleaned_content = cleaned_content.replace(
+                    unicode_char, replacement)
                 unicode_count += content.count(unicode_char)
-        
+
         # Remove any remaining Unicode characters
         final_cleaned = ''
         for char in cleaned_content:
@@ -432,9 +420,9 @@ class EnterpriseUnicodeCompatibilityFix:
                 unicode_count += 1
             else:
                 final_cleaned += char
-                
+
         return final_cleaned, unicode_count
-        
+
     def process_python_file(self, py_file: Path) -> Dict[str, Any]:
         """Process a single Python file for Unicode compatibility."""
         file_details = {
@@ -444,145 +432,160 @@ class EnterpriseUnicodeCompatibilityFix:
             'modified': False,
             'backup_created': False
         }
-        
+
         try:
             # Read original content
             with open(py_file, 'r', encoding='utf-8', errors='replace') as f:
                 original_content = f.read()
-            
+
             # Clean Unicode characters
-            cleaned_content, fixed_count = self.clean_unicode_from_content(original_content)
-            
+            cleaned_content, fixed_count = self.clean_unicode_from_content(
+                original_content)
+
             # Count Unicode issues found
-            unicode_found = sum(1 for char in original_content if self.is_unicode_char(char))
+            unicode_found = sum(
+                1 for char in original_content if self.is_unicode_char(char))
             file_details['unicode_issues_found'] = unicode_found
             file_details['unicode_issues_fixed'] = fixed_count
-            
+
             if fixed_count > 0:
                 # Create backup
                 if not self.backup_dir.exists():
                     self.backup_dir.mkdir(parents=True, exist_ok=True)
-                
+
                 backup_file = self.backup_dir / py_file.name
                 shutil.copy2(py_file, backup_file)
                 file_details['backup_created'] = True
-                
+
                 # Write cleaned content
                 with open(py_file, 'w', encoding='utf-8') as f:
                     f.write(cleaned_content)
-                
+
                 file_details['modified'] = True
                 self.results['files_modified'] += 1
-                
-                self.logger.info(f"Fixed {fixed_count} Unicode issues in {py_file.name}")
-                
+
+                self.logger.info(
+                    f"Fixed {fixed_count} Unicode issues in {py_file.name}")
+
         except Exception as e:
             self.logger.error(f"Failed to process {py_file.name}: {str(e)}")
             file_details['error'] = str(e)
-            
+
         return file_details
-        
+
     def validate_compatibility(self, environment_path: Path) -> bool:
         """Validate Unicode compatibility in environment."""
         try:
             python_files = list(environment_path.glob("*.py"))
-            
+
             for py_file in python_files:
                 with open(py_file, 'r', encoding='utf-8', errors='replace') as f:
                     content = f.read()
-                
+
                 # Check for remaining Unicode issues
                 for char in content:
                     if self.is_unicode_char(char):
-                        self.logger.warning(f"Unicode character still found in {py_file.name}: {repr(char)}")
+                        self.logger.warning(
+                            f"Unicode character still found in {py_file.name}: {repr(char)}")
                         return False
-                        
+
             return True
-            
+
         except Exception as e:
             self.logger.error(f"Validation failed: {str(e)}")
             return False
-            
+
     def fix_unicode_compatibility(self):
         """Execute comprehensive Unicode compatibility fix."""
         print("\n" + "="*60)
         print("ENTERPRISE UNICODE COMPATIBILITY FIX")
         print("="*60)
-        
+
         self.logger.info("Starting Unicode compatibility fix...")
-        
+
         environments = [
             ("sandbox", self.workspace_path),
             ("staging", self.staging_path)
         ]
-        
+
         for env_name, env_path in environments:
             if not env_path.exists():
-                self.logger.warning(f"Environment {env_name} not found: {env_path}")
+                self.logger.warning(
+                    f"Environment {env_name} not found: {env_path}")
                 continue
-                
+
             self.logger.info(f"Processing {env_name} environment...")
-            
+
             # Get all Python files
             python_files = list(env_path.glob("*.py"))
-            self.logger.info(f"Found {len(python_files)} Python files in {env_name}")
-            
+            self.logger.info(
+                f"Found {len(python_files)} Python files in {env_name}")
+
             env_issues_found = 0
             env_issues_fixed = 0
-            
+
             # Process each file
             for py_file in python_files:
                 self.results['files_processed'] += 1
                 file_details = self.process_python_file(py_file)
-                
+
                 env_issues_found += file_details['unicode_issues_found']
                 env_issues_fixed += file_details['unicode_issues_fixed']
-                
+
             self.results['unicode_issues_found'] += env_issues_found
             self.results['unicode_issues_fixed'] += env_issues_fixed
-            
+
             # Validate compatibility
             compatible = self.validate_compatibility(env_path)
-            
+
             if compatible:
-                self.logger.info(f"[SUCCESS] {env_name} environment is Unicode compatible")
+                self.logger.info(
+                    f"[SUCCESS] {env_name} environment is Unicode compatible")
                 self.results['environments_fixed'].append(env_name)
             else:
-                self.logger.warning(f"[WARNING] {env_name} environment may still have Unicode issues")
-                
+                self.logger.warning(
+                    f"[WARNING] {env_name} environment may still have Unicode issues")
+
             print(f"  {env_name.upper()} Environment:")
             print(f"    Files processed: {len(python_files)}")
             print(f"    Unicode issues found: {env_issues_found}")
             print(f"    Unicode issues fixed: {env_issues_fixed}")
-            print(f"    Compatibility: {'[SUCCESS]' if compatible else '[WARNING]'}")
-            
+            print(
+                f"    Compatibility: {'[SUCCESS]' if compatible else '[WARNING]'}")
+
         # Overall compatibility check
-        self.results['compatibility_achieved'] = len(self.results['environments_fixed']) == len([e for e in environments if e[1].exists()])
-        
+        self.results['compatibility_achieved'] = len(self.results['environments_fixed']) == len([
+            e for e in environments if e[1].exists()])
+
         # Save results
-        results_path = self.workspace_path / f'unicode_compatibility_results_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+        results_path = self.workspace_path / \
+            f'unicode_compatibility_results_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
         with open(results_path, 'w', encoding='utf-8') as f:
             json.dump(self.results, f, indent=2, ensure_ascii=True)
-            
+
         # Test Windows compatibility
         self.test_windows_compatibility()
-        
+
         print(f"\n[RESULTS] Unicode Compatibility Fix Complete")
         print(f"  Total files processed: {self.results['files_processed']}")
-        print(f"  Total Unicode issues found: {self.results['unicode_issues_found']}")
-        print(f"  Total Unicode issues fixed: {self.results['unicode_issues_fixed']}")
+        print(
+            f"  Total Unicode issues found: {self.results['unicode_issues_found']}")
+        print(
+            f"  Total Unicode issues fixed: {self.results['unicode_issues_fixed']}")
         print(f"  Files modified: {self.results['files_modified']}")
-        print(f"  Environments fixed: {len(self.results['environments_fixed'])}")
-        print(f"  Compatibility achieved: {self.results['compatibility_achieved']}")
+        print(
+            f"  Environments fixed: {len(self.results['environments_fixed'])}")
+        print(
+            f"  Compatibility achieved: {self.results['compatibility_achieved']}")
         print(f"  Backup directory: {self.backup_dir}")
         print(f"  Results saved to: {results_path}")
-        
+
         return self.results['compatibility_achieved']
-        
+
     def test_windows_compatibility(self):
         """Test Windows console compatibility."""
         print("\n[TESTING] Windows Console Compatibility...")
-        
+
         test_strings = [
             "Professional text output",
             "[SUCCESS] Operation completed",
@@ -593,34 +596,36 @@ class EnterpriseUnicodeCompatibilityFix:
             "[TARGET] Objective achieved",
             "[TOOLS] Maintenance required"
         ]
-        
+
         try:
             for test_str in test_strings:
                 print(f"  Test: {test_str}")
-                
+
             print("[SUCCESS] All test strings displayed correctly")
             self.logger.info("Windows compatibility test passed")
-            
+
         except Exception as e:
             print(f"[ERROR] Windows compatibility test failed: {str(e)}")
             self.logger.error(f"Windows compatibility test failed: {str(e)}")
+
 
 def main():
     """Main execution function."""
     try:
         fixer = EnterpriseUnicodeCompatibilityFix()
         success = fixer.fix_unicode_compatibility()
-        
+
         if success:
             print("\n[SUCCESS] Enterprise Unicode compatibility achieved!")
             return 0
         else:
             print("\n[WARNING] Some Unicode issues may remain")
             return 1
-            
+
     except Exception as e:
         print(f"\n[ERROR] Unicode compatibility fix failed: {str(e)}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
