@@ -1068,7 +1068,7 @@ def main():
     print(f"📈 Improvement: +{results['improvement']:.1f}%")
     print(f"⏱️ Duration: {results['optimization_duration']:.1f} seconds")
     print(f"✅ Phases Completed: {results['phases_completed']}/7")
-    print(f"🚀 Services Optimized: {results['services_optimized']}")
+    print(f"Services optimized: {results['services_optimized']}")
     
     if results['target_achieved']:
         print("\nMission accomplished.")
