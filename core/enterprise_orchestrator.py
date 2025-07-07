@@ -398,7 +398,7 @@ def main():
     success = orchestrator.run_orchestration()
     
     if success:
-        print(f"\n🎉 Enterprise system is ready for operation!")
+        print("\nEnterprise system is ready for operation.")
         print("Available services:")
         print("  - Template Intelligence Platform: Core system intelligence")
         print("  - Enterprise Dashboard: http://localhost:5000")
