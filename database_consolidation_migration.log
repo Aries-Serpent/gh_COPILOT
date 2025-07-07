@@ -1,0 +1,34 @@
+2025-07-07 07:43:27,366 - INFO - 🔄 DATABASE CONSOLIDATION MIGRATION INITIALIZED
+2025-07-07 07:43:27,367 - INFO - Migration ID: DB_MIGRATION_20250707_074327
+2025-07-07 07:43:27,367 - INFO - 🚀 EXECUTING DATABASE MANAGEMENT MIGRATION...
+2025-07-07 07:43:27,482 - INFO - 📁 CREATING ARCHIVE STRUCTURE...
+2025-07-07 07:43:27,486 - INFO - 📁 Archive structure created: e:\gh_COPILOT\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327
+2025-07-07 07:43:27,488 - INFO - 🔍 DISCOVERING LEGACY DATABASE SCRIPTS...
+2025-07-07 07:43:27,495 - INFO - 📄 Found legacy script: e:\gh_COPILOT\scripts\DATABASE_CLEANUP_EXECUTOR.py
+2025-07-07 07:43:27,496 - INFO - 📄 Found legacy script: e:\gh_COPILOT\scripts\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py
+2025-07-07 07:43:27,498 - INFO - 📄 Found legacy script: e:\gh_COPILOT\scripts\database_organization_manager.py
+2025-07-07 07:43:27,499 - INFO - 📄 Found legacy script: e:\gh_COPILOT\scripts\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py
+2025-07-07 07:43:27,501 - INFO - 📄 Found legacy script: e:\gh_COPILOT\scripts\deployment\DATABASE_CLEANUP_EXECUTOR.py
+2025-07-07 07:43:27,502 - INFO - 📄 Found legacy script: e:\gh_COPILOT\scripts\deployment\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py
+2025-07-07 07:43:27,503 - INFO - 📄 Found legacy script: e:\gh_COPILOT\scripts\deployment\database_organization_manager.py
+2025-07-07 07:43:27,504 - INFO - 📄 Found legacy script: e:\gh_COPILOT\scripts\deployment\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py
+2025-07-07 07:43:27,506 - INFO - 📄 Found legacy script: e:\gh_COPILOT\scripts\regenerated\database_organization_manager.py
+2025-07-07 07:43:27,507 - INFO - 📊 Found 9 legacy database scripts
+2025-07-07 07:43:27,508 - INFO - 📦 ARCHIVING LEGACY DATABASE SCRIPTS...
+2025-07-07 07:43:27,535 - INFO - 📦 Archived: DATABASE_CLEANUP_EXECUTOR.py
+2025-07-07 07:43:27,547 - INFO - 📦 Archived: PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py
+2025-07-07 07:43:27,566 - INFO - 📦 Archived: database_organization_manager.py
+2025-07-07 07:43:27,580 - INFO - 📦 Archived: PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py
+2025-07-07 07:43:27,591 - INFO - 📦 Archived: DATABASE_CLEANUP_EXECUTOR.py
+2025-07-07 07:43:27,604 - INFO - 📦 Archived: PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py
+2025-07-07 07:43:27,617 - INFO - 📦 Archived: database_organization_manager.py
+2025-07-07 07:43:27,633 - INFO - 📦 Archived: PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py
+2025-07-07 07:43:27,643 - INFO - 📦 Archived: database_organization_manager.py
+2025-07-07 07:43:27,647 - INFO - 📦 Archived 9 legacy scripts
+2025-07-07 07:43:27,650 - INFO - 📋 CREATING MIGRATION DOCUMENTATION...
+2025-07-07 07:43:27,655 - INFO - 📋 Migration documentation created: e:\gh_COPILOT\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327\documentation\database_migration_guide_DB_MIGRATION_20250707_074327.md
+2025-07-07 07:43:27,663 - INFO - 📋 Migration manifest saved: e:\gh_COPILOT\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327\migration_manifest_DB_MIGRATION_20250707_074327.json
+2025-07-07 07:43:27,667 - INFO - ✅ DATABASE MANAGEMENT MIGRATION COMPLETED
+2025-07-07 07:43:27,667 - INFO - Migration ID: DB_MIGRATION_20250707_074327
+2025-07-07 07:43:27,668 - INFO - Scripts archived: 9
+2025-07-07 07:43:27,668 - INFO - Unified system: unified_database_management_system.py
