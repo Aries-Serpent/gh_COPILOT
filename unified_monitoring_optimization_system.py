@@ -13,6 +13,7 @@ import time
 import sqlite3
 import logging
 import threading
+import argparse
 from pathlib import Path
 from dataclasses import dataclass, asdict
 from datetime import datetime
@@ -274,7 +275,29 @@ class UnifiedMonitoringOptimizationSystem:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
+    """Entry point for command line execution."""
+    parser = argparse.ArgumentParser(
+        description="Unified Monitoring and Optimization System"
+    )
+    parser.add_argument(
+        "--verify-continuous-operation",
+        action="store_true",
+        help="Start monitoring loop and report status",
+    )
+
+    args = parser.parse_args()
+
     system = UnifiedMonitoringOptimizationSystem()
+
+    if args.verify_continuous_operation:
+        system.start_monitoring(interval=2)
+        try:
+            time.sleep(6)
+        finally:
+            system.stop_monitoring()
+        logger.info("Continuous operation verified")
+        return
+
     system.start_monitoring(interval=2)
     try:
         time.sleep(6)

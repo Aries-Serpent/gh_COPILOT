@@ -20,6 +20,7 @@ from dataclasses import dataclass, asdict
 from tqdm import tqdm
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import argparse
 
 # Configure enterprise logging
 LOG_DIR = Path("logs")
@@ -529,17 +530,29 @@ class UnifiedDatabaseManager:
             "summary": self.consolidation_results
         }
 
-def main():
-    """🚀 Main execution function"""
+def main() -> Dict[str, Any]:
+    """Command line interface for the database manager."""
+    parser = argparse.ArgumentParser(description="Unified Database Management System")
+    parser.add_argument(
+        "--integrity-check",
+        action="store_true",
+        help="Perform connection and schema checks only",
+    )
+    args = parser.parse_args()
+
     print("🗄️ UNIFIED DATABASE MANAGEMENT SYSTEM")
     print("=" * 50)
     print("Enterprise Database Management & Consolidation")
     print("=" * 50)
-    
-    # Initialize manager
+
     manager = UnifiedDatabaseManager()
-    
-    # Execute unified management
+
+    if args.integrity_check:
+        manager.discover_databases()
+        result = manager.validate_database_integrity()
+        print(json.dumps(result, indent=2))
+        return {"status": "INTEGRITY_CHECK", "validation": result}
+
     result = manager.execute_unified_database_management()
     
     print("\n" + "=" * 60)
