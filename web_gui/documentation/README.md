@@ -73,7 +73,7 @@ The web GUI leverages existing database patterns discovered through systematic a
 - Real-time metrics and analytics
 
 #### Database Pattern Discovery Results:
-- **Web Templates Found**: dashboard.html, certification.html, database.html, deployment_wizard.html
+- **Web Templates Found**: dashboard.html, database.html, deployment.html, migration.html, backup_restore.html
 - **Dashboard Components**: ExecutiveDashboardUnifier, EnterpriseDatabaseDashboardManager
 - **HTML Generation Functions**: generate_html_dashboard, generate_test_report
 - **Template Patterns**: Template Generation Pattern, template creation infrastructure

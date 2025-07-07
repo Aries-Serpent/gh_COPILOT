@@ -47,10 +47,10 @@ class RefinedProductionBuilder:
             
             # 5. WEB TEMPLATES (required for web interface)
             "templates/dashboard.html",
-            "templates/certification.html", 
             "templates/database.html",
-            "templates/deployment_wizard.html",
-            "templates/deployment_dashboard.html",
+            "templates/deployment.html",
+            "templates/migration.html",
+            "templates/backup_restore.html",
             
             # 6. STATIC ASSETS (required for web interface)
             "static/css/style.css",
