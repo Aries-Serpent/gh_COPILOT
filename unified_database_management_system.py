@@ -11,10 +11,10 @@ import sqlite3
 import shutil
 import json
 import logging
+from pathlib import Path
 import hashlib
 import time
 from datetime import datetime, timedelta
-from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 from tqdm import tqdm
@@ -22,11 +22,13 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Configure enterprise logging
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('unified_database_management.log', encoding='utf-8'),
+        logging.FileHandler(LOG_DIR / 'unified_database_management.log', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )

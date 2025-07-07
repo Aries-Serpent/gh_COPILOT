@@ -21,13 +21,16 @@ from tqdm import tqdm
 import threading
 from concurrent.futures import ThreadPoolExecutor
 import configparser
+from pathlib import Path
 
 # Configure enterprise logging
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('unified_disaster_recovery.log', encoding='utf-8'),
+        logging.FileHandler(LOG_DIR / 'unified_disaster_recovery.log', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )

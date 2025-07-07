@@ -20,16 +20,19 @@ from typing import List, Optional
 
 import psutil
 from tqdm import tqdm
+from pathlib import Path
 
 
 # ---------------------------------------------------------------------------
 # Logging configuration
 # ---------------------------------------------------------------------------
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("unified_monitoring_optimization.log", encoding="utf-8"),
+        logging.FileHandler(LOG_DIR / "unified_monitoring_optimization.log", encoding="utf-8"),
         logging.StreamHandler(sys.stdout)
     ],
 )

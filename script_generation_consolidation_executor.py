@@ -34,11 +34,13 @@ import hashlib
 import uuid
 
 # Configure logging
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('script_generation_consolidation.log', encoding='utf-8'),
+        logging.FileHandler(LOG_DIR / 'script_generation_consolidation.log', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )

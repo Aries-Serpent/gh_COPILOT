@@ -19,11 +19,13 @@ from dataclasses import dataclass, asdict
 import time
 
 # Configure logging
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('session_management_consolidation.log'),
+        logging.FileHandler(LOG_DIR / 'session_management_consolidation.log'),
         logging.StreamHandler()
     ]
 )

@@ -69,11 +69,13 @@ def setup_cross_platform_logging():
             pass  # Fallback to default encoding
     
     # Configure logging
+    log_dir = Path.cwd() / 'logs'
+    log_dir.mkdir(exist_ok=True)
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.FileHandler('unified_deployment.log', encoding='utf-8'),
+            logging.FileHandler(log_dir / 'unified_deployment.log', encoding='utf-8'),
             logging.StreamHandler(sys.stdout)
         ]
     )

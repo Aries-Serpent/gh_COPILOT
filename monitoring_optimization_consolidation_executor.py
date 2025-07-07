@@ -38,6 +38,8 @@ import time
 
 # Constants
 WORKSPACE_ROOT = Path("E:/gh_COPILOT")
+LOG_DIR = WORKSPACE_ROOT / "logs"
+LOG_DIR.mkdir(exist_ok=True)
 BACKUP_ROOT = Path("E:/TEMP/gh_copilot_backup")
 CONSOLIDATED_SCRIPTS_DIR = BACKUP_ROOT / "consolidated_scripts" / "monitoring_optimization"
 CANONICAL_FILE = WORKSPACE_ROOT / "unified_monitoring_optimization_system.py"
@@ -49,7 +51,7 @@ logging.basicConfig(
     format="[%(asctime)s] %(levelname)s: %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(WORKSPACE_ROOT / "monitoring_optimization_consolidation.log")
+        logging.FileHandler(LOG_DIR / "monitoring_optimization_consolidation.log")
     ]
 )
 logger = logging.getLogger(__name__)

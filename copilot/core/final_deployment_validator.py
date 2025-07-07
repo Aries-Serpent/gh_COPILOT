@@ -17,11 +17,15 @@ from typing import Optional
 from copilot.common import get_workspace_path
 
 # Professional logging setup
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
+REPORT_DIR = Path("reports")
+REPORT_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('final_deployment_validation.log'),
+        logging.FileHandler(LOG_DIR / 'final_deployment_validation.log'),
         logging.StreamHandler()
     ]
 )
@@ -219,7 +223,7 @@ class FinalDeploymentValidator:
         """Generate final validation report"""
         logger.info("Generating final validation report...")
         
-        report_path = self.workspace_path / f"final_deployment_validation_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        report_path = REPORT_DIR / f"final_deployment_validation_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         
         try:
             with open(report_path, 'w', encoding='utf-8') as f:

@@ -14,13 +14,16 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List, Dict, Any
 from datetime import datetime
+from pathlib import Path
 
 # Logging configuration
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('unified_legacy_cleanup.log', encoding='utf-8'),
+        logging.FileHandler(LOG_DIR / 'unified_legacy_cleanup.log', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )

@@ -78,7 +78,9 @@ class WebGUILauncher:
         logger.setLevel(logging.INFO)
         
         # Create file handler
-        log_file = self.workspace_root / 'web_gui_launcher.log'
+        log_dir = self.workspace_root / 'logs'
+        log_dir.mkdir(exist_ok=True)
+        log_file = log_dir / 'web_gui_launcher.log'
         handler = logging.FileHandler(log_file)
         handler.setLevel(logging.INFO)
         

@@ -18,7 +18,9 @@ from typing import Dict, List, Any, Optional
 from tqdm import tqdm
 from copilot.common.logging_utils import setup_logging
 
-logger = setup_logging(Path('enterprise_wrap_up.log'))
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
+logger = setup_logging(LOG_DIR / 'enterprise_wrap_up.log')
 
 class EnterpriseWrapUpEngine:
     """Engine responsible for final wrap-up validation and reporting."""
@@ -27,6 +29,8 @@ class EnterpriseWrapUpEngine:
         self.start_time = datetime.datetime.now()
         self.process_id = os.getpid()
         self.workspace_root = Path(os.environ.get("GH_COPILOT_ROOT", os.getcwd()))
+        self.reports_dir = self.workspace_root / "reports"
+        self.reports_dir.mkdir(exist_ok=True)
         self.validation_results = {}
         self.final_metrics = {}
         
@@ -71,7 +75,7 @@ class EnterpriseWrapUpEngine:
         
         # Load latest efficiency reports
         efficiency_reports = []
-        for report_file in self.workspace_root.glob("*efficiency*results*.json"):
+        for report_file in (self.reports_dir).glob("*efficiency*results*.json"):
             try:
                 with open(report_file, 'r') as f:
                     report = json.load(f)
@@ -294,7 +298,7 @@ class EnterpriseWrapUpEngine:
         """💾 Save wrap-up report to file"""
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"FINAL_WRAP_UP_REPORT_{timestamp}.json"
-        filepath = self.workspace_root / filename
+        filepath = self.reports_dir / filename
         
         try:
             with open(filepath, 'w', encoding='utf-8') as f:

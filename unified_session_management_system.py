@@ -24,16 +24,19 @@ from dataclasses import dataclass, asdict
 from tqdm import tqdm
 import logging
 import threading
+from pathlib import Path
 import queue
 import zipfile
 from session_protocol_validator import SessionProtocolValidator
 
 # Configure enterprise logging
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('unified_session_management.log', encoding='utf-8'),
+        logging.FileHandler(LOG_DIR / 'unified_session_management.log', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
