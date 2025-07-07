@@ -60,7 +60,7 @@ class EfficiencyOptimizationEngine:
         
         self.logger = self._setup_logging()
         
-        print("Efficiency optimization engine initialized.")
+        self.logger.info("Efficiency optimization engine initialized.")
     
     def _setup_logging(self) -> logging.Logger:
         """Setup comprehensive logging"""
