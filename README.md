@@ -72,6 +72,7 @@ Environment is compatible with Windows systems.
 - `unified_database_management_system.py` – handles SQLite operations
 - `unified_disaster_recovery_system.py` – backup and restore utilities
 - `unified_monitoring_optimization_system.py` – performance monitoring
+- `web_gui_integration_system.py` – wraps Web-GUI components under one interface
 - `final_deployment_validator.py` – verifies production readiness
 
 
