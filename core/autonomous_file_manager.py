@@ -29,7 +29,9 @@ logger = logging.getLogger(__name__)
 class BaseDatabaseManager:
     """Utility mixin providing a connection to ``production.db``."""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT") -> None:
+    def __init__(self, workspace_path: str = None) -> None:
+        if workspace_path is None:
+            workspace_path = os.getenv("WORKSPACE_PATH", "./workspace")
         self.workspace_path = Path(workspace_path)
         self.production_db = self.workspace_path / "production.db"
 
