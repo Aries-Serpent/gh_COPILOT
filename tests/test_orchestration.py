@@ -42,7 +42,7 @@ def test_start_service_failure(caplog):
         with caplog.at_level(logging.INFO):
             started = orch.start_service('MissingService', os.path.join(tmpdir, 'nope.py'))
         assert started is False
-        assert any('MissingService failed to start' in r.message for r in caplog.records)
+        assert any('Failed to start MissingService' in r.message for r in caplog.records)
 
 
 def test_count_healthy_databases():
