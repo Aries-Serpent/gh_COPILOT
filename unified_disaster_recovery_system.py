@@ -1,27 +1,8 @@
 #!/usr/bin/env python3
 """
-🚨 UNIFIED DISASTER RECOVERY SYSTEM
-===================================
-Enterprise-grade disaster recovery consolidating all recovery operations
+Unified Disaster Recovery System.
 
-🎯 DUAL COPILOT PATTERN: Primary Recovery Manager + Secondary Validator
-🎬 Visual Processing Indicators: MANDATORY
-🛡️ Anti-Recursion Protection: ENABLED
-🌐 Cross-Platform Support: Windows/Linux/macOS
-⚛️ Quantum Optimization: ENABLED
-🚀 Phase 4 & Phase 5 Integration: ENABLED
-🔄 Continuous Operation Mode: ENABLED
-
-CONSOLIDATED FROM:
-✅ disaster_recovery_enhancer.py
-✅ disaster_recovery_enhancer_enhanced.py
-✅ disaster_recovery_validator.py
-✅ disaster_recovery_success_report.py
-✅ disaster_recovery_analyzer.py
-
-Version: 1.0.0 - Unified Disaster Recovery
-Created: July 7, 2025
-Certification: ENTERPRISE_CERTIFIED
+Centralizes recovery operations with validation and cross-platform support.
 """
 
 import os

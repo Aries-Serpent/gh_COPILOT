@@ -1,21 +1,8 @@
 #!/usr/bin/env python3
 """
-🚀 UNIFIED MONITORING & OPTIMIZATION SYSTEM
-==========================================
-Enterprise-grade monitoring and optimization consolidating all related scripts.
+Unified Monitoring and Optimization System.
 
-DUAL COPILOT PATTERN: Primary Monitor + Secondary Optimizer
-Visual Processing Indicators: MANDATORY
-Quantum Optimization: ENABLED
-Cross-Platform Support: Windows/Linux/macOS
-
-CONSOLIDATED FROM:
-✅ enterprise_performance_monitor_windows.py
-✅ enterprise_continuous_optimization_engine.py
-✅ efficiency_optimization_engine_100_percent.py
-
-Version: 1.0.0 - Unified Monitoring & Optimization
-Created: July 7, 2025
+Combines monitoring and optimization utilities for enterprise deployments.
 """
 
 from __future__ import annotations
