@@ -43,9 +43,10 @@ class WebGUICompletionReporter:
             "patterns_discovered": {
                 "web_templates": [
                     "dashboard.html",
-                    "certification.html", 
                     "database.html",
-                    "deployment_wizard.html"
+                    "deployment.html",
+                    "migration.html",
+                    "backup_restore.html"
                 ],
                 "dashboard_components": [
                     "ExecutiveDashboardUnifier",
@@ -71,7 +72,7 @@ class WebGUICompletionReporter:
         # Generated Web-GUI Components
         generated_components = {
             "flask_application": {
-                "file": "web_gui_scripts/flask_apps/enterprise_dashboard.py",
+                "file": "web_gui/scripts/flask_apps/enterprise_dashboard.py",
                 "features": [
                     "Executive dashboard with real-time metrics",
                     "Database visualization and management", 
@@ -177,7 +178,7 @@ class WebGUICompletionReporter:
                 "documentation_complete": True
             },
             "deployment_ready": {
-                "requirements_file": "web_gui_scripts/requirements.txt",
+                "requirements_file": "web_gui/scripts/requirements.txt",
                 "installation_scripts": True,
                 "configuration_templates": True,
                 "testing_procedures": True
@@ -206,7 +207,7 @@ class WebGUICompletionReporter:
             "success_metrics": success_metrics,
             "next_steps": {
                 "immediate": [
-                    "Deploy Flask application: cd web_gui_scripts/flask_apps && python enterprise_dashboard.py",
+                    "Deploy Flask application: cd web_gui/scripts/flask_apps && python enterprise_dashboard.py",
                     "Access dashboard: http://localhost:5000",
                     "Test all API endpoints and functionality"
                 ],
@@ -296,7 +297,7 @@ Successfully leveraged enterprise databases to discover and utilize existing pat
 ### Deploy and Test Web-GUI:
 ```bash
 # 1. Start Flask Application
-cd web_gui_scripts/flask_apps
+cd web_gui/scripts/flask_apps
 python enterprise_dashboard.py
 
 # 2. Access Dashboard
@@ -374,7 +375,7 @@ def main():
     print("="*80)
     
     print("\n[NETWORK] NEXT STEPS:")
-    print("1. cd web_gui_scripts/flask_apps")
+    print("1. cd web_gui/scripts/flask_apps")
     print("2. python enterprise_dashboard.py")
     print("3. Open browser: http://localhost:5000")
     print("4. Test all web-GUI functionality")

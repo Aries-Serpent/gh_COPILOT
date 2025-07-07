@@ -20,7 +20,7 @@ applyTo: '**'
 **Flask Enterprise Dashboard Pattern:**
 ```python
 # MANDATORY: Use completed Flask enterprise dashboard
-from web_gui_scripts.flask_apps.enterprise_dashboard import app, dashboard
+from web_gui/scripts.flask_apps.enterprise_dashboard import app, dashboard
 
 class WebGUIIntegrator:
     """🌐 Enterprise Web-GUI Integration Engine"""
@@ -130,7 +130,7 @@ class EnterpriseWebDeployment:
     def deploy_web_interface(self, deployment_env: str = "production") -> Dict[str, str]:
         """🚀 Deploy web interface with enterprise standards"""
         deployment_config = {
-            "flask_app_path": "web_gui_scripts/flask_apps/enterprise_dashboard.py",
+            "flask_app_path": "web_gui/scripts/flask_apps/enterprise_dashboard.py",
             "template_directory": "templates/html/",
             "static_assets": "static/",
             "database_connection": "production.db",
@@ -153,7 +153,7 @@ class EnterpriseWebDeployment:
 ### **Pattern 1: Dashboard Integration**
 ```python
 # MANDATORY: Use enterprise dashboard integration pattern
-from web_gui_scripts.flask_apps.enterprise_dashboard import app
+from web_gui/scripts.flask_apps.enterprise_dashboard import app
 
 @app.route('/api/custom_endpoint')
 def custom_enterprise_endpoint():
@@ -225,7 +225,7 @@ MANDATORY: Follow enterprise web deployment standards
 ### **Standard Web Integration Pattern:**
 ```python
 # MANDATORY: Use enterprise web-GUI integration
-from web_gui_scripts.flask_apps.enterprise_dashboard import app, dashboard
+from web_gui/scripts.flask_apps.enterprise_dashboard import app, dashboard
 
 # Integrate custom functionality
 web_integrator = WebGUIIntegrator()

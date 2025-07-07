@@ -61,7 +61,7 @@ CRITICAL_FILES = [
 
 # Compliance Directories
 COMPLIANCE_DIRS = [
-    "web_gui_scripts",
+    "web_gui/scripts",
     "templates"
 ]
 

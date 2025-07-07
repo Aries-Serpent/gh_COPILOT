@@ -38,8 +38,8 @@ class FinalWebGUIValidator:
         """[NETWORK] Validate Flask enterprise dashboard application"""
         print("[SEARCH] Validating Flask Enterprise Dashboard...")
         
-        flask_app_path = self.workspace_path / "web_gui_scripts" / "flask_apps" / "enterprise_dashboard.py"
-        requirements_path = self.workspace_path / "web_gui_scripts" / "requirements.txt"
+        flask_app_path = self.workspace_path / "web_gui/scripts" / "flask_apps" / "enterprise_dashboard.py"
+        requirements_path = self.workspace_path / "web_gui/scripts" / "requirements.txt"
         
         validation = {
             "app_exists": flask_app_path.exists(),
@@ -206,7 +206,7 @@ class FinalWebGUIValidator:
         gaps_resolved["web_gui_error_recovery"] = (doc_base / "error_recovery" / "README.md").exists()
         
         # Check dashboard interface
-        flask_app = self.workspace_path / "web_gui_scripts" / "flask_apps" / "enterprise_dashboard.py"
+        flask_app = self.workspace_path / "web_gui/scripts" / "flask_apps" / "enterprise_dashboard.py"
         gaps_resolved["web_gui_dashboard_interface"] = flask_app.exists()
         
         # Check database-driven generation

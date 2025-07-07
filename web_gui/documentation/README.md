@@ -20,7 +20,7 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 ### 🌐 Web GUI Components
 
 #### Flask Dashboard Application
-- **File**: `web_gui_scripts/flask_apps/enterprise_dashboard.py`
+- **File**: `web_gui/scripts/flask_apps/enterprise_dashboard.py`
 - **Features**: Executive dashboard, database management, real-time metrics
 - **Access**: http://localhost:5000
 
@@ -44,23 +44,26 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 
 1. **Install Dependencies** (only if you plan to use the web dashboard):
    ```bash
-   cd web_gui_scripts
+   cd web_gui/scripts
    pip install -r requirements.txt  # only install if using the web dashboard
    ```
 
-2. **Start the Flask Dashboard**:
+2. **Generate the Dashboard Script** (run once):
    ```bash
-   cd flask_apps
-   python enterprise_dashboard.py
+   python ../web_gui/database_driven_web_gui_generator.py
    ```
 
-3. **Access Web Interface**:
+3. **Start the Flask Dashboard**:
+   ```bash
+   python flask_apps/enterprise_dashboard.py
+   ```
+4. **Access Web Interface**:
    - Dashboard: http://localhost:5000
    - Database: http://localhost:5000/database
    - Backup: http://localhost:5000/backup
    - Migration: http://localhost:5000/migration
 
-4. **API Endpoints**:
+5. **API Endpoints**:
    - Health Check: http://localhost:5000/api/health
    - Scripts Data: http://localhost:5000/api/scripts
 
@@ -73,7 +76,7 @@ The web GUI leverages existing database patterns discovered through systematic a
 - Real-time metrics and analytics
 
 #### Database Pattern Discovery Results:
-- **Web Templates Found**: dashboard.html, certification.html, database.html, deployment_wizard.html
+- **Web Templates Found**: dashboard.html, database.html, deployment.html, migration.html, backup_restore.html
 - **Dashboard Components**: ExecutiveDashboardUnifier, EnterpriseDatabaseDashboardManager
 - **HTML Generation Functions**: generate_html_dashboard, generate_test_report
 - **Template Patterns**: Template Generation Pattern, template creation infrastructure

@@ -102,7 +102,7 @@ class EnterpriseOrchestrator:
             ),
             'enterprise_dashboard': ServiceConfig(
                 name='Enterprise Dashboard',
-                script_path='web_gui/scripts/flask_apps/enterprise_dashboard.py',
+                script_path='web_gui_scripts/flask_apps/enterprise_dashboard.py',
                 port=5000,
                 critical=True,
                 timeout=30

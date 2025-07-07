@@ -790,7 +790,7 @@ class UnifiedEnterpriseDeploymentOrchestrator:
         # Web GUI components from all orchestrators
         web_components = {
             "web_gui/": "Web GUI directory",
-            "web_gui_scripts/": "Web GUI scripts",
+            "web_gui/scripts/": "Web GUI scripts",
             "web_gui_documentation/": "Web GUI documentation",
             "templates/html/": "HTML templates"
         }

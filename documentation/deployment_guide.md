@@ -23,9 +23,9 @@ venv_production\Scripts\activate  # Windows
 # Install core dependencies
 pip install -r requirements.txt
 
-# Optional sections in `requirements.txt` contain packages for the web
-# interface, machine learning, and quantum features. Install only those
-# required for your deployment.
+# Install extras as needed
+pip install -r requirements-web.txt  # Web interface
+pip install -r requirements-ml.txt   # Machine learning
 ```
 
 ### 2. Database Configuration

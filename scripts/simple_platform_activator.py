@@ -38,7 +38,7 @@ def activate_platform():
     critical_files = [
         "enhanced_analytics_intelligence_platform.py",
         "enterprise_business_rules_customization.py",
-        "web_gui_scripts/flask_apps/enterprise_dashboard.py"
+        "web_gui/scripts/flask_apps/enterprise_dashboard.py"
     ]
     
     missing_files = []
@@ -67,7 +67,7 @@ def activate_platform():
         },
         {
             'name': 'Enterprise Dashboard',
-            'command': f'cd web_gui_scripts/flask_apps && {python_exe} enterprise_dashboard.py',
+            'command': f'cd web_gui/scripts/flask_apps && {python_exe} enterprise_dashboard.py',
             'description': 'Executive dashboard for real-time insights'
         },
         {

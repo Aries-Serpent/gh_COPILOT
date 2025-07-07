@@ -10,11 +10,13 @@ The project relies on several external packages and services:
 Install the core dependencies using:
 
 ```bash
+# Install core dependencies
 pip install -r requirements.txt
 
-The `requirements.txt` file groups optional packages under comments (Web GUI,
-Machine Learning, Quantum, etc.). Install only the sections you need by
-selecting the relevant packages.
+# Optional extras are split into separate files so you can install only what you
+# need:
+pip install -r requirements-web.txt    # Web dashboard
+pip install -r requirements-ml.txt     # Machine learning and analytics
 ```
 
 For local testing or CI pipelines, use the provided `Makefile`:

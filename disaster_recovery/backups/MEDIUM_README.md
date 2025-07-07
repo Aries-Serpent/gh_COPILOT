@@ -8,7 +8,7 @@
 ### Accessing the Dashboard
 1. **Start the Application**:
    ```bash
-   cd web_gui_scripts/flask_apps
+   cd web_gui/scripts/flask_apps
    python enterprise_dashboard.py
    ```
 
