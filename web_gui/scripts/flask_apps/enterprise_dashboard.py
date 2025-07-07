@@ -145,6 +145,11 @@ def health_check():
         "database": "connected" if dashboard.production_db.exists() else "disconnected"
     })
 
+if __name__ == '__main__':
+    logging.info("[NETWORK] Starting Enterprise Flask Dashboard...")
+    logging.info("[CHAIN] Access at: http://localhost:5000")
+    app.run(debug=True, host='0.0.0.0', port=5000)
+
 # Simplified health endpoint used by automated tests
 @app.route('/health')
 def health_root():
