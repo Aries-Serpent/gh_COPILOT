@@ -12,6 +12,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
+from common.service_launcher import launch_service, check_service_running
 
 class FinalEfficiencyAchievementEngine:
     """🚀 Achieve and maintain 100% efficiency"""
@@ -117,37 +118,13 @@ class FinalEfficiencyAchievementEngine:
         
         script_path = self.workspace_path / service_config['script']
         
-        # Check if script exists
-        if not script_path.exists():
-            print(f"    ❌ Script not found: {script_path}")
-            return False
-        
-        try:
-            # Start the service
-            process = subprocess.Popen(
-                [sys.executable, str(script_path)],
-                cwd=str(self.workspace_path),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
-            )
-            
-            # Store process reference
+        process = launch_service(script_path, self.workspace_path, 3)
+        if process:
             self.services_processes[service_config['name']] = process
-            
-            # Wait a moment for startup
-            time.sleep(3)
-            
-            # Check if process is still running
-            if process.poll() is None:
-                print(f"    ✅ Process started (PID: {process.pid})")
-                return True
-            else:
-                print(f"    ❌ Process exited immediately")
-                return False
-            
-        except Exception as e:
-            print(f"    ❌ Error starting service: {e}")
+            print(f"    ✅ Process started (PID: {process.pid})")
+            return True
+        else:
+            print(f"    ❌ Failed to start: {script_path}")
             return False
     
     def start_service_alternative(self, service_config):
@@ -166,118 +143,59 @@ class FinalEfficiencyAchievementEngine:
     def ensure_dashboard_running(self):
         """Ensure Enterprise Dashboard is running"""
         
-        # Check if already running
-        try:
-            response = requests.get("http://localhost:5000/api/health", timeout=3)
-            if response.status_code == 200:
-                print("    ✅ Dashboard already running")
-                return True
-        except:
-            pass
+        if check_service_running(["enterprise_dashboard.py"], port=5000):
+            print("    ✅ Dashboard already running")
+            return True
         
         # Try to start dashboard
         dashboard_script = self.workspace_path / "web_gui/scripts/flask_apps/enterprise_dashboard.py"
         
         if dashboard_script.exists():
-            try:
-                process = subprocess.Popen(
-                    [sys.executable, str(dashboard_script)],
-                    cwd=str(self.workspace_path),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
-                )
-                
-                # Wait for startup
-                time.sleep(5)
-                
-                # Check if it's responding
+            process = launch_service(dashboard_script, self.workspace_path, 5)
+            if process:
                 try:
                     response = requests.get("http://localhost:5000/api/health", timeout=3)
                     if response.status_code == 200:
                         self.services_processes["Enterprise Dashboard"] = process
                         return True
-                except:
+                except Exception:
                     pass
-                
-            except Exception as e:
-                print(f"    ❌ Error starting dashboard: {e}")
         
         return False
     
     def ensure_template_intelligence_running(self):
         """Ensure Template Intelligence Platform is running"""
         
-        # Check if process is already running
-        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-            try:
-                if proc.info['name'] and 'python' in proc.info['name'].lower():
-                    cmdline = proc.info['cmdline'] or []
-                    if any('template_intelligence_platform.py' in arg for arg in cmdline):
-                        print("    ✅ Template Intelligence already running")
-                        return True
-            except:
-                continue
+        if check_service_running(["template_intelligence_platform.py"]):
+            print("    ✅ Template Intelligence already running")
+            return True
         
         # Try to start
         script_path = self.workspace_path / "core/template_intelligence_platform.py"
         
         if script_path.exists():
-            try:
-                process = subprocess.Popen(
-                    [sys.executable, str(script_path)],
-                    cwd=str(self.workspace_path),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
-                )
-                
-                time.sleep(3)
-                
-                if process.poll() is None:
-                    self.services_processes["Template Intelligence Platform"] = process
-                    return True
-                    
-            except Exception as e:
-                print(f"    ❌ Error starting template intelligence: {e}")
+            process = launch_service(script_path, self.workspace_path, 3)
+            if process:
+                self.services_processes["Template Intelligence Platform"] = process
+                return True
         
         return False
     
     def ensure_optimization_engine_running(self):
         """Ensure Continuous Optimization Engine is running"""
         
-        # Check if process is already running
-        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-            try:
-                if proc.info['name'] and 'python' in proc.info['name'].lower():
-                    cmdline = proc.info['cmdline'] or []
-                    if any('enterprise_continuous_optimization_engine.py' in arg for arg in cmdline):
-                        print("    ✅ Optimization Engine already running")
-                        return True
-            except:
-                continue
+        if check_service_running(["enterprise_continuous_optimization_engine.py"]):
+            print("    ✅ Optimization Engine already running")
+            return True
         
         # Try to start
         script_path = self.workspace_path / "core/enterprise_continuous_optimization_engine.py"
         
         if script_path.exists():
-            try:
-                process = subprocess.Popen(
-                    [sys.executable, str(script_path)],
-                    cwd=str(self.workspace_path),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
-                )
-                
-                time.sleep(3)
-                
-                if process.poll() is None:
-                    self.services_processes["Continuous Optimization Engine"] = process
-                    return True
-                    
-            except Exception as e:
-                print(f"    ❌ Error starting optimization engine: {e}")
+            process = launch_service(script_path, self.workspace_path, 3)
+            if process:
+                self.services_processes["Continuous Optimization Engine"] = process
+                return True
         
         return False
     

@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 from tqdm import tqdm
 import logging
+from common.service_launcher import launch_service, check_service_running
 
 # Configure logging
 logging.basicConfig(
@@ -668,26 +669,8 @@ class MasterEfficiencyOptimizer:
     def is_service_running(self, service_id: str) -> bool:
         """Check if a service is currently running"""
         service_config = self.enterprise_services[service_id]
-        
-        if service_config.get('port'):
-            # Check web service
-            try:
-                response = requests.get(f"http://localhost:{service_config['port']}/api/health", timeout=3)
-                return response.status_code == 200
-            except:
-                return False
-        else:
-            # Check for Python process
-            script_name = Path(service_config['script']).name
-            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-                try:
-                    if proc.info['name'] and 'python' in proc.info['name'].lower():
-                        cmdline = proc.info['cmdline'] or []
-                        if any(script_name in arg for arg in cmdline):
-                            return True
-                except:
-                    continue
-            return False
+        names = [Path(service_config['script']).name]
+        return check_service_running(names, port=service_config.get('port'))
     
     def fix_service_script(self, service_id: str) -> bool:
         """Fix service script if needed"""
@@ -714,26 +697,13 @@ class MasterEfficiencyOptimizer:
         service_config = self.enterprise_services[service_id]
         script_path = self.workspace_path / service_config['script']
         
-        if not script_path.exists():
-            return False
-        
-        try:
-            # Start the service process
-            process = subprocess.Popen(
-                [sys.executable, str(script_path)],
-                cwd=str(self.workspace_path),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
-            )
-            
+        process = launch_service(script_path, self.workspace_path, service_config.get('startup_time', 3))
+        if process:
             service_config['process'] = process
             self.services_running[service_id] = True
-            
             return True
-            
-        except Exception as e:
-            logger.error(f"Failed to start service {service_id}: {e}")
+        else:
+            logger.error(f"Failed to start service {service_id}")
             return False
     
     def validate_service_health(self, service_id: str) -> bool:

@@ -29,6 +29,7 @@ import logging
 import os
 import sys
 import threading
+from common.service_launcher import launch_service, check_service_running
 
 class EfficiencyOptimizationEngine:
     """⚡ Systematic efficiency optimization to achieve 100%"""
@@ -414,60 +415,24 @@ class EfficiencyOptimizationEngine:
     
     def check_service_running(self, service: Dict[str, Any]) -> bool:
         """Check if a service is already running"""
-        if service["port"]:
-            try:
-                response = requests.get(f"http://localhost:{service['port']}/health", timeout=3)
-                return response.status_code == 200
-            except:
-                pass
-        
-        # Check for Python processes
-        try:
-            for proc in psutil.process_iter(['name', 'cmdline']):
-                if proc.info['name'] and 'python' in proc.info['name'].lower():
-                    cmdline = ' '.join(proc.info['cmdline'] or [])
-                    if any(keyword in cmdline.lower() for keyword in [
-                        service['script'].split('/')[-1].lower(),
-                        service['name'].lower().replace(' ', '_')
-                    ]):
-                        return True
-        except:
-            pass
-        
-        return False
+        names = [Path(service['script']).name, service['name'].lower().replace(' ', '_')]
+        return check_service_running(names, port=service.get('port'))
     
     def start_service(self, service: Dict[str, Any]) -> bool:
         """Start a service"""
         script_path = self.workspace_path / service["script"]
-        
-        if not script_path.exists():
-            print(f"⚠️ Script not found: {script_path}")
-            return False
-        
-        try:
-            # Start service process
-            process = subprocess.Popen([
-                sys.executable, str(script_path)
-            ], cwd=str(self.workspace_path))
-            
-            # Allow startup time based on priority
-            startup_time = 5 if service["priority"] == "CRITICAL" else 3
-            time.sleep(startup_time)
-            
-            # Validate service is running
-            if process.poll() is None:  # Process still running
-                self.services[service['name']] = {
-                    "process": process,
-                    "pid": process.pid,
-                    "status": "running",
-                    "start_time": datetime.now().isoformat()
-                }
-                return True
-            else:
-                return False
-                
-        except Exception as e:
-            print(f"Service start error: {e}")
+        wait_time = 5 if service["priority"] == "CRITICAL" else 3
+        process = launch_service(script_path, self.workspace_path, wait_time)
+        if process:
+            self.services[service['name']] = {
+                "process": process,
+                "pid": process.pid,
+                "status": "running",
+                "start_time": datetime.now().isoformat()
+            }
+            return True
+        else:
+            print("Service start error")
             return False
     
     def calculate_service_efficiency(self) -> float:
