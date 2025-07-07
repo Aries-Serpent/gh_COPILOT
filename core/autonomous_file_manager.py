@@ -19,7 +19,9 @@ import sqlite3
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Sequence, Tuple, Optional
+
+from common.path_utils import get_workspace_root
 
 
 # Note: Logging configuration should be handled by the application using this module.
@@ -109,13 +111,15 @@ class AutonomousBackupManager(BaseDatabaseManager):
     """💾 Autonomous Backup System with Anti-Recursion Protection."""
 
     FORBIDDEN_BACKUP_LOCATIONS = [
-        Path("e:/gh_COPILOT").resolve(),
+        get_workspace_root(),
         Path("C:/temp/").resolve(),
         Path("./backup/").resolve(),
     ]
     APPROVED_BACKUP_ROOT = Path("E:/temp/gh_COPILOT_Backups").resolve()
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT") -> None:
+    def __init__(self, workspace_path: Optional[str] = None) -> None:
+        if workspace_path is None:
+            workspace_path = str(get_workspace_root())
         super().__init__(workspace_path)
         self.backup_root = self.APPROVED_BACKUP_ROOT
 

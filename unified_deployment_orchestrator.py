@@ -34,6 +34,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Union
 from dataclasses import dataclass, asdict, field
+
+from common.path_utils import get_workspace_root
 from enum import Enum
 import time
 import threading
@@ -102,7 +104,7 @@ class UnifiedDeploymentConfig:
     """🔧 Unified deployment configuration combining all orchestrator features"""
     
     # Core deployment settings
-    source_workspace: str = "e:\\gh_COPILOT"
+    source_workspace: str = str(get_workspace_root())
     deployment_mode: DeploymentMode = DeploymentMode.SANDBOX
     target_base: str = "E:\\"
     

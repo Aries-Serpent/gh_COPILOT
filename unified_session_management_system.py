@@ -35,6 +35,9 @@ import subprocess
 import psutil
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Optional
+
+from common.path_utils import get_workspace_root
 from typing import Dict, List, Optional, Any, Tuple, Set
 from dataclasses import dataclass, asdict
 from tqdm import tqdm
@@ -192,7 +195,9 @@ class UnifiedSessionManagementSystem:
     lifecycle management, and compliance certification.
     """
     
-    def __init__(self, workspace_root: str = r"e:\gh_COPILOT"):
+    def __init__(self, workspace_root: Optional[str] = None):
+        if workspace_root is None:
+            workspace_root = str(get_workspace_root())
         self.workspace_root = Path(workspace_root)
         self.session_id = f"UNIFIED_SESSION_{int(time.time())}"
         self.start_time = datetime.now()

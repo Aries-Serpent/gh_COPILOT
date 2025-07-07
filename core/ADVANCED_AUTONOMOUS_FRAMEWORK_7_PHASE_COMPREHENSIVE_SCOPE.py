@@ -86,14 +86,17 @@ class PhaseSpec:
     monitoring_requirements: List[str]
     enterprise_compliance: List[str]
 
+from common.path_utils import get_workspace_root
+
+
 class AdvancedAutonomousFramework7PhaseScope:
     """7-Phase Autonomous Framework Comprehensive Scope"""
     
     def __init__(self):
         self.framework_version = "7.0.0-enterprise"
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.workspace_root = Path("e:/gh_COPILOT")
-        self.staging_root = Path("E:/gh_COPILOT")
+        self.workspace_root = get_workspace_root()
+        self.staging_root = get_workspace_root()
         self.scope_data = {}
         
         # Anti-recursion safety
@@ -605,8 +608,9 @@ class AdvancedAutonomousFramework7PhaseScope:
     def generate_file_structure_map(self) -> Dict[str, Any]:
         """Generate comprehensive file structure map"""
         
+        base = str(self.staging_root)
         base_structure = {
-            "E:/gh_COPILOT": {
+            base: {
                 "purpose": "Main staging deployment directory",
                 "subdirectories": {
                     "config": ["database_config.json", "app_config.yaml", "environment.env"],
@@ -619,7 +623,7 @@ class AdvancedAutonomousFramework7PhaseScope:
                     "documentation": ["api_docs/", "user_guides/", "technical_specs/"]
                 }
             },
-            "e:/gh_COPILOT/databases": {
+            str(self.workspace_root / "databases"): {
                 "purpose": "Development and testing database components",
                 "files": [
                     "ENHANCED_ML_STAGING_DEPLOYMENT_EXECUTOR.py",
@@ -628,7 +632,7 @@ class AdvancedAutonomousFramework7PhaseScope:
                     "migration_testing/"
                 ]
             },
-            "e:/gh_COPILOT/autonomous_framework": {
+            str(self.workspace_root / "autonomous_framework"): {
                 "purpose": "Autonomous framework development components",
                 "subdirectories": {
                     "phase_3_database_first": ["validation_scripts/", "configuration/", "monitoring/"],
