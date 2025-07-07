@@ -1,10 +1,10 @@
 # 🚀 gh_COPILOT Enterprise Toolkit v4.0
 
+**Notice:** Quantum optimization and other advanced capabilities mentioned in earlier drafts are **not** implemented in this repository. The toolkit currently consists of standard Python scripts for deployment, monitoring, and basic template automation.
+
 ## Current Status
 
 **Latest Update:** Core scripts validated and operational. Template automation is functional but continues to evolve.
-
-This is the **gh_COPILOT Enterprise Toolkit**, a collection of deployment and management utilities for HTTP Archive (HAR) file analysis. Early drafts referenced quantum algorithms and other experimental features, but those components are not implemented.
 
 ## 🎯 Recent Achievements (June 2025)
 

@@ -1,5 +1,7 @@
 # gh_COPILOT Enterprise Deployment Package
 
+**Important:** This repository contains standard deployment and monitoring scripts. Quantum optimization and other advanced capabilities mentioned in some documents are **not** implemented.
+
 ## Package Information
 - **Package Name**: gh_COPILOT_Enterprise_Package_20250706_181036
 - **Created**: 2025-07-06 18:10:37
