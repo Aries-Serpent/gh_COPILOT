@@ -107,7 +107,7 @@ class UnifiedMonitoringOptimizationSystem:
     """Unified system combining monitoring and optimization capabilities"""
 
     def __init__(self, workspace_root: Optional[str] = None) -> None:
-        self.workspace_root = Path(workspace_root or "e:/gh_COPILOT")
+        self.workspace_root = Path(workspace_root or Path.home() / "gh_COPILOT")
         self.monitoring_active = False
         self.monitor_thread: Optional[threading.Thread] = None
         self.metrics_history: List[PerformanceMetrics] = []
