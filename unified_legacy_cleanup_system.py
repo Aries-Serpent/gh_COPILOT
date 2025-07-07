@@ -210,7 +210,7 @@ class UnifiedLegacyCleanupSystem:
             self.fix_c_temp_violations(Path(self.config.workspace_root))
             # Redundant DBs
             self.cleanup_redundant_databases()
-            result.actions = []  # actions stored in DB
+            # Accumulate actions performed during cleanup
         except Exception as e:
             logger.error(f'Cleanup failed: {e}')
             result.errors.append(str(e))
