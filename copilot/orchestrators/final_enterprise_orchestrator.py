@@ -388,8 +388,8 @@ def main() -> None:
             try:
                 service['process'].terminate()
                 print(f"✅ {service_name} stopped")
-            except Exception:
-                pass
+            except Exception as e:
+                orchestrator.logger.warning(f"Error terminating service {service_name}: {e}")
         print("🛑 Orchestrator stopped")
 
 
