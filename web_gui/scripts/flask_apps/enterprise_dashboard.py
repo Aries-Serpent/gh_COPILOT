@@ -72,7 +72,7 @@ class EnterpriseDashboardApp:
                     "last_updated": datetime.now().isoformat()
                 }
         except Exception as e:
-            print(f"[ERROR] Error getting dashboard metrics: {e}")
+            logging.error(f"Error getting dashboard metrics: {e}")
             return {}
 
 dashboard = EnterpriseDashboardApp()
