@@ -84,8 +84,12 @@ class EnterpriseDeploymentPackager:
         
         for file_name in self.deployment_files:
             source_file = self.source_path / file_name
+            if not source_file.exists():
+                alt_source = self.source_path / "core" / file_name
+                if alt_source.exists():
+                    source_file = alt_source
             target_file = self.target_path / file_name
-            
+
             if source_file.exists():
                 try:
                     shutil.copy2(source_file, target_file)

@@ -282,6 +282,10 @@ class EnterpriseGhCopilotDeploymentOrchestrator:
             
             for file_name, description in self.core_systems.items():
                 source_file = self.sandbox_path / file_name
+                if not source_file.exists():
+                    alt_source = self.sandbox_path / "core" / file_name
+                    if alt_source.exists():
+                        source_file = alt_source
                 if source_file.exists():
                     target_file = core_dir / file_name
                     shutil.copy2(source_file, target_file)
