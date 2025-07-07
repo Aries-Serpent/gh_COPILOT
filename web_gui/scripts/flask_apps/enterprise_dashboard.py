@@ -23,7 +23,7 @@ from pathlib import Path
 import os
 
 app = Flask(__name__)
-app.secret_key = 'enterprise_dashboard_secret_key_change_in_production'
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_development_secret_key')
 
 class EnterpriseDashboardApp:
     """[TARGET] Enterprise Dashboard Application Core"""
