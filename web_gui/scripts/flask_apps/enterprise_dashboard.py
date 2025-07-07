@@ -28,7 +28,8 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_development_secret_key')
 class EnterpriseDashboardApp:
     """[TARGET] Enterprise Dashboard Application Core"""
     
-    def __init__(self, workspace_path="e:/gh_COPILOT"):
+    def __init__(self, workspace_path=None):
+        workspace_path = workspace_path or os.getenv("ENTERPRISE_WORKSPACE_PATH", "./workspace")
         self.workspace_path = Path(workspace_path)
         self.production_db = self.workspace_path / "production.db"
         
