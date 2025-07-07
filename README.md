@@ -116,3 +116,17 @@ backup_dir = backup_manager.create_intelligent_backup()
 results = optimizer.optimize_workspace_autonomously()
 print(results)
 ```
+
+### Validation Tools
+
+Run a comprehensive system health audit:
+
+```bash
+python validation/system_status_checker.py --comprehensive-check
+```
+
+Generate a full deployment report:
+
+```bash
+python validation/deployment_validation_report.py --full-system-audit
+```
