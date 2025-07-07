@@ -60,14 +60,7 @@ class EfficiencyOptimizationEngine:
         
         self.logger = self._setup_logging()
         
-        print(f"\n{self.visual_indicators['rocket']} EFFICIENCY OPTIMIZATION ENGINE INITIALIZED")
-        print(f"Mission: Achieve 100% System Efficiency")
-        print(f"Optimization ID: {self.optimization_id}")
-        print(f"Current Efficiency: {self.current_efficiency}%")
-        print(f"Target Efficiency: {self.target_efficiency}%")
-        print(f"Improvement Needed: {self.target_efficiency - self.current_efficiency}%")
-        print(f"Start Time: {self.optimization_start.strftime('%Y-%m-%d %H:%M:%S')}")
-        print("=" * 80)
+        print("Efficiency optimization engine initialized.")
     
     def _setup_logging(self) -> logging.Logger:
         """Setup comprehensive logging"""
@@ -390,20 +383,13 @@ class EfficiencyOptimizationEngine:
         
         print(f"\n{self.visual_indicators['star']} EFFICIENCY BREAKDOWN:")
         print(f"📊 Service Efficiency: {service_efficiency:.1f}%")
-        print(f"🗄️ Database Efficiency: {database_efficiency:.1f}%") 
+        print(f"🗄️ Database Efficiency: {database_efficiency:.1f}%")
         print(f"⚡ System Efficiency: {system_efficiency:.1f}%")
         print(f"⚛️ Quantum Boost: {((quantum_boost - 1) * 100):.1f}%")
         print(f"🎯 Overall Efficiency: {overall_efficiency:.1f}%")
-        
+
         if overall_efficiency >= 100.0:
-            print(f"\n{self.visual_indicators['fire']} 🎉 100% EFFICIENCY ACHIEVED! 🎉 {self.visual_indicators['fire']}")
-            print(f"{self.visual_indicators['rocket']} ENTERPRISE SYSTEM READY FOR PRODUCTION!")
-        elif overall_efficiency >= 95.0:
-            print(f"\n{self.visual_indicators['star']} EXCELLENT EFFICIENCY: {overall_efficiency:.1f}%")
-            print(f"{self.visual_indicators['rocket']} SYSTEM READY FOR ENTERPRISE DEPLOYMENT!")
-        else:
-            print(f"\n📈 EFFICIENCY IMPROVED TO: {overall_efficiency:.1f}%")
-            print("🔧 Additional optimization recommended")
+            print("Efficiency target reached (100%).")
         
         return {
             "status": "COMPLETED",
