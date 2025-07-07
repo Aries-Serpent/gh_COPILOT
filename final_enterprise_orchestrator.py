@@ -28,6 +28,8 @@ import logging
 import os
 import sys
 
+from common.logging_utils import setup_logging
+
 class FinalEnterpriseOrchestrator:
     """🚀 Final Enterprise Orchestrator - 100% Efficiency Mission"""
     
@@ -54,35 +56,21 @@ class FinalEnterpriseOrchestrator:
         }
         
         self.logger = self._setup_logging()
-        
-        print(f"\n{self.visual_indicators['rocket']} FINAL ENTERPRISE ORCHESTRATOR INITIALIZED")
-        print(f"Mission: Achieve 100% System Efficiency")
-        print(f"Orchestrator ID: {self.orchestrator_id}")
-        print(f"Workspace: {self.workspace_root}")
-        print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+        self.logger.info("FINAL ENTERPRISE ORCHESTRATOR INITIALIZED")
+        self.logger.info("Mission: Achieve 100% System Efficiency")
+        self.logger.info(f"Orchestrator ID: {self.orchestrator_id}")
+        self.logger.info(f"Workspace: {self.workspace_root}")
+        self.logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         
     def _setup_logging(self) -> logging.Logger:
         """Setup comprehensive logging"""
-        logger = logging.getLogger('final_orchestrator')
-        logger.setLevel(logging.INFO)
-        
-        # Create file handler
         log_file = self.workspace_root / 'final_orchestrator.log'
-        handler = logging.FileHandler(log_file)
-        handler.setLevel(logging.INFO)
-        
-        # Create formatter
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        
-        return logger
+        return setup_logging(log_file)
     
     def start_service(self, service_name: str, script_path: str, cwd: Optional[str] = None) -> bool:
         """Start a service and track its process"""
-        print(f"\n{self.visual_indicators['processing']} Starting {service_name}...")
+        self.logger.info(f"Starting {service_name}...")
         
         try:
             # Set working directory
@@ -110,18 +98,14 @@ class FinalEnterpriseOrchestrator:
                     'start_time': datetime.now().isoformat(),
                     'status': 'running'
                 }
-                print(f"{self.visual_indicators['success']} {service_name} started successfully (PID: {process.pid})")
                 self.logger.info(f"{service_name} started successfully (PID: {process.pid})")
                 return True
             else:
                 stdout, stderr = process.communicate()
-                print(f"{self.visual_indicators['error']} {service_name} failed to start")
-                print(f"Error: {stderr}")
                 self.logger.error(f"{service_name} failed to start: {stderr}")
                 return False
-                
+
         except Exception as e:
-            print(f"{self.visual_indicators['error']} Failed to start {service_name}: {e}")
             self.logger.error(f"Failed to start {service_name}: {e}")
             return False
     
@@ -157,8 +141,8 @@ class FinalEnterpriseOrchestrator:
     
     def launch_all_services(self):
         """Launch all enterprise services"""
-        print(f"\n{self.visual_indicators['rocket']} LAUNCHING ALL ENTERPRISE SERVICES")
-        print("=" * 80)
+        self.logger.info("LAUNCHING ALL ENTERPRISE SERVICES")
+        self.logger.info("=" * 80)
         
         # Service configurations
         services_config = [
@@ -203,19 +187,19 @@ class FinalEnterpriseOrchestrator:
             )
             
             if success:
-                print(f"{self.visual_indicators['success']} {config['name']} launched successfully")
+                self.logger.info(f"{config['name']} launched successfully")
             else:
-                print(f"{self.visual_indicators['error']} {config['name']} failed to launch")
+                self.logger.error(f"{config['name']} failed to launch")
             
             # Small delay between services
             time.sleep(2)
         
-        print(f"\n{self.visual_indicators['star']} Service launch phase completed")
+        self.logger.info("Service launch phase completed")
         
     def monitor_system_health(self):
         """Monitor system health and calculate efficiency"""
-        print(f"\n{self.visual_indicators['target']} MONITORING SYSTEM HEALTH")
-        print("=" * 80)
+        self.logger.info("MONITORING SYSTEM HEALTH")
+        self.logger.info("=" * 80)
         
         # Wait for services to stabilize
         time.sleep(10)
@@ -230,9 +214,9 @@ class FinalEnterpriseOrchestrator:
             
             if is_healthy:
                 healthy_services += 1
-                print(f"{self.visual_indicators['success']} {service_name}: Healthy")
+                self.logger.info(f"{service_name}: Healthy")
             else:
-                print(f"{self.visual_indicators['warning']} {service_name}: {service.get('status', 'unknown')}")
+                self.logger.warning(f"{service_name}: {service.get('status', 'unknown')}")
         
         # Calculate efficiency score
         service_efficiency = (healthy_services / total_services * 100) if total_services > 0 else 0
@@ -247,23 +231,27 @@ class FinalEnterpriseOrchestrator:
         # Calculate overall efficiency
         overall_efficiency = (service_efficiency * 0.4 + database_efficiency * 0.3 + system_efficiency * 0.3)
         
-        print(f"\n{self.visual_indicators['star']} EFFICIENCY CALCULATION")
-        print("=" * 60)
-        print(f"Service Efficiency: {service_efficiency:.1f}% ({healthy_services}/{total_services} healthy)")
-        print(f"Database Efficiency: {database_efficiency:.1f}% ({database_count} databases)")
-        print(f"System Efficiency: {system_efficiency:.1f}%")
-        print(f"Overall Efficiency: {overall_efficiency:.1f}%")
+        self.logger.info("EFFICIENCY CALCULATION")
+        self.logger.info("=" * 60)
+        self.logger.info(
+            f"Service Efficiency: {service_efficiency:.1f}% ({healthy_services}/{total_services} healthy)"
+        )
+        self.logger.info(
+            f"Database Efficiency: {database_efficiency:.1f}% ({database_count} databases)"
+        )
+        self.logger.info(f"System Efficiency: {system_efficiency:.1f}%")
+        self.logger.info(f"Overall Efficiency: {overall_efficiency:.1f}%")
         
         if overall_efficiency >= 95:
-            print(f"\n{self.visual_indicators['fire']} MISSION ACCOMPLISHED!")
-            print(f"{self.visual_indicators['star']} SYSTEM EFFICIENCY: {overall_efficiency:.1f}%")
-            print(f"{self.visual_indicators['rocket']} ENTERPRISE READY FOR PRODUCTION!")
+            self.logger.info("MISSION ACCOMPLISHED!")
+            self.logger.info(f"SYSTEM EFFICIENCY: {overall_efficiency:.1f}%")
+            self.logger.info("ENTERPRISE READY FOR PRODUCTION!")
         elif overall_efficiency >= 85:
-            print(f"\n{self.visual_indicators['success']} EXCELLENT PERFORMANCE!")
-            print(f"{self.visual_indicators['star']} SYSTEM EFFICIENCY: {overall_efficiency:.1f}%")
+            self.logger.info("EXCELLENT PERFORMANCE!")
+            self.logger.info(f"SYSTEM EFFICIENCY: {overall_efficiency:.1f}%")
         else:
-            print(f"\n{self.visual_indicators['warning']} OPTIMIZATION NEEDED")
-            print(f"{self.visual_indicators['target']} SYSTEM EFFICIENCY: {overall_efficiency:.1f}%")
+            self.logger.warning("OPTIMIZATION NEEDED")
+            self.logger.warning(f"SYSTEM EFFICIENCY: {overall_efficiency:.1f}%")
         
         return overall_efficiency
     
@@ -297,8 +285,8 @@ class FinalEnterpriseOrchestrator:
     
     def generate_final_report(self, efficiency_score: float):
         """Generate final deployment report"""
-        print(f"\n{self.visual_indicators['star']} GENERATING FINAL REPORT")
-        print("=" * 80)
+        self.logger.info("GENERATING FINAL REPORT")
+        self.logger.info("=" * 80)
         
         report = {
             'orchestrator_id': self.orchestrator_id,
@@ -328,15 +316,15 @@ class FinalEnterpriseOrchestrator:
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)
         
-        print(f"{self.visual_indicators['success']} Final report saved: {report_file}")
+        self.logger.info(f"Final report saved: {report_file}")
         
         return report
     
     def run(self):
         """Run the complete orchestration mission"""
-        print(f"\n{self.visual_indicators['rocket']} STARTING FINAL ENTERPRISE ORCHESTRATION")
-        print(f"{self.visual_indicators['target']} TARGET: 100% SYSTEM EFFICIENCY")
-        print("=" * 80)
+        self.logger.info("STARTING FINAL ENTERPRISE ORCHESTRATION")
+        self.logger.info("TARGET: 100% SYSTEM EFFICIENCY")
+        self.logger.info("=" * 80)
         
         try:
             # Launch all services
@@ -349,18 +337,17 @@ class FinalEnterpriseOrchestrator:
             report = self.generate_final_report(efficiency_score)
             
             # Final status
-            print(f"\n{self.visual_indicators['star']} FINAL ORCHESTRATION COMPLETE")
-            print(f"Efficiency Score: {efficiency_score:.1f}%")
-            print(f"Mission Status: {report['mission_status']}")
-            
+            self.logger.info("FINAL ORCHESTRATION COMPLETE")
+            self.logger.info(f"Efficiency Score: {efficiency_score:.1f}%")
+            self.logger.info(f"Mission Status: {report['mission_status']}")
+
             if efficiency_score >= 95:
-                print(f"\n{self.visual_indicators['fire']} 🎉 MISSION ACCOMPLISHED! 🎉")
-                print(f"{self.visual_indicators['rocket']} ENTERPRISE SYSTEM AT 100% EFFICIENCY!")
+                self.logger.info("MISSION ACCOMPLISHED!")
+                self.logger.info("ENTERPRISE SYSTEM AT 100% EFFICIENCY!")
             
             return efficiency_score
             
         except Exception as e:
-            print(f"\n{self.visual_indicators['error']} ORCHESTRATION ERROR: {e}")
             self.logger.error(f"Orchestration error: {e}")
             return 0
 

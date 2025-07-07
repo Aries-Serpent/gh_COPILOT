@@ -3,6 +3,7 @@ import tempfile
 import time
 import sqlite3
 import signal
+import logging
 
 import pytest
 
@@ -15,29 +16,33 @@ def create_dummy_service_script(path, sleep_time=5):
                 f"time.sleep({sleep_time})\n")
 
 
-def test_start_service_success_and_health():
+def test_start_service_success_and_health(caplog):
     with tempfile.TemporaryDirectory() as tmpdir:
         script_path = os.path.join(tmpdir, 'service.py')
         create_dummy_service_script(script_path)
 
         orch = FinalEnterpriseOrchestrator(workspace_root=tmpdir)
-        started = orch.start_service('DummyService', script_path, cwd=tmpdir)
+        with caplog.at_level(logging.INFO):
+            started = orch.start_service('DummyService', script_path, cwd=tmpdir)
         try:
             assert started is True
             assert 'DummyService' in orch.services
             healthy = orch.check_service_health('DummyService')
             assert healthy is True
+            assert any('DummyService started successfully' in r.message for r in caplog.records)
         finally:
             proc = orch.services['DummyService']['process']
             proc.terminate()
             proc.wait()
 
 
-def test_start_service_failure():
+def test_start_service_failure(caplog):
     with tempfile.TemporaryDirectory() as tmpdir:
         orch = FinalEnterpriseOrchestrator(workspace_root=tmpdir)
-        started = orch.start_service('MissingService', os.path.join(tmpdir, 'nope.py'))
+        with caplog.at_level(logging.INFO):
+            started = orch.start_service('MissingService', os.path.join(tmpdir, 'nope.py'))
         assert started is False
+        assert any('MissingService failed to start' in r.message for r in caplog.records)
 
 
 def test_count_healthy_databases():

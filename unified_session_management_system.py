@@ -43,16 +43,8 @@ import threading
 import queue
 import zipfile
 from session_protocol_validator import SessionProtocolValidator
+from common.logging_utils import setup_logging
 
-# Configure enterprise logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('unified_session_management.log', encoding='utf-8'),
-        logging.StreamHandler()
-    ]
-)
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -194,6 +186,9 @@ class UnifiedSessionManagementSystem:
     
     def __init__(self, workspace_root: str = r"e:\gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
+        self.logger = setup_logging(self.workspace_root / 'unified_session_management.log')
+        global logger
+        logger = self.logger
         self.session_id = f"UNIFIED_SESSION_{int(time.time())}"
         self.start_time = datetime.now()
         
