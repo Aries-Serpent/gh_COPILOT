@@ -91,10 +91,9 @@ class IntegratedDeploymentConfig:
         if self.database_components is None:
             self.database_components = [
                 "production.db",
-                "zendesk_core.db", 
-                "agent_workspace.db",
-                "performance_metrics.db",
-                "validation_results.db"
+                "analytics.db",
+                "monitoring.db",
+                "testing.db"
             ]
 
 class IntegratedDeploymentOrchestrator:
