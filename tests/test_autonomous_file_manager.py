@@ -38,22 +38,24 @@ def _setup_db(db_path: Path, base: Path) -> None:
 
 
 
-def test_organize_files_autonomously(tmp_path):
+def test_organize_files_autonomously(tmp_path, monkeypatch):
     db = tmp_path / "production.db"
     _setup_db(db, tmp_path)
 
-    mgr = AutonomousFileManager(workspace_path=str(tmp_path))
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    mgr = AutonomousFileManager()
     result = mgr.organize_files_autonomously(["foo.py", "bar.sh"])
 
     assert result["foo.py"] == str(tmp_path / "utilities" / "foo.py")
     assert result["bar.sh"] == str(tmp_path / "scripts" / "bar.sh")
 
 
-def test_classify_file_autonomously(tmp_path):
+def test_classify_file_autonomously(tmp_path, monkeypatch):
     db = tmp_path / "production.db"
     _setup_db(db, tmp_path)
 
-    classifier = IntelligentFileClassifier(workspace_path=str(tmp_path))
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    classifier = IntelligentFileClassifier()
     info = classifier.classify_file_autonomously("foo.py")
 
     assert info["category"] == "utilities"
@@ -68,7 +70,8 @@ def test_create_intelligent_backup(tmp_path, monkeypatch):
     (tmp_path / "a.py").write_text("print('a')")
     (tmp_path / "b.sh").write_text("echo b")
 
-    mgr = AutonomousBackupManager(workspace_path=str(tmp_path))
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    mgr = AutonomousBackupManager()
     backup_root = Path(tempfile.mkdtemp())
     monkeypatch.setattr(mgr, "backup_root", backup_root)
 

@@ -19,7 +19,9 @@ import sqlite3
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Sequence, Tuple, Optional
+
+from copilot.common import get_workspace_path
 
 
 # Note: Logging configuration should be handled by the application using this module.
@@ -29,10 +31,8 @@ logger = logging.getLogger(__name__)
 class BaseDatabaseManager:
     """Utility mixin providing a connection to ``production.db``."""
 
-    def __init__(self, workspace_path: str = None) -> None:
-        if workspace_path is None:
-            workspace_path = os.getenv("WORKSPACE_PATH", "./workspace")
-        self.workspace_path = Path(workspace_path)
+    def __init__(self, workspace_path: Optional[str] = None) -> None:
+        self.workspace_path = get_workspace_path(workspace_path or os.getenv("WORKSPACE_PATH"))
         self.production_db = self.workspace_path / "production.db"
 
     def get_database_connection(self) -> sqlite3.Connection:
@@ -108,21 +108,23 @@ class IntelligentFileClassifier(BaseDatabaseManager):
 class AutonomousBackupManager(BaseDatabaseManager):
     """💾 Autonomous Backup System with Anti-Recursion Protection."""
 
-    FORBIDDEN_BACKUP_LOCATIONS = [
-        Path("e:/gh_COPILOT").resolve(),
-        Path("C:/temp/").resolve(),
-        Path("./backup/").resolve(),
-    ]
-    APPROVED_BACKUP_ROOT = Path("E:/temp/gh_COPILOT_Backups").resolve()
+    APPROVED_BACKUP_ROOT = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "E:/temp/gh_COPILOT_Backups")).resolve()
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT") -> None:
+    def __init__(self, workspace_path: Optional[str] = None) -> None:
         super().__init__(workspace_path)
         self.backup_root = self.APPROVED_BACKUP_ROOT
+        self.forbidden_backup_locations = [
+            self.workspace_path.resolve(),
+            Path("C:/temp/").resolve(),
+            Path("./backup/").resolve(),
+        ]
 
     def validate_backup_location(self) -> bool:
         resolved_backup_root = self.backup_root.resolve()
-        if any(resolved_backup_root == forbidden_path or resolved_backup_root in forbidden_path.parents
-               for forbidden_path in self.FORBIDDEN_BACKUP_LOCATIONS):
+        if any(
+            resolved_backup_root == forbidden_path or resolved_backup_root in forbidden_path.parents
+            for forbidden_path in self.forbidden_backup_locations
+        ):
             return False
         # Prevent backups inside workspace
         return not resolved_backup_root in self.workspace_path.resolve().parents
