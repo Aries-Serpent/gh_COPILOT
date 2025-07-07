@@ -416,7 +416,7 @@ def main():
     success = launcher.run_web_gui_launch()
     
     if success:
-        print(f"\n🎉 Web GUI is ready!")
+        print("\nWeb GUI is ready.")
         print("• Enterprise Dashboard: http://localhost:5000")
         print("• Full monitoring and analytics available")
         print("• Database-driven interfaces operational")
