@@ -300,7 +300,7 @@ class UnifiedEnterpriseDeploymentOrchestrator:
             # Save deployment results
             self._save_deployment_results(deployment_report)
             
-            logger.info("✅ UNIFIED DEPLOYMENT COMPLETED")
+            logger.info("Unified deployment completed.")
             return deployment_report
             
         except Exception as e:
@@ -1001,7 +1001,7 @@ def main():
         end_time = datetime.now()
         duration = end_time - start_time
         print(f"\nTotal Execution Time: {duration}")
-        print("🎯 UNIFIED DEPLOYMENT ORCHESTRATOR COMPLETED")
+        print("Unified deployment orchestrator completed.")
 
 
 if __name__ == "__main__":
