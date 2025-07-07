@@ -21,7 +21,6 @@
 
     <div class="container mt-4">
         <h2><i class="bi bi-cloud-download"></i> Backup & Restore Operations</h2>
-
         <div class="row mt-4">
             <div class="col-md-6">
                 <div class="card">
@@ -29,10 +28,16 @@
                         <h5><i class="bi bi-download"></i> Create Backup</h5>
                     </div>
                     <div class="card-body">
+
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Backup Type</label>
+                                <select class="form-select">
                         <form action="/create-backup" method="POST">
                             <div class="mb-3">
                                 <label class="form-label" for="backupType">Backup Type</label>
                                 <select class="form-select" id="backupType">
+
                                     <option>Full Backup</option>
                                     <option>Database Only</option>
                                     <option>Scripts Only</option>
@@ -40,6 +45,10 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Backup Location</label>
+
+                                <input type="text" class="form-control" value="{{ default_backup_location }}">
+                            </div>
+                            <button type="submit" class="btn btn-success">Create Backup</button>
                                 <input type="text" class="form-control" value="e:/_copilot_backups">
                             </div>
                             <button type="button" class="btn btn-success">Create Backup</button>
