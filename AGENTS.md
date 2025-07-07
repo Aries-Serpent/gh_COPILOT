@@ -3,8 +3,7 @@
 
 ## Repository Overview
 This project contains deployment, monitoring, and automation scripts. Some documents reference
-"quantum optimization" or other advanced capabilities. These features are **not** implemented and
-should be treated as future plans only.
+"quantum optimization" or other advanced capabilities. All quantum optimization and/or quantum algorithms aspects and capabilities are in draft or basic form and must explicitly be fully implemented with all features explicitly functional, researched and crafted by ChatGPT Codex.
 
 ## Environment Setup
 - Python **3.8+** is required (see `pyproject.toml`).
@@ -57,9 +56,7 @@ Responses should be broken into logical chunks under 2,000 tokens (preferably 1,
 begin with an anti‑recursion validation check.
 
 ## Caution
-Quantum optimization and other advanced AI claims are aspirational. Do not present them as working
-features unless corresponding code exists. Keep README files in sync with script updates and treat
-any quantum-related sections as informational only.
+All quantum optimization and/or quantum algorithms aspects and capabilities are in draft or basic form and must explicitly be fully implemented with all features explicitly functional, researched and crafted by ChatGPT Codex. Keep README files in sync with script updates and treat these quantum-related sections accordingly.
 
 ---
 This guide summarizes repository policies and should be consulted before making changes.
@@ -86,7 +83,7 @@ This repository follows a few common conventions to help keep development consis
 
 ## Project Notes
 - Keep documentation up to date with these limitations so users do not expect unsupported functionality.
-- References to quantum optimization or other advanced capabilities in the documentation describe future goals. These features are **not implemented**.
+- References to quantum optimization or quantum algorithm capabilities indicate they are in draft or basic form and must explicitly be fully implemented with all features explicitly functional, researched and crafted by ChatGPT Codex.
 - Do **not** modify any bundled SQLite databases under version control (see the `databases/` folder).
 - Additional guidelines and DUAL COPILOT compliance requirements can be found in the `documentation/` directory.
 
