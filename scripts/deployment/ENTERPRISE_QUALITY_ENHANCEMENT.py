@@ -24,7 +24,7 @@ class QualityEnhancementSystem:
         )
         
         # Ensure placeholders directory exists
-        self.placeholders_path.mkdir(exist_ok=True)
+        self.placeholders_path.mkdir(parents=True, exist_ok=True)
         
     def enhance_database_schemas(self):
         """Enhance database schemas to improve schema score"""
