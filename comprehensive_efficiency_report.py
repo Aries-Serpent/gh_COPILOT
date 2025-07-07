@@ -10,13 +10,16 @@ import psutil
 import requests
 from datetime import datetime
 from pathlib import Path
+import os
 from typing import Dict, Any, List
 
 class ComprehensiveEfficiencyReport:
     """📊 Generate comprehensive efficiency status report"""
     
-    def __init__(self):
-        self.workspace_path = Path("e:/gh_COPILOT")
+    def __init__(self, workspace_path: str | None = None):
+        if workspace_path is None:
+            workspace_path = os.environ.get("GH_COPILOT_ROOT", os.getcwd())
+        self.workspace_path = Path(workspace_path)
         self.report_time = datetime.now()
         
     def generate_comprehensive_report(self) -> Dict[str, Any]:

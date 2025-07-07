@@ -23,6 +23,7 @@ import json
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+import os
 from typing import Dict, List, Any, Optional
 from tqdm import tqdm
 import logging
@@ -33,8 +34,10 @@ import threading
 class EfficiencyOptimizationEngine:
     """⚡ Systematic efficiency optimization to achieve 100%"""
     
-    def __init__(self):
-        self.workspace_path = Path("e:/gh_COPILOT")
+    def __init__(self, workspace_path: str | None = None):
+        if workspace_path is None:
+            workspace_path = os.environ.get("GH_COPILOT_ROOT", os.getcwd())
+        self.workspace_path = Path(workspace_path)
         self.target_efficiency = 100.0
         self.current_efficiency = 86.3
         self.optimization_start = datetime.now()

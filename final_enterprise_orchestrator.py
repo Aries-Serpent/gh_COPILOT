@@ -31,7 +31,10 @@ import sys
 class FinalEnterpriseOrchestrator:
     """🚀 Final Enterprise Orchestrator - 100% Efficiency Mission"""
     
-    def __init__(self, workspace_root="e:\\gh_COPILOT"):
+    def __init__(self, workspace_root: Optional[str] = None):
+        """Initialize orchestrator with a workspace root."""
+        if workspace_root is None:
+            workspace_root = os.environ.get("GH_COPILOT_ROOT", os.getcwd())
         self.workspace_root = Path(workspace_root)
         self.orchestrator_id = f"FINAL_ORCH_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.start_time = datetime.now()

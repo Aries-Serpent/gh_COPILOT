@@ -31,7 +31,9 @@ app.secret_key = 'enterprise_dashboard_secret_key_change_in_production'
 class EnterpriseDashboardApp:
     """🎯 Enterprise Dashboard Application Core"""
     
-    def __init__(self, workspace_path="e:\\gh_COPILOT"):
+    def __init__(self, workspace_path: str | None = None):
+        if workspace_path is None:
+            workspace_path = os.environ.get("GH_COPILOT_ROOT", os.getcwd())
         self.workspace_path = Path(workspace_path)
         self.production_db = self.workspace_path / "databases" / "production.db"
         

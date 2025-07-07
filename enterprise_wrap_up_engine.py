@@ -13,6 +13,7 @@ import sqlite3
 import datetime
 import time
 from pathlib import Path
+import os
 from typing import Dict, List, Any, Optional
 from tqdm import tqdm
 from common.logging_utils import setup_logging
@@ -25,7 +26,7 @@ class EnterpriseWrapUpEngine:
     def __init__(self):
         self.start_time = datetime.datetime.now()
         self.process_id = os.getpid()
-        self.workspace_root = Path("e:/gh_COPILOT")
+        self.workspace_root = Path(os.environ.get("GH_COPILOT_ROOT", os.getcwd()))
         self.validation_results = {}
         self.final_metrics = {}
         

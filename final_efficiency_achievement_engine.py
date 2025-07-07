@@ -12,12 +12,15 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
+import os
 
 class FinalEfficiencyAchievementEngine:
     """🚀 Achieve and maintain 100% efficiency"""
     
-    def __init__(self):
-        self.workspace_path = Path("e:/gh_COPILOT")
+    def __init__(self, workspace_path: str | None = None):
+        if workspace_path is None:
+            workspace_path = os.environ.get("GH_COPILOT_ROOT", os.getcwd())
+        self.workspace_path = Path(workspace_path)
         self.services_processes = {}
         
     def achieve_100_percent_efficiency(self):
