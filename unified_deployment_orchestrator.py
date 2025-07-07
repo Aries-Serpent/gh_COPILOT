@@ -83,8 +83,8 @@ logger = setup_cross_platform_logging()
 
 class DeploymentMode(Enum):
     """🎯 Deployment modes for different scenarios"""
-    SANDBOX = "sandbox"           # Deploy to E:/_copilot_sandbox
-    STAGING = "staging"           # Deploy to E:/_copilot_staging  
+    SANDBOX = "sandbox"           # Deploy to E:/gh_COPILOT
+    STAGING = "staging"           # Deploy to E:/gh_COPILOT  
     PRODUCTION = "production"     # Deploy to production environment
     DEVELOPMENT = "development"   # Deploy for development
     TESTING = "testing"          # Deploy for testing
@@ -165,8 +165,8 @@ class UnifiedDeploymentConfig:
     def deployment_target(self) -> str:
         """📁 Get deployment target path based on mode"""
         mode_paths = {
-            DeploymentMode.SANDBOX: f"{self.target_base}_copilot_sandbox",
-            DeploymentMode.STAGING: f"{self.target_base}_copilot_staging",
+            DeploymentMode.SANDBOX: f"{self.target_base}gh_COPILOT",
+            DeploymentMode.STAGING: f"{self.target_base}gh_COPILOT",
             DeploymentMode.PRODUCTION: f"{self.target_base}_copilot_production",
             DeploymentMode.DEVELOPMENT: f"{self.target_base}_copilot_dev",
             DeploymentMode.TESTING: f"{self.target_base}_copilot_test",

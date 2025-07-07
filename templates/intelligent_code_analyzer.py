@@ -68,7 +68,7 @@ class IntelligentCodeAnalyzer:
     DUAL COPILOT pattern: Primary analyzer + Secondary validator
     """
     
-    def __init__(self, workspace_root: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_root: str = "e:/gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.db_path = self.workspace_root / "databases" / "learning_monitor.db"
         self.start_time = datetime.now()
@@ -90,7 +90,7 @@ class IntelligentCodeAnalyzer:
         """CRITICAL: Validate workspace integrity and prevent recursion"""
         
         # Validate workspace root
-        if not str(self.workspace_root).endswith("_copilot_sandbox"):
+        if not str(self.workspace_root).endswith("gh_COPILOT"):
             logger.warning(f"[WARNING] Non-standard workspace: {self.workspace_root}")
         
         # Prevent recursive folder creation
@@ -127,9 +127,9 @@ class IntelligentCodeAnalyzer:
         
         # File path patterns
         self.path_patterns = {
-            r'e:\\\_copilot_sandbox': '{WORKSPACE_ROOT}',
-            r'E:\\\_copilot_sandbox': '{WORKSPACE_ROOT}',
-            r'_copilot_sandbox': '{WORKSPACE_ROOT}',
+            r'e:\\\gh_COPILOT': '{WORKSPACE_ROOT}',
+            r'E:\\\gh_COPILOT': '{WORKSPACE_ROOT}',
+            r'gh_COPILOT': '{WORKSPACE_ROOT}',
             r'generated_scripts': '{SCRIPTS_DIR}',
             r'documentation': '{DOCS_DIR}',
             r'templates': '{TEMPLATES_DIR}'
@@ -476,7 +476,7 @@ class IntelligentCodeAnalyzer:
         placeholder_mappings = {
             # System Placeholders
             "{WORKSPACE_ROOT}": {
-                "default_value": "e:/_copilot_sandbox",
+                "default_value": "e:/gh_COPILOT",
                 "description": "Primary workspace root directory",
                 "usage_count": 25,
                 "confidence": 0.95

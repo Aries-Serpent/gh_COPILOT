@@ -42,7 +42,7 @@ class DocumentationSynchronizer:
     - Following visual processing standards
     """
     
-    def __init__(self, workspace_root="e:/_copilot_sandbox"):
+    def __init__(self, workspace_root="e:/gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.session_id = f"DOC_SYNC_{self.timestamp}"
@@ -941,7 +941,7 @@ def main():
         print("[SUCCESS] All documentation is now synchronized with current system state")
         print("[SUCCESS] Enterprise standards compliance verified")
         print("[SUCCESS] Critical gaps addressed")
-        print("[SUCCESS] Ready for deployment to E:/_copilot_staging")
+        print("[SUCCESS] Ready for deployment to E:/gh_COPILOT")
     else:
         print("\\n[ERROR] MISSION FAILED: Documentation synchronization encountered errors")
         

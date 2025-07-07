@@ -92,8 +92,8 @@ class AdvancedAutonomousFramework7PhaseScope:
     def __init__(self):
         self.framework_version = "7.0.0-enterprise"
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.workspace_root = Path("e:/_copilot_sandbox")
-        self.staging_root = Path("E:/_copilot_staging")
+        self.workspace_root = Path("e:/gh_COPILOT")
+        self.staging_root = Path("E:/gh_COPILOT")
         self.scope_data = {}
         
         # Anti-recursion safety
@@ -606,7 +606,7 @@ class AdvancedAutonomousFramework7PhaseScope:
         """Generate comprehensive file structure map"""
         
         base_structure = {
-            "E:/_copilot_staging": {
+            "E:/gh_COPILOT": {
                 "purpose": "Main staging deployment directory",
                 "subdirectories": {
                     "config": ["database_config.json", "app_config.yaml", "environment.env"],
@@ -619,7 +619,7 @@ class AdvancedAutonomousFramework7PhaseScope:
                     "documentation": ["api_docs/", "user_guides/", "technical_specs/"]
                 }
             },
-            "e:/_copilot_sandbox/databases": {
+            "e:/gh_COPILOT/databases": {
                 "purpose": "Development and testing database components",
                 "files": [
                     "ENHANCED_ML_STAGING_DEPLOYMENT_EXECUTOR.py",
@@ -628,7 +628,7 @@ class AdvancedAutonomousFramework7PhaseScope:
                     "migration_testing/"
                 ]
             },
-            "e:/_copilot_sandbox/autonomous_framework": {
+            "e:/gh_COPILOT/autonomous_framework": {
                 "purpose": "Autonomous framework development components",
                 "subdirectories": {
                     "phase_3_database_first": ["validation_scripts/", "configuration/", "monitoring/"],

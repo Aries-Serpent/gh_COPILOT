@@ -111,11 +111,11 @@ class FactoryDeploymentIntegrator:
                         continue
                     violations.append(str(folder))
         
-        # CRITICAL: Check for E:\_copilot_sandbox	emp violations
+        # CRITICAL: Check for E:\gh_COPILOT	emp violations
         proper_root = "E:/temp/Auto_Build/HAR_Analyzer/har-analyzer-toolkit/New Environment Setup/Persona/gh_COPILOT"
         if not str(self.workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
             if str(self.workspace_root).startswith("E:/temp/") and proper_root not in str(self.workspace_root):
-                violations.append(f"E:\_copilot_sandbox	emp violation: Use proper root: {proper_root}")
+                violations.append(f"E:\gh_COPILOT	emp violation: Use proper root: {proper_root}")
         
         if violations:
             logger.error(" CRITICAL: Recursive violations detected!")

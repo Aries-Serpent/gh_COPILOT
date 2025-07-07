@@ -745,7 +745,7 @@ def main():
     
     # DUAL COPILOT PATTERN: Primary Integration
     try:
-        workspace_path = r"E:\_copilot_sandbox"
+        workspace_path = r"E:\gh_COPILOT"
         framework = CopilotIntegrationFramework(workspace_path)
         
         print("\n" + "="*80)
@@ -790,7 +790,7 @@ def main():
         print("Primary integration encountered issues. Running validation...")
         
         # Basic validation
-        workspace_path = Path(r"E:\_copilot_sandbox")
+        workspace_path = Path(r"E:\gh_COPILOT")
         
         validation_results = {
             'workspace_exists': workspace_path.exists(),

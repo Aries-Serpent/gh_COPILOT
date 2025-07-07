@@ -54,7 +54,7 @@ class CustomizationProfile:
 class EnterpriseBusinessRulesEngine:
     """[GEAR] Enterprise Business Rules Customization Engine"""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.rules_db_path = self.workspace_path / "enterprise_deployment" / "business_rules.db"
         self.profiles_config_path = self.workspace_path / "enterprise_deployment" / "customization_profiles.json"

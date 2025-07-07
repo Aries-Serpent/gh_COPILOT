@@ -1,7 +1,7 @@
 {
   "immediate_conversions": [
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 33,
       "pattern_category": "configuration_values",
       "original_value": "timeout\": 3600",
@@ -14,7 +14,7 @@
   ],
   "security_priority": [
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 454,
       "pattern_category": "hardcoded_strings",
       "original_value": "', 0)\"\n          ]\n        },\n        \"orphaned_records\": {\n          \"found\": 0,\n          \"tables_checked\": 466,\n          \"orphans\": []\n        },\n        \"reference_consistency\": {\n          \"consistent\": 466,\n          \"total\": 466,\n          \"inconsistencies\": []\n        },\n        \"cascade_rules\": {\n          \"present\": 0,\n          \"required\": 0,\n          \"missing\": []\n        }\n      },\n      \"gap_to_100\": 2.2935779816513673\n    }\n  },\n  \"upgrade_plan\": {\n    \"current_certification\": {\n      \"overall_score\": 0.97767321599664,\n      \"percentage\": \"97.8%\",\n      \"certification_level\": \"GOLD\",\n      \"component_scores\": {\n        \"database_accessibility\": \"100.0%\",\n        \"content_completeness\": \"100.0%\",\n        \"regeneration_capability\": \"100.0%\",\n        \"web_portal_readiness\": \"91.1%\",\n        \"cross_reference_integrity\": \"97.7%\"\n      },\n      \"gap_to_100\": 2.232678400335999\n    },\n    \"priority_actions\": [\n      {\n        \"category\": \"Cross-Reference Integrity\",\n        \"priority\": \"MEDIUM\",\n        \"violations\": [\n          \"copilot_integration: ('",
@@ -25,7 +25,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 5,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"current_certification\"",
@@ -36,7 +36,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 8,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"certification_level\"",
@@ -47,7 +47,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 477,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"current_certification\"",
@@ -58,7 +58,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 480,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"certification_level\"",
@@ -71,7 +71,7 @@
   ],
   "batch_conversions": [
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 13,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"web_portal_readiness\"",
@@ -82,7 +82,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 81,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"web_portal_readiness\"",
@@ -93,7 +93,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 164,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"web_portal.portal_analytics\"",
@@ -104,7 +104,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 240,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"foreign_key_score\"",
@@ -115,7 +115,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 243,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"foreign_key_constraints\"",
@@ -126,7 +126,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 485,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"web_portal_readiness\"",
@@ -137,7 +137,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 708,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"Web Portal Readiness\"",
@@ -148,7 +148,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 779,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"web_portal.portal_analytics\"",
@@ -159,7 +159,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 2,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"validation_timestamp\"",
@@ -170,7 +170,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 3,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"workspace_path\"",
@@ -181,7 +181,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 4,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"databases_analyzed\"",
@@ -192,7 +192,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 5,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"current_certification\"",
@@ -203,7 +203,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 6,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"overall_score\"",
@@ -214,7 +214,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 7,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"percentage\"",
@@ -225,7 +225,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 8,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"certification_level\"",
@@ -236,7 +236,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 8,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"GOLD\"",
@@ -247,7 +247,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 9,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"component_scores\"",
@@ -258,7 +258,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 10,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"database_accessibility\"",
@@ -269,7 +269,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 11,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"content_completeness\"",
@@ -280,7 +280,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 12,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"regeneration_capability\"",
@@ -291,7 +291,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 13,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"web_portal_readiness\"",
@@ -302,7 +302,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 14,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"cross_reference_integrity\"",
@@ -313,7 +313,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 18,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"component_validations\"",
@@ -324,7 +324,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 19,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"content_completeness\"",
@@ -335,7 +335,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 20,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"score\"",
@@ -346,7 +346,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 21,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"percentage\"",
@@ -357,7 +357,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 22,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"found_types\"",
@@ -368,7 +368,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 23,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"total_types\"",
@@ -379,7 +379,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 24,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"missing_types\"",
@@ -390,7 +390,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 25,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"required_doc_types\"",
@@ -401,7 +401,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 26,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"function_docstrings\"",
@@ -412,7 +412,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 27,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"tables\"",
@@ -423,7 +423,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 28,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"docstring_targets\"",
@@ -434,7 +434,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 29,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"enhanced_docstrings\"",
@@ -445,7 +445,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 31,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"found\"",
@@ -456,7 +456,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 33,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"class_docstrings\"",
@@ -467,7 +467,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 34,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"tables\"",
@@ -478,7 +478,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 35,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"class_docstrings\"",
@@ -489,7 +489,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 36,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"enhanced_class_docs\"",
@@ -500,7 +500,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 38,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"found\"",
@@ -511,7 +511,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 40,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"module_docstrings\"",
@@ -522,7 +522,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 41,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"tables\"",
@@ -533,7 +533,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 42,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"module_docstrings\"",
@@ -544,7 +544,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 44,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"found\"",
@@ -555,7 +555,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 46,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"database_schemas\"",
@@ -566,7 +566,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 47,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"tables\"",
@@ -577,7 +577,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 48,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"schema_documentation\"",
@@ -588,7 +588,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 50,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"found\"",
@@ -599,7 +599,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 52,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"api_documentation\"",
@@ -610,7 +610,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 53,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"tables\"",
@@ -621,7 +621,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 54,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"api_docs\"",
@@ -632,7 +632,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 55,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"generated_documents\"",
@@ -643,7 +643,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 57,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"found\"",
@@ -654,7 +654,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 59,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"file_metadata\"",
@@ -665,7 +665,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 60,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"tables\"",
@@ -676,7 +676,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 61,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"file_analysis\"",
@@ -687,7 +687,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 62,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"file_content\"",
@@ -698,7 +698,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 64,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"found\"",
@@ -709,7 +709,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 66,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"project_structure\"",
@@ -720,7 +720,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 67,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"tables\"",
@@ -731,7 +731,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 68,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"directory_structure\"",
@@ -742,7 +742,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 70,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"found\"",
@@ -753,7 +753,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 72,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"cross_references\"",
@@ -764,7 +764,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 73,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"tables\"",
@@ -775,7 +775,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 74,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"reference_mapping\"",
@@ -786,7 +786,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 76,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"found\"",
@@ -797,7 +797,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 81,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"web_portal_readiness\"",
@@ -808,7 +808,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 82,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"score\"",
@@ -819,7 +819,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 83,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"percentage\"",
@@ -830,7 +830,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 84,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id_column_score\"",
@@ -841,7 +841,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 85,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"timestamp_score\"",
@@ -852,7 +852,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 86,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"json_compatibility\"",
@@ -863,7 +863,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 87,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"requirements\"",
@@ -874,7 +874,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 88,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id_columns\"",
@@ -885,7 +885,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 89,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"required\"",
@@ -896,7 +896,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 90,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"present\"",
@@ -907,7 +907,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 91,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"missing_tables\"",
@@ -918,7 +918,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 127,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"timestamp_columns\"",
@@ -929,7 +929,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 128,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"required\"",
@@ -940,7 +940,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 129,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"present\"",
@@ -951,7 +951,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 130,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"missing_tables\"",
@@ -962,7 +962,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 224,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"json_serialization\"",
@@ -973,7 +973,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 225,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"compatible\"",
@@ -984,7 +984,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 226,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"total\"",
@@ -995,7 +995,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 227,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"issues\"",
@@ -1006,7 +1006,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 229,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"performance_indexes\"",
@@ -1017,7 +1017,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 230,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"required\"",
@@ -1028,7 +1028,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 231,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"present\"",
@@ -1039,7 +1039,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 232,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"missing\"",
@@ -1050,7 +1050,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 237,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"cross_reference_integrity\"",
@@ -1061,7 +1061,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 238,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"score\"",
@@ -1072,7 +1072,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 239,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"percentage\"",
@@ -1083,7 +1083,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 240,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"foreign_key_score\"",
@@ -1094,7 +1094,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 241,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"reference_score\"",
@@ -1105,7 +1105,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 242,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"checks\"",
@@ -1116,7 +1116,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 243,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"foreign_key_constraints\"",
@@ -1127,7 +1127,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 244,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"valid\"",
@@ -1138,7 +1138,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 245,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"total\"",
@@ -1149,7 +1149,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 246,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"violations\"",
@@ -1160,7 +1160,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 457,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"orphaned_records\"",
@@ -1171,7 +1171,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 458,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"found\"",
@@ -1182,7 +1182,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 459,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"tables_checked\"",
@@ -1193,7 +1193,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 460,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"orphans\"",
@@ -1204,7 +1204,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 462,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"reference_consistency\"",
@@ -1215,7 +1215,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 463,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"consistent\"",
@@ -1226,7 +1226,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 464,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"total\"",
@@ -1237,7 +1237,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 465,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"inconsistencies\"",
@@ -1248,7 +1248,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 467,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"cascade_rules\"",
@@ -1259,7 +1259,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 468,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"present\"",
@@ -1270,7 +1270,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 469,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"required\"",
@@ -1281,7 +1281,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 470,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"missing\"",
@@ -1292,7 +1292,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 476,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"upgrade_plan\"",
@@ -1303,7 +1303,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 477,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"current_certification\"",
@@ -1314,7 +1314,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 478,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"overall_score\"",
@@ -1325,7 +1325,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 479,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"percentage\"",
@@ -1336,7 +1336,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 480,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"certification_level\"",
@@ -1347,7 +1347,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 480,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"GOLD\"",
@@ -1358,7 +1358,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 481,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"component_scores\"",
@@ -1369,7 +1369,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 482,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"database_accessibility\"",
@@ -1380,7 +1380,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 483,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"content_completeness\"",
@@ -1391,7 +1391,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 484,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"regeneration_capability\"",
@@ -1402,7 +1402,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 485,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"web_portal_readiness\"",
@@ -1413,7 +1413,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 486,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"cross_reference_integrity\"",
@@ -1424,7 +1424,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 490,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"priority_actions\"",
@@ -1435,7 +1435,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 492,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -1446,7 +1446,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 493,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"priority\"",
@@ -1457,7 +1457,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 493,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"MEDIUM\"",
@@ -1468,7 +1468,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 494,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"violations\"",
@@ -1479,7 +1479,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 704,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"action\"",
@@ -1490,7 +1490,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 705,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"estimated_time\"",
@@ -1501,7 +1501,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 708,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -1512,7 +1512,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 709,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"priority\"",
@@ -1523,7 +1523,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 709,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"LOW\"",
@@ -1534,7 +1534,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 710,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"missing_id_tables\"",
@@ -1545,7 +1545,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 745,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"missing_timestamp_tables\"",
@@ -1556,7 +1556,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 838,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"action\"",
@@ -1567,7 +1567,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 839,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"estimated_time\"",
@@ -1578,7 +1578,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 842,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"estimated_effort\"",
@@ -1589,7 +1589,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 843,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_phases\"",
@@ -1600,7 +1600,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 845,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"next_steps\"",
@@ -1611,7 +1611,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 2,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"mission_status\"",
@@ -1622,7 +1622,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 2,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ACCOMPLISHED\"",
@@ -1633,7 +1633,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 3,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"timestamp\"",
@@ -1644,7 +1644,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 4,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"achievement_level\"",
@@ -1655,7 +1655,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 5,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"workspace_path\"",
@@ -1666,7 +1666,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 6,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"coverage_breakdown\"",
@@ -1677,7 +1677,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 7,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"functions\"",
@@ -1688,7 +1688,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 8,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"total\"",
@@ -1699,7 +1699,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 9,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"documented\"",
@@ -1710,7 +1710,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 10,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"coverage_percentage\"",
@@ -1721,7 +1721,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 11,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -1732,7 +1732,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 11,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"COMPLETE\"",
@@ -1743,7 +1743,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 13,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"classes\"",
@@ -1754,7 +1754,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 14,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"total\"",
@@ -1765,7 +1765,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 15,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"documented\"",
@@ -1776,7 +1776,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 16,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"coverage_percentage\"",
@@ -1787,7 +1787,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 17,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -1798,7 +1798,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 17,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"COMPLETE\"",
@@ -1809,7 +1809,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 19,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"modules\"",
@@ -1820,7 +1820,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 20,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"total\"",
@@ -1831,7 +1831,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 21,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"documented\"",
@@ -1842,7 +1842,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 22,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"coverage_percentage\"",
@@ -1853,7 +1853,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 23,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -1864,7 +1864,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 23,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"COMPLETE\"",
@@ -1875,7 +1875,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 25,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"database_schemas\"",
@@ -1886,7 +1886,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 26,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"total\"",
@@ -1897,7 +1897,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 27,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"documented\"",
@@ -1908,7 +1908,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 28,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"coverage_percentage\"",
@@ -1919,7 +1919,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 29,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -1930,7 +1930,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 29,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"COMPLETE\"",
@@ -1941,7 +1941,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 31,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"api_endpoints\"",
@@ -1952,7 +1952,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 32,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"total\"",
@@ -1963,7 +1963,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 33,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"documented\"",
@@ -1974,7 +1974,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 34,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"coverage_percentage\"",
@@ -1985,7 +1985,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 35,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -1996,7 +1996,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 35,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"COMPLETE\"",
@@ -2007,7 +2007,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 38,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"force_multipliers_deployed\"",
@@ -2018,7 +2018,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 46,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"enterprise_impact\"",
@@ -2029,7 +2029,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 47,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"total_documentation_elements\"",
@@ -2040,7 +2040,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 48,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"estimated_manual_hours_saved\"",
@@ -2051,7 +2051,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 49,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"automation_efficiency_multiplier\"",
@@ -2062,7 +2062,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 50,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"maintenance_reduction\"",
@@ -2073,7 +2073,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 51,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"developer_productivity_increase\"",
@@ -2084,7 +2084,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 53,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"quality_assurance\"",
@@ -2095,7 +2095,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 54,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"automated_validation\"",
@@ -2106,7 +2106,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 55,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"enterprise_standards_compliance\"",
@@ -2117,7 +2117,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 56,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"unicode_safety\"",
@@ -2128,7 +2128,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 57,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"error_handling\"",
@@ -2139,7 +2139,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 57,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"Comprehensive\"",
@@ -2150,7 +2150,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
+      "file_path": "e:/gh_COPILOT\\100_PERCENT_DOCUMENTATION_COVERAGE_ACHIEVEMENT_20250627_113457.json",
       "line_number": 58,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"logging_coverage\"",
@@ -2161,7 +2161,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 26,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"placeholder_opportunities\"",
@@ -2172,7 +2172,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 36,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"placeholder_opportunities\"",
@@ -2183,7 +2183,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 54,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"opportunities_found\"",
@@ -2194,7 +2194,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 2,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"mission\"",
@@ -2205,7 +2205,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 3,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -2216,7 +2216,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 4,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"duration_seconds\"",
@@ -2227,7 +2227,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 5,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"overall_quality_score\"",
@@ -2238,7 +2238,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 6,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"phases_completed\"",
@@ -2249,7 +2249,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 8,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"phase\"",
@@ -2260,7 +2260,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 9,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -2271,7 +2271,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 9,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"SUCCESS\"",
@@ -2282,7 +2282,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 10,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"duration_seconds\"",
@@ -2293,7 +2293,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 11,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"enhancements\"",
@@ -2304,7 +2304,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 12,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"tables_created\"",
@@ -2315,7 +2315,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 13,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"placeholders_inserted\"",
@@ -2326,7 +2326,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 14,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"indices_created\"",
@@ -2337,7 +2337,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 15,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"placeholder_categories\"",
@@ -2348,7 +2348,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 17,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"quality_impact\"",
@@ -2359,7 +2359,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 18,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"next_phase\"",
@@ -2370,7 +2370,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 21,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"phase\"",
@@ -2381,7 +2381,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 22,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -2392,7 +2392,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 22,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"SUCCESS\"",
@@ -2403,7 +2403,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 23,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"duration_seconds\"",
@@ -2414,7 +2414,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 24,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"analysis\"",
@@ -2425,7 +2425,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 25,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"files_analyzed\"",
@@ -2436,7 +2436,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 26,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"placeholder_opportunities\"",
@@ -2447,7 +2447,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 27,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"patterns_stored\"",
@@ -2458,7 +2458,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 28,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"conversion_rate\"",
@@ -2469,7 +2469,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 30,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"quality_impact\"",
@@ -2480,7 +2480,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 31,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"next_phase\"",
@@ -2491,7 +2491,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 34,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"mission_metrics\"",
@@ -2502,7 +2502,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 35,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"overall_quality_score\"",
@@ -2513,7 +2513,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 36,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"placeholder_opportunities\"",
@@ -2524,7 +2524,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 37,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"placeholder_conversion_rate\"",
@@ -2535,7 +2535,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 38,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"environment_profiles\"",
@@ -2546,7 +2546,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 39,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"cross_database_intelligence\"",
@@ -2557,7 +2557,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 40,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"documentation_coverage\"",
@@ -2568,7 +2568,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 41,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"phase_completion\"",
@@ -2579,7 +2579,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 43,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -2590,7 +2590,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 43,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"completed\"",
@@ -2601,7 +2601,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 44,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"duration_seconds\"",
@@ -2612,7 +2612,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 45,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"tables_created\"",
@@ -2623,7 +2623,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 46,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"placeholders_inserted\"",
@@ -2634,7 +2634,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 47,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"indices_created\"",
@@ -2645,7 +2645,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 48,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"quality_contribution\"",
@@ -2656,7 +2656,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 51,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -2667,7 +2667,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 51,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"completed\"",
@@ -2678,7 +2678,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 52,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"duration_seconds\"",
@@ -2689,7 +2689,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 53,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"files_analyzed\"",
@@ -2700,7 +2700,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 54,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"opportunities_found\"",
@@ -2711,7 +2711,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 55,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"patterns_stored\"",
@@ -2722,7 +2722,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 56,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"conversion_rate\"",
@@ -2733,7 +2733,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 57,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"quality_contribution\"",
@@ -2744,7 +2744,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 61,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"next_steps\"",
@@ -2755,7 +2755,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 66,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"anti_recursion_validated\"",
@@ -2766,7 +2766,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 67,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"environment_validated\"",
@@ -2777,7 +2777,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_evolution_results_20250703_054846.json",
+      "file_path": "e:/gh_COPILOT\\advanced_evolution_results_20250703_054846.json",
       "line_number": 68,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"visual_processing\"",
@@ -2788,7 +2788,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 60,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"reporting\"",
@@ -2799,7 +2799,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 2,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ai_engine\"",
@@ -2810,7 +2810,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 3,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"enabled\"",
@@ -2821,7 +2821,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 4,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"analysis_interval\"",
@@ -2832,7 +2832,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 5,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"confidence_threshold\"",
@@ -2843,7 +2843,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 6,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"auto_fix_enabled\"",
@@ -2854,7 +2854,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 7,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"models\"",
@@ -2865,7 +2865,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 8,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"code_analysis\"",
@@ -2876,7 +2876,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 9,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"security_scanner\"",
@@ -2887,7 +2887,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 10,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"performance_predictor\"",
@@ -2898,7 +2898,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 11,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"bug_detector\"",
@@ -2909,7 +2909,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 14,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"collaboration\"",
@@ -2920,7 +2920,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 15,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"enabled\"",
@@ -2931,7 +2931,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 16,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"max_sessions\"",
@@ -2942,7 +2942,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 17,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"max_participants_per_session\"",
@@ -2953,7 +2953,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 18,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"real_time_sync\"",
@@ -2964,7 +2964,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 19,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"chat_enabled\"",
@@ -2975,7 +2975,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 20,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"video_enabled\"",
@@ -2986,7 +2986,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 22,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"security\"",
@@ -2997,7 +2997,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 23,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"enabled\"",
@@ -3008,7 +3008,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 24,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"scan_interval\"",
@@ -3019,7 +3019,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 25,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"vulnerability_scanning\"",
@@ -3030,7 +3030,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 26,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"compliance_monitoring\"",
@@ -3041,7 +3041,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 27,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"threat_detection\"",
@@ -3052,7 +3052,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 28,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"auto_remediation\"",
@@ -3063,7 +3063,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 30,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"workflows\"",
@@ -3074,7 +3074,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 31,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"enabled\"",
@@ -3085,7 +3085,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 32,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"max_concurrent\"",
@@ -3096,7 +3096,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 33,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"timeout\"",
@@ -3107,7 +3107,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 34,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"retry_attempts\"",
@@ -3118,7 +3118,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 35,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"built_in_workflows\"",
@@ -3129,7 +3129,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 36,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ci_cd\"",
@@ -3140,7 +3140,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 37,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"testing\"",
@@ -3151,7 +3151,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 38,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"deployment\"",
@@ -3162,7 +3162,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 39,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"backup\"",
@@ -3173,7 +3173,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 40,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"monitoring\"",
@@ -3184,7 +3184,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 43,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"machine_learning\"",
@@ -3195,7 +3195,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 44,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"enabled\"",
@@ -3206,7 +3206,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 45,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"prediction_interval\"",
@@ -3217,7 +3217,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 46,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"model_retraining\"",
@@ -3228,7 +3228,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 47,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"auto_tuning\"",
@@ -3239,7 +3239,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 48,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"prediction_types\"",
@@ -3250,7 +3250,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 49,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"performance\"",
@@ -3261,7 +3261,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 50,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"failures\"",
@@ -3272,7 +3272,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 51,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"resource_usage\"",
@@ -3283,7 +3283,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 52,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"user_behavior\"",
@@ -3294,7 +3294,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 55,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"analytics\"",
@@ -3305,7 +3305,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 56,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"enabled\"",
@@ -3316,7 +3316,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 57,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"real_time_dashboard\"",
@@ -3327,7 +3327,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 58,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"custom_metrics\"",
@@ -3338,7 +3338,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 59,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"alerting\"",
@@ -3349,7 +3349,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_config.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_config.json",
       "line_number": 60,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"reporting\"",
@@ -3360,7 +3360,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 145,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"Comprehensive analytics and reporting dashboard\"",
@@ -3371,7 +3371,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 2,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -3382,7 +3382,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 2,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"success\"",
@@ -3393,7 +3393,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 3,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"summary\"",
@@ -3404,7 +3404,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 4,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"total_features_implemented\"",
@@ -3415,7 +3415,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 5,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"categories_implemented\"",
@@ -3426,7 +3426,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 6,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -3437,7 +3437,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 8,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"results_by_category\"",
@@ -3448,7 +3448,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 9,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"collaboration\"",
@@ -3459,7 +3459,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 10,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -3470,7 +3470,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 10,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"success\"",
@@ -3481,7 +3481,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 11,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features_implemented\"",
@@ -3492,7 +3492,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 12,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features\"",
@@ -3503,7 +3503,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 14,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -3514,7 +3514,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 15,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -3525,7 +3525,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 16,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -3536,7 +3536,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 16,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"collaboration\"",
@@ -3547,7 +3547,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 17,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -3558,7 +3558,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 18,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -3569,7 +3569,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 18,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -3580,7 +3580,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 19,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -3591,7 +3591,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 22,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -3602,7 +3602,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 23,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -3613,7 +3613,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 24,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -3624,7 +3624,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 24,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"collaboration\"",
@@ -3635,7 +3635,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 25,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -3646,7 +3646,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 26,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -3657,7 +3657,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 26,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -3668,7 +3668,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 27,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -3679,7 +3679,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 30,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -3690,7 +3690,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 31,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -3701,7 +3701,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 32,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -3712,7 +3712,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 32,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"collaboration\"",
@@ -3723,7 +3723,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 33,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -3734,7 +3734,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 34,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -3745,7 +3745,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 34,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -3756,7 +3756,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 35,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -3767,7 +3767,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 39,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ai_suggestions\"",
@@ -3778,7 +3778,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 40,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -3789,7 +3789,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 40,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"success\"",
@@ -3800,7 +3800,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 41,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features_implemented\"",
@@ -3811,7 +3811,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 42,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features\"",
@@ -3822,7 +3822,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 44,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -3833,7 +3833,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 45,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -3844,7 +3844,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 46,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -3855,7 +3855,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 46,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ai_suggestions\"",
@@ -3866,7 +3866,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 47,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -3877,7 +3877,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 48,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -3888,7 +3888,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 48,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -3899,7 +3899,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 49,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -3910,7 +3910,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 52,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -3921,7 +3921,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 53,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -3932,7 +3932,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 54,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -3943,7 +3943,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 54,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ai_suggestions\"",
@@ -3954,7 +3954,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 55,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -3965,7 +3965,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 56,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -3976,7 +3976,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 56,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -3987,7 +3987,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 57,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -3998,7 +3998,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 60,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -4009,7 +4009,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 61,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -4020,7 +4020,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 62,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -4031,7 +4031,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 62,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ai_suggestions\"",
@@ -4042,7 +4042,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 63,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -4053,7 +4053,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 64,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4064,7 +4064,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 64,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -4075,7 +4075,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 65,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -4086,7 +4086,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 69,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"workflow\"",
@@ -4097,7 +4097,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 70,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4108,7 +4108,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 70,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"success\"",
@@ -4119,7 +4119,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 71,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features_implemented\"",
@@ -4130,7 +4130,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 72,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features\"",
@@ -4141,7 +4141,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 74,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -4152,7 +4152,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 75,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -4163,7 +4163,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 76,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -4174,7 +4174,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 76,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"workflow\"",
@@ -4185,7 +4185,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 77,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -4196,7 +4196,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 78,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4207,7 +4207,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 78,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -4218,7 +4218,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 79,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -4229,7 +4229,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 82,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -4240,7 +4240,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 83,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -4251,7 +4251,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 84,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -4262,7 +4262,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 84,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"workflow\"",
@@ -4273,7 +4273,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 85,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -4284,7 +4284,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 86,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4295,7 +4295,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 86,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -4306,7 +4306,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 87,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -4317,7 +4317,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 90,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -4328,7 +4328,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 91,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -4339,7 +4339,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 92,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -4350,7 +4350,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 92,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"workflow\"",
@@ -4361,7 +4361,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 93,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -4372,7 +4372,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 94,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4383,7 +4383,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 94,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -4394,7 +4394,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 95,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -4405,7 +4405,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 99,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"security\"",
@@ -4416,7 +4416,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 100,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4427,7 +4427,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 100,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"success\"",
@@ -4438,7 +4438,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 101,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features_implemented\"",
@@ -4449,7 +4449,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 102,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features\"",
@@ -4460,7 +4460,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 104,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -4471,7 +4471,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 105,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -4482,7 +4482,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 106,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -4493,7 +4493,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 106,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"security\"",
@@ -4504,7 +4504,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 107,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -4515,7 +4515,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 108,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4526,7 +4526,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 108,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -4537,7 +4537,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 109,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -4548,7 +4548,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 112,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -4559,7 +4559,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 113,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -4570,7 +4570,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 114,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -4581,7 +4581,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 114,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"security\"",
@@ -4592,7 +4592,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 115,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -4603,7 +4603,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 116,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4614,7 +4614,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 116,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -4625,7 +4625,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 117,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -4636,7 +4636,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 120,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -4647,7 +4647,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 121,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -4658,7 +4658,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 122,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -4669,7 +4669,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 122,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"security\"",
@@ -4680,7 +4680,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 123,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -4691,7 +4691,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 124,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4702,7 +4702,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 124,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -4713,7 +4713,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 125,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -4724,7 +4724,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 129,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"monitoring\"",
@@ -4735,7 +4735,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 130,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4746,7 +4746,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 130,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"success\"",
@@ -4757,7 +4757,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 131,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features_implemented\"",
@@ -4768,7 +4768,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 132,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features\"",
@@ -4779,7 +4779,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 134,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -4790,7 +4790,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 135,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -4801,7 +4801,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 136,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -4812,7 +4812,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 136,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"monitoring\"",
@@ -4823,7 +4823,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 137,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -4834,7 +4834,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 138,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4845,7 +4845,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 138,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -4856,7 +4856,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 139,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -4867,7 +4867,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 142,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -4878,7 +4878,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 143,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -4889,7 +4889,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 144,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -4900,7 +4900,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 144,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"monitoring\"",
@@ -4911,7 +4911,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 145,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -4922,7 +4922,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 146,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -4933,7 +4933,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 146,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -4944,7 +4944,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 147,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -4955,7 +4955,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 150,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -4966,7 +4966,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 151,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -4977,7 +4977,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 152,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -4988,7 +4988,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 152,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"monitoring\"",
@@ -4999,7 +4999,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 153,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -5010,7 +5010,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 154,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -5021,7 +5021,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 154,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -5032,7 +5032,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 155,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -5043,7 +5043,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 159,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ml_integration\"",
@@ -5054,7 +5054,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 160,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -5065,7 +5065,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 160,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"success\"",
@@ -5076,7 +5076,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 161,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features_implemented\"",
@@ -5087,7 +5087,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 162,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"features\"",
@@ -5098,7 +5098,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 164,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -5109,7 +5109,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 165,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -5120,7 +5120,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 166,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -5131,7 +5131,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 166,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ml_integration\"",
@@ -5142,7 +5142,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 167,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -5153,7 +5153,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 168,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -5164,7 +5164,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 168,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -5175,7 +5175,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 169,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -5186,7 +5186,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 172,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -5197,7 +5197,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 173,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -5208,7 +5208,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 174,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -5219,7 +5219,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 174,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ml_integration\"",
@@ -5230,7 +5230,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 175,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -5241,7 +5241,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 176,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -5252,7 +5252,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 176,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -5263,7 +5263,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 177,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -5274,7 +5274,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 180,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"id\"",
@@ -5285,7 +5285,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 181,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"name\"",
@@ -5296,7 +5296,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 182,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"category\"",
@@ -5307,7 +5307,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 182,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ml_integration\"",
@@ -5318,7 +5318,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 183,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"description\"",
@@ -5329,7 +5329,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 184,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"status\"",
@@ -5340,7 +5340,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 184,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implemented\"",
@@ -5351,7 +5351,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 185,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"implementation_date\"",
@@ -5362,7 +5362,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 190,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"feature_categories\"",
@@ -5373,7 +5373,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 191,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"collaboration\"",
@@ -5384,7 +5384,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 192,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ai_suggestions\"",
@@ -5395,7 +5395,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 193,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"workflow\"",
@@ -5406,7 +5406,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 194,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"security\"",
@@ -5417,7 +5417,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 195,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"monitoring\"",
@@ -5428,7 +5428,7 @@
       "conversion_complexity": "LOW"
     },
     {
-      "file_path": "e:/_copilot_sandbox\\advanced_features_implementation_report.json",
+      "file_path": "e:/gh_COPILOT\\advanced_features_implementation_report.json",
       "line_number": 196,
       "pattern_category": "hardcoded_strings",
       "original_value": "\"ml_integration\"",
@@ -5441,7 +5441,7 @@
   ],
   "manual_review_needed": [
     {
-      "file_path": "e:/_copilot_sandbox\\100_percent_certification_validation_report.json",
+      "file_path": "e:/gh_COPILOT\\100_percent_certification_validation_report.json",
       "line_number": 454,
       "pattern_category": "hardcoded_strings",
       "original_value": "', 0)\"\n          ]\n        },\n        \"orphaned_records\": {\n          \"found\": 0,\n          \"tables_checked\": 466,\n          \"orphans\": []\n        },\n        \"reference_consistency\": {\n          \"consistent\": 466,\n          \"total\": 466,\n          \"inconsistencies\": []\n        },\n        \"cascade_rules\": {\n          \"present\": 0,\n          \"required\": 0,\n          \"missing\": []\n        }\n      },\n      \"gap_to_100\": 2.2935779816513673\n    }\n  },\n  \"upgrade_plan\": {\n    \"current_certification\": {\n      \"overall_score\": 0.97767321599664,\n      \"percentage\": \"97.8%\",\n      \"certification_level\": \"GOLD\",\n      \"component_scores\": {\n        \"database_accessibility\": \"100.0%\",\n        \"content_completeness\": \"100.0%\",\n        \"regeneration_capability\": \"100.0%\",\n        \"web_portal_readiness\": \"91.1%\",\n        \"cross_reference_integrity\": \"97.7%\"\n      },\n      \"gap_to_100\": 2.232678400335999\n    },\n    \"priority_actions\": [\n      {\n        \"category\": \"Cross-Reference Integrity\",\n        \"priority\": \"MEDIUM\",\n        \"violations\": [\n          \"copilot_integration: ('",

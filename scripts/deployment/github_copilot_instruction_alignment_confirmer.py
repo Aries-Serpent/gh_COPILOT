@@ -18,7 +18,7 @@ from pathlib import Path
 class InstructionAlignmentConfirmer:
     """[TARGET] GitHub Copilot Instruction Alignment Confirmation Engine"""
     
-    def __init__(self, workspace_path="e:/_copilot_sandbox"):
+    def __init__(self, workspace_path="e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.instructions_path = self.workspace_path / ".github" / "instructions"
         

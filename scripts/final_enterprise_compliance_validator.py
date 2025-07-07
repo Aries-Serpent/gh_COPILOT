@@ -4,7 +4,7 @@ Final Enterprise Compliance Validator
 ====================================
 
 This script performs the final comprehensive validation of the deployed
-E:/_copilot_sandbox environment to ensure 100% enterprise compliance.
+E:/gh_COPILOT environment to ensure 100% enterprise compliance.
 
 DUAL COPILOT PATTERN: Primary Validator with Secondary Certifier
 - Primary: Comprehensive validation across all compliance areas
@@ -19,7 +19,7 @@ VALIDATION AREAS:
 - Enterprise audit trail compliance
 - Professional logging standards
 
-TARGET: Deployed E:/_copilot_sandbox environment
+TARGET: Deployed E:/gh_COPILOT environment
 """
 
 import os
@@ -37,10 +37,10 @@ class FinalEnterpriseComplianceValidator:
     """Final enterprise compliance validator and certifier."""
     
     def __init__(self):
-        self.deployed_base_path = Path("E:/_copilot_sandbox")
+        self.deployed_base_path = Path("E:/gh_COPILOT")
         self.results = {
             'validation_timestamp': datetime.now().isoformat(),
-            'environment': 'DEPLOYED E:/_copilot_sandbox',
+            'environment': 'DEPLOYED E:/gh_COPILOT',
             'compliance_areas': {
                 'python_syntax': {'compliant': False, 'details': {}},
                 'unicode_logging': {'compliant': False, 'details': {}},
@@ -282,7 +282,7 @@ STATUS: {'COMPLIANT' if self.results['compliance_areas']['enterprise_standards']
 ## SUMMARY
 CERTIFICATION: **{'ISSUED' if self.results['certification_issued'] else 'NOT ISSUED'}**
 
-The deployed E:/_copilot_sandbox environment {'IS' if self.results['overall_compliance'] else 'IS NOT'} certified as enterprise-compliant and ready for production deployment.
+The deployed E:/gh_COPILOT environment {'IS' if self.results['overall_compliance'] else 'IS NOT'} certified as enterprise-compliant and ready for production deployment.
 
 ## ENTERPRISE VALIDATION
 - Zero syntax errors: {'YES' if self.results['compliance_areas']['python_syntax']['compliant'] else 'NO'}
@@ -291,7 +291,7 @@ The deployed E:/_copilot_sandbox environment {'IS' if self.results['overall_comp
 - Enterprise standards met: {'YES' if self.results['compliance_areas']['enterprise_standards']['compliant'] else 'NO'}
 
 ---
-*This certificate validates that the DEPLOYED E:/_copilot_sandbox environment meets all enterprise standards for production deployment.*
+*This certificate validates that the DEPLOYED E:/gh_COPILOT environment meets all enterprise standards for production deployment.*
 """
         else:
             certificate_content = f"""# ENTERPRISE COMPLIANCE CERTIFICATE - NON-COMPLIANT
@@ -304,7 +304,7 @@ The deployed E:/_copilot_sandbox environment {'IS' if self.results['overall_comp
 
 ## COMPLIANCE STATUS: NON-COMPLIANT
 
-The deployed E:/_copilot_sandbox environment does not meet enterprise compliance standards.
+The deployed E:/gh_COPILOT environment does not meet enterprise compliance standards.
 
 ## ISSUES IDENTIFIED
 """
@@ -387,7 +387,7 @@ The deployed E:/_copilot_sandbox environment does not meet enterprise compliance
 def main():
     """Main execution function."""
     print("\\n=== FINAL ENTERPRISE COMPLIANCE VALIDATOR ===")
-    print("Target: E:/_copilot_sandbox (DEPLOYED ENVIRONMENT)")
+    print("Target: E:/gh_COPILOT (DEPLOYED ENVIRONMENT)")
     print("============================================================")
     
     try:

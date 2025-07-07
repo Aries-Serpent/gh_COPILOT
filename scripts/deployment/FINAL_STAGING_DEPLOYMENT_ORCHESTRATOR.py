@@ -5,7 +5,7 @@ FINAL STAGING DEPLOYMENT ORCHESTRATOR
 [LAUNCH] DUAL COPILOT [?] ENTERPRISE DEPLOYMENT SYSTEM [WRENCH]
 
 This orchestrator executes the complete deployment of all validated components
-from E:/_copilot_sandbox to E:/_copilot_staging with full validation.
+from E:/gh_COPILOT to E:/gh_COPILOT with full validation.
 
 FEATURES:
 - Complete sandbox [?] staging migration
@@ -43,8 +43,8 @@ class FinalStagingDeploymentOrchestrator:
     """[LAUNCH] ENTERPRISE-GRADE STAGING DEPLOYMENT ORCHESTRATOR [?]"""
     
     def __init__(self):
-        self.sandbox_path = Path("E:/_copilot_sandbox")
-        self.staging_path = Path("E:/_copilot_staging")
+        self.sandbox_path = Path("E:/gh_COPILOT")
+        self.staging_path = Path("E:/gh_COPILOT")
         self.session_id = f"DEPLOY_{int(datetime.datetime.now().timestamp())}"
         self.deployment_results = {
             "session_id": self.session_id,
@@ -549,7 +549,7 @@ def main():
                 print(f"  - {error}")
                 
         print("\n[COMPLETE] STAGING DEPLOYMENT COMPLETE!")
-        print("[PIN_ROUND] Location: E:/_copilot_staging")
+        print("[PIN_ROUND] Location: E:/gh_COPILOT")
         print("[WRENCH] Ready for production validation and deployment")
         
     except Exception as e:

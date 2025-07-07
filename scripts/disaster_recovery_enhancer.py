@@ -28,7 +28,7 @@ class DisasterRecoveryEnhancer:
     """[LAUNCH] DISASTER RECOVERY CAPABILITY ENHANCER - DUAL COPILOT VALIDATED"""
     
     def __init__(self):
-        self.workspace_path = Path("e:/_copilot_sandbox")
+        self.workspace_path = Path("e:/gh_COPILOT")
         self.production_db = self.workspace_path / "production.db"
         
         # Visual indicators

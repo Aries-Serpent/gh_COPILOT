@@ -17,7 +17,7 @@ from pathlib import Path
 class EnterpriseValidationSystem:
     def __init__(self):
         """Initialize enterprise validation system with DUAL COPILOT protection"""
-        self.base_path = Path(r"e:\_copilot_sandbox")
+        self.base_path = Path(r"e:\gh_COPILOT")
         self.databases_path = self.base_path / "databases"
         self.documentation_path = self.base_path / "documentation"
         self.compliance_path = self.documentation_path / "compliance"

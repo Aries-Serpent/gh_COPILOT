@@ -151,7 +151,7 @@ class DatabaseCleanupExecutor:
                 pbar.update(1)
         
         # Clean up empty directories
-        self._cleanup_empty_directories(Path("E:/_copilot_staging/databases"))
+        self._cleanup_empty_directories(Path("E:/gh_COPILOT/databases"))
         
         cleanup_results = {
             "files_removed": len(self.files_removed),
@@ -230,7 +230,7 @@ class DatabaseCleanupExecutor:
             cleanup_plan = self.load_cleanup_plan(analysis_file)
             
             # Create backup
-            staging_path = Path("E:/_copilot_staging/databases")
+            staging_path = Path("E:/gh_COPILOT/databases")
             backup_path = self.create_backup(staging_path)
             
             # Execute cleanup

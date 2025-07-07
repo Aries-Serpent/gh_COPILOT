@@ -23,9 +23,9 @@ import psutil
 class EnhancedEnvironmentAdaptationSystem:
     def __init__(self):
         # 🎯 VISUAL PROCESSING INDICATOR: Environment Adaptation Initialization
-        self.workspace_path = "e:/_copilot_sandbox"
-        self.db_path = "e:/_copilot_sandbox/databases/learning_monitor.db"
-        self.environments_dir = "e:/_copilot_sandbox/templates/environments"
+        self.workspace_path = "e:/gh_COPILOT"
+        self.db_path = "e:/gh_COPILOT/databases/learning_monitor.db"
+        self.environments_dir = "e:/gh_COPILOT/templates/environments"
         
         # DUAL COPILOT: Initialize with strict anti-recursion protection
         self.max_profiles = 10
@@ -752,7 +752,7 @@ python template_intelligence_platform.py --env {env_name}
         }
         
         # Save report
-        report_path = "e:/_copilot_sandbox/generated_scripts/phase_4_completion_report.json"
+        report_path = "e:/gh_COPILOT/generated_scripts/phase_4_completion_report.json"
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2)
             

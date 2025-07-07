@@ -84,8 +84,8 @@ class EnterprisePerformanceMonitor:
     def __init__(self):
         self.session_id = f"PERF_MONITOR_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.start_time = datetime.now()
-        self.sandbox_path = Path("E:/_copilot_sandbox")
-        self.staging_path = Path("E:/_copilot_staging")
+        self.sandbox_path = Path("E:/gh_COPILOT")
+        self.staging_path = Path("E:/gh_COPILOT")
         self.metrics_history = []
         
         logger.info(f"[LAUNCH] ENTERPRISE PERFORMANCE MONITOR INITIATED: {self.session_id}")

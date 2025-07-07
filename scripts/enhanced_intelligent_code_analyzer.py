@@ -853,7 +853,7 @@ def main():
     print("=" * 80)
     
     # Initialize analyzer
-    workspace_path = "E:/_copilot_sandbox"
+    workspace_path = "E:/gh_COPILOT"
     analyzer = EnhancedIntelligentCodeAnalyzer(workspace_path)
     
     print(f"{VISUAL_INDICATORS['processing']} CHUNK 2 - ADVANCED CODE INTEGRATION")

@@ -92,7 +92,7 @@ class GenerationRequest:
 class IntelligentScriptGenerationPlatform:
     """Comprehensive platform for intelligent, adaptive script generation"""
     
-    def __init__(self, workspace_root: str = "E:/_copilot_sandbox"):
+    def __init__(self, workspace_root: str = "E:/gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.db_path = self.workspace_root / "databases" / "production.db"
         self.session_id = f"INTELLIGENT_GEN_{int(datetime.now().timestamp())}"
@@ -743,7 +743,7 @@ class IntelligentScriptGenerationPlatform:
                 'performance_requirements': 'STANDARD',
                 'compliance_standards': json.dumps(['ENTERPRISE', 'SECURITY', 'ANTI_RECURSION']),
                 'environment_variables': json.dumps({
-                    'WORKSPACE_ROOT': 'E:/_copilot_sandbox',
+                    'WORKSPACE_ROOT': 'E:/gh_COPILOT',
                     'DATABASE_PATH': 'databases/production.db',
                     'LOG_LEVEL': 'INFO',
                     'ENCODING': 'utf-8'
@@ -760,7 +760,7 @@ class IntelligentScriptGenerationPlatform:
                 'performance_requirements': 'RELAXED',
                 'compliance_standards': json.dumps(['BASIC']),
                 'environment_variables': json.dumps({
-                    'WORKSPACE_ROOT': 'E:/_copilot_sandbox',
+                    'WORKSPACE_ROOT': 'E:/gh_COPILOT',
                     'DATABASE_PATH': 'databases/production.db',
                     'LOG_LEVEL': 'DEBUG'
                 })

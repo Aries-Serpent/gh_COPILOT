@@ -18,7 +18,7 @@ from pathlib import Path
 class InstructionSetValidator:
     """[TARGET] GitHub Copilot Instruction Set Validation Engine"""
     
-    def __init__(self, workspace_path="e:/_copilot_sandbox"):
+    def __init__(self, workspace_path="e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.instructions_path = self.workspace_path / ".github" / "instructions"
         self.validation_results = {

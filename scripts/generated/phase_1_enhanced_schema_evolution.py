@@ -21,10 +21,10 @@ from pathlib import Path
 class EnhancedSchemaEvolution:
     def __init__(self):
         # 🎯 VISUAL PROCESSING INDICATOR: Schema Evolution Initialization
-        self.db_path = "e:/_copilot_sandbox/databases/learning_monitor.db"
-        self.databases_dir = "e:/_copilot_sandbox/databases"
-        self.templates_dir = "e:/_copilot_sandbox/templates"
-        self.documentation_dir = "e:/_copilot_sandbox/documentation"
+        self.db_path = "e:/gh_COPILOT/databases/learning_monitor.db"
+        self.databases_dir = "e:/gh_COPILOT/databases"
+        self.templates_dir = "e:/gh_COPILOT/templates"
+        self.documentation_dir = "e:/gh_COPILOT/documentation"
         
         # DUAL COPILOT: Initialize with anti-recursion protection
         self.recursion_depth = 0
@@ -245,17 +245,17 @@ class EnhancedSchemaEvolution:
         print("🎯 Creating enhanced directory structure...")
         
         directories = [
-            "e:/_copilot_sandbox/databases",
-            "e:/_copilot_sandbox/templates/base",
-            "e:/_copilot_sandbox/templates/enterprise",
-            "e:/_copilot_sandbox/templates/environments",
-            "e:/_copilot_sandbox/documentation/schemas",
-            "e:/_copilot_sandbox/documentation/diagrams",
-            "e:/_copilot_sandbox/documentation/compliance",
-            "e:/_copilot_sandbox/generated_scripts/migrations",
-            "e:/_copilot_sandbox/generated_scripts/validations",
-            "e:/_copilot_sandbox/backups/schemas",
-            "e:/_copilot_sandbox/backups/data"
+            "e:/gh_COPILOT/databases",
+            "e:/gh_COPILOT/templates/base",
+            "e:/gh_COPILOT/templates/enterprise",
+            "e:/gh_COPILOT/templates/environments",
+            "e:/gh_COPILOT/documentation/schemas",
+            "e:/gh_COPILOT/documentation/diagrams",
+            "e:/gh_COPILOT/documentation/compliance",
+            "e:/gh_COPILOT/generated_scripts/migrations",
+            "e:/gh_COPILOT/generated_scripts/validations",
+            "e:/gh_COPILOT/backups/schemas",
+            "e:/gh_COPILOT/backups/data"
         ]
         
         for directory in directories:
@@ -370,7 +370,7 @@ class EnhancedSchemaEvolution:
         }
         
         # Save report
-        report_path = "e:/_copilot_sandbox/generated_scripts/phase_1_completion_report.json"
+        report_path = "e:/gh_COPILOT/generated_scripts/phase_1_completion_report.json"
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2)
             

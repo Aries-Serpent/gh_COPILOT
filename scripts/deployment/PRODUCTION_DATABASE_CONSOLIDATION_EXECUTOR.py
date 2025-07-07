@@ -15,9 +15,9 @@ from pathlib import Path
 
 class ProductionDatabaseConsolidator:
     def __init__(self):
-        self.root_db = Path("E:/_copilot_staging/production.db")
-        self.databases_db = Path("E:/_copilot_staging/databases/production.db")
-        self.backup_dir = Path("E:/_copilot_staging/databases/backups")
+        self.root_db = Path("E:/gh_COPILOT/production.db")
+        self.databases_db = Path("E:/gh_COPILOT/databases/production.db")
+        self.backup_dir = Path("E:/gh_COPILOT/databases/backups")
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         # Ensure backup directory exists
@@ -249,7 +249,7 @@ class ProductionDatabaseConsolidator:
         }
         
         # Save consolidation log
-        log_file = Path(f"E:/_copilot_sandbox/production_db_consolidation_{self.timestamp}.json")
+        log_file = Path(f"E:/gh_COPILOT/production_db_consolidation_{self.timestamp}.json")
         with open(log_file, 'w') as f:
             json.dump(self.consolidation_log, f, indent=2)
         

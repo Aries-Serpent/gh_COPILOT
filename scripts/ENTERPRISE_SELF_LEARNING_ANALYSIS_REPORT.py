@@ -28,7 +28,7 @@ class EnterpriseSelfiLearningAnalyzer:
     Implements DUAL COPILOT validation pattern with comprehensive analysis
     """
     
-    def __init__(self, workspace_path: str = "e:\\_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:\\gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.production_db = self.workspace_path / "production.db"
         self.learning_monitor_db = self.workspace_path / "databases" / "learning_monitor.db"

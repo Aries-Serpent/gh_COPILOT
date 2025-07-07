@@ -78,7 +78,7 @@ class AntiRecursionGuard:
     @staticmethod
     def validate_workspace_integrity() -> bool:
         """MANDATORY: Validate workspace before any sync operation"""
-        workspace_root = Path("e:/_copilot_sandbox")
+        workspace_root = Path("e:/gh_COPILOT")
         
         # Check for ACTUAL recursive backup folder structures (directories only)
         forbidden_patterns = [
@@ -138,7 +138,7 @@ class CriticalScriptSyncOperation:
         if not AntiRecursionGuard.validate_no_c_temp_usage():
             raise RuntimeError("[ALERT] CRITICAL: C:/temp violations prevent sync operation")
         
-        self.workspace_path = Path("e:/_copilot_sandbox")
+        self.workspace_path = Path("e:/gh_COPILOT")
         self.production_db = self.workspace_path / "databases" / "production.db"
         self.sync_session_id = f"CRITICAL_SYNC_{int(datetime.now().timestamp())}"
         

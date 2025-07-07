@@ -655,7 +655,7 @@ def main():
     
     # DUAL COPILOT PATTERN: Primary Framework Execution
     try:
-        workspace_path = r"E:\_copilot_sandbox"
+        workspace_path = r"E:\gh_COPILOT"
         framework = EnterpriseScriptGenerationFramework(workspace_path)
         
         print("\n" + "="*80)
@@ -731,7 +731,7 @@ def main():
         print("Primary execution encountered issues. Running validation...")
         
         # Basic validation
-        workspace_path = Path(r"E:\_copilot_sandbox")
+        workspace_path = Path(r"E:\gh_COPILOT")
         
         validation_results = {
             'workspace_exists': workspace_path.exists(),

@@ -34,7 +34,7 @@ class ProductionDeploymentOrchestrator:
     
     def __init__(self, production_path: str = "e:/_copilot_production-001"):
         self.production_path = Path(production_path)
-        self.sandbox_path = Path("e:/_copilot_sandbox")
+        self.sandbox_path = Path("e:/gh_COPILOT")
         
         # Visual processing indicators
         self.indicators = {

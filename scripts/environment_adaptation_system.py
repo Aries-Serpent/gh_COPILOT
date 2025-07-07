@@ -82,7 +82,7 @@ class EnvironmentAdaptationSystem:
     DUAL COPILOT Pattern: Primary adapter + Secondary validator
     """
     
-    def __init__(self, workspace_root: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_root: str = "e:/gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.db_path = self.workspace_root / "databases" / "learning_monitor.db"
         self.start_time = datetime.now()
@@ -113,7 +113,7 @@ class EnvironmentAdaptationSystem:
         """CRITICAL: Validate environment and prevent recursion"""
         
         # Check workspace integrity
-        if not str(self.workspace_root).endswith("_copilot_sandbox"):
+        if not str(self.workspace_root).endswith("gh_COPILOT"):
             logger.warning(f"Non-standard workspace: {self.workspace_root}")
             
         # Prevent recursive operations

@@ -88,7 +88,7 @@ class ComprehensiveScriptGenerationPlatform:
     - Enterprise compliance validation
     """
     
-    def __init__(self, workspace_path: str = r"e:\_copilot_sandbox"):
+    def __init__(self, workspace_path: str = r"e:\gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.databases_path = self.workspace_path / "databases"
         self.production_db = self.databases_path / "production.db"

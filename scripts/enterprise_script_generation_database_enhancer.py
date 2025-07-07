@@ -734,7 +734,7 @@ def main():
     
     # DUAL COPILOT PATTERN: Primary Enhancement
     try:
-        workspace_path = r"E:\_copilot_sandbox"
+        workspace_path = r"E:\gh_COPILOT"
         enhancer = EnterpriseDatabaseSchemaEnhancer(workspace_path)
         results = enhancer.run_enhancement()
         
@@ -760,7 +760,7 @@ def main():
         print("Primary enhancement encountered issues. Running validation...")
         
         # Basic validation
-        workspace_path = Path(r"E:\_copilot_sandbox")
+        workspace_path = Path(r"E:\gh_COPILOT")
         db_path = workspace_path / 'databases' / 'production.db'
         
         validation_results = {

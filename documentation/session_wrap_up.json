@@ -3,8 +3,8 @@
   "mission_status": "SUCCESSFULLY COMPLETED",
   "deployment_summary": {
     "source_environments": [
-      "E:/_copilot_sandbox",
-      "E:/_copilot_staging"
+      "E:/gh_COPILOT",
+      "E:/gh_COPILOT"
     ],
     "target_deployment": "E:/gh_COPILOT",
     "deployment_metrics": {

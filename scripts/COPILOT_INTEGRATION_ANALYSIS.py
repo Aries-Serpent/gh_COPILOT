@@ -19,7 +19,7 @@ def generate_comprehensive_analysis():
     print("=" * 60)
     
     # Load latest validation results
-    validation_files = list(Path("E:/_copilot_sandbox").glob("COPILOT_INTEGRATION_VALIDATION_*.json"))
+    validation_files = list(Path("E:/gh_COPILOT").glob("COPILOT_INTEGRATION_VALIDATION_*.json"))
     if not validation_files:
         print("[ERROR] No validation results found")
         return
@@ -265,7 +265,7 @@ def generate_comprehensive_analysis():
     
     # Save analysis
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    analysis_file = f"E:/_copilot_sandbox/COPILOT_INTEGRATION_ANALYSIS_{timestamp}.json"
+    analysis_file = f"E:/gh_COPILOT/COPILOT_INTEGRATION_ANALYSIS_{timestamp}.json"
     
     with open(analysis_file, 'w') as f:
         json.dump(analysis, f, indent=2)

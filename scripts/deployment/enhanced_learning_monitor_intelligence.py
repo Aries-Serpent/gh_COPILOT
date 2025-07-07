@@ -32,7 +32,7 @@ def validate_environment_compliance() -> bool:
     current_path = Path(os.getcwd())
     
     # Check for proper workspace root
-    if not str(current_path).endswith("_copilot_sandbox"):
+    if not str(current_path).endswith("gh_COPILOT"):
         logging.warning(f"[WARNING] Non-standard workspace: {current_path}")
     
     # Check for recursive violations
@@ -142,7 +142,7 @@ class SecondaryCopilotValidator:
 class PrimaryCopilotExecutor:
     """Primary Copilot for enhanced learning monitor intelligence"""
     
-    def __init__(self, workspace_path: str = "e:\\_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:\\gh_COPILOT"):
         # CRITICAL: Validate environment before initialization
         validate_environment_compliance()
         
@@ -371,10 +371,10 @@ class PrimaryCopilotExecutor:
             PlaceholderMapping(
                 placeholder_name="{WORKSPACE_ROOT}",
                 placeholder_type="system",
-                default_value="e:/_copilot_sandbox",
+                default_value="e:/gh_COPILOT",
                 description="Root workspace directory path",
                 environments=["development", "testing", "staging", "production"],
-                validation_pattern=r"^[a-zA-Z]:[\\\/].*_copilot_sandbox$"
+                validation_pattern=r"^[a-zA-Z]:[\\\/].*gh_COPILOT$"
             ),
             PlaceholderMapping(
                 placeholder_name="{DATABASE_NAME}",

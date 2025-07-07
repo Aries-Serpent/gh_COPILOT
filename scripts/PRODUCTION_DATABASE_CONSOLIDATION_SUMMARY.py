@@ -15,7 +15,7 @@ def generate_consolidation_summary():
     """Generate comprehensive consolidation summary"""
     
     # Get latest consolidation log
-    log_files = list(Path("E:/_copilot_sandbox").glob("production_db_consolidation_*.json"))
+    log_files = list(Path("E:/gh_COPILOT").glob("production_db_consolidation_*.json"))
     if not log_files:
         print("[ERROR] No consolidation logs found")
         return
@@ -34,8 +34,8 @@ def generate_consolidation_summary():
         },
         "problem_analysis": {
             "identified_issue": "Two production.db files in different locations",
-            "root_location": "E:/_copilot_staging/production.db",
-            "databases_location": "E:/_copilot_staging/databases/production.db",
+            "root_location": "E:/gh_COPILOT/production.db",
+            "databases_location": "E:/gh_COPILOT/databases/production.db",
             "size_difference": "9,736,192 bytes (root was larger)",
             "content_difference": "Different tables and data - not duplicates"
         },
@@ -47,7 +47,7 @@ def generate_consolidation_summary():
             "verification": "Database accessibility and integrity validation"
         },
         "consolidation_results": {
-            "final_database_location": "E:/_copilot_staging/databases/production.db",
+            "final_database_location": "E:/gh_COPILOT/databases/production.db",
             "final_database_size": "21,766,144 bytes",
             "backups_created": len(consolidation_data["backups_created"]),
             "unique_tables_preserved": 21,
@@ -62,11 +62,11 @@ def generate_consolidation_summary():
             "documentation": "Comprehensive logging and reporting"
         },
         "files_created": [
-            "E:/_copilot_staging/databases/backups/production_root_backup_*.db",
-            "E:/_copilot_staging/databases/backups/production_databases_backup_*.db",
-            "E:/_copilot_staging/databases/backups/unique_data_analysis_*.json",
-            "E:/_copilot_staging/databases/production_archived_*.db",
-            "E:/_copilot_sandbox/production_db_consolidation_*.json"
+            "E:/gh_COPILOT/databases/backups/production_root_backup_*.db",
+            "E:/gh_COPILOT/databases/backups/production_databases_backup_*.db",
+            "E:/gh_COPILOT/databases/backups/unique_data_analysis_*.json",
+            "E:/gh_COPILOT/databases/production_archived_*.db",
+            "E:/gh_COPILOT/production_db_consolidation_*.json"
         ],
         "verification_details": {
             "root_database_eliminated": True,
@@ -91,7 +91,7 @@ def generate_consolidation_summary():
     
     # Save summary
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    summary_file = f"E:/_copilot_sandbox/PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY_{timestamp}.json"
+    summary_file = f"E:/gh_COPILOT/PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY_{timestamp}.json"
     
     with open(summary_file, 'w') as f:
         json.dump(summary, f, indent=2)

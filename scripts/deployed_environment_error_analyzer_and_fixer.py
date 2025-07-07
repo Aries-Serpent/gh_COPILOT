@@ -4,10 +4,10 @@ Enterprise Deployed Environment Error Analyzer and Fixer
 =========================================================
 
 This script comprehensively analyzes and fixes all errors in the DEPLOYED
-E:\\_copilot_sandbox environment, ensuring 100% enterprise compliance with
+E:\\gh_COPILOT environment, ensuring 100% enterprise compliance with
 zero syntax, formatting, and Unicode/emoji logging errors.
 
-Focus: DEPLOYED environment (E:\_copilot_sandbox) validation and repair.
+Focus: DEPLOYED environment (E:\gh_COPILOT) validation and repair.
 """
 
 import os
@@ -23,13 +23,13 @@ from typing import Dict, List, Tuple, Any
 import traceback
 
 class DeployedEnvironmentErrorAnalyzerAndFixer:
-    """Comprehensive error analyzer and fixer for deployed E:\\_copilot_sandbox environment."""
+    """Comprehensive error analyzer and fixer for deployed E:\\gh_COPILOT environment."""
     
     def __init__(self):
-        self.deployed_base_path = Path("E:/_copilot_sandbox")
+        self.deployed_base_path = Path("E:/gh_COPILOT")
         self.results = {
             "scan_timestamp": datetime.now().isoformat(),
-            "environment": "DEPLOYED E:/_copilot_sandbox",
+            "environment": "DEPLOYED E:/gh_COPILOT",
             "files_scanned": 0,
             "total_errors_found": 0,
             "total_errors_fixed": 0,
@@ -445,7 +445,7 @@ SUCCESS RATE: {(self.results['total_errors_fixed'] / max(self.results['total_err
 - **Remaining Errors**: {self.results['validation_results']['remaining_errors']}
 
 ## SUMMARY
-[CHECK] **CERTIFICATION ACHIEVED**: All Python files in the deployed E:\_copilot_sandbox environment are 100% error-free and enterprise-compliant.
+[CHECK] **CERTIFICATION ACHIEVED**: All Python files in the deployed E:\gh_COPILOT environment are 100% error-free and enterprise-compliant.
 
 ## VALIDATION RESULTS
 - Zero syntax errors
@@ -464,7 +464,7 @@ The deployed environment is certified as enterprise-ready with:
 Original files backed up to: `{self.results['backup_directory']}`
 
 ---
-*This certification validates that the DEPLOYED E:\_copilot_sandbox environment meets all enterprise standards for production deployment.*
+*This certification validates that the DEPLOYED E:\gh_COPILOT environment meets all enterprise standards for production deployment.*
 """)
             
             self.logger.info(f"SUCCESS: 100% Clean Certification generated at {success_report}")
@@ -473,7 +473,7 @@ Original files backed up to: `{self.results['backup_directory']}`
 def main():
     """Main execution function."""
     print("=== DEPLOYED ENVIRONMENT ERROR ANALYZER AND FIXER ===")
-    print("Target: E:/_copilot_sandbox (DEPLOYED ENVIRONMENT)")
+    print("Target: E:/gh_COPILOT (DEPLOYED ENVIRONMENT)")
     print("=" * 60)
     
     try:

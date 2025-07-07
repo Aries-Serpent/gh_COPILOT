@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Final E:\\_copilot_sandbox	emp Cleanup Script - Enterprise Session Integrity Validator
+Final E:\\gh_COPILOT	emp Cleanup Script - Enterprise Session Integrity Validator
 CLEAN VERSION - NO UNICODE/EMOJI CHARACTERS
 """
 
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 class FinalCTempCleanup:
     def __init__(self):
-        self.workspace_root = Path("E:/_copilot_sandbox")
+        self.workspace_root = Path("E:/gh_COPILOT")
         self.session_id = f"FINAL_CLEANUP_{int(datetime.now().timestamp())}"
         self.violations_fixed = 0
         self.files_processed = 0
@@ -35,7 +35,7 @@ class FinalCTempCleanup:
         logger.info(f"Workspace Root: {self.workspace_root}")
     
     def find_c_temp_violations(self):
-        """Find all E:\\_copilot_sandbox	emp violations in Python files"""
+        """Find all E:\\gh_COPILOT	emp violations in Python files"""
         violations = []
         python_files = list(self.workspace_root.glob("*.py"))
         
@@ -46,14 +46,14 @@ class FinalCTempCleanup:
                 with open(file_path, 'r', encoding='utf-8') as f:
                     content = f.read()
                 
-                # Look for various E:\_copilot_sandbox	emp patterns
+                # Look for various E:\gh_COPILOT	emp patterns
                 patterns = [
                     r'C:\\[Tt]emp',
                     r'C:/[Tt]emp',
                     r'"C:\\\\temp"',
                     r"'C:\\\\temp'",
-                    r'"E:\_copilot_sandbox	emp"',
-                    r"'E:\_copilot_sandbox	emp'",
+                    r'"E:\gh_COPILOT	emp"',
+                    r"'E:\gh_COPILOT	emp'",
                     r'tempfile\.gettempdir\(\)',
                     r'os\.environ\.get\(["\']TEMP["\']',
                     r'os\.environ\.get\(["\']TMP["\']'
@@ -84,7 +84,7 @@ class FinalCTempCleanup:
         return violations
     
     def fix_c_temp_violations(self, violations):
-        """Fix all E:\\_copilot_sandbox	emp violations by replacing with workspace-relative paths"""
+        """Fix all E:\\gh_COPILOT	emp violations by replacing with workspace-relative paths"""
         fixed_count = 0
         
         for file_violation in violations:
@@ -96,14 +96,14 @@ class FinalCTempCleanup:
                 
                 original_content = content
                 
-                # Replace various E:\_copilot_sandbox	emp patterns with workspace-relative paths
+                # Replace various E:\gh_COPILOT	emp patterns with workspace-relative paths
                 replacements = [
                     (r'C:\\[Tt]emp', str(self.workspace_root / "temp")),
                     (r'C:/[Tt]emp', str(self.workspace_root / "temp")),
                     (r'"C:\\\\temp"', f'"{self.workspace_root / "temp"}"'),
                     (r"'C:\\\\temp'", f"'{self.workspace_root / 'temp'}'"),
-                    (r'"E:\_copilot_sandbox	emp"', f'"{self.workspace_root / "temp"}"'),
-                    (r"'E:\_copilot_sandbox	emp'", f"'{self.workspace_root / 'temp'}'"),
+                    (r'"E:\gh_COPILOT	emp"', f'"{self.workspace_root / "temp"}"'),
+                    (r"'E:\gh_COPILOT	emp'", f"'{self.workspace_root / 'temp'}'"),
                     (r'tempfile\.gettempdir\(\)', f'"{self.workspace_root / "temp"}"'),
                     (r'os\.environ\.get\(["\']TEMP["\'][^)]*\)', f'"{self.workspace_root / "temp"}"'),
                     (r'os\.environ\.get\(["\']TMP["\'][^)]*\)', f'"{self.workspace_root / "temp"}"')
@@ -139,7 +139,7 @@ class FinalCTempCleanup:
         return temp_dir
     
     def validate_fixes(self):
-        """Validate that all E:\\_copilot_sandbox	emp violations have been fixed"""
+        """Validate that all E:\\gh_COPILOT	emp violations have been fixed"""
         violations = self.find_c_temp_violations()
         
         if violations:

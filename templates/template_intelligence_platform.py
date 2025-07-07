@@ -79,7 +79,7 @@ class PrimaryCopilotExecutor:
         self.task_name = task_name
         self.start_time = datetime.now()
         self.process_id = os.getpid()
-        self.workspace_root = Path("e:/_copilot_sandbox")
+        self.workspace_root = Path("e:/gh_COPILOT")
         
         # CRITICAL: Anti-recursion validation at start
         self._validate_environment_compliance()
@@ -93,7 +93,7 @@ class PrimaryCopilotExecutor:
         
         # Validate workspace root
         current_dir = Path(os.getcwd())
-        if not str(current_dir).endswith("_copilot_sandbox"):
+        if not str(current_dir).endswith("gh_COPILOT"):
             logger.warning(f"[WARNING] Non-standard workspace: {current_dir}")
         
         # Prevent recursive folder creation
@@ -459,7 +459,7 @@ class EnhancedLearningMonitorSchema:
             # Full schema available
             standard_placeholders = [
                 # System Placeholders
-                ("{WORKSPACE_ROOT}", "path", "e:/_copilot_sandbox", "Primary workspace root directory", r"^[a-zA-Z]:\\.*", "system", True),
+                ("{WORKSPACE_ROOT}", "path", "e:/gh_COPILOT", "Primary workspace root directory", r"^[a-zA-Z]:\\.*", "system", True),
                 ("{DATABASE_NAME}", "filename", "production.db", "Database filename", r".*\.db$", "system", False),
                 ("{ENVIRONMENT}", "enum", "development", "Deployment environment", r"(development|staging|production|enterprise)", "system", True),
                 
@@ -492,7 +492,7 @@ class EnhancedLearningMonitorSchema:
         else:
             # Minimal schema - adapt to available columns
             basic_placeholders = [
-                ("{WORKSPACE_ROOT}", "path", "e:/_copilot_sandbox", "Primary workspace root directory"),
+                ("{WORKSPACE_ROOT}", "path", "e:/gh_COPILOT", "Primary workspace root directory"),
                 ("{DATABASE_NAME}", "filename", "production.db", "Database filename"),
                 ("{ENVIRONMENT}", "enum", "development", "Deployment environment"),
                 ("{CLASS_NAME}", "identifier", "ExampleClass", "PascalCase class name"),

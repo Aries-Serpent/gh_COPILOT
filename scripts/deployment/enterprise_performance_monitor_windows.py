@@ -54,9 +54,9 @@ class SystemHealthReport:
 class EnterprisePerformanceMonitor:
     """Enterprise-grade performance monitoring system."""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
-        self.staging_path = Path("e:/_copilot_staging")
+        self.staging_path = Path("e:/gh_COPILOT")
         self.monitoring_active = False
         self.monitoring_thread = None
         self.metrics_history = []

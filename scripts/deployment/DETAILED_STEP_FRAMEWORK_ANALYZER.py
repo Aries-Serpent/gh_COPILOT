@@ -21,8 +21,8 @@ import difflib
 class StepFrameworkAnalyzer:
     def __init__(self):
         self.start_time = datetime.now()
-        self.staging_root = Path("e:/_copilot_staging")
-        self.sandbox_root = Path("e:/_copilot_sandbox")
+        self.staging_root = Path("e:/gh_COPILOT")
+        self.sandbox_root = Path("e:/gh_COPILOT")
         
         print(f"[SEARCH] DETAILED STEP FRAMEWORK FILES ANALYZER")
         print(f"Start Time: {self.start_time}")

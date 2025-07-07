@@ -2,7 +2,7 @@
 """
 ENTERPRISE GITHUB COPILOT FINAL VALIDATION REPORT
 ==================================================
-Complete validation of both E:/_copilot_sandbox and E:/_copilot_staging environments
+Complete validation of both E:/gh_COPILOT and E:/gh_COPILOT environments
 for enterprise-grade GitHub Copilot system with sub-2.0s performance and autonomous capability.
 """
 
@@ -34,8 +34,8 @@ class EnterpriseFinalValidator:
         self.session_id = f"FINAL_VALIDATION_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.start_time = time.time()
         self.environments = {
-            'sandbox': Path('E:/_copilot_sandbox'),
-            'staging': Path('E:/_copilot_staging')
+            'sandbox': Path('E:/gh_COPILOT'),
+            'staging': Path('E:/gh_COPILOT')
         }
         self.validation_results = {
             'session_id': self.session_id,

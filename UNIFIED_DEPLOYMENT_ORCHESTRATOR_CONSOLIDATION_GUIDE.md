@@ -150,8 +150,8 @@ If you prefer manual cleanup:
 ## 🎯 DEPLOYMENT MODES
 
 ### Available Deployment Modes
-- **SANDBOX** - Deploy to `E:\_copilot_sandbox` (default, safe testing)
-- **STAGING** - Deploy to `E:\_copilot_staging` (pre-production)
+- **SANDBOX** - Deploy to `E:\gh_COPILOT` (default, safe testing)
+- **STAGING** - Deploy to `E:\gh_COPILOT` (pre-production)
 - **PRODUCTION** - Deploy to `E:\gh_COPILOT` (live production)
 - **DEVELOPMENT** - Deploy to `E:\_copilot_dev` (development environment)
 - **TESTING** - Deploy to `E:\_copilot_test` (testing environment)
@@ -162,8 +162,8 @@ If you prefer manual cleanup:
 ### Deployment Targets
 | Mode | Target Directory | Purpose |
 |------|------------------|---------|
-| SANDBOX | `E:\_copilot_sandbox` | Safe testing and validation |
-| STAGING | `E:\_copilot_staging` | Pre-production environment |
+| SANDBOX | `E:\gh_COPILOT` | Safe testing and validation |
+| STAGING | `E:\gh_COPILOT` | Pre-production environment |
 | PRODUCTION | `E:\gh_COPILOT` | Live production system |
 | DEVELOPMENT | `E:\_copilot_dev` | Development environment |
 | TESTING | `E:\_copilot_test` | Testing environment |

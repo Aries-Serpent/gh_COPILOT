@@ -118,7 +118,7 @@ class StrategicImplementationExecutor:
     def validate_environment_compliance(self):
         """CRITICAL: Validate proper environment root usage and prevent recursion"""
         workspace_root = Path(os.getcwd())
-        proper_root = "e:\\_copilot_sandbox"
+        proper_root = "e:\\gh_COPILOT"
         
         # MANDATORY: Check for recursive backup folders (more specific patterns)
         forbidden_patterns = ['*backup*', '*_backup_*', 'backups']
@@ -146,7 +146,7 @@ class StrategicImplementationExecutor:
                     print(f"[WARNING] WARNING: Potential violation not cleaned: {violation}")
         
         # MANDATORY: Validate workspace root
-        if not str(workspace_root).replace("\\", "/").endswith("_copilot_sandbox"):
+        if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
             raise RuntimeError(f"CRITICAL: Invalid workspace root: {workspace_root}")
         
         print("[SUCCESS] ENVIRONMENT COMPLIANCE VALIDATED")

@@ -1178,7 +1178,7 @@ class EnterpriseMigrationSyncValidator:
 
 ## Technical Details
 
-**Test Environment:** E:\\_copilot_sandbox  
+**Test Environment:** E:\\gh_COPILOT  
 **Database Location:** databases/  
 **Backup Location:** database_backups/  
 **Python Version:** 3.12+  

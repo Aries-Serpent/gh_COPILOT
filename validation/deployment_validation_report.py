@@ -212,7 +212,7 @@ def main():
         
         print("\n🎉 MISSION ACCOMPLISHED! 🎉")
         print("\nThe complete enterprise gh_COPILOT system has been successfully:")
-        print("• Packaged from E:/_copilot_sandbox and E:/_copilot_staging")
+        print("• Packaged from E:/gh_COPILOT and E:/gh_COPILOT")
         print("• Deployed to E:/gh_COPILOT with full enterprise structure")
         print("• Validated with 73 databases and 743+ intelligent scripts")
         print("• Configured with Template Intelligence Platform")

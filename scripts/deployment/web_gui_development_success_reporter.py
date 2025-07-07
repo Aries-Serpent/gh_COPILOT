@@ -22,7 +22,7 @@ class WebGUICompletionReporter:
     """[BAR_CHART] Web-GUI Development Success Reporter"""
     
     def __init__(self):
-        self.workspace_path = Path("e:/_copilot_sandbox")
+        self.workspace_path = Path("e:/gh_COPILOT")
         self.completion_data = {
             "timestamp": datetime.now().isoformat(),
             "mission_status": "ACCOMPLISHED",

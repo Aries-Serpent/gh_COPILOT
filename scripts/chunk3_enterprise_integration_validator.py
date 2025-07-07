@@ -37,7 +37,7 @@ class Chunk3EnterpriseValidator:
     Comprehensive validation of all CHUNK 3 deliverables for production deployment
     """
     
-    def __init__(self, workspace_path: str = "E:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "E:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.session_id = f"chunk3_validation_{int(datetime.now().timestamp())}"
         

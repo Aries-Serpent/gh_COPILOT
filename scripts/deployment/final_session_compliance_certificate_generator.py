@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class SessionComplianceCertificate:
     def __init__(self):
-        self.workspace_root = Path("E:/_copilot_sandbox")
+        self.workspace_root = Path("E:/gh_COPILOT")
         self.session_id = f"COMPLIANCE_CERT_{int(datetime.now().timestamp())}"
         self.timestamp = datetime.now().isoformat()
         

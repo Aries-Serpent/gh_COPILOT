@@ -44,7 +44,7 @@ def clean_file_to_ascii(file_path: str) -> tuple:
         return False, 0
 
 def main():
-    base_path = Path("E:/_copilot_sandbox")
+    base_path = Path("E:/gh_COPILOT")
     print(f"Cleaning all Python files in {base_path}")
     
     total_files = 0

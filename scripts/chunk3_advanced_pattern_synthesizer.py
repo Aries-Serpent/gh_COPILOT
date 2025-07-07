@@ -106,7 +106,7 @@ class AdvancedPatternSynthesizer:
     Implements DUAL COPILOT pattern and enterprise compliance
     """
     
-    def __init__(self, workspace_path: str = "E:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "E:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.session_id = f"chunk3_synthesis_{int(datetime.now().timestamp())}"
         self.synthesis_db = self.workspace_path / "chunk3_advanced_synthesis.db"

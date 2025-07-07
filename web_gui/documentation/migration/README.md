@@ -7,8 +7,8 @@
 
 ### Environment Migration
 **Supported Environments**:
-- **Development**: `e:/_copilot_sandbox`
-- **Staging**: `e:/_copilot_staging`
+- **Development**: `e:/gh_COPILOT`
+- **Staging**: `e:/gh_COPILOT`
 - **Production**: `e:/_copilot_production`
 
 **Migration Paths**:
@@ -34,8 +34,8 @@
 ```bash
 # Run migration assessment
 python migration_scripts/assess_migration.py \
-  --source e:/_copilot_sandbox \
-  --target e:/_copilot_staging
+  --source e:/gh_COPILOT \
+  --target e:/gh_COPILOT
 ```
 
 ### Compatibility Check
@@ -85,8 +85,8 @@ def check_migration_compatibility(source_env, target_env):
 #### Step 1: Environment Preparation
 ```bash
 # Create staging environment
-mkdir -p e:/_copilot_staging
-cd e:/_copilot_staging
+mkdir -p e:/gh_COPILOT
+cd e:/gh_COPILOT
 
 # Setup Python environment
 python -m venv .venv
@@ -100,29 +100,29 @@ pip install -r ../requirements.txt
 #### Step 2: Database Migration
 ```bash
 # Copy production database
-cp e:/_copilot_sandbox/production.db e:/_copilot_staging/
+cp e:/gh_COPILOT/production.db e:/gh_COPILOT/
 
 # Verify database integrity
 python migration_scripts/verify_database.py \
-  --database e:/_copilot_staging/production.db
+  --database e:/gh_COPILOT/production.db
 ```
 
 #### Step 3: Application Migration
 ```bash
 # Copy web GUI components
-cp -r e:/_copilot_sandbox/web_gui_scripts e:/_copilot_staging/
-cp -r e:/_copilot_sandbox/templates e:/_copilot_staging/
-cp -r e:/_copilot_sandbox/web_gui_documentation e:/_copilot_staging/
+cp -r e:/gh_COPILOT/web_gui_scripts e:/gh_COPILOT/
+cp -r e:/gh_COPILOT/templates e:/gh_COPILOT/
+cp -r e:/gh_COPILOT/web_gui_documentation e:/gh_COPILOT/
 
 # Update configuration paths
 python migration_scripts/update_config_paths.py \
-  --target e:/_copilot_staging
+  --target e:/gh_COPILOT
 ```
 
 #### Step 4: Validation
 ```bash
 # Start staging application
-cd e:/_copilot_staging/web_gui_scripts/flask_apps
+cd e:/gh_COPILOT/web_gui_scripts/flask_apps
 python enterprise_dashboard.py &
 
 # Run validation tests
@@ -147,7 +147,7 @@ python backup_scripts/full_backup.py \
 ```bash
 # Deploy validated staging to production
 python migration_scripts/deploy_to_production.py \
-  --source e:/_copilot_staging \
+  --source e:/gh_COPILOT \
   --target e:/_copilot_production \
   --validate
 ```
@@ -209,7 +209,7 @@ class MigrationWizard:
 ```bash
 # Handle path separators
 python migration_scripts/cross_platform_migrate.py \
-  --source "e:\_copilot_sandbox" \
+  --source "e:\gh_COPILOT" \
   --target "/opt/copilot/production" \
   --platform-conversion
 

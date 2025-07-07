@@ -16,7 +16,7 @@ from pathlib import Path
 def generate_final_project_summary():
     """[TARGET] Generate final project completion summary"""
     
-    workspace_path = Path("e:/_copilot_sandbox")
+    workspace_path = Path("e:/gh_COPILOT")
     
     summary = {
         "project_name": "gh_COPILOT Toolkit Enterprise Deployment",
@@ -83,7 +83,7 @@ def generate_final_project_summary():
         ],
         
         "next_steps": [
-            "Deploy to E:/_copilot_staging for integration testing",
+            "Deploy to E:/gh_COPILOT for integration testing",
             "Configure production environment variables",
             "Set up monitoring and logging",
             "Implement backup/restore procedures",
