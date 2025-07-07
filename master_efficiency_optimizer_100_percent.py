@@ -1078,7 +1078,7 @@ def main():
     else:
         print("\nSignificant improvement achieved.")
         print(f"Current efficiency: {results['final_efficiency']:.1f}%")
-        print(f"📊 Additional optimization recommendations available")
+        print("Additional optimization recommendations available")
     
     # Keep services running
     if results['final_efficiency'] >= 95.0:
