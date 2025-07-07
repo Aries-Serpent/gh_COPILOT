@@ -128,7 +128,7 @@ class UnifiedMonitoringOptimizationSystem:
     def _init_metrics_db(self) -> sqlite3.Connection:
         db_path = self.workspace_root / "databases" / "monitoring_optimization.db"
         db_path.parent.mkdir(parents=True, exist_ok=True)
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path, check_same_thread=False)
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS performance_metrics (
