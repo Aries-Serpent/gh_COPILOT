@@ -73,14 +73,24 @@ class MonitoringOptimizationConsolidationExecutor:
             "**/phase4_continuous_optimization*.py",
             "**/quantum_optimization*.py",
             "**/*optim*.py",
+            "**/efficiency_*.py",
+            "**/master_efficiency_*.py",
+            "**/efficiency_calibration_*.py",
             
             # Dashboard and analytics files
             "**/*dashboard*.py",
             "**/phase4_advanced_analytics*.py",
             "**/*analytics*.py",
+            "**/comprehensive_efficiency_report.py",
             
             # Framework orchestrators
-            "**/master_framework_orchestrator.py"
+            "**/master_framework_orchestrator.py",
+            "**/final_efficiency_achievement_engine.py",
+            
+            # Learning and intelligence systems
+            "**/*learning_monitor*.py",
+            "**/*intelligence*.py",
+            "**/step*_*.py"
         ]
         self.files_to_preserve = [
             CANONICAL_FILE.name,
@@ -177,7 +187,7 @@ class MonitoringOptimizationConsolidationExecutor:
         }
         
         # Write manifest to file
-        with open(MANIFEST_FILE, 'w') as f:
+        with open(MANIFEST_FILE, "w", encoding="utf-8") as f:
             json.dump(manifest, f, indent=2)
         
         logger.info(f"Manifest written to {MANIFEST_FILE}")

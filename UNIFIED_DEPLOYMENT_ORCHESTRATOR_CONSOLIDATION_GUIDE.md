@@ -122,13 +122,13 @@ Use the provided cleanup script to archive and remove legacy orchestrators:
 
 ```bash
 # Run cleanup script (with confirmation)
-python LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py
+python unified_legacy_cleanup_system.py
 
 # Dry run (test mode)
-python LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py --dry-run
+python unified_legacy_cleanup_system.py --dry-run
 
 # Force cleanup (no confirmation)
-python LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py --force
+python unified_legacy_cleanup_system.py --force
 ```
 
 ### Manual Cleanup
@@ -359,7 +359,7 @@ The unified orchestrator automatically handles migration from legacy scripts:
 
 4. **Clean Up Legacy Scripts**:
    ```bash
-   python LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py
+   python unified_legacy_cleanup_system.py
    ```
 
 ---

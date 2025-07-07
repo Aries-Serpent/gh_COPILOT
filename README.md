@@ -12,7 +12,7 @@
 
 ## Core Components Deployed
 1. **enterprise_unicode_compatibility_fix.py** - Unicode/emoji compatibility fixes
-2. **enterprise_performance_monitor_windows.py** - Windows-compatible performance monitoring
+2. **unified_monitoring_optimization_system.py** - Unified monitoring and optimization
 3. **enterprise_json_serialization_fix.py** - JSON serialization enhancements
 4. **advanced_analytics_phase4_phase5_enhancement.py** - Advanced analytics and reporting
 5. **final_deployment_validator.py** - Professional environment validation
@@ -39,7 +39,7 @@
 
 ## Next Steps
 - Execute the gh_COPILOT system from e:/gh_COPILOT
-- Monitor performance using enterprise_performance_monitor_windows.py
+- Monitor performance using unified_monitoring_optimization_system.py
 - Access advanced analytics through advanced_analytics_phase4_phase5_enhancement.py
 
 ## Support
@@ -69,6 +69,28 @@ Many helper scripts live in the `scripts/` folder. An older copy exists under `s
 - `scripts/conversation_wrap_up_generator.py` – generate conversation summary
 - `scripts/final_session_closure.py` – finalize logs and close the session
 
-### Session Protocol Validation
-- `session_protocol_validator.py` – enforce startup and shutdown checks for `unified_session_management_system.py`
+### Autonomous File Management Usage
 
+The `core.autonomous_file_manager` module provides database-driven file organization, classification, intelligent backup creation, and workspace optimization. All operations rely on `production.db` for guidance and enforce anti-recursion protection.
+
+```python
+from core.autonomous_file_manager import (
+    AutonomousFileManager,
+    IntelligentFileClassifier,
+    AutonomousBackupManager,
+    WorkspaceOptimizer,
+)
+
+file_manager = AutonomousFileManager()
+classifier = IntelligentFileClassifier()
+backup_manager = AutonomousBackupManager()
+optimizer = WorkspaceOptimizer()
+
+organized = file_manager.organize_files_autonomously(["example.py"])
+for path in organized:
+    print(classifier.classify_file_autonomously(path))
+
+backup_dir = backup_manager.create_intelligent_backup()
+results = optimizer.optimize_workspace_autonomously()
+print(results)
+```

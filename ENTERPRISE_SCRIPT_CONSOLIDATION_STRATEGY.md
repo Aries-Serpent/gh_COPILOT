@@ -62,7 +62,7 @@
 ### **6. 📊 MONITORING & OPTIMIZATION** (REQUIRES CONSOLIDATION)
 **Current Scripts:**
 - `enterprise_performance_monitor.py` (scripts/ & scripts/deployment/)
-- `enterprise_performance_monitor_windows.py` (root & core/ & scripts/deployment/)
+- `unified_monitoring_optimization_system.py` (root)
 - `phase4_continuous_optimization_engine.py` (scripts/ & scripts/deployment/)
 - `enterprise_continuous_optimization_engine.py` (core/ & scripts/deployment/)
 - `master_framework_orchestrator.py` (scripts/ & scripts/deployment/ & scripts/regenerated/)
@@ -72,7 +72,7 @@
 
 ### **7. 🧹 CLEANUP & LEGACY HANDLING** (ACTIVE)
 **Current Scripts:**
-- `LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py` (root)
+- Legacy cleanup tools (e.g., `LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py`)
 - Multiple cleanup scripts in archived directories
 
 **Consolidation Target:** `unified_legacy_cleanup_system.py`
