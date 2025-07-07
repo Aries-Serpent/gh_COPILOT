@@ -30,8 +30,9 @@ This document provides comprehensive information about getting started in the gh
 # Install core dependencies
 pip install -r requirements.txt
 
-# Optional packages are grouped in `requirements.txt`. Install only the
-# sections you need (e.g., Web GUI or ML) by selecting those packages.
+# Optional extras can be installed as needed
+pip install -r requirements-web.txt  # Web dashboard
+pip install -r requirements-ml.txt   # Machine learning
 
 # Configure system
 python configure_system.py

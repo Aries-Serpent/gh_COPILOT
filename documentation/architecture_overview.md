@@ -30,8 +30,9 @@ This document provides comprehensive information about architecture overview in 
 # Install core dependencies
 pip install -r requirements.txt
 
-# Optional groups (Web, ML, Quantum, etc.) are commented in
-# `requirements.txt`. Install only those you require.
+# Optional extras
+pip install -r requirements-web.txt  # Web dashboard
+pip install -r requirements-ml.txt   # Machine learning
 
 # Configure system
 python configure_system.py
