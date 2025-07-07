@@ -1,5 +1,5 @@
 from datetime import datetime
-from core.enterprise_json_serialization_fix import EnterpriseJSONSerializer
+from copilot.core.enterprise_json_serialization_fix import EnterpriseJSONSerializer
 
 
 def test_round_trip_datetime():

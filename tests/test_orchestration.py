@@ -6,7 +6,7 @@ import signal
 
 import pytest
 
-from final_enterprise_orchestrator import FinalEnterpriseOrchestrator
+from copilot.orchestrators.final_enterprise_orchestrator import FinalEnterpriseOrchestrator
 
 
 def create_dummy_service_script(path, sleep_time=5):
