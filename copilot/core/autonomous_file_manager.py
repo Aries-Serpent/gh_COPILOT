@@ -32,7 +32,9 @@ class BaseDatabaseManager:
     """Utility mixin providing a connection to ``production.db``."""
 
     def __init__(self, workspace_path: Optional[str] = None) -> None:
-        self.workspace_path = get_workspace_path(workspace_path or os.getenv("WORKSPACE_PATH"))
+        self.workspace_path = get_workspace_path(
+            workspace_path or os.getenv("GH_COPILOT_WORKSPACE")
+        )
         self.production_db = self.workspace_path / "production.db"
 
     def get_database_connection(self) -> sqlite3.Connection:
