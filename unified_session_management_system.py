@@ -35,8 +35,6 @@ import subprocess
 import psutil
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional
-
 from common.path_utils import get_workspace_root
 from typing import Dict, List, Optional, Any, Tuple, Set
 from dataclasses import dataclass, asdict
