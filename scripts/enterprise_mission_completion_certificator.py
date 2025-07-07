@@ -18,7 +18,7 @@ import uuid
 class EnterpriseMissionCompletionCertificator:
     """Enterprise mission completion certification system"""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.certification_id = f"ELCF_CERT_{int(time.time())}"
         self.certification_date = datetime.datetime.now()

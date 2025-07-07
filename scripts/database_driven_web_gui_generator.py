@@ -31,7 +31,7 @@ import hashlib
 class DatabaseDrivenWebGUIGenerator:
     """[NETWORK] Database-Driven Web GUI Generator with Enterprise Compliance"""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         """Initialize with DUAL COPILOT pattern and database integration"""
         self.workspace_path = Path(workspace_path)
         self.production_db_path = self.workspace_path / "production.db"
@@ -151,7 +151,7 @@ app.secret_key = 'enterprise_dashboard_secret_key_change_in_production'
 class EnterpriseDashboardApp:
     """[TARGET] Enterprise Dashboard Application Core"""
     
-    def __init__(self, workspace_path="e:/_copilot_sandbox"):
+    def __init__(self, workspace_path="e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.production_db = self.workspace_path / "production.db"
         
@@ -634,16 +634,16 @@ if __name__ == '__main__':
                             <div class="col-md-6">
                                 <h6>Source Environment</h6>
                                 <select class="form-select mb-3">
-                                    <option>Development (e:/_copilot_sandbox)</option>
-                                    <option>Staging (e:/_copilot_staging)</option>
+                                    <option>Development (e:/gh_COPILOT)</option>
+                                    <option>Staging (e:/gh_COPILOT)</option>
                                     <option>Production (e:/_copilot_production)</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
                                 <h6>Target Environment</h6>
                                 <select class="form-select mb-3">
-                                    <option>Development (e:/_copilot_sandbox)</option>
-                                    <option>Staging (e:/_copilot_staging)</option>
+                                    <option>Development (e:/gh_COPILOT)</option>
+                                    <option>Staging (e:/gh_COPILOT)</option>
                                     <option>Production (e:/_copilot_production)</option>
                                 </select>
                             </div>

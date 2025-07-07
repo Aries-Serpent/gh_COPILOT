@@ -926,7 +926,7 @@ def main():
     
     try:
         # Initialize enhanced components
-        workspace_path = Path("e:/_copilot_sandbox")
+        workspace_path = Path("e:/gh_COPILOT")
         
         # Initialize enhanced managers
         db_manager = EnhancedDatabaseFirstManager(workspace_path)

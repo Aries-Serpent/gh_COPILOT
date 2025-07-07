@@ -68,7 +68,7 @@ class ComprehensiveProjectGradingSystem:
     def __init__(self):
         print("[PROCESSING] VISUAL PROCESSING INDICATOR: Initializing Comprehensive Grading System...")
         self.session_id = f"GRADE_SESSION_{int(datetime.datetime.now().timestamp())}"
-        self.workspace_path = "e:/_copilot_sandbox"
+        self.workspace_path = "e:/gh_COPILOT"
         self.database_path = f"{self.workspace_path}/project_grading_database.db"
         
         # Initialize database-first architecture

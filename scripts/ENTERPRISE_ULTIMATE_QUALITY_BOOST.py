@@ -18,7 +18,7 @@ import time
 class UltimateQualityBoostSystem:
     def __init__(self):
         """Initialize ultimate quality boost system with DUAL COPILOT protection"""
-        self.base_path = Path(r"e:\_copilot_sandbox")
+        self.base_path = Path(r"e:\gh_COPILOT")
         self.databases_path = self.base_path / "databases"
         
     def maximize_placeholder_intelligence(self):

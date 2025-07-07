@@ -33,7 +33,7 @@ from pathlib import Path
 import uuid
 
 # [SHIELD] DUAL COPILOT - Anti-Recursion Protection
-ENVIRONMENT_ROOT = r"e:\_copilot_sandbox"
+ENVIRONMENT_ROOT = r"e:\gh_COPILOT"
 FORBIDDEN_PATHS = {
     'backup', 'temp', 'tmp', '.git', '__pycache__', 
     'node_modules', '.vscode', 'backups', 'temporary'
@@ -492,7 +492,7 @@ from template_intelligence import TemplateIntelligencePlatform
 
 # Initialize with your environment
 platform = TemplateIntelligencePlatform(
-    environment_root="e:/_copilot_sandbox",
+    environment_root="e:/gh_COPILOT",
     environment_type="development"
 )
 ```

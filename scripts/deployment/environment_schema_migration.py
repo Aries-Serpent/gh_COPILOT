@@ -11,7 +11,7 @@ from pathlib import Path
 def migrate_environment_tables():
     """Migrate environment tables to support advanced adaptation features"""
     
-    db_path = Path("e:/_copilot_sandbox/databases/learning_monitor.db")
+    db_path = Path("e:/gh_COPILOT/databases/learning_monitor.db")
     
     with sqlite3.connect(db_path) as conn:
         cursor = conn.cursor()

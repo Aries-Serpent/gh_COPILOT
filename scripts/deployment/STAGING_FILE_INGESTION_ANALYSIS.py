@@ -18,8 +18,8 @@ def analyze_staging_file_ingestion():
     print("=" * 60)
     
     # Staging environment analysis
-    staging_path = Path("e:/_copilot_staging")
-    workspace_path = Path("e:/_copilot_sandbox")
+    staging_path = Path("e:/gh_COPILOT")
+    workspace_path = Path("e:/gh_COPILOT")
     
     if not staging_path.exists():
         print("[ERROR] Staging environment not found")

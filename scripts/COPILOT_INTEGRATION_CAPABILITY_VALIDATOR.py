@@ -67,14 +67,14 @@ class CopilotIntegrationValidator:
         # Instance definitions
         self.instances = {
             "sandbox": {
-                "name": "_copilot_sandbox",
-                "path": "E:/_copilot_sandbox",
+                "name": "gh_COPILOT",
+                "path": "E:/gh_COPILOT",
                 "description": "Primary development sandbox instance",
                 "expected_capabilities": ["database_integration", "file_operations", "python_execution", "enterprise_compliance", "copilot_patterns"]
             },
             "staging": {
-                "name": "_copilot_staging",
-                "path": "E:/_copilot_staging",
+                "name": "gh_COPILOT",
+                "path": "E:/gh_COPILOT",
                 "description": "Staging deployment instance",
                 "expected_capabilities": ["database_integration", "file_operations", "python_execution", "enterprise_compliance"]
             }
@@ -557,7 +557,7 @@ print(json.dumps(result))
     def save_validation_results(self) -> str:
         """Save validation results to file"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        results_file = f"E:/_copilot_sandbox/COPILOT_INTEGRATION_VALIDATION_{timestamp}.json"
+        results_file = f"E:/gh_COPILOT/COPILOT_INTEGRATION_VALIDATION_{timestamp}.json"
         
         with open(results_file, 'w') as f:
             json.dump(self.validation_results, f, indent=2)

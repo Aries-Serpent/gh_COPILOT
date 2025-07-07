@@ -2,11 +2,11 @@
 """
 [LAUNCH] Enterprise Deployment Preparation System v4.0
 =================================================
-Final preparation for deployment to E:/_copilot_staging with comprehensive validation
+Final preparation for deployment to E:/gh_COPILOT with comprehensive validation
 and enterprise standards compliance.
 
 Mission: Prepare the comprehensive 5-phase project optimization framework for 
-explicit deployment to E:/_copilot_staging with 100% validation and compliance.
+explicit deployment to E:/gh_COPILOT with 100% validation and compliance.
 
 Features:
 - Complete workspace validation
@@ -39,7 +39,7 @@ class EnterpriseDeploymentPreparation:
     with enterprise standards compliance and DUAL COPILOT pattern verification.
     """
     
-    def __init__(self, workspace_root="e:/_copilot_sandbox", staging_root="e:/_copilot_staging"):
+    def __init__(self, workspace_root="e:/gh_COPILOT", staging_root="e:/gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.staging_root = Path(staging_root)
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -537,7 +537,7 @@ python strategic_implementation_executor.py --staging-mode
 **Session ID**: {self.session_id}
 **Deployment Status**: {manifest['deployment_readiness']}
 **Enterprise Standards**: DUAL COPILOT Pattern Compliant
-**Ready for**: E:/_copilot_staging Deployment
+**Ready for**: E:/gh_COPILOT Deployment
 
 '''
 
@@ -581,7 +581,7 @@ python strategic_implementation_executor.py --staging-mode
                 print("[SUCCESS] DUAL COPILOT pattern compliance confirmed")
                 print("[SUCCESS] Documentation synchronization complete")
                 print("[SUCCESS] Staging environment prepared")
-                print("[SUCCESS] Ready for explicit deployment to E:/_copilot_staging")
+                print("[SUCCESS] Ready for explicit deployment to E:/gh_COPILOT")
                 final_status = "DEPLOYMENT_READY"
             else:
                 print("[WARNING] DEPLOYMENT PREPARATION NEEDS REVIEW")
@@ -628,7 +628,7 @@ def main():
         print("\\n[TARGET] MISSION ACCOMPLISHED: Enterprise Deployment Preparation Complete")
         print("[SUCCESS] All systems validated and staging environment prepared")
         print("[SUCCESS] DUAL COPILOT pattern compliance confirmed")
-        print("[SUCCESS] Ready for explicit deployment to E:/_copilot_staging")
+        print("[SUCCESS] Ready for explicit deployment to E:/gh_COPILOT")
         print(f"[TARGET] Execute deployment: cd {results['staging_path']}")
     else:
         print("\\n[WARNING] MISSION NEEDS REVIEW: Deployment preparation requires attention")

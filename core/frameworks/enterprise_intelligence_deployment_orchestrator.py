@@ -68,7 +68,7 @@ class IntegrationResult:
 class EnterpriseIntelligenceDeploymentOrchestrator:
     """[LAUNCH] Enterprise Intelligence Deployment & Automation Engine"""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.deployment_db_path = self.workspace_path / "enterprise_deployment" / "intelligence_deployment.db"
         self.automation_config_path = self.workspace_path / "enterprise_deployment" / "automation_config.json"

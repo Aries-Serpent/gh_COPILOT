@@ -104,8 +104,8 @@ class EnterpriseOptimizationEngine:
     def __init__(self):
         self.session_id = f"OPT_ENGINE_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.start_time = datetime.now()
-        self.sandbox_path = Path("E:/_copilot_sandbox")
-        self.staging_path = Path("E:/_copilot_staging")
+        self.sandbox_path = Path("E:/gh_COPILOT")
+        self.staging_path = Path("E:/gh_COPILOT")
         self.optimization_cycles = 0
         self.performance_history = []
         self.optimization_queue = queue.Queue()

@@ -26,8 +26,8 @@ import sqlite3
 class ContinuousValidationMonitor:
     def __init__(self):
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.sandbox_path = Path("E:/_copilot_sandbox")
-        self.staging_path = Path("E:/_copilot_staging")
+        self.sandbox_path = Path("E:/gh_COPILOT")
+        self.staging_path = Path("E:/gh_COPILOT")
         
         # Setup logging
         logging.basicConfig(

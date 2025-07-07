@@ -286,7 +286,7 @@ def deploy_with_safety_monitoring(target_path: str):
     # CRITICAL: Safety validation with progress
     with tqdm(total=100, desc="🛡️ Safety Validation", unit="%") as pbar:
         # Validate proper environment root
-        proper_root = r"E:/_copilot_sandbox"
+        proper_root = r"E:/gh_COPILOT"
         
         pbar.set_description("🔍 Validating environment root")
         if not target_path.startswith(proper_root) and target_path.startswith("E:\temp\"):

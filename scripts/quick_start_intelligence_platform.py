@@ -23,7 +23,7 @@ class PlatformQuickStart:
     """[LAUNCH] Quick Start Manager for Intelligence Platform"""
     
     def __init__(self):
-        self.workspace_path = Path("e:/_copilot_sandbox")
+        self.workspace_path = Path("e:/gh_COPILOT")
         self.visual_indicators = {
             'rocket': '[LAUNCH]',
             'brain': '[ANALYSIS]',

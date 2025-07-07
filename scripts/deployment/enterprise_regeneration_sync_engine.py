@@ -50,8 +50,8 @@ ENTERPRISE_TIMEOUT = 600  # 10 minutes max
 ENTERPRISE_SYNC_INTERVAL = 30  # 30 seconds between sync cycles
 
 # Environment Paths
-SANDBOX_PATH = Path(r"E:\_copilot_sandbox")
-STAGING_PATH = Path(r"E:\_copilot_staging")
+SANDBOX_PATH = Path(r"E:\gh_COPILOT")
+STAGING_PATH = Path(r"E:\gh_COPILOT")
 
 # Critical System Patterns to Monitor
 MONITORED_PATTERNS = [

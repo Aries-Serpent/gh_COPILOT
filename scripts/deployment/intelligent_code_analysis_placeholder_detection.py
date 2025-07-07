@@ -34,7 +34,7 @@ def validate_environment_compliance() -> bool:
     current_path = Path(os.getcwd())
     
     # Check for proper workspace root
-    if not str(current_path).endswith("_copilot_sandbox"):
+    if not str(current_path).endswith("gh_COPILOT"):
         logging.warning(f"[WARNING] Non-standard workspace: {current_path}")
     
     # Check for recursive violations - enhanced detection
@@ -179,7 +179,7 @@ class IntelligentCodeAnalyzer:
     Analyzes existing codebase to identify variables suitable for template placeholders
     """
     
-    def __init__(self, workspace_path: str = "e:\\_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:\\gh_COPILOT"):
         # CRITICAL: Validate environment before initialization
         validate_environment_compliance()
         
@@ -469,7 +469,7 @@ class IntelligentCodeAnalyzer:
         # Common hardcoded values that should be placeholders
         hardcoded_patterns = {
             'workspace_paths': {
-                'regex': r'[\'"][a-zA-Z]:[\\\/].*_copilot_sandbox[^"\']*[\'"]',
+                'regex': r'[\'"][a-zA-Z]:[\\\/].*gh_COPILOT[^"\']*[\'"]',
                 'placeholder': '{WORKSPACE_ROOT}',
                 'confidence': 0.9
             },

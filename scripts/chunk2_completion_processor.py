@@ -35,7 +35,7 @@ class MissingScriptsProcessor:
     Implements DUAL COPILOT pattern and enterprise compliance
     """
     
-    def __init__(self, workspace_path: str = "E:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "E:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.session_id = f"missing_proc_{int(datetime.now().timestamp())}"
         self.databases_path = self.workspace_path / "databases"

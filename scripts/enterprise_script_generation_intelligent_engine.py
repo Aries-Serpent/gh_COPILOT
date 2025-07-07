@@ -766,7 +766,7 @@ def main():
     
     # DUAL COPILOT PATTERN: Primary Generation Engine Test
     try:
-        workspace_path = r"E:\_copilot_sandbox"
+        workspace_path = r"E:\gh_COPILOT"
         generator = IntelligentScriptGenerator(workspace_path)
         
         # Test generation request
@@ -826,7 +826,7 @@ def main():
         print("Primary test encountered issues. Running validation...")
         
         # Basic validation
-        workspace_path = Path(r"E:\_copilot_sandbox")
+        workspace_path = Path(r"E:\gh_COPILOT")
         
         validation_results = {
             'workspace_exists': workspace_path.exists(),

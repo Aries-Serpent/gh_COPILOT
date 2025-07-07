@@ -120,7 +120,7 @@ class TemplateAnalysis:
 class IntelligentScriptGenerationEngine:
     """Advanced script generation engine with full intelligence features"""
     
-    def __init__(self, workspace_root: str = "E:/_copilot_sandbox"):
+    def __init__(self, workspace_root: str = "E:/gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.db_path = self.workspace_root / "databases" / "production.db"
         self.templates_dir = self.workspace_root / "templates"

@@ -32,7 +32,7 @@ class SystemOptimizationImplementor:
     """[WRENCH] COMPREHENSIVE SYSTEM OPTIMIZATION - DUAL COPILOT VALIDATED"""
     
     def __init__(self):
-        self.workspace_path = Path("e:/_copilot_sandbox")
+        self.workspace_path = Path("e:/gh_COPILOT")
         self.databases_path = self.workspace_path / "databases"
         self.production_db = self.workspace_path / "production.db"
         

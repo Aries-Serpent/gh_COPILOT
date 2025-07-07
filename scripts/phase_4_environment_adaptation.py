@@ -35,7 +35,7 @@ import platform
 import psutil
 
 # [SHIELD] DUAL COPILOT - Anti-Recursion Protection
-ENVIRONMENT_ROOT = r"e:\_copilot_sandbox"
+ENVIRONMENT_ROOT = r"e:\gh_COPILOT"
 FORBIDDEN_PATHS = {
     'backup', 'temp', 'tmp', '.git', '__pycache__', 
     'node_modules', '.vscode', 'backups', 'temporary'

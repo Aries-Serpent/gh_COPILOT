@@ -239,7 +239,7 @@ with transaction_scope():
 **MANDATORY for ALL enterprise operations:**
 
 #### **Zero Tolerance Deployment Safety**
-- **Proper Environment Root**: `E:/_copilot_sandbox`
+- **Proper Environment Root**: `E:/gh_COPILOT`
 - **C:\Temp Violation Prevention**: NEVER use raw `E:/temp/` - always use proper environment root
 - **Recursive Backup Prevention**: NEVER create backup folders inside workspace
 - **Command Argument Safety**: NEVER interpret `--validate`, `--backup`, `--temp` as folder names
@@ -249,7 +249,7 @@ with transaction_scope():
 ```python
 # CRITICAL: Always validate before ANY file/folder operation
 def validate_enterprise_operation(target_path: str):
-    proper_root = r"E:/_copilot_sandbox"
+    proper_root = r"E:/gh_COPILOT"
     
     # Prevent C:\Temp violations
     if target_path.startswith("E:\\temp\\") and not target_path.startswith(proper_root):

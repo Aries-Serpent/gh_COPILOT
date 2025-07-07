@@ -18,7 +18,7 @@ import time
 class SchemaFixAndEnhancementSystem:
     def __init__(self):
         """Initialize schema fix and enhancement system with DUAL COPILOT protection"""
-        self.base_path = Path(r"e:\_copilot_sandbox")
+        self.base_path = Path(r"e:\gh_COPILOT")
         self.databases_path = self.base_path / "databases"
         
     def populate_placeholder_intelligence_fixed(self):

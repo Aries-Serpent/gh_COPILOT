@@ -1,7 +1,7 @@
 {
   "package_name": "gh_COPILOT_Enterprise_Package_20250706_181036",
   "created_at": "2025-07-06T18:10:36.959280",
-  "source_environment": "e:/_copilot_sandbox",
+  "source_environment": "e:/gh_COPILOT",
   "target_environment": "e:/gh_COPILOT",
   "validation_status": "PASSED",
   "deployment_ready": true,

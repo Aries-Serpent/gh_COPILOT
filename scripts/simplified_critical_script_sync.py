@@ -53,7 +53,7 @@ class SimplifiedCriticalScriptSync:
     
     def __init__(self):
         """Initialize sync operation"""
-        self.workspace_path = Path("e:/_copilot_sandbox")
+        self.workspace_path = Path("e:/gh_COPILOT")
         self.production_db = self.workspace_path / "databases" / "production.db"
         self.sync_session_id = f"SIMPLIFIED_SYNC_{int(datetime.now().timestamp())}"
         

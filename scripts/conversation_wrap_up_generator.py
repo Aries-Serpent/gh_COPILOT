@@ -18,7 +18,7 @@ from pathlib import Path
 class ConversationWrapUpGenerator:
     """[TARGET] Comprehensive Conversation Wrap-Up Generator"""
     
-    def __init__(self, workspace_path="e:/_copilot_sandbox"):
+    def __init__(self, workspace_path="e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.wrap_up_results = {
             "conversation_completion_timestamp": datetime.now().isoformat(),

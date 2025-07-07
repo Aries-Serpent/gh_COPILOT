@@ -27,8 +27,8 @@ import time
 
 # Enterprise Configuration
 ENTERPRISE_SESSION_ID = f"LOG_COMPLIANCE_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-SANDBOX_PATH = Path(r"E:\_copilot_sandbox")
-STAGING_PATH = Path(r"E:\_copilot_staging")
+SANDBOX_PATH = Path(r"E:\gh_COPILOT")
+STAGING_PATH = Path(r"E:\gh_COPILOT")
 
 class EnterpriseLogCompliance:
     """Complete enterprise logging compliance system"""

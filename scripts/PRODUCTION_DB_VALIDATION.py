@@ -28,7 +28,7 @@ class ProductionDatabaseValidator:
         
         # Database paths
         self.root_db = Path('production.db')
-        self.staging_db = Path('E:/_copilot_staging/production.db')
+        self.staging_db = Path('E:/gh_COPILOT/production.db')
         
         # Results structure
         self.validation_results = {
@@ -50,10 +50,10 @@ class ProductionDatabaseValidator:
         print("[SHIELD] VALIDATING ENVIRONMENT SAFETY")
         
         workspace_root = Path(os.getcwd())
-        proper_root = "E:/_copilot_sandbox"
+        proper_root = "E:/gh_COPILOT"
         
         # Validate proper environment root
-        if not str(workspace_root).replace("\\", "/").endswith("_copilot_sandbox"):
+        if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
             raise RuntimeError(f"[ALERT] CRITICAL: Invalid workspace root: {workspace_root}")
             
         # Check for forbidden backup patterns

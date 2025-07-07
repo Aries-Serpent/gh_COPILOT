@@ -120,7 +120,7 @@ class EnterpriseDatabaseQueryValidator:
             
             # Validate proper environment root usage
             if "temp" in str(current_path).lower() and "C:" in str(current_path):
-                raise RuntimeError("CRITICAL: Invalid E:\_copilot_sandbox	emp usage detected")
+                raise RuntimeError("CRITICAL: Invalid E:\gh_COPILOT	emp usage detected")
             
             return True
             

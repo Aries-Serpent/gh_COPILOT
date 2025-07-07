@@ -30,7 +30,7 @@ from template_intelligence import TemplateIntelligencePlatform
 
 # Initialize with your environment
 platform = TemplateIntelligencePlatform(
-    environment_root="e:/_copilot_sandbox",
+    environment_root="e:/gh_COPILOT",
     environment_type="development"
 )
 ```

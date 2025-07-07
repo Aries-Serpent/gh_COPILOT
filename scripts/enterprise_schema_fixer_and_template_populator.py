@@ -493,7 +493,7 @@ if __name__ == "__main__":
                     {'name': 'script_name', 'type': 'string', 'default': 'validation_script'},
                     {'name': 'class_name', 'type': 'string', 'default': 'EnterpriseValidator'},
                     {'name': 'class_description', 'type': 'string', 'default': 'Enterprise validation tool'},
-                    {'name': 'target_path', 'type': 'string', 'default': 'E:/_copilot_sandbox'}
+                    {'name': 'target_path', 'type': 'string', 'default': 'E:/gh_COPILOT'}
                 ]),
                 'dependencies': json.dumps(['logging', 'datetime', 'pathlib', 'json']),
                 'compliance_patterns': json.dumps(['DUAL_COPILOT', 'ANTI_RECURSION', 'ENTERPRISE_LOGGING']),
@@ -560,7 +560,7 @@ def main():
     
     # DUAL COPILOT PATTERN: Primary Schema Fix
     try:
-        workspace_path = r"E:\_copilot_sandbox"
+        workspace_path = r"E:\gh_COPILOT"
         fixer = EnterpriseSchemeFixer(workspace_path)
         
         print("\n" + "="*80)
@@ -584,7 +584,7 @@ def main():
         print("Primary fix encountered issues. Running validation...")
         
         # Basic validation
-        workspace_path = Path(r"E:\_copilot_sandbox")
+        workspace_path = Path(r"E:\gh_COPILOT")
         
         validation_results = {
             'workspace_exists': workspace_path.exists(),

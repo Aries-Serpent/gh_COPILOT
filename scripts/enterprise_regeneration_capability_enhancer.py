@@ -67,8 +67,8 @@ class EnterpriseRegenerationEnhancer:
         self.session_id = f"REGEN_ENHANCE_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.start_time = datetime.now()
         self.environments = {
-            'sandbox': Path('E:/_copilot_sandbox'),
-            'staging': Path('E:/_copilot_staging')
+            'sandbox': Path('E:/gh_COPILOT'),
+            'staging': Path('E:/gh_COPILOT')
         }
         self.enhancement_stats = {
             'patterns_analyzed': 0,

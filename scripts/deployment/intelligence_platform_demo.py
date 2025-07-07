@@ -33,7 +33,7 @@ class IntelligenceMetrics:
 class EnterpriseAnalyticsIntelligenceDemo:
     """[ANALYSIS] ENTERPRISE ANALYTICS INTELLIGENCE PLATFORM - DEMO VERSION"""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.intelligence_db_path = self.workspace_path / "intelligence_demo.db"
         

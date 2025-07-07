@@ -22,9 +22,9 @@ import hashlib
 class EnhancedCrossDatabaseAggregator:
     def __init__(self):
         # 🎯 VISUAL PROCESSING INDICATOR: Cross-Database Aggregation Initialization
-        self.workspace_path = "e:/_copilot_sandbox"
-        self.databases_dir = "e:/_copilot_sandbox/databases"
-        self.main_db_path = "e:/_copilot_sandbox/databases/learning_monitor.db"
+        self.workspace_path = "e:/gh_COPILOT"
+        self.databases_dir = "e:/gh_COPILOT/databases"
+        self.main_db_path = "e:/gh_COPILOT/databases/learning_monitor.db"
         
         # DUAL COPILOT: Initialize with strict anti-recursion protection
         self.max_operations = 100
@@ -493,7 +493,7 @@ class EnhancedCrossDatabaseAggregator:
         }
         
         # Save report
-        report_path = "e:/_copilot_sandbox/generated_scripts/phase_3_completion_report.json"
+        report_path = "e:/gh_COPILOT/generated_scripts/phase_3_completion_report.json"
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2)
             

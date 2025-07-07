@@ -3,7 +3,7 @@
 [LAUNCH] COMPREHENSIVE DEPLOYMENT VALIDATOR
 Enterprise GitHub Copilot System - Multi-Environment Deployment Verification
 
-This module validates all pending deployments across E:/_copilot_sandbox and E:/_copilot_staging
+This module validates all pending deployments across E:/gh_COPILOT and E:/gh_COPILOT
 with comprehensive enterprise compliance, visual processing indicators, and DUAL COPILOT validation.
 """
 
@@ -41,13 +41,13 @@ class ComprehensiveDeploymentValidator:
         # Environment configurations
         self.environments = {
             'sandbox': {
-                'path': Path('E:/_copilot_sandbox'),
+                'path': Path('E:/gh_COPILOT'),
                 'name': 'Sandbox Environment',
                 'priority': 'HIGH',
                 'status': 'UNKNOWN'
             },
             'staging': {
-                'path': Path('E:/_copilot_staging'),
+                'path': Path('E:/gh_COPILOT'),
                 'name': 'Staging Environment', 
                 'priority': 'CRITICAL',
                 'status': 'UNKNOWN'

@@ -9,7 +9,7 @@ from pathlib import Path
 def validate_staging_environment():
     """Validate the staging environment deployment"""
     
-    staging_path = Path("e:/_copilot_staging")
+    staging_path = Path("e:/gh_COPILOT")
     
     print("[LAUNCH] STAGING ENVIRONMENT VALIDATION")
     print("=" * 50)

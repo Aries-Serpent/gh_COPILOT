@@ -39,8 +39,8 @@ class EnterpriseUnicodeCompatibilityFix:
     """Enterprise-grade Unicode compatibility fix for Windows systems."""
     
     def __init__(self):
-        self.workspace_path = Path("e:/_copilot_sandbox")
-        self.staging_path = Path("e:/_copilot_staging")
+        self.workspace_path = Path("e:/gh_COPILOT")
+        self.staging_path = Path("e:/gh_COPILOT")
         self.backup_dir = self.workspace_path / f"_unicode_fix_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.results = {
             'fix_timestamp': datetime.now().isoformat(),

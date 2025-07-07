@@ -14,49 +14,49 @@ The Template Intelligence Platform employs a multi-database architecture with th
 
 ### Analytics Collector Database
 
-- **File:** `e:\_copilot_sandbox\databases\analytics_collector.db`
+- **File:** `e:\gh_COPILOT\databases\analytics_collector.db`
 - **Tables:** 4
 - **Purpose:** Specialized data management
 
 ### Capability Scaler Database
 
-- **File:** `e:\_copilot_sandbox\databases\capability_scaler.db`
+- **File:** `e:\gh_COPILOT\databases\capability_scaler.db`
 - **Tables:** 5
 - **Purpose:** Specialized data management
 
 ### Continuous Innovation Database
 
-- **File:** `e:\_copilot_sandbox\databases\continuous_innovation.db`
+- **File:** `e:\gh_COPILOT\databases\continuous_innovation.db`
 - **Tables:** 5
 - **Purpose:** Specialized data management
 
 ### Factory Deployment Database
 
-- **File:** `e:\_copilot_sandbox\databases\factory_deployment.db`
+- **File:** `e:\gh_COPILOT\databases\factory_deployment.db`
 - **Tables:** 4
 - **Purpose:** Specialized data management
 
 ### Learning Monitor Database
 
-- **File:** `e:\_copilot_sandbox\databases\learning_monitor.db`
+- **File:** `e:\gh_COPILOT\databases\learning_monitor.db`
 - **Tables:** 25
 - **Purpose:** Primary learning and monitoring
 
 ### Performance Analysis Database
 
-- **File:** `e:\_copilot_sandbox\databases\performance_analysis.db`
+- **File:** `e:\gh_COPILOT\databases\performance_analysis.db`
 - **Tables:** 5
 - **Purpose:** Specialized data management
 
 ### Production Database
 
-- **File:** `e:\_copilot_sandbox\databases\production.db`
+- **File:** `e:\gh_COPILOT\databases\production.db`
 - **Tables:** 44
 - **Purpose:** Specialized data management
 
 ### Scaling Innovation Database
 
-- **File:** `e:\_copilot_sandbox\databases\scaling_innovation.db`
+- **File:** `e:\gh_COPILOT\databases\scaling_innovation.db`
 - **Tables:** 6
 - **Purpose:** Specialized data management
 

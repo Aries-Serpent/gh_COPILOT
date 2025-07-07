@@ -534,7 +534,7 @@ class IntelligentScriptGenerationEngine:
     """Enhanced Intelligent Script Generation Engine with Visual Processing Compliance"""
     
     def __init__(self, database_path: Optional[str] = None):
-        self.database_path = database_path or "e:/_copilot_sandbox/databases/production.db"
+        self.database_path = database_path or "e:/gh_COPILOT/databases/production.db"
         self.visual_processor = VisualProcessingEngine()
         self.logger = logging.getLogger(__name__)
         

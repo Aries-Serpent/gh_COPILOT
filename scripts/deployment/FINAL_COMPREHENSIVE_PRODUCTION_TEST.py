@@ -323,7 +323,7 @@ def main():
     try:
         # Initialize tester
         tester = FinalCapabilityTester(
-            sandbox_path="e:/_copilot_sandbox",
+            sandbox_path="e:/gh_COPILOT",
             production_path="e:/_copilot_production-001"
         )
         

@@ -601,7 +601,7 @@ def main():
     
     # DUAL COPILOT PATTERN: Primary Analysis
     try:
-        workspace_path = r"E:\_copilot_sandbox"
+        workspace_path = r"E:\gh_COPILOT"
         analyzer = EnterpriseCodebaseAnalyzer(workspace_path)
         results = analyzer.run_analysis()
         
@@ -627,7 +627,7 @@ def main():
         print("Primary analysis encountered issues. Running validation...")
         
         # Basic validation
-        workspace_path = Path(r"E:\_copilot_sandbox")
+        workspace_path = Path(r"E:\gh_COPILOT")
         
         validation_results = {
             'workspace_exists': workspace_path.exists(),

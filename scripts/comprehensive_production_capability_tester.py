@@ -60,10 +60,10 @@ class ComprehensiveProductionCapabilityTester:
     """
     [TARGET] DUAL COPILOT PRIMARY EXECUTOR
     Comprehensive capability testing framework ensuring 100% parity between
-    _copilot_sandbox and _copilot_production-001
+    gh_COPILOT and _copilot_production-001
     """
     
-    def __init__(self, sandbox_path: str = "e:/_copilot_sandbox", 
+    def __init__(self, sandbox_path: str = "e:/gh_COPILOT", 
                  production_path: str = "e:/_copilot_production-001"):
         # MANDATORY: Anti-recursion validation at start
         self.validate_no_recursive_folders()
@@ -89,7 +89,7 @@ class ComprehensiveProductionCapabilityTester:
         forbidden_patterns = [
             "backup/backup",
             "temp/temp", 
-            "_copilot_sandbox/_copilot_sandbox",
+            "gh_COPILOT/gh_COPILOT",
             "_copilot_production/_copilot_production"
         ]
         

@@ -22,7 +22,7 @@ import uuid
 class Phase5FinalEnterpriseCompletion:
     """Final enterprise completion and readiness assessment system"""
     
-    def __init__(self, workspace_path: str = "e:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.session_id = f"phase5_final_{int(time.time())}"
         self.start_time = datetime.datetime.now()

@@ -3,7 +3,7 @@
 ## Package Information
 - **Package Name**: gh_COPILOT_Enterprise_Package_20250706_181036
 - **Created**: 2025-07-06 18:10:37
-- **Source Environment**: e:/_copilot_sandbox
+- **Source Environment**: e:/gh_COPILOT
 - **Target Environment**: e:/gh_COPILOT
 - **Validation Status**: PASSED - Ready for Professional Deployment
 

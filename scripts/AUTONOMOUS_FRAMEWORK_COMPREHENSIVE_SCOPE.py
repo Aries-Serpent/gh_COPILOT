@@ -24,8 +24,8 @@ class AutonomousFrameworkScopeSpecification:
     def __init__(self):
         self.specification_id = f"autonomous_scope_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.version = "7.0.0-autonomous"
-        self.workspace_path = Path("e:/_copilot_sandbox")
-        self.staging_path = Path("e:/_copilot_staging")
+        self.workspace_path = Path("e:/gh_COPILOT")
+        self.staging_path = Path("e:/gh_COPILOT")
         
         print("[SEARCH] COMPREHENSIVE SCOPE SPECIFICATION FOR AUTONOMOUS FRAMEWORK")
         print("=" * 80)

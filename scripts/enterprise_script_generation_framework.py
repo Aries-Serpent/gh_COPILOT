@@ -105,7 +105,7 @@ class EnterpriseScriptGenerator:
         
         # Initialize core components
         self.production_db_path = Path(production_db_path)
-        self.workspace_path = Path("E:/_copilot_sandbox")
+        self.workspace_path = Path("E:/gh_COPILOT")
         self.template_cache = {}
         self.analysis_cache = {}
         
@@ -158,7 +158,7 @@ class EnterpriseScriptGenerator:
             'migration_sync_test_results'
         ]
         
-        workspace_root = Path("E:/_copilot_sandbox")
+        workspace_root = Path("E:/gh_COPILOT")
         
         # Check for forbidden backup patterns
         for pattern in forbidden_patterns:
@@ -177,7 +177,7 @@ class EnterpriseScriptGenerator:
                         violations.append(str(folder))
         
         # Validate proper environment root usage
-        if not str(workspace_root).replace("\\", "/").endswith("_copilot_sandbox"):
+        if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
             violations.append(f"Invalid workspace root: {workspace_root}")
         
         if violations:
@@ -1039,7 +1039,7 @@ class TemplateManager:
 class EnvironmentAdapter:
     """
     Environment-specific script adaptation
-    MANDATORY: Prevent recursive backup creation and E:\_copilot_sandbox	emp violations
+    MANDATORY: Prevent recursive backup creation and E:\gh_COPILOT	emp violations
     """
     
     def __init__(self):

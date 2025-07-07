@@ -45,19 +45,19 @@
 **Recovery Steps**:
 1. **Verify Template Path**:
    ```bash
-   ls -la e:/_copilot_sandbox/templates/html/
+   ls -la e:/gh_COPILOT/templates/html/
    ```
 
 2. **Check Flask Configuration**:
    ```python
-   app.template_folder = 'e:/_copilot_sandbox/templates/html'
+   app.template_folder = 'e:/gh_COPILOT/templates/html'
    ```
 
 3. **Fix Template Path in Code**:
    ```python
    # Absolute path approach
    import os
-   template_dir = os.path.abspath('e:/_copilot_sandbox/templates/html')
+   template_dir = os.path.abspath('e:/gh_COPILOT/templates/html')
    app = Flask(__name__, template_folder=template_dir)
    ```
 
@@ -71,18 +71,18 @@
 **Recovery Steps**:
 1. **Verify Database Path**:
    ```bash
-   ls -la e:/_copilot_sandbox/production.db
+   ls -la e:/gh_COPILOT/production.db
    ```
 
 2. **Check Permissions**:
    ```bash
-   chmod 664 e:/_copilot_sandbox/production.db
+   chmod 664 e:/gh_COPILOT/production.db
    ```
 
 3. **Create Missing Database**:
    ```python
    import sqlite3
-   conn = sqlite3.connect('e:/_copilot_sandbox/production.db')
+   conn = sqlite3.connect('e:/gh_COPILOT/production.db')
    conn.close()
    ```
 
@@ -95,7 +95,7 @@
 1. **Close All Connections**:
    ```bash
    # Find processes using the database
-   lsof e:/_copilot_sandbox/production.db
+   lsof e:/gh_COPILOT/production.db
    ```
 
 2. **Restart Flask Application**:
@@ -223,11 +223,11 @@ pkill -f "enterprise_dashboard.py"
 
 # 2. Check and fix common issues
 python -c "import flask; print('Flask OK')"
-ls -la e:/_copilot_sandbox/production.db
-ls -la e:/_copilot_sandbox/templates/html/
+ls -la e:/gh_COPILOT/production.db
+ls -la e:/gh_COPILOT/templates/html/
 
 # 3. Restart services
-cd e:/_copilot_sandbox/web_gui_scripts/flask_apps
+cd e:/gh_COPILOT/web_gui_scripts/flask_apps
 python enterprise_dashboard.py
 
 # 4. Verify functionality
@@ -240,7 +240,7 @@ curl http://localhost:5000/api/health
 pkill -f "enterprise_dashboard.py"
 
 # 2. Backup current state
-cp -r e:/_copilot_sandbox e:/_copilot_sandbox_backup
+cp -r e:/gh_COPILOT e:/gh_COPILOT_backup
 
 # 3. Restore from known good backup
 python backup_scripts/restore_latest_backup.py
@@ -259,17 +259,17 @@ python validation_scripts/validate_recovery.py
 ### Emergency Recovery (When Nothing Works)
 ```bash
 # 1. Download fresh copy from repository
-git clone <repository> e:/_copilot_sandbox_fresh
+git clone <repository> e:/gh_COPILOT_fresh
 
 # 2. Copy critical data
-cp e:/_copilot_sandbox/production.db e:/_copilot_sandbox_fresh/
+cp e:/gh_COPILOT/production.db e:/gh_COPILOT_fresh/
 
 # 3. Switch to fresh installation
-mv e:/_copilot_sandbox e:/_copilot_sandbox_failed
-mv e:/_copilot_sandbox_fresh e:/_copilot_sandbox
+mv e:/gh_COPILOT e:/gh_COPILOT_failed
+mv e:/gh_COPILOT_fresh e:/gh_COPILOT
 
 # 4. Reinstall and restart
-cd e:/_copilot_sandbox
+cd e:/gh_COPILOT
 pip install -r web_gui_scripts/requirements.txt
 cd web_gui_scripts/flask_apps
 python enterprise_dashboard.py

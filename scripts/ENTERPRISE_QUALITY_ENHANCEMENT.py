@@ -17,7 +17,7 @@ from pathlib import Path
 class QualityEnhancementSystem:
     def __init__(self):
         """Initialize quality enhancement system with DUAL COPILOT protection"""
-        self.base_path = Path(r"e:\_copilot_sandbox")
+        self.base_path = Path(r"e:\gh_COPILOT")
         self.databases_path = self.base_path / "databases"
         self.placeholders_path = self.base_path / "enterprise_placeholders"
         

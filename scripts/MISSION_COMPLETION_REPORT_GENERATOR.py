@@ -27,7 +27,7 @@ class MissionCompletionReporter:
     def __init__(self):
         self.completion_time = datetime.now()
         self.mission_id = "AUTONOMOUS_DEPLOYMENT_MISSION_100_PERCENT"
-        self.database_path = Path("e:/_copilot_staging/databases/production.db")
+        self.database_path = Path("e:/gh_COPILOT/databases/production.db")
         
     def generate_mission_completion_report(self):
         """Generate comprehensive mission completion report"""
@@ -101,7 +101,7 @@ class MissionCompletionReporter:
         }
         
         # Save report
-        report_file = Path("e:/_copilot_sandbox/MISSION_COMPLETION_REPORT_100_PERCENT_AUTONOMOUS.json")
+        report_file = Path("e:/gh_COPILOT/MISSION_COMPLETION_REPORT_100_PERCENT_AUTONOMOUS.json")
         with open(report_file, 'w') as f:
             json.dump(final_report, f, indent=2)
         

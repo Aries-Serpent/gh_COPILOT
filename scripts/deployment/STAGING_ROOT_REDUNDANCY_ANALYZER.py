@@ -28,8 +28,8 @@ class StagingRootRedundancyAnalyzer:
         self.session_id = f"STAGING_REDUNDANCY_ANALYSIS_{int(time.time())}"
         
         # Initialize paths
-        self.staging_root = Path("e:/_copilot_staging")
-        self.sandbox_root = Path("e:/_copilot_sandbox")
+        self.staging_root = Path("e:/gh_COPILOT")
+        self.sandbox_root = Path("e:/gh_COPILOT")
         self.database_path = self.staging_root / "databases" / "production.db"
         
         # Analysis results

@@ -582,7 +582,7 @@ class VisualProcessingComplianceValidator:
         
         try:
             # Create a test database for the demo
-            test_db_path = "e:/_copilot_sandbox/test_production.db"
+            test_db_path = "e:/gh_COPILOT/test_production.db"
             self.create_test_database(test_db_path)
             
             # Initialize script generation engine with test database
@@ -814,7 +814,7 @@ if __name__ == "__main__":
         print("=" * 80)
         
         # Save validation results
-        results_file = f"e:/_copilot_sandbox/visual_processing_compliance_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        results_file = f"e:/gh_COPILOT/visual_processing_compliance_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         try:
             with open(results_file, 'w') as f:
                 json.dump(summary, f, indent=2)

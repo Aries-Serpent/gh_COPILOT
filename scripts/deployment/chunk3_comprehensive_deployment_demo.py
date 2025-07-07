@@ -43,7 +43,7 @@ class Chunk3DeploymentDemo:
     DUAL COPILOT compliance, and enterprise-grade capabilities
     """
     
-    def __init__(self, workspace_path: str = "E:/_copilot_sandbox"):
+    def __init__(self, workspace_path: str = "E:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.session_id = f"chunk3_demo_{int(datetime.now().timestamp())}"
         self.demo_results = {}

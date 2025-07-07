@@ -74,7 +74,7 @@ class PrimaryExecutorBackupRelocator:
     and zero tolerance anti-recursion validation
     """
     
-    def __init__(self, workspace_root: str = r"e:\_copilot_sandbox"):
+    def __init__(self, workspace_root: str = r"e:\gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.external_backup_root = Path("E:/temp/gh_COPILOT_Backups/session_20250702")
         self.executor_id = f"PRIMARY_EXECUTOR_{int(time.time())}"
@@ -83,7 +83,7 @@ class PrimaryExecutorBackupRelocator:
         # CRITICAL: Anti-recursion validation
         self.forbidden_backup_locations = [
             self.workspace_root,
-            Path("E:\\_copilot_sandbox\\temp"),
+            Path("E:\\gh_COPILOT\\temp"),
             Path(str(self.workspace_root / "temp_backup")),
             Path("C:/windows/temp"),
             Path("C:/temp")
@@ -535,7 +535,7 @@ class SecondaryValidatorBackupCompliance:
     def _check_workspace_violations(self) -> List[str]:
         """Check for remaining workspace violations"""
         violations = []
-        workspace_root = Path(r"e:\_copilot_sandbox")
+        workspace_root = Path(r"e:\gh_COPILOT")
         
         # Check for backup folders still in workspace
         backup_patterns = ['backup', 'temp', 'tmp', 'cache', '__pycache__']

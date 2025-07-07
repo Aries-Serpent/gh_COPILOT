@@ -19,7 +19,7 @@ import shutil
 
 class DatabaseRedundancyAnalyzer:
     def __init__(self):
-        self.staging_db_path = Path('E:/_copilot_staging/databases')
+        self.staging_db_path = Path('E:/gh_COPILOT/databases')
         self.local_db_path = Path('databases')
         self.analysis_results = {
             "analysis_timestamp": datetime.now().isoformat(),
@@ -248,7 +248,7 @@ class DatabaseRedundancyAnalyzer:
             "",
             "# Create backup before cleanup",
             "backup_dir = f'staging_db_backup_{int(datetime.now().timestamp())}'",
-            "shutil.copytree('E:/_copilot_staging/databases', backup_dir)",
+            "shutil.copytree('E:/gh_COPILOT/databases', backup_dir)",
             "print(f'[SUCCESS] Backup created: {backup_dir}')",
             "",
             "# Files to remove (identical to local database)",

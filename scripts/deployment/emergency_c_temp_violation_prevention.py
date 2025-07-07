@@ -52,7 +52,7 @@ class EmergencyCtempViolationPrevention:
     - Environment root violations
     """
     
-    def __init__(self, workspace_root: str = r"e:\_copilot_sandbox"):
+    def __init__(self, workspace_root: str = r"e:\gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.scan_id = f"EMERGENCY_{int(time.time())}"
         self.start_time = datetime.now()
@@ -92,7 +92,7 @@ class EmergencyCtempViolationPrevention:
             recursive_violations = self._scan_recursive_violations()
             pbar.update(25)
             
-            # Phase 2: Scan for E:\_copilot_sandbox	emp violations
+            # Phase 2: Scan for E:\gh_COPILOT	emp violations
             logger.info("[WARNING] Phase 2: Scanning for C:\\Temp violations")
             c_temp_violations = self._scan_c_temp_violations()
             pbar.update(25)

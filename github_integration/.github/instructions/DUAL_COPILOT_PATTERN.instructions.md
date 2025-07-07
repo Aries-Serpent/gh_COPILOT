@@ -100,7 +100,7 @@ class PrimaryCopilotExecutor:
             raise RuntimeError("CRITICAL: Recursive folder violations prevent execution")
         
         # MANDATORY: Validate proper environment root
-        proper_root = "E:/_copilot_sandbox"
+        proper_root = "E:/gh_COPILOT"
         if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
             logger.warning(f"⚠️  Non-standard workspace root: {workspace_root}")
         
@@ -507,7 +507,7 @@ class DeploymentSafetyValidator:
     """🚨 CRITICAL: Prevents recursive folder creation and C:\\Temp violations - USE E:/temp ONLY"""
     
     def __init__(self):
-        self.proper_root = r"E:/_copilot_sandbox"
+        self.proper_root = r"E:/gh_COPILOT"
         self.forbidden_patterns = ["--validate", "--backup", "--temp", "--target"]
         
     def validate_deployment_path(self, path: str):
