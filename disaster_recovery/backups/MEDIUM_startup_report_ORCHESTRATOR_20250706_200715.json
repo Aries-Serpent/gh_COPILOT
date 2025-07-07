@@ -1,0 +1,50 @@
+{
+  "orchestrator_id": "ORCHESTRATOR_20250706_200715",
+  "timestamp": "2025-07-06T20:08:53.790167",
+  "duration_seconds": 98.107364,
+  "startup_results": {
+    "template_intelligence_platform": true,
+    "continuous_optimization": true,
+    "advanced_analytics": true,
+    "enterprise_dashboard": false
+  },
+  "services_started": 3,
+  "total_services": 4,
+  "success_rate": 75.0,
+  "system_ready": false,
+  "monitoring_data": {
+    "timestamp": "2025-07-06T20:08:53.790167",
+    "services": {
+      "template_intelligence_platform": {
+        "running": true,
+        "pid": 13304,
+        "cpu_percent": 0.0,
+        "memory_mb": 29.43359375
+      },
+      "continuous_optimization": {
+        "running": true,
+        "pid": 17520,
+        "cpu_percent": 0.0,
+        "memory_mb": 40.40625
+      },
+      "advanced_analytics": {
+        "running": false,
+        "pid": null,
+        "cpu_percent": null,
+        "memory_mb": null
+      },
+      "enterprise_dashboard": {
+        "running": false,
+        "pid": null,
+        "cpu_percent": null,
+        "memory_mb": null
+      }
+    },
+    "system_health": {
+      "cpu_percent": 2.7,
+      "memory_percent": 68.1,
+      "disk_percent": 25.7,
+      "running_services": 2
+    }
+  }
+}

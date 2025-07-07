@@ -1,0 +1,41 @@
+{
+  "unified_disaster_recovery_report": {
+    "session_info": {
+      "session_id": "DR_1751893467",
+      "start_time": "2025-07-07T08:04:27.241930",
+      "workspace_root": "e:\\gh_COPILOT",
+      "recovery_score": 15.717241379310343,
+      "assets_protected": 0,
+      "recovery_plans": 3,
+      "backup_integrity": 0.0,
+      "estimated_rto": 0.0,
+      "estimated_rpo": 0.0,
+      "enterprise_compliance": false,
+      "end_time": "2025-07-07T08:04:37.458572",
+      "duration_seconds": 10.216642
+    },
+    "recovery_readiness": {
+      "backup_coverage": 44.33497536945813,
+      "recovery_procedures": 0,
+      "tested_scenarios": 1,
+      "critical_assets_protected": 0,
+      "recovery_automation": 0.0,
+      "documentation_completeness": 0.0
+    },
+    "backup_summary": {
+      "backup_location": "e:\\gh_COPILOT\\disaster_recovery\\backups",
+      "backup_count": 186,
+      "latest_backup": "2025-07-07T08:04:38.587570"
+    },
+    "recovery_plans": {
+      "plans_location": "e:\\gh_COPILOT\\disaster_recovery\\plans",
+      "plans_count": 3
+    },
+    "recommendations": [
+      "Schedule regular recovery testing",
+      "Automate backup verification",
+      "Update recovery procedures quarterly",
+      "Train recovery team on procedures"
+    ]
+  }
+}

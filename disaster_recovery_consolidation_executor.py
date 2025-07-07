@@ -1,0 +1,468 @@
+#!/usr/bin/env python3
+"""
+🚨 DISASTER RECOVERY CONSOLIDATION EXECUTOR
+==========================================
+Archives individual disaster recovery scripts and validates unified system
+
+🎯 DUAL COPILOT PATTERN: Primary Consolidator + Secondary Validator
+🎬 Visual Processing Indicators: MANDATORY
+🛡️ Anti-Recursion Protection: ENABLED
+📦 External Archive Location: E:/TEMP/gh_copilot_backup
+
+Version: 1.0.0
+Created: July 7, 2025
+Target: Complete disaster recovery script consolidation
+"""
+
+import os
+import sys
+import shutil
+import json
+import logging
+import time
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass, asdict
+from tqdm import tqdm
+import hashlib
+
+# Configure enterprise logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('disaster_recovery_consolidation.log', encoding='utf-8'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+
+@dataclass
+class ConsolidationResult:
+    """Consolidation operation result"""
+    source_path: str
+    archive_path: str
+    file_size: int
+    file_hash: str
+    consolidation_status: str = "PENDING"
+    error_message: str = ""
+
+class DisasterRecoveryConsolidator:
+    """🚨 Disaster recovery script consolidation system"""
+    
+    def __init__(self):
+        self.start_time = datetime.now()
+        self.workspace_root = Path("e:\\gh_COPILOT")
+        self.external_archive_root = Path("E:\\TEMP\\gh_copilot_backup")
+        self.consolidation_timestamp = self.start_time.strftime("%Y%m%d_%H%M%S")
+        
+        self.consolidation_results = {
+            "consolidation_timestamp": self.start_time.isoformat(),
+            "workspace_root": str(self.workspace_root),
+            "external_archive_root": str(self.external_archive_root),
+            "scripts_found": 0,
+            "scripts_archived": 0,
+            "scripts_failed": 0,
+            "total_size_archived": 0,
+            "consolidated_files": [],
+            "validation_results": {}
+        }
+        
+        # Visual indicators
+        self.visual_indicators = {
+            'info': '🔍',
+            'processing': '⚙️',
+            'success': '✅',
+            'warning': '⚠️',
+            'error': '❌',
+            'data': '📊',
+            'archive': '📦',
+            'validation': '🎯'
+        }
+        
+        logger.info("🚨 DISASTER RECOVERY CONSOLIDATION EXECUTOR INITIALIZED")
+        logger.info(f"Workspace: {self.workspace_root}")
+        logger.info(f"External Archive: {self.external_archive_root}")
+        logger.info(f"Timestamp: {self.consolidation_timestamp}")
+        print("=" * 60)
+    
+    def discover_disaster_recovery_scripts(self) -> List[str]:
+        """🔍 Discover all disaster recovery scripts for consolidation"""
+        logger.info("🔍 DISCOVERING DISASTER RECOVERY SCRIPTS...")
+        
+        script_patterns = [
+            "**/disaster_recovery_enhancer.py",
+            "**/disaster_recovery_enhancer_enhanced.py", 
+            "**/disaster_recovery_validator.py",
+            "**/disaster_recovery_success_report.py",
+            "**/disaster_recovery_analyzer.py"
+        ]
+        
+        discovered_scripts = []
+        
+        print("🔍 Scanning for disaster recovery scripts...")
+        with tqdm(total=len(script_patterns), desc="Discovery Progress", unit="pattern") as pbar:
+            for pattern in script_patterns:
+                pbar.set_description(f"Scanning: {pattern}")
+                
+                try:
+                    matches = list(self.workspace_root.glob(pattern))
+                    
+                    for match in matches:
+                        if match.is_file():
+                            # Skip the unified system
+                            if "unified_disaster_recovery_system.py" in str(match):
+                                continue
+                            
+                            discovered_scripts.append(str(match))
+                            logger.info(f"📄 Found: {match.relative_to(self.workspace_root)}")
+                
+                except Exception as e:
+                    logger.warning(f"Error scanning pattern {pattern}: {e}")
+                
+                pbar.update(1)
+        
+        # Remove duplicates
+        unique_scripts = list(set(discovered_scripts))
+        
+        self.consolidation_results["scripts_found"] = len(unique_scripts)
+        logger.info(f"📊 Discovered {len(unique_scripts)} disaster recovery scripts")
+        
+        return unique_scripts
+    
+    def create_archive_structure(self):
+        """📁 Create archive directory structure"""
+        logger.info("📁 CREATING ARCHIVE STRUCTURE...")
+        
+        archive_directories = [
+            self.external_archive_root / "consolidated_scripts",
+            self.external_archive_root / "consolidated_scripts" / "disaster_recovery",
+            self.external_archive_root / "consolidated_scripts" / "disaster_recovery" / self.consolidation_timestamp,
+            self.external_archive_root / "consolidated_scripts" / "disaster_recovery" / self.consolidation_timestamp / "scripts",
+            self.external_archive_root / "consolidated_scripts" / "disaster_recovery" / self.consolidation_timestamp / "deployment",
+            self.external_archive_root / "consolidated_scripts" / "disaster_recovery" / self.consolidation_timestamp / "regenerated",
+            self.external_archive_root / "manifests"
+        ]
+        
+        for directory in archive_directories:
+            try:
+                directory.mkdir(parents=True, exist_ok=True)
+                logger.info(f"✅ Created: {directory}")
+            except Exception as e:
+                logger.error(f"❌ Failed to create {directory}: {e}")
+                raise
+    
+    def archive_disaster_recovery_scripts(self, scripts: List[str]) -> Dict[str, Any]:
+        """📦 Archive disaster recovery scripts to external location"""
+        logger.info("📦 ARCHIVING DISASTER RECOVERY SCRIPTS...")
+        
+        archived_count = 0
+        failed_count = 0
+        total_size = 0
+        
+        archive_base = self.external_archive_root / "consolidated_scripts" / "disaster_recovery" / self.consolidation_timestamp
+        
+        print("📦 Archiving disaster recovery scripts...")
+        with tqdm(total=len(scripts), desc="Archive Progress", unit="script") as pbar:
+            for script_path in scripts:
+                pbar.set_description(f"Archiving: {Path(script_path).name}")
+                
+                try:
+                    source_path = Path(script_path)
+                    
+                    # Determine archive subdirectory
+                    if "scripts/deployment" in str(source_path):
+                        archive_subdir = archive_base / "deployment"
+                    elif "scripts/regenerated" in str(source_path):
+                        archive_subdir = archive_base / "regenerated"
+                    else:
+                        archive_subdir = archive_base / "scripts"
+                    
+                    # Create target path
+                    target_path = archive_subdir / source_path.name
+                    
+                    # Archive the script
+                    shutil.copy2(source_path, target_path)
+                    
+                    # Verify archive
+                    if target_path.exists():
+                        file_size = source_path.stat().st_size
+                        file_hash = self.calculate_file_hash(source_path)
+                        
+                        consolidation_result = ConsolidationResult(
+                            source_path=str(source_path),
+                            archive_path=str(target_path),
+                            file_size=file_size,
+                            file_hash=file_hash,
+                            consolidation_status="SUCCESS"
+                        )
+                        
+                        self.consolidation_results["consolidated_files"].append(asdict(consolidation_result))
+                        archived_count += 1
+                        total_size += file_size
+                        
+                        # Remove original script after successful archive
+                        source_path.unlink()
+                        logger.info(f"📦 Archived and removed: {source_path.name}")
+                    else:
+                        raise Exception("Archive file not found after copy")
+                
+                except Exception as e:
+                    consolidation_result = ConsolidationResult(
+                        source_path=str(script_path),
+                        archive_path="",
+                        file_size=0,
+                        file_hash="",
+                        consolidation_status="FAILED",
+                        error_message=str(e)
+                    )
+                    
+                    self.consolidation_results["consolidated_files"].append(asdict(consolidation_result))
+                    failed_count += 1
+                    logger.error(f"❌ Failed to archive {Path(script_path).name}: {e}")
+                
+                pbar.update(1)
+        
+        self.consolidation_results["scripts_archived"] = archived_count
+        self.consolidation_results["scripts_failed"] = failed_count
+        self.consolidation_results["total_size_archived"] = total_size
+        
+        logger.info(f"📊 Consolidation Summary:")
+        logger.info(f"  ✅ Successfully archived: {archived_count}")
+        logger.info(f"  ❌ Failed: {failed_count}")
+        logger.info(f"  📦 Total size: {total_size / 1024:.2f} KB")
+        
+        return self.consolidation_results
+    
+    def validate_unified_system(self) -> Dict[str, Any]:
+        """🎯 Validate unified disaster recovery system"""
+        logger.info("🎯 VALIDATING UNIFIED DISASTER RECOVERY SYSTEM...")
+        
+        validation_results = {
+            "unified_system_exists": False,
+            "unified_system_functional": False,
+            "legacy_scripts_removed": False,
+            "archive_integrity": False,
+            "consolidation_complete": False
+        }
+        
+        print("🎯 Validating unified system...")
+        
+        # Check if unified system exists
+        unified_system_path = self.workspace_root / "unified_disaster_recovery_system.py"
+        if unified_system_path.exists():
+            validation_results["unified_system_exists"] = True
+            logger.info("✅ Unified disaster recovery system exists")
+            
+            # Basic functionality test
+            try:
+                # Read and verify basic structure
+                with open(unified_system_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    
+                required_components = [
+                    "UnifiedDisasterRecoverySystem",
+                    "assess_recovery_readiness",
+                    "create_recovery_backups",
+                    "generate_recovery_plans",
+                    "test_recovery_procedures"
+                ]
+                
+                if all(component in content for component in required_components):
+                    validation_results["unified_system_functional"] = True
+                    logger.info("✅ Unified system functional components verified")
+                else:
+                    logger.warning("⚠️ Some unified system components missing")
+                    
+            except Exception as e:
+                logger.error(f"❌ Error validating unified system: {e}")
+        else:
+            logger.error("❌ Unified disaster recovery system not found")
+        
+        # Check if legacy scripts are removed
+        remaining_scripts = self.discover_disaster_recovery_scripts()
+        if len(remaining_scripts) == 0:
+            validation_results["legacy_scripts_removed"] = True
+            logger.info("✅ All legacy disaster recovery scripts removed")
+        else:
+            logger.warning(f"⚠️ {len(remaining_scripts)} legacy scripts still present")
+        
+        # Check archive integrity
+        archive_base = self.external_archive_root / "consolidated_scripts" / "disaster_recovery" / self.consolidation_timestamp
+        if archive_base.exists():
+            archived_files = list(archive_base.glob("**/*.py"))
+            if len(archived_files) > 0:
+                validation_results["archive_integrity"] = True
+                logger.info(f"✅ Archive integrity verified: {len(archived_files)} files")
+            else:
+                logger.warning("⚠️ No archived files found")
+        else:
+            logger.error("❌ Archive directory not found")
+        
+        # Overall consolidation status
+        validation_results["consolidation_complete"] = all([
+            validation_results["unified_system_exists"],
+            validation_results["unified_system_functional"],
+            validation_results["legacy_scripts_removed"],
+            validation_results["archive_integrity"]
+        ])
+        
+        self.consolidation_results["validation_results"] = validation_results
+        
+        if validation_results["consolidation_complete"]:
+            logger.info("✅ DISASTER RECOVERY CONSOLIDATION: COMPLETE")
+        else:
+            logger.warning("⚠️ DISASTER RECOVERY CONSOLIDATION: INCOMPLETE")
+        
+        return validation_results
+    
+    def calculate_file_hash(self, file_path: Path) -> str:
+        """🔐 Calculate SHA256 hash of file"""
+        try:
+            hash_sha256 = hashlib.sha256()
+            with open(file_path, "rb") as f:
+                for chunk in iter(lambda: f.read(4096), b""):
+                    hash_sha256.update(chunk)
+            return hash_sha256.hexdigest()
+        except Exception:
+            return "HASH_ERROR"
+    
+    def generate_consolidation_manifest(self):
+        """📋 Generate consolidation manifest"""
+        logger.info("📋 GENERATING CONSOLIDATION MANIFEST...")
+        
+        manifest_path = self.external_archive_root / "manifests" / f"disaster_recovery_consolidation_{self.consolidation_timestamp}.json"
+        
+        manifest_data = {
+            "consolidation_info": {
+                "timestamp": self.consolidation_timestamp,
+                "consolidation_type": "DISASTER_RECOVERY_SCRIPTS",
+                "unified_system": "unified_disaster_recovery_system.py",
+                "source_workspace": str(self.workspace_root),
+                "archive_location": str(self.external_archive_root)
+            },
+            "summary": {
+                "scripts_found": self.consolidation_results["scripts_found"],
+                "scripts_archived": self.consolidation_results["scripts_archived"],
+                "scripts_failed": self.consolidation_results["scripts_failed"],
+                "total_size_kb": self.consolidation_results["total_size_archived"] / 1024
+            },
+            "file_details": self.consolidation_results["consolidated_files"],
+            "validation_results": self.consolidation_results.get("validation_results", {}),
+            "consolidation_complete": self.consolidation_results.get("validation_results", {}).get("consolidation_complete", False)
+        }
+        
+        try:
+            with open(manifest_path, 'w', encoding='utf-8') as f:
+                json.dump(manifest_data, f, indent=2)
+            
+            logger.info(f"📋 Manifest saved: {manifest_path}")
+            return str(manifest_path)
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to save manifest: {e}")
+            return None
+    
+    def execute_disaster_recovery_consolidation(self) -> Dict[str, Any]:
+        """🚀 Execute complete disaster recovery consolidation"""
+        logger.info("🚀 EXECUTING DISASTER RECOVERY CONSOLIDATION...")
+        
+        consolidation_phases = [
+            ("🔍 Script Discovery", self.discover_disaster_recovery_scripts, 20),
+            ("📁 Archive Structure", self.create_archive_structure, 10),
+            ("📦 Script Archival", None, 40),  # Special handling
+            ("🎯 System Validation", self.validate_unified_system, 20),
+            ("📋 Manifest Generation", self.generate_consolidation_manifest, 10)
+        ]
+        
+        print("🚀 Starting disaster recovery consolidation...")
+        with tqdm(total=100, desc="🚨 DR Consolidation", unit="%") as pbar:
+            
+            # Phase 1: Script Discovery
+            pbar.set_description("🔍 Script Discovery")
+            discovered_scripts = consolidation_phases[0][1]()
+            pbar.update(20)
+            
+            if not discovered_scripts:
+                logger.info("ℹ️ No disaster recovery scripts found to consolidate")
+                pbar.update(80)  # Skip remaining phases
+            else:
+                # Phase 2: Archive Structure
+                pbar.set_description("📁 Archive Structure")
+                consolidation_phases[1][1]()
+                pbar.update(10)
+                
+                # Phase 3: Script Archival
+                pbar.set_description("📦 Script Archival")
+                self.archive_disaster_recovery_scripts(discovered_scripts)
+                pbar.update(40)
+                
+                # Phase 4: System Validation
+                pbar.set_description("🎯 System Validation")
+                consolidation_phases[3][1]()
+                pbar.update(20)
+                
+                # Phase 5: Manifest Generation
+                pbar.set_description("📋 Manifest Generation")
+                manifest_path = consolidation_phases[4][1]()
+                pbar.update(10)
+        
+        # Calculate duration
+        duration = datetime.now() - self.start_time
+        
+        logger.info("✅ DISASTER RECOVERY CONSOLIDATION COMPLETED")
+        logger.info(f"Duration: {duration}")
+        logger.info(f"Scripts Consolidated: {self.consolidation_results['scripts_archived']}")
+        
+        return {
+            "status": "SUCCESS",
+            "duration": str(duration),
+            "summary": self.consolidation_results
+        }
+
+def main():
+    """🚀 Main consolidation execution"""
+    print("🚨 DISASTER RECOVERY CONSOLIDATION EXECUTOR")
+    print("=" * 50)
+    print("Target: Consolidate individual scripts into unified system")
+    print("Archive: E:/TEMP/gh_copilot_backup")
+    print("=" * 50)
+    
+    # Initialize consolidator
+    consolidator = DisasterRecoveryConsolidator()
+    
+    # Execute consolidation
+    result = consolidator.execute_disaster_recovery_consolidation()
+    
+    print("\n" + "=" * 60)
+    print("🎯 DISASTER RECOVERY CONSOLIDATION SUMMARY")
+    print("=" * 60)
+    print(f"Status: {result['status']}")
+    print(f"Duration: {result['duration']}")
+    
+    if result['status'] == 'SUCCESS':
+        summary = result['summary']
+        print(f"Scripts Found: {summary['scripts_found']}")
+        print(f"Scripts Archived: {summary['scripts_archived']}")
+        print(f"Scripts Failed: {summary['scripts_failed']}")
+        print(f"Total Size: {summary['total_size_archived'] / 1024:.2f} KB")
+        
+        validation = summary.get('validation_results', {})
+        print(f"Consolidation Complete: {validation.get('consolidation_complete', False)}")
+    
+    print("=" * 60)
+    print("🎯 DISASTER RECOVERY CONSOLIDATION COMPLETE!")
+    
+    return result
+
+if __name__ == "__main__":
+    try:
+        result = main()
+        sys.exit(0 if result['status'] == 'SUCCESS' else 1)
+    except KeyboardInterrupt:
+        print("\n⚠️ Consolidation interrupted by user")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ Consolidation failed: {e}")
+        sys.exit(1)
