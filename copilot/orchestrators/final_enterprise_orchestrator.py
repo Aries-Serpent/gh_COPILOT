@@ -364,18 +364,19 @@ class FinalEnterpriseOrchestrator:
             self.logger.error(f"Orchestration error: {e}")
             return 0
 
-if __name__ == "__main__":
+def main() -> None:
+    """Execute the final enterprise orchestration workflow."""
     print("🚀 FINAL ENTERPRISE ORCHESTRATOR - 100% EFFICIENCY MISSION")
     print("=" * 80)
-    
+
     orchestrator = FinalEnterpriseOrchestrator()
     final_score = orchestrator.run()
-    
+
     print(f"\n⭐ FINAL SYSTEM EFFICIENCY: {final_score:.1f}%")
-    
+
     if final_score >= 95:
         print("🔥 ENTERPRISE SYSTEM READY FOR PRODUCTION! 🔥")
-    
+
     # Keep orchestrator running to maintain services
     print("\n⚙️ Orchestrator running... Press Ctrl+C to stop")
     try:
@@ -387,6 +388,10 @@ if __name__ == "__main__":
             try:
                 service['process'].terminate()
                 print(f"✅ {service_name} stopped")
-            except:
+            except Exception:
                 pass
         print("🛑 Orchestrator stopped")
+
+
+if __name__ == "__main__":
+    main()

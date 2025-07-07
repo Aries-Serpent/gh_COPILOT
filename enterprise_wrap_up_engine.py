@@ -16,7 +16,7 @@ from pathlib import Path
 import os
 from typing import Dict, List, Any, Optional
 from tqdm import tqdm
-from common.logging_utils import setup_logging
+from copilot.common.logging_utils import setup_logging
 
 logger = setup_logging(Path('enterprise_wrap_up.log'))
 
