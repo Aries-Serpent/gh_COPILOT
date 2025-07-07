@@ -145,6 +145,6 @@ def health_check():
     })
 
 if __name__ == '__main__':
-    print("[NETWORK] Starting Enterprise Flask Dashboard...")
-    print("[CHAIN] Access at: http://localhost:5000")
+    logging.info("[NETWORK] Starting Enterprise Flask Dashboard...")
+    logging.info("[CHAIN] Access at: http://localhost:5000")
     app.run(debug=True, host='0.0.0.0', port=5000)
