@@ -109,7 +109,7 @@ class SessionManagementConsolidationExecutor(BaseConsolidationExecutor):
 
     def discover_session_management_scripts(self) -> List[str]:
         """Discover all session management related scripts in the workspace"""
-        print("\n[SEARCH] DISCOVERING SESSION MANAGEMENT SCRIPTS...")
+        logger.info("[SEARCH] DISCOVERING SESSION MANAGEMENT SCRIPTS...")
 
         all_patterns: List[str] = []
         for patterns in self.session_management_patterns.values():
