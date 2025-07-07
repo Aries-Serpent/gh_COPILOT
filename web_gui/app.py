@@ -96,7 +96,7 @@ class WebGUILauncher:
         return {
             'enterprise_dashboard': WebComponentConfig(
                 name='Enterprise Dashboard',
-                script_path='web_gui/scripts/flask_apps/enterprise_dashboard.py',
+                script_path=ENTERPRISE_DASHBOARD_SCRIPT,
                 port=5000,
                 url_path='/',
                 timeout=30,

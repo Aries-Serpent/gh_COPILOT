@@ -9,15 +9,17 @@ sessions are started or completed.
 """
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import logging
+
+from copilot.common import get_workspace_path
 
 
 class SessionProtocolValidator:
     """Enforce basic session startup and shutdown rules."""
 
-    def __init__(self, workspace_root: str = "e:/gh_COPILOT"):
-        self.workspace_root = Path(workspace_root)
+    def __init__(self, workspace_root: Optional[str] = None):
+        self.workspace_root = get_workspace_path(workspace_root)
         self.logger = logging.getLogger(__name__)
 
     # internal helper -----------------------------------------------------

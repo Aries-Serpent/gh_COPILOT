@@ -8,9 +8,11 @@ Due to terminal execution issues, here are manual startup instructions for all e
 1. **Python Installation**: Ensure Python is installed and accessible via command line
 2. **Required Packages**: Install dependencies:
    ```bash
-   pip install flask flask-socketio psutil
+   pip install -r requirements.txt
+   pip install -r requirements-web.txt
    ```
 3. **Working Directory**: Navigate to the project root: `e:\_COPILOT`
+4. **Generate Dashboard Script**: Run `python web_gui/database_driven_web_gui_generator.py` to create `web_gui_scripts/flask_apps/enterprise_dashboard.py`
 
 ## Service Startup Commands
 
@@ -38,7 +40,7 @@ python file_browser_websocket.py
 python copilot_cli_relay_websocket.py
 
 # Terminal 7 - Enterprise Dashboard
-python enterprise_dashboard.py
+python web_gui_scripts/flask_apps/enterprise_dashboard.py
 ```
 
 ### Method 2: Batch Startup Scripts
@@ -84,9 +86,10 @@ Once running, access these URLs:
    - Kill conflicting processes if needed
 
 2. **Missing Dependencies**:
-   ```bash
-   pip install flask flask-socketio psutil
-   ```
+    ```bash
+    pip install -r requirements.txt
+    pip install -r requirements-web.txt
+    ```
 
 3. **Python Not Found**:
    - Ensure Python is in system PATH
