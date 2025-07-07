@@ -45,11 +45,13 @@ VISUAL_INDICATORS = {
 }
 
 # Configure enterprise logging
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('unified_script_generation_system.log', encoding='utf-8'),
+        logging.FileHandler(LOG_DIR / 'unified_script_generation_system.log', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )

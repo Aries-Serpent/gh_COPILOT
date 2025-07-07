@@ -32,6 +32,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
+
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 from tqdm import tqdm
 
 # Setup logging
@@ -39,7 +42,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('deployment_migration.log', encoding='utf-8'),
+        logging.FileHandler(LOG_DIR / 'deployment_migration.log', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )

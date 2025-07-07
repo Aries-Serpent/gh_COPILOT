@@ -23,6 +23,9 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
+
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 from typing import Dict, List, Any
 from tqdm import tqdm
 
@@ -31,7 +34,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('database_consolidation_migration.log', encoding='utf-8'),
+        logging.FileHandler(LOG_DIR / 'database_consolidation_migration.log', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )

@@ -32,6 +32,10 @@ class EnterpriseUnicodeCompatibilityFix:
         self.workspace_path = get_workspace_path(workspace_path)
         self.staging_path = get_workspace_path(staging_path)
         self.backup_dir = self.workspace_path / f"_unicode_fix_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.logs_dir = self.workspace_path / "logs"
+        self.reports_dir = self.workspace_path / "reports"
+        self.logs_dir.mkdir(parents=True, exist_ok=True)
+        self.reports_dir.mkdir(parents=True, exist_ok=True)
         self.results = {
             'fix_timestamp': datetime.now().isoformat(),
             'files_processed': 0,
@@ -48,7 +52,7 @@ class EnterpriseUnicodeCompatibilityFix:
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
                 logging.StreamHandler(),
-                logging.FileHandler(self.workspace_path / 'unicode_compatibility_fix.log')
+                logging.FileHandler(self.logs_dir / 'unicode_compatibility_fix.log')
             ]
         )
         self.logger = logging.getLogger(__name__)
@@ -548,7 +552,7 @@ class EnterpriseUnicodeCompatibilityFix:
         self.results['compatibility_achieved'] = len(self.results['environments_fixed']) == len([e for e in environments if e[1].exists()])
         
         # Save results
-        results_path = self.workspace_path / f'unicode_compatibility_results_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+        results_path = self.reports_dir / f'unicode_compatibility_results_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
         with open(results_path, 'w', encoding='utf-8') as f:
             json.dump(self.results, f, indent=2, ensure_ascii=True)
             

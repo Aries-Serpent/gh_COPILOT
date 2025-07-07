@@ -23,6 +23,9 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 from dataclasses import dataclass, asdict
 from tqdm import tqdm
 import hashlib
@@ -32,7 +35,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('disaster_recovery_consolidation.log', encoding='utf-8'),
+        logging.FileHandler(LOG_DIR / 'disaster_recovery_consolidation.log', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )

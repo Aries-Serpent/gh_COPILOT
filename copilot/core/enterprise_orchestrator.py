@@ -78,7 +78,9 @@ class EnterpriseOrchestrator:
         logger.setLevel(logging.INFO)
         
         # Create file handler
-        log_file = self.workspace_root / 'orchestrator.log'
+        log_dir = self.workspace_root / 'logs'
+        log_dir.mkdir(exist_ok=True)
+        log_file = log_dir / 'orchestrator.log'
         handler = logging.FileHandler(log_file)
         handler.setLevel(logging.INFO)
         

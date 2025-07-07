@@ -23,12 +23,15 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 import logging
 
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
+
 # Enterprise logging configuration
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('advanced_autonomous_framework_scope.log'),
+        logging.FileHandler(LOG_DIR / 'advanced_autonomous_framework_scope.log'),
         logging.StreamHandler()
     ]
 )

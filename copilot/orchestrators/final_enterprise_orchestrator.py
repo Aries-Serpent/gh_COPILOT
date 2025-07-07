@@ -67,7 +67,9 @@ class FinalEnterpriseOrchestrator:
         logger.setLevel(logging.INFO)
         
         # Create file handler
-        log_file = self.workspace_root / 'final_orchestrator.log'
+        log_dir = self.workspace_root / 'logs'
+        log_dir.mkdir(exist_ok=True)
+        log_file = log_dir / 'final_orchestrator.log'
         handler = logging.FileHandler(log_file)
         handler.setLevel(logging.INFO)
         
