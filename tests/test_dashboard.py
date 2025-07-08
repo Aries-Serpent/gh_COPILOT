@@ -1,9 +1,11 @@
 import os
-import time
 import socket
+import time
 from pathlib import Path
 
-from copilot.orchestrators.final_enterprise_orchestrator import FinalEnterpriseOrchestrator
+from copilot.orchestrators.final_enterprise_orchestrator import \
+    FinalEnterpriseOrchestrator
+from web_gui.app import WebGUILauncher
 
 
 def get_free_port():
@@ -15,11 +17,13 @@ def get_free_port():
 
 
 def test_enterprise_dashboard_launch(tmp_path):
-    script = Path(__file__).resolve().parents[1] / "web_gui" / "scripts" / "flask_apps" / "enterprise_dashboard.py"
+    script = Path(__file__).resolve(
+    ).parents[1] / "web_gui" / "scripts" / "flask_apps" / "enterprise_dashboard.py"
     port = get_free_port()
     os.environ["FLASK_RUN_PORT"] = str(port)
     orch = FinalEnterpriseOrchestrator(workspace_root=str(tmp_path))
-    started = orch.start_service("Dashboard", str(script), cwd=str(script.parent))
+    started = orch.start_service(
+        "Dashboard", str(script), cwd=str(script.parent))
     try:
         assert started is True
         timeout = 10  # seconds
@@ -36,3 +40,10 @@ def test_enterprise_dashboard_launch(tmp_path):
         proc.terminate()
         proc.wait()
         del os.environ["FLASK_RUN_PORT"]
+
+
+def test_web_gui_launcher_initializes(monkeypatch, tmp_path):
+    """Ensure WebGUILauncher initializes without NameError."""
+    monkeypatch.setenv("GH_COPILOT_ROOT", str(tmp_path))
+    launcher = WebGUILauncher()
+    assert "enterprise_dashboard" in launcher.web_components
