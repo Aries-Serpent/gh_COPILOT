@@ -61,6 +61,9 @@ available.
 ## Support
 All components are validated for deployment.
 Environment is compatible with Windows systems.
+### Log Storage
+All runtime logs are stored outside the repository under `${GH_COPILOT_WORKSPACE}/logs`. The `logs/` directory is excluded from version control.
+
 ## Working Modules Overview
 
 - `unified_session_management_system.py` – manages user sessions
