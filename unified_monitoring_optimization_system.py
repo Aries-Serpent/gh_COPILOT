@@ -97,7 +97,11 @@ class VisualIndicators:
 # Unified Monitoring & Optimization
 # ---------------------------------------------------------------------------
 class UnifiedMonitoringOptimizationSystem:
-    """Unified system combining monitoring and optimization capabilities"""
+    """Unified system combining monitoring and optimization capabilities.
+
+    Classical monitoring functions are annotated with notes describing how
+    quantum‑inspired techniques could enhance future versions.
+    """
 
     def __init__(self, workspace_root: Optional[str] = None) -> None:
         self.workspace_root = Path(workspace_root or Path.home() / "gh_COPILOT")
@@ -121,6 +125,12 @@ class UnifiedMonitoringOptimizationSystem:
     # Database setup
     # ------------------------------------------------------------------
     def _init_metrics_db(self) -> sqlite3.Connection:
+        """Create or open the SQLite metrics database.
+
+        A future quantum-ready system might swap SQLite for a quantum-resistant
+        database layer or integrate with a quantum key distribution service for
+        secure telemetry.
+        """
         db_path = self.workspace_root / "databases" / "monitoring_optimization.db"
         db_path.parent.mkdir(parents=True, exist_ok=True)
         conn = sqlite3.connect(db_path, check_same_thread=False)
@@ -143,12 +153,22 @@ class UnifiedMonitoringOptimizationSystem:
         return conn
 
     def _count_databases(self) -> int:
+        """Return number of SQLite databases in the workspace.
+
+        A quantum-aware system might monitor quantum data stores or hybrid
+        classical/quantum resources here.
+        """
         db_dir = self.workspace_root / "databases"
         if not db_dir.exists():
             return 0
         return len(list(db_dir.glob("*.db")))
 
     def _calculate_health_score(self, cpu: float, memory: float, disk: float, db_count: int) -> float:
+        """Calculate a simple health score from resource metrics.
+
+        Quantum-inspired optimization might incorporate quantum annealing to
+        search for optimal weightings of these metrics based on system history.
+        """
         score = (
             max(0, 100 - cpu) * 0.25
             + max(0, 100 - memory) * 0.25
@@ -161,6 +181,12 @@ class UnifiedMonitoringOptimizationSystem:
     # Monitoring
     # ------------------------------------------------------------------
     def collect_metrics(self) -> PerformanceMetrics:
+        """Collect system metrics via classical polling.
+
+        In a quantum-enhanced environment these measurements could be streamed
+        from specialized hardware sensors or processed using quantum noise
+        filtering techniques.
+        """
         cpu = psutil.cpu_percent(interval=1)
         memory = psutil.virtual_memory().percent
         disk = psutil.disk_usage("/").percent
@@ -204,6 +230,11 @@ class UnifiedMonitoringOptimizationSystem:
         return metrics
 
     def _monitor_loop(self, interval: int) -> None:
+        """Background thread that periodically logs metrics.
+
+        Quantum sensing and entanglement-based synchronization could enhance
+        this loop for higher precision monitoring across distributed systems.
+        """
         while self.monitoring_active:
             metrics = self.collect_metrics()
             logger.info(
@@ -215,6 +246,11 @@ class UnifiedMonitoringOptimizationSystem:
             time.sleep(interval)
 
     def start_monitoring(self, interval: int = 5) -> None:
+        """Start the monitoring thread using classical polling logic.
+
+        Quantum integration could involve event-driven triggers from quantum
+        hardware rather than fixed polling intervals.
+        """
         if self.monitoring_active:
             logger.warning("Monitoring already active")
             return
@@ -224,6 +260,11 @@ class UnifiedMonitoringOptimizationSystem:
         logger.info(f"{self.visual.get('processing')} Monitoring started")
 
     def stop_monitoring(self) -> None:
+        """Stop the monitoring thread and cleanup state.
+
+        Quantum extensions might synchronize shutdown with quantum control
+        systems to preserve coherence in future instrumentation.
+        """
         self.monitoring_active = False
         if self.monitor_thread:
             self.monitor_thread.join()
@@ -234,6 +275,12 @@ class UnifiedMonitoringOptimizationSystem:
     # Optimization
     # ------------------------------------------------------------------
     def run_physics_optimization(self) -> None:
+        """Execute a placeholder physics optimization step.
+
+        Here we use classical Fourier transforms. A true quantum pipeline could
+        process these metrics using a quantum Fourier transform or other
+        variational algorithms once the infrastructure exists.
+        """
         logger.info(f"{self.visual.get('physics')} Running physics optimization...")
         if self.metrics_history:
             data = [m.cpu_percent for m in self.metrics_history]
@@ -242,6 +289,11 @@ class UnifiedMonitoringOptimizationSystem:
         logger.info(f"{self.visual.get('success')} Physics optimization complete")
 
     def optimize_system(self) -> OptimizationSummary:
+        """Run the full optimization workflow using classical methods.
+
+        Future iterations might employ quantum optimizers or hybrid
+        quantum-classical loops for each phase to explore superior configurations.
+        """
         self.optimization_start = datetime.now()
         phases = [
             ("Service Health Optimization", 40),
@@ -261,6 +313,9 @@ class UnifiedMonitoringOptimizationSystem:
         progress.close()
 
         end_time = datetime.now()
+        # Efficiency metrics are currently static placeholders. Quantum
+        # optimization could dynamically compute these based on measurements
+        # from quantum-enhanced components.
         initial_eff = 86.3
         final_eff = 100.0
         summary = OptimizationSummary(
