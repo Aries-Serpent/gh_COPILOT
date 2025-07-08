@@ -23,7 +23,7 @@ class QuantumOptimizer:
         """Return the angle that minimizes Z expectation."""
         best_theta = 0.0
         best_expectation = 1.0
-        angles = [i * pi / 8 for i in range(16)]
+        angles = [i * ANGLE_RESOLUTION for i in range(SEARCH_RANGE)]
         for theta in angles:
             qc = QuantumCircuit(1, 1)
             qc.rx(theta, 0)
