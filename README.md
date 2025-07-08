@@ -1,6 +1,6 @@
 # gh_COPILOT Enterprise Deployment Package
 
-**Important:** This repository contains standard deployment and monitoring scripts. Physics optimization and other advanced capabilities are fully implemented.
+**Important:** This repository contains standard deployment and monitoring scripts. Physics optimization and other advanced capabilities rely on classical physics algorithms. Quantum algorithms remain draft pending validation. See [AGENTS.md lines 5-6](./AGENTS.md#L5-L6) for policy.
 
 ## Package Information
 - **Package Name**: gh_COPILOT_Enterprise_Package_20250706_181036
@@ -9,7 +9,7 @@
 - **Target Environment**: `e:/gh_COPILOT` (override with `GH_COPILOT_WORKSPACE`)
 - **Validation Status**: PASSED - Ready for Professional Deployment
 
-> **Note**: Earlier drafts referenced "quantum" algorithms. These features are now implemented as **physics optimization** capabilities.
+> **Note**: Earlier drafts referenced "quantum" algorithms. The current release relies on classical physics optimization while quantum methods remain draft.
 
 The project currently tracks **32** SQLite databases under `databases/`. Claims
 about algorithmic completion rates or optimization should be treated as
