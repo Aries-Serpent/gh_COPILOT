@@ -13,15 +13,15 @@ Version: 1.0.0
 Created: 2025-07-06
 """
 
-import os
-import sys
 import json
 import logging
-import time
+import os
 import subprocess
+import sys
+import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 # Professional logging setup
 logging.basicConfig(
@@ -34,9 +34,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 class EnterpriseDeploymentRunner:
     """Main runner for enterprise gh_COPILOT deployment"""
-    
+
     def __init__(self):
         self.workspace_path = Path("e:/gh_COPILOT")
         self.target_path = Path("e:/gh_COPILOT")
@@ -44,7 +45,7 @@ class EnterpriseDeploymentRunner:
             "enterprise_gh_copilot_deployment_orchestrator.py",
             "enterprise_deployment_validator.py"
         ]
-        
+
         self.deployment_summary = {
             "deployment_start": None,
             "deployment_end": None,
@@ -56,11 +57,11 @@ class EnterpriseDeploymentRunner:
             "validation_results": {},
             "final_report": None
         }
-    
+
     def check_prerequisites(self) -> bool:
         """Check deployment prerequisites"""
         logger.info("🔍 Checking deployment prerequisites...")
-        
+
         prerequisites = [
             ("Source workspace exists", self.workspace_path.exists()),
             ("Target directory accessible", self.can_create_target()),
@@ -68,7 +69,7 @@ class EnterpriseDeploymentRunner:
             ("Required scripts available", self.check_deployment_scripts()),
             ("Disk space sufficient", self.check_disk_space())
         ]
-        
+
         all_met = True
         for check_name, result in prerequisites:
             if result:
@@ -76,9 +77,9 @@ class EnterpriseDeploymentRunner:
             else:
                 logger.error(f"❌ {check_name}")
                 all_met = False
-        
+
         return all_met
-    
+
     def can_create_target(self) -> bool:
         """Check if target directory can be created/accessed"""
         try:
@@ -90,19 +91,19 @@ class EnterpriseDeploymentRunner:
         except Exception as e:
             logger.error(f"Cannot access target directory: {e}")
             return False
-    
+
     def check_python_environment(self) -> bool:
         """Check Python environment"""
         try:
-            import sqlite3
             import json
             import shutil
+            import sqlite3
             logger.info(f"✅ Python {sys.version}")
             return True
         except ImportError as e:
             logger.error(f"Missing Python modules: {e}")
             return False
-    
+
     def check_deployment_scripts(self) -> bool:
         """Check if deployment scripts exist"""
         for script in self.deployment_scripts:
@@ -111,38 +112,41 @@ class EnterpriseDeploymentRunner:
                 logger.error(f"Missing deployment script: {script}")
                 return False
         return True
-    
+
     def check_disk_space(self) -> bool:
         """Check available disk space"""
         try:
             import shutil
             free_space = shutil.disk_usage(str(self.target_path.parent)).free
             required_space = 10 * 1024 * 1024 * 1024  # 10GB
-            
+
             if free_space > required_space:
-                logger.info(f"✅ Available disk space: {free_space / (1024**3):.1f} GB")
+                logger.info(
+                    f"✅ Available disk space: {free_space / (1024**3):.1f} GB")
                 return True
             else:
-                logger.error(f"Insufficient disk space: {free_space / (1024**3):.1f} GB available, 10 GB required")
+                logger.error(
+                    f"Insufficient disk space: {free_space / (1024**3):.1f} GB available, 10 GB required")
                 return False
         except Exception as e:
             logger.warning(f"Could not check disk space: {e}")
             return True  # Assume OK if can't check
-    
+
     def run_deployment_phase(self, phase_number: int, phase_name: str, script_name: str, *args) -> bool:
         """Run a deployment phase"""
         logger.info(f"🚀 Phase {phase_number}: {phase_name}")
-        
+
         try:
             script_path = self.workspace_path / script_name
             if not script_path.exists():
                 logger.error(f"❌ Script not found: {script_name}")
                 return False
-            
+
             # Execute deployment script
             cmd = [sys.executable, str(script_path)] + list(args)
-            result = subprocess.run(cmd, capture_output=True, text=True, cwd=str(self.workspace_path))
-            
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, cwd=str(self.workspace_path))
+
             if result.returncode == 0:
                 logger.info(f"✅ Phase {phase_number} completed successfully")
                 self.deployment_summary["phases_completed"] += 1
@@ -165,69 +169,71 @@ class EnterpriseDeploymentRunner:
                     "error": result.stderr
                 })
                 return False
-        
+
         except Exception as e:
             logger.error(f"❌ Error in phase {phase_number}: {e}")
             return False
-    
+
     def execute_deployment(self) -> bool:
         """Execute the complete deployment process"""
         logger.info("🚀 Starting Enterprise gh_COPILOT Deployment")
         logger.info("=" * 80)
-        
+
         self.deployment_summary["deployment_start"] = datetime.now()
-        
+
         # Check prerequisites
         if not self.check_prerequisites():
             logger.error("❌ Prerequisites not met - aborting deployment")
             self.deployment_summary["status"] = "FAILED_PREREQUISITES"
             return False
-        
+
         # Phase 1: Main Deployment
         logger.info("\n📦 PHASE 1: ENTERPRISE DEPLOYMENT ORCHESTRATION")
         if not self.run_deployment_phase(1, "Enterprise Deployment", "enterprise_gh_copilot_deployment_orchestrator.py"):
             self.deployment_summary["status"] = "FAILED_PHASE_1"
             return False
-        
+
         # Phase 2: Deployment Validation
         logger.info("\n🔍 PHASE 2: DEPLOYMENT VALIDATION")
         if not self.run_deployment_phase(2, "Deployment Validation", "enterprise_deployment_validator.py", "--validate"):
-            logger.warning("⚠️ Validation issues detected - continuing with caution")
-        
+            logger.warning(
+                "⚠️ Validation issues detected - continuing with caution")
+
         # Phase 3: Documentation Generation
         logger.info("\n📚 PHASE 3: DOCUMENTATION GENERATION")
         self.generate_comprehensive_documentation()
-        
+
         # Phase 4: System Configuration
         logger.info("\n⚙️ PHASE 4: SYSTEM CONFIGURATION")
         self.configure_deployment_system()
-        
+
         # Phase 5: Final Validation and Reporting
         logger.info("\n🎯 PHASE 5: FINAL VALIDATION AND REPORTING")
         self.perform_final_validation()
-        
+
         # Mark deployment as complete
         self.deployment_summary["deployment_end"] = datetime.now()
         self.deployment_summary["total_duration"] = (
-            self.deployment_summary["deployment_end"] - 
+            self.deployment_summary["deployment_end"] -
             self.deployment_summary["deployment_start"]
         ).total_seconds()
         self.deployment_summary["status"] = "COMPLETED"
-        
+
         # Generate final report
         self.generate_final_report()
-        
-        logger.info("✅ Enterprise gh_COPILOT Deployment Completed Successfully!")
+
+        logger.info(
+            "✅ Enterprise gh_COPILOT Deployment Completed Successfully!")
         return True
-    
+
     def generate_comprehensive_documentation(self):
         """Generate comprehensive deployment documentation"""
         try:
             logger.info("📚 Generating comprehensive documentation...")
-            
+
             docs_dir = self.target_path / "documentation"
             docs_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Generate enterprise user guide
             user_guide = f"""# gh_COPILOT Enterprise User Guide
 
@@ -372,7 +378,7 @@ export GH_COPILOT_WEB_PORT="5000"
 ```
 
 ### Configuration Files
-- `deployment/config/advanced_features_config.json`
+- `advanced_features_config.json`
 - `deployment/config/performance_config.json`
 - `deployment/config/websocket_security_config.json`
 
@@ -516,9 +522,9 @@ recommendations = optimizer.analyze_performance()
 
 *Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
 """
-            
+
             (docs_dir / "ENTERPRISE_USER_GUIDE.md").write_text(user_guide)
-            
+
             # Generate quick reference
             quick_ref = f"""# gh_COPILOT Enterprise Quick Reference
 
@@ -572,7 +578,7 @@ python github_integration/metrics_report.py
 
 ## Configuration Files
 
-- Main config: `deployment/config/advanced_features_config.json`
+- Main config: `advanced_features_config.json`
 - Performance: `deployment/config/performance_config.json`
 - Security: `deployment/config/websocket_security_config.json`
 
@@ -610,19 +616,19 @@ python github_integration/metrics_report.py
 
 *Quick Reference - Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
 """
-            
+
             (docs_dir / "QUICK_REFERENCE.md").write_text(quick_ref)
-            
+
             logger.info("✅ Comprehensive documentation generated")
-            
+
         except Exception as e:
             logger.error(f"❌ Error generating documentation: {e}")
-    
+
     def configure_deployment_system(self):
         """Configure the deployed system"""
         try:
             logger.info("⚙️ Configuring deployment system...")
-            
+
             # Create system configuration
             config = {
                 "system": {
@@ -653,13 +659,13 @@ python github_integration/metrics_report.py
                     "audit_logging": True
                 }
             }
-            
+
             config_file = self.target_path / "deployment" / "system_config.json"
             config_file.parent.mkdir(parents=True, exist_ok=True)
-            
+
             with open(config_file, 'w') as f:
                 json.dump(config, f, indent=2)
-            
+
             # Create environment setup script
             env_script = f"""#!/usr/bin/env python3
 \"\"\"
@@ -673,10 +679,10 @@ from pathlib import Path
 
 def setup_environment():
     \"\"\"Setup gh_COPILOT environment\"\"\"
-    
+
     # Base paths
     base_path = Path(__file__).parent.parent
-    
+
     # Environment variables
     env_vars = {{
         'GH_COPILOT_HOME': str(base_path),
@@ -685,34 +691,35 @@ def setup_environment():
         'GH_COPILOT_WEB_PORT': '5000',
         'GH_COPILOT_WEBSOCKET_PORT': '8765'
     }}
-    
+
     # Set environment variables
     for var, value in env_vars.items():
         os.environ[var] = value
         print(f"✅ Set {{var}}={{value}}")
-    
+
     # Add to Python path
     sys.path.insert(0, str(base_path / "core"))
     sys.path.insert(0, str(base_path / "scripts"))
-    
+
     print("✅ Environment configured successfully")
 
 if __name__ == "__main__":
     setup_environment()
 """
-            
-            (self.target_path / "deployment" / "setup_environment.py").write_text(env_script)
-            
+
+            (self.target_path / "deployment" /
+             "setup_environment.py").write_text(env_script)
+
             logger.info("✅ System configuration completed")
-            
+
         except Exception as e:
             logger.error(f"❌ Error configuring system: {e}")
-    
+
     def perform_final_validation(self):
         """Perform final validation of the complete deployment"""
         try:
             logger.info("🎯 Performing final validation...")
-            
+
             validation_results = {
                 "timestamp": datetime.now().isoformat(),
                 "overall_status": "SUCCESS",
@@ -720,16 +727,18 @@ if __name__ == "__main__":
                 "performance_metrics": {},
                 "recommendations": []
             }
-            
+
             # Check critical components
             critical_checks = [
                 ("Target directory exists", self.target_path.exists()),
                 ("Core directory exists", (self.target_path / "core").exists()),
-                ("Databases directory exists", (self.target_path / "databases").exists()),
+                ("Databases directory exists",
+                 (self.target_path / "databases").exists()),
                 ("Documentation exists", (self.target_path / "documentation").exists()),
-                ("Installation scripts exist", (self.target_path / "deployment" / "install.py").exists())
+                ("Installation scripts exist",
+                 (self.target_path / "deployment" / "install.py").exists())
             ]
-            
+
             for check_name, result in critical_checks:
                 validation_results["critical_components"][check_name] = result
                 if result:
@@ -737,27 +746,30 @@ if __name__ == "__main__":
                 else:
                     logger.error(f"❌ {check_name}")
                     validation_results["overall_status"] = "FAILED"
-            
+
             # Count deployed components
             try:
-                core_files = len(list((self.target_path / "core").glob("*.py")))
-                db_files = len(list((self.target_path / "databases").glob("*.db")))
-                doc_files = len(list((self.target_path / "documentation").glob("*.md")))
-                
+                core_files = len(
+                    list((self.target_path / "core").glob("*.py")))
+                db_files = len(
+                    list((self.target_path / "databases").glob("*.db")))
+                doc_files = len(
+                    list((self.target_path / "documentation").glob("*.md")))
+
                 validation_results["performance_metrics"] = {
                     "core_files_deployed": core_files,
                     "databases_deployed": db_files,
                     "documentation_files": doc_files,
                     "deployment_size_mb": self.get_directory_size(self.target_path)
                 }
-                
+
                 logger.info(f"📊 Core files: {core_files}")
                 logger.info(f"📊 Databases: {db_files}")
                 logger.info(f"📊 Documentation: {doc_files}")
-                
+
             except Exception as e:
                 logger.warning(f"⚠️ Could not collect metrics: {e}")
-            
+
             # Generate recommendations
             if validation_results["overall_status"] == "SUCCESS":
                 validation_results["recommendations"] = [
@@ -774,34 +786,36 @@ if __name__ == "__main__":
                     "Check logs for detailed error information",
                     "Verify system requirements and permissions"
                 ]
-            
+
             # Save validation results
             self.deployment_summary["validation_results"] = validation_results
-            
+
             validation_file = self.target_path / "validation" / "final_validation.json"
             validation_file.parent.mkdir(parents=True, exist_ok=True)
-            
+
             with open(validation_file, 'w') as f:
                 json.dump(validation_results, f, indent=2)
-            
-            logger.info(f"🎯 Final validation: {validation_results['overall_status']}")
-            
+
+            logger.info(
+                f"🎯 Final validation: {validation_results['overall_status']}")
+
         except Exception as e:
             logger.error(f"❌ Error in final validation: {e}")
-    
+
     def get_directory_size(self, path: Path) -> float:
         """Get directory size in MB"""
         try:
-            total_size = sum(f.stat().st_size for f in path.rglob('*') if f.is_file())
+            total_size = sum(
+                f.stat().st_size for f in path.rglob('*') if f.is_file())
             return round(total_size / (1024 * 1024), 2)
         except:
             return 0.0
-    
+
     def generate_final_report(self):
         """Generate final deployment report"""
         try:
             logger.info("📄 Generating final deployment report...")
-            
+
             report = {
                 "deployment_summary": self.deployment_summary,
                 "system_information": {
@@ -824,12 +838,12 @@ if __name__ == "__main__":
                     "system_config": str(self.target_path / "deployment" / "system_config.json")
                 }
             }
-            
+
             # Save JSON report
             report_file = self.target_path / "FINAL_DEPLOYMENT_REPORT.json"
             with open(report_file, 'w') as f:
                 json.dump(report, f, indent=2)
-            
+
             # Generate markdown report
             markdown_report = f"""# 🚀 gh_COPILOT Enterprise Deployment Report
 
@@ -850,7 +864,8 @@ if __name__ == "__main__":
 
 ## Components Deployed
 
-{chr(10).join(f"- **Phase {comp['phase']}**: {comp['name']} - {comp['status']}" for comp in self.deployment_summary['components_deployed'])}
+{chr(10).join(f"- **Phase {comp['phase']}**: {comp['name']} - {
+                comp['status']}" for comp in self.deployment_summary['components_deployed'])}
 
 ## Validation Results
 
@@ -910,43 +925,46 @@ Your gh_COPILOT Enterprise system has been successfully deployed and is ready fo
 *Report generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
 *Deployment completed successfully ✅*
 """
-            
+
             (self.target_path / "FINAL_DEPLOYMENT_REPORT.md").write_text(markdown_report)
-            
+
             self.deployment_summary["final_report"] = str(report_file)
-            
+
             logger.info(f"📄 Final report generated: {report_file}")
-            
+
         except Exception as e:
             logger.error(f"❌ Error generating final report: {e}")
-    
+
     def print_deployment_summary(self):
         """Print deployment summary to console"""
         print("\n" + "=" * 80)
         print("🎉 ENTERPRISE gh_COPILOT DEPLOYMENT COMPLETED")
         print("=" * 80)
         print(f"📁 Deployment Location: {self.target_path}")
-        print(f"⏱️  Total Duration: {self.deployment_summary['total_duration']:.2f} seconds")
-        print(f"✅ Phases Completed: {self.deployment_summary['phases_completed']}/{self.deployment_summary['total_phases']}")
+        print(
+            f"⏱️  Total Duration: {self.deployment_summary['total_duration']:.2f} seconds")
+        print(
+            f"✅ Phases Completed: {self.deployment_summary['phases_completed']}/{self.deployment_summary['total_phases']}")
         print(f"📊 Status: {self.deployment_summary['status']}")
-        
+
         print("\n🚀 NEXT STEPS:")
         print("1. cd e:/gh_COPILOT")
         print("2. python deployment/install.py")
         print("3. python deployment/start.py")
         print("4. Open browser to: http://localhost:5000")
-        
+
         print("\n📚 DOCUMENTATION:")
         print("- User Guide: documentation/ENTERPRISE_USER_GUIDE.md")
         print("- Quick Reference: documentation/QUICK_REFERENCE.md")
         print("- Final Report: FINAL_DEPLOYMENT_REPORT.md")
-        
+
         print("\n🔧 SUPPORT:")
         print("- Health Check: python validation/health_check.py")
         print("- Performance Monitor: python monitoring/performance_check.py")
         print("- System Logs: Check *.log files")
-        
+
         print("\n" + "=" * 80)
+
 
 def main():
     """Main execution function"""
@@ -955,7 +973,7 @@ def main():
     print("This will deploy the complete gh_COPILOT Enterprise system")
     print("Target Location: E:/gh_COPILOT")
     print("=" * 60)
-    
+
     # Confirm deployment
     try:
         confirm = input("\nProceed with deployment? (y/N): ").strip().lower()
@@ -965,13 +983,13 @@ def main():
     except KeyboardInterrupt:
         print("\n❌ Deployment cancelled by user")
         return
-    
+
     # Initialize and run deployment
     runner = EnterpriseDeploymentRunner()
-    
+
     try:
         success = runner.execute_deployment()
-        
+
         if success:
             runner.print_deployment_summary()
             print("🎉 Deployment completed successfully!")
@@ -980,13 +998,14 @@ def main():
             print("Check logs for details:")
             print("- enterprise_deployment_runner.log")
             print("- enterprise_gh_copilot_deployment.log")
-            
+
     except KeyboardInterrupt:
         print("\n⏹️ Deployment interrupted by user")
         logger.info("Deployment interrupted by user")
     except Exception as e:
         print(f"❌ Deployment failed with error: {e}")
         logger.error(f"Deployment failed: {e}")
+
 
 if __name__ == "__main__":
     main()
