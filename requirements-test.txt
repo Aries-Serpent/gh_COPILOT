@@ -2,3 +2,6 @@ requests
 pytest
 psutil
 tqdm
+numpy
+scikit-learn
+Flask
