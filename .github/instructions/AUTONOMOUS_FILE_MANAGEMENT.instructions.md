@@ -226,3 +226,5 @@ backup_path = backup_manager.create_intelligent_backup("HIGH")
 
 *Integrated with gh_COPILOT Toolkit v4.0 Enterprise Architecture*
 *Powered by Template Intelligence Platform with 100% operational status*
+
+See [Instruction Module Index](../../docs/INSTRUCTION_INDEX.md) for a list of all guidance documents.
