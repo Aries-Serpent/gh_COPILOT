@@ -1,403 +1,254 @@
 # gh_COPILOT requirements
-# Generated: July 6, 2025
+# Updated: July 8, 2025
 
 # ==========================================
 # CORE PYTHON DEPENDENCIES
 # ==========================================
-# Essential Python packages for enterprise operations
-
-# Progress and Visual Indicators (MANDATORY for DUAL COPILOT)
 tqdm==4.66.1
 rich==13.7.0
 
-# Data Processing and Analysis
-pandas==2.1.3
-numpy==1.25.2
+# --- Data Processing and Analysis ---
+# Environment markers ensure compatibility!
+numpy==1.25.2; python_version<'3.12'
+numpy==2.3.1; python_version>='3.12'
+pandas==2.1.3; python_version<'3.12'
+pandas==2.3.1; python_version>='3.12'
 scipy==1.11.4
 
-# Database Operations
 SQLAlchemy==2.0.23
 
 # ==========================================
 # OPTIONAL WEB GUI FRAMEWORK (Flask Enterprise Dashboard)
-# Install these packages if you plan to use the Flask web dashboard
 # ==========================================
-
-# Core Web Framework
 Flask==3.0.0
 Flask-SQLAlchemy==3.1.1
 Flask-Login==0.6.3
 Flask-WTF==1.2.1
 Flask-RESTful==0.3.10
-Flask-Security==5.0.2
+Flask-Security==5.6.2
 Flask-SocketIO==5.3.6
-
-# Template Engine
 Jinja2==3.1.2
 MarkupSafe==2.1.3
-
-# Web Server (Production)
 Gunicorn==21.2.0
 Waitress==2.1.2
-
-# WebSocket Support
 python-socketio==5.10.0
 
 # ==========================================
-# OPTIONAL MACHINE LEARNING & ANALYTICS
-# Install for advanced analytics or AI features
+# MACHINE LEARNING & ANALYTICS
 # ==========================================
-
-# Core ML Libraries
+bokeh==3.3.2
+matplotlib==3.8.2
+plotly==5.17.0
 scikit-learn==1.3.2
+seaborn==0.13.0
+statsmodels==0.14.0
 tensorflow==2.15.0
 torch==2.1.1
 transformers==4.35.2
-
-# Data Visualization
-matplotlib==3.8.2
-plotly==5.17.0
-seaborn==0.13.0
-bokeh==3.3.2
-
-# Statistical Analysis
-statsmodels==0.14.0
 PyYAML==6.0.1
 
 # ==========================================
-# OPTIONAL QUANTUM OPTIMIZATION ALGORITHMS
-# Install for quantum-enhanced processing
+# QUANTUM OPTIMIZATION ALGORITHMS
 # ==========================================
-
-# Quantum Computing Support
 qiskit==0.45.1
 qiskit-aer==0.13.1
 qiskit-ibm-runtime==0.15.1
-
-# Advanced Mathematics
 sympy==1.12
 
 # ==========================================
 # ENTERPRISE MONITORING & PERFORMANCE
 # ==========================================
-# System monitoring and performance optimization
-
-# System Monitoring
+line-profiler==4.1.1
+memory-profiler==0.61.0
+prometheus-client==0.19.0
 psutil==5.9.6
 py-cpuinfo==9.0.0
-
-# Performance Profiling
-memory-profiler==0.61.0
-line-profiler==4.1.1
-
-# Monitoring and Metrics
-prometheus-client==0.19.0
 structlog==23.2.0
 
 # ==========================================
 # NETWORKING & API INTEGRATION
 # ==========================================
-# HTTP requests and API communications
-
-# HTTP and API
-requests==2.31.0
-urllib3==2.1.0
-httpx==0.25.2
-
-# Authentication
-requests-oauthlib==1.3.1
 cryptography==41.0.8
+httpx==0.25.2
+requests==2.31.0
+requests-oauthlib==1.3.1
+urllib3==2.1.0
 
 # ==========================================
 # ENTERPRISE SECURITY & COMPLIANCE
 # ==========================================
-# Security and compliance features
-
-# Security
 bcrypt==4.1.2
-pycryptodome==3.19.0
 jose[cryptography]==1.0.0
-
-# Data Validation
-pydantic==2.5.0
 marshmallow==3.20.1
+pydantic==2.5.0
+pycryptodome==3.19.0
 
 # ==========================================
 # DEVELOPMENT & TESTING
 # ==========================================
-# Development tools and testing framework
-
-# Testing Framework
-pytest==7.4.3
-pytest-flask==1.3.0
-pytest-cov==4.1.0
-coverage==7.3.2
-
-# Code Quality
 black==23.11.0
+coverage==7.3.2
 flake8==6.1.0
 mypy==1.7.1
-
-# Documentation
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-flask==1.3.0
 Sphinx==7.2.6
 sphinx-rtd-theme==1.3.0
 
 # ==========================================
 # ENTERPRISE DEPLOYMENT & PRODUCTION
 # ==========================================
-# Production deployment and operations
-
-# Task Queue
 celery==5.3.4
-redis==5.0.1
-
-# Configuration Management
-python-dotenv==1.0.0
 click==8.1.7
-
-# File Operations
 pathlib2==2.3.7
+python-dotenv==1.0.0
+redis==5.0.1
 watchdog==3.0.0
 
 # ==========================================
 # ENTERPRISE UTILITIES
 # ==========================================
-# Utility libraries for enterprise operations
-
-# Date/Time Operations
-python-dateutil==2.8.2
-pytz==2023.3
-
-# JSON Processing
-orjson==3.9.10
-
-# File Format Support
 openpyxl==3.1.2
+orjson==3.9.10
+python-dateutil==2.9.0.post0
+pytz==2025.2
 xlsxwriter==3.1.9
 
 # ==========================================
 # ENTERPRISE COMMUNICATION
 # ==========================================
-# Enterprise communication and reporting
-
-# Email Support
 email-validator==2.1.0
-
-# PDF Generation
 reportlab==4.0.7
 weasyprint==60.2
 
 # ==========================================
 # ENTERPRISE LOGGING & DEBUGGING
 # ==========================================
-# Comprehensive logging and debugging
-
-# Logging Enhancement
 colorlog==6.8.0
 python-json-logger==2.0.7
-
-# Error Tracking
 sentry-sdk==1.38.0
 
 # ==========================================
 # ENTERPRISE BACKUP & RECOVERY
 # ==========================================
-# Backup and recovery operations
-
-# Compression utilities handled by Python standard library
+# Compression utilities handled by Python stdlib
 
 # ==========================================
 # ENTERPRISE COMPATIBILITY
 # ==========================================
-# Cross-platform compatibility
-
-# Windows Compatibility
 pywin32==306; sys_platform == "win32"
 wmi==1.5.1; sys_platform == "win32"
-
-# Unix Compatibility
 pexpect==4.8.0; sys_platform != "win32"
 
 # ==========================================
-# ENTERPRISE PERFORMANCE OPTIMIZATION
+# PERFORMANCE OPTIMIZATION
 # ==========================================
-# Performance optimization libraries
-
-# Caching
 diskcache==5.6.3
 joblib==1.3.2
-
-# Multiprocessing
 multiprocessing-logging==0.3.4
 
 # ==========================================
 # ENTERPRISE INTEGRATION
 # ==========================================
-# Third-party service integration
-
-# Cloud Services
-boto3==1.34.0
 azure-storage-blob==12.19.0
-
-# Database Connectors
-pymongo==4.6.0
+boto3==1.34.0
 psycopg2-binary==2.9.9
+pymongo==4.6.0
 
 # ==========================================
 # ENTERPRISE REPORTING & ANALYTICS
 # ==========================================
-# Advanced reporting and analytics
-
-# Business Intelligence
-xlwings==0.31.4
-tabulate==0.9.0
-
-# Time Series Analysis
 prophet==1.1.5
+tabulate==0.9.0
+xlwings==0.31.4
 
 # ==========================================
 # ENTERPRISE WORKFLOW AUTOMATION
 # ==========================================
-# Workflow and automation tools
-
-# Automation
-schedule==1.2.0
 apscheduler==3.10.4
+schedule==1.2.0
 
 # ==========================================
 # ENTERPRISE VALIDATION & COMPLIANCE
 # ==========================================
-# Validation and compliance tools
-
-# Schema Validation
-jsonschema==4.20.0
 cerberus==1.3.5
-
-# Data Quality
 great-expectations==0.18.3
+jsonschema==4.20.0
 
 # ==========================================
 # ENTERPRISE TEMPLATE INTELLIGENCE
 # ==========================================
-# Template intelligence platform dependencies
-
-# Natural Language Processing
+ast-tools==0.3.2
+astor==0.8.1
 nltk==3.8.1
 spacy==3.7.2
 
-# Code Analysis
-ast-tools==0.3.2
-astor==0.8.1
-
 # ==========================================
-# ENTERPRISE CONTINUOUS OPERATION
+# CONTINUOUS OPERATION
 # ==========================================
-# 24/7 continuous operation support
-
-# Health Checks
+consul==1.1.0
 healthcheck==1.3.3
 
-# Service Discovery
-consul==1.1.0
-
 # ==========================================
-# ENTERPRISE ANTI-RECURSION PROTECTION
+# ANTI-RECURSION PROTECTION
 # ==========================================
-# Anti-recursion and safety mechanisms
-
-# File System Safety
-safe-pypath==1.0.0
 pathvalidate==3.2.0
+safe-pypath==1.0.0
 
 # ==========================================
-# OPTIONAL ENTERPRISE QUANTUM ENHANCEMENTS
-# Install for quantum machine learning support
+# QUANTUM ENHANCEMENTS
 # ==========================================
-
-# Quantum Machine Learning
-pennylane==0.33.1
 cirq==1.3.0
+pennylane==0.33.1
 
 # ==========================================
-# OPTIONAL ENTERPRISE PHASE 4 & PHASE 5 SUPPORT
-# Install for advanced AI integration
+# PHASE 4 & PHASE 5 SUPPORT
 # ==========================================
-
-# Advanced AI
-openai==1.3.7
 anthropic==0.7.8
-
-# Deep Learning
 keras==2.15.0
+openai==1.3.7
 pytorch-lightning==2.1.2
 
 # ==========================================
-# OPTIONAL ENTERPRISE VISUAL PROCESSING
-# Install if you need image or video processing
+# VISUAL PROCESSING
 # ==========================================
-
-# Image Processing
-Pillow==10.1.0
-opencv-python==4.8.1.78
-
-# Progress Visualization
 alive-progress==3.1.5
+opencv-python==4.8.1.78
+Pillow==10.1.0
 
 # ==========================================
-# ENTERPRISE ENVIRONMENT MANAGEMENT
+# ENVIRONMENT MANAGEMENT
 # ==========================================
-# Environment and configuration management
-
-# Environment Variables
 environs==10.0.0
-
-# Configuration
 toml==0.10.2
 
 # ==========================================
-# ENTERPRISE COMPATIBILITY & FALLBACKS
+# COMPATIBILITY & FALLBACKS
 # ==========================================
-# Fallback dependencies for compatibility
-
-# Fallback JSON
+httplib2==0.22.0
 simplejson==3.19.2
 
-# Fallback HTTP
-httplib2==0.22.0
-
 # ==========================================
-# ENTERPRISE DEVELOPMENT TOOLS
+# DEVELOPMENT TOOLS
 # ==========================================
-# Additional development and debugging tools
-
-# Interactive Development
+autopep8==2.0.4
 ipython==8.18.1
+isort==5.12.0
 jupyter==1.0.0
 
-# Code Formatting
-autopep8==2.0.4
-isort==5.12.0
-
 # ==========================================
-# ENTERPRISE PRODUCTION MONITORING
+# PRODUCTION MONITORING
 # ==========================================
-# Production monitoring and alerting
-
-# Application Monitoring
-newrelic==9.2.0
 datadog==0.48.0
+newrelic==9.2.0
 
 # ==========================================
-# ENTERPRISE COMPLIANCE CERTIFICATION
+# COMPLIANCE CERTIFICATION
 # ==========================================
-# Final compliance and certification tools
-
-# Compliance Validation
-compliance-checker==5.0.0
-
-# Security Scanning
-safety==2.3.5
 bandit==1.7.5
+compliance-checker==5.0.0
+safety==2.3.5
 
 # ==========================================
 # END OF REQUIREMENTS
