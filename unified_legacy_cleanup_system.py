@@ -224,7 +224,6 @@ def main() -> bool:
     config = CleanupConfig()
     cleaner = UnifiedLegacyCleanupSystem(config)
     res = cleaner.execute_cleanup()
-    cleaner.cleanup_after_session()
     logger.info('Cleanup errors: %s', res.errors)
     return len(res.errors) == 0
 
