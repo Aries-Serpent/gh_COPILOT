@@ -2,4 +2,5 @@
 logs/
 
 # Local environment configuration
+
 .env

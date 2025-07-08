@@ -117,6 +117,9 @@ class UnifiedDisasterRecoverySystem:
         logger.info(f"Process ID: {self.process_id}")
         print("=" * 60)
 
+        # Schedule placeholder for automated backups
+        self._backup_timer: Optional[threading.Timer] = None
+
     def assess_recovery_readiness(self) -> Dict[str, Any]:
         """🔍 Assess current disaster recovery readiness"""
         logger.info("🔍 ASSESSING DISASTER RECOVERY READINESS...")
@@ -607,6 +610,9 @@ class UnifiedDisasterRecoverySystem:
             critical_assets = recovery_phases[1][1]()
             results["assets"] = critical_assets
             pbar.update(20)
+
+            # Schedule automated backups for critical assets
+            self.schedule_regular_backups(critical_assets)
 
             # Phase 3: Backup Creation
             pbar.set_description("📦 Backup Creation")

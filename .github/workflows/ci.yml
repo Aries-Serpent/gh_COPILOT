@@ -30,3 +30,8 @@ jobs:
 
       - name: Run tests inside container
         run: docker run --rm gh_copilot make test
+
+      - name: Security scan
+        run: |
+          pip install bandit
+          bandit -r . -q
