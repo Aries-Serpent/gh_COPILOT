@@ -1322,7 +1322,7 @@ def main():
         api_client = {CLASS_NAME}()
         
         # Example usage
-        result = api_client.make_request('GET', '/health')
+        result = api_client.make_request('GET', '/api/health')
         logger.info(f"API test result: {result}")
         
         return 0

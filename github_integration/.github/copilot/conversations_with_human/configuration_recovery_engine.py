@@ -177,7 +177,7 @@ services:
       - {{ volume_mapping }}
     restart: {{ restart_policy }}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:{{ container_port }}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:{{ container_port }}/api/health"]
       interval: {{ health_check_interval }}
       timeout: {{ health_check_timeout }}
       retries: {{ health_check_retries }}

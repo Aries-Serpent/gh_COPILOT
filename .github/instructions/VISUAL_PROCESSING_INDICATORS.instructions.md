@@ -347,3 +347,5 @@ def deploy_with_safety_monitoring(target_path: str):
 
 *gh_COPILOT Toolkit v4.0 Enterprise - Visual Processing Standards*
 *Ensures consistent, enterprise-grade process monitoring across all operations*
+
+All unified systems log these indicators via `unified_monitoring_optimization_system.py`.

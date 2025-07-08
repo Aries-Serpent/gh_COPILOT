@@ -270,3 +270,4 @@ def validate_enterprise_operation(target_path: str):
 
 *Domain knowledge for COPILOT Toolkit v4.0 Enterprise*
 *Ensures GitHub Copilot understands system context and requirements*
+Updates for future releases (v4.1+) will extend these guidelines.

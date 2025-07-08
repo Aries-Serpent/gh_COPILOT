@@ -226,4 +226,7 @@ class CognitiveMonitor:
 
 **REMEMBER: ENHANCED COGNITIVE PROCESSING IS NOW A DATABASE-FIRST, SYSTEMATIC, ENTERPRISE-GRADE SYSTEM. ALWAYS LEVERAGE DATABASE INTELLIGENCE, APPLY SYSTEMATIC LOGIC, AND ENSURE DUAL COPILOT COMPLIANCE IN ALL COGNITIVE OPERATIONS.**
 
+Phase 5 implementations utilize scikit-learn `MLPClassifier` models and
+Qiskit-based circuits for experimental quantum cognition.
+
 ````

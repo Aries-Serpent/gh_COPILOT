@@ -300,6 +300,17 @@ class UnifiedDisasterRecoverySystem:
 
         return backup_results
 
+    def schedule_automatic_backups(self, interval_hours: int = 24) -> None:
+        """Schedule automatic backups at fixed intervals."""
+        def _schedule() -> None:
+            critical_assets = self.identify_critical_assets()
+            self.create_recovery_backups(critical_assets)
+            threading.Timer(interval_hours * 3600, _schedule).start()
+
+        logger.info(
+            f"⏰ Scheduling automatic backups every {interval_hours}h")
+        threading.Timer(interval_hours * 3600, _schedule).start()
+
     def generate_recovery_plans(self) -> Dict[str, Any]:
         """📋 Generate disaster recovery plans"""
         logger.info("📋 GENERATING DISASTER RECOVERY PLANS...")
@@ -642,6 +653,8 @@ def main():
 
     # Initialize system
     recovery_system = UnifiedDisasterRecoverySystem()
+    # Schedule daily automatic backups
+    recovery_system.schedule_automatic_backups(interval_hours=24)
 
     # Execute unified disaster recovery
     result = recovery_system.execute_unified_disaster_recovery()

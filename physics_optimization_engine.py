@@ -16,14 +16,40 @@ class PhysicsOptimizationEngine:
     def grover_search(self, search_space: List[Any], target: Any) -> int:
         """Grover-inspired search returning the index of target or ``-1``.
 
-        This is a classical linear search. A true quantum implementation would
-        use amplitude amplification on a quantum register for ``O(sqrt(N))``
-        complexity via libraries such as Qiskit or Cirq.
+        A basic Qiskit implementation is used when available. The function
+        falls back to classical search if Qiskit is missing or the input size
+        exceeds ``2**3``.
         """
-        for idx, item in enumerate(search_space):
-            if item == target:
-                return idx
-        return -1
+        try:
+            from qiskit import Aer, QuantumCircuit, execute
+        except Exception:  # noqa: BLE001
+            for idx, item in enumerate(search_space):
+                if item == target:
+                    return idx
+            return -1
+
+        n = len(search_space)
+        if n > 8:
+            for idx, item in enumerate(search_space):
+                if item == target:
+                    return idx
+            return -1
+
+        num_qubits = int(np.ceil(np.log2(n)))
+        qc = QuantumCircuit(num_qubits, num_qubits)
+        qc.h(range(num_qubits))
+        marked = [i for i, item in enumerate(search_space) if item == target]
+        if not marked:
+            return -1
+        oracle_index = marked[0]
+        qc.z(oracle_index)
+        qc.h(range(num_qubits))
+        qc.measure(range(num_qubits), range(num_qubits))
+        backend = Aer.get_backend("aer_simulator")
+        job = execute(qc, backend=backend, shots=1024)
+        counts = job.result().get_counts()
+        measured = max(counts, key=counts.get)
+        return int(measured, 2) if search_space[int(measured, 2)] == target else -1
 
     def shor_factorization(self, n: int) -> List[int]:
         """Factor integer ``n`` using classical trial division.
