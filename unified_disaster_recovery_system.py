@@ -117,6 +117,9 @@ class UnifiedDisasterRecoverySystem:
         logger.info(f"Process ID: {self.process_id}")
         print("=" * 60)
 
+        # Schedule placeholder for automated backups
+        self._backup_timer: Optional[threading.Timer] = None
+
     def assess_recovery_readiness(self) -> Dict[str, Any]:
         """🔍 Assess current disaster recovery readiness"""
         logger.info("🔍 ASSESSING DISASTER RECOVERY READINESS...")
@@ -300,16 +303,26 @@ class UnifiedDisasterRecoverySystem:
 
         return backup_results
 
-    def schedule_automatic_backups(self, interval_hours: int = 24) -> None:
-        """Schedule automatic backups at fixed intervals."""
-        def _schedule() -> None:
-            critical_assets = self.identify_critical_assets()
-            self.create_recovery_backups(critical_assets)
-            threading.Timer(interval_hours * 3600, _schedule).start()
+    def schedule_regular_backups(self, assets: List[Dict[str, Any]], interval_hours: int = 24) -> None:
+        """Schedule automated backups every ``interval_hours`` hours."""
+        if self._backup_timer:
+            self._backup_timer.cancel()
+
+        def _run():
+            try:
+                self.create_recovery_backups(assets)
+            finally:
+                # schedule next run
+                self._backup_timer = threading.Timer(
+                    interval_hours * 3600, _run)
+                self._backup_timer.daemon = True
+                self._backup_timer.start()
 
         logger.info(
-            f"⏰ Scheduling automatic backups every {interval_hours}h")
-        threading.Timer(interval_hours * 3600, _schedule).start()
+            "Scheduling regular disaster recovery backups every %s hours", interval_hours)
+        self._backup_timer = threading.Timer(interval_hours * 3600, _run)
+        self._backup_timer.daemon = True
+        self._backup_timer.start()
 
     def generate_recovery_plans(self) -> Dict[str, Any]:
         """📋 Generate disaster recovery plans"""
@@ -603,6 +616,9 @@ class UnifiedDisasterRecoverySystem:
             critical_assets = recovery_phases[1][1]()
             results["assets"] = critical_assets
             pbar.update(20)
+
+            # Schedule automated backups for critical assets
+            self.schedule_regular_backups(critical_assets)
 
             # Phase 3: Backup Creation
             pbar.set_description("📦 Backup Creation")
