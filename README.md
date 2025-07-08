@@ -16,6 +16,9 @@ about algorithmic completion rates or optimization should be treated as
 informational placeholders until corresponding implementations and tests are
 available.
 
+## Environment Setup
+Copy `.env.example` to `.env` and adjust paths as needed. The `GH_COPILOT_WORKSPACE` variable should point to your workspace root.
+
 ## Deployment Status
 [SUCCESS] All critical issues have been resolved and the environment is ready for professional deployment.
 
