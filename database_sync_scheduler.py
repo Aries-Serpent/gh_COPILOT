@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 def _copy_database(source: Path, target: Path) -> None:
-    """Copy source database file to target."""
+    """Copy source database file to target using sqlite3 backup API."""
     try:
-        shutil.copy2(source, target)
+        with connect(source) as source_conn, connect(target) as target_conn:
+            source_conn.backup(target_conn)
         logger.info("Synchronized %s -> %s", source, target)
     except Exception as exc:
         logger.error("Failed to synchronize %s -> %s: %s", source, target, exc)
