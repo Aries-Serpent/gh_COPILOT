@@ -1,38 +1,44 @@
+# ===========================
 # gh_COPILOT requirements
-# Updated: July 8, 2025 (Codex-reviewed)
+# Finalized July 2025
+# ===========================
 
-# ==========================================
-# CORE PYTHON DEPENDENCIES
-# ==========================================
-Flask==3.1.1
-requests==2.32.4
-tqdm==4.67.1
-psutil==7.0.0
-numpy==2.3.1
-pandas==2.3.1
-scikit-learn==1.7.0
-PyYAML==6.0.2
-toml==0.10.2
-jinja2==3.1.6
-boto3==1.39.3
+# --- Core runtime dependencies (production & research) ---
+Flask==3.1.1                # Web UI and API orchestration
+requests==2.32.4            # HTTP orchestration and web hooks
+pandas==2.3.1               # Dataframe operations and analytics
+numpy==2.3.1                # Numerical optimization and simulation
+scikit-learn==1.7.0         # ML algorithms (e.g., clustering, MLP)
+qiskit==2.1.0               # Quantum optimizer backend
+psutil==7.0.0               # System resource monitoring
+tqdm==4.67.1                # Progress bar for CLI and batch tasks
+PyYAML==6.0.2               # YAML config parsing
+toml==0.10.2                # TOML config parsing
+Jinja2==3.1.6               # Template generation for configs
 
-# ==========================================
-# QUANTUM FUNCTIONALITY
-# ==========================================
-qiskit==2.1.0
-qiskit-aer==0.17.1
+# --- Optional platform support (install only on Windows) ---
+wmi==1.5.1; sys_platform == "win32"    # Hardware info on Windows
+pywin32==306; sys_platform == "win32"  # Windows API bindings
 
-# ==========================================
-# PLATFORM-SPECIFIC EXTRAS
-# ==========================================
-wmi==1.5.1; sys_platform == "win32"
-pywin32==306; sys_platform == "win32"
+# --- Development & testing tools (not needed in production) ---
+pytest==8.4.1
+coverage==7.9.2
+flake8==7.3.0
+mypy==1.16.1
+black==25.1.0
+isort==6.0.1
+autopep8==2.3.2
+ipython==9.4.0
+jupyter==1.1.1
 
-# ==========================================
-# DEVELOPMENT / TESTING
-# ==========================================
-pytest==8.2.1
+# --- AWS/Cloud, if present in codebase ---
+boto3==1.39.3  # Omit if not actually imported/used
 
-# ==========================================
-# END OF REQUIREMENTS
-# ==========================================
+# --- Quantum simulation (if used) ---
+qiskit-aer==0.17.1  # Omit if not imported
+
+# --- Any other verified code dependencies can go here ---
+
+# ===========================
+# End of requirements
+# ===========================
