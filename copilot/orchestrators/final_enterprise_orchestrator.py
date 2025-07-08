@@ -142,7 +142,9 @@ class FinalEnterpriseOrchestrator:
         # If port is specified, check HTTP health
         if port:
             try:
-                response = requests.get(f"http://localhost:{port}/health", timeout=2)
+                response = requests.get(
+                    f"http://localhost:{port}/api/health", timeout=2
+                )
                 if response.status_code == 200:
                     service['status'] = 'healthy'
                     return True

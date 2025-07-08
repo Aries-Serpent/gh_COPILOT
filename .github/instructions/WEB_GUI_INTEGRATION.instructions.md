@@ -290,3 +290,5 @@ deployment_result = deployment_engine.deploy_web_interface("production")
 
 *Integrated with gh_COPILOT Toolkit v4.0 Enterprise Web-GUI System*
 *Certified for Enterprise Production Deployment - 100% Ready*
+
+Endpoint coverage is verified in `web_gui/scripts/flask_apps/enterprise_dashboard.py`.

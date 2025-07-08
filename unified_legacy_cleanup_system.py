@@ -183,6 +183,13 @@ class UnifiedLegacyCleanupSystem:
                 logger.info(f'Removed redundant DB {db_file}')
         return removed
 
+    def cleanup_after_session(self) -> None:
+        """Run cleanup tasks after each session."""
+        workspace = Path(self.config.workspace_root)
+        self.remove_zero_byte_files(workspace)
+        self.fix_c_temp_violations(workspace)
+        self.cleanup_redundant_databases()
+
     def execute_cleanup(self) -> CleanupResult:
         result = CleanupResult()
         if not self._acquire_lock():

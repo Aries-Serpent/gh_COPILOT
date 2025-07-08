@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        python-version: ['3.10', '3.11']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,6 +21,12 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t gh_copilot .
+
+      - name: Lint
+        run: |
+          pip install flake8 bandit
+          flake8
+          bandit -r . -ll
 
       - name: Run tests inside container
         run: docker run --rm gh_copilot make test

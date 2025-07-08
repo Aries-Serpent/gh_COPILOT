@@ -360,6 +360,8 @@ python SESSION_INTEGRITY_MANAGER.py --action end --level enterprise --auto-fix
 
 **This ensures zero-byte files are detected and recovered before session termination.**
 
+For detailed guidance, see `documentation/SESSION_PROTOCOL_VALIDATOR.md`.
+
 ---
 
 *Comprehensive Session Integrity Framework*

@@ -1,2 +1,6 @@
+# Log and runtime files
 logs/
+
+# Local environment configuration
+
 .env

@@ -586,4 +586,7 @@ logger.info("✅ Post-deployment verification PASSED")
 **100% Enterprise-Grade Visual Processing Indicators**
 **Zero Tolerance for Unmonitored Operations**
 
+Enforcement is automated via the CI pipeline defined in
+`.github/workflows/ci.yml`.
+
 *COPILOT Toolkit v4.0 Enterprise - DUAL COPILOT Excellence Framework*

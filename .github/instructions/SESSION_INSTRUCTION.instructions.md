@@ -267,5 +267,5 @@ class SessionAnalyticsEngine:
 
 ---
 
-**REMEMBER: SESSION INSTRUCTION FRAMEWORK IS NOW A DATABASE-FIRST, SYSTEMATIC, ENTERPRISE-GRADE SYSTEM. ALWAYS LEVERAGE DATABASE INTELLIGENCE, APPLY SYSTEMATIC LOGIC, AND ENSURE DUAL COPILOT COMPLIANCE IN ALL SESSION OPERATIONS.**
-````\nFor additional instructions see [Instruction Module Index](../../docs/INSTRUCTION_INDEX.md).
+For additional instructions see [Instruction Module Index](../../docs/INSTRUCTION_INDEX.md).
+````

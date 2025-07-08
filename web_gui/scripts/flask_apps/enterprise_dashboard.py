@@ -136,7 +136,6 @@ def deployment_interface():
     return render_template('deployment.html')
 
 @app.route('/api/health')
-@app.route('/health')
 def health_check():
     """[?] Health check endpoint"""
     return jsonify({
@@ -145,11 +144,6 @@ def health_check():
         "database": "connected" if dashboard.production_db.exists() else "disconnected"
     })
 
-
-# Simplified health endpoint used by automated tests
-@app.route('/health')
-def health_root():
-    return jsonify(status="ok")
 
 if __name__ == '__main__':
     print("[NETWORK] Starting Enterprise Flask Dashboard...")
