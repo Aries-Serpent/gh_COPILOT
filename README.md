@@ -11,10 +11,18 @@
 
 > **Note**: Earlier drafts referenced "quantum" algorithms. The current release relies on classical physics optimization while quantum methods remain draft.
 
-The project currently tracks **32** SQLite databases under `databases/`. Claims
-about algorithmic completion rates or optimization should be treated as
-informational placeholders until corresponding implementations and tests are
-available.
+The project currently tracks **32** SQLite databases under `databases/`. A full
+inventory of these databases is available in
+[documentation/DATABASE_LIST.md](documentation/DATABASE_LIST.md). Claims about
+algorithmic completion rates or optimization should be treated as informational
+placeholders until corresponding implementations and tests are available.
+
+To keep the documentation synchronized with the repository state, run the
+documentation synchronizer:
+
+```bash
+python scripts/comprehensive_documentation_synchronizer.py
+```
 
 ## Environment Setup
 Copy `.env.example` to `.env` and adjust paths as needed. The `GH_COPILOT_WORKSPACE` variable should point to your workspace root.
