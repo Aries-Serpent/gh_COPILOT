@@ -491,6 +491,48 @@ class UnifiedDatabaseManager:
 
         return validation_results
 
+    def synchronize_databases(self) -> Dict[str, Any]:
+        """🔄 Synchronize schemas across all databases."""
+        logger.info("🔄 SYNCHRONIZING DATABASE SCHEMAS...")
+
+        reference_db = self.databases_dir / "production.db"
+        if not reference_db.exists():
+            logger.warning("Reference database not found; skipping sync")
+            return {"status": "SKIPPED"}
+
+        sync_results = {"databases_updated": 0, "errors": []}
+
+        with sqlite3.connect(reference_db) as ref_conn:
+            ref_cursor = ref_conn.cursor()
+            ref_cursor.execute(
+                "SELECT name, sql FROM sqlite_master WHERE type='table';")
+            ref_tables = ref_cursor.fetchall()
+
+        for db_path in self.databases_discovered:
+            if db_path == str(reference_db):
+                continue
+            try:
+                with sqlite3.connect(db_path) as conn:
+                    cursor = conn.cursor()
+                    for name, create_sql in ref_tables:
+                        cursor.execute(
+                            "SELECT name FROM sqlite_master WHERE type='table' AND name=?;",
+                            (name,),
+                        )
+                        if cursor.fetchone() is None:
+                            cursor.execute(create_sql)
+                    conn.commit()
+                sync_results["databases_updated"] += 1
+            except Exception as exc:  # noqa: BLE001
+                sync_results["errors"].append({
+                    "database": db_path,
+                    "error": str(exc),
+                })
+
+        logger.info(
+            f"🔄 Databases synchronized: {sync_results['databases_updated']}")
+        return sync_results
+
     def generate_management_report(self) -> str:
         """📋 Generate comprehensive database management report"""
         logger.info("📋 GENERATING MANAGEMENT REPORT...")
@@ -537,10 +579,11 @@ class UnifiedDatabaseManager:
         management_phases = [
             ("🔍 Database Discovery", self.discover_databases, 20),
             ("📦 Enterprise Backup", self.create_enterprise_backup, 15),
-            ("🔄 Database Consolidation", self.consolidate_databases, 25),
-            ("📁 Structure Organization", self.organize_database_structure, 25),
+            ("🔄 Database Consolidation", self.consolidate_databases, 20),
+            ("📁 Structure Organization", self.organize_database_structure, 15),
+            ("🔄 Schema Synchronization", self.synchronize_databases, 15),
             ("✅ Integrity Validation", self.validate_database_integrity, 10),
-            ("📋 Report Generation", self.generate_management_report, 5)
+            ("📋 Report Generation", self.generate_management_report, 5),
         ]
 
         print("🚀 Starting unified database management...")

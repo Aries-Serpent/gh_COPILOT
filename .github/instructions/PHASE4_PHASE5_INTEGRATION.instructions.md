@@ -390,3 +390,7 @@ validate_excellence_standards(results)
 *Phase 4 Continuous Optimization: 94.95% Excellence*
 *Phase 5 Advanced AI Integration: 98.47% Excellence*
 *Combined Enterprise Excellence: 96.71%*
+
+Implemented algorithms are available in
+`copilot/orchestrators/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py` as
+`QuantumOptimizer` utilities.

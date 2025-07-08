@@ -273,7 +273,7 @@ class SystemStatusChecker:
                 try:
                     start_time = time.time()
                     response = requests.get(
-                        f"http://localhost:{port}/health", timeout=2)
+                        f"http://localhost:{port}/api/health", timeout=2)
                     service_health.response_time = time.time() - start_time
 
                     if response.status_code == 200:

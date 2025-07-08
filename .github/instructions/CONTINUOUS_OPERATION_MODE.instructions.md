@@ -355,3 +355,5 @@ def performance_degradation_response(performance_alert):
 *Phase 4 Continuous Optimization (94.95% Excellence)*
 *Phase 5 Advanced AI Integration (98.47% Excellence)*
 *Continuous Operation Mode - Production Ready*
+
+See `documentation/SYSTEM_OVERVIEW.md` for monitoring integration specifics.

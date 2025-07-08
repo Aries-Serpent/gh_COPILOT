@@ -244,5 +244,7 @@ MANDATORY: Generate integration-ready code segments
 
 ---
 
-*Optimized for gh_COPILOT Toolkit v4.0 with Template Intelligence Platform Integration*
-*Leverages 100% operational Template Intelligence Platform (100% health score)*
+*Optimized for gh_COPILOT Toolkit v4.0 with Template Intelligence Platform Integration**Leverages 100% operational Template Intelligence Platform (100% health score)*
+
+Training datasets reside under `databases/learning_monitor.db` and
+`databases/analytics.db` to drive continuous improvement.

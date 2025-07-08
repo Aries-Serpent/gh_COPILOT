@@ -49,6 +49,9 @@ class AutonomousFileManager:
             return organized_files
 ```
 
+Automation Note: `unified_legacy_cleanup_system.py` consumes these patterns
+after each session to ensure workspace consistency.
+
 ### **2. INTELLIGENT FILE CLASSIFICATION**
 - **ML-POWERED CATEGORIZATION**: Use database patterns for automatic file classification
 - **ENTERPRISE COMPLIANCE**: Ensure all files meet enterprise organization standards

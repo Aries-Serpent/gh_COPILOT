@@ -2965,3 +2965,4 @@ This module is part of the gh_COPILOT enterprise toolkit.
 -\n
 ## 🤖🤖 DUAL COPILOT PATTERN COMPLIANT
 **Enterprise Standards:** This documentation follows DUAL COPILOT patterns with visual processing indicators and anti-recursion protocols.
+Real-time enforcement is handled by `unified_monitoring_optimization_system.py`.

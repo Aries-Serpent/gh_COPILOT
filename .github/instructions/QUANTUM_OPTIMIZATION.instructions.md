@@ -305,6 +305,15 @@ performance_metrics = quantum_optimizer.measure_quantum_performance("grover_sear
 - **Performance**: Quantum advantage in learning tasks
 - **Status**: ✅ Production deployed and validated
 
+Example implementation:
+
+```python
+from copilot.orchestrators.UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED import QuantumOptimizer
+
+opt = QuantumOptimizer()
+result = opt.optimize()
+```
+
 ---
 
 **🏆 QUANTUM OPTIMIZATION ENSURES:**
