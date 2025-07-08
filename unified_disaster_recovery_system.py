@@ -305,11 +305,15 @@ class UnifiedDisasterRecoverySystem:
         def _schedule() -> None:
             critical_assets = self.identify_critical_assets()
             self.create_recovery_backups(critical_assets)
-            threading.Timer(interval_hours * 3600, _schedule).start()
+            timer = threading.Timer(interval_hours * 3600, _schedule)
+            timer.daemon = True
+            timer.start()
 
         logger.info(
             f"⏰ Scheduling automatic backups every {interval_hours}h")
-        threading.Timer(interval_hours * 3600, _schedule).start()
+        timer = threading.Timer(interval_hours * 3600, _schedule)
+        timer.daemon = True
+        timer.start()
 
     def generate_recovery_plans(self) -> Dict[str, Any]:
         """📋 Generate disaster recovery plans"""
