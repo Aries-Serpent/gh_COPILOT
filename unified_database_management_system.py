@@ -90,8 +90,9 @@ class UnifiedDatabaseManager:
 
         # Initialize directories
         self.databases_dir = self.workspace_root / "databases"
-        self.backup_dir = self.workspace_root / \
-            f"_db_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.backup_dir = (
+            self.workspace_root / f"_db_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        )
         self.logs_dir = self.workspace_root / "logs"
 
         # Create required directories
