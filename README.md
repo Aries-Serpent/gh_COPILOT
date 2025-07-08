@@ -11,10 +11,18 @@
 
 > **Note**: Earlier drafts referenced "quantum" algorithms. These features are now implemented as **physics optimization** capabilities.
 
-The project currently tracks **32** SQLite databases under `databases/`. Claims
-about algorithmic completion rates or optimization should be treated as
-informational placeholders until corresponding implementations and tests are
-available.
+The project currently tracks **32** SQLite databases under `databases/`. A full
+inventory of these databases is available in
+[documentation/DATABASE_LIST.md](documentation/DATABASE_LIST.md). Claims about
+algorithmic completion rates or optimization should be treated as informational
+placeholders until corresponding implementations and tests are available.
+
+To keep the documentation synchronized with the repository state, run the
+documentation synchronizer:
+
+```bash
+python scripts/comprehensive_documentation_synchronizer.py
+```
 
 ## Deployment Status
 [SUCCESS] All critical issues have been resolved and the environment is ready for professional deployment.
