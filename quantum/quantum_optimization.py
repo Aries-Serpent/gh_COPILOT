@@ -24,13 +24,17 @@ class QuantumOptimizer:
         best_theta = 0.0
         best_expectation = 1.0
         angles = [i * ANGLE_RESOLUTION for i in range(SEARCH_RANGE)]
+        circuits = []
         for theta in angles:
             qc = QuantumCircuit(1, 1)
             qc.rx(theta, 0)
             qc.measure(0, 0)
-            job = execute(qc, backend=self.backend, shots=1024)
-            counts = job.result().get_counts()
-            expectation = (counts.get("0", 0) - counts.get("1", 0)) / 1024
+            circuits.append(qc)
+        jobs = execute(circuits, backend=self.backend, shots=512)
+        results = jobs.result()
+        for i, theta in enumerate(angles):
+            counts = results.get_counts(circuits[i])
+            expectation = (counts.get("0", 0) - counts.get("1", 0)) / 512
             if abs(expectation) < best_expectation:
                 best_expectation = abs(expectation)
                 best_theta = theta
