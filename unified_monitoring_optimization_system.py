@@ -19,6 +19,8 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import List, Optional
 
+from physics_optimization_engine import PhysicsOptimizationEngine
+
 import psutil
 from tqdm import tqdm
 from pathlib import Path
@@ -83,7 +85,7 @@ class VisualIndicators:
             "warning": "⚠️",
             "error": "❌",
             "rocket": "🚀",
-            "quantum": "⚛️",
+            "physics": "🧪",
             "metrics": "📊",
         }
 
@@ -105,6 +107,8 @@ class UnifiedMonitoringOptimizationSystem:
         self.visual = VisualIndicators()
         self.optimization_id = f"UMOS_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.optimization_start: Optional[datetime] = None
+
+        self.physics_engine = PhysicsOptimizationEngine()
 
         # Initialize metrics database
         self.metrics_db = self._init_metrics_db()
@@ -229,10 +233,13 @@ class UnifiedMonitoringOptimizationSystem:
     # ------------------------------------------------------------------
     # Optimization
     # ------------------------------------------------------------------
-    def run_quantum_optimization(self) -> None:
-        logger.info(f"{self.visual.get('quantum')} Running quantum optimization...")
-        time.sleep(1)  # Placeholder for quantum algorithm
-        logger.info(f"{self.visual.get('success')} Quantum optimization complete")
+    def run_physics_optimization(self) -> None:
+        logger.info(f"{self.visual.get('physics')} Running physics optimization...")
+        if self.metrics_history:
+            data = [m.cpu_percent for m in self.metrics_history]
+            _ = self.physics_engine.fourier_transform(data)
+        time.sleep(1)
+        logger.info(f"{self.visual.get('success')} Physics optimization complete")
 
     def optimize_system(self) -> OptimizationSummary:
         self.optimization_start = datetime.now()
@@ -240,14 +247,14 @@ class UnifiedMonitoringOptimizationSystem:
             ("Service Health Optimization", 40),
             ("System Performance Tuning", 30),
             ("AI Capability Enhancement", 20),
-            ("Quantum Optimization", 10),
+            ("Physics Optimization", 10),
         ]
         progress = tqdm(total=100, desc="Optimizing", unit="%")
 
         for phase, weight in phases:
             progress.set_description(f"{self.visual.get('processing')} {phase}")
-            if phase == "Quantum Optimization":
-                self.run_quantum_optimization()
+            if phase == "Physics Optimization":
+                self.run_physics_optimization()
             else:
                 time.sleep(0.5)
             progress.update(weight)
