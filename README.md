@@ -150,3 +150,15 @@ Generate a full deployment report:
 ```bash
 python validation/deployment_validation_report.py --full-system-audit
 ```
+
+## Docker Compose Usage
+
+A `docker-compose.yml` file is provided to run the main service, web GUI and monitoring components together.
+
+1. Build and start all containers:
+   ```bash
+   docker-compose up --build
+   ```
+2. The Enterprise Dashboard is available on `http://localhost:5000` once the web GUI starts. Additional components run on ports `5001` and `5002`.
+3. Stop the stack with `docker-compose down`.
+
