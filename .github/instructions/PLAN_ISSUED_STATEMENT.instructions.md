@@ -8,34 +8,34 @@
 
 
 ### 📊 **SITUATION ANALYSIS**
-**Current State**: Toolkit operational with classical algorithms; quantum stubs implemented in this phase.
-**Database Assets**: [Available database resources]
-**Template Assets**: [Available template resources]
-**Constraints**: [Technical, time, or resource constraints]
+**Current State**: Toolkit operational with classical algorithms; quantum scaffolding present but inactive. Baseline modules stable and in production use (see [Enterprise Context](./ENTERPRISE_CONTEXT.instructions.md)).
+**Database Assets**: 32 synchronized SQLite databases including `production.db`, `analytics.db`, and `monitoring.db`.
+**Template Assets**: Template Intelligence Platform with 16,500+ script patterns and five Web GUI templates.
+**Constraints**: Quantum modules remain experimental; integration must follow [Comprehensive Session Integrity](./COMPREHENSIVE_SESSION_INTEGRITY.instructions.md) with a two‑week rollout window.
 
 ### 🗄️ **DATABASE-FIRST ANALYSIS**
-**Production DB Query**: [Query for existing solutions]
-**Pattern Matching**: [Relevant template patterns]
-**Code Generation Potential**: [Reusable code segments]
-**Integration Readiness**: [Integration complexity assessment]
+**Production DB Query**: Query `production.db` (`enhanced_script_tracking` table) for reusable migration scripts.
+**Pattern Matching**: Map results to Template Intelligence patterns for immediate reuse.
+**Code Generation Potential**: Generate missing segments with `unified_script_generation_system`.
+**Integration Readiness**: Medium complexity due to cross‑database synchronization and Web GUI integration (see [Enterprise Context](./ENTERPRISE_CONTEXT.instructions.md)).
 
 ### 📋 **IMPLEMENTATION STRATEGY**
-**Phase 1**: [Initial phase description]
-**Phase 2**: [Secondary phase description]
-**Phase 3**: [Final phase description]
-**Validation**: [Validation and testing approach]
+**Phase 1**: Finalize quantum module scaffolding per [Quantum Optimization](./QUANTUM_OPTIMIZATION.instructions.md).
+**Phase 2**: Apply database-first automation with [Autonomous File Management](./AUTONOMOUS_FILE_MANAGEMENT.instructions.md).
+**Phase 3**: Complete cross-system integration and compliance using [Phase 4/5 Integration](./PHASE4_PHASE5_INTEGRATION.instructions.md).
+**Validation**: Execute `make test` and integration checks under the [Dual Copilot Pattern](./DUAL_COPILOT_PATTERN.instructions.md).
 
 ### 🛡️ **RISK ASSESSMENT**
-**High-Risk Areas**: [Identified risks]
-**Mitigation Strategies**: [Risk mitigation plans]
-**Fallback Options**: [Alternative approaches]
-**Anti-Recursion Considerations**: [Recursion prevention measures]
+**High-Risk Areas**: Quantum module stability, multi-database synchronization, large-scale file operations.
+**Mitigation Strategies**: Continuous backups, Dual Copilot validation, adherence to [Comprehensive Session Integrity](./COMPREHENSIVE_SESSION_INTEGRITY.instructions.md).
+**Fallback Options**: Revert to classical algorithms and last stable database snapshot.
+**Anti-Recursion Considerations**: Enforce `validate_enterprise_operation()` rules from [Enterprise Context](./ENTERPRISE_CONTEXT.instructions.md).
 
 ### 🚀 **EXECUTION PLAN**
-**Immediate Actions**: [Next immediate steps]
-**Resource Requirements**: [Required resources]
-**Dependencies**: [External dependencies]
-**Timeline Milestones**: [Key milestones]
+**Immediate Actions**: Install dependencies, query `production.db` for patterns, and prepare quantum scaffolding.
+**Resource Requirements**: Python 3.8+, Template Intelligence Platform, quantum runtime environment, and all 32 databases.
+**Dependencies**: `unified_script_generation_system`, `unified_monitoring_optimization_system`, and production data.
+**Timeline Milestones**: Week 1 – database sync and quantum scaffolding; Week 2 – integration and Dual Copilot review; Q4 release.
 
 ## Usage
 
@@ -300,5 +300,6 @@ def select_pis_template(task_type: str) -> str:
 
 ---
 
-*Optimized for gh_COPILOT Toolkit v4.0 with Template Intelligence Platform*
-*Integrated with Enterprise Script Generation Framework (100% compliance)*
+*Optimized for gh_COPILOT Toolkit v4.0 with Template Intelligence Platform**Integrated with Enterprise Script Generation Framework (100% compliance)*
+
+See [Instruction Module Index](../../docs/INSTRUCTION_INDEX.md) for a list of all guidance documents.
