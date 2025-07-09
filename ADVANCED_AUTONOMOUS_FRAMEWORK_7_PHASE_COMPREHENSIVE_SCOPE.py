@@ -14,6 +14,9 @@ Framework Version: 7.0.0-enterprise
 """
 
 import json
+import os
+import sys
+import time
 from datetime import datetime
 from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
@@ -25,9 +28,9 @@ LOG_DIR.mkdir(exist_ok=True)
 
 # Enterprise logging configuration
 logging.basicConfig(
-    format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers = [
-        )
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(LOG_DIR / 'framework_scope.log', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
@@ -114,40 +117,61 @@ class AdvancedAutonomousFramework7PhaseScope:
         logger.info(
             f"[BAR_CHART] Framework Version: {self.framework_version}"
         )
-        logger.info(f"[?] Timestamp: {self.timestamp}")
+        logger.info(f"[INFO] Timestamp: {self.timestamp}")
 
     def generate_new_phase_3_database_first_preparation(self) -> PhaseSpec:
         """Generate comprehensive specification for NEW PHASE 3: DATABASE-FIRST PREPARATION"""
 
         validation_checkpoints = [
-                dependencies = ["database_config", "network_access"],
-                validation_script = "validate_db_connectivity.py",
-                expected_outputs = ["connection_success", "latency_metrics"],
-                failure_recovery = "fallback_to_local_db",
-                monitoring_metrics = ["connection_time", "query_response_time"]
-            )
-            ValidationCheckpoint(]
+            ValidationCheckpoint(
+                name="database_connectivity_validation",
+                description="Validate database connectivity and access",
+                validation_type="CONNECTIVITY",
+                critical_level="HIGH",
+                dependencies=["database_config", "network_access"],
+                validation_script="validate_db_connectivity.py",
+                expected_outputs=["connection_success", "latency_metrics"],
+                failure_recovery="fallback_to_local_db",
+                monitoring_metrics=["connection_time", "query_response_time"]
+            ),
+            ValidationCheckpoint(
+                name="schema_validation",
+                description="Validate database schema compliance",
+                validation_type="SCHEMA",
+                critical_level="HIGH",
                 dependencies=["database_connectivity_validation"],
                 validation_script="validate_db_schema.py",
                 expected_outputs=["schema_compliance", "table_structure"],
                 failure_recovery="auto_schema_migration",
                 monitoring_metrics=["schema_version", "table_count"]
-            )
-            ValidationCheckpoint(]
+            ),
+            ValidationCheckpoint(
+                name="data_integrity_validation",
+                description="Validate data integrity and consistency",
+                validation_type="INTEGRITY",
+                critical_level="MEDIUM",
                 dependencies=["schema_validation"],
                 validation_script="validate_data_integrity.py",
                 expected_outputs=["integrity_report", "consistency_metrics"],
                 failure_recovery="data_repair_procedures",
                 monitoring_metrics=["data_quality_score", "consistency_ratio"]
-            )
-            ValidationCheckpoint(]
+            ),
+            ValidationCheckpoint(
+                name="performance_baseline_establishment",
+                description="Establish performance baselines",
+                validation_type="PERFORMANCE",
+                critical_level="MEDIUM",
                 dependencies=["data_integrity_validation"],
                 validation_script="establish_performance_baseline.py",
                 expected_outputs=["baseline_metrics", "performance_profile"],
                 failure_recovery="default_performance_config",
                 monitoring_metrics=["query_performance", "indexing_efficiency"]
-            )
-            ValidationCheckpoint(]
+            ),
+            ValidationCheckpoint(
+                name="backup_strategy_validation",
+                description="Validate backup and recovery strategies",
+                validation_type="BACKUP",
+                critical_level="HIGH",
                 dependencies=["performance_baseline_establishment"],
                 validation_script="validate_backup_strategy.py",
                 expected_outputs=["backup_plan", "recovery_procedures"],
@@ -157,54 +181,94 @@ class AdvancedAutonomousFramework7PhaseScope:
         ]
 
         libraries = [
+            LibrarySpec(
+                name="sqlalchemy",
+                version="2.0.23",
+                purpose="Database abstraction layer",
+                critical=True,
+                installation_method="pip",
                 dependencies=["psycopg2-binary", "pymongo"],
                 validation_script="validate_sqlalchemy.py"
-            )
-            LibrarySpec(]
+            ),
+            LibrarySpec(
+                name="alembic",
+                version="1.13.1",
+                purpose="Database migration management",
+                critical=True,
+                installation_method="pip",
                 dependencies=["sqlalchemy"],
                 validation_script="validate_alembic.py"
-            )
-            LibrarySpec(]
+            ),
+            LibrarySpec(
+                name="redis",
+                version="5.0.1",
+                purpose="In-memory data structure store",
+                critical=False,
+                installation_method="pip",
                 dependencies=[],
                 validation_script="validate_redis.py"
-            )
-            LibrarySpec(]
+            ),
+            LibrarySpec(
+                name="celery",
+                version="5.3.4",
+                purpose="Distributed task queue",
+                critical=False,
+                installation_method="pip",
                 dependencies=["redis", "kombu"],
                 validation_script="validate_celery.py"
-            )
-            LibrarySpec(]
+            ),
+            LibrarySpec(
+                name="pandas",
+                version="2.1.4",
+                purpose="Data manipulation and analysis",
+                critical=True,
+                installation_method="pip",
                 dependencies=["numpy", "pytz"],
                 validation_script="validate_pandas.py"
-            )
-            LibrarySpec(]
+            ),
+            LibrarySpec(
+                name="pymongo",
+                version="4.6.1",
+                purpose="MongoDB driver for Python",
+                critical=False,
+                installation_method="pip",
                 dependencies=[],
                 validation_script="validate_pymongo.py"
             )
         ]
 
         file_structures = [
-                ],
+            FileStructureSpec(
+                directory="databases/schema",
+                purpose="Database schema definitions",
+                required_files=["schema.sql", "indexes.sql", "constraints.sql"],
                 optional_files=["custom_indexes.sql", "stored_procedures.sql"],
                 permissions="600",
                 backup_strategy="daily_encrypted_backup",
                 monitoring_enabled=True
-            )
-            FileStructureSpec(]
+            ),
+            FileStructureSpec(
+                directory="databases/migrations",
+                purpose="Database migration scripts",
                 required_files=["alembic.ini", "versions/", "env.py"],
                 optional_files=["seed_data.sql", "test_data.sql"],
                 permissions="755",
                 backup_strategy="version_controlled_backup",
                 monitoring_enabled=True
-            )
-            FileStructureSpec(]
-                ],
+            ),
+            FileStructureSpec(
+                directory="databases/tests",
+                purpose="Database testing and validation",
+                required_files=["test_connectivity.py", "test_schema.py", "test_performance.py"],
                 optional_files=["performance_tests.py", "stress_tests.py"],
                 permissions="755",
                 backup_strategy="automated_backup",
                 monitoring_enabled=True
-            )
-            FileStructureSpec(]
-                ],
+            ),
+            FileStructureSpec(
+                directory="databases/backups",
+                purpose="Database backup storage",
+                required_files=["backup_config.json", "recovery_procedures.md"],
                 optional_files=[],
                 permissions="644",
                 backup_strategy="continuous_backup",
@@ -212,132 +276,260 @@ class AdvancedAutonomousFramework7PhaseScope:
             )
         ]
 
-        return PhaseSpec(]
-            )
-            objectives=[],
-            dependencies=[],
+        return PhaseSpec(
+            phase_id=3,
+            phase_name="DATABASE_FIRST_PREPARATION",
+            description="Comprehensive database-first preparation and validation",
+            objectives=[
+                "Establish robust database connectivity",
+                "Validate schema compliance and integrity",
+                "Implement performance baselines",
+                "Configure backup and recovery strategies"
+            ],
+            dependencies=["PHASE_1", "PHASE_2"],
             validation_checkpoints=validation_checkpoints,
             libraries=libraries,
             file_structures=file_structures,
             estimated_duration="45-60 minutes",
-            success_criteria=[],
+            success_criteria=[
+                "All database connections validated",
+                "Schema compliance verified",
+                "Performance baselines established",
+                "Backup strategies implemented"
+            ],
             failure_recovery="automated_rollback_to_previous_stable_state",
-            monitoring_requirements=[],
-            enterprise_compliance=[]
+            monitoring_requirements=[
+                "Database performance monitoring",
+                "Connection health monitoring",
+                "Backup status monitoring"
+            ],
+            enterprise_compliance=[
+                "SOC2_DATABASE_SECURITY",
+                "GDPR_DATA_PROTECTION",
+                "HIPAA_COMPLIANCE"
+            ]
         )
 
     def generate_new_phase_6_autonomous_optimization(self) -> PhaseSpec:
         """Generate comprehensive specification for NEW PHASE 6: AUTONOMOUS OPTIMIZATION"""
 
         validation_checkpoints = [
+            ValidationCheckpoint(
+                name="autonomous_system_validation",
+                description="Validate autonomous system components",
+                validation_type="SYSTEM",
+                critical_level="HIGH",
                 dependencies=["system_health_check", "resource_availability"],
                 validation_script="validate_autonomous_system.py",
-                expected_outputs=[]
-                    "component_health_status"],
+                expected_outputs=[
+                    "system_health_report",
+                    "component_health_status"
+                ],
                 failure_recovery="manual_intervention_mode",
-                monitoring_metrics=[]
-                    "component_availability"]
-            )
-            ValidationCheckpoint(]
+                monitoring_metrics=[
+                    "system_availability",
+                    "component_availability"
+                ]
+            ),
+            ValidationCheckpoint(
+                name="ml_model_optimization_validation",
+                description="Validate ML model optimization",
+                validation_type="ML_OPTIMIZATION",
+                critical_level="MEDIUM",
                 dependencies=["autonomous_system_validation"],
                 validation_script="validate_ml_optimization.py",
-                expected_outputs=[]
-                    "model_performance_report"],
+                expected_outputs=[
+                    "optimization_results",
+                    "model_performance_report"
+                ],
                 failure_recovery="fallback_to_baseline_models",
                 monitoring_metrics=["model_accuracy", "inference_speed"]
-            )
-            ValidationCheckpoint(]
+            ),
+            ValidationCheckpoint(
+                name="resource_optimization_validation",
+                description="Validate resource optimization",
+                validation_type="RESOURCE",
+                critical_level="MEDIUM",
                 dependencies=["ml_model_optimization_validation"],
                 validation_script="validate_resource_optimization.py",
-                expected_outputs=[]
-                    "optimization_efficiency"],
+                expected_outputs=[
+                    "resource_allocation_report",
+                    "optimization_efficiency"
+                ],
                 failure_recovery="resource_allocation_reset",
-                monitoring_metrics=[]
-                    "gpu_utilization"]
-            )
-            ValidationCheckpoint(]
+                monitoring_metrics=[
+                    "cpu_utilization",
+                    "memory_usage",
+                    "gpu_utilization"
+                ]
+            ),
+            ValidationCheckpoint(
+                name="autonomous_learning_validation",
+                description="Validate autonomous learning capabilities",
+                validation_type="LEARNING",
+                critical_level="LOW",
                 dependencies=["resource_optimization_validation"],
                 validation_script="validate_autonomous_learning.py",
-                expected_outputs=[]
-                    "adaptation_metrics"],
+                expected_outputs=[
+                    "learning_performance_report",
+                    "adaptation_metrics"
+                ],
                 failure_recovery="learning_rate_adjustment",
                 monitoring_metrics=["learning_rate", "adaptation_success_rate"]
-            )
-            ValidationCheckpoint(]
+            ),
+            ValidationCheckpoint(
+                name="performance_optimization_validation",
+                description="Validate overall performance optimization",
+                validation_type="PERFORMANCE",
+                critical_level="HIGH",
                 dependencies=["autonomous_learning_validation"],
                 validation_script="validate_performance_optimization.py",
-                expected_outputs=[]
-                    "optimization_summary"],
+                expected_outputs=[
+                    "performance_improvement_report",
+                    "optimization_summary"
+                ],
                 failure_recovery="performance_rollback_procedures",
-                monitoring_metrics=[]
-                    "optimization_efficiency"]
+                monitoring_metrics=[
+                    "overall_performance",
+                    "optimization_efficiency"
+                ]
             )
         ]
 
         libraries = [
+            LibrarySpec(
+                name="scikit-learn",
+                version="1.3.2",
+                purpose="Machine learning library",
+                critical=True,
+                installation_method="pip",
                 dependencies=["numpy", "scipy", "joblib"],
                 validation_script="validate_sklearn.py"
-            )
-            LibrarySpec(]
-                dependencies=["numpy", "protobuf"],"
+            ),
+            LibrarySpec(
+                name="tensorflow",
+                version="2.15.0",
+                purpose="Deep learning framework",
+                critical=True,
+                installation_method="pip",
+                dependencies=["numpy", "protobuf"],
                 validation_script="validate_tensorflow.py"
-            )
-            LibrarySpec(]
+            ),
+            LibrarySpec(
+                name="optuna",
+                version="3.5.0",
+                purpose="Hyperparameter optimization",
+                critical=False,
+                installation_method="pip",
                 dependencies=["numpy", "scipy"],
                 validation_script="validate_optuna.py"
-            )
-            LibrarySpec(]
+            ),
+            LibrarySpec(
+                name="ray",
+                version="2.8.1",
+                purpose="Distributed computing framework",
+                critical=False,
+                installation_method="pip",
                 dependencies=["numpy", "grpcio"],
                 validation_script="validate_ray.py"
-            )
-            LibrarySpec(]
+            ),
+            LibrarySpec(
+                name="mlflow",
+                version="2.9.2",
+                purpose="ML lifecycle management",
+                critical=True,
+                installation_method="pip",
                 dependencies=["numpy", "pandas", "scipy"],
                 validation_script="validate_mlflow.py"
-            )
-            LibrarySpec(]
+            ),
+            LibrarySpec(
+                name="psutil",
+                version="5.9.6",
+                purpose="System and process utilities",
+                critical=True,
+                installation_method="pip",
                 dependencies=[],
                 validation_script="validate_psutil.py"
-            )
-            LibrarySpec(]
+            ),
+            LibrarySpec(
+                name="nvidia-ml-py",
+                version="12.535.133",
+                purpose="NVIDIA GPU monitoring",
+                critical=False,
+                installation_method="pip",
                 dependencies=[],
                 validation_script="validate_nvidia_ml.py"
             )
         ]
 
         file_structures = [
-                    "optimization_config.json"],
-                optional_files=[]
-                    "optimization_rules.yaml"],
+            FileStructureSpec(
+                directory="autonomous_systems/optimization_engine",
+                purpose="Core optimization engine components",
+                required_files=[
+                    "optimization_engine.py",
+                    "optimization_config.json"
+                ],
+                optional_files=[
+                    "custom_optimizers.py",
+                    "optimization_rules.yaml"
+                ],
                 permissions="755",
                 backup_strategy="real_time_backup",
                 monitoring_enabled=True
-            )
-            FileStructureSpec(]
-                    "model_evaluator.py"],
-                optional_files=[]
-                    "optimization_strategies.py"],
+            ),
+            FileStructureSpec(
+                directory="ml_models/optimization",
+                purpose="ML model optimization components",
+                required_files=[
+                    "model_optimizer.py",
+                    "model_evaluator.py"
+                ],
+                optional_files=[
+                    "custom_models.py",
+                    "optimization_strategies.py"
+                ],
                 permissions="755",
                 backup_strategy="version_controlled_backup",
                 monitoring_enabled=True
-            )
-            FileStructureSpec(]
-                    "resource_monitor.py"],
-                optional_files=[]
-                    "resource_profiles.json"],
+            ),
+            FileStructureSpec(
+                directory="autonomous_systems/resource_management",
+                purpose="Resource management and monitoring",
+                required_files=[
+                    "resource_allocator.py",
+                    "resource_monitor.py"
+                ],
+                optional_files=[
+                    "custom_allocators.py",
+                    "resource_profiles.json"
+                ],
                 permissions="755",
                 backup_strategy="automated_backup",
                 monitoring_enabled=True
-            )
-            FileStructureSpec(]
-                    "learning_config.json"],
-                optional_files=[]
-                    "adaptation_rules.yaml"],
+            ),
+            FileStructureSpec(
+                directory="autonomous_systems/learning_systems",
+                purpose="Autonomous learning and adaptation",
+                required_files=[
+                    "learning_engine.py",
+                    "learning_config.json"
+                ],
+                optional_files=[
+                    "custom_learners.py",
+                    "adaptation_rules.yaml"
+                ],
                 permissions="755",
                 backup_strategy="continuous_backup",
                 monitoring_enabled=True
-            )
-            FileStructureSpec(]
-                    "monitoring_dashboard.py"],
+            ),
+            FileStructureSpec(
+                directory="monitoring/autonomous_optimization",
+                purpose="Monitoring and metrics for autonomous optimization",
+                required_files=[
+                    "optimization_metrics.py",
+                    "monitoring_dashboard.py"
+                ],
                 optional_files=["custom_dashboards.py", "alert_handlers.py"],
                 permissions="644",
                 backup_strategy="real_time_backup",
@@ -345,50 +537,83 @@ class AdvancedAutonomousFramework7PhaseScope:
             )
         ]
 
-        return PhaseSpec(]
+        return PhaseSpec(
+            phase_id=6,
+            phase_name="AUTONOMOUS_OPTIMIZATION",
+            description="Advanced autonomous optimization with ML-driven performance enhancement",
+            objectives=[
+                "Implement autonomous system optimization",
+                "Deploy ML-driven performance optimization",
+                "Enable resource optimization and management",
+                "Establish autonomous learning capabilities"
             ],
-            dependencies=[]
-                "PHASE_5_SYSTEM_VALIDATION"],
+            dependencies=[
+                "PHASE_4_SYSTEM_INTEGRATION",
+                "PHASE_5_SYSTEM_VALIDATION"
+            ],
             validation_checkpoints=validation_checkpoints,
             libraries=libraries,
             file_structures=file_structures,
             estimated_duration="60-90 minutes",
-            success_criteria=[],
+            success_criteria=[
+                "Autonomous optimization systems deployed",
+                "ML models optimized and validated",
+                "Resource optimization implemented",
+                "Learning systems operational"
+            ],
             failure_recovery="autonomous_optimization_rollback_with_manual_override",
-            monitoring_requirements=[],
-            enterprise_compliance=[]
+            monitoring_requirements=[
+                "Real-time optimization monitoring",
+                "ML model performance tracking",
+                "Resource utilization monitoring",
+                "Learning progress tracking"
+            ],
+            enterprise_compliance=[
+                "AI_GOVERNANCE_STANDARDS",
+                "ML_MODEL_COMPLIANCE",
+                "RESOURCE_USAGE_POLICIES"
+            ]
         )
 
     def generate_complete_7_phase_architecture(self) -> Dict[str, Any]:
         """Generate complete 7-phase architecture specification"""
 
         architecture = {
-            },
-            "phase_overview": {]
+            "framework_version": self.framework_version,
+            "timestamp": self.timestamp,
+            "phase_overview": {
+                "total_phases": 7,
                 "critical_phases": [1, 2, 3, 7],
                 "optimization_phases": [4, 5, 6],
                 "monitoring_enabled": True
             },
-            "phases": {]
+            "phases": {
+                "PHASE_1": {
+                    "name": "ENVIRONMENT_SETUP",
                     "dependencies": []
                 },
-                "PHASE_2": {]
+                "PHASE_2": {
+                    "name": "DEPENDENCY_VALIDATION",
                     "dependencies": ["PHASE_1"]
                 },
                 "PHASE_3": self.generate_new_phase_3_database_first_preparation(),
-                "PHASE_4": {]
+                "PHASE_4": {
+                    "name": "SYSTEM_INTEGRATION",
                     "dependencies": ["PHASE_2", "PHASE_3"]
                 },
-                "PHASE_5": {]
+                "PHASE_5": {
+                    "name": "SYSTEM_VALIDATION",
                     "dependencies": ["PHASE_4"]
                 },
                 "PHASE_6": self.generate_new_phase_6_autonomous_optimization(),
-                "PHASE_7": {]
+                "PHASE_7": {
+                    "name": "DEPLOYMENT_FINALIZATION",
                     "dependencies": ["PHASE_5", "PHASE_6"]
                 }
             },
             "global_libraries": [],
-            "enterprise_requirements": {]
+            "enterprise_requirements": {
+                "compliance_standards": ["SOC2_TYPE_II", "GDPR", "HIPAA", "ISO_27001"],
                 "security_compliance": ["SOC2_TYPE_II", "GDPR", "HIPAA", "ISO_27001"],
                 "monitoring_requirements": ["24/7_monitoring", "alert_escalation", "performance_tracking"],
                 "backup_strategies": ["real_time_backup", "version_controlled_backup", "encrypted_backup"],
@@ -402,6 +627,8 @@ class AdvancedAutonomousFramework7PhaseScope:
         """Generate comprehensive file structure map"""
 
         base_structure = {
+            "e:/gh_COPILOT": {
+                "structure": {
                     "config": ["database_config.json", "app_config.yaml", "environment.env"],
                     "scripts": ["deployment_scripts/", "validation_scripts/", "monitoring_scripts/"],
                     "databases": ["schema/", "migrations/", "backups/"],
@@ -412,10 +639,15 @@ class AdvancedAutonomousFramework7PhaseScope:
                     "documentation": ["api_docs/", "user_guides/", "technical_specs/"]
                 }
             },
-            "e:/gh_COPILOT/databases": {]
+            "e:/gh_COPILOT/databases": {
+                "structure": [
+                    "schema/",
+                    "migrations/",
+                    "backups/"
                 ]
             },
-            "e:/gh_COPILOT/autonomous_framework": {]
+            "e:/gh_COPILOT/autonomous_framework": {
+                "structure": {
                     "phase_3_database_first": ["validation_scripts/", "configuration/", "monitoring/"],
                     "phase_6_autonomous_optimization": ["optimization_engines/", "learning_systems/", "performance_tracking/"],
                     "integration_testing": ["test_suites/", "validation_reports/", "performance_benchmarks/"]
@@ -444,8 +676,12 @@ class AdvancedAutonomousFramework7PhaseScope:
 
             # Compile comprehensive report
             scope_report = {
+                "metadata": {
+                    "framework_version": self.framework_version,
+                    "timestamp": self.timestamp,
+                    "generation_time": datetime.now().isoformat()
                 },
-                "new_phases": {]
+                "new_phases": {
                     "PHASE_3_DATABASE_FIRST_PREPARATION": asdict(phase_3_spec),
                     "PHASE_6_AUTONOMOUS_OPTIMIZATION": asdict(phase_6_spec)
                 },
@@ -453,7 +689,8 @@ class AdvancedAutonomousFramework7PhaseScope:
                 "file_structure_map": file_structure,
                 "implementation_guidelines": {},
                 "success_metrics": {},
-                "risk_mitigation": {]
+                "risk_mitigation": {
+                    "identified_risks": ["database_connectivity", "autonomous_optimization"],
                     "high_risk_areas": ["database_connectivity", "autonomous_optimization"],
                     "mitigation_strategies": ["comprehensive_testing", "gradual_rollout", "monitoring"],
                     "rollback_procedures": ["automated_rollback", "manual_override", "emergency_protocols"]
@@ -481,7 +718,7 @@ class AdvancedAutonomousFramework7PhaseScope:
             with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(scope_report, f, indent=4, ensure_ascii=False)
 
-            logger.info(f"[?] Scope report saved to: {filepath}")
+            logger.info(f"[INFO] Scope report saved to: {filepath}")
             return str(filepath)
 
         except Exception as e:
@@ -503,6 +740,12 @@ class AdvancedAutonomousFramework7PhaseScope:
 
             # Generate execution summary
             execution_summary = {
+                "status": "SUCCESS",
+                "framework_version": self.framework_version,
+                "timestamp": self.timestamp,
+                "report_path": report_path,
+                "phases_specified": 7,
+                "new_phases_detailed": 2,
                 "validation_checkpoints": len(scope_report["new_phases"]["PHASE_3_DATABASE_FIRST_PREPARATION"]["validation_checkpoints"]) + len(scope_report["new_phases"]["PHASE_6_AUTONOMOUS_OPTIMIZATION"]["validation_checkpoints"]),
                 "libraries_specified": len(scope_report["new_phases"]["PHASE_3_DATABASE_FIRST_PREPARATION"]["libraries"]) + len(scope_report["new_phases"]["PHASE_6_AUTONOMOUS_OPTIMIZATION"]["libraries"]),
                 "file_structures_defined": len(scope_report["new_phases"]["PHASE_3_DATABASE_FIRST_PREPARATION"]["file_structures"]) + len(scope_report["new_phases"]["PHASE_6_AUTONOMOUS_OPTIMIZATION"]["file_structures"]),
@@ -548,19 +791,19 @@ def main():
         print("=" * 80)
         print(f"[SUCCESS] Status: {result['status']}")
         print(f"[BAR_CHART] Framework Version: {result['framework_version']}")
-        print(f"[?] Timestamp: {result['timestamp']}")
-        print(f"[?] Report Path: {result['report_path']}")
+        print(f"[INFO] Timestamp: {result['timestamp']}")
+        print(f"[INFO] Report Path: {result['report_path']}")
         print(f"[WRENCH] Phases Specified: {result['phases_specified']}")
-        print(f"[?] New Phases Detailed: {result['new_phases_detailed']}")
+        print(f"[INFO] New Phases Detailed: {result['new_phases_detailed']}")
         print(
             f"[SUCCESS] Validation Checkpoints: {result['validation_checkpoints']}")
         print(f"[BOOKS] Libraries Specified: {result['libraries_specified']}")
         print(
             f"[FOLDER] File Structures Defined: {result['file_structures_defined']}")
-        print(f"[?] Enterprise Compliance: {result['enterprise_compliance']}")
+        print(f"[INFO] Enterprise Compliance: {result['enterprise_compliance']}")
         print(f"[LOCK] Anti-Recursion Safe: {result['anti_recursion_safe']}")
         print(
-            f"[?] DUAL COPILOT Compliant: {result['dual_copilot_compliant']}")
+            f"[INFO] DUAL COPILOT Compliant: {result['dual_copilot_compliant']}")
         print("=" * 80)
 
         return result
