@@ -67,7 +67,7 @@ handlers = [
             logging.FileHandler('unified_deployment.log', encoding='utf-8'),
             logging.StreamHandler(sys.stdout)
         ]
-    )
+)
     return logging.getLogger(__name__)
 
 

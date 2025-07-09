@@ -87,7 +87,7 @@ class MissionCompletionOrchestrator:
                 logging.FileHandler(log_file, encoding='utf-8'),
                 logging.StreamHandler()
             ]
-        )
+)
         self.logger = logging.getLogger("MissionCompletion")
 
     def execute_all_phases(self) -> Dict[str, Any]:

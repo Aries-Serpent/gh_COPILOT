@@ -38,8 +38,8 @@ LOG_DIR = Path("logs")
 LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig()
 format = '%(asctime)s - %(levelname)s - %(message)s',
-    handlers = [
-            LOG_DIR / 'script_generation_consolidation.log', encoding = 'utf-8'),
+handlers = [
+LOG_DIR / 'script_generation_consolidation.log', encoding = 'utf-8'),
         logging.StreamHandler()
     ]
 )

@@ -40,7 +40,7 @@ class AutonomousFrameworkScopeSpecification:
 
         scope = {
                     # Progress indicators (enterprise requirement)
-                    "tqdm>=4.62.0"],
+"tqdm>=4.62.0"],
                 "ml_libraries": [],
                 "database_libraries": [],
                 "monitoring_libraries": []

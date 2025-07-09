@@ -14,11 +14,11 @@ from sqlite3 import Connection, connect
 from typing import Iterable
 
 logging.basicConfig()
-format = "%(asctime)s - %(levelname)s - %(message)s")
-    logger = logging.getLogger(__name__)
+format = "%(asctime)s - %(levelname)s - %(message)s"
+logger = logging.getLogger(__name__)
 
 
-    def _copy_database(source: Path, target: Path) -> None:
+def _copy_database(source: Path, target: Path) -> None:
     """Copy source database file to target using sqlite3 backup API."""
     try:
     with connect(source) as source_conn, connect(target) as target_conn:

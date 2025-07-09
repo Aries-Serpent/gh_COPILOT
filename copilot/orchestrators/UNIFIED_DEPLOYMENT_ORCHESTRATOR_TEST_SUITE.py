@@ -36,7 +36,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 logging.basicConfig()
 format = '%(asctime)s - %(levelname)s - %(message)s',
 handlers = [
-            'deployment_orchestrator_test.log', encoding = 'utf-8'),
+'deployment_orchestrator_test.log', encoding = 'utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )

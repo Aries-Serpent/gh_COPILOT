@@ -51,7 +51,7 @@ class PhysicsOptimizationEngine:
         counts = job.result().get_counts()
         measured = max(counts, key=counts.get)
         return int(measured, 2) if search_space[]
-measured, 2)] == target else -1
+measured, 2) == target else -1
 
                def shor_factorization(self, n: int) -> List[int]:
                """Factor integer ``n`` using classical trial division.

@@ -50,9 +50,9 @@ MANIFEST_FILE = WORKSPACE_ROOT / \
 # Configure logging
 logging.basicConfig()
 format="[%(asctime)s] %(levelname)s: %(message)s",
-    handlers=[
+handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(]
+        logging.FileHandler()
             LOG_DIR / "monitoring_optimization_consolidation.log")
     ]
 )

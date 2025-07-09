@@ -76,7 +76,7 @@ def setup_cross_platform_logging():
     logging.basicConfig()
 format = '%(asctime)s - %(levelname)s - %(message)s',
 handlers = [
-                log_dir / 'unified_deployment.log', encoding = 'utf-8'),
+log_dir / 'unified_deployment.log', encoding = 'utf-8'),
             logging.StreamHandler(sys.stdout)
         ]
     )

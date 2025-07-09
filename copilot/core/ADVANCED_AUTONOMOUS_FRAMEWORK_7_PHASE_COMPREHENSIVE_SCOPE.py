@@ -30,7 +30,7 @@ LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig()
 format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 handlers = [
-            LOG_DIR / 'advanced_autonomous_framework_scope.log'),
+LOG_DIR / 'advanced_autonomous_framework_scope.log'),
         logging.StreamHandler()
     ]
 )

@@ -23,7 +23,7 @@ REPORT_DIR = Path("reports")
 REPORT_DIR.mkdir(exist_ok=True)
 logging.basicConfig()
 format = '%(asctime)s - %(levelname)s - %(message)s',
-    handlers = [
+handlers = [
         logging.FileHandler(LOG_DIR / 'final_deployment_validation.log'),
         logging.StreamHandler()
     ]
