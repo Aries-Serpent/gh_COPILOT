@@ -3,9 +3,12 @@ import socket
 import time
 from pathlib import Path
 
+import requests
+
 from copilot.orchestrators.final_enterprise_orchestrator import \
     FinalEnterpriseOrchestrator
 from web_gui.app import WebGUILauncher
+from web_gui_integration_system import WebGUIIntegrationSystem
 
 
 def get_free_port():
@@ -47,3 +50,18 @@ def test_web_gui_launcher_initializes(monkeypatch, tmp_path):
     monkeypatch.setenv("GH_COPILOT_ROOT", str(tmp_path))
     launcher = WebGUILauncher()
     assert "enterprise_dashboard" in launcher.web_components
+
+
+def test_web_gui_integration_system(monkeypatch):
+    """WebGUIIntegrationSystem starts dashboard and reports healthy."""
+    port = get_free_port()
+    monkeypatch.setenv("FLASK_RUN_PORT", str(port))
+    system = WebGUIIntegrationSystem()
+    system.initialize()
+    try:
+        resp = requests.get(f"http://localhost:{port}/api/health")
+        assert resp.status_code == 200
+        assert system.status()["initialized"] is True
+    finally:
+        system.shutdown()
+        del os.environ["FLASK_RUN_PORT"]
