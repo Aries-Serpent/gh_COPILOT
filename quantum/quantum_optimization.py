@@ -100,10 +100,11 @@ class QuantumOptimizer:
                     centroids[j] = members.mean(axis=0)
         return assignments
 
-    def quantum_neural_network(self, epochs: int = 10, lr: float = 0.1) -> Dict[str, Any]:
+    def quantum_neural_network(self, epochs: int = 10, lr: float = 0.1, seed: int = 42) -> Dict[str, Any]:
         """Train a simple QNN on the XOR dataset."""
         x_train = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
         y_train = np.array([0, 1, 1, 0])
+        np.random.seed(seed)
         weights = np.random.uniform(0, 2 * pi, 2)
         for _ in range(epochs):
             for x, y in zip(x_train, y_train):
