@@ -68,9 +68,9 @@ class FinalEnterpriseOrchestrator:
         handler.setLevel(logging.INFO)
 
         # Create formatter
-        formatter = logging.Formatter()
-'%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
@@ -91,12 +91,12 @@ class FinalEnterpriseOrchestrator:
                 cwd = str(self.workspace_root)
 
             # Start the service
-            process = subprocess.Popen(]
+            process = subprocess.Popen(
                 [sys.executable, script_path],
-                cwd = cwd,
-                stdout = subprocess.PIPE,
-                stderr = subprocess.PIPE,
-                text = True
+                cwd=cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
             )
 
             # Wait a moment for startup
@@ -142,8 +142,8 @@ class FinalEnterpriseOrchestrator:
         # If port is specified, check HTTP health
         if port:
             try:
-                response = requests.get(]
-                    f"http://localhost:{port}/api/health", timeout = 2
+                response = requests.get(
+                    f"http://localhost:{port}/api/health", timeout=2
                 )
                 if response.status_code == 200:
                     service['status'] = 'healthy'
@@ -167,25 +167,36 @@ class FinalEnterpriseOrchestrator:
 
         # Service configurations
         services_config = [
+            {
+                'name': 'Enterprise Dashboard',
+                'script': 'enterprise_dashboard.py',
                 'cwd': str(self.workspace_root)
             },
-            {]
+            {
+                'name': 'Database Monitor',
+                'script': 'database_monitor.py',
                 'cwd': str(self.workspace_root)
             },
-            {]
+            {
+                'name': 'Health Monitor',
+                'script': 'health_monitor.py',
                 'cwd': str(self.workspace_root)
             },
-            {]
+            {
+                'name': 'Performance Monitor',
+                'script': 'performance_monitor.py',
                 'cwd': str(self.workspace_root)
             },
-            {]
+            {
+                'name': 'System Monitor',
+                'script': 'system_monitor.py',
                 'cwd': str(self.workspace_root)
             }
         ]
 
         # Start each service
         for config in services_config:
-            success = self.start_service(]
+            success = self.start_service(
                 config['name'],
                 config['script'],
                 config['cwd']
@@ -229,20 +240,21 @@ class FinalEnterpriseOrchestrator:
                     f"{self.visual_indicators['warning']} {service_name}: {service.get('status', 'unknown')}")
 
         # Calculate efficiency score
-        service_efficiency = (]
+        service_efficiency = (
             healthy_services / total_services * 100) if total_services > 0 else 0
 
         # Check database health
         database_count = self._count_healthy_databases()
-        database_efficiency = min(]
+        database_efficiency = min(
             100, database_count * 3)  # Each db contributes 3%
 
         # Check system resources
         system_efficiency = self._calculate_system_efficiency()
 
         # Calculate overall efficiency
-        overall_efficiency = (]
-                              database_efficiency * 0.3 + system_efficiency * 0.3)
+        overall_efficiency = (
+            service_efficiency * 0.4 +
+            database_efficiency * 0.3 + system_efficiency * 0.3)
 
         print(f"\n{self.visual_indicators['star']} EFFICIENCY CALCULATION")
         print("=" * 60)
@@ -292,9 +304,9 @@ class FinalEnterpriseOrchestrator:
 
             # Calculate efficiency based on reasonable resource usage
             cpu_efficiency = max(0, 100 - cpu_usage) if cpu_usage < 90 else 10
-            memory_efficiency = max(]
+            memory_efficiency = max(
                 0, 100 - memory.percent) if memory.percent < 90 else 10
-            disk_efficiency = max(]
+            disk_efficiency = max(
                 0, 100 - disk.percent) if disk.percent < 90 else 10
 
             return (cpu_efficiency + memory_efficiency + disk_efficiency) / 3
@@ -310,7 +322,8 @@ class FinalEnterpriseOrchestrator:
             'start_time': self.start_time.isoformat(),
             'completion_time': datetime.now().isoformat(),
             'efficiency_score': efficiency_score,
-            'services': {]
+            'services': {
+                name: {
                     'status': service.get('status', 'unknown'),
                     'pid': service.get('pid'),
                     'start_time': service.get('start_time')
@@ -318,7 +331,7 @@ class FinalEnterpriseOrchestrator:
                 for name, service in self.services.items()
             },
             'database_count': self._count_healthy_databases(),
-            'system_health': {]
+            'system_health': {
                 'cpu_usage': psutil.cpu_percent(),
                 'memory_usage': psutil.virtual_memory().percent,
                 'disk_usage': psutil.disk_usage('/').percent
