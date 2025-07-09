@@ -212,8 +212,7 @@ class FinalDeploymentValidator:
         logger.info("Generating final validation report...")
 
         report_path = REPORT_DIR
-            / f"final_deployment_validation_report_{
-    datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            / f"final_deployment_validation_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         try:
             with open(report_path, 'w', encoding='utf-8') as f:
                 json.dump(self.validation_results, f, indent=2, default=str)

@@ -36,10 +36,12 @@ LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(LOG_DIR / 'deployment_migration.log', encoding='utf-8'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+        logging.FileHandler(
+            LOG_DIR /
+            'deployment_migration.log',
+            encoding='utf-8'),
+        logging.StreamHandler(
+            sys.stdout)])
 logger = logging.getLogger(__name__)
 
 # Visual indicators for consistency with other scripts
@@ -53,6 +55,7 @@ VISUAL_INDICATORS = {
     'migration': '[MIGRATION]',
     'archive': '[ARCHIVE]'
 }
+
 
 @dataclass
 class MigrationScript:
@@ -86,7 +89,8 @@ class DeploymentMigrationOrchestrator:
             "warnings": []
         }
 
-        logger.info(f"{VISUAL_INDICATORS['start']} DEPLOYMENT MIGRATION ORCHESTRATOR INITIALIZED")
+        logger.info(
+            f"{VISUAL_INDICATORS['start']} DEPLOYMENT MIGRATION ORCHESTRATOR INITIALIZED")
         logger.info(f"Migration ID: {self.migration_id}")
         logger.info(f"Workspace: {self.workspace_root}")
         logger.info(f"Scripts to migrate: {len(self.deployment_scripts)}")
@@ -127,13 +131,14 @@ class DeploymentMigrationOrchestrator:
                             filename=script_name,
                             path=str(script_path),
                             size_bytes=stat.st_size,
-                            last_modified=datetime.fromtimestamp(stat.st_mtime),
-                            functionality=self._analyze_script_functionality(script_path)
-                        )
+                            last_modified=datetime.fromtimestamp(
+                                stat.st_mtime),
+                            functionality=self._analyze_script_functionality(script_path))
                         scripts.append(migration_script)
                         break  # Found script, don't search other locations
                     except Exception as e:
-                        logger.warning(f"{VISUAL_INDICATORS['warning']} Error processing {script_path}: {e}")
+                        logger.warning(
+                            f"{VISUAL_INDICATORS['warning']} Error processing {script_path}: {e}")
 
         return scripts
 
@@ -163,15 +168,18 @@ class DeploymentMigrationOrchestrator:
                 if any(keyword in content_lower for keyword in keywords):
                     detected_functionality.append(func_name)
 
-            return ", ".join(detected_functionality) if detected_functionality else "General deployment"
+            return ", ".join(
+                detected_functionality) if detected_functionality else "General deployment"
 
         except Exception as e:
-            logger.warning(f"{VISUAL_INDICATORS['warning']} Could not analyze {script_path}: {e}")
+            logger.warning(
+                f"{VISUAL_INDICATORS['warning']} Could not analyze {script_path}: {e}")
             return "Unknown functionality"
 
     def execute_migration(self) -> Dict[str, Any]:
         """🚀 Execute complete migration process"""
-        logger.info(f"{VISUAL_INDICATORS['start']} EXECUTING DEPLOYMENT SCRIPT MIGRATION...")
+        logger.info(
+            f"{VISUAL_INDICATORS['start']} EXECUTING DEPLOYMENT SCRIPT MIGRATION...")
 
         migration_phases = [
             ("🔍 Analysis", self._analyze_migration_impact),
@@ -190,20 +198,29 @@ class DeploymentMigrationOrchestrator:
                     try:
                         result = phase_func()
                         if result.get("status") == "SUCCESS":
-                            logger.info(f"{VISUAL_INDICATORS['success']} {phase_name}: SUCCESS")
+                            logger.info(
+                                f"{VISUAL_INDICATORS['success']} {phase_name}: SUCCESS")
                         else:
-                            logger.warning(f"{VISUAL_INDICATORS['warning']} {phase_name}: {result.get('message', 'Unknown issue')}")
+                            logger.warning(
+                                f"{
+                                    VISUAL_INDICATORS['warning']} {phase_name}: {
+                                    result.get(
+                                        'message',
+                                        'Unknown issue')}")
 
                     except Exception as e:
-                        logger.error(f"{VISUAL_INDICATORS['error']} {phase_name}: {e}")
-                        self.migration_results["errors"].append(f"{phase_name}: {e}")
+                        logger.error(
+                            f"{VISUAL_INDICATORS['error']} {phase_name}: {e}")
+                        self.migration_results["errors"].append(
+                            f"{phase_name}: {e}")
 
                     pbar.update(1)
 
             # Finalize migration
             self._finalize_migration()
 
-            logger.info(f"{VISUAL_INDICATORS['success']} DEPLOYMENT MIGRATION COMPLETED")
+            logger.info(
+                f"{VISUAL_INDICATORS['success']} DEPLOYMENT MIGRATION COMPLETED")
             return self.migration_results
 
         except Exception as e:
@@ -213,10 +230,12 @@ class DeploymentMigrationOrchestrator:
 
     def _analyze_migration_impact(self) -> Dict[str, Any]:
         """🔍 Analyze migration impact"""
-        logger.info(f"{VISUAL_INDICATORS['process']} Analyzing migration impact...")
+        logger.info(
+            f"{VISUAL_INDICATORS['process']} Analyzing migration impact...")
 
         # Calculate total size of files to be migrated
-        total_size = sum(script.size_bytes for script in self.deployment_scripts)
+        total_size = sum(
+            script.size_bytes for script in self.deployment_scripts)
 
         # Check for dependencies
         dependencies = self._check_script_dependencies()
@@ -234,8 +253,13 @@ class DeploymentMigrationOrchestrator:
             "estimated_consolidation_reduction": f"{len(self.deployment_scripts)}:1 ratio"
         }
 
-        logger.info(f"{VISUAL_INDICATORS['info']} Migration impact: {len(self.deployment_scripts)} scripts → 1 unified orchestrator")
-        logger.info(f"{VISUAL_INDICATORS['info']} Size reduction: {total_size / (1024 * 1024):.1f}MB consolidated")
+        logger.info(
+            f"{
+                VISUAL_INDICATORS['info']} Migration impact: {
+                len(
+                    self.deployment_scripts)} scripts → 1 unified orchestrator")
+        logger.info(
+            f"{VISUAL_INDICATORS['info']} Size reduction: {total_size / (1024 * 1024):.1f}MB consolidated")
 
         return {"status": "SUCCESS", "analysis": impact_analysis}
 
@@ -253,16 +277,19 @@ class DeploymentMigrationOrchestrator:
                     if script.filename != other_script.filename:
                         other_name = other_script.filename.replace('.py', '')
                         if f"import {other_name}" in content or f"from {other_name}" in content:
-                            dependencies.append(f"{script.filename} → {other_script.filename}")
+                            dependencies.append(
+                                f"{script.filename} → {other_script.filename}")
 
             except Exception as e:
-                logger.warning(f"{VISUAL_INDICATORS['warning']} Could not check dependencies for {script.filename}: {e}")
+                logger.warning(
+                    f"{VISUAL_INDICATORS['warning']} Could not check dependencies for {script.filename}: {e}")
 
         return dependencies
 
     def _create_migration_plan(self) -> Dict[str, Any]:
         """📋 Create detailed migration plan"""
-        logger.info(f"{VISUAL_INDICATORS['process']} Creating migration plan...")
+        logger.info(
+            f"{VISUAL_INDICATORS['process']} Creating migration plan...")
 
         # Archive directory for old scripts
         archive_dir = self.workspace_root / "scripts" / "archived_deployment_scripts"
@@ -271,29 +298,32 @@ class DeploymentMigrationOrchestrator:
         migration_plan = {
             "archive_directory": str(archive_dir),
             "unified_orchestrator": "unified_deployment_orchestrator.py",
-            "scripts_to_archive": [script.filename for script in self.deployment_scripts],
+            "scripts_to_archive": [
+                script.filename for script in self.deployment_scripts],
             "migration_steps": [
                 "Archive existing scripts",
                 "Create unified orchestrator",
                 "Update import references",
-                "Generate migration guide"
-            ]
-        }
+                "Generate migration guide"]}
 
         # Save migration plan
-        plan_file = self.workspace_root / f"migration_plan_{self.migration_id}.json"
+        plan_file = self.workspace_root / \
+            f"migration_plan_{self.migration_id}.json"
         with open(plan_file, 'w', encoding='utf-8') as f:
             json.dump(migration_plan, f, indent=2, default=str)
 
-        logger.info(f"{VISUAL_INDICATORS['success']} Migration plan saved: {plan_file}")
+        logger.info(
+            f"{VISUAL_INDICATORS['success']} Migration plan saved: {plan_file}")
 
         return {"status": "SUCCESS", "plan": migration_plan}
 
     def _archive_old_scripts(self) -> Dict[str, Any]:
         """📦 Archive old deployment scripts"""
-        logger.info(f"{VISUAL_INDICATORS['archive']} Archiving old deployment scripts...")
+        logger.info(
+            f"{VISUAL_INDICATORS['archive']} Archiving old deployment scripts...")
 
-        archive_dir = self.workspace_root / "scripts" / "archived_deployment_scripts" / self.migration_id
+        archive_dir = self.workspace_root / "scripts" / \
+            "archived_deployment_scripts" / self.migration_id
         archive_dir.mkdir(parents=True, exist_ok=True)
 
         archived_scripts = []
@@ -319,7 +349,8 @@ class DeploymentMigrationOrchestrator:
                         "size_bytes": script.size_bytes
                     }
 
-                    metadata_path = archive_dir / f"{script.filename}.metadata.json"
+                    metadata_path = archive_dir / \
+                        f"{script.filename}.metadata.json"
                     with open(metadata_path, 'w', encoding='utf-8') as f:
                         json.dump(metadata, f, indent=2)
 
@@ -328,10 +359,15 @@ class DeploymentMigrationOrchestrator:
                     self.migration_results["scripts_archived"] += 1
 
                 except Exception as e:
-                    logger.error(f"{VISUAL_INDICATORS['error']} Failed to archive {script.filename}: {e}")
-                    self.migration_results["errors"].append(f"Archive error: {script.filename} - {e}")
+                    logger.error(
+                        f"{VISUAL_INDICATORS['error']} Failed to archive {script.filename}: {e}")
+                    self.migration_results["errors"].append(
+                        f"Archive error: {script.filename} - {e}")
 
-        logger.info(f"{VISUAL_INDICATORS['success']} Archived {len(archived_scripts)} scripts to {archive_dir}")
+        logger.info(
+            f"{
+                VISUAL_INDICATORS['success']} Archived {
+                len(archived_scripts)} scripts to {archive_dir}")
 
         return {
             "status": "SUCCESS",
@@ -341,13 +377,15 @@ class DeploymentMigrationOrchestrator:
 
     def _execute_script_migration(self) -> Dict[str, Any]:
         """🔄 Execute script migration"""
-        logger.info(f"{VISUAL_INDICATORS['migration']} Executing script migration...")
+        logger.info(
+            f"{VISUAL_INDICATORS['migration']} Executing script migration...")
 
         # Check if unified orchestrator exists
         unified_orchestrator = self.workspace_root / "unified_deployment_orchestrator.py"
 
         if not unified_orchestrator.exists():
-            logger.warning(f"{VISUAL_INDICATORS['warning']} Unified orchestrator not found at {unified_orchestrator}")
+            logger.warning(
+                f"{VISUAL_INDICATORS['warning']} Unified orchestrator not found at {unified_orchestrator}")
             return {
                 "status": "WARNING",
                 "message": "Unified orchestrator file not found"
@@ -365,7 +403,10 @@ class DeploymentMigrationOrchestrator:
                 script.migration_status = "MIGRATED"
                 self.migration_results["scripts_migrated"] += 1
 
-        logger.info(f"{VISUAL_INDICATORS['success']} Migration completed: {self.migration_results['scripts_migrated']} scripts")
+        logger.info(
+            f"{
+                VISUAL_INDICATORS['success']} Migration completed: {
+                self.migration_results['scripts_migrated']} scripts")
 
         return {
             "status": "SUCCESS",
@@ -413,10 +454,14 @@ class DeploymentMigrationOrchestrator:
                     with open(py_file, 'w', encoding='utf-8') as f:
                         f.write(updated_content)
 
-                    updates.append(f"Updated imports in {py_file.relative_to(self.workspace_root)}")
+                    updates.append(
+                        f"Updated imports in {
+                            py_file.relative_to(
+                                self.workspace_root)}")
 
             except Exception as e:
-                logger.warning(f"{VISUAL_INDICATORS['warning']} Could not update imports in {py_file}: {e}")
+                logger.warning(
+                    f"{VISUAL_INDICATORS['warning']} Could not update imports in {py_file}: {e}")
 
         return updates
 
@@ -601,7 +646,10 @@ For issues related to this migration, reference Migration ID: `{self.migration_i
         logger.info(
             f"Scripts archived: {self.migration_results['scripts_archived']}")
         logger.info(
-            f"Success rate: {self.migration_results.get('success_rate', 0):.1f}%")
+            f"Success rate: {
+                self.migration_results.get(
+                    'success_rate',
+                    0):.1f}%")
         logger.info(f"Errors: {len(self.migration_results['errors'])}")
         logger.info("=" * 60)
 

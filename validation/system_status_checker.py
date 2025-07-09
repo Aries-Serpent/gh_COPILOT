@@ -139,14 +139,7 @@ class SystemStatusChecker:
             # System uptime
             boot_time = psutil.boot_time()
             uptime = datetime.now() - datetime.fromtimestamp(boot_time)
-            uptime_str = f"{
-    uptime.days}d {
-        uptime.seconds
-        // 3600}h {
-            (
-                uptime.seconds
-                // 60) %
-                 60}m"
+            uptime_str = f"{60}"
             # Temperature (if available)
             temperature = None
             try:

@@ -254,10 +254,7 @@ class DocumentationGenerationSystem:
                         relationship_type = "many-to-one",
                         from_column = fk["from"],
                         to_column = fk["to"],
-                        description = f"{table_name}.{
-    fk['from']} references {
-        fk['table']}.{
-            fk['to']}"
+                        description = f"{table_name}.{fk['table']}"
                     )
                     relationships.append(relationship)
 

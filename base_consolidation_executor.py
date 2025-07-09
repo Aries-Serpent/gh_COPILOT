@@ -29,7 +29,10 @@ class BaseConsolidationExecutor:
         self.archive_dir.mkdir(parents=True, exist_ok=True)
         self.manifest_dir.mkdir(parents=True, exist_ok=True)
 
-    def discover_files(self, patterns: Iterable[str], exclude_names: Iterable[str] | None = None) -> List[Path]:
+    def discover_files(
+            self,
+            patterns: Iterable[str],
+            exclude_names: Iterable[str] | None = None) -> List[Path]:
         """Discover files in the workspace matching patterns."""
         exclude_names = set(exclude_names or [])
         discovered: List[Path] = []

@@ -333,8 +333,7 @@ class EnterpriseDeploymentValidator:
         if github_dir.exists():
             instruction_files = list(github_dir.glob("*.md"))
             result = ValidationResult(]
-                message=f"GitHub integration directory exists ({
-    len(instruction_files)} instruction files)",
+                message=f"GitHub integration directory exists ({len(instruction_files)}",
                 duration=time.time() - start_time,
                 timestamp=datetime.now(),
                 details={"instruction_file_count": len(instruction_files)}

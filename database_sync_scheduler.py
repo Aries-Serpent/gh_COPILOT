@@ -45,7 +45,6 @@ format = "%(asctime)s - %(levelname)s - %(message)s")
     names.append(name)
     return names
 
-
     if __name__ == "__main__":
     workspace = Path("./databases")
     master_db = workspace / "production.db"

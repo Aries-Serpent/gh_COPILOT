@@ -27,8 +27,7 @@ class EnterpriseDeploymentPackager:
     def __init__(self):
         self.source_path = Path("e:/gh_COPILOT")
         self.target_path = Path("e:/gh_COPILOT")
-        self.package_name = f"gh_COPILOT_Enterprise_Package_{
-    datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.package_name = f"gh_COPILOT_Enterprise_Package_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         # Core deployment files
         self.deployment_files = [
         ]

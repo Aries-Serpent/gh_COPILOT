@@ -34,14 +34,14 @@ LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(]
     format = '%(asctime)s - %(levelname)s - %(message)s',
     handlers = [
-            LOG_DIR / 'disaster_recovery_consolidation.log', encoding = 'utf-8'),
+            LOG_DIR / 'disaster_recovery_consolidation.log', encoding= 'utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+@ dataclass
 class ConsolidationResult:
     """Consolidation operation result"""
     source_path: str

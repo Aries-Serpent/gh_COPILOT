@@ -132,15 +132,13 @@ class ComprehensiveProjectGradingSystem:
 
         try:
             # Load Quantum Integration Report
-            quantum_file = f"{
-    self.workspace_path}/QUANTUM_INTEGRATION_MISSION_COMPLETE.md"
+            quantum_file = f"{self.workspace_path}"
             if os.path.exists(quantum_file):
                 completion_data["quantum_integration"] = {
                 }
 
             # Load Phase 5 Summary
-            phase5_file = f"{
-    self.workspace_path}/PHASE5_ENTERPRISE_COMPLETION_SUMMARY.md"
+            phase5_file = f"{self.workspace_path}"
             if os.path.exists(phase5_file):
                 completion_data["phase5_summary"] = {
                 }

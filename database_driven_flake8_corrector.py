@@ -125,7 +125,8 @@ class DualCopilotValidator:
         self.secondary_validations = []
         self.validation_points = 0
 
-    def primary_copilot_check(self, operation: str, data: Any) -> Tuple[bool, str]:
+    def primary_copilot_check(self, operation: str,
+                              data: Any) -> Tuple[bool, str]:
         """Primary COPILOT validation check"""
         try:
             check_result = {
@@ -141,7 +142,8 @@ class DualCopilotValidator:
             logger.error(error_msg)
             return False, error_msg
 
-    def secondary_copilot_validation(self, operation: str, results: Any) -> Tuple[bool, str]:
+    def secondary_copilot_validation(
+            self, operation: str, results: Any) -> Tuple[bool, str]:
         """Secondary COPILOT validation check"""
         try:
             validation_result = {
@@ -171,8 +173,11 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
         )
 
         # Initialize visual processing indicators
-        print(f"\n{VISUAL_INDICATORS['target']} ENTERPRISE FLAKE8 COMPLIANCE SYSTEM INITIALIZING...")
-        print(f"{VISUAL_INDICATORS['database']} Analytics Database: {self.analytics_db_path}")
+        print(
+            f"\n{
+                VISUAL_INDICATORS['target']} ENTERPRISE FLAKE8 COMPLIANCE SYSTEM INITIALIZING...")
+        print(
+            f"{VISUAL_INDICATORS['database']} Analytics Database: {self.analytics_db_path}")
         print(f"{VISUAL_INDICATORS['code']} Workspace: {self.workspace_path}")
 
         # Correction patterns and statistics
@@ -189,7 +194,8 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
         self._initialize_database()
         self._load_correction_patterns()
 
-        logger.info(f"{VISUAL_INDICATORS['success']} Enterprise Flake8 Corrector initialized")
+        logger.info(
+            f"{VISUAL_INDICATORS['success']} Enterprise Flake8 Corrector initialized")
 
     def _initialize_database(self):
         """Initialize database schema for compliance tracking"""
@@ -242,7 +248,8 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
                     )
                 ''')
                 conn.commit()
-                logger.info(f"{VISUAL_INDICATORS['database']} Database schema initialized")
+                logger.info(
+                    f"{VISUAL_INDICATORS['database']} Database schema initialized")
         except Exception as e:
             logger.error(f"Database initialization failed: {e}")
             raise
@@ -252,7 +259,8 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
         try:
             with sqlite3.connect(str(self.analytics_db_path)) as conn:
                 cursor = conn.cursor()
-                cursor.execute('SELECT pattern_id, error_code, regex, template, confidence, usage_count, success_rate FROM correction_patterns')
+                cursor.execute(
+                    'SELECT pattern_id, error_code, regex, template, confidence, usage_count, success_rate FROM correction_patterns')
                 patterns = cursor.fetchall()
                 for pattern in patterns:
                     pattern_id, error_code, regex, template, confidence, usage, success = pattern
@@ -264,53 +272,39 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
                         'template': template,
                         'confidence': confidence
                     })
-                logger.info(f"{VISUAL_INDICATORS['database']} Loaded {len(patterns)} correction patterns")
+                logger.info(
+                    f"{VISUAL_INDICATORS['database']} Loaded {len(patterns)} correction patterns")
         except Exception as e:
             logger.warning(f"Could not load correction patterns: {e}")
             self._initialize_basic_patterns()
 
     def _initialize_basic_patterns(self):
         """Initialize basic correction patterns"""
-        basic_patterns = {
-            'E501': [
-                {
-                    'pattern_id': 'E501_basic',
-                    'regex': r'^(.{80,})$',
-                    'template': r'\1',
-                    'confidence': 0.8
-                }
-            ],
-            'W291': [
-                {
-                    'pattern_id': 'W291_basic',
-                    'regex': r'^(.+)\s+$',
-                    'template': r'\1',
-                    'confidence': 0.95
-                }
-            ],
-            'W293': [
-                {
-                    'pattern_id': 'W293_basic',
-                    'regex': r'^\s+$',
-                    'template': '',
-                    'confidence': 0.95
-                }
-            ],
-            'F401': [
-                {
-                    'pattern_id': 'F401_basic',
-                    'regex': r'^(\s*)(import\s+\S+|from\s+\S+\s+import\s+\S+)\s*$',
-                    'template': '',
-                    'confidence': 0.7
-                }
-            ]
-        }
+        basic_patterns = {'E501': [{'pattern_id': 'E501_basic',
+                                    'regex': r'^(.{80,})$',
+                                    'template': r'\1',
+                                    'confidence': 0.8}],
+                          'W291': [{'pattern_id': 'W291_basic',
+                                    'regex': r'^(.+)\s+$',
+                                    'template': r'\1',
+                                    'confidence': 0.95}],
+                          'W293': [{'pattern_id': 'W293_basic',
+                                    'regex': r'^\s+$',
+                                    'template': '',
+                                    'confidence': 0.95}],
+                          'F401': [{'pattern_id': 'F401_basic',
+                                    'regex': r'^(\s*)(import\s+\S+|from\s+\S+\s+import\s+\S+)\s*$',
+                                    'template': '',
+                                    'confidence': 0.7}]}
         self.correction_patterns.update(basic_patterns)
-        logger.info(f"{VISUAL_INDICATORS['info']} Initialized basic correction patterns")
+        logger.info(
+            f"{VISUAL_INDICATORS['info']} Initialized basic correction patterns")
 
     def scan_repository_for_violations(self) -> List[ViolationRecord]:
         """🔍 Scan entire repository for Flake8 violations with visual indicators"""
-        print(f"\n{VISUAL_INDICATORS['search']} SCANNING REPOSITORY FOR FLAKE8 VIOLATIONS...")
+        print(
+            f"\n{
+                VISUAL_INDICATORS['search']} SCANNING REPOSITORY FOR FLAKE8 VIOLATIONS...")
 
         # DUAL COPILOT: Primary scan validation
         primary_valid, primary_msg = self.dual_copilot.primary_copilot_check(
@@ -323,7 +317,8 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
         violations = []
         python_files = list(self.workspace_path.rglob("*.py"))
 
-        print(f"{VISUAL_INDICATORS['info']} Found {len(python_files)} Python files to analyze")
+        print(
+            f"{VISUAL_INDICATORS['info']} Found {len(python_files)} Python files to analyze")
 
         # Process files with progress indicator
         with tqdm(total=len(python_files), desc="Scanning files", ncols=100) as pbar:
@@ -348,15 +343,16 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
 
         # DUAL COPILOT: Secondary validation
         secondary_valid, secondary_msg = self.dual_copilot.secondary_copilot_validation(
-            "scan_repository", violations
-        )
+            "scan_repository", violations)
         if not secondary_valid:
             logger.warning(f"Secondary scan validation: {secondary_msg}")
 
-        print(f"{VISUAL_INDICATORS['success']} Scan complete: {len(violations)} violations found")
+        print(
+            f"{VISUAL_INDICATORS['success']} Scan complete: {len(violations)} violations found")
         return violations
 
-    def _scan_file_for_violations(self, file_path: Path) -> List[ViolationRecord]:
+    def _scan_file_for_violations(
+            self, file_path: Path) -> List[ViolationRecord]:
         """Scan individual file for Flake8 violations"""
         violations = []
         try:
@@ -375,15 +371,18 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
                 if not line:
                     continue
                 try:
-                    match = re.match(r'^(.+?):(\d+):(\d+):\s*([A-Z]\d{3})\s+(.*)$', line)
+                    match = re.match(
+                        r'^(.+?):(\d+):(\d+):\s*([A-Z]\d{3})\s+(.*)$', line)
                     if match:
                         file_path_part = match.group(1)
                         line_num = int(match.group(2))
                         col_num = int(match.group(3))
                         error_code = match.group(4)
                         message = match.group(5)
-                        original_line = self._get_line_content(file_path, line_num)
-                        severity = 'error' if error_code.startswith('E') else 'warning'
+                        original_line = self._get_line_content(
+                            file_path, line_num)
+                        severity = 'error' if error_code.startswith(
+                            'E') else 'warning'
                         violation = ViolationRecord(
                             file_path=str(file_path),
                             line_number=line_num,
@@ -395,9 +394,11 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
                         )
                         violations.append(violation)
                     else:
-                        logger.warning(f"Could not parse flake8 output line: {line}")
+                        logger.warning(
+                            f"Could not parse flake8 output line: {line}")
                 except (ValueError, IndexError) as e:
-                    logger.warning(f"Could not parse flake8 output line: {line} - {e}")
+                    logger.warning(
+                        f"Could not parse flake8 output line: {line} - {e}")
         except subprocess.TimeoutExpired:
             logger.warning(f"Flake8 scan timeout for {file_path}")
         except Exception as e:
@@ -412,12 +413,16 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
                 if 1 <= line_number <= len(lines):
                     return lines[line_number - 1].rstrip('\n\r')
         except Exception as e:
-            logger.warning(f"Could not read line {line_number} from {file_path}: {e}")
+            logger.warning(
+                f"Could not read line {line_number} from {file_path}: {e}")
         return ""
 
-    def apply_intelligent_corrections(self, violations: List[ViolationRecord]) -> Dict[str, Any]:
+    def apply_intelligent_corrections(
+            self, violations: List[ViolationRecord]) -> Dict[str, Any]:
         """🔧 Apply intelligent corrections using database patterns"""
-        print(f"\n{VISUAL_INDICATORS['fix']} APPLYING INTELLIGENT CORRECTIONS...")
+        print(
+            f"\n{
+                VISUAL_INDICATORS['fix']} APPLYING INTELLIGENT CORRECTIONS...")
 
         corrections_applied = 0
         corrections_failed = 0
@@ -428,32 +433,41 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
         for violation in violations:
             violations_by_file[violation.file_path].append(violation)
 
-        print(f"{VISUAL_INDICATORS['info']} Processing {len(violations_by_file)} files with violations")
+        print(
+            f"{
+                VISUAL_INDICATORS['info']} Processing {
+                len(violations_by_file)} files with violations")
 
         with tqdm(total=len(violations_by_file), desc="Fixing violations", ncols=100) as pbar:
             for file_path, file_violations in violations_by_file.items():
                 try:
-                    file_corrections = self._fix_file_violations(file_path, file_violations)
+                    file_corrections = self._fix_file_violations(
+                        file_path, file_violations)
                     if file_corrections > 0:
                         corrections_applied += file_corrections
                         files_modified.add(file_path)
                 except Exception as e:
-                    logger.error(f"Error fixing violations in {file_path}: {e}")
+                    logger.error(
+                        f"Error fixing violations in {file_path}: {e}")
                     corrections_failed += len(file_violations)
                 pbar.update(1)
 
         self.processing_stats['violations_fixed'] = corrections_applied
-        self.processing_stats['violations_remaining'] = len(violations) - corrections_applied
+        self.processing_stats['violations_remaining'] = len(
+            violations) - corrections_applied
 
         results = {
             'files_modified': len(files_modified),
-            'success_rate': corrections_applied / len(violations) if violations else 0.0
-        }
+            'success_rate': corrections_applied / len(violations) if violations else 0.0}
 
-        print(f"{VISUAL_INDICATORS['success']} Corrections complete: {corrections_applied} fixes applied")
+        print(
+            f"{VISUAL_INDICATORS['success']} Corrections complete: {corrections_applied} fixes applied")
         return results
 
-    def _fix_file_violations(self, file_path: str, violations: List[ViolationRecord]) -> int:
+    def _fix_file_violations(
+            self,
+            file_path: str,
+            violations: List[ViolationRecord]) -> int:
         """Fix violations in a specific file"""
         corrections_applied = 0
         try:
@@ -467,12 +481,16 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
             if corrections_applied > 0:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.writelines(lines)
-                logger.info(f"Applied {corrections_applied} corrections to {file_path}")
+                logger.info(
+                    f"Applied {corrections_applied} corrections to {file_path}")
         except Exception as e:
             logger.error(f"Error fixing file {file_path}: {e}")
         return corrections_applied
 
-    def _apply_violation_correction(self, lines: List[str], violation: ViolationRecord) -> bool:
+    def _apply_violation_correction(
+            self,
+            lines: List[str],
+            violation: ViolationRecord) -> bool:
         """Apply correction to specific violation"""
         error_code = violation.error_code
         line_idx = violation.line_number - 1
@@ -487,27 +505,34 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
                     template = pattern['template']
                     if re.match(regex, original_line):
                         corrected_line = re.sub(regex, template, original_line)
-                        if original_line.endswith('\n') and not corrected_line.endswith('\n'):
+                        if original_line.endswith(
+                                '\n') and not corrected_line.endswith('\n'):
                             corrected_line += '\n'
                         elif not original_line.endswith('\n') and corrected_line.endswith('\n'):
                             corrected_line = corrected_line.rstrip('\n')
                         lines[line_idx] = corrected_line
-                        violation.corrected_line = corrected_line.rstrip('\n\r')
+                        violation.corrected_line = corrected_line.rstrip(
+                            '\n\r')
                         violation.correction_method = pattern['pattern_id']
                         return True
                 except Exception as e:
-                    logger.warning(f"Pattern application failed for {error_code}: {e}")
+                    logger.warning(
+                        f"Pattern application failed for {error_code}: {e}")
         # Fallback to simple corrections
         return self._apply_simple_correction(lines, violation)
 
-    def _apply_simple_correction(self, lines: List[str], violation: ViolationRecord) -> bool:
+    def _apply_simple_correction(
+            self,
+            lines: List[str],
+            violation: ViolationRecord) -> bool:
         """Apply simple correction for common violations"""
         error_code = violation.error_code
         line_idx = violation.line_number - 1
         original_line = lines[line_idx]
         try:
             if error_code == 'W291':  # Trailing whitespace
-                corrected_line = original_line.rstrip() + '\n' if original_line.endswith('\n') else original_line.rstrip()
+                corrected_line = original_line.rstrip(
+                ) + '\n' if original_line.endswith('\n') else original_line.rstrip()
                 lines[line_idx] = corrected_line
                 violation.corrected_line = corrected_line.rstrip('\n\r')
                 violation.correction_method = 'simple_strip'
@@ -556,7 +581,9 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
 
     def generate_compliance_report(self) -> Dict[str, Any]:
         """📊 Generate comprehensive compliance report"""
-        print(f"\n{VISUAL_INDICATORS['target']} GENERATING COMPLIANCE REPORT...")
+        print(
+            f"\n{
+                VISUAL_INDICATORS['target']} GENERATING COMPLIANCE REPORT...")
 
         end_time = time.time()
         duration = end_time - self.processing_stats['start_time']
@@ -565,7 +592,10 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
         fixed_violations = self.processing_stats['violations_fixed']
         remaining_violations = self.processing_stats['violations_remaining']
 
-        success_rate = (fixed_violations / total_violations * 100) if total_violations > 0 else 100.0
+        success_rate = (
+            fixed_violations /
+            total_violations *
+            100) if total_violations > 0 else 100.0
 
         report = {
             'session_id': f"SESSION_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
@@ -581,7 +611,9 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
             'timestamp': datetime.now().isoformat()
         }
 
-        print(f"\n{VISUAL_INDICATORS['success']} ENTERPRISE FLAKE8 COMPLIANCE REPORT")
+        print(
+            f"\n{
+                VISUAL_INDICATORS['success']} ENTERPRISE FLAKE8 COMPLIANCE REPORT")
         print("=" * 65)
         print(f"📊 Files Processed: {report['files_processed']}")
         print(f"🔍 Violations Found: {report['violations_found']}")
@@ -608,20 +640,20 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
                         success_rate, status
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ''',
-                    (
-                        report['session_id'],
-                        report['workspace_path'],
-                        datetime.fromtimestamp(self.processing_stats['start_time']).isoformat(),
+                    (report['session_id'],
+                     report['workspace_path'],
+                        datetime.fromtimestamp(
+                        self.processing_stats['start_time']).isoformat(),
                         report['timestamp'],
                         report['files_processed'],
                         report['violations_found'],
                         report['violations_fixed'],
-                        float(report['success_rate'].rstrip('%')),
-                        report['compliance_status']
-                    )
-                )
+                        float(
+                        report['success_rate'].rstrip('%')),
+                        report['compliance_status']))
                 conn.commit()
-                logger.info(f"{VISUAL_INDICATORS['database']} Compliance session saved to database")
+                logger.info(
+                    f"{VISUAL_INDICATORS['database']} Compliance session saved to database")
         except Exception as e:
             logger.warning(f"Could not save compliance session: {e}")
 
@@ -629,7 +661,9 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
 def main():
     """🚀 Main execution function with DUAL COPILOT pattern"""
 
-    print(f"\n{VISUAL_INDICATORS['target']} ENTERPRISE DATABASE-DRIVEN FLAKE8 COMPLIANCE SYSTEM")
+    print(
+        f"\n{
+            VISUAL_INDICATORS['target']} ENTERPRISE DATABASE-DRIVEN FLAKE8 COMPLIANCE SYSTEM")
     print("=" * 80)
     print("🎯 MISSION: Achieve zero Flake8 violations across entire repository")
     print("🤖 PATTERN: DUAL COPILOT validation with database intelligence")
@@ -644,35 +678,50 @@ def main():
         violations = corrector.scan_repository_for_violations()
 
         if not violations:
-            print(f"\n{VISUAL_INDICATORS['success']} REPOSITORY IS ALREADY FLAKE8 COMPLIANT!")
+            print(
+                f"\n{
+                    VISUAL_INDICATORS['success']} REPOSITORY IS ALREADY FLAKE8 COMPLIANT!")
             return {'status': 'COMPLIANT', 'violations': 0}
 
         # Step 2: Apply intelligent corrections
-        correction_results = corrector.apply_intelligent_corrections(violations)
+        correction_results = corrector.apply_intelligent_corrections(
+            violations)
 
         # Step 3: Generate compliance report
         compliance_report = corrector.generate_compliance_report()
 
         # Final status
         if compliance_report['violations_remaining'] == 0:
-            print(f"\n{VISUAL_INDICATORS['success']} MISSION ACCOMPLISHED: ZERO FLAKE8 VIOLATIONS!")
-            print(f"{VISUAL_INDICATORS['target']} All {compliance_report['violations_found']} violations resolved")
+            print(
+                f"\n{
+                    VISUAL_INDICATORS['success']} MISSION ACCOMPLISHED: ZERO FLAKE8 VIOLATIONS!")
+            print(
+                f"{
+                    VISUAL_INDICATORS['target']} All {
+                    compliance_report['violations_found']} violations resolved")
         else:
-            print(f"\n{VISUAL_INDICATORS['warning']} PARTIAL SUCCESS: {compliance_report['violations_fixed']} violations fixed")
-            print(f"{VISUAL_INDICATORS['info']} {compliance_report['violations_remaining']} violations require manual attention")
+            print(
+                f"\n{
+                    VISUAL_INDICATORS['warning']} PARTIAL SUCCESS: {
+                    compliance_report['violations_fixed']} violations fixed")
+            print(
+                f"{
+                    VISUAL_INDICATORS['info']} {
+                    compliance_report['violations_remaining']} violations require manual attention")
 
         return compliance_report
 
     except Exception as e:
         logger.error(f"Primary execution failed: {e}")
-        print(f"\n{VISUAL_INDICATORS['warning']} Running secondary validation...")
+        print(
+            f"\n{
+                VISUAL_INDICATORS['warning']} Running secondary validation...")
 
         validation_results = {
             'workspace_exists': Path("E:/gh_COPILOT").exists(),
             'analytics_db_exists': Path("E:/gh_COPILOT/databases/analytics.db").exists(),
             'error_details': str(e),
-            'status': 'VALIDATION_REQUIRED'
-        }
+            'status': 'VALIDATION_REQUIRED'}
 
         print(f"\n{VISUAL_INDICATORS['info']} Validation Results:")
         for key, value in validation_results.items():

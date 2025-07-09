@@ -113,7 +113,8 @@ class DeploymentSafetyValidator:
     APPROVED_BACKUP_ROOT = "E:/temp/gh_COPILOT_Backups"
 
     @staticmethod
-    def validate_no_recursive_folders(workspace_path: str = "e:\\gh_COPILOT") -> bool:
+    def validate_no_recursive_folders(
+            workspace_path: str = "e:\\gh_COPILOT") -> bool:
         """CRITICAL: Validate no recursive folder structures exist"""
         try:
             for root, dirs, files in os.walk(workspace_path):
@@ -179,7 +180,10 @@ class EnterpriseProcessMonitor:
             raise RuntimeError(
                 "CRITICAL: Environment violations prevent execution")
 
-    def calculate_etc(self, current_progress: float, total_work: float) -> float:
+    def calculate_etc(
+            self,
+            current_progress: float,
+            total_work: float) -> float:
         """Calculate estimated time to completion"""
         if current_progress == 0:
             return 0.0
@@ -209,14 +213,17 @@ class QuantumDatabaseProcessor:
         self.quantum_enhanced = True  # Phase 5 quantum optimization
         self.performance_boost = 2.3  # Quantum speedup simulation
 
-    def quantum_enhanced_query(self, query: str, params: tuple = ()) -> List[Dict]:
+    def quantum_enhanced_query(
+            self,
+            query: str,
+            params: tuple = ()) -> List[Dict]:
         """Quantum-enhanced database query with performance optimization"""
         start_time = time.time()
 
         try:
             # Create database directory if it doesn't exist
             os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
-            
+
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
@@ -389,7 +396,8 @@ class PrimaryCopilotExecutor:
             with tqdm(desc="🔍 File Discovery", unit="files") as pbar:
                 for py_file in self.workspace_path.rglob("*.py"):
                     # Skip excluded patterns
-                    if any(py_file.match(pattern) for pattern in excluded_patterns):
+                    if any(py_file.match(pattern)
+                           for pattern in excluded_patterns):
                         continue
 
                     # Validate file integrity
@@ -405,7 +413,8 @@ class PrimaryCopilotExecutor:
                     if len(python_files) % 10 == 0:
                         progress = min(25.0, 10.0 + (len(python_files) * 0.1))
                         self.monitor.update_progress(
-                            progress, f"Found {len(python_files)} Python files")
+                            progress, f"Found {
+                                len(python_files)} Python files")
 
             logger.info(
                 f"{VISUAL_INDICATORS['success']} Discovered {len(python_files)} Python files")
@@ -419,7 +428,8 @@ class PrimaryCopilotExecutor:
                 f"{VISUAL_INDICATORS['error']} File discovery failed: {e}")
             raise
 
-    def analyze_flake8_violations(self, python_files: List[Path]) -> List[FlakeViolation]:
+    def analyze_flake8_violations(
+            self, python_files: List[Path]) -> List[FlakeViolation]:
         """📊 Phase 3: Analyze Flake8 violations with quantum enhancement"""
         self.monitor.update_progress(30.0, "Starting Flake8 analysis...")
 
@@ -470,7 +480,8 @@ class PrimaryCopilotExecutor:
             )
 
             self.monitor.update_progress(
-                55.0, f"Violation analysis complete: {len(categorized_violations)} violations")
+                55.0, f"Violation analysis complete: {
+                    len(categorized_violations)} violations")
 
             return categorized_violations
 
@@ -484,7 +495,7 @@ class PrimaryCopilotExecutor:
         try:
             # Handle Windows paths and parse format: path:row:col:code:text
             parts = line.split(':', 4)
-            
+
             # Handle Windows drive letters (e.g., E:\path\file.py)
             if len(parts) >= 5 and len(parts[0]) == 1:
                 file_path = parts[0] + ':' + parts[1]
@@ -527,7 +538,8 @@ class PrimaryCopilotExecutor:
             logger.warning(f"⚠️ Failed to parse Flake8 line: {line} - {e}")
             return None
 
-    def _quantum_categorize_violations(self, violations: List[FlakeViolation]) -> List[FlakeViolation]:
+    def _quantum_categorize_violations(
+            self, violations: List[FlakeViolation]) -> List[FlakeViolation]:
         """⚛️ Quantum-enhanced violation categorization and prioritization"""
         logger.info(
             f"{VISUAL_INDICATORS['quantum']} Applying quantum categorization...")
@@ -567,7 +579,8 @@ class PrimaryCopilotExecutor:
 
         return sorted_violations
 
-    def apply_automated_corrections(self, violations: List[FlakeViolation]) -> int:
+    def apply_automated_corrections(
+            self, violations: List[FlakeViolation]) -> int:
         """🔧 Phase 4: Apply automated corrections with enterprise monitoring"""
         self.monitor.update_progress(60.0, "Starting automated corrections...")
 
@@ -597,9 +610,8 @@ class PrimaryCopilotExecutor:
                         progress = 60.0 + \
                             (pbar.n / len(file_violations)) * 20.0
                         self.monitor.update_progress(
-                            progress,
-                            f"Corrected {corrections_applied} violations in {pbar.n} files"
-                        )
+                            progress, f"Corrected {corrections_applied} violations in {
+                                pbar.n} files")
 
                     except Exception as e:
                         logger.warning(
@@ -622,8 +634,11 @@ class PrimaryCopilotExecutor:
                 f"{VISUAL_INDICATORS['error']} Correction process failed: {e}")
             raise
 
-    def _apply_file_corrections(self, file_path: str, violations: List[FlakeViolation],
-                                patterns: List[CorrectionPattern]) -> int:
+    def _apply_file_corrections(
+            self,
+            file_path: str,
+            violations: List[FlakeViolation],
+            patterns: List[CorrectionPattern]) -> int:
         """Apply corrections to a single file using database patterns"""
         corrections_count = 0
 
@@ -676,15 +691,21 @@ class PrimaryCopilotExecutor:
             logger.error(f"❌ Failed to correct {file_path}: {e}")
             return 0
 
-    def _find_matching_pattern(self, error_code: str, patterns: List[CorrectionPattern]) -> Optional[CorrectionPattern]:
+    def _find_matching_pattern(
+            self,
+            error_code: str,
+            patterns: List[CorrectionPattern]) -> Optional[CorrectionPattern]:
         """Find matching correction pattern for error code"""
         for pattern in patterns:
             if pattern.violation_type == error_code:
                 return pattern
         return None
 
-    def _apply_pattern_correction(self, content: str, violation: FlakeViolation,
-                                  pattern: CorrectionPattern) -> str:
+    def _apply_pattern_correction(
+            self,
+            content: str,
+            violation: FlakeViolation,
+            pattern: CorrectionPattern) -> str:
         """Apply specific pattern correction to content"""
         lines = content.split('\n')
 
@@ -834,7 +855,8 @@ class SecondaryCopilotValidator:
         logger.info(
             f"{VISUAL_INDICATORS['dual_copilot']} SECONDARY COPILOT VALIDATOR INITIALIZED")
 
-    def validate_execution(self, execution_result: Dict[str, Any]) -> Dict[str, Any]:
+    def validate_execution(
+            self, execution_result: Dict[str, Any]) -> Dict[str, Any]:
         """Validate Primary Copilot execution quality"""
         validation_result = {
             "validation_errors": [],
@@ -848,7 +870,10 @@ class SecondaryCopilotValidator:
         try:
             # Validate execution completeness
             required_fields = [
-                "files_processed", "violations_found", "corrections_applied", "execution_time"]
+                "files_processed",
+                "violations_found",
+                "corrections_applied",
+                "execution_time"]
             missing_fields = [
                 field for field in required_fields if field not in execution_result]
 
@@ -866,9 +891,11 @@ class SecondaryCopilotValidator:
                 validation_result["performance_acceptable"] = time_per_file < 2.0
 
             # Validate anti-recursion compliance
-            validation_result["anti_recursion_validated"] = DeploymentSafetyValidator.validate_no_recursive_folders()
+            validation_result["anti_recursion_validated"] = DeploymentSafetyValidator.validate_no_recursive_folders(
+            )
 
-            # Validate visual indicators (simulated by checking if monitoring was used)
+            # Validate visual indicators (simulated by checking if monitoring
+            # was used)
             validation_result["visual_indicators_present"] = execution_result.get(
                 "phases_completed", 0) > 0
 
@@ -889,11 +916,10 @@ class SecondaryCopilotValidator:
             status_icon = VISUAL_INDICATORS['success'] if validation_result[
                 "validation_passed"] else VISUAL_INDICATORS['error']
             logger.info(
-                f"{status_icon} SECONDARY COPILOT VALIDATION COMPLETE\n"
-                f"Quality Score: {validation_result['quality_score']:.2f}\n"
-                f"Enterprise Compliance: {validation_result['enterprise_compliance']}\n"
-                f"Validation Passed: {validation_result['validation_passed']}"
-            )
+                f"{status_icon} SECONDARY COPILOT VALIDATION COMPLETE\n" f"Quality Score: {
+                    validation_result['quality_score']:.2f}\n" f"Enterprise Compliance: {
+                    validation_result['enterprise_compliance']}\n" f"Validation Passed: {
+                    validation_result['validation_passed']}")
 
             return validation_result
 
@@ -910,13 +936,15 @@ class DualCopilotOrchestrator:
 
     def __init__(self, workspace_path: str = "e:\\gh_COPILOT"):
         self.workspace_path = workspace_path
-        self.orchestrator_id = f"DUAL_COPILOT_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.orchestrator_id = f"DUAL_COPILOT_{
+            datetime.now().strftime('%Y%m%d_%H%M%S')}"
         logger.info(
             f"{VISUAL_INDICATORS['dual_copilot']} DUAL COPILOT ORCHESTRATOR INITIALIZED")
         logger.info(f"Orchestrator ID: {self.orchestrator_id}")
         logger.info(f"Workspace: {workspace_path}")
 
-    def execute_with_dual_validation(self) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    def execute_with_dual_validation(
+            self) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         """Execute Flake8 correction with DUAL COPILOT validation"""
         logger.info(
             f"{VISUAL_INDICATORS['start']} DUAL COPILOT EXECUTION STARTING...")
@@ -979,18 +1007,29 @@ class DualCopilotOrchestrator:
                 "execution_result": execution_result,
                 "validation_result": validation_result,
                 "enterprise_compliance": {
-                    "dual_copilot_pattern": validation_result.get("validation_passed", False),
+                    "dual_copilot_pattern": validation_result.get(
+                        "validation_passed",
+                        False),
                     "visual_indicators": True,
-                    "quantum_optimization": execution_result.get("quantum_enhanced", False),
-                    "database_driven": execution_result.get("database_integration", False)
-                },
+                    "quantum_optimization": execution_result.get(
+                        "quantum_enhanced",
+                        False),
+                    "database_driven": execution_result.get(
+                        "database_integration",
+                        False)},
                 "performance_metrics": {
-                    "files_processed": execution_result.get("files_processed", 0),
-                    "violations_found": execution_result.get("violations_found", 0),
-                    "violations_fixed": execution_result.get("corrections_applied", 0),
-                    "execution_time": execution_result.get("execution_time", 0)
-                }
-            }
+                    "files_processed": execution_result.get(
+                        "files_processed",
+                        0),
+                    "violations_found": execution_result.get(
+                        "violations_found",
+                        0),
+                    "violations_fixed": execution_result.get(
+                        "corrections_applied",
+                        0),
+                    "execution_time": execution_result.get(
+                        "execution_time",
+                        0)}}
 
             logger.info(
                 f"{VISUAL_INDICATORS['success']} Comprehensive report generated")
@@ -1033,28 +1072,53 @@ def main():
         print(f"\n{VISUAL_INDICATORS['success']} FLAKE8 CORRECTION COMPLETED!")
         print(f"Orchestrator ID: {report.get('orchestrator_id', 'N/A')}")
         print(
-            f"Files Processed: {report.get('performance_metrics', {}).get('files_processed', 0)}")
+            f"Files Processed: {
+                report.get(
+                    'performance_metrics',
+                    {}).get(
+                    'files_processed',
+                    0)}")
         print(
-            f"Violations Found: {report.get('performance_metrics', {}).get('violations_found', 0)}")
+            f"Violations Found: {
+                report.get(
+                    'performance_metrics',
+                    {}).get(
+                    'violations_found',
+                    0)}")
         print(
-            f"Violations Fixed: {report.get('performance_metrics', {}).get('violations_fixed', 0)}")
+            f"Violations Fixed: {
+                report.get(
+                    'performance_metrics',
+                    {}).get(
+                    'violations_fixed',
+                    0)}")
         print(
-            f"Execution Time: {report.get('performance_metrics', {}).get('execution_time', 0):.2f}s")
+            f"Execution Time: {
+                report.get(
+                    'performance_metrics',
+                    {}).get(
+                    'execution_time',
+                    0):.2f}s")
 
         # Enterprise compliance status
         compliance = report.get('enterprise_compliance', {})
         print(f"\n{VISUAL_INDICATORS['info']} ENTERPRISE COMPLIANCE STATUS:")
         print(
-            f"  🤖🤖 Dual Copilot Pattern: {'✅ PASSED' if compliance.get('dual_copilot_pattern') else '❌ FAILED'}")
+            f"  🤖🤖 Dual Copilot Pattern: {
+                '✅ PASSED' if compliance.get('dual_copilot_pattern') else '❌ FAILED'}")
         print(
-            f"  🎬 Visual Indicators: {'✅ ACTIVE' if compliance.get('visual_indicators') else '❌ INACTIVE'}")
+            f"  🎬 Visual Indicators: {
+                '✅ ACTIVE' if compliance.get('visual_indicators') else '❌ INACTIVE'}")
         print(
-            f"  ⚛️ Quantum Optimization: {'✅ ENABLED' if compliance.get('quantum_optimization') else '❌ DISABLED'}")
+            f"  ⚛️ Quantum Optimization: {
+                '✅ ENABLED' if compliance.get('quantum_optimization') else '❌ DISABLED'}")
         print(
-            f"  📊 Database Integration: {'✅ ACTIVE' if compliance.get('database_driven') else '❌ INACTIVE'}")
+            f"  📊 Database Integration: {
+                '✅ ACTIVE' if compliance.get('database_driven') else '❌ INACTIVE'}")
 
         # Save report to file
-        report_file = f"flake8_correction_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        report_file = f"flake8_correction_report_{
+            datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_file, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
 

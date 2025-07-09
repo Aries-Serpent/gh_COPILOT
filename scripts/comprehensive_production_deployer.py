@@ -75,8 +75,7 @@ class ComprehensiveProductionDeployer:
 
         self.sandbox_path = Path("e:/gh_COPILOT")
         self.production_path = Path("e:/_copilot_production-001")
-        self.deployment_id = f"DEPLOY_{
-    datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.deployment_id = f"DEPLOY_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
         # Deployment tracking
         self.deployment_tasks: List[DeploymentTask] = [
         self.results: List[DeploymentResult] = [

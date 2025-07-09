@@ -82,8 +82,7 @@ class UltimateProductionParityValidator:
 
         self.sandbox_path = Path("e:/gh_COPILOT")
         self.production_path = Path("e:/_copilot_production-001")
-        self.session_id = f"ULTIMATE_PARITY_{
-    datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.session_id = f"ULTIMATE_PARITY_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
         # Initialize validation framework
         self.parity_tests: List[ParityTest] = [
         self.results: List[ParityResult] = [
@@ -327,8 +326,7 @@ class UltimateProductionParityValidator:
         with tqdm(desc="Script Tests", total=min(100, len(script_files))) as pbar:
             for script in list(script_files)[:100]:  # Test top 100 scripts
                 test = ParityTest(]
-                    name = f"script_parity_{
-    script.replace(
+                    name = f"script_parity_{script.replace(
         '/',
         '_').replace(
             '.',
@@ -352,8 +350,7 @@ class UltimateProductionParityValidator:
             for config in list(capabilities['configs'])[:200]:
                 if not config.startswith('key:'):
                     test = ParityTest(]
-                        name = f"config_parity_{
-    config.replace(
+                        name = f"config_parity_{config.replace(
         '/',
         '_').replace(
             '.',
