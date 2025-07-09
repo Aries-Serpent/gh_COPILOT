@@ -36,7 +36,9 @@ class EnterpriseDashboardApp:
     def __init__(self, workspace_path=None):
         workspace_path = workspace_path or os.getenv("ENTERPRISE_WORKSPACE_PATH", "./workspace")
         self.workspace_path = Path(workspace_path)
-        self.production_db = self.workspace_path / "production.db"
+        self.production_db = (
+            self.workspace_path / "production.db"
+        )
         
     def get_database_connection(self):
         """Get production database connection"""
