@@ -37,7 +37,8 @@ class WebGUIIntegrationSystem:
             templates_path=Path(workspace_root or ".") /
             "web_gui" / "templates",
         )
-        # TODO: initialize Flask dashboard, template loader, and database session
+        # TODO: initialize Flask dashboard, template loader,
+        # and database session
         self._initialized = False
 
     def initialize(self) -> None:
