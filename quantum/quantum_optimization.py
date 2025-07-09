@@ -12,6 +12,12 @@ from typing import Any, Dict
 
 from qiskit import Aer, QuantumCircuit, execute
 
+ANGLE_RESOLUTION = pi / 8
+"""Step size for angle search in radians."""
+
+SEARCH_RANGE = 16
+"""Number of angle steps to evaluate."""
+
 
 class QuantumOptimizer:
     """⚛️ Simple optimizer using rotation-angle search."""
@@ -41,4 +47,4 @@ class QuantumOptimizer:
         return {"theta": best_theta, "expectation": best_expectation}
 
 
-__all__ = ["QuantumOptimizer"]
+__all__ = ["QuantumOptimizer", "ANGLE_RESOLUTION", "SEARCH_RANGE"]
