@@ -7,7 +7,7 @@ redundant variations and recommend cleanup actions
 
 COMPLIANCE: Enterprise GitHub Copilot integration standards
 PATTERN: DUAL COPILOT with visual processing indicators
-OBJECTIVE: Optimize staging root directory organization
+OBJECTIVE: Optimize staging root directory organizatio"n""
 """
 
 import os
@@ -26,92 +26,92 @@ class StagingRootRedundancyAnalyzer:
     def __init__(self):
         self.start_time = datetime.now()
         self.process_id = os.getpid()
-        self.session_id = f"STAGING_REDUNDANCY_ANALYSIS_{int(time.time())}"
+        self.session_id =" ""f"STAGING_REDUNDANCY_ANALYSIS_{int(time.time()")""}"
         # Initialize paths
-        self.staging_root = Path("e:/gh_COPILOT")
-        self.sandbox_root = Path("e:/gh_COPILOT")
-        self.database_path = self.staging_root / "databases" / "production.db"
+        self.staging_root = Pat"h""("e:/gh_COPIL"O""T")
+        self.sandbox_root = Pat"h""("e:/gh_COPIL"O""T")
+        self.database_path = self.staging_root "/"" "databas"e""s" "/"" "production."d""b"
 
         # Analysis results
         self.analysis_results = {
-            "timestamp": self.start_time.isoformat(),
-            "process_id": self.process_id,
-            "total_files": 0,
-            "file_groups": {},
-            "duplicates": [],
-            "variations": [],
-            "recommendations": [],
-            "cleanup_actions": []
+          " "" "timesta"m""p": self.start_time.isoformat(),
+          " "" "process_"i""d": self.process_id,
+          " "" "total_fil"e""s": 0,
+          " "" "file_grou"p""s": {},
+          " "" "duplicat"e""s": [],
+          " "" "variatio"n""s": [],
+          " "" "recommendatio"n""s": [],
+          " "" "cleanup_actio"n""s": []
         }
 
-        print(f"[SEARCH] STAGING ROOT REDUNDANCY ANALYZER INITIATED")
-        print(f"Session ID: {self.session_id}")
-        print(f"Start Time: {self.start_time}")
-        print(f"Process ID: {self.process_id}")
-        print("=" * 60)
+        print"(""f"[SEARCH] STAGING ROOT REDUNDANCY ANALYZER INITIAT"E""D")
+        print"(""f"Session ID: {self.session_i"d""}")
+        print"(""f"Start Time: {self.start_tim"e""}")
+        print"(""f"Process ID: {self.process_i"d""}")
+        prin"t""("""=" * 60)
 
     def analyze_file_content(self, file_path: Path) -> Dict:
-        """Analyze file content for comparison"""
+      " "" """Analyze file content for comparis"o""n"""
         try:
-            content = file_path.read_text(encoding='utf-8')
+            content = file_path.read_text(encodin"g""='utf'-''8')
 
             # Calculate hash
             content_hash = hashlib.sha256(content.encode()).hexdigest()
 
             # Extract key characteristics
-            lines = content.split('\n')
+            lines = content.spli't''('''\n')
 
             analysis = {
-                "file_path": str(file_path),
-                "file_name": file_path.name,
-                "file_size": file_path.stat().st_size,
-                "content_hash": content_hash,
-                "line_count": len(lines),
-                "char_count": len(content),
-                "modification_time": file_path.stat().st_mtime,
-                "functions": [],
-                "classes": [],
-                "imports": [],
-                "key_patterns": []
+              ' '' "file_pa"t""h": str(file_path),
+              " "" "file_na"m""e": file_path.name,
+              " "" "file_si"z""e": file_path.stat().st_size,
+              " "" "content_ha"s""h": content_hash,
+              " "" "line_cou"n""t": len(lines),
+              " "" "char_cou"n""t": len(content),
+              " "" "modification_ti"m""e": file_path.stat().st_mtime,
+              " "" "functio"n""s": [],
+              " "" "class"e""s": [],
+              " "" "impor"t""s": [],
+              " "" "key_patter"n""s": []
             }
 
             # Analyze Python files
-            if file_path.suffix == '.py':
+            if file_path.suffix ="="" '.'p''y':
                 for line in lines:
                     line = line.strip()
-                    if line.startswith('def '):
-                        analysis["functions"].append(line)
-                    elif line.startswith('class '):
-                        analysis["classes"].append(line)
-                    elif line.startswith('import ') or line.startswith('from '):
-                        analysis["imports"].append(line)
-                    elif any(pattern in line for pattern in ['DUAL COPILOT', 'AUTONOMOUS', 'ENTERPRISE']):
-                        analysis["key_patterns"].append(line)
+                    if line.startswit'h''('de'f'' '):
+                        analysi's''["functio"n""s"].append(line)
+                    elif line.startswit"h""('clas's'' '):
+                        analysi's''["class"e""s"].append(line)
+                    elif line.startswit"h""('impor't'' ') or line.startswit'h''('fro'm'' '):
+                        analysi's''["impor"t""s"].append(line)
+                    elif any(pattern in line for pattern in" ""['DUAL COPIL'O''T'','' 'AUTONOMO'U''S'','' 'ENTERPRI'S''E']):
+                        analysi's''["key_patter"n""s"].append(line)
 
             return analysis
 
         except Exception as e:
             return {]
-                "file_path": str(file_path),
-                "file_name": file_path.name,
-                "error": str(e),
-                "analysis_failed": True
+              " "" "file_pa"t""h": str(file_path),
+              " "" "file_na"m""e": file_path.name,
+              " "" "err"o""r": str(e),
+              " "" "analysis_fail"e""d": True
             }
 
     def group_similar_files(self, file_analyses: List[Dict]) -> Dict:
-        """Group files by similarity"""
-        print("\n[SEARCH] GROUPING SIMILAR FILES")
-        print("-" * 30)
+      " "" """Group files by similari"t""y"""
+        prin"t""("\n[SEARCH] GROUPING SIMILAR FIL"E""S")
+        prin"t""("""-" * 30)
 
         groups = {}
 
-        with tqdm(total=len(file_analyses), desc="Grouping files", unit="file") as pbar:
+        with tqdm(total=len(file_analyses), des"c""="Grouping fil"e""s", uni"t""="fi"l""e") as pbar:
             for analysis in file_analyses:
-                if analysis.get("analysis_failed"):
+                if analysis.ge"t""("analysis_fail"e""d"):
                     pbar.update(1)
                     continue
 
-                file_name = analysis["file_name"]
+                file_name = analysi"s""["file_na"m""e"]
                 base_name = self.extract_base_name(file_name)
 
                 if base_name not in groups:
@@ -123,52 +123,52 @@ class StagingRootRedundancyAnalyzer:
         return groups
 
     def extract_base_name(self, filename: str) -> str:
-        """Extract base name from filename variations"""
+      " "" """Extract base name from filename variatio"n""s"""
         # Remove common suffixes
-        base = filename.replace('.py', '')
+        base = filename.replac"e""('.'p''y'','' '')
 
         # Remove version indicators
         for suffix in [
-    '_clean',
-    '_enhanced',
-    '_complete',
-    '_final',
-    '_v2',
-    '_v3',
-     '_advanced']:
+  ' '' '_cle'a''n',
+  ' '' '_enhanc'e''d',
+  ' '' '_comple't''e',
+  ' '' '_fin'a''l',
+  ' '' '_'v''2',
+  ' '' '_'v''3',
+   ' '' '_advanc'e''d']:
             if base.endswith(suffix):
                 base = base[:-len(suffix)]
                 break
 
         # Remove step numbers
-        if base.startswith('step') and len(base) > 4 and base[4].isdigit():
-            return 'step_framework'
+        if base.startswit'h''('st'e''p') and len(base) > 4 and base[4].isdigit():
+            retur'n'' 'step_framewo'r''k'
 
         return base
 
     def analyze_file_similarity(self, file1: Dict, file2: Dict) -> float:
-        """Calculate similarity between two files"""
+      ' '' """Calculate similarity between two fil"e""s"""
         try:
             # Size similarity
-            size1, size2 = file1["file_size"], file2["file_size"]
+            size1, size2 = file"1""["file_si"z""e"], file"2""["file_si"z""e"]
             size_ratio = min(size1, size2) / max(]
                                                  size2) if max(size1, size2) > 0 else 0
 
             # Function similarity
-            func1 = set(file1.get("functions", []))
-            func2 = set(file2.get("functions", []))
+            func1 = set(file1.ge"t""("functio"n""s", []))
+            func2 = set(file2.ge"t""("functio"n""s", []))
             func_similarity = len(]
                 func1 & func2) / len(func1 | func2) if len(func1 | func2) > 0 else 0
 
             # Class similarity
-            class1 = set(file1.get("classes", []))
-            class2 = set(file2.get("classes", []))
+            class1 = set(file1.ge"t""("class"e""s", []))
+            class2 = set(file2.ge"t""("class"e""s", []))
             class_similarity = len(]
                 class1 & class2) / len(class1 | class2) if len(class1 | class2) > 0 else 0
 
             # Import similarity
-            import1 = set(file1.get("imports", []))
-            import2 = set(file2.get("imports", []))
+            import1 = set(file1.ge"t""("impor"t""s", []))
+            import2 = set(file2.ge"t""("impor"t""s", []))
             import_similarity = len(]
                 import1 & import2) / len(import1 | import2) if len(import1 | import2) > 0 else 0
 
@@ -182,22 +182,22 @@ class StagingRootRedundancyAnalyzer:
             return 0.0
 
     def identify_redundant_files(self, groups: Dict) -> List[Dict]:
-        """Identify files that are redundant or variations"""
-        print("\n[SEARCH] IDENTIFYING REDUNDANT FILES")
-        print("-" * 35)
+      " "" """Identify files that are redundant or variatio"n""s"""
+        prin"t""("\n[SEARCH] IDENTIFYING REDUNDANT FIL"E""S")
+        prin"t""("""-" * 35)
 
         redundant_files = [
-
-        for group_name, files in groups.items():
+    for group_name, files in groups.items(
+]:
             if len(files) <= 1:
                 continue
 
             print(
-                f"\n[BAR_CHART] Analyzing group: {group_name} ({len(files)} files)")
+               " ""f"\n[BAR_CHART] Analyzing group: {group_name} ({len(files)} file"s"")")
 
             # Sort by modification time (newest first)
             files.sort(]
-                "modification_time", 0), reverse = True)
+              " "" "modification_ti"m""e", 0), reverse = True)
 
             # Compare files in the group
             for i, file1 in enumerate(files):
@@ -206,29 +206,29 @@ class StagingRootRedundancyAnalyzer:
 
                     if similarity > 0.8:  # High similarity threshold
                         redundant_files.append(]
-                            "primary_file": file1["file_path"],
-                            "redundant_file": file2["file_path"],
-                            "similarity": similarity,
-                            "recommendation": "REMOVE_REDUNDANT",
-                            "reason": f"High similarity ({similarity:.1%}) with newer file"
+                          " "" "primary_fi"l""e": file"1""["file_pa"t""h"],
+                          " "" "redundant_fi"l""e": file"2""["file_pa"t""h"],
+                          " "" "similari"t""y": similarity,
+                          " "" "recommendati"o""n"":"" "REMOVE_REDUNDA"N""T",
+                          " "" "reas"o""n":" ""f"High similarity ({similarity:.1%}) with newer fi"l""e"
                         })
                         print(
-                            f"  [?] REDUNDANT: {file2['file_name']} (similarity: {similarity:.1%})")
+                           " ""f"  [?] REDUNDANT: {file"2""['file_na'm''e']} (similarity: {similarity:.1%'}'')")
                     elif similarity > 0.6:  # Moderate similarity
                         redundant_files.append(]
-                            "primary_file": file1["file_path"],
-                            "variation_file": file2["file_path"],
-                            "similarity": similarity,
-                            "recommendation": "REVIEW_VARIATION",
-                            "reason": f"Moderate similarity ({similarity:.1%}) - may be variation"
+                          " "" "primary_fi"l""e": file"1""["file_pa"t""h"],
+                          " "" "variation_fi"l""e": file"2""["file_pa"t""h"],
+                          " "" "similari"t""y": similarity,
+                          " "" "recommendati"o""n"":"" "REVIEW_VARIATI"O""N",
+                          " "" "reas"o""n":" ""f"Moderate similarity ({similarity:.1%}) - may be variati"o""n"
                         })
                         print(
-                            f"  [?] VARIATION: {file2['file_name']} (similarity: {similarity:.1%})")
+                           " ""f"  [?] VARIATION: {file"2""['file_na'm''e']} (similarity: {similarity:.1%'}'')")
 
         return redundant_files
 
     def check_file_in_database(self, file_path: str) -> bool:
-        """Check if file content is already captured in database"""
+      " "" """Check if file content is already captured in databa"s""e"""
         try:
             conn = sqlite3.connect(self.database_path)
             cursor = conn.cursor()
@@ -237,7 +237,7 @@ class StagingRootRedundancyAnalyzer:
             cursor.execute(
                 SELECT COUNT(*) FROM deployment_gaps
                 WHERE gap_description LIKE ? OR resolution_actions LIKE
-            ? """, (f"%{Path(file_path).name}%", f"%{Path(file_path).name}%"))
+            "?"" """, "(""f"%{Path(file_path).name"}""%"," ""f"%{Path(file_path).name"}""%"))
 
             count = cursor.fetchone()[0]
             conn.close()
@@ -248,185 +248,187 @@ class StagingRootRedundancyAnalyzer:
             return False
 
     def generate_recommendations(self, redundant_files: List[Dict]) -> List[Dict]:
-        """Generate cleanup recommendations"""
-        print("\n[CLIPBOARD] GENERATING RECOMMENDATIONS")
-        print("-" * 35)
+      " "" """Generate cleanup recommendatio"n""s"""
+        prin"t""("\n[CLIPBOARD] GENERATING RECOMMENDATIO"N""S")
+        prin"t""("""-" * 35)
 
         recommendations = [
 
         # Group by recommendation type
         remove_files = [
-            f for f in redundant_files if f["recommendation"] == "REMOVE_REDUNDANT"]
+            f for f in redundant_files if "f""["recommendati"o""n"] ="="" "REMOVE_REDUNDA"N""T"]
         review_files = [
-            f for f in redundant_files if f["recommendation"] == "REVIEW_VARIATION"]
+            f for f in redundant_files if "f""["recommendati"o""n"] ="="" "REVIEW_VARIATI"O""N"]
 
-        print(f"[BAR_CHART] Analysis Summary:")
-        print(f"  [?] Files to remove: {len(remove_files)}")
-        print(f"  [?] Files to review: {len(review_files)}")
+        print"(""f"[BAR_CHART] Analysis Summar"y"":")
+        print"(""f"  [?] Files to remove: {len(remove_files")""}")
+        print"(""f"  [?] Files to review: {len(review_files")""}")
 
         # Generate removal recommendations
         for file_info in remove_files:
-            file_path = file_info["redundant_file"]
+            file_path = file_inf"o""["redundant_fi"l""e"]
             in_database = self.check_file_in_database(file_path)
 
             recommendations.append(]
-                "reason": file_info["reason"],
-                "similarity": file_info["similarity"],
-                "database_captured": in_database,
-                "priority": "HIGH" if in_database else "MEDIUM",
-                "safe_to_remove": in_database
+              " "" "reas"o""n": file_inf"o""["reas"o""n"],
+              " "" "similari"t""y": file_inf"o""["similari"t""y"],
+              " "" "database_captur"e""d": in_database,
+              " "" "priori"t""y"":"" "HI"G""H" if in_database els"e"" "MEDI"U""M",
+              " "" "safe_to_remo"v""e": in_database
             })
 
         # Generate review recommendations
         for file_info in review_files:
-            file_path = file_info["variation_file"]
+            file_path = file_inf"o""["variation_fi"l""e"]
             in_database = self.check_file_in_database(file_path)
 
             recommendations.append(]
-                "reason": file_info["reason"],
-                "similarity": file_info["similarity"],
-                "database_captured": in_database,
-                "priority": "MEDIUM",
-                "safe_to_remove": False
+              " "" "reas"o""n": file_inf"o""["reas"o""n"],
+              " "" "similari"t""y": file_inf"o""["similari"t""y"],
+              " "" "database_captur"e""d": in_database,
+              " "" "priori"t""y"":"" "MEDI"U""M",
+              " "" "safe_to_remo"v""e": False
             })
 
         return recommendations
 
     def execute_cleanup_analysis(self):
-        """Execute the complete cleanup analysis"""
-        print("\n[LAUNCH] EXECUTING STAGING ROOT CLEANUP ANALYSIS")
-        print("=" * 50)
+      " "" """Execute the complete cleanup analys"i""s"""
+        prin"t""("\n[LAUNCH] EXECUTING STAGING ROOT CLEANUP ANALYS"I""S")
+        prin"t""("""=" * 50)
 
         try:
             # Step 1: Discover Python files in staging root
-            print("\n[CLIPBOARD] STEP 1: DISCOVERING FILES")
-            python_files = list(self.staging_root.glob("*.py"))
-            self.analysis_results["total_files"] = len(python_files)
+            prin"t""("\n[CLIPBOARD] STEP 1: DISCOVERING FIL"E""S")
+            python_files = list(self.staging_root.glo"b""("*."p""y"))
+            self.analysis_result"s""["total_fil"e""s"] = len(python_files)
 
             print(
-                f"[BAR_CHART] Found {len(python_files)} Python files in staging root")
+               " ""f"[BAR_CHART] Found {len(python_files)} Python files in staging ro"o""t")
 
             # Step 2: Analyze file content
-            print("\n[CLIPBOARD] STEP 2: ANALYZING FILE CONTENT")
+            prin"t""("\n[CLIPBOARD] STEP 2: ANALYZING FILE CONTE"N""T")
             file_analyses = [
-
-            with tqdm(total=len(python_files), desc="Analyzing content", unit="file") as pbar:
+    with tqdm(total=len(python_files
+], des"c""="Analyzing conte"n""t", uni"t""="fi"l""e") as pbar:
                 for py_file in python_files:
                     analysis = self.analyze_file_content(py_file)
                     file_analyses.append(analysis)
                     pbar.update(1)
 
             # Step 3: Group similar files
-            print("\n[CLIPBOARD] STEP 3: GROUPING SIMILAR FILES")
+            prin"t""("\n[CLIPBOARD] STEP 3: GROUPING SIMILAR FIL"E""S")
             groups = self.group_similar_files(file_analyses)
-            self.analysis_results["file_groups"] = {
+            self.analysis_result"s""["file_grou"p""s"] = {
                 name: len(files) for name, files in groups.items()
             }
 
             # Step 4: Identify redundant files
-            print("\n[CLIPBOARD] STEP 4: IDENTIFYING REDUNDANCIES")
+            prin"t""("\n[CLIPBOARD] STEP 4: IDENTIFYING REDUNDANCI"E""S")
             redundant_files = self.identify_redundant_files(groups)
 
             # Step 5: Generate recommendations
-            print("\n[CLIPBOARD] STEP 5: GENERATING RECOMMENDATIONS")
+            prin"t""("\n[CLIPBOARD] STEP 5: GENERATING RECOMMENDATIO"N""S")
             recommendations = self.generate_recommendations(redundant_files)
-            self.analysis_results["recommendations"] = recommendations
+            self.analysis_result"s""["recommendatio"n""s"] = recommendations
 
             # Step 6: Save analysis results
-            print("\n[CLIPBOARD] STEP 6: SAVING ANALYSIS RESULTS")
+            prin"t""("\n[CLIPBOARD] STEP 6: SAVING ANALYSIS RESUL"T""S")
             self.save_analysis_results()
 
             # Step 7: Generate summary report
-            print("\n[CLIPBOARD] STEP 7: GENERATING SUMMARY REPORT")
+            prin"t""("\n[CLIPBOARD] STEP 7: GENERATING SUMMARY REPO"R""T")
             self.generate_summary_report()
 
-            print("\n" + "=" * 60)
-            print("[TARGET] STAGING ROOT CLEANUP ANALYSIS COMPLETE")
-            print("=" * 60)
+            prin"t""("""\n" "+"" """=" * 60)
+            prin"t""("[TARGET] STAGING ROOT CLEANUP ANALYSIS COMPLE"T""E")
+            prin"t""("""=" * 60)
 
         except Exception as e:
-            print(f"[ERROR] Analysis failed: {str(e)}")
+            print"(""f"[ERROR] Analysis failed: {str(e")""}")
             raise
 
     def save_analysis_results(self):
-        """Save analysis results to JSON file"""
+      " "" """Save analysis results to JSON fi"l""e"""
         try:
-            results_file = self.sandbox_root / \
-                f"STAGING_ROOT_REDUNDANCY_ANALYSIS_{self.session_id}.json"
-            with open(results_file, 'w') as f:
+            results_file = self.sandbox_root /" ""\
+                f"STAGING_ROOT_REDUNDANCY_ANALYSIS_{self.session_id}.js"o""n"
+            with open(results_file","" '''w') as f:
                 json.dump(self.analysis_results, f, indent=2)
 
-            print(f"[SUCCESS] Analysis results saved: {results_file}")
+            print'(''f"[SUCCESS] Analysis results saved: {results_fil"e""}")
 
         except Exception as e:
-            print(f"[ERROR] Failed to save analysis results: {str(e)}")
+            print"(""f"[ERROR] Failed to save analysis results: {str(e")""}")
 
     def generate_summary_report(self):
-        """Generate comprehensive summary report"""
-        print("\n[BAR_CHART] STAGING ROOT CLEANUP ANALYSIS SUMMARY")
-        print("=" * 50)
+      " "" """Generate comprehensive summary repo"r""t"""
+        prin"t""("\n[BAR_CHART] STAGING ROOT CLEANUP ANALYSIS SUMMA"R""Y")
+        prin"t""("""=" * 50)
 
-        recommendations = self.analysis_results.get("recommendations", [])
+        recommendations = self.analysis_results.ge"t""("recommendatio"n""s", [])
 
         # Summary statistics
         remove_count = len(]
-            [r for r in recommendations if r["action"] == "REMOVE"])
+            [r for r in recommendations if "r""["acti"o""n"] ="="" "REMO"V""E"])
         review_count = len(]
-            [r for r in recommendations if r["action"] == "REVIEW"])
+            [r for r in recommendations if "r""["acti"o""n"] ="="" "REVI"E""W"])
         safe_remove_count = len(]
-            [r for r in recommendations if r.get("safe_to_remove", False)])
+            [r for r in recommendations if r.ge"t""("safe_to_remo"v""e", False)])
 
-        print(f"[BAR_CHART] Analysis Summary:")
+        print"(""f"[BAR_CHART] Analysis Summar"y"":")
         print(
-            f"  [?] Total files analyzed: {self.analysis_results['total_files']}")
+           " ""f"  [?] Total files analyzed: {self.analysis_result"s""['total_fil'e''s'']''}")
         print(
-            f"  [?] File groups identified: {len(self.analysis_results['file_groups'])}")
-        print(f"  [?] Redundant files found: {remove_count}")
-        print(f"  [?] Files for review: {review_count}")
-        print(f"  [?] Safe to remove (in database): {safe_remove_count}")
+           " ""f"  [?] File groups identified: {len(self.analysis_result"s""['file_grou'p''s']')''}")
+        print"(""f"  [?] Redundant files found: {remove_coun"t""}")
+        print"(""f"  [?] Files for review: {review_coun"t""}")
+        print"(""f"  [?] Safe to remove (in database): {safe_remove_coun"t""}")
 
         # Detailed recommendations
-        print(f"\n[?] CLEANUP RECOMMENDATIONS:")
+        print"(""f"\n[?] CLEANUP RECOMMENDATION"S"":")
 
         high_priority = [
-            r for r in recommendations if r.get("priority") == "HIGH"]
+    r for r in recommendations if r.ge"t""("priori"t""y"
+] ="="" "HI"G""H"]
         medium_priority = [
-            r for r in recommendations if r.get("priority") == "MEDIUM"]
+    r for r in recommendations if r.ge"t""("priori"t""y"
+] ="="" "MEDI"U""M"]
 
         if high_priority:
             print(
-                f"\n[?] HIGH PRIORITY REMOVALS ({len(high_priority)} files):")
+               " ""f"\n[?] HIGH PRIORITY REMOVALS ({len(high_priority)} files")"":")
             for rec in high_priority:
-                filename = Path(rec["file_path"]).name
-                print(f"  [?] {filename} - {rec['reason']}")
+                filename = Path(re"c""["file_pa"t""h"]).name
+                print"(""f"  [?] {filename} - {re"c""['reas'o''n'']''}")
 
         if medium_priority:
             print(
-                f"\n[?] MEDIUM PRIORITY REVIEWS ({len(medium_priority)} files):")
+               " ""f"\n[?] MEDIUM PRIORITY REVIEWS ({len(medium_priority)} files")"":")
             for rec in medium_priority:
-                filename = Path(rec["file_path"]).name
-                print(f"  [?] {filename} - {rec['reason']}")
+                filename = Path(re"c""["file_pa"t""h"]).name
+                print"(""f"  [?] {filename} - {re"c""['reas'o''n'']''}")
 
         # File group analysis
-        print(f"\n[BAR_CHART] FILE GROUP ANALYSIS:")
-        for group_name, count in self.analysis_results["file_groups"].items():
+        print"(""f"\n[BAR_CHART] FILE GROUP ANALYSI"S"":")
+        for group_name, count in self.analysis_result"s""["file_grou"p""s"].items():
             if count > 1:
-                print(f"  [?] {group_name}: {count} files")
+                print"(""f"  [?] {group_name}: {count} fil"e""s")
 
         # Calculate potential space savings
-        total_size = sum(Path(r["file_path"]).stat(]
-        ).st_size for r in recommendations if r["action"] == "REMOVE")
+        total_size = sum(Path("r""["file_pa"t""h"]).stat(]
+        ).st_size for r in recommendations if "r""["acti"o""n"] ="="" "REMO"V""E")
         print(
-            f"\n[STORAGE] POTENTIAL SPACE SAVINGS: {total_size / 1024:.1f} KB")
+           " ""f"\n[STORAGE] POTENTIAL SPACE SAVINGS: {total_size / 1024:.1f} "K""B")
 
         print(
-            f"\n[TARGET] RECOMMENDATION: Remove {safe_remove_count} files safely captured in database")
+           " ""f"\n[TARGET] RECOMMENDATION: Remove {safe_remove_count} files safely captured in databa"s""e")
         print(
-            f"[CLIPBOARD] NEXT STEPS: Review {review_count} variation files for consolidation")
+           " ""f"[CLIPBOARD] NEXT STEPS: Review {review_count} variation files for consolidati"o""n")
 
 
 def main():
-    """Main execution function"""
+  " "" """Main execution functi"o""n"""
     try:
         # Initialize the analyzer
         analyzer = StagingRootRedundancyAnalyzer()
@@ -434,12 +436,13 @@ def main():
         # Execute the analysis
         analyzer.execute_cleanup_analysis()
 
-        print("\n[COMPLETE] STAGING ROOT REDUNDANCY ANALYSIS COMPLETE")
+        prin"t""("\n[COMPLETE] STAGING ROOT REDUNDANCY ANALYSIS COMPLE"T""E")
 
     except Exception as e:
-        print(f"[ERROR] CRITICAL ERROR: {str(e)}")
+        print"(""f"[ERROR] CRITICAL ERROR: {str(e")""}")
         return 1
 
 
-if __name__ == "__main__":
-    main()
+if __name__ ="="" "__main"_""_":
+    main()"
+""

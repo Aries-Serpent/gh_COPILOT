@@ -8,7 +8,7 @@ This script analyzes the two production.db files to determine:
 2. If they serve different purposes
 3. Safe consolidation recommendations
 
-COMPLIANCE: Enterprise database management and redundancy prevention
+COMPLIANCE: Enterprise database management and redundancy preventio"n""
 """
 
 import os
@@ -28,59 +28,59 @@ class ProductionDatabaseValidator:
         self.process_id = os.getpid()
 
         # Database paths
-        self.root_db = Path('production.db')
-        self.staging_db = Path('E:/gh_COPILOT/production.db')
+        self.root_db = Pat"h""('production.'d''b')
+        self.staging_db = Pat'h''('E:/gh_COPILOT/production.'d''b')
 
         # Results structure
         self.validation_results = {
-            "validation_timestamp": self.start_time.isoformat(),
-            "process_id": self.process_id,
-            "root_db_analysis": {},
-            "staging_db_analysis": {},
-            "comparison_results": {},
-            "recommendations": [],
-            "safety_assessment": {},
-            "consolidation_plan": {}
+          ' '' "validation_timesta"m""p": self.start_time.isoformat(),
+          " "" "process_"i""d": self.process_id,
+          " "" "root_db_analys"i""s": {},
+          " "" "staging_db_analys"i""s": {},
+          " "" "comparison_resul"t""s": {},
+          " "" "recommendatio"n""s": [],
+          " "" "safety_assessme"n""t": {},
+          " "" "consolidation_pl"a""n": {}
         }
 
         # CRITICAL: Anti-recursion validation
         self._validate_environment_safety()
 
     def _validate_environment_safety(self):
-        """CRITICAL: Validate no recursive folder structures"""
-        print("[SHIELD] VALIDATING ENVIRONMENT SAFETY")
+      " "" """CRITICAL: Validate no recursive folder structur"e""s"""
+        prin"t""("[SHIELD] VALIDATING ENVIRONMENT SAFE"T""Y")
 
         workspace_root = Path(os.getcwd())
-        proper_root = "E:/gh_COPILOT"
+        proper_root "="" "E:/gh_COPIL"O""T"
 
         # Validate proper environment root
-        if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
+        if not str(workspace_root).replac"e""("""\\"","" """/").endswit"h""("gh_COPIL"O""T"):
             raise RuntimeError(]
-                f"[ALERT] CRITICAL: Invalid workspace root: {workspace_root}")
+               " ""f"[ALERT] CRITICAL: Invalid workspace root: {workspace_roo"t""}")
 
         # Check for forbidden backup patterns
-        forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+        forbidden_patterns =" ""['*backu'p''*'','' '*_backup'_''*'','' 'backu'p''s'','' '*tem'p''*']
         violations = [
-
-        for pattern in forbidden_patterns:
-            for folder in workspace_root.rglob(pattern):
+    for pattern in forbidden_patterns:
+            for folder in workspace_root.rglob(pattern
+]:
                 if folder.is_dir() and folder != workspace_root:
                     violations.append(str(folder))
 
         if violations:
             raise RuntimeError(]
-                f"[ALERT] CRITICAL: Recursive violations found: {violations}")
+               ' ''f"[ALERT] CRITICAL: Recursive violations found: {violation"s""}")
 
-        print("[SUCCESS] Environment safety validation passed")
+        prin"t""("[SUCCESS] Environment safety validation pass"e""d")
 
     def analyze_database_file(self, db_path: Path, label: str) -> dict:
-        """Analyze a single database file"""
-        print(f"\n[SEARCH] ANALYZING {label}: {db_path}")
+      " "" """Analyze a single database fi"l""e"""
+        print"(""f"\n[SEARCH] ANALYZING {label}: {db_pat"h""}")
 
         if not db_path.exists():
-            print(f"[ERROR] Database not found: {db_path}")
+            print"(""f"[ERROR] Database not found: {db_pat"h""}")
             return {]
-                "error": f"File not found: {db_path}"
+              " "" "err"o""r":" ""f"File not found: {db_pat"h""}"
             }
 
         try:
@@ -90,139 +90,139 @@ class ProductionDatabaseValidator:
             modified_time = datetime.fromtimestamp(file_stats.st_mtime)
 
             # Calculate file hash
-            print(f"[BAR_CHART] Calculating hash for {label}...")
+            print"(""f"[BAR_CHART] Calculating hash for {label}."."".")
             file_hash = self._calculate_file_hash(db_path)
 
             # Database structure analysis
-            print(f"[CLIPBOARD] Analyzing database structure for {label}...")
+            print"(""f"[CLIPBOARD] Analyzing database structure for {label}."."".")
             db_structure = self._analyze_database_structure(db_path)
 
             # Record count analysis
-            print(f"[CHART_INCREASING] Counting records for {label}...")
+            print"(""f"[CHART_INCREASING] Counting records for {label}."."".")
             record_counts = self._count_database_records(db_path)
 
             result = {
-                "file_path": str(db_path),
-                "file_size": file_size,
-                "file_size_mb": file_size / (1024*1024),
-                "modified_time": modified_time.isoformat(),
-                "file_hash": file_hash,
-                "database_structure": db_structure,
-                "record_counts": record_counts,
-                "is_valid_db": db_structure["is_valid"],
-                "table_count": len(db_structure.get("tables", [])),
-                "total_records": sum(record_counts.values()) if record_counts else 0
+              " "" "file_pa"t""h": str(db_path),
+              " "" "file_si"z""e": file_size,
+              " "" "file_size_"m""b": file_size / (1024*1024),
+              " "" "modified_ti"m""e": modified_time.isoformat(),
+              " "" "file_ha"s""h": file_hash,
+              " "" "database_structu"r""e": db_structure,
+              " "" "record_coun"t""s": record_counts,
+              " "" "is_valid_"d""b": db_structur"e""["is_val"i""d"],
+              " "" "table_cou"n""t": len(db_structure.ge"t""("tabl"e""s", [])),
+              " "" "total_recor"d""s": sum(record_counts.values()) if record_counts else 0
             }
 
-            print(f"[SUCCESS] {label} analysis complete:")
-            print(f"   - Size: {result['file_size_mb']:.2f} MB")
-            print(f"   - Tables: {result['table_count']}")
-            print(f"   - Total records: {result['total_records']}")
-            print(f"   - Valid DB: {result['is_valid_db']}")
+            print"(""f"[SUCCESS] {label} analysis complet"e"":")
+            print"(""f"   - Size: {resul"t""['file_size_'m''b']:.2f} 'M''B")
+            print"(""f"   - Tables: {resul"t""['table_cou'n''t'']''}")
+            print"(""f"   - Total records: {resul"t""['total_recor'd''s'']''}")
+            print"(""f"   - Valid DB: {resul"t""['is_valid_'d''b'']''}")
 
             return result
 
         except Exception as e:
-            print(f"[ERROR] Error analyzing {label}: {str(e)}")
+            print"(""f"[ERROR] Error analyzing {label}: {str(e")""}")
             return {]
-                "error": str(e),
-                "file_path": str(db_path)
+              " "" "err"o""r": str(e),
+              " "" "file_pa"t""h": str(db_path)
             }
 
     def _calculate_file_hash(self, file_path: Path) -> str:
-        """Calculate SHA-256 hash of a file with progress"""
+      " "" """Calculate SHA-256 hash of a file with progre"s""s"""
         try:
             hash_sha256 = hashlib.sha256()
             file_size = file_path.stat().st_size
 
-            with open(file_path, 'rb') as f:
-                with tqdm(total=file_size, unit='B', unit_scale=True, desc="Hashing") as pbar:
+            with open(file_path","" ''r''b') as f:
+                with tqdm(total=file_size, uni't''='''B', unit_scale=True, des'c''="Hashi"n""g") as pbar:
                     while chunk := f.read(8192):
                         hash_sha256.update(chunk)
                         pbar.update(len(chunk))
 
             return hash_sha256.hexdigest()
         except Exception as e:
-            return f"ERROR: {str(e)}"
+            return" ""f"ERROR: {str(e")""}"
     def _analyze_database_structure(self, db_path: Path) -> dict:
-        """Analyze database structure"""
+      " "" """Analyze database structu"r""e"""
         try:
             with sqlite3.connect(db_path) as conn:
                 cursor = conn.cursor()
 
                 # Get table information
                 cursor.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table'")
+                  " "" "SELECT name FROM sqlite_master WHERE typ"e""='tab'l''e'")
                 tables = [row[0] for row in cursor.fetchall()]
 
                 # Get schema for each table
                 table_schemas = {}
                 for table in tables:
-                    cursor.execute(f"PRAGMA table_info({table})")
+                    cursor.execute"(""f"PRAGMA table_info({table"}"")")
                     columns = cursor.fetchall()
                     table_schemas[table] = {
-                        "columns": [{"name": col[1], "type": col[2], "notnull": col[3]} for col in columns],
-                        "column_count": len(columns)
+                      " "" "colum"n""s": "[""{"na"m""e": col[1]","" "ty"p""e": col[2]","" "notnu"l""l": col[3]} for col in columns],
+                      " "" "column_cou"n""t": len(columns)
                     }
 
                 # Database integrity check
-                cursor.execute("PRAGMA integrity_check")
+                cursor.execut"e""("PRAGMA integrity_che"c""k")
                 integrity_result = cursor.fetchone()[0]
 
                 return {}
 
         except Exception as e:
             return {]
-                "error": str(e),
-                "tables": [],
-                "table_schemas": {}
+              " "" "err"o""r": str(e),
+              " "" "tabl"e""s": [],
+              " "" "table_schem"a""s": {}
             }
 
     def _count_database_records(self, db_path: Path) -> dict:
-        """Count records in each table"""
+      " "" """Count records in each tab"l""e"""
         try:
             with sqlite3.connect(db_path) as conn:
                 cursor = conn.cursor()
 
                 # Get table names
                 cursor.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table'")
+                  " "" "SELECT name FROM sqlite_master WHERE typ"e""='tab'l''e'")
                 tables = [row[0] for row in cursor.fetchall()]
 
                 record_counts = {}
                 for table in tables:
-                    cursor.execute(f"SELECT COUNT(*) FROM {table}")
+                    cursor.execute"(""f"SELECT COUNT(*) FROM {tabl"e""}")
                     count = cursor.fetchone()[0]
                     record_counts[table] = count
 
                 return record_counts
 
         except Exception as e:
-            return {"error": str(e)}
+            return" ""{"err"o""r": str(e)}
 
     def compare_databases(self) -> dict:
-        """Compare the two production databases"""
-        print("\n[SEARCH] COMPARING PRODUCTION DATABASES")
-        print("-" * 40)
+      " "" """Compare the two production databas"e""s"""
+        prin"t""("\n[SEARCH] COMPARING PRODUCTION DATABAS"E""S")
+        prin"t""("""-" * 40)
 
-        root_analysis = self.validation_results["root_db_analysis"]
-        staging_analysis = self.validation_results["staging_db_analysis"]
+        root_analysis = self.validation_result"s""["root_db_analys"i""s"]
+        staging_analysis = self.validation_result"s""["staging_db_analys"i""s"]
 
         # Check if both databases exist and are valid
-        if not root_analysis.get("exists") or not staging_analysis.get("exists"):
+        if not root_analysis.ge"t""("exis"t""s") or not staging_analysis.ge"t""("exis"t""s"):
             return {}
 
-        if not root_analysis.get("is_valid_db") or not staging_analysis.get("is_valid_db"):
+        if not root_analysis.ge"t""("is_valid_"d""b") or not staging_analysis.ge"t""("is_valid_"d""b"):
             return {}
 
         # File-level comparison
-        files_identical = root_analysis["file_hash"] == staging_analysis["file_hash"]
+        files_identical = root_analysi"s""["file_ha"s""h"] == staging_analysi"s""["file_ha"s""h"]
         size_difference = abs(]
-            root_analysis["file_size"] - staging_analysis["file_size"])
+            root_analysi"s""["file_si"z""e"] - staging_analysi"s""["file_si"z""e"])
 
         # Structure comparison
-        root_tables = set(root_analysis["database_structure"]["tables"])
-        staging_tables = set(staging_analysis["database_structure"]["tables"])
+        root_tables = set(root_analysi"s""["database_structu"r""e""]""["tabl"e""s"])
+        staging_tables = set(staging_analysi"s""["database_structu"r""e""]""["tabl"e""s"])
 
         common_tables = root_tables & staging_tables
         root_only_tables = root_tables - staging_tables
@@ -231,181 +231,181 @@ class ProductionDatabaseValidator:
         # Record count comparison
         record_differences = {}
         for table in common_tables:
-            root_count = root_analysis["record_counts"].get(table, 0)
-            staging_count = staging_analysis["record_counts"].get(table, 0)
+            root_count = root_analysi"s""["record_coun"t""s"].get(table, 0)
+            staging_count = staging_analysi"s""["record_coun"t""s"].get(table, 0)
             if root_count != staging_count:
                 record_differences[table] = {
-                    "difference": abs(root_count - staging_count)
+                  " "" "differen"c""e": abs(root_count - staging_count)
                 }
 
         comparison_results = {
-            "size_difference_mb": size_difference / (1024*1024),
-            "structure_comparison": {]
-                "common_tables": list(common_tables),
-                "root_only_tables": list(root_only_tables),
-                "staging_only_tables": list(staging_only_tables),
-                "table_structure_identical": len(root_only_tables) == 0 and len(staging_only_tables) == 0
+          " "" "size_difference_"m""b": size_difference / (1024*1024),
+          " "" "structure_comparis"o""n": {]
+              " "" "common_tabl"e""s": list(common_tables),
+              " "" "root_only_tabl"e""s": list(root_only_tables),
+              " "" "staging_only_tabl"e""s": list(staging_only_tables),
+              " "" "table_structure_identic"a""l": len(root_only_tables) == 0 and len(staging_only_tables) == 0
             },
-            "record_differences": record_differences,
-            "total_record_difference": sum(diff["difference"] for diff in record_differences.values())
+          " "" "record_differenc"e""s": record_differences,
+          " "" "total_record_differen"c""e": sum(dif"f""["differen"c""e"] for diff in record_differences.values())
         }
 
-        print(f"[BAR_CHART] Comparison Results:")
-        print(f"   - Files identical: {files_identical}")
+        print"(""f"[BAR_CHART] Comparison Result"s"":")
+        print"(""f"   - Files identical: {files_identica"l""}")
         print(
-            f"   - Size difference: {comparison_results['size_difference_mb']:.2f} MB")
-        print(f"   - Common tables: {len(common_tables)}")
-        print(f"   - Root-only tables: {len(root_only_tables)}")
-        print(f"   - Staging-only tables: {len(staging_only_tables)}")
-        print(f"   - Record differences: {len(record_differences)}")
+           " ""f"   - Size difference: {comparison_result"s""['size_difference_'m''b']:.2f} 'M''B")
+        print"(""f"   - Common tables: {len(common_tables")""}")
+        print"(""f"   - Root-only tables: {len(root_only_tables")""}")
+        print"(""f"   - Staging-only tables: {len(staging_only_tables")""}")
+        print"(""f"   - Record differences: {len(record_differences")""}")
 
         return comparison_results
 
     def generate_recommendations(self) -> list:
-        """Generate safety recommendations"""
-        print("\n[TARGET] GENERATING RECOMMENDATIONS")
-        print("-" * 30)
+      " "" """Generate safety recommendatio"n""s"""
+        prin"t""("\n[TARGET] GENERATING RECOMMENDATIO"N""S")
+        prin"t""("""-" * 30)
 
         recommendations = [
-        comparison = self.validation_results["comparison_results"]
+        comparison = self.validation_result"s""["comparison_resul"t""s"]
 
-        if not comparison.get("can_compare", False):
+        if not comparison.ge"t""("can_compa"r""e", False):
             recommendations.append(]
-                "[ERROR] Cannot compare databases - analysis incomplete")
+              " "" "[ERROR] Cannot compare databases - analysis incomple"t""e")
             return recommendations
 
         # If files are identical
-        if comparison["files_identical"]:
+        if compariso"n""["files_identic"a""l"]:
             recommendations.append(]
-                "[SUCCESS] SAFE TO CONSOLIDATE: Files are identical")
+              " "" "[SUCCESS] SAFE TO CONSOLIDATE: Files are identic"a""l")
             recommendations.append(]
-                "[PROCESSING] Recommended action: Keep root database, remove staging database")
+              " "" "[PROCESSING] Recommended action: Keep root database, remove staging databa"s""e")
             recommendations.append(]
-                "[CLIPBOARD] Backup staging database before removal (enterprise compliance)")
+              " "" "[CLIPBOARD] Backup staging database before removal (enterprise complianc"e"")")
 
         # If files are different
         else:
-            if comparison["size_difference_mb"] < 1:
+            if compariso"n""["size_difference_"m""b"] < 1:
                 recommendations.append(]
-                    "[WARNING] MINOR DIFFERENCES: Databases are similar but not identical")
+                  " "" "[WARNING] MINOR DIFFERENCES: Databases are similar but not identic"a""l")
             else:
                 recommendations.append(]
-                    "[ALERT] SIGNIFICANT DIFFERENCES: Databases have substantial differences")
+                  " "" "[ALERT] SIGNIFICANT DIFFERENCES: Databases have substantial differenc"e""s")
 
             # Structure analysis
-            if comparison["structure_comparison"]["table_structure_identical"]:
+            if compariso"n""["structure_comparis"o""n""]""["table_structure_identic"a""l"]:
                 recommendations.append(]
-                    "[SUCCESS] Table structures are identical")
+                  " "" "[SUCCESS] Table structures are identic"a""l")
             else:
                 recommendations.append(]
-                    "[WARNING] Table structures differ - manual review required")
+                  " "" "[WARNING] Table structures differ - manual review requir"e""d")
 
             # Record differences
-            if comparison["total_record_difference"] == 0:
+            if compariso"n""["total_record_differen"c""e"] == 0:
                 recommendations.append(]
-                    "[SUCCESS] All tables have identical record counts")
+                  " "" "[SUCCESS] All tables have identical record coun"t""s")
             else:
                 recommendations.append(]
-                    f"[WARNING] Total record difference: {comparison['total_record_difference']}")
+                   " ""f"[WARNING] Total record difference: {compariso"n""['total_record_differen'c''e'']''}")
 
         # Age analysis
-        root_analysis = self.validation_results["root_db_analysis"]
-        staging_analysis = self.validation_results["staging_db_analysis"]
+        root_analysis = self.validation_result"s""["root_db_analys"i""s"]
+        staging_analysis = self.validation_result"s""["staging_db_analys"i""s"]
 
-        if root_analysis.get("exists") and staging_analysis.get("exists"):
-            root_time = datetime.fromisoformat(root_analysis["modified_time"])
+        if root_analysis.ge"t""("exis"t""s") and staging_analysis.ge"t""("exis"t""s"):
+            root_time = datetime.fromisoformat(root_analysi"s""["modified_ti"m""e"])
             staging_time = datetime.fromisoformat(]
-                staging_analysis["modified_time"])
+                staging_analysi"s""["modified_ti"m""e"])
 
             if root_time > staging_time:
                 recommendations.append(]
-                    "[?] Root database is newer - likely the active version")
+                  " "" "[?] Root database is newer - likely the active versi"o""n")
             elif staging_time > root_time:
                 recommendations.append(]
-                    "[?] Staging database is newer - may need to replace root")
+                  " "" "[?] Staging database is newer - may need to replace ro"o""t")
             else:
                 recommendations.append(]
-                    "[?] Both databases have identical modification times")
+                  " "" "[?] Both databases have identical modification tim"e""s")
 
         return recommendations
 
     def create_consolidation_plan(self) -> dict:
-        """Create a safe consolidation plan"""
-        print("\n[CLIPBOARD] CREATING CONSOLIDATION PLAN")
-        print("-" * 30)
+      " "" """Create a safe consolidation pl"a""n"""
+        prin"t""("\n[CLIPBOARD] CREATING CONSOLIDATION PL"A""N")
+        prin"t""("""-" * 30)
 
-        comparison = self.validation_results["comparison_results"]
+        comparison = self.validation_result"s""["comparison_resul"t""s"]
 
-        if not comparison.get("can_compare", False):
-            return {"status": "cannot_create_plan", "reason": "Comparison incomplete"}
+        if not comparison.ge"t""("can_compa"r""e", False):
+            return" ""{"stat"u""s"":"" "cannot_create_pl"a""n"","" "reas"o""n"":"" "Comparison incomple"t""e"}
 
         # Determine primary database
-        root_analysis = self.validation_results["root_db_analysis"]
-        staging_analysis = self.validation_results["staging_db_analysis"]
+        root_analysis = self.validation_result"s""["root_db_analys"i""s"]
+        staging_analysis = self.validation_result"s""["staging_db_analys"i""s"]
 
-        if comparison["files_identical"]:
-            plan_type = "identical_consolidation"
-            primary_db = "root"
-            remove_db = "staging"
+        if compariso"n""["files_identic"a""l"]:
+            plan_type "="" "identical_consolidati"o""n"
+            primary_db "="" "ro"o""t"
+            remove_db "="" "stagi"n""g"
         else:
             # Choose based on modification time and size
-            root_time = datetime.fromisoformat(root_analysis["modified_time"])
+            root_time = datetime.fromisoformat(root_analysi"s""["modified_ti"m""e"])
             staging_time = datetime.fromisoformat(]
-                staging_analysis["modified_time"])
+                staging_analysi"s""["modified_ti"m""e"])
 
             if root_time >= staging_time:
-                plan_type = "keep_root"
-                primary_db = "root"
-                remove_db = "staging"
+                plan_type "="" "keep_ro"o""t"
+                primary_db "="" "ro"o""t"
+                remove_db "="" "stagi"n""g"
             else:
-                plan_type = "keep_staging"
-                primary_db = "staging"
-                remove_db = "root"
+                plan_type "="" "keep_stagi"n""g"
+                primary_db "="" "stagi"n""g"
+                remove_db "="" "ro"o""t"
 
         consolidation_plan = {
-            "backup_location": f"E:/temp/gh_COPILOT_Backups/production_db_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db",
-            "steps": [],
-            "estimated_space_savings_mb": min(root_analysis["file_size_mb"], staging_analysis["file_size_mb"]),
-            "risk_assessment": "LOW" if comparison["files_identical"] else "MEDIUM"
+          " "" "backup_locati"o""n":" ""f"E:/temp/gh_COPILOT_Backups/production_db_backup_{datetime.now().strftim"e""('%Y%m%d_%H%M'%''S')}.'d''b",
+          " "" "ste"p""s": [],
+          " "" "estimated_space_savings_"m""b": min(root_analysi"s""["file_size_"m""b"], staging_analysi"s""["file_size_"m""b"]),
+          " "" "risk_assessme"n""t"":"" "L"O""W" if compariso"n""["files_identic"a""l"] els"e"" "MEDI"U""M"
         }
 
         return consolidation_plan
 
     def run_validation(self):
-        """Run complete validation process"""
-        print("[LAUNCH] PRODUCTION DATABASE VALIDATION STARTED")
-        print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"Process ID: {self.process_id}")
-        print("-" * 50)
+      " "" """Run complete validation proce"s""s"""
+        prin"t""("[LAUNCH] PRODUCTION DATABASE VALIDATION START"E""D")
+        print"(""f"Start Time: {self.start_time.strftim"e""('%Y-%m-%d %H:%M:'%''S'')''}")
+        print"(""f"Process ID: {self.process_i"d""}")
+        prin"t""("""-" * 50)
 
-        with tqdm(total=100, desc="[SEARCH] Validation Progress", unit="%") as pbar:
+        with tqdm(total=100, des"c""="[SEARCH] Validation Progre"s""s", uni"t""="""%") as pbar:
             # Analyze root database
-            pbar.set_description("[BAR_CHART] Analyzing root database")
-            self.validation_results["root_db_analysis"] = self.analyze_database_file(]
-                self.root_db, "ROOT DATABASE")
+            pbar.set_descriptio"n""("[BAR_CHART] Analyzing root databa"s""e")
+            self.validation_result"s""["root_db_analys"i""s"] = self.analyze_database_file(]
+                self.root_db","" "ROOT DATABA"S""E")
             pbar.update(30)
 
             # Analyze staging database
-            pbar.set_description("[BAR_CHART] Analyzing staging database")
-            self.validation_results["staging_db_analysis"] = self.analyze_database_file(]
-                self.staging_db, "STAGING DATABASE")
+            pbar.set_descriptio"n""("[BAR_CHART] Analyzing staging databa"s""e")
+            self.validation_result"s""["staging_db_analys"i""s"] = self.analyze_database_file(]
+                self.staging_db","" "STAGING DATABA"S""E")
             pbar.update(30)
 
             # Compare databases
-            pbar.set_description("[SEARCH] Comparing databases")
-            self.validation_results["comparison_results"] = self.compare_databases(]
+            pbar.set_descriptio"n""("[SEARCH] Comparing databas"e""s")
+            self.validation_result"s""["comparison_resul"t""s"] = self.compare_databases(]
             )
             pbar.update(20)
 
             # Generate recommendations
-            pbar.set_description("[TARGET] Generating recommendations")
-            self.validation_results["recommendations"] = self.generate_recommendations(]
+            pbar.set_descriptio"n""("[TARGET] Generating recommendatio"n""s")
+            self.validation_result"s""["recommendatio"n""s"] = self.generate_recommendations(]
             )
             pbar.update(10)
 
             # Create consolidation plan
-            pbar.set_description("[CLIPBOARD] Creating consolidation plan")
-            self.validation_results["consolidation_plan"] = self.create_consolidation_plan(]
+            pbar.set_descriptio"n""("[CLIPBOARD] Creating consolidation pl"a""n")
+            self.validation_result"s""["consolidation_pl"a""n"] = self.create_consolidation_plan(]
             )
             pbar.update(10)
 
@@ -415,85 +415,86 @@ class ProductionDatabaseValidator:
         # Display summary
         self._display_summary()
 
-        print("\n[SUCCESS] PRODUCTION DATABASE VALIDATION COMPLETE")
+        prin"t""("\n[SUCCESS] PRODUCTION DATABASE VALIDATION COMPLE"T""E")
         duration = (datetime.now() - self.start_time).total_seconds()
-        print(f"Duration: {duration:.2f} seconds")
+        print"(""f"Duration: {duration:.2f} secon"d""s")
 
         return self.validation_results
 
     def _save_results(self):
-        """Save validation results to file"""
-        results_file = f"production_db_validation_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(results_file, 'w') as f:
+      " "" """Save validation results to fi"l""e"""
+        results_file =" ""f"production_db_validation_results_{datetime.now().strftim"e""('%Y%m%d_%H%M'%''S')}.js'o''n"
+        with open(results_file","" '''w') as f:
             json.dump(self.validation_results, f, indent=2)
 
-        print(f"[?] Results saved to: {results_file}")
+        print'(''f"[?] Results saved to: {results_fil"e""}")
 
     def _display_summary(self):
-        """Display validation summary"""
-        print("\n" + "=" * 60)
-        print("[BAR_CHART] PRODUCTION DATABASE VALIDATION SUMMARY")
-        print("=" * 60)
+      " "" """Display validation summa"r""y"""
+        prin"t""("""\n" "+"" """=" * 60)
+        prin"t""("[BAR_CHART] PRODUCTION DATABASE VALIDATION SUMMA"R""Y")
+        prin"t""("""=" * 60)
 
-        root_analysis = self.validation_results["root_db_analysis"]
-        staging_analysis = self.validation_results["staging_db_analysis"]
-        comparison = self.validation_results["comparison_results"]
+        root_analysis = self.validation_result"s""["root_db_analys"i""s"]
+        staging_analysis = self.validation_result"s""["staging_db_analys"i""s"]
+        comparison = self.validation_result"s""["comparison_resul"t""s"]
 
         # Database status
         print(
-            f"Root Database: {'[SUCCESS] EXISTS' if root_analysis.get('exists') else '[ERROR] MISSING'}")
-        if root_analysis.get("exists"):
-            print(f"  - Size: {root_analysis['file_size_mb']:.2f} MB")
-            print(f"  - Tables: {root_analysis['table_count']}")
-            print(f"  - Records: {root_analysis['total_records']}")
+           " ""f"Root Database:" ""{'[SUCCESS] EXIS'T''S' if root_analysis.ge't''('exis't''s') els'e'' '[ERROR] MISSI'N''G'''}")
+        if root_analysis.ge"t""("exis"t""s"):
+            print"(""f"  - Size: {root_analysi"s""['file_size_'m''b']:.2f} 'M''B")
+            print"(""f"  - Tables: {root_analysi"s""['table_cou'n''t'']''}")
+            print"(""f"  - Records: {root_analysi"s""['total_recor'd''s'']''}")
 
         print(
-            f"Staging Database: {'[SUCCESS] EXISTS' if staging_analysis.get('exists') else '[ERROR] MISSING'}")
-        if staging_analysis.get("exists"):
-            print(f"  - Size: {staging_analysis['file_size_mb']:.2f} MB")
-            print(f"  - Tables: {staging_analysis['table_count']}")
-            print(f"  - Records: {staging_analysis['total_records']}")
+           " ""f"Staging Database:" ""{'[SUCCESS] EXIS'T''S' if staging_analysis.ge't''('exis't''s') els'e'' '[ERROR] MISSI'N''G'''}")
+        if staging_analysis.ge"t""("exis"t""s"):
+            print"(""f"  - Size: {staging_analysi"s""['file_size_'m''b']:.2f} 'M''B")
+            print"(""f"  - Tables: {staging_analysi"s""['table_cou'n''t'']''}")
+            print"(""f"  - Records: {staging_analysi"s""['total_recor'd''s'']''}")
 
         # Comparison results
-        if comparison.get("can_compare"):
-            print(f"\n[SEARCH] COMPARISON RESULTS:")
+        if comparison.ge"t""("can_compa"r""e"):
+            print"(""f"\n[SEARCH] COMPARISON RESULT"S"":")
             print(
-                f"Files Identical: {'[SUCCESS] YES' if comparison['files_identical'] else '[ERROR] NO'}")
+               " ""f"Files Identical:" ""{'[SUCCESS] Y'E''S' if compariso'n''['files_identic'a''l'] els'e'' '[ERROR] 'N''O'''}")
             print(
-                f"Size Difference: {comparison['size_difference_mb']:.2f} MB")
+               " ""f"Size Difference: {compariso"n""['size_difference_'m''b']:.2f} 'M''B")
 
         # Recommendations
-        print(f"\n[TARGET] RECOMMENDATIONS:")
-        for i, rec in enumerate(self.validation_results["recommendations"], 1):
-            print(f"{i}. {rec}")
+        print"(""f"\n[TARGET] RECOMMENDATION"S"":")
+        for i, rec in enumerate(self.validation_result"s""["recommendatio"n""s"], 1):
+            print"(""f"{i}. {re"c""}")
 
         # Consolidation plan
-        plan = self.validation_results["consolidation_plan"]
-        if plan.get("plan_type"):
-            print(f"\n[CLIPBOARD] CONSOLIDATION PLAN:")
-            print(f"Plan Type: {plan['plan_type']}")
-            print(f"Primary Database: {plan['primary_database']}")
-            print(f"Database to Remove: {plan['database_to_remove']}")
-            print(f"Risk Assessment: {plan['risk_assessment']}")
+        plan = self.validation_result"s""["consolidation_pl"a""n"]
+        if plan.ge"t""("plan_ty"p""e"):
+            print"(""f"\n[CLIPBOARD] CONSOLIDATION PLA"N"":")
+            print"(""f"Plan Type: {pla"n""['plan_ty'p''e'']''}")
+            print"(""f"Primary Database: {pla"n""['primary_databa's''e'']''}")
+            print"(""f"Database to Remove: {pla"n""['database_to_remo'v''e'']''}")
+            print"(""f"Risk Assessment: {pla"n""['risk_assessme'n''t'']''}")
             print(
-                f"Space Savings: {plan['estimated_space_savings_mb']:.2f} MB")
+               " ""f"Space Savings: {pla"n""['estimated_space_savings_'m''b']:.2f} 'M''B")
 
 
 def main():
-    """Main execution function"""
+  " "" """Main execution functi"o""n"""
     try:
         validator = ProductionDatabaseValidator()
         results = validator.run_validation()
 
-        print("\n[ACHIEVEMENT] VALIDATION SUCCESSFUL")
-        print("Check the generated JSON file for detailed results")
+        prin"t""("\n[ACHIEVEMENT] VALIDATION SUCCESSF"U""L")
+        prin"t""("Check the generated JSON file for detailed resul"t""s")
 
         return results
 
     except Exception as e:
-        print(f"[ERROR] VALIDATION FAILED: {str(e)}")
+        print"(""f"[ERROR] VALIDATION FAILED: {str(e")""}")
         return None
 
 
-if __name__ == "__main__":
-    main()
+if __name__ ="="" "__main"_""_":
+    main()"
+""

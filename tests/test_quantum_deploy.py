@@ -5,9 +5,9 @@ from copilot.orchestrators.UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED import (
 
 
         def test_deploy_quantum_algorithms(tmp_path):
-    source_workspace = tmp_path / "src"
+    source_workspace = tmp_path / "s"r""c"
     source_workspace.mkdir()
-    target = tmp_path / "deploy"
+    target = tmp_path "/"" "depl"o""y"
 
     config = UnifiedDeploymentConfig(]
         source_workspace = str(source_workspace),
@@ -18,14 +18,15 @@ from copilot.orchestrators.UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED import (
     orchestrator._create_directory_structure()
     assert orchestrator._deploy_quantum_algorithms() is True
 
-    script_path = target / "quantum" / "quantum_optimization.py"
+    script_path = target "/"" "quant"u""m" "/"" "quantum_optimization."p""y"
     assert script_path.exists()
 
     spec = importlib.util.spec_from_file_location(]
-        "quantum_module", script_path)
+      " "" "quantum_modu"l""e", script_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore
 
     result = module.QuantumOptimizer().optimize()
-    assert "theta" in result
-    assert "expectation" in result
+    asser"t"" "the"t""a" in result
+    asser"t"" "expectati"o""n" in result"
+""

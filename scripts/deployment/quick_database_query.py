@@ -2,7 +2,7 @@
 """
 Quick Database Query Tool
 ========================
-Query all databases in the codebase to show structure and sample data
+Query all databases in the codebase to show structure and sample dat"a""
 """
 import sqlite3
 import os
@@ -10,11 +10,11 @@ from pathlib import Path
 
 
 def query_database(db_path):
-    """Query a single database and return its structure and sample data"""
+  " "" """Query a single database and return its structure and sample da"t""a"""
     results = {
-       'tables': {},
-        'status': 'success',
-        'error': None
+     " "" 'tabl'e''s': {},
+      ' '' 'stat'u''s'':'' 'succe's''s',
+      ' '' 'err'o''r': None
     }
 
         try:
@@ -23,69 +23,70 @@ def query_database(db_path):
 
         # Get all user tables (excluding sqlite_ tables)
         cursor.execute(
-    "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+  ' '' "SELECT name FROM sqlite_master WHERE typ"e""='tab'l''e' AND name NOT LIK'E'' 'sqlite'_''%'")
         table_names = [row[0] for row in cursor.fetchall()]
 
         for table_name in table_names:
             # Get row count
-    cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
+    cursor.execute"(""f"SELECT COUNT(*) FROM {table_nam"e""}")
             row_count = cursor.fetchone()[0]
 
             # Get column info
-            cursor.execute(f"PRAGMA table_info({table_name})")
+            cursor.execute"(""f"PRAGMA table_info({table_name"}"")")
             columns = [col[1] for col in cursor.fetchall()]
 
             # Get sample data (first 2 rows)
-            cursor.execute(f"SELECT * FROM {table_name} LIMIT 2")
+            cursor.execute"(""f"SELECT * FROM {table_name} LIMIT" ""2")
             sample_data = cursor.fetchall()
 
-            results['tables'][table_name] = {
+            result"s""['tabl'e''s'][table_name] = {
     }
 
         conn.close()
 
         except Exception as e:
-    results['status'] = 'error'
-        results['error'] = str(e)
+    result's''['stat'u''s'] '='' 'err'o''r'
+        result's''['err'o''r'] = str(e)
 
         return results
 
 
     def main():
-    databases_dir = Path('databases')
+    databases_dir = Pat'h''('databas'e''s')
 
     if not databases_dir.exists():
-    print("[ERROR] databases directory not found")
+    prin't''("[ERROR] databases directory not fou"n""d")
         return
 
-    print("[SEARCH] QUICK DATABASE QUERY RESULTS")
-    print("=" * 60)
+    prin"t""("[SEARCH] QUICK DATABASE QUERY RESUL"T""S")
+    prin"t""("""=" * 60)
 
-    for db_file in sorted(databases_dir.glob('*.db')):
+    for db_file in sorted(databases_dir.glo"b""('*.'d''b')):
     result = query_database(db_file)
 
-        print(f"\n[BAR_CHART] {result['name']}")
-        print("-" * 40)
+        print'(''f"\n[BAR_CHART] {resul"t""['na'm''e'']''}")
+        prin"t""("""-" * 40)
 
-        if result['status'] == 'error':
-    print(f"[ERROR] Error: {result['error']}")
+        if resul"t""['stat'u''s'] ='='' 'err'o''r':
+    print'(''f"[ERROR] Error: {resul"t""['err'o''r'']''}")
             continue
 
-        if not result['tables']:
-    print("[NOTES] No user tables found")
+        if not resul"t""['tabl'e''s']:
+    prin't''("[NOTES] No user tables fou"n""d")
             continue
 
-        for table_name, table_info in result['tables'].items():
-    print(f"[CLIPBOARD] Table: {table_name}")
-            print(f"   Records: {table_info['row_count']}")
+        for table_name, table_info in resul"t""['tabl'e''s'].items():
+    print'(''f"[CLIPBOARD] Table: {table_nam"e""}")
+            print"(""f"   Records: {table_inf"o""['row_cou'n''t'']''}")
             print(
-    f"   Columns: {', '.join(table_info['columns'][:5])}{'...' if len(table_info['columns']) > 5 else ''}")
+   " ""f"   Columns:" ""{'','' '.join(table_inf'o''['colum'n''s'][:5])'}''{'.'.''.' if len(table_inf'o''['colum'n''s']) > 5 els'e'' ''''}")
 
-            if table_info['sample_data']:
+            if table_inf"o""['sample_da't''a']:
     print(
-    f"   Sample: {str(table_info['sample_data'][0])[:80]}...")
+   ' ''f"   Sample: {str(table_inf"o""['sample_da't''a'][0])[:80]}.'.''.")
             print()
 
 
-    if __name__ == "__main__":
-    main()
+    if __name__ ="="" "__main"_""_":
+    main()"
+""

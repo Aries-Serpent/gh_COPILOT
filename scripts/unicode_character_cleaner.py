@@ -11,7 +11,7 @@ DUAL COPILOT PATTERN: Primary Cleaner with Secondary Validator
 - Secondary: Validates complete Unicode elimination
 - Certification: Provides final Unicode compliance validation
 
-TARGET: Deployed E:/gh_COPILOT environment
+TARGET: Deployed E:/gh_COPILOT environmen"t""
 """
 
 import json
@@ -24,47 +24,49 @@ from typing import Any, Dict, Tuple
 
 
 class UnicodeCharacterCleaner:
-    """Unicode character cleaner for enterprise compliance."""
+  " "" """Unicode character cleaner for enterprise complianc"e""."""
 
     def __init__(self):
-        self.deployed_base_path = Path("E:/gh_COPILOT")
-        self.backup_dir = self.deployed_base_path / \
-            f"_backup_unicode_cleanup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.deployed_base_path = Pat"h""("E:/gh_COPIL"O""T")
+        self.backup_dir = self.deployed_base_path /" ""\
+            f"_backup_unicode_cleanup_{datetime.now().strftim"e""('%Y%m%d_%H%M'%''S'')''}"
         self.results = {
-            'cleanup_timestamp': datetime.now().isoformat(),
-            'environment': 'DEPLOYED E:/gh_COPILOT',
-            'files_processed': 0,
-            'unicode_chars_found': 0,
-            'unicode_chars_removed': 0,
-            'files_modified': 0,
-            'backup_directory': str(self.backup_dir),
-            'files_details': {},
-            'unicode_compliant': False
+          " "" 'cleanup_timesta'm''p': datetime.now().isoformat(),
+          ' '' 'environme'n''t'':'' 'DEPLOYED E:/gh_COPIL'O''T',
+          ' '' 'files_process'e''d': 0,
+          ' '' 'unicode_chars_fou'n''d': 0,
+          ' '' 'unicode_chars_remov'e''d': 0,
+          ' '' 'files_modifi'e''d': 0,
+          ' '' 'backup_directo'r''y': str(self.backup_dir),
+          ' '' 'files_detai'l''s': {},
+          ' '' 'unicode_complia'n''t': False
         }
 
         # Setup logging
         logging.basicConfig(]
-            format='%(asctime)s - %(levelname)s - %(message)s',
+            forma't''='%(asctime)s - %(levelname)s - %(message')''s',
             handlers=[
-                logging.StreamHandler(),
+    logging.StreamHandler(
+],
                 logging.FileHandler(]
-                    self.deployed_base_path / 'unicode_cleanup.log')
+                    self.deployed_base_path '/'' 'unicode_cleanup.l'o''g')
             ]
         )
         self.logger = logging.getLogger(__name__)
 
     def is_unicode_char(self, char: str) -> bool:
-        """Check if a character is non-ASCII Unicode."""
+      ' '' """Check if a character is non-ASCII Unicod"e""."""
         return ord(char) > 127
 
     def clean_unicode_from_content(self, content: str) -> Tuple[str, int]:
-        """Remove Unicode characters from content and return cleaned content and count removed."""
+      " "" """Remove Unicode characters from content and return cleaned content and count remove"d""."""
         unicode_count = 0
 
         # Find all Unicode characters
         unicode_chars = [
-        for char in content:
-            if self.is_unicode_char(char):
+    for char in content:
+            if self.is_unicode_char(char
+]:
                 unicode_chars.append(char)
                 unicode_count += 1
 
@@ -73,43 +75,43 @@ class UnicodeCharacterCleaner:
 
         # Replace common Unicode characters with ASCII equivalents
         replacements = {
-            '[ROCKET_EMOJI]': '[ROCKET]',
-            '[CHECK_EMOJI]': '[CHECK]',
-            '[X_EMOJI]': '[X]',
-            '[WARNING_EMOJI]': '[WARNING]',
-            '[TARGET_EMOJI]': '[TARGET]',
-            '[CELEBRATION_EMOJI]': '[CELEBRATION]',
-            '[CHART_EMOJI]': '[CHART]',
-            '[TROPHY_EMOJI]': '[TROPHY]',
-            '[TOOL_EMOJI]': '[TOOL]',
-            '[IDEA_EMOJI]': '[IDEA]',
-            '[TRENDING_EMOJI]': '[TRENDING]',
-            '[GLOBAL_EMOJI]': '[GLOBAL]',
-            '[FACTORY_EMOJI]': '[FACTORY]',
-            '[USER_EMOJI]': '[USER]',
-            '[CLIPBOARD_EMOJI]': '[CLIPBOARD]',
-            '[CLOCK_EMOJI]': '[CLOCK]',
-            '[CYCLE_EMOJI]': '[CYCLE]',
-            '[MEMO_EMOJI]': '[MEMO]',
-            '[FOLDER_EMOJI]': '[FOLDER]',
-            '[SAVE_EMOJI]': '[SAVE]',
-            '[SEARCH_EMOJI]': '[SEARCH]',
-            '[STAR_EMOJI]': '[STAR]',
-            '[CIRCUS_EMOJI]': '[CIRCUS]',
+          " "" '[ROCKET_EMOJ'I'']'':'' '[ROCKE'T'']',
+          ' '' '[CHECK_EMOJ'I'']'':'' '[CHEC'K'']',
+          ' '' '[X_EMOJ'I'']'':'' '['X'']',
+          ' '' '[WARNING_EMOJ'I'']'':'' '[WARNIN'G'']',
+          ' '' '[TARGET_EMOJ'I'']'':'' '[TARGE'T'']',
+          ' '' '[CELEBRATION_EMOJ'I'']'':'' '[CELEBRATIO'N'']',
+          ' '' '[CHART_EMOJ'I'']'':'' '[CHAR'T'']',
+          ' '' '[TROPHY_EMOJ'I'']'':'' '[TROPH'Y'']',
+          ' '' '[TOOL_EMOJ'I'']'':'' '[TOO'L'']',
+          ' '' '[IDEA_EMOJ'I'']'':'' '[IDE'A'']',
+          ' '' '[TRENDING_EMOJ'I'']'':'' '[TRENDIN'G'']',
+          ' '' '[GLOBAL_EMOJ'I'']'':'' '[GLOBA'L'']',
+          ' '' '[FACTORY_EMOJ'I'']'':'' '[FACTOR'Y'']',
+          ' '' '[USER_EMOJ'I'']'':'' '[USE'R'']',
+          ' '' '[CLIPBOARD_EMOJ'I'']'':'' '[CLIPBOAR'D'']',
+          ' '' '[CLOCK_EMOJ'I'']'':'' '[CLOC'K'']',
+          ' '' '[CYCLE_EMOJ'I'']'':'' '[CYCL'E'']',
+          ' '' '[MEMO_EMOJ'I'']'':'' '[MEM'O'']',
+          ' '' '[FOLDER_EMOJ'I'']'':'' '[FOLDE'R'']',
+          ' '' '[SAVE_EMOJ'I'']'':'' '[SAV'E'']',
+          ' '' '[SEARCH_EMOJ'I'']'':'' '[SEARC'H'']',
+          ' '' '[STAR_EMOJ'I'']'':'' '[STA'R'']',
+          ' '' '[CIRCUS_EMOJ'I'']'':'' '[CIRCU'S'']',
             # Smart quotes and dashes
-            '“': '"',
-            '”': '"',
-            '—': '-',
-            '–': '--',
-            '…': '...',
+          ' '' '''“'':'' '"',
+          ' '' '''”'':'' '"',
+          ' '' '''—'':'' '''-',
+          ' '' '''–'':'' ''-''-',
+          ' '' '''…'':'' '.'.''.',
             # Other common Unicode characters
-            '©': '(c)',
-            '®': '(r)',
-            '™': '(tm)',
-            '°': ' degrees',
-            '±': '+/-',
-            '×': 'x',
-            '÷': '/'}
+          ' '' '''©'':'' '('c'')',
+          ' '' '''®'':'' '('r'')',
+          ' '' '''™'':'' '(t'm'')',
+          ' '' '''°'':'' ' degre'e''s',
+          ' '' '''±'':'' '+'/''-',
+          ' '' '''×'':'' '''x',
+          ' '' '''÷'':'' '''/'}
 
         # Apply replacements
         cleaned_content = content
@@ -119,7 +121,7 @@ class UnicodeCharacterCleaner:
                     unicode_char, replacement)
 
         # Remove any remaining Unicode characters by replacing with placeholder
-        final_cleaned = ''
+        final_cleaned '='' ''
         removed_count = 0
         for char in cleaned_content:
             if self.is_unicode_char(char):
@@ -131,160 +133,161 @@ class UnicodeCharacterCleaner:
         return final_cleaned, removed_count
 
     def process_python_file(self, py_file: Path) -> Dict[str, Any]:
-        """Process a single Python file to remove Unicode characters."""
+      ' '' """Process a single Python file to remove Unicode character"s""."""
         file_details = {
-            'file_path': str(py_file),
-            'original_size': 0,
-            'cleaned_size': 0,
-            'unicode_chars_found': 0,
-            'unicode_chars_removed': 0,
-            'modified': False,
-            'backup_created': False
+          " "" 'file_pa't''h': str(py_file),
+          ' '' 'original_si'z''e': 0,
+          ' '' 'cleaned_si'z''e': 0,
+          ' '' 'unicode_chars_fou'n''d': 0,
+          ' '' 'unicode_chars_remov'e''d': 0,
+          ' '' 'modifi'e''d': False,
+          ' '' 'backup_creat'e''d': False
         }
 
         try:
             # Read original content
-            with open(py_file, 'r', encoding='utf-8') as f:
+            with open(py_file','' '''r', encodin'g''='utf'-''8') as f:
                 original_content = f.read()
 
-            file_details['original_size'] = len(original_content)
+            file_detail's''['original_si'z''e'] = len(original_content)
 
             # Clean Unicode characters
             cleaned_content, removed_count = self.clean_unicode_from_content(]
                 original_content)
-            file_details['cleaned_size'] = len(cleaned_content)
-            file_details['unicode_chars_removed'] = removed_count
+            file_detail's''['cleaned_si'z''e'] = len(cleaned_content)
+            file_detail's''['unicode_chars_remov'e''d'] = removed_count
 
             # Count Unicode chars found
             unicode_found = sum(]
                 1 for char in original_content if self.is_unicode_char(char))
-            file_details['unicode_chars_found'] = unicode_found
+            file_detail's''['unicode_chars_fou'n''d'] = unicode_found
 
             if removed_count > 0:
-                # Create backup if we're making changes
+                # Create backup if 'w''e're making changes
                 if not self.backup_dir.exists():
                     self.backup_dir.mkdir(parents=True, exist_ok=True)
 
                 backup_file = self.backup_dir / py_file.name
                 shutil.copy2(py_file, backup_file)
-                file_details['backup_created'] = True
+                file_detail's''['backup_creat'e''d'] = True
 
                 # Write cleaned content
-                with open(py_file, 'w', encoding='utf-8') as f:
+                with open(py_file','' '''w', encodin'g''='utf'-''8') as f:
                     f.write(cleaned_content)
 
-                file_details['modified'] = True
-                self.results['files_modified'] += 1
+                file_detail's''['modifi'e''d'] = True
+                self.result's''['files_modifi'e''d'] += 1
 
                 self.logger.info(
-                    f"Cleaned {removed_count} Unicode characters from {py_file.name}")
+                   ' ''f"Cleaned {removed_count} Unicode characters from {py_file.nam"e""}")
 
         except Exception as e:
-            self.logger.error(f"Failed to process {py_file.name}: {str(e)}")
-            file_details['error'] = str(e)
+            self.logger.error"(""f"Failed to process {py_file.name}: {str(e")""}")
+            file_detail"s""['err'o''r'] = str(e)
 
         return file_details
 
     def validate_unicode_elimination(self) -> bool:
-        """Validate that all Unicode characters have been eliminated."""
-        python_files = list(self.deployed_base_path.glob("*.py"))
+      ' '' """Validate that all Unicode characters have been eliminate"d""."""
+        python_files = list(self.deployed_base_path.glo"b""("*."p""y"))
 
         for py_file in python_files:
             try:
-                with open(py_file, 'r', encoding='utf-8') as f:
+                with open(py_file","" '''r', encodin'g''='utf'-''8') as f:
                     content = f.read()
 
                 # Check for any remaining Unicode characters
                 for char in content:
                     if self.is_unicode_char(char):
                         self.logger.warning(
-                            f"Unicode character still found in {py_file.name}: {repr(char)}")
+                           ' ''f"Unicode character still found in {py_file.name}: {repr(char")""}")
                         return False
 
             except Exception as e:
                 self.logger.error(
-                    f"Could not validate {py_file.name}: {str(e)}")
+                   " ""f"Could not validate {py_file.name}: {str(e")""}")
                 return False
 
         return True
 
     def clean_unicode_characters(self):
-        """Execute comprehensive Unicode character cleaning."""
-        self.logger.info("=== UNICODE CHARACTER CLEANER STARTED ===")
-        self.logger.info(f"Target environment: {self.deployed_base_path}")
+      " "" """Execute comprehensive Unicode character cleanin"g""."""
+        self.logger.inf"o""("=== UNICODE CHARACTER CLEANER STARTED ="=""=")
+        self.logger.info"(""f"Target environment: {self.deployed_base_pat"h""}")
 
         try:
             # Get all Python files
-            python_files = list(self.deployed_base_path.glob("*.py"))
+            python_files = list(self.deployed_base_path.glo"b""("*."p""y"))
             self.logger.info(
-                f"Found {len(python_files)} Python files to process")
+               " ""f"Found {len(python_files)} Python files to proce"s""s")
 
             # Process each file
             for py_file in python_files:
-                self.results['files_processed'] += 1
+                self.result"s""['files_process'e''d'] += 1
                 file_details = self.process_python_file(py_file)
 
-                self.results['unicode_chars_found'] += file_details['unicode_chars_found']
-                self.results['unicode_chars_removed'] += file_details['unicode_chars_removed']
-                self.results['files_details'][py_file.name] = file_details
+                self.result's''['unicode_chars_fou'n''d'] += file_detail's''['unicode_chars_fou'n''d']
+                self.result's''['unicode_chars_remov'e''d'] += file_detail's''['unicode_chars_remov'e''d']
+                self.result's''['files_detai'l''s'][py_file.name] = file_details
 
             # Validate complete elimination
-            self.results['unicode_compliant'] = self.validate_unicode_elimination()
+            self.result's''['unicode_complia'n''t'] = self.validate_unicode_elimination()
 
             # Save detailed results
-            results_path = self.deployed_base_path / \
-                f'unicode_cleanup_results_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
-            with open(results_path, 'w', encoding='utf-8') as f:
+            results_path = self.deployed_base_path /' ''\
+                f'unicode_cleanup_results_{datetime.now().strftim'e''("%Y%m%d_%H%M"%""S")}.js"o""n'
+            with open(results_path','' '''w', encodin'g''='utf'-''8') as f:
                 # Use ensure_ascii=True
                 json.dump(self.results, f, indent=2, ensure_ascii=True)
 
-            self.logger.info(f"Detailed results saved to: {results_path}")
+            self.logger.info'(''f"Detailed results saved to: {results_pat"h""}")
 
             # Final status
-            if self.results['unicode_compliant']:
+            if self.result"s""['unicode_complia'n''t']:
                 self.logger.info(
-                    "SUCCESS: All Unicode characters eliminated - environment is Unicode compliant")
+                  ' '' "SUCCESS: All Unicode characters eliminated - environment is Unicode complia"n""t")
             else:
                 self.logger.warning(
-                    "WARNING: Some Unicode characters may still remain")
+                  " "" "WARNING: Some Unicode characters may still rema"i""n")
 
         except Exception as e:
-            self.logger.error(f"Unicode cleanup failed: {str(e)}")
+            self.logger.error"(""f"Unicode cleanup failed: {str(e")""}")
             raise
 
 
 def main():
-    """Main execution function."""
-    print("\\n=== UNICODE CHARACTER CLEANER ===")
-    print("Target: E:/gh_COPILOT (DEPLOYED ENVIRONMENT)")
-    print("============================================================")
+  " "" """Main execution functio"n""."""
+    prin"t""("\\n=== UNICODE CHARACTER CLEANER ="=""=")
+    prin"t""("Target: E:/gh_COPILOT (DEPLOYED ENVIRONMEN"T"")")
+    prin"t""("=========================================================="=""=")
 
     try:
         cleaner = UnicodeCharacterCleaner()
         cleaner.clean_unicode_characters()
 
-        print("\\n=== UNICODE CLEANUP COMPLETE ===")
-        print(f"Environment: {cleaner.results['environment']}")
-        print(f"Files Processed: {cleaner.results['files_processed']}")
+        prin"t""("\\n=== UNICODE CLEANUP COMPLETE ="=""=")
+        print"(""f"Environment: {cleaner.result"s""['environme'n''t'']''}")
+        print"(""f"Files Processed: {cleaner.result"s""['files_process'e''d'']''}")
         print(
-            f"Unicode Characters Found: {cleaner.results['unicode_chars_found']}")
+           " ""f"Unicode Characters Found: {cleaner.result"s""['unicode_chars_fou'n''d'']''}")
         print(
-            f"Unicode Characters Removed: {cleaner.results['unicode_chars_removed']}")
-        print(f"Files Modified: {cleaner.results['files_modified']}")
-        print(f"Unicode Compliant: {cleaner.results['unicode_compliant']}")
-        print(f"Backup Directory: {cleaner.results['backup_directory']}")
+           " ""f"Unicode Characters Removed: {cleaner.result"s""['unicode_chars_remov'e''d'']''}")
+        print"(""f"Files Modified: {cleaner.result"s""['files_modifi'e''d'']''}")
+        print"(""f"Unicode Compliant: {cleaner.result"s""['unicode_complia'n''t'']''}")
+        print"(""f"Backup Directory: {cleaner.result"s""['backup_directo'r''y'']''}")
 
-        if cleaner.results['unicode_compliant']:
-            print("\\nSUCCESS: 100% Unicode Compliance Achieved!")
+        if cleaner.result"s""['unicode_complia'n''t']:
+            prin't''("\\nSUCCESS: 100% Unicode Compliance Achieve"d""!")
         else:
-            print("\\nWARNING: Unicode compliance issues may remain")
+            prin"t""("\\nWARNING: Unicode compliance issues may rema"i""n")
 
     except Exception as e:
-        print(f"\\nERROR: Unicode cleanup failed: {str(e)}")
+        print"(""f"\\nERROR: Unicode cleanup failed: {str(e")""}")
         return 1
 
     return 0
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ ="="" "__main"_""_":
+    sys.exit(main())"
+""

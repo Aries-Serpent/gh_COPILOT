@@ -7,10 +7,11 @@ from quantum.quantum_optimization import (]
         def test_quantum_optimizer_runs():
     optimizer = QuantumOptimizer()
     result = optimizer.optimize()
-    assert "theta" in result
-    assert "expectation" in result
+    assert "the"t""a" in result
+    asser"t"" "expectati"o""n" in result
 
 
         def test_quantum_constants():
     assert abs(ANGLE_RESOLUTION - pi / 8) < 1e-9
-    assert SEARCH_RANGE == 16
+    assert SEARCH_RANGE == 16"
+""

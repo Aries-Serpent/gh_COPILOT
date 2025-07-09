@@ -26,7 +26,7 @@ result = orchestrator.execute_unified_deployment()
 
 For full migration details, see:
 - documentation/deployment_migration_guide_MIGRATION_20250707_061405.md
-- deployment_migration_report_MIGRATION_20250707_061405.json
+- deployment_migration_report_MIGRATION_20250707_061405.jso"n""
 """
 
 import sys
@@ -39,18 +39,19 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    """Deprecation notice for integrated_deployment_orchestrator.py"""
+  " "" """Deprecation notice for integrated_deployment_orchestrator."p""y"""
     logger.warning(
-        "🚨 DEPRECATED: integrated_deployment_orchestrator.py has been migrated")
-    logger.warning("📋 Please use unified_deployment_orchestrator.py instead")
+      " "" "🚨 DEPRECATED: integrated_deployment_orchestrator.py has been migrat"e""d")
+    logger.warnin"g""("📋 Please use unified_deployment_orchestrator.py inste"a""d")
     logger.warning(
-        "📖 Migration guide: documentation/deployment_migration_guide_MIGRATION_20250707_061405.md")
+      " "" "📖 Migration guide: documentation/deployment_migration_guide_MIGRATION_20250707_061405."m""d")
 
     print(
-    """)
+  " "" """)
 
     return 1  # Exit with error code to indicate deprecated usage
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ ="="" "__main"_""_":
+    sys.exit(main())"
+""
