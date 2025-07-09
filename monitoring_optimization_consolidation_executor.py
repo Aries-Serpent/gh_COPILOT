@@ -48,8 +48,8 @@ MANIFEST_FILE = WORKSPACE_ROOT / \
     "monitoring_optimization_consolidation_manifest.json"
 
 # Configure logging
-logging.basicConfig(]
-    format="[%(asctime)s] %(levelname)s: %(message)s",
+logging.basicConfig()
+format="[%(asctime)s] %(levelname)s: %(message)s",
     handlers=[
         logging.StreamHandler(),
         logging.FileHandler(]

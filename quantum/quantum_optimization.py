@@ -63,8 +63,8 @@ class QuantumOptimizer:
             self._apply_oracle(qc, target)
             self._apply_diffusion(qc)
         qc.measure(range(n), range(n))
-        counts = execute(]
-                         shots = 1024).result().get_counts()
+        counts = execute()
+shots = 1024).result().get_counts()
         result = max(counts, key=counts.get)
         return {"result": result, "counts": counts}
 

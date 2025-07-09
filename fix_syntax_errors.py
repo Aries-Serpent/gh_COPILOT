@@ -13,8 +13,8 @@ from pathlib import Path
 def get_syntax_errors():
     """Get list of files with syntax errors from flake8"""
     try:
-        result = subprocess.run(]
-           'flake8', '--select=E999', '--format=%(path)s:%(row)s:%(col)s: %(text)s', '*.py'
+        result = subprocess.run()
+'flake8', '--select=E999', '--format=%(path)s:%(row)s:%(col)s: %(text)s', '*.py'
         ], capture_output = True, text = True, cwd = '.')
 
             files_with_errors = [

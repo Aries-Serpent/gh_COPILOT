@@ -258,7 +258,7 @@ class DisasterRecoveryEnhancer:
             }
             
             all_scripts = [
-            for pattern, script_type in script_patterns.items():
+for pattern, script_type in script_patterns.items():
                 scripts = list(self.workspace_path.rglob(pattern))
                 all_scripts.extend([(script, script_type) for script in scripts])
             

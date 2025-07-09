@@ -16,7 +16,7 @@ def create_session_wrap_up():
     wrap_up_data = {
         "session_completed": datetime.now().isoformat(),
         "mission_status": "SUCCESSFULLY COMPLETED",
-        "deployment_summary": {]
+"deployment_summary": {]
             "source_environments": ["E:/gh_COPILOT", "E:/gh_COPILOT"],
             "target_deployment": "E:/gh_COPILOT",
             "deployment_metrics": {}

@@ -38,10 +38,10 @@ from copilot.common import get_workspace_path
 class EnterpriseUnicodeCompatibilityFix:
     """Enterprise-grade Unicode compatibility fix for Windows systems."""
 
-    def __init__(]
+    def __init__()
         self, workspace_path: Optional[str] = None,
         staging_path: Optional[str] = None
-    ):
+):
         self.workspace_path = get_workspace_path(workspace_path)
         self.staging_path = get_workspace_path(staging_path)
         self.backup_dir = self.workspace_path

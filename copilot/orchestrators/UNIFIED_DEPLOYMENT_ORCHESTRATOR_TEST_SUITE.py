@@ -33,9 +33,9 @@ from unittest.mock import patch, MagicMock
 sys.path.insert(0, str(Path(__file__).parent))
 
 # Configure logging
-logging.basicConfig(]
-    format = '%(asctime)s - %(levelname)s - %(message)s',
-    handlers = [
+logging.basicConfig()
+format = '%(asctime)s - %(levelname)s - %(message)s',
+handlers = [
             'deployment_orchestrator_test.log', encoding = 'utf-8'),
         logging.StreamHandler(sys.stdout)
     ]

@@ -29,8 +29,8 @@ class EnterpriseWrapUpEngine:
     def __init__(self):
         self.start_time = datetime.datetime.now()
         self.process_id = os.getpid()
-        self.workspace_root = Path(]
-            os.environ.get("GH_COPILOT_ROOT", os.getcwd()))
+        self.workspace_root = Path()
+os.environ.get("GH_COPILOT_ROOT", os.getcwd()))
         self.reports_dir = self.workspace_root / "reports"
         self.reports_dir.mkdir(exist_ok=True)
         self.validation_results = {}

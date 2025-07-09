@@ -18,9 +18,9 @@ def install_dependencies():
     required_packages = [
     ]
 
-        for package in required_packages:
+for package in required_packages:
     try:
-    subprocess.check_call(]
+    subprocess.check_call()
     [sys.executable, '-m', 'pip', 'install', package])
             print(f"[SUCCESS] Installed: {package}")
         except subprocess.CalledProcessError:

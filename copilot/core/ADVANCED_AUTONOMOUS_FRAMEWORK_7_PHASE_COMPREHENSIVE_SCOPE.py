@@ -27,9 +27,9 @@ LOG_DIR = Path("logs")
 LOG_DIR.mkdir(exist_ok=True)
 
 # Enterprise logging configuration
-logging.basicConfig(]
-    format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers = [
+logging.basicConfig()
+format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+handlers = [
             LOG_DIR / 'advanced_autonomous_framework_scope.log'),
         logging.StreamHandler()
     ]

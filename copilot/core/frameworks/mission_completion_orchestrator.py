@@ -80,8 +80,8 @@ class MissionCompletionOrchestrator:
         """Setup comprehensive logging for mission completion"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         log_file = self.environment_root
-            / f"mission_completion_{timestamp}.log"
-        logging.basicConfig(]
+/ f"mission_completion_{timestamp}.log"
+        logging.basicConfig()
             format = '%(asctime)s - %(levelname)s - [%(name)s] - %(message)s',
             handlers = [
                 logging.FileHandler(log_file, encoding='utf-8'),

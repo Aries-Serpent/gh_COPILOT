@@ -42,8 +42,8 @@ class EnterpriseOrchestrator:
 
     def __init__(self):
         self.orchestrator_id = f"ORCHESTRATOR_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        self.workspace_root = Path(]
-            os.environ.get("GH_COPILOT_ROOT", os.getcwd()))
+        self.workspace_root = Path()
+os.environ.get("GH_COPILOT_ROOT", os.getcwd()))
         self.production_db = self.workspace_root / "databases" / "production.db"
         self.start_time = datetime.now()
 

@@ -37,7 +37,7 @@ def analyze_advanced_script_features():
     # Key improvements analysis
     key_improvements = [
             ]
-        },
+},
         {]
             ]
         },

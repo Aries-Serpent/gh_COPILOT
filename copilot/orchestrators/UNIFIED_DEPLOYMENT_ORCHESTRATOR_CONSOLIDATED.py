@@ -61,9 +61,9 @@ def setup_enterprise_logging():
         except Exception:
             pass
 
-    logging.basicConfig(]
-        format = '%(asctime)s - %(levelname)s - %(message)s',
-        handlers = [
+    logging.basicConfig()
+format = '%(asctime)s - %(levelname)s - %(message)s',
+handlers = [
             logging.FileHandler('unified_deployment.log', encoding='utf-8'),
             logging.StreamHandler(sys.stdout)
         ]
