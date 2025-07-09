@@ -654,7 +654,7 @@ if __name__ == '__main__':
                                 <select class="form-select mb-3">
                                     <option>Development (${GH_COPILOT_WORKSPACE})</option>
                                     <option>Staging (${GH_COPILOT_WORKSPACE})</option>
-                                    <option>Production (e:/_copilot_production)</option>
+                                    <option>Production (${GH_COPILOT_WORKSPACE})</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
