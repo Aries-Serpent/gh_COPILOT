@@ -25,7 +25,10 @@ python scripts/comprehensive_documentation_synchronizer.py
 ```
 
 ## Environment Setup
-Copy `.env.example` to `.env` and adjust paths as needed. The `GH_COPILOT_WORKSPACE` variable should point to your workspace root.
+Before running any service the project expects a `.env` file at the repository root.
+Run `python scripts/setup_environment.py` to copy `.env.example` to `.env` if it
+does not already exist.  After creating the file, adjust the values as needed.
+The `GH_COPILOT_WORKSPACE` variable should point to your workspace root.
 
 ## Deployment Status
 [SUCCESS] All critical issues have been resolved and the environment is ready for professional deployment.
