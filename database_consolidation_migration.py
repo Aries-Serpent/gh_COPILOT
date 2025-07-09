@@ -109,12 +109,12 @@ class DatabaseConsolidationMigration:
 
         logger.info(f"📁 Archive structure created: {self.archive_dir}")
 
-    def archive_legacy_scripts(]
+    def archive_legacy_scripts(
             self, legacy_scripts: List[Path]) -> Dict[str, Any]:
         """Archive legacy database management scripts"""
         logger.info("📦 ARCHIVING LEGACY DATABASE SCRIPTS...")
 
-        archived_files=[
+        archived_files = []
 
         print("📦 Archiving legacy scripts...")
         with tqdm(total=len(legacy_scripts), desc="Archive Progress", unit="file") as pbar:
