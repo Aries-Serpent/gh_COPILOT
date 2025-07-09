@@ -7,26 +7,29 @@ Implements DUAL COPILOT pattern, visual processing indicators, and enterprise co
 Generates official enterprise deployment certification.
 """
 
-import json
-import time
 import datetime
+import json
 import os
-from pathlib import Path
-from typing import Dict, List, Any, Optional
+import time
 import uuid
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from copilot.common.workspace_utils import get_workspace_path
+
 
 class EnterpriseMissionCompletionCertificator:
     """Enterprise mission completion certification system"""
-    
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
+
+    def __init__(self, workspace_path: Optional[str] = None):
+        self.workspace_path = get_workspace_path(workspace_path)
         self.certification_id = f"ELCF_CERT_{int(time.time())}"
         self.certification_date = datetime.datetime.now()
-        
+
         # Visual indicators for certification
         self.certification_indicators = {
             "[ACHIEVEMENT]": "Enterprise Excellence",
-            "[LAUNCH]": "Production Ready", 
+            "[LAUNCH]": "Production Ready",
             "[SUCCESS]": "Validated",
             "[HIGHLIGHT]": "Mission Success",
             "[TARGET]": "Objectives Met",
@@ -34,22 +37,24 @@ class EnterpriseMissionCompletionCertificator:
             "[LOCK]": "Secure",
             "[POWER]": "Optimized"
         }
-        
+
     def display_certification_indicator(self, indicator: str, message: str):
         """Display certification visual indicator"""
         timestamp = datetime.datetime.now().strftime("%H:%M:%S")
         print(f"\n{indicator} [{timestamp}] {message}")
-        
+
     def generate_enterprise_certification(self) -> Dict[str, Any]:
         """Generate comprehensive enterprise certification"""
-        self.display_certification_indicator("[?]", "Generating Enterprise Deployment Certification")
-        
+        self.display_certification_indicator(
+            "[?]", "Generating Enterprise Deployment Certification")
+
         # Load final validation results
         results_file = None
-        for file in self.workspace_path.glob("phase5_final_enterprise_completion_*.json"):
+        for file in self.workspace_path.glob(
+                "phase5_final_enterprise_completion_*.json"):
             results_file = file
             break
-            
+
         if results_file:
             with open(results_file, 'r', encoding='utf-8') as f:
                 validation_results = json.load(f)
@@ -71,7 +76,7 @@ class EnterpriseMissionCompletionCertificator:
                     }
                 }
             }
-        
+
         certification = {
             "certification_header": {
                 "title": "ENHANCED LEARNING COPILOT FRAMEWORK",
@@ -111,7 +116,7 @@ class EnterpriseMissionCompletionCertificator:
             ],
             "compliance_certifications": {
                 "security_standards": "Enterprise Grade - 91.87%",
-                "performance_requirements": "Production Ready - 91.92%", 
+                "performance_requirements": "Production Ready - 91.92%",
                 "scalability_standards": "Enterprise Capable - 88.53%",
                 "reliability_requirements": "Mission Critical - 93.99%",
                 "maintainability_standards": "High Quality - 91.73%"
@@ -120,7 +125,7 @@ class EnterpriseMissionCompletionCertificator:
                 "authorized_for": "Full Enterprise Production Deployment",
                 "environment_support": [
                     "Production Environments",
-                    "Enterprise Infrastructure", 
+                    "Enterprise Infrastructure",
                     "Mission-Critical Applications",
                     "High-Availability Systems",
                     "Scalable Cloud Platforms"
@@ -158,10 +163,11 @@ class EnterpriseMissionCompletionCertificator:
                 "certification_authority": "Enhanced Learning Copilot Framework Board"
             }
         }
-        
+
         return certification
-    
-    def generate_certification_document(self, certification: Dict[str, Any]) -> str:
+
+    def generate_certification_document(
+            self, certification: Dict[str, Any]) -> str:
         """Generate formal certification document text"""
         doc = f"""
 [?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?][?]
@@ -226,31 +232,36 @@ Certified by: Enhanced Learning Copilot Framework Validation Authority
 Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 """
         return doc
-    
+
     def execute_certification_process(self):
         """Execute complete certification process"""
-        self.display_certification_indicator("[ACHIEVEMENT]", "Initiating Enterprise Mission Completion Certification")
-        
+        self.display_certification_indicator(
+            "[ACHIEVEMENT]", "Initiating Enterprise Mission Completion Certification")
+
         try:
             # Generate certification
             certification = self.generate_enterprise_certification()
-            
+
             # Generate document
-            certification_doc = self.generate_certification_document(certification)
-            
+            certification_doc = self.generate_certification_document(
+                certification)
+
             # Save certification files
-            cert_json_file = self.workspace_path / f"ENTERPRISE_DEPLOYMENT_CERTIFICATION_{self.certification_id}.json"
-            cert_doc_file = self.workspace_path / f"ENTERPRISE_DEPLOYMENT_CERTIFICATE_{self.certification_id}.txt"
-            cert_md_file = self.workspace_path / f"ENTERPRISE_MISSION_COMPLETION_CERTIFICATE.md"
-            
+            cert_json_file = self.workspace_path / \
+                f"ENTERPRISE_DEPLOYMENT_CERTIFICATION_{self.certification_id}.json"
+            cert_doc_file = self.workspace_path / \
+                f"ENTERPRISE_DEPLOYMENT_CERTIFICATE_{self.certification_id}.txt"
+            cert_md_file = self.workspace_path / \
+                f"ENTERPRISE_MISSION_COMPLETION_CERTIFICATE.md"
+
             # Save JSON certification
             with open(cert_json_file, 'w', encoding='utf-8') as f:
                 json.dump(certification, f, indent=2, ensure_ascii=False)
-            
+
             # Save text certificate
             with open(cert_doc_file, 'w', encoding='utf-8') as f:
                 f.write(certification_doc)
-                
+
             # Save markdown certificate
             md_content = f"""# [ACHIEVEMENT] ENTERPRISE MISSION COMPLETION CERTIFICATE
 
@@ -262,53 +273,70 @@ Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 """
             for capability in certification['capabilities_certified']:
                 md_content += f"- [SUCCESS] {capability}\n"
-                
+
             md_content += f"""
 ### Compliance Certifications
 """
-            for standard, status in certification['compliance_certifications'].items():
-                md_content += f"- [LOCK] **{standard.replace('_', ' ').title()}:** {status}\n"
-                
+            for standard, status in certification['compliance_certifications'].items(
+            ):
+                md_content += f"- [LOCK] **{
+                    standard.replace(
+                        '_', ' ').title()}:** {status}\n"
+
             md_content += f"""
 ### Technical Specifications
 """
-            for spec, value in certification['technical_specifications'].items():
-                md_content += f"- [POWER] **{spec.replace('_', ' ').title()}:** {value}\n"
-                
+            for spec, value in certification['technical_specifications'].items(
+            ):
+                md_content += f"- [POWER] **{
+                    spec.replace(
+                        '_', ' ').title()}:** {value}\n"
+
             with open(cert_md_file, 'w', encoding='utf-8') as f:
                 f.write(md_content)
-            
+
             # Display results
-            self.display_certification_indicator("[?]", f"Certification Generated: {self.certification_id}")
-            self.display_certification_indicator("[STORAGE]", f"Files Saved: JSON, TXT, MD formats")
-            self.display_certification_indicator("[TARGET]", f"Enterprise Readiness: {certification['mission_completion']['overall_score']:.2%}")
-            self.display_certification_indicator("[LAUNCH]", f"Status: {certification['mission_completion']['readiness_level']}")
-            
+            self.display_certification_indicator(
+                "[?]", f"Certification Generated: {
+                    self.certification_id}")
+            self.display_certification_indicator(
+                "[STORAGE]", f"Files Saved: JSON, TXT, MD formats")
+            self.display_certification_indicator(
+                "[TARGET]", f"Enterprise Readiness: {
+                    certification['mission_completion']['overall_score']:.2%}")
+            self.display_certification_indicator(
+                "[LAUNCH]", f"Status: {
+                    certification['mission_completion']['readiness_level']}")
+
             print(certification_doc)
-            
+
             return certification
-            
+
         except Exception as e:
-            self.display_certification_indicator("[ERROR]", f"Certification failed: {e}")
+            self.display_certification_indicator(
+                "[ERROR]", f"Certification failed: {e}")
             raise
+
 
 def main():
     """Main execution function"""
     print("[ACHIEVEMENT] Initializing Enterprise Mission Completion Certification...")
-    
+
     try:
         # Initialize certification system
         certificator = EnterpriseMissionCompletionCertificator()
-        
+
         # Execute certification
         certification = certificator.execute_certification_process()
-        
-        print("\n[HIGHLIGHT] ENTERPRISE MISSION COMPLETION CERTIFICATION SUCCESSFULLY GENERATED! [HIGHLIGHT]")
+
+        print(
+            "\n[HIGHLIGHT] ENTERPRISE MISSION COMPLETION CERTIFICATION SUCCESSFULLY GENERATED! [HIGHLIGHT]")
         return certification
-        
+
     except Exception as e:
         print(f"[ERROR] Certification failed: {e}")
         raise
+
 
 if __name__ == "__main__":
     main()

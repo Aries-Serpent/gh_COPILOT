@@ -5,8 +5,8 @@
 ## Package Information
 - **Package Name**: gh_COPILOT_Enterprise_Package_20250706_181036
 - **Created**: 2025-07-06 18:10:37
-- **Source Environment**: `e:/gh_COPILOT` (override with `GH_COPILOT_WORKSPACE`)
-- **Target Environment**: `e:/gh_COPILOT` (override with `GH_COPILOT_WORKSPACE`)
+- **Source Environment**: `${GH_COPILOT_WORKSPACE:-/path/to/workspace}`
+- **Target Environment**: `${GH_COPILOT_WORKSPACE:-/path/to/workspace}`
 - **Validation Status**: PASSED - Ready for Professional Deployment
 
 > **Note**: Earlier drafts referenced "quantum" algorithms. The current release relies on classical physics optimization while quantum methods remain draft.
@@ -25,7 +25,7 @@ python scripts/comprehensive_documentation_synchronizer.py
 ```
 
 ## Environment Setup
-Copy `.env.example` to `.env` and adjust paths as needed. The `GH_COPILOT_WORKSPACE` variable should point to your workspace root.
+Copy `.env.example` to `.env` and adjust paths as needed. Set `GH_COPILOT_WORKSPACE` to your workspace root or ensure `get_workspace_path()` resolves correctly.
 
 ## Deployment Status
 [SUCCESS] All critical issues have been resolved and the environment is ready for professional deployment.
@@ -59,7 +59,7 @@ Copy `.env.example` to `.env` and adjust paths as needed. The `GH_COPILOT_WORKSP
 - **Deployment Ready**: TRUE
 
 ## Deployment Instructions
-1. All core files have been copied to the workspace directory (default `e:/gh_COPILOT`)
+1. All core files have been copied to the workspace directory (default `/path/to/workspace`)
 2. Configuration files are in place
 3. Run final_deployment_validator.py to confirm environment
 4. System is ready for production use
