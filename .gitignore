@@ -4,3 +4,4 @@ logs/
 # Local environment configuration.env
 
 .venv/
+/backups
