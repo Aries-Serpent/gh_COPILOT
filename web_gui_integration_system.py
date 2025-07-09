@@ -42,7 +42,6 @@ class WebGUIIntegrationSystem:
             templates_path=Path(workspace_root or ".") /
             "web_gui" / "templates",
         )
-        # Initialize Flask dashboard, template loader, and database session
         self.dashboard_app = dashboard_app
         self.template_env = Environment(
             loader=FileSystemLoader(self.config.templates_path)
