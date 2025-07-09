@@ -2,5 +2,5 @@
 logs/
 
 # Local environment configuration.env
-# Local virtual environment
+
 .venv/
