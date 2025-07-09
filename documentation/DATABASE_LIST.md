@@ -35,3 +35,7 @@ This repository includes the following SQLite databases located in the `database
 - testing.db
 - v3_self_learning_engine.db
 
+The `database_sync_scheduler.py` utility reads this file at runtime.
+It loops over each name to replicate `production.db` to the other 31
+databases, ensuring full synchronization across the suite.
+

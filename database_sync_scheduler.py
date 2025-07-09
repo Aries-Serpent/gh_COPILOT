@@ -9,7 +9,6 @@ synchronization gap.
 from __future__ import annotations
 
 import logging
-import shutil
 from pathlib import Path
 from sqlite3 import Connection, connect
 from typing import Iterable
@@ -35,8 +34,22 @@ def synchronize_databases(master: Path, replicas: Iterable[Path]) -> None:
         _copy_database(master, replica)
 
 
+def _load_database_names(list_file: Path) -> list[str]:
+    """Return database names listed in the documentation file."""
+    names: list[str] = []
+    for line in list_file.read_text().splitlines():
+        line = line.strip()
+        if line.startswith("- "):
+            name = line[2:].strip()
+            if name:
+                names.append(name)
+    return names
+
+
 if __name__ == "__main__":
     workspace = Path("./databases")
     master_db = workspace / "production.db"
-    replica_dbs = [workspace / db for db in ("analytics.db", "staging.db")]
+    list_path = Path("documentation") / "DATABASE_LIST.md"
+    db_names = _load_database_names(list_path)
+    replica_dbs = [workspace / name for name in db_names if name != "production.db"]
     synchronize_databases(master_db, replica_dbs)
