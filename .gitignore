@@ -6,3 +6,4 @@ logs/
 .venv/
 /backups
 *.log
+/disaster_recovery/backups
