@@ -333,7 +333,7 @@ is_critical = {{ is_critical }}
             """)
             
             configurations = [
-            for row in cursor.fetchall():
+for row in cursor.fetchall():
                 config = ConfigurationMetadata(
                     config_id=row[0],
                     config_category=row[1],

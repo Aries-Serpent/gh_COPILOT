@@ -23,9 +23,9 @@ from tqdm import tqdm
 import time
 
 # Configure enterprise logging without Unicode characters
-logging.basicConfig(]
-    format = '%(asctime)s - %(levelname)s - %(message)s',
-    handlers = [
+logging.basicConfig()
+format = '%(asctime)s - %(levelname)s - %(message)s',
+handlers = [
         logging.FileHandler('comprehensive_deployment.log', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]

@@ -29,9 +29,9 @@ from dataclasses import dataclass, field
 import zipfile
 
 # Configure logging
-logging.basicConfig(]
-    format = '%(asctime)s - %(levelname)s - %(message)s',
-    handlers = [
+logging.basicConfig()
+format = '%(asctime)s - %(levelname)s - %(message)s',
+handlers = [
         logging.FileHandler('legacy_cleanup.log', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]

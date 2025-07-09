@@ -53,8 +53,8 @@ class IntelligentInstructionOrchestrator:
 
     def __init__(self, workspace_root: Optional[str] = None):
         self.workspace_root = workspace_root or os.getcwd()
-        self.instructions_dir = Path(]
-            self.workspace_root) / '.github' / 'instructions'
+        self.instructions_dir = Path()
+self.workspace_root) / '.github' / 'instructions'
         self.db_path = Path(self.workspace_root)
             / 'instruction_orchestrator.db'
 

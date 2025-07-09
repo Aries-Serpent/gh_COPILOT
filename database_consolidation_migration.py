@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-🔄 DATABASE MANAGEMENT CONSOLIDATION MIGRATION
-==============================================
+DATABASE MANAGEMENT CONSOLIDATION MIGRATION
+===========================================
 Migrates from multiple database management scripts to unified system
 
 CONSOLIDATES:
@@ -24,45 +24,74 @@ import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
-from tqdm import tqdm
+try:
+    from tqdm import tqdm  # type: ignore
+except ImportError:
+    print("Warning: tqdm not available, using basic progress indication")
+    class tqdm:
+        def __init__(self, *args, **kwargs):
+            self.total = kwargs.get('total', 100)
+            self.current = 0
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            pass
+        def update(self, n):
+            self.current += n
+            print(f"Progress: {self.current}/{self.total}")
+        def set_description(self, desc):
+            print(f"Current: {desc}")
 
-# Configure logging
+
 LOG_DIR = Path("logs")
 LOG_DIR.mkdir(exist_ok=True)
 
-# Configure logging
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler(
             LOG_DIR / 'database_consolidation_migration.log', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
-    ]
+    ],
+   level=logging.INFO
 )
-logger=logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class DatabaseConsolidationMigration:
     """Database management script consolidation migration"""
 
-    def __init__(self):
-        self.workspace_root=Path("e:\\gh_COPILOT")
-        timestamp=datetime.now().strftime('%Y%m%d_%H%M%S')
-        self.migration_id=f"DB_MIGRATION_{timestamp}"
-        self.archive_dir=self.workspace_root / "scripts" /
-            "archived_database_scripts" / self.migration_id
+    def __init__(self, workspace_root: 'Optional[str]' = None):
+        # Configurable workspace root for portability
+        if workspace_root:
+            self.workspace_root = Path(workspace_root)
+        else:
+            self.workspace_root = Path("e:\\gh_COPILOT")
+            
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        self.migration_id = f"DB_MIGRATION_{timestamp}"
+        self.archive_dir = (self.workspace_root / "scripts" / 
+                           "archived_database_scripts" / self.migration_id)
 
-        # Scripts to consolidate
-        self.legacy_scripts=[
+        # Scripts to consolidate - populated with defaults
+        self.legacy_scripts = [
+            "DATABASE_CLEANUP_EXECUTOR.py",
+            "PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py",
+            "database_organization_manager.py", 
+            "PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py"
         ]
 
-        # Search locations
-        self.search_locations=[
+        # Search locations - populated with defaults
+        self.search_locations = [
+            self.workspace_root / "scripts",
+            self.workspace_root / "database",
+            self.workspace_root / "tools",
+            self.workspace_root
         ]
 
-        self.migration_results={
+        self.migration_results = {
             "timestamp": datetime.now().isoformat(),
             "scripts_found": 0,
             "scripts_archived": 0,
@@ -70,62 +99,59 @@ class DatabaseConsolidationMigration:
             "archived_files": []
         }
 
-        logger.info("🔄 DATABASE CONSOLIDATION MIGRATION INITIALIZED")
+        logger.info("DATABASE CONSOLIDATION MIGRATION INITIALIZED")
         logger.info(f"Migration ID: {self.migration_id}")
 
     def discover_legacy_scripts(self) -> List[Path]:
         """Discover legacy database management scripts"""
-        logger.info("🔍 DISCOVERING LEGACY DATABASE SCRIPTS...")
+        logger.info("DISCOVERING LEGACY DATABASE SCRIPTS...")
 
-        found_scripts=[
+        found_scripts = []
 
-        print("🔍 Scanning for legacy database scripts...")
+        print("Scanning for legacy database scripts...")
         with tqdm(total=len(self.search_locations), desc="Discovery Progress", unit="location") as pbar:
             for location in self.search_locations:
                 pbar.set_description(f"Scanning: {location.name}")
 
                 if location.exists():
                     for script_name in self.legacy_scripts:
-                        script_path= location / script_name
+                        script_path = location / script_name
                         if script_path.exists():
                             found_scripts.append(script_path)
-                            logger.info(
-                                f"📄 Found legacy script: {script_path}")
+                            logger.info(f"Found legacy script: {script_path}")
 
                 pbar.update(1)
 
-        self.migration_results["scripts_found"]= len(found_scripts)
-        logger.info(f"📊 Found {len(found_scripts)} legacy database scripts")
+        self.migration_results["scripts_found"] = len(found_scripts)
+        logger.info(f"Found {len(found_scripts)} legacy database scripts")
         return found_scripts
 
     def create_archive_structure(self):
         """Create archive directory structure"""
-        logger.info("📁 CREATING ARCHIVE STRUCTURE...")
+        logger.info("CREATING ARCHIVE STRUCTURE...")
 
         # Create archive directories
         self.archive_dir.mkdir(parents=True, exist_ok=True)
         (self.archive_dir / "metadata").mkdir(exist_ok=True)
         (self.archive_dir / "documentation").mkdir(exist_ok=True)
 
-        logger.info(f"📁 Archive structure created: {self.archive_dir}")
+        logger.info(f"Archive structure created: {self.archive_dir}")
 
-    def archive_legacy_scripts(
-            self, legacy_scripts: List[Path]) -> Dict[str, Any]:
+    def archive_legacy_scripts(self, legacy_scripts: List[Path]) -> Dict[str, Any]:
         """Archive legacy database management scripts"""
-        logger.info("📦 ARCHIVING LEGACY DATABASE SCRIPTS...")
+        logger.info("ARCHIVING LEGACY DATABASE SCRIPTS...")
 
         archived_files = []
 
-        print("📦 Archiving legacy scripts...")
+        print("Archiving legacy scripts...")
         with tqdm(total=len(legacy_scripts), desc="Archive Progress", unit="file") as pbar:
             for script_path in legacy_scripts:
                 pbar.set_description(f"Archiving: {script_path.name}")
 
                 try:
                     # Create relative path for archive
-                    relative_path= script_path.relative_to(]
-                        self.workspace_root)
-                    target_path=self.archive_dir / relative_path
+                    relative_path = script_path.relative_to(self.workspace_root)
+                    target_path = self.archive_dir / relative_path
 
                     # Create target directory
                     target_path.parent.mkdir(parents=True, exist_ok=True)
@@ -134,17 +160,19 @@ class DatabaseConsolidationMigration:
                     shutil.copy2(script_path, target_path)
 
                     # Create metadata file
-                    metadata={
+                    metadata = {
                         "original_path": str(script_path),
                         "archive_path": str(target_path),
                         "migration_id": self.migration_id,
                         "migration_timestamp": datetime.now().isoformat(),
                         "file_size": script_path.stat().st_size,
-                        "last_modified": datetime.fromtimestamp(script_path.stat().st_mtime).isoformat(),
+                        "last_modified": datetime.fromtimestamp(
+                            script_path.stat().st_mtime).isoformat(),
                         "consolidated_into": "unified_database_management_system.py"
                     }
 
-                    metadata_path = self.archive_dir / "metadata" / f"{script_path.name}.metadata.json"
+                    metadata_path = (self.archive_dir / "metadata" / 
+                                   f"{script_path.name}.metadata.json")
                     with open(metadata_path, 'w', encoding='utf-8') as f:
                         json.dump(metadata, f, indent=2)
 
@@ -157,25 +185,25 @@ class DatabaseConsolidationMigration:
                         "metadata": str(metadata_path)
                     })
 
-                    logger.info(f"📦 Archived: {script_path.name}")
+                    logger.info(f"Archived: {script_path.name}")
 
                 except Exception as e:
-                    logger.error(f"❌ Failed to archive {script_path}: {e}")
+                    logger.error(f"Failed to archive {script_path}: {e}")
 
                 pbar.update(1)
 
         self.migration_results["scripts_archived"] = len(archived_files)
         self.migration_results["archived_files"] = archived_files
 
-        logger.info(f"📦 Archived {len(archived_files)} legacy scripts")
+        logger.info(f"Archived {len(archived_files)} legacy scripts")
         return {
-            "archived_count": len(archived_files),
+            "count": len(archived_files),
             "archived_files": archived_files
         }
 
     def create_migration_documentation(self):
         """Create migration documentation"""
-        logger.info("📋 CREATING MIGRATION DOCUMENTATION...")
+        logger.info("CREATING MIGRATION DOCUMENTATION...")
 
         documentation = f"""# Database Management Scripts Migration Guide
 ===============================================
@@ -189,52 +217,24 @@ class DatabaseConsolidationMigration:
 ## Consolidated Scripts
 The following database management scripts have been consolidated:
 
-### ✅ Archived Scripts:
+### Archived Scripts:
 """
 
         for script_info in self.migration_results["archived_files"]:
             script_name = Path(script_info["original"]).name
             documentation += f"- `{script_name}` → **ARCHIVED**\n"
+            
         documentation += f"""
-### ✅ New Unified System:
+### New Unified System:
 - **`unified_database_management_system.py`** - Complete database management solution
 
 ## Key Features of Unified System
-- **🔍 Database Discovery**: Comprehensive database file discovery
-- **📦 Enterprise Backup**: Automated backup with integrity validation
-- **🔄 Database Consolidation**: Duplicate detection and consolidation
-- **📁 Structure Organization**: Organized database directory structure
-- **✅ Integrity Validation**: Database health and connection testing
-- **📋 Management Reporting**: Comprehensive operation reporting
-
-## Usage Changes
-### Before (Multiple Scripts):
-```bash
-# Different scripts for different operations
-python DATABASE_CLEANUP_EXECUTOR.py
-python PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py
-python database_organization_manager.py
-```
-
-### After (Unified System):
-```bash
-# Single script for all database management
-python unified_database_management_system.py
-```
-
-## Archive Location
-- **Archive Directory**: `{self.archive_dir}`
-- **Metadata Files**: `{self.archive_dir}/metadata/`
-- **Documentation**: `{self.archive_dir}/documentation/`
-
-## Migration Validation
-All legacy scripts have been safely archived with:
-- ✅ Original functionality preserved in unified system
-- ✅ Metadata tracking for all archived files
-- ✅ Complete audit trail maintained
-- ✅ Enterprise compliance standards met
-
----
+- **Database Discovery**: Comprehensive database file discovery
+- **Enterprise Backup**: Automated backup with integrity validation
+- **Database Consolidation**: Duplicate detection and consolidation
+- **Structure Organization**: Organized database directory structure
+- **Integrity Validation**: Database health and connection testing
+- **Management Reporting**: Comprehensive operation reporting
 *Database Management Consolidation Migration - {self.migration_id}*
 *gh_COPILOT Toolkit v4.0 - Enterprise Database Management*
 """

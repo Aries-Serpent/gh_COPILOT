@@ -31,9 +31,9 @@ class EnterpriseJSONSerializer:
         self.staging_path = get_workspace_path(workspace_path)
 
         # Setup logging
-        logging.basicConfig(]
-            format = '%(asctime)s - %(levelname)s - %(message)s'
-        )
+        logging.basicConfig()
+format = '%(asctime)s - %(levelname)s - %(message)s'
+)
         self.logger = logging.getLogger(__name__)
 
     def serialize_datetime(self, obj: Any) -> Any:
