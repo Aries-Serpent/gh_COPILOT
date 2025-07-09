@@ -257,7 +257,7 @@ class DisasterRecoveryEnhancer:
                 'automation': ['automation', 'auto', 'script', 'batch']
             }
             
-            all_scripts = []
+            all_scripts = [
             for pattern, script_type in script_patterns.items():
                 scripts = list(self.workspace_path.rglob(pattern))
                 all_scripts.extend([(script, script_type) for script in scripts])
@@ -309,7 +309,7 @@ class DisasterRecoveryEnhancer:
                             priority = 3
                         
                         # Extract dependencies (basic analysis)
-                        dependencies = []
+                        dependencies = [
                         if script_type == 'python':
                             import_lines = [line.strip() for line in content.splitlines() 
                                           if line.strip().startswith(('import ', 'from '))]
@@ -412,7 +412,7 @@ class DisasterRecoveryEnhancer:
                 ".env.example": "env"
             }
             
-            config_files = []
+            config_files = [
             for pattern, config_type in config_patterns.items():
                 if '*' in pattern:
                     found_files = list(self.workspace_path.rglob(pattern))

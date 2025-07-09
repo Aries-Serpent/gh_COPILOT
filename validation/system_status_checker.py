@@ -79,16 +79,6 @@ class SystemStatusChecker:
 
         # Visual indicators
         self.visual_indicators = {
-            'status': '📊',
-            'processing': '⚙️',
-            'success': '✅',
-            'error': '❌',
-            'warning': '⚠️',
-            'info': '📋',
-            'database': '🗄️',
-            'network': '🌐',
-            'performance': '⚡',
-            'security': '🔒'
         }
 
         # Configure logging
@@ -96,22 +86,10 @@ class SystemStatusChecker:
 
         # Expected services and their ports
         self.expected_services = {
-            'Enterprise Dashboard': 5000,
-            'Platform Demo': 5001,
-            'Web GUI Generator': 5002,
-            'Template Intelligence': None,
-            'Analytics Engine': None,
-            'Optimization Engine': None
         }
 
         # Expected databases
         self.expected_databases = [
-            'production.db',
-            'enhanced_intelligence.db',
-            'analytics.db',
-            'monitoring.db',
-            'development.db',
-            'testing.db'
         ]
 
         print(
@@ -133,7 +111,7 @@ class SystemStatusChecker:
         handler.setLevel(logging.INFO)
 
         # Create formatter
-        formatter = logging.Formatter(
+        formatter = logging.Formatter(]
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
         handler.setFormatter(formatter)
@@ -161,8 +139,14 @@ class SystemStatusChecker:
             # System uptime
             boot_time = psutil.boot_time()
             uptime = datetime.now() - datetime.fromtimestamp(boot_time)
-            uptime_str = f"{uptime.days}d {uptime.seconds//3600}h {(uptime.seconds//60) % 60}m"
-
+            uptime_str = f"{
+    uptime.days}d {
+        uptime.seconds
+        // 3600}h {
+            (
+                uptime.seconds
+                // 60) %
+                 60}m"
             # Temperature (if available)
             temperature = None
             try:
@@ -183,15 +167,15 @@ class SystemStatusChecker:
                 # or requires special permissions, or hardware doesn't support it
                 pass
 
-            health = SystemHealthMetrics(
-                timestamp=self.check_time.isoformat(),
-                cpu_percent=cpu_percent,
-                memory_percent=memory.percent,
-                disk_percent=disk.percent,
-                network_connections=connections,
-                running_processes=processes,
-                system_uptime=uptime_str,
-                temperature=temperature
+            health = SystemHealthMetrics(]
+                timestamp = self.check_time.isoformat(),
+                cpu_percent = cpu_percent,
+                memory_percent = memory.percent,
+                disk_percent = disk.percent,
+                network_connections = connections,
+                running_processes = processes,
+                system_uptime = uptime_str,
+                temperature = temperature
             )
 
             # Print health status
@@ -217,14 +201,14 @@ class SystemStatusChecker:
             print(
                 f"{self.visual_indicators['error']} System health check failed: {e}")
             self.logger.error(f"System health check failed: {e}")
-            return SystemHealthMetrics(
-                timestamp=self.check_time.isoformat(),
-                cpu_percent=0,
-                memory_percent=0,
-                disk_percent=0,
-                network_connections=0,
-                running_processes=0,
-                system_uptime="unknown"
+            return SystemHealthMetrics(]
+                timestamp = self.check_time.isoformat(),
+                cpu_percent = 0,
+                memory_percent = 0,
+                disk_percent = 0,
+                network_connections = 0,
+                running_processes = 0,
+                system_uptime = "unknown"
             )
 
     def check_service_health(self) -> List[ServiceHealth]:
@@ -232,11 +216,12 @@ class SystemStatusChecker:
         print(f"\n{self.visual_indicators['processing']} SERVICE HEALTH CHECK")
         print("=" * 60)
 
-        services_health = []
+        services_health = [
 
         # Get all running Python processes
-        python_processes = []
-        for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cpu_percent', 'memory_info']):
+        python_processes = [
+        for proc in psutil.process_iter(
+            ['pid', 'name', 'cmdline', 'cpu_percent', 'memory_info']):
             try:
                 if proc.info['name'] and 'python' in proc.info['name'].lower():
                     python_processes.append(proc.info)
@@ -245,26 +230,19 @@ class SystemStatusChecker:
 
         # Check each expected service
         for service_name, port in self.expected_services.items():
-            service_health = ServiceHealth(
-                name=service_name,
-                status='unknown',
-                pid=None,
-                port=port,
-                cpu_percent=None,
-                memory_mb=None,
-                response_time=None,
-                error_message=None
+            service_health = ServiceHealth(]
             )
 
             # Check if service is running by looking for relevant processes
             service_found = False
             for proc in python_processes:
-                if proc['cmdline'] and any(service_name.lower().split()[0] in ' '.join(proc['cmdline']).lower() for word in service_name.lower().split()):
+                if proc['cmdline'] and any(service_name.lower().split()[0] in ' '.join(
+                    proc['cmdline']).lower() for word in service_name.lower().split()):
                     service_found = True
                     service_health.pid = proc['pid']
                     service_health.cpu_percent = proc['cpu_percent']
-                    service_health.memory_mb = proc['memory_info'].rss / \
-                        1024 / 1024 if proc['memory_info'] else None
+                    service_health.memory_mb = proc['memory_info'].rss
+                        / 1024 / 1024 if proc['memory_info'] else None
                     service_health.status = 'running'
                     break
 
@@ -272,8 +250,8 @@ class SystemStatusChecker:
             if port and service_found:
                 try:
                     start_time = time.time()
-                    response = requests.get(
-                        f"http://localhost:{port}/api/health", timeout=2)
+                    response = requests.get(]
+                        f"http://localhost:{port}/api/health", timeout = 2)
                     service_health.response_time = time.time() - start_time
 
                     if response.status_code == 200:
@@ -281,7 +259,6 @@ class SystemStatusChecker:
                     else:
                         service_health.status = 'unhealthy'
                         service_health.error_message = f"HTTP {response.status_code}"
-
                 except requests.RequestException as e:
                     service_health.status = 'unreachable'
                     service_health.error_message = str(e)
@@ -319,25 +296,24 @@ class SystemStatusChecker:
             f"\n{self.visual_indicators['processing']} DATABASE HEALTH CHECK")
         print("=" * 60)
 
-        databases_health = []
+        databases_health = [
 
         # Find all database files
-        db_files = []
+        db_files = [
         for db_pattern in ['*.db', '*.sqlite', '*.sqlite3']:
             db_files.extend(self.workspace_root.glob(f"**/{db_pattern}"))
 
         # Check each database
         for db_file in db_files:
             if db_file.is_file():
-                db_health = DatabaseHealth(
-                    name=db_file.name,
-                    path=str(db_file),
-                    size_mb=db_file.stat().st_size / (1024 * 1024),
-                    table_count=0,
-                    last_modified=datetime.fromtimestamp(
+                db_health = DatabaseHealth(]
+                    path = str(db_file),
+                    size_mb = db_file.stat().st_size / (1024 * 1024),
+                    table_count = 0,
+                    last_modified = datetime.fromtimestamp(]
                         db_file.stat().st_mtime).isoformat(),
-                    connectivity=False,
-                    error_message=None
+                    connectivity = False,
+                    error_message = None
                 )
 
                 # Test database connectivity
@@ -375,8 +351,6 @@ class SystemStatusChecker:
         print("=" * 60)
 
         network_status = {
-            'localhost_connectivity': False,
-            'external_connectivity': False,
             'port_availability': {},
             'active_connections': 0,
             'listening_ports': []
@@ -415,14 +389,14 @@ class SystemStatusChecker:
                     sock.close()
 
             # Get active connections
-            network_status['active_connections'] = len(
+            network_status['active_connections'] = len(]
                 psutil.net_connections())
 
             # Get listening ports
             for conn in psutil.net_connections(kind='inet'):
                 if conn.status == 'LISTEN' and conn.laddr:
                     try:
-                        port = conn.laddr.port if hasattr(
+                        port = conn.laddr.port if hasattr(]
                             conn.laddr, 'port') else conn.laddr[1]
                         network_status['listening_ports'].append(port)
                     except (AttributeError, IndexError):
@@ -457,12 +431,6 @@ class SystemStatusChecker:
         print("=" * 60)
 
         recovery_status = {
-            'schema_initialized': False,
-            'scripts_tracked': 0,
-            'configurations_preserved': 0,
-            'recovery_sequences': 0,
-            'recovery_score': 0,
-            'backup_capability': False
         }
 
         try:
@@ -471,40 +439,38 @@ class SystemStatusChecker:
                     cursor = conn.cursor()
 
                     # Check if disaster recovery schema exists
-                    cursor.execute("""
-                        SELECT name FROM sqlite_master 
-                        WHERE type='table' AND name='enhanced_script_tracking'
+                    cursor.execute(
                     """)
-                    recovery_status['schema_initialized'] = cursor.fetchone(
+                    recovery_status['schema_initialized'] = cursor.fetchone(]
                     ) is not None
 
                     if recovery_status['schema_initialized']:
                         # Get tracked scripts count
                         cursor.execute(
                             "SELECT COUNT(*) FROM enhanced_script_tracking")
-                        recovery_status['scripts_tracked'] = cursor.fetchone()[
+                        recovery_status['scripts_tracked'] = cursor.fetchone()[]
                             0]
 
                         # Get preserved configurations count
-                        cursor.execute("""
-                            SELECT COUNT(*) FROM sqlite_master 
+                        cursor.execute(
+                            SELECT COUNT(*) FROM sqlite_master
                             WHERE type='table' AND name='system_configurations'
                         """)
                         if cursor.fetchone():
                             cursor.execute(
                                 "SELECT COUNT(*) FROM system_configurations")
-                            recovery_status['configurations_preserved'] = cursor.fetchone()[
+                            recovery_status['configurations_preserved'] = cursor.fetchone()[]
                                 0]
 
                         # Get recovery sequences count
-                        cursor.execute("""
-                            SELECT COUNT(*) FROM sqlite_master 
-                            WHERE type='table' AND name='recovery_sequences'
+                        cursor.execute(
+                            SELECT COUNT(*) FROM sqlite_master
+                            WHERE type = 'table' AND name = 'recovery_sequences'
                         """)
                         if cursor.fetchone():
                             cursor.execute(
                                 "SELECT COUNT(*) FROM recovery_sequences")
-                            recovery_status['recovery_sequences'] = cursor.fetchone()[
+                            recovery_status['recovery_sequences'] = cursor.fetchone()[]
                                 0]
 
                         # Calculate recovery score
@@ -564,7 +530,7 @@ class SystemStatusChecker:
             health_score += 5
 
         # Services health (30 points)
-        healthy_services = sum(1 for s in services_health if s.status in [
+        healthy_services = sum(]
                                'healthy', 'running'])
         health_score += (healthy_services / len(services_health)) * 30
 
@@ -587,7 +553,6 @@ class SystemStatusChecker:
 
         # Create comprehensive report
         report = {
-            'checker_id': self.checker_id,
             'timestamp': datetime.now().isoformat(),
             'overall_health_score': round(health_score, 1),
             'system_health': asdict(system_health),
@@ -595,8 +560,7 @@ class SystemStatusChecker:
             'databases_health': [asdict(d) for d in databases_health],
             'network_status': network_status,
             'disaster_recovery_status': recovery_status,
-            'summary': {
-                'healthy_services': healthy_services,
+            'summary': {]
                 'total_services': len(services_health),
                 'healthy_databases': healthy_databases,
                 'total_databases': len(databases_health),
@@ -660,13 +624,9 @@ class SystemStatusChecker:
 
 def main() -> Dict[str, Any]:
     """Main entry point for the system status checker"""
-    parser = argparse.ArgumentParser(
-        description="Run enterprise system status checks"
+    parser = argparse.ArgumentParser(]
     )
-    parser.add_argument(
-        "--comprehensive-check",
-        action="store_true",
-        help="Run the full system status audit",
+    parser.add_argument(]
     )
     args = parser.parse_args()
 

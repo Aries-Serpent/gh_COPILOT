@@ -23,32 +23,23 @@ def main():
     db_dir = Path(__file__).resolve().parents[1] / "databases"
     # expected new objects per recent updates
     expectations = {
-        "production.db": {
-            "quantum_processing_results",
-            "optimization_metrics",
-        },
-        "enhanced_script_tracking.db": {
-            "enhanced_script_tracking",
-            "script_templates",
-        },
-        "consolidation_tracking.db": {
-            "script_generation_consolidation",
-            "consolidation_manifest",
-        },
-        "optimization_metrics.db": {"optimization_metrics"},
-        "cleanup_actions.db": {"cleanup_actions"},
-        # add other DB: expected_tables...
-    }
-    results = {}
-    for db in tqdm(list(db_dir.glob("*.db")), desc="Checking DBs"):
+       },
+            "enhanced_script_tracking.db": {},
+            "consolidation_tracking.db": {},
+            "optimization_metrics.db": {"optimization_metrics"},
+            "cleanup_actions.db": {"cleanup_actions"},
+            # add other DB: expected_tables...
+            }
+            results = {}
+            for db in tqdm(list(db_dir.glob("*.db")), desc="Checking DBs"):
         exp = expectations.get(db.name, set())
         if exp:
             results[db.name] = validate_db(db, exp)
-    duration = (datetime.now() - start).total_seconds()
-    print(f"\n\u2705 Verification completed in {duration:.2f}s")
-    for db, res in results.items():
+            duration = (datetime.now() - start).total_seconds()
+            print(f"\n\u2705 Verification completed in {duration:.2f}s")
+            for db, res in results.items():
         print(f"{db}: missing={res['missing']} extra={res['extra']}")
 
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     main()

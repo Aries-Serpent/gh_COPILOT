@@ -29,15 +29,15 @@ from tqdm import tqdm
 import hashlib
 
 # MANDATORY: Enterprise logging setup
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
+logging.basicConfig(]
+    format = '%(asctime)s - %(levelname)s - %(message)s',
+    handlers = [
         logging.FileHandler('documentation_generation_system.log'),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class DatabaseTable:
@@ -49,6 +49,7 @@ class DatabaseTable:
     table_type: str
     description: str
 
+
 @dataclass
 class ERRelationship:
     """Entity-Relationship diagram relationship"""
@@ -59,120 +60,129 @@ class ERRelationship:
     to_column: str
     description: str
 
+
 class DocumentationGenerationSystem:
     """
     Advanced documentation generation system for template intelligence platform
     DUAL COPILOT Pattern: Primary generator + Secondary validator
     """
-    
-    def __init__(self, workspace_root: str = "e:/gh_COPILOT"):
+
+    def __init__(self, workspace_root: str="e:/gh_COPILOT"):
         self.workspace_root = Path(workspace_root)
         self.databases_dir = self.workspace_root / "databases"
         self.documentation_dir = self.workspace_root / "documentation"
         self.start_time = datetime.now()
         self.process_id = os.getpid()
-        
+
         # Database metadata
         self.database_metadata = {}
-        self.er_relationships = []
-        
+        self.er_relationships = [
+
         # Documentation output
-        self.documentation_files = []
-        
+        self.documentation_files = [
+
         # Anti-recursion validation
         self._validate_environment_compliance()
-        
+
         # Initialize documentation system
         self._initialize_documentation_system()
-        
+
         logger.info("=" * 80)
         logger.info("DOCUMENTATION GENERATION SYSTEM INITIALIZED")
         logger.info("=" * 80)
         logger.info(f"Process ID: {self.process_id}")
-        logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(
+            f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"Workspace: {self.workspace_root}")
         logger.info(f"Documentation Directory: {self.documentation_dir}")
-        
+
     def _validate_environment_compliance(self):
         """CRITICAL: Validate environment and prevent recursion"""
-        
+
         # Check workspace integrity
         if not str(self.workspace_root).endswith("gh_COPILOT"):
             logger.warning(f"Non-standard workspace: {self.workspace_root}")
-            
+
         # Prevent recursive operations
         forbidden_patterns = [
-            "backup", "temp", "copy", "duplicate", "recursive", "loop"
         ]
-        
+
         for pattern in forbidden_patterns:
             if pattern in str(self.workspace_root).lower():
-                raise RuntimeError(f"CRITICAL: Forbidden operation detected: {pattern}")
-                
+                raise RuntimeError(]
+                    f"CRITICAL: Forbidden operation detected: {pattern}")
+
         # Validate databases directory exists
         if not self.databases_dir.exists():
-            raise RuntimeError(f"CRITICAL: Databases directory not found: {self.databases_dir}")
-            
+            raise RuntimeError(]
+                f"CRITICAL: Databases directory not found: {self.databases_dir}")
+
         # Create documentation directory if it doesn't exist
         self.documentation_dir.mkdir(exist_ok=True)
-            
+
         logger.info("Environment compliance validation PASSED")
-        
+
     def _initialize_documentation_system(self):
         """Initialize documentation generation system"""
-        
+
         # Analyze all databases
         self._analyze_database_schemas()
-        
+
         # Identify relationships
         self._identify_er_relationships()
-        
+
         logger.info("Documentation generation system initialized")
-        
+
     def _analyze_database_schemas(self):
         """Analyze schemas for all databases"""
-        
+
         database_files = list(self.databases_dir.glob("*.db"))
-        
+
         for db_file in database_files:
             db_name = db_file.stem
-            
+
             try:
                 with sqlite3.connect(db_file) as conn:
                     cursor = conn.cursor()
-                    
+
                     # Get all tables
-                    cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                    cursor.execute(
+                        "SELECT name FROM sqlite_master WHERE type='table'")
                     tables = [row[0] for row in cursor.fetchall()]
-                    
+
                     db_metadata = {
-                        "database_name": db_name,
                         "file_path": str(db_file),
                         "tables": {},
                         "table_count": len(tables)
                     }
-                    
+
                     for table in tables:
-                        table_metadata = self._analyze_table_schema(cursor, table)
+                        table_metadata = self._analyze_table_schema(]
+                            cursor, table)
                         db_metadata["tables"][table] = table_metadata
-                        
+
                     self.database_metadata[db_name] = db_metadata
-                    
+
             except Exception as e:
-                logger.warning(f"Failed to analyze database {db_name}: {str(e)}")
-                
-        logger.info(f"Database schemas analyzed: {len(self.database_metadata)} databases")
-        
-    def _analyze_table_schema(self, cursor: sqlite3.Cursor, table_name: str) -> DatabaseTable:
+                logger.warning(
+                    f"Failed to analyze database {db_name}: {str(e)}")
+
+        logger.info(
+            f"Database schemas analyzed: {len(self.database_metadata)} databases")
+
+    def _analyze_table_schema(
+    self,
+    cursor: sqlite3.Cursor,
+     table_name: str) -> DatabaseTable:
         """Analyze individual table schema"""
-        
+
         # Get column information
         cursor.execute(f"PRAGMA table_info({table_name})")
         columns_info = cursor.fetchall()
-        
-        columns = []
+
+        columns = [
         for col_info in columns_info:
-            columns.append({
+            columns.append(]
                 "cid": col_info[0],
                 "name": col_info[1],
                 "type": col_info[2],
@@ -180,14 +190,14 @@ class DocumentationGenerationSystem:
                 "default_value": col_info[4],
                 "primary_key": bool(col_info[5])
             })
-            
+
         # Get foreign key information
         cursor.execute(f"PRAGMA foreign_key_list({table_name})")
         foreign_keys_info = cursor.fetchall()
-        
-        foreign_keys = []
+
+        foreign_keys = [
         for fk_info in foreign_keys_info:
-            foreign_keys.append({
+            foreign_keys.append(]
                 "id": fk_info[0],
                 "seq": fk_info[1],
                 "table": fk_info[2],
@@ -197,27 +207,21 @@ class DocumentationGenerationSystem:
                 "on_delete": fk_info[6],
                 "match": fk_info[7]
             })
-            
+
         # Get index information
         cursor.execute(f"PRAGMA index_list({table_name})")
         indexes_info = cursor.fetchall()
         indexes = [idx[1] for idx in indexes_info]
-        
+
         # Determine table type and description
         table_type, description = self._classify_table(table_name, columns)
-        
-        return DatabaseTable(
-            table_name=table_name,
-            columns=columns,
-            foreign_keys=foreign_keys,
-            indexes=indexes,
-            table_type=table_type,
-            description=description
+
+        return DatabaseTable(]
         )
-        
+
     def _classify_table(self, table_name: str, columns: List[Dict]) -> Tuple[str, str]:
         """Classify table type and generate description"""
-        
+
         table_classifications = {
             "template_placeholders": ("Core", "Template placeholder definitions and configurations"),
             "template_intelligence": ("Core", "Template intelligence insights and recommendations"),
@@ -232,136 +236,126 @@ class DocumentationGenerationSystem:
             "enhanced_logs": ("Logging", "Enhanced system logging and monitoring"),
             "placeholder_table": ("Utility", "Utility table for database consistency")
         }
-        
-        return table_classifications.get(table_name, ("Unknown", "Table description not available"))
-        
+
+        return table_classifications.get(
+    table_name, ("Unknown", "Table description not available"))
+
     def _identify_er_relationships(self):
         """Identify Entity-Relationship diagram relationships"""
-        
-        relationships = []
-        
+
+        relationships = [
+
         # Analyze foreign key relationships
         for db_name, db_metadata in self.database_metadata.items():
             for table_name, table_metadata in db_metadata["tables"].items():
                 for fk in table_metadata.foreign_keys:
-                    relationship = ERRelationship(
-                        from_table=table_name,
-                        to_table=fk["table"],
-                        relationship_type="many-to-one",
-                        from_column=fk["from"],
-                        to_column=fk["to"],
-                        description=f"{table_name}.{fk['from']} references {fk['table']}.{fk['to']}"
+                    relationship = ERRelationship(]
+                        to_table = fk["table"],
+                        relationship_type = "many-to-one",
+                        from_column = fk["from"],
+                        to_column = fk["to"],
+                        description = f"{table_name}.{
+    fk['from']} references {
+        fk['table']}.{
+            fk['to']}"
                     )
                     relationships.append(relationship)
-                    
+
         # Identify logical relationships
         logical_relationships = [
-            ERRelationship(
-                from_table="template_intelligence",
-                to_table="template_placeholders",
-                relationship_type="one-to-many",
-                from_column="template_id",
-                to_column="template_id",
-                description="Template intelligence provides insights for placeholder usage"
             ),
-            ERRelationship(
-                from_table="environment_profiles",
-                to_table="adaptation_rules",
-                relationship_type="one-to-many",
-                from_column="environment_type",
-                to_column="environment_context",
-                description="Environment profiles define applicable adaptation rules"
+            ERRelationship(]
             ),
-            ERRelationship(
-                from_table="code_pattern_analysis",
-                to_table="template_intelligence",
-                relationship_type="many-to-one",
-                from_column="analysis_id",
-                to_column="intelligence_id",
-                description="Code analysis feeds into template intelligence"
+            ERRelationship(]
             )
         ]
-        
+
         relationships.extend(logical_relationships)
         self.er_relationships = relationships
-        
-        logger.info(f"ER relationships identified: {len(self.er_relationships)}")
-        
+
+        logger.info(
+            f"ER relationships identified: {len(self.er_relationships)}")
+
     def perform_comprehensive_documentation_generation(self) -> Dict[str, Any]:
         """Perform comprehensive documentation generation"""
-        
+
         logger.info("STARTING COMPREHENSIVE DOCUMENTATION GENERATION")
         logger.info("=" * 50)
-        
+
         documentation_phases = [
-            ("Database Schema Documentation", self._generate_schema_documentation, 20.0),
+             self._generate_schema_documentation, 20.0),
             ("ER Diagram Generation", self._generate_er_diagrams, 25.0),
             ("API Documentation", self._generate_api_documentation, 20.0),
-            ("System Architecture Documentation", self._generate_architecture_documentation, 15.0),
+            (]
+             self._generate_architecture_documentation, 15.0),
             ("User Guide Generation", self._generate_user_guides, 10.0),
             ("Documentation Validation", self._validate_documentation, 10.0)
         ]
-        
+
         total_weight = sum(weight for _, _, weight in documentation_phases)
         completed_weight = 0.0
         documentation_results = {}
-        
-        with tqdm(total=100, desc="Documentation Generation", unit="%",
-                 bar_format="{l_bar}{bar}| {n:.1f}% [{elapsed}<{remaining}] {desc}") as pbar:
-            
+
+        with tqdm(]
+                  bar_format="{l_bar}{bar}| {n:.1f}% [{elapsed}<{remaining}] {desc}") as pbar:
+
             for i, (phase_name, phase_func, weight) in enumerate(documentation_phases):
                 phase_start = time.time()
-                
-                logger.info(f"Phase {i+1}/{len(documentation_phases)}: {phase_name}")
-                
+
+                logger.info(
+                    f"Phase {i+1}/{len(documentation_phases)}: {phase_name}")
+
                 try:
                     phase_result = phase_func()
                     documentation_results[phase_name] = phase_result
-                    
+
                     # Update progress
                     completed_weight += weight
                     progress = (completed_weight / total_weight) * 100
                     pbar.n = progress
                     pbar.refresh()
-                    
+
                     phase_duration = time.time() - phase_start
-                    logger.info(f"{phase_name} completed in {phase_duration:.2f}s")
-                    
+                    logger.info(
+                        f"{phase_name} completed in {phase_duration:.2f}s")
+
                 except Exception as e:
                     logger.error(f"Phase {phase_name} failed: {str(e)}")
                     documentation_results[phase_name] = {"error": str(e)}
-                    
+
         # Calculate final metrics
         total_duration = time.time() - self.start_time.timestamp()
         documentation_results["total_duration_seconds"] = total_duration
-        documentation_results["generation_timestamp"] = datetime.now().isoformat()
-        
-        logger.info(f"DOCUMENTATION GENERATION COMPLETED in {total_duration:.2f}s")
-        
+        documentation_results["generation_timestamp"] = datetime.now(]
+        ).isoformat()
+
+        logger.info(
+            f"DOCUMENTATION GENERATION COMPLETED in {total_duration:.2f}s")
+
         return documentation_results
-        
+
     def _generate_schema_documentation(self) -> Dict[str, Any]:
         """Generate comprehensive database schema documentation"""
-        
+
         schema_doc_path = self.documentation_dir / "database_schema_documentation.md"
-        
+
         schema_content = self._create_schema_documentation_content()
-        
+
         with open(schema_doc_path, 'w', encoding='utf-8') as f:
             f.write(schema_content)
-            
+
         self.documentation_files.append(str(schema_doc_path))
-        
-        return {
+
+        return {]
             "file_path": str(schema_doc_path),
             "databases_documented": len(self.database_metadata),
             "total_tables": sum(db["table_count"] for db in self.database_metadata.values()),
             "content_length": len(schema_content)
         }
-        
+
     def _create_schema_documentation_content(self) -> str:
         """Create database schema documentation content"""
-        
+
         content = f"""# Template Intelligence Platform - Database Schema Documentation
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
@@ -377,87 +371,81 @@ This document provides comprehensive documentation for the Template Intelligence
 The Template Intelligence Platform employs a multi-database architecture with the following components:
 
 """
-        
+
         # Add database overview
         for db_name, db_metadata in self.database_metadata.items():
             content += f"### {db_name.title().replace('_', ' ')} Database\n\n"
             content += f"- **File:** `{db_metadata['file_path']}`\n"
             content += f"- **Tables:** {db_metadata['table_count']}\n"
             content += f"- **Purpose:** {'Primary learning and monitoring' if db_name == 'learning_monitor' else 'Specialized data management'}\n\n"
-            
         content += "## Table Documentation\n\n"
-        
+
         # Add detailed table documentation
         for db_name, db_metadata in self.database_metadata.items():
             if db_metadata["table_count"] > 0:
                 content += f"### {db_name.title().replace('_', ' ')} Database Tables\n\n"
-                
                 for table_name, table_metadata in db_metadata["tables"].items():
                     content += f"#### {table_name}\n\n"
                     content += f"**Type:** {table_metadata.table_type}  \n"
                     content += f"**Description:** {table_metadata.description}\n\n"
-                    
                     # Add columns table
                     content += "| Column | Type | Constraints | Description |\n"
                     content += "|--------|------|-------------|-------------|\n"
-                    
+
                     for col in table_metadata.columns:
-                        constraints = []
+                        constraints = [
                         if col["primary_key"]:
                             constraints.append("PRIMARY KEY")
                         if col["not_null"]:
                             constraints.append("NOT NULL")
                         if col["default_value"]:
-                            constraints.append(f"DEFAULT {col['default_value']}")
-                            
+                            constraints.append(]
+                                f"DEFAULT {col['default_value']}")
+
                         content += f"| {col['name']} | {col['type']} | {', '.join(constraints)} | - |\n"
-                    
                     # Add foreign keys if any
                     if table_metadata.foreign_keys:
                         content += "\n**Foreign Keys:**\n\n"
                         for fk in table_metadata.foreign_keys:
                             content += f"- `{fk['from']}` [?] `{fk['table']}.{fk['to']}`\n"
-                    
                     # Add indexes if any
                     if table_metadata.indexes:
                         content += "\n**Indexes:**\n\n"
                         for index in table_metadata.indexes:
                             content += f"- `{index}`\n"
-                    
                     content += "\n"
-                    
+
         # Add relationships section
         content += "## Entity Relationships\n\n"
-        
+
         for relationship in self.er_relationships:
             content += f"- **{relationship.from_table}** {relationship.relationship_type} **{relationship.to_table}**\n"
             content += f"  - `{relationship.from_column}` [?] `{relationship.to_column}`\n"
             content += f"  - {relationship.description}\n\n"
-            
         return content
-        
+
     def _generate_er_diagrams(self) -> Dict[str, Any]:
         """Generate ER diagrams in text format"""
-        
+
         er_diagram_path = self.documentation_dir / "er_diagrams.md"
-        
+
         er_content = self._create_er_diagram_content()
-        
+
         with open(er_diagram_path, 'w', encoding='utf-8') as f:
             f.write(er_content)
-            
+
         self.documentation_files.append(str(er_diagram_path))
-        
-        return {
+
+        return {]
             "file_path": str(er_diagram_path),
             "relationships_documented": len(self.er_relationships),
             "diagrams_generated": 3,  # Core, Environment, Integration
             "content_length": len(er_content)
         }
-        
+
     def _create_er_diagram_content(self) -> str:
         """Create ER diagram documentation content"""
-        
+
         content = f"""# Template Intelligence Platform - Entity Relationship Diagrams
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
@@ -586,31 +574,31 @@ This document provides Entity-Relationship (ER) diagrams for the Template Intell
 5. **Scalable Design**: Modular structure supports future enhancements and extensions
 
 """
-        
+
         return content
-        
+
     def _generate_api_documentation(self) -> Dict[str, Any]:
         """Generate API documentation"""
-        
+
         api_doc_path = self.documentation_dir / "api_documentation.md"
-        
+
         api_content = self._create_api_documentation_content()
-        
+
         with open(api_doc_path, 'w', encoding='utf-8') as f:
             f.write(api_content)
-            
+
         self.documentation_files.append(str(api_doc_path))
-        
-        return {
+
+        return {]
             "file_path": str(api_doc_path),
             "api_endpoints_documented": 15,
             "code_examples": 8,
             "content_length": len(api_content)
         }
-        
+
     def _create_api_documentation_content(self) -> str:
         """Create API documentation content"""
-        
+
         content = f"""# Template Intelligence Platform - API Documentation
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
@@ -793,16 +781,7 @@ with tqdm(total=100, desc="Processing", unit="%") as pbar:
 ### Standard Error Response Format
 
 ```python
-{{
-    "success": false,
-    "error": {{
-        "code": "TEMPLATE_ANALYSIS_FAILED",
-        "message": "Template analysis failed due to invalid syntax",
-        "timestamp": "2025-07-03T02:55:00Z",
-        "context": {{
-            "file_path": "/path/to/file.py",
-            "line_number": 42
-        }}
+{}}
     }}
 }}
 ```
@@ -860,7 +839,7 @@ with tqdm(total=100, desc="Processing", unit="%") as pbar:
 
 ```python
 def system_health_check():
-    return {{
+    return {]
         "database_connectivity": check_database_connections(),
         "environment_detection": validate_environment_detection(),
         "template_intelligence": verify_intelligence_quality(),
@@ -869,31 +848,31 @@ def system_health_check():
 ```
 
 """
-        
+
         return content
-        
+
     def _generate_architecture_documentation(self) -> Dict[str, Any]:
         """Generate system architecture documentation"""
-        
+
         arch_doc_path = self.documentation_dir / "system_architecture.md"
-        
+
         arch_content = self._create_architecture_documentation_content()
-        
+
         with open(arch_doc_path, 'w', encoding='utf-8') as f:
             f.write(arch_content)
-            
+
         self.documentation_files.append(str(arch_doc_path))
-        
-        return {
+
+        return {]
             "file_path": str(arch_doc_path),
             "architecture_components": 5,
             "design_patterns": 3,
             "content_length": len(arch_content)
         }
-        
+
     def _create_architecture_documentation_content(self) -> str:
         """Create system architecture documentation content"""
-        
+
         content = f"""# Template Intelligence Platform - System Architecture
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
@@ -1189,13 +1168,7 @@ Validation [?] Performance Assessment [?] Success Logging [?] Result Delivery
 
 ```python
 def system_health_check():
-    return {{
-        "database_connectivity": "healthy",
-        "environment_detection": "operational",
-        "template_intelligence": "optimal",
-        "cross_database_aggregation": "efficient",
-        "documentation_generation": "current"
-    }}
+    return {}}
 ```
 
 ### Performance Monitoring
@@ -1223,14 +1196,14 @@ def system_health_check():
 - **Template Marketplace:** Shared template repository
 
 """
-        
+
         return content
-        
+
     def _generate_user_guides(self) -> Dict[str, Any]:
         """Generate user guides and tutorials"""
-        
+
         user_guide_path = self.documentation_dir / "user_guide.md"
-        
+
         guide_content = f"""# Template Intelligence Platform - User Guide
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
@@ -1276,22 +1249,22 @@ Customize templates using the template_placeholders and template_intelligence ta
 Monitor system performance using the built-in metrics and logging.
 
 """
-        
+
         with open(user_guide_path, 'w', encoding='utf-8') as f:
             f.write(guide_content)
-            
+
         self.documentation_files.append(str(user_guide_path))
-        
-        return {
+
+        return {]
             "file_path": str(user_guide_path),
             "sections": 5,
             "examples": 10,
             "content_length": len(guide_content)
         }
-        
+
     def _validate_documentation(self) -> Dict[str, Any]:
         """Validate generated documentation"""
-        
+
         validation_results = {
             "files_generated": len(self.documentation_files),
             "total_size": sum(Path(f).stat().st_size for f in self.documentation_files if Path(f).exists()),
@@ -1299,15 +1272,15 @@ Monitor system performance using the built-in metrics and logging.
             "completeness": "comprehensive",
             "quality": "enterprise-grade"
         }
-        
-        logger.info(f"Documentation validation: {validation_results['files_generated']} files validated")
+
+        logger.info(
+            f"Documentation validation: {validation_results['files_generated']} files validated")
         return validation_results
-        
+
     def generate_documentation_report(self, results: Dict[str, Any]) -> Dict[str, Any]:
         """Generate comprehensive documentation report"""
-        
+
         report = {
-            "generation_summary": {
                 "total_files": len(self.documentation_files),
                 "databases_documented": len(self.database_metadata),
                 "relationships_mapped": len(self.er_relationships),
@@ -1315,69 +1288,58 @@ Monitor system performance using the built-in metrics and logging.
                 "total_duration": results.get("total_duration_seconds", 0)
             },
             "documentation_files": self.documentation_files,
-            "quality_metrics": {
-                "schema_coverage": 100.0,
-                "er_diagram_completeness": 95.0,
-                "api_documentation_depth": 90.0,
-                "architecture_detail": 95.0,
-                "user_guide_completeness": 85.0,
-                "overall_quality": 93.0
-            },
-            "insights": [
-                "Complete database schema documentation generated",
-                "Comprehensive ER diagrams created for all relationships",
-                "Detailed API documentation with examples provided",
-                "System architecture thoroughly documented",
-                "User guides and tutorials included"
-            ],
-            "recommendations": [
-                "Regular documentation updates with system changes",
-                "Interactive documentation portal development",
-                "Video tutorials for complex procedures",
-                "Community contribution guidelines",
-                "Automated documentation testing"
-            ]
+            "quality_metrics": {},
+            "insights": [],
+            "recommendations": []
         }
-        
+
         return report
+
 
 def main():
     """
     Main execution function for Documentation Generation System
     CRITICAL: Full enterprise compliance with DUAL COPILOT pattern
     """
-    
+
     logger.info("DOCUMENTATION GENERATION SYSTEM - PHASE 5 STARTING")
     logger.info("Mission: Comprehensive ER Diagrams & Documentation Generation")
     logger.info("=" * 80)
-    
+
     try:
         # Initialize documentation generation system
         doc_generator = DocumentationGenerationSystem()
-        
+
         # Perform comprehensive documentation generation
         documentation_results = doc_generator.perform_comprehensive_documentation_generation()
-        
+
         # Generate comprehensive report
-        final_report = doc_generator.generate_documentation_report(documentation_results)
-        
+        final_report = doc_generator.generate_documentation_report(]
+            documentation_results)
+
         # Display final summary
         logger.info("=" * 80)
         logger.info("PHASE 5 COMPLETION SUMMARY")
         logger.info("=" * 80)
-        logger.info(f"Documentation Files Generated: {final_report['generation_summary']['total_files']}")
-        logger.info(f"Databases Documented: {final_report['generation_summary']['databases_documented']}")
-        logger.info(f"ER Relationships Mapped: {final_report['generation_summary']['relationships_mapped']}")
-        logger.info(f"Overall Quality Score: {final_report['quality_metrics']['overall_quality']:.1f}%")
-        logger.info(f"Generation Duration: {final_report['generation_summary']['total_duration']:.2f}s")
+        logger.info(
+            f"Documentation Files Generated: {final_report['generation_summary']['total_files']}")
+        logger.info(
+            f"Databases Documented: {final_report['generation_summary']['databases_documented']}")
+        logger.info(
+            f"ER Relationships Mapped: {final_report['generation_summary']['relationships_mapped']}")
+        logger.info(
+            f"Overall Quality Score: {final_report['quality_metrics']['overall_quality']:.1f}%")
+        logger.info(
+            f"Generation Duration: {final_report['generation_summary']['total_duration']:.2f}s")
         logger.info("PHASE 5 MISSION ACCOMPLISHED")
         logger.info("=" * 80)
-        
+
         return final_report
-        
+
     except Exception as e:
         logger.error(f"CRITICAL ERROR in Documentation Generation: {str(e)}")
         raise
+
 
 if __name__ == "__main__":
     main()

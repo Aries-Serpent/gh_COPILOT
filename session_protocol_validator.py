@@ -24,7 +24,7 @@ class SessionProtocolValidator:
 
     # internal helper -----------------------------------------------------
     def _scan_zero_byte_files(self) -> List[Path]:
-        zero_byte_files = []
+        zero_byte_files = [
         for file_path in self.workspace_root.rglob("*"):
             if file_path.is_file() and file_path.stat().st_size == 0:
                 zero_byte_files.append(file_path)
@@ -53,6 +53,7 @@ class SessionProtocolValidator:
         zero_byte_files = self._scan_zero_byte_files()
         if zero_byte_files:
             for f in zero_byte_files:
-                self.logger.error(f"Zero-byte file detected before shutdown: {f}")
-            return False
-        return True
+                self.logger.error(
+                f"Zero-byte file detected before shutdown: {f}")
+                return False
+                    return True

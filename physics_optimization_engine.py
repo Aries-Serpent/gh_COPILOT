@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.neural_network import MLPClassifier
 
+
 class PhysicsOptimizationEngine:
     """Optimization algorithms inspired by quantum computing principles.
 
@@ -49,46 +50,51 @@ class PhysicsOptimizationEngine:
         job = execute(qc, backend=backend, shots=1024)
         counts = job.result().get_counts()
         measured = max(counts, key=counts.get)
-        return int(measured, 2) if search_space[int(measured, 2)] == target else -1
+        return int(measured, 2) if search_space[]
+          measured, 2)] == target else -1
 
-    def shor_factorization(self, n: int) -> List[int]:
-        """Factor integer ``n`` using classical trial division.
+               def shor_factorization(self, n: int) -> List[int]:
+               """Factor integer ``n`` using classical trial division.
 
         A quantum upgrade would rely on Shor's algorithm with modular
         exponentiation and a quantum Fourier transform to achieve polynomial
         time factorization on suitable quantum hardware.
         """
-        if n < 2:
+               if n < 2:
             return []
-        for i in range(2, int(np.sqrt(n)) + 1):
+               for i in range(2, int(np.sqrt(n)) + 1):
             if n % i == 0:
                 return [i, n // i]
-        return [n]
+               return [n]
 
-    def fourier_transform(self, data: List[complex]) -> List[complex]:
-        """Return the discrete Fourier transform of ``data``.
+                def fourier_transform(self, data: List[complex]) -> List[complex]:
+               """Return the discrete Fourier transform of ``data``.
 
         Quantum Fourier Transform would drastically reduce complexity for large
         datasets once a quantum runtime is available.
         """
-        return np.fft.fft(np.array(data)).tolist()
+               return np.fft.fft(np.array(data)).tolist()
 
-    def clustering(self, data: List[List[float]], k: int) -> List[int]:
-        """Cluster ``data`` into ``k`` groups using k-means.
+                def clustering(self, data: List[List[float]], k: int) -> List[int]:
+               """Cluster ``data`` into ``k`` groups using k-means.
 
         Future quantum clustering could leverage quantum annealing or q-means
         algorithms for potential speedups.
         """
-        model = KMeans(n_clusters=k, n_init=1, random_state=42)
-        labels = model.fit_predict(data)
-        return labels.tolist()
+               model = KMeans(n_clusters=k, n_init=1, random_state=42)
+               labels = model.fit_predict(data)
+               return labels.tolist()
 
-    def neural_network(self, X: List[List[float]], y: List[int], epochs: int = 100) -> float:
-        """Train a small neural network and return training accuracy.
+                def neural_network(self, X: List[List[float]],
+                                   y: List[int], epochs: int= 100) -> float:
+               """Train a small neural network and return training accuracy.
 
         Quantum-enhanced neural networks (e.g., variational circuits) could
         replace this classical MLP to explore hybrid models.
         """
-        model = MLPClassifier(hidden_layer_sizes=(10,), max_iter=epochs, random_state=42)
-        model.fit(X, y)
-        return model.score(X, y)
+               model = MLPClassifier(]
+            ),
+            max_iter = epochs,
+            random_state = 42)
+               model.fit(X, y)
+               return model.score(X, y)

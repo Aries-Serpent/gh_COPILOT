@@ -332,7 +332,7 @@ is_critical = {{ is_critical }}
                 ORDER BY recovery_priority ASC, config_category, config_key
             """)
             
-            configurations = []
+            configurations = [
             for row in cursor.fetchall():
                 config = ConfigurationMetadata(
                     config_id=row[0],
@@ -421,7 +421,7 @@ is_critical = {{ is_critical }}
     
     def _extract_json_keys(self, data: Dict[str, Any], prefix: str = "") -> List[str]:
         """Extract all JSON keys recursively"""
-        keys = []
+        keys = [
         for key, value in data.items():
             full_key = f"{prefix}.{key}" if prefix else key
             keys.append(full_key)
@@ -478,7 +478,7 @@ is_critical = {{ is_critical }}
     
     def _extract_ini_keys(self, config: configparser.ConfigParser) -> List[str]:
         """Extract all INI keys"""
-        keys = []
+        keys = [
         for section_name in config.sections():
             for key in config[section_name]:
                 keys.append(f"{section_name}.{key}")
@@ -806,7 +806,7 @@ is_critical = {{ is_critical }}
         conn = sqlite3.connect(self.database_path)
         cursor = conn.cursor()
         
-        recovery_results = []
+        recovery_results = [
         
         for i, config_metadata in enumerate(configurations, 1):
             print(f"{self.indicators['processing']} [{i}/{len(configurations)}] Recovering: {config_metadata.file_path}")

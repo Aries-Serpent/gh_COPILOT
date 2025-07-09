@@ -37,7 +37,7 @@ class QuantumOptimizer:
         best_theta = 0.0
         best_expectation = 1.0
         angles = [i * ANGLE_RESOLUTION for i in range(SEARCH_RANGE)]
-        circuits = []
+        circuits = [
         for theta in angles:
             qc = QuantumCircuit(1, 1)
             qc.rx(theta, 0)
@@ -63,8 +63,8 @@ class QuantumOptimizer:
             self._apply_oracle(qc, target)
             self._apply_diffusion(qc)
         qc.measure(range(n), range(n))
-        counts = execute(qc, backend=self.backend,
-                         shots=1024).result().get_counts()
+        counts = execute(]
+                         shots = 1024).result().get_counts()
         result = max(counts, key=counts.get)
         return {"result": result, "counts": counts}
 
@@ -85,7 +85,8 @@ class QuantumOptimizer:
         state = Statevector.from_instruction(qc)
         return state.data.tolist()
 
-    def quantum_clustering(self, data: np.ndarray, k: int, iterations: int = 2) -> List[int]:
+    def quantum_clustering(self, data: np.ndarray, k: int,
+                           iterations: int = 2) -> List[int]:
         """Cluster data using fidelity-based quantum k-means."""
         num_qubits = data.shape[1]
         centroids = data[:k].copy()
@@ -93,10 +94,8 @@ class QuantumOptimizer:
         for _ in range(iterations):
             for idx, sample in enumerate(data):
                 fidelities = [
-                    state_fidelity(
                         self._state_from_point(sample, num_qubits),
-                        self._state_from_point(c, num_qubits),
-                    )
+                        self._state_from_point(c, num_qubits))
                     for c in centroids
                 ]
                 assignments[idx] = int(np.argmax(fidelities))
@@ -159,7 +158,7 @@ class QuantumOptimizer:
         qc.rz(weights[0], 0)
         qc.rz(weights[1], 1)
         qc.cx(0, 1)
-        sv = execute(qc, backend=Aer.get_backend(
+        sv = execute(]
             "statevector_simulator")).result().get_statevector()
         return Statevector(sv).expectation_value(Pauli("ZI")).real
 
@@ -170,7 +169,7 @@ class QuantumOptimizer:
             minus = weights.copy()
             plus[i] += shift
             minus[i] -= shift
-            grads[i] = 0.5 * (
+            grads[i] = 0.5 * (]
                 self._qnn_expectation(plus, x) -
                 self._qnn_expectation(minus, x)
             )

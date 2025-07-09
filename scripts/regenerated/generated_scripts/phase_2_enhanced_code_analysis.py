@@ -18,14 +18,15 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
+
 class Phase2EnhancedCodeAnalysisManager:
     """Data analysis and reporting system for phase_2_enhanced_code_analysis metrics"""
-    
+
     def __init__(self, data_source: str = "data.csv"):
         self.data_source = data_source
         self.analysis_results = {}
         self.logger = logging.getLogger(__name__)
-        
+
     def load_data(self) -> pd.DataFrame:
         """Load data from configured source"""
         try:
@@ -37,18 +38,18 @@ class Phase2EnhancedCodeAnalysisManager:
                 conn = sqlite3.connect(self.data_source)
                 return pd.read_sql_query("SELECT * FROM analytics_data", conn)
             else:
-                raise ValueError(f"Unsupported data source: {self.data_source}")
+                raise ValueError(]
+                    f"Unsupported data source: {self.data_source}")
         except Exception as e:
             self.logger.error(f"Data loading failed: {e}")
             raise
-    
+
     def perform_analysis(self) -> Dict[str, Any]:
         """Perform comprehensive data analysis"""
         try:
             df = self.load_data()
-            
+
             analysis = {
-                "data_overview": {
                     "total_records": len(df),
                     "columns": list(df.columns),
                     "data_types": df.dtypes.to_dict(),
@@ -57,47 +58,50 @@ class Phase2EnhancedCodeAnalysisManager:
                 "statistical_summary": df.describe().to_dict(),
                 "analysis_timestamp": datetime.now().isoformat()
             }
-            
+
             self.analysis_results = analysis
             return analysis
-            
+
         except Exception as e:
             self.logger.error(f"Analysis failed: {e}")
             raise
-    
+
     def generate_report(self, output_path: str = "analysis_report.json") -> str:
         """Generate analysis report"""
         try:
             if not self.analysis_results:
                 self.perform_analysis()
-            
+
             with open(output_path, 'w') as f:
                 json.dump(self.analysis_results, f, indent=2, default=str)
-            
+
             self.logger.info(f"Analysis report generated: {output_path}")
             return output_path
-            
+
         except Exception as e:
             self.logger.error(f"Report generation failed: {e}")
             raise
 
+
 def main():
     """Main execution function"""
     analyzer = Phase2EnhancedCodeAnalysisManager()
-    
+
     try:
         results = analyzer.perform_analysis()
         report_path = analyzer.generate_report()
-        
+
         print(f"Analysis completed successfully")
-        print(f"Total records analyzed: {results['data_overview']['total_records']}")
+        print(
+            f"Total records analyzed: {results['data_overview']['total_records']}")
         print(f"Report saved: {report_path}")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"Analysis failed: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = main()

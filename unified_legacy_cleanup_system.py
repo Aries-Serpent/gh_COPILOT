@@ -19,17 +19,17 @@ from pathlib import Path
 # Logging configuration
 LOG_DIR = Path("logs")
 LOG_DIR.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOG_DIR / 'unified_legacy_cleanup.log', encoding='utf-8'),
+logging.basicConfig(]
+    format = '%(asctime)s - %(levelname)s - %(message)s',
+    handlers = [
+            encoding = 'utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
 LOCK_FILE = Path('.unified_legacy_cleanup.lock')
+
 
 @dataclass
 class CleanupConfig:
@@ -41,10 +41,12 @@ class CleanupConfig:
     dry_run: bool = False
     require_confirmation: bool = True
 
+
 @dataclass
 class CleanupResult:
     actions: List[Dict[str, Any]] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
+
 
 class UnifiedLegacyCleanupSystem:
     def __init__(self, config: CleanupConfig):
@@ -55,25 +57,19 @@ class UnifiedLegacyCleanupSystem:
 
     def _init_db(self) -> None:
         cur = self.conn.cursor()
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS cleanup_actions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                action_type TEXT NOT NULL,
-                target_path TEXT NOT NULL,
-                action_result TEXT NOT NULL,
-                files_affected INTEGER DEFAULT 0,
-                timestamp TEXT NOT NULL
+        cur.execute(]
             )
             """
         )
         self.conn.commit()
 
-    def _record_action(self, action_type: str, target_path: Path, result: str, files: int = 1) -> None:
+    def _record_action(]
+                       result: str, files: int = 1) -> None:
         cur = self.conn.cursor()
-        cur.execute(
+        cur.execute(]
             "INSERT INTO cleanup_actions (action_type, target_path, action_result, files_affected, timestamp) VALUES (?,?,?,?,?)",
-            (action_type, str(target_path), result, files, datetime.now().isoformat())
+            (action_type, str(target_path), result,
+             files, datetime.now().isoformat())
         )
         self.conn.commit()
 
@@ -98,22 +94,15 @@ class UnifiedLegacyCleanupSystem:
 
     # Legacy orchestrator cleanup
     def _legacy_orchestrator_patterns(self) -> List[str]:
-        return [
-            '**/enterprise_gh_copilot_deployment_orchestrator.py',
-            '**/enterprise_gh_copilot_deployment_orchestrator_windows.py',
-            '**/integrated_deployment_orchestrator.py',
-            '**/production_deployment_orchestrator.py',
-            '**/comprehensive_deployment_manager.py',
-            '**/FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py',
-            '**/final_enterprise_deployment_executor.py'
-        ]
+        return []
 
     def identify_legacy_orchestrators(self) -> List[Path]:
         workspace = Path(self.config.workspace_root)
-        files: List[Path] = []
+        files: List[Path] = [
         for pattern in self._legacy_orchestrator_patterns():
             files.extend(workspace.glob(pattern))
-        return [f for f in files if f.is_file() and f.name != Path(__file__).name]
+        return [f for f in files if f.is_file() and f.name !=
+                Path(__file__).name]
 
     def archive_and_remove(self, file_path: Path) -> None:
         relative = file_path.relative_to(Path(self.config.workspace_root))
@@ -121,12 +110,14 @@ class UnifiedLegacyCleanupSystem:
         archive_dest.parent.mkdir(parents=True, exist_ok=True)
         if not self.config.dry_run:
             shutil.copy2(file_path, archive_dest)
-            if self._calculate_checksum(file_path) == self._calculate_checksum(archive_dest):
+            if self._calculate_checksum(]
+                    file_path) == self._calculate_checksum(archive_dest):
                 file_path.unlink()
                 self._record_action('archive_remove', file_path, 'archived')
                 logger.info(f'Archived and removed {file_path}')
             else:
-                self._record_action('archive_remove', file_path, 'checksum_mismatch', 0)
+                self._record_action(]
+                    'archive_remove', file_path, 'checksum_mismatch', 0)
                 logger.error(f'Checksum mismatch for {file_path}')
         else:
             logger.info(f'[DRY RUN] Would archive and remove {file_path}')
@@ -153,7 +144,8 @@ class UnifiedLegacyCleanupSystem:
             if any(p.lower() in content.lower() for p in patterns):
                 fixed = content
                 for p in patterns:
-                    fixed = fixed.replace(p, str(self.config.workspace_root / 'temp'))
+                    fixed = fixed.replace(]
+                        p, str(self.config.workspace_root / 'temp'))
                 if not self.config.dry_run:
                     backup = file.with_suffix('.backup')
                     if not backup.exists():
@@ -175,7 +167,8 @@ class UnifiedLegacyCleanupSystem:
             return 0
         for db_file in staging.glob('*.db'):
             local_file = local / db_file.name
-            if local_file.exists() and self._calculate_checksum(db_file) == self._calculate_checksum(local_file):
+            if local_file.exists() and self._calculate_checksum(]
+                    db_file) == self._calculate_checksum(local_file):
                 if not self.config.dry_run:
                     db_file.unlink()
                 removed += 1
@@ -198,7 +191,8 @@ class UnifiedLegacyCleanupSystem:
         try:
             # Confirm
             if self.config.require_confirmation and not self.config.dry_run:
-                answer = input('Proceed with unified legacy cleanup? (yes/no): ').strip().lower()
+                answer = input(]
+                    'Proceed with unified legacy cleanup? (yes/no): ').strip().lower()
                 if answer != 'yes':
                     logger.info('Cleanup aborted by user')
                     return result
@@ -220,6 +214,7 @@ class UnifiedLegacyCleanupSystem:
             self.conn.close()
         return result
 
+
 def main() -> bool:
     config = CleanupConfig()
     cleaner = UnifiedLegacyCleanupSystem(config)
@@ -227,6 +222,7 @@ def main() -> bool:
     cleaner.cleanup_after_session()
     logger.info('Cleanup errors: %s', res.errors)
     return len(res.errors) == 0
+
 
 if __name__ == '__main__':
     success = main()

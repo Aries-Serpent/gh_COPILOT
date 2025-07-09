@@ -11,6 +11,7 @@ import json
 import datetime
 from pathlib import Path
 
+
 def audit_filesystem_isolation():
     """
     Comprehensive audit to ensure all operations stayed within E:/ and Q:/ drives
@@ -35,13 +36,10 @@ def audit_filesystem_isolation():
         python_exe = sys.executable
         audit_results["python_executable_location"] = python_exe
         print(f"[?] Python executable: {python_exe}")
-        
+
         if "C:\\Users" in python_exe or "/c/Users" in python_exe:
             print("[WARNING]  WARNING: Python executable is in C:/Users")
-            audit_results["c_users_violations"].append({
-                "type": "python_executable",
-                "path": python_exe,
-                "description": "Python executable located in C:/Users"
+            audit_results["c_users_violations"].append(]
             })
         else:
             print("[?] Python executable not in C:/Users")
@@ -54,13 +52,10 @@ def audit_filesystem_isolation():
         if venv_path:
             audit_results["virtual_environment_location"] = venv_path
             print(f"[?] Virtual environment: {venv_path}")
-            
+
             if "C:\\Users" in venv_path or "/c/Users" in venv_path:
                 print("[WARNING]  WARNING: Virtual environment is in C:/Users")
-                audit_results["c_users_violations"].append({
-                    "type": "virtual_environment",
-                    "path": venv_path,
-                    "description": "Virtual environment located in C:/Users"
+                audit_results["c_users_violations"].append(]
                 })
             else:
                 print("[?] Virtual environment not in C:/Users")
@@ -74,13 +69,10 @@ def audit_filesystem_isolation():
         workspace_path = os.getcwd()
         audit_results["workspace_location"] = workspace_path
         print(f"[?] Current workspace: {workspace_path}")
-        
+
         if "C:\\Users" in workspace_path or "/c/Users" in workspace_path:
             print("[WARNING]  WARNING: Workspace is in C:/Users")
-            audit_results["c_users_violations"].append({
-                "type": "workspace",
-                "path": workspace_path,
-                "description": "Workspace located in C:/Users"
+            audit_results["c_users_violations"].append(]
             })
         else:
             print("[?] Workspace not in C:/Users")
@@ -91,22 +83,15 @@ def audit_filesystem_isolation():
     print("\n" + "="*50)
     print("SCANNING C:/USERS FOR PROJECT-RELATED FILES")
     print("="*50)
-    
+
     c_users_paths = [
         Path("C:/Users"),
         Path("/c/Users")
     ]
-    
+
     project_patterns = [
-        "*copilot*",
-        "*disaster*",
-        "*production*",
-        "*.db",
-        "*_copilot_*",
-        "*template*",
-        "*recovery*"
     ]
-    
+
     for users_path in c_users_paths:
         if users_path.exists():
             print(f"Scanning: {users_path}")
@@ -117,12 +102,13 @@ def audit_filesystem_isolation():
                         for match in matches[:10]:  # Limit to first 10 matches
                             try:
                                 stat = match.stat()
-                                mod_time = datetime.datetime.fromtimestamp(stat.st_mtime)
+                                mod_time = datetime.datetime.fromtimestamp(]
+                                    stat.st_mtime)
                                 # Check if modified in last 24 hours
                                 if (datetime.datetime.now() - mod_time).days < 1:
-                                    print(f"[WARNING]  Recent file found: {match} (modified: {mod_time})")
-                                    audit_results["c_users_violations"].append({
-                                        "type": "recent_file",
+                                    print(
+                                        f"[WARNING]  Recent file found: {match} (modified: {mod_time})")
+                                    audit_results["c_users_violations"].append(]
                                         "path": str(match),
                                         "modified": mod_time.isoformat(),
                                         "pattern": pattern,
@@ -139,7 +125,7 @@ def audit_filesystem_isolation():
     print("\n" + "="*50)
     print("ISOLATION AUDIT SUMMARY")
     print("="*50)
-    
+
     if not audit_results["c_users_violations"]:
         audit_results["isolation_status"] = "COMPLIANT"
         print("[SUCCESS] FILESYSTEM ISOLATION: COMPLIANT")
@@ -148,7 +134,8 @@ def audit_filesystem_isolation():
     else:
         audit_results["isolation_status"] = "VIOLATIONS_DETECTED"
         print("[ERROR] FILESYSTEM ISOLATION: VIOLATIONS DETECTED")
-        print(f"[ERROR] Found {len(audit_results['c_users_violations'])} violations:")
+        print(
+            f"[ERROR] Found {len(audit_results['c_users_violations'])} violations:")
         for violation in audit_results["c_users_violations"]:
             print(f"   - {violation['type']}: {violation['path']}")
 
@@ -156,10 +143,11 @@ def audit_filesystem_isolation():
     audit_file = f"filesystem_isolation_audit_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     with open(audit_file, 'w') as f:
         json.dump(audit_results, f, indent=2)
-    
+
     print(f"\nAudit results saved to: {audit_file}")
-    
+
     return audit_results["isolation_status"] == "COMPLIANT"
+
 
 if __name__ == "__main__":
     try:
@@ -168,7 +156,8 @@ if __name__ == "__main__":
             print("\n[TARGET] READY FOR PRODUCTION DEPLOYMENT PHASE 1")
             sys.exit(0)
         else:
-            print("\n[WARNING]  FILESYSTEM ISOLATION ISSUES DETECTED - REVIEW REQUIRED")
+            print(
+                "\n[WARNING]  FILESYSTEM ISOLATION ISSUES DETECTED - REVIEW REQUIRED")
             sys.exit(1)
     except Exception as e:
         print(f"\n[ERROR] Audit failed: {e}")

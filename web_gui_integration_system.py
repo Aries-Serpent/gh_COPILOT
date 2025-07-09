@@ -35,54 +35,49 @@ class WebGUIIntegrationSystem:
     """Scaffolding for a unified Web-GUI integration layer."""
 
     def __init__(self, workspace_root: Optional[str] = None) -> None:
-        self.config = WebGUIConfig(
-            workspace_root=Path(workspace_root or "."),
-            database_path=Path(workspace_root or ".") /
-            "databases" / "production.db",
-            templates_path=Path(workspace_root or ".") /
-            "web_gui" / "templates",
-        )
-        self.dashboard_app = dashboard_app
-        self.template_env = Environment(
-            loader=FileSystemLoader(self.config.templates_path)
-        )
-        self.db_conn = sqlite3.connect(self.config.database_path)
-        self._server = None
-        self._server_thread = None
-        self._initialized = False
+        self.config = WebGUIConfig(]
+        workspace_root = Path(workspace_root or "."),
+        database_path = Path(workspace_root or ".") /
+         "databases" / "production.db",
+          templates_path = Path(workspace_root or ".") /
+           "web_gui" / "templates")
+                self.dashboard_app = dashboard_app
+                self.template_env = Environment(]
+                loader = FileSystemLoader(self.config.templates_path)
+                )
+                self.db_conn = sqlite3.connect(self.config.database_path)
+                self._server = None
+                self._server_thread = None
+                self._initialized = False
 
-    def initialize(self) -> None:
-        """Initialize all Web-GUI components in a unified manner."""
-        port = int(os.environ.get("FLASK_RUN_PORT", "5000"))
-        self._server = make_server("127.0.0.1", port, self.dashboard_app)
-        self._server_thread = threading.Thread(
-            target=self._server.serve_forever,
-            daemon=True,
-        )
-        self._server_thread.start()
-        self._initialized = True
+                def initialize(self) -> None:
+                """Initialize all Web-GUI components in a unified manner."""
+                port = int(os.environ.get("FLASK_RUN_PORT", "5000"))
+                self._server = make_server("127.0.0.1", port, self.dashboard_app)
+                self._server_thread = threading.Thread(]
+            )
+                self._server_thread.start()
+                self._initialized = True
 
-    def status(self) -> Dict[str, Any]:
-        """Return current status of the integration system."""
-        return {
-            "initialized": self._initialized,
-            "workspace_root": str(self.config.workspace_root),
-            "database": str(self.config.database_path),
-            "templates": str(self.config.templates_path),
-        }
+                def status(self) -> Dict[str, Any]:
+                """Return current status of the integration system."""
+                return {]
+                "workspace_root": str(self.config.workspace_root),
+                "database": str(self.config.database_path),
+                "templates": str(self.config.templates_path)}
 
-    def shutdown(self) -> None:
-        """Stop the dashboard server and close resources."""
-        if self._server:
-            self._server.shutdown()
-        if self._server_thread:
-            self._server_thread.join(timeout=5)
-        if self.db_conn:
-            self.db_conn.close()
-        self._initialized = False
+                def shutdown(self) -> None:
+                """Stop the dashboard server and close resources."""
+                if self._server:
+                self._server.shutdown()
+                if self._server_thread:
+                self._server_thread.join(timeout=5)
+                if self.db_conn:
+                self.db_conn.close()
+                self._initialized = False
 
 
-if __name__ == "__main__":
-    system = WebGUIIntegrationSystem()
-    system.initialize()
-    print(system.status())
+                if __name__ == "__main__":
+                system = WebGUIIntegrationSystem()
+                system.initialize()
+                print(system.status())

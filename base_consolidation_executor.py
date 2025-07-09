@@ -15,7 +15,8 @@ from typing import Dict, Iterable, List, Tuple
 class BaseConsolidationExecutor:
     """Common utilities for consolidation executors."""
 
-    def __init__(self, workspace_root: str, archive_root: str, group_name: str, logger: logging.Logger) -> None:
+    def __init__(self, workspace_root: str, archive_root: str,
+                 group_name: str, logger: logging.Logger) -> None:
         self.workspace_root = Path(workspace_root)
         self.archive_root = Path(archive_root)
         self.group_name = group_name

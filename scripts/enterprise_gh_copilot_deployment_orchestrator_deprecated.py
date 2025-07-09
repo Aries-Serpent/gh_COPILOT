@@ -16,11 +16,7 @@ NEW USAGE:
 from unified_deployment_orchestrator import UnifiedEnterpriseDeploymentOrchestrator, UnifiedDeploymentConfig, DeploymentMode
 
 # Create configuration
-config = UnifiedDeploymentConfig(
-    deployment_mode=DeploymentMode.PRODUCTION,
-    deploy_databases=True,
-    deploy_scripts=True,
-    deploy_web_gui=True
+config = UnifiedDeploymentConfig(]
 )
 
 # Execute deployment
@@ -41,31 +37,20 @@ import logging
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
+
 def main():
     """Deprecation notice for enterprise_gh_copilot_deployment_orchestrator.py"""
-    logger.warning("🚨 DEPRECATED: enterprise_gh_copilot_deployment_orchestrator.py has been migrated")
+    logger.warning(
+        "🚨 DEPRECATED: enterprise_gh_copilot_deployment_orchestrator.py has been migrated")
     logger.warning("📋 Please use unified_deployment_orchestrator.py instead")
-    logger.warning("📖 Migration guide: documentation/deployment_migration_guide_MIGRATION_20250707_061405.md")
-    
-    print("""
-    🚨 DEPRECATED SCRIPT NOTICE
-    ===========================
-    
-    This script has been MIGRATED to unified_deployment_orchestrator.py
-    
-    Please update your imports and usage:
-    
-    OLD:
-    from enterprise_gh_copilot_deployment_orchestrator import EnterpriseDeploymentOrchestrator
-    
-    NEW:
-    from unified_deployment_orchestrator import UnifiedEnterpriseDeploymentOrchestrator
-    
-    For full migration details, see:
-    - documentation/deployment_migration_guide_MIGRATION_20250707_061405.md
+    logger.warning(
+        "📖 Migration guide: documentation/deployment_migration_guide_MIGRATION_20250707_061405.md")
+
+    print(
     """)
-    
+
     return 1  # Exit with error code to indicate deprecated usage
+
 
 if __name__ == "__main__":
     sys.exit(main())

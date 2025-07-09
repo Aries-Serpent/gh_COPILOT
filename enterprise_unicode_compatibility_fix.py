@@ -38,14 +38,14 @@ from copilot.common import get_workspace_path
 class EnterpriseUnicodeCompatibilityFix:
     """Enterprise-grade Unicode compatibility fix for Windows systems."""
 
-    def __init__(
+    def __init__(]
         self, workspace_path: Optional[str] = None,
         staging_path: Optional[str] = None
     ):
         self.workspace_path = get_workspace_path(workspace_path)
         self.staging_path = get_workspace_path(staging_path)
-        self.backup_dir = self.workspace_path / \
-            f"_unicode_fix_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.backup_dir = self.workspace_path
+            / f"_unicode_fix_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.results = {
             'fix_timestamp': datetime.now().isoformat(),
             'files_processed': 0,
@@ -57,12 +57,11 @@ class EnterpriseUnicodeCompatibilityFix:
         }
 
         # Setup logging with ASCII-only format
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
+        logging.basicConfig(]
+            format = '%(asctime)s - %(levelname)s - %(message)s',
+            handlers = [
                 logging.StreamHandler(),
-                logging.FileHandler(self.workspace_path /
+                logging.FileHandler(]
                                     'unicode_compatibility_fix.log')
             ]
         )
@@ -70,7 +69,6 @@ class EnterpriseUnicodeCompatibilityFix:
 
         # Unicode to ASCII mapping for professional output
         self.unicode_replacements = {
-            # Emojis to professional text
             '[LAUNCH]': '[LAUNCH]',
             '[SUCCESS]': '[SUCCESS]',
             '[ERROR]': '[ERROR]',
@@ -266,12 +264,12 @@ class EnterpriseUnicodeCompatibilityFix:
             'negated double vertical bar double right turnstile': 'negated double vertical bar double right turnstile',
             'precedes under relation': 'precedes under relation',
             'succeeds under relation': 'succeeds under relation',
-            'normal subgroup of': 'normal subgroup of',
+            'normal subgroup of': 'normal subgroup of', '
             'contains as normal subgroup': 'contains as normal subgroup',
             'normal subgroup of or equal to': 'normal subgroup of or equal to',
             'contains as normal subgroup or equal to': 'contains as normal subgroup or equal to',
-            'original of': 'original of',
-            'image of': 'image of',
+            'original of': 'original of','
+            'image of': 'image of','
             'multimap': 'multimap',
             'hermitian conjugate matrix': 'hermitian conjugate matrix',
             'intercalate': 'intercalate',
@@ -322,7 +320,7 @@ class EnterpriseUnicodeCompatibilityFix:
             'greater than but not equivalent to': 'greater than but not equivalent to',
             'precedes but not equivalent to': 'precedes but not equivalent to',
             'succeeds but not equivalent to': 'succeeds but not equivalent to',
-            'not normal subgroup of': 'not normal subgroup of',
+            'not normal subgroup of': 'not normal subgroup of','
             'does not contain as normal subgroup': 'does not contain as normal subgroup',
             'not normal subgroup of or equal to': 'not normal subgroup of or equal to',
             'does not contain as normal subgroup or equal': 'does not contain as normal subgroup or equal',
@@ -392,8 +390,7 @@ class EnterpriseUnicodeCompatibilityFix:
             'Phi': 'Phi',
             'Chi': 'Chi',
             'Psi': 'Psi',
-            'Omega': 'Omega',
-        }
+            'Omega': 'Omega'}
 
     def is_unicode_char(self, char: str) -> bool:
         """Check if a character is non-ASCII Unicode."""
@@ -407,7 +404,7 @@ class EnterpriseUnicodeCompatibilityFix:
         # Apply professional replacements
         for unicode_char, replacement in self.unicode_replacements.items():
             if unicode_char in cleaned_content:
-                cleaned_content = cleaned_content.replace(
+                cleaned_content = cleaned_content.replace(]
                     unicode_char, replacement)
                 unicode_count += content.count(unicode_char)
 
@@ -439,11 +436,11 @@ class EnterpriseUnicodeCompatibilityFix:
                 original_content = f.read()
 
             # Clean Unicode characters
-            cleaned_content, fixed_count = self.clean_unicode_from_content(
+            cleaned_content, fixed_count = self.clean_unicode_from_content(]
                 original_content)
 
             # Count Unicode issues found
-            unicode_found = sum(
+            unicode_found = sum(]
                 1 for char in original_content if self.is_unicode_char(char))
             file_details['unicode_issues_found'] = unicode_found
             file_details['unicode_issues_fixed'] = fixed_count
@@ -497,9 +494,9 @@ class EnterpriseUnicodeCompatibilityFix:
 
     def fix_unicode_compatibility(self):
         """Execute comprehensive Unicode compatibility fix."""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("ENTERPRISE UNICODE COMPATIBILITY FIX")
-        print("="*60)
+        print("=" * 60)
 
         self.logger.info("Starting Unicode compatibility fix...")
 
@@ -554,12 +551,13 @@ class EnterpriseUnicodeCompatibilityFix:
                 f"    Compatibility: {'[SUCCESS]' if compatible else '[WARNING]'}")
 
         # Overall compatibility check
-        self.results['compatibility_achieved'] = len(self.results['environments_fixed']) == len([
+        self.results['compatibility_achieved'] = len(self.results['environments_fixed']) == len(]
             e for e in environments if e[1].exists()])
 
         # Save results
         results_path = self.workspace_path / \
-            f'unicode_compatibility_results_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+            f'unicode_compatibility_results_{]
+                datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
         with open(results_path, 'w', encoding='utf-8') as f:
             json.dump(self.results, f, indent=2, ensure_ascii=True)
 
@@ -587,7 +585,6 @@ class EnterpriseUnicodeCompatibilityFix:
         print("\n[TESTING] Windows Console Compatibility...")
 
         test_strings = [
-            "Professional text output",
             "[SUCCESS] Operation completed",
             "[ERROR] Issue detected",
             "[WARNING] Attention required",

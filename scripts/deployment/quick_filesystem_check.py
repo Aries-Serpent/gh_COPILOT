@@ -7,7 +7,7 @@ import os
 import sys
 
 print("FILESYSTEM ISOLATION CHECK")
-print("="*50)
+print("=" * 50)
 
 # Check Python executable
 print(f"Python executable: {sys.executable}")
@@ -43,4 +43,5 @@ with open('quick_filesystem_check.txt', 'w') as f:
     f.write(f"CWD: {os.getcwd()}\n")
     f.write(f"Violations: {violations}\n")
 
-print(f"\nResults saved to: {os.path.join(os.getcwd(), 'quick_filesystem_check.txt')}")
+print(
+f"\nResults saved to: {os.path.join(os.getcwd(), 'quick_filesystem_check.txt')}")

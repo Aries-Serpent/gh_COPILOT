@@ -43,12 +43,11 @@ class UnicodeCharacterCleaner:
         }
 
         # Setup logging
-        logging.basicConfig(
-            level=logging.INFO,
+        logging.basicConfig(]
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
                 logging.StreamHandler(),
-                logging.FileHandler(
+                logging.FileHandler(]
                     self.deployed_base_path / 'unicode_cleanup.log')
             ]
         )
@@ -63,7 +62,7 @@ class UnicodeCharacterCleaner:
         unicode_count = 0
 
         # Find all Unicode characters
-        unicode_chars = []
+        unicode_chars = [
         for char in content:
             if self.is_unicode_char(char):
                 unicode_chars.append(char)
@@ -74,7 +73,6 @@ class UnicodeCharacterCleaner:
 
         # Replace common Unicode characters with ASCII equivalents
         replacements = {
-            # Emojis and symbols - remove or replace with text
             '[ROCKET_EMOJI]': '[ROCKET]',
             '[CHECK_EMOJI]': '[CHECK]',
             '[X_EMOJI]': '[X]',
@@ -111,14 +109,13 @@ class UnicodeCharacterCleaner:
             '°': ' degrees',
             '±': '+/-',
             '×': 'x',
-            '÷': '/',
-        }
+            '÷': '/'}
 
         # Apply replacements
         cleaned_content = content
         for unicode_char, replacement in replacements.items():
             if unicode_char in cleaned_content:
-                cleaned_content = cleaned_content.replace(
+                cleaned_content = cleaned_content.replace(]
                     unicode_char, replacement)
 
         # Remove any remaining Unicode characters by replacing with placeholder
@@ -153,13 +150,13 @@ class UnicodeCharacterCleaner:
             file_details['original_size'] = len(original_content)
 
             # Clean Unicode characters
-            cleaned_content, removed_count = self.clean_unicode_from_content(
+            cleaned_content, removed_count = self.clean_unicode_from_content(]
                 original_content)
             file_details['cleaned_size'] = len(cleaned_content)
             file_details['unicode_chars_removed'] = removed_count
 
             # Count Unicode chars found
-            unicode_found = sum(
+            unicode_found = sum(]
                 1 for char in original_content if self.is_unicode_char(char))
             file_details['unicode_chars_found'] = unicode_found
 

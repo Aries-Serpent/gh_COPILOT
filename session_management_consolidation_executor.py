@@ -23,10 +23,9 @@ from base_consolidation_executor import BaseConsolidationExecutor
 # Configure logging
 LOG_DIR = Path("logs")
 LOG_DIR.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
+logging.basicConfig(]
+    format = '%(asctime)s - %(levelname)s - %(message)s',
+    handlers = [
         logging.FileHandler(LOG_DIR / 'session_management_consolidation.log'),
         logging.StreamHandler()
     ]
@@ -59,46 +58,24 @@ class SessionManagementConsolidationExecutor(BaseConsolidationExecutor):
     - Session tracking and transition systems
     """
 
-    def __init__(self, workspace_root: str = r"e:\gh_COPILOT"):
-        super().__init__(
-            workspace_root=workspace_root,
-            archive_root=r"E:/TEMP/gh_copilot_backup",
-            group_name="session_management",
-            logger=logger,
+    def __init__(self, workspace_root: str=r"e:\gh_COPILOT"):
+        super().__init__(]
         )
         self.session_id = f"SESSION_MGMT_CONSOLIDATION_{int(time.time())}"
         self.archive_location = self.archive_dir
 
         # Target unified system
-        self.unified_system_path = self.workspace_root / \
-            "unified_session_management_system.py"
+        self.unified_system_path = self.workspace_root
+            / "unified_session_management_system.py"
 
         # Session management script patterns
         self.session_management_patterns = {
-            "session_integrity_validators": [
-                "clean_session_integrity_validator.py",
-                "comprehensive_session_integrity_validator.py"
             ],
-            "session_wrap_up_systems": [
-                "comprehensive_session_wrap_up.py",
-                "direct_session_wrap_up.py",
-                "final_session_closure.py"
-            ],
-            "graceful_shutdown_systems": [
-                "graceful_shutdown.py"
-            ],
-            "compliance_generators": [
-                "final_session_compliance_certificate_generator.py",
-                "final_enterprise_compliance_validator.py"
-            ],
-            "session_tracking": [
-                "session_transition_and_todo_logger.py"
-            ],
-            "wrap_up_orchestrators": [
-                "final_conversation_wrap_up_orchestrator.py",
-                "enterprise_chat_wrapup_cli.py",
-                "conversation_wrap_up_generator.py"
-            ]
+            "session_wrap_up_systems": [],
+            "graceful_shutdown_systems": [],
+            "compliance_generators": [],
+            "session_tracking": [],
+            "wrap_up_orchestrators": []
         }
 
         logger.info(
@@ -111,7 +88,7 @@ class SessionManagementConsolidationExecutor(BaseConsolidationExecutor):
         """Discover all session management related scripts in the workspace"""
         logger.info("[SEARCH] DISCOVERING SESSION MANAGEMENT SCRIPTS...")
 
-        all_patterns: List[str] = []
+        all_patterns: List[str] = [
         for patterns in self.session_management_patterns.values():
             all_patterns.extend(patterns)
 
@@ -119,7 +96,7 @@ class SessionManagementConsolidationExecutor(BaseConsolidationExecutor):
 
         # Also look for PowerShell and batch files
         for ext in ['*.ps1', '*.bat']:
-            discovered += [str(p) for p in self.discover_files(
+            discovered += [str(p) for p in self.discover_files(]
                 [f"**/*wrap*{ext}", f"**/*shutdown*{ext}"])]
 
         discovered_scripts = sorted(set(discovered))
@@ -140,7 +117,7 @@ class SessionManagementConsolidationExecutor(BaseConsolidationExecutor):
         """Archive scripts to the backup location"""
         print(f"\n[ARCHIVE] Archiving {len(scripts)} scripts...")
 
-        archived_scripts = []
+        archived_scripts = [
 
         for script_path in scripts:
             try:
@@ -178,17 +155,9 @@ class SessionManagementConsolidationExecutor(BaseConsolidationExecutor):
 
             # Check for required components
             required_components = [
-                "DUAL COPILOT PATTERN",
-                "session_integrity_validation",
-                "session_wrap_up",
-                "graceful_shutdown",
-                "compliance_certificate",
-                "anti_recursion_protection",
-                "visual_processing_indicators",
-                "enterprise_compliance"
             ]
 
-            missing_components = []
+            missing_components = [
             for component in required_components:
                 if component.lower() not in content.lower():
                     missing_components.append(component)
@@ -209,7 +178,7 @@ class SessionManagementConsolidationExecutor(BaseConsolidationExecutor):
         """Remove legacy scripts from the workspace"""
         print(f"\n[TRASH] Removing {len(scripts)} legacy scripts...")
 
-        removed_scripts = []
+        removed_scripts = [
 
         for script_path in scripts:
             try:
@@ -227,22 +196,19 @@ class SessionManagementConsolidationExecutor(BaseConsolidationExecutor):
         print(f"[SUCCESS] Removed {len(removed_scripts)} legacy scripts")
         return removed_scripts
 
-    def generate_consolidation_manifest(self, result: ConsolidationResult) -> str:
+    def generate_consolidation_manifest(]
+            self, result: ConsolidationResult) -> str:
         """Generate consolidation manifest"""
         print(f"\n[CLIPBOARD] Generating consolidation manifest...")
 
         manifest = {
-            "consolidation_type": "session_management",
-            "session_id": self.session_id,
-            "timestamp": self.timestamp,
             "unified_system": str(self.unified_system_path),
             "archive_location": str(self.archive_location),
             "scripts_discovered": result.scripts_discovered,
             "scripts_archived": result.scripts_archived,
             "scripts_removed": result.scripts_removed,
             "summary": result.summary,
-            "validation": {
-                "unified_system_verified": result.unified_system_verified,
+            "validation": {]
                 "archive_complete": len(result.scripts_archived) == len(result.scripts_discovered),
                 "removal_complete": len(result.scripts_removed) == len(result.scripts_archived)
             }
@@ -254,9 +220,9 @@ class SessionManagementConsolidationExecutor(BaseConsolidationExecutor):
 
     def execute_consolidation(self) -> ConsolidationResult:
         """Execute the complete session management consolidation process"""
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"[PROCESSING] SESSION MANAGEMENT CONSOLIDATION")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         # Step 1: Discover all session management scripts
         discovered_scripts = self.discover_session_management_scripts()
@@ -284,16 +250,12 @@ class SessionManagementConsolidationExecutor(BaseConsolidationExecutor):
 
         # Categorize scripts
         for category, patterns in self.session_management_patterns.items():
-            category_scripts = [s for s in discovered_scripts if any(
+            category_scripts = [
                 pattern in Path(s).name for pattern in patterns)]
             summary["categories"][category] = len(category_scripts)
 
         # Create result
-        result = ConsolidationResult(
-            scripts_discovered=discovered_scripts,
-            scripts_archived=archived_scripts,
-            scripts_removed=removed_scripts,
-            unified_system_verified=unified_system_verified,
+        result = ConsolidationResult(]
             archive_location=str(self.archive_location),
             manifest_created="",
             timestamp=self.timestamp,
@@ -305,9 +267,9 @@ class SessionManagementConsolidationExecutor(BaseConsolidationExecutor):
         result.manifest_created = manifest_path
 
         # Final status
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"[SUCCESS] SESSION MANAGEMENT CONSOLIDATION COMPLETE")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         print(f"[CLIPBOARD] Scripts discovered: {len(discovered_scripts)}")
         print(f"[ARCHIVE] Scripts archived: {len(archived_scripts)}")
         print(f"[TRASH] Scripts removed: {len(removed_scripts)}")

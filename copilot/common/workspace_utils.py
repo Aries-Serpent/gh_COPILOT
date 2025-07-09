@@ -11,4 +11,3 @@ def get_workspace_path(workspace: Optional[str] = None) -> Path:
     if workspace:
         return Path(workspace)
     return Path(os.getenv(DEFAULT_ENV_VAR, DEFAULT_PATH))
-

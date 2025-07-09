@@ -2,40 +2,27 @@ import sqlite3
 import tempfile
 from pathlib import Path
 
-from copilot.core.autonomous_file_manager import (
-    AutonomousFileManager,
-    IntelligentFileClassifier,
-    AutonomousBackupManager,
+from copilot.core.autonomous_file_manager import (]
 )
 
 
 import pytest
 
+
 def _setup_db(db_path: Path, base: Path) -> None:
     """Create a minimal production.db used by the tests."""
     conn = sqlite3.connect(db_path)
-    conn.execute(
-        """
-        CREATE TABLE enhanced_script_tracking(
-            script_path TEXT,
-            functionality_category TEXT,
-            script_type TEXT,
-            importance_score INTEGER,
-            last_backup TEXT
+    conn.execute(]
         )
         """
     )
-    conn.executemany(
+    conn.executemany(]
         "INSERT INTO enhanced_script_tracking VALUES(?,?,?,?,?)",
-        [
+        []
             (str(base / "a.py"), "utilities", "python", 80, "2021-01-01"),
-            (str(base / "b.sh"), "scripts", "bash", 60, "2021-01-02"),
-        ],
-    )
+            (str(base / "b.sh"), "scripts", "bash", 60, "2021-01-02")])
     conn.commit()
     conn.close()
-
-
 
 
 def test_organize_files_autonomously(tmp_path, monkeypatch):
@@ -80,4 +67,3 @@ def test_create_intelligent_backup(tmp_path, monkeypatch):
 
     assert (dest_path / "a.py").is_file()
     assert (dest_path / "b.sh").is_file()
-

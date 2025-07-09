@@ -31,12 +31,10 @@ LOG_DIR.mkdir(exist_ok=True)
 
 
 # Configure enterprise logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(
-            LOG_DIR / 'disaster_recovery_consolidation.log', encoding='utf-8'),
+logging.basicConfig(]
+    format = '%(asctime)s - %(levelname)s - %(message)s',
+    handlers = [
+            LOG_DIR / 'disaster_recovery_consolidation.log', encoding = 'utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -59,11 +57,7 @@ class DisasterRecoveryConsolidator(BaseConsolidationExecutor):
 
     def __init__(self):
         self.start_time = datetime.now()
-        super().__init__(
-            workspace_root=r"e:\\gh_COPILOT",
-            archive_root=r"E:\\TEMP\\gh_copilot_backup",
-            group_name="disaster_recovery",
-            logger=logger,
+        super().__init__(]
         )
         self.consolidation_timestamp = self.timestamp
         self.external_archive_root = self.archive_root
@@ -82,14 +76,6 @@ class DisasterRecoveryConsolidator(BaseConsolidationExecutor):
 
         # Visual indicators
         self.visual_indicators = {
-            'info': '🔍',
-            'processing': '⚙️',
-            'success': '✅',
-            'warning': '⚠️',
-            'error': '❌',
-            'data': '📊',
-            'archive': '📦',
-            'validation': '🎯'
         }
 
         logger.info("🚨 DISASTER RECOVERY CONSOLIDATION EXECUTOR INITIALIZED")
@@ -103,21 +89,16 @@ class DisasterRecoveryConsolidator(BaseConsolidationExecutor):
         logger.info("🔍 DISCOVERING DISASTER RECOVERY SCRIPTS...")
 
         script_patterns = [
-            "**/disaster_recovery_enhancer.py",
-            "**/disaster_recovery_enhancer_enhanced.py",
-            "**/disaster_recovery_validator.py",
-            "**/disaster_recovery_success_report.py",
-            "**/disaster_recovery_analyzer.py"
         ]
 
         print("🔍 Scanning for disaster recovery scripts...")
-        discovered = self.discover_files(
+        discovered = self.discover_files(]
             script_patterns, ["unified_disaster_recovery_system.py"])
         for path in discovered:
             logger.info(f"📄 Found: {path.relative_to(self.workspace_root)}")
 
         self.consolidation_results["scripts_found"] = len(discovered)
-        logger.info("📊 Discovered %s disaster recovery scripts",
+        logger.info(
                     len(discovered))
 
         return [str(p) for p in discovered]
@@ -127,17 +108,6 @@ class DisasterRecoveryConsolidator(BaseConsolidationExecutor):
         logger.info("📁 CREATING ARCHIVE STRUCTURE...")
 
         archive_directories = [
-            self.external_archive_root / "consolidated_scripts",
-            self.external_archive_root / "consolidated_scripts" / "disaster_recovery",
-            self.external_archive_root / "consolidated_scripts" /
-            "disaster_recovery" / self.consolidation_timestamp,
-            self.external_archive_root / "consolidated_scripts" /
-            "disaster_recovery" / self.consolidation_timestamp / "scripts",
-            self.external_archive_root / "consolidated_scripts" /
-            "disaster_recovery" / self.consolidation_timestamp / "deployment",
-            self.external_archive_root / "consolidated_scripts" /
-            "disaster_recovery" / self.consolidation_timestamp / "regenerated",
-            self.external_archive_root / "manifests"
         ]
 
         for directory in archive_directories:
@@ -148,7 +118,8 @@ class DisasterRecoveryConsolidator(BaseConsolidationExecutor):
                 logger.error(f"❌ Failed to create {directory}: {e}")
                 raise
 
-    def archive_disaster_recovery_scripts(self, scripts: List[str]) -> Dict[str, Any]:
+    def archive_disaster_recovery_scripts(]
+            self, scripts: List[str]) -> Dict[str, Any]:
         """📦 Archive disaster recovery scripts to external location"""
         logger.info("📦 ARCHIVING DISASTER RECOVERY SCRIPTS...")
 
@@ -165,31 +136,25 @@ class DisasterRecoveryConsolidator(BaseConsolidationExecutor):
                     _, target_path = result[0]
                     file_size = src.stat().st_size
                     file_hash = self.calculate_file_hash(src)
-                    self.consolidation_results["consolidated_files"].append(
-                        asdict(
-                            ConsolidationResult(
+                    self.consolidation_results["consolidated_files"].append(]
                                 source_path=str(src),
                                 archive_path=str(target_path),
                                 file_size=file_size,
                                 file_hash=file_hash,
-                                consolidation_status="SUCCESS",
-                            )
+                                consolidation_status="SUCCESS")
                         )
                     )
                     archived_count += 1
                     total_size += file_size
                     src.unlink()
                 else:
-                    self.consolidation_results["consolidated_files"].append(
-                        asdict(
-                            ConsolidationResult(
+                    self.consolidation_results["consolidated_files"].append(]
                                 source_path=str(src),
                                 archive_path="",
                                 file_size=0,
                                 file_hash="",
                                 consolidation_status="FAILED",
-                                error_message="archive failed",
-                            )
+                                error_message="archive failed")
                         )
                     )
                 pbar.update(1)
@@ -211,11 +176,6 @@ class DisasterRecoveryConsolidator(BaseConsolidationExecutor):
         logger.info("🎯 VALIDATING UNIFIED DISASTER RECOVERY SYSTEM...")
 
         validation_results = {
-            "unified_system_exists": False,
-            "unified_system_functional": False,
-            "legacy_scripts_removed": False,
-            "archive_integrity": False,
-            "consolidation_complete": False
         }
 
         print("🎯 Validating unified system...")
@@ -234,11 +194,6 @@ class DisasterRecoveryConsolidator(BaseConsolidationExecutor):
                     content = f.read()
 
                 required_components = [
-                    "UnifiedDisasterRecoverySystem",
-                    "assess_recovery_readiness",
-                    "create_recovery_backups",
-                    "generate_recovery_plans",
-                    "test_recovery_procedures"
                 ]
 
                 if all(component in content for component in required_components):
@@ -277,7 +232,7 @@ class DisasterRecoveryConsolidator(BaseConsolidationExecutor):
             logger.error("❌ Archive directory not found")
 
         # Overall consolidation status
-        validation_results["consolidation_complete"] = all([
+        validation_results["consolidation_complete"] = all(]
             validation_results["unified_system_exists"],
             validation_results["unified_system_functional"],
             validation_results["legacy_scripts_removed"],
@@ -309,14 +264,9 @@ class DisasterRecoveryConsolidator(BaseConsolidationExecutor):
         logger.info("📋 GENERATING CONSOLIDATION MANIFEST...")
 
         manifest_data = {
-            "consolidation_info": {
-                "timestamp": self.consolidation_timestamp,
-                "consolidation_type": "DISASTER_RECOVERY_SCRIPTS",
-                "unified_system": "unified_disaster_recovery_system.py",
                 "source_workspace": str(self.workspace_root),
-                "archive_location": str(self.external_archive_root),
-            },
-            "summary": {
+                "archive_location": str(self.external_archive_root)},
+            "summary": {]
                 "scripts_found": self.consolidation_results["scripts_found"],
                 "scripts_archived": self.consolidation_results["scripts_archived"],
                 "scripts_failed": self.consolidation_results["scripts_failed"],
@@ -382,8 +332,7 @@ class DisasterRecoveryConsolidator(BaseConsolidationExecutor):
         logger.info(
             f"Scripts Consolidated: {self.consolidation_results['scripts_archived']}")
 
-        return {
-            "status": "SUCCESS",
+        return {]
             "duration": str(duration),
             "summary": self.consolidation_results
         }

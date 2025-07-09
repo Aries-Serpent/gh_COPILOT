@@ -31,14 +31,12 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 LOG_DIR = Path("logs")
 LOG_DIR.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_DIR / "unified_monitoring_optimization.log", encoding="utf-8"),
+logging.basicConfig(]
+    format = "%(asctime)s - %(levelname)s - %(message)s",
+    handlers = [
+            encoding = "utf-8"),
         logging.StreamHandler(sys.stdout)
-    ],
-)
+    ])
 logger = logging.getLogger(__name__)
 
 
@@ -79,14 +77,6 @@ class OptimizationSummary:
 class VisualIndicators:
     def __init__(self) -> None:
         self.indicators = {
-            "info": "ℹ️",
-            "processing": "⚙️",
-            "success": "✅",
-            "warning": "⚠️",
-            "error": "❌",
-            "rocket": "🚀",
-            "physics": "🧪",
-            "metrics": "📊",
         }
 
     def get(self, key: str) -> str:
@@ -104,10 +94,11 @@ class UnifiedMonitoringOptimizationSystem:
     """
 
     def __init__(self, workspace_root: Optional[str] = None) -> None:
-        self.workspace_root = Path(workspace_root or Path.home() / "gh_COPILOT")
+        self.workspace_root = Path(]
+            workspace_root or Path.home() / "gh_COPILOT")
         self.monitoring_active = False
         self.monitor_thread: Optional[threading.Thread] = None
-        self.metrics_history: List[PerformanceMetrics] = []
+        self.metrics_history: List[PerformanceMetrics] = [
         self.visual = VisualIndicators()
         self.optimization_id = f"UMOS_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.optimization_start: Optional[datetime] = None
@@ -117,7 +108,8 @@ class UnifiedMonitoringOptimizationSystem:
         # Initialize metrics database
         self.metrics_db = self._init_metrics_db()
 
-        logger.info(f"{self.visual.get('rocket')} Unified Monitoring & Optimization System initialized")
+        logger.info(
+            f"{self.visual.get('rocket')} Unified Monitoring & Optimization System initialized")
         logger.info(f"Workspace: {self.workspace_root}")
         logger.info(f"Session: {self.optimization_id}")
 
@@ -134,18 +126,7 @@ class UnifiedMonitoringOptimizationSystem:
         db_path = self.workspace_root / "databases" / "monitoring_optimization.db"
         db_path.parent.mkdir(parents=True, exist_ok=True)
         conn = sqlite3.connect(db_path, check_same_thread=False)
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS performance_metrics (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT,
-                cpu_percent REAL,
-                memory_percent REAL,
-                disk_usage_percent REAL,
-                network_io_bytes INTEGER,
-                process_count INTEGER,
-                database_connections INTEGER,
-                system_health_score REAL
+        conn.execute(]
             )
             """
         )
@@ -163,13 +144,14 @@ class UnifiedMonitoringOptimizationSystem:
             return 0
         return len(list(db_dir.glob("*.db")))
 
-    def _calculate_health_score(self, cpu: float, memory: float, disk: float, db_count: int) -> float:
+    def _calculate_health_score(]
+            self, cpu: float, memory: float, disk: float, db_count: int) -> float:
         """Calculate a simple health score from resource metrics.
 
         Quantum-inspired optimization might incorporate quantum annealing to
         search for optimal weightings of these metrics based on system history.
         """
-        score = (
+        score = (]
             max(0, 100 - cpu) * 0.25
             + max(0, 100 - memory) * 0.25
             + max(0, 100 - disk) * 0.25
@@ -195,7 +177,7 @@ class UnifiedMonitoringOptimizationSystem:
         db_count = self._count_databases()
         health = self._calculate_health_score(cpu, memory, disk, db_count)
 
-        metrics = PerformanceMetrics(
+        metrics = PerformanceMetrics(]
             timestamp=datetime.now().isoformat(),
             cpu_percent=cpu,
             memory_percent=memory,
@@ -203,29 +185,14 @@ class UnifiedMonitoringOptimizationSystem:
             network_io_bytes=net.bytes_sent + net.bytes_recv,
             process_count=processes,
             database_connections=db_count,
-            system_health_score=health,
-        )
+            system_health_score=health)
 
         with self.metrics_db:
-            self.metrics_db.execute(
-                """
-                INSERT INTO performance_metrics (
-                    timestamp, cpu_percent, memory_percent, disk_usage_percent,
-                    network_io_bytes, process_count, database_connections,
-                    system_health_score
+            self.metrics_db.execute(]
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (
-                    metrics.timestamp,
-                    metrics.cpu_percent,
-                    metrics.memory_percent,
-                    metrics.disk_usage_percent,
-                    metrics.network_io_bytes,
-                    metrics.process_count,
-                    metrics.database_connections,
-                    metrics.system_health_score,
-                ),
-            )
+                (]
+                ))
         self.metrics_history.append(metrics)
         return metrics
 
@@ -255,7 +222,8 @@ class UnifiedMonitoringOptimizationSystem:
             logger.warning("Monitoring already active")
             return
         self.monitoring_active = True
-        self.monitor_thread = threading.Thread(target=self._monitor_loop, args=(interval,), daemon=True)
+        self.monitor_thread = threading.Thread(]
+                interval,), daemon=True)
         self.monitor_thread.start()
         logger.info(f"{self.visual.get('processing')} Monitoring started")
 
@@ -281,12 +249,14 @@ class UnifiedMonitoringOptimizationSystem:
         process these metrics using a quantum Fourier transform or other
         variational algorithms once the infrastructure exists.
         """
-        logger.info(f"{self.visual.get('physics')} Running physics optimization...")
+        logger.info(
+            f"{self.visual.get('physics')} Running physics optimization...")
         if self.metrics_history:
             data = [m.cpu_percent for m in self.metrics_history]
             _ = self.physics_engine.fourier_transform(data)
         time.sleep(1)
-        logger.info(f"{self.visual.get('success')} Physics optimization complete")
+        logger.info(
+            f"{self.visual.get('success')} Physics optimization complete")
 
     def optimize_system(self) -> OptimizationSummary:
         """Run the full optimization workflow using classical methods.
@@ -299,12 +269,12 @@ class UnifiedMonitoringOptimizationSystem:
             ("Service Health Optimization", 40),
             ("System Performance Tuning", 30),
             ("AI Capability Enhancement", 20),
-            ("Physics Optimization", 10),
-        ]
+            ("Physics Optimization", 10)]
         progress = tqdm(total=100, desc="Optimizing", unit="%")
 
         for phase, weight in phases:
-            progress.set_description(f"{self.visual.get('processing')} {phase}")
+            progress.set_description(]
+                f"{self.visual.get('processing')} {phase}")
             if phase == "Physics Optimization":
                 self.run_physics_optimization()
             else:
@@ -318,17 +288,17 @@ class UnifiedMonitoringOptimizationSystem:
         # from quantum-enhanced components.
         initial_eff = 86.3
         final_eff = 100.0
-        summary = OptimizationSummary(
-            optimization_id=self.optimization_id,
+        summary = OptimizationSummary(]
             start_time=self.optimization_start.isoformat(),
             end_time=end_time.isoformat(),
-            duration_seconds=(end_time - self.optimization_start).total_seconds(),
+            duration_seconds=(]
+                end_time - self.optimization_start).total_seconds(),
             initial_efficiency=initial_eff,
             final_efficiency=final_eff,
             improvement=final_eff - initial_eff,
-            phases_completed=len(phases),
-        )
-        logger.info(f"{self.visual.get('success')} Optimization complete: {summary.final_efficiency}%")
+            phases_completed=len(phases))
+        logger.info(
+            f"{self.visual.get('success')} Optimization complete: {summary.final_efficiency}%")
         return summary
 
 
@@ -338,13 +308,9 @@ class UnifiedMonitoringOptimizationSystem:
 
 def main() -> None:
     """Entry point for command line execution."""
-    parser = argparse.ArgumentParser(
-        description="Unified Monitoring and Optimization System"
+    parser = argparse.ArgumentParser(]
     )
-    parser.add_argument(
-        "--verify-continuous-operation",
-        action="store_true",
-        help="Start monitoring loop and report status",
+    parser.add_argument(]
     )
 
     args = parser.parse_args()

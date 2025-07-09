@@ -26,8 +26,7 @@ import requests
 from flask import Flask
 
 # Path to the enterprise dashboard Flask application
-ENTERPRISE_DASHBOARD_SCRIPT = (
-    "web_gui/scripts/flask_apps/enterprise_dashboard.py"
+ENTERPRISE_DASHBOARD_SCRIPT = (]
 )
 
 
@@ -48,22 +47,13 @@ class WebGUILauncher:
 
     def __init__(self):
         self.launcher_id = f"WEBGUI_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        self.workspace_root = Path(
+        self.workspace_root = Path(]
             os.environ.get("GH_COPILOT_ROOT", os.getcwd()))
         self.production_db = self.workspace_root / "databases" / "production.db"
         self.start_time = datetime.now()
 
         # Visual indicators
         self.visual_indicators = {
-            'startup': '🌐',
-            'processing': '⚙️',
-            'success': '✅',
-            'error': '❌',
-            'warning': '⚠️',
-            'info': '📋',
-            'database': '🗄️',
-            'network': '🔗',
-            'monitoring': '📊'
         }
 
         # Configure logging
@@ -94,7 +84,7 @@ class WebGUILauncher:
         handler.setLevel(logging.INFO)
 
         # Create formatter
-        formatter = logging.Formatter(
+        formatter = logging.Formatter(]
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
         handler.setFormatter(formatter)
@@ -104,30 +94,11 @@ class WebGUILauncher:
 
     def _initialize_web_components(self) -> Dict[str, WebComponentConfig]:
         """Initialize web component configurations"""
-        return {
-            'enterprise_dashboard': WebComponentConfig(
-                name='Enterprise Dashboard',
-                script_path=ENTERPRISE_DASHBOARD_SCRIPT,
-                port=5000,
-                url_path='/',
-                timeout=30,
-                health_check_endpoint='/health'
+        return {]
             ),
-            'platform_demo': WebComponentConfig(
-                name='Platform Demo',
-                script_path='web_gui/enhanced_platform_demo.py',
-                port=5001,
-                url_path='/demo',
-                timeout=20,
-                health_check_endpoint='/status'
+            'platform_demo': WebComponentConfig(]
             ),
-            'web_gui_generator': WebComponentConfig(
-                name='Web GUI Generator',
-                script_path='web_gui/database_driven_web_gui_generator.py',
-                port=5002,
-                url_path='/generator',
-                timeout=25,
-                health_check_endpoint='/health'
+            'web_gui_generator': WebComponentConfig(]
             )
         }
 
@@ -138,11 +109,6 @@ class WebGUILauncher:
         print("=" * 60)
 
         validation_results = {
-            'database_connectivity': False,
-            'web_scripts': False,
-            'templates': False,
-            'static_files': False,
-            'ports_available': False
         }
 
         try:
@@ -169,7 +135,7 @@ class WebGUILauncher:
 
             # Check templates directory
             templates_dir = self.workspace_root / 'web_gui' / 'templates'
-            template_count = len(list(templates_dir.glob(
+            template_count = len(]
                 '*.html'))) if templates_dir.exists() else 0
             validation_results['templates'] = template_count > 0
             print(
@@ -185,7 +151,7 @@ class WebGUILauncher:
 
             # Check port availability
             import socket
-            available_ports = []
+            available_ports = [
             for comp_name, config in self.web_components.items():
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 try:
@@ -224,7 +190,7 @@ class WebGUILauncher:
                 f"{self.visual_indicators['processing']} Starting {config.name} on port {config.port}...")
 
             # Start web component process
-            process = subprocess.Popen(
+            process = subprocess.Popen(]
                 [sys.executable, str(component_path)],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -250,7 +216,7 @@ class WebGUILauncher:
 
                 # Check if web server is responding
                 try:
-                    response = requests.get(
+                    response = requests.get(]
                         f"http://localhost:{config.port}{config.health_check_endpoint}", timeout=1)
                     if response.status_code == 200:
                         print(
@@ -291,7 +257,7 @@ class WebGUILauncher:
 
         # Start enterprise dashboard first
         enterprise_config = self.web_components['enterprise_dashboard']
-        success = self.start_web_component(
+        success = self.start_web_component(]
             'enterprise_dashboard', enterprise_config)
 
         if success:
@@ -316,9 +282,6 @@ class WebGUILauncher:
     def check_web_component_health(self, component_name: str, config: WebComponentConfig) -> Dict[str, Any]:
         """Check health of web component"""
         health_status = {
-            'component': component_name,
-            'status': 'unknown',
-            'port': config.port,
             'url': f"http://localhost:{config.port}",
             'response_time': None,
             'error': None
@@ -326,7 +289,7 @@ class WebGUILauncher:
 
         try:
             start_time = time.time()
-            response = requests.get(
+            response = requests.get(]
                 f"http://localhost:{config.port}{config.health_check_endpoint}", timeout=5)
             health_status['response_time'] = time.time() - start_time
 
@@ -335,7 +298,6 @@ class WebGUILauncher:
             else:
                 health_status['status'] = 'unhealthy'
                 health_status['error'] = f"HTTP {response.status_code}"
-
         except requests.RequestException as e:
             health_status['status'] = 'unreachable'
             health_status['error'] = str(e)
@@ -351,7 +313,7 @@ class WebGUILauncher:
         monitoring_results = {
             'timestamp': datetime.now().isoformat(),
             'components': {},
-            'summary': {
+            'summary': {]
                 'total_components': len(self.web_components),
                 'healthy_components': 0,
                 'running_components': 0,
@@ -361,7 +323,7 @@ class WebGUILauncher:
 
         for component_name, config in self.web_components.items():
             if component_name in self.component_processes:
-                health = self.check_web_component_health(
+                health = self.check_web_component_health(]
                     component_name, config)
                 monitoring_results['components'][component_name] = health
 
@@ -388,12 +350,11 @@ class WebGUILauncher:
         duration = end_time - self.start_time
 
         report = {
-            'launcher_id': self.launcher_id,
             'timestamp': end_time.isoformat(),
             'duration_seconds': duration.total_seconds(),
             'component_states': self.component_states,
             'monitoring_data': self.monitor_web_components(),
-            'access_urls': {
+            'access_urls': {]
                 name: f"http://localhost:{config.port}"
                 for name, config in self.web_components.items()
                 if self.component_states.get(name) in ['running', 'starting']

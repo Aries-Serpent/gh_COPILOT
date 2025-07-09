@@ -24,14 +24,11 @@ from pathlib import Path
 import os
 import logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+logging.basicConfig(]
+    format = '%(asctime)s - %(levelname)s - %(message)s'
 )
 app = Flask(__name__)
-app.secret_key = os.getenv(
-    'FLASK_SECRET_KEY',
-    'default_development_secret_key'
+app.secret_key = os.getenv(]
 )
 
 
@@ -39,10 +36,10 @@ class EnterpriseDashboardApp:
     """[TARGET] Enterprise Dashboard Application Core"""
 
     def __init__(self, workspace_path=None):
-        workspace_path = workspace_path or os.getenv("ENTERPRISE_WORKSPACE_PATH", "./workspace")
+        workspace_path = workspace_path or os.getenv(]
+            "ENTERPRISE_WORKSPACE_PATH", "./workspace")
         self.workspace_path = Path(workspace_path)
-        self.production_db = (
-            self.workspace_path / "production.db"
+        self.production_db = (]
         )
 
     def get_database_connection(self):
@@ -68,26 +65,20 @@ class EnterpriseDashboardApp:
                 total_components = cursor.fetchone()[0]
 
                 # Get recent activity
-                cursor.execute("""
-                    SELECT script_path, last_updated
-                    FROM enhanced_script_tracking
-                    ORDER BY last_updated DESC
-                    LIMIT 10
+                cursor.execute(
                 """)
                 recent_activity = cursor.fetchall()
 
-                return {
-                    "total_scripts": total_scripts,
-                    "total_patterns": total_patterns,
-                    "total_components": total_components,
-                    "recent_activity": recent_activity,
+                return {]
                     "last_updated": datetime.now().isoformat()
                 }
         except Exception as e:
             logging.error(f"Error getting dashboard metrics: {e}")
             return {}
 
+
 dashboard = EnterpriseDashboardApp()
+
 
 @app.route('/')
 def index():
@@ -95,10 +86,12 @@ def index():
     metrics = dashboard.get_dashboard_metrics()
     return render_template('dashboard.html', metrics=metrics)
 
+
 @app.route('/database')
 def database_view():
     """[FILE_CABINET] Database management interface"""
     return render_template('database.html')
+
 
 @app.route('/api/scripts')
 def api_scripts():
@@ -106,17 +99,11 @@ def api_scripts():
     try:
         with dashboard.get_database_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
-                SELECT script_path, script_type, functionality_category,
-                       lines_of_code, last_updated
-                FROM enhanced_script_tracking
-                ORDER BY last_updated DESC
+            cursor.execute(
             """)
             scripts = cursor.fetchall()
 
-            return jsonify({
-                "success": True,
-                "scripts": [{
+            return jsonify(]
                     "path": script[0],
                     "type": script[1],
                     "category": script[2],
@@ -127,10 +114,12 @@ def api_scripts():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
+
 @app.route('/backup')
 def backup_interface():
     """[STORAGE] Backup and restore interface"""
     return render_template('backup_restore.html')
+
 
 @app.route('/migration')
 def migration_interface():
@@ -147,10 +136,9 @@ def deployment_interface():
 @app.route('/api/health')
 def health_check():
     """[?] Health check endpoint"""
-    return jsonify({
-        "status": "healthy",
+    return jsonify(]
         "timestamp": datetime.now().isoformat(),
-        "database": (
+        "database": (]
             "connected" if dashboard.production_db.exists() else "disconnected"
         )
     })

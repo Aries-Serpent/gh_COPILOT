@@ -1,4 +1,6 @@
-from copilot.orchestrators.final_enterprise_orchestrator import FinalEnterpriseOrchestrator
+from copilot.orchestrators.final_enterprise_orchestrator import (
+    FinalEnterpriseOrchestrator
+)
 
 
 def main():
