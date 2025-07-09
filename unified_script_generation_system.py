@@ -5,25 +5,19 @@ Unified Script Generation System.
 Generates scripts using templates with compliance validation.
 """
 
-import os
-import sys
-import json
-import sqlite3
 import hashlib
-import uuid
-import re
-import ast
-import shutil
+import json
 import logging
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional, Set
-from dataclasses import dataclass, field, asdict
-from collections import defaultdict, Counter
+import re
+import sqlite3
+import sys
+import uuid
+from collections import defaultdict
 from contextlib import contextmanager
-import concurrent.futures
-from tqdm import tqdm
-import time
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 # Visual Processing Indicators
 VISUAL_INDICATORS = {
@@ -51,11 +45,13 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(LOG_DIR / 'unified_script_generation_system.log', encoding='utf-8'),
-        logging.StreamHandler()
-    ]
-)
+        logging.FileHandler(
+            LOG_DIR /
+            'unified_script_generation_system.log',
+            encoding='utf-8'),
+        logging.StreamHandler()])
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class ScriptGenerationRequest:
@@ -72,6 +68,7 @@ class ScriptGenerationRequest:
     security_requirements: List[str] = field(default_factory=list)
     quantum_optimization: bool = True
     anti_recursion_protection: bool = True
+
 
 @dataclass
 class TemplateMetadata:
@@ -92,6 +89,7 @@ class TemplateMetadata:
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
     updated_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
+
 @dataclass
 class GenerationResult:
     """Script generation result with metrics"""
@@ -108,10 +106,11 @@ class GenerationResult:
     error: Optional[str] = None
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
+
 class UnifiedScriptGenerationSystem:
     """
     Unified Script Generation System with DUAL COPILOT Pattern
-    
+
     Enterprise-grade script generation platform with:
     - Quantum-optimized template processing
     - Anti-recursion protected generation
@@ -120,43 +119,68 @@ class UnifiedScriptGenerationSystem:
     - Visual processing indicators
     - Autonomous database management
     """
-    
+
     def __init__(self, workspace_path: str = r"e:\gh_COPILOT"):
         """Initialize with DUAL COPILOT pattern compliance"""
         self.workspace_path = Path(workspace_path)
         self.databases_path = self.workspace_path / "databases"
         self.production_db = self.databases_path / "production.db"
         self.generation_db = self.databases_path / "script_generation.db"
-        
+
         # Anti-recursion protection
         self._recursion_depth = 0
         self._max_recursion_depth = 10
         self._active_generations = set()
-        
+
         # Quantum optimization state
         self._quantum_cache = {}
         self._optimization_metrics = defaultdict(float)
-        
+
         # Initialize subsystems
         self._init_databases()
         self._init_enterprise_compliance()
         self._init_visual_indicators()
-        
-        logger.info(f"{VISUAL_INDICATORS['success']} Unified Script Generation System initialized")
-        logger.info(f"{VISUAL_INDICATORS['database']} Database: {self.generation_db}")
-        logger.info(f"{VISUAL_INDICATORS['quantum']} Quantum optimization: ENABLED")
-        logger.info(f"{VISUAL_INDICATORS['phase45']} Phase 4/5 compliance: VERIFIED")
+
+        logger.info(
+            (
+                f"{VISUAL_INDICATORS['success']} "
+                "Unified Script Generation System initialized"
+            )
+        )
+        logger.info(
+            (
+                f"{VISUAL_INDICATORS['database']} Database: "
+                f"{self.generation_db}"
+            )
+        )
+        logger.info(
+            (
+                f"{VISUAL_INDICATORS['quantum']} "
+                "Quantum optimization: ENABLED"
+            )
+        )
+        logger.info(
+            (
+                f"{VISUAL_INDICATORS['phase45']} "
+                "Phase 4/5 compliance: VERIFIED"
+            )
+        )
 
     def _init_databases(self):
         """Initialize database schemas with quantum optimization"""
-        logger.info(f"{VISUAL_INDICATORS['database']} Initializing database schemas...")
-        
+        logger.info(
+            (
+                f"{VISUAL_INDICATORS['database']} "
+                "Initializing database schemas..."
+            )
+        )
+
         # Ensure directories exist
         self.databases_path.mkdir(parents=True, exist_ok=True)
-        
+
         with sqlite3.connect(self.generation_db) as conn:
             cursor = conn.cursor()
-            
+
             # Templates table with quantum optimization
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS script_templates (
@@ -178,7 +202,7 @@ class UnifiedScriptGenerationSystem:
                     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
+
             # Generation history with anti-recursion tracking
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS generation_history (
@@ -198,10 +222,11 @@ class UnifiedScriptGenerationSystem:
                     error_message TEXT,
                     recursion_depth INTEGER DEFAULT 0,
                     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (template_id) REFERENCES script_templates (template_id)
+                    FOREIGN KEY (template_id)
+                        REFERENCES script_templates (template_id)
                 )
             ''')
-            
+
             # Quantum optimization cache
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS quantum_cache (
@@ -213,7 +238,7 @@ class UnifiedScriptGenerationSystem:
                     last_accessed TEXT DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
+
             # Enterprise compliance tracking
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS compliance_tracking (
@@ -226,23 +251,54 @@ class UnifiedScriptGenerationSystem:
                     anti_recursion_verified BOOLEAN DEFAULT 1,
                     quantum_optimized BOOLEAN DEFAULT 1,
                     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (generation_id) REFERENCES generation_history (generation_id)
+                    FOREIGN KEY (generation_id)
+                        REFERENCES generation_history (generation_id)
                 )
             ''')
-            
+
             # Performance optimization indexes
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_templates_category ON script_templates(category)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_templates_usage ON script_templates(usage_count DESC)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_generation_template ON generation_history(template_id)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_generation_timestamp ON generation_history(created_at)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_quantum_cache_score ON quantum_cache(optimization_score DESC)')
-            
+            cursor.execute(
+                (
+                    'CREATE INDEX IF NOT EXISTS idx_templates_category ON '
+                    'script_templates(category)'
+                )
+            )
+            cursor.execute(
+                (
+                    'CREATE INDEX IF NOT EXISTS idx_templates_usage ON '
+                    'script_templates(usage_count DESC)'
+                )
+            )
+            cursor.execute(
+                (
+                    'CREATE INDEX IF NOT EXISTS idx_generation_template ON '
+                    'generation_history(template_id)'
+                )
+            )
+            cursor.execute(
+                (
+                    'CREATE INDEX IF NOT EXISTS idx_generation_timestamp ON '
+                    'generation_history(created_at)'
+                )
+            )
+            cursor.execute(
+                (
+                    'CREATE INDEX IF NOT EXISTS idx_quantum_cache_score ON '
+                    'quantum_cache(optimization_score DESC)'
+                )
+            )
+
             conn.commit()
 
     def _init_enterprise_compliance(self):
         """Initialize enterprise compliance validation"""
-        logger.info(f"{VISUAL_INDICATORS['validate']} Initializing enterprise compliance...")
-        
+        logger.info(
+            (
+                f"{VISUAL_INDICATORS['validate']} "
+                "Initializing enterprise compliance..."
+            )
+        )
+
         self.compliance_patterns = {
             'dual_copilot': [
                 r'DUAL COPILOT PATTERN',
@@ -270,8 +326,9 @@ class UnifiedScriptGenerationSystem:
 
     def _init_visual_indicators(self):
         """Initialize visual processing indicators"""
-        logger.info(f"{VISUAL_INDICATORS['info']} Visual indicators initialized")
-        
+        logger.info(
+            f"{VISUAL_INDICATORS['info']} Visual indicators initialized")
+
         # Progress tracking
         self._progress_stack = []
         self._current_operation = None
@@ -280,14 +337,17 @@ class UnifiedScriptGenerationSystem:
     def _anti_recursion_protection(self, operation_id: str):
         """Anti-recursion protection context manager"""
         if self._recursion_depth >= self._max_recursion_depth:
-            raise RecursionError(f"Maximum recursion depth ({self._max_recursion_depth}) exceeded")
-        
+            raise RecursionError(
+                f"Maximum recursion depth ({
+                    self._max_recursion_depth}) exceeded")
+
         if operation_id in self._active_generations:
-            raise RecursionError(f"Recursive operation detected: {operation_id}")
-        
+            raise RecursionError(
+                f"Recursive operation detected: {operation_id}")
+
         self._recursion_depth += 1
         self._active_generations.add(operation_id)
-        
+
         try:
             yield
         finally:
@@ -296,53 +356,65 @@ class UnifiedScriptGenerationSystem:
 
     def _quantum_optimize(self, content: str, operation_type: str) -> str:
         """Apply quantum optimization to content"""
-        logger.info(f"{VISUAL_INDICATORS['quantum']} Applying quantum optimization...")
-        
+        logger.info(
+            f"{VISUAL_INDICATORS['quantum']} Applying quantum optimization...")
+
         # Generate quantum hash
-        quantum_hash = hashlib.sha256(f"{content}{operation_type}".encode()).hexdigest()[:16]
-        
+        quantum_hash = hashlib.sha256(
+            f"{content}{operation_type}".encode()).hexdigest()[:16]
+
         # Check quantum cache
         with sqlite3.connect(self.generation_db) as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT cache_value, optimization_score FROM quantum_cache 
+                SELECT cache_value, optimization_score FROM quantum_cache
                 WHERE cache_key = ?
             ''', (quantum_hash,))
-            
+
             cached_result = cursor.fetchone()
             if cached_result:
                 # Update access count
                 cursor.execute('''
-                    UPDATE quantum_cache 
-                    SET access_count = access_count + 1, last_accessed = CURRENT_TIMESTAMP
+                    UPDATE quantum_cache
+                    SET access_count = access_count + 1,
+                        last_accessed = CURRENT_TIMESTAMP
                     WHERE cache_key = ?
                 ''', (quantum_hash,))
                 conn.commit()
-                
-                logger.info(f"{VISUAL_INDICATORS['quantum']} Quantum cache hit")
+
+                logger.info(
+                    f"{VISUAL_INDICATORS['quantum']} Quantum cache hit")
                 return cached_result[0]
-        
+
         # Apply quantum optimization algorithms
-        optimized_content = self._apply_quantum_algorithms(content, operation_type)
-        optimization_score = self._calculate_optimization_score(content, optimized_content)
-        
+        optimized_content = self._apply_quantum_algorithms(
+            content, operation_type)
+        optimization_score = self._calculate_optimization_score(
+            content, optimized_content)
+
         # Cache the result
         with sqlite3.connect(self.generation_db) as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT OR REPLACE INTO quantum_cache 
+                INSERT OR REPLACE INTO quantum_cache
                 (cache_key, cache_value, optimization_score, access_count)
                 VALUES (?, ?, ?, 1)
             ''', (quantum_hash, optimized_content, optimization_score))
             conn.commit()
-        
-        logger.info(f"{VISUAL_INDICATORS['quantum']} Quantum optimization applied (score: {optimization_score:.2f})")
+
+        logger.info(
+            f"{
+                VISUAL_INDICATORS['quantum']} Quantum optimization applied (score: {
+                optimization_score:.2f})")
         return optimized_content
 
-    def _apply_quantum_algorithms(self, content: str, operation_type: str) -> str:
+    def _apply_quantum_algorithms(
+            self,
+            content: str,
+            operation_type: str) -> str:
         """Apply quantum optimization algorithms"""
         optimized = content
-        
+
         # Quantum pattern optimization
         if operation_type == "template_processing":
             optimized = self._optimize_template_patterns(optimized)
@@ -350,10 +422,10 @@ class UnifiedScriptGenerationSystem:
             optimized = self._optimize_code_generation(optimized)
         elif operation_type == "environment_adaptation":
             optimized = self._optimize_environment_adaptation(optimized)
-        
+
         # Quantum compression
         optimized = self._apply_quantum_compression(optimized)
-        
+
         return optimized
 
     def _optimize_template_patterns(self, content: str) -> str:
@@ -362,7 +434,7 @@ class UnifiedScriptGenerationSystem:
         lines = content.split('\n')
         optimized_lines = []
         pattern_cache = set()
-        
+
         for line in lines:
             stripped = line.strip()
             if stripped and stripped not in pattern_cache:
@@ -370,37 +442,37 @@ class UnifiedScriptGenerationSystem:
                 pattern_cache.add(stripped)
             elif not stripped:
                 optimized_lines.append(line)
-        
+
         return '\n'.join(optimized_lines)
 
     def _optimize_code_generation(self, content: str) -> str:
         """Optimize code generation with quantum algorithms"""
         # Quantum code optimization
         optimized = content
-        
+
         # Optimize imports
         optimized = self._optimize_imports(optimized)
-        
+
         # Optimize function definitions
         optimized = self._optimize_functions(optimized)
-        
+
         # Optimize variable declarations
         optimized = self._optimize_variables(optimized)
-        
+
         return optimized
 
     def _optimize_environment_adaptation(self, content: str) -> str:
         """Optimize environment adaptation with quantum algorithms"""
         # Environment-specific optimizations
         optimized = content
-        
+
         # Optimize path handling
         optimized = re.sub(r'\\\\+', '\\\\', optimized)
         optimized = re.sub(r'//+', '/', optimized)
-        
+
         # Optimize logging statements
         optimized = self._optimize_logging(optimized)
-        
+
         return optimized
 
     def _optimize_imports(self, content: str) -> str:
@@ -408,16 +480,16 @@ class UnifiedScriptGenerationSystem:
         lines = content.split('\n')
         imports = []
         other_lines = []
-        
+
         for line in lines:
             if line.strip().startswith(('import ', 'from ')):
                 imports.append(line)
             else:
                 other_lines.append(line)
-        
+
         # Sort and deduplicate imports
         unique_imports = sorted(set(imports))
-        
+
         return '\n'.join(unique_imports + [''] + other_lines)
 
     def _optimize_functions(self, content: str) -> str:
@@ -428,7 +500,7 @@ class UnifiedScriptGenerationSystem:
             r'def \1(\2) -> Any:',
             content
         )
-        
+
         return content
 
     def _optimize_variables(self, content: str) -> str:
@@ -439,14 +511,14 @@ class UnifiedScriptGenerationSystem:
             r'\1 = f"\2"',
             content
         )
-        
+
         return content
 
     def _optimize_logging(self, content: str) -> str:
         """Optimize logging statements"""
         # Ensure proper logging levels
         content = re.sub(r'print\(', 'logger.info(', content)
-        
+
         return content
 
     def _apply_quantum_compression(self, content: str) -> str:
@@ -454,53 +526,62 @@ class UnifiedScriptGenerationSystem:
         # Remove excessive whitespace
         content = re.sub(r'\n\s*\n\s*\n', '\n\n', content)
         content = re.sub(r'[ \t]+$', '', content, flags=re.MULTILINE)
-        
+
         return content
 
-    def _calculate_optimization_score(self, original: str, optimized: str) -> float:
+    def _calculate_optimization_score(
+            self, original: str, optimized: str) -> float:
         """Calculate quantum optimization score"""
         original_lines = len(original.split('\n'))
         optimized_lines = len(optimized.split('\n'))
-        
+
         if original_lines == 0:
             return 1.0
-        
+
         reduction_ratio = 1.0 - (optimized_lines / original_lines)
         quality_bonus = 0.1 if len(optimized) > 0 else 0.0
-        
+
         return max(0.0, min(1.0, reduction_ratio + quality_bonus))
 
-    def generate_script(self, request: ScriptGenerationRequest) -> GenerationResult:
+    def generate_script(
+            self,
+            request: ScriptGenerationRequest) -> GenerationResult:
         """Generate script with DUAL COPILOT pattern compliance"""
-        logger.info(f"{VISUAL_INDICATORS['generate']} Starting script generation: {request.script_name}")
-        
+        logger.info(
+            f"{VISUAL_INDICATORS['generate']} Starting script generation: {request.script_name}")
+
         generation_id = str(uuid.uuid4())
-        
+
         # Anti-recursion protection
         with self._anti_recursion_protection(generation_id):
             try:
                 # Phase 1: Template retrieval
                 template = self._get_template(request.template_name)
                 if not template:
-                    raise ValueError(f"Template not found: {request.template_name}")
-                
+                    raise ValueError(
+                        f"Template not found: {
+                            request.template_name}")
+
                 # Phase 2: Environment adaptation
                 adapted_content = self._adapt_for_environment(
-                    template.content, 
+                    template.content,
                     request.target_environment,
                     request.customizations
                 )
-                
+
                 # Phase 3: Quantum optimization
                 if request.quantum_optimization:
-                    adapted_content = self._quantum_optimize(adapted_content, "code_generation")
-                
+                    adapted_content = self._quantum_optimize(
+                        adapted_content, "code_generation")
+
                 # Phase 4: GitHub Copilot enhancement
-                copilot_enhanced = self._apply_copilot_enhancements(adapted_content, request)
-                
+                copilot_enhanced = self._apply_copilot_enhancements(
+                    adapted_content, request)
+
                 # Phase 5: Compliance validation
-                compliance_results = self._validate_compliance(copilot_enhanced, request)
-                
+                compliance_results = self._validate_compliance(
+                    copilot_enhanced, request)
+
                 # Phase 6: Generate result
                 result = GenerationResult(
                     generation_id=generation_id,
@@ -510,19 +591,22 @@ class UnifiedScriptGenerationSystem:
                     template_used=template.name,
                     adaptations_applied=["environment_adaptation"],
                     copilot_enhancements=["pattern_optimization"],
-                    quantum_optimizations=["code_compression", "pattern_deduplication"],
+                    quantum_optimizations=[
+                        "code_compression",
+                        "pattern_deduplication"],
                     compliance_validations=compliance_results,
-                    metrics=self._calculate_generation_metrics(copilot_enhanced)
-                )
-                
+                    metrics=self._calculate_generation_metrics(copilot_enhanced))
+
                 # Store generation record
                 self._store_generation_record(result)
-                
-                logger.info(f"{VISUAL_INDICATORS['success']} Script generation completed: {generation_id}")
+
+                logger.info(
+                    f"{VISUAL_INDICATORS['success']} Script generation completed: {generation_id}")
                 return result
-                
+
             except Exception as e:
-                logger.error(f"{VISUAL_INDICATORS['error']} Script generation failed: {e}")
+                logger.error(
+                    f"{VISUAL_INDICATORS['error']} Script generation failed: {e}")
                 return GenerationResult(
                     generation_id=generation_id,
                     status="error",
@@ -534,19 +618,20 @@ class UnifiedScriptGenerationSystem:
 
     def _get_template(self, template_name: str) -> Optional[TemplateMetadata]:
         """Retrieve template with quantum optimization"""
-        logger.info(f"{VISUAL_INDICATORS['template']} Retrieving template: {template_name}")
-        
+        logger.info(
+            f"{VISUAL_INDICATORS['template']} Retrieving template: {template_name}")
+
         with sqlite3.connect(self.generation_db) as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT template_id, name, category, description, content, 
+                SELECT template_id, name, category, description, content,
                        variables_schema, dependencies_list, patterns_detected,
                        complexity_score, environment_compatibility, github_copilot_hints,
                        usage_count, success_rate, created_at, updated_at
-                FROM script_templates 
+                FROM script_templates
                 WHERE name = ? OR template_id = ?
             ''', (template_name, template_name))
-            
+
             row = cursor.fetchone()
             if row:
                 return TemplateMetadata(
@@ -555,31 +640,39 @@ class UnifiedScriptGenerationSystem:
                     category=row[2],
                     description=row[3],
                     content=row[4],
-                    variables=json.loads(row[5]) if row[5] else [],
-                    dependencies=json.loads(row[6]) if row[6] else [],
-                    patterns=json.loads(row[7]) if row[7] else [],
+                    variables=json.loads(
+                        row[5]) if row[5] else [],
+                    dependencies=json.loads(
+                        row[6]) if row[6] else [],
+                    patterns=json.loads(
+                        row[7]) if row[7] else [],
                     complexity_score=row[8],
-                    environment_compatibility=json.loads(row[9]) if row[9] else {},
+                    environment_compatibility=json.loads(
+                        row[9]) if row[9] else {},
                     github_copilot_hints=row[10],
                     usage_count=row[11],
                     success_rate=row[12],
                     created_at=row[13],
-                    updated_at=row[14]
-                )
-        
+                    updated_at=row[14])
+
         return None
 
-    def _adapt_for_environment(self, content: str, environment: str, customizations: Dict[str, str]) -> str:
+    def _adapt_for_environment(self,
+                               content: str,
+                               environment: str,
+                               customizations: Dict[str,
+                                                    str]) -> str:
         """Adapt content for target environment"""
-        logger.info(f"{VISUAL_INDICATORS['processing']} Adapting for environment: {environment}")
-        
+        logger.info(
+            f"{VISUAL_INDICATORS['processing']} Adapting for environment: {environment}")
+
         adapted = content
-        
+
         # Apply customizations
         for key, value in customizations.items():
             adapted = adapted.replace(f"{{{key}}}", value)
             adapted = adapted.replace(f"{{{{key}}}}", value)
-        
+
         # Environment-specific adaptations
         if environment == "production":
             adapted = self._apply_production_adaptations(adapted)
@@ -587,7 +680,7 @@ class UnifiedScriptGenerationSystem:
             adapted = self._apply_development_adaptations(adapted)
         elif environment == "testing":
             adapted = self._apply_testing_adaptations(adapted)
-        
+
         return adapted
 
     def _apply_production_adaptations(self, content: str) -> str:
@@ -595,22 +688,22 @@ class UnifiedScriptGenerationSystem:
         # Add production logging
         if "logging" not in content:
             content = "import logging\n" + content
-        
+
         # Add error handling
         if "try:" not in content:
             content = self._wrap_in_try_except(content)
-        
+
         return content
 
     def _apply_development_adaptations(self, content: str) -> str:
         """Apply development environment adaptations"""
         # Add debug logging
         content = content.replace("logging.INFO", "logging.DEBUG")
-        
+
         # Add development features
         if "if __name__ == '__main__':" not in content:
             content += "\n\nif __name__ == '__main__':\n    main()\n"
-        
+
         return content
 
     def _apply_testing_adaptations(self, content: str) -> str:
@@ -618,20 +711,20 @@ class UnifiedScriptGenerationSystem:
         # Add test framework imports
         if "import unittest" not in content:
             content = "import unittest\n" + content
-        
+
         return content
 
     def _wrap_in_try_except(self, content: str) -> str:
         """Wrap content in try-except block"""
         lines = content.split('\n')
-        
+
         # Find main function or execution point
         main_start = -1
         for i, line in enumerate(lines):
             if line.strip().startswith('def main('):
                 main_start = i
                 break
-        
+
         if main_start >= 0:
             # Wrap main function content
             indented_content = []
@@ -640,29 +733,33 @@ class UnifiedScriptGenerationSystem:
                     indented_content.append('    ' + line)
                 else:
                     indented_content.append(line)
-            
+
             return '\n'.join(indented_content)
-        
+
         return content
 
-    def _apply_copilot_enhancements(self, content: str, request: ScriptGenerationRequest) -> str:
+    def _apply_copilot_enhancements(
+            self,
+            content: str,
+            request: ScriptGenerationRequest) -> str:
         """Apply GitHub Copilot enhancements"""
-        logger.info(f"{VISUAL_INDICATORS['copilot']} Applying Copilot enhancements...")
-        
+        logger.info(
+            f"{VISUAL_INDICATORS['copilot']} Applying Copilot enhancements...")
+
         enhanced = content
-        
+
         # Add Copilot-friendly comments
         enhanced = self._add_copilot_comments(enhanced)
-        
+
         # Add type hints
         enhanced = self._add_type_hints(enhanced)
-        
+
         # Add docstrings
         enhanced = self._add_docstrings(enhanced)
-        
+
         # Add DUAL COPILOT pattern markers
         enhanced = self._add_dual_copilot_markers(enhanced)
-        
+
         return enhanced
 
     def _add_copilot_comments(self, content: str) -> str:
@@ -670,7 +767,7 @@ class UnifiedScriptGenerationSystem:
         # Add purpose comments
         if not content.startswith('"""'):
             content = '"""Generated by Unified Script Generation System with DUAL COPILOT pattern"""\n\n' + content
-        
+
         return content
 
     def _add_type_hints(self, content: str) -> str:
@@ -678,23 +775,26 @@ class UnifiedScriptGenerationSystem:
         # Add typing import
         if "from typing import" not in content:
             content = "from typing import Dict, List, Any, Optional\n" + content
-        
+
         return content
 
     def _add_docstrings(self, content: str) -> str:
         """Add docstrings for functions and classes"""
         lines = content.split('\n')
         enhanced_lines = []
-        
+
         for i, line in enumerate(lines):
             enhanced_lines.append(line)
-            
+
             # Add docstring after function definition
             if line.strip().startswith('def ') and ':' in line:
-                if i + 1 < len(lines) and not lines[i + 1].strip().startswith('"""'):
-                    function_name = line.split('(')[0].replace('def ', '').strip()
-                    enhanced_lines.append(f'    """Enhanced {function_name} with DUAL COPILOT pattern"""')
-        
+                if i + \
+                        1 < len(lines) and not lines[i + 1].strip().startswith('"""'):
+                    function_name = line.split(
+                        '(')[0].replace('def ', '').strip()
+                    enhanced_lines.append(
+                        f'    """Enhanced {function_name} with DUAL COPILOT pattern"""')
+
         return '\n'.join(enhanced_lines)
 
     def _add_dual_copilot_markers(self, content: str) -> str:
@@ -707,55 +807,63 @@ class UnifiedScriptGenerationSystem:
             "# ✓ Phase 4/5 integration",
             "# ✓ Enterprise compliance certification"
         ]
-        
+
         marker_block = '\n'.join(markers)
-        
+
         # Add markers after the main docstring
         if '"""' in content:
             parts = content.split('"""', 2)
             if len(parts) >= 3:
-                return f'{parts[0]}"""{parts[1]}"""\n\n{marker_block}\n\n{parts[2]}'
-        
+                return f'{
+                    parts[0]}"""{
+                    parts[1]}"""\n\n{marker_block}\n\n{
+                    parts[2]}'
+
         return f"{marker_block}\n\n{content}"
 
-    def _validate_compliance(self, content: str, request: ScriptGenerationRequest) -> List[str]:
+    def _validate_compliance(
+            self,
+            content: str,
+            request: ScriptGenerationRequest) -> List[str]:
         """Validate enterprise compliance"""
-        logger.info(f"{VISUAL_INDICATORS['validate']} Validating compliance...")
-        
+        logger.info(
+            f"{VISUAL_INDICATORS['validate']} Validating compliance...")
+
         validations = []
-        
+
         # Check DUAL COPILOT pattern compliance
         if "DUAL COPILOT PATTERN" in content:
             validations.append("dual_copilot_pattern_verified")
-        
+
         # Check visual indicators
         if any(indicator in content for indicator in VISUAL_INDICATORS.values()):
             validations.append("visual_indicators_present")
-        
+
         # Check anti-recursion protection
         if request.anti_recursion_protection:
             validations.append("anti_recursion_protection_enabled")
-        
+
         # Check quantum optimization
         if request.quantum_optimization:
             validations.append("quantum_optimization_applied")
-        
+
         # Check Phase 4/5 integration
         if request.compliance_level == "PHASE_4_5_COMPLIANT":
             validations.append("phase45_integration_verified")
-        
+
         # Check security patterns
         security_patterns = ['try:', 'except:', 'logging', 'validation']
         if any(pattern in content for pattern in security_patterns):
             validations.append("security_patterns_verified")
-        
-        logger.info(f"{VISUAL_INDICATORS['validate']} Compliance validations: {len(validations)}")
+
+        logger.info(
+            f"{VISUAL_INDICATORS['validate']} Compliance validations: {len(validations)}")
         return validations
 
     def _calculate_generation_metrics(self, content: str) -> Dict[str, Any]:
         """Calculate generation metrics"""
         lines = content.split('\n')
-        
+
         return {
             'total_lines': len(lines),
             'code_lines': len([line for line in lines if line.strip() and not line.strip().startswith('#')]),
@@ -772,30 +880,34 @@ class UnifiedScriptGenerationSystem:
         """Estimate code complexity"""
         # Simple complexity estimation
         complexity = 0.0
-        
+
         # Count control structures
-        complexity += len(re.findall(r'\b(if|elif|else|for|while|try|except|finally|with)\b', content)) * 1.0
-        
+        complexity += len(
+            re.findall(
+                r'\b(if|elif|else|for|while|try|except|finally|with)\b',
+                content)) * 1.0
+
         # Count function definitions
         complexity += len(re.findall(r'def\s+\w+', content)) * 2.0
-        
+
         # Count class definitions
         complexity += len(re.findall(r'class\s+\w+', content)) * 3.0
-        
+
         # Normalize by lines of code
         lines = len([line for line in content.split('\n') if line.strip()])
         if lines > 0:
             complexity = complexity / lines
-        
+
         return min(10.0, complexity)
 
     def _store_generation_record(self, result: GenerationResult):
         """Store generation record in database"""
-        logger.info(f"{VISUAL_INDICATORS['database']} Storing generation record...")
-        
+        logger.info(
+            f"{VISUAL_INDICATORS['database']} Storing generation record...")
+
         with sqlite3.connect(self.generation_db) as conn:
             cursor = conn.cursor()
-            
+
             # Store in generation_history
             cursor.execute('''
                 INSERT INTO generation_history (
@@ -822,12 +934,12 @@ class UnifiedScriptGenerationSystem:
                 result.error,
                 self._recursion_depth
             ))
-            
+
             # Store compliance tracking
             cursor.execute('''
                 INSERT INTO compliance_tracking (
                     compliance_id, generation_id, compliance_level, validation_results,
-                    phase45_compatibility, dual_copilot_compliance, 
+                    phase45_compatibility, dual_copilot_compliance,
                     anti_recursion_verified, quantum_optimized
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
@@ -840,21 +952,27 @@ class UnifiedScriptGenerationSystem:
                 1,  # Anti-recursion verified
                 1   # Quantum optimized
             ))
-            
+
             conn.commit()
 
-    def create_template(self, name: str, category: str, content: str, description: str = "") -> str:
+    def create_template(
+            self,
+            name: str,
+            category: str,
+            content: str,
+            description: str = "") -> str:
         """Create a new script template"""
-        logger.info(f"{VISUAL_INDICATORS['template']} Creating template: {name}")
-        
+        logger.info(
+            f"{VISUAL_INDICATORS['template']} Creating template: {name}")
+
         template_id = str(uuid.uuid4())
-        
+
         # Analyze template content
         variables = self._extract_template_variables(content)
         dependencies = self._extract_dependencies(content)
         patterns = self._extract_patterns(content)
         complexity = self._estimate_complexity(content)
-        
+
         # Create template metadata
         template = TemplateMetadata(
             template_id=template_id,
@@ -866,62 +984,75 @@ class UnifiedScriptGenerationSystem:
             dependencies=dependencies,
             patterns=patterns,
             complexity_score=complexity,
-            environment_compatibility={"development": True, "staging": True, "production": True}
-        )
-        
+            environment_compatibility={
+                "development": True,
+                "staging": True,
+                "production": True})
+
         # Store in database
         with sqlite3.connect(self.generation_db) as conn:
             cursor = conn.cursor()
-            cursor.execute('''
+            cursor.execute(
+                '''
                 INSERT INTO script_templates (
                     template_id, name, category, description, content,
                     variables_schema, dependencies_list, patterns_detected,
                     complexity_score, environment_compatibility, github_copilot_hints,
                     quantum_hash
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                template_id, name, category, description, content,
-                json.dumps(variables), json.dumps(dependencies), json.dumps(patterns),
-                complexity, json.dumps(template.environment_compatibility),
-                f"Template for {category} scripts with DUAL COPILOT pattern",
-                hashlib.sha256(content.encode()).hexdigest()[:16]
-            ))
+            ''',
+                (template_id,
+                 name,
+                 category,
+                 description,
+                 content,
+                 json.dumps(variables),
+                    json.dumps(dependencies),
+                    json.dumps(patterns),
+                    complexity,
+                    json.dumps(
+                     template.environment_compatibility),
+                    f"Template for {category} scripts with DUAL COPILOT pattern",
+                    hashlib.sha256(
+                     content.encode()).hexdigest()[
+                     :16]))
             conn.commit()
-        
-        logger.info(f"{VISUAL_INDICATORS['success']} Template created: {template_id}")
+
+        logger.info(
+            f"{VISUAL_INDICATORS['success']} Template created: {template_id}")
         return template_id
 
     def _extract_template_variables(self, content: str) -> List[str]:
         """Extract template variables from content"""
         variables = set()
-        
+
         # Find {variable} patterns
         for match in re.finditer(r'\{([^}]+)\}', content):
             variables.add(match.group(1))
-        
+
         # Find {{variable}} patterns
         for match in re.finditer(r'\{\{([^}]+)\}\}', content):
             variables.add(match.group(1))
-        
+
         return list(variables)
 
     def _extract_dependencies(self, content: str) -> List[str]:
         """Extract dependencies from content"""
         dependencies = set()
-        
+
         # Find import statements
         for match in re.finditer(r'import\s+([^\s\n]+)', content):
             dependencies.add(match.group(1))
-        
+
         for match in re.finditer(r'from\s+([^\s\n]+)\s+import', content):
             dependencies.add(match.group(1))
-        
+
         return list(dependencies)
 
     def _extract_patterns(self, content: str) -> List[str]:
         """Extract coding patterns from content"""
         patterns = []
-        
+
         # Common patterns
         if 'class ' in content:
             patterns.append('object_oriented')
@@ -935,22 +1066,22 @@ class UnifiedScriptGenerationSystem:
             patterns.append('asynchronous')
         if 'with ' in content:
             patterns.append('context_management')
-        
+
         return patterns
 
     def list_templates(self) -> List[Dict[str, Any]]:
         """List all available templates"""
         logger.info(f"{VISUAL_INDICATORS['template']} Listing templates...")
-        
+
         with sqlite3.connect(self.generation_db) as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT template_id, name, category, description, usage_count, 
+                SELECT template_id, name, category, description, usage_count,
                        success_rate, created_at, updated_at
                 FROM script_templates
                 ORDER BY usage_count DESC, name
             ''')
-            
+
             templates = []
             for row in cursor.fetchall():
                 templates.append({
@@ -963,79 +1094,79 @@ class UnifiedScriptGenerationSystem:
                     'created_at': row[6],
                     'updated_at': row[7]
                 })
-            
+
             return templates
 
     def get_generation_statistics(self) -> Dict[str, Any]:
         """Get system statistics"""
         logger.info(f"{VISUAL_INDICATORS['info']} Getting statistics...")
-        
+
         with sqlite3.connect(self.generation_db) as conn:
             cursor = conn.cursor()
-            
+
             # Template statistics
             cursor.execute('SELECT COUNT(*) FROM script_templates')
             total_templates = cursor.fetchone()[0]
-            
+
             cursor.execute('SELECT COUNT(*) FROM generation_history')
             total_generations = cursor.fetchone()[0]
-            
-            cursor.execute('SELECT COUNT(*) FROM generation_history WHERE status = "success"')
+
+            cursor.execute(
+                'SELECT COUNT(*) FROM generation_history WHERE status = "success"')
             successful_generations = cursor.fetchone()[0]
-            
-            cursor.execute('SELECT AVG(generation_metrics) FROM generation_history WHERE status = "success"')
+
+            cursor.execute(
+                'SELECT AVG(generation_metrics) FROM generation_history WHERE status = "success"')
             avg_metrics = cursor.fetchone()[0]
-            
+
             # Quantum cache statistics
             cursor.execute('SELECT COUNT(*) FROM quantum_cache')
             cache_entries = cursor.fetchone()[0]
-            
+
             cursor.execute('SELECT AVG(optimization_score) FROM quantum_cache')
             avg_optimization = cursor.fetchone()[0] or 0.0
-            
+
             return {
                 'templates': {
                     'total': total_templates,
-                    'categories': self._get_template_categories()
-                },
+                    'categories': self._get_template_categories()},
                 'generations': {
                     'total': total_generations,
                     'successful': successful_generations,
-                    'success_rate': (successful_generations / total_generations) if total_generations > 0 else 0.0
-                },
+                    'success_rate': (
+                        successful_generations /
+                        total_generations) if total_generations > 0 else 0.0},
                 'quantum_optimization': {
                     'cache_entries': cache_entries,
-                    'average_optimization_score': avg_optimization
-                },
+                    'average_optimization_score': avg_optimization},
                 'compliance': {
                     'dual_copilot_enabled': True,
                     'anti_recursion_active': True,
-                    'phase45_compliant': True
-                }
-            }
+                    'phase45_compliant': True}}
 
     def _get_template_categories(self) -> List[str]:
         """Get distinct template categories"""
         with sqlite3.connect(self.generation_db) as conn:
             cursor = conn.cursor()
-            cursor.execute('SELECT DISTINCT category FROM script_templates ORDER BY category')
+            cursor.execute(
+                'SELECT DISTINCT category FROM script_templates ORDER BY category')
             return [row[0] for row in cursor.fetchall()]
 
     def validate_system_health(self) -> Dict[str, Any]:
         """Validate system health and compliance"""
-        logger.info(f"{VISUAL_INDICATORS['validate']} Validating system health...")
-        
+        logger.info(
+            f"{VISUAL_INDICATORS['validate']} Validating system health...")
+
         health_checks = {
             'database_connectivity': self._check_database_connectivity(),
             'template_availability': self._check_template_availability(),
             'quantum_optimization': self._check_quantum_optimization(),
             'compliance_validation': self._check_compliance_validation(),
             'anti_recursion_protection': self._check_anti_recursion_protection(),
-            'visual_indicators': self._check_visual_indicators()
-        }
-        
+            'visual_indicators': self._check_visual_indicators()}
+
         overall_health = all(health_checks.values())
-        
+
         return {
             'overall_health': overall_health,
             'checks': health_checks,
@@ -1083,7 +1214,8 @@ class UnifiedScriptGenerationSystem:
                 target_environment="development",
                 script_name="test.py"
             )
-            validations = self._validate_compliance("DUAL COPILOT PATTERN", test_request)
+            validations = self._validate_compliance(
+                "DUAL COPILOT PATTERN", test_request)
             return len(validations) > 0
         except Exception as e:
             logger.error(f"Compliance validation check failed: {e}")
@@ -1104,8 +1236,9 @@ class UnifiedScriptGenerationSystem:
 
     def _create_default_templates(self):
         """Create default templates for common use cases"""
-        logger.info(f"{VISUAL_INDICATORS['template']} Creating default templates...")
-        
+        logger.info(
+            f"{VISUAL_INDICATORS['template']} Creating default templates...")
+
         # Basic Python script template
         basic_template = '''#!/usr/bin/env python3
 """
@@ -1128,27 +1261,27 @@ logger = logging.getLogger(__name__)
 
 class {CLASS_NAME}:
     """Enhanced class with DUAL COPILOT pattern"""
-    
+
     def __init__(self):
         """Initialize with enterprise compliance"""
         self.initialized_at = datetime.now()
         logger.info("System initialized")
-    
+
     def execute(self) -> Dict[str, Any]:
         """Execute main functionality"""
         try:
             logger.info("Starting execution")
-            
+
             # Main logic here
             result = {
                 "status": "success",
                 "timestamp": datetime.now().isoformat(),
                 "message": "Operation completed successfully"
             }
-            
+
             logger.info("Execution completed")
             return result
-            
+
         except Exception as e:
             logger.error(f"Execution failed: {e}")
             return {
@@ -1162,14 +1295,14 @@ def main():
     try:
         system = {CLASS_NAME}()
         result = system.execute()
-        
+
         if result["status"] == "success":
             logger.info("Program completed successfully")
             return 0
         else:
             logger.error(f"Program failed: {result.get('error', 'Unknown error')}")
             return 1
-            
+
     except Exception as e:
         logger.error(f"Fatal error: {e}")
         return 1
@@ -1178,7 +1311,7 @@ if __name__ == "__main__":
     exit_code = main()
     sys.exit(exit_code)
 '''
-        
+
         # Database script template
         database_template = '''#!/usr/bin/env python3
 """
@@ -1203,13 +1336,13 @@ logger = logging.getLogger(__name__)
 
 class {CLASS_NAME}:
     """Enhanced database manager with DUAL COPILOT pattern"""
-    
+
     def __init__(self, db_path: str = "{DB_PATH}"):
         """Initialize database connection"""
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         logger.info(f"Database initialized: {self.db_path}")
-    
+
     def execute_query(self, query: str, params: tuple = ()) -> List[Dict[str, Any]]:
         """Execute database query with error handling"""
         try:
@@ -1217,13 +1350,13 @@ class {CLASS_NAME}:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute(query, params)
-                
+
                 if query.strip().upper().startswith('SELECT'):
                     return [dict(row) for row in cursor.fetchall()]
                 else:
                     conn.commit()
                     return [{"affected_rows": cursor.rowcount}]
-                    
+
         except Exception as e:
             logger.error(f"Database query failed: {e}")
             raise
@@ -1232,13 +1365,13 @@ def main():
     """Main execution function"""
     try:
         db_manager = {CLASS_NAME}()
-        
+
         # Example usage
         results = db_manager.execute_query("SELECT 1 as test")
         logger.info(f"Database test successful: {results}")
-        
+
         return 0
-        
+
     except Exception as e:
         logger.error(f"Database operation failed: {e}")
         return 1
@@ -1247,7 +1380,7 @@ if __name__ == "__main__":
     exit_code = main()
     sys.exit(exit_code)
 '''
-        
+
         # API script template
         api_template = '''#!/usr/bin/env python3
 """
@@ -1272,7 +1405,7 @@ logger = logging.getLogger(__name__)
 
 class {CLASS_NAME}:
     """Enhanced API client with DUAL COPILOT pattern"""
-    
+
     def __init__(self, base_url: str = "{BASE_URL}"):
         """Initialize API client"""
         self.base_url = base_url.rstrip('/')
@@ -1282,12 +1415,12 @@ class {CLASS_NAME}:
             'User-Agent': 'UnifiedScriptGenerationSystem/1.0'
         })
         logger.info(f"API client initialized: {self.base_url}")
-    
+
     def make_request(self, method: str, endpoint: str, data: Optional[Dict] = None) -> Dict[str, Any]:
         """Make API request with error handling"""
         try:
             url = f"{self.base_url}/{endpoint.lstrip('/')}"
-            
+
             if method.upper() == 'GET':
                 response = self.session.get(url, params=data)
             elif method.upper() == 'POST':
@@ -1298,16 +1431,16 @@ class {CLASS_NAME}:
                 response = self.session.delete(url)
             else:
                 raise ValueError(f"Unsupported HTTP method: {method}")
-            
+
             response.raise_for_status()
-            
+
             return {
                 "status": "success",
                 "status_code": response.status_code,
                 "data": response.json() if response.content else None,
                 "timestamp": datetime.now().isoformat()
             }
-            
+
         except requests.RequestException as e:
             logger.error(f"API request failed: {e}")
             return {
@@ -1320,13 +1453,13 @@ def main():
     """Main execution function"""
     try:
         api_client = {CLASS_NAME}()
-        
+
         # Example usage
         result = api_client.make_request('GET', '/api/health')
         logger.info(f"API test result: {result}")
-        
+
         return 0
-        
+
     except Exception as e:
         logger.error(f"API operation failed: {e}")
         return 1
@@ -1335,55 +1468,74 @@ if __name__ == "__main__":
     exit_code = main()
     sys.exit(exit_code)
 '''
-        
+
         # Create templates
         templates = [
-            ("basic_python_script", "BASIC", basic_template, "Basic Python script with DUAL COPILOT pattern"),
-            ("database_management", "DATABASE", database_template, "Database management script with error handling"),
-            ("api_integration", "API", api_template, "API integration script with request handling")
-        ]
-        
+            ("basic_python_script",
+             "BASIC",
+             basic_template,
+             "Basic Python script with DUAL COPILOT pattern"),
+            ("database_management",
+             "DATABASE",
+             database_template,
+             "Database management script with error handling"),
+            ("api_integration",
+             "API",
+             api_template,
+             "API integration script with request handling")]
+
         for name, category, content, description in templates:
             self.create_template(name, category, content, description)
-            
-        logger.info(f"{VISUAL_INDICATORS['success']} Created {len(templates)} default templates")
+
+        logger.info(
+            f"{VISUAL_INDICATORS['success']} Created {len(templates)} default templates")
+
 
 def main():
     """Main execution function with DUAL COPILOT pattern"""
-    logger.info(f"{VISUAL_INDICATORS['generate']} Starting Unified Script Generation System")
-    
+    logger.info(
+        f"{VISUAL_INDICATORS['generate']} Starting Unified Script Generation System")
+
     try:
         # Initialize system
         system = UnifiedScriptGenerationSystem()
-        
+
         # Validate system health
         health = system.validate_system_health()
-        
+
         if health['overall_health']:
-            logger.info(f"{VISUAL_INDICATORS['success']} System health validation passed")
-            
+            logger.info(
+                f"{VISUAL_INDICATORS['success']} System health validation passed")
+
             # Create default templates if none exist
             templates = system.list_templates()
             if not templates:
-                logger.info(f"{VISUAL_INDICATORS['template']} Creating default templates...")
+                logger.info(
+                    f"{VISUAL_INDICATORS['template']} Creating default templates...")
                 system._create_default_templates()
-            
+
             # Show system statistics
             stats = system.get_generation_statistics()
             logger.info(f"{VISUAL_INDICATORS['info']} System statistics:")
             logger.info(f"  Templates: {stats['templates']['total']}")
             logger.info(f"  Generations: {stats['generations']['total']}")
-            logger.info(f"  Success rate: {stats['generations']['success_rate']:.2%}")
-            
-            logger.info(f"{VISUAL_INDICATORS['success']} Unified Script Generation System ready")
+            logger.info(
+                f"  Success rate: {
+                    stats['generations']['success_rate']:.2%}")
+
+            logger.info(
+                f"{VISUAL_INDICATORS['success']} Unified Script Generation System ready")
             return 0
         else:
-            logger.error(f"{VISUAL_INDICATORS['error']} System health validation failed")
+            logger.error(
+                f"{VISUAL_INDICATORS['error']} System health validation failed")
             return 1
-            
+
     except Exception as e:
-        logger.error(f"{VISUAL_INDICATORS['error']} System initialization failed: {e}")
+        logger.error(
+            f"{VISUAL_INDICATORS['error']} System initialization failed: {e}")
         return 1
+
 
 if __name__ == "__main__":
     exit_code = main()
