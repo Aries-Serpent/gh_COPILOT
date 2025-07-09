@@ -69,3 +69,10 @@
 - backup: Backup and recovery systems
 - monitoring: Performance monitoring and analytics
 - validation: Testing and validation framework
+
+### Database Synchronization
+
+The `database_sync_scheduler.py` script consumes
+`documentation/DATABASE_LIST.md` to loop over all 32 databases.
+It copies the master `production.db` into every other database,
+keeping the entire toolkit in sync.

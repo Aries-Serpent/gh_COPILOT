@@ -310,8 +310,18 @@ Example implementation:
 ```python
 from copilot.orchestrators.UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED import QuantumOptimizer
 
+import numpy as np
+
 opt = QuantumOptimizer()
 result = opt.optimize()
+```
+
+```python
+grover = opt.grover_search("11")
+factors = opt.shor_factorization(15)
+state = opt.quantum_fourier(3, 1)
+clusters = opt.quantum_clustering(np.array([[0.1, 0.2], [0.9, 0.8]]), k=2)
+qnn = opt.quantum_neural_network(epochs=5)
 ```
 
 ---
