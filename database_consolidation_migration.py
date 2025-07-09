@@ -144,15 +144,14 @@ class DatabaseConsolidationMigration:
                         "consolidated_into": "unified_database_management_system.py"
                     }
 
-                    metadata_path=self.archive_dir / "metadata" /
-                        f"{script_path.name}.metadata.json"
+                    metadata_path = self.archive_dir / "metadata" / f"{script_path.name}.metadata.json"
                     with open(metadata_path, 'w', encoding='utf-8') as f:
                         json.dump(metadata, f, indent=2)
 
                     # Remove original file
                     script_path.unlink()
 
-                    archived_files.append(]
+                    archived_files.append({
                         "original": str(script_path),
                         "archive": str(target_path),
                         "metadata": str(metadata_path)
@@ -169,8 +168,10 @@ class DatabaseConsolidationMigration:
         self.migration_results["archived_files"] = archived_files
 
         logger.info(f"📦 Archived {len(archived_files)} legacy scripts")
-        return {]
-            archived_files), "archived_files": archived_files}
+        return {
+            "archived_count": len(archived_files),
+            "archived_files": archived_files
+        }
 
     def create_migration_documentation(self):
         """Create migration documentation"""
