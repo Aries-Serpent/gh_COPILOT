@@ -22,6 +22,17 @@ jobs:
       - name: Build Docker image
         run: docker build -t gh_copilot .
 
+      - name: Cache Trivy database
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/trivy
+          key: ${{ runner.os }}-trivy-db-${{ steps.trivy-version.outputs.version }}
+          restore-keys: |
+            ${{ runner.os }}-trivy-db-
+
+      - name: Get Trivy version
+        id: trivy-version
+        run: echo "version=$(trivy --version | awk '{print $3}')" >> $GITHUB_ENV
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@0.28.0
         with:
