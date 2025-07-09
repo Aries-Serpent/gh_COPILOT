@@ -130,10 +130,12 @@ def migration_interface():
     """[PROCESSING] Migration tools interface"""
     return render_template('migration.html')
 
+
 @app.route('/deployment')
 def deployment_interface():
     """[LAUNCH] Deployment management interface"""
     return render_template('deployment.html')
+
 
 @app.route('/api/health')
 def health_check():
@@ -141,7 +143,9 @@ def health_check():
     return jsonify({
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "database": "connected" if dashboard.production_db.exists() else "disconnected"
+        "database": (
+            "connected" if dashboard.production_db.exists() else "disconnected"
+        )
     })
 
 
