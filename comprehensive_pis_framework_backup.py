@@ -41,6 +41,13 @@ except ImportError:
     WEB_GUI_AVAILABLE = False
     print("INFO: Flask not available - web-GUI features will be limited")
 
+try:
+    import numpy as np
+    QUANTUM_SIMULATION_AVAILABLE = True
+except ImportError:
+    QUANTUM_SIMULATION_AVAILABLE = False
+    print("INFO: NumPy not available - quantum simulation features will be limited")
+
 # Enhanced Logging Configuration
 logging.basicConfig(
     level=logging.INFO,
@@ -193,33 +200,7 @@ class ComprehensivePISFramework:
         self.phase5_ai = None
         self.continuous_monitor = None
         
-        # DATABASE-FIRST INTEGRATION - ENHANCED
-        if ENHANCED_DB_AVAILABLE:
-            try:
-                self.enhanced_db_integrator = EnhancedDatabaseFirstIntegrator(str(self.workspace_path))
-                self.database_first_enhanced = True
-                self.logger.info("Enhanced database-first integrator initialized")
-                
-                # Initialize enhanced session metrics
-                self.enhanced_session_metrics = EnhancedPISSessionMetrics(
-                    session_id=self.session_id,
-                    framework_version="v4.0_enterprise_enhanced",
-                    semantic_search_enabled=True,
-                    analytics_engine_active=True,
-                    cross_database_integration=True,
-                    audit_trail_complete=True,
-                    ml_insights_generation=ML_ENHANCED_ANALYTICS
-                )
-                
-            except Exception as e:
-                self.logger.warning(f"Failed to initialize enhanced database integrator: {e}")
-                self.enhanced_db_integrator = None
-                self.database_first_enhanced = False
-        else:
-            self.enhanced_db_integrator = None
-            self.database_first_enhanced = False
-        
-        # Fallback to basic database-first integration
+        # DATABASE-FIRST INTEGRATION
         self.db_integrator = None
         
         # Initialize enterprise systems after basic setup
@@ -242,17 +223,6 @@ class ComprehensivePISFramework:
             self.phase4_optimizer = Phase4ContinuousOptimizer()
             self.phase5_ai = Phase5AdvancedAI()
             self.continuous_monitor = ContinuousOperationMonitor()
-            
-            # Enhanced database session initialization
-            if hasattr(self, 'database_first_enhanced') and self.database_first_enhanced and self.enhanced_db_integrator:
-                session_initialized = self.enhanced_db_integrator.initialize_enhanced_session(
-                    self.session_id, 
-                    self.enhanced_session_metrics
-                )
-                if session_initialized:
-                    self.logger.info("Enhanced database session initialized successfully")
-                else:
-                    self.logger.warning("Enhanced database session initialization failed")
             
             # Initialize database session
             framework_config = {
@@ -482,34 +452,6 @@ class ComprehensivePISFramework:
 
         metrics.end_time = datetime.now()
         metrics.duration = time.time() - phase_start
-        
-        # DATABASE-FIRST: Log enhanced phase execution
-        if hasattr(self, 'database_first_enhanced') and self.database_first_enhanced and self.enhanced_db_integrator:
-            enhanced_phase_data = {
-                'phase_enum': PISPhase.PHASE_1_STRATEGIC_PLANNING.value,
-                'phase_name': 'Strategic Planning & Database Setup',
-                'phase_order': 1,
-                'status': metrics.status,
-                'duration': metrics.duration,
-                'success_rate': metrics.success_rate,
-                'files_processed': metrics.files_processed,
-                'violations_found': 0,
-                'violations_fixed': 0,
-                'total_steps': 6,
-                'completed_steps': 6,
-                'enterprise_metrics': {
-                    'quantum_optimization_active': bool(getattr(self, 'quantum_processor', None)),
-                    'web_gui_active': bool(getattr(self, 'web_gui_integrator', None)),
-                    'autonomous_file_management': bool(getattr(self, 'autonomous_file_manager', None))
-                },
-                'performance_metrics': {
-                    'execution_timestamp': datetime.now().isoformat(),
-                    'memory_usage_mb': 0,
-                    'cpu_usage_percent': 0
-                }
-            }
-            self.enhanced_db_integrator.log_enhanced_phase_execution(self.session_id, enhanced_phase_data)
-
         self.phase_metrics[PISPhase.PHASE_1_STRATEGIC_PLANNING.value] = metrics
         return metrics
 
@@ -1326,7 +1268,7 @@ class QuantumOptimizedProcessor:
         """Quantum-enhanced database query processing with DB analogies."""
         # Simulated quantum speedup calculation
         classical_time = data_size * 0.001  # Classical processing time
-        quantum_speedup = np.sqrt(data_size) if 'np' in globals() and np else 1
+        quantum_speedup = np.sqrt(data_size) if QUANTUM_SIMULATION_AVAILABLE else 1
         quantum_time = classical_time / quantum_speedup
         
         # NEW: Apply quantum-DB analogy
@@ -1811,28 +1753,6 @@ class DatabaseFirstIntegrator:
         except Exception as e:
             logging.error(f"Failed to finalize session {session_id}: {e}")
             return False
-
-
-# Enhanced Database-First Architecture Imports
-try:
-    from enhanced_database_first_integrator import (
-        EnhancedDatabaseFirstIntegrator, 
-        EnhancedPISSessionMetrics
-    )
-    ENHANCED_DB_AVAILABLE = True
-except ImportError:
-    ENHANCED_DB_AVAILABLE = False
-    logging.warning("Enhanced database integrator not available")
-
-# Advanced Analytics and ML Imports
-try:
-    import numpy as np
-    from sklearn.feature_extraction.text import TfidfVectorizer
-    from sklearn.metrics.pairwise import cosine_similarity
-    ML_ENHANCED_ANALYTICS = True
-except ImportError:
-    ML_ENHANCED_ANALYTICS = False
-    logging.info("ML analytics features limited without scikit-learn")
 
 
 def main():
