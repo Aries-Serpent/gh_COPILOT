@@ -70,10 +70,12 @@ except ImportError:
                 self.desc = desc
             def close(self):
                 pass
-        
+
         tqdm = TqdmFallback
 
 # Enhanced Logging Configuration
+
+
 def setup_enterprise_logging() -> logging.Logger:
     """Setup comprehensive enterprise logging with visual indicators."""
     log_dir = Path("logs/pis_phase2")
@@ -106,6 +108,7 @@ def setup_enterprise_logging() -> logging.Logger:
     
     return logger
 
+
 @dataclass
 class ComplianceViolation:
     """Structured compliance violation data."""
@@ -116,7 +119,9 @@ class ComplianceViolation:
     error_message: str
     severity: str
     category: str
+
     timestamp: str
+
     
 @dataclass
 class ComplianceMetrics:
@@ -131,9 +136,11 @@ class ComplianceMetrics:
     complexity_violations: int = 0
     documentation_violations: int = 0
     scan_duration: float = 0.0
+
     compliance_score: float = 0.0
+
     timestamp: str = ""
-    
+
 class AntiRecursionProtocol:
     """Enterprise anti-recursion protection system."""
     
@@ -149,19 +156,23 @@ class AntiRecursionProtocol:
         """Check for recursion and resource limits."""
         if time.time() - self.start_time > self.timeout_seconds:
             raise TimeoutError("TIMEOUT: Operation exceeded maximum time limit")
-            
+
         if len(self.processed_files) >= self.max_files:
             raise ResourceError("RESOURCE LIMIT: Maximum files processed")
             
         if self.current_depth >= self.max_depth:
             raise RecursionError("RECURSION LIMIT: Maximum depth exceeded")
-            
+
         file_hash = hashlib.md5(file_path.encode()).hexdigest()
         if file_hash in self.processed_files:
+
             return False  # Already processed
+
             
         self.processed_files.add(file_hash)
         return True
+
+
 
 class ResourceError(Exception):
     """Custom exception for resource limits."""
@@ -169,13 +180,13 @@ class ResourceError(Exception):
 
 class DatabaseFirstComplianceScanner:
     """Enterprise-grade database-first compliance scanner with visual processing."""
-    
+
     def __init__(self, workspace_path: Optional[str] = None):
         """Initialize scanner with comprehensive validation."""
         self.workspace_path = Path(workspace_path) if workspace_path else Path.cwd()
         if not self.workspace_path.exists():
             raise ValueError(f"Workspace path does not exist: {self.workspace_path}")
-            
+
         self.logger = setup_enterprise_logging()
         self.anti_recursion = AntiRecursionProtocol()
         self.metrics = ComplianceMetrics()
@@ -196,12 +207,12 @@ class DatabaseFirstComplianceScanner:
         # Signal handlers for graceful shutdown
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
-        
+
     def _validate_dependencies(self):
         """Validate required dependencies."""
         # Check flake8 availability
         try:
-            result = subprocess.run(['flake8', '--version'], 
+            result = subprocess.run(['flake8', '--version'],
                                   capture_output=True, check=True, timeout=10)
             self.logger.info(f"Flake8 available: {result.stdout.decode().strip()}")
         except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
@@ -214,7 +225,7 @@ class DatabaseFirstComplianceScanner:
             self.progress_bar.close()
         self.cleanup()
         sys.exit(0)
-        
+
     def initialize_databases(self) -> bool:
         """Initialize database connections with enterprise validation."""
         try:
@@ -234,29 +245,29 @@ class DatabaseFirstComplianceScanner:
                     self.production_db = None
             else:
                 self.logger.warning("Production database not found - using filesystem fallback")
-                
+
             # Analytics database
             analytics_db_path = self.workspace_path / "analytics.db"
             try:
                 self.analytics_db = sqlite3.connect(str(analytics_db_path), timeout=30)
                 self.analytics_db.row_factory = sqlite3.Row
-                
+
                 if not analytics_db_path.exists():
                     self.logger.info("Creating new analytics database")
                     
                 self._create_analytics_tables()
                 self.logger.info("Analytics database connected")
-                
+
             except sqlite3.Error as e:
                 self.logger.error(f"Analytics database connection failed: {e}")
                 self.analytics_db = None
-                
+
             return True
             
         except Exception as e:
             self.logger.error(f"DATABASE INITIALIZATION FAILED: {e}")
             return False
-            
+
     def _create_analytics_tables(self):
         """Create analytics tables for compliance tracking."""
         try:
@@ -294,7 +305,7 @@ class DatabaseFirstComplianceScanner:
                     FOREIGN KEY (scan_id) REFERENCES compliance_scans (id)
                 )
             """)
-            
+
             self.analytics_db.commit()
             self.logger.info("Analytics tables created successfully")
             
@@ -304,7 +315,7 @@ class DatabaseFirstComplianceScanner:
     def discover_scripts(self) -> List[str]:
         """Discover Python scripts using database-first approach."""
         scripts = []
-        
+
         try:
             # Try database-first approach
             if self.production_db:
@@ -313,7 +324,7 @@ class DatabaseFirstComplianceScanner:
                 try:
                     # Check if script_tracking table exists
                     cursor = self.production_db.execute("""
-                        SELECT name FROM sqlite_master 
+                        SELECT name FROM sqlite_master
                         WHERE type='table' AND name='script_tracking'
                     """)
                     
@@ -331,7 +342,7 @@ class DatabaseFirstComplianceScanner:
                                     scripts.append(file_path)
                                 else:
                                     self.logger.warning(f"DATABASE SCRIPT NOT FOUND: {file_path}")
-                                    
+
                         self.logger.info(f"DISCOVERED {len(scripts)} SCRIPTS FROM DATABASE")
                     else:
                         self.logger.warning("script_tracking table not found - using filesystem fallback")
@@ -344,13 +355,13 @@ class DatabaseFirstComplianceScanner:
             else:
                 # Fallback to filesystem discovery
                 scripts = self._discover_from_filesystem()
-                
+
         except Exception as e:
             self.logger.error(f"SCRIPT DISCOVERY FAILED: {e}")
             scripts = self._discover_from_filesystem()
             
         return scripts
-        
+
     def _discover_from_filesystem(self) -> List[str]:
         """Discover scripts from filesystem with limits."""
         scripts = []
@@ -364,13 +375,13 @@ class DatabaseFirstComplianceScanner:
                 if discovered_count >= max_files:
                     self.logger.warning(f"FILE LIMIT REACHED: {max_files} files discovered")
                     break
-                    
+
                 if self.anti_recursion.check_recursion(str(py_file)):
                     scripts.append(str(py_file))
                     discovered_count += 1
-                    
+
             self.logger.info(f"DISCOVERED {len(scripts)} SCRIPTS FROM FILESYSTEM")
-            
+
         except Exception as e:
             self.logger.error(f"FILESYSTEM DISCOVERY FAILED: {e}")
             
@@ -380,7 +391,7 @@ class DatabaseFirstComplianceScanner:
         """Categorize Flake8 violations by severity and category."""
         severity_map = {
             'E': 'ERROR',
-            'W': 'WARNING', 
+            'W': 'WARNING',
             'F': 'FATAL',
             'C': 'COMPLEXITY',
             'N': 'NAMING',
@@ -409,10 +420,10 @@ class DatabaseFirstComplianceScanner:
             'D2': 'DOCSTRING_FORMATTING',
             'D4': 'DOCSTRING_CONTENT'
         }
-        
+
         severity = severity_map.get(error_code[0] if error_code else '', 'UNKNOWN')
         category = category_map.get(error_code[:2] if len(error_code) >= 2 else '', 'UNKNOWN')
-        
+
         return severity, category
         
     def scan_file_compliance(self, file_path: str) -> List[ComplianceViolation]:
@@ -469,7 +480,7 @@ class DatabaseFirstComplianceScanner:
                                         category=category,
                                         timestamp=datetime.now().isoformat()
                                     )
-                                    
+
                                     violations.append(violation)
                                     
                             except (ValueError, IndexError) as parse_error:
@@ -483,7 +494,7 @@ class DatabaseFirstComplianceScanner:
             self.logger.error(f"SCAN ERROR for {file_path}: {e}")
             
         return violations
-        
+
     def calculate_etc(self, processed: int, total: int, start_time: float) -> str:
         """Calculate Estimated Time to Completion with visual formatting."""
         if processed == 0 or total == 0:
@@ -503,7 +514,7 @@ class DatabaseFirstComplianceScanner:
             return f"{etc_seconds/60:.1f}m"
         else:
             return f"{etc_seconds/3600:.1f}h"
-            
+
     def run_compliance_scan(self) -> ComplianceMetrics:
         """Execute comprehensive compliance scan with visual processing."""
         self.logger.info("STARTING PIS PHASE 2: COMPLIANCE SCAN")
@@ -512,7 +523,7 @@ class DatabaseFirstComplianceScanner:
         # Initialize databases
         if not self.initialize_databases():
             self.logger.error("DATABASE INITIALIZATION FAILED - CONTINUING WITH LIMITED FUNCTIONALITY")
-            
+
         # Discover scripts
         scripts = self.discover_scripts()
         if not scripts:
@@ -529,25 +540,25 @@ class DatabaseFirstComplianceScanner:
             ncols=100,
             bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]'
         )
-        
+
         # Process files with chunked threading
         chunk_size = min(50, max(1, len(scripts) // 10))
         processed_files = 0
         
         self.logger.info(f"PROCESSING {len(scripts)} FILES IN CHUNKS OF {chunk_size}")
-        
+
         try:
             with ThreadPoolExecutor(max_workers=4) as executor:
                 # Submit files in chunks
                 for i in range(0, len(scripts), chunk_size):
                     chunk = scripts[i:i + chunk_size]
-                    
+
                     # Submit chunk for processing
                     future_to_file = {
                         executor.submit(self.scan_file_compliance, file_path): file_path
                         for file_path in chunk
                     }
-                    
+
                     # Process completed futures
                     for future in as_completed(future_to_file):
                         file_path = future_to_file[future]
@@ -569,7 +580,7 @@ class DatabaseFirstComplianceScanner:
                                     'Status': 'COMPLIANT',
                                     'ETC': self.calculate_etc(processed_files, len(scripts), self.start_time)
                                 })
-                                
+
                             self.progress_bar.update(1)
                             
                         except Exception as e:
@@ -660,22 +671,22 @@ class DatabaseFirstComplianceScanner:
                     "validation_timestamp": datetime.now().isoformat()
                 }
             }
-            
+
             # Save report
             with open(report_file, 'w', encoding='utf-8') as f:
                 json.dump(report_data, f, indent=2, ensure_ascii=False)
                 
             self.logger.info(f"COMPLIANCE REPORT SAVED: {report_file}")
-            
+
             # Save to analytics database
             self._save_to_analytics_db()
-            
+
             return str(report_file)
             
         except Exception as e:
             self.logger.error(f"REPORT SAVE FAILED: {e}")
             return ""
-            
+
     def _save_to_analytics_db(self):
         """Save scan results to analytics database."""
         try:
@@ -723,7 +734,7 @@ class DatabaseFirstComplianceScanner:
                     error_code, error_message, severity, category, timestamp
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, violation_data)
-                
+
             self.analytics_db.commit()
             self.logger.info("ANALYTICS DATABASE UPDATED")
             
@@ -733,19 +744,19 @@ class DatabaseFirstComplianceScanner:
     def _generate_recommendations(self) -> List[str]:
         """Generate enterprise recommendations based on scan results."""
         recommendations = []
-        
+
         if self.metrics.compliance_score < 95:
             recommendations.append("IMMEDIATE CORRECTION REQUIRED: Compliance score below enterprise threshold")
-            
+
         if self.metrics.critical_violations > 0:
             recommendations.append("CRITICAL VIOLATIONS DETECTED: Requires immediate attention")
-            
+
         if self.metrics.complexity_violations > 0:
             recommendations.append("REFACTORING RECOMMENDED: High complexity violations found")
             
         if self.metrics.documentation_violations > 0:
             recommendations.append("DOCUMENTATION ENHANCEMENT: Missing or inadequate docstrings")
-            
+
         recommendations.extend([
             "PROCEED TO PHASE 3: Automated Correction & Regeneration",
             "ACTIVATE PHASE 4: DUAL COPILOT Validation & Reporting",
@@ -760,7 +771,9 @@ class DatabaseFirstComplianceScanner:
             if self.production_db:
                 self.production_db.close()
             if self.analytics_db:
+
                 self.analytics_db.close()
+
             if self.progress_bar:
                 self.progress_bar.close()
         except Exception as e:
@@ -776,10 +789,10 @@ def main():
         print("DUAL COPILOT VALIDATION ENABLED")
         print("ANTI-RECURSION PROTOCOL ACTIVE")
         print("=" * 80)
-        
+
         # Initialize scanner
         scanner = DatabaseFirstComplianceScanner()
-        
+
         # Run compliance scan
         metrics = scanner.run_compliance_scan()
         

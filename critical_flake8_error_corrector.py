@@ -11,7 +11,7 @@ Enterprise Database Integration: Analytics-driven correction patterns and learni
 MISSION: Apply systematic error correction methodology to resolve 431 critical E999 syntax errors
 based on comprehensive error analysis and validation.
 
-Author: Enterprise Compliance System  
+Author: Enterprise Compliance System
 Version: 3.1.0 - Critical Error Resolution
 Compliance: Enterprise Standards 2024
 """
@@ -44,6 +44,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class CriticalError:
     """Critical E999 syntax error representation"""
@@ -55,6 +56,7 @@ class CriticalError:
     correction_pattern: str
     correction_applied: bool = False
 
+
 @dataclass
 class CorrectionResult:
     """Result of correction operation"""
@@ -63,7 +65,9 @@ class CorrectionResult:
     errors_fixed: int
     backup_created: bool
     validation_passed: bool
+
     notes: str
+
 
 class CriticalFlake8Corrector:
     """Critical E999 syntax error corrector using systematic patterns"""
@@ -81,7 +85,7 @@ class CriticalFlake8Corrector:
                 'replacement': r')\1',
                 'description': 'Replace closing ] with closing )'
             },
-            
+
             # Pattern 2: Missing opening bracket - ')' instead of '['  
             r"closing parenthesis '\)' does not match opening parenthesis '\['": {
                 'pattern': r'(\s*)\)',
@@ -135,10 +139,10 @@ class CriticalFlake8Corrector:
         if not analysis_files:
             logger.error("No systematic analysis found. Run systematic analysis first.")
             return []
-        
+
         latest_analysis = max(analysis_files, key=lambda x: x.stat().st_mtime)
         logger.info(f"Loading analysis from: {latest_analysis}")
-        
+
         with open(latest_analysis, 'r', encoding='utf-8') as f:
             analysis_data = json.load(f)
         
@@ -171,7 +175,7 @@ class CriticalFlake8Corrector:
             source_path = Path(file_path)
             if not source_path.exists():
                 return False
-                
+
             backup_dir = self.workspace_root / "backups" / f"critical_corrections_{self.timestamp}"
             backup_dir.mkdir(parents=True, exist_ok=True)
             
@@ -183,7 +187,7 @@ class CriticalFlake8Corrector:
             # Copy file
             import shutil
             shutil.copy2(source_path, backup_path)
-            
+
             logger.debug(f"Backup created: {backup_path}")
             return True
             
@@ -202,10 +206,10 @@ class CriticalFlake8Corrector:
             # Read file content
             with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
                 content = f.read()
-            
+
             original_content = content
             errors_fixed = 0
-            
+
             # Sort errors by line number (descending) to avoid line number shifting
             sorted_errors = sorted(errors, key=lambda x: x.line_number, reverse=True)
             
@@ -227,7 +231,7 @@ class CriticalFlake8Corrector:
                     f.write(content)
                 
                 logger.info(f"Applied {errors_fixed} corrections to {file_path}")
-            
+
             # Validate correction by running Flake8 on just this file
             validation_passed = self._validate_file_correction(file_path)
             
@@ -258,7 +262,7 @@ class CriticalFlake8Corrector:
         lines = content.split('\n')
         if line_number <= 0 or line_number > len(lines):
             return content
-        
+
         line_index = line_number - 1
         original_line = lines[line_index]
         
@@ -266,7 +270,7 @@ class CriticalFlake8Corrector:
         for pattern_regex, pattern_info in self.correction_patterns.items():
             if re.search(pattern_regex, error_message):
                 corrected_line = re.sub(
-                    pattern_info['pattern'], 
+                    pattern_info['pattern'],
                     pattern_info['replacement'], 
                     original_line
                 )
@@ -283,7 +287,7 @@ class CriticalFlake8Corrector:
             result = subprocess.run([
                 'python', '-m', 'flake8', file_path,
                 '--select=E999'  # Only check for syntax errors
-            ], 
+            ],
             capture_output=True, 
             text=True,
             encoding='utf-8',
@@ -321,7 +325,7 @@ class CriticalFlake8Corrector:
         if not critical_errors:
             logger.warning("No critical errors found to correct")
             return {"status": "NO_ERRORS", "message": "No critical errors found"}
-        
+
         # Group errors by file
         errors_by_file = self.group_errors_by_file(critical_errors)
         
@@ -337,10 +341,10 @@ class CriticalFlake8Corrector:
         logger.info(f"Processing {len(errors_by_file)} files with critical errors")
         
         with tqdm(total=len(errors_by_file), desc="Critical Corrections", unit="file") as pbar:
-            
+
             for file_path, file_errors in errors_by_file.items():
                 pbar.set_description(f"Correcting: {Path(file_path).name}")
-                
+
                 # Apply corrections to file
                 correction_result = self.apply_correction_to_file(file_path, file_errors)
                 
@@ -352,7 +356,7 @@ class CriticalFlake8Corrector:
                     results["file_results"].append(asdict(correction_result))
                 else:
                     results["failed_files"].append(file_path)
-                
+
                 self.files_processed.add(file_path)
                 pbar.update(1)
         

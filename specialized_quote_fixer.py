@@ -23,13 +23,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 class SpecializedQuoteFixer:
     """Specialized fixer for quote and string literal issues"""
-    
+
     def __init__(self, workspace_path: str = "e:\\gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.fixes_applied = 0
-        
+
         # Common malformed patterns and their fixes
         self.quote_patterns = [
             # Pattern: inf"o""( -> info(
@@ -67,17 +68,17 @@ class SpecializedQuoteFixer:
             # Pattern: Fix multiple quote artifacts
             (r'""([^"]+)""', r'"\1"'),
         ]
-    
+
     def fix_file_quotes(self, file_path: Path) -> bool:
         """Fix quote issues in a single file"""
         try:
             # Read file content
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-            
+
             original_content = content
             fixes_in_file = 0
-            
+
             # Apply each quote fix pattern
             for pattern, replacement in self.quote_patterns:
                 new_content = re.sub(pattern, replacement, content)
@@ -86,50 +87,51 @@ class SpecializedQuoteFixer:
                     fixes_in_file += fixes_count
                     logger.info(f"Applied pattern '{pattern}' -> '{replacement}' ({fixes_count} times) in {file_path}")
                     content = new_content
-            
+
             # Only write back if changes were made
             if content != original_content:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(content)
-                
+
                 self.fixes_applied += fixes_in_file
                 logger.info(f"Fixed {fixes_in_file} quote issues in {file_path}")
                 return True
-            
+
             return False
-            
+
         except Exception as e:
             logger.error(f"Error fixing quotes in {file_path}: {e}")
             return False
-    
+
     def process_single_file(self, file_path: str) -> dict:
         """Process a single file for quote fixes"""
         target_file = Path(file_path)
-        
+
         if not target_file.exists():
             logger.error(f"File not found: {target_file}")
             return {'success': False, 'error': 'File not found'}
-        
+
         if not target_file.suffix == '.py':
             logger.warning(f"Skipping non-Python file: {target_file}")
             return {'success': False, 'error': 'Not a Python file'}
-        
+
         logger.info(f"Processing file: {target_file}")
         success = self.fix_file_quotes(target_file)
-        
+
         return {
             'success': success,
             'file': str(target_file),
             'fixes_applied': self.fixes_applied
         }
 
+
 def main():
     """Main function to run the specialized quote fixer"""
     print("🔧 SPECIALIZED QUOTE FIXER")
     print("=" * 50)
-    
+
     fixer = SpecializedQuoteFixer()
-    
+
     # Get target file from command line or use a default
     import sys
     if len(sys.argv) > 1:
@@ -137,14 +139,14 @@ def main():
     else:
         # Default to database_sync_scheduler.py for testing
         target_file = "database_sync_scheduler.py"
-    
+
     result = fixer.process_single_file(target_file)
-    
+
     print(f"\nREPORT:")
     print(f"Target: {result.get('file', 'N/A')}")
     print(f"Success: {result['success']}")
     print(f"Total Fixes: {result.get('fixes_applied', 0)}")
-    
+
     if result['success']:
         print("✅ Quote fixing completed successfully!")
     else:

@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Dict, Any
 import json
 
+
 class AutonomousFrameworkScopeSpecification:
   """
   [TARGET] Comprehensive scope specification for autonomous framework implementation

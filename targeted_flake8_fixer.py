@@ -10,6 +10,7 @@ import re
 import subprocess
 from pathlib import Path
 
+
 def fix_line_length_violations():
     """Fix E501 violations by intelligently wrapping lines"""
 
@@ -68,6 +69,7 @@ def fix_line_length_violations():
                 f.write(new_content)
             print(f"✅ Fixed line lengths in {filename}")
 
+
 def remove_unused_imports():
     """Remove F401 unused import violations"""
     # Use autopep8 to remove unused imports
@@ -84,7 +86,9 @@ def remove_unused_imports():
         )
         print("✅ Removed unused imports")
     except Exception as e:
+
         print(f"❌ Error removing unused imports: {e}")
+
 
 def fix_whitespace_issues():
     """Fix W293 and W291 whitespace violations"""
@@ -112,7 +116,10 @@ def fix_whitespace_issues():
                     f.write(new_content)
                 print(f"✅ Fixed whitespace in {file_path}")
 
+
+
         except Exception as e:
+
             print(f"❌ Error fixing {file_path}: {e}")
 
 def fix_fstring_violations():
@@ -140,7 +147,10 @@ def fix_fstring_violations():
             if new_content != content:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(new_content)
+
                 print(f"✅ Fixed f-strings in {file_path}")
+
+
 
         except Exception as e:
             print(f"❌ Error fixing f-strings in {file_path}: {e}")

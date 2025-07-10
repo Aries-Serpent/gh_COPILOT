@@ -69,17 +69,17 @@ class DatabaseConsolidationMigration:
             self.workspace_root = Path(workspace_root)
         else:
             self.workspace_root = Path("e:\\gh_COPILOT")
-            
+
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         self.migration_id = f"DB_MIGRATION_{timestamp}"
-        self.archive_dir = (self.workspace_root / "scripts" / 
+        self.archive_dir = (self.workspace_root / "scripts" /
                            "archived_database_scripts" / self.migration_id)
 
         # Scripts to consolidate - populated with defaults
         self.legacy_scripts = [
             "DATABASE_CLEANUP_EXECUTOR.py",
             "PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py",
-            "database_organization_manager.py", 
+            "database_organization_manager.py",
             "PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py"
         ]
 
@@ -171,7 +171,7 @@ class DatabaseConsolidationMigration:
                         "consolidated_into": "unified_database_management_system.py"
                     }
 
-                    metadata_path = (self.archive_dir / "metadata" / 
+                    metadata_path = (self.archive_dir / "metadata" /
                                    f"{script_path.name}.metadata.json")
                     with open(metadata_path, 'w', encoding='utf-8') as f:
                         json.dump(metadata, f, indent=2)
@@ -223,7 +223,7 @@ The following database management scripts have been consolidated:
         for script_info in self.migration_results["archived_files"]:
             script_name = Path(script_info["original"]).name
             documentation += f"- `{script_name}` → **ARCHIVED**\n"
-            
+
         documentation += f"""
 ### New Unified System:
 - **`unified_database_management_system.py`** - Complete database management solution

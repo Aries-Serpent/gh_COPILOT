@@ -4,13 +4,13 @@ DATABASE-FIRST FLAKE8 DISCOVERY ENGINE
 =====================================
 
 PIS PHASE 1: Enhanced Discovery & Workspace Validation
-- Query production.db for all tracked scripts  
+- Query production.db for all tracked scripts
 - Validate workspace integrity and anti-recursion protocols
 - Generate comprehensive discovery report with visual indicators
 
 🚨 ZERO TOLERANCE VISUAL PROCESSING COMPLIANCE:
 ✅ Start time logging with enterprise formatting
-✅ Progress bar implementation with tqdm  
+✅ Progress bar implementation with tqdm
 ✅ Timeout mechanisms with configurable limits
 ✅ ETC calculation and real-time display
 ✅ Process ID tracking for monitoring
@@ -38,6 +38,8 @@ from tqdm import tqdm
 import psutil
 
 # PIS MANDATE: Zero tolerance visual processing with comprehensive indicators
+
+
 @dataclass
 class PISDiscoveryMetrics:
     """PIS-compliant discovery metrics with visual processing requirements"""
@@ -66,6 +68,7 @@ class PISDiscoveryMetrics:
         remaining_work = total_work - current_progress
         self.eta_seconds = (elapsed / current_progress) * remaining_work
         return self.eta_seconds
+
 
 class DatabaseFirstFlake8DiscoveryEngine:
     """
@@ -157,7 +160,7 @@ class DatabaseFirstFlake8DiscoveryEngine:
         
         if not self.analytics_db_path.exists():
             self.logger.warning(f"[WARNING] Analytics database not found: {self.analytics_db_path}")
-        
+
         self.logger.info("[SUCCESS] Database connections initialized")
     
     def execute_pis_discovery_phase(self) -> Dict[str, Any]:
@@ -177,7 +180,7 @@ class DatabaseFirstFlake8DiscoveryEngine:
         total_phases = 5
         phase_progress = 0
         
-        with tqdm(total=100, desc="PIS Phase 1 Discovery", unit="%", 
+        with tqdm(total=100, desc="PIS Phase 1 Discovery", unit="%",
                  bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]") as pbar:
             
             # Sub-phase 1: Database query for tracked scripts (20%)
@@ -240,13 +243,13 @@ class DatabaseFirstFlake8DiscoveryEngine:
             
             # Query enhanced_script_tracking table
             cursor.execute('''
-                SELECT script_path, script_name, content_hash, last_modified, 
+                SELECT script_path, script_name, content_hash, last_modified,
                        status, category, priority
                 FROM enhanced_script_tracking 
                 WHERE script_path LIKE '%.py'
                 ORDER BY priority DESC, last_modified DESC
             ''')
-            
+
             results = cursor.fetchall()
             
             for row in results:
@@ -262,7 +265,7 @@ class DatabaseFirstFlake8DiscoveryEngine:
             
             self.metrics.total_tracked_scripts = len(tracked_scripts)
             self.metrics.database_queries_executed += 1
-            
+
             conn.close()
             
         except Exception as e:
@@ -298,7 +301,7 @@ class DatabaseFirstFlake8DiscoveryEngine:
             'venv', 'env', '.git', '__pycache__', 'node_modules',
             'backup/backup', 'temp/temp', '.pytest_cache'
         ]
-        
+
         return not any(exclusion in path_str for exclusion in exclusions)
     
     def _validate_filesystem_database_sync(self, tracked_scripts: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -322,7 +325,7 @@ class DatabaseFirstFlake8DiscoveryEngine:
                 if current_hash != script_info['content_hash']:
                     corrupted_scripts.append(script_info)
                     continue
-            
+
             valid_scripts.append(script_info)
         
         self.metrics.valid_scripts = len(valid_scripts)
@@ -365,16 +368,16 @@ class DatabaseFirstFlake8DiscoveryEngine:
             'critical_violations': [],
             'files_processed': []
         }
-        
+
         valid_scripts = [s for s in tracked_scripts if Path(s['script_path']).exists()]
         
-        with tqdm(total=len(valid_scripts), desc="Flake8 Violation Scan", 
+        with tqdm(total=len(valid_scripts), desc="Flake8 Violation Scan",
                  unit="files") as pbar:
             
             for script_info in valid_scripts:
                 script_path = script_info['script_path']
                 violations = self._run_flake8_on_file(script_path)
-                
+
                 violation_summary['total_files_scanned'] += 1
                 
                 if violations:
@@ -398,12 +401,12 @@ class DatabaseFirstFlake8DiscoveryEngine:
                     'violations': len(violations) if violations else 0,
                     'violation_details': violations or []
                 })
-                
+
                 pbar.update(1)
         
         self.metrics.flake8_violations = violation_summary['total_violations']
         self.logger.info(f"[DISCOVERY] Found {violation_summary['total_violations']} total violations")
-        
+
         return violation_summary
     
     def _run_flake8_on_file(self, file_path: str) -> Optional[List[Dict[str, Any]]]:
@@ -423,7 +426,7 @@ class DatabaseFirstFlake8DiscoveryEngine:
                 except json.JSONDecodeError:
                     # Parse text format output
                     return self._parse_flake8_text_output(result.stdout)
-            
+
             return []
             
         except subprocess.TimeoutExpired:
@@ -467,12 +470,12 @@ class DatabaseFirstFlake8DiscoveryEngine:
                 
                 # Query correction patterns
                 cursor.execute('''
-                    SELECT pattern_name, pattern_regex, replacement, 
+                    SELECT pattern_name, pattern_regex, replacement,
                            success_rate, usage_count, effectiveness_score
                     FROM correction_patterns 
                     ORDER BY effectiveness_score DESC, usage_count DESC
                 ''')
-                
+
                 patterns = cursor.fetchall()
                 
                 for pattern in patterns:
@@ -489,7 +492,7 @@ class DatabaseFirstFlake8DiscoveryEngine:
                 
                 pattern_analysis['available_patterns'] = len(patterns)
                 conn.close()
-                
+
                 self.metrics.database_queries_executed += 1
                 
         except Exception as e:
@@ -497,7 +500,7 @@ class DatabaseFirstFlake8DiscoveryEngine:
         
         self.logger.info(f"[ANALYSIS] Found {pattern_analysis['available_patterns']} correction patterns")
         return pattern_analysis
-    
+
     def _generate_discovery_report(self, tracked_scripts: List[Dict[str, Any]], 
                                  filesystem_status: Dict[str, Any],
                                  violation_analysis: Dict[str, Any],
@@ -513,7 +516,7 @@ class DatabaseFirstFlake8DiscoveryEngine:
         filesystem_score = (valid_scripts / total_scripts) * 100 if total_scripts > 0 else 0
         violation_penalty = min(total_violations * 2, 50)  # Max 50% penalty
         compliance_score = max(0, filesystem_score - violation_penalty)
-        
+
         self.metrics.compliance_score = compliance_score
         
         report = {
@@ -591,6 +594,9 @@ class DatabaseFirstFlake8DiscoveryEngine:
         if pattern_analysis['recommended_patterns']:
             actions.append(f"APPLY {len(pattern_analysis['recommended_patterns'])} high-effectiveness correction patterns")
         
+
+
+
         return actions
 
 def main():
@@ -607,7 +613,7 @@ def main():
     try:
         # Initialize discovery engine
         discovery_engine = DatabaseFirstFlake8DiscoveryEngine()
-        
+
         # Execute PIS Phase 1
         discovery_report = discovery_engine.execute_pis_discovery_phase()
         
@@ -626,7 +632,7 @@ def main():
         print(f"\n🎯 RECOMMENDED ACTIONS:")
         for i, action in enumerate(metrics['recommended_actions'], 1):
             print(f"   {i}. {action}")
-        
+
         print(f"\n⏱️  Total Execution Time: {discovery_report['execution_metrics']['total_execution_time']:.2f} seconds")
         print("🏆 PIS PHASE 1 READY FOR PHASE 2 EXECUTION")
         

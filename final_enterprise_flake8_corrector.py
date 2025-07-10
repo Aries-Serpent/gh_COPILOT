@@ -40,6 +40,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class FlakeViolation:
     """Enterprise Flake8 violation data structure"""
@@ -53,6 +54,7 @@ class FlakeViolation:
     correction_applied: bool = False
     correction_method: str = ""
     timestamp: str = ""
+
 
 class EnterpriseFlakeEngine:
     """[ENTERPRISE] Advanced Flake8 correction engine with robust parsing"""
@@ -308,7 +310,10 @@ class EnterpriseFlakeEngine:
             'final_stats': self.stats
         }
 
+
+
         return results
+
 
 def main():
     """Main execution entry point"""

@@ -40,6 +40,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
 
+
 class PhaseStatus(Enum):
     """Phase execution status enumeration"""
     PENDING = "PENDING"
@@ -49,13 +50,16 @@ class PhaseStatus(Enum):
     SUSPENDED = "SUSPENDED"
     VALIDATING = "VALIDATING"
 
+
 class ComplianceLevel(Enum):
     """Compliance level enumeration"""
     CRITICAL = "CRITICAL"
     HIGH = "HIGH"
     MEDIUM = "MEDIUM"
     LOW = "LOW"
+
     ZERO_TOLERANCE = "ZERO_TOLERANCE"
+
 
 @dataclass
 class PhaseMetrics:
@@ -72,8 +76,10 @@ class PhaseMetrics:
     dual_copilot_validation: bool = False
     status: PhaseStatus = PhaseStatus.PENDING
     errors: List[str] = field(default_factory=list)
+
     warnings: List[str] = field(default_factory=list)
     resource_usage: Dict[str, Any] = field(default_factory=dict)
+
 
 @dataclass
 class EnterpriseExecutionPlan:
@@ -85,8 +91,10 @@ class EnterpriseExecutionPlan:
     chunk_size: int = 50
     timeout_per_phase: timedelta = timedelta(hours=2)
     backup_frequency: timedelta = timedelta(minutes=30)
+
     validation_threshold: float = 0.99
     quantum_learning_enabled: bool = True
+
     dual_copilot_mandatory: bool = True
 
 class EnterpriseMasterExecutor:
@@ -96,12 +104,12 @@ class EnterpriseMasterExecutor:
     Coordinates execution of Phases 3, 4, and 5 with enterprise-grade
     monitoring, validation, and reporting capabilities.
     """
-    
+
     def __init__(self, workspace_root: Optional[str] = None):
         self.workspace_root = Path(workspace_root or os.getcwd())
         self.execution_plan = EnterpriseExecutionPlan()
         self.phase_metrics: Dict[str, PhaseMetrics] = {}
-        
+
         # Initialize enterprise infrastructure
         self._setup_enterprise_infrastructure()
         self._initialize_database()
@@ -171,7 +179,7 @@ class EnterpriseMasterExecutor:
                     }
                 }
             }
-            
+
             with open(self.config_path, 'w') as f:
                 json.dump(default_config, f, indent=2)
     
@@ -184,7 +192,7 @@ class EnterpriseMasterExecutor:
             self.conn.execute('PRAGMA journal_mode=WAL')
             self.conn.execute('PRAGMA synchronous=NORMAL')
             self.conn.execute('PRAGMA cache_size=10000')
-            
+
             # Create enterprise execution tracking tables
             self._create_enterprise_tables()
             
@@ -263,17 +271,17 @@ class EnterpriseMasterExecutor:
                 alert_triggered BOOLEAN DEFAULT FALSE
             )'''
         ]
-        
+
         for table_sql in tables:
             self.conn.execute(table_sql)
         
         self.conn.commit()
-    
+
     def _configure_logging(self):
         """Configure enterprise-grade logging"""
         log_dir = self.workspace_root / 'logs' / 'phases'
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        
+
         # Master execution log
         log_file = log_dir / f'master_execution_{timestamp}.log'
         
@@ -285,7 +293,7 @@ class EnterpriseMasterExecutor:
                 logging.StreamHandler(sys.stdout)
             ]
         )
-        
+
         self.logger = logging.getLogger('MasterExecutor')
         self.logger.info("🎯 Enterprise Master Executor Logging INITIALIZED")
     
@@ -328,16 +336,16 @@ class EnterpriseMasterExecutor:
         try:
             # Initialize execution tracking
             self._initialize_execution_tracking(execution_id)
-            
+
             # Phase 3: Style Compliance & Pattern Optimization
             phase3_result = self._execute_phase_3(execution_id)
-            
+
             # Phase 4: Enterprise Validation & DUAL COPILOT
             phase4_result = self._execute_phase_4(execution_id)
-            
+
             # Phase 5: Continuous Operation & Long-term Maintenance
             phase5_result = self._execute_phase_5(execution_id)
-            
+
             # Generate final enterprise report
             final_report = self._generate_final_enterprise_report(execution_id)
             
@@ -367,7 +375,7 @@ class EnterpriseMasterExecutor:
         print("\n" + "📊" * 25)
         print("🎯 PHASE 3: STYLE COMPLIANCE & PATTERN OPTIMIZATION")
         print("📊" * 25)
-        
+
         phase_start = datetime.now()
         phase_metrics = PhaseMetrics(phase_id="phase3", start_time=phase_start)
         
@@ -384,12 +392,12 @@ class EnterpriseMasterExecutor:
                     phase_metrics.status = PhaseStatus.FAILED
                     phase_metrics.errors.append(result.stderr)
                     print(f"❌ Phase 3 FAILED: {result.stderr}")
-                
+
                 # Parse execution results
                 self._parse_phase_results(phase_metrics, result.stdout)
             else:
                 raise FileNotFoundError("Phase 3 executor not found")
-            
+
             phase_metrics.end_time = datetime.now()
             self.phase_metrics['phase3'] = phase_metrics
             
@@ -411,7 +419,7 @@ class EnterpriseMasterExecutor:
         print("\n" + "🔍" * 25)
         print("🎯 PHASE 4: ENTERPRISE VALIDATION & DUAL COPILOT")
         print("🔍" * 25)
-        
+
         phase_start = datetime.now()
         phase_metrics = PhaseMetrics(phase_id="phase4", start_time=phase_start)
         
@@ -429,12 +437,12 @@ class EnterpriseMasterExecutor:
                     phase_metrics.status = PhaseStatus.FAILED
                     phase_metrics.errors.append(result.stderr)
                     print(f"❌ Phase 4 FAILED: {result.stderr}")
-                
+
                 # Parse execution results
                 self._parse_phase_results(phase_metrics, result.stdout)
             else:
                 raise FileNotFoundError("Phase 4 executor not found")
-            
+
             phase_metrics.end_time = datetime.now()
             self.phase_metrics['phase4'] = phase_metrics
             
@@ -468,7 +476,7 @@ class EnterpriseMasterExecutor:
         
         for component_name, component_key in phase5_components:
             print(f"\n🔄 Executing Phase 5 Component: {component_name.upper()}")
-            
+
             try:
                 if component_key in self.phase_executors:
                     cmd = [sys.executable, self.phase_executors[component_key], '--continuous-mode']
@@ -513,7 +521,7 @@ class EnterpriseMasterExecutor:
                     metrics.success_rate = float(line.split(':')[-1].strip().rstrip('%')) / 100
         except Exception as e:
             self.logger.warning(f"⚠️  Metrics parsing failed: {e}")
-    
+
     def _initialize_execution_tracking(self, execution_id: str):
         """Initialize execution tracking in database"""
         try:
@@ -530,7 +538,7 @@ class EnterpriseMasterExecutor:
                 self.execution_plan.dual_copilot_mandatory
             ))
             self.conn.commit()
-            
+
         except Exception as e:
             self.logger.error(f"❌ Failed to initialize execution tracking: {e}")
     
@@ -582,12 +590,12 @@ class EnterpriseMasterExecutor:
                     'monitoring_operational': True
                 }
             }
-            
+
             # Save report to file
             report_file = self.workspace_root / 'reports' / 'enterprise' / f'final_compliance_report_{execution_id}.json'
             with open(report_file, 'w') as f:
                 json.dump(report, f, indent=2)
-            
+
             print("✅ Final Enterprise Report GENERATED")
             print(f"📁 Report saved to: {report_file}")
             
@@ -606,8 +614,10 @@ class EnterpriseMasterExecutor:
             'phases_status': {
                 phase_id: metrics.status.value 
                 for phase_id, metrics in self.phase_metrics.items()
+
             },
             'total_files_processed': sum(m.files_processed for m in self.phase_metrics.values()),
+
             'total_violations_fixed': sum(m.violations_fixed for m in self.phase_metrics.values())
         }
 
@@ -615,7 +625,7 @@ def main():
     """Main execution entry point"""
     print("🎯 ENTERPRISE FLAKE8 MASTER EXECUTOR")
     print("=" * 50)
-    
+
     try:
         # Initialize master executor
         executor = EnterpriseMasterExecutor()
