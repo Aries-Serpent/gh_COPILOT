@@ -34,17 +34,17 @@ License: Enterprise Internal Use Only
 import os
 import sys
 import json
-import time
+
 import sqlite3
 import logging
 import subprocess
-import threading
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
-import importlib.util
+
+
+
+
+
+
+
 
 # Enterprise Configuration Constants
 ENTERPRISE_CONFIG = {
@@ -102,9 +102,18 @@ class EnterprisePhaseExecutionController:
 
         # Phase file paths
         self.phase_files = {
-            "phase3": os.path.join(self.workspace_root, "phase3_systematic_style_compliance.py"),
-            "phase4": os.path.join(self.workspace_root, "phase4_enterprise_validation.py"),
-            "phase5": os.path.join(self.workspace_root, "phase5_continuous_operation.py")
+            "phase3": os.path.join(
+                                   self.workspace_root,
+                                   "phase3_systematic_style_compliance.py")
+            "phase3": os.path.join(self.worksp)
+            "phase4": os.path.join(
+                                   self.workspace_root,
+                                   "phase4_enterprise_validation.py")
+            "phase4": os.path.join(self.worksp)
+            "phase5": os.path.join(
+                                   self.workspace_root,
+                                   "phase5_continuous_operation.py"
+            "phase5": os.path.join(self.worksp)
         }
 
         self.logger.info(f"[INIT] Enterprise Phase Controller Initialized - ID: {self.execution_id}")
@@ -113,7 +122,10 @@ class EnterprisePhaseExecutionController:
         """Setup comprehensive logging with visual indicators"""
         os.makedirs(self.logs_dir, exist_ok=True)
 
-        log_file = os.path.join(self.logs_dir, f"phase_execution_{self.execution_id}.log")
+        log_file = os.path.join(
+                                self.logs_dir,
+                                f"phase_execution_{self.execution_id}.log"
+        log_file = os.path.join(self.lo)
 
         logging.basicConfig(
             level=logging.INFO,
@@ -168,12 +180,22 @@ class EnterprisePhaseExecutionController:
         filled_length = int(bar_length * progress / 100)
         bar = "█" * filled_length + "░" * (bar_length - filled_length)
 
-        print(f"\r[{phase.upper()}] |{bar}| {progress:.1f}% | {message}", end="", flush=True)
+        print(
+              f"\r[{phase.upper()}] |{bar}| {progress:.1f}% | {message}",
+              end="",
+              flush=True
+        print(f"\r[{p)
 
         if progress >= 100:
             print()  # New line when complete
 
-    def _execute_phase_script(self, phase_id: str, script_path: str) -> Tuple[bool, Dict[str, Any]]:
+    def _execute_phase_script(
+                              self,
+                              phase_id: str,
+                              script_path: str) -> Tuple[bool,
+                              Dict[str,
+                              Any]]
+    def _execute_phase_script(sel)
         """Execute a phase script with comprehensive monitoring"""
         try:
             self.logger.info(f"[START] Starting execution of {phase_id}")
@@ -290,7 +312,11 @@ class EnterprisePhaseExecutionController:
 
         if success:
             self.logger.info("[SUCCESS] Phase 3 completed successfully")
-            self._display_visual_indicator("PHASE 3", 100.0, "Systematic Style Compliance Complete")
+            self._display_visual_indicator(
+                                           "PHASE 3",
+                                           100.0,
+                                           "Systematic Style Compliance Complete"
+            self._display_visual_indicator("PHASE 3", )
         else:
             self.logger.error("❌ Phase 3 execution failed")
             self._display_visual_indicator("PHASE 3", 0.0, "Execution Failed")
@@ -328,7 +354,11 @@ class EnterprisePhaseExecutionController:
 
         if success:
             self.logger.info("[SUCCESS] Phase 4 completed successfully")
-            self._display_visual_indicator("PHASE 4", 100.0, "Enterprise Validation Complete")
+            self._display_visual_indicator(
+                                           "PHASE 4",
+                                           100.0,
+                                           "Enterprise Validation Complete"
+            self._display_visual_indicator("PHASE 4", )
         else:
             self.logger.error("❌ Phase 4 execution failed")
             self._display_visual_indicator("PHASE 4", 0.0, "Validation Failed")
@@ -366,7 +396,11 @@ class EnterprisePhaseExecutionController:
 
         if success:
             self.logger.info("[SUCCESS] Phase 5 completed successfully")
-            self._display_visual_indicator("PHASE 5", 100.0, "Continuous Operation Activated")
+            self._display_visual_indicator(
+                                           "PHASE 5",
+                                           100.0,
+                                           "Continuous Operation Activated"
+            self._display_visual_indicator("PHASE 5", )
         else:
             self.logger.error("❌ Phase 5 execution failed")
             self._display_visual_indicator("PHASE 5", 0.0, "Activation Failed")
@@ -482,7 +516,10 @@ class EnterprisePhaseExecutionController:
         report = self.generate_comprehensive_execution_report()
 
         # Save report to file
-        report_file = os.path.join(self.logs_dir, f"execution_report_{self.execution_id}.json")
+        report_file = os.path.join(
+                                   self.logs_dir,
+                                   f"execution_report_{self.execution_id}.json"
+        report_file = os.path.join(self.lo)
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)
 
@@ -508,7 +545,7 @@ def main():
 
     # Execute all phases
     success = controller.execute_all_phases()
-    
+
     # Exit with appropriate code
     sys.exit(0 if success else 1)
 

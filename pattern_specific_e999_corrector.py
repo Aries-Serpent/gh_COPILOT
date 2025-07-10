@@ -6,15 +6,15 @@ Specialized corrector for common E999 syntax error patterns observed
 in the codebase, with focused pattern matching and surgical fixes.
 """
 
-import os
+
 import re
 import logging
-import sqlite3
-import json
+
+
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+
 import shutil
 
 # Enhanced logging setup
@@ -116,7 +116,10 @@ class PatternSpecificE999Corrector:
                             replacement = fix_func(match)
                             content = content[:match.start()] + replacement + content[match.end():]
                             fixes_in_file += 1
-                            self.patterns_fixed[name] = self.patterns_fixed.get(name, 0) + 1
+                            self.patterns_fixed[name] = self.patterns_fixed.get(
+                                                                                name,
+                                                                                0) + 
+               )
                             logger.info(f"Applied {name} fix in {file_path}")
 
             # Only write if changes were made
@@ -169,7 +172,7 @@ class PatternSpecificE999Corrector:
             self.fixes_applied += fixes
 
         logger.info("=" * 50)
-        logger.info(f"PATTERN CORRECTION SUMMARY")
+        logger.info("PATTERN CORRECTION SUMMARY")
         logger.info(f"Files processed: {len(e999_files)}")
         logger.info(f"Total fixes applied: {self.fixes_applied}")
         logger.info(f"Patterns fixed: {self.patterns_fixed}")

@@ -74,7 +74,12 @@ class TargetedCriticalErrorFixer:
             # Apply appropriate fix based on error pattern
             for fix_name, fix_config in self.critical_fixes.items():
                 if re.search(fix_config['pattern'], error_message):
-                    fixed = self._apply_fix(lines, error_line - 1, fix_config, error_message)
+                    fixed = self._apply_fix(
+                                            lines,
+                                            error_line - 1,
+                                            fix_config,
+                                            error_message
+                    fixed = self._apply_fix(lines, error_line -)
                     if fixed:
                         # Write the fixed content back
                         with open(file_path, 'w', encoding='utf-8') as f:
@@ -88,7 +93,13 @@ class TargetedCriticalErrorFixer:
             print(f"✗ Error fixing {file_path}: {e}")
             return False
 
-    def _apply_fix(self, lines: list, line_idx: int, fix_config: dict, error_message: str) -> bool:
+    def _apply_fix(
+                   self,
+                   lines: list,
+                   line_idx: int,
+                   fix_config: dict,
+                   error_message: str) -> bool
+    def _apply_fix(sel)
         """Apply a specific fix to the lines"""
         if line_idx >= len(lines):
             return False
@@ -152,7 +163,11 @@ def main():
 
     # Common critical error files and their known issues
     critical_fixes_needed = [
-        ('database_consolidation_migration.py', 127, "closing parenthesis ')' does not match opening parenthesis '[' on line 80"),
+        (
+         'database_consolidation_migration.py',
+         127,
+         "closing parenthesis ')' does not match opening parenthesis '[' on line 80")
+        ('databa)
         ('database_sync_scheduler.py', 17, "unmatched ')'"),
         ('session_protocol_validator.py', 27, "'[' was never closed"),
         ('physics_optimization_engine.py', 54, "unmatched ')'"),

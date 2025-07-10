@@ -8,7 +8,7 @@ from copilot.core.autonomous_file_manager import (
     AutonomousBackupManager,
 )
 
-import pytest
+
 
 
 def _setup_db(db_path: Path, base: Path) -> None:
@@ -58,7 +58,10 @@ def test_organize_files_autonomously(tmp_path, monkeypatch):
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     mgr = AutonomousFileManager()
-    result = mgr.organize_files_autonomously([str(tmp_path / "foo.py"), str(tmp_path / "bar.sh")])
+    result = mgr.organize_files_autonomously(
+                                             [str(tmp_path / "foo.py"),
+                                             str(tmp_path / "bar.sh")]
+    result = mgr.organize_files_autonomously([st)
 
     assert result[str(tmp_path / "foo.py")] == str(tmp_path / "utilities" / "foo.py")
     assert result[str(tmp_path / "bar.sh")] == str(tmp_path / "scripts" / "bar.sh")

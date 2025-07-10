@@ -18,11 +18,11 @@ import re
 import json
 import subprocess
 import logging
-from pathlib import Path
+
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Any
 from datetime import datetime
-import time
+
 import traceback
 
 try:
@@ -200,12 +200,32 @@ class EnterpriseFlakeEngine:
             original_content = content
 
             # Fix unterminated f-strings (very basic)
-            content = re.sub(r'f"([^"]*?)(?<!\\)"?\s*$', r'f"\1"', content, flags=re.MULTILINE)
-            content = re.sub(r"f'([^']*?)(?<!\\)'?\s*$", r"f'\1'", content, flags=re.MULTILINE)
+            content = re.sub(
+                             r'f"([^"]*?)(?<!\\)"?\s*$',
+                             r'f"\1"',
+                             content,
+                             flags=re.MULTILINE
+            content = re.sub(r'f"([^"]*?)
+            content = re.sub(
+                             r"f'([^']*?)(?<!\\)'?\s*$",
+                             r"f'\1'",
+                             content,
+                             flags=re.MULTILINE
+            content = re.sub(r"f'([^']*?)
             # Fix missing quotes in strings
-            content = re.sub(r'f"([^"]*?)(?<!\\)\n', r'f"\1"\n', content, flags=re.MULTILINE)
+            content = re.sub(
+                             r'f"([^"]*?)(?<!\\)\n',
+                             r'f"\1"\n',
+                             content,
+                             flags=re.MULTILINE
+            content = re.sub(r'f"([^"]*?)
             # Fix missing closing brackets (very basic)
-            content = re.sub(r'(\[|\(|\{)[^)\]\}]*$', r'\1]', content, flags=re.MULTILINE)
+            content = re.sub(
+                             r'(\[|\(|\{)[^)\]\}]*$',
+                             r'\1]',
+                             content,
+                             flags=re.MULTILINE
+            content = re.sub(r'(\[|\(|\{)
             # Fix trailing commas in wrong places
             content = re.sub(r',\s*\n\s*\)', ')', content)
             content = re.sub(r',\s*\n\s*\]', ']', content)
@@ -325,15 +345,15 @@ def main():
     try:
         engine = EnterpriseFlakeEngine()
 
-        print(f"\n[ANALYSIS] Running initial Flake8 analysis...")
+        print("\n[ANALYSIS] Running initial Flake8 analysis...")
         initial_violations = engine.run_flake8_analysis()
         initial_count = len(initial_violations)
         print(f"[ANALYSIS] Initial violations found: {initial_count}")
 
-        print(f"\n[CORRECTION] Starting comprehensive correction process...")
+        print("\n[CORRECTION] Starting comprehensive correction process...")
         correction_results = engine.run_comprehensive_correction()
 
-        print(f"\n[VALIDATION] Running final Flake8 analysis...")
+        print("\n[VALIDATION] Running final Flake8 analysis...")
         final_violations = engine.run_flake8_analysis()
         final_count = len(final_violations)
 
@@ -355,7 +375,7 @@ def main():
         with open(report_file, 'w', encoding='utf-8') as f:
             json.dump(final_report, f, indent=2, ensure_ascii=False)
 
-        print(f"\n[SUCCESS] ENTERPRISE FLAKE8 CORRECTION COMPLETED")
+        print("\n[SUCCESS] ENTERPRISE FLAKE8 CORRECTION COMPLETED")
         print(f"Initial Violations: {initial_count}")
         print(f"Final Violations: {final_count}")
         print(f"Improvement: {improvement:.1f}%")
@@ -366,17 +386,21 @@ def main():
         print(f"Report saved to: {report_file}")
 
         if final_count > 0:
-            print(f"\n[REMAINING] Top remaining violation types:")
+            print("\n[REMAINING] Top remaining violation types:")
             violation_types = {}
             for violation in final_violations:
                 if violation.error_code not in violation_types:
                     violation_types[violation.error_code] = []
                 violation_types[violation.error_code].append(violation)
-            sorted_types = sorted(violation_types.items(), key=lambda x: len(x[1]), reverse=True)
+            sorted_types = sorted(
+                                  violation_types.items(),
+                                  key=lambda x: len(x[1]),
+                                  reverse=True
+            sorted_types = sorted(violation_t)
             for error_code, violations_list in sorted_types[:10]:
                 print(f"  {error_code}: {len(violations_list)} violations")
 
-        print(f"[DUAL-COPILOT] DUAL COPILOT VALIDATION: COMPLETE")
+        print("[DUAL-COPILOT] DUAL COPILOT VALIDATION: COMPLETE")
 
     except Exception as e:
         print(f"[ERROR] EXECUTION ERROR: {e}")

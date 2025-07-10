@@ -13,20 +13,20 @@ Author: Enterprise GitHub Copilot Framework
 Version: 1.0.0-DATABASE-FIRST
 """
 
-import os
+
 import sys
 import json
 import sqlite3
 import subprocess
 import logging
-import time
-import threading
-from datetime import datetime, timedelta
+
+
+
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
 import hashlib
-import shutil
+
 
 # Enterprise Configuration
 ENTERPRISE_CONFIG = {
@@ -253,7 +253,15 @@ class EnterprisePhaseDatabaseExecutor:
                 # Insert or update file_system_mapping
                 cursor.execute('''
                     INSERT OR REPLACE INTO file_system_mapping
-                    (file_path, file_content, file_hash, file_size, updated_at, status, file_type)
+                    (
+                     file_path,
+                     file_content,
+                     file_hash,
+                     file_size,
+                     updated_at,
+                     status,
+                     file_type
+                    (file_path, file_con)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     str(script_path),
@@ -410,7 +418,10 @@ class EnterprisePhaseDatabaseExecutor:
 
             # Break on failure if configured
             if not result.success:
-                self.logger.warning(f"[WARNING] {phase_id} failed, continuing to next phase")
+                self.logger.warning(
+                                    f"[WARNING] {phase_id} failed,
+                                    continuing to next phase"
+                self.logger.warning(f"[WARNING] {ph)
 
         overall_duration = (datetime.now() - overall_start).total_seconds()
 
@@ -428,7 +439,12 @@ class EnterprisePhaseDatabaseExecutor:
 
         return results
 
-    def _generate_execution_report(self, results: Dict[str, PhaseExecutionResult], duration: float):
+    def _generate_execution_report(
+                                   self,
+                                   results: Dict[str,
+                                   PhaseExecutionResult],
+                                   duration: float)
+    def _generate_execution_report(sel)
         """Generate comprehensive execution report"""
         report = {
             "execution_id": self.execution_id,
@@ -490,18 +506,18 @@ def main():
 
         executor = EnterprisePhaseDatabaseExecutor()
         results = executor.execute_all_phases()
-        
+
         print()
         print("="*80)
         print("EXECUTION COMPLETED")
         print("="*80)
-        
+
         for phase_id, result in results.items():
             status = "SUCCESS" if result.success else "FAILED"
             print(f"{phase_id}: {status}")
 
         return 0 if all(r.success for r in results.values()) else 1
-        
+
     except Exception as e:
         print(f"[CRITICAL ERROR] Executor failed: {e}")
         return 1

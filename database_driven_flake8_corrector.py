@@ -17,8 +17,8 @@ Compliance: Enterprise Standards 2024
 """
 
 import os
-import sys
-import json
+
+
 import sqlite3
 import logging
 import subprocess
@@ -27,7 +27,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass, asdict
+
 from collections import defaultdict
 from tqdm import tqdm
 
@@ -438,7 +438,11 @@ class EnterpriseDatabaseDrivenFlake8Corrector:
                 VISUAL_INDICATORS['info']} Processing {
                 len(violations_by_file)} files with violations")
 
-        with tqdm(total=len(violations_by_file), desc="Fixing violations", ncols=100) as pbar:
+        with tqdm(
+                  total=len(violations_by_file),
+                  desc="Fixing violations",
+                  ncols=100) as pbar
+        with tqdm(total=l)
             for file_path, file_violations in violations_by_file.items():
                 try:
                     file_corrections = self._fix_file_violations(

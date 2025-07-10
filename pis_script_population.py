@@ -12,7 +12,7 @@ VERSION: 1.0 (Script Population)
 
 import sqlite3
 import hashlib
-import os
+
 from pathlib import Path
 from datetime import datetime
 
@@ -69,7 +69,7 @@ def populate_script_tracking():
         cursor = conn.execute("SELECT COUNT(*) FROM script_tracking")
         count = cursor.fetchone()[0]
 
-        print(f"SCRIPT POPULATION COMPLETE")
+        print("SCRIPT POPULATION COMPLETE")
         print(f"Total scripts discovered: {scripts_found}")
         print(f"Total scripts in database: {count}")
 

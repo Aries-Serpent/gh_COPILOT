@@ -6,7 +6,7 @@ Specialized Quote and String Literal Fixer
 Targets malformed string literals and quote issues
 """
 
-import os
+
 import re
 import logging
 from pathlib import Path
@@ -17,7 +17,10 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(f'specialized_quote_fixer_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log', encoding='utf-8'),
+        logging.FileHandler(
+                            f'specialized_quote_fixer_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
+                            encoding='utf-8')
+        logging.FileHandler(f'speci)
         logging.StreamHandler()
     ]
 )
@@ -142,7 +145,7 @@ def main():
 
     result = fixer.process_single_file(target_file)
 
-    print(f"\nREPORT:")
+    print("\nREPORT:")
     print(f"Target: {result.get('file', 'N/A')}")
     print(f"Success: {result['success']}")
     print(f"Total Fixes: {result.get('fixes_applied', 0)}")

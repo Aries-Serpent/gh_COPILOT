@@ -24,7 +24,7 @@ import sqlite3
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+
 from dataclasses import dataclass, asdict
 from tqdm import tqdm
 import subprocess
@@ -90,12 +90,12 @@ class CorrectionResult:
 
 class SystematicFlake8ErrorAnalyzer:
     """Systematic error analysis and correction system"""
-    
+
     def __init__(self, workspace_root: Optional[str] = None):
         self.workspace_root = Path(workspace_root or os.getcwd())
         self.analytics_db_path = self.workspace_root / 'databases' / 'analytics.db'
         self.timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        
+
         # Error classification patterns
         self.error_patterns = {
             'E999': {
@@ -143,10 +143,10 @@ class SystematicFlake8ErrorAnalyzer:
                 'patterns': [r"expected 2 blank lines"]
             }
         }
-        
+
         # Initialize database
         self.initialize_analytics_database()
-        
+
         logger.info("SYSTEMATIC FLAKE8 ERROR ANALYZER INITIALIZED")
         logger.info(f"Workspace: {self.workspace_root}")
         logger.info(f"Analytics DB: {self.analytics_db_path}")
@@ -156,7 +156,7 @@ class SystematicFlake8ErrorAnalyzer:
         try:
             conn = sqlite3.connect(self.analytics_db_path)
             cursor = conn.cursor()
-            
+
             # Create systematic error analysis table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS systematic_error_analysis (
@@ -173,7 +173,7 @@ class SystematicFlake8ErrorAnalyzer:
                     created_at TEXT DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
+
             # Create error corrections table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS error_corrections (
@@ -188,12 +188,12 @@ class SystematicFlake8ErrorAnalyzer:
                     created_at TEXT DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
+
             conn.commit()
             conn.close()
 
             logger.info("Analytics database initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize analytics database: {e}")
             raise
@@ -203,7 +203,7 @@ class SystematicFlake8ErrorAnalyzer:
         logger.info("RUNNING COMPREHENSIVE FLAKE8 SCAN...")
 
         scan_output_file = self.workspace_root / f"flake8_systematic_scan_{self.timestamp}.log"
-        
+
         try:
             # Run Flake8 scan with UTF-8 encoding
             result = subprocess.run([
@@ -215,7 +215,7 @@ class SystematicFlake8ErrorAnalyzer:
                 '--extend-ignore=E203,W503'
             ],
             cwd=self.workspace_root,
-            capture_output=True, 
+            capture_output=True,
             text=True,
             encoding='utf-8',
             errors='replace',  # Replace problematic characters
@@ -225,7 +225,7 @@ class SystematicFlake8ErrorAnalyzer:
             # Save scan output
             scan_output = result.stdout or ""
             scan_error = result.stderr or ""
-            
+
             with open(scan_output_file, 'w', encoding='utf-8') as f:
                 f.write("=== SYSTEMATIC FLAKE8 SCAN RESULTS ===\n")
                 f.write(f"Timestamp: {datetime.now().isoformat()}\n")
@@ -236,10 +236,10 @@ class SystematicFlake8ErrorAnalyzer:
                 f.write("\n" + "=" * 50 + "\n")
                 f.write("STDERR:\n")
                 f.write(scan_error)
-            
+
             logger.info(f"Flake8 scan completed. Output saved to: {scan_output_file}")
             return scan_output
-            
+
         except subprocess.TimeoutExpired:
             logger.error("Flake8 scan timed out after 5 minutes")
             return ""
@@ -250,15 +250,15 @@ class SystematicFlake8ErrorAnalyzer:
     def parse_flake8_output(self, flake8_output: str) -> List[FlakeError]:
         """Parse Flake8 output into structured error objects"""
         logger.info("PARSING FLAKE8 OUTPUT...")
-        
+
         errors = []
         error_pattern = re.compile(
             r'^(.+?):(\d+):(\d+):\s+([A-Z]\d+)\s+(.+?)$'
         )
-        
+
         lines = flake8_output.strip().split('\n')
         current_error = None
-        
+
         for line in lines:
             line = line.strip()
             if not line:
@@ -267,18 +267,18 @@ class SystematicFlake8ErrorAnalyzer:
             match = error_pattern.match(line)
             if match:
                 file_path, line_num, col_num, error_code, message = match.groups()
-                
+
                 # Determine severity and category
                 severity = "Low"
                 category = "Other"
                 impact = "Minor"
-                
+
                 if error_code in self.error_patterns:
                     pattern_info = self.error_patterns[error_code]
                     severity = pattern_info['severity']
                     category = pattern_info['category']
                     impact = pattern_info['impact']
-                
+
                 error = FlakeError(
                     error_id=f"{error_code}_{file_path}_{line_num}_{col_num}",
                     file_path=file_path,
@@ -291,14 +291,14 @@ class SystematicFlake8ErrorAnalyzer:
                     category=category,
                     impact=impact
                 )
-                
+
                 errors.append(error)
                 current_error = error
 
             elif current_error and line.startswith(' '):
                 # This is the source line
                 current_error.line_content = line.strip()
-        
+
         logger.info(f"Parsed {len(errors)} errors from Flake8 output")
         return errors
 
@@ -313,30 +313,30 @@ class SystematicFlake8ErrorAnalyzer:
             'Medium': 0,
             'Low': 0
         }
-        
+
         # Count errors by category
         category_counts = {}
-        
+
         # Group errors by pattern
         error_patterns = {}
 
         for error in errors:
             # Count by severity
             severity_counts[error.severity] += 1
-            
+
             # Count by category
             if error.category not in category_counts:
                 category_counts[error.category] = 0
             category_counts[error.category] += 1
-            
+
             # Group by error code
             if error.error_code not in error_patterns:
                 error_patterns[error.error_code] = []
             error_patterns[error.error_code].append(error.file_path)
-        
+
         # Determine resolution strategy
         resolution_strategy = self._determine_resolution_strategy(severity_counts)
-        
+
         analysis = ErrorAnalysis(
             total_errors=len(errors),
             critical_errors=severity_counts['Critical'],
@@ -347,14 +347,14 @@ class SystematicFlake8ErrorAnalyzer:
             error_patterns=error_patterns,
             resolution_strategy=resolution_strategy
         )
-        
-        logger.info(f"Error analysis completed:")
+
+        logger.info("Error analysis completed:")
         logger.info(f"  Total errors: {analysis.total_errors}")
         logger.info(f"  Critical: {analysis.critical_errors}")
         logger.info(f"  High: {analysis.high_errors}")
         logger.info(f"  Medium: {analysis.medium_errors}")
         logger.info(f"  Low: {analysis.low_errors}")
-        
+
         return analysis
 
     def _determine_resolution_strategy(self, severity_counts: Dict[str, int]) -> str:
@@ -372,7 +372,7 @@ class SystematicFlake8ErrorAnalyzer:
                                      errors: List[FlakeError]) -> str:
         """Generate comprehensive error analysis report"""
         logger.info("GENERATING ERROR ANALYSIS REPORT...")
-        
+
         report = {
             "analysis_metadata": {
                 "timestamp": datetime.now().isoformat(),
@@ -394,12 +394,12 @@ class SystematicFlake8ErrorAnalyzer:
             },
             "detailed_errors": [asdict(error) for error in errors[:100]]  # First 100 for report
         }
-        
+
         # Save report
         report_file = self.workspace_root / f"systematic_error_analysis_{self.timestamp}.json"
         with open(report_file, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
-        
+
         logger.info(f"Error analysis report saved to: {report_file}")
         return str(report_file)
 
@@ -410,8 +410,8 @@ class SystematicFlake8ErrorAnalyzer:
             cursor = conn.cursor()
 
             cursor.execute('''
-                INSERT INTO systematic_error_analysis 
-                (analysis_id, timestamp, total_errors, critical_errors, high_errors, 
+                INSERT INTO systematic_error_analysis
+                (analysis_id, timestamp, total_errors, critical_errors, high_errors,
                  medium_errors, low_errors, error_categories, resolution_strategy)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
@@ -425,12 +425,12 @@ class SystematicFlake8ErrorAnalyzer:
                 json.dumps(analysis.error_categories),
                 analysis.resolution_strategy
             ))
-            
+
             conn.commit()
             conn.close()
 
             logger.info("Error analysis saved to database")
-            
+
         except Exception as e:
             logger.error(f"Failed to save analysis to database: {e}")
 
@@ -441,32 +441,32 @@ class SystematicFlake8ErrorAnalyzer:
         results = {}
 
         with tqdm(total=100, desc="Systematic Analysis", unit="%") as pbar:
-            
+
             # Phase 1: Comprehensive scan
             pbar.set_description("Flake8 Scan")
             flake8_output = self.run_comprehensive_flake8_scan()
             pbar.update(20)
-            
+
             # Phase 2: Parse errors
             pbar.set_description("Parse Errors")
             errors = self.parse_flake8_output(flake8_output)
             pbar.update(20)
-            
+
             # Phase 3: Analyze errors
             pbar.set_description("Analyze Errors")
             analysis = self.analyze_errors_systematically(errors)
             pbar.update(20)
-            
+
             # Phase 4: Generate report
             pbar.set_description("Generate Report")
             report_file = self.generate_error_analysis_report(analysis, errors)
             pbar.update(20)
-            
+
             # Phase 5: Save to database
             pbar.set_description("Save Database")
             self.save_analysis_to_database(analysis)
             pbar.update(20)
-        
+
         results = {
             "status": "SUCCESS",
             "analysis_id": f"SYSTEMATIC_ANALYSIS_{self.timestamp}",
@@ -476,12 +476,12 @@ class SystematicFlake8ErrorAnalyzer:
             "report_file": report_file,
             "errors": errors
         }
-        
+
         logger.info("SYSTEMATIC ERROR ANALYSIS COMPLETED")
         logger.info(f"Total errors found: {analysis.total_errors}")
         logger.info(f"Critical errors: {analysis.critical_errors}")
         logger.info(f"Resolution strategy: {analysis.resolution_strategy}")
-        
+
         return results
 
 
@@ -495,7 +495,7 @@ def main():
     # Execute systematic analysis
     analyzer = SystematicFlake8ErrorAnalyzer()
     results = analyzer.execute_systematic_analysis()
-    
+
     print("\n" + "=" * 60)
     print("SYSTEMATIC ANALYSIS SUMMARY")
     print("=" * 60)
@@ -507,7 +507,7 @@ def main():
     print(f"Report File: {results['report_file']}")
     print("=" * 60)
     print("SYSTEMATIC ERROR ANALYSIS COMPLETE!")
-    
+
     return results
 
 

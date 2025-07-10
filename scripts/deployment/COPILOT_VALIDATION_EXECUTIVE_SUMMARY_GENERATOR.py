@@ -17,7 +17,7 @@ def generate_executive_summary():
     print("[CLIPBOARD] COPILOT INTEGRATION VALIDATION EXECUTIVE SUMMARY")
     print("=" * 65)
     print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"Validation Scope: Cross-instance GitHub Copilot integration capabilities")
+    print("Validation Scope: Cross-instance GitHub Copilot integration capabilities")
     print()
 
     # Executive Summary
@@ -42,7 +42,10 @@ def generate_executive_summary():
     print(
         "     - Enterprise Compliance: 66.7% [WARNING]  (10 backup folder violations)")
     print(
-        "     - Copilot Patterns: 100% [SUCCESS] (49 DUAL COPILOT files, 32 visual indicators)")
+        "     - Copilot Patterns: 100% [SUCCESS] (
+                                                  49 DUAL COPILOT files,
+                                                  32 visual indicators)"
+        "     - Copilot Patterns: 100% [SUCCESS] (49 DUAL)
     print()
 
     print("   [?] Staging (gh_COPILOT): 80.0% - GOOD")

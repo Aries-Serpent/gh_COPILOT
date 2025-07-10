@@ -13,7 +13,7 @@ VERSION: 1.0 (Database Setup)
 import sqlite3
 import sys
 from pathlib import Path
-from datetime import datetime
+
 
 
 def setup_analytics_database():
@@ -229,13 +229,16 @@ def setup_production_database():
         for table_sql, table_name in tables:
             conn.execute(table_sql)
             # Verify table exists
-            cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+            cursor = conn.execute(
+                                  "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+                                  (table_name,)
+            cursor = conn.execute("SELECT nam)
             if cursor.fetchone():
                 created_tables += 1
 
         conn.commit()
 
-        print(f"✅ ALL PIS TABLES CREATED/VERIFIED")
+        print("✅ ALL PIS TABLES CREATED/VERIFIED")
         print(f"📊 Total tables: {created_tables}")
         return True
 
@@ -251,17 +254,17 @@ def main():
     """Main database setup execution."""
     print("🚀 PIS DATABASE SETUP & REPAIR UTILITY")
     print("=" * 60)
-    
+
     success = True
-    
+
     # Setup analytics database
     if not setup_analytics_database():
         success = False
-        
+
     # Setup production database
     if not setup_production_database():
         success = False
-        
+
     print("=" * 60)
     if success:
         print("✅ DATABASE SETUP COMPLETE")

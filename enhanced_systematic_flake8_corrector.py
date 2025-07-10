@@ -15,7 +15,7 @@ Features:
 """
 
 import os
-import sys
+
 import json
 import sqlite3
 import shutil
@@ -24,7 +24,7 @@ import re
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Set
+
 from dataclasses import dataclass, asdict
 import ast
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -235,7 +235,13 @@ class EnhancedSystematicFlake8Corrector:
             for pattern in patterns:
                 conn.execute("""
                     INSERT OR REPLACE INTO error_patterns
-                    (error_code, pattern_name, pattern_regex, correction_template, priority)
+                    (
+                     error_code,
+                     pattern_name,
+                     pattern_regex,
+                     correction_template,
+                     priority
+                    (error_code, pattern)
                     VALUES (?, ?, ?, ?, ?)
                 """, (pattern.error_code, pattern.pattern_name, pattern.pattern_regex,
                      pattern.correction_template, pattern.priority))
@@ -267,7 +273,7 @@ class EnhancedSystematicFlake8Corrector:
             "--statistics", "--count",
             "--extend-ignore=E203,W503",
             "--max-line-length=79",
-            f"--exclude=backups,.git,__pycache__,.pytest_cache,node_modules,.venv,venv,.mypy_cache",
+            "--exclude=backups,.git,__pycache__,.pytest_cache,node_modules,.venv,venv,.mypy_cache",
             "."
         ]
 
@@ -325,7 +331,11 @@ class EnhancedSystematicFlake8Corrector:
         self.logger.info(f"Parsed {len(errors)} errors from Flake8 output")
         return errors
 
-    def categorize_errors_by_severity(self, errors: List[Dict]) -> Dict[str, List[Dict]]:
+    def categorize_errors_by_severity(
+                                      self,
+                                      errors: List[Dict]) -> Dict[str,
+                                      List[Dict]]
+    def categorize_errors_by_severity(sel)
         """Enhanced error categorization with better severity mapping"""
         categorized = {
             'critical': [],
@@ -358,7 +368,12 @@ class EnhancedSystematicFlake8Corrector:
 
         return categorized
 
-    def apply_correction_pattern(self, file_path: str, error: Dict, pattern: ErrorPattern) -> bool:
+    def apply_correction_pattern(
+                                 self,
+                                 file_path: str,
+                                 error: Dict,
+                                 pattern: ErrorPattern) -> bool
+    def apply_correction_pattern(sel)
         """Enhanced pattern application with better success tracking"""
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -692,7 +707,11 @@ class EnhancedSystematicFlake8Corrector:
                      validation_passed, correction_time)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 """, (session_id, result.file_path, result.original_errors, result.fixed_errors,
-                     json.dumps(result.patterns_applied), result.validation_passed, result.correction_time))
+                     json.dumps(
+                                result.patterns_applied),
+                                result.validation_passed,
+                                result.correction_time)
+                     json.dumps(result.patterns_appl)
 
 
 def main():
@@ -710,7 +729,7 @@ def main():
         # Process critical errors first
         summary = corrector.process_critical_errors(max_files=30)
 
-        print(f"\nENHANCED CORRECTION SUMMARY")
+        print("\nENHANCED CORRECTION SUMMARY")
         print("=" * 60)
         print(f"Session ID: {summary['session_id']}")
         print(f"Files Processed: {summary['total_files_processed']}")

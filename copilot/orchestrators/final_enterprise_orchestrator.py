@@ -23,7 +23,7 @@ import requests
 import psutil
 from datetime import datetime
 from pathlib import Path
-import threading
+
 import logging
 import os
 import sys
@@ -50,7 +50,7 @@ class FinalEnterpriseOrchestrator:
 
         print(
             f"\n{self.visual_indicators['rocket']} FINAL ENTERPRISE ORCHESTRATOR INITIALIZED")
-        print(f"Mission: Achieve 100% System Efficiency")
+        print("Mission: Achieve 100% System Efficiency")
         print(f"Orchestrator ID: {self.orchestrator_id}")
         print(f"Workspace: {self.workspace_root}")
         print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -237,7 +237,10 @@ class FinalEnterpriseOrchestrator:
                     f"{self.visual_indicators['success']} {service_name}: Healthy")
             else:
                 print(
-                    f"{self.visual_indicators['warning']} {service_name}: {service.get('status', 'unknown')}")
+                    f"{self.visual_indicators['warning']} {service_name}: {service.get(
+                                                                                       'status',
+                                                                                       'unknown')}"
+                    f"{self.visual_indicators['warning']} {service_name}: {service.get('status', 'unknown')
 
         # Calculate efficiency score
         service_efficiency = (

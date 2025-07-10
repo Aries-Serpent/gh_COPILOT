@@ -10,17 +10,17 @@ for the PIS framework.
 
 import sys
 import json
-import time
+
 import sqlite3
 import logging
-import os
+
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+
 from dataclasses import dataclass, field
 import uuid
-import re
-from collections import defaultdict, Counter
+
+
 
 # Advanced Analytics and ML Imports
 try:
@@ -72,61 +72,61 @@ class AnalyticsInsight:
 
 class ComprehensiveDatabaseFirstEnhancer:
     """Enhanced database-first architecture with semantic search and analytics."""
-    
+
     def __init__(self, workspace_path: str):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(f"DBFirstEnhancer-{uuid.uuid4().hex[:8]}")
-        
+
         # Database paths
         self.pis_db_path = self.workspace_path / "pis_framework_enhanced.db"
         self.production_db_path = self.workspace_path / "production.db"
         self.analytics_db_path = self.workspace_path / "analytics.db"
         self.monitoring_db_path = self.workspace_path / "monitoring.db"
-        
+
         # Semantic search components
         self.tfidf_vectorizer = None
         self.semantic_index = {}
-        
+
         # Analytics cache
         self.analytics_cache = {}
         self.cache_ttl = 300  # 5 minutes
-        
+
         self.logger.info("Comprehensive Database-First Enhancer initialized")
-    
+
     def create_enhanced_database_schema(self) -> bool:
         """Create complete enhanced database schema with all missing tables."""
         try:
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             # Core PIS Framework Tables
             self._create_core_pis_tables(cursor)
-            
+
             # Enterprise Enhancement Tables
             self._create_enterprise_enhancement_tables(cursor)
-            
+
             # Analytics and Insights Tables
             self._create_analytics_tables(cursor)
-            
+
             # Semantic Search Tables
             self._create_semantic_search_tables(cursor)
-            
+
             # Audit and Compliance Tables
             self._create_audit_compliance_tables(cursor)
-            
+
             # Cross-Database Integration Tables
             self._create_integration_tables(cursor)
-            
+
             conn.commit()
             conn.close()
-            
+
             self.logger.info("Enhanced database schema created successfully")
             return True
-            
+
         except Exception as e:
             self.logger.error(f"Failed to create enhanced database schema: {e}")
             return False
-    
+
     def _create_core_pis_tables(self, cursor: sqlite3.Cursor):
         """Create core PIS framework tables."""
         tables = [
@@ -153,7 +153,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 final_report_path TEXT,
                 session_status TEXT DEFAULT 'ACTIVE'
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS pis_phase_executions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT NOT NULL,
@@ -178,7 +178,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 phase_metadata TEXT,
                 FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS pis_compliance_violations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT NOT NULL,
@@ -202,10 +202,10 @@ class ComprehensiveDatabaseFirstEnhancer:
                 FOREIGN KEY (phase_id) REFERENCES pis_phase_executions(id)
             )"""
         ]
-        
+
         for table_sql in tables:
             cursor.execute(table_sql)
-    
+
     def _create_enterprise_enhancement_tables(self, cursor: sqlite3.Cursor):
         """Create enterprise enhancement tracking tables."""
         tables = [
@@ -227,7 +227,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 operation_metadata TEXT,
                 FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS quantum_optimization_metrics (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT NOT NULL,
@@ -249,7 +249,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 quantum_metadata TEXT,
                 FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS webgui_dashboard_analytics (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT NOT NULL,
@@ -268,7 +268,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 request_metadata TEXT,
                 FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS dual_copilot_validations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT NOT NULL,
@@ -295,10 +295,10 @@ class ComprehensiveDatabaseFirstEnhancer:
                 FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
             )"""
         ]
-        
+
         for table_sql in tables:
             cursor.execute(table_sql)
-    
+
     def _create_analytics_tables(self, cursor: sqlite3.Cursor):
         """Create analytics and insights tables."""
         tables = [
@@ -315,7 +315,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 recommendations TEXT,
                 insight_metadata TEXT
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS performance_trends (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 metric_name TEXT NOT NULL,
@@ -328,7 +328,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 prediction_confidence REAL,
                 trend_metadata TEXT
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS cross_session_learning (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 learning_id TEXT UNIQUE NOT NULL,
@@ -344,10 +344,10 @@ class ComprehensiveDatabaseFirstEnhancer:
                 learning_metadata TEXT
             )"""
         ]
-        
+
         for table_sql in tables:
             cursor.execute(table_sql)
-    
+
     def _create_semantic_search_tables(self, cursor: sqlite3.Cursor):
         """Create semantic search and indexing tables."""
         tables = [
@@ -365,7 +365,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 relevance_boost REAL DEFAULT 1.0,
                 content_metadata TEXT
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS semantic_search_queries (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 query_id TEXT UNIQUE NOT NULL,
@@ -378,7 +378,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 query_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 query_metadata TEXT
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS semantic_search_results (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 query_id TEXT NOT NULL,
@@ -391,10 +391,10 @@ class ComprehensiveDatabaseFirstEnhancer:
                 FOREIGN KEY (content_id) REFERENCES semantic_search_index(content_id)
             )"""
         ]
-        
+
         for table_sql in tables:
             cursor.execute(table_sql)
-    
+
     def _create_audit_compliance_tables(self, cursor: sqlite3.Cursor):
         """Create audit and compliance tracking tables."""
         tables = [
@@ -412,7 +412,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 audit_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 audit_metadata TEXT
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS compliance_reports (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 report_id TEXT UNIQUE NOT NULL,
@@ -427,7 +427,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 report_generated_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 report_metadata TEXT
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS enterprise_metrics_dashboard (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 metric_category TEXT NOT NULL,
@@ -440,10 +440,10 @@ class ComprehensiveDatabaseFirstEnhancer:
                 dashboard_metadata TEXT
             )"""
         ]
-        
+
         for table_sql in tables:
             cursor.execute(table_sql)
-    
+
     def _create_integration_tables(self, cursor: sqlite3.Cursor):
         """Create cross-database integration tables."""
         tables = [
@@ -458,7 +458,7 @@ class ComprehensiveDatabaseFirstEnhancer:
                 next_sync_scheduled TIMESTAMP,
                 sync_metadata TEXT
             )""",
-            
+
             """CREATE TABLE IF NOT EXISTS cross_database_queries (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 query_id TEXT UNIQUE NOT NULL,
@@ -471,17 +471,17 @@ class ComprehensiveDatabaseFirstEnhancer:
                 query_metadata TEXT
             )"""
         ]
-        
+
         for table_sql in tables:
             cursor.execute(table_sql)
-    
+
     def initialize_semantic_search_engine(self) -> bool:
         """Initialize semantic search engine with TF-IDF vectorization."""
         try:
             if not SKLEARN_AVAILABLE or TfidfVectorizer is None:
                 self.logger.warning("scikit-learn not available - semantic search will be limited")
                 return False
-            
+
             # Initialize TF-IDF vectorizer
             self.tfidf_vectorizer = TfidfVectorizer(
                 max_features=1000,
@@ -490,42 +490,57 @@ class ComprehensiveDatabaseFirstEnhancer:
                 min_df=1,
                 max_df=0.95
             )
-            
+
             # Build initial semantic index from existing data
             self._build_semantic_index()
-            
+
             self.logger.info("Semantic search engine initialized successfully")
             return True
-            
+
         except Exception as e:
             self.logger.error(f"Failed to initialize semantic search engine: {e}")
             return False
-    
+
     def _build_semantic_index(self):
         """Build semantic search index from existing database content."""
         try:
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             # Collect text content from various tables
             content_sources = [
-                ('violations', 'SELECT id, message, violation_metadata FROM pis_compliance_violations'),
-                ('phases', 'SELECT id, phase_name, phase_metadata FROM pis_phase_executions'),
-                ('insights', 'SELECT insight_id, insight_description, insight_metadata FROM analytics_insights')
+                (
+                 'violations',
+                 'SELECT id,
+                 message,
+                 violation_metadata FROM pis_compliance_violations')
+                ('violations', ')
+                (
+                 'phases',
+                 'SELECT id,
+                 phase_name,
+                 phase_metadata FROM pis_phase_executions')
+                ('phases', 'SELE)
+                (
+                 'insights',
+                 'SELECT insight_id,
+                 insight_description,
+                 insight_metadata FROM analytics_insights'
+                ('insights', 'SE)
             ]
-            
+
             all_content = []
             content_mapping = {}
-            
+
             for content_type, query in content_sources:
                 try:
                     cursor.execute(query)
                     rows = cursor.fetchall()
-                    
+
                     for row in rows:
                         content_id = f"{content_type}_{row[0]}"
                         content_text = f"{row[1]} {row[2] if row[2] else ''}"
-                        
+
                         all_content.append(content_text)
                         content_mapping[len(all_content) - 1] = {
                             'content_id': content_id,
@@ -535,18 +550,24 @@ class ComprehensiveDatabaseFirstEnhancer:
                 except sqlite3.OperationalError:
                     # Table doesn't exist yet, skip
                     continue
-            
+
             if all_content and self.tfidf_vectorizer:
                 # Fit TF-IDF vectorizer and create semantic index
                 tfidf_matrix = self.tfidf_vectorizer.fit_transform(all_content)
-                
+
                 # Store in semantic search index table
                 for idx, content_info in content_mapping.items():
                     tfidf_vector = tfidf_matrix[idx].toarray().tolist()
-                    
+
                     cursor.execute("""
-                        INSERT OR REPLACE INTO semantic_search_index 
-                        (content_id, content_type, content_text, tfidf_vector, indexed_timestamp)
+                        INSERT OR REPLACE INTO semantic_search_index
+                        (
+                         content_id,
+                         content_type,
+                         content_text,
+                         tfidf_vector,
+                         indexed_timestamp
+                        (content_id, content_typ)
                         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
                     """, (
                         content_info['content_id'],
@@ -554,47 +575,55 @@ class ComprehensiveDatabaseFirstEnhancer:
                         content_info['content_text'],
                         json.dumps(tfidf_vector)
                     ))
-            
+
             conn.commit()
             conn.close()
-            
+
             self.logger.info(f"Semantic index built with {len(all_content)} documents")
-            
+
         except Exception as e:
             self.logger.error(f"Failed to build semantic index: {e}")
-    
-    def semantic_search(self, query: str, limit: int = 10) -> List[SemanticSearchResult]:
+
+    def semantic_search(
+                        self,
+                        query: str,
+                        limit: int = 10) -> List[SemanticSearchResult]
+    def semantic_search(sel)
         """Perform semantic search across the database content."""
         try:
             if not SKLEARN_AVAILABLE or not self.tfidf_vectorizer:
                 self.logger.warning("Semantic search not available - falling back to basic search")
                 return self._basic_search(query, limit)
-            
+
             # Vectorize the query
             query_vector = self.tfidf_vectorizer.transform([query])
-            
+
             # Get all indexed content
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             cursor.execute("""
                 SELECT content_id, content_type, content_text, tfidf_vector, indexed_timestamp
                 FROM semantic_search_index
                 ORDER BY last_accessed DESC, indexed_timestamp DESC
             """)
-            
+
             indexed_content = cursor.fetchall()
             results = []
-            
+
             for content_id, content_type, content_text, tfidf_vector_json, indexed_timestamp in indexed_content:
                 try:
                     # Calculate cosine similarity
                     tfidf_vector = np.array(json.loads(tfidf_vector_json))
                     if cosine_similarity is not None:
-                        similarity = cosine_similarity(query_vector.toarray(), tfidf_vector.reshape(1, -1))[0][0]
+                        similarity = cosine_similarity(
+                                                       query_vector.toarray(),
+                                                       tfidf_vector.reshape(1,
+                                                       -1))[0][0
+                        similarity = cosine_similarity(query_vector.toarray(),)
                     else:
                         similarity = 0.0  # Fallback if cosine_similarity is unavailable
-                    
+
                     if similarity > 0.1:  # Minimum relevance threshold
                         result = SemanticSearchResult(
                             session_id="",  # Cross-session search
@@ -605,44 +634,54 @@ class ComprehensiveDatabaseFirstEnhancer:
                             metadata={'content_id': content_id}
                         )
                         results.append(result)
-                        
+
                 except (json.JSONDecodeError, ValueError) as e:
                     self.logger.warning(f"Failed to process indexed content {content_id}: {e}")
                     continue
-            
+
             # Sort by relevance and limit results
             results.sort(key=lambda x: x.relevance_score, reverse=True)
             results = results[:limit]
-            
+
             # Log the search query
             self._log_semantic_search_query(query, len(results), results)
-            
+
             conn.close()
             return results
-            
+
         except Exception as e:
             self.logger.error(f"Semantic search failed: {e}")
             return self._basic_search(query, limit)
-    
+
     def _basic_search(self, query: str, limit: int) -> List[SemanticSearchResult]:
         """Basic text search fallback when semantic search is not available."""
         try:
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             search_queries = [
-                ("violations", "SELECT id, message, discovered_timestamp FROM pis_compliance_violations WHERE message LIKE ?"),
-                ("phases", "SELECT id, phase_name, start_time FROM pis_phase_executions WHERE phase_name LIKE ?"),
+                (
+                 "violations",
+                 "SELECT id,
+                 message,
+                 discovered_timestamp FROM pis_compliance_violations WHERE message LIKE ?")
+                ("violations", ")
+                (
+                 "phases",
+                 "SELECT id,
+                 phase_name,
+                 start_time FROM pis_phase_executions WHERE phase_name LIKE ?")
+                ("phases", "SELE)
             ]
-            
+
             results = []
             search_term = f"%{query}%"
-            
+
             for content_type, sql_query in search_queries:
                 try:
                     cursor.execute(sql_query, (search_term,))
                     rows = cursor.fetchall()
-                    
+
                     for row in rows:
                         result = SemanticSearchResult(
                             session_id="",
@@ -653,30 +692,42 @@ class ComprehensiveDatabaseFirstEnhancer:
                             metadata={'id': row[0]}
                         )
                         results.append(result)
-                        
+
                 except sqlite3.OperationalError:
                     # Table doesn't exist, skip
                     continue
-            
+
             conn.close()
             return results[:limit]
-            
+
         except Exception as e:
             self.logger.error(f"Basic search failed: {e}")
             return []
-    
-    def _log_semantic_search_query(self, query: str, results_count: int, results: List[SemanticSearchResult]):
+
+    def _log_semantic_search_query(
+                                   self,
+                                   query: str,
+                                   results_count: int,
+                                   results: List[SemanticSearchResult])
+    def _log_semantic_search_query(sel)
         """Log semantic search query for analytics."""
         try:
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             query_id = f"query_{uuid.uuid4().hex}"
             average_relevance = sum(r.relevance_score for r in results) / len(results) if results else 0.0
-            
+
             cursor.execute("""
-                INSERT INTO semantic_search_queries 
-                (query_id, query_text, query_type, results_count, average_relevance_score, execution_time_ms)
+                INSERT INTO semantic_search_queries
+                (
+                 query_id,
+                 query_text,
+                 query_type,
+                 results_count,
+                 average_relevance_score,
+                 execution_time_ms
+                (query_id, query)
                 VALUES (?, ?, ?, ?, ?, ?)
             """, (
                 query_id,
@@ -686,11 +737,11 @@ class ComprehensiveDatabaseFirstEnhancer:
                 average_relevance,
                 0.0  # TODO: Measure actual execution time
             ))
-            
+
             # Log individual results
             for idx, result in enumerate(results):
                 cursor.execute("""
-                    INSERT INTO semantic_search_results 
+                    INSERT INTO semantic_search_results
                     (query_id, content_id, relevance_score, rank_position)
                     VALUES (?, ?, ?, ?)
                 """, (
@@ -699,67 +750,73 @@ class ComprehensiveDatabaseFirstEnhancer:
                     result.relevance_score,
                     idx + 1
                 ))
-            
+
             conn.commit()
             conn.close()
-            
+
         except Exception as e:
             self.logger.error(f"Failed to log semantic search query: {e}")
-    
+
     def generate_analytics_insights(self) -> List[AnalyticsInsight]:
         """Generate comprehensive analytics insights from database data."""
         try:
             insights = []
-            
+
             # Performance trend insights
             insights.extend(self._analyze_performance_trends())
-            
+
             # Violation pattern insights
             insights.extend(self._analyze_violation_patterns())
-            
+
             # Success rate insights
             insights.extend(self._analyze_success_rates())
-            
+
             # Resource usage insights
             insights.extend(self._analyze_resource_usage())
-            
+
             # Store insights in database
             self._store_analytics_insights(insights)
-            
+
             return insights
-            
+
         except Exception as e:
             self.logger.error(f"Failed to generate analytics insights: {e}")
             return []
-    
+
     def _analyze_performance_trends(self) -> List[AnalyticsInsight]:
         """Analyze performance trends across sessions."""
         insights = []
-        
+
         try:
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             # Analyze session duration trends
             cursor.execute("""
-                SELECT 
+                SELECT
                     DATE(start_timestamp) as execution_date,
                     AVG(total_duration_seconds) as avg_duration,
                     COUNT(*) as session_count
-                FROM pis_framework_sessions 
+                FROM pis_framework_sessions
                 WHERE total_duration_seconds IS NOT NULL
                 AND start_timestamp >= datetime('now', '-30 days')
                 GROUP BY DATE(start_timestamp)
                 ORDER BY execution_date DESC
             """)
-            
+
             duration_data = cursor.fetchall()
-            
+
             if len(duration_data) >= 3:
                 # Calculate trend
-                recent_avg = sum(row[1] for row in duration_data[:7]) / min(7, len(duration_data))
-                older_avg = sum(row[1] for row in duration_data[7:14]) / min(7, len(duration_data[7:14])) if len(duration_data) > 7 else recent_avg
-                
+                recent_avg = sum(
+                                 row[1] for row in duration_data[:7]) / min(7,
+                                 len(duration_data)
+                recent_avg = sum(row[1] for row )
+                older_avg = sum(
+                                row[1] for row in duration_data[7:14]) / min(7,
+                                len(duration_data[7:14])) if len(duration_data) > 7 else recent_av
+                older_avg = sum(row[1] for row )
+
                 if recent_avg < older_avg * 0.9:
                     insight = AnalyticsInsight(
                         insight_type="performance_improvement",
@@ -782,25 +839,25 @@ class ComprehensiveDatabaseFirstEnhancer:
                         recommendations=["Investigate resource usage", "Review recent changes", "Consider optimization"]
                     )
                     insights.append(insight)
-            
+
             conn.close()
-            
+
         except Exception as e:
             self.logger.error(f"Failed to analyze performance trends: {e}")
-        
+
         return insights
-    
+
     def _analyze_violation_patterns(self) -> List[AnalyticsInsight]:
         """Analyze compliance violation patterns."""
         insights = []
-        
+
         try:
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             # Find most common violation types
             cursor.execute("""
-                SELECT 
+                SELECT
                     error_code,
                     COUNT(*) as violation_count,
                     AVG(CASE WHEN fix_applied THEN 1 ELSE 0 END) as fix_rate
@@ -811,9 +868,9 @@ class ComprehensiveDatabaseFirstEnhancer:
                 ORDER BY violation_count DESC
                 LIMIT 5
             """)
-            
+
             violation_patterns = cursor.fetchall()
-            
+
             if violation_patterns:
                 for error_code, count, fix_rate in violation_patterns:
                     if fix_rate < 0.7:  # Low fix rate
@@ -831,25 +888,25 @@ class ComprehensiveDatabaseFirstEnhancer:
                             ]
                         )
                         insights.append(insight)
-            
+
             conn.close()
-            
+
         except Exception as e:
             self.logger.error(f"Failed to analyze violation patterns: {e}")
-        
+
         return insights
-    
+
     def _analyze_success_rates(self) -> List[AnalyticsInsight]:
         """Analyze success rates across phases and sessions."""
         insights = []
-        
+
         try:
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             # Analyze phase success rates
             cursor.execute("""
-                SELECT 
+                SELECT
                     phase_enum,
                     AVG(success_rate) as avg_success_rate,
                     COUNT(*) as execution_count
@@ -858,9 +915,9 @@ class ComprehensiveDatabaseFirstEnhancer:
                 GROUP BY phase_enum
                 HAVING execution_count >= 3
             """)
-            
+
             phase_success_rates = cursor.fetchall()
-            
+
             for phase_enum, avg_success_rate, execution_count in phase_success_rates:
                 if avg_success_rate < 90.0:  # Success rate below 90%
                     insight = AnalyticsInsight(
@@ -877,25 +934,25 @@ class ComprehensiveDatabaseFirstEnhancer:
                         ]
                     )
                     insights.append(insight)
-            
+
             conn.close()
-            
+
         except Exception as e:
             self.logger.error(f"Failed to analyze success rates: {e}")
-        
+
         return insights
-    
+
     def _analyze_resource_usage(self) -> List[AnalyticsInsight]:
         """Analyze resource usage patterns."""
         insights = []
-        
+
         try:
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             # Analyze file processing efficiency
             cursor.execute("""
-                SELECT 
+                SELECT
                     DATE(start_time) as execution_date,
                     AVG(files_processed * 1.0 / duration_seconds) as files_per_second,
                     AVG(files_processed) as avg_files_processed
@@ -905,13 +962,16 @@ class ComprehensiveDatabaseFirstEnhancer:
                 GROUP BY DATE(start_time)
                 ORDER BY execution_date DESC
             """)
-            
+
             efficiency_data = cursor.fetchall()
-            
+
             if len(efficiency_data) >= 3:
-                recent_efficiency = sum(row[1] for row in efficiency_data[:7]) / min(7, len(efficiency_data))
+                recent_efficiency = sum(
+                                        row[1] for row in efficiency_data[:7]) / min(7,
+                                        len(efficiency_data)
+                recent_efficiency = sum(row[1] for row )
                 baseline_efficiency = sum(row[1] for row in efficiency_data) / len(efficiency_data)
-                
+
                 if recent_efficiency > baseline_efficiency * 1.2:
                     insight = AnalyticsInsight(
                         insight_type="efficiency_improvement",
@@ -923,26 +983,26 @@ class ComprehensiveDatabaseFirstEnhancer:
                         recommendations=["Document current optimization practices", "Apply learnings to other components"]
                     )
                     insights.append(insight)
-            
+
             conn.close()
-            
+
         except Exception as e:
             self.logger.error(f"Failed to analyze resource usage: {e}")
-        
+
         return insights
-    
+
     def _store_analytics_insights(self, insights: List[AnalyticsInsight]):
         """Store analytics insights in the database."""
         try:
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             for insight in insights:
                 insight_id = f"insight_{uuid.uuid4().hex}"
-                
+
                 cursor.execute("""
-                    INSERT INTO analytics_insights 
-                    (insight_id, insight_type, insight_title, insight_description, 
+                    INSERT INTO analytics_insights
+                    (insight_id, insight_type, insight_title, insight_description,
                      confidence_score, impact_level, data_source, recommendations, insight_metadata)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
@@ -959,27 +1019,31 @@ class ComprehensiveDatabaseFirstEnhancer:
                         "generated_timestamp": datetime.now().isoformat()
                     })
                 ))
-            
+
             conn.commit()
             conn.close()
-            
+
             self.logger.info(f"Stored {len(insights)} analytics insights")
-            
+
         except Exception as e:
             self.logger.error(f"Failed to store analytics insights: {e}")
-    
-    def generate_enterprise_compliance_report(self, reporting_period_days: int = 30) -> Dict[str, Any]:
+
+    def generate_enterprise_compliance_report(
+                                              self,
+                                              reporting_period_days: int = 30) -> Dict[str,
+                                              Any]
+    def generate_enterprise_compliance_report(sel)
         """Generate comprehensive enterprise compliance report."""
         try:
             end_date = datetime.now()
             start_date = end_date - timedelta(days=reporting_period_days)
-            
+
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             # Overall compliance metrics
             cursor.execute("""
-                SELECT 
+                SELECT
                     COUNT(*) as total_sessions,
                     AVG(overall_success_rate) as avg_success_rate,
                     SUM(completed_phases) as total_phases_completed,
@@ -987,12 +1051,12 @@ class ComprehensiveDatabaseFirstEnhancer:
                 FROM pis_framework_sessions
                 WHERE start_timestamp >= ? AND start_timestamp <= ?
             """, (start_date.isoformat(), end_date.isoformat()))
-            
+
             overall_metrics = cursor.fetchone()
-            
+
             # Violation metrics
             cursor.execute("""
-                SELECT 
+                SELECT
                     COUNT(*) as total_violations,
                     COUNT(CASE WHEN fix_applied THEN 1 END) as fixed_violations,
                     COUNT(CASE WHEN severity = 'CRITICAL' THEN 1 END) as critical_violations,
@@ -1000,12 +1064,12 @@ class ComprehensiveDatabaseFirstEnhancer:
                 FROM pis_compliance_violations
                 WHERE discovered_timestamp >= ? AND discovered_timestamp <= ?
             """, (start_date.isoformat(), end_date.isoformat()))
-            
+
             violation_metrics = cursor.fetchone()
-            
+
             # Phase performance
             cursor.execute("""
-                SELECT 
+                SELECT
                     phase_enum,
                     COUNT(*) as execution_count,
                     AVG(success_rate) as avg_success_rate,
@@ -1014,24 +1078,24 @@ class ComprehensiveDatabaseFirstEnhancer:
                 WHERE start_time >= ? AND start_time <= ?
                 GROUP BY phase_enum
             """, (start_date.isoformat(), end_date.isoformat()))
-            
+
             phase_performance = cursor.fetchall()
-            
+
             conn.close()
-            
+
             # Calculate compliance score
             total_sessions = overall_metrics[0] or 0
             avg_success_rate = overall_metrics[1] or 0
             completed_sessions = overall_metrics[3] or 0
-            
+
             total_violations = violation_metrics[0] or 0
             fixed_violations = violation_metrics[1] or 0
-            
+
             completion_rate = (completed_sessions / total_sessions * 100) if total_sessions > 0 else 100
             fix_rate = (fixed_violations / total_violations * 100) if total_violations > 0 else 100
-            
+
             overall_compliance_score = (completion_rate * 0.4 + avg_success_rate * 0.4 + fix_rate * 0.2)
-            
+
             report = {
                 "report_id": f"compliance_report_{uuid.uuid4().hex}",
                 "reporting_period": {
@@ -1062,30 +1126,30 @@ class ComprehensiveDatabaseFirstEnhancer:
                     }
                     for phase, count, success_rate, duration in phase_performance
                 ],
-                "compliance_status": "EXCELLENT" if overall_compliance_score >= 95 
+                "compliance_status": "EXCELLENT" if overall_compliance_score >= 95
                                    else "GOOD" if overall_compliance_score >= 85
                                    else "NEEDS_IMPROVEMENT" if overall_compliance_score >= 70
                                    else "CRITICAL",
                 "generated_timestamp": datetime.now().isoformat()
             }
-            
+
             # Store the report
             self._store_compliance_report(report)
-            
+
             return report
-            
+
         except Exception as e:
             self.logger.error(f"Failed to generate compliance report: {e}")
             return {}
-    
+
     def _store_compliance_report(self, report: Dict[str, Any]):
         """Store compliance report in the database."""
         try:
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             cursor.execute("""
-                INSERT INTO compliance_reports 
+                INSERT INTO compliance_reports
                 (report_id, report_type, reporting_period_start, reporting_period_end,
                  overall_compliance_score, violations_total, violations_fixed, report_metadata)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -1099,25 +1163,25 @@ class ComprehensiveDatabaseFirstEnhancer:
                 report["violation_metrics"]["fixed_violations"],
                 json.dumps(report)
             ))
-            
+
             conn.commit()
             conn.close()
-            
+
         except Exception as e:
             self.logger.error(f"Failed to store compliance report: {e}")
-    
+
     def synchronize_with_production_databases(self) -> Dict[str, Any]:
         """Synchronize with existing production databases."""
         try:
             sync_results = {}
-            
+
             # Database paths to synchronize
             databases_to_sync = [
                 ("production", self.production_db_path),
                 ("analytics", self.analytics_db_path),
                 ("monitoring", self.monitoring_db_path)
             ]
-            
+
             for db_name, db_path in databases_to_sync:
                 if db_path.exists():
                     result = self._sync_database(db_name, str(db_path))
@@ -1128,44 +1192,50 @@ class ComprehensiveDatabaseFirstEnhancer:
                         "reason": f"Database file not found: {db_path}",
                         "records_synchronized": 0
                     }
-            
+
             # Update sync status
             self._update_sync_status(sync_results)
-            
+
             return sync_results
-            
+
         except Exception as e:
             self.logger.error(f"Failed to synchronize with production databases: {e}")
             return {}
-    
+
     def _sync_database(self, db_name: str, db_path: str) -> Dict[str, Any]:
         """Synchronize with a specific database."""
         try:
             external_conn = sqlite3.connect(db_path)
             pis_conn = sqlite3.connect(str(self.pis_db_path))
-            
+
             external_cursor = external_conn.cursor()
             pis_cursor = pis_conn.cursor()
-            
+
             # Get table list from external database
             external_cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
             tables = [row[0] for row in external_cursor.fetchall()]
-            
+
             records_synchronized = 0
-            
+
             # For each table, extract relevant data
             for table in tables:
                 try:
                     # Simple approach: get recent data for analysis
                     external_cursor.execute(f"SELECT * FROM {table} LIMIT 100")
                     rows = external_cursor.fetchall()
-                    
+
                     if rows:
                         # Store in cross-database integration table
                         for row in rows:
                             pis_cursor.execute("""
-                                INSERT OR REPLACE INTO cross_database_queries 
-                                (query_id, query_text, databases_involved, records_affected, query_success)
+                                INSERT OR REPLACE INTO cross_database_queries
+                                (
+                                 query_id,
+                                 query_text,
+                                 databases_involved,
+                                 records_affected,
+                                 query_success
+                                (query_id, query_text, databases)
                                 VALUES (?, ?, ?, ?, ?)
                             """, (
                                 f"sync_{db_name}_{table}_{uuid.uuid4().hex[:8]}",
@@ -1175,21 +1245,21 @@ class ComprehensiveDatabaseFirstEnhancer:
                                 True
                             ))
                             records_synchronized += 1
-                        
+
                 except sqlite3.OperationalError as e:
                     self.logger.warning(f"Failed to sync table {table} from {db_name}: {e}")
                     continue
-            
+
             pis_conn.commit()
             external_conn.close()
             pis_conn.close()
-            
+
             return {
                 "status": "SUCCESS",
                 "records_synchronized": records_synchronized,
                 "tables_processed": len(tables)
             }
-            
+
         except Exception as e:
             self.logger.error(f"Failed to sync database {db_name}: {e}")
             return {
@@ -1197,19 +1267,28 @@ class ComprehensiveDatabaseFirstEnhancer:
                 "error": str(e),
                 "records_synchronized": 0
             }
-    
+
     def _update_sync_status(self, sync_results: Dict[str, Any]):
         """Update database synchronization status."""
         try:
             conn = sqlite3.connect(str(self.pis_db_path))
             cursor = conn.cursor()
-            
+
             for db_name, result in sync_results.items():
                 cursor.execute("""
-                    INSERT OR REPLACE INTO database_sync_status 
-                    (database_name, database_path, last_sync_timestamp, sync_status, 
+                    INSERT OR REPLACE INTO database_sync_status
+                    (database_name, database_path, last_sync_timestamp, sync_status,
                      records_synchronized, next_sync_scheduled, sync_metadata)
-                    VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, datetime('now', '+1 hour'), ?)
+                    VALUES (
+                            ?,
+                            ?,
+                            CURRENT_TIMESTAMP,
+                            ?,
+                            ?,
+                            datetime('now',
+                            '+1 hour'),
+                            ?
+                    VALUES (?, ?, CURRENT_TIMES)
                 """, (
                     db_name,
                     result.get('database_path', 'unknown'),
@@ -1217,10 +1296,10 @@ class ComprehensiveDatabaseFirstEnhancer:
                     result.get('records_synchronized', 0),
                     json.dumps(result)
                 ))
-            
+
             conn.commit()
             conn.close()
-            
+
         except Exception as e:
             self.logger.error(f"Failed to update sync status: {e}")
 
@@ -1232,11 +1311,11 @@ def main():
         print("=" * 80)
         print("Expanding PIS Framework with Enterprise Database Capabilities")
         print("=" * 80)
-        
+
         # Initialize enhancer
         workspace_path = r"e:\gh_COPILOT"
         enhancer = ComprehensiveDatabaseFirstEnhancer(workspace_path)
-        
+
         # Create enhanced database schema
         print("Creating enhanced database schema...")
         if enhancer.create_enhanced_database_schema():
@@ -1244,14 +1323,14 @@ def main():
         else:
             print("❌ Failed to create enhanced database schema")
             return 1
-        
+
         # Initialize semantic search engine
         print("Initializing semantic search engine...")
         if enhancer.initialize_semantic_search_engine():
             print("✅ Semantic search engine initialized successfully")
         else:
             print("⚠️  Semantic search engine initialization limited (missing dependencies)")
-        
+
         # Synchronize with production databases
         print("Synchronizing with production databases...")
         sync_results = enhancer.synchronize_with_production_databases()
@@ -1259,12 +1338,12 @@ def main():
             status = result['status']
             records = result.get('records_synchronized', 0)
             print(f"  {db_name}: {status} ({records} records)")
-        
+
         # Generate analytics insights
         print("Generating analytics insights...")
         insights = enhancer.generate_analytics_insights()
         print(f"✅ Generated {len(insights)} analytics insights")
-        
+
         # Generate compliance report
         print("Generating enterprise compliance report...")
         compliance_report = enhancer.generate_enterprise_compliance_report()
@@ -1272,21 +1351,21 @@ def main():
             score = compliance_report['overall_metrics']['overall_compliance_score']
             status = compliance_report['compliance_status']
             print(f"✅ Compliance report generated: {score:.1f}% ({status})")
-        
+
         # Test semantic search
         print("Testing semantic search functionality...")
         search_results = enhancer.semantic_search("compliance violations fix rate")
         print(f"✅ Semantic search test: {len(search_results)} results found")
-        
+
         print("\n" + "=" * 80)
         print("DATABASE-FIRST ARCHITECTURE ENHANCEMENT COMPLETE")
         print("🎯 Enterprise-grade database infrastructure operational")
         print("🔍 Semantic search and analytics capabilities enabled")
         print("📊 Comprehensive reporting and auditability implemented")
         print("=" * 80)
-        
+
         return 0
-        
+
     except KeyboardInterrupt:
         print("\nEnhancement interrupted by user")
         return 130

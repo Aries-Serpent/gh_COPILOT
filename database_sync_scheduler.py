@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from sqlite3 import Connection, connect
+
 from typing import Iterable
 
 logging.basicConfig()

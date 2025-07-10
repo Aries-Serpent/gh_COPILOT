@@ -191,7 +191,11 @@ class DeploymentMigrationOrchestrator:
         ]
 
         try:
-            with tqdm(total=len(migration_phases), desc="🔄 Migration Progress", unit="phase") as pbar:
+            with tqdm(
+                      total=len(migration_phases),
+                      desc="🔄 Migration Progress",
+                      unit="phase") as pbar
+            with tqdm(total=len(m)
                 for phase_name, phase_func in migration_phases:
                     pbar.set_description(phase_name)
 
@@ -328,7 +332,11 @@ class DeploymentMigrationOrchestrator:
 
         archived_scripts = []
 
-        with tqdm(self.deployment_scripts, desc="📦 Archiving Scripts", unit="script") as pbar:
+        with tqdm(
+                  self.deployment_scripts,
+                  desc="📦 Archiving Scripts",
+                  unit="script") as pbar
+        with tqdm(self.de)
             for script in pbar:
                 pbar.set_description(f"📦 {script.filename}")
 

@@ -12,12 +12,12 @@ Focus on:
 - Malformed lists and dictionaries
 """
 
-import os
+
 import re
 import sys
 import json
 from pathlib import Path
-from typing import List, Dict, Any
+
 import logging
 from datetime import datetime
 
@@ -212,7 +212,7 @@ def main():
         fixer = ComprehensiveSyntaxFixer()
         results = fixer.fix_codebase()
 
-        print(f"\nSYNTAX FIXING COMPLETE!")
+        print("\nSYNTAX FIXING COMPLETE!")
         print(f"Files Processed: {results['files_processed']}")
         print(f"Fixes Applied: {results['fixes_applied']}")
         print(f"Duration: {results['duration_seconds']:.2f} seconds")
@@ -221,7 +221,7 @@ def main():
         with open('syntax_fixes_report.json', 'w') as f:
             json.dump(results, f, indent=2)
 
-        print(f"Report saved to: syntax_fixes_report.json")
+        print("Report saved to: syntax_fixes_report.json")
 
         return True
 

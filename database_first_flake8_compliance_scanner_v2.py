@@ -20,17 +20,17 @@ VERSION: 2.0 (PIS Phase 2)
 COMPLIANCE: Enterprise Zero-Tolerance Standards
 """
 
-import os
+
 import sys
 import json
 import time
 import sqlite3
 import logging
 import subprocess
-import threading
-from datetime import datetime, timedelta
+
+
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, asdict
 import signal
@@ -54,32 +54,32 @@ def setup_enterprise_logging() -> logging.Logger:
     """Setup comprehensive enterprise logging with visual indicators."""
     log_dir = Path("logs/pis_phase2")
     log_dir.mkdir(parents=True, exist_ok=True)
-    
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file = log_dir / f"pis_phase2_compliance_scan_{timestamp}.log"
-    
+
     # Create file handler with UTF-8 encoding
     file_handler = logging.FileHandler(log_file, encoding='utf-8')
     file_handler.setLevel(logging.INFO)
-    
+
     # Create console handler with ASCII-safe formatting for Windows
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
-    
+
     # Set formatters
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
-    
+
     # Configure logger
     logger = logging.getLogger("PIS_PHASE2_COMPLIANCE")
     logger.setLevel(logging.INFO)
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
-    
+
     logger.info("PIS PHASE 2: COMPLIANCE SCAN - ENTERPRISE LOGGING INITIALIZED")
     logger.info(f"Log File: {log_file}")
-    
+
     return logger
 
 
@@ -96,7 +96,7 @@ class ComplianceViolation:
 
     timestamp: str
 
-    
+
 @dataclass
 class ComplianceMetrics:
     """Comprehensive compliance metrics for enterprise reporting."""
@@ -115,9 +115,10 @@ class ComplianceMetrics:
 
     timestamp: str = ""
 
+
 class AntiRecursionProtocol:
     """Enterprise anti-recursion protection system."""
-    
+
     def __init__(self, max_depth: int = 10, max_files: int = 5000):
         self.max_depth = max_depth
         self.max_files = max_files
@@ -125,7 +126,7 @@ class AntiRecursionProtocol:
         self.current_depth = 0
         self.start_time = time.time()
         self.timeout_seconds = 3600  # 1 hour timeout
-        
+
     def check_recursion(self, file_path: str) -> bool:
         """Check for recursion and resource limits."""
         if time.time() - self.start_time > self.timeout_seconds:
@@ -133,7 +134,7 @@ class AntiRecursionProtocol:
 
         if len(self.processed_files) >= self.max_files:
             raise ResourceError("RESOURCE LIMIT: Maximum files processed")
-            
+
         if self.current_depth >= self.max_depth:
             raise RecursionError("RECURSION LIMIT: Maximum depth exceeded")
 
@@ -142,7 +143,7 @@ class AntiRecursionProtocol:
 
             return False  # Already processed
 
-            
+
         self.processed_files.add(file_hash)
         return True
 
@@ -152,9 +153,10 @@ class ResourceError(Exception):
     """Custom exception for resource limits."""
     pass
 
+
 class DatabaseFirstComplianceScanner:
     """Enterprise-grade database-first compliance scanner with visual processing."""
-    
+
     def __init__(self, workspace_path: Optional[str] = None):
         self.workspace_path = Path(workspace_path) if workspace_path else Path.cwd()
         self.logger = setup_enterprise_logging()
@@ -162,19 +164,19 @@ class DatabaseFirstComplianceScanner:
         self.metrics = ComplianceMetrics()
         self.violations: List[ComplianceViolation] = []
         self.start_time = time.time()
-        
+
         # Database connections
         self.production_db = None
         self.analytics_db = None
-        
+
         # Visual processing indicators
         self.progress_bar = None
         self.status_display = None
-        
+
         # Signal handlers for graceful shutdown
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
-        
+
     def _signal_handler(self, signum, frame):
         """Handle graceful shutdown."""
         self.logger.warning(f"SHUTDOWN SIGNAL RECEIVED: {signum}")
@@ -186,7 +188,7 @@ class DatabaseFirstComplianceScanner:
         """Initialize database connections with enterprise validation."""
         try:
             self.logger.info("INITIALIZING DATABASE CONNECTIONS...")
-            
+
             # Production database
             prod_db_path = self.workspace_path / "production.db"
             if prod_db_path.exists():
@@ -195,7 +197,7 @@ class DatabaseFirstComplianceScanner:
                 self.logger.info("Production database connected")
             else:
                 self.logger.warning("Production database not found - using filesystem fallback")
-                
+
             # Analytics database
             analytics_db_path = self.workspace_path / "analytics.db"
             if analytics_db_path.exists():
@@ -207,7 +209,7 @@ class DatabaseFirstComplianceScanner:
                 self._create_analytics_tables()
 
             return True
-            
+
         except Exception as e:
             self.logger.error(f"DATABASE INITIALIZATION FAILED: {e}")
             return False
@@ -217,7 +219,7 @@ class DatabaseFirstComplianceScanner:
         try:
             analytics_db_path = self.workspace_path / "analytics.db"
             self.analytics_db = sqlite3.connect(str(analytics_db_path))
-            
+
             # Create compliance tracking table
             self.analytics_db.execute("""
                 CREATE TABLE IF NOT EXISTS compliance_scans (
@@ -232,7 +234,7 @@ class DatabaseFirstComplianceScanner:
                     phase TEXT NOT NULL DEFAULT 'PHASE_2'
                 )
             """)
-            
+
             # Create violation tracking table
             self.analytics_db.execute("""
                 CREATE TABLE IF NOT EXISTS compliance_violations (
@@ -252,10 +254,10 @@ class DatabaseFirstComplianceScanner:
 
             self.analytics_db.commit()
             self.logger.info("Analytics tables created successfully")
-            
+
         except Exception as e:
             self.logger.error(f"ANALYTICS TABLE CREATION FAILED: {e}")
-            
+
     def discover_scripts(self) -> List[str]:
         """Discover Python scripts using database-first approach."""
         scripts = []
@@ -264,21 +266,21 @@ class DatabaseFirstComplianceScanner:
             # Try database-first approach
             if self.production_db:
                 self.logger.info("DISCOVERING SCRIPTS FROM PRODUCTION DATABASE...")
-                
+
                 try:
                     # Check if script_tracking table exists
                     cursor = self.production_db.execute("""
                         SELECT name FROM sqlite_master
                         WHERE type='table' AND name='script_tracking'
                     """)
-                    
+
                     if cursor.fetchone():
                         cursor = self.production_db.execute("""
-                            SELECT DISTINCT file_path FROM script_tracking 
+                            SELECT DISTINCT file_path FROM script_tracking
                             WHERE file_path LIKE '%.py'
                             ORDER BY file_path
                         """)
-                        
+
                         for row in cursor:
                             file_path = row['file_path']
                             if self.anti_recursion.check_recursion(file_path):
@@ -291,32 +293,32 @@ class DatabaseFirstComplianceScanner:
                     else:
                         self.logger.warning("script_tracking table not found - using filesystem fallback")
                         scripts = self._discover_from_filesystem()
-                        
+
                 except Exception as db_error:
                     self.logger.warning(f"DATABASE QUERY FAILED: {db_error} - using filesystem fallback")
                     scripts = self._discover_from_filesystem()
-                    
+
             else:
                 # Fallback to filesystem discovery
                 scripts = self._discover_from_filesystem()
 
         except Exception as e:
             self.logger.error(f"SCRIPT DISCOVERY FAILED: {e}")
-            
+
         return scripts
 
     def _discover_from_filesystem(self) -> List[str]:
         """Discover scripts from filesystem."""
         scripts = []
         self.logger.info("FALLBACK: DISCOVERING SCRIPTS FROM FILESYSTEM...")
-        
+
         for py_file in self.workspace_path.rglob("*.py"):
             if self.anti_recursion.check_recursion(str(py_file)):
                 scripts.append(str(py_file))
-                
+
         self.logger.info(f"DISCOVERED {len(scripts)} SCRIPTS FROM FILESYSTEM")
         return scripts
-        
+
     def categorize_violation(self, error_code: str) -> Tuple[str, str]:
         """Categorize Flake8 violations by severity and category."""
         severity_map = {
@@ -327,7 +329,7 @@ class DatabaseFirstComplianceScanner:
             'N': 'NAMING',
             'D': 'DOCSTRING'
         }
-        
+
         category_map = {
             'E1': 'INDENTATION',
             'E2': 'WHITESPACE',
@@ -355,20 +357,23 @@ class DatabaseFirstComplianceScanner:
         category = category_map.get(error_code[:2], 'UNKNOWN')
 
         return severity, category
-        
+
     def scan_file_compliance(self, file_path: str) -> List[ComplianceViolation]:
         """Scan a single file for Flake8 compliance violations."""
         violations = []
-        
+
         try:
             # Run Flake8 on the file
             result = subprocess.run(
-                ['flake8', '--format=%(path)s:%(row)d:%(col)d: %(code)s %(text)s', file_path],
+                ['flake8', '--format=%(
+                                       path)s:%(row)d:%(col)d: %(code)s %(text)s',
+                                       file_path]
+                ['flake8', '--format=%(path)s:%(row)d:)
                 capture_output=True,
                 text=True,
                 timeout=30
             )
-            
+
             if result.returncode != 0 and result.stdout:
                 # Parse Flake8 output
                 for line in result.stdout.strip().split('\n'):
@@ -376,7 +381,7 @@ class DatabaseFirstComplianceScanner:
                         parts = line.split(':', 3)
                         if len(parts) >= 4:
                             path = parts[0].strip()
-                            
+
                             # Enhanced integer parsing with error handling
                             try:
                                 line_num = int(parts[1].strip())
@@ -394,10 +399,10 @@ class DatabaseFirstComplianceScanner:
                             error_part = parts[3].strip()
                             error_code = error_part.split()[0]
                             error_message = error_part[len(error_code):].strip()
-                            
+
                             # Categorize violation
                             severity, category = self.categorize_violation(error_code)
-                            
+
                             violation = ComplianceViolation(
                                 file_path=path,
                                 line_number=line_num,
@@ -408,14 +413,14 @@ class DatabaseFirstComplianceScanner:
                                 category=category,
                                 timestamp=datetime.now().isoformat()
                             )
-                            
+
                             violations.append(violation)
 
         except subprocess.TimeoutExpired:
             self.logger.warning(f"TIMEOUT: Flake8 scan timeout for {file_path}")
         except Exception as e:
             self.logger.error(f"SCAN ERROR for {file_path}: {e}")
-            
+
         return violations
 
     def calculate_etc(self, processed: int, total: int, start_time: float) -> str:
@@ -427,7 +432,7 @@ class DatabaseFirstComplianceScanner:
         rate = processed / elapsed
         remaining = total - processed
         etc_seconds = remaining / rate if rate > 0 else 0
-        
+
         if etc_seconds < 60:
             return f"{etc_seconds:.0f}s"
         elif etc_seconds < 3600:
@@ -439,7 +444,7 @@ class DatabaseFirstComplianceScanner:
         """Execute comprehensive compliance scan with visual processing."""
         self.logger.info("STARTING PIS PHASE 2: COMPLIANCE SCAN")
         self.logger.info("=" * 80)
-        
+
         # Initialize databases
         if not self.initialize_databases():
             self.logger.error("DATABASE INITIALIZATION FAILED - ABORTING")
@@ -450,9 +455,9 @@ class DatabaseFirstComplianceScanner:
         if not scripts:
             self.logger.warning("NO SCRIPTS DISCOVERED - SCAN COMPLETE")
             return self.metrics
-            
+
         self.metrics.total_files_scanned = len(scripts)
-        
+
         # Initialize visual processing indicators
         self.progress_bar = tqdm(
             total=len(scripts),
@@ -465,9 +470,9 @@ class DatabaseFirstComplianceScanner:
         # Process files with chunked threading
         chunk_size = min(50, max(1, len(scripts) // 10))
         processed_files = 0
-        
+
         self.logger.info(f"PROCESSING {len(scripts)} FILES IN CHUNKS OF {chunk_size}")
-        
+
         with ThreadPoolExecutor(max_workers=4) as executor:
             # Submit files in chunks
             for i in range(0, len(scripts), chunk_size):
@@ -483,22 +488,30 @@ class DatabaseFirstComplianceScanner:
                 for future in as_completed(future_to_file):
                     file_path = future_to_file[future]
                     processed_files += 1
-                    
+
                     try:
                         violations = future.result()
-                        
+
                         if violations:
                             self.violations.extend(violations)
                             self.metrics.non_compliant_files += 1
                             self.progress_bar.set_postfix({
                                 'Status': f'VIOLATIONS: {len(violations)}',
-                                'ETC': self.calculate_etc(processed_files, len(scripts), self.start_time)
+                                'ETC': self.calculate_etc(
+                                                          processed_files,
+                                                          len(scripts),
+                                                          self.start_time
+                                'ETC': self.calculate_etc(processed_files, len(scripts), )
                             })
                         else:
                             self.metrics.compliant_files += 1
                             self.progress_bar.set_postfix({
                                 'Status': 'COMPLIANT',
-                                'ETC': self.calculate_etc(processed_files, len(scripts), self.start_time)
+                                'ETC': self.calculate_etc(
+                                                          processed_files,
+                                                          len(scripts),
+                                                          self.start_time
+                                'ETC': self.calculate_etc(processed_files, len(scripts), )
                             })
 
                         self.progress_bar.update(1)
@@ -508,11 +521,11 @@ class DatabaseFirstComplianceScanner:
                         self.progress_bar.update(1)
 
         self.progress_bar.close()
-        
+
         # Calculate final metrics
         self.metrics.total_violations = len(self.violations)
         self.metrics.scan_duration = time.time() - self.start_time
-        
+
         # Categorize violations
         for violation in self.violations:
             if violation.severity == 'FATAL':
@@ -525,7 +538,7 @@ class DatabaseFirstComplianceScanner:
                 self.metrics.complexity_violations += 1
             else:
                 self.metrics.style_violations += 1
-                
+
         # Calculate compliance score
         if self.metrics.total_files_scanned > 0:
             self.metrics.compliance_score = (
@@ -533,9 +546,9 @@ class DatabaseFirstComplianceScanner:
             ) * 100
         else:
             self.metrics.compliance_score = 100.0
-            
+
         self.metrics.timestamp = datetime.now().isoformat()
-        
+
         # Log final results
         self.logger.info("=" * 80)
         self.logger.info("PIS PHASE 2: COMPLIANCE SCAN COMPLETE")
@@ -546,19 +559,19 @@ class DatabaseFirstComplianceScanner:
         self.logger.info(f"Compliance Score: {self.metrics.compliance_score:.2f}%")
         self.logger.info(f"Scan Duration: {self.metrics.scan_duration:.2f}s")
         self.logger.info("=" * 80)
-        
+
         return self.metrics
-        
+
     def save_compliance_report(self) -> str:
         """Save comprehensive compliance report with DUAL COPILOT validation."""
         try:
             # Create reports directory
             report_dir = Path("reports/pis_phase2")
             report_dir.mkdir(parents=True, exist_ok=True)
-            
+
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             report_file = report_dir / f"pis_phase2_compliance_report_{timestamp}.json"
-            
+
             # Prepare report data
             report_data = {
                 "pis_phase": "PHASE_2_COMPLIANCE_SCAN",
@@ -579,7 +592,10 @@ class DatabaseFirstComplianceScanner:
                     "complexity_violations": self.metrics.complexity_violations,
                     "documentation_violations": self.metrics.documentation_violations
                 },
-                "detailed_violations": [asdict(v) for v in self.violations[:1000]],  # Limit for performance
+                "detailed_violations": [asdict(
+                                               v) for v in self.violations[:1000]],
+                                                # Limit for performanc
+                "detailed_violations": [asdict(v) for v in sel)
                 "recommendations": self._generate_recommendations(),
                 "next_phase": "PHASE_3_AUTOMATED_CORRECTION",
                 "dual_copilot_signature": {
@@ -592,14 +608,14 @@ class DatabaseFirstComplianceScanner:
             # Save report
             with open(report_file, 'w', encoding='utf-8') as f:
                 json.dump(report_data, f, indent=2, ensure_ascii=False)
-                
+
             self.logger.info(f"COMPLIANCE REPORT SAVED: {report_file}")
 
             # Save to analytics database
             self._save_to_analytics_db()
 
             return str(report_file)
-            
+
         except Exception as e:
             self.logger.error(f"REPORT SAVE FAILED: {e}")
             return ""
@@ -609,7 +625,7 @@ class DatabaseFirstComplianceScanner:
         try:
             if not self.analytics_db:
                 return
-                
+
             # Insert scan record
             cursor = self.analytics_db.execute("""
                 INSERT INTO compliance_scans (
@@ -626,9 +642,9 @@ class DatabaseFirstComplianceScanner:
                 self.metrics.scan_duration,
                 'PHASE_2'
             ))
-            
+
             scan_id = cursor.lastrowid
-            
+
             # Insert violations
             for violation in self.violations:
                 self.analytics_db.execute("""
@@ -650,10 +666,10 @@ class DatabaseFirstComplianceScanner:
 
             self.analytics_db.commit()
             self.logger.info("ANALYTICS DATABASE UPDATED")
-            
+
         except Exception as e:
             self.logger.error(f"ANALYTICS SAVE FAILED: {e}")
-            
+
     def _generate_recommendations(self) -> List[str]:
         """Generate enterprise recommendations based on scan results."""
         recommendations = []
@@ -666,7 +682,7 @@ class DatabaseFirstComplianceScanner:
 
         if self.metrics.complexity_violations > 0:
             recommendations.append("REFACTORING RECOMMENDED: High complexity violations found")
-            
+
         if self.metrics.documentation_violations > 0:
             recommendations.append("DOCUMENTATION ENHANCEMENT: Missing or inadequate docstrings")
 
@@ -675,9 +691,9 @@ class DatabaseFirstComplianceScanner:
             "ACTIVATE PHASE 4: DUAL COPILOT Validation & Reporting",
             "CONTINUOUS MONITORING: Implement real-time compliance tracking"
         ])
-        
+
         return recommendations
-        
+
     def cleanup(self):
         """Clean up resources and close connections."""
         if self.production_db:
@@ -688,6 +704,7 @@ class DatabaseFirstComplianceScanner:
             self.analytics_db.close()
         if self.progress_bar:
             self.progress_bar.close()
+
 
 def main():
     """Main execution function with enterprise error handling."""
@@ -705,10 +722,10 @@ def main():
 
         # Run compliance scan
         metrics = scanner.run_compliance_scan()
-        
+
         # Save report
         report_file = scanner.save_compliance_report()
-        
+
         # Display final status
         print("\n" + "=" * 80)
         print("PIS PHASE 2: COMPLIANCE SCAN COMPLETE")
@@ -716,10 +733,10 @@ def main():
         print(f"REPORT SAVED: {report_file}")
         print("READY FOR PHASE 3: AUTOMATED CORRECTION")
         print("=" * 80)
-        
+
         # Return appropriate exit code
         return 0 if metrics.compliance_score >= 95 else 1
-        
+
     except KeyboardInterrupt:
         print("\nSCAN INTERRUPTED BY USER")
         return 130

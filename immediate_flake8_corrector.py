@@ -6,7 +6,7 @@ Simplified, robust corrector for immediate results
 DUAL COPILOT PATTERN: Immediate fixes with validation
 """
 
-import os
+
 import re
 import subprocess
 import sys
@@ -77,7 +77,10 @@ class ImmediateFlake8Corrector:
                             # Found the closing part
                             base_line = line.rstrip()[:-1]
                             variable_part = next_line.split('}')[0].strip()
-                            rest_of_line = next_line.split('"', 1)[-1] if '"' in next_line else ''
+                            rest_of_line = next_line.split(
+                                                           '"',
+                                                           1)[-1] if '"' in next_line else '
+                            rest_of_line = next_line.split('"', 1)[-1] if '"' in next_)
                             fixed_line = f'{base_line}{{{variable_part}}}"'
                             if rest_of_line:
                                 fixed_line += rest_of_line
@@ -198,7 +201,7 @@ class ImmediateFlake8Corrector:
                 results["improvement_percentage"] = 0.0
 
             # Display results
-            print(f"\n✅ IMMEDIATE CORRECTIONS COMPLETE!")
+            print("\n✅ IMMEDIATE CORRECTIONS COMPLETE!")
             print(f"Syntax Fixes Applied: {syntax_fixes}")
             print(f"Autopep8 Applied: {'✅' if autopep8_success else '❌'}")
             print(f"Initial Violations: {initial_violations}")
@@ -218,7 +221,7 @@ def main():
     corrector = ImmediateFlake8Corrector()
     results = corrector.execute_immediate_corrections()
 
-    print(f"\n📊 SUMMARY:")
+    print("\n📊 SUMMARY:")
     if results.get('final_violations', 0) < results.get('initial_violations', 0):
         print("Final Status: ✅ SUCCESS")
     else:

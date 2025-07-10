@@ -5,7 +5,7 @@
 Systematic fix for specific files with comprehensive error handling
 """
 
-import os
+
 import re
 import subprocess
 from pathlib import Path
@@ -122,6 +122,7 @@ def fix_whitespace_issues():
 
             print(f"❌ Error fixing {file_path}: {e}")
 
+
 def fix_fstring_violations():
     """Fix F541 f-string without placeholders"""
 
@@ -154,6 +155,7 @@ def fix_fstring_violations():
 
         except Exception as e:
             print(f"❌ Error fixing f-strings in {file_path}: {e}")
+
 
 def run_targeted_fixes():
     """Run all targeted fixes"""

@@ -7,15 +7,15 @@ Creates all necessary database tables for full database-first functionality.
 
 import sqlite3
 import json
-import os
-from datetime import datetime
+
+
 from pathlib import Path
 from typing import Dict, List
 
 
 class PISFrameworkDatabaseCreator:
     """Creates and manages PIS Framework database infrastructure."""
-    
+
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.databases = {
@@ -24,10 +24,10 @@ class PISFrameworkDatabaseCreator:
             'monitoring': self.workspace_path / 'monitoring.db',
             'pis_framework': self.workspace_path / 'pis_framework.db'
         }
-        
+
     def get_table_creation_sql(self) -> Dict[str, str]:
         """Get SQL creation statements for all PIS framework tables."""
-        
+
         tables = {
             'pis_framework_sessions': """
                 CREATE TABLE IF NOT EXISTS pis_framework_sessions (
@@ -54,7 +54,7 @@ class PISFrameworkDatabaseCreator:
                     session_status TEXT DEFAULT 'ACTIVE'
                 );
             """,
-            
+
             'pis_phase_executions': """
                 CREATE TABLE IF NOT EXISTS pis_phase_executions (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -81,7 +81,7 @@ class PISFrameworkDatabaseCreator:
                     FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
                 );
             """,
-            
+
             'pis_compliance_violations': """
                 CREATE TABLE IF NOT EXISTS pis_compliance_violations (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -106,7 +106,7 @@ class PISFrameworkDatabaseCreator:
                     FOREIGN KEY (phase_id) REFERENCES pis_phase_executions(id)
                 );
             """,
-            
+
             'autonomous_file_operations': """
                 CREATE TABLE IF NOT EXISTS autonomous_file_operations (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -127,7 +127,7 @@ class PISFrameworkDatabaseCreator:
                     FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
                 );
             """,
-            
+
             'quantum_optimization_metrics': """
                 CREATE TABLE IF NOT EXISTS quantum_optimization_metrics (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -151,7 +151,7 @@ class PISFrameworkDatabaseCreator:
                     FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
                 );
             """,
-            
+
             'webgui_dashboard_analytics': """
                 CREATE TABLE IF NOT EXISTS webgui_dashboard_analytics (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -172,7 +172,7 @@ class PISFrameworkDatabaseCreator:
                     FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
                 );
             """,
-            
+
             'continuous_operation_cycles': """
                 CREATE TABLE IF NOT EXISTS continuous_operation_cycles (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -192,7 +192,7 @@ class PISFrameworkDatabaseCreator:
                     cycle_metadata TEXT
                 );
             """,
-            
+
             'phase4_continuous_optimization': """
                 CREATE TABLE IF NOT EXISTS phase4_continuous_optimization (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -216,7 +216,7 @@ class PISFrameworkDatabaseCreator:
                     FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
                 );
             """,
-            
+
             'phase5_ai_integration': """
                 CREATE TABLE IF NOT EXISTS phase5_ai_integration (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -238,7 +238,7 @@ class PISFrameworkDatabaseCreator:
                     FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
                 );
             """,
-            
+
             'dual_copilot_validations': """
                 CREATE TABLE IF NOT EXISTS dual_copilot_validations (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -266,7 +266,7 @@ class PISFrameworkDatabaseCreator:
                     FOREIGN KEY (session_id) REFERENCES pis_framework_sessions(session_id)
                 );
             """,
-            
+
             'visual_processing_compliance': """
                 CREATE TABLE IF NOT EXISTS visual_processing_compliance (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -288,23 +288,23 @@ class PISFrameworkDatabaseCreator:
                 );
             """
         }
-        
+
         return tables
-    
+
     def create_database_infrastructure(self) -> Dict[str, bool]:
         """Create all PIS framework database tables."""
         results = {}
         table_sqls = self.get_table_creation_sql()
-        
+
         # Create PIS framework database
         pis_db_path = self.databases['pis_framework']
-        
+
         try:
             # Ensure database directory exists
             pis_db_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             conn = sqlite3.connect(str(pis_db_path))
-            
+
             for table_name, create_sql in table_sqls.items():
                 try:
                     conn.execute(create_sql)
@@ -313,53 +313,53 @@ class PISFrameworkDatabaseCreator:
                 except Exception as e:
                     results[table_name] = False
                     print(f"❌ Failed to create table {table_name}: {e}")
-            
+
             conn.commit()
             conn.close()
-            
+
             print(f"\n🏆 PIS Framework Database created at: {pis_db_path}")
             return results
-            
+
         except Exception as e:
             print(f"❌ Database creation failed: {e}")
             return results
-    
+
     def verify_database_schema(self) -> Dict[str, List[str]]:
         """Verify that all tables were created successfully."""
         verification_results = {}
         pis_db_path = self.databases['pis_framework']
-        
+
         try:
             conn = sqlite3.connect(str(pis_db_path))
             cursor = conn.cursor()
-            
+
             # Get all table names
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
             tables = cursor.fetchall()
-            
+
             for table_name, in tables:
                 cursor.execute(f"PRAGMA table_info({table_name});")
                 columns = cursor.fetchall()
                 verification_results[table_name] = [col[1] for col in columns]
-            
+
             conn.close()
-            
+
             print("\n📊 Database Schema Verification:")
             for table, columns in verification_results.items():
                 print(f"  {table}: {len(columns)} columns")
-            
+
             return verification_results
-            
+
         except Exception as e:
             print(f"❌ Schema verification failed: {e}")
             return {}
-    
+
     def create_sample_data(self) -> bool:
         """Create sample data for testing."""
         try:
             pis_db_path = self.databases['pis_framework']
             conn = sqlite3.connect(str(pis_db_path))
-            
+
             # Sample session data
             sample_session = {
                 'session_id': 'sample_session_001',
@@ -371,10 +371,16 @@ class PISFrameworkDatabaseCreator:
                     'purpose': 'Sample data for testing'
                 })
             }
-            
+
             conn.execute("""
-                INSERT INTO pis_framework_sessions 
-                (session_id, workspace_path, framework_version, execution_type, session_metadata)
+                INSERT INTO pis_framework_sessions
+                (
+                 session_id,
+                 workspace_path,
+                 framework_version,
+                 execution_type,
+                 session_metadata
+                (session_id, wor)
                 VALUES (?, ?, ?, ?, ?)
             """, (
                 sample_session['session_id'],
@@ -383,13 +389,13 @@ class PISFrameworkDatabaseCreator:
                 sample_session['execution_type'],
                 sample_session['session_metadata']
             ))
-            
+
             conn.commit()
             conn.close()
-            
+
             print("✅ Sample data created successfully")
             return True
-            
+
         except Exception as e:
             print(f"❌ Sample data creation failed: {e}")
             return False
@@ -399,34 +405,34 @@ def main():
     """Main execution function."""
     print("🚀 PIS FRAMEWORK DATABASE INFRASTRUCTURE CREATOR")
     print("=" * 60)
-    
+
     creator = PISFrameworkDatabaseCreator()
-    
+
     # Create database infrastructure
     print("\n📊 Creating PIS Framework Database Tables...")
     creation_results = creator.create_database_infrastructure()
-    
+
     # Verify schema
     print("\n🔍 Verifying Database Schema...")
     verification_results = creator.verify_database_schema()
-    
+
     # Create sample data
     print("\n🎯 Creating Sample Data...")
     sample_data_success = creator.create_sample_data()
-    
+
     # Summary
     print("\n" + "=" * 60)
     print("📋 DATABASE CREATION SUMMARY")
     print("=" * 60)
-    
+
     total_tables = len(creation_results)
     successful_tables = sum(creation_results.values())
-    
+
     print(f"Total Tables: {total_tables}")
     print(f"Successfully Created: {successful_tables}")
     print(f"Failed: {total_tables - successful_tables}")
     print(f"Success Rate: {(successful_tables/total_tables)*100:.1f}%")
-    
+
     if successful_tables == total_tables:
         print("\n🏆 DATABASE INFRASTRUCTURE CREATION: SUCCESS")
         print("✅ All PIS Framework tables created successfully")
@@ -435,7 +441,7 @@ def main():
     else:
         print("\n⚠️  DATABASE INFRASTRUCTURE CREATION: PARTIAL SUCCESS")
         print("Some tables may need manual creation")
-    
+
     print(f"\n📍 Database Location: {creator.databases['pis_framework']}")
 
 

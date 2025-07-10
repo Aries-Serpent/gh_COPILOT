@@ -20,10 +20,10 @@ import sqlite3
 import subprocess
 import logging
 from pathlib import Path
-from dataclasses import dataclass, asdict
-from typing import Dict, List, Optional, Tuple, Union, Any
+
+
 from datetime import datetime
-import ast
+
 import time
 import traceback
 
@@ -139,7 +139,7 @@ class DatabaseCorrectionEngine:
                 self._load_correction_patterns()
             else:
                 logger.warning(
-                    f"[DATABASE] Database not found, using built-in patterns")
+                    "[DATABASE] Database not found, using built-in patterns")
                 self._create_builtin_patterns()
         except Exception as e:
             logger.error(f"[DATABASE] Connection error: {e}")
@@ -562,7 +562,7 @@ class QuantumFlakeCorrector:
                 violation_types.items(),
                 key=lambda x: len(x[1]),
                 reverse=True)
-            logger.info(f"[DUAL-COPILOT] Top violation types:")
+            logger.info("[DUAL-COPILOT] Top violation types:")
             for error_code, violations_list in sorted_types[:5]:
                 logger.info(
                     f"  {error_code}: {

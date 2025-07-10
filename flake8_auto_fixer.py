@@ -7,26 +7,26 @@ Fixes common Flake8 issues automatically.
 
 import re
 import sys
-from pathlib import Path
+
 
 
 def fix_flake8_issues(file_path: str):
     """Fix common Flake8 issues in a Python file."""
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
-    
+
     original_content = content
-    
+
     # Fix W293 - blank line contains whitespace
     content = re.sub(r'^[ \t]+$', '', content, flags=re.MULTILINE)
-    
+
     # Fix W291 - trailing whitespace
     content = re.sub(r'[ \t]+$', '', content, flags=re.MULTILINE)
-    
+
     # Fix E501 - line too long (split long lines at appropriate points)
     lines = content.split('\n')
     fixed_lines = []
-    
+
     for line in lines:
         if len(line) > 100:
             # Try to split at common break points
@@ -47,11 +47,11 @@ def fix_flake8_issues(file_path: str):
                         else:
                             new_line += ', ' + part
                     line = new_line
-        
+
         fixed_lines.append(line)
-    
+
     content = '\n'.join(fixed_lines)
-    
+
     # Remove unused imports (common ones)
     unused_imports = [
         'import os\n',
@@ -60,18 +60,24 @@ def fix_flake8_issues(file_path: str):
         'import flask\n',
         'from flask import render_template, request\n'
     ]
-    
+
     for unused in unused_imports:
-        if unused in content and not re.search(rf'\b{unused.split()[-1].replace(",", "").replace("ThreadPoolExecutor", "ThreadPoolExecutor|as_completed")}\b', content.replace(unused, '')):
+        if unused in content and not re.search(
+                                               rf'\b{unused.split()[-1].replace(",",
+                                               "").replace("ThreadPoolExecutor",
+                                               "ThreadPoolExecutor|as_completed")}\b',
+                                               content.replace(unused,
+                                               ''))
+        if unused in content and not re.search(rf'\b{u)
             content = content.replace(unused, '')
-    
+
     # Fix F541 - f-string missing placeholders
     content = re.sub(r'f"([^{]*)"', r'"\1"', content)
     content = re.sub(r"f'([^{]*)'", r"'\1'", content)
-    
+
     # Remove unused variables (F841)
     content = re.sub(r'\n\s*backup_path = [^\n]*\n', '\n', content)
-    
+
     # Write back only if changes were made
     if content != original_content:
         with open(file_path, 'w', encoding='utf-8') as f:

@@ -109,7 +109,11 @@ class DatabaseConsolidationMigration:
         found_scripts = []
 
         print("Scanning for legacy database scripts...")
-        with tqdm(total=len(self.search_locations), desc="Discovery Progress", unit="location") as pbar:
+        with tqdm(
+                  total=len(self.search_locations),
+                  desc="Discovery Progress",
+                  unit="location") as pbar
+        with tqdm(total=l)
             for location in self.search_locations:
                 pbar.set_description(f"Scanning: {location.name}")
 
@@ -144,7 +148,11 @@ class DatabaseConsolidationMigration:
         archived_files = []
 
         print("Archiving legacy scripts...")
-        with tqdm(total=len(legacy_scripts), desc="Archive Progress", unit="file") as pbar:
+        with tqdm(
+                  total=len(legacy_scripts),
+                  desc="Archive Progress",
+                  unit="file") as pbar
+        with tqdm(total=l)
             for script_path in legacy_scripts:
                 pbar.set_description(f"Archiving: {script_path.name}")
 

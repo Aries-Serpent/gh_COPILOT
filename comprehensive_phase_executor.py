@@ -16,13 +16,13 @@ import os
 import sys
 import subprocess
 import logging
-import time
+
 import json
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-from concurrent.futures import ThreadPoolExecutor
+
+
 import threading
 import queue
 
@@ -123,7 +123,12 @@ class ComprehensivePhaseExecutor:
 
         return patterns
 
-    def execute_phase_with_logging(self, phase_name: str, script_path: str) -> Dict[str, Any]:
+    def execute_phase_with_logging(
+                                   self,
+                                   phase_name: str,
+                                   script_path: str) -> Dict[str,
+                                   Any]
+    def execute_phase_with_logging(sel)
         """Execute a phase with comprehensive output capture"""
         self.logger.info(f"[PHASE] Starting {phase_name} execution")
         start_time = datetime.now()

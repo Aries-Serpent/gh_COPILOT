@@ -28,15 +28,15 @@ import json
 import logging
 import sqlite3
 import subprocess
-import time
+
 import re
 import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple, Set
-from dataclasses import dataclass, asdict
-from contextlib import contextmanager
-from concurrent.futures import ThreadPoolExecutor, as_completed
+
+
+
+
 from tqdm import tqdm
 
 # MANDATORY: Visual Processing Indicators
@@ -60,7 +60,10 @@ LOG_DIR.mkdir(exist_ok=True)
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(LOG_DIR / 'enhanced_flake8_corrector.log', encoding='utf-8'),
+        logging.FileHandler(
+                            LOG_DIR / 'enhanced_flake8_corrector.log',
+                            encoding='utf-8')
+        logging.FileHandler(LOG_DIR)
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -304,7 +307,16 @@ class EnhancedFlake8Corrector:
             cursor = conn.cursor()
             cursor.execute('''
                 INSERT OR REPLACE INTO correction_patterns
-                (pattern_id, error_code, pattern_regex, replacement, description, confidence, success_rate, usage_count)
+                (
+                 pattern_id,
+                 error_code,
+                 pattern_regex,
+                 replacement,
+                 description,
+                 confidence,
+                 success_rate,
+                 usage_count
+                (pattern_id, err)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 pattern.pattern_id,
@@ -335,7 +347,10 @@ class EnhancedFlake8Corrector:
                 )
 
                 if result.returncode != 0:
-                    file_violations = self._parse_flake8_output(result.stdout, str(file_path))
+                    file_violations = self._parse_flake8_output(
+                                                                result.stdout,
+                                                                str(file_path)
+                    file_violations = self._parse_flake8_output(result.stdout, str()
                     violations.extend(file_violations)
 
                 self.progress_tracker['files_scanned'] += 1
@@ -410,7 +425,11 @@ class EnhancedFlake8Corrector:
         logger.info(f"{VISUAL_INDICATORS['success']} FIXED {results['fixed_violations']} VIOLATIONS")
         return results
 
-    def _fix_file_violations(self, file_path: str, violations: List[FlakeViolation]) -> int:
+    def _fix_file_violations(
+                             self,
+                             file_path: str,
+                             violations: List[FlakeViolation]) -> int
+    def _fix_file_violations(sel)
         """Fix violations in a single file"""
         fixed_count = 0
 
@@ -445,14 +464,22 @@ class EnhancedFlake8Corrector:
                     f.write(content)
 
                 # Record in history
-                self._record_correction_history(file_path, original_content, content, fixed_count)
+                self._record_correction_history(
+                                                file_path,
+                                                original_content,
+                                                content,
+                                                fixed_count
+                self._record_correction_history(file_path, orig)
 
         except Exception as e:
             logger.error(f"Error fixing violations in {file_path}: {e}")
 
         return fixed_count
 
-    def _find_correction_pattern(self, violation: FlakeViolation) -> Optional[CorrectionPattern]:
+    def _find_correction_pattern(
+                                 self,
+                                 violation: FlakeViolation) -> Optional[CorrectionPattern]
+    def _find_correction_pattern(sel)
         """Find appropriate correction pattern for violation"""
         # Look for patterns matching the error code
         for pattern in self.correction_patterns.values():
@@ -461,7 +488,12 @@ class EnhancedFlake8Corrector:
 
         return None
 
-    def _apply_correction(self, content: str, violation: FlakeViolation, pattern: CorrectionPattern) -> str:
+    def _apply_correction(
+                          self,
+                          content: str,
+                          violation: FlakeViolation,
+                          pattern: CorrectionPattern) -> str
+    def _apply_correction(sel)
         """Apply correction pattern to content"""
         try:
             lines = content.split('\n')
@@ -505,13 +537,26 @@ class EnhancedFlake8Corrector:
 
             conn.commit()
 
-    def _record_correction_history(self, file_path: str, before: str, after: str, fix_count: int):
+    def _record_correction_history(
+                                   self,
+                                   file_path: str,
+                                   before: str,
+                                   after: str,
+                                   fix_count: int)
+    def _record_correction_history(sel)
         """Record correction history"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute('''
                 INSERT INTO correction_history
-                (file_path, correction_type, before_content, after_content, success, timestamp)
+                (
+                 file_path,
+                 correction_type,
+                 before_content,
+                 after_content,
+                 success,
+                 timestamp
+                (file_path, corr)
                 VALUES (?, ?, ?, ?, ?, ?)
             ''', (
                 file_path,
