@@ -212,7 +212,7 @@ class EnterprisePhaseExecutionController:
                 if result["success"]:
                     self.logger.info(f"[SUCCESS] {phase_id} completed successfully")
                 else:
-                    self.logger.error(f"❌ {phase_id} failed with return code {process.returncode}")
+                    self.logger.error(f"[ERROR] {phase_id} failed with return code {process.returncode}")
                     self.logger.error(f"Error output: {stderr}")
                 
                 return result["success"], result
