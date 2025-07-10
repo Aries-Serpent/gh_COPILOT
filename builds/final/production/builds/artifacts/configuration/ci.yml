@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure .env file
+        run: cp .env.example .env
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Build Docker image
+        run: docker build -t gh_copilot .
+
+      - name: Cache Trivy database
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/trivy
+          key: ${{ runner.os }}-trivy-db-${{ steps.trivy-version.outputs.version }}
+          restore-keys: |
+            ${{ runner.os }}-trivy-db-
+
+      - name: Get Trivy version
+        id: trivy-version
+        run: echo "version=$(trivy --version | awk '{print $3}')" >> $GITHUB_ENV
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: gh_copilot:latest
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Lint
+        run: |
+          pip install flake8 bandit
+          flake8
+          bandit -r . -ll
+
+      - name: Run tests inside container
+        run: docker run --rm gh_copilot make test
+
+      - name: Security scan
+        run: |
+          pip install bandit
+          bandit -r . -q

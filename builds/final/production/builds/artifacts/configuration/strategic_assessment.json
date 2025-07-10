@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-07-10T00:59:32.228000",
+  "assessment": {
+    "total_files": 1635,
+    "total_size": 27377945,
+    "complexity_distribution": {
+      "LOW": 450,
+      "MEDIUM": 576,
+      "HIGH": 609
+    },
+    "risk_distribution": {
+      "LOW": 1562,
+      "MEDIUM": 73,
+      "HIGH": 0
+    }
+  }
+}
