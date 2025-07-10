@@ -736,6 +736,11 @@ class EnhancedDatabaseFirstIntegrator:
     def _ml_powered_semantic_search(self, query: str, search_type: str, limit: int) -> List[Dict]:
         """ML-powered semantic search using TF-IDF and cosine similarity."""
         try:
+            # Check if semantic vectorizer is available
+            if not self.semantic_vectorizer:
+                self.logger.warning("ML semantic vectorizer not available, falling back to basic search")
+                return self._basic_semantic_search(query, search_type, limit)
+            
             conn = sqlite3.connect(self.pis_db_path)
             cursor = conn.cursor()
             
@@ -1026,7 +1031,7 @@ class EnhancedDatabaseFirstIntegrator:
             self.logger.error(f"Failed to index content for search: {e}")
     
     def _create_audit_entry(self, action_type: str, action_description: str, actor_type: str, 
-                          session_id: str = None, metadata: Dict = None):
+                          session_id: Optional[str] = None, metadata: Optional[Dict] = None):
         """Create comprehensive audit trail entry."""
         try:
             conn = sqlite3.connect(self.pis_db_path)
