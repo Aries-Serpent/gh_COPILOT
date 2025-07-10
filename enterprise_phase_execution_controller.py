@@ -105,7 +105,7 @@ class EnterprisePhaseExecutionController:
             "phase5": os.path.join(self.workspace_root, "phase5_continuous_operation.py")
         }
         
-        self.logger.info(f"🚀 Enterprise Phase Controller Initialized - ID: {self.execution_id}")
+        self.logger.info(f"[INIT] Enterprise Phase Controller Initialized - ID: {self.execution_id}")
     
     def _setup_logging(self):
         """Setup comprehensive logging with visual indicators"""
@@ -117,7 +117,7 @@ class EnterprisePhaseExecutionController:
             level=logging.INFO,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler(log_file),
+                logging.FileHandler(log_file, encoding='utf-8'),
                 logging.StreamHandler(sys.stdout)
             ]
         )
@@ -151,7 +151,7 @@ class EnterprisePhaseExecutionController:
             conn.commit()
             conn.close()
             
-            self.logger.info("✅ Database initialized successfully")
+            self.logger.info("[SUCCESS] Database initialized successfully")
             
         except Exception as e:
             self.logger.error(f"❌ Database initialization failed: {str(e)}")
@@ -166,7 +166,7 @@ class EnterprisePhaseExecutionController:
         filled_length = int(bar_length * progress / 100)
         bar = "█" * filled_length + "░" * (bar_length - filled_length)
         
-        print(f"\r🎯 {phase.upper()} │{bar}│ {progress:.1f}% │ {message}", end="", flush=True)
+        print(f"\r[{phase.upper()}] |{bar}| {progress:.1f}% | {message}", end="", flush=True)
         
         if progress >= 100:
             print()  # New line when complete
@@ -174,7 +174,7 @@ class EnterprisePhaseExecutionController:
     def _execute_phase_script(self, phase_id: str, script_path: str) -> Tuple[bool, Dict[str, Any]]:
         """Execute a phase script with comprehensive monitoring"""
         try:
-            self.logger.info(f"🚀 Starting execution of {phase_id}")
+            self.logger.info(f"[START] Starting execution of {phase_id}")
             
             # Initialize metrics
             self.phase_metrics[phase_id] = PhaseExecutionMetrics(
@@ -210,7 +210,7 @@ class EnterprisePhaseExecutionController:
                 }
                 
                 if result["success"]:
-                    self.logger.info(f"✅ {phase_id} completed successfully")
+                    self.logger.info(f"[SUCCESS] {phase_id} completed successfully")
                 else:
                     self.logger.error(f"❌ {phase_id} failed with return code {process.returncode}")
                     self.logger.error(f"Error output: {stderr}")
@@ -256,7 +256,7 @@ class EnterprisePhaseExecutionController:
             conn.commit()
             conn.close()
             
-            self.logger.info(f"📊 Updated database metrics for {phase_id}")
+            self.logger.info(f"[METRICS] Updated database metrics for {phase_id}")
             
         except Exception as e:
             self.logger.error(f"❌ Database update failed for {phase_id}: {str(e)}")
@@ -275,7 +275,7 @@ class EnterprisePhaseExecutionController:
         phase_id = "PHASE3_SYSTEMATIC_STYLE"
         script_path = self.phase_files["phase3"]
         
-        self.logger.info("🎯 PHASE 3: Systematic Style Compliance & ML Pattern Optimization")
+        self.logger.info("[PHASE3] PHASE 3: Systematic Style Compliance & ML Pattern Optimization")
         self.logger.info("=" * 70)
         
         # Validate script exists
@@ -287,7 +287,7 @@ class EnterprisePhaseExecutionController:
         success, result = self._execute_phase_script(phase_id, script_path)
         
         if success:
-            self.logger.info("✅ Phase 3 completed successfully")
+            self.logger.info("[SUCCESS] Phase 3 completed successfully")
             self._display_visual_indicator("PHASE 3", 100.0, "Systematic Style Compliance Complete")
         else:
             self.logger.error("❌ Phase 3 execution failed")
@@ -313,7 +313,7 @@ class EnterprisePhaseExecutionController:
         phase_id = "PHASE4_ENTERPRISE_VALIDATION"
         script_path = self.phase_files["phase4"]
         
-        self.logger.info("🎯 PHASE 4: Enterprise Validation & Comprehensive Reporting")
+        self.logger.info("[PHASE4] PHASE 4: Enterprise Validation & Comprehensive Reporting")
         self.logger.info("=" * 70)
         
         # Validate script exists
@@ -325,7 +325,7 @@ class EnterprisePhaseExecutionController:
         success, result = self._execute_phase_script(phase_id, script_path)
         
         if success:
-            self.logger.info("✅ Phase 4 completed successfully")
+            self.logger.info("[SUCCESS] Phase 4 completed successfully")
             self._display_visual_indicator("PHASE 4", 100.0, "Enterprise Validation Complete")
         else:
             self.logger.error("❌ Phase 4 execution failed")
@@ -351,7 +351,7 @@ class EnterprisePhaseExecutionController:
         phase_id = "PHASE5_CONTINUOUS_OPERATION"
         script_path = self.phase_files["phase5"]
         
-        self.logger.info("🎯 PHASE 5: Continuous Operation Mode & Long-term Compliance Maintenance")
+        self.logger.info("[PHASE5] PHASE 5: Continuous Operation Mode & Long-term Compliance Maintenance")
         self.logger.info("=" * 70)
         
         # Validate script exists
@@ -363,7 +363,7 @@ class EnterprisePhaseExecutionController:
         success, result = self._execute_phase_script(phase_id, script_path)
         
         if success:
-            self.logger.info("✅ Phase 5 completed successfully")
+            self.logger.info("[SUCCESS] Phase 5 completed successfully")
             self._display_visual_indicator("PHASE 5", 100.0, "Continuous Operation Activated")
         else:
             self.logger.error("❌ Phase 5 execution failed")
@@ -452,7 +452,7 @@ class EnterprisePhaseExecutionController:
     def execute_all_phases(self) -> bool:
         """Execute all phases in sequence with comprehensive monitoring"""
         
-        self.logger.info("🚀 ENTERPRISE PHASE EXECUTION CONTROLLER - FULL SEQUENCE")
+        self.logger.info("[EXEC] ENTERPRISE PHASE EXECUTION CONTROLLER - FULL SEQUENCE")
         self.logger.info("=" * 80)
         self.logger.info(f"Execution ID: {self.execution_id}")
         self.logger.info(f"Workspace: {self.workspace_root}")
@@ -484,12 +484,12 @@ class EnterprisePhaseExecutionController:
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)
         
-        self.logger.info(f"📊 Execution report saved: {report_file}")
+        self.logger.info(f"[REPORT] Execution report saved: {report_file}")
         
         # Display final status
         if overall_success:
             self.logger.info("🎉 ALL PHASES COMPLETED SUCCESSFULLY")
-            self.logger.info("✅ Enterprise Flake8/PEP 8 Compliance Framework Fully Operational")
+            self.logger.info("[COMPLETE] Enterprise Flake8/PEP 8 Compliance Framework Fully Operational")
         else:
             self.logger.warning("⚠️ Some phases failed - review logs for details")
         

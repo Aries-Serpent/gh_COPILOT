@@ -297,7 +297,7 @@ class Phase3StyleComplianceExecutor:
             level=logging.INFO,
             format='%(asctime)s | %(levelname)8s | %(name)15s | %(message)s',
             handlers=[
-                logging.FileHandler(log_file),
+                logging.FileHandler(log_file, encoding='utf-8'),
                 logging.StreamHandler(sys.stdout)
             ]
         )
