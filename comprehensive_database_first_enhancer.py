@@ -36,6 +36,9 @@ try:
     SKLEARN_AVAILABLE = True
 except ImportError:
     SKLEARN_AVAILABLE = False
+    TfidfVectorizer = None
+    cosine_similarity = None
+    KMeans = None
 
 # Setup logging
 logging.basicConfig(
@@ -475,7 +478,7 @@ class ComprehensiveDatabaseFirstEnhancer:
     def initialize_semantic_search_engine(self) -> bool:
         """Initialize semantic search engine with TF-IDF vectorization."""
         try:
-            if not SKLEARN_AVAILABLE:
+            if not SKLEARN_AVAILABLE or TfidfVectorizer is None:
                 self.logger.warning("scikit-learn not available - semantic search will be limited")
                 return False
             
@@ -587,7 +590,10 @@ class ComprehensiveDatabaseFirstEnhancer:
                 try:
                     # Calculate cosine similarity
                     tfidf_vector = np.array(json.loads(tfidf_vector_json))
-                    similarity = cosine_similarity(query_vector.toarray(), tfidf_vector.reshape(1, -1))[0][0]
+                    if cosine_similarity is not None:
+                        similarity = cosine_similarity(query_vector.toarray(), tfidf_vector.reshape(1, -1))[0][0]
+                    else:
+                        similarity = 0.0  # Fallback if cosine_similarity is unavailable
                     
                     if similarity > 0.1:  # Minimum relevance threshold
                         result = SemanticSearchResult(

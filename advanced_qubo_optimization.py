@@ -612,7 +612,7 @@ class AdvancedQUBOOptimizer:
 
 def main():
     """Main function to demonstrate QUBO optimization capabilities."""
-    print(f"🧮 ADVANCED QUBO OPTIMIZATION DEMONSTRATION")
+    print("ADVANCED QUBO OPTIMIZATION DEMONSTRATION")
     print("=" * 70)
     
     # Initialize QUBO optimizer

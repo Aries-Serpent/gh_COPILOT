@@ -759,7 +759,7 @@ class ExpandedQuantumAlgorithmLibrary:
 
 def main():
     """Main function to demonstrate expanded quantum algorithm library."""
-    print(f"⚛️ EXPANDED QUANTUM ALGORITHM LIBRARY DEMONSTRATION")
+    print("EXPANDED QUANTUM ALGORITHM LIBRARY DEMONSTRATION")
     print("=" * 70)
     
     # Initialize the expanded quantum library
