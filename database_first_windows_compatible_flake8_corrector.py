@@ -32,6 +32,7 @@ from datetime import datetime
 from dataclasses import dataclass
 from tqdm import tqdm
 import time
+from typing import List, Dict
 
 # Windows-compatible visual indicators (NO Unicode emojis)
 VISUAL_INDICATORS = {
@@ -176,9 +177,9 @@ class DatabaseFirstFlake8Corrector:
             raise RuntimeError(error_msg)
 
         self.logger.info(
-                         "Workspace integrity validated - no dangerous recursive patterns found",
-                         "success"
-        self.logger.info("Worksp)
+            "Workspace integrity validated - no dangerous recursive patterns found",
+            "success"
+        )
 
     def load_correction_patterns_from_database(self):
         """Load correction patterns from production and analytics databases"""
@@ -246,9 +247,9 @@ class DatabaseFirstFlake8Corrector:
             self.logger.error(f"Error loading from analytics database: {e}")
 
         self.logger.info(
-                         f"Loaded {patterns_loaded} correction patterns from databases",
-                         "success"
-        self.logger.info(f"Loade)
+            f"Loaded {patterns_loaded} correction patterns from databases",
+            "success"
+        )
 
     def run_flake8_scan(self) -> List[FlakeViolation]:
         """Run Flake8 scan and parse violations"""
@@ -306,10 +307,10 @@ class DatabaseFirstFlake8Corrector:
         return violations
 
     def apply_correction_pattern(
-                                 self,
-                                 file_path: str,
-                                 violation: FlakeViolation) -> CorrectionResult
-    def apply_correction_pattern(sel)
+        self,
+        file_path: str,
+        violation: FlakeViolation
+    ) -> CorrectionResult:
         """Apply database-stored correction pattern to fix violation"""
 
         pattern = self.correction_patterns.get(violation.error_code)
@@ -334,11 +335,11 @@ class DatabaseFirstFlake8Corrector:
             if violation.error_code == "W293":
                 # Remove trailing whitespace
                 corrected_content = re.sub(
-                                           r'[ \t]+$',
-                                           '',
-                                           corrected_content,
-                                           flags=re.MULTILINE
-                corrected_content = re.sub(r'[ \t]+$', '',)
+                    r'[ \t]+$',
+                    '',
+                    corrected_content,
+                    flags=re.MULTILINE
+                )
                 violations_fixed.append("W293: Removed trailing whitespace")
 
             elif violation.error_code == "W291":
@@ -403,10 +404,10 @@ class DatabaseFirstFlake8Corrector:
             )
 
     def save_correction_results_to_database(
-                                            self,
-                                            violations: List[FlakeViolation],
-                                            corrections: List[CorrectionResult])
-    def save_correction_results_to_database(sel)
+        self,
+        violations: List[FlakeViolation],
+        corrections: List[CorrectionResult]
+    ):
         """Save correction results to analytics database"""
         self.logger.info("Saving correction results to database", "database")
 
@@ -428,10 +429,7 @@ class DatabaseFirstFlake8Corrector:
                     self.stats['files_processed'],
                     self.stats['violations_found'],
                     self.stats['violations_fixed'],
-                    (
-                     self.stats['violations_fixed'] / max(1,
-                     self.stats['violations_found'])) * 100
-                    (self.stats['violati)
+                    (self.stats['violations_fixed'] / max(1, self.stats['violations_found'])) * 100,
                     "COMPLETED"
                 ))
 
@@ -441,14 +439,13 @@ class DatabaseFirstFlake8Corrector:
                 for violation in violations:
                     cursor.execute('''
                         INSERT INTO violations
-                        (
-                         file_path,
+                        (file_path,
                          line_number,
                          column_number,
                          error_code,
                          message,
                          session_id
-                        (file_path, line_number,)
+                        )
                         VALUES (?, ?, ?, ?, ?, ?)
                     ''', (
                         violation.file_path,
@@ -459,9 +456,6 @@ class DatabaseFirstFlake8Corrector:
                         self.session_id
                     ))
 
-                conn.commit()
-                self.logger.info("Results saved to database successfully", "success")
-
         except Exception as e:
             self.logger.error(f"Error saving to database: {e}")
 
@@ -470,38 +464,35 @@ class DatabaseFirstFlake8Corrector:
 
         start_time = datetime.now()
         self.logger.info(
-                         f"Starting comprehensive Flake8 correction session: {self.session_id}",
-                         "start"
-        self.logger.info(f"Start)
+            f"Starting comprehensive Flake8 correction session: {self.session_id}",
+            "start"
+        )
+        self.logger.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}", "info")
         self.logger.info(f"Workspace: {self.workspace_path}", "info")
         self.logger.info(f"Process ID: {os.getpid()}", "info")
-
         try:
-            # Phase 1: Load correction patterns from database
             with tqdm(
-                      total=100,
-                      desc="[PHASE 1] Loading Database Patterns",
-                      unit="%") as pbar
-            with tqdm(total=100, )
+                    total=100,
+                    desc="[PHASE 1] Loading Database Patterns",
+                    unit="%") as pbar:
                 pbar.set_description("[DATABASE] Loading correction patterns")
                 self.load_correction_patterns_from_database()
                 pbar.update(100)
 
             # Phase 2: Scan for violations
             with tqdm(
-                      total=100,
-                      desc="[PHASE 2] Scanning Violations",
-                      unit="%") as pbar
-            with tqdm(total=100, )
+                    total=100,
+                    desc="[PHASE 2] Scanning Violations",
+                    unit="%") as pbar:
                 pbar.set_description("[SEARCH] Scanning for Flake8 violations")
                 violations = self.run_flake8_scan()
                 pbar.update(100)
 
             if not violations:
                 self.logger.info(
-                                 "No violations found - workspace is compliant!",
-                                 "success"
-                self.logger.info("No violations )
+                    "No violations found - workspace is compliant!",
+                    "success"
+                )
                 return
 
             # Phase 3: Apply corrections
@@ -510,9 +501,8 @@ class DatabaseFirstFlake8Corrector:
             self.stats['files_processed'] = len(files_to_process)
 
             with tqdm(
-                      total=len(files_to_process),
-                      desc="[PHASE 3] Applying Corrections") as pbar
-            with tqdm(total=len(f)
+                    total=len(files_to_process),
+                    desc="[PHASE 3] Applying Corrections") as pbar:
                 for file_path in files_to_process:
                     pbar.set_description(f"[FIX] {Path(file_path).name}")
 
@@ -531,8 +521,6 @@ class DatabaseFirstFlake8Corrector:
                         self.stats['files_modified'] += 1
 
                     pbar.update(1)
-
-            # Phase 4: Save results to database
             with tqdm(total=100, desc="[PHASE 4] Saving Results", unit="%") as pbar:
                 pbar.set_description("[DATABASE] Saving results to database")
                 self.save_correction_results_to_database(violations, corrections)
@@ -554,29 +542,29 @@ class DatabaseFirstFlake8Corrector:
         self.logger.info("=" * 60, "complete")
         self.logger.info(f"Session ID: {self.session_id}", "info")
         self.logger.info(f"Total Duration: {duration:.1f} seconds", "info")
+        self.logger.info("=" * 60, "complete")
+        self.logger.info("DATABASE-FIRST FLAKE8 CORRECTION COMPLETE", "complete")
+        self.logger.info("=" * 60, "complete")
+        self.logger.info(f"Session ID: {self.session_id}", "info")
+        self.logger.info(f"Total Duration: {duration:.1f} seconds", "info")
         self.logger.info(f"Files Processed: {self.stats['files_processed']}", "info")
         self.logger.info(f"Violations Found: {self.stats['violations_found']}", "info")
         self.logger.info(f"Violations Fixed: {self.stats['violations_fixed']}", "info")
         self.logger.info(f"Files Modified: {self.stats['files_modified']}", "info")
         self.logger.info(
-                         f"Success Rate: {(self.stats['violations_fixed']/max(1,self.stats['violations_found']))*100:.1f}%",
-                         "info"
-        self.logger.info(f"Succe)
+            f"Success Rate: {(self.stats['violations_fixed']/max(1,self.stats['violations_found']))*100:.1f}%",
+            "info"
+        )
         self.logger.info("=" * 60, "complete")
 
         # DUAL COPILOT validation
         if self.stats['violations_fixed'] > 0:
             self.logger.info(
-                             "DUAL COPILOT VALIDATION: PRIMARY EXECUTION SUCCESSFUL",
-                             "validation"
-            self.logger.info("DUAL COPIL)
+                "DUAL COPILOT VALIDATION: PRIMARY EXECUTION SUCCESSFUL",
+                "validation"
+            )
         else:
             self.logger.warning("DUAL COPILOT VALIDATION: NO FIXES APPLIED - REVIEW REQUIRED")
-
-
-def main():
-    """Main execution function with timeout and error handling"""
-
     print(f"{VISUAL_INDICATORS['start']} Database-First Windows-Compatible Flake8 Corrector")
     print(f"{VISUAL_INDICATORS['info']} Session started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
