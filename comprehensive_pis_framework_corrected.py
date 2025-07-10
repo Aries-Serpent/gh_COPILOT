@@ -171,12 +171,16 @@ class ComprehensivePISFramework:
         """Initialize production and analytics databases."""
         try:
             # Initialize production database
-            prod_db_path = self.workspace_path / "analytics.db"
+            prod_db_path = self.workspace_path / "production.db"
             self.production_db = sqlite3.connect(str(prod_db_path))
             
             # Initialize analytics database
             analytics_db_path = self.workspace_path / "analytics.db"
             self.analytics_db = sqlite3.connect(str(analytics_db_path))
+            
+            # Ensure both databases are initialized
+            if self.analytics_db is None or self.production_db is None:
+                raise Exception("Database connections could not be established")
             
             # Create required tables
             self._create_database_tables()
@@ -241,8 +245,10 @@ class ComprehensivePISFramework:
         ]
         
         for table_sql in tables:
-            self.analytics_db.execute(table_sql)
-        self.analytics_db.commit()
+            if self.analytics_db is not None:
+                self.analytics_db.execute(table_sql)
+        if self.analytics_db is not None:
+            self.analytics_db.commit()
         
     def execute_phase_1_strategic_planning(self) -> PISMetrics:
         """Phase 1: Strategic Planning & Database Setup."""
