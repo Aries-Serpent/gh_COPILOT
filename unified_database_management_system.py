@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import sqlite3
 from pathlib import Path
 from typing import Iterable, Tuple
@@ -11,13 +12,15 @@ from typing import Iterable, Tuple
 logger = logging.getLogger(__name__)
 
 DATABASE_LIST_FILE = Path("documentation") / "DATABASE_LIST.md"
+WORKSPACE_ENV_VAR = "GH_COPILOT_WORKSPACE"
 
 
 class UnifiedDatabaseManager:
     """Manage expected databases for the workspace."""
 
     def __init__(self, workspace_root: str = ".") -> None:
-        self.workspace_root = Path(workspace_root)
+        workspace = os.getenv(WORKSPACE_ENV_VAR, workspace_root)
+        self.workspace_root = Path(workspace)
         self.databases_dir = self.workspace_root / "databases"
 
     def _load_expected_names(self) -> list[str]:
@@ -49,6 +52,7 @@ def synchronize_databases(master: Path, replicas: Iterable[Path]) -> None:
     """Synchronize replica databases with the master database."""
     for replica in replicas:
         _backup_database(master, replica)
+
 
 if __name__ == "__main__":
     mgr = UnifiedDatabaseManager(Path.cwd())

@@ -13,6 +13,24 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import List, Tuple
+
+import numpy as np
+
+
+def solve_qubo_bruteforce(matrix: List[List[float]]) -> Tuple[List[int], float]:
+    """Brute-force solver for a Quadratic Unconstrained Binary Optimization problem."""
+    n = len(matrix)
+    q = np.array(matrix)
+    best_solution: List[int] | None = None
+    best_energy = float("inf")
+    for bits in range(1 << n):
+        x = np.array([(bits >> i) & 1 for i in range(n)])
+        energy = float(x @ q @ x)
+        if energy < best_energy:
+            best_energy = energy
+            best_solution = x.tolist()
+    return best_solution or [0] * n, best_energy
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {

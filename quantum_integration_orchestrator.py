@@ -13,6 +13,20 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import List, Tuple
+
+from advanced_qubo_optimization import solve_qubo_bruteforce
+
+
+def integrate_qubo_problems(qubos: List[List[List[float]]]) -> Tuple[List[int], float]:
+    """Solve multiple QUBO problems and return the best solution."""
+    best_solution: List[int] | None = None
+    best_energy = float("inf")
+    for matrix in qubos:
+        solution, energy = solve_qubo_bruteforce(matrix)
+        if energy < best_energy:
+            best_solution, best_energy = solution, energy
+    return best_solution or [], best_energy
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {

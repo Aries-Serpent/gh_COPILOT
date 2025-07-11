@@ -10,9 +10,9 @@ Enterprise Standards Compliance:
 """
 
 import logging
-import os
 from datetime import datetime
-from pathlib import Path
+
+from copilot.common.workspace_utils import get_workspace_path
 
 from session_protocol_validator import SessionProtocolValidator
 
@@ -29,8 +29,7 @@ class UnifiedSessionManagementSystem:
     """Manage session start validation."""
 
     def __init__(self, workspace_root: str | None = None) -> None:
-        self.workspace_root = Path(
-            workspace_root or os.getenv("GH_COPILOT_WORKSPACE", "."))
+        self.workspace_root = get_workspace_path(workspace_root)
         self.validator = SessionProtocolValidator(str(self.workspace_root))
 
     def start_session(self) -> bool:
