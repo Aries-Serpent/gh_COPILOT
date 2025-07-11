@@ -63,6 +63,10 @@ to determine whether they should be reintegrated or safely removed.
 1. `pip install -r requirements-test.txt`
 2. `make test`
 
+### 🧪 **Running Tests**
+1. `pip install -r requirements-test.txt`
+2. `make test`
+
 For detailed instructions, see the generated documentation files in this directory.
 
 ---
