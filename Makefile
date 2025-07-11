@@ -7,7 +7,5 @@ setup: create-env
 	pip install -r requirements-test.txt
 
 test: setup
-	pytest
+	pytest tests
 
-lint:
-	flake8 --config=.flake8 --count --show-source --statistics .

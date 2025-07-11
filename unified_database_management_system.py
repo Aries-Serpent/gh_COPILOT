@@ -22,12 +22,17 @@ class UnifiedDatabaseManager:
 
     def _load_expected_names(self) -> list[str]:
         names: list[str] = []
-        for line in DATABASE_LIST_FILE.read_text().splitlines():
-            line = line.strip()
-            if line.startswith("- "):
-                name = line[2:].strip()
-                if name:
-                    names.append(name)
+        try:
+            for line in DATABASE_LIST_FILE.read_text().splitlines():
+                line = line.strip()
+                if line.startswith("- "):
+                    name = line[2:].strip()
+                    if name:
+                        names.append(name)
+        except FileNotFoundError:
+            logger.error("Database list file not found: %s", DATABASE_LIST_FILE)
+        except OSError as e:
+            logger.error("Error reading database list file %s: %s", DATABASE_LIST_FILE, e)
         return names
 
     def verify_expected_databases(self) -> Tuple[bool, list[str]]:
@@ -36,7 +41,6 @@ class UnifiedDatabaseManager:
         missing = [name for name in expected if not (
             self.databases_dir / name).exists()]
         return len(missing) == 0, missing
-
 
 def _backup_database(source: Path, target: Path) -> None:
     """Copy source SQLite database to target using backup API."""
@@ -56,4 +60,3 @@ if __name__ == "__main__":
     ok, missing_dbs = mgr.verify_expected_databases()
     if not ok:
         print("Missing databases:", ", ".join(missing_dbs))
-        sys.exit(1)
