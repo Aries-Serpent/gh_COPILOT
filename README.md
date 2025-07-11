@@ -45,14 +45,19 @@ The gh_COPILOT Toolkit is an enterprise-grade system following database-first ar
 ├── logs/               # Enterprise logging system
 ├── scripts/            # 1,679 validated scripts
 ├── web_gui/            # Flask enterprise dashboard
+├── Archive/tests/     # Archived test backups pending QA review
 └── .github/            # Enterprise instructions & patterns
 ```
+
+Archived test backups in `Archive/tests/` are reviewed regularly by the QA team
+to determine whether they should be reintegrated or safely removed.
 
 ### 🚀 **GETTING STARTED**
 1. **Environment Setup**: Follow enterprise environment configuration
 2. **Database Initialization**: All databases auto-configured
 3. **Documentation Access**: Use web-GUI dashboard or database queries
 4. **Script Execution**: All scripts enterprise-validated and database-tracked
+5. **Session Startup Guide**: See [documentation/SESSION_STARTUP_GUIDE.md](documentation/SESSION_STARTUP_GUIDE.md) for environment setup and manual service commands
 
 For detailed instructions, see the generated documentation files in this directory.
 
