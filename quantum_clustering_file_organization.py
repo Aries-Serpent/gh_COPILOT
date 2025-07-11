@@ -1,19 +1,28 @@
 #!/usr/bin/env python3
-"""
-QuantumClusteringFileOrganization - Enterprise Utility Script
-Generated: 2025-07-10 18:10:12
+"""Quantum Clustering File Organization
+=======================================
 
-Enterprise Standards Compliance:
-- Flake8/PEP 8 Compliant
-- Emoji-free code (text-based indicators only)
-- Visual processing indicators
+This script groups files in a directory using a quantum kernel-based
+clustering approach. File size and modification time are converted to a
+two-dimensional feature space, and a
+``FidelityQuantumKernel`` computes the similarity matrix used by
+:class:`sklearn.cluster.KMeans`.
+
+The example illustrates how quantum kernels can assist with file
+classification and organization tasks.
 """
 
-import os
-import sys
 import logging
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
+
+from qiskit.circuit.library import ZZFeatureMap
+from qiskit_machine_learning.kernels import FidelityQuantumKernel
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+from qiskit import BasicAer
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -22,6 +31,7 @@ TEXT_INDICATORS = {
     'error': '[ERROR]',
     'info': '[INFO]'
 }
+
 
 class EnterpriseUtility:
     """Enterprise utility class"""
@@ -36,12 +46,12 @@ class EnterpriseUtility:
         self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
-            # Utility implementation
             success = self.perform_utility_function()
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -52,9 +62,33 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
+        """Cluster files using a quantum kernel."""
+        file_paths = [p for p in self.workspace_path.iterdir() if p.is_file()]
+        if not file_paths:
+            self.logger.info(f"{TEXT_INDICATORS['info']} No files found")
+            return False
+
+        features = [
+            [f.stat().st_size, f.stat().st_mtime]
+            for f in file_paths
+        ]
+
+        scaler = StandardScaler()
+        features_scaled = scaler.fit_transform(features)
+
+        feature_map = ZZFeatureMap(feature_dimension=2, reps=1)
+        backend = BasicAer.get_backend("statevector_simulator")
+        kernel = FidelityQuantumKernel(feature_map=feature_map, quantum_instance=backend)
+        kernel_matrix = kernel.evaluate(features_scaled)
+
+        kmeans = KMeans(n_clusters=2, random_state=42)
+        labels = kmeans.fit_predict(kernel_matrix)
+
+        for path, label in zip(file_paths, labels):
+            self.logger.info(f"{TEXT_INDICATORS['info']} {path.name}: cluster {label}")
+
         return True
+
 
 def main():
     """Main execution function"""
@@ -67,6 +101,7 @@ def main():
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
     return success
+
 
 if __name__ == "__main__":
     success = main()
