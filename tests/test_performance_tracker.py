@@ -6,9 +6,9 @@ from monitoring.performance_tracker import record_error, track_query_time
 
 
 def _prepare_db(tmp_path: Path) -> Path:
-    repo_root = Path(__file__).resolve().parents[1]
     db_path = tmp_path / "analytics.db"
-    shutil.copy(repo_root / "analytics.db", db_path)
+    with sqlite3.connect(db_path) as conn:
+        _ensure_table(conn)
     return db_path
 
 
