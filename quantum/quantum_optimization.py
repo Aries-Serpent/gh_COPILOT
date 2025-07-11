@@ -60,7 +60,7 @@ class EnterpriseUtility:
         """
         x = 0.0
         learning_rate = 0.1
-        for _ in range(100):
+        for _ in range(self.GRADIENT_DESCENT_ITERATIONS):
             gradient = 2 * (x - 3)
             x -= learning_rate * gradient
 
