@@ -81,7 +81,16 @@ class EnterpriseUtility:
         kernel = FidelityQuantumKernel(feature_map=feature_map, quantum_instance=backend)
         kernel_matrix = kernel.evaluate(features_scaled)
 
-        kmeans = KMeans(n_clusters=2, random_state=42)
+        if n_clusters is None:
+            # Determine the optimal number of clusters using the elbow method
+            distortions = []
+            for k in range(1, min(10, len(features_scaled)) + 1):
+                kmeans = KMeans(n_clusters=k, random_state=42)
+                kmeans.fit(kernel_matrix)
+                distortions.append(kmeans.inertia_)
+            n_clusters = distortions.index(min(distortions[1:], key=lambda x: abs(x - distortions[0]))) + 1
+
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
         labels = kmeans.fit_predict(kernel_matrix)
 
         for path, label in zip(file_paths, labels):
