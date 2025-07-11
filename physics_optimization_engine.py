@@ -85,7 +85,7 @@ class PhysicsOptimizationEngine:
         data_list = list(data)
         n = self._ensure_power_of_two(len(data_list))
         if not _QISKIT_AVAILABLE:
-            return np.fft.fft(np.array(data_list)).tolist()
+            return (np.fft.fft(np.array(data_list)) / np.sqrt(len(data_list))).tolist()
 
         sv = Statevector(data_list)
         qc = QuantumCircuit(n)
