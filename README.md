@@ -53,6 +53,10 @@ The gh_COPILOT Toolkit is an enterprise-grade system following database-first ar
 3. **Documentation Access**: Use web-GUI dashboard or database queries
 4. **Script Execution**: All scripts enterprise-validated and database-tracked
 
+### 🧪 **Running Tests**
+1. `pip install -r requirements-test.txt`
+2. `make test`
+
 For detailed instructions, see the generated documentation files in this directory.
 
 ---
