@@ -290,7 +290,7 @@ class DatabaseFirstFlake8Corrector:
                     text=True,
                     encoding="utf-8",
                     errors="strict",
-                    cwd=self._sanitize_path(self.workspace_path),
+                    cwd=self.workspace_path,
                     env=env,
                 )
                 output = result.stdout
