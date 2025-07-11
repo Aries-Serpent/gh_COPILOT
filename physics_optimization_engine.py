@@ -1,93 +1,119 @@
-"""Physics optimization algorithms using Qiskit.
-
-This module provides quantum implementations for common operations
-such as Grover search, Shor factorization, and the Quantum Fourier
-Transform (QFT).  Classical fallbacks are included for environments
-where Qiskit is not available.
-"""
-
+"""Physics optimization algorithms implemented with Qiskit."""
 from __future__ import annotations
 
-from math import ceil, log2
-from typing import Any, Iterable, List
+import math
+from typing import Any, List
 
 import numpy as np
 
-try:  # Optional import as qiskit may not be installed
-    from qiskit import Aer, QuantumCircuit
-    from qiskit.algorithms import Grover, Shor, AmplificationProblem
-    from qiskit.circuit.library import PhaseOracle, QFT
-    from qiskit.quantum_info import Statevector
-
-    _QISKIT_AVAILABLE = True
-except Exception:  # pragma: no cover - handled gracefully if missing
-    _QISKIT_AVAILABLE = False
 
 class PhysicsOptimizationEngine:
-    """Collection of quantum optimization methods."""
-
-    def __init__(self) -> None:
-        if _QISKIT_AVAILABLE:
-            self.backend = Aer.get_backend("aer_simulator")
-        else:  # pragma: no cover - executed if Qiskit missing
-            self.backend = None
-
-    def _ensure_power_of_two(self, length: int) -> int:
-        n = ceil(log2(length))
-        if 2 ** n != length:
-            raise ValueError("Input length must be a power of 2")
-        return n
+    """Collection of quantum-inspired algorithms using Qiskit."""
 
     def grover_search(self, search_space: List[Any], target: Any) -> int:
         """Return the index of ``target`` using Grover's algorithm.
 
-        Falls back to classical search when Qiskit is unavailable.
+        If Qiskit is unavailable, fall back to a classical search.
         """
         try:
-            idx = search_space.index(target)
-        except ValueError:
+            from qiskit import QuantumCircuit
+            from qiskit_aer import AerSimulator
+        except ImportError:  # pragma: no cover - qiskit missing
+            for idx, item in enumerate(search_space):
+                if item == target:
+                    return idx
             return -1
 
-        if not _QISKIT_AVAILABLE:
-            return idx
+        if target not in search_space:
+            return -1
 
-        n = self._ensure_power_of_two(len(search_space))
-        bitstring = bin(idx)[2:].zfill(n)[::-1]
-        expr_parts = [f"{'~' if bit == '0' else ''}x{i}" for i, bit in enumerate(bitstring)]
-        oracle = PhaseOracle(" & ".join(expr_parts))
-        problem = AmplificationProblem(oracle)
-        grover = Grover(quantum_instance=self.backend)
-        result = grover.amplify(problem)
-        measured = result.top_measurement
-        found = int(measured[::-1], 2)
-        return found if search_space[found] == target else -1
+        n = len(search_space)
+        num_qubits = max(1, math.ceil(math.log2(n)))
+        index = search_space.index(target)
+
+        qc = QuantumCircuit(num_qubits, num_qubits)
+        qc.h(range(num_qubits))
+
+        def oracle(circ: QuantumCircuit) -> None:
+            for q in range(num_qubits):
+                if (index >> q) & 1 == 0:
+                    circ.x(q)
+            if num_qubits == 1:
+                circ.z(0)
+            else:
+                circ.h(num_qubits - 1)
+                circ.mcx(list(range(num_qubits - 1)), num_qubits - 1)
+                circ.h(num_qubits - 1)
+            for q in range(num_qubits):
+                if (index >> q) & 1 == 0:
+                    circ.x(q)
+
+        def diffusion(circ: QuantumCircuit) -> None:
+            circ.h(range(num_qubits))
+            circ.x(range(num_qubits))
+            if num_qubits == 1:
+                circ.z(0)
+            else:
+                circ.h(num_qubits - 1)
+                circ.mcx(list(range(num_qubits - 1)), num_qubits - 1)
+                circ.h(num_qubits - 1)
+            circ.x(range(num_qubits))
+            circ.h(range(num_qubits))
+
+        iterations = max(1, int(math.pi / 4 * math.sqrt(2 ** num_qubits)))
+        for _ in range(iterations):
+            oracle(qc)
+            diffusion(qc)
+
+        qc.measure(range(num_qubits), range(num_qubits))
+        backend = AerSimulator()
+        counts = backend.run(qc, shots=1024).result().get_counts()
+        measured = max(counts, key=counts.get)
+        result_index = int(measured, 2)
+        within_bounds = result_index < len(search_space)
+        if within_bounds and search_space[result_index] == target:
+            return result_index
+        return -1
 
     def shor_factorization(self, n: int) -> List[int]:
-        """Factor integer ``n`` using Shor's algorithm."""
-        if n < 2:
-            return []
-        if not _QISKIT_AVAILABLE:
-            factors = []
-            for i in range(2, int(n ** 0.5) + 1):
+        """Factor integer ``n`` using Shor's algorithm with fallback."""
+        try:
+            from qiskit.algorithms import Shor
+            from qiskit_aer import AerSimulator
+        except Exception:  # pragma: no cover - qiskit missing
+            if n < 2:
+                return []
+            for i in range(2, int(math.sqrt(n)) + 1):
                 if n % i == 0:
-                    factors = [i, n // i]
-                    break
-            return factors or [n]
-        shor = Shor(quantum_instance=self.backend)
-        result = shor.factorize(n)
-        if result.factors:
-            return [int(f) for f in result.factors[0]]
+                    return [i, n // i]
+            return [n]
+
+        backend = AerSimulator()
+        result = Shor(quantum_instance=backend).factor(n)
+        factors = result.factors
+        if factors:
+            return list(factors[0])
         return [n]
 
-    def fourier_transform(self, data: Iterable[complex]) -> List[complex]:
-        """Apply the Quantum Fourier Transform to ``data``."""
-        data_list = list(data)
-        n = self._ensure_power_of_two(len(data_list))
-        if not _QISKIT_AVAILABLE:
-            return (np.fft.fft(np.array(data_list)) / np.sqrt(len(data_list))).tolist()
+    def fourier_transform(self, data: List[complex]) -> List[complex]:
+        """Return the discrete Fourier transform of ``data`` via QFT."""
+        try:
+            from qiskit import QuantumCircuit
+            from qiskit.circuit.library import QFT
+            from qiskit.quantum_info import Statevector
+        except Exception:  # pragma: no cover - qiskit missing
+            return np.fft.fft(np.array(data)).tolist()
 
-        sv = Statevector(data_list)
-        qc = QuantumCircuit(n)
-        qc.append(QFT(n), range(n))
-        transformed = sv.evolve(qc)
-        return transformed.data.tolist()
+        n = len(data)
+        num_qubits = int(math.log2(n))
+        if 2 ** num_qubits != n:
+            raise ValueError("Data length must be a power of 2")
+
+        qc = QuantumCircuit(num_qubits)
+        qc.initialize(data, range(num_qubits))
+        qc.append(QFT(num_qubits, do_swaps=False), range(num_qubits))
+        state = Statevector.from_instruction(qc)
+        return state.data.tolist()
+
+
+__all__ = ["PhysicsOptimizationEngine"]
