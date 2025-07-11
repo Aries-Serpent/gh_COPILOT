@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+# EXPERIMENTAL: This module contains placeholder logic and is not production ready.
 
 import os
 import sys

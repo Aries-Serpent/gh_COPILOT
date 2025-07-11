@@ -3,6 +3,7 @@
 
 ### Document Overview
 This documentation suite provides comprehensive information about the quantum optimization features integrated into the PIS (Plan Issued Statement) Framework.
+**Note:** Most quantum optimization modules are currently experimental and have been moved to the `experimental/` directory for continued development.
 
 ### Available Documents
 1. **[Quantum Optimization Overview](QUANTUM_OPTIMIZATION_OVERVIEW.md)**
