@@ -1,7 +1,7 @@
 import shutil
 import sqlite3
 from pathlib import Path
-from monitoring.performance_tracker import (_ensure_table, record_error,
+from monitoring.performance_tracker import (record_error,
                                             track_query_time)
 
 
