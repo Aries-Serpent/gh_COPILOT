@@ -9,11 +9,14 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
-import os
 import sys
 import logging
+import sqlite3
 from pathlib import Path
 from datetime import datetime
+from typing import List, Dict
+
+from flask import Flask, jsonify, render_template
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -22,6 +25,43 @@ TEXT_INDICATORS = {
     'error': '[ERROR]',
     'info': '[INFO]'
 }
+
+TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
+DB_PATH = Path(__file__).resolve().parents[3] / "analytics.db"
+
+app = Flask(__name__, template_folder=str(TEMPLATES_DIR))
+
+
+def get_metrics(limit: int = 10) -> List[Dict[str, str]]:
+    """Return recent metrics from ``analytics.db``."""
+    if not DB_PATH.exists():
+        return []
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        cur = conn.execute(
+            """
+            SELECT id, metric_timestamp, continuous_uptime,
+                   violations_detected
+            FROM continuous_operation_metrics
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (limit,),
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+
+@app.route("/")
+def dashboard() -> str:
+    """Display dashboard metrics."""
+    metrics = get_metrics()
+    return render_template("dashboard.html", metrics=metrics)
+
+
+@app.route("/metrics")
+def metrics() -> "flask.Response":
+    """Return metrics as JSON."""
+    return jsonify(get_metrics())
 
 class EnterpriseUtility:
     """Enterprise utility class"""
@@ -52,9 +92,15 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Start the Flask dashboard server."""
+        try:
+            app.run(host="0.0.0.0", port=8080)
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Server start failed: {exc}"
+            )
+            return False
 
 def main():
     """Main execution function"""

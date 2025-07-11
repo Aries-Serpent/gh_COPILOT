@@ -4,7 +4,10 @@ import math
 
 import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.algorithms import Shor
+try:
+    from qiskit.algorithms import Shor
+except Exception:  # pragma: no cover - use local fallback
+    from physics_optimization_engine import Shor  # type: ignore
 from qiskit.circuit.library import QFT
 from qiskit.quantum_info import Statevector
 from qiskit_aer import AerSimulator
@@ -76,7 +79,7 @@ def test_fourier_transform():
     data = [0, 1, 0, -1]
     result = engine.fourier_transform(data)
     qc = QuantumCircuit(2)
-    qc.initialize(data, range(2))
+    qc.initialize(data, range(2), normalize=True)
     qc.append(QFT(2, do_swaps=False), range(2))
     expected = Statevector.from_instruction(qc).data.tolist()
     assert len(result) == len(expected)
