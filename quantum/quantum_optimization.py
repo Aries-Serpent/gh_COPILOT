@@ -9,11 +9,10 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
-import os
-import sys
 import logging
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -22,6 +21,7 @@ TEXT_INDICATORS = {
     'error': '[ERROR]',
     'info': '[INFO]'
 }
+
 
 class EnterpriseUtility:
     """Enterprise utility class"""
@@ -33,7 +33,8 @@ class EnterpriseUtility:
     def execute_utility(self) -> bool:
         """Execute utility function"""
         start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+        self.logger.info(
+            f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
             # Utility implementation
@@ -41,7 +42,9 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in "
+                    f"{duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -51,10 +54,25 @@ class EnterpriseUtility:
             self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
             return False
 
+    def log_execution(self, method_name: str) -> None:
+        """Log execution of a method."""
+        self.logger.info(
+            f"{TEXT_INDICATORS['info']} Executing {method_name}")
+
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        self.logger.info(f"{TEXT_INDICATORS['info']} Example logic executed")
+        """Run a simple gradient descent optimization."""
+        self.log_execution("perform_utility_function")
+
+        x = 0.0
+        lr = 0.1
+        for _ in range(100):
+            grad = 2 * x + 2
+            x -= lr * grad
+
+        self.logger.info(
+            f"{TEXT_INDICATORS['info']} Optimized value {x:.4f}")
         return True
+
 
 def main():
     """Main execution function"""
@@ -67,6 +85,7 @@ def main():
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
     return success
+
 
 if __name__ == "__main__":
     success = main()

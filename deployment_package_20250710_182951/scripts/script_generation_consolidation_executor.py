@@ -53,7 +53,7 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        self.logger.info(f"{TEXT_INDICATORS['info']} Example logic executed")
+        # Implementation placeholder
         return True
 
 def main():
