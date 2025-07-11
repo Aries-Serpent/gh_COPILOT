@@ -9,11 +9,14 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
+import logging
 import os
 import sys
-import logging
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from typing import Iterable, List
+
+import numpy as np
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -23,51 +26,37 @@ TEXT_INDICATORS = {
     'info': '[INFO]'
 }
 
-class EnterpriseUtility:
-    """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
-        self.logger = logging.getLogger(__name__)
+class PhysicsOptimizationEngine:
+    """Lightweight physics optimization utilities."""
 
-    def execute_utility(self) -> bool:
-        """Execute utility function"""
-        start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+    def grover_search(self, data: Iterable[int], target: int) -> int:
+        """Return index of target using a simple search."""
+        for idx, value in enumerate(data):
+            if value == target:
+                return idx
+        raise ValueError("Target not found")
 
-        try:
-            # Utility implementation
-            success = self.perform_utility_function()
+    def shor_factorization(self, number: int) -> List[int]:
+        """Return non-trivial factors of ``number``."""
+        factors: List[int] = []
+        for i in range(2, number):
+            if number % i == 0:
+                factors.append(i)
+        return factors
 
-            if success:
-                duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
-                return True
-            else:
-                self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
-                return False
+    def fourier_transform(self, sequence: Iterable[float]) -> List[complex]:
+        """Compute the discrete Fourier transform of ``sequence``."""
+        arr = np.array(list(sequence), dtype=float)
+        return list(np.fft.fft(arr))
 
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
-            return False
 
-    def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+def main() -> None:
+    """Run a simple demo when executed as a script."""
+    engine = PhysicsOptimizationEngine()
+    engine.grover_search([1], 1)
+    print(f"{TEXT_INDICATORS['success']} Utility completed")
 
-def main():
-    """Main execution function"""
-    utility = EnterpriseUtility()
-    success = utility.execute_utility()
-
-    if success:
-        print(f"{TEXT_INDICATORS['success']} Utility completed")
-    else:
-        print(f"{TEXT_INDICATORS['error']} Utility failed")
-
-    return success
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    main()
