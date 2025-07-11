@@ -51,7 +51,7 @@ def _load_database_names(list_file: Path) -> list[str]:
 if __name__ == "__main__":
     workspace = Path("./databases")
     master_db = workspace / "production.db"
-    list_path = Path("documentation") / "DATABASE_LIST.md"
+    list_path = Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md"
     db_names = _load_database_names(list_path)
     replica_dbs = [
         workspace / name for name in db_names if name != "production.db"

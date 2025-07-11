@@ -3,8 +3,9 @@
 import logging
 import os
 import sqlite3
+from time import perf_counter
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Iterable, Optional
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "analytics.db"
@@ -80,4 +81,23 @@ def record_error(
         conn.commit()
         metrics = _compute_metrics(conn)
     _update_dashboard(metrics)
+    return metrics
+
+
+def benchmark_queries(
+    queries: Iterable[str], db_path: Optional[Path] = None
+) -> Dict[str, float]:
+    """Execute queries while tracking performance metrics."""
+    metrics: Dict[str, float] = {}
+    path = db_path or DB_PATH
+    for query in queries:
+        start = perf_counter()
+        try:
+            with sqlite3.connect(path) as conn:
+                conn.execute(query)
+        except Exception:
+            metrics = record_error(query, db_path=path)
+        else:
+            duration = (perf_counter() - start) * 1000
+            metrics = track_query_time(query, duration, db_path=path)
     return metrics
