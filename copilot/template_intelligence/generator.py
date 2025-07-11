@@ -40,4 +40,4 @@ class TemplateGenerator:
         except KeyError as exc:
             missing = exc.args[0]
             logger.error("Missing placeholder '%s' in context", missing)
-            raise
+            raise ValueError(f"Missing placeholder '{missing}' in context") from exc
