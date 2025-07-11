@@ -56,7 +56,7 @@ class TemplateAutoGenerator:
     @staticmethod
     def _cluster_patterns(matrix) -> MiniBatchKMeans:
         n_samples = matrix.shape[0]
-        n_clusters = max(2, min(50, n_samples // 100 or 1))
+        n_clusters = min(n_samples, max(2, min(50, n_samples // 100 or 1)))
         model = MiniBatchKMeans(n_clusters=n_clusters, random_state=42)
         model.fit(matrix)
         return model
