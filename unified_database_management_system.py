@@ -1,13 +1,7 @@
 #!/usr/bin/env python3
-"""
-UnifiedDatabaseManagementSystem - Enterprise Database Processor
-Generated: 2025-07-10 18:10:20
+"""Unified database management utilities."""
 
-Enterprise Standards Compliance:
-- Flake8/PEP 8 Compliant
-- Emoji-free code (text-based indicators only)
-- Database-first architecture
-"""
+from __future__ import annotations
 
 import logging
 import os
@@ -29,22 +23,13 @@ TEXT_INDICATORS = {
 class EnterpriseDatabaseProcessor:
     """Enterprise database processing system"""
 
-    def __init__(self, database_path: str = "production.db"):
-        self.database_path = Path(database_path)
-        self.logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
     def execute_processing(self) -> bool:
         """Execute database processing"""
         start_time = datetime.now()
         self.logger.info(
             f"{TEXT_INDICATORS['start']} Processing started: {start_time}")
-
-        try:
-            with sqlite3.connect(self.database_path) as conn:
-                cursor = conn.cursor()
-
-                # Process database operations
-                success = self.process_operations(cursor)
 
                 if success:
                     conn.commit()
@@ -61,8 +46,8 @@ class EnterpriseDatabaseProcessor:
                 f"{TEXT_INDICATORS['error']} Database error: {e}")
             return False
 
-    def process_operations(self, cursor) -> bool:
-        """Process database operations"""
+    def _load_expected_names(self) -> list[str]:
+        names: list[str] = []
         try:
             # Implementation for database operations
             return True
@@ -82,9 +67,10 @@ def main():
     else:
         print(f"{TEXT_INDICATORS['error']} Database processing failed")
 
-    return success
 
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    mgr = UnifiedDatabaseManager(Path.cwd())
+    ok, missing_dbs = mgr.verify_expected_databases()
+    if not ok:
+        print("Missing databases:", ", ".join(missing_dbs))
