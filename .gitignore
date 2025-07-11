@@ -8,3 +8,4 @@ logs/
 *.log
 /disaster_recovery/backups
 __pycache__/
+/Archive
