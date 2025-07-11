@@ -9,11 +9,14 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
-import os
-import sys
+import json
 import logging
-from pathlib import Path
+import os
+import sqlite3
+import sys
+import uuid
 from datetime import datetime
+from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -22,6 +25,7 @@ TEXT_INDICATORS = {
     'error': '[ERROR]',
     'info': '[INFO]'
 }
+
 
 class EnterpriseUtility:
     """Enterprise utility class"""
@@ -33,7 +37,8 @@ class EnterpriseUtility:
     def execute_utility(self) -> bool:
         """Execute utility function"""
         start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+        self.logger.info(
+            f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
             # Utility implementation
@@ -41,7 +46,8 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -52,9 +58,90 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Aggregate performance metrics and store optimization data.
+
+        This function reads metrics from ``performance_monitoring.db`` and
+        records aggregated results in ``optimization_metrics.db``. The workspace
+        location can be overridden via the ``GH_COPILOT_WORKSPACE`` environment
+        variable.
+        """
+        workspace = Path(
+            os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path))
+        perf_db = workspace / "databases" / "performance_monitoring.db"
+        opt_db = workspace / "databases" / "optimization_metrics.db"
+
+        if not perf_db.exists() or not opt_db.exists():
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Missing databases"
+            )
+            return False
+
+        try:
+            with sqlite3.connect(perf_db) as perf_conn:
+                cur = perf_conn.execute(
+                    """
+                    SELECT AVG(cpu_percent),
+                           AVG(memory_percent),
+                           AVG(disk_usage_percent),
+                           AVG(network_io_bytes)
+                    FROM performance_metrics
+                    """
+                )
+                row = cur.fetchone()
+                if row is None:
+                    self.logger.error(
+                        f"{TEXT_INDICATORS['error']} No performance data"
+                    )
+                    return False
+
+            avg_cpu, avg_mem, avg_disk, avg_net = [float(v or 0) for v in row]
+
+            performance_delta = 100.0 - avg_cpu - MEMORY_WEIGHT * avg_mem
+
+            metrics = {
+                "avg_cpu": avg_cpu,
+                "avg_memory": avg_mem,
+                "avg_disk": avg_disk,
+                "avg_network_io": avg_net,
+            }
+
+            with sqlite3.connect(opt_db) as opt_conn:
+                opt_conn.execute(
+                    """
+                    INSERT INTO optimization_metrics (
+                        session_id,
+                        timestamp,
+                        performance_delta,
+                        cpu_usage,
+                        memory_usage,
+                        disk_io,
+                        metrics_json
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        str(uuid.uuid4()),
+                        datetime.utcnow().isoformat(),
+                        performance_delta,
+                        avg_cpu,
+                        avg_mem,
+                        avg_disk,
+                        json.dumps(metrics),
+                    ),
+                )
+                opt_conn.commit()
+
+            return True
+        except sqlite3.Error as db_exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Database error: {db_exc}"
+            )
+            return False
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Unexpected error: {exc}"
+            )
+            raise
+
 
 def main():
     """Main execution function"""
@@ -67,6 +154,7 @@ def main():
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
     return success
+
 
 if __name__ == "__main__":
     success = main()
