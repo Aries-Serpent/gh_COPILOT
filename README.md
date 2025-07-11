@@ -46,11 +46,13 @@ The gh_COPILOT Toolkit is an enterprise-grade system following database-first ar
 ├── scripts/            # 1,679 validated scripts
 ├── web_gui/            # Flask enterprise dashboard
 ├── Archive/tests/     # Archived test backups pending QA review
+├── archives/validation_tests/  # Historical validation scripts (excluded from regular test runs)
 └── .github/            # Enterprise instructions & patterns
 ```
 
 Archived test backups in `Archive/tests/` are reviewed regularly by the QA team
 to determine whether they should be reintegrated or safely removed.
+See `archives/validation_tests/README.md` for historical validation scripts that are skipped during regular test runs.
 
 ### 🚀 **GETTING STARTED**
 1. **Environment Setup**: Follow enterprise environment configuration
