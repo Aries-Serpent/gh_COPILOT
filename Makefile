@@ -7,4 +7,4 @@ setup: create-env
 	pip install -r requirements-test.txt
 
 test: setup
-	pytest
+	pytest tests
