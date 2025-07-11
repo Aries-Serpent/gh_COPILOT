@@ -1,4 +1,4 @@
-.PHONY: create-env setup test
+.PHONY: create-env setup test lint
 
 create-env:
 	python scripts/setup_environment.py
@@ -8,3 +8,6 @@ setup: create-env
 
 test: setup
 	pytest
+
+lint:
+	flake8 --config=.flake8 .
