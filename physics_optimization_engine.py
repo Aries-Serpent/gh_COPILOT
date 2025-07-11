@@ -18,7 +18,7 @@ class PhysicsOptimizationEngine:
         try:
             from qiskit import QuantumCircuit
             from qiskit_aer import AerSimulator
-        except Exception:  # pragma: no cover - qiskit missing
+        except ImportError:  # pragma: no cover - qiskit missing
             for idx, item in enumerate(search_space):
                 if item == target:
                     return idx
