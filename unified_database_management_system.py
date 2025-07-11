@@ -50,7 +50,6 @@ def synchronize_databases(master: Path, replicas: Iterable[Path]) -> None:
     for replica in replicas:
         _backup_database(master, replica)
 
-
 if __name__ == "__main__":
     mgr = UnifiedDatabaseManager(Path.cwd())
     ok, missing_dbs = mgr.verify_expected_databases()

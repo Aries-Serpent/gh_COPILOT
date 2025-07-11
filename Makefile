@@ -1,4 +1,4 @@
-.PHONY: create-env setup test
+.PHONY: create-env setup test lint
 
 create-env:
 	python scripts/setup_environment.py
