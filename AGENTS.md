@@ -16,6 +16,7 @@ The **gh\_COPILOT Toolkit v4.0** repository supports enterprise deployment, moni
     * `pip install -r requirements-web.txt` (for web dashboard)
     * `pip install -r requirements-ml.txt` (for machine learning/AI features)
 * Tests: `make test` (installs `requirements-test.txt` and runs `pytest`)
+* Test dependencies include `tqdm`, `numpy`, `qiskit`, and `qiskit-aer` (installed from `requirements-test.txt`).
 * Set workspace root via `GH_COPILOT_WORKSPACE` (default `/path/to/workspace`).
 
 ---
@@ -127,6 +128,7 @@ The **gh\_COPILOT Toolkit v4.0** repository supports enterprise deployment, moni
 | ---------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2025-07-08 | Marc J/Chat | Unified and enhanced agent guide for v4.0, merged AI, human, and automation protocols, clarified quantum/AI status, and updated compliance requirements. |
 | 2025-07-11 | ChatGPT Codex | Archived all `*.backup_*` files and database backups to `archives/` directory for cleanup and organization. |
+| 2025-07-12 | ChatGPT Codex | Documented test dependencies (`tqdm`, `numpy`, `qiskit`, `qiskit-aer`) in environment setup. |
 
 ---
 

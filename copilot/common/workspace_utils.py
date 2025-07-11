@@ -13,7 +13,7 @@ def get_workspace_path(workspace: Optional[str] = None) -> Path:
 
     When ``workspace`` is provided its value is used directly. Otherwise the
     ``GH_COPILOT_WORKSPACE`` environment variable is consulted. If that is not
-    set, ``Path.home()`` is returned.
+    set, ``Path.cwd()`` is returned.
     """
 
     if workspace:
@@ -23,4 +23,4 @@ def get_workspace_path(workspace: Optional[str] = None) -> Path:
     if env_path:
         return Path(env_path)
 
-    return Path.home()
+    return Path.cwd()

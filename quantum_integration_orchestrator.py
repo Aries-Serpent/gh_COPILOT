@@ -10,6 +10,7 @@ Enterprise Standards Compliance:
 """
 
 import logging
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -40,8 +41,9 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
+    def __init__(self, workspace_path: str | None = None):
+        env_default = os.getenv("GH_COPILOT_WORKSPACE")
+        self.workspace_path = Path(workspace_path or env_default or Path.cwd())
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
