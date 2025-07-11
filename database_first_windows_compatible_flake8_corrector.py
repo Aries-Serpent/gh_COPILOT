@@ -27,7 +27,7 @@ import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Dict, List
 
 from tqdm import tqdm
@@ -154,10 +154,15 @@ class DatabaseFirstFlake8Corrector:
         self.validate_workspace_integrity()
 
     def _sanitize_path(self, path: Path) -> str:
-        """Return a Windows-safe path string."""
+        """Return a platform-neutral path string suitable for subprocess."""
         path_str = str(path)
-        if os.name == "nt":
-            path_str = path_str.replace("\\", "/")
+
+        if os.name == "nt" or path_str.startswith("\\"):
+            # Use PureWindowsPath to correctly handle UNC paths
+            path_str = PureWindowsPath(path_str).as_posix()
+        else:
+            path_str = Path(path_str).as_posix()
+
         return path_str
 
     def validate_workspace_integrity(self):
@@ -285,13 +290,18 @@ class DatabaseFirstFlake8Corrector:
                     text=True,
                     encoding="utf-8",
                     errors="strict",
-                    cwd=self.workspace_path,
+                    cwd=self._sanitize_path(self.workspace_path),
                     env=env,
                 )
                 output = result.stdout
             except UnicodeError as u_err:
                 self.logger.error(f"Unicode error running Flake8: {u_err}")
-                raw = subprocess.run(cmd, capture_output=True, cwd=self.workspace_path, env=env)
+                raw = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    cwd=self._sanitize_path(self.workspace_path),
+                    env=env,
+                )
                 output = raw.stdout.decode("utf-8", "replace")
 
             # Parse flake8 output
