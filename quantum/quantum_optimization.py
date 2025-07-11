@@ -52,9 +52,19 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Perform a basic optimization using gradient descent.
+
+        The objective function is ``f(x) = (x - 3)^2``. The method runs a
+        simple gradient-descent loop to find ``x ~= 3``. It returns ``True`` if
+        the optimized value is sufficiently close to ``3``.
+        """
+        x = 0.0
+        learning_rate = 0.1
+        for _ in range(100):
+            gradient = 2 * (x - 3)
+            x -= learning_rate * gradient
+
+        return abs(x - 3) < 1e-3
 
 def main():
     """Main execution function"""
