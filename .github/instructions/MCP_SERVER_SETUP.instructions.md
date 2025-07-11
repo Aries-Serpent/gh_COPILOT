@@ -18,8 +18,8 @@ python mcp_server.py
 ```
 
 ## 🌐 **ENVIRONMENT VARIABLES**
+- `MCP_SERVER_ENABLED` – set to `1` to activate integration
 - `MCP_SERVER_HOST` – server address (`localhost` by default)
 - `MCP_SERVER_PORT` – listening port (`8080` by default)
-- `MCP_SERVER_ENABLED` – set to `1` to activate integration
 
 All Copilot components should check `MCP_SERVER_ENABLED` and use the host and port for coordination.
