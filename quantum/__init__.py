@@ -1,5 +1,4 @@
-# Quantum Module Initialization
-"""
-Quantum-inspired processing components for gh_COPILOT Toolkit
-Database-quantum analogies and optimization algorithms
-"""
+"""Quantum utilities."""
+from .experimental import solve_qubo_brute_force
+
+__all__ = ["solve_qubo_brute_force"]
