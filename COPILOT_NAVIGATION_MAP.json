@@ -1,6 +1,21 @@
 {
-  "version": "1.0",
-  "description": "Placeholder navigation map for COPILOT system",
-  "modules": [],
-  "routes": []
+  "version": "2.0",
+  "description": "Navigation map for gh_COPILOT Toolkit modules and routes",
+  "modules": [
+    {"name": "Main Entry", "path": "main.py", "description": "Launches the final orchestrator"},
+    {"name": "Copilot Core", "path": "copilot/core", "description": "Enterprise frameworks and file management"},
+    {"name": "Common Utilities", "path": "copilot/common", "description": "Logging and workspace helpers"},
+    {"name": "Orchestrators", "path": "copilot/orchestrators", "description": "Deployment and workflow orchestrators"},
+    {"name": "Web GUI", "path": "web_gui", "description": "Flask dashboard and related documentation"},
+    {"name": "Quantum Tools", "path": "quantum", "description": "Quantum optimization and integration modules"},
+    {"name": "Scripts", "path": "scripts", "description": "Standalone automation and deployment utilities"},
+    {"name": "Documentation", "path": "documentation", "description": "Enterprise documentation and guides"}
+  ],
+  "routes": [
+    {"from": "main.py", "to": "copilot/orchestrators/final_enterprise_orchestrator.py", "description": "Primary entry point"},
+    {"from": "copilot/orchestrators/final_enterprise_orchestrator.py", "to": "copilot/core/frameworks", "description": "Loads core frameworks"},
+    {"from": "web_gui/app.py", "to": "web_gui/documentation", "description": "Links web dashboard to docs"},
+    {"from": "quantum/quantum_optimization.py", "to": "docs/quantum", "description": "Quantum algorithm documentation"},
+    {"from": "scripts/DEPLOY_ENTERPRISE_GH_COPILOT.py", "to": "deployment", "description": "Deployment pipeline"}
+  ]
 }
