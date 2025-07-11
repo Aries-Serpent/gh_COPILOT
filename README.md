@@ -57,7 +57,7 @@ to determine whether they should be reintegrated or safely removed.
 2. **Database Initialization**: All databases auto-configured
 3. **Documentation Access**: Use web-GUI dashboard or database queries
 4. **Script Execution**: All scripts enterprise-validated and database-tracked
-5. **Prompt Examples**: See [prompts](prompts/) for GitHub Copilot usage.
+5. **Session Startup Guide**: See [documentation/SESSION_STARTUP_GUIDE.md](documentation/SESSION_STARTUP_GUIDE.md) for environment setup and manual service commands
 
 For detailed instructions, see the generated documentation files in this directory.
 
