@@ -38,8 +38,9 @@ class QuantumOptimization:
         best_x = None
         best_val = float("inf")
 
-        for i in range(1 << n):
-            x = np.array([(i >> j) & 1 for j in range(n)], dtype=int)
+        from itertools import product
+        for binary_tuple in product([0, 1], repeat=n):
+            x = np.array(binary_tuple, dtype=int)
             val = x @ self.q_matrix @ x
             if val < best_val:
                 best_val = val
