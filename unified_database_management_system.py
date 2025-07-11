@@ -1,80 +1,59 @@
 #!/usr/bin/env python3
-"""
-UnifiedDatabaseManagementSystem - Enterprise Database Processor
-Generated: 2025-07-10 18:10:20
+"""Unified database management utilities."""
 
-Enterprise Standards Compliance:
-- Flake8/PEP 8 Compliant
-- Emoji-free code (text-based indicators only)
-- Database-first architecture
-"""
+from __future__ import annotations
 
-import sqlite3
 import logging
+import sqlite3
 from pathlib import Path
-from datetime import datetime
+from typing import Iterable, Tuple
 
-# Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'database': '[DATABASE]',
-    'info': '[INFO]'
-}
+logger = logging.getLogger(__name__)
 
-class EnterpriseDatabaseProcessor:
-    """Enterprise database processing system"""
+DATABASE_LIST_FILE = Path("documentation") / "DATABASE_LIST.md"
 
-    def __init__(self, database_path: str = "production.db"):
-        self.database_path = Path(database_path)
-        self.logger = logging.getLogger(__name__)
 
-    def execute_processing(self) -> bool:
-        """Execute database processing"""
-        start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Processing started: {start_time}")
+class UnifiedDatabaseManager:
+    """Manage expected databases for the workspace."""
 
-        try:
-            with sqlite3.connect(self.database_path) as conn:
-                cursor = conn.cursor()
+    def __init__(self, workspace_root: str = ".") -> None:
+        self.workspace_root = Path(workspace_root)
+        self.databases_dir = self.workspace_root / "databases"
 
-                # Process database operations
-                success = self.process_operations(cursor)
+    def _load_expected_names(self) -> list[str]:
+        names: list[str] = []
+        for line in DATABASE_LIST_FILE.read_text().splitlines():
+            line = line.strip()
+            if line.startswith("- "):
+                name = line[2:].strip()
+                if name:
+                    names.append(name)
+        return names
 
-                if success:
-                    conn.commit()
-                    self.logger.info(f"{TEXT_INDICATORS['success']} Database processing completed")
-                    return True
-                else:
-                    self.logger.error(f"{TEXT_INDICATORS['error']} Database processing failed")
-                    return False
+    def verify_expected_databases(self) -> Tuple[bool, list[str]]:
+        """Return whether all expected databases exist and any missing ones."""
+        expected = self._load_expected_names()
+        missing = [name for name in expected if not (
+            self.databases_dir / name).exists()]
+        return len(missing) == 0, missing
 
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {e}")
-            return False
 
-    def process_operations(self, cursor) -> bool:
-        """Process database operations"""
-        try:
-            # Implementation for database operations
-            return True
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")
-            return False
+def _backup_database(source: Path, target: Path) -> None:
+    """Copy source SQLite database to target using backup API."""
+    with sqlite3.connect(source) as src, sqlite3.connect(target) as dest:
+        src.backup(dest)
+        logger.info("Synchronized %s -> %s", source, target)
 
-def main():
-    """Main execution function"""
-    processor = EnterpriseDatabaseProcessor()
-    success = processor.execute_processing()
 
-    if success:
-        print(f"{TEXT_INDICATORS['success']} Database processing completed")
-    else:
-        print(f"{TEXT_INDICATORS['error']} Database processing failed")
+def synchronize_databases(master: Path, replicas: Iterable[Path]) -> None:
+    """Synchronize replica databases with the master database."""
+    for replica in replicas:
+        _backup_database(master, replica)
 
-    return success
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    mgr = UnifiedDatabaseManager(Path.cwd())
+    ok, missing_dbs = mgr.verify_expected_databases()
+    if not ok:
+        print("Missing databases:", ", ".join(missing_dbs))
+        sys.exit(1)

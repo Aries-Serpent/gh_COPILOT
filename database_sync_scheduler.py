@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-
+from sqlite3 import connect
 from typing import Iterable
 
 logging.basicConfig()
@@ -44,6 +44,7 @@ def _load_database_names(list_file: Path) -> list[str]:
             if name:
                 names.append(name)
     return names
+
 
 if __name__ == "__main__":
     workspace = Path("./databases")
