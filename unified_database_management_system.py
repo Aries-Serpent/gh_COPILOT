@@ -11,7 +11,7 @@ from typing import Iterable, Tuple
 
 logger = logging.getLogger(__name__)
 
-DATABASE_LIST_FILE = Path("documentation") / "DATABASE_LIST.md"
+DATABASE_LIST_FILE = Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md"
 WORKSPACE_ENV_VAR = "GH_COPILOT_WORKSPACE"
 
 
