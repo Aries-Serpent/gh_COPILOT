@@ -2,13 +2,14 @@ import shutil
 import sqlite3
 from pathlib import Path
 
-from monitoring.performance_tracker import record_error, track_query_time
+from monitoring.performance_tracker import (ensure_table, record_error,
+                                            track_query_time)
 
 
 def _prepare_db(tmp_path: Path) -> Path:
     db_path = tmp_path / "analytics.db"
     with sqlite3.connect(db_path) as conn:
-        _ensure_table(conn)
+        ensure_table(conn)
     return db_path
 
 

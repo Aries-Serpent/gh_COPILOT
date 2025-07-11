@@ -431,6 +431,9 @@ class DatabaseFirstFlake8Corrector:
         try:
             with sqlite3.connect(self.analytics_db) as conn:
                 cursor = conn.cursor()
+                columns = [info[1] for info in cursor.execute(
+                    "PRAGMA table_info(violations)")]
+                has_session_id = "session_id" in columns
 
                 # Update compliance session
                 cursor.execute('''
@@ -454,24 +457,46 @@ class DatabaseFirstFlake8Corrector:
                 cursor.execute('DELETE FROM violations')
 
                 for violation in violations:
-                    cursor.execute('''
-                        INSERT INTO violations
-                        (file_path,
-                         line_number,
-                         column_number,
-                         error_code,
-                         message,
-                         session_id
+                    if has_session_id:
+                        cursor.execute(
+                            '''
+                            INSERT INTO violations
+                            (file_path,
+                             line_number,
+                             column_number,
+                             error_code,
+                             message,
+                             session_id)
+                            VALUES (?, ?, ?, ?, ?, ?)
+                            ''',
+                            (
+                                violation.file_path,
+                                violation.line_number,
+                                violation.column,
+                                violation.error_code,
+                                violation.message,
+                                self.session_id,
+                            ),
                         )
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    ''', (
-                        violation.file_path,
-                        violation.line_number,
-                        violation.column,
-                        violation.error_code,
-                        violation.message,
-                        self.session_id
-                    ))
+                    else:
+                        cursor.execute(
+                            '''
+                            INSERT INTO violations
+                            (file_path,
+                             line_number,
+                             column_number,
+                             error_code,
+                             message)
+                            VALUES (?, ?, ?, ?, ?)
+                            ''',
+                            (
+                                violation.file_path,
+                                violation.line_number,
+                                violation.column,
+                                violation.error_code,
+                                violation.message,
+                            ),
+                        )
 
                 # Record individual fixes in correction_history
                 for violation, result in zip(violations, corrections):

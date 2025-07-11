@@ -13,6 +13,8 @@ WEB_DASHBOARD_ENABLED = os.getenv("WEB_DASHBOARD_ENABLED") == "1"
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["track_query_time", "record_error", "ensure_table"]
+
 
 def _ensure_table(conn: sqlite3.Connection) -> None:
     conn.execute(
@@ -26,6 +28,11 @@ def _ensure_table(conn: sqlite3.Connection) -> None:
         )
         """
     )
+
+
+def ensure_table(conn: sqlite3.Connection) -> None:
+    """Public wrapper to ensure query performance table exists."""
+    _ensure_table(conn)
 
 
 def _compute_metrics(conn: sqlite3.Connection) -> Dict[str, float]:
