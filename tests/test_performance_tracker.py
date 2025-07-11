@@ -14,7 +14,6 @@ def _prepare_db(tmp_path: Path) -> Path:
 
 def test_track_query_time_records_and_computes(tmp_path, monkeypatch):
     db = _prepare_db(tmp_path)
-    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     metrics = track_query_time("q1", 40.0, db_path=db)
     assert metrics["avg_response_time_ms"] == 40.0
     assert metrics["error_rate"] == 0.0
