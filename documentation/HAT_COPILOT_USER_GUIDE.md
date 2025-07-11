@@ -8,6 +8,8 @@
 
 ## 🚀 QUICK START GUIDE
 
+For dashboard server setup, see [MCP Server Guide](MCP_SERVER_GUIDE.md).
+
 ### 1. System Initialization
 
 ```python

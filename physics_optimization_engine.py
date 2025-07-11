@@ -23,7 +23,6 @@ try:  # Optional import as qiskit may not be installed
 except Exception:  # pragma: no cover - handled gracefully if missing
     _QISKIT_AVAILABLE = False
 
-
 class PhysicsOptimizationEngine:
     """Collection of quantum optimization methods."""
 
