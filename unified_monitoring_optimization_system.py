@@ -131,11 +131,16 @@ class EnterpriseUtility:
                 opt_conn.commit()
 
             return True
-        except Exception as exc:  # noqa: BLE001
+        except sqlite3.Error as db_exc:
             self.logger.error(
-                f"{TEXT_INDICATORS['error']} Processing failed: {exc}"
+                f"{TEXT_INDICATORS['error']} Database processing failed: {db_exc}"
             )
             return False
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Unexpected error: {exc}"
+            )
+            raise
 
 
 def main():
