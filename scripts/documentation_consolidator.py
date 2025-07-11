@@ -22,31 +22,10 @@ def get_workspace() -> Path:
 
 def cleanup_database(db_path: Path) -> None:
     """Remove backup and duplicate documentation entries."""
-    cleanup_sql = """
-        DELETE FROM enterprise_documentation
-        WHERE source_path LIKE '%backup%'
-           OR source_path LIKE '%_convo.md'
-           OR source_path LIKE '%.bak'
-           OR doc_type = 'BACKUP_LOG';
-    """
-
-    dedupe_sql = """
-        DELETE FROM enterprise_documentation
-        WHERE doc_id NOT IN (
-            SELECT doc_id FROM (
-                SELECT doc_id, ROW_NUMBER() OVER (
-                    PARTITION BY title
-                    ORDER BY last_updated DESC
-                ) as rn
-                FROM enterprise_documentation
-            ) WHERE rn = 1
-        );
-    """
-
     with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
-        cur.execute(cleanup_sql)
-        cur.execute(dedupe_sql)
+        cur.execute(CLEANUP_SQL)
+        cur.execute(DEDUPE_SQL)
         conn.commit()
 
 
