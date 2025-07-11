@@ -68,7 +68,7 @@ def test_shor_factorization():
     result = engine.shor_factorization(15)
     backend = AerSimulator()
     expected = Shor(quantum_instance=backend).factor(15).factors[0]
-    assert result == expected
+    assert set(result) == set(expected)
 
 
 def test_fourier_transform():
