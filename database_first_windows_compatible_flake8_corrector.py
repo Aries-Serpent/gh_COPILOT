@@ -565,6 +565,7 @@ class DatabaseFirstFlake8Corrector:
             )
         else:
             self.logger.warning("DUAL COPILOT VALIDATION: NO FIXES APPLIED - REVIEW REQUIRED")
+def main():
     print(f"{VISUAL_INDICATORS['start']} Database-First Windows-Compatible Flake8 Corrector")
     print(f"{VISUAL_INDICATORS['info']} Session started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
