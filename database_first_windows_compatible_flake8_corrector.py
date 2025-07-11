@@ -157,7 +157,7 @@ class DatabaseFirstFlake8Corrector:
         """Return a platform-neutral path string suitable for subprocess."""
         path_str = str(path)
 
-        if os.name == "nt" or path_str.startswith("\\"):
+        if os.name == "nt" or path_str.startswith(("\\", "//")):
             # Use PureWindowsPath to correctly handle UNC paths
             path_str = PureWindowsPath(path_str).as_posix()
         else:
