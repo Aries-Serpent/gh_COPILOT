@@ -13,8 +13,7 @@ from pathlib import Path
 from sqlite3 import connect
 from typing import Iterable
 
-logging.basicConfig()
-format = "%(asctime)s - %(levelname)s - %(message)s"
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 

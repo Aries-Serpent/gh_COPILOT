@@ -42,7 +42,6 @@ class UnifiedDatabaseManager:
             self.databases_dir / name).exists()]
         return len(missing) == 0, missing
 
-
 def _backup_database(source: Path, target: Path) -> None:
     """Copy source SQLite database to target using backup API."""
     with sqlite3.connect(source) as src, sqlite3.connect(target) as dest:
