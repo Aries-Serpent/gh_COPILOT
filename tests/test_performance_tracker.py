@@ -1,8 +1,11 @@
 import shutil
 import sqlite3
 from pathlib import Path
-from monitoring.performance_tracker import (record_error,
-                                            track_query_time)
+from monitoring.performance_tracker import (
+    record_error,
+    track_query_time,
+    _ensure_table,
+)
 
 
 def _prepare_db(tmp_path: Path) -> Path:

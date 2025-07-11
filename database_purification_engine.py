@@ -40,9 +40,10 @@ class DatabasePurificationEngine:
     - Enterprise compliance validation
     """
     
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str | None = None):
         """Initialize Database Purification Engine with enterprise standards."""
-        self.workspace_path = Path(workspace_path)
+        env_default = os.getenv("GH_COPILOT_WORKSPACE")
+        self.workspace_path = Path(workspace_path or env_default or Path.cwd())
         self.start_time = datetime.datetime.now()
         self.process_id = os.getpid()
         
