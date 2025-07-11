@@ -1,6 +1,8 @@
 # User Guides - gh_COPILOT Toolkit
 ===================================
 
+Refer to [AGENTS.md](../../../../../../AGENTS.md) in the repository root for the authoritative agent guidelines.
+
 👥 Complete user documentation and tutorials
 
 ## Getting Started
