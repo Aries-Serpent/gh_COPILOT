@@ -456,6 +456,25 @@ class DatabaseFirstFlake8Corrector:
                         self.session_id
                     ))
 
+                # Record individual fixes in correction_history
+                for violation, result in zip(violations, corrections):
+                    if result.success:
+                        for fix in result.violations_fixed:
+                            cursor.execute(
+                                '''
+                                INSERT INTO correction_history
+                                (session_id, file_path, violation_code, fix_applied, timestamp)
+                                VALUES (?, ?, ?, ?, ?)
+                                ''',
+                                (
+                                    self.session_id,
+                                    violation.file_path,
+                                    violation.error_code,
+                                    fix,
+                                    datetime.now().isoformat(),
+                                ),
+                            )
+
         except Exception as e:
             self.logger.error(f"Error saving to database: {e}")
 
