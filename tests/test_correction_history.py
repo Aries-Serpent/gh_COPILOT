@@ -3,10 +3,7 @@ import sqlite3
 from pathlib import Path
 
 from database_first_windows_compatible_flake8_corrector import (
-    DatabaseFirstFlake8Corrector,
-    FlakeViolation,
-    CorrectionPattern,
-)
+    CorrectionPattern, DatabaseFirstFlake8Corrector, FlakeViolation)
 
 
 def test_correction_history_records(tmp_path, monkeypatch):
@@ -24,6 +21,7 @@ def test_correction_history_records(tmp_path, monkeypatch):
         repo_root / "databases" / "migrations" / "add_correction_history.sql"
     ).read_text()
     with sqlite3.connect(dest_db) as conn:
+        conn.execute("ALTER TABLE violations ADD COLUMN session_id TEXT")
         conn.executescript(migration_sql)
 
     # prepare file with trailing whitespace violation
