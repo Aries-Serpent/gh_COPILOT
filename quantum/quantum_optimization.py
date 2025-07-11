@@ -74,7 +74,7 @@ class EnterpriseUtility:
         bits = [random.randint(0, 1) for _ in range(2)]
         best_bits = bits[:]
         best_energy = energy(bits)
-        temperature = 10.0
+        temperature = initial_temperature
 
         for _ in range(1000):
             index = random.randint(0, 1)
