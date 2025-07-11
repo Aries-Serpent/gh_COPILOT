@@ -7,3 +7,4 @@ logs/
 /backups
 *.log
 /disaster_recovery/backups
+__pycache__/
