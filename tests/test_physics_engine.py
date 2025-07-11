@@ -1,4 +1,5 @@
 from physics_optimization_engine import PhysicsOptimizationEngine
+import numpy as np
 
 
 def test_grover_search_found():
@@ -14,5 +15,7 @@ def test_shor_factorization():
 
 def test_fourier_transform():
     engine = PhysicsOptimizationEngine()
-    result = engine.fourier_transform([0, 1, 0, -1])
-    assert len(result) == 4
+    data = [0, 1, 0, -1]
+    result = engine.fourier_transform(data)
+    expected = np.fft.fft(data) / np.sqrt(len(data))
+    assert np.allclose(result, expected, atol=1e-6)
