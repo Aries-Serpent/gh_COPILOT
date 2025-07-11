@@ -6,7 +6,7 @@ create-env:
 setup: create-env
 	pip install -r requirements-test.txt
 
-test: setup
+test: setup lint
 	pytest
 
 lint:
