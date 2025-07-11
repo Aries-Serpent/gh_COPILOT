@@ -15,7 +15,7 @@
     {"from": "main.py", "to": "copilot/orchestrators/final_enterprise_orchestrator.py", "description": "Primary entry point"},
     {"from": "copilot/orchestrators/final_enterprise_orchestrator.py", "to": "copilot/core/frameworks", "description": "Loads core frameworks"},
     {"from": "web_gui/app.py", "to": "documentation", "description": "Links web dashboard to docs"},
-    {"from": "quantum/quantum_optimization.py", "to": "docs/quantum", "description": "Quantum algorithm documentation"},
+    {"from": "quantum/quantum_optimization.py", "to": "documentation/quantum", "description": "Quantum algorithm documentation"},
     {"from": "scripts/DEPLOY_ENTERPRISE_GH_COPILOT.py", "to": "deployment", "description": "Deployment pipeline"}
   ]
 }
