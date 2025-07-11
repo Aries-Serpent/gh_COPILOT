@@ -9,11 +9,10 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
-import os
-import sys
 import logging
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -22,6 +21,7 @@ TEXT_INDICATORS = {
     'error': '[ERROR]',
     'info': '[INFO]'
 }
+
 
 class EnterpriseUtility:
     """Enterprise utility class"""
@@ -33,7 +33,8 @@ class EnterpriseUtility:
     def execute_utility(self) -> bool:
         """Execute utility function"""
         start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+        self.logger.info(
+            f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
             # Utility implementation
@@ -41,22 +42,38 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in "
+                    f"{duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
                 return False
 
         except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Utility error: {e}")
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Run a demo optimization orchestrating QUBO solving."""
+        self.logger.info(
+            f"{TEXT_INDICATORS['info']} Running QUBO demo")
 
-def main():
+        try:
+            from advanced_qubo_optimization import (
+                EnterpriseUtility as QuboUtil,
+            )
+        except ImportError as exc:  # pragma: no cover - import guard
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} {exc}")
+            return False
+
+        util = QuboUtil(workspace_path=str(self.workspace_path))
+        return util.perform_utility_function()
+
+
+def main() -> bool:
     """Main execution function"""
     utility = EnterpriseUtility()
     success = utility.execute_utility()
@@ -67,6 +84,7 @@ def main():
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
     return success
+
 
 if __name__ == "__main__":
     success = main()
