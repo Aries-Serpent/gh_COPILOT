@@ -32,6 +32,8 @@ from typing import Dict, List
 
 from tqdm import tqdm
 
+from secondary_copilot_validator import SecondaryCopilotValidator
+
 # Windows-compatible visual indicators (NO Unicode emojis)
 VISUAL_INDICATORS = {
     'start': '[START]',
@@ -493,6 +495,17 @@ class DatabaseFirstFlake8Corrector:
         except Exception as e:
             self.logger.error(f"Error saving to database: {e}")
 
+    def update_compliance_session_status(self, status: str) -> None:
+        """Update compliance session status in analytics database."""
+        try:
+            with sqlite3.connect(self.analytics_db) as conn:
+                conn.execute(
+                    "UPDATE compliance_sessions SET status = ? WHERE session_id = ?",
+                    (status, self.session_id),
+                )
+        except Exception as e:
+            self.logger.error(f"Error updating session status: {e}")
+
     def execute_comprehensive_correction(self):
         """Execute comprehensive Flake8 correction with DUAL COPILOT validation"""
 
@@ -563,6 +576,17 @@ class DatabaseFirstFlake8Corrector:
             # Phase 5: Generate completion report
             self.generate_completion_report(start_time)
 
+            # Secondary validation
+            validator = SecondaryCopilotValidator(self.logger.logger)
+            if validator.validate_corrections(files_to_process):
+                self.logger.info(
+                    "SECONDARY COPILOT VALIDATION PASSED",
+                    "validation",
+                )
+            else:
+                self.logger.error("SECONDARY COPILOT VALIDATION FAILED")
+                self.update_compliance_session_status("FAILED")
+
         except Exception as e:
             self.logger.error(f"Critical error during correction: {e}")
             self.stats['errors_encountered'] += 1
@@ -597,11 +621,10 @@ class DatabaseFirstFlake8Corrector:
 
 
 def main():
+    print(f"{VISUAL_INDICATORS['start']} Database-First Windows-Compatible Flake8 Corrector")
+    start_msg = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print(
-        f"{VISUAL_INDICATORS['start']} Database-First Windows-Compatible Flake8 Corrector"
-    )
-    start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    print(f"{VISUAL_INDICATORS['info']} Session started at {start_time}")
+        f"{VISUAL_INDICATORS['info']} Session started at {start_msg}")
 
     try:
         # Initialize corrector
