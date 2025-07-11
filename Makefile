@@ -10,4 +10,4 @@ test: setup
 	pytest
 
 lint:
-	flake8 --config=.flake8 .
+	flake8 --config=.flake8 --count --show-source --statistics .
