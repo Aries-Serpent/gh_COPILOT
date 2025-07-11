@@ -57,7 +57,7 @@ class EnterpriseDatabaseProcessor:
                     return False
 
         except Exception as e:
-            self.logger.error(
+            self.logger.exception(
                 f"{TEXT_INDICATORS['error']} Database error: {e}")
             return False
 
