@@ -59,6 +59,10 @@ to determine whether they should be reintegrated or safely removed.
 4. **Script Execution**: All scripts enterprise-validated and database-tracked
 5. **Dashboard Startup**: See [MCP Server Guide](documentation/MCP_SERVER_GUIDE.md) for running the dashboard as the MCP server
 
+### 🧪 **Running Tests**
+1. `pip install -r requirements-test.txt`
+2. `make test`
+
 For detailed instructions, see the generated documentation files in this directory.
 
 ---
