@@ -29,7 +29,7 @@ def _ensure_table(conn: sqlite3.Connection) -> None:
 
 
 def _compute_metrics(conn: sqlite3.Connection) -> Dict[str, float]:
-    cur = conn.execute("SELECT AVG(response_time_ms) FROM query_performance")
+    cur = conn.execute("SELECT AVG(response_time_ms) FROM query_performance WHERE is_error = 0")
     avg_response = cur.fetchone()[0] or 0.0
     cur = conn.execute(
         "SELECT SUM(is_error), COUNT(*) FROM query_performance"
