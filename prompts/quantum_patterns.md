@@ -14,4 +14,4 @@ print(f"Matching Confidence: {optimal_template['matching_confidence']}")
 
 ## Usage
 Use this pattern when experimenting with quantum-enabled template selection or as
- a reference for designing quantum algorithms in your project.
+a reference for designing quantum algorithms in your project.
