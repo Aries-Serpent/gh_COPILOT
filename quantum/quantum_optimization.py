@@ -60,7 +60,7 @@ class EnterpriseUtility:
         import math
         import random
 
-        random.seed(42)
+        rng = random.Random(42)
 
         qubo = [[-1, 2], [2, -1]]
 
