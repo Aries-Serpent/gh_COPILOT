@@ -454,24 +454,48 @@ class DatabaseFirstFlake8Corrector:
                 cursor.execute('DELETE FROM violations')
 
                 for violation in violations:
-                    cursor.execute('''
-                        INSERT INTO violations
-                        (file_path,
-                         line_number,
-                         column_number,
-                         error_code,
-                         message,
-                         session_id
+                    try:
+                        cursor.execute(
+                            '''
+                            INSERT INTO violations
+                            (file_path,
+                             line_number,
+                             column_number,
+                             error_code,
+                             message,
+                             session_id
+                            )
+                            VALUES (?, ?, ?, ?, ?, ?)
+                            ''',
+                            (
+                                violation.file_path,
+                                violation.line_number,
+                                violation.column,
+                                violation.error_code,
+                                violation.message,
+                                self.session_id,
+                            ),
                         )
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    ''', (
-                        violation.file_path,
-                        violation.line_number,
-                        violation.column,
-                        violation.error_code,
-                        violation.message,
-                        self.session_id
-                    ))
+                    except sqlite3.OperationalError:
+                        cursor.execute(
+                            '''
+                            INSERT INTO violations
+                            (file_path,
+                             line_number,
+                             column_number,
+                             error_code,
+                             message
+                            )
+                            VALUES (?, ?, ?, ?, ?)
+                            ''',
+                            (
+                                violation.file_path,
+                                violation.line_number,
+                                violation.column,
+                                violation.error_code,
+                                violation.message,
+                            ),
+                        )
 
                 # Record individual fixes in correction_history
                 for violation, result in zip(violations, corrections):
