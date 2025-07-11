@@ -18,7 +18,7 @@ WORKSPACE_ENV_VAR = "GH_COPILOT_WORKSPACE"
 class UnifiedDatabaseManager:
     """Manage expected databases for the workspace."""
 
-    WORKSPACE_ENV_VAR = WORKSPACE_ENV_VAR
+    WORKSPACE_ENV_VAR = "GH_COPILOT_WORKSPACE"
 
     def __init__(self, workspace_root: str = ".") -> None:
         workspace = os.getenv(WORKSPACE_ENV_VAR, workspace_root)
