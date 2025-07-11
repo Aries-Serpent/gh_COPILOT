@@ -96,7 +96,7 @@ class EnterpriseUtility:
 
             avg_cpu, avg_mem, avg_disk, avg_net = [float(v or 0) for v in row]
 
-            performance_delta = 100.0 - avg_cpu - 0.5 * avg_mem
+            performance_delta = 100.0 - avg_cpu - MEMORY_WEIGHT * avg_mem
 
             metrics = {
                 "avg_cpu": avg_cpu,
