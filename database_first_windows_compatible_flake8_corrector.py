@@ -441,6 +441,9 @@ class DatabaseFirstFlake8Corrector:
         try:
             with sqlite3.connect(self.analytics_db) as conn:
                 cursor = conn.cursor()
+                columns = [info[1] for info in cursor.execute(
+                    "PRAGMA table_info(violations)")]
+                has_session_id = "session_id" in columns
 
                 # Update compliance session
                 cursor.execute('''
@@ -464,7 +467,7 @@ class DatabaseFirstFlake8Corrector:
                 cursor.execute('DELETE FROM violations')
 
                 for violation in violations:
-                    try:
+                    if has_session_id:
                         cursor.execute(
                             '''
                             INSERT INTO violations
@@ -473,8 +476,7 @@ class DatabaseFirstFlake8Corrector:
                              column_number,
                              error_code,
                              message,
-                             session_id
-                            )
+                             session_id)
                             VALUES (?, ?, ?, ?, ?, ?)
                             ''',
                             (
@@ -486,7 +488,7 @@ class DatabaseFirstFlake8Corrector:
                                 self.session_id,
                             ),
                         )
-                    except sqlite3.OperationalError:
+                    else:
                         cursor.execute(
                             '''
                             INSERT INTO violations
@@ -494,8 +496,7 @@ class DatabaseFirstFlake8Corrector:
                              line_number,
                              column_number,
                              error_code,
-                             message
-                            )
+                             message)
                             VALUES (?, ?, ?, ?, ?)
                             ''',
                             (
