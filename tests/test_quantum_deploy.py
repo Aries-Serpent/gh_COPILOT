@@ -1,5 +1,3 @@
-import pytest
-
 from quantum.quantum_optimization import EnterpriseUtility
 
 
