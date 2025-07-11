@@ -1,7 +1,8 @@
 import pytest
 
-from database_first_windows_compatible_flake8_corrector import \
+from database_first_windows_compatible_flake8_corrector import (
     DatabaseFirstFlake8Corrector
+)
 
 
 def test_flake8_scan_handles_non_ascii(tmp_path):
