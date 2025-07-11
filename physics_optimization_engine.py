@@ -112,7 +112,7 @@ class PhysicsOptimizationEngine:
         self.log_execution("fourier_transform")
         num_qubits = int(np.log2(len(data)))
         qc = QuantumCircuit(num_qubits)
-        qc.initialize(data, range(num_qubits))
+        qc.initialize(data, range(num_qubits), normalize=True)
         qc.append(QFT(num_qubits, do_swaps=False), range(num_qubits))
         state = Statevector.from_instruction(qc)
         return state.data.tolist()
