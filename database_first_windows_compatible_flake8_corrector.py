@@ -151,6 +151,13 @@ class DatabaseFirstFlake8Corrector:
         # Anti-recursion protection
         self.validate_workspace_integrity()
 
+    def _sanitize_path(self, path: Path) -> str:
+        """Return a Windows-safe path string."""
+        path_str = str(path)
+        if os.name == "nt":
+            path_str = path_str.replace("\\", "/")
+        return path_str
+
     def validate_workspace_integrity(self):
         """CRITICAL: Validate workspace for anti-recursion compliance"""
         self.logger.info("Validating workspace integrity", "validation")
@@ -259,24 +266,34 @@ class DatabaseFirstFlake8Corrector:
             # Run flake8 with specific configuration
             cmd = [
                 sys.executable, "-m", "flake8",
-                str(self.workspace_path),
+                self._sanitize_path(self.workspace_path),
                 "--format=%(path)s:%(row)d:%(col)d:%(code)s:%(text)s",
                 "--max-line-length=88",
                 "--extend-ignore=E203,W503",
                 "--exclude=.git,__pycache__,*.egg-info,build,dist,venv,env"
             ]
 
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                encoding='utf-8',
-                errors='ignore',
-                cwd=self.workspace_path
-            )
+            env = os.environ.copy()
+            env["PYTHONIOENCODING"] = "utf-8"
+
+            try:
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    errors="strict",
+                    cwd=self.workspace_path,
+                    env=env,
+                )
+                output = result.stdout
+            except UnicodeError as u_err:
+                self.logger.error(f"Unicode error running Flake8: {u_err}")
+                raw = subprocess.run(cmd, capture_output=True, cwd=self.workspace_path, env=env)
+                output = raw.stdout.decode("utf-8", "replace")
 
             # Parse flake8 output
-            for line in result.stdout.splitlines():
+            for line in output.splitlines():
                 line = line.strip()
                 if not line:
                     continue
@@ -544,10 +561,10 @@ class DatabaseFirstFlake8Corrector:
         self.logger.info(f"Violations Found: {self.stats['violations_found']}", "info")
         self.logger.info(f"Violations Fixed: {self.stats['violations_fixed']}", "info")
         self.logger.info(f"Files Modified: {self.stats['files_modified']}", "info")
-        self.logger.info(
-            f"Success Rate: {(self.stats['violations_fixed']/max(1, self.stats['violations_found']))*100:.1f}%",
-            "info",
-        )
+        success_rate = (
+            self.stats['violations_fixed'] / max(1, self.stats['violations_found'])
+        ) * 100
+        self.logger.info(f"Success Rate: {success_rate:.1f}%", "info")
         self.logger.info("=" * 60, "complete")
 
         # DUAL COPILOT validation
@@ -561,9 +578,11 @@ class DatabaseFirstFlake8Corrector:
 
 
 def main():
-    print(f"{VISUAL_INDICATORS['start']} Database-First Windows-Compatible Flake8 Corrector")
     print(
-        f"{VISUAL_INDICATORS['info']} Session started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        f"{VISUAL_INDICATORS['start']} Database-First Windows-Compatible Flake8 Corrector"
+    )
+    start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"{VISUAL_INDICATORS['info']} Session started at {start_time}")
 
     try:
         # Initialize corrector
