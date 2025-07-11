@@ -26,6 +26,9 @@ TEXT_INDICATORS = {
     'info': '[INFO]'
 }
 
+# Weight applied to memory usage when computing performance delta
+MEMORY_WEIGHT = 0.5
+
 
 class EnterpriseUtility:
     """Enterprise utility class"""
