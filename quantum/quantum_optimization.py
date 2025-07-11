@@ -10,7 +10,7 @@ Enterprise Standards Compliance:
 """
 
 import logging
-import sys
+# (Line removed)
 from datetime import datetime
 from pathlib import Path
 from typing import Tuple
