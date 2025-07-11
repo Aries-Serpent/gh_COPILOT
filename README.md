@@ -25,6 +25,7 @@ The gh_COPILOT Toolkit is an enterprise-grade system following database-first ar
 - ✅ **Quantum-Enhanced Processing**: Advanced documentation indexing
 - ✅ **Dual Copilot Pattern**: Enterprise-grade validation framework
 - ✅ **Visual Processing Indicators**: Comprehensive monitoring system
+- ✅ **MCP Server Integration**: Master Control Program coordinates all Copilot modules (see [MCP Server Setup](documentation/MCP_SERVER_SETUP.md))
 
 ### 🗄️ **DATABASE ARCHITECTURE**
 - **32 Synchronized Databases**: Enterprise data management
@@ -44,14 +45,23 @@ The gh_COPILOT Toolkit is an enterprise-grade system following database-first ar
 ├── logs/               # Enterprise logging system
 ├── scripts/            # 1,679 validated scripts
 ├── web_gui/            # Flask enterprise dashboard
+├── Archive/tests/     # Archived test backups pending QA review
 └── .github/            # Enterprise instructions & patterns
 ```
+
+Archived test backups in `Archive/tests/` are reviewed regularly by the QA team
+to determine whether they should be reintegrated or safely removed.
 
 ### 🚀 **GETTING STARTED**
 1. **Environment Setup**: Follow enterprise environment configuration
 2. **Database Initialization**: All databases auto-configured
 3. **Documentation Access**: Use web-GUI dashboard or database queries
 4. **Script Execution**: All scripts enterprise-validated and database-tracked
+5. **Dashboard Startup**: See [MCP Server Guide](documentation/MCP_SERVER_GUIDE.md) for running the dashboard as the MCP server
+
+### 🧪 **Running Tests**
+1. `pip install -r requirements-test.txt`
+2. `make test`
 
 For detailed instructions, see the generated documentation files in this directory.
 

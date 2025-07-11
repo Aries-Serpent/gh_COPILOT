@@ -10,6 +10,7 @@ from qiskit.quantum_info import Statevector
 from qiskit_aer import AerSimulator
 
 from physics_optimization_engine import PhysicsOptimizationEngine
+import numpy as np
 
 
 def _grover_index(expected_index: int, num_qubits: int) -> int:
@@ -80,3 +81,4 @@ def test_fourier_transform():
     expected = Statevector.from_instruction(qc).data.tolist()
     assert len(result) == len(expected)
     assert np.allclose(result, expected)
+
