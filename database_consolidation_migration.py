@@ -1,80 +1,94 @@
 #!/usr/bin/env python3
-"""
-DatabaseConsolidationMigration - Enterprise Database Processor
-Generated: 2025-07-10 18:09:30
+"""Merge analytics databases into a single schema.
 
-Enterprise Standards Compliance:
-- Flake8/PEP 8 Compliant
-- Emoji-free code (text-based indicators only)
-- Database-first architecture
+This script consolidates the smaller analytics-related databases into
+``analytics.db``. Tables are copied into the target database. When a table
+exists in both source and target but has a different schema, the data is copied
+into a new table named ``<source>_<table>``.
 """
+from __future__ import annotations
 
-import sqlite3
 import logging
+import sqlite3
 from pathlib import Path
-from datetime import datetime
+from time import perf_counter
+from typing import Iterable
 
-# Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'database': '[DATABASE]',
-    'info': '[INFO]'
-}
+from monitoring.performance_tracker import benchmark_queries
 
-class EnterpriseDatabaseProcessor:
-    """Enterprise database processing system"""
+logger = logging.getLogger(__name__)
 
-    def __init__(self, database_path: str = "production.db"):
-        self.database_path = Path(database_path)
-        self.logger = logging.getLogger(__name__)
+ANALYTICS_SOURCES = [
+    "advanced_analytics.db",
+    "analytics_collector.db",
+    "monitoring.db",
+    "optimization_metrics.db",
+    "performance_analysis.db",
+    "performance_monitoring.db",
+]
 
-    def execute_processing(self) -> bool:
-        """Execute database processing"""
-        start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Processing started: {start_time}")
 
-        try:
-            with sqlite3.connect(self.database_path) as conn:
-                cursor = conn.cursor()
+def _table_sql(conn: sqlite3.Connection, table: str) -> str:
+    cur = conn.execute(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (table,)
+    )
+    row = cur.fetchone()
+    return row[0] if row else ""
 
-                # Process database operations
-                success = self.process_operations(cursor)
 
-                if success:
-                    conn.commit()
-                    self.logger.info(f"{TEXT_INDICATORS['success']} Database processing completed")
-                    return True
-                else:
-                    self.logger.error(f"{TEXT_INDICATORS['error']} Database processing failed")
-                    return False
+def _schemas_match(src: sqlite3.Connection, dest: sqlite3.Connection, table: str) -> bool:
+    return _table_sql(src, table) == _table_sql(dest, table)
 
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {e}")
-            return False
 
-    def process_operations(self, cursor) -> bool:
-        """Process database operations"""
-        try:
-            # Implementation for database operations
-            return True
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")
-            return False
+def _copy_table(src: sqlite3.Connection, dest: sqlite3.Connection, table: str, dest_name: str) -> None:
+    create_sql = _table_sql(src, table)
+    if dest_name != table:
+        create_sql = create_sql.replace(f"CREATE TABLE {table}", f"CREATE TABLE {dest_name}")
+    if not _table_sql(dest, dest_name):
+        dest.execute(create_sql)
+    columns = [row[1] for row in src.execute(f"PRAGMA table_info({table})")]
+    placeholder = ",".join(["?"] * len(columns))
+    rows = list(src.execute(f"SELECT {', '.join(columns)} FROM {table}"))
+    if rows:
+        dest.executemany(
+            f"INSERT INTO {dest_name} ({', '.join(columns)}) VALUES ({placeholder})",
+            rows,
+        )
 
-def main():
-    """Main execution function"""
-    processor = EnterpriseDatabaseProcessor()
-    success = processor.execute_processing()
 
-    if success:
-        print(f"{TEXT_INDICATORS['success']} Database processing completed")
-    else:
-        print(f"{TEXT_INDICATORS['error']} Database processing failed")
+def consolidate_databases(target: Path, sources: Iterable[Path]) -> None:
+    """Merge multiple SQLite databases into ``target``."""
+    with sqlite3.connect(target) as dest:
+        dest.execute("PRAGMA foreign_keys=OFF")
+        for source in sources:
+            with sqlite3.connect(source) as src:
+                tables = [
+                    row[0]
+                    for row in src.execute(
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+                    )
+                ]
+                for table in tables:
+                    dest_name = table
+                    if _table_sql(dest, table):
+                        if not _schemas_match(src, dest, table):
+                            dest_name = f"{source.stem}_{table}"
+                    _copy_table(src, dest, table, dest_name)
+        dest.commit()
 
-    return success
+
+def run() -> None:
+    workspace = Path("databases")
+    target = workspace / "analytics.db"
+    sources = [workspace / name for name in ANALYTICS_SOURCES]
+    benchmark_queries(["SELECT count(*) FROM sqlite_master"], db_path=target)
+    start = perf_counter()
+    consolidate_databases(target, sources)
+    duration = (perf_counter() - start) * 1000
+    benchmark_queries(["SELECT count(*) FROM sqlite_master"], db_path=target)
+    logger.info("Consolidation completed in %.2f ms", duration)
+
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    logging.basicConfig(level=logging.INFO)
+    run()

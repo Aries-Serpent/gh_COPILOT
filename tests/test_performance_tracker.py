@@ -2,7 +2,12 @@ import shutil
 import sqlite3
 from pathlib import Path
 
-from monitoring.performance_tracker import record_error, track_query_time
+from monitoring.performance_tracker import (
+    benchmark_queries,
+    record_error,
+    track_query_time,
+    _ensure_table,
+)
 
 
 def _prepare_db(tmp_path: Path) -> Path:
@@ -25,3 +30,10 @@ def test_record_error_updates_error_rate(tmp_path, monkeypatch):
     track_query_time("q1", 40.0, db_path=db)
     metrics = record_error("q1", db_path=db)
     assert metrics["error_rate"] == 0.5
+
+
+def test_benchmark_queries(tmp_path, monkeypatch):
+    db = _prepare_db(tmp_path)
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    metrics = benchmark_queries(["SELECT COUNT(*) FROM query_performance"], db_path=db)
+    assert metrics["within_time_target"]
