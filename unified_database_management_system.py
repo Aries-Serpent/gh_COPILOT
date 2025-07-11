@@ -56,3 +56,4 @@ if __name__ == "__main__":
     ok, missing_dbs = mgr.verify_expected_databases()
     if not ok:
         print("Missing databases:", ", ".join(missing_dbs))
+        sys.exit(1)
