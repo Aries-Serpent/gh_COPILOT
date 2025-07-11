@@ -9,11 +9,11 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
+import logging
 import os
 import sys
-import logging
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -23,51 +23,26 @@ TEXT_INDICATORS = {
     'info': '[INFO]'
 }
 
-class EnterpriseUtility:
-    """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
-        self.logger = logging.getLogger(__name__)
+class SessionProtocolValidator:
+    """Validate session start conditions."""
 
-    def execute_utility(self) -> bool:
-        """Execute utility function"""
-        start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+    def __init__(self, workspace: str | None = None) -> None:
+        self.workspace = Path(workspace or os.getenv(
+            "GH_COPILOT_WORKSPACE", "."))
 
-        try:
-            # Utility implementation
-            success = self.perform_utility_function()
-
-            if success:
-                duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
-                return True
-            else:
-                self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
+    def validate_startup(self) -> bool:
+        """Return ``True`` if no zero-byte ``.py`` files exist."""
+        for file in self.workspace.glob("*.py"):
+            if file.stat().st_size == 0:
                 return False
-
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
-            return False
-
-    def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
         return True
 
-def main():
-    """Main execution function"""
-    utility = EnterpriseUtility()
-    success = utility.execute_utility()
 
-    if success:
-        print(f"{TEXT_INDICATORS['success']} Utility completed")
-    else:
-        print(f"{TEXT_INDICATORS['error']} Utility failed")
+def main() -> None:
+    validator = SessionProtocolValidator()
+    print("Valid" if validator.validate_startup() else "Invalid")
 
-    return success
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    main()
