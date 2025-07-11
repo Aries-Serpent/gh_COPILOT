@@ -126,6 +126,7 @@ The **gh\_COPILOT Toolkit v4.0** repository supports enterprise deployment, moni
 | Date       | Editor      | Change Summary                                                                                                                                           |
 | ---------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2025-07-08 | Marc J/Chat | Unified and enhanced agent guide for v4.0, merged AI, human, and automation protocols, clarified quantum/AI status, and updated compliance requirements. |
+| 2025-07-11 | ChatGPT Codex | Archived all `*.backup_*` files and database backups to `archives/` directory for cleanup and organization. |
 
 ---
 
