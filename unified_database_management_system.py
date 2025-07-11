@@ -22,12 +22,17 @@ class UnifiedDatabaseManager:
 
     def _load_expected_names(self) -> list[str]:
         names: list[str] = []
-        for line in DATABASE_LIST_FILE.read_text().splitlines():
-            line = line.strip()
-            if line.startswith("- "):
-                name = line[2:].strip()
-                if name:
-                    names.append(name)
+        try:
+            for line in DATABASE_LIST_FILE.read_text().splitlines():
+                line = line.strip()
+                if line.startswith("- "):
+                    name = line[2:].strip()
+                    if name:
+                        names.append(name)
+        except FileNotFoundError:
+            logger.error("Database list file not found: %s", DATABASE_LIST_FILE)
+        except OSError as e:
+            logger.error("Error reading database list file %s: %s", DATABASE_LIST_FILE, e)
         return names
 
     def verify_expected_databases(self) -> Tuple[bool, list[str]]:
