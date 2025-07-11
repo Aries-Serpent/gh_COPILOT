@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
-"""Advanced QUBO optimization utilities.
+"""
+AdvancedQuboOptimization - Enterprise Utility Script
+Generated: 2025-07-10 18:09:18
 
-This module provides a minimal brute-force solver for Quadratic
-Unconstrained Binary Optimization (QUBO) problems. The implementation is
-kept intentionally simple so it can run in constrained environments
-without external dependencies. It is primarily used by the quantum
-integration examples and related unit tests.
-
-Enterprise Standards Compliance
--------------------------------
-- Flake8/PEP 8 compliant
+Enterprise Standards Compliance:
+- Flake8/PEP 8 Compliant
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
@@ -17,9 +12,7 @@ Enterprise Standards Compliance
 import logging
 import sys
 from datetime import datetime
-from itertools import product
 from pathlib import Path
-from typing import List, Tuple
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -30,60 +23,15 @@ TEXT_INDICATORS = {
 }
 
 
-def solve_qubo_bruteforce(
-    matrix: List[List[float]],
-) -> Tuple[List[int], float]:
-    """Solve a QUBO problem by exhaustive enumeration.
-
-    The brute-force solver checks every possible binary assignment of the
-    decision variables and computes the associated objective value
-    ``x^T Q x``.  The method guarantees the optimal solution but is
-    computationally expensive with complexity :math:`O(2^n)` where ``n`` is
-    the number of variables.
-
-    Parameters
-    ----------
-    matrix : List[List[float]]
-        Square matrix ``Q`` describing the QUBO coefficients.
-
-    Returns
-    -------
-    Tuple[List[int], float]
-        The optimal binary solution vector and its objective value.
-    """
-
-    n = len(matrix)
-    best_solution: List[int] | None = None
-    best_energy = float("inf")
-
-    for assignment in product([0, 1], repeat=n):
-        energy = sum(
-            matrix[i][j] * assignment[i] * assignment[j]
-            for i in range(n)
-            for j in range(n)
-        )
-
-        if energy < best_energy:
-            best_energy = energy
-            best_solution = list(assignment)
-
-    return best_solution or [0] * n, best_energy
-
-
 class EnterpriseUtility:
-    """Utility wrapper for running a sample QUBO optimization.
-
-    The class encapsulates the boilerplate required to execute an example
-    optimization job within the enterprise tooling.  It demonstrates how
-    the QUBO solver can be invoked and how execution progress is logged.
-    """
+    """Enterprise utility class"""
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
-        """Run the main utility workflow."""
+        """Execute utility function"""
         start_time = datetime.now()
         self.logger.info(
             f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
@@ -95,8 +43,8 @@ class EnterpriseUtility:
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
                 self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Done in {duration:.1f}s"
-                )
+                    f"{TEXT_INDICATORS['success']} Utility completed in "
+                    f"{duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -106,20 +54,35 @@ class EnterpriseUtility:
             self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
             return False
 
-    def perform_utility_function(self) -> bool:
-        """Run an example QUBO optimization problem.
-
-        This method solves a small demonstration problem using the
-        :func:`solve_qubo_bruteforce` function and logs the resulting
-        solution and objective value.
-        """
-
-        example_q = [[1.0, -2.0], [-2.0, 1.0]]
-        solution, energy = solve_qubo_bruteforce(example_q)
+    def log_execution(self, method_name: str) -> None:
+        """Log execution of a method."""
         self.logger.info(
-            f"{TEXT_INDICATORS['info']} Optimal {solution} energy={energy}"
-        )
-        return solution is not None
+            f"{TEXT_INDICATORS['info']} Executing {method_name}")
+
+    def perform_utility_function(self) -> bool:
+        """Solve a small QUBO problem using brute force."""
+        self.log_execution("perform_utility_function")
+
+        import numpy as np
+
+        q_matrix = np.array([[1, -2], [-2, 4]])
+        best_value = float("inf")
+        best_solution = None
+        for x0 in (0, 1):
+            for x1 in (0, 1):
+                x = np.array([x0, x1])
+                value = x @ q_matrix @ x
+                if value < best_value:
+                    best_value = value
+                    best_solution = x
+
+        if best_solution is not None:
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} Best solution {best_solution.tolist()} value {best_value}")
+        else:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} No solution found")
+        return True
 
 
 def main():

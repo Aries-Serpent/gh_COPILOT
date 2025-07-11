@@ -9,9 +9,7 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
-import json
 import logging
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -25,31 +23,80 @@ TEXT_INDICATORS = {
 }
 
 
-class EnterpriseJSONSerializer:
-    """Serialize and deserialize JSON with datetime support."""
+class EnterpriseUtility:
+    """Enterprise utility class"""
 
-    def _default(self, obj):
-        if isinstance(obj, datetime):
-            return {"__datetime__": obj.isoformat()}
-        raise TypeError(f"Type {type(obj)} not serializable")
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+        self.workspace_path = Path(workspace_path)
+        self.logger = logging.getLogger(__name__)
 
-    def _object_hook(self, obj):
-        if "__datetime__" in obj:
-            return datetime.fromisoformat(obj["__datetime__"])
-        return obj
+    def execute_utility(self) -> bool:
+        """Execute utility function"""
+        start_time = datetime.now()
+        self.logger.info(
+            f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
-    def safe_json_dumps(self, data) -> str:
-        return json.dumps(data, default=self._default)
+        try:
+            # Utility implementation
+            success = self.perform_utility_function()
 
-    def safe_json_loads(self, data: str):
-        return json.loads(data, object_hook=self._object_hook)
+            if success:
+                duration = (datetime.now() - start_time).total_seconds()
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in "
+                    f"{duration:.1f}s")
+                return True
+            else:
+                self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
+                return False
+
+        except Exception as e:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
+            return False
+
+    def log_execution(self, method_name: str) -> None:
+        """Log execution of a method."""
+        self.logger.info(
+            f"{TEXT_INDICATORS['info']} Executing {method_name}")
+
+    def perform_utility_function(self) -> bool:
+        """Load JSON and write a sorted version."""
+        self.log_execution("perform_utility_function")
+
+        import json
+
+        source = self.workspace_path / "data.json"
+        target = self.workspace_path / "data_fixed.json"
+
+        if not source.exists():
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} {source} not found")
+            return False
+
+        with open(source, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+
+        with open(target, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, sort_keys=True, indent=2)
+
+        self.logger.info(
+            f"{TEXT_INDICATORS['success']} Wrote fixed JSON to {target}")
+        return True
 
 
-def main() -> None:
-    serializer = EnterpriseJSONSerializer()
-    serializer.safe_json_dumps({"now": datetime.utcnow()})
-    print(f"{TEXT_INDICATORS['success']} Utility completed")
+def main():
+    """Main execution function"""
+    utility = EnterpriseUtility()
+    success = utility.execute_utility()
+
+    if success:
+        print(f"{TEXT_INDICATORS['success']} Utility completed")
+    else:
+        print(f"{TEXT_INDICATORS['error']} Utility failed")
+
+    return success
 
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    sys.exit(0 if success else 1)

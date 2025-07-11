@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
-"""Quantum integration orchestrator utilities.
+"""
+AdvancedQuboOptimization - Enterprise Utility Script
+Generated: 2025-07-10 18:09:18
 
-This module demonstrates coordinating multiple QUBO optimizations using
-the brute-force solver provided in :mod:`advanced_qubo_optimization`.  It
-selects the best solution among several candidate QUBO problems and is
-primarily intended for testing purposes.
-
-Enterprise Standards Compliance
--------------------------------
-- Flake8/PEP 8 compliant
+Enterprise Standards Compliance:
+- Flake8/PEP 8 Compliant
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
@@ -17,9 +13,6 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple
-
-from advanced_qubo_optimization import solve_qubo_bruteforce
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -30,47 +23,15 @@ TEXT_INDICATORS = {
 }
 
 
-def integrate_qubo_problems(
-    qubos: List[List[List[float]]],
-) -> Tuple[List[int], float]:
-    """Solve multiple QUBO problems and return the best result.
-
-    Parameters
-    ----------
-    qubos : List[List[List[float]]]
-        A list of square matrices representing individual QUBO problems.
-
-    Returns
-    -------
-    Tuple[List[int], float]
-        The solution vector and objective value of the best-performing
-        problem instance.
-    """
-
-    best_solution: List[int] | None = None
-    best_energy = float("inf")
-
-    for matrix in qubos:
-        solution, energy = solve_qubo_bruteforce(matrix)
-        if energy < best_energy:
-            best_solution, best_energy = solution, energy
-
-    return best_solution or [], best_energy
-
-
 class EnterpriseUtility:
-    """Utility wrapper for orchestrating QUBO optimizations.
-
-    This class demonstrates how multiple QUBO problems can be processed
-    in sequence while providing structured logging around the workflow.
-    """
+    """Enterprise utility class"""
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
-        """Run the main utility workflow."""
+        """Execute utility function"""
         start_time = datetime.now()
         self.logger.info(
             f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
@@ -82,36 +43,37 @@ class EnterpriseUtility:
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
                 self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Done in {duration:.1f}s"
-                )
+                    f"{TEXT_INDICATORS['success']} Utility completed in "
+                    f"{duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
                 return False
 
         except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Utility error: {e}")
             return False
 
     def perform_utility_function(self) -> bool:
-        """Coordinate several QUBO optimizations.
-
-        Two sample QUBO matrices are solved and the best result is
-        reported through the logger.
-        """
-
-        qubos = [
-            [[1.0, -2.0], [-2.0, 1.0]],
-            [[2.0, -1.0], [-1.0, 2.0]],
-        ]
-        solution, energy = integrate_qubo_problems(qubos)
+        """Run a demo optimization orchestrating QUBO solving."""
         self.logger.info(
-            f"{TEXT_INDICATORS['info']} Best {solution} with energy {energy}"
-        )
-        return solution != []
+            f"{TEXT_INDICATORS['info']} Running QUBO demo")
+
+        try:
+            from advanced_qubo_optimization import (
+                EnterpriseUtility as QuboUtil,
+            )
+        except ImportError as exc:  # pragma: no cover - import guard
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} {exc}")
+            return False
+
+        util = QuboUtil(workspace_path=str(self.workspace_path))
+        return util.perform_utility_function()
 
 
-def main():
+def main() -> bool:
     """Main execution function"""
     utility = EnterpriseUtility()
     success = utility.execute_utility()

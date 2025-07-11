@@ -1,21 +1,9 @@
 #!/usr/bin/env python3
-"""
-SessionProtocolValidator - Enterprise Utility Script
-Generated: 2025-07-10 18:10:16
-
-Enterprise Standards Compliance:
-- Flake8/PEP 8 Compliant
-- Emoji-free code (text-based indicators only)
-- Visual processing indicators
-"""
-
+"""SessionProtocolValidator - Validates workspace for zero-byte files."""
 import logging
 import os
-import sys
-from datetime import datetime
 from pathlib import Path
 
-# Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     'start': '[START]',
     'success': '[SUCCESS]',
@@ -25,24 +13,21 @@ TEXT_INDICATORS = {
 
 
 class SessionProtocolValidator:
-    """Validate session start conditions."""
+    """Check workspace integrity on startup."""
 
-    def __init__(self, workspace: str | None = None) -> None:
-        self.workspace = Path(workspace or os.getenv(
-            "GH_COPILOT_WORKSPACE", "."))
+    def __init__(self, workspace_path: str | None = None) -> None:
+        self.workspace_path = Path(
+            workspace_path or os.getenv('GH_COPILOT_WORKSPACE', '.'))
+        self.logger = logging.getLogger(__name__)
 
     def validate_startup(self) -> bool:
-        """Return ``True`` if no zero-byte ``.py`` files exist."""
-        for file in self.workspace.glob("*.py"):
-            if file.stat().st_size == 0:
+        """Return False if any zero-byte file is found."""
+        self.logger.info(
+            f"{TEXT_INDICATORS['start']} Validating {self.workspace_path}")
+        for path in self.workspace_path.rglob('*'):
+            if path.is_file() and path.stat().st_size == 0:
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Zero-byte file {path}")
                 return False
+        self.logger.info(f"{TEXT_INDICATORS['success']} Validation passed")
         return True
-
-
-def main() -> None:
-    validator = SessionProtocolValidator()
-    print("Valid" if validator.validate_startup() else "Invalid")
-
-
-if __name__ == "__main__":
-    main()
