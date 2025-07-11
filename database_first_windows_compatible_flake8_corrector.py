@@ -18,21 +18,19 @@ Author: gh_COPILOT Enterprise Framework
 Date: July 10, 2025
 """
 
-import os
-import sys
 import logging
+import os
+import re
 import sqlite3
 import subprocess
-import re
-
-
-from pathlib import Path
-from datetime import datetime
-
-from dataclasses import dataclass
-from tqdm import tqdm
+import sys
 import time
-from typing import List, Dict
+from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List
+
+from tqdm import tqdm
 
 # Windows-compatible visual indicators (NO Unicode emojis)
 VISUAL_INDICATORS = {
@@ -229,7 +227,7 @@ class DatabaseFirstFlake8Corrector:
                     # Only add if not already loaded or if this has higher confidence
                     error_code = row[1]
                     if (error_code not in self.correction_patterns or
-                        row[4] > self.correction_patterns[error_code].confidence_score):
+                            row[4] > self.correction_patterns[error_code].confidence_score):
 
                         pattern = CorrectionPattern(
                             pattern_id=row[0],
@@ -542,18 +540,13 @@ class DatabaseFirstFlake8Corrector:
         self.logger.info("=" * 60, "complete")
         self.logger.info(f"Session ID: {self.session_id}", "info")
         self.logger.info(f"Total Duration: {duration:.1f} seconds", "info")
-        self.logger.info("=" * 60, "complete")
-        self.logger.info("DATABASE-FIRST FLAKE8 CORRECTION COMPLETE", "complete")
-        self.logger.info("=" * 60, "complete")
-        self.logger.info(f"Session ID: {self.session_id}", "info")
-        self.logger.info(f"Total Duration: {duration:.1f} seconds", "info")
         self.logger.info(f"Files Processed: {self.stats['files_processed']}", "info")
         self.logger.info(f"Violations Found: {self.stats['violations_found']}", "info")
         self.logger.info(f"Violations Fixed: {self.stats['violations_fixed']}", "info")
         self.logger.info(f"Files Modified: {self.stats['files_modified']}", "info")
         self.logger.info(
-            f"Success Rate: {(self.stats['violations_fixed']/max(1,self.stats['violations_found']))*100:.1f}%",
-            "info"
+            f"Success Rate: {(self.stats['violations_fixed']/max(1, self.stats['violations_found']))*100:.1f}%",
+            "info",
         )
         self.logger.info("=" * 60, "complete")
 
@@ -565,9 +558,12 @@ class DatabaseFirstFlake8Corrector:
             )
         else:
             self.logger.warning("DUAL COPILOT VALIDATION: NO FIXES APPLIED - REVIEW REQUIRED")
+
+
 def main():
     print(f"{VISUAL_INDICATORS['start']} Database-First Windows-Compatible Flake8 Corrector")
-    print(f"{VISUAL_INDICATORS['info']} Session started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(
+        f"{VISUAL_INDICATORS['info']} Session started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     try:
         # Initialize corrector
@@ -581,7 +577,8 @@ def main():
 
         elapsed = time.time() - start_time
         if elapsed > (timeout_minutes * 60):
-            print(f"{VISUAL_INDICATORS['warning']} Process exceeded {timeout_minutes} minute timeout")
+            print(
+                f"{VISUAL_INDICATORS['warning']} Process exceeded {timeout_minutes} minute timeout")
 
         print(f"{VISUAL_INDICATORS['complete']} Correction process completed successfully")
 
@@ -591,6 +588,7 @@ def main():
     except Exception as e:
         print(f"{VISUAL_INDICATORS['error']} Critical error: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
