@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """SessionProtocolValidator - Validates workspace for zero-byte files."""
 import logging
-import os
-from pathlib import Path
+
+from copilot.common.workspace_utils import get_workspace_path
 
 TEXT_INDICATORS = {
     'start': '[START]',
@@ -16,8 +16,7 @@ class SessionProtocolValidator:
     """Check workspace integrity on startup."""
 
     def __init__(self, workspace_path: str | None = None) -> None:
-        self.workspace_path = Path(
-            workspace_path or os.getenv('GH_COPILOT_WORKSPACE', '.'))
+        self.workspace_path = get_workspace_path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
     def validate_startup(self) -> bool:
