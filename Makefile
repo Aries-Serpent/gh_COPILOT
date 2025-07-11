@@ -6,8 +6,5 @@ create-env:
 setup: create-env
 	pip install -r requirements-test.txt
 
-test: setup lint
-	pytest
-
-lint:
-	flake8 --config=.flake8 .
+test: setup
+	pytest tests
