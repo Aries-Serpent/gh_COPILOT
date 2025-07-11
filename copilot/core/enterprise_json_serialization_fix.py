@@ -9,10 +9,13 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
+import json
 import logging
 import sys
 from datetime import datetime
+from datetime import timedelta
 from pathlib import Path
+from typing import Any
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -82,6 +85,33 @@ class EnterpriseUtility:
         self.logger.info(
             f"{TEXT_INDICATORS['success']} Wrote fixed JSON to {target}")
         return True
+
+
+class EnterpriseJSONSerializer:
+    """Serialize and deserialize JSON with datetime support."""
+
+    def _default(self, obj: Any) -> Any:
+        if isinstance(obj, (datetime, timedelta)):
+            return obj.isoformat()
+        raise TypeError(f"Type {type(obj)!r} not serializable")
+
+    def _object_hook(self, obj: dict[str, Any]) -> dict[str, Any]:
+        for key, value in obj.items():
+            if isinstance(value, str):
+                try:
+                    obj[key] = datetime.fromisoformat(value)
+                except ValueError:
+                    try:
+                        obj[key] = timedelta(seconds=float(value))
+                    except ValueError:
+                        pass
+        return obj
+
+    def safe_json_dumps(self, obj: Any, **kwargs: Any) -> str:
+        return json.dumps(obj, default=self._default, **kwargs)
+
+    def safe_json_loads(self, data: str) -> Any:
+        return json.loads(data, object_hook=self._object_hook)
 
 
 def main():
