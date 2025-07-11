@@ -52,6 +52,7 @@ The gh_COPILOT Toolkit is an enterprise-grade system following database-first ar
 2. **Database Initialization**: All databases auto-configured
 3. **Documentation Access**: Use web-GUI dashboard or database queries
 4. **Script Execution**: All scripts enterprise-validated and database-tracked
+5. **Prompt Examples**: See [prompts](prompts/) for GitHub Copilot usage.
 
 For detailed instructions, see the generated documentation files in this directory.
 
