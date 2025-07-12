@@ -14,7 +14,7 @@ try:
 
     def _set_seed(seed: int) -> None:
         algorithm_globals.random_seed = seed
-except Exception:  # pragma: no cover - fallback for older qiskit
+except ImportError:  # pragma: no cover - fallback for older qiskit
     import numpy as np
 
     def _set_seed(seed: int) -> None:
