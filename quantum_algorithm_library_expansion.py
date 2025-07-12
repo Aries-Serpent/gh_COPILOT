@@ -9,11 +9,15 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
+import logging
 import os
 import sys
-import logging
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+from qiskit_aer import AerSimulator
+
+from qiskit import QuantumCircuit
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -22,6 +26,7 @@ TEXT_INDICATORS = {
     'error': '[ERROR]',
     'info': '[INFO]'
 }
+
 
 class EnterpriseUtility:
     """Enterprise utility class"""
@@ -42,7 +47,8 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -53,9 +59,29 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Demonstrate Grover search on a 2-qubit system."""
+        self.logger.info(f"{TEXT_INDICATORS['info']} Running Grover demo")
+
+        circuit = QuantumCircuit(2, 2)
+        circuit.h([0, 1])
+        circuit.cz(0, 1)
+        circuit.h([0, 1])
+        circuit.x([0, 1])
+        circuit.h(1)
+        circuit.cx(0, 1)
+        circuit.h(1)
+        circuit.x([0, 1])
+        circuit.h([0, 1])
+        circuit.measure([0, 1], [0, 1])
+
+        backend = AerSimulator()
+        result = backend.run(circuit, shots=200).result()
+        counts = result.get_counts()
+        self.logger.info(f"{TEXT_INDICATORS['info']} Counts: {counts}")
+
+        top = max(counts, key=counts.get)
+        return top == "11"
+
 
 def main():
     """Main execution function"""
@@ -68,6 +94,7 @@ def main():
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
     return success
+
 
 if __name__ == "__main__":
     success = main()

@@ -9,11 +9,11 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
+import logging
 import os
 import sys
-import logging
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -22,6 +22,7 @@ TEXT_INDICATORS = {
     'error': '[ERROR]',
     'info': '[INFO]'
 }
+
 
 class EnterpriseUtility:
     """Enterprise utility class"""
@@ -42,7 +43,8 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -53,9 +55,15 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Run a demo using the expanded algorithm library."""
+        self.logger.info(f"{TEXT_INDICATORS['info']} Invoking library demo")
+
+        from quantum_algorithm_library_expansion import \
+            EnterpriseUtility as LibraryUtility
+
+        util = LibraryUtility(workspace_path=str(self.workspace_path))
+        return util.perform_utility_function()
+
 
 def main():
     """Main execution function"""
@@ -68,6 +76,7 @@ def main():
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
     return success
+
 
 if __name__ == "__main__":
     success = main()
