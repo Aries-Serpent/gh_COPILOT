@@ -13,6 +13,29 @@ from typing import Iterable, Tuple
 WORKSPACE_ENV_VAR = "GH_COPILOT_WORKSPACE"
 
 
+CLEANUP_SQL = """
+    DELETE FROM enterprise_documentation
+    WHERE source_path LIKE '%backup%'
+       OR source_path LIKE '%_convo.md'
+       OR source_path LIKE '%.bak'
+       OR doc_type = 'BACKUP_LOG';
+"""
+
+
+DEDUPE_SQL = """
+    DELETE FROM enterprise_documentation
+    WHERE doc_id NOT IN (
+        SELECT doc_id FROM (
+            SELECT doc_id, ROW_NUMBER() OVER (
+                PARTITION BY title
+                ORDER BY last_updated DESC
+            ) as rn
+            FROM enterprise_documentation
+        ) WHERE rn = 1
+    );
+"""
+
+
 def get_workspace() -> Path:
     """Return workspace root from environment or repo root."""
     root = Path(__file__).resolve().parents[1]
