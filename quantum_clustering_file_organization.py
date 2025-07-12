@@ -65,7 +65,14 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self, n_clusters: int | None = None) -> bool:
-        """Cluster files using a quantum kernel."""
+        """Cluster files using a quantum kernel.
+
+        Parameters
+        ----------
+        n_clusters : int | None, optional
+            Number of clusters to form. If ``None``, the optimal number is
+            determined using the elbow method.
+        """
         file_paths = [p for p in self.workspace_path.iterdir() if p.is_file()]
         if not file_paths:
             self.logger.info(f"{TEXT_INDICATORS['info']} No files found")
@@ -91,8 +98,10 @@ class EnterpriseUtility:
                 kmeans = KMeans(n_clusters=k, random_state=42)
                 kmeans.fit(kernel_matrix)
                 distortions.append(kmeans.inertia_)
+
             n_clusters = distortions.index(
-                min(distortions[1:], key=lambda x: abs(x - distortions[0]))) + 1
+                min(distortions[1:], key=lambda x: abs(x - distortions[0]))
+            ) + 1
 
         kmeans = KMeans(n_clusters=n_clusters, random_state=42)
         labels = kmeans.fit_predict(kernel_matrix)
@@ -105,13 +114,16 @@ class EnterpriseUtility:
 
 def main() -> bool:
     """Main execution function"""
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Quantum Clustering File Organization"
+    )
     parser.add_argument(
         "--clusters",
         type=int,
         default=None,
-        help="Number of clusters to form",
+        help="Number of clusters to form (auto if omitted)",
     )
+
     args = parser.parse_args()
 
     utility = EnterpriseUtility()
