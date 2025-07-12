@@ -12,17 +12,26 @@ The example illustrates how quantum kernels can assist with file
 classification and organization tasks.
 """
 
+import argparse
 import logging
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
 
 from qiskit.circuit.library import ZZFeatureMap
-from qiskit_machine_learning.kernels import FidelityQuantumKernel
+
+try:
+    from qiskit_machine_learning.kernels import FidelityQuantumKernel
+except Exception:  # pragma: no cover - optional dependency
+    FidelityQuantumKernel = None
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
-from qiskit import BasicAer
+try:
+    from qiskit import BasicAer
+except Exception:  # pragma: no cover - optional dependency
+    BasicAer = None
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -41,13 +50,13 @@ class EnterpriseUtility:
         self.workspace_path = Path(workspace_path or env_default or Path.cwd())
         self.logger = logging.getLogger(__name__)
 
-    def execute_utility(self) -> bool:
+    def execute_utility(self, n_clusters: int | None = None) -> bool:
         """Execute utility function"""
         start_time = datetime.now()
         self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
-            success = self.perform_utility_function()
+            success = self.perform_utility_function(n_clusters=n_clusters)
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
@@ -62,7 +71,7 @@ class EnterpriseUtility:
             self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
             return False
 
-    def perform_utility_function(self) -> bool:
+    def perform_utility_function(self, n_clusters: int | None = None) -> bool:
         """Cluster files using a quantum kernel."""
         file_paths = [p for p in self.workspace_path.iterdir() if p.is_file()]
         if not file_paths:
@@ -77,10 +86,18 @@ class EnterpriseUtility:
         scaler = StandardScaler()
         features_scaled = scaler.fit_transform(features)
 
-        feature_map = ZZFeatureMap(feature_dimension=2, reps=1)
-        backend = BasicAer.get_backend("statevector_simulator")
-        kernel = FidelityQuantumKernel(feature_map=feature_map, quantum_instance=backend)
-        kernel_matrix = kernel.evaluate(features_scaled)
+        if FidelityQuantumKernel is not None and BasicAer is not None:
+            feature_map = ZZFeatureMap(feature_dimension=2, reps=1)
+            backend = BasicAer.get_backend("statevector_simulator")
+            kernel = FidelityQuantumKernel(
+                feature_map=feature_map, quantum_instance=backend
+            )
+            kernel_matrix = kernel.evaluate(features_scaled)
+        else:
+            # Fallback to classical Euclidean distance matrix
+            from sklearn.metrics import pairwise_distances
+
+            kernel_matrix = pairwise_distances(features_scaled, metric="euclidean")
 
         if n_clusters is None:
             # Determine the optimal number of clusters using the elbow method
@@ -89,7 +106,8 @@ class EnterpriseUtility:
                 kmeans = KMeans(n_clusters=k, random_state=42)
                 kmeans.fit(kernel_matrix)
                 distortions.append(kmeans.inertia_)
-            n_clusters = distortions.index(min(distortions[1:], key=lambda x: abs(x - distortions[0]))) + 1
+            n_clusters = distortions.index(
+                min(distortions[1:], key=lambda x: abs(x - distortions[0]))) + 1
 
         kmeans = KMeans(n_clusters=n_clusters, random_state=42)
         labels = kmeans.fit_predict(kernel_matrix)
@@ -100,10 +118,22 @@ class EnterpriseUtility:
         return True
 
 
-def main():
+def main() -> bool:
     """Main execution function"""
+    parser = argparse.ArgumentParser(
+        description="Quantum Clustering File Organization"
+    )
+    parser.add_argument(
+        "--clusters",
+        type=int,
+        default=None,
+        help="Number of clusters to form (auto if omitted)",
+    )
+
+    args = parser.parse_args()
+
     utility = EnterpriseUtility()
-    success = utility.execute_utility()
+    success = utility.execute_utility(n_clusters=args.clusters)
 
     if success:
         print(f"{TEXT_INDICATORS['success']} Utility completed")
