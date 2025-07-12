@@ -13,12 +13,23 @@ with enterprise coding standards and contains no placeholder logic.
 """
 
 import logging
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
 
 from qiskit.circuit.library import RealAmplitudes, ZZFeatureMap
-from qiskit.utils import algorithm_globals
+
+try:
+    from qiskit.utils import algorithm_globals
+
+    def _set_seed(seed: int) -> None:
+        algorithm_globals.random_seed = seed
+except Exception:  # pragma: no cover - fallback for older qiskit
+    import numpy as np
+
+    def _set_seed(seed: int) -> None:
+        np.random.seed(seed)
 from qiskit_machine_learning.algorithms.classifiers import \
     NeuralNetworkClassifier
 from qiskit_machine_learning.neural_networks import TwoLayerQNN
@@ -26,7 +37,10 @@ from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-from qiskit import BasicAer
+try:
+    from qiskit import BasicAer
+except Exception:  # pragma: no cover - for qiskit>=2
+    from qiskit.providers.basicaer import BasicAer  # type: ignore
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -68,7 +82,7 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Train a QNN model and log its accuracy."""
-        algorithm_globals.random_seed = 42
+        _set_seed(42)
 
         features, labels = make_classification(
             n_samples=200,

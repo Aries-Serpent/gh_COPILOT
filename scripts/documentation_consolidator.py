@@ -12,6 +12,17 @@ from typing import Iterable, Tuple
 
 WORKSPACE_ENV_VAR = "GH_COPILOT_WORKSPACE"
 
+# SQL statements for cleanup operations
+CLEANUP_SQL = (
+    "DELETE FROM enterprise_documentation "
+    "WHERE doc_type='BACKUP_LOG' OR source_path LIKE '%backup%'"
+)
+DEDUPE_SQL = (
+    "DELETE FROM enterprise_documentation WHERE rowid NOT IN ("
+    "SELECT MIN(rowid) FROM enterprise_documentation GROUP BY title"
+    ")"
+)
+
 
 def get_workspace() -> Path:
     """Return workspace root from environment or repo root."""
