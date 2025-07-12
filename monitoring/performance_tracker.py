@@ -1,10 +1,11 @@
 """Performance tracking utilities for analytics.db."""
 
+import builtins
 import logging
 import os
 import sqlite3
-from time import perf_counter
 from pathlib import Path
+from time import perf_counter
 from typing import Dict, Iterable, Optional
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
@@ -14,7 +15,7 @@ WEB_DASHBOARD_ENABLED = os.getenv("WEB_DASHBOARD_ENABLED") == "1"
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["track_query_time", "record_error", "ensure_table"]
+__all__ = ["track_query_time", "record_error", "ensure_table", "benchmark_queries"]
 
 
 def _ensure_table(conn: sqlite3.Connection) -> None:
@@ -108,3 +109,6 @@ def benchmark_queries(
             duration = (perf_counter() - start) * 1000
             metrics = track_query_time(query, duration, db_path=path)
     return metrics
+
+
+builtins.benchmark_queries = benchmark_queries

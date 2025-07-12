@@ -12,6 +12,7 @@ The example illustrates how quantum kernels can assist with file
 classification and organization tasks.
 """
 
+import argparse
 import logging
 import os
 import sys
@@ -49,13 +50,13 @@ class EnterpriseUtility:
         self.workspace_path = Path(workspace_path or env_default or Path.cwd())
         self.logger = logging.getLogger(__name__)
 
-    def execute_utility(self) -> bool:
+    def execute_utility(self, n_clusters: int | None = None) -> bool:
         """Execute utility function"""
         start_time = datetime.now()
         self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
-            success = self.perform_utility_function()
+            success = self.perform_utility_function(n_clusters=n_clusters)
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
@@ -117,10 +118,22 @@ class EnterpriseUtility:
         return True
 
 
-def main():
+def main() -> bool:
     """Main execution function"""
+    parser = argparse.ArgumentParser(
+        description="Quantum Clustering File Organization"
+    )
+    parser.add_argument(
+        "--clusters",
+        type=int,
+        default=None,
+        help="Number of clusters to form (auto if omitted)",
+    )
+
+    args = parser.parse_args()
+
     utility = EnterpriseUtility()
-    success = utility.execute_utility()
+    success = utility.execute_utility(n_clusters=args.clusters)
 
     if success:
         print(f"{TEXT_INDICATORS['success']} Utility completed")
