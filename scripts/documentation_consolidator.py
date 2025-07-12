@@ -10,7 +10,39 @@ import uuid
 from pathlib import Path
 from typing import Iterable, Tuple
 
+CLEANUP_SQL = (
+    "DELETE FROM enterprise_documentation "
+    "WHERE doc_type='BACKUP_LOG' OR source_path LIKE '%backup%'"
+)
+DEDUPE_SQL = (
+    "DELETE FROM enterprise_documentation WHERE rowid NOT IN ("
+    "SELECT MIN(rowid) FROM enterprise_documentation GROUP BY title)"
+)
+
 WORKSPACE_ENV_VAR = "GH_COPILOT_WORKSPACE"
+
+
+CLEANUP_SQL = """
+    DELETE FROM enterprise_documentation
+    WHERE source_path LIKE '%backup%'
+       OR source_path LIKE '%_convo.md'
+       OR source_path LIKE '%.bak'
+       OR doc_type = 'BACKUP_LOG';
+"""
+
+
+DEDUPE_SQL = """
+    DELETE FROM enterprise_documentation
+    WHERE doc_id NOT IN (
+        SELECT doc_id FROM (
+            SELECT doc_id, ROW_NUMBER() OVER (
+                PARTITION BY title
+                ORDER BY last_updated DESC
+            ) as rn
+            FROM enterprise_documentation
+        ) WHERE rn = 1
+    );
+"""
 
 
 def get_workspace() -> Path:
