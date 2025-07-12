@@ -23,7 +23,6 @@ def test_correction_history_records(tmp_path, monkeypatch):
     with sqlite3.connect(dest_db) as conn:
         conn.execute("ALTER TABLE violations ADD COLUMN session_id TEXT")
         conn.executescript(migration_sql)
-        conn.execute("ALTER TABLE violations ADD COLUMN session_id TEXT")
 
     # prepare file with trailing whitespace violation
     test_file = workspace / "example.py"
