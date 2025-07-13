@@ -11,14 +11,11 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
-import re
-from collections import defaultdict, Counter
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import seaborn as sns
-import pandas as pd
 
 # MANDATORY: Anti-recursion validation
 def validate_workspace_integrity() -> bool:

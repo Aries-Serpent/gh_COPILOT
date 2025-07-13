@@ -12,12 +12,11 @@ import time
 import threading
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple
 from dataclasses import dataclass, asdict
 import logging
 import json
 from tqdm import tqdm
-import subprocess
 
 # MANDATORY: Anti-recursion validation
 def validate_workspace_integrity() -> bool:

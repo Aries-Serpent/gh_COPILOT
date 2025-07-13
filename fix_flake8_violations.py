@@ -6,7 +6,6 @@ Fix whitespace and line length violations in enterprise_dual_copilot_validator.p
 
 import re
 import os
-from pathlib import Path
 
 def fix_flake8_violations(file_path: str) -> None:
     """Fix flake8 violations in the target file"""

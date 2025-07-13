@@ -13,6 +13,11 @@ Achievement Foundation:
 
 Next Phase: Database Content Purification
 """
+from pathlib import Path
+from tqdm import tqdm
+from typing import Any
+from typing import Dict
+from typing import List
 
 import os
 import sys

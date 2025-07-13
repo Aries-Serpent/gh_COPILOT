@@ -25,11 +25,10 @@ import sys
 import shutil
 import codecs
 import time
-import json
 from pathlib import Path, PureWindowsPath
 from datetime import datetime
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Tuple, Any
 import chardet
 from tqdm import tqdm
 

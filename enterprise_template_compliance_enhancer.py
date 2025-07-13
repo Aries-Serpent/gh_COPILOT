@@ -10,12 +10,8 @@ Enterprise Standards Compliance:
 - Anti-recursion protection
 """
 
-import os
 import sys
 import logging
-import sqlite3
-import subprocess
-import re
 from pathlib import Path
 from datetime import datetime
 from tqdm import tqdm

@@ -10,10 +10,9 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple
 from dataclasses import dataclass
 import logging
-from tqdm import tqdm
 import json
 
 # MANDATORY: Anti-recursion validation

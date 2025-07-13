@@ -17,13 +17,10 @@ import sqlite3
 import shutil
 import logging
 import re
-import ast
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any
 from tqdm import tqdm
-import time
-import subprocess
 
 # 🎨 Visual Processing Setup
 logging.basicConfig(

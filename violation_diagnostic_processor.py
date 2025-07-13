@@ -8,14 +8,11 @@ Date: July 13, 2025
 Status: DIAGNOSTIC MODE
 """
 
-import os
 import sys
 import sqlite3
 import logging
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
-from collections import defaultdict
+from typing import Dict, Any
 
 # Configure diagnostic logging
 logging.basicConfig(

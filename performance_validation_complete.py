@@ -5,6 +5,7 @@
 Benchmark quantum algorithms, template synthesis speed, and flake8
 correction throughput. Results are logged for operational monitoring.
 """
+from typing import Dict
 
 from __future__ import annotations
 

@@ -6,6 +6,7 @@ Framework to benchmark quantum algorithms, template generation,
 and flake8 correction throughput. Baseline metrics are stored in
 ``production.db`` for regression tracking.
 """
+from typing import Dict
 
 from __future__ import annotations
 

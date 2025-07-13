@@ -11,10 +11,8 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
-import re
-from collections import defaultdict, Counter
 from tqdm import tqdm
 
 # MANDATORY: Anti-recursion validation

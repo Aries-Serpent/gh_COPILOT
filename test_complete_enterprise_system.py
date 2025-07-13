@@ -14,8 +14,6 @@ This demonstrates the complete enterprise Flake8 correction system.
 
 import sys
 import time
-import logging
-from pathlib import Path
 
 # Enterprise visual indicators
 ENTERPRISE_INDICATORS = {

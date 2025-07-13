@@ -22,16 +22,13 @@ Critical Priority: SYSTEM COMPLETION - Chunk 4/4 - FINAL INTEGRATION
 """
 
 import os
-import sys
 import logging
 import sqlite3
 import json
-import time
-import threading
 from datetime import datetime, timedelta
 from pathlib import Path
 from dataclasses import dataclass, asdict
-from typing import Dict, Any, List, Optional, Iterator
+from typing import Dict, Any, List, Optional
 from contextlib import contextmanager
 from tqdm import tqdm
 

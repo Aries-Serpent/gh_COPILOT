@@ -7,8 +7,6 @@ Enterprise-grade automated fix system for 12,844+ Flake8 violations
 import sqlite3
 import os
 import sys
-import re
-import ast
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple

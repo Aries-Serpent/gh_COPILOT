@@ -9,6 +9,10 @@ Enterprise Standards Compliance:
 - Database-first architecture
 - Anti-recursion protection
 """
+from datetime import datetime
+from pathlib import Path
+from tqdm import tqdm
+import sys
 
 import logging
 

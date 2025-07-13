@@ -4,6 +4,11 @@ from pathlib import Path
 from database_consolidation_migration import consolidate_databases
 
 
+
+def benchmark_queries():
+    """Benchmark database queries"""
+    return []
+
 def _make_db(path: Path, table: str) -> Path:
     with sqlite3.connect(path) as conn:
         conn.execute(f"CREATE TABLE {table} (id INTEGER)")
