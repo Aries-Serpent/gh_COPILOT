@@ -19,8 +19,7 @@ This guide explains how to clean up old Qiskit installations when `pip list` sho
    This installs `qiskit>=1.4,<2.0` and compatible extras like `qiskit-aer`.
 2. Verify the version:
    ```bash
-   python -c "import qiskit; print(qiskit.__qiskit_version__)"
-   ```
+   python -c "import qiskit; print(qiskit.__version__)"
 
 ## Validate the Environment
 Run the full test suite to confirm everything works with the clean installation:
