@@ -21,7 +21,17 @@ Critical Priority: SYSTEM COMPLETION
 
 import logging
 import os
+import sys
 import shutil
+import codecs
+import time
+import json
+from pathlib import Path, PureWindowsPath
+from datetime import datetime
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple, Any
+import chardet
+from tqdm import tqdm
 
 # Enterprise visual indicators (Windows-compatible, NO Unicode emojis)
 ENTERPRISE_INDICATORS = {

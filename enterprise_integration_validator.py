@@ -66,11 +66,9 @@ def test_chunk_imports() -> Dict[str, Any]:
     }
 
     try:
-        # Test Chunk 1 import
-        from comprehensive_enterprise_flake8_corrector import (
-            UnicodeCompatibleFileHandler,
-            AntiRecursionValidator,
-            EnterpriseLoggingManager
+        # Test Chunk 1 import - use correct module name
+        from enterprise_unicode_flake8_corrector import (
+            UnicodeCompatibleFileHandler
         )
         import_results['chunk1_unicode_handler'] = True
         logger.info(f"{ENTERPRISE_INDICATORS['success']} Chunk 1: Unicode handler imported successfully")

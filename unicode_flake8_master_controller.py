@@ -118,6 +118,9 @@ class VisualProcessingConfig:
     """Stub for visual processing config"""
     def __init__(self, default_timeout_minutes=30):
         self.default_timeout_minutes = default_timeout_minutes
+        self.enable_progress_bars = True
+        self.enable_timeout_controls = True
+        self.enable_performance_monitoring = True
 
 class EnterpriseProgressManager:
     """Stub for progress manager"""
@@ -382,168 +385,6 @@ class ComponentHealthValidator:
             return {'status': 'FAILED', 'health_score': 0.0, 'error': str(e)}
 
 
-class ProductionDualCopilotValidator:
-    """🤖🤖 Production-ready DUAL COPILOT validation for enterprise deployment"""
-
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        self.validation_id = f"PRODUCTION_DUAL_COPILOT_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-
-    def validate_complete_correction_system(self, correction_results: Dict[str, Any],
-                                          component_health: Dict[str, Any]) -> Dict[str, Any]:
-        """🛡️ Comprehensive DUAL COPILOT validation of entire correction system"""
-
-        self.logger.info("=" * 80)
-        self.logger.info(f"{ENTERPRISE_INDICATORS['info']} PRODUCTION DUAL COPILOT VALIDATION")
-        self.logger.info("=" * 80)
-        self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Validation ID: {self.validation_id}")
-
-        validation_start_time = datetime.now()
-
-        # PRIMARY COPILOT: Technical Validation
-        primary_validation = self._primary_copilot_validation(correction_results, component_health)
-
-        # SECONDARY COPILOT: Quality Assurance Validation
-        secondary_validation = self._secondary_copilot_validation(correction_results, primary_validation)
-
-        # ORCHESTRATION: Final Quality Assessment
-        final_assessment = self._orchestration_quality_assessment(primary_validation, secondary_validation)
-
-        validation_duration = (datetime.now() - validation_start_time).total_seconds()
-
-        dual_copilot_result = {
-            'validation_id': self.validation_id,
-            'validation_timestamp': validation_start_time,
-            'validation_duration': validation_duration,
-            'primary_copilot_result': primary_validation,
-            'secondary_copilot_result': secondary_validation,
-            'final_assessment': final_assessment,
-            'overall_validation_status': final_assessment['overall_status'],
-            'quality_certification_level': final_assessment['certification_level']
-        }
-
-        # MANDATORY: Log DUAL COPILOT summary
-        self.logger.info("=" * 80)
-        self.logger.info(f"{ENTERPRISE_INDICATORS['complete']} DUAL COPILOT VALIDATION SUMMARY")
-        self.logger.info("=" * 80)
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Validation ID: {self.validation_id}")
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Primary Validation: {primary_validation['status']}")
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Secondary Validation: {secondary_validation['status']}")
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Final Assessment: {final_assessment['overall_status']}")
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Certification Level: {final_assessment['certification_level']}")
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Validation Duration: {validation_duration:.2f}s")
-        self.logger.info("=" * 80)
-
-        return dual_copilot_result
-
-    def _primary_copilot_validation(self, correction_results: Dict[str, Any],
-                                   component_health: Dict[str, Any]) -> Dict[str, Any]:
-        """🤖 PRIMARY COPILOT: Technical correctness validation"""
-
-        self.logger.info(f"{ENTERPRISE_INDICATORS['info']} PRIMARY COPILOT: Technical validation started")
-
-        technical_checks = {
-            'unicode_compatibility': component_health.get('chunk1_unicode_handler', {}).get('health_score', 0) >= 90,
-            'database_integration': component_health.get('chunk2_database_engine', {}).get('health_score', 0) >= 90,
-            'visual_processing': component_health.get('chunk3_visual_processing', {}).get('health_score', 0) >= 90,
-            'correction_success_rate': correction_results.get('success_rate', 0) >= 85,
-            'performance_standards': correction_results.get('processing_time', 999) <= 300,  # 5 minutes max
-            'anti_recursion_compliance': True  # Already validated in health check
-        }
-
-        technical_score = (sum(technical_checks.values()) / len(technical_checks)) * 100
-
-        primary_result = {
-            'validator': 'PRIMARY_COPILOT',
-            'status': 'PASSED' if technical_score >= 85 else 'FAILED',
-            'technical_score': technical_score,
-            'technical_checks': technical_checks,
-            'validation_timestamp': datetime.now(),
-            'critical_issues': [check for check, passed in technical_checks.items() if not passed]
-        }
-
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} PRIMARY COPILOT: Score {technical_score:.1f}% - {primary_result['status']}")
-
-        return primary_result
-
-    def _secondary_copilot_validation(self, correction_results: Dict[str, Any],
-                                     primary_validation: Dict[str, \
-                                         Any]) -> Dict[str, Any]:
-        """🤖 SECONDARY COPILOT: Quality assurance and compliance validation"""
-
-        self.logger.info(f"{ENTERPRISE_INDICATORS['info']} SECONDARY COPILOT: Quality assurance validation started")
-
-        quality_checks = {
-            'primary_validation_passed': primary_validation['status'] == 'PASSED',
-            'enterprise_compliance': primary_validation['technical_score'] >= 90,
-            'visual_indicators_compliance': True,  # Validated in visual processing
-            'database_first_architecture': True,   # Validated in database integration
-            'dual_copilot_pattern_implemented': True,  # This validation proves it
-            'production_readiness': len(primary_validation.get('critical_issues', [])) == 0
-        }
-
-        quality_score = (sum(quality_checks.values()) / len(quality_checks)) * 100
-
-        secondary_result = {
-            'validator': 'SECONDARY_COPILOT',
-            'status': 'PASSED' if quality_score >= 95 else 'FAILED',
-            'quality_score': quality_score,
-            'quality_checks': quality_checks,
-            'validation_timestamp': datetime.now(),
-            'compliance_issues': [check for check, passed in quality_checks.items() if not passed]
-        }
-
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} SECONDARY COPILOT: Score {quality_score:.1f}% - {secondary_result['status']}")
-
-        return secondary_result
-
-    def _orchestration_quality_assessment(self, primary_result: Dict[str, Any],
-                                         secondary_result: Dict[str, \
-                                             Any]) -> Dict[str, Any]:
-        """🎭 ORCHESTRATION: Final quality assessment and certification level determination"""
-
-        self.logger.info(f"{ENTERPRISE_INDICATORS['info']} ORCHESTRATION: Final quality assessment")
-
-    # Calculate combined score
-        technical_weight = 0.6  # 60% weight for technical validation
-        quality_weight = 0.4    # 40% weight for quality validation
-
-        combined_score = (primary_result['technical_score'] * technical_weight +
-                         secondary_result['quality_score'] * quality_weight)
-
-        # Determine certification level
-        if combined_score >= 98:
-            certification_level = "PLATINUM"
-        elif combined_score >= 95:
-            certification_level = "GOLD"
-        elif combined_score >= 90:
-            certification_level = "SILVER"
-        elif combined_score >= 85:
-            certification_level = "BRONZE"
-        else:
-            certification_level = "NOT_CERTIFIED"
-
-        # Determine overall status
-        both_passed = (primary_result['status'] == 'PASSED' and secondary_result['status'] == 'PASSED')
-        overall_status = 'ENTERPRISE_CERTIFIED' if both_passed and combined_score >= 90 else 'CERTIFICATION_FAILED'
-
-        final_assessment = {
-            'combined_score': combined_score,
-            'certification_level': certification_level,
-            'overall_status': overall_status,
-            'primary_passed': primary_result['status'] == 'PASSED',
-            'secondary_passed': secondary_result['status'] == 'PASSED',
-            'production_approved': both_passed and combined_score >= 95,
-            'deployment_recommendation': 'APPROVED' if combined_score >= 90 else 'REQUIRES_IMPROVEMENT',
-            'assessment_timestamp': datetime.now()
-        }
-
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} ORCHESTRATION: Combined Score {combined_score:.1f}%")
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} ORCHESTRATION: Certification Level {certification_level}")
-
-        return final_assessment
-
-
 class UnicodeFlake8MasterController:
     """🎯 Master controller integrating all chunks for complete Unicode-compatible Flake8 solution"""
 
@@ -700,9 +541,44 @@ max_violations: Optional[int] = \
 
             return deployment_report
 
-        except KeyError:
+        except KeyError as ke:
             # Handle missing key errors
-            pass
+            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Missing key in deployment: {ke}")
+            return ProductionDeploymentReport(
+                deployment_id="KEY_ERROR_DEPLOYMENT",
+                system_integration=SystemIntegrationResult(
+                    integration_id="KEY_ERROR_INTEGRATION",
+                    timestamp=datetime.now(),
+                    chunk1_status="ERROR",
+                    chunk2_status="ERROR", 
+                    chunk3_status="ERROR",
+                    chunk4_status="ERROR",
+                    overall_integration="FAILED",
+                    integration_score=0.0,
+                    components_validated=0,
+                    critical_issues=[str(ke)],
+                    performance_metrics={}
+                ),
+                enterprise_certification=EnterpriseCertificationResult(
+                    certificate_id="KEY_ERROR_CERT",
+                    certification_date=datetime.now(),
+                    system_version="ERROR_VERSION",
+                    compliance_score=0.0,
+                    deployment_readiness="FAILED",
+                    certification_level="NONE",
+                    validated_capabilities=[],
+                    performance_benchmarks={},
+                    security_compliance=False,
+                    production_approved=False,
+                    certificate_expiry=datetime.now()
+                ),
+                flake8_correction_results={},
+                total_violations_processed=0,
+                total_violations_fixed=0,
+                overall_success_rate=0.0,
+                deployment_timestamp=datetime.now(),
+                production_ready=False
+            )
         except Exception as e:
             self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Production deployment failed: {e}")
             # Return a default report in case of error
@@ -837,64 +713,11 @@ ENTERPRISE_INDICATORS = {
     'complete': '[COMPLETE]'
 }
 
-# Stub classes for missing imports
-class UnicodeCompatibleFileHandler:
-    def write_file_with_utf8_encoding(self, file_path, content):
-        return True
-    
-    def read_file_with_encoding_detection(self, file_path):
-        return {"encoding": "utf-8", "content": "test"}
-
-class AntiRecursionValidator:
-    @staticmethod
-    def validate_workspace_integrity():
-        return True
-
-class DatabaseManager:
-    def __init__(self, path):
-        self.production_db = path + "/production.db"
-
-class VisualProcessingConfig:
-    def __init__(self, **kwargs):
-        self.enable_progress_bars = True
-        self.enable_timeout_controls = True
-        self.enable_performance_monitoring = True
-
-class EnterpriseProgressManager:
-    def __init__(self, config):
-        self.config = config
-    
-    def managed_execution(self, name, phases, timeout):
-        class MockContext:
-            def __enter__(self):
-                class MockMetrics:
-                    elapsed_seconds = 30.0
-                    files_processed = 5
-                    violations_found = 100
-                    corrections_applied = 95
-                return MockMetrics()
-            def __exit__(self, *args):
-                pass
-        return MockContext()
-    
-    def execute_with_visual_indicators(self, phases, callback):
-        return {"CORRECTION_APPLICATION": {"success": True}}
-
-class DatabaseDrivenCorrectionEngine:
-    def __init__(self, path):
-        pass
-    
-    def start_correction_session(self):
-        return {"session": "active"}
-    
-    def correct_violations_systematically(self, target_files):
-        return {"success": True, "total_violations_found": 50, "corrections_applied": 45}
-
 
 @dataclass
 class ExecutionMetrics:
     """Real-time execution metrics"""
-    start_time: datetime = datetime.now()
+    start_time: Optional[datetime] = None
     current_phase: str = "INITIALIZATION"
     progress_percentage: float = 0.0
     elapsed_seconds: float = 0.0
@@ -905,7 +728,7 @@ class ExecutionMetrics:
     corrections_applied: int = 0
     memory_usage_mb: float = 0.0
     cpu_usage_percent: float = 0.0
-    process_id: int = os.getpid()
+    process_id: int = 0
 
 
 class EnterpriseLoggingManager:
