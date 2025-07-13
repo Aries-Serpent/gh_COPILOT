@@ -230,7 +230,7 @@ def main():
         # Execute cleanup
         results = processor.execute_cleanup(batch_size=1000)
         
-        print(f"\n✅ DATABASE CLEANUP RESULTS:")
+        print("\n✅ DATABASE CLEANUP RESULTS:")
         print(f"   Total Checked: {results['total_checked']}")
         print(f"   Already Fixed: {results['already_fixed']}")
         print(f"   Still Pending: {results['still_pending']}")
@@ -242,9 +242,9 @@ def main():
             print(f"\n🎉 Database updated: {results['already_fixed']} violations marked as fixed!")
             print(f"📊 Actual pending violations: {results['still_pending']}")
         else:
-            print(f"\n📊 All checked violations are still pending and need actual fixes")
+            print("\n📊 All checked violations are still pending and need actual fixes")
         
-        print(f"\n✅ Database cleanup completed!")
+        print("\n✅ Database cleanup completed!")
         
     except Exception as e:
         logger.error(f"❌ Cleanup execution failed: {e}")

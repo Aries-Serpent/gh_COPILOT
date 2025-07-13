@@ -11,6 +11,10 @@ Enterprise Standards Compliance:
 """
 
 import logging
+import sys
+from datetime import datetime
+from pathlib import Path
+from tqdm import tqdm
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {

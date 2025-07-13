@@ -11,6 +11,7 @@ Enterprise Standards Compliance:
 
 import sqlite3
 import logging
+import sys
 from pathlib import Path
 from datetime import datetime
 

@@ -275,7 +275,7 @@ class SessionIntegrityManager:
 
     def execute_session_end_validation(self) -> Dict[str, Any]:
         """Execute comprehensive session end validation"""
-        logging.info(f"[START] Session end validation initiated")
+        logging.info("[START] Session end validation initiated")
 
         try:
             # Record session start
@@ -351,7 +351,7 @@ def main():
 
     print("=" * 80)
     print("SESSION INTEGRITY MANAGER - Enterprise Session End Validation")
-    print(f"Generated using database-first patterns from session management schema")
+    print("Generated using database-first patterns from session management schema")
     print("=" * 80)
     print(f"Action: {args.action}")
     print(f"Level: {args.level}")
@@ -377,10 +377,10 @@ def main():
 
             if validation_report.get('overall_status') == 'COMPLETED':
                 print("[SUCCESS] All validations passed - Session end validated")
-                print(f"[SUCCESS] Enterprise compliance confirmed")
-                print(f"[SUCCESS] Database integrity verified")
-                print(f"[SUCCESS] File system integrity confirmed")
-                print(f"[SUCCESS] Anti-recursion compliance verified")
+                print("[SUCCESS] Enterprise compliance confirmed")
+                print("[SUCCESS] Database integrity verified")
+                print("[SUCCESS] File system integrity confirmed")
+                print("[SUCCESS] Anti-recursion compliance verified")
             else:
                 print("[WARNING] Some validations failed - Review required")
                 if validation_report.get('validation_summary'):

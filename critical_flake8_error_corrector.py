@@ -11,6 +11,10 @@ Enterprise Standards Compliance:
 """
 
 import logging
+import sys
+from datetime import datetime
+from pathlib import Path
+from tqdm import tqdm
 from copilot.common.workspace_utils import (
     get_workspace_path,
     _within_workspace,

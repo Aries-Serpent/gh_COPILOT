@@ -541,7 +541,7 @@ def main():
     print("=" * 80)
     print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Process ID: {process_id}")
-    print(f"Target: 12,844+ violations automated fixes")
+    print("Target: 12,844+ violations automated fixes")
     print()
     
     try:
