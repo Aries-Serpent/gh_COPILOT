@@ -4,7 +4,7 @@
 ===================================
 Phase 2B: Clean up remaining unused imports with aggressive patterns
 
-🧠 DUAL COPILOT PATTERN: Primary Processor + Secondary Validator  
+🧠 DUAL COPILOT PATTERN: Primary Processor + Secondary Validator
 📊 Visual Processing Indicators: Progress tracking, ETC calculation, completion metrics
 🗄️ Database Integration: Analytics-driven correction patterns and learning
 
@@ -55,7 +55,7 @@ class AggressiveF401Cleaner:
             'tqdm.tqdm': r'from tqdm import.*tqdm.*'
         }
 
-        print(f"🚀 AGGRESSIVE F401 CLEANER INITIALIZED")
+        print("🚀 AGGRESSIVE F401 CLEANER INITIALIZED")
         print(f"Workspace: {self.workspace_root}")
         print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
@@ -67,8 +67,8 @@ class AggressiveF401Cleaner:
 
         try:
             result = subprocess.run([
-                'python', '-m', 'flake8', 
-                '--select=F401', 
+                'python', '-m', 'flake8',
+                '--select=F401',
                 '--format=%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
                 str(self.workspace_root)
             ], capture_output=True, text=True, cwd=self.workspace_root)
@@ -139,7 +139,7 @@ class AggressiveF401Cleaner:
             with open(file_path, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
 
-            original_lines = len(lines)
+            _original_lines = len(lines)
             removed_count = 0
 
             # Sort violations by line number (descending)
@@ -296,7 +296,8 @@ class AggressiveF401Cleaner:
                     # Find import section end
                     insert_line = 0
                     for i, line in enumerate(lines):
-                        if line.strip() and not (line.startswith('import') or line.startswith('from') or line.startswith('#')):
+                        if line.strip() and 
+                            not (line.startswith('import') or line.startswith('from') or line.startswith('#')):
                             insert_line = i
                             break
 
@@ -334,7 +335,7 @@ class AggressiveF401Cleaner:
         # Clean F401 violations
         f401_cleaned = self.clean_f401_violations(violations)
 
-        # Fix manual violations  
+        # Fix manual violations
         manual_fixed = self.fix_manual_violations()
 
         # Calculate results
@@ -361,7 +362,7 @@ class AggressiveF401Cleaner:
         print("=" * 60)
         print("🎯 AGGRESSIVE F401 CLEANUP COMPLETE")
         print("=" * 60)
-        print(f"📊 CLEANUP STATISTICS:")
+        print("📊 CLEANUP STATISTICS:")
         print(f"   • F401 Violations Found: {results['f401_violations_found']}")
         print(f"   • F401 Violations Cleaned: {results['f401_violations_cleaned']}")
         print(f"   • Manual Violations Fixed: {results['manual_violations_fixed']}")
@@ -382,6 +383,7 @@ def main():
     except Exception as e:
         print(f"CRITICAL ERROR: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

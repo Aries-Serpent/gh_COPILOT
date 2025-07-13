@@ -74,7 +74,7 @@ class EnhancedEnterpriseProcessor:
 
         logger.info("🚀 ENHANCED ENTERPRISE PROCESSOR INITIALIZED")
         logger.info(f"Session ID: {self.session_id}")
-        logger.info(f"Target Success Rate: >75% (Enterprise Standard)")
+        logger.info("Target Success Rate: >75% (Enterprise Standard)")
 
     def validate_enterprise_environment(self):
         """🛡️ CRITICAL: Validate enterprise environment"""
@@ -114,7 +114,7 @@ class EnhancedEnterpriseProcessor:
                                GROUP_CONCAT(id) as violation_ids,
                                GROUP_CONCAT(error_code) as error_codes,
                                GROUP_CONCAT(line_number) as line_numbers
-                        FROM violations 
+                        FROM violations
                         WHERE status = 'pending' AND error_code IN ('{high_success_types}')
                         GROUP BY file_path
                         HAVING violation_count >= 5
@@ -128,7 +128,7 @@ class EnhancedEnterpriseProcessor:
                                GROUP_CONCAT(id) as violation_ids,
                                GROUP_CONCAT(error_code) as error_codes,
                                GROUP_CONCAT(line_number) as line_numbers
-                        FROM violations 
+                        FROM violations
                         WHERE status = 'pending' AND error_code IN ('{moderate_success_types}')
                         GROUP BY file_path
                         HAVING violation_count >= 3
@@ -142,7 +142,7 @@ class EnhancedEnterpriseProcessor:
                                GROUP_CONCAT(id) as violation_ids,
                                GROUP_CONCAT(error_code) as error_codes,
                                GROUP_CONCAT(line_number) as line_numbers
-                        FROM violations 
+                        FROM violations
                         WHERE status = 'pending'
                         GROUP BY file_path
                         HAVING violation_count >= 3
@@ -166,8 +166,8 @@ class EnhancedEnterpriseProcessor:
                         [code for code in codes if code in self.moderate_success_violation_types])
 
                     expected_success_rate = (
-                        (high_success_count * 0.9) + 
-                        (moderate_success_count * 0.65) + 
+                        (high_success_count * 0.9) +
+                        (moderate_success_count * 0.65) +
                         ((violation_count - high_success_count - moderate_success_count) * 0.3)
                     ) / violation_count
 
@@ -186,7 +186,7 @@ class EnhancedEnterpriseProcessor:
                 batches.sort(key=lambda b: b['expected_success_rate'], reverse=True)
 
                 logger.info(
-    f"📊 Created {
+    f"📊 Created {"
         len(batches)} optimized batches for {priority_filter} processing")
                 if batches:
                     avg_success_rate = sum(b['expected_success_rate']
@@ -347,7 +347,7 @@ class EnhancedEnterpriseProcessor:
                 for fix in fixes_applied:
                     # Enhanced update without fixed_date column requirement
                     cursor.execute("""
-                        UPDATE violations 
+                        UPDATE violations
                         SET status = ?
                         WHERE id = ?
                     """, (status, fix['violation_id']))
@@ -554,7 +554,7 @@ def main():
             max_batches=25
         )
 
-        print(f"\n✅ Phase 1 Results:")
+        print("\n✅ Phase 1 Results:")
         print(f"   Fixes Applied: {results_phase1['successful_fixes']}")
         print(f"   Success Rate: {results_phase1['overall_success_rate']:.1%}")
         print(f"   Files Processed: {results_phase1['files_processed']}")
@@ -569,7 +569,7 @@ def main():
                 max_batches=20
             )
 
-            print(f"\n✅ Phase 2 Results:")
+            print("\n✅ Phase 2 Results:")
             print(f"   Fixes Applied: {results_phase2['successful_fixes']}")
             print(f"   Success Rate: {results_phase2['overall_success_rate']:.1%}")
             print(f"   Files Processed: {results_phase2['files_processed']}")
@@ -580,7 +580,7 @@ def main():
                 results_phase2['total_violations_processed']
             combined_success_rate = total_fixes / total_processed if total_processed > 0 else 0
 
-            print(f"\n🏆 COMBINED RESULTS:")
+            print("\n🏆 COMBINED RESULTS:")
             print(f"   Total Fixes: {total_fixes}")
             print(f"   Combined Success Rate: {combined_success_rate:.1%}")
             print(
@@ -588,11 +588,12 @@ def main():
         results_phase1['files_processed'] +
          results_phase2['files_processed']}")
 
-        print(f"\n🎉 Enhanced enterprise processing completed successfully!")
+        print("\n🎉 Enhanced enterprise processing completed successfully!")
 
     except Exception as e:
         logger.error(f"❌ Enhanced main execution failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

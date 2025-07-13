@@ -153,7 +153,7 @@ class ComprehensiveRemainingProcessor:
                 # Load all pending violations
                 cursor.execute("""
                     SELECT id, file_path, line_number, column_number, error_code, message, severity
-                    FROM violations 
+                    FROM violations
                     WHERE status = 'pending'
                     ORDER BY error_code, file_path, line_number
                 """)
@@ -450,7 +450,7 @@ class ComprehensiveRemainingProcessor:
                             else:
                                 batch_stats['failed'] += 1
                                 logger.debug(
-    f"No change applied for {error_code} at {file_path}:{
+    f"No change applied for {error_code} at {file_path}:{"
         violation['line_number']}")
                         else:
                             batch_stats['failed'] += 1
@@ -501,7 +501,7 @@ class ComprehensiveRemainingProcessor:
 
         print("🚀 COMPREHENSIVE REMAINING VIOLATION PROCESSING")
         print("="*60)
-        print(f"🎯 Target: Process ALL remaining pending violations")
+        print("🎯 Target: Process ALL remaining pending violations")
         print(f"Target: >{self.success_target}% success rate with comprehensive coverage")
         print(f"💾 External Backups: {self.external_backup_root}")
 
@@ -511,7 +511,7 @@ class ComprehensiveRemainingProcessor:
         logger.info(f"📋 Session ID: {self.session_id}")
         logger.info(f"🕐 Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"🆔 Process ID: {self.process_id}")
-        logger.info(f"🎯 Target: Comprehensive Violation Processing")
+        logger.info("🎯 Target: Comprehensive Violation Processing")
         logger.info(f"📊 Max Batches: {self.max_batches}")
 
         try:
@@ -639,6 +639,7 @@ def main():
     except Exception as e:
         logger.error(f"❌ Main execution failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

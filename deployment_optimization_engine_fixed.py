@@ -40,7 +40,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler(
-    f'deployment_optimization_{
+    f'deployment_optimization_{'
         datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
         logging.StreamHandler(sys.stdout)
     ]
@@ -483,8 +483,8 @@ def main():
         logging.error(f"[ERROR] Deployment optimization failed: {e}")
         return False
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
 
     success = main()
     sys.exit(0 if success else 1)

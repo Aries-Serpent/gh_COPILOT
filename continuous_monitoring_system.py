@@ -101,7 +101,7 @@ class ContinuousMonitoringSystem:
 
         # Create file handler with UTF-8 encoding
         file_handler = logging.FileHandler(
-            log_dir / "continuous_monitoring.log", 
+            log_dir / "continuous_monitoring.log",
             encoding='utf-8'
         )
         file_handler.setFormatter(logging.Formatter(
@@ -194,7 +194,7 @@ class ContinuousMonitoringSystem:
 
             # New violations (using session-based approach since no created_at column)
             cursor.execute("""
-                SELECT COUNT(*) FROM violations 
+                SELECT COUNT(*) FROM violations
                 WHERE status = 'pending'
             """)
             result = cursor.fetchone()
@@ -204,7 +204,7 @@ class ContinuousMonitoringSystem:
 
             # Files with violations
             cursor.execute("""
-                SELECT COUNT(DISTINCT file_path) FROM violations 
+                SELECT COUNT(DISTINCT file_path) FROM violations
                 WHERE status = 'pending'
             """)
             files_with_violations = cursor.fetchone()[0]
@@ -212,7 +212,7 @@ class ContinuousMonitoringSystem:
             # Top violation types
             cursor.execute("""
                 SELECT error_code, COUNT(*) as count
-                FROM violations 
+                FROM violations
                 WHERE status = 'pending'
                 GROUP BY error_code
                 ORDER BY COUNT(*) DESC
@@ -222,7 +222,7 @@ class ContinuousMonitoringSystem:
 
             # Critical violations (assuming F8xx series are critical)
             cursor.execute("""
-                SELECT COUNT(*) FROM violations 
+                SELECT COUNT(*) FROM violations
                 WHERE status = 'pending' AND error_code LIKE 'F8%'
             """)
             critical_violations = cursor.fetchone()[0]
@@ -248,9 +248,9 @@ class ContinuousMonitoringSystem:
             cursor = conn.cursor()
 
             cursor.execute("""
-                INSERT INTO monitoring_snapshots 
+                INSERT INTO monitoring_snapshots
                 (timestamp, total_violations, pending_violations, fixed_violations,
-                 new_violations, files_with_violations, critical_violations, 
+                 new_violations, files_with_violations, critical_violations,
                  health_score, snapshot_data)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
@@ -317,8 +317,8 @@ class ContinuousMonitoringSystem:
 
             for alert in alerts:
                 cursor.execute("""
-                    INSERT INTO alerts 
-                    (timestamp, alert_type, severity, metric, current_value, 
+                    INSERT INTO alerts
+                    (timestamp, alert_type, severity, metric, current_value,
                      threshold_value, message, acknowledged)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
@@ -353,9 +353,9 @@ class ContinuousMonitoringSystem:
 
             # Log status
             self.logger.info(
-    f"Monitoring cycle: {
+    f"Monitoring cycle: {"
         snapshot.pending_violations:,
-        } pending, {
+        } pending, {}
             snapshot.health_score:.1f}% health")
 
             return snapshot, alerts
@@ -398,7 +398,7 @@ class ContinuousMonitoringSystem:
 
         self.is_monitoring = True
         self.monitoring_thread = threading.Thread(
-            target=self.continuous_monitoring_loop, 
+            target=self.continuous_monitoring_loop,
             daemon=True
         )
         self.monitoring_thread.start()
@@ -425,7 +425,7 @@ class ContinuousMonitoringSystem:
 
             cursor.execute("""
                 SELECT alert_type, severity, message, timestamp
-                FROM alerts 
+                FROM alerts
                 WHERE timestamp > datetime('now', '-24 hours')
                 ORDER BY timestamp DESC
                 LIMIT 10
@@ -435,7 +435,7 @@ class ContinuousMonitoringSystem:
             # Get trends (last 24 hours)
             cursor.execute("""
                 SELECT timestamp, pending_violations, health_score
-                FROM monitoring_snapshots 
+                FROM monitoring_snapshots
                 WHERE timestamp > datetime('now', '-24 hours')
                 ORDER BY timestamp
             """)
@@ -520,7 +520,7 @@ def main():
     print("=" * 80)
     print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Process ID: {process_id}")
-    print(f"Target: 12,635+ violations continuous monitoring")
+    print("Target: 12,635+ violations continuous monitoring")
     print()
 
     try:
@@ -574,6 +574,7 @@ def main():
         print(f"\n❌ ERROR: {e}")
         print(f"⏱️  Duration: {duration:.2f} seconds")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

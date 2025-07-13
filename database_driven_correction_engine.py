@@ -64,7 +64,7 @@ class UnicodeFileInfo:
     last_modified: float = 0.0
 
 
-@dataclass  
+@dataclass
 class FlakeViolation:
     file_path: str
     line_number: int
@@ -695,8 +695,8 @@ class DatabaseDrivenCorrectionEngine:
                         self.files_processed += 1
 
                     pbar.set_description(
-    f"[CORRECTION] {
-        Path(file_path).name} ({
+    f"[CORRECTION] {"
+        Path(file_path).name} ({})
             result.fixed_violations} fixes)")
                     pbar.update(1)
 

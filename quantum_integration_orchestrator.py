@@ -30,6 +30,8 @@ def integrate_qubo_problems(qubos: List[List[List[float]]]) -> Tuple[List[int], 
     return best_solution or [], best_energy
 
 # Text-based indicators (NO Unicode emojis)
+
+
 TEXT_INDICATORS = {
 
 

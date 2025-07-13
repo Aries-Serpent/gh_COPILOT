@@ -130,19 +130,19 @@ class ViolationDiagnosticProcessor:
         # Analyze database
         analysis = self.analyze_violation_status()
 
-        print(f"\n📊 VIOLATION STATUS COUNTS:")
+        print("\n📊 VIOLATION STATUS COUNTS:")
         for status, count in analysis.get('status_counts', {}).items():
             print(f"   {status}: {count}")
 
-        print(f"\n📋 PENDING VIOLATIONS BY ERROR CODE:")
+        print("\n📋 PENDING VIOLATIONS BY ERROR CODE:")
         for code, count in analysis.get('pending_by_code', {}).items():
             print(f"   {code}: {count}")
 
-        print(f"\n📄 FILES WITH MOST PENDING VIOLATIONS:")
+        print("\n📄 FILES WITH MOST PENDING VIOLATIONS:")
         for file_path, count in analysis.get('file_violations', []):
             print(f"   {Path(file_path).name}: {count} violations")
 
-        print(f"\n🔍 SAMPLE VIOLATION ANALYSIS:")
+        print("\n🔍 SAMPLE VIOLATION ANALYSIS:")
         for violation in analysis.get('sample_violations', []):
             id, file_path, line_number, error_code, message = violation
             print(f"\n   Violation ID: {id}")
@@ -164,38 +164,38 @@ class ViolationDiagnosticProcessor:
                         has_trailing = file_check.get('has_trailing_whitespace', False)
                         print(f"   Has trailing whitespace: {has_trailing}")
                         if not has_trailing:
-                            print(f"   Status: ✅ Already fixed (no trailing whitespace)")
+                            print("   Status: ✅ Already fixed (no trailing whitespace)")
                         else:
-                            print(f"   Status: ⚠️ Still needs fixing")
+                            print("   Status: ⚠️ Still needs fixing")
 
                     elif error_code == 'W293':
                         has_whitespace_blank = file_check.get('is_blank_with_whitespace', False)
                         print(f"   Is blank line with whitespace: {has_whitespace_blank}")
                         if not has_whitespace_blank:
-                            print(f"   Status: ✅ Already fixed (blank line is clean)")
+                            print("   Status: ✅ Already fixed (blank line is clean)")
                         else:
-                            print(f"   Status: ⚠️ Still needs fixing")
+                            print("   Status: ⚠️ Still needs fixing")
             else:
-                print(f"   Status: ❌ File not found")
+                print("   Status: ❌ File not found")
 
         # Summary
         total_pending = analysis.get('total_pending', 0)
         w291_count = analysis.get('pending_by_code', {}).get('W291', 0)
         w293_count = analysis.get('pending_by_code', {}).get('W293', 0)
 
-        print(f"\n📈 DIAGNOSTIC SUMMARY:")
+        print("\n📈 DIAGNOSTIC SUMMARY:")
         print(f"   Total pending violations: {total_pending}")
         print(f"   W291 (trailing whitespace): {w291_count}")
         print(f"   W293 (blank line whitespace): {w293_count}")
         print(f"   Target violations available: {w291_count + w293_count}")
 
         if total_pending == 0:
-            print(f"\n🎉 All violations have been processed!")
+            print("\n🎉 All violations have been processed!")
         elif w291_count == 0 and w293_count == 0:
-            print(f"\n✅ All W291/W293 violations have been processed!")
-            print(f"   Remaining violations are other types")
+            print("\n✅ All W291/W293 violations have been processed!")
+            print("   Remaining violations are other types")
         else:
-            print(f"\n⚠️ Target violations still pending - may need actual fixing")
+            print("\n⚠️ Target violations still pending - may need actual fixing")
 
 
 def main():
@@ -207,6 +207,7 @@ def main():
     except Exception as e:
         logger.error(f"❌ Diagnostic failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

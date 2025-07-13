@@ -152,10 +152,10 @@ class EnterpriseScaleViolationProcessor:
 
                 cursor.execute("""
                     SELECT id, file_path, line_number, column_number, error_code, message, status
-                    FROM violations 
+                    FROM violations
                     WHERE status = 'pending'
-                    ORDER BY 
-                        CASE 
+                    ORDER BY
+                        CASE
                             WHEN error_code LIKE 'F8%' THEN 1  -- Critical
                             WHEN error_code LIKE 'E%' THEN 2   -- High
                             WHEN error_code LIKE 'W%' THEN 3   -- Medium
@@ -331,8 +331,8 @@ class EnterpriseScaleViolationProcessor:
                                     'fixed': fixed_line.strip()
                                 })
                                 fix_details.append(
-    f"Fixed {
-        violation['error_code']} at line {
+    f"Fixed {"
+        violation['error_code']} at line {}
             violation['line_number']}")
                             else:
                                 failed_fixes += 1
@@ -447,8 +447,8 @@ class EnterpriseScaleViolationProcessor:
 
                 for fix in fixes_applied:
                     cursor.execute("""
-                        UPDATE violations 
-                        SET status = ?, 
+                        UPDATE violations
+                        SET status = ?,
                             fixed_date = datetime('now'),
                             fix_details = ?
                         WHERE id = ?
@@ -460,8 +460,8 @@ class EnterpriseScaleViolationProcessor:
         except Exception as e:
             logger.error(f"❌ Error updating violation status: {e}")
 
-    def monitor_processing_health(self, current_batch: int, total_batches: int, 
-                                  successful_fixes: int, failed_fixes: int, 
+    def monitor_processing_health(self, current_batch: int, total_batches: int,
+                                  successful_fixes: int, failed_fixes: int,
                                   processing_time: float) -> Dict[str, Any]:
         """📊 Monitor processing health and trigger alerts if needed"""
         success_rate = successful_fixes / \
@@ -506,8 +506,8 @@ class EnterpriseScaleViolationProcessor:
 
         return health_metrics
 
-    def generate_processing_report(self, session: ProcessingSession, 
-                                   results: ProcessingResults, 
+    def generate_processing_report(self, session: ProcessingSession,
+                                   results: ProcessingResults,
                                    batches: List[ProcessingBatch]) -> str:
         """📋 Generate comprehensive processing report"""
         report = {
@@ -729,7 +729,7 @@ def main():
             priority_filter="CRITICAL"  # Start with critical violations only
         )
 
-        print(f"\n🎉 Enterprise processing completed successfully!")
+        print("\n🎉 Enterprise processing completed successfully!")
         print(f"✅ {results.successful_fixes} violations fixed")
         print(f"📈 {results.health_score_improvement:.2f}% health improvement")
 
@@ -737,11 +737,12 @@ def main():
         remaining_violations = results.total_violations_processed - results.successful_fixes
         if remaining_violations > 0:
             print(f"\n📊 {remaining_violations} violations remain for processing")
-            print(f"🚀 Ready to process HIGH, MEDIUM, and LOW priority batches")
+            print("🚀 Ready to process HIGH, MEDIUM, and LOW priority batches")
 
     except Exception as e:
         logger.error(f"❌ Main execution failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

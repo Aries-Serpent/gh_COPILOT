@@ -11,6 +11,7 @@ class _FallbackShor:
                 return type('Res', (), {'factors': [[i, n // i]]})()
         return type('Res', (), {'factors': [[n, 1]]})()
 
+
 module = type(sys)('qiskit.algorithms')
 
 

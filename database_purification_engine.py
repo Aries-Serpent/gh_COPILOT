@@ -237,7 +237,7 @@ class DatabasePurificationEngine:
                             if check_query == "PRAGMA foreign_key_check":
                                 if result:
                                     self.logger.warning(
-    f"[WARNING] Foreign key violations: {
+    f"[WARNING] Foreign key violations: {"
         len(result)}")
                                     self.purification_metrics["corrupted_entries_found"] += len(
                                         result)

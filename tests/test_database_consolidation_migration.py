@@ -4,7 +4,6 @@ from pathlib import Path
 from database_consolidation_migration import consolidate_databases
 
 
-
 def benchmark_queries():
     """Benchmark database queries"""
     return []

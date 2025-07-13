@@ -34,6 +34,8 @@ def solve_qubo_bruteforce(matrix: List[List[float]]) -> Tuple[List[int], float]:
     return best_solution or [0] * n, best_energy
 
 # Text-based indicators (NO Unicode emojis)
+
+
 TEXT_INDICATORS = {
 
 

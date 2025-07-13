@@ -83,6 +83,7 @@ class FlakeViolation:
 class CorrectionResult:
     pass
 
+
 ENTERPRISE_INDICATORS = {
     'start': '🚀',
     'info': 'ℹ️',
@@ -518,7 +519,7 @@ class SecondaryValidatorCopilot:
     def __init__(self, config: EnterpriseSystemConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
-        self.validation_id = f"SECONDARY_{
+        self.validation_id = f"SECONDARY_{"
     datetime.now().strftime('%Y%m%d_%H%M%S')}_{
         uuid.uuid4().hex[
             :8]}"

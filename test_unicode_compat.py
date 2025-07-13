@@ -8,7 +8,7 @@ def test_unicode_handling():
     message = "Unicode test: áéíóú, 中文, Русский"
     return message
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
 
     print(test_unicode_handling())

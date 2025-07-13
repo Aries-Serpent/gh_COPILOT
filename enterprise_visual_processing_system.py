@@ -396,8 +396,8 @@ class EnterpriseProgressManager:
                 f"{ENTERPRISE_INDICATORS['success']} Corrections Applied: {metrics.corrections_applied}")
             if self.timeout_manager:
                 self.logger.info(
-    f"{
-        ENTERPRISE_INDICATORS['success']} Timeout Status: {
+    f"{"
+        ENTERPRISE_INDICATORS['success']} Timeout Status: {}
             'EXCEEDED' if self.timeout_manager.is_expired else 'WITHIN_LIMITS'}")
             self.logger.info("=" * 80)
 

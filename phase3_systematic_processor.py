@@ -22,7 +22,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler(
-    f'phase3_systematic_processing_{
+    f'phase3_systematic_processing_{'
         datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
         logging.StreamHandler()
     ]
@@ -71,7 +71,7 @@ class Phase3SystematicProcessor:
                 try:
                     # Run flake8 for specific violation type
                     result = subprocess.run([
-                        sys.executable, "-m", "flake8", 
+                        sys.executable, "-m", "flake8",
                         "--select", violation_code,
                         "--statistics",
                         str(self.workspace_root)
@@ -117,7 +117,7 @@ class Phase3SystematicProcessor:
         try:
             # Get F541 violations
             result = subprocess.run([
-                sys.executable, "-m", "flake8", 
+                sys.executable, "-m", "flake8",
                 "--select", "F541",
                 "--format", "%(path)s:%(row)d:%(col)d: %(code)s %(text)s",
                 str(self.workspace_root)
@@ -421,13 +421,13 @@ class Phase3SystematicProcessor:
             f.write("🚀 PHASE 3 SYSTEMATIC PROCESSING - COMPLETION REPORT\n")
             f.write("="*80 + "\n\n")
 
-            f.write(f"📊 EXECUTION SUMMARY:\n")
+            f.write("📊 EXECUTION SUMMARY:\n")
             f.write(f"   Start Time: {completion_data['start_time']}\n")
             f.write(f"   End Time: {completion_data['end_time']}\n")
             f.write(f"   Duration: {completion_data['total_duration_seconds']:.1f} seconds\n")
             f.write(f"   Status: {completion_data['success_status']}\n\n")
 
-            f.write(f"📈 VIOLATION REDUCTION:\n")
+            f.write("📈 VIOLATION REDUCTION:\n")
             total_baseline = sum(completion_data['baseline_violations'].values())
             total_final = sum(completion_data['final_violations'].values())
             f.write(f"   Baseline Total: {total_baseline}\n")
@@ -435,14 +435,14 @@ class Phase3SystematicProcessor:
             f.write(f"   Violations Fixed: {total_baseline - total_final}\n")
             f.write(f"   Reduction: {completion_data['reduction_percentage']:.1f}%\n\n")
 
-            f.write(f"🎯 CATEGORY BREAKDOWN:\n")
+            f.write("🎯 CATEGORY BREAKDOWN:\n")
             for violation_code, baseline_count in completion_data['baseline_violations'].items():
                 final_count = completion_data['final_violations'].get(violation_code, 0)
                 reduction = baseline_count - final_count
                 f.write(
     f"   {violation_code}: {baseline_count} → {final_count} ({reduction} fixed)\n")
 
-            f.write(f"\n✅ PHASE 3 SYSTEMATIC PROCESSING COMPLETE\n")
+            f.write("\n✅ PHASE 3 SYSTEMATIC PROCESSING COMPLETE\n")
             f.write("="*80 + "\n")
 
         return report_file
@@ -467,6 +467,7 @@ def main():
     except Exception as e:
         logger.error(f"❌ PHASE 3 PROCESSING FAILED: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = main()

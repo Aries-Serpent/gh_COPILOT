@@ -41,7 +41,7 @@ class EnterpriseUtility:
             success = self.perform_utility_function()
 
             if success:
-                duration = (datetime.now() - start_time).total_seconds()
+                __duration = (datetime.now() - start_time).total_seconds()
                 self.logger.info(f"{TEXT_INDICATORS['success']} Uti" \
                                  " \
                                   "                  "ity completed in {duration:.1f}s")
@@ -70,9 +70,8 @@ def main():
     else:
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
-
-
     return success
+
 
 if __name__ == "__main__":
     success = main()

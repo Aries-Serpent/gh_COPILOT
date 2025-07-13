@@ -415,8 +415,6 @@ def main():
                         status = "[PASSED]" if result else "[FAILED]"
                         print(f"{status} {check}")
 
-
-
             print("=" * 80)
             print("SESSION INTEGRITY MANAGER - VALIDATION COMPLETE")
             print("=" * 80)
@@ -431,6 +429,7 @@ def main():
         logging.error(f"[ERROR] Session integrity manager failed: {e}")
         print(f"[ERROR] Session validation failed: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = main()

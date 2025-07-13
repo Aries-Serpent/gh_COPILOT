@@ -128,7 +128,7 @@ class PriorityViolationsProcessor:
 
         # Create file handler with UTF-8 encoding
         file_handler = logging.FileHandler(
-            log_dir / "priority_violations_processor.log", 
+            log_dir / "priority_violations_processor.log",
             encoding='utf-8'
         )
         file_handler.setFormatter(logging.Formatter(
@@ -148,7 +148,7 @@ class PriorityViolationsProcessor:
             # Get violation counts by type
             cursor.execute("""
                 SELECT error_code, COUNT(*) as count
-                FROM violations 
+                FROM violations
                 WHERE status = 'pending'
                 GROUP BY error_code
                 ORDER BY COUNT(*) DESC
@@ -161,7 +161,7 @@ class PriorityViolationsProcessor:
             for error_code, count in violation_counts:
                 rule = self.priority_rules.get(error_code, {
                     'severity': 'UNKNOWN',
-                    'complexity': 'UNKNOWN', 
+                    'complexity': 'UNKNOWN',
                     'impact': 'UNKNOWN',
                     'score': 1
                 })
@@ -188,7 +188,7 @@ class PriorityViolationsProcessor:
             cursor = conn.cursor()
 
             # Get files with critical violations
-            critical_codes = [code for code, rule in self.priority_rules.items() 
+            critical_codes = [code for code, rule in self.priority_rules.items()
                               if rule['severity'] == 'CRITICAL']
 
             if not critical_codes:
@@ -196,11 +196,11 @@ class PriorityViolationsProcessor:
 
             placeholders = ','.join(['?' for _ in critical_codes])
             cursor.execute(f"""
-                SELECT 
+                SELECT
                     file_path,
                     COUNT(*) as total_violations,
                     COUNT(CASE WHEN error_code IN ({placeholders}) THEN 1 END) as critical_violations
-                FROM violations 
+                FROM violations
                 WHERE status = 'pending'
                 GROUP BY file_path
                 HAVING critical_violations > 0
@@ -216,7 +216,7 @@ class PriorityViolationsProcessor:
 
             cursor.execute("""
                 SELECT file_path, COUNT(*) as violation_count
-                FROM violations 
+                FROM violations
                 WHERE status = 'pending'
                 GROUP BY file_path
                 ORDER BY COUNT(*) DESC
@@ -386,8 +386,8 @@ class PriorityViolationsProcessor:
         if automation_batches:
             total_auto = sum(b['estimated_count'] for b in automation_batches)
             report['recommendations']['automation_candidates'].append(
-                f"Process {
-    total_auto:,} violations via automation across {
+                f"Process {"
+    total_auto:,} violations via automation across {}
         len(automation_batches)} batches"
             )
 
@@ -473,7 +473,7 @@ def main():
     print("=" * 80)
     print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Process ID: {process_id}")
-    print(f"Target: 12,844+ violations priority analysis")
+    print("Target: 12,844+ violations priority analysis")
     print()
 
     try:
@@ -519,6 +519,7 @@ def main():
         print(f"\n❌ ERROR: {e}")
         print(f"⏱️  Duration: {duration:.2f} seconds")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

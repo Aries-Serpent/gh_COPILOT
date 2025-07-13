@@ -89,7 +89,7 @@ class DetailedViolationsReporter:
 
         # File handler with UTF-8 encoding
         file_handler = logging.FileHandler(
-            log_dir / "detailed_violations_reporter.log", 
+            log_dir / "detailed_violations_reporter.log",
             encoding='utf-8'
         )
         file_handler.setFormatter(file_formatter)
@@ -126,9 +126,9 @@ class DetailedViolationsReporter:
                 # Phase 2: Violations by type (25%)
                 pbar.set_description("🔍 Analyzing by violation type")
                 cursor.execute("""
-                    SELECT error_code, COUNT(*) as count 
-                    FROM violations 
-                    GROUP BY error_code 
+                    SELECT error_code, COUNT(*) as count
+                    FROM violations
+                    GROUP BY error_code
                     ORDER BY count DESC
                 """)
                 violations_by_type = dict(cursor.fetchall())
@@ -137,9 +137,9 @@ class DetailedViolationsReporter:
                 # Phase 3: Violations by file (25%)
                 pbar.set_description("📁 Analyzing by file")
                 cursor.execute("""
-                    SELECT file_path, COUNT(*) as count 
-                    FROM violations 
-                    GROUP BY file_path 
+                    SELECT file_path, COUNT(*) as count
+                    FROM violations
+                    GROUP BY file_path
                     ORDER BY count DESC
                     LIMIT 50
                 """)
@@ -149,12 +149,12 @@ class DetailedViolationsReporter:
                 # Phase 4: Top violating files (30%)
                 pbar.set_description("🎯 Finding top violating files")
                 cursor.execute("""
-                    SELECT 
+                    SELECT
                         file_path,
                         COUNT(*) as violation_count,
                         COUNT(DISTINCT error_code) as unique_types
-                    FROM violations 
-                    GROUP BY file_path 
+                    FROM violations
+                    GROUP BY file_path
                     ORDER BY violation_count DESC
                     LIMIT 20
                 """)
@@ -215,7 +215,7 @@ class DetailedViolationsReporter:
 
         return severity_counts
 
-    def _create_detailed_breakdown(self, 
+    def _create_detailed_breakdown(self,
                                    violations_by_type: Dict[str, int],
                                    violations_by_file: Dict[str, int],
                                    top_files: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -229,9 +229,13 @@ class DetailedViolationsReporter:
             },
             "type_categories": {
                 "import_errors": sum(count for code, count in violations_by_type.items() if code.startswith('F4')),
-                "undefined_names": sum(count for code, count in violations_by_type.items() if code.startswith('F821')),
+                "undefined_names": sum(
+                    count for code,
+                    count in violations_by_type.items() if code.startswith('F821')),
                 "syntax_errors": sum(count for code, count in violations_by_type.items() if code.startswith('E9')),
-                "indentation_errors": sum(count for code, count in violations_by_type.items() if code.startswith('E1')),
+                "indentation_errors": sum(
+                    count for code,
+                    count in violations_by_type.items() if code.startswith('E1')),
                 "whitespace_issues": sum(count for code, count in violations_by_type.items() if code.startswith('E2')),
                 "line_length": sum(count for code, count in violations_by_type.items() if code.startswith('E501'))
             }
@@ -282,10 +286,10 @@ class DetailedViolationsReporter:
         pie_result = ax.pie(counts, labels=severities, colors=colors,
                             autopct='%1.1f%%', startangle=90)
         if len(pie_result) == 3:
-            wedges, texts, autotexts = pie_result
+            wedges, texts, _autotexts = pie_result
         else:
             wedges, texts = pie_result
-            autotexts = None
+            __autotexts = None
         ax.set_title('Violation Severity Distribution', fontsize=16, fontweight='bold')
 
         viz_file = self.reports_dir / f"severity_distribution_{report.session_id}.png"
@@ -318,7 +322,7 @@ class DetailedViolationsReporter:
         self.logger.info(f"📊 VISUALIZATIONS GENERATED: {len(visualization_files)} files")
         return visualization_files
 
-    def generate_html_report(self, report: ViolationReport, 
+    def generate_html_report(self, report: ViolationReport,
                              visualization_files: List[str]) -> str:
         """🌐 Generate comprehensive HTML report"""
         html_content = f"""
@@ -331,7 +335,11 @@ class DetailedViolationsReporter:
     <style>
         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f5f5f5; }}
         .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }}
-        .summary {{ background: white; padding: 20px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }}
+        .summary {{ background: white; padding: 20px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(
+            0,
+            0,
+            0,
+            0.1); }}
         .metric {{ display: inline-block; margin: 10px; padding: 15px; background: #e8f4f8; border-radius: 8px; text-align: center; }}
         .metric h3 {{ margin: 0; color: #2c3e50; }}
         .metric p {{ margin: 5px 0 0 0; font-size: 24px; font-weight: bold; color: #3498db; }}
@@ -485,7 +493,7 @@ def main():
     print("=" * 80)
     print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Process ID: {process_id}")
-    print(f"Target: 6,422+ violations comprehensive analysis")
+    print("Target: 6,422+ violations comprehensive analysis")
     print()
 
     try:
@@ -530,6 +538,7 @@ def main():
         print(f"\n❌ ERROR: {e}")
         print(f"⏱️  Duration: {duration:.2f} seconds")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

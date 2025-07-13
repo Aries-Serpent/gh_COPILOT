@@ -66,7 +66,7 @@ class RefinedEnterpriseProcessor:
         logger.info("🚀 REFINED ENTERPRISE PROCESSOR INITIALIZED")
         logger.info(f"Session ID: {self.session_id}")
         logger.info(f"External Backup Root: {self.backup_root}")
-        logger.info(f"Target Success Rate: >80% (Refined Standard)")
+        logger.info("Target Success Rate: >80% (Refined Standard)")
 
     def validate_refined_environment(self):
         """🛡️ REFINED: Validate environment with enhanced backup safety"""
@@ -108,7 +108,7 @@ class RefinedEnterpriseProcessor:
                            GROUP_CONCAT(id) as violation_ids,
                            GROUP_CONCAT(error_code) as error_codes,
                            GROUP_CONCAT(line_number) as line_numbers
-                    FROM violations 
+                    FROM violations
                     WHERE status = 'pending' AND error_code IN ('{high_success_types}')
                     GROUP BY file_path
                     HAVING violation_count >= 3
@@ -210,7 +210,7 @@ class RefinedEnterpriseProcessor:
                 except Exception as e:
                     failed_fixes += 1
                     fix_details.append(
-    f"Error applying fix {error_code} at line {line_number}: {
+    f"Error applying fix {error_code} at line {line_number}: {"
         str(e)}")
 
             # Write refined content if fixes were applied
@@ -268,7 +268,7 @@ class RefinedEnterpriseProcessor:
                 for fix in fixes_applied:
                     # Refined update without fixed_date column requirement
                     cursor.execute("""
-                        UPDATE violations 
+                        UPDATE violations
                         SET status = ?
                         WHERE id = ?
                     """, (status, fix['violation_id']))
@@ -324,7 +324,7 @@ class RefinedEnterpriseProcessor:
         logger.info(f"📋 Session ID: {self.session_id}")
         logger.info(f"🕐 Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"🆔 Process ID: {process_id}")
-        logger.info(f"🎯 Target: High-Success Violations Only")
+        logger.info("🎯 Target: High-Success Violations Only")
         logger.info(f"📊 Max Batches: {max_batches}")
 
         try:
@@ -469,7 +469,7 @@ def main():
         # Execute refined processing
         results = processor.execute_refined_processing(max_batches=30)
 
-        print(f"\n✅ REFINED PROCESSING RESULTS:")
+        print("\n✅ REFINED PROCESSING RESULTS:")
         print(f"   Violations Processed: {results['total_violations_processed']}")
         print(f"   Successful Fixes: {results['successful_fixes']}")
         print(f"   Success Rate: {results['overall_success_rate']:.1%}")
@@ -478,17 +478,18 @@ def main():
         print(f"   External Backups: {results['external_backup_root']}")
 
         if results['overall_success_rate'] >= 0.80:
-            print(f"\n🎉 Refined processing achieved >80% success rate target!")
+            print("\n🎉 Refined processing achieved >80% success rate target!")
         elif results['overall_success_rate'] >= 0.75:
-            print(f"\n✅ Refined processing achieved enterprise standard (>75%)")
+            print("\n✅ Refined processing achieved enterprise standard (>75%)")
         else:
-            print(f"\n⚠️ Success rate below target, but processing completed safely")
+            print("\n⚠️ Success rate below target, but processing completed safely")
 
-        print(f"\n🎉 Refined enterprise processing completed successfully!")
+        print("\n🎉 Refined enterprise processing completed successfully!")
 
     except Exception as e:
         logger.error(f"❌ Refined main execution failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

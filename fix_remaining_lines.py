@@ -20,7 +20,7 @@ def fix_remaining_line_length_violations(file_path: str) -> None:
             r'self\.validation_id = f"SECONDARY_\{datetime\.now\(\)\.strftime\(\'%Y%m%d_%H%M%S\'\)\}_\{uuid\.uuid4\(\)\.hex\[:8\]\}"',
             'self.validation_id = (\n            f"SECONDARY_{datetime.now().strftime(\'%Y%m%d_%H%M%S\')}_"\n            f"{uuid.uuid4().hex[:8]}"\n        )'
         ),
-        # Fix orchestration_id assignments  
+        # Fix orchestration_id assignments
         (
             r'self\.orchestration_id = f"ORCHESTRATOR_\{datetime\.now\(\)\.strftime\(\'%Y%m%d_%H%M%S\'\)\}_\{uuid\.uuid4\(\)\.hex\[:8\]\}"',
             'self.orchestration_id = (\n            f"ORCHESTRATOR_{datetime.now().strftime(\'%Y%m%d_%H%M%S\')}_"\n            f"{uuid.uuid4().hex[:8]}"\n        )'
@@ -38,7 +38,9 @@ def fix_remaining_line_length_violations(file_path: str) -> None:
         # Fix dual copilot pattern line
         (
             r'self\.logger\.info\(f"\{ENTERPRISE_INDICATORS\[\'info\'\]\} DUAL COPILOT Pattern: PRIMARY \+ SECONDARY \+ ORCHESTRATOR"\)',
-            'self.logger.info(\n            f"{ENTERPRISE_INDICATORS[\'info\']} DUAL COPILOT Pattern: "\n            f"PRIMARY + SECONDARY + ORCHESTRATOR"\n        )'
+            'self.logger.info(\n            f"{ENTERPRISE_INDICATORS[\'info\']} DUAL COPILOT Pattern: "\n            f"PRIMARY +'
+                SECONDARY +
+                ORCHESTRATOR"\n        )'
         ),
         # Fix validation result lines
         (
@@ -76,6 +78,7 @@ def fix_remaining_line_length_violations(file_path: str) -> None:
 def main():
     """Main execution"""
     fix_remaining_line_length_violations("enterprise_dual_copilot_validator.py")
+
 
 if __name__ == "__main__":
     main()

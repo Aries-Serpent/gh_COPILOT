@@ -185,8 +185,8 @@ class DatabaseCleanupProcessor:
                     logger.info(f"✅ Updated {updated_count} violations to 'fixed' status")
 
                 logger.info(
-    f"📊 Batch summary: {
-        len(already_fixed_ids)} already fixed, {
+    f"📊 Batch summary: {"
+        len(already_fixed_ids)} already fixed, {}
             len(still_pending_ids)} still pending")
 
                 # If we processed fewer than batch_size, we're done
@@ -256,6 +256,7 @@ def main():
     except Exception as e:
         logger.error(f"❌ Cleanup execution failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

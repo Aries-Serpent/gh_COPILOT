@@ -105,8 +105,8 @@ def main():
         print("SCRIPT POPULATION FAILED")
         return 1
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
 
     import sys
     sys.exit(main())

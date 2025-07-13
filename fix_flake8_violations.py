@@ -26,12 +26,14 @@ def fix_flake8_violations(file_path: str) -> None:
 
     # Fix process phases
     content = content.replace(
-        'ProcessPhase("🔍 Environment Validation", "Validating workspace and anti-recursion compliance", "🔍", 10),',
+        'ProcessPhase("🔍 Environment Validation", "Validating workspace and '
+            anti-recursion compliance", "🔍", 10),',
         'ProcessPhase(\n                "🔍 Environment Validation",\n                "Validating workspace and anti-recursion compliance",\n                "🔍", 10\n            ),'
     )
 
     content = content.replace(
-        'ProcessPhase("🗄️ Database Initialization", "Initializing database tracking and analytics", "🗄️", 10),',
+        'ProcessPhase("🗄️ Database Initialization", "Initializing database tracking and 
+            analytics", "🗄️", 10),',
         'ProcessPhase(\n                "🗄️ Database Initialization",\n                "Initializing database tracking and analytics",\n                "🗄️", 10\n            ),'
     )
 
@@ -66,6 +68,7 @@ def main():
         print(f"✅ Completed fixing violations in {target_file}")
     else:
         print(f"❌ File {target_file} not found")
+
 
 if __name__ == "__main__":
     main()

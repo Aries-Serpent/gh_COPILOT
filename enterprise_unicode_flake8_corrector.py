@@ -214,8 +214,8 @@ class UnicodeCompatibleFileHandler:
 
             processing_time = time.time() - start_time
             self.logger.info(
-    f"{
-        ENTERPRISE_INDICATORS['unicode']} Encoding detected: {detected_encoding} (confidence: {
+    f"{"
+        ENTERPRISE_INDICATORS['unicode']} Encoding detected: {detected_encoding} (confidence: {})
             confidence:.2f}) in {
                 processing_time:.3f}s")
 

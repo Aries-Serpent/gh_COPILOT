@@ -55,7 +55,7 @@ class EnterpriseFlake8Corrector:
                 validation_passed = self.validate_corrections(corrected_files)
                 pbar.update(25)
 
-            duration = (datetime.now() - start_time).total_seconds()
+            __duration = (datetime.now() - start_time).total_seconds()
             self.logger.info(f"{TEXT_INDICATORS['success']} Corre" \
                              " \
                               "                "tion completed in {duration:.1f}s")
@@ -104,9 +104,8 @@ def main():
     else:
         print(f"{TEXT_INDICATORS['error']} Enterprise Flake8 correction failed")
 
-
-
     return success
+
 
 if __name__ == "__main__":
     success = main()

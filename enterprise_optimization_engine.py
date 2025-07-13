@@ -665,7 +665,7 @@ class EnterpriseOptimizationEngine:
         # Save report to file
         report_file = \
             self.workspace_path / \
-                f"enterprise_optimization_report_{
+                f"enterprise_optimization_report_{"
     datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)

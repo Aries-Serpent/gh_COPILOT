@@ -21,7 +21,6 @@ import logging
 from pathlib import Path
 
 
-
 class DisasterRecoveryEnhancerEditedManager:
     """Automated system for disaster_recovery_enhancer_edited operations"""
 
@@ -75,8 +74,8 @@ def main():
         print("Database schema validation: FAILED")
         return False
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
 
     success = main()
     sys.exit(0 if success else 1)

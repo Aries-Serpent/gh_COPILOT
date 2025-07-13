@@ -118,7 +118,7 @@ class EmergencyAntiRecursionValidator:
 def main():
     """Main execution function"""
     parser = argparse.ArgumentParser(description='Emergency Anti-Recursion Validation')
-    parser.add_argument('--emergency-cleanup', action='store_true', 
+    parser.add_argument('--emergency-cleanup', action='store_true',
                         help='Execute emergency cleanup')
     parser.add_argument('--full-validation', action='store_true',
                         help='Execute full validation protocol')
@@ -137,6 +137,7 @@ def main():
         # Default to full validation
         result = validator.full_validation()
         sys.exit(0 if result else 1)
+
 
 if __name__ == "__main__":
     main()

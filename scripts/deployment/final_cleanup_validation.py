@@ -9,7 +9,6 @@ Validates the results of our database cleanup operation
 from pathlib import Path
 
 
-
 def main():
     print('FINAL VERIFICATION: STAGING DATABASE CLEANUP')
     print('=' * 50)

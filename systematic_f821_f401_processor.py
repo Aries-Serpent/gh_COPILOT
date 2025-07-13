@@ -105,7 +105,7 @@ class SystematicF821F401Processor:
             'tqdm.tqdm'
         }
 
-        logger.info(f"🚀 SYSTEMATIC F821/F401 PROCESSOR INITIALIZED")
+        logger.info("🚀 SYSTEMATIC F821/F401 PROCESSOR INITIALIZED")
         logger.info(f"Workspace: {self.workspace_root}")
         logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"Process ID: {self.process_id}")
@@ -122,8 +122,8 @@ class SystematicF821F401Processor:
             pbar.set_description("🔍 Running flake8 scan")
             try:
                 result = subprocess.run([
-                    'python', '-m', 'flake8', 
-                    '--select=F821,F401', 
+                    'python', '-m', 'flake8',
+                    '--select=F821,F401',
                     '--format=%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
                     str(self.workspace_root)
                 ], capture_output=True, text=True, cwd=self.workspace_root)
@@ -148,8 +148,8 @@ class SystematicF821F401Processor:
                 pbar.update(100)
 
         logger.info(
-    f"✅ SCAN COMPLETE: {
-        len(f821_violations)} F821, {
+    f"✅ SCAN COMPLETE: {"
+        len(f821_violations)} F821, {}
             len(f401_violations)} F401 violations")
         return f821_violations, f401_violations
 
@@ -400,7 +400,7 @@ class SystematicF821F401Processor:
         logger.info("=" * 80)
         logger.info("🎯 SYSTEMATIC F821/F401 PROCESSING COMPLETE")
         logger.info("=" * 80)
-        logger.info(f"📊 PROCESSING STATISTICS:")
+        logger.info("📊 PROCESSING STATISTICS:")
         logger.info(f"   • Total Files Processed: {results.total_files_processed}")
         logger.info(f"   • F821 Violations Found: {results.f821_violations_found}")
         logger.info(f"   • F401 Violations Found: {results.f401_violations_found}")
@@ -425,6 +425,7 @@ def main():
     except Exception as e:
         logger.error(f"CRITICAL ERROR: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

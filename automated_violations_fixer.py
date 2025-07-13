@@ -94,7 +94,7 @@ class AutomatedViolationsFixer:
 
         # Create file handler with UTF-8 encoding
         file_handler = logging.FileHandler(
-            log_dir / "automated_violations_fixer.log", 
+            log_dir / "automated_violations_fixer.log",
             encoding='utf-8'
         )
         file_handler.setFormatter(logging.Formatter(
@@ -116,7 +116,7 @@ class AutomatedViolationsFixer:
 
             cursor.execute(f"""
                 SELECT id, file_path, line_number, column_number, error_code, message
-                FROM violations 
+                FROM violations
                 WHERE error_code IN ({placeholders})
                 AND status = 'pending'
                 ORDER BY file_path, line_number
@@ -222,7 +222,7 @@ class AutomatedViolationsFixer:
         # Look for function/class definitions ending
         if line_num > 1:
             prev_line = lines[line_num - 2].strip()
-            if (prev_line.startswith('def ') or prev_line.startswith('class ') or 
+            if (prev_line.startswith('def ') or prev_line.startswith('class ') or
                 prev_line.endswith(':') and ('def ' in prev_line or 'class ' in prev_line)):
 
                 # Add blank line after
@@ -312,13 +312,13 @@ class AutomatedViolationsFixer:
         if original_line.strip() == '':
             # Count consecutive blank lines
             blank_count = 0
-            start_idx = line_num - 1
+            _start_idx = line_num - 1
 
             # Count backwards
             for i in range(line_num - 1, -1, -1):
                 if lines[i].strip() == '':
                     blank_count += 1
-                    start_idx = i
+                    _start_idx = i
                 else:
                     break
 
@@ -349,7 +349,8 @@ class AutomatedViolationsFixer:
         original_line = lines[line_num - 1]
 
         # Remove trailing whitespace
-        fixed_line = original_line.rstrip() + '\n' if original_line.endswith('\n') else original_line.rstrip()
+        fixed_line = original_line.rstrip() +
+            '\n' if original_line.endswith('\n') else original_line.rstrip()
         if fixed_line != original_line:
             lines[line_num - 1] = fixed_line
             return True, original_line.rstrip(), fixed_line.rstrip()
@@ -481,14 +482,14 @@ class AutomatedViolationsFixer:
                 if result.success:
                     # Mark violation as fixed
                     cursor.execute("""
-                        UPDATE violations 
-                        SET status = 'fixed' 
+                        UPDATE violations
+                        SET status = 'fixed'
                         WHERE id = ?
                     """, (result.violation_id,))
 
                     # Record correction
                     cursor.execute("""
-                        INSERT INTO corrections 
+                        INSERT INTO corrections
                         (violation_id, correction_applied, success, timestamp)
                         VALUES (?, ?, ?, ?)
                     """, (
@@ -605,6 +606,7 @@ def main():
         print(f"\n❌ ERROR: {e}")
         print(f"⏱️  Duration: {duration:.2f} seconds")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
