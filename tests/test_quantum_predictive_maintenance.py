@@ -1,13 +1,20 @@
 import logging
+
 import pytest
 
 pytest.importorskip("qiskit_machine_learning")
 
 try:
-    from quantum_neural_networks_predictive_maintenance import EnterpriseUtility
+    from quantum_neural_networks_predictive_maintenance import \
+        EnterpriseUtility
+    from quantum_neural_networks_predictive_maintenance import \
+        EstimatorQNN as ModuleEstimatorQNN
 except Exception as exc:  # pragma: no cover - skip if dependencies missing
     EnterpriseUtility = None
+    ModuleEstimatorQNN = None
     SKIP_REASON = str(exc)
+else:
+    SKIP_REASON = ""
 
 
 def test_qnn_predictive_maintenance_accuracy(caplog):
@@ -26,3 +33,11 @@ def test_qnn_predictive_maintenance_accuracy(caplog):
             break
     else:
         raise AssertionError("Accuracy log not found")
+
+
+def test_predictive_maintenance_uses_estimator_qnn():
+    if ModuleEstimatorQNN is None:
+        pytest.skip(SKIP_REASON)
+    from qiskit_machine_learning.neural_networks import EstimatorQNN
+
+    assert ModuleEstimatorQNN is EstimatorQNN
