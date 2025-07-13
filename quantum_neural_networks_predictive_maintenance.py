@@ -43,11 +43,12 @@ from sklearn.preprocessing import StandardScaler
 
 try:
     from qiskit import BasicAer
-except Exception:  # pragma: no cover - compatibility fallback
+except ImportError:  # pragma: no cover - compatibility fallback
     try:
         from qiskit.providers.basicaer import BasicAer  # type: ignore
-    except Exception:
+    except ImportError:
         BasicAer = None  # type: ignore
+        logging.warning("BasicAer is unavailable. Ensure Qiskit is properly installed.")
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
