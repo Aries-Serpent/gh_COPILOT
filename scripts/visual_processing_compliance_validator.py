@@ -19,6 +19,10 @@ import re
 from pathlib import Path
 from datetime import datetime
 from tqdm import tqdm
+from copilot.common.workspace_utils import (
+    get_workspace_path,
+    _within_workspace,
+)
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -92,9 +96,15 @@ class EnterpriseFlake8Corrector:
         """Validate that corrections were successful"""
         return len(files) > 0
 
-def main():
+def main() -> bool:
     """Main execution function"""
-    corrector = EnterpriseFlake8Corrector()
+    workspace = get_workspace_path()
+    if not _within_workspace(Path.cwd(), workspace):
+        print(
+            f"{TEXT_INDICATORS['error']} Current directory is outside {workspace}"
+        )
+        return False
+    corrector = EnterpriseFlake8Corrector(workspace_path=str(workspace))
     success = corrector.execute_correction()
 
     if success:

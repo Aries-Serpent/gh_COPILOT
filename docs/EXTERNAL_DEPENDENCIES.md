@@ -19,6 +19,7 @@ pip install -r requirements.txt
 # need:
 pip install -r requirements-web.txt    # Web dashboard
 pip install -r requirements-ml.txt     # Machine learning and analytics
+                                       # (includes qiskit-machine-learning)
 ```
 
 For local testing or CI pipelines, use the provided `Makefile`:
