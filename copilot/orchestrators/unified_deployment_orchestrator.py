@@ -9,6 +9,7 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
+import sys
 import logging
 from pathlib import Path
 from datetime import datetime

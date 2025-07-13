@@ -10,7 +10,11 @@ Enterprise Standards Compliance:
 - Anti-recursion protection
 """
 
+import sys
 import logging
+from pathlib import Path
+from datetime import datetime
+from tqdm import tqdm
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {

@@ -24,6 +24,7 @@ import sqlite3
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, List, Any, Optional
 
 from dataclasses import dataclass, asdict
 from tqdm import tqdm

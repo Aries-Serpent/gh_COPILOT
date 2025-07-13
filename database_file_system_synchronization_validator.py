@@ -9,6 +9,7 @@ Enterprise Standards Compliance:
 - Database-first architecture
 """
 
+import sys
 import sqlite3
 import logging
 from pathlib import Path
