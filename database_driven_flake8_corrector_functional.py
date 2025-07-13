@@ -22,6 +22,7 @@ from typing import Dict, List
 
 from tqdm import tqdm
 
+from copilot.common.workspace_utils import _within_workspace
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 TEXT_INDICATORS = {
@@ -60,17 +61,9 @@ class DatabaseDrivenFlake8CorrectorFunctional:
         """Return a list of Python files under ``workspace_path``."""
         files = []
         for path in self.workspace_path.rglob("*.py"):
-            if self._within_workspace(path):
+            if _within_workspace(path, self.workspace_path):
                 files.append(path)
         return files
-
-    def _within_workspace(self, path: Path) -> bool:
-        """Return True if ``path`` resides within ``workspace_path``."""
-        try:
-            path.resolve().relative_to(self.workspace_path)
-            return True
-        except ValueError:
-            return False
 
     def _check_timeout(self) -> None:
         if self.start_ts and time.time() - self.start_ts > self.timeout_seconds:
