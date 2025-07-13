@@ -324,7 +324,7 @@ class EnterpriseProgressManager:
             return self._execute_without_visual_indicators(phases, execution_callback)
 
         # CRITICAL: Ensure metrics are properly initialized
-    if self.current_metrics is None:
+        if self.current_metrics is None:
             raise RuntimeError("CRITICAL: execute_with_visual_indicators called outside managed_execution context")
 
         # Calculate total weight for progress calculation
@@ -412,7 +412,7 @@ class EnterpriseProgressManager:
             # CRITICAL: Type-safe metrics access
             current_metrics = self.current_metrics
             if current_metrics is None:
-    raise RuntimeError("CRITICAL: Metrics not initialized in managed_execution context")
+                raise RuntimeError("CRITICAL: Metrics not initialized in managed_execution context")
 
             current_metrics.current_phase = phase.name
             self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Executing phase: {phase.name}")

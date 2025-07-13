@@ -276,17 +276,12 @@ class ProductionDualCopilotValidator:
         primary_validation = self._primary_copilot_validation(correction_results, component_health)
 
         # SECONDARY COPILOT: Quality Assurance Validation
-secondary_validation = \
-    \
-    self._secondary_copilot_validation(correction_results, primary_validation)
+        secondary_validation = self._secondary_copilot_validation(correction_results, primary_validation)
 
         # ORCHESTRATION: Final Quality Assessment
-final_assessment = \
-    \
-    self._orchestration_quality_assessment(primary_validation, secondary_validation)
+        final_assessment = self._orchestration_quality_assessment(primary_validation, secondary_validation)
 
-        validation_duration = \
-            (datetime.now() - validation_start_time).total_seconds()
+        validation_duration = (datetime.now() - validation_start_time).total_seconds()
 
         dual_copilot_result = {
             'validation_id': self.validation_id,
@@ -322,9 +317,7 @@ final_assessment = \
     technical_checks = {
             'unicode_compatibility': component_health.get('chunk1_unicode_handler', {}).get('health_score', 0) >= 90,
             'database_integration': component_health.get('chunk2_database_engine', {}).get('health_score', 0) >= 90,
-            'visual_processing': component_health.get('chunk3_visual_processing', \
-                \
-                {}).get('health_score', 0) >= 90,
+            'visual_processing': component_health.get('chunk3_visual_processing', {}).get('health_score', 0) >= 90,
             'correction_success_rate': correction_results.get('success_rate', 0) >= 85,
             'performance_standards': correction_results.get('processing_time', 999) <= 300,  # 5 minutes max
             'anti_recursion_compliance': True  # Already validated in health check

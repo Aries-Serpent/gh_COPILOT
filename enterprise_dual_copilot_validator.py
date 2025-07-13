@@ -795,13 +795,9 @@ class SecondaryValidatorCopilot:
         self.logger.info(
             f"{ENTERPRISE_INDICATORS['info']} Overall Compliance: {validation_result.overall_compliance_score:.1f}%")
         self.logger.info(
-            f"{
-                ENTERPRISE_INDICATORS['info']} Enterprise Standards: {
-                '✅ MET' if validation_result.enterprise_standards_met else '❌ NOT MET'}")
+            f"{ENTERPRISE_INDICATORS['info']} Enterprise Standards: {'✅ MET' if validation_result.enterprise_standards_met else '❌ NOT MET'}")
         self.logger.info(
-            f"{
-                ENTERPRISE_INDICATORS['info']} Primary Execution: {
-                '✅ SUCCESS' if validation_result.primary_execution_success else '❌ FAILED'}")
+            f"{ENTERPRISE_INDICATORS['info']} Primary Execution: {'✅ SUCCESS' if validation_result.primary_execution_success else '❌ FAILED'}")
         self.logger.info(
             f"{
                 ENTERPRISE_INDICATORS['info']} Secondary Validation: {

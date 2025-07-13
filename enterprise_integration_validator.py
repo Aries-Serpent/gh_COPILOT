@@ -21,6 +21,10 @@ Generated: 2025-07-12
 Critical Priority: SYSTEM VALIDATION - Complete Integration Test
 """
 
+import logging
+from datetime import datetime
+from typing import Dict, Any
+from pathlib import Path
 
 # Configure logging for integration test
 logging.basicConfig(
@@ -404,7 +408,7 @@ def display_integration_report(report: Dict[str, Any]) -> None:
             print(f"  {status_icon} {chunk}: {status}")
 
     # Functionality results
-    print("\nFunctionality Tests: {report["test_results']['functionality']['success_rate']:.1f}%")
+    print(f"\nFunctionality Tests: {report['test_results']['functionality']['success_rate']:.1f}%")
     for test, status in report['test_results']['functionality'].items():
         if test != 'functionality_errors' and test != 'success_rate':
             status_icon = '✅' if status else '❌'
@@ -456,15 +460,12 @@ def main():
     display_integration_report(report)
 
     # Save report to file
-report_filename = \
-    \
-    f"enterprise_integration_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    report_filename = f"enterprise_integration_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
 
     try:
         import json
         # Convert datetime to string for JSON serialization
         report_copy = report.copy()
-
 
         report_copy['test_timestamp'] = report_copy['test_timestamp'].isoformat()
 
