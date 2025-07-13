@@ -73,8 +73,6 @@ class DatabaseDrivenFlake8CorrectorFunctional:
             raise TimeoutError("Correction process exceeded timeout")
 
     def _init_progress(self, total_files: int) -> int:
-        if not self.db_path.exists():
-            return 0
         now = datetime.utcnow().isoformat()
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
