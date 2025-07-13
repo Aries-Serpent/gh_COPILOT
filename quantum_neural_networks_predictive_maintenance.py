@@ -34,7 +34,7 @@ try:
         NeuralNetworkClassifier,
     )
     from qiskit_machine_learning.neural_networks import TwoLayerQNN
-except Exception:  # pragma: no cover - optional dependency
+except ImportError:  # pragma: no cover - optional dependency
     NeuralNetworkClassifier = None
     TwoLayerQNN = None
 from sklearn.datasets import make_classification
