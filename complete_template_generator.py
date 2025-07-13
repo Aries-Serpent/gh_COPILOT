@@ -88,18 +88,27 @@ class CompleteTemplateGenerator:
         if not patterns or clusters:
             return templates
 
-        with tqdm(total=clusters.n_clusters, desc=f"{TEXT_INDICATORS['progress']} create") as bar:
-            for cluster_id in range(clusters.n_clusters):
-                indices = [i for i, label in enumerate(clusters.labels_) if label == cluster_id]
-                if not indices:
+        with sqlite3.connect(self.production_db) as conn:
+            data_to_insert = []
+            with tqdm(total=clusters.n_clusters, desc=f"{TEXT_INDICATORS['progress']} create") as bar:
+                for cluster_id in range(clusters.n_clusters):
+                    indices = [i for i, label in enumerate(clusters.labels_) if label == cluster_id]
+                    if not indices:
+                        bar.update(1)
+                        continue
+                    cluster_patterns = [patterns[i] for i in indices]
+                    candidate = max(cluster_patterns, key=len)
+                    if self._validate_template(candidate):
+                        templates.append(candidate)
+                        timestamp = datetime.utcnow().isoformat()
+                        data_to_insert.append((cluster_id, len(candidate), timestamp))
                     bar.update(1)
-                    continue
-                cluster_patterns = [patterns[i] for i in indices]
-                candidate = max(cluster_patterns, key=len)
-                if self._validate_template(candidate):
-                    templates.append(candidate)
-                    self._record_stats(cluster_id, candidate)
-                bar.update(1)
+            if data_to_insert:
+                conn.executemany(
+                    "INSERT INTO template_generation_stats"
+                    " (cluster_id, template_length, generated_at) VALUES (?, ?, ?)",
+                    data_to_insert,
+                )
         return templates
 
     # ------------------------------------------------------------------
