@@ -42,17 +42,10 @@ class TemplateSynthesisEngine:
         templates: List[str] = []
         if not self.generator.patterns:
             return templates
-        clusters = self.generator.cluster_model
-        if clusters is None or self.generator.pattern_matrix is None:
-            return templates
-        with tqdm(total=clusters.n_clusters, desc=f"{TEXT_INDICATORS['progress']} synth") as bar:
-            for cluster_id in range(clusters.n_clusters):
-                indices = [i for i, label in enumerate(clusters.labels_) if label == cluster_id]
-                if not indices:
-                    bar.update(1)
-                    continue
-                representative = indices[0]
-                templates.append(self.generator.patterns[representative])
+        representatives = self.generator.get_cluster_representatives()
+        with tqdm(total=len(representatives), desc=f"{TEXT_INDICATORS['progress']} synth") as bar:
+            for tmpl in representatives:
+                templates.append(tmpl)
                 bar.update(1)
         return templates
 

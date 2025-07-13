@@ -7,3 +7,6 @@ scikit-learn
 Flask
 qiskit>=2.1.0
 qiskit-aer==0.17.1
+qiskit-machine-learning>=0.2.0,<0.3.0
+autopep8>=1.6.0,<2.0.0
+isort>=5.10.0,<6.0.0
