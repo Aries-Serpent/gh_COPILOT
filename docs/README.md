@@ -19,3 +19,9 @@ are inconsistent.
 
 This workflow ensures that documentation statistics accurately reflect the
 contents of the production database.
+
+## Resetting Benchmark Baselines
+
+Benchmark results are stored in ``benchmark_metrics.db``. Remove this file to
+clear previous baselines. The next call to ``benchmark()`` will generate a new
+baseline entry.
