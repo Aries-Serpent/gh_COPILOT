@@ -208,8 +208,7 @@ class Phase4ComprehensiveViolationDominator:
             logger.error(f"❌ Error scanning {violation_code}: {e}")
 
         total_violations = sum(len(v) for v in violations_by_file.values())
-        logger.info(f"# # # 📊 Found {total_violations} {violat \
-            ion_code} violations in {len(violations_by_file)} files")
+        logger.info(f"# # # 📊 Found {total_violations} {violation_code} violations in {len(violations_by_file)} files")
 
         return violations_by_file
 
@@ -450,8 +449,7 @@ class Phase4ComprehensiveViolationDominator:
                 self.domination_results.append(result)
                 self.total_eliminations += (initial_count - final_count)
 
-                logger.info(f"# # # 📊 {violation_code} DOMINATION: {ini \
-                    tial_count}→{final_count} ({elimination_rate:.1f}% elimination)")
+                logger.info(f"# # # 📊 {violation_code} DOMINATION: {initial_count}→{final_count} ({elimination_rate:.1f}% elimination)")
                 pbar.update(1)
 
         return self.domination_results
@@ -472,9 +470,10 @@ class Phase4ComprehensiveViolationDominator:
                 "categories_processed": len(self.domination_results),
                 "total_eliminations": self.total_eliminations,
                 "files_modified": self.files_modified,
-                "average_elimination_rate": sum(r.elimination_rate f \
-                    or r in self.domination_results) / len(self.domination_results) if \
-                    self.domination_results else 0
+                "average_elimination_rate": (
+                    sum(r.elimination_rate for r in self.domination_results) / len(self.domination_results)
+                    if self.domination_results else 0
+                )
             },
             "category_results": [
                 {
@@ -525,13 +524,11 @@ def main():
         logger.info("="*80)
         logger.info("🏆 PHASE 4+ COMPREHENSIVE DOMINATION COMPLETE")
         logger.info("="*80)
-        logger.info(f"# # # 📊 Categories Processed: {repo \
-            rt['domination_summary']['categories_processed']}")
+        logger.info(f"# # # 📊 Categories Processed: {report['domination_summary']['categories_processed']}")
         logger.info(f"# # 🎯 Total Eliminations: {report['domination_summary']['total_eliminations']}")
         logger.info(f"📁 Files Modified: {report['domination_summary']['files_modified']}")
         logger.info(f"⚡ Processing Rate: {report['enterprise_metrics']['processing_rate']}")
-        logger.info(f"📈 Average Elimination: {report['d \
-            omination_summary']['average_elimination_rate']:.1f}%")
+        logger.info(f"📈 Average Elimination: {report['domination_summary']['average_elimination_rate']:.1f}%")
         logger.info(f"📋 Report Saved: {report_path}")
         logger.info("="*80)
         logger.info("# # # ✅ PHASE 4+ OPTIMIZATION: ENTERPRISE SUCCESS ACHIEVED")
