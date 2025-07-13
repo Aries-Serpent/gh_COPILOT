@@ -7,7 +7,9 @@ This guide explains how to clean up old Qiskit installations when `pip list` sho
    ```bash
    pip uninstall -y qiskit qiskit-terra qiskit-aer qiskit-ibm-provider qiskit-ibm-runtime
    ```
-2. Check your `site-packages` directory and delete any leftover `qiskit*` folders.
+2. Locate your `site-packages` directory by running the following command:
+   ```bash
+   python -c "import site; print(site.getsitepackages())"
 
 ## Reinstall Qiskit >= 1.0
 1. Reinstall the required dependencies using the repository's test requirements:
