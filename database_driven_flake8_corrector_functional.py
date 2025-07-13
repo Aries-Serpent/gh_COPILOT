@@ -15,7 +15,8 @@ import logging
 import os
 import sqlite3
 import subprocess
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
 from pathlib import Path, PureWindowsPath
 from typing import Dict, List
 
@@ -53,6 +54,7 @@ class DatabaseDrivenFlake8CorrectorFunctional:
         self.logger = logging.getLogger(__name__)
         self.validator = SecondaryCopilotValidator(self.logger)
         self.start_ts: float | None = None
+        self.timeout_seconds = timeout_minutes * 60
 
     def scan_python_files(self) -> List[Path]:
         """Return a list of Python files under ``workspace_path``."""
@@ -157,12 +159,21 @@ class DatabaseDrivenFlake8CorrectorFunctional:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             for file_path in corrected:
+                corrected_lines = file_path.read_text(
+                    encoding="utf-8", errors="ignore"
+                ).splitlines()
                 for line in violations.get(file_path, []):
                     parts = line.split(":", 3)
                     if len(parts) < 4:
                         continue
                     _, row, _, rest = parts
                     code = rest.strip().split()[0]
+                    row_num = int(row)
+                    corrected_line = (
+                        corrected_lines[row_num - 1]
+                        if row_num <= len(corrected_lines)
+                        else ""
+                    )
                     cursor.execute(
                         "INSERT INTO correction_history (file_path, violation_code, original_line, corrected_line, correction_timestamp)"
                         " VALUES (?, ?, ?, ?, ?)",
@@ -170,7 +181,7 @@ class DatabaseDrivenFlake8CorrectorFunctional:
                             str(file_path),
                             code,
                             row,
-                            row,
+                            corrected_line,
                             timestamp,
                         ),
                     )
