@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-DATABASE PURIFICATION         print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+DATABASE PURIFICATION         
+        print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"Process ID: {self.process_id}")
         print(f"Workspace: {self.workspace_path}")INE - Phase 1 Advanced Implementation
 ===============================================================
@@ -51,9 +52,9 @@ class DatabasePurificationEngine:
 
         # [START] Database Purification Engine initialization
         print("[START] Database Purification Engine initialized")
-        print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}"")"
-        print(f"Process ID: {self.process_id}"")"
-        print(f"Workspace: {self.workspace_path}"")
+        print("Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        print("Process ID: {self.process_id}")
+        print("Workspace: {self.workspace_path}")
 
         # Setup logging with enterprise standards
         self.setup_enterprise_logging()
@@ -77,7 +78,7 @@ class DatabasePurificationEngine:
         """Setup comprehensive enterprise logging system."""
         log_file = \
             self.workspace_path / \
-                f"database_purification_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}}.log}""
+                f"database_purification_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
         logging.basicConfig(
             level=logging.INFO,
@@ -103,7 +104,7 @@ class DatabasePurificationEngine:
             if db_file.is_file():
                 databases.append(db_file)
 
-        self.logger.info(f"[INFO] Discovered {len(databases)}} database files}"")
+        self.logger.info(f"[INFO] Discovered {len(databases)} database files")
         return databases
 
     def execute_comprehensive_purification(self) -> Dict[str, Any]:
@@ -163,16 +164,16 @@ class DatabasePurificationEngine:
                     integrity_result = cursor.fetchall()
 
                     if integrity_result[0][0] == "ok":
-                        self.logger.info(f"[SUCCESS] Database integrity OK: {db_path.name}"")
+                        self.logger.info(f"[SUCCESS] Database integrity OK: {db_path.name}")
                     else:
-                        self.logger.warning(f"[WARNING] Database integrity issues: {db_path.name}"")
+                        self.logger.warning(f"[WARNING] Database integrity issues: {db_path.name}")
                         self.purification_metrics["corrupted_entries_found"] += len(
                             integrity_result)
 
                 self.purification_metrics["databases_processed"] += 1
 
             except Exception as e:
-                self.logger.error(f"[ERROR] Database validation failed: {db_path.name} - {e}"")
+                self.logger.error(f"[ERROR] Database validation failed: {db_path.name} - {e}")
 
     def perform_content_audit(self):
         """Perform comprehensive content audit across all databases."""
@@ -191,21 +192,20 @@ class DatabasePurificationEngine:
                         table_name = table[0]
 
                         # Count entries in each table
-                        cursor.execute(f"SELECT COUNT(*) FROM {table_name}"")
+                        cursor.execute("SELECT COUNT(*) FROM {table_name}")
                         entry_count = cursor.fetchone()[0]
 
                         self.purification_metrics["entries_audited"] += entry_count
 
                         # Check for NULL or empty critical fields
-                        cursor.execute(f"PRAGMA table_info({table_name}})}"")
+                        cursor.execute("PRAGMA table_info({table_name})")
                         columns = cursor.fetchall()
 
                         for column in columns:
                             column_name = column[1]
 
                             # Check for NULL values
-                            cursor.execute(
-    f"SELECT COUNT(*) FROM {table_name} WHERE {column_name}} IS NULL}"")
+                            cursor.execute("SELECT COUNT(*) FROM {table_name} WHERE {column_name} IS NULL")
                             null_count = cursor.fetchone()[0]
 
                             if null_count > 0:
