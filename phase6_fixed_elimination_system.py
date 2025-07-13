@@ -21,8 +21,8 @@ from collections import defaultdict
 import locale
 if sys.platform.startswith('win'):
     import codecs
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 @dataclass
 class ViolationMetrics:
@@ -30,7 +30,7 @@ class ViolationMetrics:
     initial_count: int = 0
     eliminated_count: int = 0
     failed_count: int = 0
-    files_modified: List[str] = None
+    files_modified: Optional[List[str]] = None
     processing_time: float = 0.0
 
     def __post_init__(self):
@@ -116,8 +116,7 @@ class Phase6FixedEliminationSystem:
                 # Track modified files
                 all_files_modified.update(result.files_modified)
 
-                logging.info(f"{processor_name}: {result.eliminated_cou \
-                    nt}/{result.initial_count} eliminated ({result.elimination_rate:.1f}%)")
+                logging.info(f"{processor_name}: {result.eliminated_count}/{result.initial_count} eliminated ({result.elimination_rate:.1f}%)")
 
             except Exception as e:
                 logging.error(f"Failed to process {processor_name}: {e}")
@@ -230,8 +229,7 @@ class E999SyntaxErrorProcessor:
         elimination_rate = (eliminated_count / max(initial_count, 1)) * 100
         processing_time = time.time() - start_time
 
-        logging.info(f"E999 Processor: {eliminated_coun \
-            t}/{initial_count} corrected ({elimination_rate:.1f}%)")
+        logging.info(f"E999 Processor: {eliminated_count}/{initial_count} corrected ({elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             initial_count=initial_count,
@@ -377,8 +375,7 @@ class F821TypeHintResolver:
         elimination_rate = (eliminated_count / max(initial_count, 1)) * 100
         processing_time = time.time() - start_time
 
-        logging.info(f"F821 Resolver: {eliminated_coun \
-            t}/{initial_count} resolved ({elimination_rate:.1f}%)")
+        logging.info(f"F821 Resolver: {eliminated_count}/{initial_count} resolved ({elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             initial_count=initial_count,
@@ -535,8 +532,7 @@ class E501LineOptimizer:
         elimination_rate = (eliminated_count / max(initial_count, 1)) * 100
         processing_time = time.time() - start_time
 
-        logging.info(f"E501 Optimizer: {eliminated_coun \
-            t}/{initial_count} optimized ({elimination_rate:.1f}%)")
+        logging.info(f"E501 Optimizer: {eliminated_count}/{initial_count} optimized ({elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             initial_count=initial_count,
@@ -692,8 +688,7 @@ class W293Whitespacedominator:
         elimination_rate = (eliminated_count / max(initial_count, 1)) * 100
         processing_time = time.time() - start_time
 
-        logging.info(f"W293 Dominator: {eliminated_cou \
-            nt}/{initial_count} cleaned ({elimination_rate:.1f}%)")
+        logging.info(f"W293 Dominator: {eliminated_count}/{initial_count} cleaned ({elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             initial_count=initial_count,
