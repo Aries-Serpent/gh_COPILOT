@@ -63,11 +63,13 @@ See `archives/validation_tests/README.md` for historical validation scripts that
 5. **Dashboard Startup**: See [MCP Server Guide](documentation/MCP_SERVER_GUIDE.md) for running the dashboard as the MCP server
 
 ### 🧪 **Running Tests**
-1. `pip install -r requirements-test.txt`
+1. `pip install -r requirements-test.txt`  # installs qiskit-machine-learning for ML tests
 2. `make test`
 3. Machine learning tests rely on `qiskit-machine-learning` which is included in `requirements-test.txt` and `requirements-ml.txt`.
 
-# (This section is removed entirely.)
+### 🧪 **Running Tests**
+1. `pip install -r requirements-test.txt`  # installs qiskit-machine-learning for ML tests
+2. `make test`
 
 For detailed instructions, see the generated documentation files in this directory.
 See [Feature Matrix](documentation/generated/feature_matrix.md) for implemented vs. planned features.
