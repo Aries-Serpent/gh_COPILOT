@@ -1,6 +1,8 @@
 import logging
 import pytest
 
+pytest.importorskip("qiskit_machine_learning")
+
 try:
     from quantum_neural_networks_predictive_maintenance import EnterpriseUtility
 except Exception as exc:  # pragma: no cover - skip if dependencies missing
