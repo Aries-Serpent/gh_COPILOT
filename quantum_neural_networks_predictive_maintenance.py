@@ -22,6 +22,7 @@ from qiskit.circuit.library import RealAmplitudes, ZZFeatureMap
 
 try:
     from qiskit.utils import algorithm_globals
+
     def _set_seed(seed: int) -> None:
         algorithm_globals.random_seed = seed
 except Exception:  # pragma: no cover - fallback for older qiskit
@@ -29,18 +30,22 @@ except Exception:  # pragma: no cover - fallback for older qiskit
 
     def _set_seed(seed: int) -> None:
         np.random.seed(seed)
-from qiskit_machine_learning.algorithms.classifiers import \
-    NeuralNetworkClassifier
-from qiskit_machine_learning.neural_networks import TwoLayerQNN
+try:
+    from qiskit_machine_learning.algorithms.classifiers import (
+        NeuralNetworkClassifier,
+    )
+    from qiskit_machine_learning.neural_networks import TwoLayerQNN
+except Exception:  # pragma: no cover - optional dependency missing
+    NeuralNetworkClassifier = None
+    TwoLayerQNN = None
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 try:
     from qiskit import BasicAer
-except Exception:  # pragma: no cover - for qiskit>=2
-    from qiskit.providers.basicaer import BasicAer  # type: ignore
-
+except Exception:  # pragma: no cover - fallback when unavailable
+    BasicAer = None
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     'start': '[START]',
