@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""""""
-🛠️ ENTERPRISE FLAKE8 VIOLATIONS FIXER
+"""
+# TOOL️ ENTERPRISE FLAKE8 VIOLATIONS FIXER
 Fix whitespace and line length violations in enterprise_dual_copilot_validator.py
-"""""""
+"""
 
 import re
 import os
@@ -18,11 +18,11 @@ def fix_flake8_violations(file_path: str) -> None:
         content = f.read()
 
     # Fix W293: blank line contains whitespace
-    print("🔧 Fixing blank line whitespace...")
+    print("# # # 🔧 Fixing blank line whitespace...")
     content = re.sub(r'^\s+$', '', content, flags=re.MULTILINE)
 
     # Fix some specific long lines that are easy to fix
-    print("🔧 Fixing line length violations...")
+    print("# # # 🔧 Fixing line length violations...")
 
     # Fix process phases
     content = content.replace(
@@ -43,20 +43,20 @@ def fix_flake8_violations(file_path: str) -> None:
     )
 
     content = content.replace(
-        'ProcessPhase("🛠️ Correction Application", "Applying enterprise-grade corrections", "🛠️", 30),',
-        'ProcessPhase(\n                "🛠️ Correction Application",\n                "Applying enterprise-grade corrections",\n                "🛠️", 30\n            ),'
+        'ProcessPhase("# TOOL️ Correction Application", "Applying enterprise-grade corrections", "# TOOL️", 30),',
+        'ProcessPhase(\n                "# TOOL️ Correction Application",\n                "Applying enterprise-grade corrections",\n                "# TOOL️", 30\n            ),'
     )
 
     content = content.replace(
-        'ProcessPhase("✅ Validation & Verification", "Validating corrections and updating database", "✅", 10)',
-        'ProcessPhase(\n                "✅ Validation & Verification",\n                "Validating corrections and updating database",\n                "✅", 10\n            )'
+        'ProcessPhase("# # # ✅ Validation & Verification", "Validating corrections and updating database", "# # # ✅", 10)',
+        'ProcessPhase(\n                "# # # ✅ Validation & Verification",\n                "Validating corrections and updating database",\n                "# # # ✅", 10\n            )'
     )
 
     # Write the fixed content back
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(content)
 
-    print("✅ Fixed basic violations")
+    print("# # # ✅ Fixed basic violations")
 
 
 def main():
@@ -65,7 +65,7 @@ def main():
 
     if os.path.exists(target_file):
         fix_flake8_violations(target_file)
-        print(f"✅ Completed fixing violations in {target_file}")
+        print(f"# # # ✅ Completed fixing violations in {target_file}")
     else:
         print(f"❌ File {target_file} not found")
 

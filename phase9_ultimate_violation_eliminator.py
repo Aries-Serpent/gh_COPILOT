@@ -36,7 +36,7 @@ class Phase9UltimateViolationEliminator:
             'total_violations_eliminated': 0
         }
 
-        print(f"🚀 PHASE 9 ULTIMATE VIOLATION ELIMINATOR INITIATED")
+        print(f"# # 🚀 PHASE 9 ULTIMATE VIOLATION ELIMINATOR INITIATED")
         print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"Workspace: {self.workspace_path}")
         print("="*80)
@@ -44,7 +44,7 @@ class Phase9UltimateViolationEliminator:
     def execute_ultimate_elimination(self) -> Dict[str, Any]:
         """Execute ultimate violation elimination targeting all remaining issues"""
 
-        print("🔄 PHASE 9: EXECUTING ULTIMATE ELIMINATION OPERATIONS")
+        print("# # 🔄 PHASE 9: EXECUTING ULTIMATE ELIMINATION OPERATIONS")
         print("Target: 77 E501 + 32 E999 + 34 F821 + 84 W293 = 227 violations")
         print("-" * 60)
 
@@ -57,7 +57,7 @@ class Phase9UltimateViolationEliminator:
         self._ultimate_e999_resolution()
 
         # Step 3: Complete F821 Type Hint Resolution
-        print("\n🔧 Step 3: Complete F821 Type Hint Resolution")
+        print("\n# # 🔧 Step 3: Complete F821 Type Hint Resolution")
         self._complete_f821_resolution()
 
         # Step 4: Advanced E501 Line Optimization
@@ -96,7 +96,7 @@ class Phase9UltimateViolationEliminator:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(new_content)
 
-                print(f"  ✅ phase8_final_cleanup_specialist.py: {w293_fixes} W293 violations fixed")
+                print(f"  # # ✅ phase8_final_cleanup_specialist.py: {w293_fixes} W293 violations fixed")
                 self.results['w293_eliminated'] += w293_fixes
                 self.results['files_processed'] += 1
 
@@ -196,7 +196,7 @@ class Phase9UltimateViolationEliminator:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(new_content)
 
-                print(f"  ✅ {file_path.name}: {fixes} unterminated string errors fixed")
+                print(f"  # # ✅ {file_path.name}: {fixes} unterminated string errors fixed")
                 self.results['e999_eliminated'] += fixes
 
         except Exception as e:
@@ -224,7 +224,7 @@ class Phase9UltimateViolationEliminator:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(content)
 
-                print(f"  ✅ {file_path.name}: f-string issues fixed")
+                print(f"  # # ✅ {file_path.name}: f-string issues fixed")
                 self.results['e999_eliminated'] += 1
 
         except Exception as e:
@@ -246,7 +246,7 @@ class Phase9UltimateViolationEliminator:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(content)
 
-                print(f"  ✅ detailed_violations_reporter.py: syntax comma issues fixed")
+                print(f"  # # ✅ detailed_violations_reporter.py: syntax comma issues fixed")
                 self.results['e999_eliminated'] += 1
 
             except Exception as e:
@@ -264,7 +264,8 @@ class Phase9UltimateViolationEliminator:
 
                 for i, line in enumerate(lines):
                     if i > 0 and \
-                        lines[i-1].strip().endswith(':') and line.strip() and not line.startswith('    '):
+                        lines[i-1].strip().endswith(':') and \
+                            line.strip() and not line.startswith('    '):
                         # Add indentation after colon
                         fixed_lines.append('    ' + line.strip())
                     else:
@@ -274,7 +275,7 @@ class Phase9UltimateViolationEliminator:
                 with open(script_file, 'w', encoding='utf-8') as f:
                     f.write(new_content)
 
-                print(f"  ✅ basic_utility_demo.py: indentation error fixed")
+                print(f"  # # ✅ basic_utility_demo.py: indentation error fixed")
                 self.results['e999_eliminated'] += 1
 
             except Exception as e:
@@ -332,7 +333,7 @@ class Phase9UltimateViolationEliminator:
                             with open(file_path, 'w', encoding='utf-8') as f:
                                 f.write(new_content)
 
-                            print(f"  ✅ {file_path.name}: Any added to existing typing import")
+                            print(f"  # # ✅ {file_path.name}: Any added to existing typing import")
                             self.results['f821_eliminated'] += 1
                             return
 
@@ -343,7 +344,7 @@ class Phase9UltimateViolationEliminator:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(new_content)
 
-                print(f"  ✅ {file_path.name}: Any import added")
+                print(f"  # # ✅ {file_path.name}: Any import added")
                 self.results['f821_eliminated'] += 1
 
         except Exception as e:
@@ -371,7 +372,7 @@ class Phase9UltimateViolationEliminator:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(new_content)
 
-                print(f"  ✅ {file_path.name}: debug_results initialization added")
+                print(f"  # # ✅ {file_path.name}: debug_results initialization added")
                 self.results['f821_eliminated'] += 5  # Multiple instances
 
         except Exception as e:
@@ -420,7 +421,7 @@ class Phase9UltimateViolationEliminator:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(new_content)
 
-                print(f"  ✅ {file_path.name}: {e501_fixes} E501 violations optimized")
+                print(f"  # # ✅ {file_path.name}: {e501_fixes} E501 violations optimized")
                 self.results['e501_eliminated'] += e501_fixes
 
         except Exception as e:
@@ -450,7 +451,8 @@ class Phase9UltimateViolationEliminator:
                         after = line[func_match.end():]
 
                         broken_params = f",\n{cont_indent}".join(param_list)
-                        return f"{before}{func_name}(\n{cont_indent}{broken_params}\n{base_indent}){after}"
+                        return f"{before}{func_name}( \
+                            \n{cont_indent}{broken_params}\n{base_indent}){after}"
 
         # Strategy 2: String concatenation
         if ' + ' in line and ('"' in line or "'" in line) and len(line) > 100:
@@ -488,7 +490,7 @@ class Phase9UltimateViolationEliminator:
         print("\n" + "="*80)
         print("🏆 PHASE 9 ULTIMATE VIOLATION ELIMINATOR - COMPLETION REPORT")
         print("="*80)
-        print(f"📊 ULTIMATE ELIMINATION SUMMARY:")
+        print(f"# # 📊 ULTIMATE ELIMINATION SUMMARY:")
         print(f"   • E999 Syntax Errors: {self.results['e999_eliminated']} eliminated")
         print(f"   • E501 Line Length: {self.results['e501_eliminated']} optimized")
         print(f"   • F821 Type Hints: {self.results['f821_eliminated']} resolved")
@@ -503,8 +505,9 @@ class Phase9UltimateViolationEliminator:
             target_violations > 0 else 0
 
         print(f"   📈 Elimination Rate: {elimination_rate:.1f}%")
-        print(f"   🎯 Status: {'ULTIMATE SUCCESS' if \
-            elimination_rate > 70 else 'EXCEPTIONAL SUCCESS' if elimination_rate > 50 else 'SIGNIFICANT PROGRESS'}")
+        print(f"   # # 🎯 Status: {'ULTIMATE SUCCESS' if \
+            elimination_rate > 70 else 'EXCEPTIONAL SUCCES \
+                S' if elimination_rate > 50 else 'SIGNIFICANT PROGRESS'}")
 
         # Save detailed report
         report_file = \
@@ -515,7 +518,7 @@ class Phase9UltimateViolationEliminator:
                 json.dump(self.results, f, indent=2, default=str)
             print(f"   📄 Detailed report saved: {report_file}")
         except Exception as e:
-            print(f"   ⚠️  Report save error: {e}")
+            print(f"   # # ⚠️  Report save error: {e}")
 
         print("="*80)
 
@@ -523,7 +526,7 @@ class Phase9UltimateViolationEliminator:
 def main():
     """Execute Phase 9 Ultimate Violation Eliminator"""
 
-    print("🚀 INITIATING PHASE 9 ULTIMATE VIOLATION ELIMINATOR")
+    print("# # 🚀 INITIATING PHASE 9 ULTIMATE VIOLATION ELIMINATOR")
     print("Ultimate Enterprise-Grade Violation Elimination System")
     print("Target: Complete elimination of remaining 227 violations")
     print("-" * 60)
@@ -531,7 +534,7 @@ def main():
     eliminator = Phase9UltimateViolationEliminator()
     results = eliminator.execute_ultimate_elimination()
 
-    print(f"\n✅ PHASE 9 ULTIMATE ELIMINATION COMPLETED")
+    print(f"\n# # ✅ PHASE 9 ULTIMATE ELIMINATION COMPLETED")
     print(f"Total Violations Eliminated: {results['total_violations_eliminated']}")
     print(f"Files Processed: {results['files_processed']}")
 

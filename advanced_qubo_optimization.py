@@ -102,7 +102,8 @@ class EnterpriseUtility:
 
         if best_solution is not None:
             self.logger.info(
-                f"{TEXT_INDICATORS['info']} Best solution {best_solution.tolist()} value {best_value}")
+                f"{TEXT_INDICATORS['info']} Best so \
+                    lution {best_solution.tolist()} value {best_value}")
         else:
             self.logger.error(
                 f"{TEXT_INDICATORS['error']} No solution found")

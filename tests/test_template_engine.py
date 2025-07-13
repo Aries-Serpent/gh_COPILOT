@@ -11,7 +11,8 @@ def create_test_dbs(tmp_path: Path):
     completion_db = tmp_path / "template_completion.db"
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
-            "CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, replacement_template TEXT)"
+            "CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, \
+                replacement_template TEXT)"
         )
         conn.executemany(
             "INSERT INTO ml_pattern_optimization (replacement_template) VALUES (?)",
@@ -52,7 +53,8 @@ def test_generate_template_invalid_syntax(tmp_path):
     completion_db = tmp_path / "template_completion.db"
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
-            "CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, replacement_template TEXT)"
+            "CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, \
+                replacement_template TEXT)"
         )
         conn.execute(
             "INSERT INTO ml_pattern_optimization (replacement_template) VALUES ('def invalid:')"

@@ -36,7 +36,7 @@ class Phase8FinalCleanupSpecialist:
             'total_violations_eliminated': 0
         }
 
-        print(f"🚀 PHASE 8 FINAL CLEANUP SPECIALIST INITIATED")
+        print(f"# # 🚀 PHASE 8 FINAL CLEANUP SPECIALIST INITIATED")
         print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"Workspace: {self.workspace_path}")
         print("="*80)
@@ -44,7 +44,7 @@ class Phase8FinalCleanupSpecialist:
     def execute_final_cleanup(self) -> Dict[str, Any]:
         """Execute comprehensive final cleanup targeting all remaining violations"""
 
-        print("🔄 PHASE 8: EXECUTING FINAL CLEANUP OPERATIONS")
+        print("# # 🔄 PHASE 8: EXECUTING FINAL CLEANUP OPERATIONS")
         print("Target: 86 E501 + 30 E999 + 39 F821 + 95 W293 = 250 violations")
         print("-" * 60)
 
@@ -57,7 +57,7 @@ class Phase8FinalCleanupSpecialist:
         self._optimize_e501_lines()
 
         # Step 3: F821 Type Hint Resolution (39 violations)
-        print("\n🔧 Step 3: F821 Type Hint Resolution") 
+        print("\n# # 🔧 Step 3: F821 Type Hint Resolution") 
         self._resolve_f821_type_hints()
 
         # Step 4: E999 Syntax Error Correction (30 violations)
@@ -98,7 +98,7 @@ class Phase8FinalCleanupSpecialist:
                     with open(full_path, 'w', encoding='utf-8') as f:
                         f.writelines(fixed_lines)
 
-                    print(f"  ✅ {file_path}: {w293_fixes} W293 violations fixed")
+                    print(f"  # # ✅ {file_path}: {w293_fixes} W293 violations fixed")
                     self.results['w293_eliminated'] += w293_fixes
                     self.results['files_processed'] += 1
 
@@ -153,7 +153,7 @@ class Phase8FinalCleanupSpecialist:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(new_content)
 
-                print(f"  ✅ {file_path.name}: {e501_fixes} E501 violations optimized")
+                print(f"  # # ✅ {file_path.name}: {e501_fixes} E501 violations optimized")
                 self.results['e501_eliminated'] += e501_fixes
                 self.results['files_processed'] += 1
 
@@ -193,7 +193,8 @@ class Phase8FinalCleanupSpecialist:
                         param_indent = ' ' * (indent + len(func_name) + 1)
 
                         broken_params = f"\n{param_indent}".join(param_list)
-                        return f"{before_func}{func_name}(\n{param_indent}{broken_params}\n{' ' * indent}){after_func}"
+                        return f"{before_func}{func_name}(\ \
+                            n{param_indent}{broken_params}\n{' ' * indent}){after_func}"
 
         # Strategy 3: Break at string concatenations
         if '+' in line and '"' in line and len(line) > 100:
@@ -289,7 +290,7 @@ class Phase8FinalCleanupSpecialist:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(new_content)
 
-                print(f"  ✅ {file_path.name}: Missing 'Any' import added")
+                print(f"  # # ✅ {file_path.name}: Missing 'Any' import added")
                 self.results['f821_eliminated'] += f821_fixes
                 self.results['files_processed'] += 1
 
@@ -342,7 +343,7 @@ class Phase8FinalCleanupSpecialist:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(content)
 
-                print(f"  ✅ {file_path.name}: E999 syntax errors corrected")
+                print(f"  # # ✅ {file_path.name}: E999 syntax errors corrected")
                 self.results['e999_eliminated'] += 1
                 self.results['files_processed'] += 1
 
@@ -369,10 +370,10 @@ class Phase8FinalCleanupSpecialist:
 
         # Remove or replace problematic Unicode characters
         invalid_chars = {
-            '🔍': '"search"',  # Replace emoji with descriptive text
-            '📊': '"stats"',
+            '# # 🔍': '"search"',  # Replace emoji with descriptive text
+            '# # 📊': '"stats"',
             '⚡': '"fast"',
-            '🚀': '"rocket"'
+            '# # 🚀': '"rocket"'
         }
 
         for invalid_char, replacement in invalid_chars.items():
@@ -433,7 +434,7 @@ class Phase8FinalCleanupSpecialist:
         print("\n" + "="*80)
         print("🏆 PHASE 8 FINAL CLEANUP SPECIALIST - COMPLETION REPORT")
         print("="*80)
-        print(f"📊 ELIMINATION SUMMARY:")
+        print(f"# # 📊 ELIMINATION SUMMARY:")
         print(f"   • E999 Syntax Errors: {self.results['e999_eliminated']} eliminated")
         print(f"   • E501 Line Length: {self.results['e501_eliminated']} optimized")
         print(f"   • F821 Type Hints: {self.results['f821_eliminated']} resolved")
@@ -448,8 +449,9 @@ class Phase8FinalCleanupSpecialist:
             target_violations > 0 else 0
 
         print(f"   📈 Elimination Rate: {elimination_rate:.1f}%")
-        print(f"   🎯 Status: {'EXCEPTIONAL SUCCESS' if \
-            elimination_rate > 50 else 'SIGNIFICANT PROGRESS' if elimination_rate > 25 else 'MODERATE PROGRESS'}")
+        print(f"   # # 🎯 Status: {'EXCEPTIONAL SUCCESS' if \
+            elimination_rate > 50 else 'SIGNIFICANT PROGR \
+                ESS' if elimination_rate > 25 else 'MODERATE PROGRESS'}")
 
         # Save detailed report
         report_file = f"phase8_final_cleanup_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
@@ -459,7 +461,7 @@ class Phase8FinalCleanupSpecialist:
                 json.dump(self.results, f, indent=2, default=str)
             print(f"   📄 Detailed report saved: {report_file}")
         except Exception as e:
-            print(f"   ⚠️  Report save error: {e}")
+            print(f"   # # ⚠️  Report save error: {e}")
 
         print("="*80)
 
@@ -467,7 +469,7 @@ class Phase8FinalCleanupSpecialist:
 def main():
     """Execute Phase 8 Final Cleanup Specialist"""
 
-    print("🚀 INITIATING PHASE 8 FINAL CLEANUP SPECIALIST")
+    print("# # 🚀 INITIATING PHASE 8 FINAL CLEANUP SPECIALIST")
     print("Enterprise-Grade Violation Elimination - Final Phase")
     print("Target: Complete elimination of remaining 250 violations")
     print("-" * 60)
@@ -475,7 +477,7 @@ def main():
     specialist = Phase8FinalCleanupSpecialist()
     results = specialist.execute_final_cleanup()
 
-    print(f"\n✅ PHASE 8 FINAL CLEANUP COMPLETED")
+    print(f"\n# # ✅ PHASE 8 FINAL CLEANUP COMPLETED")
     print(f"Total Violations Eliminated: {results['total_violations_eliminated']}")
     print(f"Files Processed: {results['files_processed']}")
 

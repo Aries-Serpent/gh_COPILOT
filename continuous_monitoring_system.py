@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""""""
+"""
 "stats" CONTINUOUS MONITORING SYSTEM
 Enterprise-grade continuous monitoring for 12,635+ violations
 Real-time tracking, alerting, and automated correction monitoring
-"""""""
+"""
 
 import sqlite3
 import os
@@ -36,7 +36,7 @@ def validate_workspace_integrity() -> bool:
 
     if violations:
         for violation in violations:
-            print(f"🚨 RECURSIVE VIOLATION: {violation}")
+            print(f"# ALERT RECURSIVE VIOLATION: {violation}")
         raise RuntimeError("CRITICAL: Recursive violations prevent execution")
 
     return True
@@ -44,7 +44,7 @@ def validate_workspace_integrity() -> bool:
 
 @dataclass
 class MonitoringSnapshot:
-    """"stats" Monitoring data snapshot"""
+    """stats" Monitoring data snapshot"""
     timestamp: datetime
     total_violations: int
     pending_violations: int
@@ -58,7 +58,7 @@ class MonitoringSnapshot:
 
 @dataclass
 class AlertThreshold:
-    """🚨 Alert threshold configuration"""
+    """# ALERT Alert threshold configuration"""
     metric: str
     threshold_value: float
     comparison: str  # 'greater_than', 'less_than', 'equals'
@@ -67,7 +67,7 @@ class AlertThreshold:
 
 
 class ContinuousMonitoringSystem:
-    """"stats" Enterprise-grade continuous monitoring system"""
+    """stats" Enterprise-grade continuous monitoring system"""
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         # CRITICAL: Validate workspace integrity
@@ -121,7 +121,7 @@ class ContinuousMonitoringSystem:
             cursor = conn.cursor()
 
             # Create monitoring snapshots table
-            cursor.execute("""""""
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS monitoring_snapshots (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     timestamp TEXT NOT NULL,
@@ -134,10 +134,10 @@ class ContinuousMonitoringSystem:
                     health_score REAL,
                     snapshot_data TEXT
                 )
-            """)""""
+            """)"""
 
             # Create alerts table
-            cursor.execute("""""""
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS alerts (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     timestamp TEXT NOT NULL,
@@ -149,10 +149,10 @@ class ContinuousMonitoringSystem:
                     message TEXT,
                     acknowledged BOOLEAN DEFAULT FALSE
                 )
-            """)""""
+            """)"""
 
             # Create metrics history table
-            cursor.execute("""""""
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS metrics_history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     timestamp TEXT NOT NULL,
@@ -160,12 +160,12 @@ class ContinuousMonitoringSystem:
                     metric_value REAL,
                     metadata TEXT
                 )
-            """)""""
+            """)"""
 
         self.monitoring_db = monitoring_db
 
     def setup_alert_thresholds(self):
-        """🚨 Setup alert thresholds"""
+        """# ALERT Setup alert thresholds"""
         self.alert_thresholds = [
             AlertThreshold('new_violations', 100, 'greater_than', 'WARNING', True),
             AlertThreshold('critical_violations', 10, 'greater_than', 'CRITICAL', True),
@@ -176,7 +176,7 @@ class ContinuousMonitoringSystem:
         ]
 
     def collect_monitoring_snapshot(self) -> MonitoringSnapshot:
-        """"stats" Collect current monitoring snapshot"""
+        """stats" Collect current monitoring snapshot"""
         with sqlite3.connect(self.database_path) as conn:
             cursor = conn.cursor()
 
@@ -193,38 +193,38 @@ class ContinuousMonitoringSystem:
             fixed_violations = cursor.fetchone()[0]
 
             # New violations (using session-based approach since no created_at column)
-            cursor.execute("""""""
+            cursor.execute("""
                 SELECT COUNT(*) FROM violations
                 WHERE status = 'pending'
-            """)""""
+            """)"""
             result = cursor.fetchone()
             total_pending = result[0] if result else 0
             # Use a subset as "new" violations since we don't have timestamps'
             new_violations = min(100, total_pending)
 
             # Files with violations
-            cursor.execute("""""""
+            cursor.execute("""
                 SELECT COUNT(DISTINCT file_path) FROM violations
                 WHERE status = 'pending'
-            """)""""
+            """)"""
             files_with_violations = cursor.fetchone()[0]
 
             # Top violation types
-            cursor.execute("""""""
+            cursor.execute("""
                 SELECT error_code, COUNT(*) as count
                 FROM violations
                 WHERE status = 'pending'
                 GROUP BY error_code
                 ORDER BY COUNT(*) DESC
                 LIMIT 5
-            """)""""
+            """)"""
             top_violation_types = cursor.fetchall()
 
             # Critical violations (assuming F8xx series are critical)
-            cursor.execute("""""""
+            cursor.execute("""
                 SELECT COUNT(*) FROM violations
                 WHERE status = 'pending' AND error_code LIKE 'F8%'
-            """)""""
+            """)"""
             critical_violations = cursor.fetchone()[0]
 
             # Calculate health score (0-100)
@@ -243,17 +243,17 @@ class ContinuousMonitoringSystem:
             )
 
     def save_snapshot(self, snapshot: MonitoringSnapshot):
-        """💾 Save monitoring snapshot to database"""
+        """# # 💾 Save monitoring snapshot to database"""
         with sqlite3.connect(self.monitoring_db) as conn:
             cursor = conn.cursor()
 
-            cursor.execute("""""""
+            cursor.execute("""
                 INSERT INTO monitoring_snapshots
                 (timestamp, total_violations, pending_violations, fixed_violations,
                  new_violations, files_with_violations, critical_violations,
                  health_score, snapshot_data)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (""""
+            """, ("""
                 snapshot.timestamp.isoformat(),
                 snapshot.total_violations,
                 snapshot.pending_violations,
@@ -266,7 +266,7 @@ class ContinuousMonitoringSystem:
             ))
 
     def check_alert_thresholds(self, snapshot: MonitoringSnapshot) -> List[Dict[str, Any]]:
-        """🚨 Check if any alert thresholds are exceeded"""
+        """# ALERT Check if any alert thresholds are exceeded"""
         alerts = []
 
         snapshot_values = {
@@ -308,7 +308,7 @@ class ContinuousMonitoringSystem:
         return alerts
 
     def save_alerts(self, alerts: List[Dict[str, Any]]):
-        """🚨 Save alerts to database"""
+        """# ALERT Save alerts to database"""
         if not alerts:
             return
 
@@ -316,12 +316,12 @@ class ContinuousMonitoringSystem:
             cursor = conn.cursor()
 
             for alert in alerts:
-                cursor.execute("""""""
+                cursor.execute("""
                     INSERT INTO alerts
                     (timestamp, alert_type, severity, metric, current_value,
                      threshold_value, message, acknowledged)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, (""""
+                """, ("""
                     alert['timestamp'],
                     alert['alert_type'],
                     alert['severity'],
@@ -333,7 +333,7 @@ class ContinuousMonitoringSystem:
                 ))
 
     def monitor_cycle(self):
-        """"stats" Single monitoring cycle"""
+        """stats" Single monitoring cycle"""
         try:
             # Collect snapshot
             snapshot = self.collect_monitoring_snapshot()
@@ -349,7 +349,7 @@ class ContinuousMonitoringSystem:
                 self.save_alerts(alerts)
                 self.logger.warning(f"Generated {len(alerts)} alerts")
                 for alert in alerts:
-                    print(f"🚨 {alert['severity']}: {alert['message']}")
+                    print(f"# ALERT {alert['severity']}: {alert['message']}")
 
             # Log status
             self.logger.info(
@@ -365,7 +365,7 @@ class ContinuousMonitoringSystem:
             return None, []
 
     def continuous_monitoring_loop(self):
-        """🔄 Continuous monitoring loop"""
+        """# # # 🔄 Continuous monitoring loop"""
         print(f""stats" Starting continuous monitoring (interval: {self.monitoring_interval}s)")
 
         while self.is_monitoring:
@@ -391,9 +391,9 @@ class ContinuousMonitoringSystem:
                 sleep_time -= chunk_sleep
 
     def start_monitoring(self):
-        """"rocket" Start continuous monitoring"""
+        """rocket" Start continuous monitoring"""
         if self.is_monitoring:
-            print("⚠️  Monitoring already running")
+            print("# # WARNING  Monitoring already running")
             return
 
         self.is_monitoring = True
@@ -402,18 +402,18 @@ class ContinuousMonitoringSystem:
             daemon=True
         )
         self.monitoring_thread.start()
-        print("✅ Continuous monitoring started")
+        print("# # SUCCESS Continuous monitoring started")
 
     def stop_monitoring(self):
         """🛑 Stop continuous monitoring"""
         if not self.is_monitoring:
-            print("⚠️  Monitoring not running")
+            print("# # WARNING  Monitoring not running")
             return
 
         self.is_monitoring = False
         if self.monitoring_thread:
             self.monitoring_thread.join(timeout=5)
-        print("✅ Continuous monitoring stopped")
+        print("# # SUCCESS Continuous monitoring stopped")
 
     def get_monitoring_dashboard(self) -> Dict[str, Any]:
         """📋 Get monitoring dashboard data"""
@@ -423,22 +423,22 @@ class ContinuousMonitoringSystem:
         with sqlite3.connect(self.monitoring_db) as conn:
             cursor = conn.cursor()
 
-            cursor.execute("""""""
+            cursor.execute("""
                 SELECT alert_type, severity, message, timestamp
                 FROM alerts
                 WHERE timestamp > datetime('now', '-24 hours')
                 ORDER BY timestamp DESC
                 LIMIT 10
-            """)""""
+            """)"""
             recent_alerts = cursor.fetchall()
 
             # Get trends (last 24 hours)
-            cursor.execute("""""""
+            cursor.execute("""
                 SELECT timestamp, pending_violations, health_score
                 FROM monitoring_snapshots
                 WHERE timestamp > datetime('now', '-24 hours')
                 ORDER BY timestamp
-            """)""""
+            """)"""
             trends = cursor.fetchall()
 
         return {
@@ -472,7 +472,7 @@ class ContinuousMonitoringSystem:
         initial_snapshot = self.collect_monitoring_snapshot()
         print(f""stats" Initial State: {initial_snapshot.pending_violations:,} pending violations")
 
-        with tqdm(total=duration_minutes * 60, desc="🔄 Monitoring Demo", unit="s") as pbar:
+        with tqdm(total=duration_minutes * 60, desc="# # # 🔄 Monitoring Demo", unit="s") as pbar:
             while datetime.now() < end_time:
                 start_cycle = time.time()
 
@@ -481,13 +481,13 @@ class ContinuousMonitoringSystem:
 
                 if snapshot:
                     pbar.set_description(
-                        f"🔄 Pending: {snapshot.pending_violations:,} | "
+                        f"# # # 🔄 Pending: {snapshot.pending_violations:,} | "
                         f"Health: {snapshot.health_score:.1f}%"
                     )
 
                 # Display alerts
                 for alert in alerts:
-                    tqdm.write(f"🚨 {alert['severity']}: {alert['message']}")
+                    tqdm.write(f"# ALERT {alert['severity']}: {alert['message']}")
 
                 # Sleep for next cycle
                 elapsed = time.time() - start_cycle
@@ -510,7 +510,7 @@ class ContinuousMonitoringSystem:
 
 
 def main():
-    """"stats" Main execution function with enterprise monitoring"""
+    """stats" Main execution function with enterprise monitoring"""
     # MANDATORY: Start time and process tracking
     start_time = datetime.now()
     process_id = os.getpid()
@@ -544,12 +544,12 @@ def main():
         # Success summary
         duration = (datetime.now() - start_time).total_seconds()
         print("\n" + "=" * 80)
-        print("✅ CONTINUOUS MONITORING DEMONSTRATION COMPLETED")
+        print("# # SUCCESS CONTINUOUS MONITORING DEMONSTRATION COMPLETED")
         print("=" * 80)
         print(f""stats" Initial Violations: {demo_results['initial_snapshot'].pending_violations:,}")
         print(f""stats" Final Violations: {demo_results['final_snapshot'].pending_violations:,}")
         print(f"📈 Health Score: {demo_results['final_snapshot'].health_score:.1f}%")
-        print(f"🚨 Recent Alerts: {len(dashboard['recent_alerts'])}")
+        print(f"# ALERT Recent Alerts: {len(dashboard['recent_alerts'])}")
         print(f"📋 Dashboard: {dashboard_file}")
         print(f"⏱️  Duration: {duration:.2f} seconds")
         print("=" * 80)
@@ -565,7 +565,7 @@ def main():
 
         # Show alerts if any
         if dashboard['recent_alerts']:
-            print(f"\n🚨 RECENT ALERTS ({len(dashboard['recent_alerts'])}):")
+            print(f"\n# ALERT RECENT ALERTS ({len(dashboard['recent_alerts'])}):")
             for alert in dashboard['recent_alerts'][:3]:
                 print(f"   {alert['severity']}: {alert['message']}")
 

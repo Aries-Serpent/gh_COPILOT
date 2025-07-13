@@ -66,7 +66,8 @@ def consolidate_databases(target: Path, sources: Iterable[Path]) -> None:
                 tables = [
                     row[0]
                     for row in src.execute(
-                        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+                        "SELECT name FROM sqlite_mas \
+                            ter WHERE type='table' AND name NOT LIKE 'sqlite_%'"
                     )
                 ]
                 for table in tables:

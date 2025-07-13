@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🔍 VIOLATION DIAGNOSTIC PROCESSOR
+# # 🔍 VIOLATION DIAGNOSTIC PROCESSOR
 Database Violation Analysis and Status Investigation
 
 Author: Enterprise Violation Processing System
@@ -27,17 +27,17 @@ logger = logging.getLogger(__name__)
 
 
 class ViolationDiagnosticProcessor:
-    """🔍 Diagnostic processor for violation database analysis"""
+    """# # 🔍 Diagnostic processor for violation database analysis"""
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.database_path = self.workspace_path / "databases" / "flake8_violations.db"
 
-        logger.info("🔍 VIOLATION DIAGNOSTIC PROCESSOR INITIALIZED")
+        logger.info("# # 🔍 VIOLATION DIAGNOSTIC PROCESSOR INITIALIZED")
         logger.info(f"Database: {self.database_path}")
 
     def analyze_violation_status(self) -> Dict[str, Any]:
-        """📊 Analyze violation status in database"""
+        """# # 📊 Analyze violation status in database"""
         try:
             with sqlite3.connect(self.database_path) as conn:
                 cursor = conn.cursor()
@@ -123,15 +123,15 @@ class ViolationDiagnosticProcessor:
             return {'exists': True, 'error': f'File read error: {e}'}
 
     def run_diagnostic(self):
-        """🔍 Run comprehensive diagnostic"""
+        """# # 🔍 Run comprehensive diagnostic"""
         logger.info("="*80)
-        logger.info("🔍 VIOLATION DIAGNOSTIC ANALYSIS")
+        logger.info("# # 🔍 VIOLATION DIAGNOSTIC ANALYSIS")
         logger.info("="*80)
 
         # Analyze database
         analysis = self.analyze_violation_status()
 
-        print("\n📊 VIOLATION STATUS COUNTS:")
+        print("\n# # 📊 VIOLATION STATUS COUNTS:")
         for status, count in analysis.get('status_counts', {}).items():
             print(f"   {status}: {count}")
 
@@ -143,7 +143,7 @@ class ViolationDiagnosticProcessor:
         for file_path, count in analysis.get('file_violations', []):
             print(f"   {Path(file_path).name}: {count} violations")
 
-        print("\n🔍 SAMPLE VIOLATION ANALYSIS:")
+        print("\n# # 🔍 SAMPLE VIOLATION ANALYSIS:")
         for violation in analysis.get('sample_violations', []):
             id, file_path, line_number, error_code, message = violation
             print(f"\n   Violation ID: {id}")
@@ -165,17 +165,17 @@ class ViolationDiagnosticProcessor:
                         has_trailing = file_check.get('has_trailing_whitespace', False)
                         print(f"   Has trailing whitespace: {has_trailing}")
                         if not has_trailing:
-                            print("   Status: ✅ Already fixed (no trailing whitespace)")
+                            print("   Status: # # ✅ Already fixed (no trailing whitespace)")
                         else:
-                            print("   Status: ⚠️ Still needs fixing")
+                            print("   Status: # # ⚠️ Still needs fixing")
 
                     elif error_code == 'W293':
                         has_whitespace_blank = file_check.get('is_blank_with_whitespace', False)
                         print(f"   Is blank line with whitespace: {has_whitespace_blank}")
                         if not has_whitespace_blank:
-                            print("   Status: ✅ Already fixed (blank line is clean)")
+                            print("   Status: # # ✅ Already fixed (blank line is clean)")
                         else:
-                            print("   Status: ⚠️ Still needs fixing")
+                            print("   Status: # # ⚠️ Still needs fixing")
             else:
                 print("   Status: ❌ File not found")
 
@@ -193,14 +193,14 @@ class ViolationDiagnosticProcessor:
         if total_pending == 0:
             print("\n🎉 All violations have been processed!")
         elif w291_count == 0 and w293_count == 0:
-            print("\n✅ All W291/W293 violations have been processed!")
+            print("\n# # ✅ All W291/W293 violations have been processed!")
             print("   Remaining violations are other types")
         else:
-            print("\n⚠️ Target violations still pending - may need actual fixing")
+            print("\n# # ⚠️ Target violations still pending - may need actual fixing")
 
 
 def main():
-    """🔍 Main diagnostic execution"""
+    """# # 🔍 Main diagnostic execution"""
     try:
         processor = ViolationDiagnosticProcessor()
         processor.run_diagnostic()

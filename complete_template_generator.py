@@ -90,7 +90,8 @@ class CompleteTemplateGenerator:
 
         with sqlite3.connect(self.production_db) as conn:
             data_to_insert = []
-            with tqdm(total=clusters.n_clusters, desc=f"{TEXT_INDICATORS['progress']} create") as bar:
+            with tqdm(total=clusters.n_clusters, \
+                desc=f"{TEXT_INDICATORS['progress']} create") as bar:
                 for cluster_id in range(clusters.n_clusters):
                     indices = [i for i, label in enumerate(clusters.labels_) if label == cluster_id]
                     if not indices:

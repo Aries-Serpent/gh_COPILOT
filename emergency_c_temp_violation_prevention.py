@@ -12,7 +12,7 @@ from datetime import datetime
 
 
 class EmergencyAntiRecursionValidator:
-    """🚨 Emergency prevention of recursive folder creation and C:/temp violations"""
+    """# # 🚨 Emergency prevention of recursive folder creation and C:/temp violations"""
 
     def __init__(self):
         self.proper_root = Path("E:/gh_COPILOT")
@@ -45,17 +45,17 @@ class EmergencyAntiRecursionValidator:
 
         if violations:
             for violation in violations:
-                self.logger.error(f"🚨 RECURSIVE VIOLATION: {violation}")
+                self.logger.error(f"# # 🚨 RECURSIVE VIOLATION: {violation}")
                 try:
                     shutil.rmtree(violation)  # Emergency removal
-                    self.logger.info(f"✅ REMOVED RECURSIVE FOLDER: {violation}")
+                    self.logger.info(f"# # ✅ REMOVED RECURSIVE FOLDER: {violation}")
                 except Exception as e:
                     self.logger.error(f"❌ FAILED TO REMOVE: {violation} - {e}")
 
         return len(violations) == 0
 
     def prevent_c_temp_violations(self):
-        """🚨 EMERGENCY: Prevent unauthorized C:/temp/ usage"""
+        """# # 🚨 EMERGENCY: Prevent unauthorized C:/temp/ usage"""
         c_temp_root = Path("C:/temp")
         violations = []
 
@@ -67,18 +67,18 @@ class EmergencyAntiRecursionValidator:
                 if item.is_dir() and "gh_COPILOT" in item.name.upper():
                     if not str(item).startswith(str(authorized_path)):
                         violations.append(str(item))
-                        self.logger.error(f"🚨 C:/temp/ VIOLATION: {item}")
+                        self.logger.error(f"# # 🚨 C:/temp/ VIOLATION: {item}")
                         try:
                             shutil.rmtree(item)
-                            self.logger.info(f"✅ REMOVED VIOLATION: {item}")
+                            self.logger.info(f"# # ✅ REMOVED VIOLATION: {item}")
                         except Exception as e:
                             self.logger.error(f"❌ FAILED TO REMOVE: {item} - {e}")
 
         return len(violations) == 0
 
     def emergency_cleanup(self):
-        """🚨 EMERGENCY: Comprehensive anti-recursion cleanup"""
-        self.logger.info("🚨 EMERGENCY ANTI-RECURSION CLEANUP INITIATED")
+        """# # 🚨 EMERGENCY: Comprehensive anti-recursion cleanup"""
+        self.logger.info("# # 🚨 EMERGENCY ANTI-RECURSION CLEANUP INITIATED")
 
         # 1. Validate workspace integrity
         workspace_clean = self.validate_workspace_integrity()
@@ -88,7 +88,7 @@ class EmergencyAntiRecursionValidator:
 
         # 3. Report results
         if workspace_clean and c_temp_clean:
-            self.logger.info("✅ EMERGENCY CLEANUP: ALL CLEAR")
+            self.logger.info("# # ✅ EMERGENCY CLEANUP: ALL CLEAR")
             return True
         else:
             self.logger.error("❌ EMERGENCY CLEANUP: VIOLATIONS DETECTED AND CLEANED")
@@ -106,11 +106,11 @@ class EmergencyAntiRecursionValidator:
         duration = (datetime.now() - start_time).total_seconds()
 
         if result:
-            self.logger.info(f"✅ FULL VALIDATION PASSED ({duration:.2f}s)")
+            self.logger.info(f"# # ✅ FULL VALIDATION PASSED ({duration:.2f}s)")
             self.logger.info("🛡️ WORKSPACE ANTI-RECURSION COMPLIANCE: VERIFIED")
         else:
             self.logger.error(f"❌ FULL VALIDATION FAILED ({duration:.2f}s)")
-            self.logger.error("🚨 WORKSPACE ANTI-RECURSION COMPLIANCE: VIOLATIONS FIXED")
+            self.logger.error("# # 🚨 WORKSPACE ANTI-RECURSION COMPLIANCE: VIOLATIONS FIXED")
 
         return result
 

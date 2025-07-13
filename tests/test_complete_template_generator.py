@@ -10,7 +10,8 @@ def create_dbs(tmp_path: Path):
     production = tmp_path / "production.db"
     with sqlite3.connect(analytics) as conn:
         conn.execute(
-            "CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, replacement_template TEXT)"
+            "CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, \
+                replacement_template TEXT)"
         )
         conn.executemany(
             "INSERT INTO ml_pattern_optimization (replacement_template) VALUES (?)",

@@ -25,11 +25,13 @@ def _patch_algorithms(monkeypatch, delay: float) -> None:
         lambda self: ["tmpl"] * 5
     )
     monkeypatch.setattr(
-        'performance_validation_framework.DatabaseDrivenFlake8CorrectorFunctional.scan_python_files',
+        'performance_validation_framework.Database \
+            DrivenFlake8CorrectorFunctional.scan_python_files',
         lambda self: [Path("a.py")] * 5
     )
     monkeypatch.setattr(
-        'performance_validation_framework.DatabaseDrivenFlake8CorrectorFunctional.execute_correction',
+        'performance_validation_framework.DatabaseD \
+            rivenFlake8CorrectorFunctional.execute_correction',
         lambda self: True
     )
     monkeypatch.setattr(

@@ -34,7 +34,8 @@ def test_metrics_are_stored(tmp_path, monkeypatch):
         lambda self: None,
     )
     monkeypatch.setattr(
-        "performance_validation_complete.DatabaseDrivenFlake8CorrectorFunctional.execute_correction",
+        "performance_validation_complete.DatabaseD \
+            rivenFlake8CorrectorFunctional.execute_correction",
         lambda self: True,
     )
 
@@ -67,7 +68,8 @@ def test_regression_warning(tmp_path, monkeypatch, caplog):
         lambda self: None,
     )
     monkeypatch.setattr(
-        "performance_validation_complete.DatabaseDrivenFlake8CorrectorFunctional.execute_correction",
+        "performance_validation_complete.DatabaseD \
+            rivenFlake8CorrectorFunctional.execute_correction",
         lambda self: True,
     )
 
