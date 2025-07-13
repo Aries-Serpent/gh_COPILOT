@@ -8,6 +8,7 @@ The project relies on several external packages and services:
 - **tqdm** and **rich**: provide progress bars and colored console output.
 - **qiskit-machine-learning**: optional quantum ML toolkit required for some tests and demos.
 
+
 Install the core dependencies using:
 
 ```bash
@@ -27,7 +28,7 @@ make test
 ```
 
 The `test` target installs the packages listed in `requirements-test.txt`
-(including `requests`) before invoking `pytest`.
+(including `requests`, `scikit-learn`, `qiskit`, `qiskit-aer`, and `qiskit-machine-learning`) before invoking `pytest`.
 
 Some scripts expect certain JSON reports or configuration files to be present in
 the working directory. Review the README files for details on each module.

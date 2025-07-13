@@ -7,6 +7,10 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import ast
+
+from sklearn.metrics.pairwise import cosine_distances
+
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
@@ -27,6 +31,7 @@ class TemplateAutoGenerator:
         self.completion_db = completion_db
         self.patterns: List[str] = self._load_patterns()
         self.vectorizer = TfidfVectorizer(ngram_range=(1, 2), stop_words="english")
+        self.generated_history: List[str] = []
         if self.patterns:
             self.pattern_matrix = self.vectorizer.fit_transform(self.patterns)
             self.cluster_model = self._cluster_patterns(self.pattern_matrix)
@@ -61,6 +66,35 @@ class TemplateAutoGenerator:
         model.fit(matrix)
         return model
 
+    @staticmethod
+    def _validate_syntax(template: str) -> bool:
+        """Return ``True`` if ``template`` is valid Python syntax."""
+        try:
+            ast.parse(template)
+        except SyntaxError:
+            return False
+        return True
+
+    def get_cluster_representatives(self) -> List[str]:
+        """Return templates closest to each cluster center."""
+        if self.cluster_model is None or self.pattern_matrix is None:
+            return []
+        representatives: List[str] = []
+        centers = self.cluster_model.cluster_centers_
+        labels = self.cluster_model.labels_
+        for cluster_id in range(self.cluster_model.n_clusters):
+            indices = [i for i, label in enumerate(labels) if label == cluster_id]
+            if not indices:
+                continue
+            cluster_vecs = self.pattern_matrix[indices]
+            center = centers[cluster_id].reshape(1, -1)
+            dists = cosine_distances(cluster_vecs, center).reshape(-1)
+            best_local_idx = indices[int(dists.argmin())]
+            candidate = self.patterns[best_local_idx]
+            if self._validate_syntax(candidate):
+                representatives.append(candidate)
+        return representatives
+
     def generate_template(self, target_requirements: Dict[str, Any]) -> str:
         """Return the best matching template for ``target_requirements``."""
         if not self.patterns or self.neighbor_model is None:
@@ -69,7 +103,20 @@ class TemplateAutoGenerator:
         query_vec = self.vectorizer.transform([query])
         distances, indices = self.neighbor_model.kneighbors(query_vec, n_neighbors=1)
         best_index = indices[0][0]
-        return self.patterns[best_index]
+        candidate = self.patterns[best_index]
+        if not self._validate_syntax(candidate):
+            raise ValueError("Generated template has invalid syntax")
+        self.generated_history.append(candidate)
+        return candidate
+
+    def regenerate_template(self, history_index: int = -1) -> str:
+        """Return a previously generated template identified by ``history_index``."""
+        if not self.generated_history:
+            return ""
+        template = self.generated_history[history_index]
+        if not self._validate_syntax(template):
+            raise ValueError("Stored template has invalid syntax")
+        return template
 
 
 _default_generator: Optional[TemplateAutoGenerator] = None
