@@ -266,7 +266,8 @@ class SessionIntegrityManager:
             deployment_packages = list(self.workspace_path.glob("deployment_package_*.zip"))
             has_deployment_package = len(deployment_packages) > 0
 
-            self.validation_results['enterprise_compliance'] = enterprise_compliance and has_deployment_package
+            self.validation_results['enterprise_compliance'] = enterprise_compliance \
+        and has_deployment_package
 
             if missing_components:
                 logging.warning(f"[WARNING] Missing enterprise components: {missing_components}")

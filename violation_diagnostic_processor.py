@@ -111,7 +111,8 @@ class ViolationDiagnosticProcessor:
                     'exists': True,
                     'line_content': repr(line_content),
                     'has_trailing_whitespace': line_content.rstrip() != line_content.rstrip('\n'),
-                    'is_blank_with_whitespace': line_content.strip() == '' and line_content.rstrip('\n') != '',
+                    'is_blank_with_whitespace': line_content.strip() == '' \
+    and line_content.rstrip('\n') != '',
                     'total_lines': len(lines)
                 }
             else:

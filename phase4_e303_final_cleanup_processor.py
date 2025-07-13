@@ -1,3 +1,5 @@
+from typing import Dict, Any
+from typing import List
 #!/usr/bin/env python3
 """
 🎯 PHASE 4 E303 FINAL CLEANUP PROCESSOR
@@ -159,15 +161,30 @@ class Phase4E303FinalCleanupProcessor:
 
             # Determine complexity and pattern
             if blank_count >= 5:
-                return {'complexity': 'extreme', 'pattern': 'multiple_blanks', 'blank_count': blank_count}
+                return {
+        'complexity': 'extreme',
+        'pattern': 'multiple_blanks',
+        'blank_count': blank_count}
             elif blank_count >= 3:
-                return {'complexity': 'high', 'pattern': 'multiple_blanks', 'blank_count': blank_count}
+                return {
+        'complexity': 'high',
+        'pattern': 'multiple_blanks',
+        'blank_count': blank_count}
             elif 'class ' in context:
-                return {'complexity': 'medium', 'pattern': 'class_excessive', 'blank_count': blank_count}
+                return {
+        'complexity': 'medium',
+        'pattern': 'class_excessive',
+        'blank_count': blank_count}
             elif 'def ' in context:
-                return {'complexity': 'medium', 'pattern': 'function_excessive', 'blank_count': blank_count}
+                return {
+        'complexity': 'medium',
+        'pattern': 'function_excessive',
+        'blank_count': blank_count}
             else:
-                return {'complexity': 'standard', 'pattern': 'indented_excessive', 'blank_count': blank_count}
+                return {
+        'complexity': 'standard',
+        'pattern': 'indented_excessive',
+        'blank_count': blank_count}
 
         except Exception as e:
             logger.error(f"❌ Error analyzing violation in {file_path}:{line_num}: {e}")
@@ -191,7 +208,9 @@ class Phase4E303FinalCleanupProcessor:
             # Apply enhanced fix based on complexity analysis
             if analysis['pattern'] == 'multiple_blanks':
                 # Handle multiple consecutive blank lines
-                fixed_lines = self.fix_multiple_blank_lines(lines, line_num, analysis['blank_count'])
+                fixed_lines = self.fix_multiple_blank_lines(lines,
+        line_num,
+        analysis['blank_count'])
             elif analysis['pattern'] == 'class_excessive':
                 # Handle class definition spacing
                 fixed_lines = self.fix_class_spacing(lines, line_num)
@@ -212,7 +231,10 @@ class Phase4E303FinalCleanupProcessor:
             logger.error(f"❌ Error fixing {file_path}:{line_num}: {e}")
             return False
 
-    def fix_multiple_blank_lines(self, lines: List[str], line_num: int, blank_count: int) -> List[str]:
+    def fix_multiple_blank_lines(self,
+    lines: List[str],
+    line_num: int,
+    blank_count: int) -> List[str]:
         """🔧 Fix multiple consecutive blank lines"""
         # Find the start of the blank line sequence
         start_blank = line_num - 1
@@ -303,7 +325,12 @@ class Phase4E303FinalCleanupProcessor:
             len(files_modified)
         )
 
-    def generate_completion_report(self, total: int, fixed: int, remaining: int, files_modified: int = 0) -> Dict[str, Any]:
+    def generate_completion_report(self,
+    total: int,
+    fixed: int,
+    remaining: int,
+    files_modified: int = 0) -> Dict[str,
+    Any]:
         """📊 Generate comprehensive completion report"""
         end_time = datetime.now()
         duration = (end_time - self.start_time).total_seconds()

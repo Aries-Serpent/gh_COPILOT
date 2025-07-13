@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
+""""
 🛠️ ENTERPRISE FLAKE8 VIOLATIONS FIXER
 Fix whitespace and line length violations in enterprise_dual_copilot_validator.py
-"""
+""""
 
 import re
 import os
@@ -11,7 +11,7 @@ import os
 def fix_flake8_violations(file_path: str) -> None:
     """Fix flake8 violations in the target file"""
 
-    print(f"🚀 Fixing flake8 violations in {file_path}")
+    print(f""rocket" Fixing flake8 violations in {file_path}")
 
     # Read the file
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -26,9 +26,9 @@ def fix_flake8_violations(file_path: str) -> None:
 
     # Fix process phases
     content = content.replace(
-        'ProcessPhase("🔍 Environment Validation", "Validating workspace and '
-            anti-recursion compliance", "🔍", 10),',
-        'ProcessPhase(\n                "🔍 Environment Validation",\n                "Validating workspace and anti-recursion compliance",\n                "🔍", 10\n            ),'
+        'ProcessPhase(""search" Environment Validation", "Validating workspace and '"
+            anti-recursion compliance", ""search"", 10),',
+        'ProcessPhase(\n                ""search" Environment Validation",\n                "Validating workspace and anti-recursion compliance",\n                ""search"", 10\n            ),'
     )
 
     content = content.replace(
@@ -38,8 +38,8 @@ def fix_flake8_violations(file_path: str) -> None:
     )
 
     content = content.replace(
-        'ProcessPhase("⚡ Violation Scanning", "Scanning for Flake8 violations with real-time tracking", "⚡", 25),',
-        'ProcessPhase(\n                "⚡ Violation Scanning",\n                "Scanning for Flake8 violations with real-time tracking",\n                "⚡", 25\n            ),'
+        'ProcessPhase(""fast" Violation Scanning", "Scanning for Flake8 violations with real-time tracking", ""fast"", 25),',
+        'ProcessPhase(\n                ""fast" Violation Scanning",\n                "Scanning for Flake8 violations with real-time tracking",\n                ""fast"", 25\n            ),'
     )
 
     content = content.replace(

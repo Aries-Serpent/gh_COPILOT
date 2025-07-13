@@ -204,7 +204,11 @@ class DetailedViolationsReporter:
             # Warning (W)
             'warning': [code for code in violations_by_type.keys() if code.startswith('W')],
             # Style (other)
-            'style': [code for code in violations_by_type.keys() if not code.startswith(('E', 'F', 'W'))]
+            'style': [code for code in violations_by_type.keys() if not code.startswith(
+                                                                                        ('E'
+                                                                                        'F'
+                                                                                        'W'
+                                                                             ))]
         }
 
         severity_counts = {}
@@ -228,16 +232,22 @@ class DetailedViolationsReporter:
                 "max_violations_in_single_file": max(violations_by_file.values()) if violations_by_file else 0
             },
             "type_categories": {
-                "import_errors": sum(count for code, count in violations_by_type.items() if code.startswith('F4')),
+                "import_errors": sum(count for code,
+        count in violations_by_type.items() if code.startswith('F4')),
                 "undefined_names": sum(
                     count for code,
                     count in violations_by_type.items() if code.startswith('F821')),
-                "syntax_errors": sum(count for code, count in violations_by_type.items() if code.startswith('E9')),
+                "syntax_errors": sum(count for code,
+        count in violations_by_type.items() if code.startswith('E9')),
                 "indentation_errors": sum(
                     count for code,
                     count in violations_by_type.items() if code.startswith('E1')),
-                "whitespace_issues": sum(count for code, count in violations_by_type.items() if code.startswith('E2')),
-                "line_length": sum(count for code, count in violations_by_type.items() if code.startswith('E501'))
+                "whitespace_issues": sum(count for code,
+        count in violations_by_type.items() if code.startswith('E2')),
+                "line_length": sum(
+                                   count for code
+                                   count in violations_by_type.items(
+                               ) if code.startswith('E501'))
             }
         }
 
@@ -333,23 +343,33 @@ class DetailedViolationsReporter:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detailed Violations Report - {report.session_id}</title>
     <style>
-        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f5f5f5; }}
-        .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }}
-        .summary {{ background: white; padding: 20px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(
+        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color:
+    #f5f5f5; }}        .header {{ background: linear-gradient(135deg,
+    #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }}        .summary {{ background: white; padding: 20px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(
             0,
             0,
             0,
             0.1); }}
-        .metric {{ display: inline-block; margin: 10px; padding: 15px; background: #e8f4f8; border-radius: 8px; text-align: center; }}
-        .metric h3 {{ margin: 0; color: #2c3e50; }}
+        .metric {{ display: inline-block; margin: 10px; padding: 15px; background:
+    #e8f4f8; border-radius: 8px; text-align: center; }}        .metric h3 {{ margin: 0; color: #2c3e50; }}
         .metric p {{ margin: 5px 0 0 0; font-size: 24px; font-weight: bold; color: #3498db; }}
-        .section {{ background: white; padding: 20px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }}
+        .section {{ background: white; padding: 20px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(
+                                                                                                                      0
+                                                                                                                      0
+                                                                                                                      0
+                                                                                                                      0.1
+                                                                                                                 ); }}
         .table {{ width: 100%; border-collapse: collapse; margin: 10px 0; }}
         .table th, .table td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
         .table th {{ background-color: #3498db; color: white; }}
         .table tr:nth-child(even) {{ background-color: #f2f2f2; }}
         .visualization {{ text-align: center; margin: 20px 0; }}
-        .visualization img {{ max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }}
+        .visualization img {{ max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 8px rgba(
+                                                                                                             0
+                                                                                                             0
+                                                                                                             0
+                                                                                                             0.1
+                                                                                                        ); }}
         .footer {{ text-align: center; color: #7f8c8d; margin-top: 40px; }}
     </style>
 </head>
@@ -359,7 +379,7 @@ class DetailedViolationsReporter:
         <p>Session: {report.session_id}</p>
         <p>Generated: {report.timestamp}</p>
     </div>
-    
+
     <div class="summary">
         <h2>📊 Executive Summary</h2>
         <div class="metric">
@@ -379,7 +399,7 @@ class DetailedViolationsReporter:
             <p>{report.detailed_breakdown['file_statistics']['average_violations_per_file']:.1f}</p>
         </div>
     </div>
-    
+
     <div class="section">
         <h2>🔍 Top Violation Types</h2>
         <table class="table">
@@ -403,7 +423,7 @@ class DetailedViolationsReporter:
             </tbody>
         </table>
     </div>
-    
+
     <div class="section">
         <h2>📁 Top Files with Violations</h2>
         <table class="table">
@@ -427,7 +447,7 @@ class DetailedViolationsReporter:
             </tbody>
         </table>
     </div>
-    
+
     <div class="section">
         <h2>⚠️ Severity Analysis</h2>
         <table class="table">

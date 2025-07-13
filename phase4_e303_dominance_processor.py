@@ -1,3 +1,6 @@
+from typing import Dict
+from typing import List
+from typing import Optional
 #!/usr/bin/env python3
 """
 🎯 PHASE 4 E303 DOMINANCE PROCESSOR
@@ -206,7 +209,10 @@ class Phase4E303DominanceProcessor:
             logger.error(f"❌ Error fixing E303 violation: {e}")
             return False
 
-    def _apply_enhanced_e303_fix(self, lines: List[str], line_number: int, blank_count: int) -> bool:
+    def _apply_enhanced_e303_fix(self,
+    lines: List[str],
+    line_number: int,
+    blank_count: int) -> bool:
         """🎯 Apply enhanced E303 fix with intelligent blank line management"""
         try:
             # Convert to 0-based indexing
@@ -276,7 +282,11 @@ class Phase4E303DominanceProcessor:
 
         except Exception as e:
             logger.error(f"❌ Context analysis failed: {e}")
-            return {'type': 'generic', 'blank_lines_before': 0, 'indentation': 0, 'line_content': ''}
+            return {
+        'type': 'generic',
+        'blank_lines_before': 0,
+        'indentation': 0,
+        'line_content': ''}
 
     def _fix_function_definition_blanks(
         self,
@@ -308,12 +318,20 @@ class Phase4E303DominanceProcessor:
         # Methods should have exactly 1 blank line before them
         return self._normalize_blank_lines_before(lines, target_line, 1)
 
-    def _fix_import_statement_blanks(self, lines: List[str], target_line: int, context: Dict[str, Any]) -> bool:
+    def _fix_import_statement_blanks(self,
+    lines: List[str],
+    target_line: int,
+    context: Dict[str,
+    Any]) -> bool:
         """🔧 Fix blank lines before import statements"""
         # Imports should have minimal blank lines (usually 0-1)
         return self._normalize_blank_lines_before(lines, target_line, 1)
 
-    def _fix_decorator_blanks(self, lines: List[str], target_line: int, context: Dict[str, Any]) -> bool:
+    def _fix_decorator_blanks(self,
+    lines: List[str],
+    target_line: int,
+    context: Dict[str,
+    Any]) -> bool:
         """🔧 Fix blank lines before decorators"""
         # Decorators should follow same rules as the function they decorate
         return self._normalize_blank_lines_before(lines, target_line, 2)
@@ -322,7 +340,10 @@ class Phase4E303DominanceProcessor:
         """🔧 Generic blank line fix - reduce to maximum 2"""
         return self._normalize_blank_lines_before(lines, target_line, 2)
 
-    def _normalize_blank_lines_before(self, lines: List[str], target_line: int, desired_blanks: int) -> bool:
+    def _normalize_blank_lines_before(self,
+    lines: List[str],
+    target_line: int,
+    desired_blanks: int) -> bool:
         """🎯 Normalize blank lines before target line to desired count"""
         try:
             # Don't add blank lines at the very start of the file
@@ -380,7 +401,9 @@ class Phase4E303DominanceProcessor:
             fixed_violations = []
             failed_violations = []
 
-            with tqdm(total=len(violations), desc="🔧 Fixing E303 Violations", unit="violations") as pbar:
+            with tqdm(total=len(violations),
+        desc="🔧 Fixing E303 Violations",
+        unit="violations") as pbar:
 
                 for i, violation in enumerate(violations):
                     # Update progress description
@@ -486,7 +509,8 @@ class Phase4E303DominanceProcessor:
             failure_patterns[pattern] += 1
 
         # Identify most common failure
-        most_common = max(failure_patterns.items(), key=lambda x: x[1]) if failure_patterns else ('NONE', 0)
+        most_common = max(failure_patterns.items(),
+        key=lambda x: x[1]) if failure_patterns else ('NONE', 0)
 
         return {
             'total_failures': len(failed_violations),
@@ -513,7 +537,11 @@ class Phase4E303DominanceProcessor:
         if report['failed_violations_count'] > 0:
             logger.warning(f"⚠️ {report['failed_violations_count']} violations need further analysis")
 
-    def _save_detailed_report(self, report: Dict[str, Any], failed_violations: List[Dict], filename: str):
+    def _save_detailed_report(self,
+    report: Dict[str,
+    Any],
+    failed_violations: List[Dict],
+    filename: str):
         """💾 Save detailed completion report"""
         try:
             with open(filename, 'w', encoding='utf-8') as f:
