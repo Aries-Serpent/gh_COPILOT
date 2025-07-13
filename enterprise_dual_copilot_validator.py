@@ -799,9 +799,7 @@ class SecondaryValidatorCopilot:
         self.logger.info(
             f"{ENTERPRISE_INDICATORS['info']} Primary Execution: {'✅ SUCCESS' if validation_result.primary_execution_success else '❌ FAILED'}")
         self.logger.info(
-            f"{
-                ENTERPRISE_INDICATORS['info']} Secondary Validation: {
-                '✅ PASSED' if validation_result.secondary_validation_passed else '❌ FAILED'}")
+            f"{ENTERPRISE_INDICATORS['info']} Secondary Validation: {'✅ PASSED' if validation_result.secondary_validation_passed else '❌ FAILED'}")
 
         if validation_result.recommendations:
             self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Recommendations:")
@@ -819,10 +817,7 @@ class EnterpriseOrchestrator:
         # Initialize logging manager and get logger from it
         logging_manager = EnterpriseLoggingManager()
         self.logger = logging_manager.logger  # Use the logger attribute directly
-        self.orchestration_id = f"ORCHESTRATOR_{
-            datetime.now().strftime('%Y%m%d_%H%M%S')}_{
-            uuid.uuid4().hex[
-                :8]}"
+        self.orchestration_id = f"ORCHESTRATOR_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
         # Initialize DUAL COPILOT components
         self.primary_copilot = PrimaryExecutorCopilot(self.config)
@@ -957,19 +952,13 @@ class EnterpriseOrchestrator:
         self.logger.info(
             f"{ENTERPRISE_INDICATORS['info']} Orchestration ID: {result['orchestration_id']}")
         self.logger.info(
-            f"{
-                ENTERPRISE_INDICATORS['info']} Total Duration: {
-                result['execution_summary']['total_execution_time']:.2f} seconds")
+            f"{ENTERPRISE_INDICATORS['info']} Total Duration: {result['execution_summary']['total_execution_time']:.2f} seconds")
         self.logger.info(
             f"{ENTERPRISE_INDICATORS['info']} Overall Success: {'✅ YES' if result['overall_success'] else '❌ NO'}")
         self.logger.info(
-            f"{
-                ENTERPRISE_INDICATORS['info']} Enterprise Compliance: {
-                '✅ MET' if result['enterprise_compliance'] else '❌ NOT MET'}")
+            f"{ENTERPRISE_INDICATORS['info']} Enterprise Compliance: {'✅ MET' if result['enterprise_compliance'] else '❌ NOT MET'}")
         self.logger.info(
-            f"{
-                ENTERPRISE_INDICATORS['info']} Compliance Score: {
-                result['execution_summary']['overall_compliance_score']:.1f}%")
+            f"{ENTERPRISE_INDICATORS['info']} Compliance Score: {result['execution_summary']['overall_compliance_score']:.1f}%")
         self.logger.info(
             f"{ENTERPRISE_INDICATORS['info']} Completion Time: {result['execution_summary']['completion_time']}")
 

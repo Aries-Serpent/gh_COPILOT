@@ -444,7 +444,7 @@ class DualCopilotValidator:
         self.logger.info("=" * 80)
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Validation ID: {self.validation_id}")
 
-    validation_results = {
+        validation_results = {
             'validation_id': self.validation_id,
             'timestamp': datetime.now(),
             'overall_success': True,
