@@ -85,8 +85,7 @@ class CompleteTemplateGenerator:
         templates: List[str] = []
         clusters = self.generator.cluster_model
         patterns = self.generator.patterns
-        matrix = self.generator.pattern_matrix
-        if not patterns or clusters is None or matrix is None:
+        if not patterns or clusters:
             return templates
 
         with tqdm(total=clusters.n_clusters, desc=f"{TEXT_INDICATORS['progress']} create") as bar:
