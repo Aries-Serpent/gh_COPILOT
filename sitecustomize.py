@@ -1,5 +1,6 @@
 import sys
 
+
 class _FallbackShor:
     def __init__(self, quantum_instance=None):
         self.quantum_instance = quantum_instance
@@ -11,5 +12,7 @@ class _FallbackShor:
         return type('Res', (), {'factors': [[n, 1]]})()
 
 module = type(sys)('qiskit.algorithms')
+
+
 module.Shor = _FallbackShor
 sys.modules.setdefault('qiskit.algorithms', module)

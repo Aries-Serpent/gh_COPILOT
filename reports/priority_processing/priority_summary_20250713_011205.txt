@@ -1,0 +1,656 @@
+🎯 PRIORITY VIOLATIONS ANALYSIS REPORT
+================================================================================
+
+Generated: 2025-07-13T01:12:05.480603
+Total Violations: 12,635
+Analysis Duration: 0.13s
+
+📊 SEVERITY BREAKDOWN:
+   CRITICAL: 402 violations (3.2%)
+      - F821
+      - E999
+
+   HIGH: 1,963 violations (15.5%)
+      - F401
+      - F841
+      - F811
+
+   MEDIUM: 6,372 violations (50.4%)
+      - E302
+      - E305
+      - E501
+
+   LOW: 3,686 violations (29.2%)
+      - W293
+      - W291
+      - W292
+      - E303
+      - W391
+
+📦 PROCESSING BATCHES:
+   1. CRITICAL_SECURITY_FUNCTIONALITY
+      Description: Critical security and functionality violations
+      Priority: 100
+      Estimated Count: 402
+      Complexity: HIGH
+      Automated: No
+      Manual Review: Yes
+
+   2. HIGH_PRIORITY_CODE_QUALITY
+      Description: High priority code quality issues in top files
+      Priority: 90
+      Estimated Count: 1,963
+      Complexity: MEDIUM
+      Automated: No
+      Manual Review: No
+
+   3. MEDIUM_PRIORITY_FORMATTING
+      Description: Medium priority formatting issues (automated fixes)
+      Priority: 80
+      Estimated Count: 6,372
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   4. LOW_PRIORITY_WHITESPACE_BATCH_1
+      Description: Low priority whitespace issues (batch 1/74)
+      Priority: 70
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   5. LOW_PRIORITY_WHITESPACE_BATCH_2
+      Description: Low priority whitespace issues (batch 2/74)
+      Priority: 69
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   6. LOW_PRIORITY_WHITESPACE_BATCH_3
+      Description: Low priority whitespace issues (batch 3/74)
+      Priority: 68
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   7. LOW_PRIORITY_WHITESPACE_BATCH_4
+      Description: Low priority whitespace issues (batch 4/74)
+      Priority: 67
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   8. LOW_PRIORITY_WHITESPACE_BATCH_5
+      Description: Low priority whitespace issues (batch 5/74)
+      Priority: 66
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   9. LOW_PRIORITY_WHITESPACE_BATCH_6
+      Description: Low priority whitespace issues (batch 6/74)
+      Priority: 65
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   10. LOW_PRIORITY_WHITESPACE_BATCH_7
+      Description: Low priority whitespace issues (batch 7/74)
+      Priority: 64
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   11. LOW_PRIORITY_WHITESPACE_BATCH_8
+      Description: Low priority whitespace issues (batch 8/74)
+      Priority: 63
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   12. LOW_PRIORITY_WHITESPACE_BATCH_9
+      Description: Low priority whitespace issues (batch 9/74)
+      Priority: 62
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   13. LOW_PRIORITY_WHITESPACE_BATCH_10
+      Description: Low priority whitespace issues (batch 10/74)
+      Priority: 61
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   14. LOW_PRIORITY_WHITESPACE_BATCH_11
+      Description: Low priority whitespace issues (batch 11/74)
+      Priority: 60
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   15. LOW_PRIORITY_WHITESPACE_BATCH_12
+      Description: Low priority whitespace issues (batch 12/74)
+      Priority: 59
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   16. LOW_PRIORITY_WHITESPACE_BATCH_13
+      Description: Low priority whitespace issues (batch 13/74)
+      Priority: 58
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   17. LOW_PRIORITY_WHITESPACE_BATCH_14
+      Description: Low priority whitespace issues (batch 14/74)
+      Priority: 57
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   18. LOW_PRIORITY_WHITESPACE_BATCH_15
+      Description: Low priority whitespace issues (batch 15/74)
+      Priority: 56
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   19. LOW_PRIORITY_WHITESPACE_BATCH_16
+      Description: Low priority whitespace issues (batch 16/74)
+      Priority: 55
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   20. LOW_PRIORITY_WHITESPACE_BATCH_17
+      Description: Low priority whitespace issues (batch 17/74)
+      Priority: 54
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   21. LOW_PRIORITY_WHITESPACE_BATCH_18
+      Description: Low priority whitespace issues (batch 18/74)
+      Priority: 53
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   22. LOW_PRIORITY_WHITESPACE_BATCH_19
+      Description: Low priority whitespace issues (batch 19/74)
+      Priority: 52
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   23. LOW_PRIORITY_WHITESPACE_BATCH_20
+      Description: Low priority whitespace issues (batch 20/74)
+      Priority: 51
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   24. LOW_PRIORITY_WHITESPACE_BATCH_21
+      Description: Low priority whitespace issues (batch 21/74)
+      Priority: 50
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   25. LOW_PRIORITY_WHITESPACE_BATCH_22
+      Description: Low priority whitespace issues (batch 22/74)
+      Priority: 49
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   26. LOW_PRIORITY_WHITESPACE_BATCH_23
+      Description: Low priority whitespace issues (batch 23/74)
+      Priority: 48
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   27. LOW_PRIORITY_WHITESPACE_BATCH_24
+      Description: Low priority whitespace issues (batch 24/74)
+      Priority: 47
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   28. LOW_PRIORITY_WHITESPACE_BATCH_25
+      Description: Low priority whitespace issues (batch 25/74)
+      Priority: 46
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   29. LOW_PRIORITY_WHITESPACE_BATCH_26
+      Description: Low priority whitespace issues (batch 26/74)
+      Priority: 45
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   30. LOW_PRIORITY_WHITESPACE_BATCH_27
+      Description: Low priority whitespace issues (batch 27/74)
+      Priority: 44
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   31. LOW_PRIORITY_WHITESPACE_BATCH_28
+      Description: Low priority whitespace issues (batch 28/74)
+      Priority: 43
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   32. LOW_PRIORITY_WHITESPACE_BATCH_29
+      Description: Low priority whitespace issues (batch 29/74)
+      Priority: 42
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   33. LOW_PRIORITY_WHITESPACE_BATCH_30
+      Description: Low priority whitespace issues (batch 30/74)
+      Priority: 41
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   34. LOW_PRIORITY_WHITESPACE_BATCH_31
+      Description: Low priority whitespace issues (batch 31/74)
+      Priority: 40
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   35. LOW_PRIORITY_WHITESPACE_BATCH_32
+      Description: Low priority whitespace issues (batch 32/74)
+      Priority: 39
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   36. LOW_PRIORITY_WHITESPACE_BATCH_33
+      Description: Low priority whitespace issues (batch 33/74)
+      Priority: 38
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   37. LOW_PRIORITY_WHITESPACE_BATCH_34
+      Description: Low priority whitespace issues (batch 34/74)
+      Priority: 37
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   38. LOW_PRIORITY_WHITESPACE_BATCH_35
+      Description: Low priority whitespace issues (batch 35/74)
+      Priority: 36
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   39. LOW_PRIORITY_WHITESPACE_BATCH_36
+      Description: Low priority whitespace issues (batch 36/74)
+      Priority: 35
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   40. LOW_PRIORITY_WHITESPACE_BATCH_37
+      Description: Low priority whitespace issues (batch 37/74)
+      Priority: 34
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   41. LOW_PRIORITY_WHITESPACE_BATCH_38
+      Description: Low priority whitespace issues (batch 38/74)
+      Priority: 33
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   42. LOW_PRIORITY_WHITESPACE_BATCH_39
+      Description: Low priority whitespace issues (batch 39/74)
+      Priority: 32
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   43. LOW_PRIORITY_WHITESPACE_BATCH_40
+      Description: Low priority whitespace issues (batch 40/74)
+      Priority: 31
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   44. LOW_PRIORITY_WHITESPACE_BATCH_41
+      Description: Low priority whitespace issues (batch 41/74)
+      Priority: 30
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   45. LOW_PRIORITY_WHITESPACE_BATCH_42
+      Description: Low priority whitespace issues (batch 42/74)
+      Priority: 29
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   46. LOW_PRIORITY_WHITESPACE_BATCH_43
+      Description: Low priority whitespace issues (batch 43/74)
+      Priority: 28
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   47. LOW_PRIORITY_WHITESPACE_BATCH_44
+      Description: Low priority whitespace issues (batch 44/74)
+      Priority: 27
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   48. LOW_PRIORITY_WHITESPACE_BATCH_45
+      Description: Low priority whitespace issues (batch 45/74)
+      Priority: 26
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   49. LOW_PRIORITY_WHITESPACE_BATCH_46
+      Description: Low priority whitespace issues (batch 46/74)
+      Priority: 25
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   50. LOW_PRIORITY_WHITESPACE_BATCH_47
+      Description: Low priority whitespace issues (batch 47/74)
+      Priority: 24
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   51. LOW_PRIORITY_WHITESPACE_BATCH_48
+      Description: Low priority whitespace issues (batch 48/74)
+      Priority: 23
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   52. LOW_PRIORITY_WHITESPACE_BATCH_49
+      Description: Low priority whitespace issues (batch 49/74)
+      Priority: 22
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   53. LOW_PRIORITY_WHITESPACE_BATCH_50
+      Description: Low priority whitespace issues (batch 50/74)
+      Priority: 21
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   54. LOW_PRIORITY_WHITESPACE_BATCH_51
+      Description: Low priority whitespace issues (batch 51/74)
+      Priority: 20
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   55. LOW_PRIORITY_WHITESPACE_BATCH_52
+      Description: Low priority whitespace issues (batch 52/74)
+      Priority: 19
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   56. LOW_PRIORITY_WHITESPACE_BATCH_53
+      Description: Low priority whitespace issues (batch 53/74)
+      Priority: 18
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   57. LOW_PRIORITY_WHITESPACE_BATCH_54
+      Description: Low priority whitespace issues (batch 54/74)
+      Priority: 17
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   58. LOW_PRIORITY_WHITESPACE_BATCH_55
+      Description: Low priority whitespace issues (batch 55/74)
+      Priority: 16
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   59. LOW_PRIORITY_WHITESPACE_BATCH_56
+      Description: Low priority whitespace issues (batch 56/74)
+      Priority: 15
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   60. LOW_PRIORITY_WHITESPACE_BATCH_57
+      Description: Low priority whitespace issues (batch 57/74)
+      Priority: 14
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   61. LOW_PRIORITY_WHITESPACE_BATCH_58
+      Description: Low priority whitespace issues (batch 58/74)
+      Priority: 13
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   62. LOW_PRIORITY_WHITESPACE_BATCH_59
+      Description: Low priority whitespace issues (batch 59/74)
+      Priority: 12
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   63. LOW_PRIORITY_WHITESPACE_BATCH_60
+      Description: Low priority whitespace issues (batch 60/74)
+      Priority: 11
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   64. LOW_PRIORITY_WHITESPACE_BATCH_61
+      Description: Low priority whitespace issues (batch 61/74)
+      Priority: 10
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   65. LOW_PRIORITY_WHITESPACE_BATCH_62
+      Description: Low priority whitespace issues (batch 62/74)
+      Priority: 9
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   66. LOW_PRIORITY_WHITESPACE_BATCH_63
+      Description: Low priority whitespace issues (batch 63/74)
+      Priority: 8
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   67. LOW_PRIORITY_WHITESPACE_BATCH_64
+      Description: Low priority whitespace issues (batch 64/74)
+      Priority: 7
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   68. LOW_PRIORITY_WHITESPACE_BATCH_65
+      Description: Low priority whitespace issues (batch 65/74)
+      Priority: 6
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   69. LOW_PRIORITY_WHITESPACE_BATCH_66
+      Description: Low priority whitespace issues (batch 66/74)
+      Priority: 5
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   70. LOW_PRIORITY_WHITESPACE_BATCH_67
+      Description: Low priority whitespace issues (batch 67/74)
+      Priority: 4
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   71. LOW_PRIORITY_WHITESPACE_BATCH_68
+      Description: Low priority whitespace issues (batch 68/74)
+      Priority: 3
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   72. LOW_PRIORITY_WHITESPACE_BATCH_69
+      Description: Low priority whitespace issues (batch 69/74)
+      Priority: 2
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   73. LOW_PRIORITY_WHITESPACE_BATCH_70
+      Description: Low priority whitespace issues (batch 70/74)
+      Priority: 1
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   74. LOW_PRIORITY_WHITESPACE_BATCH_71
+      Description: Low priority whitespace issues (batch 71/74)
+      Priority: 0
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   75. LOW_PRIORITY_WHITESPACE_BATCH_72
+      Description: Low priority whitespace issues (batch 72/74)
+      Priority: -1
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   76. LOW_PRIORITY_WHITESPACE_BATCH_73
+      Description: Low priority whitespace issues (batch 73/74)
+      Priority: -2
+      Estimated Count: 50
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+   77. LOW_PRIORITY_WHITESPACE_BATCH_74
+      Description: Low priority whitespace issues (batch 74/74)
+      Priority: -3
+      Estimated Count: 36
+      Complexity: LOW
+      Automated: Yes
+      Manual Review: No
+
+💡 RECOMMENDATIONS:
+   Immediate Action:
+      - Address 167 files with critical violations immediately
+
+   Automation Candidates:
+      - Process 10,058 violations via automation across 75 batches
+
+   Manual Review Required:
+      - Schedule manual review for 402 complex violations
+

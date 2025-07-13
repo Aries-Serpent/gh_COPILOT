@@ -9,13 +9,7 @@ correction throughput. Results are logged for operational monitoring.
 from __future__ import annotations
 
 import logging
-import sqlite3
-import time
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, Optional
 
-from tqdm import tqdm
 
 from performance_validation_framework import PerformanceValidationFramework
 

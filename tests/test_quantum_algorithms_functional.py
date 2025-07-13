@@ -1,4 +1,3 @@
-import numpy as np
 
 from quantum_algorithms_functional import (run_grover_search,
                                            run_kmeans_clustering,

@@ -1,5 +1,4 @@
 import sqlite3
-from pathlib import Path
 
 from database_driven_flake8_corrector_functional import \
     DatabaseDrivenFlake8CorrectorFunctional
@@ -9,10 +8,13 @@ def test_corrector_records_corrections(tmp_path):
     db_path = tmp_path / "prod.db"
     with sqlite3.connect(db_path) as conn:
         conn.execute(
-            "CREATE TABLE correction_history (id INTEGER PRIMARY KEY, file_path TEXT, violation_code TEXT, original_line TEXT, corrected_line TEXT, correction_timestamp TEXT)"
+            "CREATE TABLE correction_history (id INTEGER PRIMARY KEY, \
+                file_path TEXT, violation_code TEXT, original_line TEXT, corrected_line TEXT, correction_timestamp TEXT)"
         )
         conn.execute(
-            "CREATE TABLE correction_progress (id INTEGER PRIMARY KEY CHECK (id=1), last_file_index INTEGER NOT NULL, total_files INTEGER NOT NULL, updated_at TEXT NOT NULL)"
+            "CREATE TABLE correction_progress (id INTEGER PRIMARY KEY CHECK (id=1), \
+                \
+                last_file_index INTEGER NOT NULL, total_files INTEGER NOT NULL, updated_at TEXT NOT NULL)"
         )
     py_file = tmp_path / "bad.py"
     py_file.write_text("print('hi')  \n")
@@ -34,10 +36,13 @@ def test_unicode_paths_and_progress(tmp_path):
     db_path = tmp_path / "prod.db"
     with sqlite3.connect(db_path) as conn:
         conn.execute(
-            "CREATE TABLE correction_history (id INTEGER PRIMARY KEY, file_path TEXT, violation_code TEXT, original_line TEXT, corrected_line TEXT, correction_timestamp TEXT)"
+            "CREATE TABLE correction_history (id INTEGER PRIMARY KEY, \
+                file_path TEXT, violation_code TEXT, original_line TEXT, corrected_line TEXT, correction_timestamp TEXT)"
         )
         conn.execute(
-            "CREATE TABLE correction_progress (id INTEGER PRIMARY KEY CHECK (id=1), last_file_index INTEGER NOT NULL, total_files INTEGER NOT NULL, updated_at TEXT NOT NULL)"
+            "CREATE TABLE correction_progress (id INTEGER PRIMARY KEY CHECK (id=1), \
+                \
+                last_file_index INTEGER NOT NULL, total_files INTEGER NOT NULL, updated_at TEXT NOT NULL)"
         )
 
     unicode_dir = tmp_path / "路径"

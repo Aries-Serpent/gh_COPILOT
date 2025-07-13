@@ -63,6 +63,7 @@ def metrics() -> "flask.Response":
     """Return metrics as JSON."""
     return jsonify(get_metrics())
 
+
 class EnterpriseUtility:
     """Enterprise utility class"""
 
@@ -102,6 +103,7 @@ class EnterpriseUtility:
             )
             return False
 
+
 def main():
     """Main execution function"""
     utility = EnterpriseUtility()
@@ -115,5 +117,7 @@ def main():
     return success
 
 if __name__ == "__main__":
+
+
     success = main()
     sys.exit(0 if success else 1)

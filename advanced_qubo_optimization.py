@@ -35,6 +35,8 @@ def solve_qubo_bruteforce(matrix: List[List[float]]) -> Tuple[List[int], float]:
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
+
+
     'start': '[START]',
     'success': '[SUCCESS]',
     'error': '[ERROR]',

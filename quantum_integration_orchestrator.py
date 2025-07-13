@@ -31,6 +31,8 @@ def integrate_qubo_problems(qubos: List[List[List[float]]]) -> Tuple[List[int], 
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
+
+
     'start': '[START]',
     'success': '[SUCCESS]',
     'error': '[ERROR]',

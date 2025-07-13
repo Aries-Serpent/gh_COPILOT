@@ -84,4 +84,3 @@ def test_fourier_transform():
     expected = Statevector.from_instruction(qc).data.tolist()
     assert len(result) == len(expected)
     assert np.allclose(result, expected)
-

@@ -214,12 +214,12 @@ class SystematicFlake8ErrorAnalyzer:
                 '--max-line-length=79',
                 '--extend-ignore=E203,W503'
             ],
-            cwd=self.workspace_root,
-            capture_output=True,
-            text=True,
-            encoding='utf-8',
-            errors='replace',  # Replace problematic characters
-            timeout=300
+                    cwd=self.workspace_root,
+                    capture_output=True,
+                    text=True,
+                    encoding='utf-8',
+                    errors='replace',  # Replace problematic characters
+                    timeout=300
             )
 
             # Save scan output
@@ -369,7 +369,7 @@ class SystematicFlake8ErrorAnalyzer:
             return "COMPREHENSIVE_CLEANUP"
 
     def generate_error_analysis_report(self, analysis: ErrorAnalysis,
-                                     errors: List[FlakeError]) -> str:
+    errors: List[FlakeError]) -> str:
         """Generate comprehensive error analysis report"""
         logger.info("GENERATING ERROR ANALYSIS REPORT...")
 

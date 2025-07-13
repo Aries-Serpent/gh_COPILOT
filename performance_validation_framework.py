@@ -13,7 +13,6 @@ import logging
 import sqlite3
 import time
 from pathlib import Path
-from typing import Dict, List
 
 from tqdm import tqdm
 

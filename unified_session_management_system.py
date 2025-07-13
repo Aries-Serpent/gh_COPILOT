@@ -9,8 +9,6 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
-import logging
-from datetime import datetime
 
 from copilot.common.workspace_utils import get_workspace_path
 

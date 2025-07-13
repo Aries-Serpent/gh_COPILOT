@@ -1,5 +1,3 @@
-import os
-from pathlib import Path
 
 from database_purification_engine import DatabasePurificationEngine
 

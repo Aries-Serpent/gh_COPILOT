@@ -168,7 +168,8 @@ class DatabaseDrivenFlake8CorrectorFunctional:
                         else ""
                     )
                     cursor.execute(
-                        "INSERT INTO correction_history (file_path, violation_code, original_line, corrected_line, correction_timestamp)"
+                        "INSERT INTO correction_history (file_path, \
+                            violation_code, original_line, corrected_line, correction_timestamp)"
                         " VALUES (?, ?, ?, ?, ?)",
                         (
                             str(file_path),
@@ -217,7 +218,8 @@ class DatabaseDrivenFlake8CorrectorFunctional:
             self.validate_workspace()
             py_files = self.scan_python_files()
             start_idx = self._init_progress(len(py_files))
-            with tqdm(total=len(py_files), desc=f"{TEXT_INDICATORS['progress']} scan", unit="file") as scan_bar:
+            with tqdm(total=len(py_files), \
+                desc=f"{TEXT_INDICATORS['progress']} scan", unit="file") as scan_bar:
                 violations: Dict[Path, List[str]] = {}
                 for idx, f in enumerate(py_files[start_idx:], start=start_idx + 1):
                     self._check_timeout()
@@ -226,7 +228,8 @@ class DatabaseDrivenFlake8CorrectorFunctional:
                     scan_bar.update(1)
                     self._update_progress(idx)
             files_with_issues = list(violations.keys())
-            with tqdm(total=len(files_with_issues), desc=f"{TEXT_INDICATORS['progress']} fix", unit="file") as fix_bar:
+            with tqdm(total=len(files_with_issues), \
+                desc=f"{TEXT_INDICATORS['progress']} fix", unit="file") as fix_bar:
                 corrected = self.apply_corrections(files_with_issues)
                 fix_bar.update(len(files_with_issues))
             self.record_corrections(violations, corrected)

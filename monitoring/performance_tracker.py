@@ -83,7 +83,8 @@ def record_error(
     with sqlite3.connect(path) as conn:
         _ensure_table(conn)
         conn.execute(
-            "INSERT INTO query_performance (query_name, response_time_ms, is_error) VALUES (?, 0, 1)",
+            "INSERT INTO query_performance (query_name, \
+                response_time_ms, is_error) VALUES (?, 0, 1)",
             (query_name,),
         )
         conn.commit()

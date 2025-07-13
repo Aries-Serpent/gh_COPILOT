@@ -2,7 +2,6 @@ import sqlite3
 from pathlib import Path
 
 from database_consolidation_migration import consolidate_databases
-from monitoring.performance_tracker import benchmark_queries, _ensure_table
 
 
 def _make_db(path: Path, table: str) -> Path:

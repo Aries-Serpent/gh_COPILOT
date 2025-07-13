@@ -15,6 +15,7 @@ GENERATED_README = ROOT / "documentation" / "generated" / "README.md"
 WHITEPAPER_PATH = ROOT / "COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md"
 DATABASE_LIST = ROOT / "documentation" / "DATABASE_LIST.md"
 
+
 def get_db_metrics(db_path: Path) -> dict[str, int]:
     """Return metrics from the production database."""
     conn = sqlite3.connect(db_path)

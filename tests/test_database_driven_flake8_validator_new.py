@@ -21,7 +21,8 @@ def test_windows_paths_sanitized(monkeypatch):
     monkeypatch.setattr(mod.os, "name", "nt", raising=False)
     monkeypatch.setattr(mod, "Path", DummyPath)
     path = "C:\\Temp\\proj"
-    corrector = DatabaseDrivenFlake8CorrectorFunctional(workspace_path=path, db_path="C:\\Temp\\db.sqlite")
+    corrector = DatabaseDrivenFlake8CorrectorFunctional(workspace_path=path, \
+        db_path="C:\\Temp\\db.sqlite")
     assert isinstance(corrector.workspace_path, PureWindowsPath)
     assert corrector.workspace_path.as_posix() == "C:/Temp/proj"
     assert isinstance(corrector.db_path, PureWindowsPath)
