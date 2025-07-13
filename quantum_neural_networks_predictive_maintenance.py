@@ -22,6 +22,7 @@ from qiskit.circuit.library import RealAmplitudes, ZZFeatureMap
 
 try:
     from qiskit.utils import algorithm_globals
+
     def _set_seed(seed: int) -> None:
         algorithm_globals.random_seed = seed
 except Exception:  # pragma: no cover - fallback for older qiskit
@@ -45,7 +46,6 @@ try:
     from qiskit import BasicAer
 except Exception:  # pragma: no cover - fallback when unavailable
     BasicAer = None
-
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     'start': '[START]',
