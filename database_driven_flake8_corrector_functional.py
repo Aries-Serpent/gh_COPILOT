@@ -12,9 +12,11 @@ ensure compliance.
 from __future__ import annotations
 
 import logging
+import os
 import sqlite3
 import subprocess
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List
 
@@ -34,16 +36,87 @@ TEXT_INDICATORS = {
 class DatabaseDrivenFlake8CorrectorFunctional:
     """Correct flake8 violations and record them in a database."""
 
-    def __init__(self, workspace_path: str | None = None, db_path: str = "production.db") -> None:
+    DEFAULT_TIMEOUT_MINUTES = 30
+
+    def __init__(
+        self,
+        workspace_path: str | None = None,
+        db_path: str = "production.db",
+        timeout_minutes: int = DEFAULT_TIMEOUT_MINUTES,
+    ) -> None:
         env_default = Path.cwd()
-        self.workspace_path = Path(workspace_path or env_default)
+        self.workspace_path = Path(workspace_path or env_default).resolve()
         self.db_path = Path(db_path)
+        self.timeout_seconds = timeout_minutes * 60
         self.logger = logging.getLogger(__name__)
         self.validator = SecondaryCopilotValidator(self.logger)
+        self.start_ts: float | None = None
 
     def scan_python_files(self) -> List[Path]:
         """Return a list of Python files under ``workspace_path``."""
-        return list(self.workspace_path.rglob("*.py"))
+        files = []
+        for path in self.workspace_path.rglob("*.py"):
+            if self._within_workspace(path):
+                files.append(path)
+        return files
+
+    def _within_workspace(self, path: Path) -> bool:
+        """Return True if ``path`` resides within ``workspace_path``."""
+        try:
+            path.resolve().relative_to(self.workspace_path)
+            return True
+        except ValueError:
+            return False
+
+    def _check_timeout(self) -> None:
+        if self.start_ts and time.time() - self.start_ts > self.timeout_seconds:
+            raise TimeoutError("Correction process exceeded timeout")
+
+    def _init_progress(self, total_files: int) -> int:
+        now = datetime.utcnow().isoformat()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS correction_progress ("
+                "id INTEGER PRIMARY KEY CHECK (id=1),"
+                "last_file_index INTEGER NOT NULL,"
+                "total_files INTEGER NOT NULL,"
+                "updated_at TEXT NOT NULL"
+                ")"
+            )
+            row = conn.execute(
+                "SELECT last_file_index, total_files FROM correction_progress "
+                "WHERE id=1"
+            ).fetchone()
+            if row:
+                conn.execute(
+                    "UPDATE correction_progress SET total_files=?, updated_at=? WHERE id=1",
+                    (total_files, now),
+                )
+                return int(row[0])
+            conn.execute(
+                "INSERT INTO correction_progress (id, last_file_index, total_files, updated_at) "
+                "VALUES (1, 0, ?, ?)",
+                (total_files, now),
+            )
+            return 0
+
+    def _update_progress(self, index: int) -> None:
+        if not self.db_path.exists():
+            return
+        now = datetime.utcnow().isoformat()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "UPDATE correction_progress SET last_file_index=?, updated_at=? WHERE id=1",
+                (index, now),
+            )
+
+    def _compute_etc(self, processed: int, total: int) -> str:
+        if processed == 0:
+            return "unknown"
+        elapsed = time.time() - (self.start_ts or time.time())
+        remaining = (elapsed / processed) * (total - processed)
+        etc_time = datetime.utcnow() + timedelta(seconds=remaining)
+        return etc_time.isoformat()
 
     def run_flake8_scan(self, files: List[Path]) -> Dict[Path, List[str]]:
         """Run flake8 on each file and collect violation lines."""
@@ -58,13 +131,20 @@ class DatabaseDrivenFlake8CorrectorFunctional:
     def apply_corrections(self, files: List[Path]) -> List[Path]:
         """Apply autopep8 and isort to each file and return corrected ones."""
         corrected: List[Path] = []
-        for path in files:
+        for idx, path in enumerate(files, start=1):
+            self._check_timeout()
             original = path.read_text(encoding="utf-8", errors="ignore")
             subprocess.run(["autopep8", "--in-place", str(path)], check=False)
             subprocess.run(["isort", str(path)], check=False)
             new_content = path.read_text(encoding="utf-8", errors="ignore")
             if original != new_content:
                 corrected.append(path)
+                self.validate_corrections([path])
+            self._update_progress(idx)
+            etc = self._compute_etc(idx, len(files))
+            self.logger.info(
+                f"{TEXT_INDICATORS['progress']} {idx}/{len(files)} ETC {etc}"
+            )
         return corrected
 
     def record_corrections(self, violations: Dict[Path, List[str]], corrected: List[Path]) -> None:
@@ -100,23 +180,30 @@ class DatabaseDrivenFlake8CorrectorFunctional:
 
     def execute_correction(self) -> bool:
         """Run scan, apply fixes, record to DB, and validate."""
-        start_time = datetime.utcnow()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Correction started: {start_time}")
+        start_dt = datetime.utcnow()
+        self.start_ts = time.time()
+        pid = os.getpid()
+        self.logger.info(
+            f"{TEXT_INDICATORS['start']} Correction started: {start_dt} PID {pid}"
+        )
         try:
             py_files = self.scan_python_files()
+            start_idx = self._init_progress(len(py_files))
             with tqdm(total=len(py_files), desc=f"{TEXT_INDICATORS['progress']} scan", unit="file") as scan_bar:
-                violations = {}
-                for f in py_files:
+                violations: Dict[Path, List[str]] = {}
+                for idx, f in enumerate(py_files[start_idx:], start=start_idx + 1):
+                    self._check_timeout()
                     file_violations = self.run_flake8_scan([f])
                     violations.update(file_violations)
                     scan_bar.update(1)
+                    self._update_progress(idx)
             files_with_issues = list(violations.keys())
             with tqdm(total=len(files_with_issues), desc=f"{TEXT_INDICATORS['progress']} fix", unit="file") as fix_bar:
                 corrected = self.apply_corrections(files_with_issues)
                 fix_bar.update(len(files_with_issues))
             self.record_corrections(violations, corrected)
             valid = self.validate_corrections(corrected)
-            duration = (datetime.utcnow() - start_time).total_seconds()
+            duration = (datetime.utcnow() - start_dt).total_seconds()
             if valid:
                 self.logger.info(
                     f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s"

@@ -31,25 +31,23 @@ except Exception:  # pragma: no cover - fallback for older qiskit
     def _set_seed(seed: int) -> None:
         np.random.seed(seed)
 try:
-    from qiskit_machine_learning.algorithms.classifiers import (
-        NeuralNetworkClassifier,
-    )
+    from qiskit_machine_learning.algorithms.classifiers import \
+        NeuralNetworkClassifier
     from qiskit_machine_learning.neural_networks import TwoLayerQNN
-except ImportError:  # pragma: no cover - optional dependency
-    NeuralNetworkClassifier = None
-    TwoLayerQNN = None
+except Exception:  # pragma: no cover - dependency unavailable
+    NeuralNetworkClassifier = None  # type: ignore
+    TwoLayerQNN = None  # type: ignore
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 try:
-    from qiskit import BasicAer
-except ImportError:  # pragma: no cover - compatibility fallback
+    from qiskit import BasicAer  # type: ignore
+except Exception:  # pragma: no cover - fallback for qiskit>=2
     try:
         from qiskit.providers.basicaer import BasicAer  # type: ignore
-    except ImportError:
+    except Exception:
         BasicAer = None  # type: ignore
-        logging.warning("BasicAer is unavailable. Ensure Qiskit is properly installed.")
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
