@@ -22,6 +22,7 @@ from qiskit.circuit.library import RealAmplitudes, ZZFeatureMap
 
 try:
     from qiskit.utils import algorithm_globals
+
     def _set_seed(seed: int) -> None:
         algorithm_globals.random_seed = seed
 except Exception:  # pragma: no cover - fallback for older qiskit
@@ -43,8 +44,12 @@ from sklearn.preprocessing import StandardScaler
 
 try:
     from qiskit import BasicAer
-except Exception:  # pragma: no cover - for qiskit>=2
-    from qiskit.providers.basicaer import BasicAer  # type: ignore
+except ImportError:  # pragma: no cover - compatibility fallback
+    try:
+        from qiskit.providers.basicaer import BasicAer  # type: ignore
+    except ImportError:
+        BasicAer = None  # type: ignore
+        logging.warning("BasicAer is unavailable. Ensure Qiskit is properly installed.")
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {

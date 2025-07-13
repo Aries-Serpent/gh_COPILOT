@@ -64,10 +64,7 @@ See `archives/validation_tests/README.md` for historical validation scripts that
 
 ### 🧪 **Running Tests**
 1. `pip install -r requirements-test.txt`
-2. `make test`
-
-### 🧪 **Running Tests**
-1. `pip install -r requirements-test.txt`
+   - Includes `scikit-learn`, `qiskit`, `qiskit-aer`, and `qiskit-machine-learning`
 2. `make test`
 
 For detailed instructions, see the generated documentation files in this directory.
