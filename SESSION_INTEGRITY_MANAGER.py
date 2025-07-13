@@ -181,19 +181,15 @@ class SessionIntegrityManager:
                                 file_path.unlink()
                                 logging.info(f"[AUTOFIX] Removed zero-byte file: {file_path}")
                             except Exception as e:
-                                logging.warning(f"[WARNING] Could not remove ze" \
-                      " \
-                                                 "                          "o-byte file {file_path}: {e}")
+                                logging.warning(f"[WARNING] Could not remove zero-byte file {file_path}: {e}")
 
             zero_byte_percentage = (len(zero_byte_files) / total_files * 100) if total_files > 0 else 0
             self.validation_results['zero_byte_protection'] = zero_byte_percentage < 1.0
 
             if zero_byte_files:
-                logging.warning(f"[WARNING] Found {len(zero_byte_files)} zer" \
-              " \
-                                 "                  "-byte files ({zero_byte_percentage:.2f}%)")
+                logging.warning(f"[WARNING] Found {len(zero_byte_files)} zero-byte files ({zero_byte_percentage:.2f}%)")
             else:
-                logging.info(f"[SUCCESS] No zero-byte files detected")
+                logging.info("[SUCCESS] No zero-byte files detected")
 
             self.validation_results['file_system_integrity'] = True
             return True
@@ -222,16 +218,14 @@ class SessionIntegrityManager:
                                     shutil.rmtree(folder)
                                     logging.info(f"[AUTOFIX] Removed recursive folder: {folder}")
                                 except Exception as e:
-                                    logging.error(f"[ERROR] Could not remove re" \
-                        " \
-                                                   "                          "ursive folder {folder}: {e}")
+                                    logging.error(f"[ERROR] Could not remove recursive folder {folder}: {e}")
 
             self.validation_results['anti_recursion_compliance'] = len(violations) == 0
 
             if violations:
                 logging.warning(f"[WARNING] Anti-recursion violations found: {violations}")
             else:
-                logging.info(f"[SUCCESS] No anti-recursion violations detected")
+                logging.info("[SUCCESS] No anti-recursion violations detected")
 
             return self.validation_results['anti_recursion_compliance']
 
@@ -266,12 +260,12 @@ class SessionIntegrityManager:
             if missing_components:
                 logging.warning(f"[WARNING] Missing enterprise components: {missing_components}")
             if not has_deployment_package:
-                logging.warning(f"[WARNING] No deployment package found")
+                logging.warning("[WARNING] No deployment package found")
 
             if self.validation_results['enterprise_compliance']:
-                logging.info(f"[SUCCESS] Enterprise compliance validated")
+                logging.info("[SUCCESS] Enterprise compliance validated")
             else:
-                logging.warning(f"[WARNING] Enterprise compliance issues detected")
+                logging.warning("[WARNING] Enterprise compliance issues detected")
 
             return self.validation_results['enterprise_compliance']
 
