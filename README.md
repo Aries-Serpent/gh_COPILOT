@@ -64,8 +64,10 @@ See `archives/validation_tests/README.md` for historical validation scripts that
 
 ### 🧪 **Running Tests**
 1. `pip install -r requirements-test.txt`
-   - Includes `scikit-learn`, `qiskit`, `qiskit-aer`, and `qiskit-machine-learning`
 2. `make test`
+3. Machine learning tests rely on `qiskit-machine-learning` which is included in `requirements-test.txt` and `requirements-ml.txt`.
+
+# (This section is removed entirely.)
 
 For detailed instructions, see the generated documentation files in this directory.
 See [Feature Matrix](documentation/generated/feature_matrix.md) for implemented vs. planned features.
