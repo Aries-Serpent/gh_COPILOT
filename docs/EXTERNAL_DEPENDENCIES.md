@@ -6,6 +6,7 @@ The project relies on several external packages and services:
 - **psutil**: required for performance monitoring scripts.
 - **Flask** and related packages: used by the optional web dashboard in `web_gui/`.
 - **tqdm** and **rich**: provide progress bars and colored console output.
+- **qiskit-machine-learning**: optional quantum ML toolkit required for some tests and demos.
 
 Install the core dependencies using:
 

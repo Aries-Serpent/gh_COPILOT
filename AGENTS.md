@@ -16,7 +16,7 @@ The **gh\_COPILOT Toolkit v4.0** repository supports enterprise deployment, moni
     * `pip install -r requirements-web.txt` (for web dashboard)
     * `pip install -r requirements-ml.txt` (for machine learning/AI features)
 * Tests: `make test` (installs `requirements-test.txt` and runs `pytest`)
-* Test dependencies include `tqdm`, `numpy`, `qiskit`, and `qiskit-aer` (installed from `requirements-test.txt`).
+* Test dependencies include `tqdm`, `numpy`, `qiskit`, `qiskit-aer`, and `qiskit-machine-learning` (installed from `requirements-test.txt`).
 * Set workspace root via `GH_COPILOT_WORKSPACE` (default `/path/to/workspace`).
 
 ---
