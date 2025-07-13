@@ -5,7 +5,7 @@ import pytest
 try:
     from quantum_neural_networks_predictive_maintenance import \
         EnterpriseUtility
-except Exception as exc:  # pragma: no cover - dependency missing
+except ImportError as exc:  # pragma: no cover - dependency missing
     pytest.skip(str(exc), allow_module_level=True)
 
 
