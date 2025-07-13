@@ -56,7 +56,10 @@ to determine whether they should be reintegrated or safely removed.
 See `archives/validation_tests/README.md` for historical validation scripts that are skipped during regular test runs.
 
 ### 🚀 **GETTING STARTED**
-1. **Environment Setup**: Follow enterprise environment configuration
+1. **Environment Setup**: Install core dependencies with `pip install -r requirements.txt`.
+   For machine learning features, run `pip install -r requirements-ml.txt` which
+   includes `qiskit-machine-learning`. Use `requirements-web.txt` for optional
+   web dashboard support.
 2. **Database Initialization**: All databases auto-configured
 3. **Documentation Access**: Use web-GUI dashboard or database queries
 4. **Script Execution**: All scripts enterprise-validated and database-tracked
