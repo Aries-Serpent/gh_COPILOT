@@ -15,6 +15,10 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
+from unified_session_management_system import (
+    UnifiedSessionManagementSystem,
+)
+
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     'start': '[START]',
@@ -22,6 +26,7 @@ TEXT_INDICATORS = {
     'error': '[ERROR]',
     'info': '[INFO]'
 }
+
 
 class EnterpriseUtility:
     """Enterprise utility class"""
@@ -41,7 +46,8 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -52,9 +58,11 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Validate the workspace using ``UnifiedSessionManagementSystem``."""
+        workspace = os.getenv("GH_COPILOT_WORKSPACE", str(self.workspace_path))
+        manager = UnifiedSessionManagementSystem(workspace)
+        return manager.start_session()
+
 
 def main():
     """Main execution function"""
@@ -67,6 +75,7 @@ def main():
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
     return success
+
 
 if __name__ == "__main__":
     success = main()

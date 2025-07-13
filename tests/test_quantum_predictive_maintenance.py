@@ -1,4 +1,7 @@
 import logging
+import pytest
+
+pytest.importorskip("qiskit_machine_learning")
 
 from quantum_neural_networks_predictive_maintenance import EnterpriseUtility
 
