@@ -56,7 +56,7 @@ class DatabaseCleanupProcessor:
                     WHERE status = 'pending' AND error_code IN ('W291', 'W293')
                     ORDER BY file_path, line_number
                     LIMIT ?
-                """, (limit,))"""
+                """, (limit,))
 
                 return cursor.fetchall()
 
@@ -66,16 +66,16 @@ class DatabaseCleanupProcessor:
 
     def check_violation_still_exists(
         self, file_path: str, line_number: int, error_code: str) -> bool:
-        """# # # ✅ Check if violation still exists in file"""
+        """✅ Check if violation still exists in file"""
         try:
             if not Path(file_path).exists():
-                return False  # File doesn't exist, violation is "fixed"'
+                return False  # File doesn't exist, violation is "fixed"
 
             with open(file_path, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
 
             if line_number > len(lines) or line_number <= 0:
-                return False  # Line doesn't exist, violation is "fixed"'
+                return False  # Line doesn't exist, violation is "fixed"
 
             line_content = lines[line_number - 1]
 
@@ -91,8 +91,8 @@ class DatabaseCleanupProcessor:
             return True  # Unknown error code, assume it still exists
 
         except Exception as e:
-            logger.warning(f"# # # ⚠️ Error checking file {file_path}:{line_number}: {e}")
-            return True  # If we can't check, assume it still exists'
+            logger.warning(f"⚠️ Error checking file {file_path}:{line_number}: {e}")
+            return True  # If we can't check, assume it still exists
 
     def update_violation_status(self, violation_ids: List[int], status: str) -> int:
         """📝 Update violation status in database"""
@@ -149,14 +149,14 @@ class DatabaseCleanupProcessor:
                 already_fixed_ids = []
                 still_pending_ids = []
 
-                with tqdm(total=len(pending_violations), desc=""search" Checking violations", unit="violation") as pbar:
+                with tqdm(total=len(pending_violations), desc="🔍 Checking violations", unit="violation") as pbar:
 
                     for violation in pending_violations:
                         violation_id, file_path, line_number, error_code, message = violation
 
                         # Update progress description
                         file_name = Path(file_path).name[:30]
-                        pbar.set_description(f""search" Checking {file_name}:{line_number}")
+                        pbar.set_description(f"🔍 Checking {file_name}:{line_number}")
 
                         # Check if violation still exists
                         still_exists = self.check_violation_still_exists(
@@ -182,14 +182,14 @@ class DatabaseCleanupProcessor:
                 # Update database for already-fixed violations
                 if already_fixed_ids:
                     updated_count = self.update_violation_status(already_fixed_ids, 'fixed')
-                    logger.info(f"# # # ✅ Updated {updated_count} violations to 'fixed' status")
+                    logger.info(f"✅ Updated {updated_count} violations to 'fixed' status")
 
                 logger.info(
-    f""stats" Batch summary: {}"
-        len(already_fixed_ids)} already fixed, {}
-            len(still_pending_ids)} still pending")"
+                    f"📊 Batch summary: "
+                    f"{len(already_fixed_ids)} already fixed, "
+                    f"{len(still_pending_ids)} still pending")
 
-                # If we processed fewer than batch_size, we're done'
+                # If we processed fewer than batch_size, we're done
                 if len(pending_violations) < batch_size:
                     break
 
@@ -207,11 +207,11 @@ class DatabaseCleanupProcessor:
 
             # Final logging
             logger.info("="*80)
-            logger.info("# # # ✅ DATABASE CLEANUP COMPLETED")
+            logger.info("✅ DATABASE CLEANUP COMPLETED")
             logger.info("="*80)
-            logger.info(f""stats" Total Violations Checked: {total_checked}")
-            logger.info(f"# # # ✅ Already Fixed: {total_already_fixed}")
-            logger.info(f"# # # ⚠️ Still Pending: {total_still_pending}")
+            logger.info(f"📊 Total Violations Checked: {total_checked}")
+            logger.info(f"✅ Already Fixed: {total_already_fixed}")
+            logger.info(f"⚠️ Still Pending: {total_still_pending}")
             logger.info(f"📁 Files Processed: {len(files_processed)}")
             logger.info(f"⏱️ Processing Time: {processing_time:.2f} seconds")
             logger.info(f"📈 Cleanup Rate: {results['cleanup_success_rate']:.1%}")
@@ -247,11 +247,11 @@ def main():
 
         if results['already_fixed'] > 0:
             print(f"\n🎉 Database updated: {results['already_fixed']} violations marked as fixed!")
-            print(f""stats" Actual pending violations: {results['still_pending']}")
+            print(f"📊 Actual pending violations: {results['still_pending']}")
         else:
-            print("\n"stats" All checked violations are still pending and need actual fixes")
+            print("\n📊 All checked violations are still pending and need actual fixes")
 
-        print("\n# # # ✅ Database cleanup completed!")
+        print("\n✅ Database cleanup completed!")
 
     except Exception as e:
         logger.error(f"❌ Cleanup execution failed: {e}")

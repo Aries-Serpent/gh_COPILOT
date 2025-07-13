@@ -193,8 +193,11 @@ class Phase8FinalCleanupSpecialist:
                         param_indent = ' ' * (indent + len(func_name) + 1)
 
                         broken_params = f"\n{param_indent}".join(param_list)
-                        return f"{before_func}{func_name}(\ \
-                            n{param_indent}{broken_params}\n{' ' * indent}){after_func}"
+                        return (
+                            f"{before_func}{func_name}(\n"
+                            f"{param_indent}{broken_params}\n"
+                            f"{' ' * indent}){after_func}"
+                        )
 
         # Strategy 3: Break at string concatenations
         if '+' in line and '"' in line and len(line) > 100:

@@ -196,7 +196,7 @@ class DatabaseManager:
 
         duration = (datetime.now() - start_time).total_seconds()
         self.logger.info(
-            f"{ENTERPRISE_INDICATORS['database']}} Database initialization completed in {duration:.2f}}s}"")
+            f"{ENTERPRISE_INDICATORS['database']} Database initialization completed in {duration:.2f}s")
 
     def _setup_production_tables(self):
         """Setup production database tables"""
@@ -242,11 +242,11 @@ class DatabaseManager:
 
                 conn.commit()
                 self.logger.info(
-                    f"{ENTERPRISE_INDICATORS['database']}} Production tables initialized}"")
+                    f"{ENTERPRISE_INDICATORS['database']} Production tables initialized")
 
         except Exception as e:
             self.logger.error(
-                f"{ENTERPRISE_INDICATORS['error']} Production database setup failed: {e}"")
+                f"{ENTERPRISE_INDICATORS['error']} Production database setup failed: {e}")
             raise
 
     def _setup_style_compliance_tables(self):
@@ -285,11 +285,11 @@ class DatabaseManager:
 
                 conn.commit()
                 self.logger.info(
-                    f"{ENTERPRISE_INDICATORS['database']}} Style compliance tables initialized}"")
+                    f"{ENTERPRISE_INDICATORS['database']} Style compliance tables initialized")
 
         except Exception as e:
             self.logger.error(
-                f"{ENTERPRISE_INDICATORS['error']} Style compliance database setup failed: {e}"")
+                f"{ENTERPRISE_INDICATORS['error']} Style compliance database setup failed: {e}")
             raise
 
     def _setup_analytics_tables(self):
@@ -315,16 +315,16 @@ class DatabaseManager:
 
                 conn.commit()
                 self.logger.info(
-                    f"{ENTERPRISE_INDICATORS['database']}} Analytics tables initialized}"")
+                    f"{ENTERPRISE_INDICATORS['database']} Analytics tables initialized")
 
         except Exception as e:
             self.logger.error(
-                f"{ENTERPRISE_INDICATORS['error']} Analytics database setup failed: {e}"")
+                f"{ENTERPRISE_INDICATORS['error']} Analytics database setup failed: {e}")
             raise
 
     def create_correction_session(self) -> str:
         """Create new correction session"""
-        session_id = f"CORRECTION_{datetime.now().strftime('%Y%m%d_%H%M%S')}""
+        session_id = f"CORRECTION_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
         try:
             with sqlite3.connect(self.production_db) as conn:
@@ -336,11 +336,11 @@ class DatabaseManager:
                 conn.commit()
 
             self.logger.info(
-                f"{ENTERPRISE_INDICATORS['database']} Correction session created: {session_id}"")
+                f"{ENTERPRISE_INDICATORS['database']} Correction session created: {session_id}")
             return session_id
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Session creation failed: {e}"")
+            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Session creation failed: {e}")
             raise
 
     def update_script_tracking(self, file_info: UnicodeFileInfo,
@@ -369,11 +369,11 @@ class DatabaseManager:
                 conn.commit()
 
             self.logger.info(
-                f"{ENTERPRISE_INDICATORS['database']} Script tracking updated: {file_info.file_path}"")
+                f"{ENTERPRISE_INDICATORS['database']} Script tracking updated: {file_info.file_path}")
 
         except Exception as e:
             self.logger.error(
-                f"{ENTERPRISE_INDICATORS['error']} Script tracking update failed: {e}"")
+                f"{ENTERPRISE_INDICATORS['error']} Script tracking update failed: {e}")
 
     def get_correction_patterns(self, error_code: str) -> List[DatabaseCorrectionPattern]:
         """Get correction patterns for specific error code"""
@@ -405,7 +405,7 @@ class DatabaseManager:
                 return patterns
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Pattern retrieval failed: {e}"")
+            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Pattern retrieval failed: {e}")
             return []
 
 
