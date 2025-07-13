@@ -35,11 +35,11 @@ from qiskit_machine_learning.algorithms.classifiers import \
 
 try:
     from qiskit_machine_learning.neural_networks import TwoLayerQNN
-except (ImportError, ModuleNotFoundError):  # pragma: no cover - compatibility with newer versions
+except Exception:  # pragma: no cover - compatibility with newer versions
     try:
         from qiskit_machine_learning.neural_networks.two_layer_qnn import \
             TwoLayerQNN
-    except (ImportError, ModuleNotFoundError):  # pragma: no cover - module removed
+    except Exception:  # pragma: no cover - module removed
         TwoLayerQNN = None
 
 from sklearn.datasets import make_classification
