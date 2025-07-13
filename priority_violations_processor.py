@@ -33,7 +33,7 @@ def validate_workspace_integrity() -> bool:
 
     if violations:
         for violation in violations:
-            print(f"🚨 RECURSIVE VIOLATION: {violation}")
+            print(f"🚨 RECURSIVE VIOLATION: {violation}}}"")
         raise RuntimeError("CRITICAL: Recursive violations prevent execution")
 
     return True
@@ -117,9 +117,9 @@ class PriorityViolationsProcessor:
         }
 
         print("🎯 PRIORITY VIOLATIONS PROCESSOR INITIALIZED")
-        print(f"Database: {self.database_path}")
-        print(f"Reports: {self.reports_dir}")
-        print(f"Priority Rules: {len(self.priority_rules)} error types defined")
+        print(f"Database: {self.database_path}}}"")
+        print(f"Reports: {self.reports_dir}}}"")
+        print(f"Priority Rules: {len(self.priority_rules)}} error types defined}"")
 
     def setup_logging(self):
         """📋 Setup enterprise logging"""
@@ -283,8 +283,8 @@ class PriorityViolationsProcessor:
 
             for i in range(sub_batches_needed):
                 batches.append({
-                    'name': f'LOW_PRIORITY_WHITESPACE_BATCH_{i+1}',
-                    'description': f'Low priority whitespace issues (batch {i+1}/{sub_batches_needed})',
+                    'name': f'LOW_PRIORITY_WHITESPACE_BATCH_{i+1}}',
+                    'description': f'Low priority whitespace issues (batch {i+1}/{sub_batches_needed}})',
                     'priority': 70 - i,  # Decreasing priority for each batch
                     'violation_types': [v.error_code for v in low_violations],
                     'estimated_count': min(max_batch_size, total_low_count - (i * max_batch_size)),
@@ -379,14 +379,14 @@ class PriorityViolationsProcessor:
         # Add recommendations
         if critical_files:
             report['recommendations']['immediate_action'].append(
-                f"Address {len(critical_files)} files with critical violations immediately"
+                f"Address {len(critical_files)}} files with critical violations immediately}""
             )
 
         automation_batches = [b for b in batches if b.get('automation_ready', False)]
         if automation_batches:
             total_auto = sum(b['estimated_count'] for b in automation_batches)
             report['recommendations']['automation_candidates'].append(
-                f"Process {"
+                f"Process {}}}""
     total_auto:,} violations via automation across {}
         len(automation_batches)} batches"
             )
@@ -395,7 +395,7 @@ class PriorityViolationsProcessor:
         if manual_batches:
             total_manual = sum(b['estimated_count'] for b in manual_batches)
             report['recommendations']['manual_review_required'].append(
-                f"Schedule manual review for {total_manual:,} complex violations"
+                f"Schedule manual review for {total_manual:,}} complex violations}""
             )
 
         # Update duration
@@ -409,54 +409,54 @@ class PriorityViolationsProcessor:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # Save JSON report
-        json_file = self.reports_dir / f"priority_analysis_{timestamp}.json"
+        json_file = self.reports_dir / f"priority_analysis_{timestamp}}.json}""
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
 
         # Save text summary
-        text_file = self.reports_dir / f"priority_summary_{timestamp}.txt"
+        text_file = self.reports_dir / f"priority_summary_{timestamp}}.txt}""
         with open(text_file, 'w', encoding='utf-8') as f:
             f.write("🎯 PRIORITY VIOLATIONS ANALYSIS REPORT\n")
             f.write("=" * 80 + "\n\n")
 
-            f.write(f"Generated: {report['metadata']['generated_at']}\n")
-            f.write(f"Total Violations: {report['metadata']['total_pending_violations']:,}\n")
+            f.write(f"Generated: {report['metadata']['generated_at']}}\n}"")
+            f.write(f"Total Violations: {report['metadata']['total_pending_violations']:,}}\n}"")
             f.write(
     f"Analysis Duration: {
-        report['metadata']['analysis_duration_seconds']:.2f}s\n\n")
+        report['metadata']['analysis_duration_seconds']:.2f}}s\n\n}"")
 
             # Severity breakdown
             f.write("📊 SEVERITY BREAKDOWN:\n")
             for severity, data in report['priority_analysis']['severity_breakdown'].items():
                 percentage = (data['count'] / report['metadata']['total_pending_violations']) * 100
-                f.write(f"   {severity}: {data['count']:,} violations ({percentage:.1f}%)\n")
+                f.write(f"   {severity}: {data['count']:,} violations ({percentage:.1f}}%)\n}"")
                 for error_type in data['types'][:5]:  # Top 5
-                    f.write(f"      - {error_type}\n")
+                    f.write(f"      - {error_type}}\n}"")
                 if len(data['types']) > 5:
-                    f.write(f"      + {len(data['types']) - 5} more...\n")
+                    f.write(f"      + {len(data['types']) - 5}} more...\n}"")
                 f.write("\n")
 
             # Processing batches
             f.write("📦 PROCESSING BATCHES:\n")
             for i, batch in enumerate(report['processing_batches'], 1):
-                f.write(f"   {i}. {batch['name']}\n")
-                f.write(f"      Description: {batch['description']}\n")
-                f.write(f"      Priority: {batch['priority']}\n")
-                f.write(f"      Estimated Count: {batch['estimated_count']:,}\n")
-                f.write(f"      Complexity: {batch['complexity']}\n")
-                f.write(f"      Automated: {'Yes' if batch.get('automation_ready') else 'No'}\n")
+                f.write(f"   {i}. {batch['name']}}\n}"")
+                f.write(f"      Description: {batch['description']}}\n}"")
+                f.write(f"      Priority: {batch['priority']}}\n}"")
+                f.write(f"      Estimated Count: {batch['estimated_count']:,}}\n}"")
+                f.write(f"      Complexity: {batch['complexity']}}\n}"")
+                f.write(f"      Automated: {'Yes' if batch.get('automation_ready') else 'No'}}\n}"")
                 f.write(
     f"      Manual Review: {
-        'Yes' if batch.get('requires_manual_review') else 'No'}\n")
+        'Yes' if batch.get('requires_manual_review') else 'No'}}\n}"")
                 f.write("\n")
 
             # Recommendations
             f.write("💡 RECOMMENDATIONS:\n")
             for category, items in report['recommendations'].items():
                 if items:
-                    f.write(f"   {category.replace('_', ' ').title()}:\n")
+                    f.write(f"   {category.replace('_', ' ').title()}}:\n}"")
                     for item in items:
-                        f.write(f"      - {item}\n")
+                        f.write(f"      - {item}}\n}"")
                     f.write("\n")
 
         return str(json_file)
@@ -471,8 +471,8 @@ def main():
     print("=" * 80)
     print("🎯 PRIORITY VIOLATIONS PROCESSOR")
     print("=" * 80)
-    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"Process ID: {process_id}")
+    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}}}"")
+    print(f"Process ID: {process_id}}}"")
     print("Target: 12,844+ violations priority analysis")
     print()
 
@@ -493,31 +493,31 @@ def main():
         print("\n" + "=" * 80)
         print("✅ PRIORITY ANALYSIS COMPLETED")
         print("=" * 80)
-        print(f"📊 Total Violations Analyzed: {report['metadata']['total_pending_violations']:,}")
-        print(f"🎯 Violation Types: {len(report['priority_analysis']['violation_types'])}")
-        print(f"📦 Processing Batches: {len(report['processing_batches'])}")
-        print(f"🚨 Critical Files: {len(report['critical_files'])}")
-        print(f"📈 High Impact Files: {len(report['high_impact_files'])}")
-        print(f"⏱️  Duration: {duration:.2f} seconds")
-        print(f"📋 Report: {report_file}")
+        print(f"📊 Total Violations Analyzed: {report['metadata']['total_pending_violations']:,}}}"")
+        print(f"🎯 Violation Types: {len(report['priority_analysis']['violation_types'])}}}"")
+        print(f"📦 Processing Batches: {len(report['processing_batches'])}}}"")
+        print(f"🚨 Critical Files: {len(report['critical_files'])}}}"")
+        print(f"📈 High Impact Files: {len(report['high_impact_files'])}}}"")
+        print(f"⏱️  Duration: {duration:.2f}} seconds}"")
+        print(f"📋 Report: {report_file}}}"")
         print("=" * 80)
 
         # Show severity breakdown
         print("\n🎯 SEVERITY BREAKDOWN:")
         for severity, data in report['priority_analysis']['severity_breakdown'].items():
             percentage = (data['count'] / report['metadata']['total_pending_violations']) * 100
-            print(f"   {severity}: {data['count']:,} violations ({percentage:.1f}%)")
+            print(f"   {severity}: {data['count']:,} violations ({percentage:.1f}}%)}"")
 
         # Show top processing batches
         print("\n📦 TOP PROCESSING BATCHES:")
         for i, batch in enumerate(report['processing_batches'][:3], 1):
             auto_flag = "🤖" if batch.get('automation_ready') else "👨‍💻"
-            print(f"   {i}. {auto_flag} {batch['name']}: {batch['estimated_count']:,} violations")
+            print(f"   {i}. {auto_flag} {batch['name']}: {batch['estimated_count']:,}} violations}"")
 
     except Exception as e:
         duration = (datetime.now() - start_time).total_seconds()
-        print(f"\n❌ ERROR: {e}")
-        print(f"⏱️  Duration: {duration:.2f} seconds")
+        print(f"\n❌ ERROR: {e}}}"")
+        print(f"⏱️  Duration: {duration:.2f}} seconds}"")
         sys.exit(1)
 
 

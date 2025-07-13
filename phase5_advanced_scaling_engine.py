@@ -40,6 +40,7 @@ from dataclasses import dataclass, field
 # UNUSED: from typing import Dict, List, Set, Optional, Tuple, Any
 from tqdm import tqdm
 import time
+from typing import Any
 
 
 @dataclass
@@ -681,7 +682,8 @@ class Phase5AdvancedScalingEngine:
                 final_count = sum(len(violations) for violations in final_violations.values())
 
                 # Calculate results
-                elimination_rate = ((initial_count - final_count) / initial_count * 100) if initial_count > 0 else 0
+                elimination_rate = ((initial_count - final_count) / initial_count * 100) if \
+                    initial_count > 0 else 0
                 pattern = self.optimization_patterns[violation_code]
 
                 result = Phase5OptimizationResult(
@@ -715,7 +717,8 @@ class Phase5AdvancedScalingEngine:
         total_duration = (end_time - self.start_time).total_seconds()
 
         total_optimizations = sum(result.optimization_applied for result in results)
-        avg_elimination_rate = sum(result.elimination_rate for result in results) / len(results) if results else 0
+        avg_elimination_rate = sum(result.elimination_rate for result in results) / len(results) if \
+            results else 0
 
         report = {
             "session_info": {
@@ -769,7 +772,8 @@ def main() -> int:
         report = engine.generate_phase5_report(results)
 
         # Save detailed report
-        report_filename = f"phase5_advanced_scaling_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        report_filename = \
+            f"phase5_advanced_scaling_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         report_path = engine.workspace_path / report_filename
 
         with open(report_path, 'w', encoding='utf-8') as f:

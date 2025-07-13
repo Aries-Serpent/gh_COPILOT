@@ -140,7 +140,8 @@ class Phase6FixedEliminationSystem:
             overall_rate=overall_rate,
             processing_duration=processing_duration,
             files_modified=all_files_modified,
-            success_status="ENTERPRISE SUCCESS" if overall_rate >= 90 else "PARTIAL PROGRESS ACHIEVED"
+            success_status="ENTERPRISE SUCCESS" if \
+                overall_rate >= 90 else "PARTIAL PROGRESS ACHIEVED"
         )
 
         # Generate comprehensive report
@@ -243,7 +244,12 @@ class E999SyntaxErrorProcessor:
 
         try:
             # Run flake8 to get current violations
-            cmd = ["python", "-m", "flake8", "--select=E999", "--format=%(path)s:%(row)d:%(col)d:%(code)s:%(text)s", "."]
+            cmd = ["python",
+                "-m",
+                "flake8",
+                "--select=E999",
+                "--format=%(path)s:%(row)d:%(col)d:%(code)s:%(text)s",
+                "."]
             result = subprocess.run(cmd,
     cwd=self.workspace_path,
     capture_output=True,
@@ -384,7 +390,12 @@ class F821TypeHintResolver:
 
         try:
             # Run flake8 to get current violations
-            cmd = ["python", "-m", "flake8", "--select=F821", "--format=%(path)s:%(row)d:%(col)d:%(code)s:%(text)s", "."]
+            cmd = ["python",
+                "-m",
+                "flake8",
+                "--select=F821",
+                "--format=%(path)s:%(row)d:%(col)d:%(code)s:%(text)s",
+                "."]
             result = subprocess.run(cmd,
     cwd=self.workspace_path,
     capture_output=True,
@@ -536,7 +547,12 @@ class E501LineOptimizer:
 
         try:
             # Run flake8 to get current violations
-            cmd = ["python", "-m", "flake8", "--select=E501", "--format=%(path)s:%(row)d:%(col)d:%(code)s:%(text)s", "."]
+            cmd = ["python",
+                "-m",
+                "flake8",
+                "--select=E501",
+                "--format=%(path)s:%(row)d:%(col)d:%(code)s:%(text)s",
+                "."]
             result = subprocess.run(cmd,
     cwd=self.workspace_path,
     capture_output=True,
@@ -687,7 +703,12 @@ class W293Whitespacedominator:
 
         try:
             # Run flake8 to get current violations
-            cmd = ["python", "-m", "flake8", "--select=W293", "--format=%(path)s:%(row)d:%(col)d:%(code)s:%(text)s", "."]
+            cmd = ["python",
+                "-m",
+                "flake8",
+                "--select=W293",
+                "--format=%(path)s:%(row)d:%(col)d:%(code)s:%(text)s",
+                "."]
             result = subprocess.run(cmd,
     cwd=self.workspace_path,
     capture_output=True,

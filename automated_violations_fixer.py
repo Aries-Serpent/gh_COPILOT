@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-""""
+"""""""
 🔧 AUTOMATED VIOLATIONS FIXER
 Enterprise-grade automated fix system for 12,844+ Flake8 violations
-""""
+"""""""
 
 import sqlite3
 import os
@@ -114,13 +114,13 @@ class AutomatedViolationsFixer:
             fixable_codes = list(self.fixers.keys())
             placeholders = ','.join(['?' for _ in fixable_codes])
 
-            cursor.execute(f""""
+            cursor.execute(f"""""""
                 SELECT id, file_path, line_number, column_number, error_code, message
                 FROM violations
                 WHERE error_code IN ({placeholders})
                 AND status = 'pending'
                 ORDER BY file_path, line_number
-            """, fixable_codes)"
+            """, fixable_codes)""""
 
             return cursor.fetchall()
 
@@ -481,18 +481,18 @@ class AutomatedViolationsFixer:
             for result in results:
                 if result.success:
                     # Mark violation as fixed
-                    cursor.execute(""""
+                    cursor.execute("""""""
                         UPDATE violations
                         SET status = 'fixed'
                         WHERE id = ?
-                    """, (result.violation_id,))"
+                    """, (result.violation_id,))""""
 
                     # Record correction
-                    cursor.execute(""""
+                    cursor.execute("""""""
                         INSERT INTO corrections
                         (violation_id, correction_applied, success, timestamp)
                         VALUES (?, ?, ?, ?)
-                    """, ("
+                    """, (""""
                         result.violation_id,
                         f"{result.error_code}: {result.original_line} -> {result.fixed_line}",
                         True,

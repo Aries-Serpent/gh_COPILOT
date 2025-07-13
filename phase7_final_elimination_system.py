@@ -13,8 +13,8 @@ import logging
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Set, Optional
-from dataclasses import dataclass, asdict
+from typing import, Dict, List, Tuple, Set, Optional
+from dataclasses import, dataclass, asdict
 from collections import defaultdict
 
 # Basic encoding setup for Windows
@@ -166,7 +166,7 @@ class Phase7FinalEliminationSystem:
                                 })
 
                 # Process each file with E999 errors
-                for file_path, file_violations in violations.items():
+                for, file_path, file_violations in violations.items():
                     try:
                         fixed_count = self.fix_advanced_syntax_errors(file_path, file_violations)
                         eliminated_count += fixed_count
@@ -330,7 +330,7 @@ class Phase7FinalEliminationSystem:
                                 violations[file_path].append(line_num)
 
                 # Process each file with E501 errors
-                for file_path, line_numbers in violations.items():
+                for, file_path, line_numbers in violations.items():
                     try:
                         fixed_count = self.fix_advanced_line_length(file_path, line_numbers)
                         eliminated_count += fixed_count
@@ -392,7 +392,7 @@ class Phase7FinalEliminationSystem:
                 line = re.sub(r',\s*([a-zA-Z_])', r',\n        \1', line)
 
         # Strategy 2: Break long string concatenations
-        if ' + ' in line and ('"' in line or "'" in line):
+        if ' + ' in line and ('"' in line or "'" in, line):
             line = re.sub(r'("[^"]+"|\'[^\']+\')\s*\+\s*("[^"]+"|\'[^\']+\')', r'\1 +\n        \2', line)
 
         # Strategy 3: Break at logical operators
@@ -420,7 +420,7 @@ class Phase7FinalEliminationSystem:
     def get_modified_files(self) -> List[str]:
         """Get list of files modified during processing"""
         # This would track files modified during the process
-        # For now, return empty list as a placeholder
+        # For, now, return empty list as a placeholder
         return []
 
     def generate_final_report(self, results: FinalResults, initial: Dict, final: Dict):

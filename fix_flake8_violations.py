@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-""""
+"""""""
 🛠️ ENTERPRISE FLAKE8 VIOLATIONS FIXER
 Fix whitespace and line length violations in enterprise_dual_copilot_validator.py
-""""
+"""""""
 
 import re
 import os

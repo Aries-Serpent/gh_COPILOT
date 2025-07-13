@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
-🛠️ FINAL FLAKE8 LINE LENGTH FIXER
+""""""
+#️ FINAL FLAKE8 LINE LENGTH FIXER
 Fix remaining line length violations in enterprise_dual_copilot_validator.py
-"""
+""""""
 
 import re
 

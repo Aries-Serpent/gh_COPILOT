@@ -23,6 +23,7 @@ from pathlib import Path
 # UNUSED: from typing import List, Dict, Any, Tuple, Optional
 from tqdm import tqdm
 import re
+from typing import Any
 
 # 🚀 MANDATORY: Enterprise visual processing initialization
 start_time = datetime.now()
@@ -459,7 +460,8 @@ class Phase4E303DominanceProcessor:
         # Calculate enhanced metrics
         success_rate = (fixed_count / initial_count * 100) if initial_count > 0 else 100
         violations_eliminated = initial_count - remaining_count
-        elimination_rate = (violations_eliminated / initial_count * 100) if initial_count > 0 else 100
+        elimination_rate = (violations_eliminated / initial_count * 100) if \
+            initial_count > 0 else 100
 
         report = {
             'timestamp': end_time.strftime('%Y-%m-%d %H:%M:%S'),
@@ -478,8 +480,10 @@ class Phase4E303DominanceProcessor:
             'violations_per_second': round(fixed_count / duration, 2) if duration > 0 else 0,
 
             # Status
-            'status': 'SUCCESS' if success_rate >= 90 else 'PARTIAL_SUCCESS' if success_rate >= 50 else 'NEEDS_IMPROVEMENT',
-            'target_achievement': '✅ DOMINANCE ACHIEVED' if success_rate >= 95 else '🔄 APPROACHING DOMINANCE' if success_rate >= 80 else '⚠️ ENHANCEMENT NEEDED',
+            'status': 'SUCCESS' if \
+                success_rate >= 90 else 'PARTIAL_SUCCESS' if success_rate >= 50 else 'NEEDS_IMPROVEMENT',
+            'target_achievement': '✅ DOMINANCE ACHIEVED' if \
+                success_rate >= 95 else '🔄 APPROACHING DOMINANCE' if success_rate >= 80 else '⚠️ ENHANCEMENT NEEDED',
 
             # Failure analysis
             'failed_violations_count': len(failed_violations),

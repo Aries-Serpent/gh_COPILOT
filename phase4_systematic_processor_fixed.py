@@ -369,7 +369,8 @@ class Phase4SystematicProcessorFixed:
             if line_num > 0 and line_num <= len(lines):
                 line_idx = line_num - 1  # Convert to 0-based
                 original_line = lines[line_idx]
-                cleaned_line = original_line.rstrip() + '\n' if original_line.endswith('\n') else original_line.rstrip()
+                cleaned_line = original_line.rstrip() + \
+                    '\n' if original_line.endswith('\n') else original_line.rstrip()
 
                 if original_line != cleaned_line:
                     lines[line_idx] = cleaned_line

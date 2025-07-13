@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 🎯 DETAILED VIOLATIONS REPORTER
-Enterprise-grade detailed reporting system for 6,422+ Flake8 violations
+Enterprise-grade detailed reporting system for, 6,422+ Flake8 violations
 """
 
 import sqlite3
@@ -11,8 +11,8 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
-from dataclasses import dataclass, asdict
+from typing import, Dict, List, Any
+from dataclasses import, dataclass, asdict
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -126,7 +126,7 @@ class DetailedViolationsReporter:
                 # Phase 2: Violations by type (25%)
                 pbar.set_description("🔍 Analyzing by violation type")
                 cursor.execute("""
-                    SELECT error_code, COUNT(*) as count
+                    SELECT, error_code, COUNT(*) as count
                     FROM violations
                     GROUP BY error_code
                     ORDER BY count DESC
@@ -137,7 +137,7 @@ class DetailedViolationsReporter:
                 # Phase 3: Violations by file (25%)
                 pbar.set_description("📁 Analyzing by file")
                 cursor.execute("""
-                    SELECT file_path, COUNT(*) as count
+                    SELECT, file_path, COUNT(*) as count
                     FROM violations
                     GROUP BY file_path
                     ORDER BY count DESC
@@ -149,10 +149,9 @@ class DetailedViolationsReporter:
                 # Phase 4: Top violating files (30%)
                 pbar.set_description("🎯 Finding top violating files")
                 cursor.execute("""
-                    SELECT
-                        file_path,
-                        COUNT(*) as violation_count,
-                        COUNT(DISTINCT error_code) as unique_types
+                    SELECT, file_path,
+                        COUNT(*) as, violation_count,
+                        COUNT(DISTINCT, error_code) as unique_types
                     FROM violations
                     GROUP BY file_path
                     ORDER BY violation_count DESC
@@ -165,7 +164,7 @@ class DetailedViolationsReporter:
                         "violations": count,
                         "unique_types": types
                     }
-                    for file_path, count, types in top_files_data
+                    for, file_path, count, types in top_files_data
                 ]
                 pbar.update(30)
 
@@ -212,10 +211,9 @@ class DetailedViolationsReporter:
         }
 
         severity_counts = {}
-        for severity, codes in severity_mapping.items():
+        for, severity, codes in severity_mapping.items():
             severity_counts[severity] = sum(
-                violations_by_type.get(code, 0) for code in codes
-            )
+                violations_by_type.get(code, 0) for code, in, codes)
 
         return severity_counts
 
@@ -228,21 +226,21 @@ class DetailedViolationsReporter:
             "top_violation_types": list(violations_by_type.items())[:10],
             "file_statistics": {
                 "total_files_with_violations": len(violations_by_file),
-                "average_violations_per_file": sum(violations_by_file.values()) / len(violations_by_file) if violations_by_file else 0,
+                "average_violations_per_file": sum(violations_by_file.values()) / len(violations_by_file) if violations_by_file else, 0,
                 "max_violations_in_single_file": max(violations_by_file.values()) if violations_by_file else 0
             },
             "type_categories": {
-                "import_errors": sum(count for code,
+                "import_errors": sum(count for, code,
         count in violations_by_type.items() if code.startswith('F4')),
                 "undefined_names": sum(
-                    count for code,
+                    count for, code,
                     count in violations_by_type.items() if code.startswith('F821')),
-                "syntax_errors": sum(count for code,
+                "syntax_errors": sum(count for, code,
         count in violations_by_type.items() if code.startswith('E9')),
                 "indentation_errors": sum(
-                    count for code,
+                    count for, code,
                     count in violations_by_type.items() if code.startswith('E1')),
-                "whitespace_issues": sum(count for code,
+                "whitespace_issues": sum(count for, code,
         count in violations_by_type.items() if code.startswith('E2')),
                 "line_length": sum(
                                    count for code
@@ -265,7 +263,7 @@ class DetailedViolationsReporter:
         """📊 Generate comprehensive violation visualizations"""
         visualization_files = []
 
-        # 1. Violations by Type (Top 15)
+        # 1. Violations by Type (Top, 15)
         fig, ax = plt.subplots(figsize=(12, 8))
         top_types = list(report.violations_by_type.items())[:15]
         types, counts = zip(*top_types)
@@ -277,7 +275,7 @@ class DetailedViolationsReporter:
         ax.tick_params(axis='x', rotation=45)
 
         # Add value labels on bars
-        for bar, count in zip(bars, counts):
+        for, bar, count in zip(bars, counts):
             ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1,
                     str(count), ha='center', va='bottom')
 
@@ -287,8 +285,7 @@ class DetailedViolationsReporter:
         plt.close()
         visualization_files.append(str(viz_file))
 
-        # 2. Severity Distribution
-        fig, ax = plt.subplots(figsize=(10, 6))
+        # 2. Severity Distribution, fig, ax = plt.subplots(figsize=(10, 6))
         severities = list(report.violation_severity.keys())
         counts = list(report.violation_severity.values())
 
@@ -307,8 +304,7 @@ class DetailedViolationsReporter:
         plt.close()
         visualization_files.append(str(viz_file))
 
-        # 3. Top Files with Violations
-        fig, ax = plt.subplots(figsize=(14, 8))
+        # 3. Top Files with Violations, fig, ax = plt.subplots(figsize=(14, 8))
         top_files = report.top_violating_files[:10]
         file_names = [Path(f['file']).name for f in top_files]
         violation_counts = [f['violations'] for f in top_files]
@@ -319,7 +315,7 @@ class DetailedViolationsReporter:
         ax.set_ylabel('File')
 
         # Add value labels
-        for bar, count in zip(bars, violation_counts):
+        for, bar, count in zip(bars, violation_counts):
             ax.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2,
                     str(count), ha='left', va='center')
 
@@ -360,7 +356,7 @@ class DetailedViolationsReporter:
                                                                                                                       0.1
                                                                                                                  ); }}
         .table {{ width: 100%; border-collapse: collapse; margin: 10px 0; }}
-        .table th, .table td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+        .table, th, .table td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
         .table th {{ background-color: #3498db; color: white; }}
         .table tr:nth-child(even) {{ background-color: #f2f2f2; }}
         .visualization {{ text-align: center; margin: 20px 0; }}
@@ -409,7 +405,7 @@ class DetailedViolationsReporter:
             <tbody>
         """
 
-        for violation_type, count in list(report.violations_by_type.items())[:10]:
+        for, violation_type, count in list(report.violations_by_type.items())[:10]:
             percentage = (count / report.total_violations) * 100
             html_content += f"""
                 <tr>
@@ -457,7 +453,7 @@ class DetailedViolationsReporter:
             <tbody>
         """
 
-        for severity, count in report.violation_severity.items():
+        for, severity, count in report.violation_severity.items():
             percentage = (count / report.total_violations) * \
                           100 if report.total_violations > 0 else 0
             html_content += f"""

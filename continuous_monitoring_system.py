@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-""""
+"""""""
 "stats" CONTINUOUS MONITORING SYSTEM
 Enterprise-grade continuous monitoring for 12,635+ violations
 Real-time tracking, alerting, and automated correction monitoring
-""""
+"""""""
 
 import sqlite3
 import os
@@ -121,7 +121,7 @@ class ContinuousMonitoringSystem:
             cursor = conn.cursor()
 
             # Create monitoring snapshots table
-            cursor.execute(""""
+            cursor.execute("""""""
                 CREATE TABLE IF NOT EXISTS monitoring_snapshots (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     timestamp TEXT NOT NULL,
@@ -134,10 +134,10 @@ class ContinuousMonitoringSystem:
                     health_score REAL,
                     snapshot_data TEXT
                 )
-            """)"
+            """)""""
 
             # Create alerts table
-            cursor.execute(""""
+            cursor.execute("""""""
                 CREATE TABLE IF NOT EXISTS alerts (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     timestamp TEXT NOT NULL,
@@ -149,10 +149,10 @@ class ContinuousMonitoringSystem:
                     message TEXT,
                     acknowledged BOOLEAN DEFAULT FALSE
                 )
-            """)"
+            """)""""
 
             # Create metrics history table
-            cursor.execute(""""
+            cursor.execute("""""""
                 CREATE TABLE IF NOT EXISTS metrics_history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     timestamp TEXT NOT NULL,
@@ -160,7 +160,7 @@ class ContinuousMonitoringSystem:
                     metric_value REAL,
                     metadata TEXT
                 )
-            """)"
+            """)""""
 
         self.monitoring_db = monitoring_db
 
@@ -193,38 +193,38 @@ class ContinuousMonitoringSystem:
             fixed_violations = cursor.fetchone()[0]
 
             # New violations (using session-based approach since no created_at column)
-            cursor.execute(""""
+            cursor.execute("""""""
                 SELECT COUNT(*) FROM violations
                 WHERE status = 'pending'
-            """)"
+            """)""""
             result = cursor.fetchone()
             total_pending = result[0] if result else 0
             # Use a subset as "new" violations since we don't have timestamps'
             new_violations = min(100, total_pending)
 
             # Files with violations
-            cursor.execute(""""
+            cursor.execute("""""""
                 SELECT COUNT(DISTINCT file_path) FROM violations
                 WHERE status = 'pending'
-            """)"
+            """)""""
             files_with_violations = cursor.fetchone()[0]
 
             # Top violation types
-            cursor.execute(""""
+            cursor.execute("""""""
                 SELECT error_code, COUNT(*) as count
                 FROM violations
                 WHERE status = 'pending'
                 GROUP BY error_code
                 ORDER BY COUNT(*) DESC
                 LIMIT 5
-            """)"
+            """)""""
             top_violation_types = cursor.fetchall()
 
             # Critical violations (assuming F8xx series are critical)
-            cursor.execute(""""
+            cursor.execute("""""""
                 SELECT COUNT(*) FROM violations
                 WHERE status = 'pending' AND error_code LIKE 'F8%'
-            """)"
+            """)""""
             critical_violations = cursor.fetchone()[0]
 
             # Calculate health score (0-100)
@@ -247,13 +247,13 @@ class ContinuousMonitoringSystem:
         with sqlite3.connect(self.monitoring_db) as conn:
             cursor = conn.cursor()
 
-            cursor.execute(""""
+            cursor.execute("""""""
                 INSERT INTO monitoring_snapshots
                 (timestamp, total_violations, pending_violations, fixed_violations,
                  new_violations, files_with_violations, critical_violations,
                  health_score, snapshot_data)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, ("
+            """, (""""
                 snapshot.timestamp.isoformat(),
                 snapshot.total_violations,
                 snapshot.pending_violations,
@@ -316,12 +316,12 @@ class ContinuousMonitoringSystem:
             cursor = conn.cursor()
 
             for alert in alerts:
-                cursor.execute(""""
+                cursor.execute("""""""
                     INSERT INTO alerts
                     (timestamp, alert_type, severity, metric, current_value,
                      threshold_value, message, acknowledged)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, ("
+                """, (""""
                     alert['timestamp'],
                     alert['alert_type'],
                     alert['severity'],
@@ -423,22 +423,22 @@ class ContinuousMonitoringSystem:
         with sqlite3.connect(self.monitoring_db) as conn:
             cursor = conn.cursor()
 
-            cursor.execute(""""
+            cursor.execute("""""""
                 SELECT alert_type, severity, message, timestamp
                 FROM alerts
                 WHERE timestamp > datetime('now', '-24 hours')
                 ORDER BY timestamp DESC
                 LIMIT 10
-            """)"
+            """)""""
             recent_alerts = cursor.fetchall()
 
             # Get trends (last 24 hours)
-            cursor.execute(""""
+            cursor.execute("""""""
                 SELECT timestamp, pending_violations, health_score
                 FROM monitoring_snapshots
                 WHERE timestamp > datetime('now', '-24 hours')
                 ORDER BY timestamp
-            """)"
+            """)""""
             trends = cursor.fetchall()
 
         return {

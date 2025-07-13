@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""
+"""""""
 🔄 DATABASE CLEANUP PROCESSOR
 Update violation status for already-fixed violations
 
@@ -11,7 +11,7 @@ PURPOSE:
     - Scan pending violations and check if they're actually already fixed'
 - Update database status for violations that no longer exist in files
 - Provide accurate violation counts for future processing
-""""
+"""""""
 
 import os
 import sys
@@ -50,13 +50,13 @@ class DatabaseCleanupProcessor:
             with sqlite3.connect(self.database_path) as conn:
                 cursor = conn.cursor()
 
-                cursor.execute(""""
+                cursor.execute("""""""
                     SELECT id, file_path, line_number, error_code, message
                     FROM violations
                     WHERE status = 'pending' AND error_code IN ('W291', 'W293')
                     ORDER BY file_path, line_number
                     LIMIT ?
-                """, (limit,))"
+                """, (limit,))""""
 
                 return cursor.fetchall()
 

@@ -27,6 +27,7 @@ from pathlib import Path
 from dataclasses import dataclass
 from tqdm import tqdm
 import logging
+from typing import Any
 
 # Configure enterprise logging
 logging.basicConfig(
@@ -283,7 +284,8 @@ class Phase4ComprehensiveViolationDominator:
 
                 for line_num, violation_msg in violations:
                     # Extract variable name
-                    match = re.search(r"local variable '([^']+)' is assigned to but never used", violation_msg)
+                    match = re.search(r"local variable '([^']+)' is assigned to but never used",
+                        violation_msg)
                     if match:
                         var_name = match.group(1)
 
@@ -423,7 +425,8 @@ class Phase4ComprehensiveViolationDominator:
                 final_count = sum(len(v) for v in final_violations.values())
 
                 category_time = time.time() - category_start_time
-                elimination_rate = ((initial_count - final_count) / initial_count * 100) if initial_count > 0 else 0
+                elimination_rate = ((initial_count - final_count) / initial_count * 100) if \
+                    initial_count > 0 else 0
 
                 # Record domination result
                 result = DominationResult(
@@ -464,7 +467,8 @@ class Phase4ComprehensiveViolationDominator:
                 "categories_processed": len(self.domination_results),
                 "total_eliminations": self.total_eliminations,
                 "files_modified": self.files_modified,
-                "average_elimination_rate": sum(r.elimination_rate for r in self.domination_results) / len(self.domination_results) if self.domination_results else 0
+                "average_elimination_rate": sum(r.elimination_rate for r in self.domination_results) / len(self.domination_results) if \
+                    self.domination_results else 0
             },
             "category_results": [
                 {
@@ -478,7 +482,8 @@ class Phase4ComprehensiveViolationDominator:
                 for r in self.domination_results
             ],
             "enterprise_metrics": {
-                "processing_rate": f"{self.total_eliminations / total_time:.2f} violations/sec" if total_time > 0 else "0",
+                "processing_rate": f"{self.total_eliminations / total_time:.2f} violations/sec" if \
+                    total_time > 0 else "0",
                 "success_validation": "ENTERPRISE_CERTIFIED",
                 "infrastructure_status": "PROVEN_E303_FOUNDATION",
                 "phase4_compliance": "DUAL_COPILOT_VALIDATED"
@@ -504,7 +509,8 @@ def main():
         report = dominator.generate_domination_report()
 
         # Save detailed report
-        report_path = dominator.workspace_path / f"phase4_domination_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        report_path = \
+            dominator.workspace_path / f"phase4_domination_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_path, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2)
 

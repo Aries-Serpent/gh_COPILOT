@@ -22,7 +22,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler(
-    f'phase3_systematic_processing_{'
+    f'phase3_systematic_processing_{}'
         datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
         logging.StreamHandler()
     ]
@@ -52,10 +52,10 @@ class Phase3SystematicProcessor:
 
         logger.info("="*80)
         logger.info("🚀 PHASE 3 SYSTEMATIC PROCESSOR INITIALIZED")
-        logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        logger.info(f"Process ID: {self.process_id}")
-        logger.info(f"Target Files: {self.total_estimated_files}")
-        logger.info(f"Violation Categories: {len(self.violation_categories)}")
+        logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}}"")
+        logger.info(f"Process ID: {self.process_id}}"")
+        logger.info(f"Target Files: {self.total_estimated_files}}"")
+        logger.info(f"Violation Categories: {len(self.violation_categories)}}"")
         logger.info("="*80)
 
     def scan_violation_baseline(self) -> Dict[str, int]:
@@ -66,7 +66,7 @@ class Phase3SystematicProcessor:
 
         with tqdm(total=len(self.violation_categories), desc="📊 Baseline Scan", unit="category") as pbar:
             for violation_code, info in self.violation_categories.items():
-                pbar.set_description(f"🔍 Scanning {violation_code}")
+                pbar.set_description(f"🔍 Scanning {violation_code}}"")
 
                 try:
                     # Run flake8 for specific violation type
@@ -90,19 +90,19 @@ class Phase3SystematicProcessor:
                                     continue
 
                     baseline_violations[violation_code] = violation_count
-                    logger.info(f"✅ {violation_code}: {violation_count} violations detected")
+                    logger.info(f"✅ {violation_code}: {violation_count} violations detected}"")
 
                 except subprocess.TimeoutExpired:
-                    logger.warning(f"⚠️ {violation_code}: Scan timeout")
+                    logger.warning(f"⚠️ {violation_code}: Scan timeout}"")
                     baseline_violations[violation_code] = info["estimated_files"]
                 except Exception as e:
-                    logger.error(f"❌ {violation_code}: Scan error - {e}")
+                    logger.error(f"❌ {violation_code}: Scan error - {e}}"")
                     baseline_violations[violation_code] = info["estimated_files"]
 
                 pbar.update(1)
 
         total_violations = sum(baseline_violations.values())
-        logger.info(f"📊 BASELINE ESTABLISHED: {total_violations} total violations")
+        logger.info(f"📊 BASELINE ESTABLISHED: {total_violations} total violations}"")
 
         return baseline_violations
 
@@ -142,14 +142,14 @@ class Phase3SystematicProcessor:
 
                                     files_processed += 1
                             except (ValueError, IndexError) as e:
-                                logger.warning(f"⚠️ F541: Parse error - {e}")
+                                logger.warning(f"⚠️ F541: Parse error - {e}}"")
 
                         pbar.update(1)
 
         except subprocess.TimeoutExpired:
             logger.warning("⚠️ F541: Processing timeout")
         except Exception as e:
-            logger.error(f"❌ F541: Processing error - {e}")
+            logger.error(f"❌ F541: Processing error - {e}}"")
 
         duration = time.time() - start_time
 
@@ -161,7 +161,7 @@ class Phase3SystematicProcessor:
             "success_rate": (violations_fixed / max(files_processed, 1)) * 100
         }
 
-        logger.info(f"✅ F541 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(f"✅ F541 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s}"")
         return result_data
 
     def fix_f541_violation(self, file_path: str, line_num: int) -> bool:
@@ -189,7 +189,7 @@ class Phase3SystematicProcessor:
             return False
 
         except Exception as e:
-            logger.warning(f"⚠️ F541 fix error in {file_path}:{line_num} - {e}")
+            logger.warning(f"⚠️ F541 fix error in {file_path}:{line_num} - {e}}"")
             return False
 
     def process_e302_violations(self) -> Dict[str, Any]:
@@ -220,7 +220,7 @@ class Phase3SystematicProcessor:
         except subprocess.TimeoutExpired:
             logger.warning("⚠️ E302: Processing timeout")
         except Exception as e:
-            logger.error(f"❌ E302: Processing error - {e}")
+            logger.error(f"❌ E302: Processing error - {e}}"")
 
         duration = time.time() - start_time
 
@@ -232,7 +232,7 @@ class Phase3SystematicProcessor:
             "success_rate": (violations_fixed / max(files_processed, 1)) * 100
         }
 
-        logger.info(f"✅ E302 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(f"✅ E302 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s}"")
         return result_data
 
     def process_e128_violations(self) -> Dict[str, Any]:
@@ -261,7 +261,7 @@ class Phase3SystematicProcessor:
         except subprocess.TimeoutExpired:
             logger.warning("⚠️ E128: Processing timeout")
         except Exception as e:
-            logger.error(f"❌ E128: Processing error - {e}")
+            logger.error(f"❌ E128: Processing error - {e}}"")
 
         duration = time.time() - start_time
 
@@ -273,7 +273,7 @@ class Phase3SystematicProcessor:
             "success_rate": (violations_fixed / max(files_processed, 1)) * 100
         }
 
-        logger.info(f"✅ E128 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(f"✅ E128 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s}"")
         return result_data
 
     def process_e501_violations(self) -> Dict[str, Any]:
@@ -303,7 +303,7 @@ class Phase3SystematicProcessor:
         except subprocess.TimeoutExpired:
             logger.warning("⚠️ E501: Processing timeout")
         except Exception as e:
-            logger.error(f"❌ E501: Processing error - {e}")
+            logger.error(f"❌ E501: Processing error - {e}}"")
 
         duration = time.time() - start_time
 
@@ -315,7 +315,7 @@ class Phase3SystematicProcessor:
             "success_rate": (violations_fixed / max(files_processed, 1)) * 100
         }
 
-        logger.info(f"✅ E501 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(f"✅ E501 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s}"")
         return result_data
 
     def process_w293_violations(self) -> Dict[str, Any]:
@@ -344,7 +344,7 @@ class Phase3SystematicProcessor:
         except subprocess.TimeoutExpired:
             logger.warning("⚠️ W293: Processing timeout")
         except Exception as e:
-            logger.error(f"❌ W293: Processing error - {e}")
+            logger.error(f"❌ W293: Processing error - {e}}"")
 
         duration = time.time() - start_time
 
@@ -356,7 +356,7 @@ class Phase3SystematicProcessor:
             "success_rate": (violations_fixed / max(files_processed, 1)) * 100
         }
 
-        logger.info(f"✅ W293 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(f"✅ W293 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s}"")
         return result_data
 
     def execute_systematic_processing(self) -> Dict[str, Any]:
@@ -380,7 +380,7 @@ class Phase3SystematicProcessor:
 
         with tqdm(total=len(processing_methods), desc="🔄 Phase 3 Processing", unit="category") as pbar:
             for method in processing_methods:
-                pbar.set_description(f"🔧 {method.__name__.split('_')[1].upper()}")
+                pbar.set_description(f"🔧 {method.__name__.split('_')[1].upper()}}"")
 
                 result = method()
                 processing_results.append(result)
@@ -414,7 +414,7 @@ class Phase3SystematicProcessor:
     def generate_completion_report(self, completion_data: Dict[str, Any]) -> str:
         """📊 Generate Phase 3 completion report"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        report_file = f"phase3_completion_report_{timestamp}.txt"
+        report_file = f"phase3_completion_report_{timestamp}.txt}""
 
         with open(report_file, 'w', encoding='utf-8') as f:
             f.write("="*80 + "\n")
@@ -422,25 +422,25 @@ class Phase3SystematicProcessor:
             f.write("="*80 + "\n\n")
 
             f.write("📊 EXECUTION SUMMARY:\n")
-            f.write(f"   Start Time: {completion_data['start_time']}\n")
-            f.write(f"   End Time: {completion_data['end_time']}\n")
-            f.write(f"   Duration: {completion_data['total_duration_seconds']:.1f} seconds\n")
-            f.write(f"   Status: {completion_data['success_status']}\n\n")
+            f.write(f"   Start Time: {completion_data['start_time']}\n}"")
+            f.write(f"   End Time: {completion_data['end_time']}\n}"")
+            f.write(f"   Duration: {completion_data['total_duration_seconds']:.1f} seconds\n}"")
+            f.write(f"   Status: {completion_data['success_status']}\n\n}"")
 
             f.write("📈 VIOLATION REDUCTION:\n")
             total_baseline = sum(completion_data['baseline_violations'].values())
             total_final = sum(completion_data['final_violations'].values())
-            f.write(f"   Baseline Total: {total_baseline}\n")
-            f.write(f"   Final Total: {total_final}\n")
-            f.write(f"   Violations Fixed: {total_baseline - total_final}\n")
-            f.write(f"   Reduction: {completion_data['reduction_percentage']:.1f}%\n\n")
+            f.write(f"   Baseline Total: {total_baseline}\n}"")
+            f.write(f"   Final Total: {total_final}\n}"")
+            f.write(f"   Violations Fixed: {total_baseline - total_final}\n}"")
+            f.write(f"   Reduction: {completion_data['reduction_percentage']:.1f}%\n\n}"")
 
             f.write("🎯 CATEGORY BREAKDOWN:\n")
             for violation_code, baseline_count in completion_data['baseline_violations'].items():
                 final_count = completion_data['final_violations'].get(violation_code, 0)
                 reduction = baseline_count - final_count
                 f.write(
-    f"   {violation_code}: {baseline_count} → {final_count} ({reduction} fixed)\n")
+    f"   {violation_code}: {baseline_count} → {final_count} ({reduction} fixed)\n}"")
 
             f.write("\n✅ PHASE 3 SYSTEMATIC PROCESSING COMPLETE\n")
             f.write("="*80 + "\n")
@@ -457,15 +457,15 @@ def main():
 
         logger.info("="*80)
         logger.info("🎊 PHASE 3 SYSTEMATIC PROCESSING COMPLETE!")
-        logger.info(f"📊 Report: {report_file}")
-        logger.info(f"🎯 Violations Fixed: {completion_data['total_violations_fixed']}")
-        logger.info(f"📈 Reduction: {completion_data['reduction_percentage']:.1f}%")
+        logger.info(f"📊 Report: {report_file}}"")
+        logger.info(f"🎯 Violations Fixed: {completion_data['total_violations_fixed']}}"")
+        logger.info(f"📈 Reduction: {completion_data['reduction_percentage']:.1f}%}"")
         logger.info("="*80)
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ PHASE 3 PROCESSING FAILED: {e}")
+        logger.error(f"❌ PHASE 3 PROCESSING FAILED: {e}}"")
         return False
 
 
