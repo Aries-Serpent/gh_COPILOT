@@ -29,9 +29,14 @@ except Exception:  # pragma: no cover - fallback for older qiskit
 
     def _set_seed(seed: int) -> None:
         np.random.seed(seed)
-from qiskit_machine_learning.algorithms.classifiers import \
-    NeuralNetworkClassifier
-from qiskit_machine_learning.neural_networks import TwoLayerQNN
+try:
+    from qiskit_machine_learning.algorithms.classifiers import (
+        NeuralNetworkClassifier,
+    )
+    from qiskit_machine_learning.neural_networks import TwoLayerQNN
+except Exception:  # pragma: no cover - optional dependency
+    NeuralNetworkClassifier = None
+    TwoLayerQNN = None
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
