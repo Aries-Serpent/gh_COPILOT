@@ -19,25 +19,28 @@ import json
 from tqdm import tqdm
 
 # MANDATORY: Anti-recursion validation
+
+
 def validate_workspace_integrity() -> bool:
     """🛡️ CRITICAL: Validate workspace integrity before operations"""
     workspace_root = Path(os.getcwd())
-    
+
     # Check for recursive patterns
     forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
     violations = []
-    
+
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 violations.append(str(folder))
-    
+
     if violations:
         for violation in violations:
             print(f"🚨 RECURSIVE VIOLATION: {violation}")
         raise RuntimeError("CRITICAL: Recursive violations prevent execution")
-    
+
     return True
+
 
 @dataclass
 class MonitoringSnapshot:
@@ -52,6 +55,7 @@ class MonitoringSnapshot:
     critical_violations: int
     health_score: float
 
+
 @dataclass
 class AlertThreshold:
     """🚨 Alert threshold configuration"""
@@ -61,39 +65,40 @@ class AlertThreshold:
     severity: str    # 'INFO', 'WARNING', 'CRITICAL'
     enabled: bool
 
+
 class ContinuousMonitoringSystem:
     """📊 Enterprise-grade continuous monitoring system"""
-    
+
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         # CRITICAL: Validate workspace integrity
         validate_workspace_integrity()
-        
+
         self.workspace_path = Path(workspace_path)
         self.database_path = self.workspace_path / "databases" / "flake8_violations.db"
         self.monitoring_dir = self.workspace_path / "monitoring"
         self.monitoring_dir.mkdir(exist_ok=True)
-        
+
         # Monitoring configuration
         self.monitoring_interval = 300  # 5 minutes
         self.snapshot_retention_days = 30
         self.is_monitoring = False
         self.monitoring_thread = None
-        
+
         # Initialize components
         self.setup_logging()
         self.setup_monitoring_database()
         self.setup_alert_thresholds()
-        
+
         print("📊 CONTINUOUS MONITORING SYSTEM INITIALIZED")
         print(f"Database: {self.database_path}")
         print(f"Monitoring: {self.monitoring_dir}")
         print(f"Interval: {self.monitoring_interval} seconds")
-    
+
     def setup_logging(self):
         """📋 Setup enterprise logging"""
         log_dir = self.workspace_path / "logs"
         log_dir.mkdir(exist_ok=True)
-        
+
         # Create file handler with UTF-8 encoding
         file_handler = logging.FileHandler(
             log_dir / "continuous_monitoring.log", 
@@ -102,19 +107,19 @@ class ContinuousMonitoringSystem:
         file_handler.setFormatter(logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         ))
-        
+
         # Setup logger
         self.logger = logging.getLogger("continuous_monitoring")
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(file_handler)
-    
+
     def setup_monitoring_database(self):
         """🗄️ Setup monitoring database tables"""
         monitoring_db = self.monitoring_dir / "monitoring.db"
-        
+
         with sqlite3.connect(monitoring_db) as conn:
             cursor = conn.cursor()
-            
+
             # Create monitoring snapshots table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS monitoring_snapshots (
@@ -130,7 +135,7 @@ class ContinuousMonitoringSystem:
                     snapshot_data TEXT
                 )
             """)
-            
+
             # Create alerts table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS alerts (
@@ -145,7 +150,7 @@ class ContinuousMonitoringSystem:
                     acknowledged BOOLEAN DEFAULT FALSE
                 )
             """)
-            
+
             # Create metrics history table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS metrics_history (
@@ -156,9 +161,9 @@ class ContinuousMonitoringSystem:
                     metadata TEXT
                 )
             """)
-        
+
         self.monitoring_db = monitoring_db
-    
+
     def setup_alert_thresholds(self):
         """🚨 Setup alert thresholds"""
         self.alert_thresholds = [
@@ -169,24 +174,24 @@ class ContinuousMonitoringSystem:
             AlertThreshold('pending_violations', 15000, 'greater_than', 'WARNING', True),
             AlertThreshold('files_with_violations', 1000, 'greater_than', 'INFO', True)
         ]
-    
+
     def collect_monitoring_snapshot(self) -> MonitoringSnapshot:
         """📊 Collect current monitoring snapshot"""
         with sqlite3.connect(self.database_path) as conn:
             cursor = conn.cursor()
-            
+
             # Total violations
             cursor.execute("SELECT COUNT(*) FROM violations")
             total_violations = cursor.fetchone()[0]
-            
+
             # Pending violations
             cursor.execute("SELECT COUNT(*) FROM violations WHERE status = 'pending'")
             pending_violations = cursor.fetchone()[0]
-            
+
             # Fixed violations
             cursor.execute("SELECT COUNT(*) FROM violations WHERE status = 'fixed'")
             fixed_violations = cursor.fetchone()[0]
-            
+
             # New violations (using session-based approach since no created_at column)
             cursor.execute("""
                 SELECT COUNT(*) FROM violations 
@@ -196,14 +201,14 @@ class ContinuousMonitoringSystem:
             total_pending = result[0] if result else 0
             # Use a subset as "new" violations since we don't have timestamps
             new_violations = min(100, total_pending)
-            
+
             # Files with violations
             cursor.execute("""
                 SELECT COUNT(DISTINCT file_path) FROM violations 
                 WHERE status = 'pending'
             """)
             files_with_violations = cursor.fetchone()[0]
-            
+
             # Top violation types
             cursor.execute("""
                 SELECT error_code, COUNT(*) as count
@@ -214,17 +219,17 @@ class ContinuousMonitoringSystem:
                 LIMIT 5
             """)
             top_violation_types = cursor.fetchall()
-            
+
             # Critical violations (assuming F8xx series are critical)
             cursor.execute("""
                 SELECT COUNT(*) FROM violations 
                 WHERE status = 'pending' AND error_code LIKE 'F8%'
             """)
             critical_violations = cursor.fetchone()[0]
-            
+
             # Calculate health score (0-100)
             health_score = max(0, 100 - (pending_violations / 100))  # Simple metric
-            
+
             return MonitoringSnapshot(
                 timestamp=datetime.now(),
                 total_violations=total_violations,
@@ -236,12 +241,12 @@ class ContinuousMonitoringSystem:
                 critical_violations=critical_violations,
                 health_score=health_score
             )
-    
+
     def save_snapshot(self, snapshot: MonitoringSnapshot):
         """💾 Save monitoring snapshot to database"""
         with sqlite3.connect(self.monitoring_db) as conn:
             cursor = conn.cursor()
-            
+
             cursor.execute("""
                 INSERT INTO monitoring_snapshots 
                 (timestamp, total_violations, pending_violations, fixed_violations,
@@ -259,11 +264,11 @@ class ContinuousMonitoringSystem:
                 snapshot.health_score,
                 json.dumps(asdict(snapshot), default=str)
             ))
-    
+
     def check_alert_thresholds(self, snapshot: MonitoringSnapshot) -> List[Dict[str, Any]]:
         """🚨 Check if any alert thresholds are exceeded"""
         alerts = []
-        
+
         snapshot_values = {
             'new_violations': snapshot.new_violations,
             'critical_violations': snapshot.critical_violations,
@@ -272,21 +277,21 @@ class ContinuousMonitoringSystem:
             'files_with_violations': snapshot.files_with_violations,
             'total_violations': snapshot.total_violations
         }
-        
+
         for threshold in self.alert_thresholds:
             if not threshold.enabled:
                 continue
-            
+
             current_value = snapshot_values.get(threshold.metric, 0)
             triggered = False
-            
+
             if threshold.comparison == 'greater_than' and current_value > threshold.threshold_value:
                 triggered = True
             elif threshold.comparison == 'less_than' and current_value < threshold.threshold_value:
                 triggered = True
             elif threshold.comparison == 'equals' and current_value == threshold.threshold_value:
                 triggered = True
-            
+
             if triggered:
                 alert = {
                     'timestamp': snapshot.timestamp.isoformat(),
@@ -299,17 +304,17 @@ class ContinuousMonitoringSystem:
                     'acknowledged': False
                 }
                 alerts.append(alert)
-        
+
         return alerts
-    
+
     def save_alerts(self, alerts: List[Dict[str, Any]]):
         """🚨 Save alerts to database"""
         if not alerts:
             return
-        
+
         with sqlite3.connect(self.monitoring_db) as conn:
             cursor = conn.cursor()
-            
+
             for alert in alerts:
                 cursor.execute("""
                     INSERT INTO alerts 
@@ -326,67 +331,71 @@ class ContinuousMonitoringSystem:
                     alert['message'],
                     alert['acknowledged']
                 ))
-    
+
     def monitor_cycle(self):
         """📊 Single monitoring cycle"""
         try:
             # Collect snapshot
             snapshot = self.collect_monitoring_snapshot()
-            
+
             # Save snapshot
             self.save_snapshot(snapshot)
-            
+
             # Check alerts
             alerts = self.check_alert_thresholds(snapshot)
-            
+
             # Save alerts
             if alerts:
                 self.save_alerts(alerts)
                 self.logger.warning(f"Generated {len(alerts)} alerts")
                 for alert in alerts:
                     print(f"🚨 {alert['severity']}: {alert['message']}")
-            
+
             # Log status
-            self.logger.info(f"Monitoring cycle: {snapshot.pending_violations:,} pending, {snapshot.health_score:.1f}% health")
-            
+            self.logger.info(
+    f"Monitoring cycle: {
+        snapshot.pending_violations:,
+        } pending, {
+            snapshot.health_score:.1f}% health")
+
             return snapshot, alerts
-            
+
         except Exception as e:
             self.logger.error(f"Error in monitoring cycle: {e}")
             return None, []
-    
+
     def continuous_monitoring_loop(self):
         """🔄 Continuous monitoring loop"""
         print(f"📊 Starting continuous monitoring (interval: {self.monitoring_interval}s)")
-        
+
         while self.is_monitoring:
             start_time = time.time()
-            
+
             snapshot, alerts = self.monitor_cycle()
-            
+
             if snapshot:
                 # Print status update
                 print(f"[{datetime.now().strftime('%H:%M:%S')}] "
                       f"Pending: {snapshot.pending_violations:,} | "
                       f"Health: {snapshot.health_score:.1f}% | "
                       f"Alerts: {len(alerts)}")
-            
+
             # Sleep for remaining interval time
             elapsed = time.time() - start_time
             sleep_time = max(0, self.monitoring_interval - elapsed)
-            
+
             # Sleep in small chunks to allow for clean shutdown
             while sleep_time > 0 and self.is_monitoring:
                 chunk_sleep = min(1.0, sleep_time)
                 time.sleep(chunk_sleep)
                 sleep_time -= chunk_sleep
-    
+
     def start_monitoring(self):
         """🚀 Start continuous monitoring"""
         if self.is_monitoring:
             print("⚠️  Monitoring already running")
             return
-        
+
         self.is_monitoring = True
         self.monitoring_thread = threading.Thread(
             target=self.continuous_monitoring_loop, 
@@ -394,26 +403,26 @@ class ContinuousMonitoringSystem:
         )
         self.monitoring_thread.start()
         print("✅ Continuous monitoring started")
-    
+
     def stop_monitoring(self):
         """🛑 Stop continuous monitoring"""
         if not self.is_monitoring:
             print("⚠️  Monitoring not running")
             return
-        
+
         self.is_monitoring = False
         if self.monitoring_thread:
             self.monitoring_thread.join(timeout=5)
         print("✅ Continuous monitoring stopped")
-    
+
     def get_monitoring_dashboard(self) -> Dict[str, Any]:
         """📋 Get monitoring dashboard data"""
         current_snapshot = self.collect_monitoring_snapshot()
-        
+
         # Get recent alerts
         with sqlite3.connect(self.monitoring_db) as conn:
             cursor = conn.cursor()
-            
+
             cursor.execute("""
                 SELECT alert_type, severity, message, timestamp
                 FROM alerts 
@@ -422,7 +431,7 @@ class ContinuousMonitoringSystem:
                 LIMIT 10
             """)
             recent_alerts = cursor.fetchall()
-            
+
             # Get trends (last 24 hours)
             cursor.execute("""
                 SELECT timestamp, pending_violations, health_score
@@ -431,7 +440,7 @@ class ContinuousMonitoringSystem:
                 ORDER BY timestamp
             """)
             trends = cursor.fetchall()
-        
+
         return {
             'current_status': asdict(current_snapshot),
             'recent_alerts': [
@@ -452,58 +461,60 @@ class ContinuousMonitoringSystem:
                 for trend in trends
             ]
         }
-    
+
     def run_monitoring_demo(self, duration_minutes: int = 2):
         """🎮 Run monitoring demonstration"""
         print(f"🎮 Running monitoring demo for {duration_minutes} minutes...")
-        
+
         end_time = datetime.now() + timedelta(minutes=duration_minutes)
-        
+
         # Take initial snapshot
         initial_snapshot = self.collect_monitoring_snapshot()
         print(f"📊 Initial State: {initial_snapshot.pending_violations:,} pending violations")
-        
+
         with tqdm(total=duration_minutes * 60, desc="🔄 Monitoring Demo", unit="s") as pbar:
             while datetime.now() < end_time:
                 start_cycle = time.time()
-                
+
                 # Run monitoring cycle
                 snapshot, alerts = self.monitor_cycle()
-                
+
                 if snapshot:
                     pbar.set_description(
                         f"🔄 Pending: {snapshot.pending_violations:,} | "
                         f"Health: {snapshot.health_score:.1f}%"
                     )
-                
+
                 # Display alerts
                 for alert in alerts:
                     tqdm.write(f"🚨 {alert['severity']}: {alert['message']}")
-                
+
                 # Sleep for next cycle
                 elapsed = time.time() - start_cycle
-                sleep_time = min(30, end_time.timestamp() - time.time())  # 30s max or remaining time
-                
+                sleep_time = min(30, end_time.timestamp() - time.time()
+                                 )  # 30s max or remaining time
+
                 if sleep_time > 0:
                     time.sleep(sleep_time)
                     pbar.update(int(elapsed + sleep_time))
-        
+
         # Final snapshot
         final_snapshot = self.collect_monitoring_snapshot()
         print(f"📊 Final State: {final_snapshot.pending_violations:,} pending violations")
-        
+
         return {
             'initial_snapshot': initial_snapshot,
             'final_snapshot': final_snapshot,
             'demo_duration_minutes': duration_minutes
         }
 
+
 def main():
     """📊 Main execution function with enterprise monitoring"""
     # MANDATORY: Start time and process tracking
     start_time = datetime.now()
     process_id = os.getpid()
-    
+
     print("=" * 80)
     print("📊 CONTINUOUS MONITORING SYSTEM")
     print("=" * 80)
@@ -511,24 +522,25 @@ def main():
     print(f"Process ID: {process_id}")
     print(f"Target: 12,635+ violations continuous monitoring")
     print()
-    
+
     try:
         # Initialize monitoring system
         monitor = ContinuousMonitoringSystem()
-        
+
         # Run monitoring demo
         print("🎮 Running monitoring demonstration...")
         demo_results = monitor.run_monitoring_demo(duration_minutes=2)
-        
+
         # Generate dashboard
         print("📋 Generating monitoring dashboard...")
         dashboard = monitor.get_monitoring_dashboard()
-        
+
         # Save dashboard
-        dashboard_file = monitor.monitoring_dir / f"dashboard_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        dashboard_file = monitor.monitoring_dir / \
+            f"dashboard_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(dashboard_file, 'w', encoding='utf-8') as f:
             json.dump(dashboard, f, indent=2, default=str)
-        
+
         # Success summary
         duration = (datetime.now() - start_time).total_seconds()
         print("\n" + "=" * 80)
@@ -541,7 +553,7 @@ def main():
         print(f"📋 Dashboard: {dashboard_file}")
         print(f"⏱️  Duration: {duration:.2f} seconds")
         print("=" * 80)
-        
+
         # Show current status
         current = dashboard['current_status']
         print("\n📊 CURRENT MONITORING STATUS:")
@@ -550,13 +562,13 @@ def main():
         print(f"   Files Affected: {current['files_with_violations']:,}")
         print(f"   Health Score: {current['health_score']:.1f}%")
         print(f"   Critical Violations: {current['critical_violations']:,}")
-        
+
         # Show alerts if any
         if dashboard['recent_alerts']:
             print(f"\n🚨 RECENT ALERTS ({len(dashboard['recent_alerts'])}):")
             for alert in dashboard['recent_alerts'][:3]:
                 print(f"   {alert['severity']}: {alert['message']}")
-        
+
     except Exception as e:
         duration = (datetime.now() - start_time).total_seconds()
         print(f"\n❌ ERROR: {e}")

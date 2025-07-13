@@ -43,7 +43,7 @@ class EnterpriseUtility:
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
                 self.logger.info(f"{TEXT_INDICATORS['success']} Uti" \
-               " \
+                                 " \
                                   "                  "ity completed in {duration:.1f}s")
                 return True
             else:

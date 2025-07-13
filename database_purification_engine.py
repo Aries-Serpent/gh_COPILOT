@@ -74,7 +74,8 @@ class DatabasePurificationEngine:
     def setup_enterprise_logging(self):
         """Setup comprehensive enterprise logging system."""
         log_file = \
-            self.workspace_path / f"database_purification_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+            self.workspace_path / \
+                f"database_purification_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
         logging.basicConfig(
             level=logging.INFO,
@@ -163,7 +164,8 @@ class DatabasePurificationEngine:
                         self.logger.info(f"[SUCCESS] Database integrity OK: {db_path.name}")
                     else:
                         self.logger.warning(f"[WARNING] Database integrity issues: {db_path.name}")
-                        self.purification_metrics["corrupted_entries_found"] += len(integrity_result)
+                        self.purification_metrics["corrupted_entries_found"] += len(
+                            integrity_result)
 
                 self.purification_metrics["databases_processed"] += 1
 
@@ -200,11 +202,13 @@ class DatabasePurificationEngine:
                             column_name = column[1]
 
                             # Check for NULL values
-                            cursor.execute(f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} IS NULL")
+                            cursor.execute(
+    f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} IS NULL")
                             null_count = cursor.fetchone()[0]
 
                             if null_count > 0:
-                                self.logger.warning(f"[WARNING] NULL values found: {table_name}.{column_name} ({null_count})")
+                                self.logger.warning(
+    f"[WARNING] NULL values found: {table_name}.{column_name} ({null_count})")
 
             except Exception as e:
                 self.logger.error(f"[ERROR] Content audit failed: {db_path.name} - {e}")
@@ -232,8 +236,11 @@ class DatabasePurificationEngine:
 
                             if check_query == "PRAGMA foreign_key_check":
                                 if result:
-                                    self.logger.warning(f"[WARNING] Foreign key violations: {len(result)}")
-                                    self.purification_metrics["corrupted_entries_found"] += len(result)
+                                    self.logger.warning(
+    f"[WARNING] Foreign key violations: {
+        len(result)}")
+                                    self.purification_metrics["corrupted_entries_found"] += len(
+                                        result)
                             else:
                                 corruption_count = result[0][0] if result else 0
                                 if corruption_count > 0:
@@ -313,7 +320,7 @@ class DatabasePurificationEngine:
                     # Common patterns that benefit from indexes
                     if any(pattern in column_name.lower() for pattern in ['id', \
                         \
-                        'name', 'path', 'timestamp']):
+                                                                          'name', 'path', 'timestamp']):
                         # Check if index already exists
                         cursor.execute(f"PRAGMA index_list({table_name})")
                         existing_indexes = cursor.fetchall()
@@ -324,7 +331,8 @@ class DatabasePurificationEngine:
                         if not index_exists:
                             try:
                                 index_name = f"idx_{table_name}_{column_name}"
-                                cursor.execute(f"CREATE INDEX IF NOT EXISTS {index_name} ON {table_name}({column_name})")
+                                cursor.execute(
+                                    f"CREATE INDEX IF NOT EXISTS {index_name} ON {table_name}({column_name})")
                                 self.logger.info(f"[SUCCESS] Index created: {index_name}")
                                 self.purification_metrics["schema_optimizations"] += 1
 
@@ -376,14 +384,16 @@ class DatabasePurificationEngine:
         # Calculate success rates
         if self.purification_metrics["corrupted_entries_found"] > 0:
             repair_rate = (self.purification_metrics["corrupted_entries_repaired"] /
-    self.purification_metrics["corrupted_entries_found"]) * 100
+                           self.purification_metrics["corrupted_entries_found"]) * 100
             report["repair_success_rate"] = f"{repair_rate:.1f}%"
         else:
             report["repair_success_rate"] = "N/A (No corruption found)"
 
         # Save report to file
         report_file = \
-            self.workspace_path / f"database_purification_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            self.workspace_path / \
+                f"database_purification_report_{
+    datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)
 
@@ -413,8 +423,12 @@ def main():
         print("=" * 80)
         print(f"Databases Processed: {results['databases_discovered']}")
         print(f"Entries Audited: {results['purification_metrics']['entries_audited']}")
-        print(f"Corrupted Entries Found: {results['purification_metrics']['corrupted_entries_found']}")
-        print(f"Performance Improvements: {results['purification_metrics']['performance_improvements']}")
+        print(
+    f"Corrupted Entries Found: {
+        results['purification_metrics']['corrupted_entries_found']}")
+        print(
+    f"Performance Improvements: {
+        results['purification_metrics']['performance_improvements']}")
         print(f"Schema Optimizations: {results['purification_metrics']['schema_optimizations']}")
         print(f"Duration: {results['execution_summary']['duration_seconds']:.1f} seconds")
         print(f"Status: {results['status']}")

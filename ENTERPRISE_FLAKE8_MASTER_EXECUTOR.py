@@ -57,7 +57,7 @@ class EnterpriseFlake8Corrector:
 
             duration = (datetime.now() - start_time).total_seconds()
             self.logger.info(f"{TEXT_INDICATORS['success']} Corre" \
-             " \
+                             " \
                               "                "tion completed in {duration:.1f}s")
             return validation_passed
 

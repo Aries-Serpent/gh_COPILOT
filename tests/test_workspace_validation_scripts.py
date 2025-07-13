@@ -8,6 +8,7 @@ MODULES = [
     "scripts.visual_processing_compliance_validator",
 ]
 
+
 @pytest.mark.parametrize("module_name", MODULES)
 def test_main_passes_within_workspace(tmp_path, monkeypatch, module_name):
     workspace = tmp_path / "ws"

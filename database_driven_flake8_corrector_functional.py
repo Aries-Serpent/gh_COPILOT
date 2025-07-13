@@ -219,7 +219,7 @@ class DatabaseDrivenFlake8CorrectorFunctional:
             py_files = self.scan_python_files()
             start_idx = self._init_progress(len(py_files))
             with tqdm(total=len(py_files), \
-                desc=f"{TEXT_INDICATORS['progress']} scan", unit="file") as scan_bar:
+                      desc=f"{TEXT_INDICATORS['progress']} scan", unit="file") as scan_bar:
                 violations: Dict[Path, List[str]] = {}
                 for idx, f in enumerate(py_files[start_idx:], start=start_idx + 1):
                     self._check_timeout()
@@ -229,7 +229,7 @@ class DatabaseDrivenFlake8CorrectorFunctional:
                     self._update_progress(idx)
             files_with_issues = list(violations.keys())
             with tqdm(total=len(files_with_issues), \
-                desc=f"{TEXT_INDICATORS['progress']} fix", unit="file") as fix_bar:
+                      desc=f"{TEXT_INDICATORS['progress']} fix", unit="file") as fix_bar:
                 corrected = self.apply_corrections(files_with_issues)
                 fix_bar.update(len(files_with_issues))
             self.record_corrections(violations, corrected)

@@ -132,7 +132,8 @@ class AntiRecursionValidator:
     def validate_workspace_integrity(self) -> bool:
         """CRITICAL: Validate no recursive folder structures"""
         start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Anti-recursion validation started: {start_time}")
+        self.logger.info(
+            f"{TEXT_INDICATORS['start']} Anti-recursion validation started: {start_time}")
 
         try:
             with tqdm(total=100, desc="[VALIDATION] Anti-recursion check", unit="%") as pbar:
@@ -152,23 +153,28 @@ class AntiRecursionValidator:
                 pbar.set_description("[VALIDATION] Emergency cleanup if needed")
                 if violations:
                     for violation in violations:
-                        self.logger.error(f"{TEXT_INDICATORS['error']} RECURSIVE VIOLATION: {violation}")
+                        self.logger.error(
+                            f"{TEXT_INDICATORS['error']} RECURSIVE VIOLATION: {violation}")
                         try:
                             import shutil
                             shutil.rmtree(violation)
-                            self.logger.info(f"{TEXT_INDICATORS['success']} Removed violation: {violation}")
+                            self.logger.info(
+                                f"{TEXT_INDICATORS['success']} Removed violation: {violation}")
                         except Exception as e:
-                            self.logger.error(f"{TEXT_INDICATORS['error']} Failed to remove {violation}: {e}")
+                            self.logger.error(
+                                f"{TEXT_INDICATORS['error']} Failed to remove {violation}: {e}")
                 pbar.update(80)
 
             duration = (datetime.now() - start_time).total_seconds()
 
             if violations:
-                self.logger.warning(f"{TEXT_INDICATORS['warning']} Found and cleaned {len(violations)} violations")
+                self.logger.warning(
+                    f"{TEXT_INDICATORS['warning']} Found and cleaned {len(violations)} violations")
             else:
                 self.logger.info(f"{TEXT_INDICATORS['success']} No recursive violations detected")
 
-            self.logger.info(f"{TEXT_INDICATORS['success']} Anti-recursion validation completed in {duration:.1f}s")
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Anti-recursion validation completed in {duration:.1f}s")
             return True
 
         except Exception as e:
@@ -199,7 +205,11 @@ class UnicodeCompatibleFileHandler:
                 confidence = result.get('confidence', 0.0)
 
             duration = time.time() - start_time
-            self.logger.info(f"{TEXT_INDICATORS['unicode']} Encoding detected: {encoding} (confidence: {confidence:.2f}) in {duration:.3f}s")
+            self.logger.info(
+    f"{
+        TEXT_INDICATORS['unicode']} Encoding detected: {encoding} (confidence: {
+            confidence:.2f}) in {
+                duration:.3f}s")
             return encoding, confidence
 
         except Exception as e:
@@ -219,7 +229,10 @@ class UnicodeCompatibleFileHandler:
             file_size = len(content.encode('utf-8'))
             duration = time.time() - start_time
 
-            self.logger.info(f"{TEXT_INDICATORS['success']} File read successfully: {file_path} ({encoding}, {file_size} bytes) in {duration:.3f}s")
+            self.logger.info(
+    f"{
+        TEXT_INDICATORS['success']} File read successfully: {file_path} ({encoding}, {file_size} bytes) in {
+            duration:.3f}s")
             return content, encoding
 
         except Exception as e:
@@ -233,7 +246,10 @@ class UnicodeCompatibleFileHandler:
         try:
             # Create backup if file exists
             if file_path.exists():
-                backup_path = file_path.with_suffix(f'.backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}{file_path.suffix}')
+                backup_path = file_path.with_suffix(
+    f'.backup_{
+        datetime.now().strftime("%Y%m%d_%H%M%S")}{
+            file_path.suffix}')
                 file_path.rename(backup_path)
                 self.logger.info(f"{TEXT_INDICATORS['info']} Backup created: {backup_path}")
 
@@ -243,7 +259,10 @@ class UnicodeCompatibleFileHandler:
             file_size = len(content.encode(encoding))
             duration = time.time() - start_time
 
-            self.logger.info(f"{TEXT_INDICATORS['success']} File written successfully: {file_path} ({encoding}, {file_size} bytes) in {duration:.3f}s")
+            self.logger.info(
+    f"{
+        TEXT_INDICATORS['success']} File written successfully: {file_path} ({encoding}, {file_size} bytes) in {
+            duration:.3f}s")
             return True
 
         except Exception as e:
@@ -309,7 +328,8 @@ class DatabaseManager:
                 """)
 
                 conn.commit()
-                self.logger.info(f"{TEXT_INDICATORS['database']} Database initialized: {self.db_path}")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['database']} Database initialized: {self.db_path}")
 
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Database initialization failed: {e}")
@@ -343,8 +363,8 @@ class DatabaseManager:
                                           error_code, message, severity, timestamp)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, (session_id, violation.file_path, violation.line_number,
-                     violation.column_number, violation.error_code, violation.message,
-                     violation.severity, violation.timestamp))
+                      violation.column_number, violation.error_code, violation.message,
+                      violation.severity, violation.timestamp))
 
                 violation_id = cursor.lastrowid
                 conn.commit()
@@ -365,8 +385,8 @@ class DatabaseManager:
                         success_rate = ?, end_time = ?
                     WHERE session_id = ?
                 """, (stats.get('total_files', 0), stats.get('violations_found', 0),
-                     stats.get('violations_fixed', 0), stats.get('success_rate', 0.0),
-                     datetime.now(), session_id))
+                      stats.get('violations_fixed', 0), stats.get('success_rate', 0.0),
+                      datetime.now(), session_id))
                 conn.commit()
 
             return True
@@ -452,7 +472,8 @@ class Flake8ViolationScanner:
                 )
 
         except Exception as e:
-            self.logger.warning(f"{TEXT_INDICATORS['warning']} Failed to parse flake8 line: {line} - {e}")
+            self.logger.warning(
+                f"{TEXT_INDICATORS['warning']} Failed to parse flake8 line: {line} - {e}")
 
         return None
 
@@ -511,10 +532,14 @@ class ComprehensiveFlake8Processor:
             self.logger.info(f"{TEXT_INDICATORS['complete']} PROCESSING COMPLETED")
             self.logger.info("=" * 80)
             self.logger.info(f"{TEXT_INDICATORS['success']} Total Duration: {duration:.1f} seconds")
-            self.logger.info(f"{TEXT_INDICATORS['success']} Files Processed: {self.session.files_processed}")
-            self.logger.info(f"{TEXT_INDICATORS['success']} Violations Found: {self.session.violations_found}")
-            self.logger.info(f"{TEXT_INDICATORS['success']} Violations Fixed: {self.session.violations_fixed}")
-            self.logger.info(f"{TEXT_INDICATORS['success']} Success Rate: {self.session.success_rate:.1f}%")
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Files Processed: {self.session.files_processed}")
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Violations Found: {self.session.violations_found}")
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Violations Fixed: {self.session.violations_fixed}")
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Success Rate: {self.session.success_rate:.1f}%")
             self.logger.info("=" * 80)
 
             return final_report
@@ -561,7 +586,8 @@ class ComprehensiveFlake8Processor:
 
             pbar.update(100)
 
-        self.logger.info(f"{TEXT_INDICATORS['success']} Discovered {len(python_files)} Python files")
+        self.logger.info(
+            f"{TEXT_INDICATORS['success']} Discovered {len(python_files)} Python files")
         return python_files
 
     def _process_violations_with_progress(self, python_files: List[Path]) -> Dict[str, Any]:
@@ -585,7 +611,8 @@ class ComprehensiveFlake8Processor:
 
                     # Log violations to database
                     for violation in violations:
-                        violation_id = self.database.log_violation(self.session.session_id, violation)
+                        violation_id = self.database.log_violation(
+                            self.session.session_id, violation)
                         results['violations_found'] += 1
                         self.session.violations_found += 1
 
@@ -606,14 +633,16 @@ class ComprehensiveFlake8Processor:
                     })
 
                 except Exception as e:
-                    self.logger.error(f"{TEXT_INDICATORS['error']} Processing failed for {file_path}: {e}")
+                    self.logger.error(
+                        f"{TEXT_INDICATORS['error']} Processing failed for {file_path}: {e}")
                     results['errors_encountered'] += 1
 
                 pbar.update(1)
 
         # Calculate success rate
         if results['violations_found'] > 0:
-            self.session.success_rate = (results['violations_fixed'] / results['violations_found']) * 100
+            self.session.success_rate = (
+    results['violations_fixed'] / results['violations_found']) * 100
 
         return results
 

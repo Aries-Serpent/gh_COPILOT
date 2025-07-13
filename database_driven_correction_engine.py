@@ -52,6 +52,7 @@ ENTERPRISE_INDICATORS = {
     'progress': '[PROGRESS]'
 }
 
+
 @dataclass
 class UnicodeFileInfo:
     file_path: Path
@@ -61,7 +62,8 @@ class UnicodeFileInfo:
     lines_count: int
     has_bom: bool = False
     last_modified: float = 0.0
-    
+
+
 @dataclass  
 class FlakeViolation:
     file_path: str
@@ -69,14 +71,16 @@ class FlakeViolation:
     column: int
     error_code: str
     message: str
-    
+
+
 @dataclass
 class CorrectionResult:
     file_path: str
     success: bool
     fixed_violations: int
     remaining_violations: int
-    
+
+
 class UnicodeCompatibleFileHandler:
     def read_file_with_encoding_detection(self, file_path: Path) -> UnicodeFileInfo:
         """Read file with encoding detection"""
@@ -91,8 +95,9 @@ class UnicodeCompatibleFileHandler:
             has_bom=False,
             last_modified=stat.st_mtime
         )
-        
-    def write_file_with_utf8_encoding(self, file_path: Path, content: str, preserve_bom: bool = False) -> bool:
+
+    def write_file_with_utf8_encoding(self, file_path: Path, content: str,
+                                      preserve_bom: bool = False) -> bool:
         """Write file with UTF-8 encoding"""
         try:
             file_path.write_text(content, encoding='utf-8')
@@ -100,11 +105,13 @@ class UnicodeCompatibleFileHandler:
         except Exception:
             return False
 
+
 class AntiRecursionValidator:
     @staticmethod
     def validate_workspace_integrity():
         """Validate workspace integrity"""
         pass
+
 
 class EnterpriseLoggingManager:
     def __init__(self, log_file: str):
@@ -188,7 +195,8 @@ class DatabaseManager:
             pbar.update(34)
 
         duration = (datetime.now() - start_time).total_seconds()
-        self.logger.info(f"{ENTERPRISE_INDICATORS['database']} Database initialization completed in {duration:.2f}s")
+        self.logger.info(
+            f"{ENTERPRISE_INDICATORS['database']} Database initialization completed in {duration:.2f}s")
 
     def _setup_production_tables(self):
         """Setup production database tables"""
@@ -233,10 +241,12 @@ class DatabaseManager:
                 """)
 
                 conn.commit()
-                self.logger.info(f"{ENTERPRISE_INDICATORS['database']} Production tables initialized")
+                self.logger.info(
+                    f"{ENTERPRISE_INDICATORS['database']} Production tables initialized")
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Production database setup failed: {e}")
+            self.logger.error(
+                f"{ENTERPRISE_INDICATORS['error']} Production database setup failed: {e}")
             raise
 
     def _setup_style_compliance_tables(self):
@@ -274,10 +284,12 @@ class DatabaseManager:
                 """)
 
                 conn.commit()
-                self.logger.info(f"{ENTERPRISE_INDICATORS['database']} Style compliance tables initialized")
+                self.logger.info(
+                    f"{ENTERPRISE_INDICATORS['database']} Style compliance tables initialized")
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Style compliance database setup failed: {e}")
+            self.logger.error(
+                f"{ENTERPRISE_INDICATORS['error']} Style compliance database setup failed: {e}")
             raise
 
     def _setup_analytics_tables(self):
@@ -302,10 +314,12 @@ class DatabaseManager:
                 """)
 
                 conn.commit()
-                self.logger.info(f"{ENTERPRISE_INDICATORS['database']} Analytics tables initialized")
+                self.logger.info(
+                    f"{ENTERPRISE_INDICATORS['database']} Analytics tables initialized")
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Analytics database setup failed: {e}")
+            self.logger.error(
+                f"{ENTERPRISE_INDICATORS['error']} Analytics database setup failed: {e}")
             raise
 
     def create_correction_session(self) -> str:
@@ -321,14 +335,16 @@ class DatabaseManager:
                 """, (session_id, datetime.now()))
                 conn.commit()
 
-            self.logger.info(f"{ENTERPRISE_INDICATORS['database']} Correction session created: {session_id}")
+            self.logger.info(
+                f"{ENTERPRISE_INDICATORS['database']} Correction session created: {session_id}")
             return session_id
 
         except Exception as e:
             self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Session creation failed: {e}")
             raise
 
-    def update_script_tracking(self, file_info: UnicodeFileInfo, violations_count: int, session_id: str):
+    def update_script_tracking(self, file_info: UnicodeFileInfo,
+                               violations_count: int, session_id: str):
         """Update script tracking in production database"""
         try:
             file_hash = hashlib.sha256(file_info.content.encode('utf-8')).hexdigest()
@@ -352,10 +368,12 @@ class DatabaseManager:
                 ))
                 conn.commit()
 
-            self.logger.info(f"{ENTERPRISE_INDICATORS['database']} Script tracking updated: {file_info.file_path}")
+            self.logger.info(
+                f"{ENTERPRISE_INDICATORS['database']} Script tracking updated: {file_info.file_path}")
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Script tracking update failed: {e}")
+            self.logger.error(
+                f"{ENTERPRISE_INDICATORS['error']} Script tracking update failed: {e}")
 
     def get_correction_patterns(self, error_code: str) -> List[DatabaseCorrectionPattern]:
         """Get correction patterns for specific error code"""
@@ -437,9 +455,11 @@ class Flake8ViolationScanner:
                             ))
 
             except subprocess.TimeoutExpired:
-                self.logger.warning(f"{ENTERPRISE_INDICATORS['warning']} Flake8 scan timeout for {file_path}")
+                self.logger.warning(
+                    f"{ENTERPRISE_INDICATORS['warning']} Flake8 scan timeout for {file_path}")
             except Exception as e:
-                self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Flake8 scan failed for {file_path}: {e}")
+                self.logger.error(
+                    f"{ENTERPRISE_INDICATORS['error']} Flake8 scan failed for {file_path}: {e}")
             finally:
                 # Clean up temporary file
                 try:
@@ -448,11 +468,13 @@ class Flake8ViolationScanner:
                     pass
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Violation scanning failed for {file_path}: {e}")
+            self.logger.error(
+                f"{ENTERPRISE_INDICATORS['error']} Violation scanning failed for {file_path}: {e}")
 
         return violations
 
-    def scan_workspace_violations(self, workspace_path: Path, file_patterns: Optional[List[str]] = None) -> Dict[str, List[FlakeViolation]]:
+    def scan_workspace_violations(
+        self, workspace_path: Path, file_patterns: Optional[List[str]] = None) -> Dict[str, List[FlakeViolation]]:
         """Scan entire workspace for violations with progress tracking"""
         if file_patterns is None:
             file_patterns = ['**/*.py']
@@ -479,12 +501,13 @@ class Flake8ViolationScanner:
                     pbar.update(1)
 
                 except Exception as e:
-                    self.logger.error(f"{ENTERPRISE_INDICATORS['error']} File scan failed: {py_file}: {e}")
+                    self.logger.error(
+                        f"{ENTERPRISE_INDICATORS['error']} File scan failed: {py_file}: {e}")
                     pbar.update(1)
 
         total_violations = sum(len(v) for v in all_violations.values())
         self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Workspace scan completed: {len(all_violations)} files, "
-                        f"{total_violations} violations")
+                         f"{total_violations} violations")
 
         return all_violations
 
@@ -515,11 +538,12 @@ class DatabaseDrivenCorrectionEngine:
         self.corrections_applied = 0
         self.files_processed = 0
 
-        self.logger.info(f"{ENTERPRISE_INDICATORS['start']} Correction session started: {self.current_session}")
+        self.logger.info(
+            f"{ENTERPRISE_INDICATORS['start']} Correction session started: {self.current_session}")
         return self.current_session
 
     def correct_violations_systematically(self, \
-        target_files: Optional[List[Path]] = None, target_violations: Optional[int] = None) -> Dict[str, Any]:
+                                          target_files: Optional[List[Path]] = None, target_violations: Optional[int] = None) -> Dict[str, Any]:
         """Systematic correction with database tracking and visual monitoring"""
         start_time = datetime.now()
         process_id = os.getpid()
@@ -529,7 +553,8 @@ class DatabaseDrivenCorrectionEngine:
         self.logger.info("=" * 80)
         self.logger.info(f"{ENTERPRISE_INDICATORS['start']} DATABASE-DRIVEN CORRECTION ENGINE")
         self.logger.info("=" * 80)
-        self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        self.logger.info(
+            f"{ENTERPRISE_INDICATORS['info']} Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Process ID: {process_id}")
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Timeout: {timeout_minutes} minutes")
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Current Session: {self.current_session}")
@@ -549,7 +574,8 @@ class DatabaseDrivenCorrectionEngine:
                     if self._is_valid_correction_target(file_path):
                         valid_files.append(file_path)
 
-                self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Found {len(valid_files)} valid Python files")
+                self.logger.info(
+                    f"{ENTERPRISE_INDICATORS['info']} Found {len(valid_files)} valid Python files")
                 pbar.update(20)
 
                 # Phase 2: Violation Scanning (30%)
@@ -560,18 +586,21 @@ class DatabaseDrivenCorrectionEngine:
                 )
 
                 total_violations = sum(len(v) for v in all_violations.values())
-                self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Found {total_violations} total violations")
+                self.logger.info(
+                    f"{ENTERPRISE_INDICATORS['info']} Found {total_violations} total violations")
                 pbar.update(30)
 
                 # Phase 3: Database Pattern Matching (25%)
                 pbar.set_description("[DATABASE] Loading correction patterns")
                 correction_patterns = self._load_correction_patterns_from_database(all_violations)
-                self.logger.info(f"{ENTERPRISE_INDICATORS['database']} Loaded {len(correction_patterns)} correction patterns")
+                self.logger.info(
+                    f"{ENTERPRISE_INDICATORS['database']} Loaded {len(correction_patterns)} correction patterns")
                 pbar.update(25)
 
                 # Phase 4: Apply Corrections (25%)
                 pbar.set_description("[CORRECTION] Applying systematic fixes")
-                correction_results = self._apply_corrections_with_patterns(all_violations, correction_patterns)
+                correction_results = self._apply_corrections_with_patterns(
+                    all_violations, correction_patterns)
                 pbar.update(25)
 
             # MANDATORY: Final session summary
@@ -593,11 +622,16 @@ class DatabaseDrivenCorrectionEngine:
             self.logger.info("=" * 80)
             self.logger.info(f"{ENTERPRISE_INDICATORS['complete']} CORRECTION ENGINE SUMMARY")
             self.logger.info("=" * 80)
-            self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Files Processed: {len(valid_files)}")
-            self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Violations Found: {total_violations}")
-            self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Corrections Applied: {self.corrections_applied}")
-            self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Success Rate: {session_summary['success_rate']:.1f}%")
-            self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Processing Time: {duration:.2f} seconds")
+            self.logger.info(
+                f"{ENTERPRISE_INDICATORS['success']} Files Processed: {len(valid_files)}")
+            self.logger.info(
+                f"{ENTERPRISE_INDICATORS['success']} Violations Found: {total_violations}")
+            self.logger.info(
+                f"{ENTERPRISE_INDICATORS['success']} Corrections Applied: {self.corrections_applied}")
+            self.logger.info(
+                f"{ENTERPRISE_INDICATORS['success']} Success Rate: {session_summary['success_rate']:.1f}%")
+            self.logger.info(
+                f"{ENTERPRISE_INDICATORS['success']} Processing Time: {duration:.2f} seconds")
             self.logger.info("=" * 80)
 
             return session_summary
@@ -619,13 +653,15 @@ class DatabaseDrivenCorrectionEngine:
         # Must be readable Python file
         try:
             if file_path.stat().st_size == 0:
-                self.logger.warning(f"{ENTERPRISE_INDICATORS['warning']} Skipping empty file: {file_path}")
+                self.logger.warning(
+                    f"{ENTERPRISE_INDICATORS['warning']} Skipping empty file: {file_path}")
                 return False
             return True
         except:
             return False
 
-    def _load_correction_patterns_from_database(self, violations_dict: Dict[str, List[FlakeViolation]]) -> Dict[str, List[DatabaseCorrectionPattern]]:
+    def _load_correction_patterns_from_database(
+        self, violations_dict: Dict[str, List[FlakeViolation]]) -> Dict[str, List[DatabaseCorrectionPattern]]:
         """Load correction patterns from database for detected violations"""
         patterns = {}
         unique_error_codes = set()
@@ -643,7 +679,8 @@ class DatabaseDrivenCorrectionEngine:
 
         return patterns
 
-    def _apply_corrections_with_patterns(self, violations_dict: Dict[str, List[FlakeViolation]], patterns: Dict[str, List[DatabaseCorrectionPattern]]) -> List[CorrectionResult]:
+    def _apply_corrections_with_patterns(
+        self, violations_dict: Dict[str, List[FlakeViolation]], patterns: Dict[str, List[DatabaseCorrectionPattern]]) -> List[CorrectionResult]:
         """Apply corrections using database patterns"""
         results = []
 
@@ -657,16 +694,21 @@ class DatabaseDrivenCorrectionEngine:
                         self.corrections_applied += result.fixed_violations
                         self.files_processed += 1
 
-                    pbar.set_description(f"[CORRECTION] {Path(file_path).name} ({result.fixed_violations} fixes)")
+                    pbar.set_description(
+    f"[CORRECTION] {
+        Path(file_path).name} ({
+            result.fixed_violations} fixes)")
                     pbar.update(1)
 
                 except Exception as e:
-                    self.logger.error(f"{ENTERPRISE_INDICATORS['error']} File correction failed: {file_path}: {e}")
+                    self.logger.error(
+                        f"{ENTERPRISE_INDICATORS['error']} File correction failed: {file_path}: {e}")
                     pbar.update(1)
 
         return results
 
-    def _correct_single_file(self, file_path: str, violations: List[FlakeViolation], patterns: Dict[str, List[DatabaseCorrectionPattern]]) -> CorrectionResult:
+    def _correct_single_file(
+        self, file_path: str, violations: List[FlakeViolation], patterns: Dict[str, List[DatabaseCorrectionPattern]]) -> CorrectionResult:
         """Correct violations in a single file"""
         start_time = datetime.now()
         file_path_obj = Path(file_path)
@@ -681,7 +723,8 @@ class DatabaseDrivenCorrectionEngine:
 
             # Update database tracking
             if self.current_session:
-                self.database_manager.update_script_tracking(file_info, len(violations), self.current_session)
+                self.database_manager.update_script_tracking(
+                    file_info, len(violations), self.current_session)
 
             # Write corrected content back
             write_success = self.file_handler.write_file_with_utf8_encoding(
@@ -699,11 +742,13 @@ class DatabaseDrivenCorrectionEngine:
                 success=write_success
             )
 
-            self.logger.info(f"{ENTERPRISE_INDICATORS['success']} File corrected: {file_path} ({result.fixed_violations} fixes)")
+            self.logger.info(
+                f"{ENTERPRISE_INDICATORS['success']} File corrected: {file_path} ({result.fixed_violations} fixes)")
             return result
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Single file correction failed: {file_path}: {e}")
+            self.logger.error(
+                f"{ENTERPRISE_INDICATORS['error']} Single file correction failed: {file_path}: {e}")
             return CorrectionResult(
                 file_path=file_path,
                 fixed_violations=0,
@@ -717,7 +762,8 @@ class DatabaseDrivenCorrectionEngine:
             import autopep8
             return autopep8.fix_code(content, options={'aggressive': 1, 'max_line_length': 88})
         except ImportError:
-            self.logger.warning(f"{ENTERPRISE_INDICATORS['warning']} autopep8 not available, returning original content")
+            self.logger.warning(
+                f"{ENTERPRISE_INDICATORS['warning']} autopep8 not available, returning original content")
             return content
         except Exception as e:
             self.logger.error(f"{ENTERPRISE_INDICATORS['error']} autopep8 correction failed: {e}")
@@ -746,7 +792,8 @@ def main():
 
             logger.info(f"{ENTERPRISE_INDICATORS['complete']} CHUNK 2 COMPLETED SUCCESSFULLY")
             logger.info(f"{ENTERPRISE_INDICATORS['success']} Session ID: {results['session_id']}")
-            logger.info(f"{ENTERPRISE_INDICATORS['success']} Success Rate: {results['success_rate']:.1f}%")
+            logger.info(
+                f"{ENTERPRISE_INDICATORS['success']} Success Rate: {results['success_rate']:.1f}%")
 
             return True
         else:
@@ -761,7 +808,9 @@ def main():
 if __name__ == "__main__":
     success = main()
     if success:
-        print(f"\n{ENTERPRISE_INDICATORS['success']} CHUNK 2 COMPLETED: Database-Driven Correction Engine")
+        print(
+    f"\n{
+        ENTERPRISE_INDICATORS['success']} CHUNK 2 COMPLETED: Database-Driven Correction Engine")
         print(f"{ENTERPRISE_INDICATORS['info']} Ready for Chunk 3: Visual Processing System")
     else:
         print(f"\n{ENTERPRISE_INDICATORS['error']} CHUNK 2 FAILED: Review logs for details")

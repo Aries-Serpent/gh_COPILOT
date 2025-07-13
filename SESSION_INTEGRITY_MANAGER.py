@@ -74,13 +74,14 @@ class SessionIntegrityManager:
 
                         # Check for session-related tables
                         cursor.execute("SELECT name FROM sqlite_master WHERE " \
-                  " \
+                                       " \
                                        "                    "ype='table' AND name LIKE '%session%'")
                         session_tables = cursor.fetchall()
 
                         if session_tables:
                             session_databases.append(db_file)
-                            logging.info(f"[DB] Found session database: {db_file} with tables: {session_tables}")
+                            logging.info(
+    f"[DB] Found session database: {db_file} with tables: {session_tables}")
 
                 except Exception as e:
                     logging.warning(f"[WARNING] Could not check database {db_file}: {e}")
@@ -153,10 +154,14 @@ class SessionIntegrityManager:
                     except Exception as e:
                         logging.error(f"[ERROR] Database validation failed for {db_file}: {e}")
 
-            integrity_percentage = (valid_databases / database_count * 100) if database_count > 0 else 0
+            integrity_percentage = (
+    valid_databases /
+    database_count *
+     100) if database_count > 0 else 0
             self.validation_results['database_integrity'] = integrity_percentage >= 95.0
 
-            logging.info(f"[VALIDATION] Database Integrity: {valid_databases}/{database_count} ({integrity_percentage:.1f}%)")
+            logging.info(
+                f"[VALIDATION] Database Integrity: {valid_databases}/{database_count} ({integrity_percentage:.1f}%)")
             return self.validation_results['database_integrity']
 
         except Exception as e:
@@ -181,13 +186,18 @@ class SessionIntegrityManager:
                                 file_path.unlink()
                                 logging.info(f"[AUTOFIX] Removed zero-byte file: {file_path}")
                             except Exception as e:
-                                logging.warning(f"[WARNING] Could not remove zero-byte file {file_path}: {e}")
+                                logging.warning(
+    f"[WARNING] Could not remove zero-byte file {file_path}: {e}")
 
-            zero_byte_percentage = (len(zero_byte_files) / total_files * 100) if total_files > 0 else 0
+            zero_byte_percentage = (
+    len(zero_byte_files) /
+    total_files *
+     100) if total_files > 0 else 0
             self.validation_results['zero_byte_protection'] = zero_byte_percentage < 1.0
 
             if zero_byte_files:
-                logging.warning(f"[WARNING] Found {len(zero_byte_files)} zero-byte files ({zero_byte_percentage:.2f}%)")
+                logging.warning(
+                    f"[WARNING] Found {len(zero_byte_files)} zero-byte files ({zero_byte_percentage:.2f}%)")
             else:
                 logging.info("[SUCCESS] No zero-byte files detected")
 
@@ -218,7 +228,8 @@ class SessionIntegrityManager:
                                     shutil.rmtree(folder)
                                     logging.info(f"[AUTOFIX] Removed recursive folder: {folder}")
                                 except Exception as e:
-                                    logging.error(f"[ERROR] Could not remove recursive folder {folder}: {e}")
+                                    logging.error(
+    f"[ERROR] Could not remove recursive folder {folder}: {e}")
 
             self.validation_results['anti_recursion_compliance'] = len(violations) == 0
 
@@ -327,7 +338,8 @@ class SessionIntegrityManager:
             }
 
             # Save validation report
-            report_path = self.workspace_path / f"session_validation_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            report_path = self.workspace_path / \
+                f"session_validation_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
             with open(report_path, 'w') as f:
                 json.dump(validation_report, f, indent=2)
 
@@ -342,9 +354,24 @@ class SessionIntegrityManager:
 
 def main():
     """Main execution function"""
-    parser = argparse.ArgumentParser(description='Session Integrity Manager - Enterprise Session End Validation')
-    parser.add_argument('--action', default='end', choices=['start', 'end', 'validate'], help='Session action')
-    parser.add_argument('--level', default='enterprise', choices=['basic', 'standard', 'enterprise'], help='Validation level')
+    parser = argparse.ArgumentParser(
+    description='Session Integrity Manager - Enterprise Session End Validation')
+    parser.add_argument(
+    '--action',
+    default='end',
+    choices=[
+        'start',
+        'end',
+        'validate'],
+         help='Session action')
+    parser.add_argument(
+    '--level',
+    default='enterprise',
+    choices=[
+        'basic',
+        'standard',
+        'enterprise'],
+         help='Validation level')
     parser.add_argument('--auto-fix', action='store_true', help='Enable automatic fixes')
 
     args = parser.parse_args()

@@ -370,7 +370,7 @@ class SystematicFlake8ErrorAnalyzer:
             return "COMPREHENSIVE_CLEANUP"
 
     def generate_error_analysis_report(self, analysis: ErrorAnalysis,
-    errors: List[FlakeError]) -> str:
+                                       errors: List[FlakeError]) -> str:
         """Generate comprehensive error analysis report"""
         logger.info("GENERATING ERROR ANALYSIS REPORT...")
 

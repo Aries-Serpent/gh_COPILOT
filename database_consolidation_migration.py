@@ -41,7 +41,7 @@ def _schemas_match(src: sqlite3.Connection, dest: sqlite3.Connection, table: str
 
 
 def _copy_table(src: sqlite3.Connection, \
-    dest: sqlite3.Connection, table: str, dest_name: str) -> None:
+                dest: sqlite3.Connection, table: str, dest_name: str) -> None:
     create_sql = _table_sql(src, table)
     if dest_name != table:
         create_sql = create_sql.replace(f"CREATE TABLE {table}", f"CREATE TABLE {dest_name}")

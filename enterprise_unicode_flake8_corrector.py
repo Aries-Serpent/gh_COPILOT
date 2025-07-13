@@ -89,7 +89,8 @@ class AntiRecursionValidator:
     # More precise forbidden patterns to avoid false positives
     FORBIDDEN_PATTERNS = ['*_backup_*', '*backup_*', 'backup', 'temp_backup*']
     PROPER_ROOT = Path("e:/gh_COPILOT")
-    LEGITIMATE_FOLDERS = ['templates', 'template_engine', 'template_intelligence']  # Legitimate template folders
+    LEGITIMATE_FOLDERS = ['templates', 'template_engine',
+        'template_intelligence']  # Legitimate template folders
 
     @classmethod
     def validate_workspace_integrity(cls) -> bool:
@@ -97,7 +98,8 @@ class AntiRecursionValidator:
         start_time = datetime.now()
         logger = logging.getLogger(__name__)
 
-        logger.info(f"{ENTERPRISE_INDICATORS['start']} Anti-recursion validation started: {start_time}")
+        logger.info(
+            f"{ENTERPRISE_INDICATORS['start']} Anti-recursion validation started: {start_time}")
 
         violations = []
         workspace_root = cls.PROPER_ROOT
@@ -116,18 +118,21 @@ class AntiRecursionValidator:
                     if folder.is_dir() and folder != workspace_root:
                         # Check if it's a legitimate folder
                         folder_name = folder.name.lower()
-                        is_legitimate = any(legit in folder_name for legit in cls.LEGITIMATE_FOLDERS)
+                        is_legitimate = any(
+    legit in folder_name for legit in cls.LEGITIMATE_FOLDERS)
 
                         if not is_legitimate:
                             violations.append(str(folder))
                         else:
-                            logger.info(f"{ENTERPRISE_INDICATORS['info']} Legitimate folder preserved: {folder}")
+                            logger.info(
+                                f"{ENTERPRISE_INDICATORS['info']} Legitimate folder preserved: {folder}")
             pbar.update(40)
 
             pbar.set_description("[VALIDATION] Environment root validation")
             # Additional validation for proper environment usage
             if not str(workspace_root).endswith("gh_COPILOT"):
-                logger.warning(f"{ENTERPRISE_INDICATORS['warning']} Non-standard workspace root: {workspace_root}")
+                logger.warning(
+                    f"{ENTERPRISE_INDICATORS['warning']} Non-standard workspace root: {workspace_root}")
             pbar.update(20)
 
             pbar.set_description("[VALIDATION] Emergency cleanup if needed")
@@ -143,7 +148,8 @@ class AntiRecursionValidator:
             pbar.update(20)
 
         duration = (datetime.now() - start_time).total_seconds()
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} Anti-recursion validation completed in {duration:.1f}s")
+        logger.info(
+            f"{ENTERPRISE_INDICATORS['success']} Anti-recursion validation completed in {duration:.1f}s")
         return True
 
 
@@ -180,7 +186,8 @@ class UnicodeCompatibleFileHandler:
             # Check for BOM signatures
             for bom, encoding in self.BOM_SIGNATURES.items():
                 if raw_data.startswith(bom):
-                    self.logger.info(f"{ENTERPRISE_INDICATORS['unicode']} BOM detected: {encoding} in {file_path}")
+                    self.logger.info(
+                        f"{ENTERPRISE_INDICATORS['unicode']} BOM detected: {encoding} in {file_path}")
                     return encoding, True
 
             # Read larger sample for chardet analysis
@@ -201,16 +208,22 @@ class UnicodeCompatibleFileHandler:
 
             # Validate encoding is supported
             if detected_encoding not in [enc.lower() for enc in self.SUPPORTED_ENCODINGS]:
-                self.logger.warning(f"{ENTERPRISE_INDICATORS['warning']} Unsupported encoding {detected_encoding}, using utf-8")
+                self.logger.warning(
+                    f"{ENTERPRISE_INDICATORS['warning']} Unsupported encoding {detected_encoding}, using utf-8")
                 detected_encoding = 'utf-8'
 
             processing_time = time.time() - start_time
-            self.logger.info(f"{ENTERPRISE_INDICATORS['unicode']} Encoding detected: {detected_encoding} (confidence: {confidence:.2f}) in {processing_time:.3f}s")
+            self.logger.info(
+    f"{
+        ENTERPRISE_INDICATORS['unicode']} Encoding detected: {detected_encoding} (confidence: {
+            confidence:.2f}) in {
+                processing_time:.3f}s")
 
             return detected_encoding, False
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Encoding detection failed for {file_path}: {e}")
+            self.logger.error(
+                f"{ENTERPRISE_INDICATORS['error']} Encoding detection failed for {file_path}: {e}")
             return 'utf-8', False
 
     def read_file_with_encoding_detection(self, file_path: Path) -> UnicodeFileInfo:
@@ -233,7 +246,8 @@ class UnicodeCompatibleFileHandler:
                     content = f.read()
             except UnicodeError:
                 # Fallback to utf-8 with error replacement
-                self.logger.warning(f"{ENTERPRISE_INDICATORS['warning']} Unicode error, falling back to utf-8 for {normalized_path}")
+                self.logger.warning(
+                    f"{ENTERPRISE_INDICATORS['warning']} Unicode error, falling back to utf-8 for {normalized_path}")
                 with open(normalized_path, 'r', encoding='utf-8', errors='replace') as f:
                     content = f.read()
                 encoding = 'utf-8'
@@ -248,7 +262,10 @@ class UnicodeCompatibleFileHandler:
             self.processed_files += 1
 
             processing_time = (datetime.now() - start_time).total_seconds()
-            self.logger.info(f"{ENTERPRISE_INDICATORS['success']} File read successfully: {normalized_path} ({encoding}, {size_bytes} bytes) in {processing_time:.3f}s")
+            self.logger.info(
+    f"{
+        ENTERPRISE_INDICATORS['success']} File read successfully: {normalized_path} ({encoding}, {size_bytes} bytes) in {
+            processing_time:.3f}s")
 
             return UnicodeFileInfo(
                 file_path=normalized_path,
@@ -260,10 +277,12 @@ class UnicodeCompatibleFileHandler:
             )
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Failed to read file {file_path}: {e}")
+            self.logger.error(
+                f"{ENTERPRISE_INDICATORS['error']} Failed to read file {file_path}: {e}")
             raise
 
-    def write_file_with_utf8_encoding(self, file_path: Path, content: str, preserve_bom: bool = False) -> bool:
+    def write_file_with_utf8_encoding(self, file_path: Path, content: str,
+                                      preserve_bom: bool = False) -> bool:
         """Write file with UTF-8 encoding and optional BOM handling"""
         start_time = datetime.now()
 
@@ -293,20 +312,26 @@ class UnicodeCompatibleFileHandler:
             file_size = normalized_path.stat().st_size
             processing_time = (datetime.now() - start_time).total_seconds()
 
-            self.logger.info(f"{ENTERPRISE_INDICATORS['success']} File written successfully: {normalized_path} ({encoding}, {file_size} bytes) in {processing_time:.3f}s")
+            self.logger.info(
+    f"{
+        ENTERPRISE_INDICATORS['success']} File written successfully: {normalized_path} ({encoding}, {file_size} bytes) in {
+            processing_time:.3f}s")
 
             return True
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Failed to write file {file_path}: {e}")
+            self.logger.error(
+                f"{ENTERPRISE_INDICATORS['error']} Failed to write file {file_path}: {e}")
 
             # Restore backup if write failed
             if backup_path and backup_path.exists():
                 try:
                     shutil.copy2(backup_path, normalized_path)
-                    self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Backup restored after write failure")
+                    self.logger.info(
+                        f"{ENTERPRISE_INDICATORS['info']} Backup restored after write failure")
                 except Exception as restore_error:
-                    self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Backup restoration failed: {restore_error}")
+                    self.logger.error(
+                        f"{ENTERPRISE_INDICATORS['error']} Backup restoration failed: {restore_error}")
 
             return False
 
@@ -330,7 +355,8 @@ class UnicodeCompatibleFileHandler:
             return normalized.resolve()
 
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Path normalization failed for {file_path}: {e}")
+            self.logger.error(
+                f"{ENTERPRISE_INDICATORS['error']} Path normalization failed for {file_path}: {e}")
             raise
 
     def _create_backup(self, file_path: Path) -> Path:
@@ -397,7 +423,8 @@ def main():
     logger.info("=" * 80)
     logger.info(f"{ENTERPRISE_INDICATORS['start']} ENTERPRISE UNICODE FLAKE8 CORRECTOR")
     logger.info("=" * 80)
-    logger.info(f"{ENTERPRISE_INDICATORS['info']} Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(
+        f"{ENTERPRISE_INDICATORS['info']} Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info(f"{ENTERPRISE_INDICATORS['info']} Process ID: {process_id}")
     logger.info(f"{ENTERPRISE_INDICATORS['info']} Timeout: {timeout_minutes} minutes")
     logger.info(f"{ENTERPRISE_INDICATORS['info']} Unicode Compatibility: ENABLED")
@@ -438,7 +465,8 @@ if __name__ == "__main__":
             if write_success:
                 # Test read capability
                 file_info = file_handler.read_file_with_encoding_detection(test_file)
-                logger.info(f"{ENTERPRISE_INDICATORS['success']} Unicode test successful: {file_info.encoding}")
+                logger.info(
+                    f"{ENTERPRISE_INDICATORS['success']} Unicode test successful: {file_info.encoding}")
             else:
                 raise RuntimeError("Unicode compatibility test failed")
             pbar.update(30)
@@ -473,8 +501,11 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     success = main()
     if success:
-        print(f"\n{ENTERPRISE_INDICATORS['success']} CHUNK 1 COMPLETED: Unicode-Compatible File Handler")
-        print(f"{ENTERPRISE_INDICATORS['info']} Ready for Chunk 2: Database-Driven Correction Engine")
+        print(
+    f"\n{
+        ENTERPRISE_INDICATORS['success']} CHUNK 1 COMPLETED: Unicode-Compatible File Handler")
+        print(
+            f"{ENTERPRISE_INDICATORS['info']} Ready for Chunk 2: Database-Driven Correction Engine")
     else:
         print(f"\n{ENTERPRISE_INDICATORS['error']} CHUNK 1 FAILED: Review logs for details")
         sys.exit(1)

@@ -87,7 +87,8 @@ def validate() -> bool:
 
     if whitepaper_templates is not None and whitepaper_templates != db_metrics["templates"]:
         print(
-            f"Mismatch in whitepaper templates: {whitepaper_templates} vs {db_metrics['templates']}",
+            f"Mismatch in whitepaper templates: {whitepaper_templates} vs {
+    db_metrics['templates']}",
             file=sys.stderr,
         )
         success = False

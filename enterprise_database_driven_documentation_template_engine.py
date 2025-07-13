@@ -24,6 +24,7 @@ TEXT_INDICATORS = {
     'info': '[INFO]'
 }
 
+
 class EnterpriseDatabaseProcessor:
     """Enterprise database processing system"""
 
@@ -63,6 +64,7 @@ class EnterpriseDatabaseProcessor:
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")
             return False
+
 
 def main():
     """Main execution function"""

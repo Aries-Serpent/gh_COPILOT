@@ -32,7 +32,9 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(f'enterprise_integration_test_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+        logging.FileHandler(
+    f'enterprise_integration_test_{
+        datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
     ]
 )
 
@@ -73,7 +75,8 @@ def test_chunk_imports() -> Dict[str, Any]:
         # Validate the import works
         _ = UnicodeCompatibleFileHandler
         import_results['chunk1_unicode_handler'] = True
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} Chunk 1: Unicode handler imported successfully")
+        logger.info(
+            f"{ENTERPRISE_INDICATORS['success']} Chunk 1: Unicode handler imported successfully")
 
     except ImportError as e:
         import_results['import_errors'].append(f"Chunk 1 import failed: {e}")
@@ -88,7 +91,8 @@ def test_chunk_imports() -> Dict[str, Any]:
         # Validate the imports work
         _ = DatabaseDrivenCorrectionEngine, DatabaseManager
         import_results['chunk2_database_engine'] = True
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} Chunk 2: Database engine imported successfully")
+        logger.info(
+            f"{ENTERPRISE_INDICATORS['success']} Chunk 2: Database engine imported successfully")
 
     except ImportError as e:
         import_results['import_errors'].append(f"Chunk 2 import failed: {e}")
@@ -103,7 +107,8 @@ def test_chunk_imports() -> Dict[str, Any]:
         # Validate the imports work
         _ = EnterpriseProgressManager, DualCopilotValidator
         import_results['chunk3_visual_processing'] = True
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} Chunk 3: Visual processing imported successfully")
+        logger.info(
+            f"{ENTERPRISE_INDICATORS['success']} Chunk 3: Visual processing imported successfully")
 
     except ImportError as e:
         import_results['import_errors'].append(f"Chunk 3 import failed: {e}")
@@ -119,7 +124,8 @@ def test_chunk_imports() -> Dict[str, Any]:
         # Validate the imports work
         _ = EnterpriseOrchestrator, PrimaryExecutorCopilot, SecondaryValidatorCopilot
         import_results['chunk4_dual_copilot'] = True
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} Chunk 4: DUAL COPILOT imported successfully")
+        logger.info(
+            f"{ENTERPRISE_INDICATORS['success']} Chunk 4: DUAL COPILOT imported successfully")
 
     except ImportError as e:
         import_results['import_errors'].append(f"Chunk 4 import failed: {e}")
@@ -127,13 +133,16 @@ def test_chunk_imports() -> Dict[str, Any]:
 
     # Calculate import success rate
     successful_imports = sum(1 for key, value in import_results.items()
-                           if key != 'import_errors' and value)
+                             if key != 'import_errors' and value)
     total_chunks = 4
     success_rate = (successful_imports / total_chunks) * 100
 
     import_results['success_rate'] = success_rate
 
-    logger.info(f"{ENTERPRISE_INDICATORS['info']} Import Success Rate: {success_rate:.1f}% ({successful_imports}/{total_chunks})")
+    logger.info(
+    f"{
+        ENTERPRISE_INDICATORS['info']} Import Success Rate: {
+            success_rate:.1f}% ({successful_imports}/{total_chunks})")
 
     return import_results
 
@@ -172,7 +181,8 @@ def test_basic_functionality() -> Dict[str, Any]:
         validator = AntiRecursionValidator()
         is_safe = validator.validate_workspace_integrity()
         functionality_results['anti_recursion_test'] = True
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} Anti-recursion validation successful (workspace safe: {is_safe})")
+        logger.info(
+            f"{ENTERPRISE_INDICATORS['success']} Anti-recursion validation successful (workspace safe: {is_safe})")
 
     except Exception as e:
         functionality_results['functionality_errors'].append(f"Anti-recursion test failed: {e}")
@@ -194,7 +204,8 @@ def test_basic_functionality() -> Dict[str, Any]:
         from enterprise_visual_processing_system import EnterpriseProgressManager
         _progress_manager = EnterpriseProgressManager()
         functionality_results['visual_processing_test'] = True
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} Visual processing manager initialization successful")
+        logger.info(
+            f"{ENTERPRISE_INDICATORS['success']} Visual processing manager initialization successful")
 
     except Exception as e:
         functionality_results['functionality_errors'].append(f"Visual processing test failed: {e}")
@@ -205,7 +216,8 @@ def test_basic_functionality() -> Dict[str, Any]:
         from enterprise_dual_copilot_validator import EnterpriseOrchestrator
         _orchestrator = EnterpriseOrchestrator()
         functionality_results['orchestrator_init_test'] = True
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} Enterprise orchestrator initialization successful")
+        logger.info(
+            f"{ENTERPRISE_INDICATORS['success']} Enterprise orchestrator initialization successful")
 
     except Exception as e:
         functionality_results['functionality_errors'].append(f"Orchestrator test failed: {e}")
@@ -213,13 +225,16 @@ def test_basic_functionality() -> Dict[str, Any]:
 
     # Calculate functionality success rate
     successful_tests = sum(1 for key, value in functionality_results.items()
-    if key != 'functionality_errors' and value)
+                           if key != 'functionality_errors' and value)
     total_tests = 5
     success_rate = (successful_tests / total_tests) * 100
 
     functionality_results['success_rate'] = success_rate
 
-    logger.info(f"{ENTERPRISE_INDICATORS['info']} Functionality Success Rate: {success_rate:.1f}% ({successful_tests}/{total_tests})")
+    logger.info(
+    f"{
+        ENTERPRISE_INDICATORS['info']} Functionality Success Rate: {
+            success_rate:.1f}% ({successful_tests}/{total_tests})")
 
     return functionality_results
 
@@ -300,9 +315,11 @@ def test_integration_readiness() -> Dict[str, Any]:
 
         if accessible_databases:
             integration_results['database_accessible'] = True
-            logger.info(f"{ENTERPRISE_INDICATORS['success']} Database files accessible: {accessible_databases}")
+            logger.info(
+                f"{ENTERPRISE_INDICATORS['success']} Database files accessible: {accessible_databases}")
         else:
-            logger.info(f"{ENTERPRISE_INDICATORS['info']} No existing database files found (will be created)")
+            logger.info(
+                f"{ENTERPRISE_INDICATORS['info']} No existing database files found (will be created)")
             integration_results['database_accessible'] = \
                 True  # OK to create new databases
 
@@ -311,14 +328,19 @@ def test_integration_readiness() -> Dict[str, Any]:
         logger.error(f"{ENTERPRISE_INDICATORS['error']} Database check failed: {e}")
 
     # Determine enterprise readiness
-    critical_checks = ['file_structure_valid', 'dependencies_available', 'workspace_safe', 'database_accessible']
+    critical_checks = [
+    'file_structure_valid',
+    'dependencies_available',
+    'workspace_safe',
+     'database_accessible']
     passed_critical = sum(1 for check in critical_checks if integration_results[check])
     integration_results['enterprise_ready'] = passed_critical == len(critical_checks)
 
     if integration_results['enterprise_ready']:
         logger.info(f"{ENTERPRISE_INDICATORS['success']} System is ENTERPRISE READY for deployment")
     else:
-        logger.warning(f"{ENTERPRISE_INDICATORS['warning']} System requires fixes before enterprise deployment")
+        logger.warning(
+            f"{ENTERPRISE_INDICATORS['warning']} System requires fixes before enterprise deployment")
 
     return integration_results
 
@@ -394,13 +416,21 @@ def display_integration_report(report: Dict[str, Any]) -> None:
     """Display comprehensive integration report"""
 
     print("\n" + "=" * 100)
-    print(f"{ENTERPRISE_INDICATORS['complete']} ENTERPRISE DUAL COPILOT SYSTEM - INTEGRATION REPORT")
+    print(
+        f"{ENTERPRISE_INDICATORS['complete']} ENTERPRISE DUAL COPILOT SYSTEM - INTEGRATION REPORT")
     print("=" * 100)
 
     print(f"{ENTERPRISE_INDICATORS['info']} Test Timestamp: {report['test_timestamp']}")
-    print(f"{ENTERPRISE_INDICATORS['info']} Overall Score: {report['overall_assessment']['overall_score']:.1f}%")
-    print(f"{ENTERPRISE_INDICATORS['info']} Enterprise Ready: {'✅ YES' if report['overall_assessment']['enterprise_ready'] else '❌ NO'}")
-    print(f"{ENTERPRISE_INDICATORS['info']} Deployment Status: {report['overall_assessment']['deployment_recommendation']}")
+    print(
+        f"{ENTERPRISE_INDICATORS['info']} Overall Score: {report['overall_assessment']['overall_score']:.1f}%")
+    print(
+    f"{
+        ENTERPRISE_INDICATORS['info']} Enterprise Ready: {
+            '✅ YES' if report['overall_assessment']['enterprise_ready'] else '❌ NO'}")
+    print(
+    f"{
+        ENTERPRISE_INDICATORS['info']} Deployment Status: {
+            report['overall_assessment']['deployment_recommendation']}")
 
     print("\n" + "-" * 50)
     print("DETAILED TEST RESULTS:")
@@ -454,7 +484,8 @@ def display_integration_report(report: Dict[str, Any]) -> None:
 def main():
     """Main integration test execution"""
 
-    print(f"{ENTERPRISE_INDICATORS['start']} ENTERPRISE DUAL COPILOT SYSTEM - INTEGRATION VALIDATOR")
+    print(
+        f"{ENTERPRISE_INDICATORS['start']} ENTERPRISE DUAL COPILOT SYSTEM - INTEGRATION VALIDATOR")
     print("=" * 80)
     print(f"{ENTERPRISE_INDICATORS['info']} Testing complete 4-chunk enterprise system")
     print(f"{ENTERPRISE_INDICATORS['info']} DUAL COPILOT pattern validation")
@@ -466,7 +497,8 @@ def main():
     display_integration_report(report)
 
     # Save report to file
-    report_filename = f"enterprise_integration_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    report_filename = f"enterprise_integration_report_{
+    datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
 
     try:
         import json

@@ -6,12 +6,13 @@ Fix remaining line length violations in enterprise_dual_copilot_validator.py
 
 import re
 
+
 def fix_remaining_line_length_violations(file_path: str) -> None:
     """Fix the remaining long lines"""
-    
+
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
-    
+
     # Fix specific long lines by splitting them
     fixes = [
         # Fix validation_id assignments
@@ -45,10 +46,10 @@ def fix_remaining_line_length_violations(file_path: str) -> None:
             'validation_result = self.secondary_copilot.validate_primary_execution(\n                primary_results, execution_metrics\n            )'
         )
     ]
-    
+
     for pattern, replacement in fixes:
         content = re.sub(pattern, replacement, content)
-    
+
     # Manual fixes for specific lines that are still too long
     long_lines = [
         ('compliance_score >= self.config.quality_threshold',
@@ -62,14 +63,15 @@ def fix_remaining_line_length_violations(file_path: str) -> None:
         ('Correction completed: {correction_results[\'summary\'][\'total_files_processed\']} files processed")',
          'Correction completed: "\n            f"{correction_results[\'summary\'][\'total_files_processed\']} files processed")')
     ]
-    
+
     for old, new in long_lines:
         content = content.replace(old, new)
-    
+
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(content)
-    
+
     print("✅ Fixed remaining line length violations")
+
 
 def main():
     """Main execution"""

@@ -39,7 +39,9 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(f'deployment_optimization_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
+        logging.FileHandler(
+    f'deployment_optimization_{
+        datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -175,7 +177,8 @@ class DeploymentOptimizationEngine:
             except Exception as e:
                 logging.warning(f"[WARNING] Backup failed for {db}: {e}")
 
-        logging.info(f"[SUCCESS] implement_backup_automation: Automated backup system implemented - {backup_count} backups created")
+        logging.info(
+    f"[SUCCESS] implement_backup_automation: Automated backup system implemented - {backup_count} backups created")
         return f"Automated backup system implemented - {backup_count} backups created"
 
     def _implement_replication(self) -> str:
@@ -284,7 +287,8 @@ class DeploymentOptimizationEngine:
         }
 
         report_path = \
-            self.workspace_path / f"enterprise_certification_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            self.workspace_path / \
+                f"enterprise_certification_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_path, 'w', encoding='utf-8') as f:
             json.dump(report_data, f, indent=2)
 
@@ -460,11 +464,13 @@ def main():
         print("Certification: VALIDATED AND CERTIFIED")
         print(f"Package: {package_result}")
         print("\nFINAL METRICS:")
-        print(f"- Security Implementations: {engine.deployment_metrics['security_implementations']}")
+        print(
+            f"- Security Implementations: {engine.deployment_metrics['security_implementations']}")
         print(f"- Monitoring Systems: {engine.deployment_metrics['monitoring_systems']}")
         print(f"- Recovery Protocols: {engine.deployment_metrics['recovery_protocols']}")
         print(f"- Scalability Features: {engine.deployment_metrics['scalability_features']}")
-        print(f"- Certification Validations: {engine.deployment_metrics['certification_validations']}")
+        print(
+            f"- Certification Validations: {engine.deployment_metrics['certification_validations']}")
         print("=" * 80)
         print("gh_COPILOT Toolkit v4.0 - ENTERPRISE DEPLOYMENT COMPLETE")
         print("ALL THREE PHASES SUCCESSFULLY COMPLETED")
