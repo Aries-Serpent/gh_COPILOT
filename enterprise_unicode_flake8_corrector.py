@@ -107,9 +107,7 @@ class AntiRecursionValidator:
                     if folder.is_dir() and folder != workspace_root:
                         # Check if it's a legitimate folder
                         folder_name = folder.name.lower()
-is_legitimate = \
-    \
-    any(legit in folder_name for legit in cls.LEGITIMATE_FOLDERS)
+                        is_legitimate = any(legit in folder_name for legit in cls.LEGITIMATE_FOLDERS)
 
                         if not is_legitimate:
                             violations.append(str(folder))

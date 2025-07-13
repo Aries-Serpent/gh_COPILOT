@@ -450,9 +450,8 @@ class PrimaryExecutorCopilot:
         correction_results = self.database_engine.correct_violations_systematically()
 
         self.logger.info(
-            f"{
-                ENTERPRISE_INDICATORS['info']} Correction completed: {
-                correction_results['summary']['total_files_processed']} files processed")
+            f"{ENTERPRISE_INDICATORS['info']} Correction completed: "
+            f"{correction_results['summary']['total_files_processed']} files processed")
         return {
             'success': True,
             'violations_found': correction_results['summary']['total_violations_found'],
@@ -496,10 +495,7 @@ class SecondaryValidatorCopilot:
     def __init__(self, config: EnterpriseSystemConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
-        self.validation_id = f"SECONDARY_{
-            datetime.now().strftime('%Y%m%d_%H%M%S')}_{
-            uuid.uuid4().hex[
-                :8]}"
+        self.validation_id = f"SECONDARY_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
         # Initialize validation components
         self.dual_validator = DualCopilotValidator()

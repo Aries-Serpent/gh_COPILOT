@@ -33,12 +33,14 @@ from comprehensive_enterprise_flake8_corrector import (
     CorrectionResult
 )
 
+from database_driven_correction_engine import (
     DatabaseDrivenCorrectionEngine,
     DatabaseManager,
     CorrectionSession,
     FileViolationReport
 )
 
+from enterprise_visual_processing_system import (
     EnterpriseProgressManager,
     VisualProcessingConfig,
     ProcessPhase,
@@ -161,9 +163,7 @@ class ComponentHealthValidator:
 
             # Test Unicode path handling
             test_file = self.workspace_path / "test_unicode_validation.py"
-test_content = \
-    \
-    "# Unicode test: café, naïve, résumé\nprint('Unicode test successful')"
+            test_content = "# Unicode test: café, naïve, résumé\nprint('Unicode test successful')"
 
             # Test encoding detection and file operations
             success = handler.write_file_with_utf8_encoding(test_file, test_content)

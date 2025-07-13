@@ -33,6 +33,7 @@ from comprehensive_enterprise_flake8_corrector import (
     CorrectionResult
 )
 
+from database_driven_correction_engine import (
     DatabaseDrivenCorrectionEngine,
     DatabaseManager,
     CorrectionSession
@@ -203,7 +204,7 @@ class ETACalculator:
         try:
             # Basic linear projection
             total_estimated = elapsed_seconds / (current_progress / 100)
-    remaining = total_estimated - elapsed_seconds
+            remaining = total_estimated - elapsed_seconds
 
             # Apply phase-weight adjustments
             if phase_weights and current_phase_index < len(phase_weights):

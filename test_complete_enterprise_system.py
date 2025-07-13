@@ -43,6 +43,7 @@ def test_chunk_2_database_engine():
     """Test Chunk 2: Database-driven correction engine"""
     print("🔧 Testing Chunk 2: Database Engine...")
     try:
+        from database_driven_correction_engine import (
             DatabaseDrivenCorrectionEngine,
             DatabaseManager
         )
@@ -61,6 +62,7 @@ def test_chunk_3_visual_processing():
     """Test Chunk 3: Visual processing system"""
     print("🔧 Testing Chunk 3: Visual Processing...")
     try:
+        from enterprise_visual_processing_system import (
             EnterpriseProgressManager,
             DualCopilotValidator,
             VisualProcessingConfig
@@ -81,6 +83,7 @@ def test_chunk_4_dual_copilot():
     """Test Chunk 4: DUAL COPILOT validation framework"""
     print("🔧 Testing Chunk 4: DUAL COPILOT Framework...")
     try:
+        from enterprise_dual_copilot_validator import (
             EnterpriseOrchestrator,
             PrimaryExecutorCopilot,
             SecondaryValidatorCopilot

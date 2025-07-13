@@ -90,6 +90,7 @@ def test_chunk_imports() -> Dict[str, Any]:
 
     try:
         # Test Chunk 3 import
+        from enterprise_visual_processing_system import (
             EnterpriseProgressManager,
             DualCopilotValidator
         )
@@ -102,6 +103,7 @@ def test_chunk_imports() -> Dict[str, Any]:
 
     try:
         # Test Chunk 4 import
+        from enterprise_dual_copilot_validator import (
             EnterpriseOrchestrator,
             PrimaryExecutorCopilot,
             SecondaryValidatorCopilot
@@ -299,11 +301,8 @@ def test_integration_readiness() -> Dict[str, Any]:
         logger.error(f"{ENTERPRISE_INDICATORS['error']} Database check failed: {e}")
 
     # Determine enterprise readiness
-critical_checks = \
-    \
-    ['file_structure_valid', 'dependencies_available', 'workspace_safe', 'database_accessible']
-    passed_critical = \
-        sum(1 for check in critical_checks if integration_results[check])
+    critical_checks = ['file_structure_valid', 'dependencies_available', 'workspace_safe', 'database_accessible']
+    passed_critical = sum(1 for check in critical_checks if integration_results[check])
     integration_results['enterprise_ready'] = passed_critical == len(critical_checks)
 
     if integration_results['enterprise_ready']:

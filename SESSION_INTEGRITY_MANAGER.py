@@ -58,7 +58,7 @@ class SessionIntegrityManager:
             'session_completion': False
         }
 
-        logging.info(f"[INIT] Session Integrity Manager initialized")
+        logging.info("[INIT] Session Integrity Manager initialized")
         logging.info(f"[INFO] Action: {action}, Level: {level}, Auto-fix: {auto_fix}")
         logging.info(f"[INFO] Session ID: {self.session_id}")
 

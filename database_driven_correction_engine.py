@@ -393,10 +393,7 @@ class Flake8ViolationScanner:
                 pbar.update(100 // len(file_patterns))
 
         # Scan files for violations
-with tqdm(total = \
-    \
-    len(python_files), \
-        desc="[SCANNER] Scanning violations", unit="files") as pbar:
+        with tqdm(total=len(python_files), desc="[SCANNER] Scanning violations", unit="files") as pbar:
             for py_file in python_files:
                 try:
                     violations = self.scan_file_violations(py_file)
@@ -411,9 +408,8 @@ with tqdm(total = \
                     pbar.update(1)
 
         total_violations = sum(len(v) for v in all_violations.values())
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Workspace scan completed: {len(all_violations)} files, \
-            \
-            {total_violations} violations")
+        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Workspace scan completed: {len(all_violations)} files, "
+                        f"{total_violations} violations")
 
         return all_violations
 
@@ -500,9 +496,7 @@ class DatabaseDrivenCorrectionEngine:
 
                 # Phase 4: Apply Corrections (25%)
                 pbar.set_description("[CORRECTION] Applying systematic fixes")
-correction_results = \
-    \
-    self._apply_corrections_with_patterns(all_violations, correction_patterns)
+                correction_results = self._apply_corrections_with_patterns(all_violations, correction_patterns)
                 pbar.update(25)
 
             # MANDATORY: Final session summary
