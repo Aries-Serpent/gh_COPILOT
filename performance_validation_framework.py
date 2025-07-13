@@ -87,30 +87,27 @@ class PerformanceValidationFramework:
     def run_benchmarks(self, store_baseline: bool = False) -> Dict[str, float]:
         """Execute benchmarks and optionally store baseline."""
         metrics: Dict[str, float] = {}
-        total = 5
+        benchmarks = [
+            ("grover_time", lambda: run_grover_search([1, 2, 3, 4], 3)),
+            ("kmeans_time", lambda: run_kmeans_clustering(samples=100, clusters=2)),
+            # Add other benchmark routines here as needed
+        ]
+        total = len(benchmarks)
         start_all = time.perf_counter()
         with tqdm(total=total, desc=f"{TEXT_INDICATORS['progress']} bench") as bar:
             step = 0
-            t = time.perf_counter()
-            run_grover_search([1, 2, 3, 4], 3)
-            metrics["grover_time"] = time.perf_counter() - t
-            step += 1
-            logger.info(
-                "%s grover complete, ETC %.2fs",
-                TEXT_INDICATORS["info"],
-                self._etc(start_all, step, total),
-            )
-            bar.update(1)
-
-            t = time.perf_counter()
-            run_kmeans_clustering(samples=100, clusters=2)
-            metrics["kmeans_time"] = time.perf_counter() - t
-            step += 1
-            logger.info(
-                "%s kmeans complete, ETC %.2fs",
-                TEXT_INDICATORS["info"],
-                self._etc(start_all, step, total),
-            )
+            for metric_name, benchmark_func in benchmarks:
+                t = time.perf_counter()
+                benchmark_func()
+                metrics[metric_name] = time.perf_counter() - t
+                step += 1
+                logger.info(
+                    "%s %s complete, ETC %.2fs",
+                    TEXT_INDICATORS["info"],
+                    metric_name,
+                    self._etc(start_all, step, total),
+                )
+                bar.update(1)
             bar.update(1)
 
             t = time.perf_counter()
