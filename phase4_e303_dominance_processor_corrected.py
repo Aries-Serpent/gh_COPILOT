@@ -215,8 +215,7 @@ class Phase4E303DominanceProcessor:
                 original_lines = f.readlines()
 
             if line_number > len(original_lines):
-                logger.warning(f"# # # ⚠️ Line number {lin \
-                    e_number} exceeds file length {len(original_lines)}")
+                logger.warning(f"# # # ⚠️ Line number {line_number} exceeds file length {len(original_lines)}")
                 return False
 
             # Create working copy for modifications

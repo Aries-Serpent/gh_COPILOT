@@ -225,8 +225,7 @@ class Phase5AdvancedScalingEngine:
                     except (ValueError, IndexError):
                         continue
 
-            logger.info(f"# # # 📊 Found {total_violations} {viol \
-                ation_code} violations in {len(violations_by_file)} files")
+            logger.info(f"# # # 📊 Found {total_violations} {violation_code} violations in {len(violations_by_file)} files")
             return violations_by_file
 
         except Exception as e:
@@ -711,8 +710,7 @@ class Phase5AdvancedScalingEngine:
                 results.append(result)
                 self.optimization_results.append(result)
 
-                logger.info(f"# # # 📊 {violation_code} OPTIMIZATION: {i \
-                    nitial_count}→{final_count} ({elimination_rate:.1f}% reduction)")
+                logger.info(f"# # # 📊 {violation_code} OPTIMIZATION: {initial_count}→{final_count} ({elimination_rate:.1f}% reduction)")
                 pbar.update(1)
 
         return results

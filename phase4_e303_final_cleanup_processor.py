@@ -300,7 +300,7 @@ class Phase4E303FinalCleanupProcessor:
         with tqdm(total=len(violations), desc="# # 🔧 Final E303 Cleanup", unit="violation") as pbar:
             for violation in violations:
                 file_path = os.path.join(self.workspace_path, violation['file'])
-                line_num = violation['line']
+                line_num = int(violation['line'])
 
                 # Analyze violation complexity
                 analysis = self.analyze_violation_complexity(file_path, line_num)

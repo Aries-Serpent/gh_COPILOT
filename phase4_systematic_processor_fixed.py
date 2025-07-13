@@ -31,11 +31,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+from typing import Optional
+
 @dataclass
 class Phase4Metrics:
     """# # # 📊 Phase 4 Processing Metrics"""
     start_time: datetime = field(default_factory=datetime.now)
-    end_time: datetime = None
+    end_time: Optional[datetime] = None
     target_violations: int = 1159
     total_violations: int = 0
     violations_fixed: int = 0
@@ -113,10 +115,8 @@ class Phase4SystematicProcessorFixed:
                     violations = self._parse_flake8_output(result.stdout)
                     baseline_counts[code] = len(violations)
 
-                    logger.info(f"  {code}: {len(v \
-                        iolations):3d} violations - {info['description']}")
-                    logger.info(f"       Difficulty: {in \
-                        fo['difficulty']:4s} | Success: {info['success_rate']}%")
+                    logger.info(f"  {code}: {len(violations):3d} violations - {info['description']}")
+                    logger.info(f"       Difficulty: {info['difficulty']:4s} | Success: {info['success_rate']}%")
 
                 except subprocess.CalledProcessError as e:
                     logger.error(f"Failed to scan {code}: {e}")
