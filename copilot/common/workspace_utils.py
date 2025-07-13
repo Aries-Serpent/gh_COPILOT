@@ -24,3 +24,12 @@ def get_workspace_path(workspace: Optional[str] = None) -> Path:
         return Path(env_path)
 
     return Path.cwd()
+
+
+def _within_workspace(path: Path, workspace: Path) -> bool:
+    """Return True if ``path`` resides within ``workspace``."""
+    try:
+        path.resolve().relative_to(workspace.resolve())
+        return True
+    except ValueError:
+        return False
