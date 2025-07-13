@@ -14,6 +14,7 @@ import sys
 import logging
 from pathlib import Path
 from datetime import datetime
+import sqlite3
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -53,8 +54,21 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            prod_db = self.workspace_path / "production.db"
+            analytics_db = self.workspace_path / "analytics.db"
+
+            with sqlite3.connect(prod_db) as prod_conn:
+                prod_result = prod_conn.execute("PRAGMA integrity_check;").fetchone()
+
+            with sqlite3.connect(analytics_db) as an_conn:
+                an_result = an_conn.execute("PRAGMA integrity_check;").fetchone()
+
+            return prod_result and prod_result[0] == "ok" and an_result and an_result[0] == "ok"
+
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {exc}")
+            return False
 
 def main():
     """Main execution function"""
