@@ -188,8 +188,7 @@ def another_function():
                             lines = f.readlines()
 
                         logger.info(f"📋 File has {len(lines)} lines")
-                        logger.info(f"📋 Target line {line_num}: '{lines[l \
-                            ine_num-1].strip()}'" if line_num <= len(lines) else "Line out of range")
+                        logger.info(f"📋 Target line {line_num}: '{lines[line_num-1].strip()}'" if line_num <= len(lines) else "Line out of range")
 
                         # Check lines around the violation
                         for i in range(max(0, line_num-3), min(len(lines), line_num+2)):
@@ -241,14 +240,12 @@ def another_function():
             # Debug 2: File modification
             pbar.set_description("# # # 🔧 Testing file modification")
             debug_results["file_modification"] = self.debug_file_modification()
-            pbar.update(33)
- debug_results = {}
+            pbar.update(33) 
+            debug_results = {}
 
             # Debug 3: Specific violation logic
             pbar.set_description("# # 🎯 Testing violation fixes")
-            debug_results = {}
             debug_results["violation_fixes"] = self.debug_specific_violation_fix()
-            debug_results = {}
             pbar.update(34)
 
         # Generate debug summary
