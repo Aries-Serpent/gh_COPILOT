@@ -15,9 +15,8 @@ import logging
 import os
 import sqlite3
 import subprocess
-import time
-from datetime import datetime, timedelta
-from pathlib import Path
+from datetime import datetime
+from pathlib import Path, PureWindowsPath
 from typing import Dict, List
 
 from tqdm import tqdm
@@ -45,9 +44,12 @@ class DatabaseDrivenFlake8CorrectorFunctional:
         timeout_minutes: int = DEFAULT_TIMEOUT_MINUTES,
     ) -> None:
         env_default = Path.cwd()
-        self.workspace_path = Path(workspace_path or env_default).resolve()
-        self.db_path = Path(db_path)
-        self.timeout_seconds = timeout_minutes * 60
+        if os.name == "nt":
+            self.workspace_path = Path(PureWindowsPath(workspace_path or env_default))
+            self.db_path = Path(PureWindowsPath(db_path))
+        else:
+            self.workspace_path = Path(workspace_path or env_default)
+            self.db_path = Path(db_path)
         self.logger = logging.getLogger(__name__)
         self.validator = SecondaryCopilotValidator(self.logger)
         self.start_ts: float | None = None
@@ -174,6 +176,27 @@ class DatabaseDrivenFlake8CorrectorFunctional:
                     )
             conn.commit()
 
+    def validate_workspace(self) -> None:
+        """Validate workspace for recursion and backup policy."""
+        root_name = self.workspace_path.name.lower()
+        for folder in self.workspace_path.rglob(root_name):
+            if folder.is_dir() and folder != self.workspace_path:
+                raise RuntimeError(f"Recursive folder detected: {folder}")
+
+        backup_root_env = os.getenv("GH_COPILOT_BACKUP_ROOT")
+        if backup_root_env and "backup" in root_name:
+            backup_root = (
+                Path(PureWindowsPath(backup_root_env))
+                if os.name == "nt"
+                else Path(backup_root_env)
+            )
+            try:
+                self.workspace_path.relative_to(backup_root)
+            except ValueError as exc:
+                raise RuntimeError(
+                    f"Backups must be stored under {backup_root}"
+                ) from exc
+
     def validate_corrections(self, files: List[Path]) -> bool:
         """Run secondary Copilot validation on ``files``."""
         return self.validator.validate_corrections([str(f) for f in files])
@@ -187,6 +210,7 @@ class DatabaseDrivenFlake8CorrectorFunctional:
             f"{TEXT_INDICATORS['start']} Correction started: {start_dt} PID {pid}"
         )
         try:
+            self.validate_workspace()
             py_files = self.scan_python_files()
             start_idx = self._init_progress(len(py_files))
             with tqdm(total=len(py_files), desc=f"{TEXT_INDICATORS['progress']} scan", unit="file") as scan_bar:
