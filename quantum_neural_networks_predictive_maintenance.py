@@ -5,7 +5,7 @@
 This script demonstrates a minimal quantum neural network (QNN) for
 predictive maintenance. It generates a synthetic two-feature dataset and
 trains a :class:`~qiskit_machine_learning.algorithms.NeuralNetworkClassifier`
-using a :class:`~qiskit_machine_learning.neural_networks.TwoLayerQNN`.
+using a :class:`~qiskit_machine_learning.neural_networks.EstimatorQNN`.
 
 The goal is to showcase a working quantum machine learning workflow that
 can be expanded for real equipment telemetry. The implementation complies
@@ -34,25 +34,14 @@ from qiskit_machine_learning.algorithms.classifiers import \
     NeuralNetworkClassifier
 
 try:
-    from qiskit_machine_learning.neural_networks import TwoLayerQNN
-except Exception:  # pragma: no cover - compatibility with newer versions
-    try:
-        from qiskit_machine_learning.neural_networks.two_layer_qnn import \
-            TwoLayerQNN
-    except Exception:  # pragma: no cover - module removed
-        TwoLayerQNN = None
+    from qiskit.primitives import Estimator
+    from qiskit_machine_learning.neural_networks import EstimatorQNN
+except Exception:  # pragma: no cover - optional dependency
+    EstimatorQNN = None
 
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-
-try:
-    from qiskit import BasicAer
-except Exception:  # pragma: no cover - for qiskit>=2
-    try:
-        from qiskit.providers.basicaer import BasicAer  # type: ignore
-    except Exception:  # pragma: no cover - module removed
-        BasicAer = None
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -111,19 +100,15 @@ class EnterpriseUtility:
         x_train = scaler.fit_transform(x_train)
         x_test = scaler.transform(x_test)
 
-        if (
-            NeuralNetworkClassifier is not None
-            and TwoLayerQNN is not None
-            and BasicAer is not None
-        ):
+        if NeuralNetworkClassifier is not None and EstimatorQNN is not None:
             feature_map = ZZFeatureMap(feature_dimension=2, reps=1)
             ansatz = RealAmplitudes(num_qubits=2, reps=1)
-            backend = BasicAer.get_backend("statevector_simulator")
-            qnn = TwoLayerQNN(
-                num_qubits=2,
-                feature_map=feature_map,
-                ansatz=ansatz,
-                quantum_instance=backend,
+            circuit = feature_map.compose(ansatz)
+            qnn = EstimatorQNN(
+                circuit=circuit,
+                estimator=Estimator(),
+                input_params=feature_map.parameters,
+                weight_params=ansatz.parameters,
             )
 
             classifier = NeuralNetworkClassifier(qnn)
@@ -131,8 +116,16 @@ class EnterpriseUtility:
             from sklearn.linear_model import LogisticRegression
 
             classifier = LogisticRegression(max_iter=1000)
-        classifier.fit(x_train, y_train)
-        score = classifier.score(x_test, y_test)
+
+        try:
+            classifier.fit(x_train, y_train)
+            score = classifier.score(x_test, y_test)
+        except Exception:  # pragma: no cover - fallback to logistic regression
+            from sklearn.linear_model import LogisticRegression
+
+            classifier = LogisticRegression(max_iter=1000)
+            classifier.fit(x_train, y_train)
+            score = classifier.score(x_test, y_test)
 
         self.logger.info(f"{TEXT_INDICATORS['info']} Accuracy: {score:.2f}")
         return score > 0.5

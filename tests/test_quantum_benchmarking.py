@@ -1,5 +1,7 @@
 import pytest
+from qiskit_machine_learning.neural_networks import EstimatorQNN
 
+from quantum import benchmarking as benchmarking_module
 from quantum.benchmarking import (benchmark_physics_engine, benchmark_qnn,
                                   load_metrics)
 
@@ -22,3 +24,8 @@ def test_benchmark_qnn():
     except ImportError:
         pytest.skip("qiskit_machine_learning backend unavailable")
     assert 0.0 <= results["accuracy"] <= 1.0
+
+
+def test_benchmarking_uses_estimator_qnn():
+    pytest.importorskip("qiskit_machine_learning")
+    assert benchmarking_module.EstimatorQNN is EstimatorQNN
