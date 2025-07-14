@@ -320,7 +320,7 @@ class RefinedEnterpriseProcessor:
         logger.info("="*80)
         logger.info("# # # 🚀 REFINED ENTERPRISE VIOLATION PROCESSING STARTED")
         logger.info("="*80)
-        logger.info(f"📋 Session ID: {self.session_id}}}}"")
+        logger.info(f"📋 Session ID: {self.session_id}}}")
         logger.info(f"🕐 Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}"")
         logger.info(f"🆔 Process ID: {process_id}"")
         logger.info("# # 🎯 Target: High-Success Violations Only")
@@ -356,8 +356,7 @@ class RefinedEnterpriseProcessor:
                     expected_rate = batch['expected_success_rate']
                     file_name = Path(batch['file_path']).name
                     pbar.set_description(
-    f"# # # 🔧 Processing {file_name} (Expected: {
-        expected_rate:.1%}})}"")
+    f"# # # 🔧 Processing {file_name} (Expected: {expected_rate:.1%})")
 
                     try:
                         # Apply refined fixes
@@ -387,8 +386,8 @@ class RefinedEnterpriseProcessor:
 
                         # Log refined results
                         logger.info(f"# # # ✅ Refined batch completed: {successful_fixes}/{batch['violation_count']}} fixes }""
-                                    f"({actual_success_rate:.1%} actual vs {expected_rate:.1%}} expected)}"")
-
+                        logger.info(f"# # # ✅ Refined batch completed: {successful_fixes}/{batch['violation_count']} fixes "
+                                    f"({actual_success_rate:.1%} actual vs {expected_rate:.1%} expected)")
                     except Exception as e:
                         logger.error(f"❌ Refined batch failed: {e}"")
                         total_failed_fixes += batch['violation_count']

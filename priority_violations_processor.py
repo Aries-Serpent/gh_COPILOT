@@ -18,8 +18,7 @@ import json
 # MANDATORY: Anti-recursion validation
 
 
-def validate_workspac    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"Process ID: {process_id}")integrity() -> bool:
+def validate_workspace_integrity() -> bool:
     """🛡️ CRITICAL: Validate workspace integrity before operations"""
     workspace_root = Path(os.getcwd())
 
@@ -467,10 +466,10 @@ def main():
     print("# # 🎯 PRIORITY VIOLATIONS PROCESSOR")
     print("=" * 80)
     print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')")"
-    print(f"Process ID: {process_id")"
+    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Process ID: {process_id}")
     print("Target: 12,844+ violations priority analysis")
     print()
-
     try:
         # Initialize processor
         processor = PriorityViolationsProcessor()
@@ -486,35 +485,35 @@ def main():
         # Success summary
         duration = (datetime.now() - start_time).total_seconds()
         print("\n" + "=" * 80)
+        print("\n" + "=" * 80)
         print("# # # ✅ PRIORITY ANALYSIS COMPLETED")
         print("=" * 80)
-        print(f"# # # 📊 Total Violations Analyzed: {report['metadata']['total_pending_violations']:,")"
-        print(f"# # 🎯 Violation Types: {len(report['priority_analysis']['violation_types'])")"
-        print(f"📦 Processing Batches: {len(report['processing_batches'])")"
-        print(f"# # 🚨 Critical Files: {len(report['critical_files'])")"
-        print(f"📈 High Impact Files: {len(report['high_impact_files'])")"
-        print(f"⏱️  Duration: {duration:.2f seconds")
-        print(f"📋 Report: {report_file")"
+        print(f"# # # 📊 Total Violations Analyzed: {report['metadata']['total_pending_violations']:,}")
+        print(f"# # 🎯 Violation Types: {len(report['priority_analysis']['violation_types'])}")
+        print(f"📦 Processing Batches: {len(report['processing_batches'])}")
+        print(f"# # 🚨 Critical Files: {len(report['critical_files'])}")
+        print(f"📈 High Impact Files: {len(report['high_impact_files'])}")
+        print(f"⏱️  Duration: {duration:.2f} seconds")
+        print(f"📋 Report: {report_file}")
         print("=" * 80)
-
         # Show severity breakdown
+        print("\n# # 🎯 SEVERITY BREAKDOWN:")
         print("\n# # 🎯 SEVERITY BREAKDOWN:")
         for severity, data in report['priority_analysis']['severity_breakdown'].items():
             percentage = (data['count'] / report['metadata']['total_pending_violations']) * 100
-            print(f"   {severity: {data['count']:, violations ({percentage:.1f%)")
+            print(f"   {severity}: {data['count']:,} violations ({percentage:.1f}%)")
 
         # Show top processing batches
         print("\n📦 TOP PROCESSING BATCHES:")
         for i, batch in enumerate(report['processing_batches'][:3], 1):
             auto_flag = "🤖" if batch.get('automation_ready') else "👨‍💻"
-            print(f"   {i. {auto_flag {batch['name']: {batch['estimated_count']:, violations")
-
+            print(f"   {i}. {auto_flag} {batch['name']}: {batch['estimated_count']:,} violations")
+    except Exception as e:
     except Exception as e:
         duration = (datetime.now() - start_time).total_seconds()
-        print(f"\n❌ ERROR: {e")"
-        print(f"⏱️  Duration: {duration:.2f seconds")
+        print(f"\n❌ ERROR: {e}")
+        print(f"⏱️  Duration: {duration:.2f} seconds")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

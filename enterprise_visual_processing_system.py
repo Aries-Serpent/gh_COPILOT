@@ -515,7 +515,7 @@ class EnterpriseProgressManager:
                 phase_result = execution_callback(phase, current_metrics)
                 results[phase.name] = phase_result
                 self.logger.info(
-                    f"{ENTERPRISE_INDICATORS['success']} Phase '{phase.name}' completed}")
+                    f"{ENTERPRISE_INDICATORS['success']} Phase '{phase.name}' completed}}")
             except Exception as e:
                 self.logger.error(
                     f"{ENTERPRISE_INDICATORS['error']} Phase '{phase.name}' failed: {e}")
@@ -536,7 +536,7 @@ class DualCopilotValidator:
         """Comprehensive validation of execution results"""
 
         self.logger.info("=" * 80)
-        self.logger.info(f"{ENTERPRISE_INDICATORS['info']} DUAL COPILOT VALIDATION}")
+        self.logger.info(f"{ENTERPRISE_INDICATORS['info']} DUAL COPILOT VALIDATION}}")
         self.logger.info("=" * 80)
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Validation ID: {self.validation_id}")
 
@@ -583,7 +583,7 @@ class DualCopilotValidator:
         # MANDATORY: Log validation summary
         self.logger.info(
             f"{ENTERPRISE_INDICATORS['success']} Validation Checks: {len(validation_results['validation_checks'])}")
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Quality Score: {quality_score:.1f}%}")
+        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Quality Score: {quality_score:.1f}%}}")
         self.logger.info(
     f"{
         ENTERPRISE_INDICATORS['success']} Overall Status: {
@@ -757,13 +757,13 @@ def main():
         validation_results = validator.validate_execution(execution_results, metrics)
 
         if validation_results['overall_success']:
-            logger.info(f"{ENTERPRISE_INDICATORS['complete']} CHUNK 3 COMPLETED SUCCESSFULLY}")
+            logger.info(f"{ENTERPRISE_INDICATORS['complete']} CHUNK 3 COMPLETED SUCCESSFULLY}}")
             logger.info(
-                f"{ENTERPRISE_INDICATORS['success']} Quality Score: {validation_results['quality_score']:.1f}%}")
-            logger.info(f"{ENTERPRISE_INDICATORS['success']} All validation checks passed}")
+                f"{ENTERPRISE_INDICATORS['success']} Quality Score: {validation_results['quality_score']:.1f}%}}")
+            logger.info(f"{ENTERPRISE_INDICATORS['success']} All validation checks passed}}")
             return True
         else:
-            logger.error(f"{ENTERPRISE_INDICATORS['error']} CHUNK 3 VALIDATION FAILED}")
+            logger.error(f"{ENTERPRISE_INDICATORS['error']} CHUNK 3 VALIDATION FAILED}}")
             logger.error(
     f"{
         ENTERPRISE_INDICATORS['error']} Failed checks: {
@@ -783,9 +783,9 @@ if __name__ == "__main__":
     if success:
         print(
     f"\n{
-        ENTERPRISE_INDICATORS['success']} CHUNK 3 COMPLETED: Enterprise Visual Processing System}")
+        ENTERPRISE_INDICATORS['success']} CHUNK 3 COMPLETED: Enterprise Visual Processing System}}")
         print(
-            f"{ENTERPRISE_INDICATORS['info']} Ready for Chunk 4: DUAL COPILOT Validation Framework}")
+            f"{ENTERPRISE_INDICATORS['info']} Ready for Chunk 4: DUAL COPILOT Validation Framework}}")
     else:
-        print(f"\n{ENTERPRISE_INDICATORS['error']} CHUNK 3 FAILED: Review logs for details}")
+        print(f"\n{ENTERPRISE_INDICATORS['error']} CHUNK 3 FAILED: Review logs for details}}")
         exit(1)

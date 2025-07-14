@@ -173,7 +173,7 @@ def test_basic_functionality() -> Dict[str, Any]:
         is_safe = validator.validate_workspace_integrity()
         functionality_results['anti_recursion_test'] = True
         logger.info(
-            f"{ENTERPRISE_INDICATORS['success']} Anti-recursion validation successful (workspace safe: {is_safe})}")
+            f"{ENTERPRISE_INDICATORS['success']} Anti-recursion validation successful (workspace safe: {is_safe})")
 
     except Exception as e:
         functionality_results['functionality_errors'].append(f"Anti-recursion test failed: {e}")
@@ -225,7 +225,7 @@ def test_basic_functionality() -> Dict[str, Any]:
     logger.info(
     f"{
         ENTERPRISE_INDICATORS['info']} Functionality Success Rate: {
-            success_rate:.1f}% ({successful_tests}/{total_tests})}")
+            success_rate:.1f}% ({successful_tests}/{total_tests}})")
 
     return functionality_results
 
@@ -258,7 +258,7 @@ def test_integration_readiness() -> Dict[str, Any]:
 
         if not missing_files:
             integration_results['file_structure_valid'] = True
-            logger.info(f"{ENTERPRISE_INDICATORS['success']} All required files present}")
+            logger.info(f"{ENTERPRISE_INDICATORS['success']} All required files present")
         else:
             integration_results['integration_errors'].append(f"Missing files: {missing_files}")
             logger.error(f"{ENTERPRISE_INDICATORS['error']} Missing files: {missing_files}")
@@ -270,7 +270,7 @@ def test_integration_readiness() -> Dict[str, Any]:
     try:
         # Check Python dependencies
         integration_results['dependencies_available'] = True
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} All Python dependencies available}")
+        logger.info(f"{ENTERPRISE_INDICATORS['success']} All Python dependencies available")
 
     except ImportError as e:
         integration_results['integration_errors'].append(f"Missing dependency: {e}")
@@ -283,9 +283,9 @@ def test_integration_readiness() -> Dict[str, Any]:
         is_safe = validator.validate_workspace_integrity()
         integration_results['workspace_safe'] = is_safe
         if is_safe:
-            logger.info(f"{ENTERPRISE_INDICATORS['success']} Workspace safety validated}")
+            logger.info(f"{ENTERPRISE_INDICATORS['success']} Workspace safety validated")
         else:
-            logger.warning(f"{ENTERPRISE_INDICATORS['warning']} Workspace safety concerns detected}")
+            logger.warning(f"{ENTERPRISE_INDICATORS['warning']} Workspace safety concerns detected")
 
     except Exception as e:
         integration_results['integration_errors'].append(f"Workspace safety check failed: {e}")
@@ -305,7 +305,7 @@ def test_integration_readiness() -> Dict[str, Any]:
                 f"{ENTERPRISE_INDICATORS['success']} Database files accessible: {accessible_databases}")
         else:
             logger.info(
-                f"{ENTERPRISE_INDICATORS['info']} No existing database files found (will be created)}")
+                f"{ENTERPRISE_INDICATORS['info']} No existing database files found (will be created)")
             integration_results['database_accessible'] = \
                 True  # OK to create new databases
 
@@ -323,17 +323,17 @@ def test_integration_readiness() -> Dict[str, Any]:
     integration_results['enterprise_ready'] = passed_critical == len(critical_checks)
 
     if integration_results['enterprise_ready']:
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} System is ENTERPRISE READY for deployment}")
+        logger.info(f"{ENTERPRISE_INDICATORS['success']} System is ENTERPRISE READY for deployment")
     else:
         logger.warning(
-            f"{ENTERPRISE_INDICATORS['warning']} System requires fixes before enterprise deployment}")
+            f"{ENTERPRISE_INDICATORS['warning']} System requires fixes before enterprise deployment")
 
     return integration_results
 
 def generate_integration_report() -> Dict[str, Any]:
     """Generate comprehensive integration test report"""
 
-    logger.info(f"{ENTERPRISE_INDICATORS['start']} GENERATING INTEGRATION REPORT}")
+    logger.info(f"{ENTERPRISE_INDICATORS['start']} GENERATING INTEGRATION REPORT")
 
     # Run all integration tests
     import_results = test_chunk_imports()
@@ -394,12 +394,12 @@ def display_integration_report(report: Dict[str, Any]) -> None:
 
     print("\n" + "=" * 100)
     print(
-        f"{ENTERPRISE_INDICATORS['complete']} ENTERPRISE DUAL COPILOT SYSTEM - INTEGRATION REPORT}")
+        f"{ENTERPRISE_INDICATORS['complete']} ENTERPRISE DUAL COPILOT SYSTEM - INTEGRATION REPORT")
     print("=" * 100)
 
     print(f"{ENTERPRISE_INDICATORS['info']} Test Timestamp: {report['test_timestamp']}")
     print(
-        f"{ENTERPRISE_INDICATORS['info']} Overall Score: {report['overall_assessment']['overall_score']:.1f}%}")
+        f"{ENTERPRISE_INDICATORS['info']} Overall Score: {report['overall_assessment']['overall_score']:.1f}%")
     print(
     f"{
         ENTERPRISE_INDICATORS['info']} Enterprise Ready: {
@@ -414,14 +414,14 @@ def display_integration_report(report: Dict[str, Any]) -> None:
     print("-" * 50)
 
     # Import results
-    print(f"Import Tests: {report['test_results']['imports']['success_rate']:.1f}%}")
+    print(f"Import Tests: {report['test_results']['imports']['success_rate']:.1f}%")
     for chunk, status in report['test_results']['imports'].items():
         if chunk != 'import_errors' and chunk != 'success_rate':
             status_icon = '# # # ✅' if status else '❌'
             print(f"  {status_icon} {chunk}: {status}")
 
     # Functionality results
-    print(f"\nFunctionality Tests: {report['test_results']['functionality']['success_rate']:.1f}%}")
+    print(f"\nFunctionality Tests: {report['test_results']['functionality']['success_rate']:.1f}%")
     for test, status in report['test_results']['functionality'].items():
         if test != 'functionality_errors' and test != 'success_rate':
             status_icon = '# # # ✅' if status else '❌'
@@ -435,7 +435,7 @@ def display_integration_report(report: Dict[str, Any]) -> None:
             print(f"  {status_icon} {check}: {status}")
 
     # Recommendations
-    print(f"\n{ENTERPRISE_INDICATORS['info']} RECOMMENDATIONS:}")
+    print(f"\n{ENTERPRISE_INDICATORS['info']} RECOMMENDATIONS:")
     for i, rec in enumerate(report['recommendations'], 1):
         print(f"  {i}. {rec}")
 
@@ -446,32 +446,31 @@ def display_integration_report(report: Dict[str, Any]) -> None:
     all_errors.extend(report['test_results']['integration'].get('integration_errors', []))
 
     if all_errors:
-        print(f"\n{ENTERPRISE_INDICATORS['error']} ERRORS FOUND:}")
+        print(f"\n{ENTERPRISE_INDICATORS['error']} ERRORS FOUND:")
         for i, error in enumerate(all_errors, 1):
             print(f"  {i}. {error}")
 
     print("\n" + "=" * 100)
-    print(f"{ENTERPRISE_INDICATORS['complete']} INTEGRATION TEST COMPLETE}")
+    print(f"{ENTERPRISE_INDICATORS['complete']} INTEGRATION TEST COMPLETE")
     print("=" * 100)
 
 def main():
     """Main integration test execution"""
 
     print(
-        f"{ENTERPRISE_INDICATORS['start']} ENTERPRISE DUAL COPILOT SYSTEM - INTEGRATION VALIDATOR}")
+        f"{ENTERPRISE_INDICATORS['start']} ENTERPRISE DUAL COPILOT SYSTEM - INTEGRATION VALIDATOR")
     print("=" * 80)
 
-    print(f"{ENTERPRISE_INDICATORS['info']} Testing complete 4-chunk enterprise system}")
-    print(f"{ENTERPRISE_INDICATORS['info']} DUAL COPILOT pattern validation}")
-    print(f"{ENTERPRISE_INDICATORS['info']} Enterprise compliance verification}")
+    print(f"{ENTERPRISE_INDICATORS['info']} Testing complete 4-chunk enterprise system")
+    print(f"{ENTERPRISE_INDICATORS['info']} DUAL COPILOT pattern validation")
+    print(f"{ENTERPRISE_INDICATORS['info']} Enterprise compliance verification")
 
     # Generate and display integration report
     report = generate_integration_report()
     display_integration_report(report)
 
     # Save report to file
-    report_filename = f"enterprise_integration_report_{
-    datetime.now().strftime('%Y%m%d_%H%M%S')}.json}""
+    report_filename = f"enterprise_integration_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
 
     try:
         import json
