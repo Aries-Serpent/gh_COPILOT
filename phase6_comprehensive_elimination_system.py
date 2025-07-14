@@ -315,7 +315,7 @@ class E999SyntaxErrorProcessor:
             (r'f"([^"]*{[^}]*$)', r'f"\1}"'),
         ]
 
-        for, pattern, replacement in corrections:
+        for pattern, replacement in corrections:
             corrected = re.sub(pattern, replacement, corrected)
 
         return corrected
@@ -345,7 +345,7 @@ class W293Whitespacedominator:
         files_modified = 0
 
         # Process each file's whitespace violations
-        for, file_path, file_violations in violations_by_file.items():
+        for file_path, file_violations in violations_by_file.items():
             if self.clean_file_whitespace(file_path, file_violations):
                 eliminated_count += len(file_violations)
                 files_modified += 1
@@ -461,7 +461,7 @@ class F821TypeHintResolver:
         files_modified = 0
 
         # Process each file's type hint violations
-        for, file_path, file_violations in violations_by_file.items():
+        for file_path, file_violations in violations_by_file.items():
             if self.resolve_file_type_hints(file_path, file_violations):
                 eliminated_count += len(file_violations)
                 files_modified += 1
@@ -559,7 +559,7 @@ class F821TypeHintResolver:
 
         # Find existing typing imports
         typing_import_line = None
-        for, i, line in enumerate(lines):
+        for i, line in enumerate(lines):
             if line.strip().startswith('from typing import'):
                 typing_import_line = i
                 break
@@ -592,7 +592,7 @@ class F821TypeHintResolver:
         """# # # 🔍 Find appropriate position to insert new import"""
         # Insert after last import or at beginning
         last_import_line = 0
-        for, i, line in enumerate(lines):
+        for i, line in enumerate(lines):
             if line.strip().startswith(('import ', 'from ')):
                 last_import_line = i
 
@@ -623,7 +623,7 @@ class E501LineOptimizer:
         files_modified = 0
 
         # Process each file's line length violations
-        for, file_path, file_violations in violations_by_file.items():
+        for file_path, file_violations in violations_by_file.items():
             eliminated = self.optimize_file_lines(file_path, file_violations)
             eliminated_count += eliminated
             if eliminated > 0:
@@ -776,7 +776,7 @@ class E501LineOptimizer:
             parts = line.split(' + ')
             if len(parts) > 1:
                 indent = len(line) - len(line.lstrip())
-                return ' +\n'.join(f"{' ' * indent if i == 0 else ' ' * (indent + 4)}{part}" for, i, part in enumerate(parts))
+                return ' +\n'.join(f"{' ' * indent if i == 0 else ' ' * (indent + 4)}{part}" for i, part in enumerate(parts))
 
         return line
 

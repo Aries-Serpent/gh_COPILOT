@@ -14,7 +14,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 # SYNTAX_ERROR_COMMENTED: from typing import, Dict, List, Tuple, Set, Optional
-from dataclasses import, dataclass, asdict
+from dataclasses import dataclass, asdict
 from collections import defaultdict
 
 # Basic encoding setup for Windows

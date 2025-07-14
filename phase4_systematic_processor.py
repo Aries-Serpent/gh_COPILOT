@@ -262,8 +262,8 @@ class Phase4SystematicProcessor:
             
             violations = self._parse_flake8_output(result.stdout)
             
-            with tqdm(total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
-                for, file_path, line_num, col, msg in violations:
+            with tqdm(total=len(violations), desc=f"🔧 Fixing {violation_code}", unit="fix") as pbar:
+                for file_path, line_num, col, msg in violations:
                     try:
                         if self._fix_single_e305(file_path, line_num):
                             fixes_made += 1
@@ -326,7 +326,7 @@ class Phase4SystematicProcessor:
             violations = self._parse_flake8_output(result.stdout)
             
             with tqdm(total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
-                for, file_path, line_num, col, msg in violations:
+                for file_path, line_num, col, msg in violations:
                     try:
                         if self._fix_single_e303(file_path, line_num):
                             fixes_made += 1
@@ -400,7 +400,7 @@ class Phase4SystematicProcessor:
             violations = self._parse_flake8_output(result.stdout)
             
             with tqdm(total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
-                for, file_path, line_num, col, msg in violations:
+                for file_path, line_num, col, msg in violations:
                     try:
                         if self._fix_single_w291(file_path, line_num):
                             fixes_made += 1
@@ -455,7 +455,7 @@ class Phase4SystematicProcessor:
             violations = self._parse_flake8_output(result.stdout)
             
             with tqdm(total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
-                for, file_path, line_num, col, msg in violations:
+                for file_path, line_num, col, msg in violations:
                     try:
                         if self._fix_single_f541(file_path, line_num, col):
                             fixes_made += 1
@@ -599,7 +599,7 @@ Overall Success Rate: {overall_success_rate:.1f}%
 Target Categories Processed: {len(self.target_categories)}
 """
         
-        for, code, info in self.target_categories.items():
+        for code, info in self.target_categories.items():
             baseline_count = baseline_counts.get(code, 0)
             final_count = final_counts.get(code, 0)
             fixes_made = category_results.get(code, 0)
@@ -638,7 +638,7 @@ Primary Categories for Phase 5:
         
         # Recommend top remaining categories for Phase 5
         remaining_sorted = sorted(final_counts.items(), key=lambda x: x[1], reverse=True)[:5]
-        for, code, count in remaining_sorted:
+        for code, count in remaining_sorted:
             if count > 0:
                 report_content += f"  {code}: {count:3d} violations\n"
         

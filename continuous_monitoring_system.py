@@ -89,7 +89,7 @@ class ContinuousMonitoringSystem:
         self.setup_monitoring_database()
         self.setup_alert_thresholds()
 
-        print(""stats" CONTINUOUS MONITORING SYSTEM INITIALIZED")
+        print("📊 CONTINUOUS MONITORING SYSTEM INITIALIZED")
         print(f"Database: {self.database_path}")
         print(f"Monitoring: {self.monitoring_dir}")
         print(f"Interval: {self.monitoring_interval} seconds")
@@ -353,10 +353,7 @@ class ContinuousMonitoringSystem:
 
             # Log status
             self.logger.info(
-    f"Monitoring cycle: {}"
-        snapshot.pending_violations:,
-        } pending, {}
-            snapshot.health_score:.1f}% health")"
+    f"Monitoring cycle: {snapshot.pending_violations:,} pending, {snapshot.health_score:.1f}% health")
 
             return snapshot, alerts
 

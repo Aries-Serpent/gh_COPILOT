@@ -55,13 +55,13 @@ class AggressiveF401Cleaner:
             'tqdm.tqdm': r'from tqdm import.*tqdm.*'
         }
 
-        print(""rocket" AGGRESSIVE F401 CLEANER INITIALIZED")
+        print("🚀 AGGRESSIVE F401 CLEANER INITIALIZED")
         print(f"Workspace: {self.workspace_root}")
         print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     def scan_remaining_f401(self) -> List[Dict]:
-        """search" Scan for remaining F401 violations"""
-        print(""search" SCANNING REMAINING F401 VIOLATIONS...")
+        """Scan for remaining F401 violations"""
+        print("🔍 SCANNING REMAINING F401 VIOLATIONS...")
 
         violations = []
 

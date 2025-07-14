@@ -723,7 +723,7 @@ class UnicodeFlake8MasterController:
         self.logger.info(
             f"{ENTERPRISE_INDICATORS['success']} Deployment ID: {deployment_report.deployment_id}"")
         self.logger.info(
-    f"{}}}""
+    f"{}}}}""
         ENTERPRISE_INDICATORS['success']} System Integration: {}
             deployment_report.system_integration.overall_integration}")
         self.logger.info(

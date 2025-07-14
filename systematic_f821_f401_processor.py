@@ -106,9 +106,9 @@ class SystematicF821F401Processor:
         }
 
         logger.info("# # # 🚀 SYSTEMATIC F821/F401 PROCESSOR INITIALIZED")
-        logger.info(f"Workspace: {self.workspace_root}"")"
-        logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}"")"
-        logger.info(f"Process ID: {self.process_id}"")
+        logger.info(f"Workspace: {self.workspace_root}")
+        logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"Process ID: {self.process_id}")
 
     def scan_violations(self) -> Tuple[List[ViolationPattern], List[ViolationPattern]]:
         """# # # 🔍 Scan for F821 and F401 violations"""
@@ -144,11 +144,11 @@ class SystematicF821F401Processor:
                 pbar.update(50)
 
             except Exception as e:
-                logger.error(f"Error scanning violations: {e}"")
+                logger.error(f"Error scanning violations: {e}")
                 pbar.update(100)
 
         logger.info(
-    f"# # # ✅ SCAN COMPLETE: {}}}""
+    f"# # # ✅ SCAN COMPLETE: {}}}"
         len(f821_violations)} F821, {}
             len(f401_violations)} F401 violations")
         return f821_violations, f401_violations
@@ -187,7 +187,7 @@ class SystematicF821F401Processor:
                 if undefined_name in self.common_imports:
                     return self.common_imports[undefined_name]
                 else:
-                    return f"# Define or import '{undefined_name}}'}""
+                    return f"# Define or import '{undefined_name}}'}"
 
         elif code == "F401":
             # Extract unused import
@@ -195,15 +195,15 @@ class SystematicF821F401Processor:
             if match:
                 unused_import = match.group(1)
                 if unused_import in self.safe_to_remove:
-                    return f"Remove unused import: {unused_import}""
+                    return f"Remove unused import: {unused_import}"
                 else:
-                    return f"Review and remove unused import: {unused_import}""
+                    return f"Review and remove unused import: {unused_import}"
 
         return "Manual review required"
 
     def process_f821_violations(self, violations: List[ViolationPattern]) -> int:
         """# # # 🔧 Process F821 undefined name violations"""
-        logger.info(f"# # # 🔧 PROCESSING {len(violations)}} F821 VIOLATIONS...}"")
+        logger.info(f"# # # 🔧 PROCESSING {len(violations)}} F821 VIOLATIONS...}")
 
         fixed_count = 0
         files_to_process = {}
@@ -222,10 +222,10 @@ class SystematicF821F401Processor:
                         fixed_count += len(file_violations)
                     pbar.update(1)
                 except Exception as e:
-                    logger.error(f"Error processing {file_path}: {e}"")
+                    logger.error(f"Error processing {file_path}: {e}")
                     pbar.update(1)
 
-        logger.info(f"# # # ✅ F821 PROCESSING COMPLETE: {fixed_count}} violations fixed}"")
+        logger.info(f"# # # ✅ F821 PROCESSING COMPLETE: {fixed_count}} violations fixed}")
         return fixed_count
 
     def _fix_f821_in_file(self, file_path: Path, violations: List[ViolationPattern]) -> bool:
@@ -263,7 +263,7 @@ class SystematicF821F401Processor:
                 return True
 
         except Exception as e:
-            logger.error(f"Error fixing F821 in {file_path}: {e}"")
+            logger.error(f"Error fixing F821 in {file_path}: {e}")
 
         return False
 
@@ -290,7 +290,7 @@ class SystematicF821F401Processor:
 
     def process_f401_violations(self, violations: List[ViolationPattern]) -> int:
         """🗑️ Process F401 unused import violations"""
-        logger.info(f"🗑️ PROCESSING {len(violations)}} F401 VIOLATIONS...}"")
+        logger.info(f"🗑️ PROCESSING {len(violations)}} F401 VIOLATIONS...}")
 
         fixed_count = 0
         files_to_process = {}
@@ -309,10 +309,10 @@ class SystematicF821F401Processor:
                     fixed_count += removed
                     pbar.update(1)
                 except Exception as e:
-                    logger.error(f"Error processing {file_path}: {e}"")
+                    logger.error(f"Error processing {file_path}: {e}")
                     pbar.update(1)
 
-        logger.info(f"# # # ✅ F401 PROCESSING COMPLETE: {fixed_count}} violations fixed}"")
+        logger.info(f"# # # ✅ F401 PROCESSING COMPLETE: {fixed_count}} violations fixed}")
         return fixed_count
 
     def _fix_f401_in_file(self, file_path: Path, violations: List[ViolationPattern]) -> int:
@@ -350,7 +350,7 @@ class SystematicF821F401Processor:
             return removed_count
 
         except Exception as e:
-            logger.error(f"Error fixing F401 in {file_path}: {e}"")
+            logger.error(f"Error fixing F401 in {file_path}: {e}")
             return 0
 
     def _is_safe_to_remove_line(self, line: str, unused_import: str) -> bool:
@@ -401,15 +401,15 @@ class SystematicF821F401Processor:
         logger.info("# # 🎯 SYSTEMATIC F821/F401 PROCESSING COMPLETE")
         logger.info("=" * 80)
         logger.info("# # # 📊 PROCESSING STATISTICS:")
-        logger.info(f"   • Total Files Processed: {results.total_files_processed}"")
-        logger.info(f"   • F821 Violations Found: {results.f821_violations_found}"")
-        logger.info(f"   • F401 Violations Found: {results.f401_violations_found}"")
-        logger.info(f"   • F821 Violations Fixed: {results.f821_violations_fixed}"")
-        logger.info(f"   • F401 Violations Fixed: {results.f401_violations_fixed}"")
-        logger.info(f"   • Success Rate: {results.success_rate:.1f}}%}"")
-        logger.info(f"   • Processing Time: {results.processing_time:.1f}} seconds}"")
-        logger.info(f"   • Total Duration: {duration:.1f}} seconds}"")
-        logger.info(f"   • Process ID: {self.process_id}"")
+        logger.info(f"   • Total Files Processed: {results.total_files_processed}")
+        logger.info(f"   • F821 Violations Found: {results.f821_violations_found}")
+        logger.info(f"   • F401 Violations Found: {results.f401_violations_found}")
+        logger.info(f"   • F821 Violations Fixed: {results.f821_violations_fixed}")
+        logger.info(f"   • F401 Violations Fixed: {results.f401_violations_fixed}")
+        logger.info(f"   • Success Rate: {results.success_rate:.1f}}%}")
+        logger.info(f"   • Processing Time: {results.processing_time:.1f}} seconds}")
+        logger.info(f"   • Total Duration: {duration:.1f}} seconds}")
+        logger.info(f"   • Process ID: {self.process_id}")
         logger.info("=" * 80)
 
 
@@ -423,7 +423,7 @@ def main():
         return 0 if results.success_rate >= 80 else 1
 
     except Exception as e:
-        logger.error(f"CRITICAL ERROR: {e}"")
+        logger.error(f"CRITICAL ERROR: {e}")
         return 1
 
 
