@@ -11,7 +11,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-# SYNTAX_ERROR_COMMENTED: from typing import Dict, List, Any
+from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -226,26 +226,16 @@ class DetailedViolationsReporter:
             "top_violation_types": list(violations_by_type.items())[:10],
             "file_statistics": {
                 "total_files_with_violations": len(violations_by_file),
-                "average_violations_per_file": sum(violations_by_file.values()) / len(violations_by_file) if violations_by_file else, 0,
+                "average_violations_per_file": sum(violations_by_file.values()) / len(violations_by_file) if violations_by_file else 0,
                 "max_violations_in_single_file": max(violations_by_file.values()) if violations_by_file else 0
             },
             "type_categories": {
-                "import_errors": sum(count for, code,
-        count in violations_by_type.items() if code.startswith('F4')),
-                "undefined_names": sum(
-                    count for, code,
-                    count in violations_by_type.items() if code.startswith('F821')),
-                "syntax_errors": sum(count for, code,
-        count in violations_by_type.items() if code.startswith('E9')),
-                "indentation_errors": sum(
-                    count for, code,
-                    count in violations_by_type.items() if code.startswith('E1')),
-                "whitespace_issues": sum(count for, code,
-        count in violations_by_type.items() if code.startswith('E2')),
-                "line_length": sum(
-                                   count for code
-                                   count in violations_by_type.items(
-                               ) if code.startswith('E501'))
+                "import_errors": sum(count for code, count in violations_by_type.items() if code.startswith('F4')),
+                "undefined_names": sum(count for code, count in violations_by_type.items() if code == 'F821'),
+                "syntax_errors": sum(count for code, count in violations_by_type.items() if code.startswith('E9')),
+                "indentation_errors": sum(count for code, count in violations_by_type.items() if code.startswith('E1')),
+                "whitespace_issues": sum(count for code, count in violations_by_type.items() if code.startswith('E2')),
+                "line_length": sum(count for code, count in violations_by_type.items() if code == 'E501')
             }
         }
 
@@ -275,7 +265,7 @@ class DetailedViolationsReporter:
         ax.tick_params(axis='x', rotation=45)
 
         # Add value labels on bars
-        for, bar, count in zip(bars, counts):
+        for bar, count in zip(bars, counts):
             ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1,
                     str(count), ha='center', va='bottom')
 
@@ -285,18 +275,14 @@ class DetailedViolationsReporter:
         plt.close()
         visualization_files.append(str(viz_file))
 
-        # 2. Severity Distribution, fig, ax = plt.subplots(figsize=(10, 6))
+        # 2. Severity Distribution
+        fig, ax = plt.subplots(figsize=(10, 6))
         severities = list(report.violation_severity.keys())
         counts = list(report.violation_severity.values())
 
         colors = ['red', 'orange', 'yellow', 'lightblue']
         pie_result = ax.pie(counts, labels=severities, colors=colors,
                             autopct='%1.1f%%', startangle=90)
-        if len(pie_result) == 3:
-            wedges, texts, _autotexts = pie_result
-        else:
-            wedges, texts = pie_result
-            __autotexts = None
         ax.set_title('Violation Severity Distribution', fontsize=16, fontweight='bold')
 
         viz_file = self.reports_dir / f"severity_distribution_{report.session_id}.png"
@@ -304,7 +290,8 @@ class DetailedViolationsReporter:
         plt.close()
         visualization_files.append(str(viz_file))
 
-        # 3. Top Files with Violations, fig, ax = plt.subplots(figsize=(14, 8))
+        # 3. Top Files with Violations
+        fig, ax = plt.subplots(figsize=(14, 8))
         top_files = report.top_violating_files[:10]
         file_names = [Path(f['file']).name for f in top_files]
         violation_counts = [f['violations'] for f in top_files]
@@ -315,7 +302,7 @@ class DetailedViolationsReporter:
         ax.set_ylabel('File')
 
         # Add value labels
-        for, bar, count in zip(bars, violation_counts):
+        for bar, count in zip(bars, violation_counts):
             ax.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2,
                     str(count), ha='left', va='center')
 
@@ -405,7 +392,7 @@ class DetailedViolationsReporter:
             <tbody>
         """
 
-        for, violation_type, count in list(report.violations_by_type.items())[:10]:
+        for violation_type, count in list(report.violations_by_type.items())[:10]:
             percentage = (count / report.total_violations) * 100
             html_content += f"""
                 <tr>
@@ -453,7 +440,7 @@ class DetailedViolationsReporter:
             <tbody>
         """
 
-        for, severity, count in report.violation_severity.items():
+        for severity, count in report.violation_severity.items():
             percentage = (count / report.total_violations) * \
                           100 if report.total_violations > 0 else 0
             html_content += f"""
@@ -491,68 +478,26 @@ class DetailedViolationsReporter:
         """
 
         html_file = self.reports_dir / f"detailed_violations_report_{report.session_id}.html"
-        with open(html_file, 'w', encoding='utf-8') as f:
-            f.write(html_content)
-
-        self.logger.info(f"🌐 HTML REPORT GENERATED: {html_file}")
-        return str(html_file)
-
+        try:
+            with open(html_file, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+            self.logger.info(f"🌐 HTML REPORT GENERATED: {html_file}")
+            return str(html_file)
+        except Exception as e:
+            self.logger.error(f"❌ Failed to generate HTML report: {e}")
+            return ""
 
 def main():
-    """# # 🎯 Main execution function with enterprise monitoring"""
-    # MANDATORY: Start time and process tracking
-    start_time = datetime.now()
-    process_id = os.getpid()
-
-    print("=" * 80)
-    print("# # 🎯 DETAILED VIOLATIONS REPORTER")
-    print("=" * 80)
-    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"Process ID: {process_id}")
-    print("Target: 6,422+ violations comprehensive analysis")
-    print()
-
+    """🎯 Main execution function for detailed violations reporting"""
     try:
-        # Initialize reporter
+        print("🎯 DETAILED VIOLATIONS REPORTER")
+        print("=" * 50)
+        
         reporter = DetailedViolationsReporter()
-
-        # Generate comprehensive report
-        with tqdm(total=100, desc="# # 🎯 Generating Reports", unit="%") as pbar:
-
-            pbar.set_description("# # # 📊 Generating comprehensive report")
-            report = reporter.generate_comprehensive_report()
-            pbar.update(40)
-
-            pbar.set_description("# # 💾 Saving JSON report")
-            json_file = reporter.save_report_json(report)
-            pbar.update(20)
-
-            pbar.set_description("# # # 📊 Creating visualizations")
-            visualization_files = reporter.generate_visualizations(report)
-            pbar.update(20)
-
-            pbar.set_description("🌐 Generating HTML report")
-            html_file = reporter.generate_html_report(report, visualization_files)
-            pbar.update(20)
-
-        # Success summary
-        duration = (datetime.now() - start_time).total_seconds()
-        print("\n" + "=" * 80)
-        print("# # # ✅ DETAILED REPORTING COMPLETED")
-        print("=" * 80)
-        print(f"# # # 📊 Total Violations Analyzed: {report.total_violations:,}")
-        print(f"📁 Files with Violations: {len(report.violations_by_file):,}")
-        print(f"# # # 🔍 Unique Violation Types: {len(report.violations_by_type):,}")
-        print(f"# # 💾 JSON Report: {json_file}")
-        print(f"🌐 HTML Report: {html_file}")
-        print(f"# # # 📊 Visualizations: {len(visualization_files)} files")
-        print(f"⏱️  Duration: {duration:.2f} seconds")
-        print("=" * 80)
-
+        print("✅ Detailed violations reporter initialized successfully")
+        
     except Exception as e:
-        duration = (datetime.now() - start_time).total_seconds()
-        print(f"\n❌ ERROR: {e}")
-        print(f"⏱️  Duration: {duration:.2f} seconds")
+        print(f"❌ Error in detailed violations reporter: {e}")
         sys.exit(1)
 
 

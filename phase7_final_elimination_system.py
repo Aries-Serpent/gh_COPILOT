@@ -13,7 +13,8 @@ import logging
 import subprocess
 from datetime import datetime
 from pathlib import Path
-# SYNTAX_ERROR_COMMENTED: from typing import, Dict, List, Tuple, Set, Optional
+# Import typing components
+from typing import Dict, List, Tuple, Set, Optional
 from dataclasses import dataclass, asdict
 from collections import defaultdict
 
@@ -166,7 +167,7 @@ class Phase7FinalEliminationSystem:
                                 })
 
                 # Process each file with E999 errors
-                for, file_path, file_violations in violations.items():
+                for file_path, file_violations in violations.items():
                     try:
                         fixed_count = self.fix_advanced_syntax_errors(file_path, file_violations)
                         eliminated_count += fixed_count
@@ -309,12 +310,12 @@ class Phase7FinalEliminationSystem:
             # Get E501 violations
             cmd = ["python", "-m", "flake8", "--select=E501", "--format=%(path)s:%(row)d:%(col)d", "."]
             result = subprocess.run(
-                                    cmd
-                                    cwd=self.workspace_path
-                                    capture_output=True
-                                    text=True
-                                    encoding='utf-8'
-                                )
+                cmd,
+                cwd=self.workspace_path,
+                capture_output=True,
+                text=True,
+                encoding='utf-8'
+            )
 
             if result.stdout:
                 violations = defaultdict(list)
@@ -330,7 +331,7 @@ class Phase7FinalEliminationSystem:
                                 violations[file_path].append(line_num)
 
                 # Process each file with E501 errors
-                for, file_path, line_numbers in violations.items():
+                for file_path, line_numbers in violations.items():
                     try:
                         fixed_count = self.fix_advanced_line_length(file_path, line_numbers)
                         eliminated_count += fixed_count
@@ -392,7 +393,7 @@ class Phase7FinalEliminationSystem:
                 line = re.sub(r',\s*([a-zA-Z_])', r',\n        \1', line)
 
         # Strategy 2: Break long string concatenations
-        if ' + ' in line and ('"' in line or "'" in, line):
+        if ' + ' in line and ('"' in line or "'" in line):
             line = re.sub(r'("[^"]+"|\'[^\']+\')\s*\+\s*("[^"]+"|\'[^\']+\')', r'\1 +\n        \2', line)
 
         # Strategy 3: Break at logical operators

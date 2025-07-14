@@ -490,10 +490,10 @@ class EnhancedEnterpriseProcessor:
                             f"({actual_success_rate:.1%} vs {expected_rate:.1%} expected)"
                         )
 
-                except Exception as e:
-                    logger.error(f"❌ Enhanced batch failed: {e}")
-                    total_failed_fixes += batch['violation_count']
-                    total_violations_processed += batch['violation_count']
+                    except Exception as e:
+                        logger.error(f"❌ Enhanced batch failed: {e}")
+                        total_failed_fixes += batch['violation_count']
+                        total_violations_processed += batch['violation_count']
 
                 pbar.update(1)
 
@@ -572,9 +572,9 @@ def main():
         )
 
         print("\n# # # ✅ Phase 1 Results:")
-        print(f"   Fixes Applied: {results_phase1['successful_fixes']}"")
-        print(f"   Success Rate: {results_phase1['overall_success_rate']:.1%}"")
-        print(f"   Files Processed: {results_phase1['files_processed']}"")
+        print(f"   Fixes Applied: {results_phase1['successful_fixes']}")
+        print(f"   Success Rate: {results_phase1['overall_success_rate']:.1%}")
+        print(f"   Files Processed: {results_phase1['files_processed']}")
 
         if results_phase1['overall_success_rate'] >= 0.75:
             print("\n# # 🎯 Phase 2: MODERATE SUCCESS RATE VIOLATIONS")
@@ -587,9 +587,9 @@ def main():
             )
 
             print("\n# # # ✅ Phase 2 Results:")
-            print(f"   Fixes Applied: {results_phase2['successful_fixes']}"")
-            print(f"   Success Rate: {results_phase2['overall_success_rate']:.1%}"")
-            print(f"   Files Processed: {results_phase2['files_processed']}"")
+            print(f"   Fixes Applied: {results_phase2['successful_fixes']}")
+            print(f"   Success Rate: {results_phase2['overall_success_rate']:.1%}")
+            print(f"   Files Processed: {results_phase2['files_processed']}")
 
             # Combined results
             total_fixes = results_phase1['successful_fixes'] + results_phase2['successful_fixes']
@@ -598,12 +598,9 @@ def main():
             combined_success_rate = total_fixes / total_processed if total_processed > 0 else 0
 
             print("\n🏆 COMBINED RESULTS:")
-            print(f"   Total Fixes: {total_fixes}"")
-            print(f"   Combined Success Rate: {combined_success_rate:.1%}"")
-            print(
-    f"   Total Files: {
-        results_phase1['files_processed'] +
-         results_phase2['files_processed']}"")
+            print(f"   Total Fixes: {total_fixes}")
+            print(f"   Combined Success Rate: {combined_success_rate:.1%}")
+            print(f"   Total Files: {results_phase1['files_processed'] + results_phase2['files_processed']}")
 
         print("\n🎉 Enhanced enterprise processing completed successfully!")
 

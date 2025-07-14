@@ -244,7 +244,7 @@ class PriorityViolationsProcessor:
                 'estimated_count': sum(v.count for v in critical_violations),
                 'complexity': 'HIGH',
                 'requires_manual_review': True
-            )
+            })
 
         # Batch 2: High priority code quality (top files)
         high_violations = [p for p in priorities if p.severity == 'HIGH']
@@ -272,7 +272,7 @@ class PriorityViolationsProcessor:
                 'complexity': 'LOW',
                 'requires_manual_review': False,
                 'automation_ready': True
-            )
+            })
 
         # Batch 4: Low priority whitespace (bulk automated)
         low_violations = [p for p in priorities if p.severity == 'LOW']
@@ -293,7 +293,6 @@ class PriorityViolationsProcessor:
                     'automation_ready': True,
                     'bulk_processing': True
                 })
-                )
 
         return batches
 
