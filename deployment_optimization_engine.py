@@ -1043,16 +1043,16 @@ This package represents a complete enterprise-grade deployment ready for product
         report["deployment_success_rate"] = \
             f"{(total_deployments / expected_deployments) * 100:.1f}%"
 
-    # Save report to file
-    report_file = \
-        self.workspace_path / \
-            f"deployment_optimization_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-    with open(report_file, 'w') as f:
-        json.dump(report, f, indent=2)
+        # Save report to file
+        report_file = \
+            self.workspace_path / \
+                f"deployment_optimization_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        with open(report_file, 'w') as f:
+            json.dump(report, f, indent=2)
 
-    self.logger.info(f"[SUCCESS] Deployment optimization report saved: {report_file}")
+        self.logger.info(f"[SUCCESS] Deployment optimization report saved: {report_file}")
 
-    return report
+        return report
 
 
 def main():
