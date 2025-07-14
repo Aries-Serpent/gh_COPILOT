@@ -327,16 +327,20 @@ class PrimaryExecutorCopilot:
                 "Validating workspace and anti-recursion compliance",
                 "🔍", 10
             ),
-            ProcessPhase("📁 File Discovery", "Discovering and categorizing Python files", "📁", 15),
+            ProcessPhase(
+                "📁 File Discovery",
+                "Discovering and categorizing Python files",
+                "📁", 15
+            ),
             ProcessPhase(
                 "🗄️ Database Initialization",
                 "Initializing database tracking and analytics",
                 "🗄️", 10
             ),
             ProcessPhase(
-                ""fast" Violation Scanning",
+                "fast Violation Scanning",
                 "Scanning for Flake8 violations with real-time tracking",
-                ""fast"", 25
+                "fast", 25
             ),
             ProcessPhase(
                 "# # # 🛠️ Correction Application",
@@ -383,13 +387,13 @@ class PrimaryExecutorCopilot:
         phase_start_time = time.time()
 
         try:
-            if phase.name == ""search" Environment Validation":
+            if phase.name == "🔍 Environment Validation":
                 return self._phase_environment_validation(target_directory)
             elif phase.name == "📁 File Discovery":
                 return self._phase_file_discovery(target_directory)
             elif phase.name == "🗄️ Database Initialization":
                 return self._phase_database_initialization()
-            elif phase.name == ""fast" Violation Scanning":
+            elif phase.name == "fast Violation Scanning":
                 return self._phase_violation_scanning()
             elif phase.name == "# # # 🛠️ Correction Application":
                 return self._phase_correction_application()
@@ -841,10 +845,7 @@ class EnterpriseOrchestrator:
         # Initialize logging manager and get logger from it
         logging_manager = EnterpriseLoggingManager()
         self.logger = logging_manager.logger  # Use the logger attribute directly
-        self.orchestration_id = f"ORCHESTRATOR_{"
-    datetime.now().strftime('%Y%m%d_%H%M%S')}_{
-        uuid.uuid4().hex[
-            :8]}""
+        self.orchestration_id = f"ORCHESTRATOR_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
         # Initialize DUAL COPILOT components
         self.primary_copilot = PrimaryExecutorCopilot(self.config)
@@ -893,7 +894,7 @@ class EnterpriseOrchestrator:
             with tqdm(total=100, desc="🤖 Primary COPILOT Execution", unit="%",
                       bar_format="{l_bar}{bar}| {n:.1f}/{total}{unit} [{elapsed}<{remaining}]") as pbar:
 
-                pbar.set_description(""rocket" Executing primary Flake8 correction")
+                pbar.set_description('"rocket" Executing primary Flake8 correction')
                 primary_results = self.primary_copilot.execute_enterprise_flake8_correction(
                     target_directory)
                 pbar.update(100)
@@ -924,7 +925,7 @@ class EnterpriseOrchestrator:
             with tqdm(total=100, desc="🛡️ Secondary COPILOT Validation", unit="%",
                       bar_format="{l_bar}{bar}| {n:.1f}/{total}{unit} [{elapsed}<{remaining}]") as pbar:
 
-                pbar.set_description(""search" Validating enterprise compliance")
+                pbar.set_description('"search" Validating enterprise compliance')
                 validation_result = self.secondary_copilot.validate_primary_execution(
                     primary_results, execution_metrics)
                 pbar.update(100)

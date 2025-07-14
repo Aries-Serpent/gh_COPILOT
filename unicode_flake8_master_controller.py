@@ -244,7 +244,7 @@ class ComponentHealthValidator:
         start_time = datetime.now()
 
         self.logger.info("=" * 80)
-        self.logger.info(f"{ENTERPRISE_INDICATORS['start']}}} COMPONENT HEALTH VALIDATION}"")
+        self.logger.info(f"{ENTERPRISE_INDICATORS['start']} COMPONENT HEALTH VALIDATION")
         self.logger.info("=" * 80)
 
         validation_results = {}
