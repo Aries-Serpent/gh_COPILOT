@@ -529,7 +529,7 @@ class DualCopilotValidator:
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.validation_id = f"VALIDATION_{datetime.now().strftime('%Y%m%d_%H%M%S')}""
+        self.validation_id = f"VALIDATION_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
     def validate_execution(self, execution_results: Dict[str, Any],
                            execution_metrics: ExecutionMetrics) -> Dict[str, Any]:
