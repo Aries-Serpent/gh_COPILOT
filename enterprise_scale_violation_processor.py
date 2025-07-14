@@ -612,12 +612,11 @@ class EnterpriseScaleViolationProcessor:
                 processing_batches = [
     b for b in processing_batches if b.priority == priority_filter]
                 logger.info(
-    f"# # 🎯 Filtered to {
-        len(processing_batches)} {priority_filter} priority batches}")
+    f"# # 🎯 Filtered to {len(processing_batches)} {priority_filter} priority batches}}")
 
             if max_batches:
                 processing_batches = processing_batches[:max_batches]
-                logger.info(f"# # # 📊 Limited to first {max_batches} batches}")
+                logger.info(f"# # # 📊 Limited to first {max_batches} batches}}")
 
             # Initialize session and results
             session = ProcessingSession(
@@ -676,14 +675,13 @@ class EnterpriseScaleViolationProcessor:
      total_failed_fixes) > 0 else 0
                         pbar.set_postfix({
                             'Fixes': total_successful_fixes,
-                            'Success Rate': f"{success_rate:.1%}"",
+                            'Success Rate': f"{success_rate:.1%}",
                             'Health': health_metrics['health_status']
                         })
 
                         # Log batch completion
                         logger.info(
-    f"# # # ✅ Batch {
-        batch.batch_id} completed: {successful_fixes} fixes, {failed_fixes} failures}")
+    f"# # # ✅ Batch {batch.batch_id} completed: {successful_fixes} fixes, {failed_fixes} failures}}")
 
                         # Critical health check - halt if too many failures
                         if health_metrics['health_status'] == 'CRITICAL' and batch_idx > 5:
@@ -728,8 +726,8 @@ class EnterpriseScaleViolationProcessor:
             logger.info(f"❌ Failed Fixes: {total_failed_fixes}")
             logger.info(f"📁 Files Processed: {files_processed}")
             logger.info(f"📦 Batches Completed: {batches_completed}")
-            logger.info(f"⏱️ Processing Time: {processing_time:.2f} seconds}")
-            logger.info(f"📈 Health Score Improvement: {health_score_improvement:.2f}%}")
+            logger.info(f"⏱️ Processing Time: {processing_time:.2f} seconds}}")
+            logger.info(f"📈 Health Score Improvement: {health_score_improvement:.2f}%}}")
             logger.info(f"📋 Report: {report_path}")
             logger.info("="*80)
 
@@ -755,13 +753,13 @@ def main():
         )
 
         print("\n🎉 Enterprise processing completed successfully!")
-        print(f"# # # ✅ {results.successful_fixes} violations fixed}")
-        print(f"📈 {results.health_score_improvement:.2f}% health improvement}")
+        print(f"# # # ✅ {results.successful_fixes} violations fixed}}")
+        print(f"📈 {results.health_score_improvement:.2f}% health improvement}}")
 
         # Ask for continuation if more batches remain
         remaining_violations = results.total_violations_processed - results.successful_fixes
         if remaining_violations > 0:
-            print(f"\n# # # 📊 {remaining_violations} violations remain for processing}")
+            print(f"\n# # # 📊 {remaining_violations} violations remain for processing}}")
             print("# # # 🚀 Ready to process HIGH, MEDIUM, and LOW priority batches")
 
     except Exception as e:
