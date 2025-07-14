@@ -225,7 +225,7 @@ def test_basic_functionality() -> Dict[str, Any]:
     logger.info(
     f"{
         ENTERPRISE_INDICATORS['info']} Functionality Success Rate: {
-            success_rate:.1f}% ({successful_tests}/{total_tests}})")
+            success_rate:.1f}% ({successful_tests}/{total_tests})")
 
     return functionality_results
 

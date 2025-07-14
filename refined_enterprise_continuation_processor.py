@@ -419,20 +419,20 @@ class RefinedEnterpriseProcessor:
             logger.info("="*80)
             logger.info("# # # ✅ REFINED ENTERPRISE PROCESSING COMPLETED")
             logger.info("="*80)
-            logger.info(f"# # # 📊 Violations Processed: {total_violations_processed}"")
-            logger.info(f"# # # ✅ Successful Fixes: {total_successful_fixes}"")
-            logger.info(f"❌ Failed Fixes: {total_failed_fixes}"")
-            logger.info(f"📈 Success Rate: {overall_success_rate:.1%}"")
-            logger.info(f"📁 Files Processed: {files_processed}"")
-            logger.info(f"⏱️ Processing Time: {processing_time:.2f}} seconds}"")
-            logger.info(f"# # 💾 External Backups: {self.backup_root}"")
+            logger.info(f"# # # 📊 Violations Processed: {total_violations_processed}")
+            logger.info(f"# # # ✅ Successful Fixes: {total_successful_fixes}")
+            logger.info(f"❌ Failed Fixes: {total_failed_fixes}")
+            logger.info(f"📈 Success Rate: {overall_success_rate:.1%}")
+            logger.info(f"📁 Files Processed: {files_processed}")
+            logger.info(f"⏱️ Processing Time: {processing_time:.2f} seconds")
+            logger.info(f"# # 💾 External Backups: {self.backup_root}")
             logger.info("="*80)
 
             return results
 
         except Exception as e:
-            logger.error(f"❌ Refined processing failed: {e}"")
-            logger.error(f"❌ Traceback: {traceback.format_exc()}"")
+            logger.error(f"❌ Refined processing failed: {e}")
+            logger.error(f"❌ Traceback: {traceback.format_exc()}")
             raise
 
     def _create_empty_results(self) -> Dict[str, Any]:
