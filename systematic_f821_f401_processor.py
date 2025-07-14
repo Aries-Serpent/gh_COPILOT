@@ -202,7 +202,7 @@ class SystematicF821F401Processor:
 
     def process_f821_violations(self, violations: List[ViolationPattern]) -> int:
         """# # # 🔧 Process F821 undefined name violations"""
-        logger.info(f"# # # 🔧 PROCESSING {len(violations)}} F821 VIOLATIONS...}")
+        logger.info(f"# # # 🔧 PROCESSING {len(violations)} F821 VIOLATIONS...")
 
         fixed_count = 0
         files_to_process = {}
@@ -224,7 +224,7 @@ class SystematicF821F401Processor:
                     logger.error(f"Error processing {file_path}: {e}")
                     pbar.update(1)
 
-        logger.info(f"# # # ✅ F821 PROCESSING COMPLETE: {fixed_count}} violations fixed}")
+        logger.info(f"# # # ✅ F821 PROCESSING COMPLETE: {fixed_count} violations fixed")
         return fixed_count
 
     def _fix_f821_in_file(self, file_path: Path, violations: List[ViolationPattern]) -> bool:
@@ -289,7 +289,7 @@ class SystematicF821F401Processor:
 
     def process_f401_violations(self, violations: List[ViolationPattern]) -> int:
         """🗑️ Process F401 unused import violations"""
-        logger.info(f"🗑️ PROCESSING {len(violations)}} F401 VIOLATIONS...}")
+        logger.info(f"🗑️ PROCESSING {len(violations)} F401 VIOLATIONS...")
 
         fixed_count = 0
         files_to_process = {}
@@ -311,7 +311,7 @@ class SystematicF821F401Processor:
                     logger.error(f"Error processing {file_path}: {e}")
                     pbar.update(1)
 
-        logger.info(f"# # # ✅ F401 PROCESSING COMPLETE: {fixed_count}} violations fixed}")
+        logger.info(f"# # # ✅ F401 PROCESSING COMPLETE: {fixed_count} violations fixed")
         return fixed_count
 
     def _fix_f401_in_file(self, file_path: Path, violations: List[ViolationPattern]) -> int:
@@ -405,9 +405,9 @@ class SystematicF821F401Processor:
         logger.info(f"   • F401 Violations Found: {results.f401_violations_found}")
         logger.info(f"   • F821 Violations Fixed: {results.f821_violations_fixed}")
         logger.info(f"   • F401 Violations Fixed: {results.f401_violations_fixed}")
-        logger.info(f"   • Success Rate: {results.success_rate:.1f}}%}")
-        logger.info(f"   • Processing Time: {results.processing_time:.1f}} seconds}")
-        logger.info(f"   • Total Duration: {duration:.1f}} seconds}")
+        logger.info(f"   • Success Rate: {results.success_rate:.1f}%")
+        logger.info(f"   • Processing Time: {results.processing_time:.1f} seconds")
+        logger.info(f"   • Total Duration: {duration:.1f} seconds")
         logger.info(f"   • Process ID: {self.process_id}")
         logger.info("=" * 80)
 

@@ -198,20 +198,19 @@ class RefinedEnterpriseProcessor:
                                 'fixed': fixed_line.strip()[:50]
                             })
                             fix_details.append(
-    f"High-success fix {error_code} at line {line_number}"")
+                                f"High-success fix {error_code} at line {line_number}")
                         else:
                             failed_fixes += 1
                             fix_details.append(
-    f"Could not apply fix {error_code} at line {line_number}"")
+                                f"Could not apply fix {error_code} at line {line_number}")
                     else:
                         failed_fixes += 1
-                        fix_details.append(f"Invalid line number {line_number} for {error_code}"")
+                        fix_details.append(f"Invalid line number {line_number} for {error_code}")
 
                 except Exception as e:
                     failed_fixes += 1
                     fix_details.append(
-    f"Error applying fix {error_code} at line {line_number}: {}}}""
-        str(e)}")
+                        f"Error applying fix {error_code} at line {line_number}: {str(e)}")
 
             # Write refined content if fixes were applied
             if successful_fixes > 0:
@@ -221,15 +220,15 @@ class RefinedEnterpriseProcessor:
                 # Update database with refined schema compatibility
                 self.update_violation_status_refined(fixes_applied, 'fixed')
 
-                logger.info(f"# # # ✅ Applied {successful_fixes} refined fixes to {Path(file_path).name}"")
+                logger.info(f"# # # ✅ Applied {successful_fixes} refined fixes to {Path(file_path).name}")
             else:
-                logger.info(f"ℹ️ No refined fixes applied to {Path(file_path).name}"")
+                logger.info(f"ℹ️ No refined fixes applied to {Path(file_path).name}")
 
             return successful_fixes, failed_fixes, fix_details
 
         except Exception as e:
-            logger.error(f"❌ Error in refined fixing: {e}"")
-            return 0, len(batch['violation_ids']), [f"Refined fixing failed: {str(e)}""]
+            logger.error(f"❌ Error in refined fixing: {e}")
+            return 0, len(batch['violation_ids']), [f"Refined fixing failed: {str(e)}"]
 
     def apply_high_success_fix(self, line: str, error_code: str) -> str:
         """# # # 🔧 Apply high-success violation fix"""
@@ -255,7 +254,7 @@ class RefinedEnterpriseProcessor:
                 return fixed_line
 
         except Exception as e:
-            logger.warning(f"# # # ⚠️ High-success fix failed for {error_code}: {e}"")
+            logger.warning(f"# # # ⚠️ High-success fix failed for {error_code}: {e}")
 
         return line  # Return original if no fix applied
 
@@ -275,11 +274,10 @@ class RefinedEnterpriseProcessor:
 
                 conn.commit()
                 logger.info(
-    f"📝 Refined update: {
-        len(fixes_applied)} violations marked as '{status}}'}"")
+                    f"📝 Refined update: {len(fixes_applied)} violations marked as '{status}'")
 
         except Exception as e:
-            logger.error(f"❌ Refined database update error: {e}"")
+            logger.error(f"❌ Refined database update error: {e}")
 
     def create_external_backup(self, file_path: str) -> str:
         """# # 💾 Create external backup to prevent recursion"""
