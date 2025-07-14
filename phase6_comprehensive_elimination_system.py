@@ -23,9 +23,9 @@ import shutil
 import logging
 from pathlib import Path
 from datetime import datetime
-# SYNTAX_ERROR_COMMENTED: from typing import, List, Dict, Any, Optional, Tuple
+from typing import Dict
 from dataclasses import dataclass
-from collections import, defaultdict, Counter
+from collections import defaultdict, Counter
 
 # Configure enterprise logging
 logging.basicConfig(
@@ -185,7 +185,7 @@ class Phase6ComprehensiveEliminationSystem:
         }
 
         # Add detailed processor results
-        for, name, result in results.processor_results.items():
+        for name, result in results.processor_results.items():
             report_data["processor_detailed_results"][name] = {
                 "category": result.category,
                 "initial_violations": result.initial_count,

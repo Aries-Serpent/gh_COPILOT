@@ -323,9 +323,9 @@ class PrimaryExecutorCopilot:
         # Define execution phases with visual processing
         execution_phases = [
             ProcessPhase(
-                ""search" Environment Validation",
+                "🔍 Environment Validation",
                 "Validating workspace and anti-recursion compliance",
-                ""search"", 10
+                "🔍", 10
             ),
             ProcessPhase("📁 File Discovery", "Discovering and categorizing Python files", "📁", 15),
             ProcessPhase(
@@ -519,10 +519,7 @@ class SecondaryValidatorCopilot:
     def __init__(self, config: EnterpriseSystemConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
-        self.validation_id = f"SECONDARY_{}"
-    datetime.now().strftime('%Y%m%d_%H%M%S')}_{
-        uuid.uuid4().hex[
-            :8]}""
+        self.validation_id = f"SECONDARY_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
         # Initialize validation components
         self.dual_validator = DualCopilotValidator()

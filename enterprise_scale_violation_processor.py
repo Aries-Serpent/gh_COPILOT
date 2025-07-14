@@ -452,7 +452,7 @@ class EnterpriseScaleViolationProcessor:
                     # Simple case: split at assignment
                     parts = line.split('=', 1)
                     if len(parts) == 2 and len(parts[0].strip()) < 40:
-                        return f"{parts[0].strip()} = \\\n    {parts[1].strip()}\n"
+                        return f"{parts[0].strip()} = \\\n    {parts[1].strip()}"
 
             elif error_code == 'F401':  # Imported but unused
                 if 'import' in line and not line.strip().startswith('#'):
@@ -461,7 +461,7 @@ class EnterpriseScaleViolationProcessor:
                         return ''
 
         except Exception as e:
-            logger.warning(f"# # # ⚠️ Could not fix {error_code}: {e}"")
+            logger.warning(f"# # # ⚠️ Could not fix {error_code}: {e}")
 
         return line  # Return original line if no fix applied
 
@@ -481,10 +481,11 @@ class EnterpriseScaleViolationProcessor:
                     """, (status, json.dumps(fix), fix['violation_id']))
 
                 conn.commit()
-                logger.info(f"📝 Updated {len(fixes_applied)} violation statuses to '{status}}'}"")
+                logger.info(f"��� Updated {len(fixes_applied)} violation statuses to '{status}'")
+
 
         except Exception as e:
-            logger.error(f"❌ Error updating violation status: {e}"")
+            logger.error(f"❌ Error updating violation status: {e}")
 
     def monitor_processing_health(self, current_batch: int, total_batches: int,
                                   successful_fixes: int, failed_fixes: int,
@@ -510,25 +511,23 @@ class EnterpriseScaleViolationProcessor:
             alerts.append(
     f"LOW_SUCCESS_RATE: {
         success_rate:.2%} < {
-            self.alert_thresholds['min_success_rate']:.2%}"")
+            self.alert_thresholds['min_success_rate']:.2%}")
             health_metrics['health_status'] = 'WARNING'
 
         if processing_time > self.alert_thresholds['max_processing_time']:
             alerts.append(
-    f"SLOW_PROCESSING: {
-        processing_time:.1f}s > {
-            self.alert_thresholds['max_processing_time']}}s}"")
+                f"SLOW_PROCESSING: {processing_time:.1f}s > {self.alert_thresholds['max_processing_time']}s")
             health_metrics['health_status'] = 'WARNING'
 
         if failed_fixes > self.alert_thresholds['max_failures_per_batch']:
-            alerts.append(f"HIGH_FAILURE_RATE: {failed_fixes}} failures in batch}"")
+            alerts.append(f"HIGH_FAILURE_RATE: {failed_fixes} failures in batch")
             health_metrics['health_status'] = 'CRITICAL'
 
         health_metrics['alerts'] = alerts
 
         if alerts:
             for alert in alerts:
-                logger.warning(f"# # 🚨 HEALTH ALERT: {alert}"")
+                logger.warning(f"# # 🚨 HEALTH ALERT: {alert}")
 
         return health_metrics
 
@@ -574,11 +573,11 @@ class EnterpriseScaleViolationProcessor:
         }
 
         # Save report to file
-        report_path = self.monitoring_path / f"enterprise_processing_report_{self.session_id}}.json}""
+        report_path = self.monitoring_path / f"enterprise_processing_report_{self.session_id}.json"
         with open(report_path, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
 
-        logger.info(f"📋 Enterprise processing report saved: {report_path}"")
+        logger.info(f"📋 Enterprise processing report saved: {report_path}")
         return str(report_path)
 
     def execute_enterprise_scale_processing(self, max_batches: Optional[int] = None,
@@ -591,11 +590,11 @@ class EnterpriseScaleViolationProcessor:
         logger.info("="*80)
         logger.info("🏢 ENTERPRISE SCALE VIOLATION PROCESSING STARTED")
         logger.info("="*80)
-        logger.info(f"# # # 🚀 Session ID: {self.session_id}"")
-        logger.info(f"🕐 Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}"")
-        logger.info(f"🆔 Process ID: {process_id}"")
-        logger.info(f"# # 💾 Safety Level: {self.safety_level}"")
-        logger.info(f"# # # 🔄 Rollback Enabled: {self.rollback_enabled}"")
+        logger.info(f"# # # 🚀 Session ID: {self.session_id}")
+        logger.info(f"🕐 Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"🆔 Process ID: {process_id}")
+        logger.info(f"# # 💾 Safety Level: {self.safety_level}")
+        logger.info(f"# # # 🔄 Rollback Enabled: {self.rollback_enabled}")
 
         try:
             # Get pending violations
@@ -614,11 +613,11 @@ class EnterpriseScaleViolationProcessor:
     b for b in processing_batches if b.priority == priority_filter]
                 logger.info(
     f"# # 🎯 Filtered to {
-        len(processing_batches)} {priority_filter}} priority batches}"")
+        len(processing_batches)} {priority_filter} priority batches}")
 
             if max_batches:
                 processing_batches = processing_batches[:max_batches]
-                logger.info(f"# # # 📊 Limited to first {max_batches}} batches}"")
+                logger.info(f"# # # 📊 Limited to first {max_batches} batches}")
 
             # Initialize session and results
             session = ProcessingSession(
@@ -643,7 +642,7 @@ class EnterpriseScaleViolationProcessor:
                     batch_start_time = time.time()
 
                     # Update progress description
-                    pbar.set_description(f"# # # 🔧 Processing {batch.priority} batch {batch.batch_id}"")
+                    pbar.set_description(f"# # # 🔧 Processing {batch.priority} batch {batch.batch_id}")
 
                     try:
                         # Apply automated fixes with safety measures
@@ -684,7 +683,7 @@ class EnterpriseScaleViolationProcessor:
                         # Log batch completion
                         logger.info(
     f"# # # ✅ Batch {
-        batch.batch_id} completed: {successful_fixes} fixes, {failed_fixes}} failures}"")
+        batch.batch_id} completed: {successful_fixes} fixes, {failed_fixes} failures}")
 
                         # Critical health check - halt if too many failures
                         if health_metrics['health_status'] == 'CRITICAL' and batch_idx > 5:
@@ -692,7 +691,7 @@ class EnterpriseScaleViolationProcessor:
                             break
 
                     except Exception as e:
-                        logger.error(f"❌ Batch {batch.batch_id} failed: {e}"")
+                        logger.error(f"❌ Batch {batch.batch_id} failed: {e}")
                         batch.processing_status = 'failed'
                         total_failed_fixes += len(batch.violations)
                         total_violations_processed += len(batch.violations)
@@ -724,21 +723,21 @@ class EnterpriseScaleViolationProcessor:
             logger.info("="*80)
             logger.info("# # # ✅ ENTERPRISE SCALE PROCESSING COMPLETED")
             logger.info("="*80)
-            logger.info(f"# # # 📊 Total Violations Processed: {total_violations_processed}"")
-            logger.info(f"# # # ✅ Successful Fixes: {total_successful_fixes}"")
-            logger.info(f"❌ Failed Fixes: {total_failed_fixes}"")
-            logger.info(f"📁 Files Processed: {files_processed}"")
-            logger.info(f"📦 Batches Completed: {batches_completed}"")
-            logger.info(f"⏱️ Processing Time: {processing_time:.2f}} seconds}"")
-            logger.info(f"📈 Health Score Improvement: {health_score_improvement:.2f}}%}"")
-            logger.info(f"📋 Report: {report_path}"")
+            logger.info(f"# # # 📊 Total Violations Processed: {total_violations_processed}")
+            logger.info(f"# # # ✅ Successful Fixes: {total_successful_fixes}")
+            logger.info(f"❌ Failed Fixes: {total_failed_fixes}")
+            logger.info(f"📁 Files Processed: {files_processed}")
+            logger.info(f"📦 Batches Completed: {batches_completed}")
+            logger.info(f"⏱️ Processing Time: {processing_time:.2f} seconds}")
+            logger.info(f"📈 Health Score Improvement: {health_score_improvement:.2f}%}")
+            logger.info(f"📋 Report: {report_path}")
             logger.info("="*80)
 
             return results
 
         except Exception as e:
-            logger.error(f"❌ Enterprise processing failed: {e}"")
-            logger.error(f"❌ Traceback: {traceback.format_exc()}"")
+            logger.error(f"❌ Enterprise processing failed: {e}")
+            logger.error(f"❌ Traceback: {traceback.format_exc()}")
             raise
 
 
@@ -756,17 +755,17 @@ def main():
         )
 
         print("\n🎉 Enterprise processing completed successfully!")
-        print(f"# # # ✅ {results.successful_fixes}} violations fixed}"")
-        print(f"📈 {results.health_score_improvement:.2f}}% health improvement}"")
+        print(f"# # # ✅ {results.successful_fixes} violations fixed}")
+        print(f"📈 {results.health_score_improvement:.2f}% health improvement}")
 
         # Ask for continuation if more batches remain
         remaining_violations = results.total_violations_processed - results.successful_fixes
         if remaining_violations > 0:
-            print(f"\n# # # 📊 {remaining_violations}} violations remain for processing}"")
+            print(f"\n# # # 📊 {remaining_violations} violations remain for processing}")
             print("# # # 🚀 Ready to process HIGH, MEDIUM, and LOW priority batches")
 
     except Exception as e:
-        logger.error(f"❌ Main execution failed: {e}"")
+        logger.error(f"❌ Main execution failed: {e}")
         sys.exit(1)
 
 

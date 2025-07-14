@@ -183,7 +183,7 @@ class Phase4SystematicProcessor:
                 logger.info(f"# # # 📊 Total Violations Detected: {self.metrics.total_violations:,}")
                 
                 # Log target category status
-                for, code, info in self.target_categories.items():
+                for code, info in self.target_categories.items():
                     actual_count = violation_counts.get(code, 0)
                     logger.info(f"  {code}: {actual_count:3d} violations (Expected: {info['count']:3d})")
                 
@@ -218,7 +218,7 @@ class Phase4SystematicProcessor:
         with tqdm(total=total_categories, desc="# # # 🔄 Processing Categories", unit="category",
                  bar_format="{l_bar}{bar}| {n}/{total} categories [{elapsed}<{remaining}]") as pbar:
             
-            for, i, (code, info) in enumerate(self.target_categories.items()):
+            for i, (code, info) in enumerate(self.target_categories.items()):
                 # MANDATORY: Check timeout (30, minutes, max)
                 self._check_timeout()
                 

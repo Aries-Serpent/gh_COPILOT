@@ -393,16 +393,14 @@ class EnterpriseProgressManager:
             self.logger.info(
                 f"{ENTERPRISE_INDICATORS['success']} Total Duration: {total_duration:.2f} seconds")
             self.logger.info(
-                f"{ENTERPRISE_INDICATORS['success']} Files Processed: {metrics.files_processed}"")
+                f"{ENTERPRISE_INDICATORS['success']} Files Processed: {metrics.files_processed}")
             self.logger.info(
-                f"{ENTERPRISE_INDICATORS['success']} Violations Found: {metrics.violations_found}"")
+                f"{ENTERPRISE_INDICATORS['success']} Violations Found: {metrics.violations_found}")
             self.logger.info(
-                f"{ENTERPRISE_INDICATORS['success']} Corrections Applied: {metrics.corrections_applied}"")
+                f"{ENTERPRISE_INDICATORS['success']} Corrections Applied: {metrics.corrections_applied}")
             if self.timeout_manager:
                 self.logger.info(
-    f"{}}}""
-        ENTERPRISE_INDICATORS['success']} Timeout Status: {}
-            'EXCEEDED' if self.timeout_manager.is_expired else 'WITHIN_LIMITS'}")
+                    f"{ENTERPRISE_INDICATORS['success']} Timeout Status: {'EXCEEDED' if self.timeout_manager.is_expired else 'WITHIN_LIMITS'}")
             self.logger.info("=" * 80)
 
     def execute_with_visual_indicators(self, phases: List[ProcessPhase],
@@ -442,12 +440,12 @@ class EnterpriseProgressManager:
 
                 # MANDATORY: Check timeout before each phase
                 if self.timeout_manager and self.timeout_manager.check_timeout():
-                    raise TimeoutError(f"Execution timeout exceeded during phase: {phase.name}"")
+                    raise TimeoutError(f"Execution timeout exceeded during phase: {phase.name}")
 
                 # Update visual indicators
-                pbar.set_description(f"{phase.icon} {phase.name}"")
+                pbar.set_description(f"{phase.icon} {phase.name}")
                 self.logger.info(
-                    f"{ENTERPRISE_INDICATORS['info']} Phase: {phase.name} - {phase.description}"")
+                    f"{ENTERPRISE_INDICATORS['info']} Phase: {phase.name} - {phase.description}")
 
                 try:
                     # Execute phase with monitoring - metrics guaranteed to be non-None
@@ -487,13 +485,13 @@ class EnterpriseProgressManager:
                     )
 
                     # MANDATORY: Log progress with ETC
-                    self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Progress: {progress:.1f}}% | }""
-                                     f"Elapsed: {current_metrics.elapsed_seconds:.1f}}s | }""
-                                     f"ETC: {current_metrics.estimated_remaining_seconds:.1f}}s}"")
+                    self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Progress: {progress:.1f}% | }""
+                                     f"Elapsed: {current_metrics.elapsed_seconds:.1f}s | }""
+                                     f"ETC: {current_metrics.estimated_remaining_seconds:.1f}s}")
 
                 except Exception as e:
                     self.logger.error(
-                        f"{ENTERPRISE_INDICATORS['error']} Phase '{phase.name}' failed: {e}"")
+                        f"{ENTERPRISE_INDICATORS['error']} Phase '{phase.name}' failed: {e}")
                     results[phase.name] = {'success': False, 'error': str(e)}
                     # Continue with next phase rather than failing completely
 
@@ -511,16 +509,16 @@ class EnterpriseProgressManager:
                 raise RuntimeError("CRITICAL: Metrics not initialized in managed_execution context")
 
             current_metrics.current_phase = phase.name
-            self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Executing phase: {phase.name}"")
+            self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Executing phase: {phase.name}")
 
             try:
                 phase_result = execution_callback(phase, current_metrics)
                 results[phase.name] = phase_result
                 self.logger.info(
-                    f"{ENTERPRISE_INDICATORS['success']} Phase '{phase.name}}' completed}"")
+                    f"{ENTERPRISE_INDICATORS['success']} Phase '{phase.name}' completed}")
             except Exception as e:
                 self.logger.error(
-                    f"{ENTERPRISE_INDICATORS['error']} Phase '{phase.name}' failed: {e}"")
+                    f"{ENTERPRISE_INDICATORS['error']} Phase '{phase.name}' failed: {e}")
                 results[phase.name] = {'success': False, 'error': str(e)}
 
         return results
@@ -538,9 +536,9 @@ class DualCopilotValidator:
         """Comprehensive validation of execution results"""
 
         self.logger.info("=" * 80)
-        self.logger.info(f"{ENTERPRISE_INDICATORS['info']}} DUAL COPILOT VALIDATION}"")
+        self.logger.info(f"{ENTERPRISE_INDICATORS['info']} DUAL COPILOT VALIDATION}")
         self.logger.info("=" * 80)
-        self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Validation ID: {self.validation_id}"")
+        self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Validation ID: {self.validation_id}")
 
         validation_results = {
             'validation_id': self.validation_id,
@@ -584,16 +582,16 @@ class DualCopilotValidator:
 
         # MANDATORY: Log validation summary
         self.logger.info(
-            f"{ENTERPRISE_INDICATORS['success']} Validation Checks: {len(validation_results['validation_checks'])}"")
-        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Quality Score: {quality_score:.1f}}%}"")
+            f"{ENTERPRISE_INDICATORS['success']} Validation Checks: {len(validation_results['validation_checks'])}")
+        self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Quality Score: {quality_score:.1f}%}")
         self.logger.info(
     f"{
         ENTERPRISE_INDICATORS['success']} Overall Status: {
-            '# # # ✅ PASSED' if validation_results['overall_success'] else '❌ FAILED'}"")
+            '# # # ✅ PASSED' if validation_results['overall_success'] else '❌ FAILED'}")
 
         if failed_checks:
             self.logger.warning(
-                f"{ENTERPRISE_INDICATORS['warning']} Failed Checks: {', '.join(failed_checks)}"")
+                f"{ENTERPRISE_INDICATORS['warning']} Failed Checks: {', '.join(failed_checks)}")
 
         self.logger.info("=" * 80)
 
@@ -746,7 +744,7 @@ def main():
 
             # Add summary metrics to results
             execution_results.update({
-                'session_id': f"VISUAL_TEST_{datetime.now().strftime('%Y%m%d_%H%M%S')}"",
+                'session_id': f"VISUAL_TEST_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
                 'files_processed': metrics.files_processed,
                 'violations_found': metrics.violations_found,
                 'corrections_applied': metrics.corrections_applied,
@@ -759,24 +757,24 @@ def main():
         validation_results = validator.validate_execution(execution_results, metrics)
 
         if validation_results['overall_success']:
-            logger.info(f"{ENTERPRISE_INDICATORS['complete']}} CHUNK 3 COMPLETED SUCCESSFULLY}"")
+            logger.info(f"{ENTERPRISE_INDICATORS['complete']} CHUNK 3 COMPLETED SUCCESSFULLY}")
             logger.info(
-                f"{ENTERPRISE_INDICATORS['success']} Quality Score: {validation_results['quality_score']:.1f}}%}"")
-            logger.info(f"{ENTERPRISE_INDICATORS['success']}} All validation checks passed}"")
+                f"{ENTERPRISE_INDICATORS['success']} Quality Score: {validation_results['quality_score']:.1f}%}")
+            logger.info(f"{ENTERPRISE_INDICATORS['success']} All validation checks passed}")
             return True
         else:
-            logger.error(f"{ENTERPRISE_INDICATORS['error']}} CHUNK 3 VALIDATION FAILED}"")
+            logger.error(f"{ENTERPRISE_INDICATORS['error']} CHUNK 3 VALIDATION FAILED}")
             logger.error(
     f"{
         ENTERPRISE_INDICATORS['error']} Failed checks: {
             ', '.join(
                 validation_results.get(
                     'recommendations',
-                     []))}"")
+                     []))}")
             return False
 
     except Exception as e:
-        logger.error(f"{ENTERPRISE_INDICATORS['error']} Chunk 3 execution failed: {e}"")
+        logger.error(f"{ENTERPRISE_INDICATORS['error']} Chunk 3 execution failed: {e}")
         return False
 
 
@@ -785,9 +783,9 @@ if __name__ == "__main__":
     if success:
         print(
     f"\n{
-        ENTERPRISE_INDICATORS['success']}} CHUNK 3 COMPLETED: Enterprise Visual Processing System}"")
+        ENTERPRISE_INDICATORS['success']} CHUNK 3 COMPLETED: Enterprise Visual Processing System}")
         print(
-            f"{ENTERPRISE_INDICATORS['info']}} Ready for Chunk 4: DUAL COPILOT Validation Framework}"")
+            f"{ENTERPRISE_INDICATORS['info']} Ready for Chunk 4: DUAL COPILOT Validation Framework}")
     else:
-        print(f"\n{ENTERPRISE_INDICATORS['error']}} CHUNK 3 FAILED: Review logs for details}"")
+        print(f"\n{ENTERPRISE_INDICATORS['error']} CHUNK 3 FAILED: Review logs for details}")
         exit(1)

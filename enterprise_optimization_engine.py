@@ -265,8 +265,11 @@ class EnterpriseOptimizationEngine:
                     cursor.execute("PRAGMA temp_store = MEMORY")
                     cursor.execute("PRAGMA mmap_size = 268435456")  # 256MB memory map
 
-                    transaction_optimizations += 3            except Exception as e:
+                    transaction_optimizations += 3
+
+            except Exception as e:
                 self.logger.error(f"[ERROR] Transaction optimization failed: {db_path.name} - {e}")
+
         self.optimization_metrics["performance_enhancements"] += transaction_optimizations
         return f"{transaction_optimizations} transaction optimizations applied"
 
@@ -284,10 +287,10 @@ class EnterpriseOptimizationEngine:
         for enhancement in intelligence_enhancements:
             try:
                 result = enhancement()
-                self.logger.info(f"[SUCCESS] {enhancement.__name__}: {result}"")
+                self.logger.info(f"[SUCCESS] {enhancement.__name__}: {result}")
                 self.optimization_metrics["intelligence_improvements"] += 1
             except Exception as e:
-                self.logger.error(f"[ERROR] {enhancement.__name__} failed: {e}"")
+                self.logger.error(f"[ERROR] {enhancement.__name__} failed: {e}")
 
     def implement_predictive_analytics(self) -> str:
         """Implement predictive analytics for enterprise operations."""
@@ -431,10 +434,10 @@ class EnterpriseOptimizationEngine:
         for feature in compliance_features:
             try:
                 result = feature()
-                self.logger.info(f"[SUCCESS] {feature.__name__}: {result}"")
+                self.logger.info(f"[SUCCESS] {feature.__name__}: {result}")
                 self.optimization_metrics["compliance_automations"] += 1
             except Exception as e:
-                self.logger.error(f"[ERROR] {feature.__name__} failed: {e}"")
+                self.logger.error(f"[ERROR] {feature.__name__} failed: {e}")
 
     def implement_automated_auditing(self) -> str:
         """Implement automated auditing system."""
@@ -659,17 +662,16 @@ class EnterpriseOptimizationEngine:
         # Calculate optimization success rate
         total_optimizations = sum(self.optimization_metrics.values())
         report["optimization_success_rate"] = \
-            f"{(total_optimizations / 20) * 100:.1f}}%}""  # 20 expected optimizations
+        f"{(total_optimizations / 20) * 100:.1f}%"  # 20 expected optimizations
 
         # Save report to file
         report_file = \
             self.workspace_path / \
-                f"enterprise_optimization_report_{}}}""
-    datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                f"enterprise_optimization_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)
 
-        self.logger.info(f"[SUCCESS] Enterprise optimization report saved: {report_file}"")
+        self.logger.info(f"[SUCCESS] Enterprise optimization report saved: {report_file}")
 
         return report
 
@@ -693,30 +695,30 @@ def main():
         print("\n" + "=" * 80)
         print("[SUCCESS] ENTERPRISE OPTIMIZATION COMPLETED")
         print("=" * 80)
-        print(f"Databases Optimized: {results['databases_optimized']}"")
+        print(f"Databases Optimized: {results['databases_optimized']}")
         print(
-            f"Cross-Database Optimizations: {results['optimization_metrics']['cross_database_optimizations']}"")
+            f"Cross-Database Optimizations: {results['optimization_metrics']['cross_database_optimizations']}")
         print(
     f"Performance Enhancements: {
-        results['optimization_metrics']['performance_enhancements']}"")
+        results['optimization_metrics']['performance_enhancements']}")
         print(
     f"Intelligence Improvements: {
-        results['optimization_metrics']['intelligence_improvements']}"")
+        results['optimization_metrics']['intelligence_improvements']}")
         print(
     f"Compliance Automations: {
-        results['optimization_metrics']['compliance_automations']}"")
-        print(f"Quantum Preparations: {results['optimization_metrics']['quantum_preparations']}"")
-        print(f"Optimization Success Rate: {results['optimization_success_rate']}"")
-        print(f"Duration: {results['execution_summary']['duration_seconds']:.1f}} seconds}"")
-        print(f"Status: {results['status']}"")
-        print(f"Compliance Level: {results['compliance_level']}"")
-        print(f"Next Phase: {results['next_phase']}"")
+        results['optimization_metrics']['compliance_automations']}")
+        print(f"Quantum Preparations: {results['optimization_metrics']['quantum_preparations']}")
+        print(f"Optimization Success Rate: {results['optimization_success_rate']}")
+        print(f"Duration: {results['execution_summary']['duration_seconds']:.1f} seconds")
+        print(f"Status: {results['status']}")
+        print(f"Compliance Level: {results['compliance_level']}")
+        print(f"Next Phase: {results['next_phase']}")
         print("=" * 80)
 
         return 0
 
     except Exception as e:
-        print(f"[ERROR] Enterprise optimization failed: {e}"")
+        print(f"[ERROR] Enterprise optimization failed: {e}")
         return 1
 
 
