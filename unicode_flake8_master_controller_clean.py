@@ -45,15 +45,15 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 from tqdm import tqdm
 
-# Enterprise indicators for consistent logging (Windows terminal compatible)
+# Enterprise indicators for consistent logging
 ENTERPRISE_INDICATORS = {
-    'start': '[>> START]',
-    'progress': '[<> PROGRESS]',
-    'success': '[OK SUCCESS]',
-    'warning': '[!! WARNING]',
-    'error': '[XX ERROR]',
-    'complete': '[** COMPLETE]',
-    'info': '[>> INFO]'
+    'start': '[🚀 START]',
+    'progress': '[🔄 PROGRESS]',
+    'success': '[✅ SUCCESS]',
+    'warning': '[⚠️ WARNING]',
+    'error': '[❌ ERROR]',
+    'complete': '[🏆 COMPLETE]',
+    'info': '[📋 INFO]'
 }
 
 # Anti-recursion validation
@@ -74,7 +74,7 @@ class AntiRecursionValidator:
         
         if violations:
             for violation in violations:
-                print(f"[XX CRITICAL] RECURSIVE VIOLATION: {violation}")
+                print(f"🚨 RECURSIVE VIOLATION: {violation}")
             raise RuntimeError("CRITICAL: Recursive violations prevent execution")
         
         return True
