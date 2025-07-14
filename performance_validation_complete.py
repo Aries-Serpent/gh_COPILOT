@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 """PerformanceValidationComplete
 ===============================
 
@@ -6,8 +8,6 @@ Benchmark quantum algorithms, template synthesis speed, and flake8
 correction throughput. Results are logged for operational monitoring.
 """
 from typing import Dict
-
-from __future__ import annotations
 
 import logging
 

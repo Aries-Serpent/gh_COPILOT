@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 """PerformanceValidationFramework
 =================================
 
@@ -7,8 +9,6 @@ and flake8 correction throughput. Baseline metrics are stored in
 ``production.db`` for regression tracking.
 """
 from typing import Dict
-
-from __future__ import annotations
 
 import logging
 import sqlite3
