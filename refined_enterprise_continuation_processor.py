@@ -61,11 +61,11 @@ class RefinedEnterpriseProcessor:
             'E201',  # Whitespace after '(' (>80% success)
         ]
 
-        self.session_id = f"refined_{datetime.now().strftime('%Y%m%d_%H%M%S')}"""
+        self.session_id = f"refined_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-        logger.info("# # # 🚀 REFINED ENTERPRISE PROCESSOR INITIALIZED")
-        logger.info(f"Session ID: {self.session_id}"")
-        logger.info(f"External Backup Root: {self.backup_root}"")
+        logger.info("🚀 REFINED ENTERPRISE PROCESSOR INITIALIZED")
+        logger.info(f"Session ID: {self.session_id}")
+        logger.info(f"External Backup Root: {self.backup_root}")
         logger.info("Target Success Rate: >80% (Refined Standard)")
 
     def validate_refined_environment(self):
@@ -86,13 +86,13 @@ class RefinedEnterpriseProcessor:
                     critical_violations.append(str(folder))
 
         if critical_violations:
-            logger.error("# # 🚨 CRITICAL: Recursive folder violations detected!")
+            logger.error("🚨 CRITICAL: Recursive folder violations detected!")
             for violation in critical_violations:
-                logger.error(f"   - {violation}"")
+                logger.error(f"   - {violation}")
             raise RuntimeError("CRITICAL: Recursive violations prevent execution")
 
-        logger.info("# # # ✅ REFINED ENVIRONMENT VALIDATION PASSED")
-        logger.info(f"# # # ✅ External backup root confirmed: {self.backup_root}"")
+        logger.info("✅ REFINED ENVIRONMENT VALIDATION PASSED")
+        logger.info(f"✅ External backup root confirmed: {self.backup_root}")
 
     def get_high_success_batches(self, max_batches: int = 30) -> List[Dict]:
         """# # # 📊 Get high-success violation batches for optimal processing"""

@@ -99,7 +99,8 @@ class AntiRecursionValidator:
         logger = logging.getLogger(__name__)
 
         logger.info(
-            f"{ENTERPRISE_INDICATORS['start']} Anti-recursion validation started: {start_time}"")"
+            f"{ENTERPRISE_INDICATORS['start']} Anti-recursion validation started: {start_time}"
+        )
 
         violations = []
         workspace_root = cls.PROPER_ROOT
@@ -109,7 +110,7 @@ class AntiRecursionValidator:
 
             pbar.set_description("[VALIDATION] Scanning workspace structure")
             if not workspace_root.exists():
-                raise RuntimeError(f"CRITICAL: Workspace root not found: {workspace_root}"")"
+                raise RuntimeError(f"CRITICAL: Workspace root not found: {workspace_root}")
             pbar.update(20)
 
             pbar.set_description("[VALIDATION] Checking forbidden patterns")
@@ -187,7 +188,8 @@ class UnicodeCompatibleFileHandler:
             for bom, encoding in self.BOM_SIGNATURES.items():
                 if raw_data.startswith(bom):
                     self.logger.info(
-                        f"{ENTERPRISE_INDICATORS['unicode']} BOM detected: {encoding} in {file_path}"")
+                        f"{ENTERPRISE_INDICATORS['unicode']} BOM detected: {encoding} in {file_path}"
+                    )
                     return encoding, True
 
             # Read larger sample for chardet analysis
@@ -209,21 +211,22 @@ class UnicodeCompatibleFileHandler:
             # Validate encoding is supported
             if detected_encoding not in [enc.lower() for enc in self.SUPPORTED_ENCODINGS]:
                 self.logger.warning(
-                    f"{ENTERPRISE_INDICATORS['warning']} Unsupported encoding {detected_encoding}}, using utf-8}"")
+                    f"{ENTERPRISE_INDICATORS['warning']} Unsupported encoding {detected_encoding}, using utf-8"
+                )
                 detected_encoding = 'utf-8'
 
             processing_time = time.time() - start_time
             self.logger.info(
-    f"{}}}""
-        ENTERPRISE_INDICATORS['unicode']} Encoding detected: {detected_encoding} (confidence: {})
-            confidence:.2f}) in {
-                processing_time:.3f}s")
+                f"{ENTERPRISE_INDICATORS['unicode']} Encoding detected: {detected_encoding} "
+                f"(confidence: {confidence:.2f}) in {processing_time:.3f}s"
+            )
 
-            return detected_encoding, False
+            return detected_encoding, True
 
         except Exception as e:
             self.logger.error(
-                f"{ENTERPRISE_INDICATORS['error']} Encoding detection failed for {file_path}: {e}"")
+                f"{ENTERPRISE_INDICATORS['error']} Encoding detection failed for {file_path}: {e}"
+            )
             return 'utf-8', False
 
     def read_file_with_encoding_detection(self, file_path: Path) -> UnicodeFileInfo:
@@ -235,7 +238,7 @@ class UnicodeCompatibleFileHandler:
             normalized_path = self._normalize_path(file_path)
 
             if not normalized_path.exists():
-                raise FileNotFoundError(f"File not found: {normalized_path}"")
+                raise FileNotFoundError(f"File not found: {normalized_path}")
 
             # Detect encoding and BOM
             encoding, has_bom = self.detect_file_encoding(normalized_path)
@@ -502,10 +505,11 @@ if __name__ == "__main__":
     success = main()
     if success:
         print(
-    f"\n{
-        ENTERPRISE_INDICATORS['success']}} CHUNK 1 COMPLETED: Unicode-Compatible File Handler}"")
+            f"\n{ENTERPRISE_INDICATORS['success']} CHUNK 1 COMPLETED: Unicode-Compatible File Handler"
+        )
         print(
-            f"{ENTERPRISE_INDICATORS['info']}} Ready for Chunk 2: Database-Driven Correction Engine}"")
+            f"{ENTERPRISE_INDICATORS['info']} Ready for Chunk 2: Database-Driven Correction Engine"
+        )
     else:
-        print(f"\n{ENTERPRISE_INDICATORS['error']}} CHUNK 1 FAILED: Review logs for details}"")
+        print(f"\n{ENTERPRISE_INDICATORS['error']} CHUNK 1 FAILED: Review logs for details")
         sys.exit(1)
