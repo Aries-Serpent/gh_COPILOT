@@ -71,7 +71,7 @@ def test_chunk_imports() -> Dict[str, Any]:
         _ = UnicodeCompatibleFileHandler
         import_results['chunk1_unicode_handler'] = True
         logger.info(
-            f"{ENTERPRISE_INDICATORS['success']} Chunk 1: Unicode handler imported successfully}")
+            f"{ENTERPRISE_INDICATORS['success']} Chunk 1: Unicode handler imported successfully")
 
     except ImportError as e:
         import_results['import_errors'].append(f"Chunk 1 import failed: {e}")
@@ -87,7 +87,7 @@ def test_chunk_imports() -> Dict[str, Any]:
         _ = DatabaseDrivenCorrectionEngine, DatabaseManager
         import_results['chunk2_database_engine'] = True
         logger.info(
-            f"{ENTERPRISE_INDICATORS['success']} Chunk 2: Database engine imported successfully}")
+            f"{ENTERPRISE_INDICATORS['success']} Chunk 2: Database engine imported successfully")
 
     except ImportError as e:
         import_results['import_errors'].append(f"Chunk 2 import failed: {e}")
@@ -103,7 +103,7 @@ def test_chunk_imports() -> Dict[str, Any]:
         _ = EnterpriseProgressManager, DualCopilotValidator
         import_results['chunk3_visual_processing'] = True
         logger.info(
-            f"{ENTERPRISE_INDICATORS['success']} Chunk 3: Visual processing imported successfully}")
+            f"{ENTERPRISE_INDICATORS['success']} Chunk 3: Visual processing imported successfully")
 
     except ImportError as e:
         import_results['import_errors'].append(f"Chunk 3 import failed: {e}")
@@ -120,7 +120,7 @@ def test_chunk_imports() -> Dict[str, Any]:
         _ = EnterpriseOrchestrator, PrimaryExecutorCopilot, SecondaryValidatorCopilot
         import_results['chunk4_dual_copilot'] = True
         logger.info(
-            f"{ENTERPRISE_INDICATORS['success']} Chunk 4: DUAL COPILOT imported successfully}")
+            f"{ENTERPRISE_INDICATORS['success']} Chunk 4: DUAL COPILOT imported successfully")
 
     except ImportError as e:
         import_results['import_errors'].append(f"Chunk 4 import failed: {e}")
@@ -137,14 +137,14 @@ def test_chunk_imports() -> Dict[str, Any]:
     logger.info(
     f"{
         ENTERPRISE_INDICATORS['info']} Import Success Rate: {
-            success_rate:.1f}% ({successful_imports}/{total_chunks})}")
+            success_rate:.1f}% ({successful_imports}/{total_chunks})")
 
     return import_results
 
 def test_basic_functionality() -> Dict[str, Any]:
     """Test basic functionality of each chunk"""
 
-    logger.info(f"{ENTERPRISE_INDICATORS['start']} TESTING BASIC FUNCTIONALITY}")
+    logger.info(f"{ENTERPRISE_INDICATORS['start']} TESTING BASIC FUNCTIONALITY")
 
     functionality_results = {
         'unicode_handler_test': False,

@@ -258,7 +258,7 @@ class PriorityViolationsProcessor:
                 'complexity': 'MEDIUM',
                 'requires_manual_review': False,
                 'target_files': [f[0] for f in high_impact_files[:10]]  # Top 10 files
-            )
+            })
 
         # Batch 3: Medium priority formatting (automated)
         medium_violations = [p for p in priorities if p.severity == 'MEDIUM']
