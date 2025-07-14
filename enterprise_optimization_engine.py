@@ -2,7 +2,9 @@
 """
 ENTERPRISE OPTIMIZATION ENGINE - Phase 2 Advanced Implementation
 ==================================================================
-Building upon successful Database Purification Engine completion.
+Building upon successful Database Pur                self.logger.error(f"[ERROR] Query optimization failed: {db_path.name} - {e}")
+
+        return f"{optimizations_applied} query optimizations applied"cation Engine completion.
 
 Phase 1 Results:
 # # # ✅ 50 databases processed
@@ -50,9 +52,9 @@ class EnterpriseOptimizationEngine:
 
         # [START] Enterprise Optimization Engine initialization
         print("[START] Enterprise Optimization Engine initialized")
-        print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}"")"
-        print(f"Process ID: {self.process_id}"")"
-        print(f"Workspace: {self.workspace_path}"")
+        print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Process ID: {self.process_id}")
+        print(f"Workspace: {self.workspace_path}")
         print("Phase 1 Foundation: Database Purification COMPLETED")
 
         # Setup enterprise logging
@@ -77,7 +79,7 @@ class EnterpriseOptimizationEngine:
         """Setup advanced enterprise logging with optimization tracking."""
         log_file = \
             self.workspace_path / \
-                f"enterprise_optimization_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}}.log}""
+                f"enterprise_optimization_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
         logging.basicConfig(
             level=logging.INFO,
@@ -105,7 +107,7 @@ class EnterpriseOptimizationEngine:
             if db_file.is_file() and db_file not in databases:
                 databases.append(db_file)
 
-        self.logger.info(f"[INFO] Discovered {len(databases)}} optimized databases}"")
+        self.logger.info(f"[INFO] Discovered {len(databases)} optimized databases")
         return databases
 
     def execute_enterprise_optimization(self) -> Dict[str, Any]:
@@ -174,10 +176,10 @@ class EnterpriseOptimizationEngine:
                 task_name = future_to_task[future]
                 try:
                     result = future.result()
-                    self.logger.info(f"[SUCCESS] {task_name} completed: {result}"")
+                    self.logger.info(f"[SUCCESS] {task_name} completed: {result}")
                     self.optimization_metrics["cross_database_optimizations"] += 1
                 except Exception as e:
-                    self.logger.error(f"[ERROR] {task_name} failed: {e}"")
+                    self.logger.error(f"[ERROR] {task_name} failed: {e}")
 
     def optimize_query_performance(self) -> str:
         """Optimize query performance across databases."""
@@ -198,9 +200,9 @@ class EnterpriseOptimizationEngine:
                     self.optimization_metrics["performance_enhancements"] += 4
 
             except Exception as e:
-                self.logger.error(f"[ERROR] Query optimization failed: {db_path.name} - {e}"")
+                self.logger.error(f"[ERROR] Query optimization failed: {db_path.name} - {e}")
 
-        return f"{optimizations_applied}} query optimizations applied}""
+        return f"{optimizations_applied} query optimizations applied"
 
     def implement_connection_pooling(self) -> str:
         """Implement enterprise-grade connection pooling."""
@@ -217,7 +219,7 @@ class EnterpriseOptimizationEngine:
         with open(config_file, 'w') as f:
             json.dump(pooling_config, f, indent=2)
 
-        self.logger.info(f"[SUCCESS] Connection pooling config saved: {config_file}"")
+        self.logger.info(f"[SUCCESS] Connection pooling config saved: {config_file}")
         self.optimization_metrics["performance_enhancements"] += 1
 
         return "Enterprise connection pooling implemented"
@@ -263,13 +265,10 @@ class EnterpriseOptimizationEngine:
                     cursor.execute("PRAGMA temp_store = MEMORY")
                     cursor.execute("PRAGMA mmap_size = 268435456")  # 256MB memory map
 
-                    transaction_optimizations += 3
-
-            except Exception as e:
-                self.logger.error(f"[ERROR] Transaction optimization failed: {db_path.name} - {e}"")
-
+                    transaction_optimizations += 3            except Exception as e:
+                self.logger.error(f"[ERROR] Transaction optimization failed: {db_path.name} - {e}")
         self.optimization_metrics["performance_enhancements"] += transaction_optimizations
-        return f"{transaction_optimizations}} transaction optimizations applied}""
+        return f"{transaction_optimizations} transaction optimizations applied"
 
     def enhance_enterprise_intelligence(self):
         """Enhance enterprise intelligence capabilities."""

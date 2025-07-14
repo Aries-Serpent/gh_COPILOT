@@ -246,8 +246,8 @@ class EnhancedEnterpriseProcessor:
     def create_external_backup(self, file_path: str) -> str:
         """💾 Create external backup for enterprise safety"""
         try:
-            file_path = Path(file_path)
-            backup_name = f"{file_path.stem}_enhanced_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}{file_path.suffix}"
+            file_path_obj = Path(file_path)
+            backup_name = f"{file_path_obj.stem}_enhanced_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}{file_path_obj.suffix}"
             backup_path = self.backup_root / backup_name
             
             shutil.copy2(file_path, backup_path)
