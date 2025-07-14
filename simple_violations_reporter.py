@@ -254,7 +254,7 @@ class SimpleViolationsReporter:
 
     def save_report_json(self, report: ViolationReport) -> str:
         """# # 💾 Save detailed report as JSON"""
-        report_file = self.reports_dir / f"detailed_violations_report_{report.session_id}.json}"
+        report_file = self.reports_dir / f"detailed_violations_report_{report.session_id}.json"
 
         with open(report_file, 'w', encoding='utf-8') as f:
             json.dump(asdict(report), f, indent=2, ensure_ascii=False)
@@ -265,8 +265,7 @@ class SimpleViolationsReporter:
     def generate_text_report(self, report: ViolationReport) -> str:
         """📄 Generate comprehensive text report"""
 
-        text_content = f""
-# # 🎯 DETAILED VIOLATIONS REPORT
+        text_content = f"""🎯 DETAILED VIOLATIONS REPORT
 ================================================================================
 Session: {report.session_id}
 Generated: {report.timestamp}
@@ -275,7 +274,7 @@ Files Affected: {len(report.violations_by_file):,}
 Unique Violation Types: {len(report.violations_by_type):,}
 ================================================================================
 
-# # # 📊 EXECUTIVE SUMMARY
+📊 EXECUTIVE SUMMARY
 ────────────────────────────────────────────────────────────────────────────────
 • Total Violations: {report.total_violations:,}
 • Files Affected: {len(report.violations_by_file):,}
@@ -283,14 +282,14 @@ Unique Violation Types: {len(report.violations_by_type):,}
 • Average per File: {report.detailed_breakdown['file_statistics']['average_violations_per_file']:.1f}
 • Max in Single File: {report.detailed_breakdown['file_statistics']['max_violations_in_single_file']:,}
 
-# # # ⚠️ SEVERITY DISTRIBUTION
+⚠️ SEVERITY DISTRIBUTION
 ────────────────────────────────────────────────────────────────────────────────
 """
 
         for severity, count in report.violation_severity.items():
             percentage = (count / report.total_violations) * \
                           100 if report.total_violations > 0 else 0
-            text_content += f"• {severity.title()}: {count:,} ({percentage:.1f}%)\n}"
+            text_content += f"• {severity.title()}: {count:,} ({percentage:.1f}%)\n"
 
         text_content += """
 # # # 🔍 TOP VIOLATION TYPES
@@ -300,7 +299,7 @@ Unique Violation Types: {len(report.violations_by_type):,}
         for i, (violation_type, count) in enumerate(
             list(report.violations_by_type.items())[:15], 1):
             percentage = (count / report.total_violations) * 100
-            text_content += f"{i:2d}. {violation_type:8s} : {count:5,} ({percentage:5.1f}%)\n}"
+            text_content += f"{i:2d}. {violation_type:8s} : {count:5,} ({percentage:5.1f}%)\n"
 
         text_content += """
 📁 TOP FILES WITH VIOLATIONS
@@ -309,11 +308,7 @@ Unique Violation Types: {len(report.violations_by_type):,}
 
         for i, file_info in enumerate(report.top_violating_files[:15], 1):
             file_name = Path(file_info['file']).name
-            text_content += f"{}}"
-    i:2d}. {
-        file_name:40s} : {
-            file_info['violations']:4,} violations ({
-                file_info['unique_types']:2,} types)\n"
+            text_content += f"{i:2d}. {file_name:40s} : {file_info['violations']:4,} violations ({file_info['unique_types']:2,} types)\n"
 
         text_content += """
 📋 CATEGORY BREAKDOWN
@@ -324,7 +319,7 @@ Unique Violation Types: {len(report.violations_by_type):,}
             percentage = (count / report.total_violations) * \
                           100 if report.total_violations > 0 else 0
             category_name = category.replace('_', ' ').title()
-            text_content += f"• {category_name:20s} : {count:5,} ({percentage:5.1f}%)\n}"
+            text_content += f"• {category_name:20s} : {count:5,} ({percentage:5.1f}%)\n"
 
         text_content += """
 ================================================================================
@@ -333,7 +328,7 @@ gh_COPILOT Toolkit v4.0 - Comprehensive Session Integrity Framework
 ================================================================================
         """
 
-        text_file = self.reports_dir / f"detailed_violations_report_{report.session_id}.txt}"
+        text_file = self.reports_dir / f"detailed_violations_report_{report.session_id}.txt"
         with open(text_file, 'w', encoding='utf-8') as f:
             f.write(text_content)
 
@@ -384,7 +379,7 @@ def main():
         print(f"# # # 🔍 Unique Violation Types: {len(report.violations_by_type):,}")
         print(f"# # 💾 JSON Report: {json_file}")
         print(f"📄 Text Report: {text_file}")
-        print(f"⏱️  Duration: {duration:.2f} seconds}")
+        print(f"⏱️  Duration: {duration:.2f} seconds")
         print("=" * 80)
 
         # Display key insights
@@ -395,25 +390,25 @@ def main():
         print("# # # 📊 Top 5 Violation Types:")
         for i, (vtype, count) in enumerate(list(report.violations_by_type.items())[:5], 1):
             percentage = (count / report.total_violations) * 100
-            print(f"   {i}. {vtype}: {count:,} ({percentage:.1f}%)}")
+            print(f"   {i}. {vtype}: {count:,} ({percentage:.1f}%)")
 
         # Severity summary
         print("\n# # # ⚠️ Severity Summary:")
         for severity, count in report.violation_severity.items():
             if count > 0:
                 percentage = (count / report.total_violations) * 100
-                print(f"   • {severity.title()}: {count:,} ({percentage:.1f}%)}")
+                print(f"   • {severity.title()}: {count:,} ({percentage:.1f}%)")
 
         # Top problematic files
         print("\n📁 Most Problematic Files:")
         for i, file_info in enumerate(report.top_violating_files[:3], 1):
             file_name = Path(file_info['file']).name
-            print(f"   {i}. {file_name}: {file_info['violations']:,} violations}")
+            print(f"   {i}. {file_name}: {file_info['violations']:,} violations}}")
 
     except Exception as e:
         duration = (datetime.now() - start_time).total_seconds()
         print(f"\n❌ ERROR: {e}")
-        print(f"⏱️  Duration: {duration:.2f} seconds}")
+        print(f"⏱️  Duration: {duration:.2f} seconds")
         sys.exit(1)
 
 

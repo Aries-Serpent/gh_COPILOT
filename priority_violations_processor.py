@@ -69,49 +69,49 @@ class PriorityViolationsProcessor:
         self.priority_rules = {
             # Critical security/functionality issues
             # undefined name
-            'F821': {'severity': 'CRITICAL', 'complexity': 'LOW', 'impact': 'HIGH', 'score': 100,
+            'F821': {'severity': 'CRITICAL', 'complexity': 'LOW', 'impact': 'HIGH', 'score': 100},
             # undefined name in __all__
-            'F822': {'severity': 'CRITICAL', 'complexity': 'LOW', 'impact': 'HIGH', 'score': 95,
+            'F822': {'severity': 'CRITICAL', 'complexity': 'LOW', 'impact': 'HIGH', 'score': 95},
             # syntax error
-            'E999': {'severity': 'CRITICAL', 'complexity': 'HIGH', 'impact': 'HIGH', 'score': 90,
+            'E999': {'severity': 'CRITICAL', 'complexity': 'HIGH', 'impact': 'HIGH', 'score': 90},
 
             # High priority code quality
             # unused import
-            'F401': {'severity': 'HIGH', 'complexity': 'LOW', 'impact': 'MEDIUM', 'score': 85,
+            'F401': {'severity': 'HIGH', 'complexity': 'LOW', 'impact': 'MEDIUM', 'score': 85},
             # unused variable
-            'F841': {'severity': 'HIGH', 'complexity': 'LOW', 'impact': 'MEDIUM', 'score': 80,
+            'F841': {'severity': 'HIGH', 'complexity': 'LOW', 'impact': 'MEDIUM', 'score': 80},
             # redefined name
-            'F811': {'severity': 'HIGH', 'complexity': 'MEDIUM', 'impact': 'MEDIUM', 'score': 75,
+            'F811': {'severity': 'HIGH', 'complexity': 'MEDIUM', 'impact': 'MEDIUM', 'score': 75},
 
             # Medium priority formatting
             # expected 2 blank lines
-            'E302': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 70,
+            'E302': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 70},
             # expected 2 blank lines after
-            'E305': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 65,
+            'E305': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 65},
             # line too long
-            'E501': {'severity': 'MEDIUM', 'complexity': 'MEDIUM', 'impact': 'LOW', 'score': 60,
+            'E501': {'severity': 'MEDIUM', 'complexity': 'MEDIUM', 'impact': 'LOW', 'score': 60},
             # expected 1 blank line
-            'E301': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 55,
+            'E301': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 55},
 
             # Low priority whitespace
             # blank line whitespace
-            'W293': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 50,
+            'W293': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 50},
             # trailing whitespace
-            'W291': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 45,
+            'W291': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 45},
             # no newline at EOF
-            'W292': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 40,
+            'W292': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 40},
             # too many blank lines
-            'E303': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 35,
+            'E303': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 35},
             # inline comment spacing
-            'E261': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 30,
+            'E261': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 30},
             # inline comment should start with #
-            'E262': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 25,
+            'E262': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 25},
             # block comment should start with #
-            'E265': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 20,
+            'E265': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 20},
             # too many leading # for block comment
-            'E266': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 15,
+            'E266': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 15},
             # blank line at end of file
-            'W391': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 10,
+            'W391': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 10},
             # line break before binary operator
             'W503': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 5}
         }
@@ -152,7 +152,7 @@ class PriorityViolationsProcessor:
                 WHERE status = 'pending'
                 GROUP BY error_code
                 ORDER BY COUNT(*) DESC
-            "")"
+            """)
 
             violation_counts = cursor.fetchall()
 
@@ -164,7 +164,7 @@ class PriorityViolationsProcessor:
                     'complexity': 'UNKNOWN',
                     'impact': 'UNKNOWN',
                     'score': 1
-                )
+                })
 
                 priority = ViolationPriority(
                     error_code=error_code,
@@ -199,13 +199,13 @@ class PriorityViolationsProcessor:
                 SELECT
                     file_path,
                     COUNT(*) as total_violations,
-                    COUNT(CASE WHEN error_code IN ({placeholders) THEN 1 END) as critical_violations
+                    COUNT(CASE WHEN error_code IN ({placeholders}) THEN 1 END) as critical_violations
                 FROM violations
                 WHERE status = 'pending'
                 GROUP BY file_path
                 HAVING critical_violations > 0
                 ORDER BY critical_violations DESC, total_violations DESC
-            "", critical_codes)"
+            """, critical_codes)
 
             return cursor.fetchall()
 
@@ -283,8 +283,8 @@ class PriorityViolationsProcessor:
 
             for i in range(sub_batches_needed):
                 batches.append({
-                    'name': f'LOW_PRIORITY_WHITESPACE_BATCH_{i+1',
-                    'description': f'Low priority whitespace issues (batch {i+1/{sub_batches_needed}})',
+                    'name': f'LOW_PRIORITY_WHITESPACE_BATCH_{i+1}',
+                    'description': f'Low priority whitespace issues (batch {i+1}/{sub_batches_needed})',
                     'priority': 70 - i,  # Decreasing priority for each batch
                     'violation_types': [v.error_code for v in low_violations],
                     'estimated_count': min(max_batch_size, total_low_count - (i * max_batch_size)),
@@ -292,12 +292,13 @@ class PriorityViolationsProcessor:
                     'requires_manual_review': False,
                     'automation_ready': True,
                     'bulk_processing': True
+                })
                 )
 
         return batches
 
     def generate_priority_report(self) -> Dict[str, Any]:
-        ""📋 Generate comprehensive priority analysis report"""
+        """📋 Generate comprehensive priority analysis report"""
         start_time = datetime.now()
 
         print("# # # 📊 Generating priority analysis...")
