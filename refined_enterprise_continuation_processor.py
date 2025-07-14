@@ -144,16 +144,16 @@ class RefinedEnterpriseProcessor:
                 # Sort by expected success rate (highest first)
                 batches.sort(key=lambda b: b['expected_success_rate'], reverse=True)
 
-                logger.info(f"# # # 📊 Created {len(batches)}} high-success batches}"")
+                logger.info(f"# # # 📊 Created {len(batches)} high-success batches")
                 if batches:
                     avg_success_rate = sum(b['expected_success_rate']
                                            for b in batches) / len(batches)
-                    logger.info(f"📈 Average expected success rate: {avg_success_rate:.1%}"")
+                    logger.info(f"📈 Average expected success rate: {avg_success_rate:.1%}")
 
                 return batches
 
         except Exception as e:
-            logger.error(f"❌ Error creating high-success batches: {e}"")
+            logger.error(f"❌ Error creating high-success batches: {e}")
             return []
 
     def apply_refined_fixes(self, batch: Dict) -> Tuple[int, int, List[str]]:

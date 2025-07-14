@@ -113,10 +113,10 @@ class EnterpriseScaleViolationProcessor:
         self.session_id = f"enterprise_{datetime.now().strftime('%Y%m%d_%H%M%S')}"""
 
         logger.info("🏢 ENTERPRISE SCALE VIOLATION PROCESSOR INITIALIZED")
-        logger.info(f"Session ID: {self.session_id}"")
-        logger.info(f"Database: {self.database_path}"")
-        logger.info(f"Monitoring: {self.monitoring_path}"")
-        logger.info(f"Backup Root: {self.backup_root}"")
+        logger.info(f"Session ID: {self.session_id}")
+        logger.info(f"Database: {self.database_path}")
+        logger.info(f"Monitoring: {self.monitoring_path}")
+        logger.info(f"Backup Root: {self.backup_root}")
 
     def validate_enterprise_environment(self):
         """🛡️ CRITICAL: Validate enterprise environment with anti-recursion protection"""
