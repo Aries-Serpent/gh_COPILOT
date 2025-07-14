@@ -321,10 +321,10 @@ class RefinedEnterpriseProcessor:
         logger.info("# # # 🚀 REFINED ENTERPRISE VIOLATION PROCESSING STARTED")
         logger.info("="*80)
         logger.info(f"📋 Session ID: {self.session_id}}}")
-        logger.info(f"🕐 Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}"")
-        logger.info(f"🆔 Process ID: {process_id}"")
+        logger.info(f"🕐 Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"🆔 Process ID: {process_id}")
         logger.info("# # 🎯 Target: High-Success Violations Only")
-        logger.info(f"# # # 📊 Max Batches: {max_batches}"")
+        logger.info(f"# # # 📊 Max Batches: {max_batches}")
 
         try:
             # Get high-success batches
@@ -337,7 +337,7 @@ class RefinedEnterpriseProcessor:
                 logger.warning("# # # ⚠️ No high-success batches found for processing")
                 return self._create_empty_results()
 
-            logger.info(f"📦 Processing {len(high_success_batches)}} high-success batches}"")
+            logger.info(f"📦 Processing {len(high_success_batches)} high-success batches")
 
             # Initialize metrics
             total_successful_fixes = 0
@@ -379,17 +379,17 @@ class RefinedEnterpriseProcessor:
                             total_violations_processed if total_violations_processed > 0 else 0
                         pbar.set_postfix({
                             'Fixes': total_successful_fixes,
-                            'Success': f"{overall_success_rate:.1%}"",
-                            'Current': f"{actual_success_rate:.1%}"",
+                            'Success': f"{overall_success_rate:.1%}",
+                            'Current': f"{actual_success_rate:.1%}",
                             'Files': files_processed
                         })
 
                         # Log refined results
-                        logger.info(f"# # # ✅ Refined batch completed: {successful_fixes}/{batch['violation_count']}} fixes }""
+                        logger.info(f"# # # ✅ Refined batch completed: {successful_fixes}/{batch['violation_count']} fixes")
                         logger.info(f"# # # ✅ Refined batch completed: {successful_fixes}/{batch['violation_count']} fixes "
                                     f"({actual_success_rate:.1%} actual vs {expected_rate:.1%} expected)")
                     except Exception as e:
-                        logger.error(f"❌ Refined batch failed: {e}"")
+                        logger.error(f"❌ Refined batch failed: {e}")
                         total_failed_fixes += batch['violation_count']
                         total_violations_processed += batch['violation_count']
 
@@ -462,18 +462,18 @@ def main():
         print("="*60)
         print("# # 🎯 Target: HIGH-SUCCESS VIOLATIONS ONLY")
         print("Target: >80% success rate with proven violation types")
-        print(f"# # 💾 External Backups: {processor.backup_root}"")
+        print(f"# # 💾 External Backups: {processor.backup_root}")
 
         # Execute refined processing
         results = processor.execute_refined_processing(max_batches=30)
 
         print("\n# # # ✅ REFINED PROCESSING RESULTS:")
-        print(f"   Violations Processed: {results['total_violations_processed']}"")
-        print(f"   Successful Fixes: {results['successful_fixes']}"")
-        print(f"   Success Rate: {results['overall_success_rate']:.1%}"")
-        print(f"   Files Processed: {results['files_processed']}"")
-        print(f"   Processing Time: {results['processing_time_seconds']:.2f}}s}"")
-        print(f"   External Backups: {results['external_backup_root']}"")
+        print(f"   Violations Processed: {results['total_violations_processed']}")
+        print(f"   Successful Fixes: {results['successful_fixes']}")
+        print(f"   Success Rate: {results['overall_success_rate']:.1%}")
+        print(f"   Files Processed: {results['files_processed']}")
+        print(f"   Processing Time: {results['processing_time_seconds']:.2f}s")
+        print(f"   External Backups: {results['external_backup_root']}")
 
         if results['overall_success_rate'] >= 0.80:
             print("\n🎉 Refined processing achieved >80% success rate target!")
@@ -485,7 +485,7 @@ def main():
         print("\n🎉 Refined enterprise processing completed successfully!")
 
     except Exception as e:
-        logger.error(f"❌ Refined main execution failed: {e}"")
+        logger.error(f"❌ Refined main execution failed: {e}")
         sys.exit(1)
 
 
