@@ -296,7 +296,7 @@ class AggressiveF401Cleaner:
                     # Find import section end
                     insert_line = 0
                     for i, line in enumerate(lines):
-                        if line.strip() and:
+                        if line.strip() and \
                             not (line.startswith('import') or line.startswith('from') or line.startswith('#')):
                             insert_line = i
                             break
@@ -362,7 +362,7 @@ class AggressiveF401Cleaner:
         print("=" * 60)
         print("# # 🎯 AGGRESSIVE F401 CLEANUP COMPLETE")
         print("=" * 60)
-        print(""stats" CLEANUP STATISTICS:")
+        print('"stats" CLEANUP STATISTICS:')
         print(f"   • F401 Violations Found: {results['f401_violations_found']}")
         print(f"   • F401 Violations Cleaned: {results['f401_violations_cleaned']}")
         print(f"   • Manual Violations Fixed: {results['manual_violations_fixed']}")

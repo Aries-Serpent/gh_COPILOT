@@ -164,7 +164,7 @@ class DetailedViolationsReporter:
                         "violations": count,
                         "unique_types": types
                     }
-                    for, file_path, count, types in top_files_data
+                    for file_path, count, types in top_files_data
                 ]
                 pbar.update(30)
 

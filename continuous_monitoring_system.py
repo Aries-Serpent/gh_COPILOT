@@ -134,7 +134,7 @@ class ContinuousMonitoringSystem:
                     health_score REAL,
                     snapshot_data TEXT
                 )
-            """)"""
+            """)
 
             # Create alerts table
             cursor.execute("""
@@ -149,7 +149,7 @@ class ContinuousMonitoringSystem:
                     message TEXT,
                     acknowledged BOOLEAN DEFAULT FALSE
                 )
-            """)"""
+            """)
 
             # Create metrics history table
             cursor.execute("""
@@ -160,7 +160,7 @@ class ContinuousMonitoringSystem:
                     metric_value REAL,
                     metadata TEXT
                 )
-            """)"""
+            """)
 
         self.monitoring_db = monitoring_db
 

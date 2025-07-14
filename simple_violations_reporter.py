@@ -33,7 +33,7 @@ def validate_workspace_integrity() -> bool:
 
     if violations:
         for violation in violations:
-            print(f"# # 🚨 RECURSIVE VIOLATION: {violation}")"
+            print(f"🚨 RECURSIVE VIOLATION: {violation}")
         raise RuntimeError("CRITICAL: Recursive violations prevent execution")
 
     return True

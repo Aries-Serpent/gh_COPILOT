@@ -210,7 +210,7 @@ class PriorityViolationsProcessor:
             return cursor.fetchall()
 
     def get_high_impact_files(self, limit: int = 20) -> List[Tuple[str, int]]:
-        """📈 Get files with highest violation counts"""
+        """Get files with highest violation counts"""
         with sqlite3.connect(self.database_path) as conn:
             cursor = conn.cursor()
 

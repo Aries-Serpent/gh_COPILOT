@@ -148,9 +148,8 @@ class SystematicF821F401Processor:
                 pbar.update(100)
 
         logger.info(
-    f"# # # ✅ SCAN COMPLETE: {}}}"
-        len(f821_violations)} F821, {}
-            len(f401_violations)} F401 violations")
+    f"✅ SCAN COMPLETE: {len(f821_violations)} F821, "
+    f"{len(f401_violations)} F401 violations")
         return f821_violations, f401_violations
 
     def _parse_violation_line(self, line: str) -> Optional[ViolationPattern]:

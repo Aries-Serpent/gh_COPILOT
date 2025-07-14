@@ -113,10 +113,10 @@ class Phase7FinalEliminationSystem:
             # Run flake8 for targeted violations
             cmd = ["python", "-m", "flake8", "--select=E999,E501,F821,W293", "--format=%(code)s", "."]
             result = subprocess.run(
-                                    cmd
-                                    cwd=self.workspace_path
-                                    capture_output=True
-                                    text=True
+                                    cmd,
+                                    cwd=self.workspace_path,
+                                    capture_output=True,
+                                    text=True,
                                     encoding='utf-8'
                                 )
 

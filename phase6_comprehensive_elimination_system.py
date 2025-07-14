@@ -753,7 +753,7 @@ class E501LineOptimizer:
                     parts = func_call.split(',')
                     if len(parts) > 1:
                         indent = len(line) - len(line.lstrip())
-                        broken = parts[0] + ',\n' +
+                        broken = parts[0] + ',\n' + \
         ' ' * (indent + 4) + ',\n'.join(p.strip() for p in parts[1:])
                         return line.replace(func_call, broken)
 
