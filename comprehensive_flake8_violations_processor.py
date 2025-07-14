@@ -106,6 +106,7 @@ class EnterpriseLoggingManager:
     def get_logger(self) -> logging.Logger:
         return self.logger
 
+class AntiRecursionValidator:
     """Enterprise anti-recursion protection"""
 
     def __init__(self, logger: logging.Logger):
@@ -185,10 +186,7 @@ class UnicodeCompatibleFileHandler:
 
             duration = time.time() - start_time
             self.logger.info(
-    f"{}"
-        TEXT_INDICATORS['unicode']} Encoding detected: {encoding} (confidence: {})
-            confidence:.2f}) in {
-                duration:.3f}s")"
+                f"{TEXT_INDICATORS['unicode']} Encoding detected: {encoding} (confidence: {confidence:.2f}) in {duration:.3f}s")
             return encoding, confidence
 
         except Exception as e:
@@ -209,9 +207,7 @@ class UnicodeCompatibleFileHandler:
             duration = time.time() - start_time
 
             self.logger.info(
-    f"{"
-        TEXT_INDICATORS['success']} File read successfully: {file_path} ({encoding}, {file_size} bytes) in {
-            duration:.3f}s")"
+                f"{TEXT_INDICATORS['success']} File read successfully: {file_path} ({encoding}, {file_size} bytes) in {duration:.3f}s")
             return content, encoding
 
         except Exception as e:
@@ -226,9 +222,7 @@ class UnicodeCompatibleFileHandler:
             # Create backup if file exists
             if file_path.exists():
                 backup_path = file_path.with_suffix(
-    f'.backup_{'
-        datetime.now().strftime("%Y%m%d_%H%M%S")}{
-            file_path.suffix}')'
+                    f'.backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}{file_path.suffix}')
                 file_path.rename(backup_path)
                 self.logger.info(f"{TEXT_INDICATORS['info']} Backup created: {backup_path}")
 
@@ -239,9 +233,7 @@ class UnicodeCompatibleFileHandler:
             duration = time.time() - start_time
 
             self.logger.info(
-    f"{"
-        TEXT_INDICATORS['success']} File written successfully: {file_path} ({encoding}, {file_size} bytes) in {
-            duration:.3f}s")"
+                f"{TEXT_INDICATORS['success']} File written successfully: {file_path} ({encoding}, {file_size} bytes) in {duration:.3f}s")
             return True
 
         except Exception as e:
@@ -253,6 +245,7 @@ class DatabaseManager:
 
     def __init__(self, logger: logging.Logger):
         self.logger = logger
+        self.db_path = Path("e:/gh_COPILOT/databases/comprehensive_flake8_violations.db")
 
         self.db_path.parent.mkdir(exist_ok=True)
         self._initialize_database()
@@ -277,7 +270,7 @@ class DatabaseManager:
                         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                         status TEXT DEFAULT 'pending'
                     )
-                """)"""
+                """)
 
                 # Corrections table
                 cursor.execute("""
@@ -289,7 +282,7 @@ class DatabaseManager:
                         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY (violation_id) REFERENCES violations (id)
                     )
-                """)"""
+                """)
 
                 # Sessions table
                 cursor.execute("""
@@ -302,7 +295,7 @@ class DatabaseManager:
                         violations_fixed INTEGER DEFAULT 0,
                         success_rate REAL DEFAULT 0.0
                     )
-                """)"""
+                """)
 
                 conn.commit()
                 self.logger.info(
@@ -320,7 +313,7 @@ class DatabaseManager:
                 cursor.execute("""
                     INSERT INTO processing_sessions (session_id, start_time)
                     VALUES (?, ?)
-                """, (session_id, datetime.now()))"""
+                """, (session_id, datetime.now()))
                 conn.commit()
 
             self.logger.info(f"{TEXT_INDICATORS['database']} Session created: {session_id}")
@@ -339,7 +332,7 @@ class DatabaseManager:
                     INSERT INTO violations (session_id, file_path, line_number, column_number,
                                           error_code, message, severity, timestamp)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, (session_id, violation.file_path, violation.line_number,"""
+                """, (session_id, violation.file_path, violation.line_number,
                       violation.column_number, violation.error_code, violation.message,
                       violation.severity, violation.timestamp))
 
@@ -361,7 +354,7 @@ class DatabaseManager:
                     SET total_files = ?, violations_found = ?, violations_fixed = ?,
                         success_rate = ?, end_time = ?
                     WHERE session_id = ?
-                """, (stats.get('total_files', 0), stats.get('violations_found', 0),"""
+                """, (stats.get('total_files', 0), stats.get('violations_found', 0),
                       stats.get('violations_fixed', 0), stats.get('success_rate', 0.0),
                       datetime.now(), session_id))
                 conn.commit()
@@ -377,6 +370,7 @@ class Flake8ViolationScanner:
 
     def __init__(self, logger: logging.Logger, file_handler: UnicodeCompatibleFileHandler):
         self.logger = logger
+        self.file_handler = file_handler
 
     def scan_file(self, file_path: Path) -> List[ViolationReport]:
         """Scan single file for Flake8 violations"""
@@ -457,12 +451,18 @@ class ComprehensiveFlake8Processor:
     def __init__(self):
         # Initialize logging
         self.logging_manager = EnterpriseLoggingManager()
+        self.logger = self.logging_manager.get_logger()
 
         # Initialize components
-        self.anti_recursion = AntiRecursionValidator(self.logger)
         self.file_handler = UnicodeCompatibleFileHandler(self.logger)
         self.database = DatabaseManager(self.logger)
         self.scanner = Flake8ViolationScanner(self.logger, self.file_handler)
+
+        # Session management
+        self.session = ProcessingSession(
+            session_id=self.logging_manager.session_id,
+            start_time=datetime.now()
+        )
 
         # Session management
         self.session = ProcessingSession(
@@ -482,10 +482,7 @@ class ComprehensiveFlake8Processor:
         self.logger.info(f"{TEXT_INDICATORS['info']} Target: 43,926+ violations")
 
         try:
-            # PHASE 1: Validate workspace integrity
-            self.anti_recursion.validate_workspace_integrity()
-
-            # PHASE 2: Create database session
+            # PHASE 1: Create database session
             self.database.create_session(self.session.session_id)
 
             # PHASE 3: Discover Python files
@@ -668,17 +665,20 @@ class ComprehensiveFlake8Processor:
 def main():
     """Main execution function"""
     try:
-
+        start_time = datetime.now()
         processor = ComprehensiveFlake8Processor()
+
+        # Execute processing
+        processing_results = processor.execute_comprehensive_processing()
 
         print("\n" + "=" * 80)
         print("🎉 COMPREHENSIVE FLAKE8 PROCESSING COMPLETED")
         print("=" * 80)
-        print(f""stats" Files Processed: {report['processing_summary']['files_processed']}")
-        print(f""search" Violations Found: {report['processing_summary']['violations_found']}")
+        print(f"📊 Files Processed: {processing_results.get('files_processed', 0)}")
+        print(f"🔍 Violations Found: {processing_results.get('violations_found', 0)}")
 
-        print(f"📈 Success Rate: {report['processing_summary']['success_rate']:.1f}%")
-        print(f"⏱️  Duration: {report['session_info']['duration_seconds']:.1f} seconds")
+        print(f"📈 Success Rate: {processing_results.get('success_rate', 0):.1f}%")
+        print(f"⏱️  Duration: {(datetime.now() - start_time).total_seconds():.1f} seconds")
         print("=" * 80)
 
         return 0

@@ -161,8 +161,7 @@ class SessionIntegrityManager:
             self.validation_results['database_integrity'] = integrity_percentage >= 95.0
 
             logging.info(
-                f"[VALIDATION] Database Integrity: {valid_ \
-                    databases}/{database_count} ({integrity_percentage:.1f}%)")
+                f"[VALIDATION] Database Integrity: {valid_databases}/{database_count} ({integrity_percentage:.1f}%)")
             return self.validation_results['database_integrity']
 
         except Exception as e:
@@ -198,8 +197,7 @@ class SessionIntegrityManager:
 
             if zero_byte_files:
                 logging.warning(
-                    f"[WARNING] Found {len(zero_byte_f \
-                        iles)} zero-byte files ({zero_byte_percentage:.2f}%)")
+                    f"[WARNING] Found {len(zero_byte_files)} zero-byte files ({zero_byte_percentage:.2f}%)")
             else:
                 logging.info("[SUCCESS] No zero-byte files detected")
 

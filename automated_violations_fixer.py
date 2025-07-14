@@ -7,6 +7,7 @@ Enterprise-grade automated fix system for 12,844+ Flake8 violations
 import sqlite3
 import os
 import sys
+import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
@@ -120,12 +121,12 @@ class AutomatedViolationsFixer:
                 WHERE error_code IN ({placeholders})
                 AND status = 'pending'
                 ORDER BY file_path, line_number
-            """, fixable_codes)"""
+            """, fixable_codes)
 
             return cursor.fetchall()
 
     def create_file_backup(self, file_path: str) -> str:
-        """# SAVE Create backup of file before modification"""
+        """💾 Create backup of file before modification"""
         source_file = Path(file_path)
         if not source_file.exists():
             return ""
@@ -275,12 +276,12 @@ class AutomatedViolationsFixer:
         original_line = lines[line_num - 1]
 
         # Only fix simple cases - long string literals
-        if len(original_line) > 79 and '"' in original_line:"
+        if len(original_line) > 79 and '"' in original_line:
             # Try to break long string literals
-            if original_line.count('"') >= 2:"
+            if original_line.count('"') >= 2:
                 # Find string positions
-                first_quote = original_line.find('"')"
-                last_quote = original_line.rfind('"')"
+                first_quote = original_line.find('"')
+                last_quote = original_line.rfind('"')
 
                 if last_quote > first_quote and last_quote - first_quote > 40:
                     # Split the string
@@ -291,8 +292,8 @@ class AutomatedViolationsFixer:
                     if len(string_content) > 40:
                         # Simple split at midpoint
                         mid = len(string_content) // 2
-                        part1 = string_content[:mid] + '"'"
-                        part2 = '"' + string_content[mid+1:]"
+                        part1 = string_content[:mid] + '"'
+                        part2 = '"' + string_content[mid+1:]
 
                         fixed_line = f"{before}{part1} \\\n{' ' * (len(before))}{part2}{after}"
                         lines[line_num - 1] = fixed_line
@@ -349,8 +350,10 @@ class AutomatedViolationsFixer:
         original_line = lines[line_num - 1]
 
         # Remove trailing whitespace
-        fixed_line = original_line.rstrip() +
-            '\n' if original_line.endswith('\n') else original_line.rstrip()
+        fixed_line = original_line.rstrip()
+        if original_line.endswith('\n'):
+            fixed_line += '\n'
+            
         if fixed_line != original_line:
             lines[line_num - 1] = fixed_line
             return True, original_line.rstrip(), fixed_line.rstrip()
@@ -485,14 +488,14 @@ class AutomatedViolationsFixer:
                         UPDATE violations
                         SET status = 'fixed'
                         WHERE id = ?
-                    """, (result.violation_id,))"""
+                    """, (result.violation_id,))
 
                     # Record correction
                     cursor.execute("""
                         INSERT INTO corrections
                         (violation_id, correction_applied, success, timestamp)
                         VALUES (?, ?, ?, ?)
-                    """, ("""
+                    """, (
                         result.violation_id,
                         f"{result.error_code}: {result.original_line} -> {result.fixed_line}",
                         True,
@@ -502,11 +505,11 @@ class AutomatedViolationsFixer:
     def fix_all_violations(self, max_files: int = 10) -> Dict[str, Any]:
         """# # TOOL Fix violations across multiple files"""
         start_time = datetime.now()
-        print(""rocket" STARTING AUTOMATED VIOLATION FIXES")
+        print("🚀 STARTING AUTOMATED VIOLATION FIXES")
 
         # Get fixable violations
         violations = self.get_fixable_violations()
-        print(f""stats" Found {len(violations)} fixable violations")
+        print(f"📊 Found {len(violations)} fixable violations")
 
         # Group by file
         files_violations = {}
@@ -583,7 +586,7 @@ def main():
         print(f"📁 Files Processed: {results['files_processed']}")
         print(f"# # TOOL Violations Attempted: {results['total_violations_attempted']:,}")
         print(f"# # SUCCESS Violations Fixed: {results['total_violations_fixed']:,}")
-        print(f""stats" Success Rate: {results['success_rate']:.1f}%")
+        print(f"📊 Success Rate: {results['success_rate']:.1f}%")
         print(f"⏱️  Duration: {duration:.2f} seconds")
         print(f"# SAVE Backup Location: {fixer.backup_dir}")
         print("=" * 80)
