@@ -28,11 +28,15 @@ import shutil
 import zipfile
 import logging
 import json
+import sys
+import os
+import sqlite3
+import logging
+import shutil
+import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any
-import json
-import logging
 
 # Set up logging for enterprise deployment
 logging.basicConfig(
@@ -40,8 +44,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler(
-    f'deployment_optimization_{}'
-        datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
+            f'deployment_optimization_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -446,7 +449,7 @@ def main():
             # Phase 3E: Final Certification
             pbar.set_description("[CERTIFICATION] Production validation")
             _certification_results = engine.perform_final_certification()
-            _current_progress = 100
+            current_progress = 100
             pbar.update(20)
 
         # Create deployment package

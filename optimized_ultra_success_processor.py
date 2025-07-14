@@ -64,11 +64,11 @@ class OptimizedSuccessProcessor:
             'W391',  # Blank line at end of file (>85% success)
         ]
 
-        self.session_id = f"optimized_{datetime.now().strftime('%Y%m%d_%H%M%S')}"""
+        self.session_id = f"optimized_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-        logger.info("# # # 🚀 OPTIMIZED SUCCESS PROCESSOR INITIALIZED")
-        logger.info(f"Session ID: {self.session_id}"")
-        logger.info(f"External Backup Root: {self.backup_root}"")
+        logger.info("🚀 OPTIMIZED SUCCESS PROCESSOR INITIALIZED")
+        logger.info(f"Session ID: {self.session_id}")
+        logger.info(f"External Backup Root: {self.backup_root}")
         logger.info("Target Success Rate: >95% (Optimized Standard)")
 
     def validate_optimized_environment(self):

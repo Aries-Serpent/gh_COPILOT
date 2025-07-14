@@ -73,7 +73,7 @@ class EnhancedEnterpriseProcessor:
         self.session_id = f"enhanced_{datetime.now().strftime('%Y%m%d_%H%M%S')}"""
 
         logger.info("# # # 🚀 ENHANCED ENTERPRISE PROCESSOR INITIALIZED")
-        logger.info(f"Session ID: {self.session_id}"")
+        logger.info(f"Session ID: {self.session_id}")
         logger.info("Target Success Rate: >75% (Enterprise Standard)")
 
     def validate_enterprise_environment(self):
@@ -92,7 +92,7 @@ class EnhancedEnterpriseProcessor:
         if violations:
             logger.error("# # 🚨 CRITICAL: Recursive folder violations detected!")
             for violation in violations:
-                logger.error(f"   - {violation}"")
+                logger.error(f"{violation}")
             raise RuntimeError("CRITICAL: Recursive violations prevent execution")
 
         logger.info("# # # ✅ ENHANCED ENVIRONMENT VALIDATION PASSED")
@@ -186,17 +186,16 @@ class EnhancedEnterpriseProcessor:
                 batches.sort(key=lambda b: b['expected_success_rate'], reverse=True)
 
                 logger.info(
-    f"# # # 📊 Created {}}}""
-        len(batches)} optimized batches for {priority_filter} processing")
+    f"# # # 📊 Created {len(batches)} optimized batches for {priority_filter} processing")
                 if batches:
                     avg_success_rate = sum(b['expected_success_rate']
                                            for b in batches) / len(batches)
-                    logger.info(f"📈 Average expected success rate: {avg_success_rate:.1%}"")
+                    logger.info(f"📈 Average expected success rate: {avg_success_rate:.1%}")
 
                 return batches
 
         except Exception as e:
-            logger.error(f"❌ Error creating optimized batches: {e}"")
+            logger.error(f"❌ Error creating optimized batches: {e}")
             return []
 
     def _calculate_batch_priority(self, expected_success_rate: float, violation_count: int) -> str:
@@ -278,7 +277,6 @@ class EnhancedEnterpriseProcessor:
                     fix_details.append(
     f"Error enhancing fix {error_code} at line {line_number}: {
         str(e)}"")
-
             # Write enhanced content if fixes were applied
             if successful_fixes > 0:
                 with open(file_path, 'w', encoding='utf-8') as f:
@@ -292,6 +290,9 @@ class EnhancedEnterpriseProcessor:
                 logger.info(f"ℹ️ No enhanced fixes applied to {file_path}"")
 
             return successful_fixes, failed_fixes, fix_details
+        except Exception as e:
+            logger.error(f"❌ Error in enhanced fixing: {e}"")
+            return 0, len(batch['violation_ids']), [f"Enhanced fixing failed: {str(e)}""]
 
         except Exception as e:
             logger.error(f"❌ Error in enhanced fixing: {e}"")
