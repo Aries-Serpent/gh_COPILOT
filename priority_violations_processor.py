@@ -465,7 +465,6 @@ def main():
     print("=" * 80)
     print("# # 🎯 PRIORITY VIOLATIONS PROCESSOR")
     print("=" * 80)
-    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')")"
     print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Process ID: {process_id}")
     print("Target: 12,844+ violations priority analysis")
@@ -508,7 +507,6 @@ def main():
         for i, batch in enumerate(report['processing_batches'][:3], 1):
             auto_flag = "🤖" if batch.get('automation_ready') else "👨‍💻"
             print(f"   {i}. {auto_flag} {batch['name']}: {batch['estimated_count']:,} violations")
-    except Exception as e:
     except Exception as e:
         duration = (datetime.now() - start_time).total_seconds()
         print(f"\n❌ ERROR: {e}")
