@@ -41,7 +41,7 @@ class ComprehensiveRemainingProcessor:
         # # # 🎯 MANDATORY: Start time logging
         self.start_time = datetime.now()
         self.process_id = os.getpid()
-        self.session_id = f"comprehensive_{datetime.now().strftime('%Y%m%d_%H%M%S')}"""
+        self.session_id = f"comprehensive_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
         # 📁 External backup configuration (CRITICAL: Outside workspace)
         self.workspace_root = Path("e:/gh_COPILOT")

@@ -155,9 +155,9 @@ class SessionIntegrityManager:
                         logging.error(f"[ERROR] Database validation failed for {db_file}: {e}")
 
             integrity_percentage = (
-    valid_databases /
-    database_count *
-     100) if database_count > 0 else 0
+                valid_databases /
+                database_count *
+                100) if database_count > 0 else 0
             self.validation_results['database_integrity'] = integrity_percentage >= 95.0
 
             logging.info(
@@ -187,12 +187,12 @@ class SessionIntegrityManager:
                                 logging.info(f"[AUTOFIX] Removed zero-byte file: {file_path}")
                             except Exception as e:
                                 logging.warning(
-    f"[WARNING] Could not remove zero-byte file {file_path}: {e}")
+                                    f"[WARNING] Could not remove zero-byte file {file_path}: {e}")
 
             zero_byte_percentage = (
-    len(zero_byte_files) /
-    total_files *
-     100) if total_files > 0 else 0
+                len(zero_byte_files) /
+                total_files *
+                100) if total_files > 0 else 0
             self.validation_results['zero_byte_protection'] = zero_byte_percentage < 1.0
 
             if zero_byte_files:

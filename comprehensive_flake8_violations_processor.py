@@ -464,12 +464,6 @@ class ComprehensiveFlake8Processor:
             start_time=datetime.now()
         )
 
-        # Session management
-        self.session = ProcessingSession(
-            session_id=self.logging_manager.session_id,
-            start_time=datetime.now()
-        )
-
     def execute_comprehensive_processing(self) -> Dict[str, Any]:
         """Execute comprehensive Flake8 violations processing"""
         start_time = datetime.now()

@@ -252,7 +252,7 @@ class AutomatedViolationsFixer:
     'datetime',
     'pathlib',
     'typing',
-     'collections']
+    'collections']
 
             import_name = ''
             if stripped.startswith('import '):
@@ -262,8 +262,7 @@ class AutomatedViolationsFixer:
 
             if import_name in safe_imports:
                 # Comment out the import instead of removing
-                lines[line_num -
-     1] = f"# {original_line}" if not original_line.startswith('#') else original_line
+                lines[line_num - 1] = f"# {original_line}" if not original_line.startswith('#') else original_line
                 return True, original_line.rstrip(), f"# {original_line.rstrip()}"
 
         return False, original_line, "Not safe to remove"
