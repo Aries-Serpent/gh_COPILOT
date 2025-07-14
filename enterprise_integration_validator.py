@@ -339,6 +339,9 @@ def generate_integration_report() -> Dict[str, Any]:
     import_results = test_chunk_imports()
     functionality_results = test_basic_functionality()
 
+    # Run integration readiness test
+    integration_results = test_integration_readiness()
+
     # Compile comprehensive report
     integration_report = {
 

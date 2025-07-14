@@ -577,7 +577,7 @@ class DualCopilotValidator:
         # Generate recommendations
         if failed_checks:
             validation_results['recommendations'] = [
-                f"Address failed validation: {check}"" for check in failed_checks
+                f"Address failed validation: {check}" for check in failed_checks
             ]
 
         # MANDATORY: Log validation summary
