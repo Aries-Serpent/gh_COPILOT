@@ -284,11 +284,11 @@ class RefinedEnterpriseProcessor:
         try:
             source_path = Path(file_path)
             if not source_path.exists():
-                raise FileNotFoundError(f"Source file not found: {source_path}"")
+                raise FileNotFoundError(f"Source file not found: {source_path}")
 
             # Create timestamped backup directory in external location
             backup_timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')[:17]
-            backup_dir = self.backup_root / f"session_{self.session_id}"" / backup_timestamp
+            backup_dir = self.backup_root / f"session_{self.session_id}" / backup_timestamp
             backup_dir.mkdir(parents=True, exist_ok=True)
 
             # Create backup file path maintaining structure
@@ -301,13 +301,14 @@ class RefinedEnterpriseProcessor:
 
             # Verify external backup
             if backup_file_path.exists() and backup_file_path.stat().st_size == source_path.stat().st_size:
-                logger.info(f"# # 💾 External backup: {backup_file_path}"")
+                logger.info(f"# # 💾 External backup: {backup_file_path}")
                 return str(backup_file_path)
             else:
                 raise RuntimeError("External backup verification failed")
 
         except Exception as e:
-            logger.error(f"❌ External backup failed for {file_path}: {e}"")
+            logger.error(f"❌ External backup failed for {file_path}: {e}")
+            raise  # Re-raise to maintain error handling
             raise
 
     def execute_refined_processing(self, max_batches: int = 30) -> Dict[str, Any]:
