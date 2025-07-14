@@ -11,7 +11,7 @@ import ast
 from datetime import datetime
 from pathlib import Path
 from tqdm import tqdm
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 
 class Phase11CorrectedParser:
     """Advanced violation elimination with improved parsing"""
@@ -22,7 +22,7 @@ class Phase11CorrectedParser:
         self.violations_found = []
         self.violations_fixed = []
 
-    def run_complete_sweep(self) -> Dict[str, any]:
+    def run_complete_sweep(self) -> Dict[str, Any]:
         """Execute complete Phase 11 sweep with corrected parsing"""
         print("# # 🚀 PHASE 11 FINAL PRECISION SWEEP - CORRECTED PARSER")
         print("=" * 60)
@@ -53,7 +53,7 @@ class Phase11CorrectedParser:
 
         return results
 
-    def _detect_violations_robust(self) -> List[Dict[str, any]]:
+    def _detect_violations_robust(self) -> List[Dict[str, Any]]:
         """Detect violations using a more robust approach"""
         violations = []
 
@@ -95,7 +95,7 @@ class Phase11CorrectedParser:
         print(f"# # 📊 Parsed {len(violations)} violations successfully")
         return violations
 
-    def _parse_violation_line(self, line: str) -> Optional[Dict[str, any]]:
+    def _parse_violation_line(self, line: str) -> Optional[Dict[str, Any]]:
         """Parse a single flake8 output line"""
         try:
             # Pattern: path:line:col: CODE message
@@ -124,7 +124,7 @@ class Phase11CorrectedParser:
             print(f"# # ⚠️ Failed to parse line: {line} - {e}")
             return None
 
-    def _process_violations_by_type(self, violations: List[Dict[str, any]]) -> Dict[str, any]:
+    def _process_violations_by_type(self, violations: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Process violations grouped by type"""
 
         # Group violations by type
@@ -193,7 +193,7 @@ class Phase11CorrectedParser:
         results['files_processed'] = len(results['files_processed'])
         return results
 
-    def _fix_e501_violations(self, violations: List[Dict[str, any]]) -> int:
+    def _fix_e501_violations(self, violations: List[Dict[str, Any]]) -> int:
         """Fix E501 line too long violations"""
         print("\n# # 🔧 Processing E501 violations (line too long)")
         fixed_count = 0
@@ -215,7 +215,7 @@ class Phase11CorrectedParser:
 
         return fixed_count
 
-    def _fix_e999_violations(self, violations: List[Dict[str, any]]) -> int:
+    def _fix_e999_violations(self, violations: List[Dict[str, Any]]) -> int:
         """Fix E999 syntax error violations"""
         print("\n# # 🔧 Processing E999 violations (syntax errors)")
         fixed_count = 0
@@ -229,7 +229,7 @@ class Phase11CorrectedParser:
 
         return fixed_count
 
-    def _fix_f821_violations(self, violations: List[Dict[str, any]]) -> int:
+    def _fix_f821_violations(self, violations: List[Dict[str, Any]]) -> int:
         """Fix F821 undefined name violations"""
         print("\n# # 🔧 Processing F821 violations (undefined names)")
         fixed_count = 0
@@ -243,7 +243,7 @@ class Phase11CorrectedParser:
 
         return fixed_count
 
-    def _fix_w293_violations(self, violations: List[Dict[str, any]]) -> int:
+    def _fix_w293_violations(self, violations: List[Dict[str, Any]]) -> int:
         """Fix W293 blank line whitespace violations"""
         print("\n# # 🔧 Processing W293 violations (blank line whitespace)")
         fixed_count = 0
@@ -265,7 +265,7 @@ class Phase11CorrectedParser:
 
         return fixed_count
 
-    def _fix_long_lines_in_file(self, file_path: str, violations: List[Dict[str, any]]) -> bool:
+    def _fix_long_lines_in_file(self, file_path: str, violations: List[Dict[str, Any]]) -> bool:
         """Fix long lines in a specific file"""
         try:
             with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
@@ -331,7 +331,7 @@ class Phase11CorrectedParser:
         
         return line
     
-    def _fix_syntax_error(self, violation: Dict[str, any]) -> bool:
+    def _fix_syntax_error(self, violation: Dict[str, Any]) -> bool:
         """Fix a syntax error"""
         try:
             file_path = violation['file']
@@ -389,7 +389,7 @@ class Phase11CorrectedParser:
         
         return line
     
-    def _fix_undefined_name(self, violation: Dict[str, any]) -> bool:
+    def _fix_undefined_name(self, violation: Dict[str, Any]) -> bool:
         """Fix undefined name violations"""
         try:
             file_path = violation['file']
@@ -421,7 +421,7 @@ class Phase11CorrectedParser:
         
         return False
     
-    def _fix_whitespace_in_file(self, file_path: str, violations: List[Dict[str, any]]) -> bool:
+    def _fix_whitespace_in_file(self, file_path: str, violations: List[Dict[str, Any]]) -> bool:
         """Fix whitespace issues in a file"""
         try:
             with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
@@ -447,7 +447,7 @@ class Phase11CorrectedParser:
         
         return False
     
-    def _generate_completion_report(self, results: Dict[str, any]) -> None:
+    def _generate_completion_report(self, results: Dict[str, Any]) -> None:
         """Generate completion report"""
         duration = (datetime.now() - self.start_time).total_seconds()
         

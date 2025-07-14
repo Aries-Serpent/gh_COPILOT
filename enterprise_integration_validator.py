@@ -160,7 +160,7 @@ def test_basic_functionality() -> Dict[str, Any]:
         from enterprise_unicode_flake8_corrector import UnicodeCompatibleFileHandler
         _handler = UnicodeCompatibleFileHandler()
         functionality_results['unicode_handler_test'] = True
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} Unicode handler initialization successful}")
+        logger.info(f"{ENTERPRISE_INDICATORS['success']} Unicode handler initialization successful")
 
     except Exception as e:
         functionality_results['functionality_errors'].append(f"Unicode handler test failed: {e}")
@@ -184,7 +184,7 @@ def test_basic_functionality() -> Dict[str, Any]:
         from database_driven_correction_engine import DatabaseDrivenCorrectionEngine
         _engine = DatabaseDrivenCorrectionEngine()
         functionality_results['database_connection_test'] = True
-        logger.info(f"{ENTERPRISE_INDICATORS['success']} Database engine initialization successful}")
+        logger.info(f"{ENTERPRISE_INDICATORS['success']} Database engine initialization successful")
 
     except Exception as e:
         functionality_results['functionality_errors'].append(f"Database engine test failed: {e}")
@@ -196,7 +196,7 @@ def test_basic_functionality() -> Dict[str, Any]:
         _progress_manager = EnterpriseProgressManager()
         functionality_results['visual_processing_test'] = True
         logger.info(
-            f"{ENTERPRISE_INDICATORS['success']} Visual processing manager initialization successful}")
+            f"{ENTERPRISE_INDICATORS['success']} Visual processing manager initialization successful")
 
     except Exception as e:
         functionality_results['functionality_errors'].append(f"Visual processing test failed: {e}")
@@ -208,7 +208,7 @@ def test_basic_functionality() -> Dict[str, Any]:
         _orchestrator = EnterpriseOrchestrator()
         functionality_results['orchestrator_init_test'] = True
         logger.info(
-            f"{ENTERPRISE_INDICATORS['success']} Enterprise orchestrator initialization successful}")
+            f"{ENTERPRISE_INDICATORS['success']} Enterprise orchestrator initialization successful")
 
     except Exception as e:
         functionality_results['functionality_errors'].append(f"Orchestrator test failed: {e}")
