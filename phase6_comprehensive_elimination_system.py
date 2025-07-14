@@ -142,7 +142,7 @@ class Phase6ComprehensiveEliminationSystem:
             total_violations_targeted=total_targeted,
             total_violations_eliminated=total_eliminated,
             overall_elimination_rate=overall_rate,
-            processor_results={name: result for, name, result in self.results.items()},
+            processor_results={name: result for name, result in self.results.items()},
             files_modified=len(files_modified),
             processing_duration=processing_duration,
             success_status=success_status

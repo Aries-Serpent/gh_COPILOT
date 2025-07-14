@@ -153,7 +153,7 @@ class Phase4SystematicProcessor:
         
         # Log target categories
         logger.info("# # 🎯 PHASE 4 TARGET CATEGORIES:")
-        for, code, info in self.target_categories.items():
+        for code, info in self.target_categories.items():
             logger.info(f"  {code}: {info['count']:3d} violations - {info['description']}")
             logger.info(f"       Difficulty: {info['difficulty']:<6} | Success: {info['success_prediction']:2d}%")
     
