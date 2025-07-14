@@ -224,7 +224,7 @@ class ContinuousMonitoringSystem:
             cursor.execute("""
                 SELECT COUNT(*) FROM violations
                 WHERE status = 'pending' AND error_code LIKE 'F8%'
-            """)"""
+            """)
             critical_violations = cursor.fetchone()[0]
 
             # Calculate health score (0-100)
@@ -253,7 +253,7 @@ class ContinuousMonitoringSystem:
                  new_violations, files_with_violations, critical_violations,
                  health_score, snapshot_data)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, ("""
+            """, (
                 snapshot.timestamp.isoformat(),
                 snapshot.total_violations,
                 snapshot.pending_violations,
@@ -321,7 +321,7 @@ class ContinuousMonitoringSystem:
                     (timestamp, alert_type, severity, metric, current_value,
                      threshold_value, message, acknowledged)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, ("""
+                """, (
                     alert['timestamp'],
                     alert['alert_type'],
                     alert['severity'],
@@ -363,7 +363,7 @@ class ContinuousMonitoringSystem:
 
     def continuous_monitoring_loop(self):
         """# # # 🔄 Continuous monitoring loop"""
-        print(f""stats" Starting continuous monitoring (interval: {self.monitoring_interval}s)")
+        print(f"📊 Starting continuous monitoring (interval: {self.monitoring_interval}s)")
 
         while self.is_monitoring:
             start_time = time.time()
@@ -426,7 +426,7 @@ class ContinuousMonitoringSystem:
                 WHERE timestamp > datetime('now', '-24 hours')
                 ORDER BY timestamp DESC
                 LIMIT 10
-            """)"""
+            """)
             recent_alerts = cursor.fetchall()
 
             # Get trends (last 24 hours)
@@ -435,7 +435,7 @@ class ContinuousMonitoringSystem:
                 FROM monitoring_snapshots
                 WHERE timestamp > datetime('now', '-24 hours')
                 ORDER BY timestamp
-            """)"""
+            """)
             trends = cursor.fetchall()
 
         return {
@@ -467,7 +467,7 @@ class ContinuousMonitoringSystem:
 
         # Take initial snapshot
         initial_snapshot = self.collect_monitoring_snapshot()
-        print(f""stats" Initial State: {initial_snapshot.pending_violations:,} pending violations")
+        print(f"📊 Initial State: {initial_snapshot.pending_violations:,} pending violations")
 
         with tqdm(total=duration_minutes * 60, desc="# # # 🔄 Monitoring Demo", unit="s") as pbar:
             while datetime.now() < end_time:
@@ -497,7 +497,7 @@ class ContinuousMonitoringSystem:
 
         # Final snapshot
         final_snapshot = self.collect_monitoring_snapshot()
-        print(f""stats" Final State: {final_snapshot.pending_violations:,} pending violations")
+        print(f"📊 Final State: {final_snapshot.pending_violations:,} pending violations")
 
         return {
             'initial_snapshot': initial_snapshot,
@@ -513,7 +513,7 @@ def main():
     process_id = os.getpid()
 
     print("=" * 80)
-    print(""stats" CONTINUOUS MONITORING SYSTEM")
+    print("📊 CONTINUOUS MONITORING SYSTEM")
     print("=" * 80)
     print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Process ID: {process_id}")
@@ -543,8 +543,8 @@ def main():
         print("\n" + "=" * 80)
         print("# # SUCCESS CONTINUOUS MONITORING DEMONSTRATION COMPLETED")
         print("=" * 80)
-        print(f""stats" Initial Violations: {demo_results['initial_snapshot'].pending_violations:,}")
-        print(f""stats" Final Violations: {demo_results['final_snapshot'].pending_violations:,}")
+        print(f"📊 Initial Violations: {demo_results['initial_snapshot'].pending_violations:,}")
+        print(f"📊 Final Violations: {demo_results['final_snapshot'].pending_violations:,}")
         print(f"📈 Health Score: {demo_results['final_snapshot'].health_score:.1f}%")
         print(f"# ALERT Recent Alerts: {len(dashboard['recent_alerts'])}")
         print(f"📋 Dashboard: {dashboard_file}")
@@ -553,7 +553,7 @@ def main():
 
         # Show current status
         current = dashboard['current_status']
-        print("\n"stats" CURRENT MONITORING STATUS:")
+        print("\n📊 CURRENT MONITORING STATUS:")
         print(f"   Pending Violations: {current['pending_violations']:,}")
         print(f"   Fixed Violations: {current['fixed_violations']:,}")
         print(f"   Files Affected: {current['files_with_violations']:,}")
