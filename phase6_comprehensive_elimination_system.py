@@ -771,7 +771,7 @@ class E501LineOptimizer:
 
     def optimize_string_concatenation(self, line: str) -> str:
         """📏 Optimize string concatenation"""
-        if ' + ' in line and ('"' in line or "'" in, line):
+        if ' + ' in line and ('"' in line or "'" in line):
             # Break string concatenation
             parts = line.split(' + ')
             if len(parts) > 1:

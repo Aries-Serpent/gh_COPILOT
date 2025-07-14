@@ -485,9 +485,9 @@ class EnterpriseProgressManager:
                     )
 
                     # MANDATORY: Log progress with ETC
-                    self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Progress: {progress:.1f}% | }""
-                                     f"Elapsed: {current_metrics.elapsed_seconds:.1f}s | }""
-                                     f"ETC: {current_metrics.estimated_remaining_seconds:.1f}s}")
+                    self.logger.info(f"{ENTERPRISE_INDICATORS['success']} Progress: {progress:.1f}% | "
+                                     f"Elapsed: {current_metrics.elapsed_seconds:.1f}s | "
+                                     f"ETC: {current_metrics.estimated_remaining_seconds:.1f}s")
 
                 except Exception as e:
                     self.logger.error(

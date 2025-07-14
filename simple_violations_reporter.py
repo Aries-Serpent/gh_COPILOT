@@ -177,7 +177,7 @@ class SimpleViolationsReporter:
         )
 
         duration = (datetime.now() - start_time).total_seconds()
-        print(f"# # # ✅ COMPREHENSIVE REPORT GENERATED: {duration:.2f}s}")
+        print(f"# # # ✅ COMPREHENSIVE REPORT GENERATED: {duration:.2f}s")
 
         return report
 

@@ -612,11 +612,11 @@ class EnterpriseScaleViolationProcessor:
                 processing_batches = [
     b for b in processing_batches if b.priority == priority_filter]
                 logger.info(
-    f"# # 🎯 Filtered to {len(processing_batches)} {priority_filter} priority batches}}")
+                    f"# # 🎯 Filtered to {len(processing_batches)} {priority_filter} priority batches")
 
             if max_batches:
                 processing_batches = processing_batches[:max_batches]
-                logger.info(f"# # # 📊 Limited to first {max_batches} batches}}")
+                logger.info(f"# # # 📊 Limited to first {max_batches} batches")
 
             # Initialize session and results
             session = ProcessingSession(

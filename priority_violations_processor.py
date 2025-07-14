@@ -113,13 +113,13 @@ class PriorityViolationsProcessor:
             # blank line at end of file
             'W391': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 10,
             # line break before binary operator
-            'W503': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 5,
-        
+            'W503': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 5}
+        }
 
         print("🎯 PRIORITY VIOLATIONS PROCESSOR INITIALIZED")
-        print(f"Database: {self.database_path")
-        print(f"Reports: {self.reports_dir")
-        print(f"Priority Rules: {len(self.priority_rules) error types defined")
+        print(f"Database: {self.database_path}")
+        print(f"Reports: {self.reports_dir}")
+        print(f"Priority Rules: {len(self.priority_rules)} error types defined")
 
     def setup_logging(self):
         """📋 Setup enterprise logging"""

@@ -52,7 +52,7 @@ ENTERPRISE_INDICATORS = {
 def test_chunk_imports() -> Dict[str, Any]:
     """Test that all chunks can be imported successfully"""
 
- logger.info(f"{ENTERPRISE_INDICATORS['start']} TESTING CHUNK IMPORTS")
+    logger.info(f"{ENTERPRISE_INDICATORS['start']} TESTING CHUNK IMPORTS")
 
     import_results = {
         'chunk1_unicode_handler': False,

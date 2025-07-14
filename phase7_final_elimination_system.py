@@ -141,12 +141,12 @@ class Phase7FinalEliminationSystem:
             # Get E999 violations with detailed info
             cmd = ["python", "-m", "flake8", "--select=E999", "--format=%(path)s:%(row)d:%(col)d:%(text)s", "."]
             result = subprocess.run(
-                                    cmd
-                                    cwd=self.workspace_path
-                                    capture_output=True
-                                    text=True
-                                    encoding='utf-8'
-                                )
+                cmd,
+                cwd=self.workspace_path,
+                capture_output=True,
+                text=True,
+                encoding='utf-8'
+            )
 
             if result.stdout:
                 violations = defaultdict(list)

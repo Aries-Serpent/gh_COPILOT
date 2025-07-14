@@ -436,7 +436,7 @@ class EnhancedEnterpriseProcessor:
 
             # Limit batches
             processing_batches = optimized_batches[:max_batches]
-            logger.info(f"📦 Processing {len(processing_batches)}} optimized batches}"")
+            logger.info(f"📦 Processing {len(processing_batches)} optimized batches")
 
             # Initialize metrics
             total_successful_fixes = 0
