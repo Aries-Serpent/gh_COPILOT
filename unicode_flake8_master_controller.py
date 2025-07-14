@@ -606,7 +606,7 @@ class UnicodeFlake8MasterController:
                 production_ready=False
             )
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Production deployment failed: {e}"")
+            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} Production deployment failed: {e}")
             # Return a default report in case of error
             error_integration = SystemIntegrationResult(
                 integration_id="ERROR_INTEGRATION",
