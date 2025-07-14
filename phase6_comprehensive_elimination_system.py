@@ -791,7 +791,7 @@ class E501LineOptimizer:
                 if ',' in args:
                     arg_list = [arg.strip() for arg in args.split(',')]
                     indent = len(line) - len(line.lstrip())
-                    broken_args = ',\n'.join(f"{' ' * (indent + 4)}{arg}" for arg, in, arg_list)
+                    broken_args = ',\n'.join(f"{' ' * (indent + 4)}{arg}" for arg in arg_list)
                     return line.replace(f"{func_name}({args})", f"{func_name}(\n{broken_args}\n{' ' * indent})")
 
         return line
