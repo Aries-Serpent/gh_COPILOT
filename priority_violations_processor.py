@@ -33,7 +33,7 @@ def validate_workspace_integrity() -> bool:
 
     if violations:
         for violation in violations:
-            print(f"# # 🚨 RECURSIVE VIOLATION: {violation}"")"
+            print(f"🚨 RECURSIVE VIOLATION: {violation}")
         raise RuntimeError("CRITICAL: Recursive violations prevent execution")
 
     return True
@@ -69,57 +69,57 @@ class PriorityViolationsProcessor:
         self.priority_rules = {
             # Critical security/functionality issues
             # undefined name
-            'F821': {'severity': 'CRITICAL', 'complexity': 'LOW', 'impact': 'HIGH', 'score': 100},
+            'F821': {'severity': 'CRITICAL', 'complexity': 'LOW', 'impact': 'HIGH', 'score': 100,
             # undefined name in __all__
-            'F822': {'severity': 'CRITICAL', 'complexity': 'LOW', 'impact': 'HIGH', 'score': 95},
+            'F822': {'severity': 'CRITICAL', 'complexity': 'LOW', 'impact': 'HIGH', 'score': 95,
             # syntax error
-            'E999': {'severity': 'CRITICAL', 'complexity': 'HIGH', 'impact': 'HIGH', 'score': 90},
+            'E999': {'severity': 'CRITICAL', 'complexity': 'HIGH', 'impact': 'HIGH', 'score': 90,
 
             # High priority code quality
             # unused import
-            'F401': {'severity': 'HIGH', 'complexity': 'LOW', 'impact': 'MEDIUM', 'score': 85},
+            'F401': {'severity': 'HIGH', 'complexity': 'LOW', 'impact': 'MEDIUM', 'score': 85,
             # unused variable
-            'F841': {'severity': 'HIGH', 'complexity': 'LOW', 'impact': 'MEDIUM', 'score': 80},
+            'F841': {'severity': 'HIGH', 'complexity': 'LOW', 'impact': 'MEDIUM', 'score': 80,
             # redefined name
-            'F811': {'severity': 'HIGH', 'complexity': 'MEDIUM', 'impact': 'MEDIUM', 'score': 75},
+            'F811': {'severity': 'HIGH', 'complexity': 'MEDIUM', 'impact': 'MEDIUM', 'score': 75,
 
             # Medium priority formatting
             # expected 2 blank lines
-            'E302': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 70},
+            'E302': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 70,
             # expected 2 blank lines after
-            'E305': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 65},
+            'E305': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 65,
             # line too long
-            'E501': {'severity': 'MEDIUM', 'complexity': 'MEDIUM', 'impact': 'LOW', 'score': 60},
+            'E501': {'severity': 'MEDIUM', 'complexity': 'MEDIUM', 'impact': 'LOW', 'score': 60,
             # expected 1 blank line
-            'E301': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 55},
+            'E301': {'severity': 'MEDIUM', 'complexity': 'LOW', 'impact': 'LOW', 'score': 55,
 
             # Low priority whitespace
             # blank line whitespace
-            'W293': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 50},
+            'W293': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 50,
             # trailing whitespace
-            'W291': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 45},
+            'W291': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 45,
             # no newline at EOF
-            'W292': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 40},
+            'W292': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 40,
             # too many blank lines
-            'E303': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 35},
+            'E303': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 35,
             # inline comment spacing
-            'E261': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 30},
+            'E261': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 30,
             # inline comment should start with #
-            'E262': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 25},
+            'E262': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 25,
             # block comment should start with #
-            'E265': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 20},
+            'E265': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 20,
             # too many leading # for block comment
-            'E266': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 15},
+            'E266': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 15,
             # blank line at end of file
-            'W391': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 10},
+            'W391': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 10,
             # line break before binary operator
-            'W503': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 5},
-        }
+            'W503': {'severity': 'LOW', 'complexity': 'LOW', 'impact': 'LOW', 'score': 5,
+        
 
         print("🎯 PRIORITY VIOLATIONS PROCESSOR INITIALIZED")
-        print(f"Database: {self.database_path}")
-        print(f"Reports: {self.reports_dir}")
-        print(f"Priority Rules: {len(self.priority_rules)} error types defined")
+        print(f"Database: {self.database_path")
+        print(f"Reports: {self.reports_dir")
+        print(f"Priority Rules: {len(self.priority_rules) error types defined")
 
     def setup_logging(self):
         """📋 Setup enterprise logging"""
@@ -164,7 +164,7 @@ class PriorityViolationsProcessor:
                     'complexity': 'UNKNOWN',
                     'impact': 'UNKNOWN',
                     'score': 1
-                })
+                )
 
                 priority = ViolationPriority(
                     error_code=error_code,
@@ -199,7 +199,7 @@ class PriorityViolationsProcessor:
                 SELECT
                     file_path,
                     COUNT(*) as total_violations,
-                    COUNT(CASE WHEN error_code IN ({placeholders}) THEN 1 END) as critical_violations
+                    COUNT(CASE WHEN error_code IN ({placeholders) THEN 1 END) as critical_violations
                 FROM violations
                 WHERE status = 'pending'
                 GROUP BY file_path
@@ -221,7 +221,7 @@ class PriorityViolationsProcessor:
                 GROUP BY file_path
                 ORDER BY COUNT(*) DESC
                 LIMIT ?
-            "", (limit,))"
+            """, (limit,))
 
             return cursor.fetchall()
 
@@ -244,7 +244,7 @@ class PriorityViolationsProcessor:
                 'estimated_count': sum(v.count for v in critical_violations),
                 'complexity': 'HIGH',
                 'requires_manual_review': True
-            })
+            )
 
         # Batch 2: High priority code quality (top files)
         high_violations = [p for p in priorities if p.severity == 'HIGH']
@@ -258,7 +258,7 @@ class PriorityViolationsProcessor:
                 'complexity': 'MEDIUM',
                 'requires_manual_review': False,
                 'target_files': [f[0] for f in high_impact_files[:10]]  # Top 10 files
-            })
+            )
 
         # Batch 3: Medium priority formatting (automated)
         medium_violations = [p for p in priorities if p.severity == 'MEDIUM']
@@ -272,7 +272,7 @@ class PriorityViolationsProcessor:
                 'complexity': 'LOW',
                 'requires_manual_review': False,
                 'automation_ready': True
-            })
+            )
 
         # Batch 4: Low priority whitespace (bulk automated)
         low_violations = [p for p in priorities if p.severity == 'LOW']
@@ -283,8 +283,8 @@ class PriorityViolationsProcessor:
 
             for i in range(sub_batches_needed):
                 batches.append({
-                    'name': f'LOW_PRIORITY_WHITESPACE_BATCH_{i+1}',
-                    'description': f'Low priority whitespace issues (batch {i+1}/{sub_batches_needed}})',
+                    'name': f'LOW_PRIORITY_WHITESPACE_BATCH_{i+1',
+                    'description': f'Low priority whitespace issues (batch {i+1/{sub_batches_needed}})',
                     'priority': 70 - i,  # Decreasing priority for each batch
                     'violation_types': [v.error_code for v in low_violations],
                     'estimated_count': min(max_batch_size, total_low_count - (i * max_batch_size)),
@@ -292,7 +292,7 @@ class PriorityViolationsProcessor:
                     'requires_manual_review': False,
                     'automation_ready': True,
                     'bulk_processing': True
-                })
+                )
 
         return batches
 
@@ -320,7 +320,7 @@ class PriorityViolationsProcessor:
                 'database_path': str(self.database_path),
                 'total_pending_violations': total_violations,
                 'analysis_duration_seconds': 0  # Will be updated
-            },
+            ,
             'priority_analysis': {
                 'violation_types': [
                     {
@@ -331,41 +331,41 @@ class PriorityViolationsProcessor:
                         'fix_complexity': p.fix_complexity,
                         'business_impact': p.business_impact,
                         'priority_score': p.priority_score
-                    }
+                    
                     for p in priorities
                 ],
                 'severity_breakdown': {
                     'CRITICAL': {
                         'count': sum(p.count for p in priorities if p.severity == 'CRITICAL'),
                         'types': [p.error_code for p in priorities if p.severity == 'CRITICAL']
-                    },
+                    ,
                     'HIGH': {
                         'count': sum(p.count for p in priorities if p.severity == 'HIGH'),
                         'types': [p.error_code for p in priorities if p.severity == 'HIGH']
-                    },
+                    ,
                     'MEDIUM': {
                         'count': sum(p.count for p in priorities if p.severity == 'MEDIUM'),
                         'types': [p.error_code for p in priorities if p.severity == 'MEDIUM']
-                    },
+                    ,
                     'LOW': {
                         'count': sum(p.count for p in priorities if p.severity == 'LOW'),
                         'types': [p.error_code for p in priorities if p.severity == 'LOW']
-                    }
-                }
-            },
+                    
+                
+            ,
             'critical_files': [
                 {
                     'file_path': file_path,
                     'total_violations': total_violations,
                     'critical_violations': critical_violations
-                }
+                
                 for file_path, total_violations, critical_violations in critical_files
             ],
             'high_impact_files': [
                 {
                     'file_path': file_path,
                     'violation_count': violation_count
-                }
+                
                 for file_path, violation_count in high_impact_files
             ],
             'processing_batches': batches,
@@ -373,13 +373,13 @@ class PriorityViolationsProcessor:
                 'immediate_action': [],
                 'automation_candidates': [],
                 'manual_review_required': []
-            }
-        }
+            
+        
 
         # Add recommendations
         if critical_files:
             report['recommendations']['immediate_action'].append(
-                f"Address {len(critical_files)} files with critical violations immediately}"
+                f"Address {len(critical_files) files with critical violations immediately"
             )
 
         automation_batches = [b for b in batches if b.get('automation_ready', False)]
@@ -387,15 +387,15 @@ class PriorityViolationsProcessor:
             total_auto = sum(b['estimated_count'] for b in automation_batches)
             report['recommendations']['automation_candidates'].append(
                 f"Process {}}"
-    total_auto:,} violations via automation across {}
-        len(automation_batches)} batches"
+    total_auto:, violations via automation across {
+        len(automation_batches) batches"
             )
 
         manual_batches = [b for b in batches if b.get('requires_manual_review', False)]
         if manual_batches:
             total_manual = sum(b['estimated_count'] for b in manual_batches)
             report['recommendations']['manual_review_required'].append(
-                f"Schedule manual review for {total_manual:,} complex violations}"
+                f"Schedule manual review for {total_manual:, complex violations"
             )
 
         # Update duration
@@ -409,54 +409,54 @@ class PriorityViolationsProcessor:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # Save JSON report
-        json_file = self.reports_dir / f"priority_analysis_{timestamp}.json}"
+        json_file = self.reports_dir / f"priority_analysis_{timestamp.json"
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
 
         # Save text summary
-        text_file = self.reports_dir / f"priority_summary_{timestamp}.txt}"
+        text_file = self.reports_dir / f"priority_summary_{timestamp.txt"
         with open(text_file, 'w', encoding='utf-8') as f:
             f.write("# # 🎯 PRIORITY VIOLATIONS ANALYSIS REPORT\n")
             f.write("=" * 80 + "\n\n")
 
-            f.write(f"Generated: {report['metadata']['generated_at']}\n}")
-            f.write(f"Total Violations: {report['metadata']['total_pending_violations']:,}\n}")
+            f.write(f"Generated: {report['metadata']['generated_at']\n")
+            f.write(f"Total Violations: {report['metadata']['total_pending_violations']:,\n")
             f.write(
     f"Analysis Duration: {
-        report['metadata']['analysis_duration_seconds']:.2f}s\n\n}")
+        report['metadata']['analysis_duration_seconds']:.2fs\n\n")
 
             # Severity breakdown
             f.write("# # # 📊 SEVERITY BREAKDOWN:\n")
             for severity, data in report['priority_analysis']['severity_breakdown'].items():
                 percentage = (data['count'] / report['metadata']['total_pending_violations']) * 100
-                f.write(f"   {severity}: {data['count']:,} violations ({percentage:.1f}%)\n}")
+                f.write(f"   {severity: {data['count']:, violations ({percentage:.1f%)\n")
                 for error_type in data['types'][:5]:  # Top 5
-                    f.write(f"      - {error_type}\n}")
+                    f.write(f"      - {error_type\n")
                 if len(data['types']) > 5:
-                    f.write(f"      + {len(data['types']) - 5} more...\n}")
+                    f.write(f"      + {len(data['types']) - 5 more...\n")
                 f.write("\n")
 
             # Processing batches
             f.write("📦 PROCESSING BATCHES:\n")
             for i, batch in enumerate(report['processing_batches'], 1):
-                f.write(f"   {i}. {batch['name']}\n}")
-                f.write(f"      Description: {batch['description']}\n}")
-                f.write(f"      Priority: {batch['priority']}\n}")
-                f.write(f"      Estimated Count: {batch['estimated_count']:,}\n}")
-                f.write(f"      Complexity: {batch['complexity']}\n}")
-                f.write(f"      Automated: {'Yes' if batch.get('automation_ready') else 'No'}\n}")
+                f.write(f"   {i. {batch['name']\n")
+                f.write(f"      Description: {batch['description']\n")
+                f.write(f"      Priority: {batch['priority']\n")
+                f.write(f"      Estimated Count: {batch['estimated_count']:,\n")
+                f.write(f"      Complexity: {batch['complexity']\n")
+                f.write(f"      Automated: {'Yes' if batch.get('automation_ready') else 'No'\n")
                 f.write(
     f"      Manual Review: {
-        'Yes' if batch.get('requires_manual_review') else 'No'}\n}")
+        'Yes' if batch.get('requires_manual_review') else 'No'\n")
                 f.write("\n")
 
             # Recommendations
             f.write("# # 💡 RECOMMENDATIONS:\n")
             for category, items in report['recommendations'].items():
                 if items:
-                    f.write(f"   {category.replace('_', ' ').title()}:\n}")
+                    f.write(f"   {category.replace('_', ' ').title():\n")
                     for item in items:
-                        f.write(f"      - {item}\n}")
+                        f.write(f"      - {item\n")
                     f.write("\n")
 
         return str(json_file)
@@ -471,8 +471,8 @@ def main():
     print("=" * 80)
     print("# # 🎯 PRIORITY VIOLATIONS PROCESSOR")
     print("=" * 80)
-    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")"
-    print(f"Process ID: {process_id}")"
+    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')")"
+    print(f"Process ID: {process_id")"
     print("Target: 12,844+ violations priority analysis")
     print()
 
@@ -493,31 +493,31 @@ def main():
         print("\n" + "=" * 80)
         print("# # # ✅ PRIORITY ANALYSIS COMPLETED")
         print("=" * 80)
-        print(f"# # # 📊 Total Violations Analyzed: {report['metadata']['total_pending_violations']:,}")"
-        print(f"# # 🎯 Violation Types: {len(report['priority_analysis']['violation_types'])}")"
-        print(f"📦 Processing Batches: {len(report['processing_batches'])}")"
-        print(f"# # 🚨 Critical Files: {len(report['critical_files'])}")"
-        print(f"📈 High Impact Files: {len(report['high_impact_files'])}")"
-        print(f"⏱️  Duration: {duration:.2f} seconds}")
-        print(f"📋 Report: {report_file}")"
+        print(f"# # # 📊 Total Violations Analyzed: {report['metadata']['total_pending_violations']:,")"
+        print(f"# # 🎯 Violation Types: {len(report['priority_analysis']['violation_types'])")"
+        print(f"📦 Processing Batches: {len(report['processing_batches'])")"
+        print(f"# # 🚨 Critical Files: {len(report['critical_files'])")"
+        print(f"📈 High Impact Files: {len(report['high_impact_files'])")"
+        print(f"⏱️  Duration: {duration:.2f seconds")
+        print(f"📋 Report: {report_file")"
         print("=" * 80)
 
         # Show severity breakdown
         print("\n# # 🎯 SEVERITY BREAKDOWN:")
         for severity, data in report['priority_analysis']['severity_breakdown'].items():
             percentage = (data['count'] / report['metadata']['total_pending_violations']) * 100
-            print(f"   {severity}: {data['count']:,} violations ({percentage:.1f}%)}")
+            print(f"   {severity: {data['count']:, violations ({percentage:.1f%)")
 
         # Show top processing batches
         print("\n📦 TOP PROCESSING BATCHES:")
         for i, batch in enumerate(report['processing_batches'][:3], 1):
             auto_flag = "🤖" if batch.get('automation_ready') else "👨‍💻"
-            print(f"   {i}. {auto_flag} {batch['name']}: {batch['estimated_count']:,} violations}")
+            print(f"   {i. {auto_flag {batch['name']: {batch['estimated_count']:, violations")
 
     except Exception as e:
         duration = (datetime.now() - start_time).total_seconds()
-        print(f"\n❌ ERROR: {e}")"
-        print(f"⏱️  Duration: {duration:.2f} seconds}")
+        print(f"\n❌ ERROR: {e")"
+        print(f"⏱️  Duration: {duration:.2f seconds")
         sys.exit(1)
 
 

@@ -196,7 +196,7 @@ class ContinuousMonitoringSystem:
             cursor.execute("""
                 SELECT COUNT(*) FROM violations
                 WHERE status = 'pending'
-            """)"""
+            """)
             result = cursor.fetchone()
             total_pending = result[0] if result else 0
             # Use a subset as "new" violations since we don't have timestamps'
@@ -206,7 +206,7 @@ class ContinuousMonitoringSystem:
             cursor.execute("""
                 SELECT COUNT(DISTINCT file_path) FROM violations
                 WHERE status = 'pending'
-            """)"""
+            """)
             files_with_violations = cursor.fetchone()[0]
 
             # Top violation types
@@ -217,7 +217,7 @@ class ContinuousMonitoringSystem:
                 GROUP BY error_code
                 ORDER BY COUNT(*) DESC
                 LIMIT 5
-            """)"""
+            """)
             top_violation_types = cursor.fetchall()
 
             # Critical violations (assuming F8xx series are critical)

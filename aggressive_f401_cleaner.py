@@ -360,9 +360,9 @@ class AggressiveF401Cleaner:
         duration = (datetime.now() - self.start_time).total_seconds()
 
         print("=" * 60)
-        print("# # 🎯 AGGRESSIVE F401 CLEANUP COMPLETE")
+        print(" AGGRESSIVE F401 CLEANUP COMPLETE")
         print("=" * 60)
-        print('"stats" CLEANUP STATISTICS:')
+        print("CLEANUP STATISTICS:")
         print(f"   • F401 Violations Found: {results['f401_violations_found']}")
         print(f"   • F401 Violations Cleaned: {results['f401_violations_cleaned']}")
         print(f"   • Manual Violations Fixed: {results['manual_violations_fixed']}")

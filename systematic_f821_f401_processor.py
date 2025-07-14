@@ -186,7 +186,7 @@ class SystematicF821F401Processor:
                 if undefined_name in self.common_imports:
                     return self.common_imports[undefined_name]
                 else:
-                    return f"# Define or import '{undefined_name}}'}"
+                    return f"# Define or import '{undefined_name}'"
 
         elif code == "F401":
             # Extract unused import

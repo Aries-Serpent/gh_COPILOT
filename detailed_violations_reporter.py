@@ -211,9 +211,9 @@ class DetailedViolationsReporter:
         }
 
         severity_counts = {}
-        for, severity, codes in severity_mapping.items():
+        for severity, codes in severity_mapping.items():
             severity_counts[severity] = sum(
-                violations_by_type.get(code, 0) for code, in, codes)
+                violations_by_type.get(code, 0) for code in codes)
 
         return severity_counts
 
