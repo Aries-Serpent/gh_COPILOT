@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
+import logging
 import sqlite3
 from pathlib import Path
 
 import pytest
-
 from template_engine.auto_generator import TemplateAutoGenerator
-import logging
 
 
 def create_test_dbs(tmp_path: Path):
