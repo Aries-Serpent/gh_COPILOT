@@ -546,8 +546,6 @@ def _execute_strategy_commands(
 
     success, error_message = self._run_sql_commands(db_path, strategy)
 
-    improvement = strategy.expected_improvement if success else 0.0
-
     return success
 
 
