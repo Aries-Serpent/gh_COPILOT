@@ -1,0 +1,68 @@
+{
+  "existing_files": [
+    "database_first_enhancement_executor.py",
+    "database_first_synchronization_engine.py",
+    "database_first_flake8_discovery_engine.py",
+    "database_first_flake8_compliance_scanner.py",
+    "database_first_flake8_compliance_scanner_v2.py"
+  ],
+  "missing_files": [],
+  "backup_directory": "backup/database_first_consolidation",
+  "backed_up_files": [
+    {
+      "filename": "database_first_enhancement_executor.py",
+      "size_bytes": 2457,
+      "modified_time": "2025-07-15T03:15:43.559152",
+      "backup_path": "backup/database_first_consolidation/20250715_032748/database_first_enhancement_executor.py"
+    },
+    {
+      "filename": "database_first_synchronization_engine.py",
+      "size_bytes": 2459,
+      "modified_time": "2025-07-15T03:15:43.560152",
+      "backup_path": "backup/database_first_consolidation/20250715_032748/database_first_synchronization_engine.py"
+    },
+    {
+      "filename": "database_first_flake8_discovery_engine.py",
+      "size_bytes": 3485,
+      "modified_time": "2025-07-15T03:15:43.560152",
+      "backup_path": "backup/database_first_consolidation/20250715_032748/database_first_flake8_discovery_engine.py"
+    },
+    {
+      "filename": "database_first_flake8_compliance_scanner.py",
+      "size_bytes": 3837,
+      "modified_time": "2025-07-15T03:15:43.559152",
+      "backup_path": "backup/database_first_consolidation/20250715_032748/database_first_flake8_compliance_scanner.py"
+    },
+    {
+      "filename": "database_first_flake8_compliance_scanner_v2.py",
+      "size_bytes": 3489,
+      "modified_time": "2025-07-15T03:15:43.559152",
+      "backup_path": "backup/database_first_consolidation/20250715_032748/database_first_flake8_compliance_scanner_v2.py"
+    }
+  ],
+  "unified_engine": {
+    "filename": "database_first_unified_engine.py",
+    "size_bytes": 13464,
+    "modified_time": "2025-07-15T03:25:42.205818",
+    "validation_passed": true
+  },
+  "migration_timestamp": "20250715_032748",
+  "migration_type": "database_first_consolidation",
+  "dry_run": false,
+  "workspace_path": ".",
+  "target_files_count": 5,
+  "files_found": 5,
+  "files_backed_up": 5,
+  "consolidation_summary": {
+    "original_files": [
+      "database_first_enhancement_executor.py",
+      "database_first_synchronization_engine.py",
+      "database_first_flake8_discovery_engine.py",
+      "database_first_flake8_compliance_scanner.py",
+      "database_first_flake8_compliance_scanner_v2.py"
+    ],
+    "unified_file": "database_first_unified_engine.py",
+    "estimated_line_reduction": "60%",
+    "estimated_file_reduction": "80%"
+  }
+}
