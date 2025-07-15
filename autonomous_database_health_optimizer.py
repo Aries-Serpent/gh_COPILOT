@@ -10,12 +10,10 @@ and self-healing capabilities with machine learning integration
 import json
 import logging
 import sqlite3
-import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
