@@ -1076,13 +1076,11 @@ def main():
         print("=" * 80)
         print(f"Security Hardenings: {results['deployment_metrics']['security_hardenings']}")
         print(
-    f"Performance Optimizations: {
-        results['deployment_metrics']['performance_optimizations']}")
+            f"Performance Optimizations: {results['deployment_metrics']['performance_optimizations']}")
         print(f"Monitoring Systems: {results['deployment_metrics']['monitoring_systems']}")
         print(f"Backup Systems: {results['deployment_metrics']['backup_systems']}")
         print(
-    f"Scalability Enhancements: {
-        results['deployment_metrics']['scalability_enhancements']}")
+            f"Scalability Enhancements: {results['deployment_metrics']['scalability_enhancements']}")
         print(f"Certification Checks: {results['deployment_metrics']['certification_checks']}")
         print(f"Deployment Packages: {results['deployment_metrics']['deployment_packages']}")
         print(f"Deployment Success Rate: {results['deployment_success_rate']}")

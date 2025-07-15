@@ -135,9 +135,7 @@ def test_chunk_imports() -> Dict[str, Any]:
     import_results['success_rate'] = success_rate
 
     logger.info(
-    f"{
-        ENTERPRISE_INDICATORS['info']} Import Success Rate: {
-            success_rate:.1f}% ({successful_imports}/{total_chunks})")
+        f"{ENTERPRISE_INDICATORS['info']} Import Success Rate: {success_rate:.1f}% ({successful_imports}/{total_chunks})")
 
     return import_results
 
@@ -223,9 +221,7 @@ def test_basic_functionality() -> Dict[str, Any]:
     functionality_results['success_rate'] = success_rate
 
     logger.info(
-    f"{
-        ENTERPRISE_INDICATORS['info']} Functionality Success Rate: {
-            success_rate:.1f}% ({successful_tests}/{total_tests})")
+        f"{ENTERPRISE_INDICATORS['info']} Functionality Success Rate: {success_rate:.1f}% ({successful_tests}/{total_tests})")
 
     return functionality_results
 
@@ -404,13 +400,9 @@ def display_integration_report(report: Dict[str, Any]) -> None:
     print(
         f"{ENTERPRISE_INDICATORS['info']} Overall Score: {report['overall_assessment']['overall_score']:.1f}%")
     print(
-    f"{
-        ENTERPRISE_INDICATORS['info']} Enterprise Ready: {
-            '# # # ✅ YES' if report['overall_assessment']['enterprise_ready'] else '❌ NO'}")
+        f"{ENTERPRISE_INDICATORS['info']} Enterprise Ready: {'YES' if report['overall_assessment']['enterprise_ready'] else 'NO'}")
     print(
-    f"{
-        ENTERPRISE_INDICATORS['info']} Deployment Status: {
-            report['overall_assessment']['deployment_recommendation']}")
+        f"{ENTERPRISE_INDICATORS['info']} Deployment Status: {report['overall_assessment']['deployment_recommendation']}")
 
     print("\n" + "-" * 50)
     print("DETAILED TEST RESULTS:")

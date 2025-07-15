@@ -699,14 +699,11 @@ def main():
         print(
             f"Cross-Database Optimizations: {results['optimization_metrics']['cross_database_optimizations']}")
         print(
-    f"Performance Enhancements: {
-        results['optimization_metrics']['performance_enhancements']}")
+            f"Performance Enhancements: {results['optimization_metrics']['performance_enhancements']}")
         print(
-    f"Intelligence Improvements: {
-        results['optimization_metrics']['intelligence_improvements']}")
+            f"Intelligence Improvements: {results['optimization_metrics']['intelligence_improvements']}")
         print(
-    f"Compliance Automations: {
-        results['optimization_metrics']['compliance_automations']}")
+            f"Compliance Automations: {results['optimization_metrics']['compliance_automations']}")
         print(f"Quantum Preparations: {results['optimization_metrics']['quantum_preparations']}")
         print(f"Optimization Success Rate: {results['optimization_success_rate']}")
         print(f"Duration: {results['execution_summary']['duration_seconds']:.1f} seconds")

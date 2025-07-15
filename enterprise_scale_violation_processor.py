@@ -509,9 +509,7 @@ class EnterpriseScaleViolationProcessor:
 
         if success_rate < self.alert_thresholds['min_success_rate']:
             alerts.append(
-    f"LOW_SUCCESS_RATE: {
-        success_rate:.2%} < {
-            self.alert_thresholds['min_success_rate']:.2%}")
+                f"LOW_SUCCESS_RATE: {success_rate:.2%} < {self.alert_thresholds['min_success_rate']:.2%}")
             health_metrics['health_status'] = 'WARNING'
 
         if processing_time > self.alert_thresholds['max_processing_time']:
