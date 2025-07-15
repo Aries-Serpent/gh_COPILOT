@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
+import logging
 import shutil
 import sqlite3
 from pathlib import Path
 
 from database_first_windows_compatible_flake8_corrector import (
-import logging
     CorrectionPattern, DatabaseFirstFlake8Corrector, FlakeViolation)
 
 
