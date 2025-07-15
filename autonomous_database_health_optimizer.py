@@ -48,8 +48,7 @@ class TqdmFallback:
         print(f"Completed: {self.desc or 'process'}")
 
 
-# Use fallback implementation with proper variable naming
-tqdm_fallback = TqdmFallback  # Assign PascalCase class to properly named variable
+tqdm_fallback = TqdmFallback
 
 
 # Text-based indicators (NO Unicode emojis)
