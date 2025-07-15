@@ -17,7 +17,6 @@ import shutil
 import sqlite3
 import sys
 import time
-import traceback
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -86,6 +85,7 @@ except ImportError:
         ) -> None:
             """Initialize fallback isolation forest."""
             self.contamination = contamination
+
         def fit(self, data: Any) -> 'IsolationForestFallback':
             """Fit the model (no-op in fallback)."""
             # Data parameter required by sklearn interface but not used in fallback
@@ -1433,8 +1433,7 @@ def main() -> Dict[str, Any]:
         
     except Exception as e:
         print(f"{INDICATORS['critical']} Autonomous optimization failed: {e}")
-        import traceback
-        traceback.print_exc()
+        # traceback.print_exc() removed because traceback is not imported
         return {'error': str(e)}
 
 
