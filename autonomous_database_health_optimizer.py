@@ -48,8 +48,8 @@ class TqdmFallback:
         print(f"Completed: {self.desc or 'process'}")
 
 
-# Use fallback implementation
-tqdm = TqdmFallback
+# Use fallback implementation with proper variable naming
+tqdm_fallback = TqdmFallback  # Assign PascalCase class to properly named variable
 
 
 # Text-based indicators (NO Unicode emojis)
@@ -144,6 +144,10 @@ class AutonomousDatabaseHealthOptimizer:
 
         # Initialize databases and schemas
         self._initialize_databases()
+
+    def create_progress_bar(self, total=None, desc=None):
+        """Create progress bar using fallback implementation"""
+        return tqdm_fallback(total=total, desc=desc)
 
     def _setup_logging(self):
         """Setup logging configuration"""
