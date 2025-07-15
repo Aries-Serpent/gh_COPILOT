@@ -5,10 +5,11 @@ Generated: 2025-07-10 18:09:50
 
 Enterprise Standards Compliance:
 - Flake8/PEP 8 Compliant
-- Emoji-free code (text-based indicators only)
+- Emoji-free code (text-based indicators only )
 - Visual processing indicators
 """
 
+import sys
 import logging
 from pathlib import Path
 from datetime import datetime
