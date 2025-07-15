@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+import logging
+
 import pytest
 from qiskit_machine_learning.neural_networks import EstimatorQNN
 
 from quantum import benchmarking as benchmarking_module
 from quantum.benchmarking import (benchmark_physics_engine, benchmark_qnn,
-import logging
                                   load_metrics)
 
 
