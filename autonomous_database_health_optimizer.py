@@ -12,9 +12,9 @@ import logging
 import sqlite3
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
@@ -25,25 +25,26 @@ try:
 except ImportError:
     # Provide fallback implementation if tqdm is not available
     class tqdm:
-        def __init__(self, total=None, desc=None, unit=None, *args, **kwargs):
+        """Fallback tqdm progress bar (text only)"""
+        def __init__(self, total=None, desc=None, *args, unit=None, **kwargs):
             self.total = total
             self.desc = desc
             self.current = 0
-            print(f"Starting {desc or 'process'}: 0/{total or '?'}")
+            print("Starting %s: 0/%s" % (desc or "process", total or "?"))
 
         def update(self, n=1):
             self.current += n
             if self.total:
-                print(f"Progress: {self.current}/{self.total}")
+                print("Progress: %d/%d" % (self.current, self.total))
             else:
-                print(f"Progress: {self.current}")
+                print("Progress: %d" % self.current)
 
         def set_description(self, desc):
             self.desc = desc
-            print(f"Updated: {desc}")
+            print("Updated: %s" % desc)
 
         def close(self):
-            print(f"Completed: {self.desc or 'process'}")
+            print("Completed: %s" % (self.desc or "process"))
 
 
 # Text-based indicators (NO Unicode emojis)
@@ -131,6 +132,9 @@ class AutonomousDatabaseHealthOptimizer:
         self.anomaly_detector = IsolationForest(contamination=0.1)
         self.scaler = StandardScaler()
         self.learning_patterns = {}
+        self.optimization_history = {}
+        self.anomaly_patterns = {}
+        self.performance_baselines = {}
         self.optimization_history = {}
 
         # Initialize databases and schemas
@@ -231,9 +235,9 @@ class AutonomousDatabaseHealthOptimizer:
                 msg = f"{TEXT_INDICATORS['optimize']} {db_type}.db schema initialized"
                 self.logger.info(msg)
 
-    def _load_learning_patterns(self):
-        """Load learning patterns from database - consolidated implementation"""
         indicator = TEXT_INDICATORS["learn"]
+        self.logger.info("%s Loading learning patterns from database...", indicator)
+        """Load learning patterns from database - consolidated implementation"""
         self.logger.info(f"{indicator} Loading learning patterns from database...")
         try:
             with sqlite3.connect(self.databases["learning_patterns"]) as conn:
@@ -277,14 +281,13 @@ class AutonomousDatabaseHealthOptimizer:
                     ORDER BY timestamp DESC
                     LIMIT 50
                 """
-                )
-                anomalies = cursor.fetchall()
-
-                self.anomaly_patterns = {}
                 for anomaly in anomalies:
                     anomaly_type, anomaly_data, severity, auto_resolved = anomaly
                     self.anomaly_patterns[anomaly_type] = {
                         "data": json.loads(anomaly_data),
+                        "severity": severity,
+                        "auto_resolved": auto_resolved,
+                    }
                         "severity": severity,
                         "auto_resolved": auto_resolved,
                     }
@@ -293,14 +296,14 @@ class AutonomousDatabaseHealthOptimizer:
                     f"{indicator} Loaded {len(patterns)} patterns and "
                     f"{len(anomalies)} anomaly patterns"
                 )
-                self.logger.info(msg)
-
-        except Exception as e:
+        except sqlite3.DatabaseError as e:
+            msg = "%s Error loading learning patterns from database: %s"
+            self.logger.error(msg, TEXT_INDICATORS['error'], e)
             msg = f"{TEXT_INDICATORS['error']} Error loading learning patterns from database: {e}"
             self.logger.error(msg)
 
     def _load_optimization_history(self):
-        """Load optimization history from database - consolidated implementation"""
+        self.logger.info("%s Loading optimization history from database...", indicator)
         indicator = TEXT_INDICATORS["optimize"]
         self.logger.info(f"{indicator} Loading optimization history from database...")
         try:
@@ -387,9 +390,6 @@ class AutonomousDatabaseHealthOptimizer:
                     ORDER BY timestamp DESC
                 """
                 )
-                baselines = cursor.fetchall()
-
-                self.performance_baselines = {}
                 for baseline in baselines:
                     (
                         db_name,
@@ -406,23 +406,22 @@ class AutonomousDatabaseHealthOptimizer:
                         "variance": variance,
                         "last_updated": timestamp,
                     }
+                        "last_updated": timestamp,
+                    }
 
                 msg = (
                     f"{indicator} Loaded {len(executions)} executions and "
                     f"{len(baselines)} baselines"
                 )
                 self.logger.info(msg)
-
-        except Exception as e:
-            msg = (
-                f"{TEXT_INDICATORS['error']} Error loading optimization history "
-                f"from database: {e}"
-            )
+        except sqlite3.DatabaseError as e:
+            msg = "%s Error loading optimization history from database: %s"
+            self.logger.error(msg, TEXT_INDICATORS['error'], e)
             self.logger.error(msg)
 
     def _load_enhanced_strategies(self) -> Dict[str, OptimizationStrategy]:
         """Load enhanced optimization strategies"""
-        strategies = {
+        raw_strategies = {
             "vacuum_analyze": {
                 "sql_commands": ["VACUUM;", "ANALYZE;", "REINDEX;"],
                 "expected_improvement": 25.0,
@@ -462,416 +461,148 @@ class AutonomousDatabaseHealthOptimizer:
             # Missing strategy now implemented
         }
 
-        return strategies
-
-    def _select_optimal_strategies(
-        self, database_name: str, health_metrics: DatabaseHealthMetrics
-    ) -> List[str]:
-        """Select optimal strategies based on health metrics and learning patterns"""
-        strategies = []
-
-        # Analyze health metrics to determine needed strategies
-        if health_metrics.health_score < 0.7:
-            strategies.append("vacuum_analyze")
-
-        if (
-            health_metrics.query_performance
-            > self.health_thresholds["query_time_threshold"]
-        ):
-            strategies.append("query_optimization")
-            strategies.append("index_optimization")
-
-        connection_threshold = self.health_thresholds["connection_threshold"]
-        if health_metrics.connection_count > connection_threshold:
-            strategies.append("connection_pooling")
-
-        # Check integrity status and apply appropriate strategy
-        if health_metrics.integrity_status != "GOOD":
-            strategies.append("self_healing_integrity_check")
-
-        # Use learning patterns to refine strategy selection
-        for strategy in strategies[:]:
-            if strategy in self.learning_patterns:
-                pattern = self.learning_patterns[strategy]
-                if pattern["success_rate"] < 0.5:
-                    strategies.remove(strategy)
-                    msg = f"{TEXT_INDICATORS['learn']} Removed {strategy} due to low success rate"
-                    self.logger.warning(msg)
+        strategies: Dict[str, OptimizationStrategy] = {}
+        for key, value in raw_strategies.items():
+            strategies[key] = OptimizationStrategy(
+                strategy_id=key,
+                strategy_name=key.replace("_", " ").title(),
+                sql_commands=value["sql_commands"],
+                expected_improvement=value["expected_improvement"],
+                risk_level="medium",  # Default or adjust as needed
+                execution_time=0.0,
+                success_rate=1.0,
+            )
 
         return strategies
 
-    def monitor_database_health(self, database_name: str) -> DatabaseHealthMetrics:
-        """Monitor database health and return metrics"""
-        msg = f"{TEXT_INDICATORS['health']} Monitoring health for {database_name}"
-        self.logger.info(msg)
 
-        db_path = self.workspace_path / "databases" / database_name
-        if not db_path.exists():
-            error_msg = f"{TEXT_INDICATORS['error']} Database {database_name} not found"
-            self.logger.error(error_msg)
-            return None
+def select_optimal_strategies(
+    self, health_metrics: DatabaseHealthMetrics
+) -> List[str]:
+    """Select optimal strategies based on health metrics and learning patterns"""
+    strategies: List[str] = []
 
-        try:
-            with sqlite3.connect(db_path) as conn:
-                cursor = conn.cursor()
+    # Analyze health metrics to determine needed strategies
+    if health_metrics.health_score < 0.7:
+        strategies.append("vacuum_analyze")
 
-                # Check database integrity
-                cursor.execute("PRAGMA integrity_check;")
-                integrity_result = cursor.fetchone()[0]
-                integrity_status = "GOOD" if integrity_result == "ok" else "ISSUES"
-
-                # Get database page count
-                cursor.execute("PRAGMA page_count;")
-                page_count = cursor.fetchone()[0]
-
-                # Analyze query performance (simulated)
-                query_performance = self._analyze_query_performance(conn)
-
-                # Calculate storage efficiency
-                cursor.execute("PRAGMA freelist_count;")
-                free_pages = cursor.fetchone()[0]
-                storage_efficiency = 1.0 - (free_pages / max(page_count, 1))
-
-                # Calculate health score
-                health_score = self._calculate_health_score(
-                    integrity_status, query_performance, storage_efficiency
-                )
-
-                # Generate recommendations
-                issues = []
-                recommendations = []
-
-                if integrity_status != "GOOD":
-                    issues.append("Database integrity issues detected")
-                    recommendations.append("Run integrity check and repair")
-
-                if query_performance > self.health_thresholds["query_time_threshold"]:
-                    issues.append("Query performance degraded")
-                    recommendations.append("Optimize indexes and queries")
-
-                if storage_efficiency < 0.8:
-                    issues.append("Low storage efficiency")
-                    recommendations.append("Run VACUUM to reclaim space")
-
-                metrics = DatabaseHealthMetrics(
-                    database_name=database_name,
-                    health_score=health_score,
-                    connection_count=1,  # Simulated
-                    query_performance=query_performance,
-                    storage_efficiency=storage_efficiency,
-                    integrity_status=integrity_status,
-                    last_optimization=datetime.now() - timedelta(days=1),  # Simulated
-                    issues=issues,
-                    recommendations=recommendations,
-                )
-
-                # Store metrics in database
-                self._store_health_metrics(metrics)
-
-                return metrics
-
-        except Exception as e:
-            error_msg = (
-                f"{TEXT_INDICATORS['error']} Error monitoring {database_name}: {e}"
-            )
-            self.logger.error(error_msg)
-            return None
-
-    def _analyze_query_performance(self, conn: sqlite3.Connection) -> float:
-        """Analyze query performance for database"""
-        try:
-            # Simple query performance test
-            start_time = time.time()
-            cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-            tables = cursor.fetchall()
-
-            # Test a few queries on existing tables
-            for table_info in tables[:3]:  # Limit to first 3 tables
-                table_name = table_info[0]
-                cursor.execute(f"SELECT COUNT(*) FROM {table_name};")
-                cursor.fetchone()
-
-            end_time = time.time()
-            return end_time - start_time
-
-        except Exception as e:
-            warning_msg = (
-                f"{TEXT_INDICATORS['error']} Query performance analysis failed: {e}"
-            )
-            self.logger.warning(warning_msg)
-            return 1.0  # Default value
-
-    def _calculate_health_score(
-        self, integrity_status: str, query_performance: float, storage_efficiency: float
-    ) -> float:
-        """Calculate overall database health score"""
-        score = 1.0
-
-        # Integrity impact
-        if integrity_status != "GOOD":
-            score -= 0.3
-
-        # Query performance impact
-        if query_performance > self.health_thresholds["query_time_threshold"]:
-            threshold = self.health_thresholds["query_time_threshold"]
-            penalty = 0.2 * min(query_performance / threshold, 2.0)
-            score -= penalty
-
-        # Storage efficiency impact
-        if storage_efficiency < 0.8:
-            score -= 0.1 * (0.8 - storage_efficiency) / 0.8
-
-        return max(0.0, min(1.0, score))
-
-    def _store_health_metrics(self, metrics: DatabaseHealthMetrics):
-        """Store health metrics in database"""
-        try:
-            with sqlite3.connect(self.databases["health_monitoring"]) as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    """
-                    INSERT INTO database_health_metrics
-                    (database_name, health_score, connection_count, query_performance,
-                     storage_efficiency, integrity_status, issues, recommendations)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    (
-                        metrics.database_name,
-                        metrics.health_score,
-                        metrics.connection_count,
-                        metrics.query_performance,
-                        metrics.storage_efficiency,
-                        metrics.integrity_status,
-                        json.dumps(metrics.issues),
-                        json.dumps(metrics.recommendations),
-                    ),
-                )
-                conn.commit()
-        except Exception as e:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Error storing health metrics: {e}"
-            )
-
-    def execute_optimization_strategy(
-        self, database_name: str, strategy_id: str
-    ) -> bool:
-        """Execute optimization strategy on database"""
-        msg = (
-            f"{TEXT_INDICATORS['optimize']} Executing {strategy_id} on {database_name}"
-        )
-        self.logger.info(msg)
-
-        strategies = self._load_enhanced_strategies()
-        if strategy_id not in strategies:
-            error_msg = f"{TEXT_INDICATORS['error']} Strategy {strategy_id} not found"
-            self.logger.error(error_msg)
-            return False
-
-        strategy = strategies[strategy_id]
-        db_path = self.workspace_path / "databases" / database_name
-
-        if not db_path.exists():
-            error_msg = f"{TEXT_INDICATORS['error']} Database {database_name} not found"
-            self.logger.error(error_msg)
-            return False
-
-        start_time = time.time()
-        success = True
-        error_message = None
-
-        try:
-            with sqlite3.connect(db_path) as conn:
-                cursor = conn.cursor()
-
-                for sql_command in strategy["sql_commands"]:
-                    try:
-                        cursor.execute(sql_command)
-                    except sqlite3.Error as e:
-                        # Ignore table not found errors
-                        if "no such table" not in str(e).lower():
-                            warning_msg = (
-                                f"{TEXT_INDICATORS['error']} SQL Error in "
-                                f"{strategy_id}: {e}"
-                            )
-                            self.logger.warning(warning_msg)
-
-                conn.commit()
-
-        except Exception as e:
-            success = False
-            error_message = str(e)
-            error_msg = f"{TEXT_INDICATORS['error']} Error executing {strategy_id}: {e}"
-            self.logger.error(error_msg)
-
-        execution_time = time.time() - start_time
-        improvement = strategy["expected_improvement"] if success else 0
-
-        # Store execution result
-        self._store_optimization_result(
-            strategy_id,
-            database_name,
-            execution_time,
-            success,
-            improvement,
-            error_message,
-        )
-
-        return success
-
-    def _store_optimization_result(
-        self,
-        strategy_id: str,
-        database_name: str,
-        execution_time: float,
-        success: bool,
-        improvement: float,
-        error_message: str = None,
+    if (
+        health_metrics.query_performance
+        > self.health_thresholds["query_time_threshold"]
     ):
-        """Store optimization execution result"""
-        try:
-            with sqlite3.connect(self.databases["optimization_history"]) as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    """
-                    INSERT INTO optimization_executions
-                    (strategy_id, database_name, execution_time, success,
-                     improvement_achieved, error_message)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                    (
-                        strategy_id,
-                        database_name,
-                        execution_time,
-                        success,
-                        improvement,
-                        error_message,
-                    ),
-                )
-                conn.commit()
-        except Exception as e:
-            error_msg = (
-                f"{TEXT_INDICATORS['error']} Error storing optimization result: {e}"
+        strategies.append("query_optimization")
+        strategies.append("index_optimization")
+
+    connection_threshold = self.health_thresholds["connection_threshold"]
+    if health_metrics.connection_count > connection_threshold:
+        strategies.append("connection_pooling")
+
+    # Check integrity status and apply appropriate strategy
+    if health_metrics.integrity_status != "GOOD":
+        strategies.append("self_healing_integrity_check")
+
+    # Use learning patterns to refine strategy selection
+    for strategy in strategies[:]:
+        if strategy in self.learning_patterns:
+            pattern = self.learning_patterns[strategy]
+            if pattern["success_rate"] < 0.5:
+                strategies.remove(strategy)
+                msg = "%s Removed %s due to low success rate"
+                self.logger.warning(msg, TEXT_INDICATORS['learn'], strategy)
+
+    return strategies
+
+def execute_optimization_strategy(
+    self, database_name: str, strategy_id: str
+) -> bool:
+    """Execute optimization strategy on database"""
+    msg = "%s Executing %s on %s"
+    self.logger.info(msg, TEXT_INDICATORS['optimize'], strategy_id, database_name)
+
+    strategies = self.load_enhanced_strategies()
+    if strategy_id not in strategies:
+        error_msg = "%s Strategy %s not found"
+        self.logger.error(error_msg, TEXT_INDICATORS['error'], strategy_id)
+        return False
+
+    strategy: OptimizationStrategy = strategies[strategy_id]
+    db_path = self.workspace_path / "databases" / database_name
+
+    if not db_path.exists():
+        error_msg = "%s Database %s not found"
+        self.logger.error(error_msg, TEXT_INDICATORS['error'], database_name)
+        return False
+
+    start_time = time.time()
+    success = True
+    error_message: Optional[str] = None
+
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+
+            for sql_command in strategy.sql_commands:
+                try:
+                    cursor.execute(sql_command)
+                except sqlite3.Error as e:
+                    # Ignore table not found errors
+                    if "no such table" not in str(e).lower():
+                        warning_msg = "%s SQL Error in %s: %s"
+                        self.logger.warning(warning_msg, TEXT_INDICATORS['error'], strategy_id, e)
+
+            conn.commit()
+
+    except sqlite3.DatabaseError as e:
+        success = False
+        error_message = str(e)
+        error_msg = "%s Error executing %s: %s"
+        self.logger.error(error_msg, TEXT_INDICATORS['error'], strategy_id, e)
+
+    execution_time = time.time() - start_time
+    improvement = strategy.expected_improvement if success else 0.0
+
+    # Store execution result
+    self.store_optimization_result(
+        strategy_id,
+        database_name,
+        execution_time,
+        success,
+        improvement,
+        error_message if error_message is not None else "",
+    )
+
+    return success
+
+def store_optimization_result(
+    self,
+    strategy_id: str,
+    database_name: str,
+    execution_time: float,
+    success: bool,
+    improvement: float,
+    error_message: str = "",
+):
+    """Store optimization execution result"""
+    try:
+        with sqlite3.connect(self.databases["optimization_history"]) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO optimization_executions
+                (strategy_id, database_name, execution_time, success,
+                 improvement_achieved, error_message)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """,
+                (
+                    strategy_id,
+                    database_name,
+                    execution_time,
+                    success,
+                    improvement,
+                    error_message,
+                ),
             )
-            self.logger.error(error_msg)
-
-    def run_autonomous_optimization(self, progress_callback=None):
-        """Run autonomous optimization cycle"""
-        msg = f"{TEXT_INDICATORS['optimize']} Starting autonomous optimization cycle"
-        self.logger.info(msg)
-
-        # Load learning patterns and optimization history
-        self._load_learning_patterns()  # Consolidated implementation
-        self._load_optimization_history()  # Consolidated implementation
-
-        # Get list of databases to optimize
-        databases_path = self.workspace_path / "databases"
-        if not databases_path.exists():
-            error_msg = f"{TEXT_INDICATORS['error']} Databases directory not found"
-            self.logger.error(error_msg)
-            return
-
-        database_files = [f for f in databases_path.glob("*.db") if f.is_file()]
-        total_databases = len(database_files)
-
-        if progress_callback:
-            progress_bar = progress_callback(
-                total=total_databases, desc="Optimizing databases"
-            )
-
-        optimized_count = 0
-
-        for i, db_path in enumerate(database_files):
-            database_name = db_path.name
-
-            try:
-                # Monitor database health
-                health_metrics = self.monitor_database_health(database_name)
-                if not health_metrics:
-                    continue
-
-                health_msg = (
-                    f"{TEXT_INDICATORS['health']} {database_name} health score: "
-                    f"{health_metrics.health_score:.2f}"
-                )
-                self.logger.info(health_msg)
-
-                # Select optimization strategies
-                strategies = self._select_optimal_strategies(
-                    database_name, health_metrics
-                )
-
-                if strategies:
-                    strategy_msg = (
-                        f"{TEXT_INDICATORS['optimize']} Applying {len(strategies)} "
-                        f"strategies to {database_name}"
-                    )
-                    self.logger.info(strategy_msg)
-
-                    for strategy in strategies:
-                        success = self.execute_optimization_strategy(
-                            database_name, strategy
-                        )
-                        if success:
-                            success_msg = (
-                                f"{TEXT_INDICATORS['success']} {strategy} "
-                                f"completed for {database_name}"
-                            )
-                            self.logger.info(success_msg)
-                        else:
-                            fail_msg = (
-                                f"{TEXT_INDICATORS['error']} {strategy} "
-                                f"failed for {database_name}"
-                            )
-                            self.logger.warning(fail_msg)
-
-                    optimized_count += 1
-                else:
-                    healthy_msg = (
-                        f"{TEXT_INDICATORS['health']} {database_name} is healthy, "
-                        f"no optimization needed"
-                    )
-                    self.logger.info(healthy_msg)
-
-            except Exception as e:
-                error_msg = (
-                    f"{TEXT_INDICATORS['error']} Error optimizing "
-                    f"{database_name}: {e}"
-                )
-                self.logger.error(error_msg)
-
-            if progress_callback:
-                progress_bar.update(1)
-                progress_bar.set_description(
-                    f"Optimized {optimized_count}/{i+1} databases"
-                )
-
-        if progress_callback:
-            progress_bar.close()
-
-        final_msg = (
-            f"{TEXT_INDICATORS['success']} Autonomous optimization completed. "
-            f"Optimized {optimized_count}/{total_databases} databases"
-        )
-        self.logger.info(final_msg)
-
-
-def main():
-    """Main execution function"""
-    print(f"{TEXT_INDICATORS['optimize']} AUTONOMOUS DATABASE HEALTH OPTIMIZER")
-    print("=" * 60)
-
-    optimizer = AutonomousDatabaseHealthOptimizer()
-
-    # Run optimization with progress bar
-    def create_progress_bar(total, desc):
-        return tqdm(total=total, desc=desc, unit="db")
-
-    optimizer.run_autonomous_optimization(progress_callback=create_progress_bar)
-
-    print("=" * 60)
-    print(f"{TEXT_INDICATORS['success']} Optimization cycle completed")
-
-
-if __name__ == "__main__":
-    main()
+            conn.commit()
+    except sqlite3.DatabaseError as e:
+        error_msg = "%s Error storing optimization result: %s"
+        self.logger.error(error_msg, TEXT_INDICATORS['error'], e)
