@@ -24,27 +24,32 @@ try:
     from tqdm import tqdm  # type: ignore
 except ImportError:
     # Provide fallback implementation if tqdm is not available
-    class tqdm:
+    class TqdmFallback:
         """Fallback tqdm progress bar (text only)"""
-        def __init__(self, total=None, desc=None, *args, unit=None, **kwargs):
+        def __init__(self, total=None, desc=None):
+            """Initialize fallback progress bar"""
             self.total = total
             self.desc = desc
             self.current = 0
-            print("Starting %s: 0/%s" % (desc or "process", total or "?"))
+            print(f"Starting {desc or 'process'}: 0/{total or '?'}")
 
         def update(self, n=1):
+            """Update progress"""
             self.current += n
             if self.total:
-                print("Progress: %d/%d" % (self.current, self.total))
+                print(f"Progress: {self.current}/{self.total}")
             else:
-                print("Progress: %d" % self.current)
+                print(f"Progress: {self.current}")
 
         def set_description(self, desc):
+            """Set progress bar description"""
             self.desc = desc
-            print("Updated: %s" % desc)
+            print(f"Updated: {desc}")
 
         def close(self):
-            print("Completed: %s" % (self.desc or "process"))
+            """Close progress bar"""
+            print(f"Completed: {self.desc or 'process'}")
+    tqdm = TqdmFallback
 
 
 # Text-based indicators (NO Unicode emojis)
@@ -461,10 +466,9 @@ class AutonomousDatabaseHealthOptimizer:
                 expected_improvement=value["expected_improvement"],
                 risk_level="medium",  # Default or adjust as needed
                 execution_time=0.0,
-                success_rate=1.0,
+                success_rate=1.0  # Default value, adjust as needed
             )
         return strategies
-
 
 def select_optimal_strategies(
     self, health_metrics: DatabaseHealthMetrics
@@ -504,7 +508,6 @@ def select_optimal_strategies(
 
     return strategies
 
-
 def execute_optimization_strategy(
     self, database_name: str, strategy_id: str
 ) -> bool:
@@ -524,7 +527,6 @@ def execute_optimization_strategy(
 
     strategy = strategies[strategy_id]
     return self._execute_strategy_commands(strategy, database_name)
-
 
 def _execute_strategy_commands(
     self, strategy: OptimizationStrategy, database_name: str
@@ -557,7 +559,6 @@ def _execute_strategy_commands(
     self.store_optimization_result(result_data)
     return success
 
-
 def _run_sql_commands(
     self, db_path: Path, strategy: OptimizationStrategy
 ) -> tuple[bool, Optional[str]]:
@@ -572,7 +573,7 @@ def _run_sql_commands(
                     if "no such table" not in str(e).lower():
                         warning_msg = "%s SQL Error in %s: %s"
                         self.logger.warning(
-                            warning_msg, TEXT_INDICATORS['error'], 
+                            warning_msg, TEXT_INDICATORS['error'],
                             strategy.strategy_id, e
                         )
             conn.commit()
@@ -583,7 +584,6 @@ def _run_sql_commands(
             error_msg, TEXT_INDICATORS['error'], strategy.strategy_id, e
         )
         return False, str(e)
-
 
 def store_optimization_result(
     self, result_data: Dict[str, Any]
@@ -611,6 +611,11 @@ def store_optimization_result(
                 ),
             )
             conn.commit()
+    except sqlite3.DatabaseError as e:
+        error_msg = "%s Error storing optimization result: %s"
+        self.logger.error(
+            error_msg, TEXT_INDICATORS['error'], e
+        )   conn.commit()
     except sqlite3.DatabaseError as e:
         error_msg = "%s Error storing optimization result: %s"
         self.logger.error(
