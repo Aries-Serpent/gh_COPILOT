@@ -14,7 +14,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
@@ -463,7 +463,6 @@ class AutonomousDatabaseHealthOptimizer:
                 execution_time=0.0,
                 success_rate=1.0,
             )
-
         return strategies
 
 
@@ -499,7 +498,9 @@ def select_optimal_strategies(
             if pattern["success_rate"] < 0.5:
                 strategies.remove(strategy)
                 msg = "%s Removed %s due to low success rate"
-                self.logger.warning(msg, TEXT_INDICATORS['learn'], strategy)
+                self.logger.warning(
+                    msg, TEXT_INDICATORS['learn'], strategy
+                )
 
     return strategies
 
@@ -509,75 +510,89 @@ def execute_optimization_strategy(
 ) -> bool:
     """Execute optimization strategy on database"""
     msg = "%s Executing %s on %s"
-    self.logger.info(msg, TEXT_INDICATORS['optimize'], strategy_id, database_name)
+    self.logger.info(
+        msg, TEXT_INDICATORS['optimize'], strategy_id, database_name
+    )
 
     strategies = self._load_enhanced_strategies()
     if strategy_id not in strategies:
         error_msg = "%s Strategy %s not found"
-        self.logger.error(error_msg, TEXT_INDICATORS['error'], strategy_id)
+        self.logger.error(
+            error_msg, TEXT_INDICATORS['error'], strategy_id
+        )
         return False
 
-    strategy: OptimizationStrategy = strategies[strategy_id]
+    strategy = strategies[strategy_id]
+    return self._execute_strategy_commands(strategy, database_name)
+
+
+def _execute_strategy_commands(
+    self, strategy: OptimizationStrategy, database_name: str
+) -> bool:
+    """Execute the SQL commands for a strategy"""
     db_path = self.workspace_path / "databases" / database_name
 
     if not db_path.exists():
         error_msg = "%s Database %s not found"
-        self.logger.error(error_msg, TEXT_INDICATORS['error'], database_name)
+        self.logger.error(
+            error_msg, TEXT_INDICATORS['error'], database_name
+        )
         return False
 
     start_time = time.time()
-    success = True
-    error_message: Optional[str] = None
-
-    try:
-        with sqlite3.connect(db_path) as conn:
-            cursor = conn.cursor()
-
-            for sql_command in strategy.sql_commands:
-                try:
-                    cursor.execute(sql_command)
-                except sqlite3.Error as e:
-                    # Ignore table not found errors
-                    if "no such table" not in str(e).lower():
-                        warning_msg = "%s SQL Error in %s: %s"
-                        self.logger.warning(warning_msg, TEXT_INDICATORS['error'], strategy_id, e)
-
-            conn.commit()
-
-    except sqlite3.DatabaseError as e:
-        success = False
-        error_message = str(e)
-        error_msg = "%s Error executing %s: %s"
-        self.logger.error(error_msg, TEXT_INDICATORS['error'], strategy_id, e)
+    success, error_message = self._run_sql_commands(db_path, strategy)
 
     execution_time = time.time() - start_time
     improvement = strategy.expected_improvement if success else 0.0
 
     # Store execution result
-    self.store_optimization_result(
-        strategy_id,
-        database_name,
-        execution_time,
-        success,
-        improvement,
-        error_message if error_message is not None else "",
-    )
-
+    result_data = {
+        'strategy_id': strategy.strategy_id,
+        'database_name': database_name,
+        'execution_time': execution_time,
+        'success': success,
+        'improvement': improvement,
+        'error_message': error_message or ""
+    }
+    self.store_optimization_result(result_data)
     return success
 
 
+def _run_sql_commands(
+    self, db_path: Path, strategy: OptimizationStrategy
+) -> tuple[bool, Optional[str]]:
+    """Run SQL commands for the strategy"""
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            for sql_command in strategy.sql_commands:
+                try:
+                    cursor.execute(sql_command)
+                except sqlite3.Error as e:
+                    if "no such table" not in str(e).lower():
+                        warning_msg = "%s SQL Error in %s: %s"
+                        self.logger.warning(
+                            warning_msg, TEXT_INDICATORS['error'], 
+                            strategy.strategy_id, e
+                        )
+            conn.commit()
+        return True, None
+    except sqlite3.DatabaseError as e:
+        error_msg = "%s Error executing %s: %s"
+        self.logger.error(
+            error_msg, TEXT_INDICATORS['error'], strategy.strategy_id, e
+        )
+        return False, str(e)
+
+
 def store_optimization_result(
-    self,
-    strategy_id: str,
-    database_name: str,
-    execution_time: float,
-    success: bool,
-    improvement: float,
-    error_message: str = "",
+    self, result_data: Dict[str, Any]
 ):
     """Store optimization execution result"""
     try:
-        with sqlite3.connect(self.databases["optimization_history"]) as conn:
+        with sqlite3.connect(
+            self.databases["optimization_history"]
+        ) as conn:
             cursor = conn.cursor()
             cursor.execute(
                 """
@@ -587,14 +602,17 @@ def store_optimization_result(
                 VALUES (?, ?, ?, ?, ?, ?)
             """,
                 (
-                    strategy_id,
-                    database_name,
-                    execution_time,
-                    success,
-                    improvement,
-                    error_message,
+                    result_data['strategy_id'],
+                    result_data['database_name'],
+                    result_data['execution_time'],
+                    result_data['success'],
+                    result_data['improvement'],
+                    result_data['error_message'],
                 ),
             )
             conn.commit()
     except sqlite3.DatabaseError as e:
-        self.logger.error("%s Error storing optimization result: %s", TEXT_INDICATORS['error'], e)
+        error_msg = "%s Error storing optimization result: %s"
+        self.logger.error(
+            error_msg, TEXT_INDICATORS['error'], e
+        )
