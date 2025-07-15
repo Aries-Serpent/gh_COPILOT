@@ -62,7 +62,8 @@ class DatabaseFirstUnifiedEngine:
         Args:
             database_path: Path to the production database
             workspace_path: Path to workspace (auto-detected if None)
-            operation_mode: One of enhancement, synchronization, flake8_discovery, compliance_scan, all
+            operation_mode: One of enhancement, synchronization,
+                          flake8_discovery, compliance_scan, all
         """
         self.database_path = Path(database_path)
         self.operation_mode = operation_mode
@@ -141,7 +142,8 @@ class DatabaseFirstUnifiedEngine:
                 success = self._process_database_operations(cursor, "synchronization")
                 if success:
                     conn.commit()
-                    self.logger.info(f"{TEXT_INDICATORS['success']} Database synchronization completed")
+                    self.logger.info(f"{TEXT_INDICATORS['success']} "
+                                     f"Database synchronization completed")
                 return success
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Database synchronization error: {e}")
@@ -227,7 +229,8 @@ class DatabaseFirstUnifiedEngine:
         """Process database operations"""
         try:
             # Implementation for database operations based on operation type
-            self.logger.info(f"{TEXT_INDICATORS['database']} Processing {operation_type} operations")
+            self.logger.info(f"{TEXT_INDICATORS['database']} "
+                             f"Processing {operation_type} operations")
             # Placeholder for actual database operations
             return True
         except Exception as e:

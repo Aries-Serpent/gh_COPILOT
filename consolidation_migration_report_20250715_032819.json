@@ -1,0 +1,47 @@
+{
+  "timestamp": "2025-07-15T03:28:19.194841",
+  "dry_run": false,
+  "workspace_root": "/home/runner/work/gh_COPILOT/gh_COPILOT",
+  "backup_directory": "/home/runner/work/gh_COPILOT/gh_COPILOT/backup/database_first_consolidation",
+  "files_processed": {
+    "database_first_enhancement_executor.py": {
+      "size_bytes": 2457,
+      "backup_created": true,
+      "backup_path": "/home/runner/work/gh_COPILOT/gh_COPILOT/backup/database_first_consolidation/database_first_enhancement_executor.py"
+    },
+    "database_first_synchronization_engine.py": {
+      "size_bytes": 2459,
+      "backup_created": true,
+      "backup_path": "/home/runner/work/gh_COPILOT/gh_COPILOT/backup/database_first_consolidation/database_first_synchronization_engine.py"
+    },
+    "database_first_flake8_discovery_engine.py": {
+      "size_bytes": 3485,
+      "backup_created": true,
+      "backup_path": "/home/runner/work/gh_COPILOT/gh_COPILOT/backup/database_first_consolidation/database_first_flake8_discovery_engine.py"
+    },
+    "database_first_flake8_compliance_scanner.py": {
+      "size_bytes": 3837,
+      "backup_created": true,
+      "backup_path": "/home/runner/work/gh_COPILOT/gh_COPILOT/backup/database_first_consolidation/database_first_flake8_compliance_scanner.py"
+    },
+    "database_first_flake8_compliance_scanner_v2.py": {
+      "size_bytes": 3489,
+      "backup_created": true,
+      "backup_path": "/home/runner/work/gh_COPILOT/gh_COPILOT/backup/database_first_consolidation/database_first_flake8_compliance_scanner_v2.py"
+    }
+  },
+  "import_updates": {},
+  "errors": [],
+  "success": false,
+  "summary": {
+    "files_backed_up": 5,
+    "total_target_files": 5,
+    "import_updates_applied": 0,
+    "consolidation_ratio": "5:1",
+    "expected_benefits": {
+      "file_reduction_percent": 80,
+      "code_duplication_elimination_percent": 95,
+      "maintenance_overhead_reduction_percent": 60
+    }
+  }
+}
