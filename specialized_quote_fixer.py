@@ -27,7 +27,9 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
+    def __init__(self, workspace_path: str = None):
+        if workspace_path is None:
+            workspace_path = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
