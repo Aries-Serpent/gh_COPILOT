@@ -199,10 +199,10 @@ class DatabasePurificationEngine:
 
                         for column in columns:
                             column_name = column[1]
-
                             # Check for NULL values
                             cursor.execute(
-                                f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} IS NULL")
+                                f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} IS NULL"
+                            )
                             null_count = cursor.fetchone()[0]
 
                             if null_count > 0:
