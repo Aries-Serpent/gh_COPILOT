@@ -509,6 +509,7 @@ def select_optimal_strategies(
 
     return strategies
 
+
 def execute_optimization_strategy(
     self, database_name: str, strategy_id: str
 ) -> bool:
@@ -529,6 +530,7 @@ def execute_optimization_strategy(
     strategy = strategies[strategy_id]
     return self._execute_strategy_commands(strategy, database_name)
 
+
 def _execute_strategy_commands(
     self, strategy: OptimizationStrategy, database_name: str
 ) -> bool:
@@ -542,29 +544,19 @@ def _execute_strategy_commands(
         )
         return False
 
-    start_time = time.time()
     success, error_message = self._run_sql_commands(db_path, strategy)
 
-    execution_time = time.time() - start_time
     improvement = strategy.expected_improvement if success else 0.0
 
-    # Store execution result
-    result_data = {
-        'strategy_id': strategy.strategy_id,
-        'database_name': database_name,
-        'execution_time': execution_time,
-        'success': success,
-        'improvement': improvement,
-        'error_message': error_message or ""
-    }
-    self.store_optimization_result(result_data)
     return success
+
 
 def _run_sql_commands(
     self, db_path: Path, strategy: OptimizationStrategy
 ) -> tuple[bool, Optional[str]]:
     """Run SQL commands for the strategy"""
     try:
+        # Attempt to connect and execute SQL commands
         with sqlite3.connect(db_path) as conn:
             cursor = conn.cursor()
             for sql_command in strategy.sql_commands:
@@ -586,10 +578,15 @@ def _run_sql_commands(
         )
         return False, str(e)
 
+
 def store_optimization_result(
     self, result_data: Dict[str, Any]
 ):
     """Store optimization execution result"""
+    # Store optimization execution result in the database using result_data
+    if not result_data:
+        self.logger.warning("%s No result data provided for storage.", TEXT_INDICATORS['error'])
+        return
     try:
         with sqlite3.connect(
             self.databases["optimization_history"]
@@ -603,12 +600,12 @@ def store_optimization_result(
                 VALUES (?, ?, ?, ?, ?, ?)
             """,
                 (
-                    result_data['strategy_id'],
-                    result_data['database_name'],
-                    result_data['execution_time'],
-                    result_data['success'],
-                    result_data['improvement'],
-                    result_data['error_message'],
+                    result_data.get('strategy_id'),
+                    result_data.get('database_name'),
+                    result_data.get('execution_time'),
+                    result_data.get('success'),
+                    result_data.get('improvement'),
+                    result_data.get('error_message'),
                 ),
             )
             conn.commit()
