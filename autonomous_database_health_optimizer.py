@@ -17,37 +17,39 @@ from typing import Any, Dict, List, Optional
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
-# Import with graceful fallback
-try:
-    from tqdm import tqdm
-except ImportError:
-    # Provide fallback implementation if tqdm is not available
-    class TqdmFallback:
-        """Fallback tqdm progress bar (text only)"""
-        def __init__(self, total=None, desc=None):
-            """Initialize fallback progress bar"""
-            self.total = total
-            self.desc = desc
-            self.current = 0
-            print(f"Starting {desc or 'process'}: 0/{total or '?'}")
 
-        def update(self, n=1):
-            """Update progress"""
-            self.current += n
-            if self.total:
-                print(f"Progress: {self.current}/{self.total}")
-            else:
-                print(f"Progress: {self.current}")
+# Provide fallback implementation for tqdm
 
-        def set_description(self, desc):
-            """Set progress bar description"""
-            self.desc = desc
-            print(f"Updated: {desc}")
+class TqdmFallback:
+    """Fallback tqdm progress bar (text only)"""
 
-        def close(self):
-            """Close progress bar"""
-            print(f"Completed: {self.desc or 'process'}")
-    tqdm = TqdmFallback
+    def __init__(self, total=None, desc=None):
+        """Initialize fallback progress bar"""
+        self.total = total
+        self.desc = desc
+        self.current = 0
+        print(f"Starting {desc or 'process'}: 0/{total or '?'}")
+
+    def update(self, n=1):
+        """Update progress"""
+        self.current += n
+        if self.total:
+            print(f"Progress: {self.current}/{self.total}")
+        else:
+            print(f"Progress: {self.current}")
+
+    def set_description(self, desc):
+        """Set progress bar description"""
+        self.desc = desc
+        print(f"Updated: {desc}")
+
+    def close(self):
+        """Close progress bar"""
+        print(f"Completed: {self.desc or 'process'}")
+
+
+# Use fallback implementation
+tqdm = TqdmFallback
 
 
 # Text-based indicators (NO Unicode emojis)
@@ -417,7 +419,7 @@ class AutonomousDatabaseHealthOptimizer:
         self.logger.error(msg)
 
 
-def load_enhanced_strategies(self) -> Dict[str, OptimizationStrategy]:
+def load_enhanced_strategies() -> Dict[str, OptimizationStrategy]:
     """Load enhanced optimization strategies"""
     strategies: Dict[str, OptimizationStrategy] = {}
     for key, value in {
