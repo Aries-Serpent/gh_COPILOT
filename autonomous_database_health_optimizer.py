@@ -19,7 +19,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Import with graceful fallback
 try:
-    from tqdm import tqdm  # type: ignore
+    from tqdm import tqdm
 except ImportError:
     # Provide fallback implementation if tqdm is not available
     class TqdmFallback:
@@ -416,58 +416,57 @@ class AutonomousDatabaseHealthOptimizer:
             self.logger.error(msg, TEXT_INDICATORS['error'], e)
             self.logger.error(msg)
 
-    def _load_enhanced_strategies(self) -> Dict[str, OptimizationStrategy]:
-        """Load enhanced optimization strategies"""
-        strategies: Dict[str, OptimizationStrategy] = {}
-        for key, value in {
-            "vacuum_analyze": {
-                "sql_commands": ["VACUUM;", "ANALYZE;", "REINDEX;"],
-                "expected_improvement": 25.0,
-            },
-            "index_optimization": {
-                "sql_commands": [
-                    'SELECT name FROM sqlite_master WHERE type="index";',
-                    "DROP INDEX IF EXISTS old_inefficient_indexes;",
-                    "CREATE INDEX IF NOT EXISTS optimized_query_index ON table(column);",
-                ],
-                "expected_improvement": 40.0,
-            },
-            "connection_pooling": {
-                "sql_commands": [
-                    "PRAGMA cache_size = 10000;",
-                    "PRAGMA temp_store = memory;",
-                    "PRAGMA journal_mode = WAL;",
-                ],
-                "expected_improvement": 30.0,
-            },
-            "query_optimization": {
-                "sql_commands": [
-                    "PRAGMA optimize;",
-                    "PRAGMA analysis_limit = 1000;",
-                    "PRAGMA automatic_index = ON;",
-                ],
-                "expected_improvement": 20.0,
-            },
-            "self_healing_integrity_check": {
-                "sql_commands": [
-                    "PRAGMA integrity_check;",
-                    "PRAGMA foreign_key_check;",
-                    "PRAGMA quick_check;",
-                ],
-                "expected_improvement": 15.0,
-            }
-        }.items():
-            strategies[key] = OptimizationStrategy(
-                strategy_id=key,
-                strategy_name=key.replace("_", " ").title(),
-                sql_commands=value["sql_commands"],
-                expected_improvement=value["expected_improvement"],
-                risk_level="medium",  # Default or adjust as needed
-                execution_time=0.0,
-                success_rate=1.0  # Default value, adjust as needed
-            )
-        return strategies
-
+def load_enhanced_strategies(self) -> Dict[str, OptimizationStrategy]:
+    """Load enhanced optimization strategies"""
+    strategies: Dict[str, OptimizationStrategy] = {}
+    for key, value in {
+        "vacuum_analyze": {
+            "sql_commands": ["VACUUM;", "ANALYZE;", "REINDEX;"],
+            "expected_improvement": 25.0,
+        },
+        "index_optimization": {
+            "sql_commands": [
+                'SELECT name FROM sqlite_master WHERE type="index";',
+                "DROP INDEX IF EXISTS old_inefficient_indexes;",
+                "CREATE INDEX IF NOT EXISTS optimized_query_index ON table(column);",
+            ],
+            "expected_improvement": 40.0,
+        },
+        "connection_pooling": {
+            "sql_commands": [
+                "PRAGMA cache_size = 10000;",
+                "PRAGMA temp_store = memory;",
+                "PRAGMA journal_mode = WAL;",
+            ],
+            "expected_improvement": 30.0,
+        },
+        "query_optimization": {
+            "sql_commands": [
+                "PRAGMA optimize;",
+                "PRAGMA analysis_limit = 1000;",
+                "PRAGMA automatic_index = ON;",
+            ],
+            "expected_improvement": 20.0,
+        },
+        "self_healing_integrity_check": {
+            "sql_commands": [
+                "PRAGMA integrity_check;",
+                "PRAGMA foreign_key_check;",
+                "PRAGMA quick_check;",
+            ],
+            "expected_improvement": 15.0,
+        }
+    }.items():
+        strategies[key] = OptimizationStrategy(
+            strategy_id=key,
+            strategy_name=key.replace("_", " ").title(),
+            sql_commands=value["sql_commands"],
+            expected_improvement=value["expected_improvement"],
+            risk_level="medium",  # Default or adjust as needed
+            execution_time=0.0,
+            success_rate=1.0  # Default value, adjust as needed
+        )
+    return strategies
 
 def select_optimal_strategies(
     self, health_metrics: DatabaseHealthMetrics
@@ -507,7 +506,6 @@ def select_optimal_strategies(
 
     return strategies
 
-
 def execute_optimization_strategy(
     self, database_name: str, strategy_id: str
 ) -> bool:
@@ -517,7 +515,8 @@ def execute_optimization_strategy(
         msg, TEXT_INDICATORS['optimize'], strategy_id, database_name
     )
 
-    strategies = self._load_enhanced_strategies()
+    strategies = self.load_enhanced_strategies()
+    
     if strategy_id not in strategies:
         error_msg = "%s Strategy %s not found"
         self.logger.error(
@@ -527,7 +526,6 @@ def execute_optimization_strategy(
 
     strategy = strategies[strategy_id]
     return self._execute_strategy_commands(strategy, database_name)
-
 
 def _execute_strategy_commands(
     self, strategy: OptimizationStrategy, database_name: str
@@ -543,9 +541,19 @@ def _execute_strategy_commands(
         return False
 
     success, error_message = self._run_sql_commands(db_path, strategy)
+    
+    # Store optimization result
+    result_data = {
+        'strategy_id': strategy.strategy_id,
+        'database_name': database_name,
+        'execution_time': 0.0,  # Could be calculated if needed
+        'success': success,
+        'improvement': strategy.expected_improvement if success else None,
+        'error_message': error_message
+    }
+    self.store_optimization_result(result_data)
 
     return success
-
 
 def _run_sql_commands(
     self, db_path: Path, strategy: OptimizationStrategy
@@ -574,10 +582,7 @@ def _run_sql_commands(
         )
         return False, str(e)
 
-
-def store_optimization_result(
-    self, result_data: Dict[str, Any]
-):
+def store_optimization_result(self, result_data: Dict[str, Any]):
     """Store optimization execution result"""
     # Store optimization execution result in the database using result_data
     if not result_data:
@@ -610,3 +615,5 @@ def store_optimization_result(
         self.logger.error(
             error_msg, TEXT_INDICATORS['error'], e
         )
+        # Log database error directly instead of calling private method
+        self.logger.error("%s Database error: %s", TEXT_INDICATORS['error'], str(e))
