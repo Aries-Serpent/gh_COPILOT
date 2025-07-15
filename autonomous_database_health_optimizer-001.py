@@ -124,7 +124,7 @@ COMMAND_SUCCESS_THRESHOLD = 0.5
 
 class DatabaseHealth:
     """Database health metrics data structure."""
-    
+
     def __init__(
         self,
         database_name: str,
@@ -142,7 +142,7 @@ class DatabaseHealth:
         timestamp: Optional[datetime] = None
     ) -> None:
         """Initialize database health metrics.
-        
+
         Args:
             database_name: Name of the database
             health_score: Overall health score (0-100)
@@ -193,7 +193,7 @@ class DatabaseHealth:
 
 class OptimizationResult:
     """Database optimization result data structure."""
-    
+
     def __init__(
         self,
         database_name: str,
@@ -207,7 +207,7 @@ class OptimizationResult:
         timestamp: Optional[datetime] = None
     ) -> None:
         """Initialize optimization result.
-        
+
         Args:
             database_name: Name of the database
             optimization_type: Type of optimization performed
@@ -246,15 +246,15 @@ class OptimizationResult:
 
 class AutonomousDatabaseHealthOptimizer:
     """Autonomous database health optimization system.
-    
-    This class provides comprehensive database health monitoring,
+
+     This class provides comprehensive database health monitoring,
     analysis, and optimization capabilities with self-healing
     functionality and machine learning integration.
     """
-    
+
     def __init__(self, workspace_path: Optional[str] = None) -> None:
         """Initialize autonomous database optimizer.
-        
+
         Args:
             workspace_path: Path to workspace directory
         """
@@ -266,31 +266,31 @@ class AutonomousDatabaseHealthOptimizer:
         self.optimization_id = (
             f"AUTO_OPT_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         )
-        
+
         # Initialize logging system
         self._setup_logging()
-        
+
         # Discover and register databases
         self.database_registry = self._discover_databases()
-        
+
         # Initialize ML models
         self.ml_models: Dict[str, Any] = {}
         self._initialize_ml_models()
-        
+
         # Set health thresholds
         self.health_thresholds = {
             'critical': HEALTH_CRITICAL,
             'warning': HEALTH_WARNING,
             'excellent': HEALTH_EXCELLENT
         }
-        
+
         # Load optimization strategies
         self.optimization_strategies = self._load_optimization_strategies()
-        
+
         # Initialize learning components
         self.learning_patterns: Dict[str, Any] = {}
         self.optimization_history: Dict[str, Any] = {}
-        
+
         self.logger.info(
             "%s Autonomous Database Health Optimizer Initialized",
             INDICATORS['optimize']
@@ -298,23 +298,22 @@ class AutonomousDatabaseHealthOptimizer:
         self.logger.info("Workspace: %s", self.workspace_path)
         self.logger.info("Optimization ID: %s", self.optimization_id)
         self.logger.info("ML Available: %s", ML_AVAILABLE)
-        
+
     def _setup_logging(self) -> None:
         """Setup comprehensive logging system."""
         log_format = '%(asctime)s - %(levelname)s - %(message)s'
-        
+
         # Create logs directory
         logs_dir = self.workspace_path / "logs" / "autonomous_optimization"
-        logs_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Create log file with timestamp
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         log_file = logs_dir / f"database_health_optimization_{timestamp}.log"
-        
+
         # Clear existing handlers to prevent conflicts
         for handler in logging.getLogger().handlers[:]:
             logging.getLogger().removeHandler(handler)
-        
+
         # Configure logging
         logging.basicConfig(
             level=logging.INFO,
@@ -325,52 +324,52 @@ class AutonomousDatabaseHealthOptimizer:
             ]
         )
         self.logger = logging.getLogger(__name__)
-        
+
     def _discover_databases(self) -> Dict[str, Path]:
         """Discover all databases in workspace.
-        
-        Returns:
+
+         Returns:
             Dictionary mapping database names to their paths
         """
         self.logger.info(
             "%s Discovering Enterprise Databases",
             INDICATORS['analyze']
         )
-        
+
         databases: Dict[str, Path] = {}
-        
+
         # Primary databases directory
         db_dir = self.workspace_path / "databases"
         if db_dir.exists():
             for db_file in db_dir.glob("*.db"):
                 databases[db_file.stem] = db_file
-                
+
         # Root level databases (avoid duplicates)
         for db_file in self.workspace_path.glob("*.db"):
             if db_file.stem not in databases:
                 databases[db_file.stem] = db_file
-        
+
         # Additional enterprise database locations
         enterprise_paths = [
             self.workspace_path / "builds" / "production" / "databases",
             self.workspace_path / "deployment" / "databases",
             self.workspace_path / "enterprise" / "databases"
         ]
-        
+
         for enterprise_path in enterprise_paths:
             if enterprise_path.exists():
                 for db_file in enterprise_path.glob("*.db"):
                     key = f"enterprise_{db_file.stem}"
                     if key not in databases:
                         databases[key] = db_file
-                        
+
         self.logger.info(
             "%s Discovered %d databases for optimization",
             INDICATORS['success'],
             len(databases)
         )
         return databases
-        
+
     def _initialize_ml_models(self) -> None:
         """Initialize machine learning models."""
         self.logger.info(
@@ -382,21 +381,21 @@ class AutonomousDatabaseHealthOptimizer:
             contamination=0.1,
             random_state=42
         )
-        
+
         # Performance prediction model
         self.ml_models['performance_predictor'] = IsolationForestType(
             contamination=0.05,
             random_state=42
         )
-        
+
         self.logger.info(
             "%s ML models initialized for autonomous operation",
             INDICATORS['success']
         )
-        
+
     def _load_optimization_strategies(self) -> Dict[str, Dict[str, Any]]:
         """Load database optimization strategies.
-        
+
         Returns:
             Dictionary of optimization strategies with their configurations
         """
@@ -469,18 +468,18 @@ class AutonomousDatabaseHealthOptimizer:
                 'execution_time_estimate': 15.0
             }
         }
-        
+
     def analyze_database_health(
         self,
         db_name: str,
         db_path: Path
     ) -> DatabaseHealth:
         """Perform comprehensive database health analysis.
-        
+
         Args:
             db_name: Name of the database
             db_path: Path to the database file
-            
+
         Returns:
             DatabaseHealth object containing analysis results
         """
@@ -489,41 +488,41 @@ class AutonomousDatabaseHealthOptimizer:
             INDICATORS['analyze'],
             db_name
         )
-        
+
         try:
             with sqlite3.connect(str(db_path)) as conn:
                 cursor = conn.cursor()
-                
+
                 # Basic database metrics
                 db_size = db_path.stat().st_size / (1024 * 1024)  # Size in MB
-                
+
                 # Get table count
                 cursor.execute(
                     "SELECT COUNT(*) FROM sqlite_master WHERE type='table';"
                 )
                 table_count = cursor.fetchone()[0]
-                
+
                 # Analyze tables and record count
                 cursor.execute(
                     "SELECT name FROM sqlite_master WHERE type='table';"
                 )
                 tables = [row[0] for row in cursor.fetchall()]
-                
+
                 total_records, query_performance_ms = (
                     self._analyze_table_performance(cursor, tables)
                 )
-                
+
                 # Integrity analysis
                 integrity_score = self._check_database_integrity(cursor)
-                
+
                 # Performance metrics analysis
                 fragmentation_ratio, performance_score = (
                     self._analyze_performance_metrics(cursor)
                 )
-                
+
                 # Calculate overall health score
                 health_score = (integrity_score + performance_score) / 2
-                
+
                 # Generate issues and recommendations
                 issues, recommendations = self._generate_health_insights(
                     integrity_score,
@@ -532,10 +531,10 @@ class AutonomousDatabaseHealthOptimizer:
                     query_performance_ms,
                     db_size
                 )
-                
+
                 # Calculate optimization potential
                 optimization_potential = max(0, 100 - health_score)
-                
+
                 return DatabaseHealth(
                     database_name=db_name,
                     health_score=health_score,
@@ -551,7 +550,7 @@ class AutonomousDatabaseHealthOptimizer:
                     optimization_potential=optimization_potential,
                     timestamp=datetime.now()
                 )
-                
+
         except (sqlite3.Error, OSError) as e:
             self.logger.error(
                 "%s Health analysis failed for %s: %s",
@@ -560,7 +559,7 @@ class AutonomousDatabaseHealthOptimizer:
                 str(e)
             )
             return self._create_failed_health_result(db_name, str(e))
-    
+
     def _analyze_table_performance(
         self,
         cursor: sqlite3.Cursor,
@@ -588,7 +587,7 @@ class AutonomousDatabaseHealthOptimizer:
 
         query_performance_ms = (time.time() - query_start_time) * 1000
         return total_records, query_performance_ms
-    
+
     def _check_database_integrity(self, cursor: sqlite3.Cursor) -> float:
         """Check database integrity.
         
