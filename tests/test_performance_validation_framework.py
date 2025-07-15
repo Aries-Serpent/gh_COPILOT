@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
+import logging
 import sqlite3
 import time
 from pathlib import Path
 
-
 from performance_validation_framework import PerformanceValidationFramework
-import logging
 
 
 def _patch_algorithms(monkeypatch, delay: float) -> None:

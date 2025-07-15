@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
-from copilot.common.workspace_utils import (_within_workspace,
 import logging
+from pathlib import Path
+
+from copilot.common.workspace_utils import (_within_workspace,
                                             get_workspace_path)
 
 
