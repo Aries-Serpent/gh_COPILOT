@@ -5,7 +5,7 @@ import logging
 
 MODULES = [
     "critical_flake8_error_corrector",
-    "database_first_flake8_compliance_scanner",
+    "database_first_unified_engine",
     "targeted_flake8_fixer",
     "scripts.visual_processing_compliance_validator",
 ]
