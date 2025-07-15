@@ -470,6 +470,7 @@ class AutonomousDatabaseHealthOptimizer:
             )
         return strategies
 
+
 def select_optimal_strategies(
     self, health_metrics: DatabaseHealthMetrics
 ) -> List[str]:
@@ -611,11 +612,6 @@ def store_optimization_result(
                 ),
             )
             conn.commit()
-    except sqlite3.DatabaseError as e:
-        error_msg = "%s Error storing optimization result: %s"
-        self.logger.error(
-            error_msg, TEXT_INDICATORS['error'], e
-        )   conn.commit()
     except sqlite3.DatabaseError as e:
         error_msg = "%s Error storing optimization result: %s"
         self.logger.error(
