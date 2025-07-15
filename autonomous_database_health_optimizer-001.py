@@ -17,6 +17,7 @@ import shutil
 import sqlite3
 import sys
 import time
+import traceback
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -62,8 +63,10 @@ except ImportError:
             """Context manager entry."""
             return self
 
-        def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
             """Context manager exit."""
+            # Parameters are required by context manager protocol but not used
+            _ = exc_type, exc_val, exc_tb
             self.close()
     tqdm = Tqdm
 
@@ -83,10 +86,10 @@ except ImportError:
         ) -> None:
             """Initialize fallback isolation forest."""
             self.contamination = contamination
-            self.random_state = random_state
-
-        def fit(self, _data: Any) -> 'IsolationForestFallback':
+        def fit(self, data: Any) -> 'IsolationForestFallback':
             """Fit the model (no-op in fallback)."""
+            # Data parameter required by sklearn interface but not used in fallback
+            _ = data
             return self
 
         def predict(self, data: Any) -> List[int]:
@@ -247,7 +250,7 @@ class OptimizationResult:
 class AutonomousDatabaseHealthOptimizer:
     """Autonomous database health optimization system.
 
-     This class provides comprehensive database health monitoring,
+    This class provides comprehensive database health monitoring,
     analysis, and optimization capabilities with self-healing
     functionality and machine learning integration.
     """
@@ -328,7 +331,7 @@ class AutonomousDatabaseHealthOptimizer:
     def _discover_databases(self) -> Dict[str, Path]:
         """Discover all databases in workspace.
 
-         Returns:
+        Returns:
             Dictionary mapping database names to their paths
         """
         self.logger.info(
@@ -590,10 +593,10 @@ class AutonomousDatabaseHealthOptimizer:
 
     def _check_database_integrity(self, cursor: sqlite3.Cursor) -> float:
         """Check database integrity.
-        
+
         Args:
             cursor: Database cursor
-            
+
         Returns:
             Integrity score (0-100)
         """
@@ -603,16 +606,16 @@ class AutonomousDatabaseHealthOptimizer:
             return 100.0 if integrity_result == 'ok' else 50.0
         except sqlite3.Error:
             return 0.0
-    
+
     def _analyze_performance_metrics(
         self,
         cursor: sqlite3.Cursor
     ) -> Tuple[float, float]:
         """Analyze database performance metrics.
-        
+
         Args:
             cursor: Database cursor
-            
+
         Returns:
             Tuple of (fragmentation_ratio, performance_score)
         """
@@ -621,15 +624,15 @@ class AutonomousDatabaseHealthOptimizer:
             page_count = cursor.fetchone()[0]
             cursor.execute("PRAGMA freelist_count;")
             freelist_count = cursor.fetchone()[0]
-            
+
             # Calculate fragmentation and performance score
             fragmentation_ratio = (freelist_count / max(page_count, 1)) * 100
             performance_score = max(0, 100 - fragmentation_ratio * 2)
-            
+
             return fragmentation_ratio, performance_score
         except sqlite3.Error:
             return 100.0, 0.0
-    
+
     def _generate_health_insights(
         self,
         integrity_score: float,
@@ -639,47 +642,47 @@ class AutonomousDatabaseHealthOptimizer:
         db_size: float
     ) -> Tuple[List[str], List[str]]:
         """Generate health issues and recommendations.
-        
+
         Args:
             integrity_score: Database integrity score
             fragmentation_ratio: Database fragmentation ratio
             performance_score: Database performance score
             query_performance_ms: Query performance in milliseconds
             db_size: Database size in MB
-            
+
         Returns:
             Tuple of (issues, recommendations)
         """
         issues = []
         recommendations = []
-        
+
         if integrity_score < 100:
             issues.append("Database integrity issues detected")
             recommendations.append("Run integrity check and repair")
-        
+
         if fragmentation_ratio > FRAGMENTATION_WARNING:
             issues.append(
                 f"High fragmentation ratio: {fragmentation_ratio:.1f}%"
             )
             recommendations.append("Execute VACUUM to reclaim space")
-        
+
         if performance_score < PERFORMANCE_WARNING:
             issues.append("Suboptimal performance metrics")
             recommendations.append("Optimize indexes and run ANALYZE")
-        
+
         if query_performance_ms > QUERY_PERFORMANCE_WARNING:
             issues.append(
                 f"Slow query performance: {query_performance_ms:.1f}ms"
             )
             recommendations.append("Consider query optimization")
-        
+
         if db_size > LARGE_DATABASE_SIZE:
             recommendations.append(
                 "Consider database partitioning for large dataset"
             )
-        
+
         return issues, recommendations
-    
+
     def _create_failed_health_result(
         self,
         db_name: str,
@@ -930,13 +933,11 @@ class AutonomousDatabaseHealthOptimizer:
     
     def _select_optimal_strategies(
         self,
-        db_name: str,
         health_data: Dict[str, Any]
     ) -> List[str]:
         """Select optimal optimization strategies based on health analysis.
         
         Args:
-            db_name: Database name
             health_data: Health analysis data
             
         Returns:
@@ -1165,7 +1166,6 @@ class AutonomousDatabaseHealthOptimizer:
                 
                 db_path = self.database_registry[db_name]
                 strategies = self._select_optimal_strategies(
-                    db_name,
                     health_data
                 )
                 
