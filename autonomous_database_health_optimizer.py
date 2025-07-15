@@ -21,7 +21,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Import with graceful fallback
 try:
-    from tqdm import tqdm
+    from tqdm import tqdm  # type: ignore
 except ImportError:
     # Provide fallback implementation if tqdm is not available
     class tqdm:
@@ -237,13 +237,11 @@ class AutonomousDatabaseHealthOptimizer:
 
         indicator = TEXT_INDICATORS["learn"]
         self.logger.info("%s Loading learning patterns from database...", indicator)
-        """Load learning patterns from database - consolidated implementation"""
-        self.logger.info(f"{indicator} Loading learning patterns from database...")
+        self.logger.info("%s Loading learning patterns from database...", indicator)
         try:
             with sqlite3.connect(self.databases["learning_patterns"]) as conn:
                 cursor = conn.cursor()
 
-                # Load pattern recognition data
                 cursor.execute(
                     """
                     SELECT pattern_type, pattern_data, confidence_score,
@@ -280,14 +278,13 @@ class AutonomousDatabaseHealthOptimizer:
                     WHERE severity_level >= 3
                     ORDER BY timestamp DESC
                     LIMIT 50
-                """
+                    """
+                )
+                anomalies = cursor.fetchall()
                 for anomaly in anomalies:
                     anomaly_type, anomaly_data, severity, auto_resolved = anomaly
                     self.anomaly_patterns[anomaly_type] = {
                         "data": json.loads(anomaly_data),
-                        "severity": severity,
-                        "auto_resolved": auto_resolved,
-                    }
                         "severity": severity,
                         "auto_resolved": auto_resolved,
                     }
@@ -303,9 +300,7 @@ class AutonomousDatabaseHealthOptimizer:
             self.logger.error(msg)
 
     def _load_optimization_history(self):
-        self.logger.info("%s Loading optimization history from database...", indicator)
         indicator = TEXT_INDICATORS["optimize"]
-        self.logger.info(f"{indicator} Loading optimization history from database...")
         try:
             with sqlite3.connect(self.databases["optimization_history"]) as conn:
                 cursor = conn.cursor()
@@ -390,6 +385,7 @@ class AutonomousDatabaseHealthOptimizer:
                     ORDER BY timestamp DESC
                 """
                 )
+                baselines = cursor.fetchall()
                 for baseline in baselines:
                     (
                         db_name,
@@ -406,8 +402,6 @@ class AutonomousDatabaseHealthOptimizer:
                         "variance": variance,
                         "last_updated": timestamp,
                     }
-                        "last_updated": timestamp,
-                    }
 
                 msg = (
                     f"{indicator} Loaded {len(executions)} executions and "
@@ -421,7 +415,8 @@ class AutonomousDatabaseHealthOptimizer:
 
     def _load_enhanced_strategies(self) -> Dict[str, OptimizationStrategy]:
         """Load enhanced optimization strategies"""
-        raw_strategies = {
+        strategies: Dict[str, OptimizationStrategy] = {}
+        for key, value in {
             "vacuum_analyze": {
                 "sql_commands": ["VACUUM;", "ANALYZE;", "REINDEX;"],
                 "expected_improvement": 25.0,
@@ -457,12 +452,8 @@ class AutonomousDatabaseHealthOptimizer:
                     "PRAGMA quick_check;",
                 ],
                 "expected_improvement": 15.0,
-            },
-            # Missing strategy now implemented
-        }
-
-        strategies: Dict[str, OptimizationStrategy] = {}
-        for key, value in raw_strategies.items():
+            }
+        }.items():
             strategies[key] = OptimizationStrategy(
                 strategy_id=key,
                 strategy_name=key.replace("_", " ").title(),
@@ -512,6 +503,7 @@ def select_optimal_strategies(
 
     return strategies
 
+
 def execute_optimization_strategy(
     self, database_name: str, strategy_id: str
 ) -> bool:
@@ -519,7 +511,7 @@ def execute_optimization_strategy(
     msg = "%s Executing %s on %s"
     self.logger.info(msg, TEXT_INDICATORS['optimize'], strategy_id, database_name)
 
-    strategies = self.load_enhanced_strategies()
+    strategies = self._load_enhanced_strategies()
     if strategy_id not in strategies:
         error_msg = "%s Strategy %s not found"
         self.logger.error(error_msg, TEXT_INDICATORS['error'], strategy_id)
@@ -573,6 +565,7 @@ def execute_optimization_strategy(
 
     return success
 
+
 def store_optimization_result(
     self,
     strategy_id: str,
@@ -604,5 +597,4 @@ def store_optimization_result(
             )
             conn.commit()
     except sqlite3.DatabaseError as e:
-        error_msg = "%s Error storing optimization result: %s"
-        self.logger.error(error_msg, TEXT_INDICATORS['error'], e)
+        self.logger.error("%s Error storing optimization result: %s", TEXT_INDICATORS['error'], e)
