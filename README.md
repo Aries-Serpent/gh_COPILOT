@@ -54,6 +54,7 @@ The gh_COPILOT Toolkit is an enterprise-grade system following database-first ar
 Archived test backups in `Archive/tests/` are reviewed regularly by the QA team
 to determine whether they should be reintegrated or safely removed.
 See `archives/validation_tests/README.md` for historical validation scripts that are skipped during regular test runs.
+All `*.phase12_backup` files have been moved to the top-level `archives/` directory for safekeeping.
 
 ### 🚀 **GETTING STARTED**
 1. **Environment Setup**: Install core dependencies with `pip install -r requirements.txt`.
