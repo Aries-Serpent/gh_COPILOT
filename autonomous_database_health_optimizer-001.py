@@ -567,17 +567,17 @@ class AutonomousDatabaseHealthOptimizer:
         tables: List[str]
     ) -> Tuple[int, float]:
         """Analyze table performance and record counts.
-        
+
         Args:
             cursor: Database cursor
             tables: List of table names
-            
+
         Returns:
             Tuple of (total_records, query_performance_ms)
         """
         total_records = 0
         query_start_time = time.time()
-        
+
         # Limit to first 5 tables for performance
         for table in tables[:5]:
             try:
@@ -585,7 +585,7 @@ class AutonomousDatabaseHealthOptimizer:
                 total_records += cursor.fetchone()[0]
             except sqlite3.Error:
                 continue
-                
+
         query_performance_ms = (time.time() - query_start_time) * 1000
         return total_records, query_performance_ms
     
