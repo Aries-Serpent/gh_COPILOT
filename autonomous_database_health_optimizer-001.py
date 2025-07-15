@@ -388,8 +388,6 @@ class AutonomousDatabaseHealthOptimizer:
             contamination=0.05,
             random_state=42
         )
-            random_state=42
-        )
         
         self.logger.info(
             "%s ML models initialized for autonomous operation",
