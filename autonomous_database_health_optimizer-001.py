@@ -25,23 +25,22 @@ from typing import Any, Dict, List, Optional, Tuple
 try:
     from tqdm import tqdm
 except ImportError:
-    class tqdm:  # type: ignore
+    class Tqdm:  # type: ignore
         """Fallback tqdm implementation for environments without tqdm."""
-        
+
         def __init__(
             self,
             total: Optional[int] = None,
             desc: Optional[str] = None,
-            unit: Optional[str] = None,
-            *args: Any,
-            **kwargs: Any
+            unit: Optional[str] = None
         ) -> None:
             """Initialize fallback progress bar."""
             self.total = total
             self.desc = desc
+            self.unit = unit
             self.current = 0
-            print(f"Starting {desc or 'process'}: 0/{total or '?'}")
-        
+            print(f"Starting {desc or 'process'}: 0/{total or '?'} {unit or ''}")
+
         def update(self, n: int = 1) -> None:
             """Update progress bar."""
             self.current += n
@@ -49,32 +48,34 @@ except ImportError:
                 print(f"Progress: {self.current}/{self.total}")
             else:
                 print(f"Progress: {self.current}")
-        
+
         def set_description(self, desc: str) -> None:
             """Set progress bar description."""
             self.desc = desc
             print(f"Updated: {desc}")
-        
+
         def close(self) -> None:
             """Close progress bar."""
             print(f"Completed: {self.desc or 'process'}")
-        
-        def __enter__(self) -> 'tqdm':
+
+        def __enter__(self) -> 'Tqdm':
             """Context manager entry."""
             return self
-        
-        def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+
+        def __exit__(self, exc_type, exc_val, exc_tb) -> None:
             """Context manager exit."""
             self.close()
+    tqdm = Tqdm
 
 # Machine learning with graceful fallback
 try:
-    from sklearn.ensemble import IsolationForest
+    from sklearn.ensemble import IsolationForest as SklearnIsolationForest
+    IsolationForestType = SklearnIsolationForest
     ML_AVAILABLE = True
 except ImportError:
-    class IsolationForest:  # type: ignore
+    class IsolationForestFallback:
         """Fallback IsolationForest implementation."""
-        
+
         def __init__(
             self,
             contamination: float = 0.1,
@@ -84,17 +85,16 @@ except ImportError:
             self.contamination = contamination
             self.random_state = random_state
 
-        def fit(self, data: Any) -> 'IsolationForest':
+        def fit(self, _data: Any) -> 'IsolationForestFallback':
             """Fit the model (no-op in fallback)."""
             return self
 
         def predict(self, data: Any) -> List[int]:
             """Predict anomalies (normal in fallback)."""
             return [1] * len(data)
-    
-    ML_AVAILABLE = False
 
-# Text-based indicators for autonomous operation
+    IsolationForestType = IsolationForestFallback
+    ML_AVAILABLE = False
 INDICATORS = {
     'optimize': '[OPTIMIZE]',
     'heal': '[HEAL]',
@@ -377,16 +377,17 @@ class AutonomousDatabaseHealthOptimizer:
             "%s Initializing ML Models for Predictive Optimization",
             INDICATORS['learn']
         )
-        
         # Anomaly detection for database health
-        self.ml_models['health_anomaly'] = IsolationForest(
+        self.ml_models['health_anomaly'] = IsolationForestType(
             contamination=0.1,
             random_state=42
         )
         
         # Performance prediction model
-        self.ml_models['performance_predictor'] = IsolationForest(
+        self.ml_models['performance_predictor'] = IsolationForestType(
             contamination=0.05,
+            random_state=42
+        )
             random_state=42
         )
         
@@ -751,9 +752,7 @@ class AutonomousDatabaseHealthOptimizer:
         
         try:
             # Create backup
-            backup_path = self._create_database_backup(db_name, db_path)
-            
-            # Execute optimization commands
+            self._create_database_backup(db_name, db_path)
             success_count = self._execute_optimization_commands(
                 db_path,
                 strategy['sql_commands']
@@ -879,7 +878,7 @@ class AutonomousDatabaseHealthOptimizer:
         
         with sqlite3.connect(str(db_path)) as conn:
             cursor = conn.cursor()
-            
+             
             for i, sql_command in enumerate(commands):
                 try:
                     self.logger.info(
@@ -1344,13 +1343,13 @@ class AutonomousDatabaseHealthOptimizer:
                 """)
                 
                 cursor.execute("""
-                    INSERT INTO autonomous_optimization_results 
-                    (optimization_id, total_databases, databases_optimized, 
-                     total_improvement, success_rate, execution_time, 
+                    INSERT INTO autonomous_optimization_results
+                    (optimization_id, total_databases, databases_optimized,
+                     total_improvement, success_rate, execution_time,
                      results_json)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 """, (
-                    self.optimization_id,
+                    results['optimization_id'],
                     results['total_databases'],
                     results['databases_optimized'],
                     results['total_improvement'],
