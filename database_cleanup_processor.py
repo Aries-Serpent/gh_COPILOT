@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class DatabaseCleanupProcessor:
     """# PROCESS Database cleanup processor for accurate violation tracking"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
         self.workspace_path = Path(workspace_path)
         self.database_path = self.workspace_path / "databases" / "flake8_violations.db"
 

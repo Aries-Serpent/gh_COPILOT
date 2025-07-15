@@ -56,7 +56,7 @@ class FixResult:
 class AutomatedViolationsFixer:
     """# # TOOL Enterprise-grade automated violations fixer"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
         # CRITICAL: Validate workspace integrity
         validate_workspace_integrity()
 

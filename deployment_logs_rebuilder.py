@@ -20,9 +20,10 @@ class DeploymentLogsRebuilder:
     
     def __init__(self):
         self.start_time = datetime.now()
-        self.old_db_path = Path("e:/gh_COPILOT/databases/deployment_logs.db")
-        self.new_db_path = Path("e:/gh_COPILOT/databases/deployment_logs_optimized.db")
-        self.backup_path = Path("e:/gh_COPILOT/databases/deployment_logs_backup.db")
+        workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+        self.old_db_path = workspace / "databases" / "deployment_logs.db"
+        self.new_db_path = workspace / "databases" / "deployment_logs_optimized.db"
+        self.backup_path = workspace / "databases" / "deployment_logs_backup.db"
         self.max_size_mb = 99.9
         self.max_size_bytes = int(self.max_size_mb * 1024 * 1024)
         

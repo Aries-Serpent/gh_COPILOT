@@ -11,7 +11,7 @@ import logging
 def fix_comprehensive_remaining_violations_processor():
     """Fix all syntax errors in comprehensive_remaining_violations_processor.py"""
 
-    file_path = Path("e:/gh_COPILOT/comprehensive_remaining_violations_processor.py")
+    file_path = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "comprehensive_remaining_violations_processor.py"
     fixes_applied = 0
 
     try:
@@ -62,7 +62,7 @@ def fix_comprehensive_remaining_violations_processor():
 def fix_all_unterminated_strings():
     """Find and fix all unterminated string literals"""
 
-    workspace = Path("e:/gh_COPILOT")
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
     total_fixes = 0
 
     # Get all Python files with E999 errors
@@ -131,7 +131,7 @@ def check_e999_count():
     try:
         result = subprocess.run(
             ["python", "-m", "flake8", "--select=E999", ".", "--quiet"],
-            cwd="e:/gh_COPILOT",
+            cwd=os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"),
             capture_output=True,
             text=True
         )

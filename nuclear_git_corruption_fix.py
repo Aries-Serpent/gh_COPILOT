@@ -31,7 +31,7 @@ logging.basicConfig(
 class NuclearGitCorruptionFix:
     """🔧 Nuclear Git Corruption Fix with Complete Repository Rebuild"""
     
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger("NuclearGitFix")
         self.backup_path = Path("E:/temp/gh_COPILOT_Nuclear_Backup")
