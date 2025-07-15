@@ -11,8 +11,8 @@ Enterprise Standards Compliance:
 
 import logging
 import sys
-from pathlib import Path
 from datetime import datetime
+import os
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -26,7 +26,7 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
@@ -53,9 +53,22 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Validate the workspace and check for required documentation."""
+        if not self.workspace_path.exists():
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Workspace missing: {self.workspace_path}"
+            )
+            return False
+
+        readme = self.workspace_path / "README.md"
+        if readme.exists():
+            self.logger.info(f"{TEXT_INDICATORS['info']} README found")
+            return True
+
+        self.logger.warning(
+            f"{TEXT_INDICATORS['error']} README not found in {self.workspace_path}"
+        )
+        return False
 
 
 def main():

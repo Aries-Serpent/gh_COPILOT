@@ -25,7 +25,7 @@ applyTo: '**'
 class QuantumDatabaseProcessor:
     """⚛️ Quantum-Enhanced Database Processing Engine"""
     
-    def __init__(self, workspace_path="e:/gh_COPILOT"):
+    def __init__(self, workspace_path=os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
         self.workspace_path = Path(workspace_path)
         self.quantum_algorithms = {
             "grover_search": self.quantum_grover_search,

@@ -35,7 +35,7 @@ class Phase3SystematicProcessor:
 
     def __init__(self):
         self.start_time = datetime.now()
-        self.workspace_root = Path("e:/gh_COPILOT")
+        self.workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
         self.process_id = os.getpid()
 
         # Phase 3 violation categories (optimized processing order)

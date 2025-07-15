@@ -7,8 +7,8 @@
 
 ### Environment Migration
 **Supported Environments**:
-- **Development**: `e:/gh_COPILOT`
-- **Staging**: `e:/gh_COPILOT`
+- **Development**: `$GH_COPILOT_WORKSPACE`
+- **Staging**: `$GH_COPILOT_WORKSPACE`
 - **Production**: `e:/_copilot_production`
 
 **Migration Paths**:
@@ -34,8 +34,8 @@
 ```bash
 # Run migration assessment
 python migration_scripts/assess_migration.py \
-  --source e:/gh_COPILOT \
-  --target e:/gh_COPILOT
+  --source $GH_COPILOT_WORKSPACE \
+  --target $GH_COPILOT_WORKSPACE
 ```
 
 ### Compatibility Check
@@ -85,8 +85,8 @@ def check_migration_compatibility(source_env, target_env):
 #### Step 1: Environment Preparation
 ```bash
 # Create staging environment
-mkdir -p e:/gh_COPILOT
-cd e:/gh_COPILOT
+mkdir -p $GH_COPILOT_WORKSPACE
+cd $GH_COPILOT_WORKSPACE
 
 # Setup Python environment
 python -m venv .venv
@@ -100,23 +100,23 @@ pip install -r ../requirements.txt  # install only if migrating the dashboard
 #### Step 2: Database Migration
 ```bash
 # Copy production database
-cp e:/gh_COPILOT/production.db e:/gh_COPILOT/
+cp $GH_COPILOT_WORKSPACE/production.db $GH_COPILOT_WORKSPACE/
 
 # Verify database integrity
 python migration_scripts/verify_database.py \
-  --database e:/gh_COPILOT/production.db
+  --database $GH_COPILOT_WORKSPACE/production.db
 ```
 
 #### Step 3: Application Migration
 ```bash
 # Copy web GUI components
-cp -r e:/gh_COPILOT/web_gui/scripts e:/gh_COPILOT/
-cp -r e:/gh_COPILOT/templates e:/gh_COPILOT/
-cp -r e:/gh_COPILOT/web_gui_documentation e:/gh_COPILOT/
+cp -r $GH_COPILOT_WORKSPACE/web_gui/scripts $GH_COPILOT_WORKSPACE/
+cp -r $GH_COPILOT_WORKSPACE/templates $GH_COPILOT_WORKSPACE/
+cp -r $GH_COPILOT_WORKSPACE/web_gui_documentation $GH_COPILOT_WORKSPACE/
 
 # Update configuration paths
 python migration_scripts/update_config_paths.py \
-  --target e:/gh_COPILOT
+  --target $GH_COPILOT_WORKSPACE
 ```
 
 #### Step 4: Validation

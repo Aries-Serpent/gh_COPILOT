@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from database_purification_engine import DatabasePurificationEngine
 import logging
+
+from database_purification_engine import DatabasePurificationEngine
 
 
 def test_engine_uses_env_var(tmp_path, monkeypatch):

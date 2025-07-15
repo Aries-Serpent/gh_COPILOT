@@ -301,8 +301,8 @@ import hashlib      # Content hashing
 #### Environment Variables
 ```bash
 # Recommended environment setup
-export GH_COPILOT_WORKSPACE="e:/gh_COPILOT"
-export GH_COPILOT_DATABASE_PATH="e:/gh_COPILOT/databases"
+export GH_COPILOT_WORKSPACE="/path/to/workspace"
+export GH_COPILOT_DATABASE_PATH="$GH_COPILOT_WORKSPACE/databases"
 export GH_COPILOT_LOG_LEVEL="INFO"
 ```
 

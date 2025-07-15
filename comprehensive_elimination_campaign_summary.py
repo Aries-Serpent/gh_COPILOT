@@ -31,7 +31,7 @@ import logging
 class ComprehensiveViolationEliminationSummary:
     """Comprehensive Summary of Multi-Phase Violation Elimination Campaign"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
         self.workspace_path = Path(workspace_path)
         self.summary_time = datetime.now()
 

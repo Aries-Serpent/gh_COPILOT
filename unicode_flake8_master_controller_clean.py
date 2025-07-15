@@ -360,7 +360,7 @@ class EnterpriseLoggingManager:
 class UnicodeFlake8MasterController:
     """DUAL COPILOT Master Controller for Unicode-compatible Flake8 correction system"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
         # MANDATORY: Anti-recursion validation first
         AntiRecursionValidator.validate_workspace_integrity()
         self.workspace_path = Path(workspace_path)
@@ -527,7 +527,7 @@ def main():
         deployment_report = master_controller.execute_complete_flake8_correction()
 
         # Generate final report file
-        report_file = Path("e:/gh_COPILOT/unicode_flake8_production_deployment_report.json")
+        report_file = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "unicode_flake8_production_deployment_report.json"
         with open(report_file, 'w', encoding='utf-8') as f:
             json.dump(asdict(deployment_report), f, indent=2, default=str)
 

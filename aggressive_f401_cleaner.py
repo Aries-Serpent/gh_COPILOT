@@ -16,14 +16,26 @@ Version: 2.1.0 - Aggressive F401 Cleanup
 Compliance: Enterprise Standards 2025
 """
 
-import sys
+import logging
 import re
 import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
+
 from tqdm import tqdm
-import logging
+
+# Configure enterprise logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('aggressive_f401_cleaner.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
 class AggressiveF401Cleaner:
@@ -56,13 +68,13 @@ class AggressiveF401Cleaner:
             'tqdm.tqdm': r'from tqdm import.*tqdm.*'
         }
 
-        print("🚀 AGGRESSIVE F401 CLEANER INITIALIZED")
-        print(f"Workspace: {self.workspace_root}")
-        print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info("🚀 AGGRESSIVE F401 CLEANER INITIALIZED")
+        logger.info(f"Workspace: {self.workspace_root}")
+        logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     def scan_remaining_f401(self) -> List[Dict]:
         """Scan for remaining F401 violations"""
-        print("🔍 SCANNING REMAINING F401 VIOLATIONS...")
+        logger.info("🔍 SCANNING REMAINING F401 VIOLATIONS...")
 
         violations = []
 
@@ -81,9 +93,9 @@ class AggressiveF401Cleaner:
                         violations.append(violation)
 
         except Exception as e:
-            print(f"Error scanning: {e}")
+            logger.error(f"Error scanning: {e}")
 
-        print(f"# # # ✅ FOUND {len(violations)} REMAINING F401 VIOLATIONS")
+        logger.info(f"# # # ✅ FOUND {len(violations)} REMAINING F401 VIOLATIONS")
         return violations
 
     def _parse_f401_line(self, line: str) -> Dict | None:
@@ -108,7 +120,7 @@ class AggressiveF401Cleaner:
 
     def clean_f401_violations(self, violations: List[Dict]) -> int:
         """🧹 Clean F401 violations aggressively"""
-        print(f"🧹 CLEANING {len(violations)} F401 VIOLATIONS...")
+        logger.info(f"🧹 CLEANING {len(violations)} F401 VIOLATIONS...")
 
         files_to_clean = {}
 
@@ -128,10 +140,10 @@ class AggressiveF401Cleaner:
                     cleaned_count += removed
                     pbar.update(1)
                 except Exception as e:
-                    print(f"Error cleaning {file_path}: {e}")
+                    logger.error(f"Error cleaning {file_path}: {e}")
                     pbar.update(1)
 
-        print(f"# # # ✅ CLEANING COMPLETE: {cleaned_count} violations cleaned")
+        logger.info(f"# # # ✅ CLEANING COMPLETE: {cleaned_count} violations cleaned")
         return cleaned_count
 
     def _clean_file_f401(self, file_path: Path, violations: List[Dict]) -> int:
@@ -165,12 +177,12 @@ class AggressiveF401Cleaner:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.writelines(lines)
 
-                print(f"    {file_path.name}: {removed_count} imports removed")
+                logger.info(f"    {file_path.name}: {removed_count} imports removed")
 
             return removed_count
 
         except Exception as e:
-            print(f"Error processing {file_path}: {e}")
+            logger.error(f"Error processing {file_path}: {e}")
             return 0
 
     def _should_remove_line(self, line: str, unused_import: str) -> bool:
@@ -246,7 +258,7 @@ class AggressiveF401Cleaner:
 
     def fix_manual_violations(self) -> int:
         """# # # 🔧 Fix specific manual violations"""
-        print("# # # 🔧 FIXING MANUAL VIOLATIONS...")
+        logger.info("# # # 🔧 FIXING MANUAL VIOLATIONS...")
 
         fixed_count = 0
 
@@ -278,10 +290,10 @@ class AggressiveF401Cleaner:
                         f.write('\n'.join(lines))
 
                     fixed_count += 1
-                    print(f"    Fixed main() in {main_file.name}")
+                    logger.info(f"    Fixed main() in {main_file.name}")
 
             except Exception as e:
-                print(f"Error fixing main in {main_file}: {e}")
+                logger.error(f"Error fixing main in {main_file}: {e}")
 
         # Fix undefined 'benchmark_queries' in test file
         test_file = self.workspace_root / "tests" / "test_database_consolidation_migration.py"
@@ -298,8 +310,8 @@ class AggressiveF401Cleaner:
                     insert_line = 0
                     for i, line in enumerate(lines):
                         if line.strip() and \
-                            not (
-    line.startswith('import') or line.startswith('from') or line.startswith('#')):
+                                not (
+                                line.startswith('import') or line.startswith('from') or line.startswith('#')):
                             insert_line = i
                             break
 
@@ -317,17 +329,17 @@ class AggressiveF401Cleaner:
                         f.write('\n'.join(lines))
 
                     fixed_count += 1
-                    print(f"    Fixed benchmark_queries in {test_file.name}")
+                    logger.info(f"    Fixed benchmark_queries in {test_file.name}")
 
             except Exception as e:
-                print(f"Error fixing benchmark_queries in {test_file}: {e}")
+                logger.error(f"Error fixing benchmark_queries in {test_file}: {e}")
 
-        print(f"# # # ✅ MANUAL FIXES COMPLETE: {fixed_count} violations fixed")
+        logger.info(f"# # # ✅ MANUAL FIXES COMPLETE: {fixed_count} violations fixed")
         return fixed_count
 
     def execute_aggressive_cleanup(self) -> Dict:
         """# # 🎯 Execute aggressive F401 cleanup"""
-        print("# # 🎯 EXECUTING AGGRESSIVE F401 CLEANUP")
+        logger.info("# # 🎯 EXECUTING AGGRESSIVE F401 CLEANUP")
 
         start_time = datetime.now()
 
@@ -361,17 +373,17 @@ class AggressiveF401Cleaner:
         """stats" Log cleanup summary"""
         duration = (datetime.now() - self.start_time).total_seconds()
 
-        print("=" * 60)
-        print(" AGGRESSIVE F401 CLEANUP COMPLETE")
-        print("=" * 60)
-        print("CLEANUP STATISTICS:")
-        print(f"   • F401 Violations Found: {results['f401_violations_found']}")
-        print(f"   • F401 Violations Cleaned: {results['f401_violations_cleaned']}")
-        print(f"   • Manual Violations Fixed: {results['manual_violations_fixed']}")
-        print(f"   • Total Fixed: {results['total_fixed']}")
-        print(f"   • Processing Time: {results['processing_time']:.1f} seconds")
-        print(f"   • Total Duration: {duration:.1f} seconds")
-        print("=" * 60)
+        logger.info("=" * 60)
+        logger.info(" AGGRESSIVE F401 CLEANUP COMPLETE")
+        logger.info("=" * 60)
+        logger.info("CLEANUP STATISTICS:")
+        logger.info(f"   • F401 Violations Found: {results['f401_violations_found']}")
+        logger.info(f"   • F401 Violations Cleaned: {results['f401_violations_cleaned']}")
+        logger.info(f"   • Manual Violations Fixed: {results['manual_violations_fixed']}")
+        logger.info(f"   • Total Fixed: {results['total_fixed']}")
+        logger.info(f"   • Processing Time: {results['processing_time']:.1f} seconds")
+        logger.info(f"   • Total Duration: {duration:.1f} seconds")
+        logger.info("=" * 60)
 
 
 def main():
@@ -383,7 +395,7 @@ def main():
         return 0 if results['total_fixed'] > 0 else 1
 
     except Exception as e:
-        print(f"CRITICAL ERROR: {e}")
+        logger.exception(f"CRITICAL ERROR: {e}")
         return 1
 
 
