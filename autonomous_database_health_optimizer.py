@@ -7,25 +7,42 @@ and self-healing capabilities with machine learning integration
 ================================================================
 """
 
-import os
-import sys
 import json
 import sqlite3
 import logging
 import time
-import hashlib
-import subprocess
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
-import psutil
-import numpy as np
+from typing import Dict, List
+from dataclasses import dataclass
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
-# Import with graceful fallback - THIS WILL BE FIXED
-from tqdm import tqdm
+# Import with graceful fallback
+try:
+    from tqdm import tqdm
+except ImportError:
+    # Provide fallback implementation if tqdm is not available
+    class tqdm:
+        def __init__(self, total=None, desc=None, unit=None, *args, **kwargs):
+            self.total = total
+            self.desc = desc
+            self.current = 0
+            print(f"Starting {desc or 'process'}: 0/{total or '?'}")
+        
+        def update(self, n=1):
+            self.current += n
+            if self.total:
+                print(f"Progress: {self.current}/{self.total}")
+            else:
+                print(f"Progress: {self.current}")
+        
+        def set_description(self, desc):
+            self.desc = desc
+            print(f"Updated: {desc}")
+        
+        def close(self):
+            print(f"Completed: {self.desc or 'process'}")
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -81,23 +98,7 @@ class AutonomousDatabaseHealthOptimizer:
             'production': self.workspace_path / "databases" / "production.db"
         }
         
-        # CRITICAL ISSUE: Duplicate configuration initialization (Lines 98-115)
-        # Configuration settings initialized twice - THIS WILL BE FIXED
-        self.health_thresholds = {
-            'connection_threshold': 100,
-            'query_time_threshold': 5.0,
-            'storage_threshold': 0.85,
-            'memory_threshold': 0.80,
-            'cpu_threshold': 0.75
-        }
-        self.optimization_strategies = {
-            'vacuum_analyze': {'priority': 1, 'frequency': 'daily'},
-            'index_optimization': {'priority': 2, 'frequency': 'weekly'},
-            'connection_pooling': {'priority': 3, 'frequency': 'realtime'},
-            'query_optimization': {'priority': 1, 'frequency': 'continuous'}
-        }
-        
-        # DUPLICATE BLOCK - Lines 110-115 - THIS WILL BE FIXED
+        # Configuration settings - consolidated initialization
         self.health_thresholds = {
             'connection_threshold': 100,
             'query_time_threshold': 5.0,
@@ -220,35 +221,8 @@ class AutonomousDatabaseHealthOptimizer:
                 conn.commit()
                 self.logger.info(f"{TEXT_INDICATORS['optimize']} {db_type}.db schema initialized")
     
-    # CRITICAL ERROR: Duplicate method definition - Lines 195-210 - THIS WILL BE FIXED
     def _load_learning_patterns(self):
-        """Load learning patterns from database - simplified version"""
-        self.logger.info(f"{TEXT_INDICATORS['learn']} Loading learning patterns...")
-        try:
-            with sqlite3.connect(self.databases['learning_patterns']) as conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    SELECT pattern_type, pattern_data, confidence_score, success_rate
-                    FROM pattern_recognition 
-                    WHERE confidence_score > 0.7
-                    ORDER BY usage_frequency DESC
-                    LIMIT 100
-                """)
-                patterns = cursor.fetchall()
-                for pattern in patterns:
-                    pattern_type, pattern_data, confidence, success_rate = pattern
-                    self.learning_patterns[pattern_type] = {
-                        'data': json.loads(pattern_data),
-                        'confidence': confidence,
-                        'success_rate': success_rate
-                    }
-                self.logger.info(f"{TEXT_INDICATORS['learn']} Loaded {len(patterns)} learning patterns")
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Error loading learning patterns: {e}")
-    
-    # CRITICAL ERROR: Duplicate method definition - Lines 362-380 - THIS WILL BE FIXED  
-    def _load_learning_patterns_from_db(self):
-        """Load learning patterns from database - full implementation"""
+        """Load learning patterns from database - consolidated implementation"""
         self.logger.info(f"{TEXT_INDICATORS['learn']} Loading learning patterns from database...")
         try:
             with sqlite3.connect(self.databases['learning_patterns']) as conn:
@@ -298,35 +272,8 @@ class AutonomousDatabaseHealthOptimizer:
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Error loading learning patterns from database: {e}")
     
-    # CRITICAL ERROR: Duplicate method definition - Lines 480-495 - THIS WILL BE FIXED
     def _load_optimization_history(self):
-        """Load optimization history from database - simplified version"""
-        self.logger.info(f"{TEXT_INDICATORS['optimize']} Loading optimization history...")
-        try:
-            with sqlite3.connect(self.databases['optimization_history']) as conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    SELECT strategy_id, database_name, AVG(improvement_achieved), 
-                           COUNT(*) as execution_count, AVG(execution_time)
-                    FROM optimization_executions 
-                    WHERE success = 1
-                    GROUP BY strategy_id, database_name
-                """)
-                history = cursor.fetchall()
-                for record in history:
-                    strategy_id, db_name, avg_improvement, count, avg_time = record
-                    key = f"{strategy_id}_{db_name}"
-                    self.optimization_history[key] = {
-                        'avg_improvement': avg_improvement,
-                        'execution_count': count,
-                        'avg_time': avg_time
-                    }
-                self.logger.info(f"{TEXT_INDICATORS['optimize']} Loaded {len(history)} optimization records")
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Error loading optimization history: {e}")
-    
-    def _load_optimization_history_from_db(self):
-        """Load optimization history from database - full implementation"""
+        """Load optimization history from database - consolidated implementation"""
         self.logger.info(f"{TEXT_INDICATORS['optimize']} Loading optimization history from database...")
         try:
             with sqlite3.connect(self.databases['optimization_history']) as conn:
@@ -440,8 +387,16 @@ class AutonomousDatabaseHealthOptimizer:
                     'PRAGMA automatic_index = ON;'
                 ],
                 'expected_improvement': 20.0
+            },
+            'self_healing_integrity_check': {
+                'sql_commands': [
+                    'PRAGMA integrity_check;',
+                    'PRAGMA foreign_key_check;',
+                    'PRAGMA quick_check;'
+                ],
+                'expected_improvement': 15.0
             }
-            # CRITICAL ISSUE: Missing strategy 'self_healing_integrity_check' - THIS WILL BE FIXED
+            # Missing strategy now implemented
         }
         
         return strategies
@@ -461,7 +416,7 @@ class AutonomousDatabaseHealthOptimizer:
         if health_metrics.connection_count > self.health_thresholds['connection_threshold']:
             strategies.append('connection_pooling')
         
-        # CRITICAL ISSUE: References missing strategy - THIS WILL BE FIXED
+        # Check integrity status and apply appropriate strategy
         if health_metrics.integrity_status != 'GOOD':
             strategies.append('self_healing_integrity_check')
         
@@ -683,10 +638,9 @@ class AutonomousDatabaseHealthOptimizer:
         """Run autonomous optimization cycle"""
         self.logger.info(f"{TEXT_INDICATORS['optimize']} Starting autonomous optimization cycle")
         
-        # MEDIUM ISSUE: Inconsistent method calls - Lines 320-325 - THIS WILL BE FIXED
-        self._load_learning_patterns()  # Calls simplified version
-        self._load_learning_patterns_from_db()  # Should be the actual implementation
-        self._load_optimization_history()
+        # Load learning patterns and optimization history
+        self._load_learning_patterns()  # Consolidated implementation
+        self._load_optimization_history()  # Consolidated implementation
         
         # Get list of databases to optimize
         databases_path = self.workspace_path / "databases"
