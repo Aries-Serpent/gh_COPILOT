@@ -518,7 +518,7 @@ def execute_optimization_strategy(
     )
 
     strategies = self.load_enhanced_strategies()
-    
+
     if strategy_id not in strategies:
         error_msg = "%s Strategy %s not found"
         self.logger.error(
@@ -526,10 +526,10 @@ def execute_optimization_strategy(
         )
         return False
     strategy = strategies[strategy_id]
-    return self._execute_strategy_commands(strategy, database_name)
+    return self.execute_strategy_commands(strategy, database_name)
 
 
-def _execute_strategy_commands(
+def execute_strategy_commands(
     self, strategy: OptimizationStrategy, database_name: str
 ) -> bool:
     """Execute the SQL commands for a strategy"""
@@ -542,9 +542,8 @@ def _execute_strategy_commands(
         )
         return False
 
-    success, error_message = self._run_sql_commands(db_path, strategy)
-    
-    # Store optimization result
+    success, error_message = self.run_sql_commands(db_path, strategy)
+
     result_data = {
         'strategy_id': strategy.strategy_id,
         'database_name': database_name,
@@ -557,7 +556,7 @@ def _execute_strategy_commands(
     return success
 
 
-def _run_sql_commands(
+def run_sql_commands(
     self, db_path: Path, strategy: OptimizationStrategy
 ) -> tuple[bool, Optional[str]]:
     """Run SQL commands for the strategy"""
