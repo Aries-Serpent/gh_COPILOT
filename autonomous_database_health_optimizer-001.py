@@ -81,14 +81,14 @@ except ImportError:
         def __init__(
             self,
             contamination: float = 0.1,
-            random_state: int = 42
+            random_state: Optional[int] = None
         ) -> None:
             """Initialize fallback isolation forest."""
             self.contamination = contamination
+            self.random_state = random_state
 
         def fit(self, data: Any) -> 'IsolationForestFallback':
             """Fit the model (no-op in fallback)."""
-            # Data parameter required by sklearn interface but not used in fallback
             _ = data
             return self
 
@@ -689,11 +689,11 @@ class AutonomousDatabaseHealthOptimizer:
         error_message: str
     ) -> DatabaseHealth:
         """Create health result for failed analysis.
-        
+
         Args:
             db_name: Database name
             error_message: Error message
-            
+
         Returns:
             DatabaseHealth object with failed analysis
         """
@@ -712,7 +712,7 @@ class AutonomousDatabaseHealthOptimizer:
             optimization_potential=100.0,
             timestamp=datetime.now()
         )
-    
+
     def execute_database_optimization(
         self,
         db_name: str,
@@ -720,12 +720,12 @@ class AutonomousDatabaseHealthOptimizer:
         optimization_strategy: str
     ) -> OptimizationResult:
         """Execute database optimization strategy.
-        
+
         Args:
             db_name: Name of the database
             db_path: Path to the database file
             optimization_strategy: Strategy to execute
-            
+
         Returns:
             OptimizationResult object containing results
         """
@@ -735,21 +735,21 @@ class AutonomousDatabaseHealthOptimizer:
             optimization_strategy,
             db_name
         )
-        
+
         if optimization_strategy not in self.optimization_strategies:
             return self._create_failed_optimization_result(
                 db_name,
                 optimization_strategy,
                 f"Unknown optimization strategy: {optimization_strategy}"
             )
-        
+
         start_time = time.time()
         strategy = self.optimization_strategies[optimization_strategy]
-        
+
         # Capture before metrics
         before_health = self.analyze_database_health(db_name, db_path)
         before_metrics = self._extract_health_metrics(before_health)
-        
+
         try:
             # Create backup
             self._create_database_backup(db_name, db_path)
@@ -757,27 +757,27 @@ class AutonomousDatabaseHealthOptimizer:
                 db_path,
                 strategy['sql_commands']
             )
-            
+
             # Capture after metrics
             after_health = self.analyze_database_health(db_name, db_path)
             after_metrics = self._extract_health_metrics(after_health)
-            
+
             # Calculate results
             improvement = (
                 after_health.health_score - before_health.health_score
             )
             execution_time = time.time() - start_time
-            
+
             # Determine success
             total_commands = len(strategy['sql_commands'])
             success = success_count >= (total_commands * COMMAND_SUCCESS_THRESHOLD)
-            
+
             details = (
                 f"Optimization completed with {success_count}/"
                 f"{total_commands} commands successful. "
                 f"Health improved by {improvement:.1f}%"
             )
-            
+
             result = OptimizationResult(
                 database_name=db_name,
                 optimization_type=optimization_strategy,
@@ -789,7 +789,7 @@ class AutonomousDatabaseHealthOptimizer:
                 details=details,
                 timestamp=datetime.now()
             )
-            
+
             self.logger.info(
                 "%s Optimization completed for %s: +%.1f%% health",
                 INDICATORS['success'],
@@ -797,12 +797,12 @@ class AutonomousDatabaseHealthOptimizer:
                 improvement
             )
             return result
-            
+
         except (sqlite3.Error, OSError) as e:
             execution_time = time.time() - start_time
             error_msg = f"Optimization failed: {str(e)}"
             self.logger.error("%s %s", INDICATORS['critical'], error_msg)
-            
+
             return OptimizationResult(
                 database_name=db_name,
                 optimization_type=optimization_strategy,
@@ -814,13 +814,13 @@ class AutonomousDatabaseHealthOptimizer:
                 details=error_msg,
                 timestamp=datetime.now()
             )
-    
+
     def _extract_health_metrics(self, health: DatabaseHealth) -> Dict[str, Any]:
         """Extract key metrics from DatabaseHealth object.
-        
+
         Args:
             health: DatabaseHealth object
-            
+
         Returns:
             Dictionary of key health metrics
         """
@@ -833,24 +833,24 @@ class AutonomousDatabaseHealthOptimizer:
             'fragmentation_ratio': health.fragmentation_ratio,
             'query_performance_ms': health.query_performance_ms
         }
-    
+
     def _create_database_backup(self, db_name: str, db_path: Path) -> Path:
         """Create database backup before optimization.
-        
+
         Args:
             db_name: Database name
             db_path: Database path
-            
+
         Returns:
             Path to backup file
         """
         backup_dir = Path("E:/temp/gh_COPILOT_Backups/database_optimization")
         backup_dir.mkdir(parents=True, exist_ok=True)
-        
+
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         backup_filename = f"{db_name}_backup_{timestamp}.db"
         backup_path = backup_dir / backup_filename
-        
+
         shutil.copy2(db_path, backup_path)
         self.logger.info(
             "%s Backup created: %s",
@@ -858,27 +858,27 @@ class AutonomousDatabaseHealthOptimizer:
             backup_path
         )
         return backup_path
-    
+
     def _execute_optimization_commands(
         self,
         db_path: Path,
         commands: List[str]
     ) -> int:
         """Execute optimization SQL commands.
-        
+
         Args:
             db_path: Database path
             commands: List of SQL commands
-            
+
         Returns:
             Number of successfully executed commands
         """
         success_count = 0
         total_commands = len(commands)
-        
+
         with sqlite3.connect(str(db_path)) as conn:
             cursor = conn.cursor()
-             
+
             for i, sql_command in enumerate(commands):
                 try:
                     self.logger.info(
@@ -900,9 +900,9 @@ class AutonomousDatabaseHealthOptimizer:
                             sql_command,
                             str(e)
                         )
-        
+
         return success_count
-    
+
     def _create_failed_optimization_result(
         self,
         db_name: str,
@@ -910,12 +910,12 @@ class AutonomousDatabaseHealthOptimizer:
         error_message: str
     ) -> OptimizationResult:
         """Create optimization result for failed operation.
-        
+
         Args:
             db_name: Database name
             optimization_strategy: Strategy that failed
             error_message: Error message
-            
+
         Returns:
             OptimizationResult object with failure details
         """
@@ -930,16 +930,16 @@ class AutonomousDatabaseHealthOptimizer:
             details=error_message,
             timestamp=datetime.now()
         )
-    
+
     def _select_optimal_strategies(
         self,
         health_data: Dict[str, Any]
     ) -> List[str]:
         """Select optimal optimization strategies based on health analysis.
-        
+
         Args:
             health_data: Health analysis data
-            
+
         Returns:
             List of recommended optimization strategies
         """
@@ -947,13 +947,13 @@ class AutonomousDatabaseHealthOptimizer:
         integrity_score = health_data.get('integrity_score', 100.0)
         fragmentation_ratio = health_data.get('fragmentation_ratio', 0.0)
         performance_score = health_data.get('performance_score', 100.0)
-        
+
         strategies = []
-        
+
         # Integrity issues take priority
         if integrity_score < 100:
             strategies.append('self_healing_integrity_check')
-        
+
         # Health-based strategy selection
         if health_score < self.health_thresholds['critical']:
             # Critical health - comprehensive optimization
@@ -968,48 +968,48 @@ class AutonomousDatabaseHealthOptimizer:
         else:
             # Good health - light optimization
             strategies.extend(['vacuum_analyze', 'schema_optimization'])
-        
+
         # Additional strategies based on specific issues
         if fragmentation_ratio > FRAGMENTATION_WARNING:
             if 'vacuum_analyze' not in strategies:
                 strategies.append('vacuum_analyze')
-        
+
         if performance_score < PERFORMANCE_WARNING:
             if 'index_optimization' not in strategies:
                 strategies.append('index_optimization')
-        
+
         # Remove duplicates while preserving order
         return list(dict.fromkeys(strategies))
-    
+
     def autonomous_database_improvement(self) -> Dict[str, Any]:
         """Execute autonomous database improvement across all databases.
-        
+
         Returns:
             Dictionary containing comprehensive improvement results
         """
         self._log_improvement_start()
-        
+
         improvement_results = self._initialize_improvement_results()
-        
+
         # Phase 1: Comprehensive Health Analysis
         self._execute_health_analysis_phase(improvement_results)
-        
+
         # Phase 2: Prioritized Autonomous Optimization
         databases_needing_optimization = (
             self._execute_optimization_phase(improvement_results)
         )
-        
+
         # Phase 3: Post-Optimization Health Verification
         self._execute_verification_phase(
             improvement_results,
             databases_needing_optimization
         )
-        
+
         # Calculate final metrics and save results
         self._finalize_improvement_results(improvement_results)
-        
+
         return improvement_results
-    
+
     def _log_improvement_start(self) -> None:
         """Log the start of improvement process."""
         self.logger.info("=" * 80)
@@ -1023,10 +1023,10 @@ class AutonomousDatabaseHealthOptimizer:
         )
         self.logger.info("Optimization ID: %s", self.optimization_id)
         self.logger.info("=" * 80)
-    
+
     def _initialize_improvement_results(self) -> Dict[str, Any]:
         """Initialize improvement results dictionary.
-        
+
         Returns:
             Initialized results dictionary
         """
@@ -1041,13 +1041,13 @@ class AutonomousDatabaseHealthOptimizer:
             'execution_time': 0.0,
             'success_rate': 0.0
         }
-    
+
     def _execute_health_analysis_phase(
         self,
         improvement_results: Dict[str, Any]
     ) -> None:
         """Execute Phase 1: Comprehensive Health Analysis.
-        
+
         Args:
             improvement_results: Results dictionary to update
         """
@@ -1055,26 +1055,26 @@ class AutonomousDatabaseHealthOptimizer:
             "%s Phase 1: Comprehensive Database Health Analysis",
             INDICATORS['analyze']
         )
-        
+
         total_databases = len(self.database_registry)
         progress_desc = f"{INDICATORS['analyze']} Analyzing Database Health"
-        
+
         with tqdm(total=total_databases, desc=progress_desc, unit="db") as pbar:
             for db_name, db_path in self.database_registry.items():
                 pbar.set_description(
                     f"{INDICATORS['analyze']} Analyzing {db_name}"
                 )
-                
+
                 health = self.analyze_database_health(db_name, db_path)
                 improvement_results['health_summary'][db_name] = health.to_dict()
                 improvement_results['databases_analyzed'] += 1
-                
+
                 self._log_health_status(db_name, health)
                 pbar.update(1)
-    
+
     def _log_health_status(self, db_name: str, health: DatabaseHealth) -> None:
         """Log database health status.
-        
+
         Args:
             db_name: Database name
             health: DatabaseHealth object
@@ -1100,16 +1100,16 @@ class AutonomousDatabaseHealthOptimizer:
                 db_name,
                 health.health_score
             )
-    
+
     def _execute_optimization_phase(
         self,
         improvement_results: Dict[str, Any]
     ) -> List[Tuple[str, Dict[str, Any]]]:
         """Execute Phase 2: Prioritized Autonomous Optimization.
-        
+
         Args:
             improvement_results: Results dictionary to update
-            
+
         Returns:
             List of databases that needed optimization
         """
@@ -1117,58 +1117,58 @@ class AutonomousDatabaseHealthOptimizer:
             "%s Phase 2: Autonomous Database Optimization",
             INDICATORS['optimize']
         )
-        
+
         # Prioritize databases by health score (lowest first)
         prioritized_databases = sorted(
             improvement_results['health_summary'].items(),
             key=lambda x: x[1]['health_score']
         )
-        
+
         databases_needing_optimization = [
             (db_name, health) for db_name, health in prioritized_databases
             if health['health_score'] < self.health_thresholds['excellent']
         ]
-        
+
         optimization_count = len(databases_needing_optimization)
         self.logger.info(
             "%s %d databases identified for optimization",
             INDICATORS['optimize'],
             optimization_count
         )
-        
+
         if databases_needing_optimization:
             self._optimize_databases(
                 improvement_results,
                 databases_needing_optimization
             )
-        
+
         return databases_needing_optimization
-    
+
     def _optimize_databases(
         self,
         improvement_results: Dict[str, Any],
         databases_needing_optimization: List[Tuple[str, Dict[str, Any]]]
     ) -> None:
         """Optimize databases that need improvement.
-        
+
         Args:
             improvement_results: Results dictionary to update
             databases_needing_optimization: List of databases to optimize
         """
         total_databases = len(databases_needing_optimization)
         progress_desc = f"{INDICATORS['optimize']} Optimizing Databases"
-        
+
         with tqdm(total=total_databases, desc=progress_desc, unit="db") as pbar:
             for db_name, health_data in databases_needing_optimization:
                 pbar.set_description(
                     f"{INDICATORS['optimize']} Optimizing {db_name}"
                 )
-                
+
                 db_path = self.database_registry[db_name]
                 strategies = self._select_optimal_strategies(
                     health_data
                 )
-                
+
                 db_improvement = 0.0
                 for strategy in strategies:
                     result = self.execute_database_optimization(
@@ -1179,29 +1179,29 @@ class AutonomousDatabaseHealthOptimizer:
                     improvement_results['optimization_results'].append(
                         result.to_dict()
                     )
-                    
+
                     if result.success:
                         db_improvement += result.improvement_percentage
-                
+
                 improvement_results['databases_optimized'] += 1
                 improvement_results['total_improvement'] += db_improvement
-                
+
                 pbar.update(1)
-                
+
                 self.logger.info(
                     "%s %s optimized: +%.1f%% improvement",
                     INDICATORS['success'],
                     db_name,
                     db_improvement
                 )
-    
+
     def _execute_verification_phase(
         self,
         improvement_results: Dict[str, Any],
         databases_needing_optimization: List[Tuple[str, Dict[str, Any]]]
     ) -> None:
         """Execute Phase 3: Post-Optimization Health Verification.
-        
+
         Args:
             improvement_results: Results dictionary to update
             databases_needing_optimization: List of optimized databases
@@ -1210,33 +1210,33 @@ class AutonomousDatabaseHealthOptimizer:
             "%s Phase 3: Post-Optimization Health Verification",
             INDICATORS['monitor']
         )
-        
+
         if not databases_needing_optimization:
             return
-        
+
         total_databases = len(databases_needing_optimization)
         progress_desc = f"{INDICATORS['monitor']} Verifying Improvements"
-        
+
         with tqdm(total=total_databases, desc=progress_desc, unit="db") as pbar:
             for db_name, _ in databases_needing_optimization:
                 pbar.set_description(
                     f"{INDICATORS['monitor']} Verifying {db_name}"
                 )
-                
+
                 db_path = self.database_registry[db_name]
                 post_health = self.analyze_database_health(db_name, db_path)
-                
+
                 key = f"{db_name}_post_optimization"
                 improvement_results['health_summary'][key] = post_health.to_dict()
-                
+
                 pbar.update(1)
-    
+
     def _finalize_improvement_results(
         self,
         improvement_results: Dict[str, Any]
     ) -> None:
         """Finalize improvement results and log summary.
-        
+
         Args:
             improvement_results: Results dictionary to finalize
         """
@@ -1244,7 +1244,7 @@ class AutonomousDatabaseHealthOptimizer:
         improvement_results['execution_time'] = (
             datetime.now() - self.start_time
         ).total_seconds()
-        
+
         # Calculate success rate
         if improvement_results['optimization_results']:
             successful_results = [
@@ -1257,16 +1257,16 @@ class AutonomousDatabaseHealthOptimizer:
             )
         else:
             improvement_results['success_rate'] = 100.0
-        
+
         # Log final summary
         self._log_final_summary(improvement_results)
-        
+
         # Save comprehensive results
         self._save_optimization_results(improvement_results)
-    
+
     def _log_final_summary(self, improvement_results: Dict[str, Any]) -> None:
         """Log final improvement summary.
-        
+
         Args:
             improvement_results: Results dictionary
         """
@@ -1300,19 +1300,19 @@ class AutonomousDatabaseHealthOptimizer:
             improvement_results['execution_time']
         )
         self.logger.info("=" * 80)
-    
+
     def _save_optimization_results(self, results: Dict[str, Any]) -> None:
         """Save comprehensive optimization results.
-        
+
         Args:
             results: Results dictionary to save
         """
         self._save_to_production_database(results)
         self._save_to_json_file(results)
-    
+
     def _save_to_production_database(self, results: Dict[str, Any]) -> None:
         """Save results to production database.
-        
+
         Args:
             results: Results dictionary to save
         """
@@ -1320,10 +1320,10 @@ class AutonomousDatabaseHealthOptimizer:
             prod_db = self.workspace_path / "production.db"
             if not prod_db.exists():
                 return
-                
+
             with sqlite3.connect(str(prod_db)) as conn:
                 cursor = conn.cursor()
-                
+
                 # Create optimization results table
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS autonomous_optimization_results (
@@ -1338,7 +1338,7 @@ class AutonomousDatabaseHealthOptimizer:
                         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
                     )
                 """)
-                
+
                 cursor.execute("""
                     INSERT INTO autonomous_optimization_results
                     (optimization_id, total_databases, databases_optimized,
@@ -1354,23 +1354,23 @@ class AutonomousDatabaseHealthOptimizer:
                     results['execution_time'],
                     json.dumps(results, default=str)
                 ))
-                
+
                 conn.commit()
                 self.logger.info(
                     "%s Results saved to production database",
                     INDICATORS['success']
                 )
-                
+
         except (sqlite3.Error, OSError) as e:
             self.logger.error(
                 "%s Failed to save to production database: %s",
                 INDICATORS['warning'],
                 str(e)
             )
-    
+
     def _save_to_json_file(self, results: Dict[str, Any]) -> None:
         """Save results to JSON file.
-        
+
         Args:
             results: Results dictionary to save
         """
@@ -1379,19 +1379,19 @@ class AutonomousDatabaseHealthOptimizer:
                 self.workspace_path / "results" / "autonomous_optimization"
             )
             results_dir.mkdir(parents=True, exist_ok=True)
-            
+
             results_filename = f"database_optimization_{self.optimization_id}.json"
             results_file = results_dir / results_filename
-            
+
             with open(results_file, 'w', encoding='utf-8') as f:
                 json.dump(results, f, indent=2, default=str)
-                
+
             self.logger.info(
                 "%s Results saved to %s",
                 INDICATORS['success'],
                 results_file
             )
-            
+
         except OSError as e:
             self.logger.error(
                 "%s Failed to save JSON results: %s",
@@ -1402,7 +1402,7 @@ class AutonomousDatabaseHealthOptimizer:
 
 def main() -> Dict[str, Any]:
     """Execute autonomous database optimization.
-    
+
     Returns:
         Dictionary containing optimization results
     """
@@ -1410,14 +1410,14 @@ def main() -> Dict[str, Any]:
     print(f"{INDICATORS['optimize']} AUTONOMOUS DATABASE HEALTH OPTIMIZER")
     print("Self-Healing, Self-Learning Database Improvement System")
     print("=" * 80)
-    
+
     try:
         # Initialize optimizer
         optimizer = AutonomousDatabaseHealthOptimizer()
-        
+
         # Execute autonomous improvement
         results = optimizer.autonomous_database_improvement()
-        
+
         # Display summary
         print("\n" + "=" * 80)
         print(f"{INDICATORS['success']} OPTIMIZATION SUMMARY")
@@ -1428,10 +1428,10 @@ def main() -> Dict[str, Any]:
         print(f"Success Rate: {results['success_rate']:.1f}%")
         print(f"Execution Time: {results['execution_time']:.1f} seconds")
         print("=" * 80)
-        
+
         return results
-        
-    except Exception as e:
+
+    except (OSError, sqlite3.Error, ValueError) as e:
         print(f"{INDICATORS['critical']} Autonomous optimization failed: {e}")
         # traceback.print_exc() removed because traceback is not imported
         return {'error': str(e)}
