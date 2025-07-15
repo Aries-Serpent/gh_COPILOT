@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
 """Utilities for resolving the workspace path."""
 
 import os
 from pathlib import Path
 from typing import Optional
+import logging
 
 DEFAULT_ENV_VAR = "GH_COPILOT_WORKSPACE"
 

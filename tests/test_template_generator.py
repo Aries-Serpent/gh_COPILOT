@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 import sqlite3
 from pathlib import Path
 
 from copilot.template_intelligence.generator import TemplateGenerator
+import logging
 
 
 def _create_db(path: Path) -> None:

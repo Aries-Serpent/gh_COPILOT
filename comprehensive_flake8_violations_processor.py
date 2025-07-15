@@ -186,7 +186,8 @@ class UnicodeCompatibleFileHandler:
 
             duration = time.time() - start_time
             self.logger.info(
-                f"{TEXT_INDICATORS['unicode']} Encoding detected: {encoding} (confidence: {confidence:.2f}) in {duration:.3f}s")
+                f"{TEXT_INDICATORS['unicode']} Encoding detected: {encoding} (
+    confidence: {confidence:.2f}) in {duration:.3f}s")
             return encoding, confidence
 
         except Exception as e:
@@ -207,7 +208,8 @@ class UnicodeCompatibleFileHandler:
             duration = time.time() - start_time
 
             self.logger.info(
-                f"{TEXT_INDICATORS['success']} File read successfully: {file_path} ({encoding}, {file_size} bytes) in {duration:.3f}s")
+                f"{TEXT_INDICATORS['success']} File read successfully: {file_path} (
+    {encoding}, {file_size} bytes) in {duration:.3f}s")
             return content, encoding
 
         except Exception as e:
@@ -233,7 +235,8 @@ class UnicodeCompatibleFileHandler:
             duration = time.time() - start_time
 
             self.logger.info(
-                f"{TEXT_INDICATORS['success']} File written successfully: {file_path} ({encoding}, {file_size} bytes) in {duration:.3f}s")
+                f"{TEXT_INDICATORS['success']} File written successfully: {file_path} (
+    {encoding}, {file_size} bytes) in {duration:.3f}s")
             return True
 
         except Exception as e:
@@ -380,7 +383,8 @@ class Flake8ViolationScanner:
             # Create temporary file for flake8 scanning
             content, encoding = self.file_handler.read_file_safely(file_path)
 
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as temp_file:
+            with tempfile.NamedTemporaryFile(
+    mode='w', suffix='.py', delete=False, encoding='utf-8') as temp_file:
                 temp_file.write(content)
                 temp_file_path = temp_file.name
 
@@ -532,7 +536,8 @@ class ComprehensiveFlake8Processor:
             '*temp*'
         ]
 
-        with tqdm(total=100, desc=f"{TEXT_INDICATORS['progress']} File Discovery", unit="%") as pbar:
+        with tqdm(
+    total=100, desc=f"{TEXT_INDICATORS['progress']} File Discovery", unit="%") as pbar:
 
             pbar.set_description(f"{TEXT_INDICATORS['progress']} Scanning directories")
             for py_file in workspace_root.rglob("*.py"):
@@ -562,7 +567,9 @@ class ComprehensiveFlake8Processor:
             'processing_details': []
         }
 
-        with tqdm(total=len(python_files), desc=f"{TEXT_INDICATORS['progress']} Processing Files", unit="files") as pbar:
+        with tqdm(
+    total=len(
+    python_files), desc=f"{TEXT_INDICATORS['progress']} Processing Files", unit="files") as pbar:
 
             for file_path in python_files:
                 try:

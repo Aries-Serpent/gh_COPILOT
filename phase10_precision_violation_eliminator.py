@@ -7,7 +7,7 @@ Final Precision-Targeted Cleanup System
 Status: PRECISION ELIMINATION OF REMAINING VIOLATIONS
 - 78 E501 line too long violations
 - 32 E999 syntax error violations
-- 5 F821 undefined name violations  
+- 5 F821 undefined name violations
 - 8 W293 blank line violations
 
 TOTAL TARGET: 123 remaining violations for COMPLETE ELIMINATION
@@ -19,6 +19,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Any
+import logging
 
 
 class Phase10PrecisionViolationEliminator:
@@ -52,7 +53,7 @@ class Phase10PrecisionViolationEliminator:
         print("📋 Step 1: Clean Current Phase Files W293 Issues")
         self._clean_current_phase_files()
 
-        # Step 2: Precision E999 Syntax Error Resolution  
+        # Step 2: Precision E999 Syntax Error Resolution
         print("\n⚡ Step 2: Precision E999 Syntax Error Resolution")
         self._precision_e999_resolution()
 
@@ -284,7 +285,8 @@ class Phase10PrecisionViolationEliminator:
             fixed_lines = []
             for i, line in enumerate(lines):
                 if i > 0 and \
-                    lines[i-1].strip().endswith(':') and line.strip() and not line.startswith('    '):
+                    lines[i-1].strip(
+    ).endswith(':') and line.strip() and not line.startswith('    '):
                     # Add proper indentation
                     fixed_lines.append('    ' + line.strip() + '\n')
                 else:
@@ -311,7 +313,7 @@ class Phase10PrecisionViolationEliminator:
                 content = f.read()
 
             lines = content.split('\n')
-            
+
             # Find the function containing debug_results
             for i, line in enumerate(lines):
                 if 'debug_results' in line and '=' not in line:
@@ -439,9 +441,9 @@ class Phase10PrecisionViolationEliminator:
 
         duration = (datetime.now() - self.start_time).total_seconds()
 
-        total_eliminated = (self.results['e999_eliminated'] + 
-                          self.results['e501_eliminated'] + 
-                          self.results['f821_eliminated'] + 
+        total_eliminated = (self.results['e999_eliminated'] +
+                          self.results['e501_eliminated'] +
+                          self.results['f821_eliminated'] +
                           self.results['w293_eliminated'])
 
         self.results['total_violations_eliminated'] = total_eliminated

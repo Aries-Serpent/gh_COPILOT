@@ -262,7 +262,8 @@ class AutomatedViolationsFixer:
 
             if import_name in safe_imports:
                 # Comment out the import instead of removing
-                lines[line_num - 1] = f"# {original_line}" if not original_line.startswith('#') else original_line
+                lines[line_num - 1] = f"# {original_line}" if not original_line.startswith(
+    '#') else original_line
                 return True, original_line.rstrip(), f"# {original_line.rstrip()}"
 
         return False, original_line, "Not safe to remove"
@@ -352,7 +353,7 @@ class AutomatedViolationsFixer:
         fixed_line = original_line.rstrip()
         if original_line.endswith('\n'):
             fixed_line += '\n'
-            
+
         if fixed_line != original_line:
             lines[line_num - 1] = fixed_line
             return True, original_line.rstrip(), fixed_line.rstrip()
@@ -467,7 +468,8 @@ class AutomatedViolationsFixer:
         if file_modified:
             if self.write_file_lines(file_path, lines):
                 print(
-                    f"# # SUCCESS Fixed {sum(1 for r in results if r.success)} violations in {Path(file_path).name}")
+                    f"# # SUCCESS Fixed {sum(
+    1 for r in results if r.success)} violations in {Path(file_path).name}")
             else:
                 print(f"❌ Error writing {file_path}")
                 # Restore from backup

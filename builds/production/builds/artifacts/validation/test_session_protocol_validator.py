@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 
 
 from session_protocol_validator import SessionProtocolValidator
 from unified_session_management_system import UnifiedSessionManagementSystem
+import logging
 
 
 def test_startup_detects_zero_byte(tmp_path, monkeypatch):

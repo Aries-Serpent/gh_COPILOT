@@ -246,8 +246,10 @@ class SimpleViolationsReporter:
             "top_violation_types": list(violations_by_type.items())[:10],
             "file_statistics": {
                 "total_files_with_violations": len(violations_by_file),
-                "average_violations_per_file": sum(violations_by_file.values()) / len(violations_by_file) if violations_by_file else 0,
-                "max_violations_in_single_file": max(violations_by_file.values()) if violations_by_file else 0
+                "average_violations_per_file": sum(
+    violations_by_file.values()) / len(violations_by_file) if violations_by_file else 0,
+                "max_violations_in_single_file": max(
+    violations_by_file.values()) if violations_by_file else 0
             },
             "type_categories": categories
         }
@@ -308,7 +310,8 @@ Unique Violation Types: {len(report.violations_by_type):,}
 
         for i, file_info in enumerate(report.top_violating_files[:15], 1):
             file_name = Path(file_info['file']).name
-            text_content += f"{i:2d}. {file_name:40s} : {file_info['violations']:4,} violations ({file_info['unique_types']:2,} types)\n"
+            text_content += f"{i:2d}. {file_name:40s} : {file_info['violations']:4,} violations (
+    {file_info['unique_types']:2,} types)\n"
 
         text_content += """
 📋 CATEGORY BREAKDOWN

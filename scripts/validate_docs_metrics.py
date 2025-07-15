@@ -7,6 +7,7 @@ import re
 import sqlite3
 import sys
 from pathlib import Path
+import logging
 
 ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "production.db"

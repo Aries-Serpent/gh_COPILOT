@@ -71,7 +71,8 @@ class Phase4DebugAnalyzer:
             )
 
             debug_info["sample_output"] = result.stdout[:500]  # First 500 chars
-            logger.info(f"# # # 📊 Sample flake8 output (first 500 chars):\n{debug_info['sample_output']}")
+            logger.info(
+    f"# # # 📊 Sample flake8 output (first 500 chars):\n{debug_info['sample_output']}")
 
             # Parse sample violations
             violations = self._parse_flake8_output(result.stdout)
@@ -188,7 +189,9 @@ def another_function():
                             lines = f.readlines()
 
                         logger.info(f"📋 File has {len(lines)} lines")
-                        logger.info(f"📋 Target line {line_num}: '{lines[line_num-1].strip()}'" if line_num <= len(lines) else "Line out of range")
+                        logger.info(
+    f"📋 Target line {line_num}: '{lines[line_num-1].strip(
+    )}'" if line_num <= len(lines) else "Line out of range")
 
                         # Check lines around the violation
                         for i in range(max(0, line_num-3), min(len(lines), line_num+2)):
@@ -240,7 +243,7 @@ def another_function():
             # Debug 2: File modification
             pbar.set_description("# # # 🔧 Testing file modification")
             debug_results["file_modification"] = self.debug_file_modification()
-            pbar.update(33) 
+            pbar.update(33)
             debug_results = {}
 
             # Debug 3: Specific violation logic

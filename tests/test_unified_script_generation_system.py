@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 from pathlib import Path
 import shutil
 
 from unified_script_generation_system import EnterpriseUtility
+import logging
 
 
 def test_template_generation(tmp_path):

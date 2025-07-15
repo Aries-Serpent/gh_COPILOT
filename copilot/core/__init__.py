@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+import logging
+#!/usr/bin/env python3
 # Core Module Initialization
 """
 Core components for gh_COPILOT Toolkit

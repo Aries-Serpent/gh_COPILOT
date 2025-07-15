@@ -1,4 +1,6 @@
+#!/usr/bin/env python3
 from web_gui.scripts.flask_apps.enterprise_dashboard import app
+import logging
 
 
 def test_index_endpoint():

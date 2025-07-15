@@ -6,6 +6,7 @@ Fix whitespace and line length violations in enterprise_dual_copilot_validator.p
 
 import re
 import os
+import logging
 
 
 def fix_flake8_violations(file_path: str) -> None:
@@ -26,28 +27,38 @@ def fix_flake8_violations(file_path: str) -> None:
 
     # Fix process phases
     content = content.replace(
-        'ProcessPhase("🔍 Environment Validation", "Validating workspace and anti-recursion compliance", "🔍", 10),',
-        'ProcessPhase(\n                "🔍 Environment Validation",\n                "Validating workspace and anti-recursion compliance",\n                "🔍", 10\n            ),'
+        'ProcessPhase(
+    "🔍 Environment Validation", "Validating workspace and anti-recursion compliance", "🔍", 10),',
+        'ProcessPhase(
+    \n                "🔍 Environment Validation",\n                "Validating workspace and anti-recursion compliance",\n                "🔍", 10\n            ),'
     )
 
     content = content.replace(
-        'ProcessPhase("🗄️ Database Initialization", "Initializing database tracking and analytics", "🗄️", 10),',
-        'ProcessPhase(\n                "🗄️ Database Initialization",\n                "Initializing database tracking and analytics",\n                "🗄️", 10\n            ),'
+        'ProcessPhase(
+    "🗄️ Database Initialization", "Initializing database tracking and analytics", "🗄️", 10),',
+        'ProcessPhase(
+    \n                "🗄️ Database Initialization",\n                "Initializing database tracking and analytics",\n                "🗄️", 10\n            ),'
     )
 
     content = content.replace(
-        'ProcessPhase("⚡ Violation Scanning", "Scanning for Flake8 violations with real-time tracking", "⚡", 25),',
-        'ProcessPhase(\n                "⚡ Violation Scanning",\n                "Scanning for Flake8 violations with real-time tracking",\n                "⚡", 25\n            ),'
+        'ProcessPhase(
+    "⚡ Violation Scanning", "Scanning for Flake8 violations with real-time tracking", "⚡", 25),',
+        'ProcessPhase(
+    \n                "⚡ Violation Scanning",\n                "Scanning for Flake8 violations with real-time tracking",\n                "⚡", 25\n            ),'
     )
 
     content = content.replace(
-        'ProcessPhase("🔧 Correction Application", "Applying enterprise-grade corrections", "🔧", 30),',
-        'ProcessPhase(\n                "🔧 Correction Application",\n                "Applying enterprise-grade corrections",\n                "🔧", 30\n            ),'
+        'ProcessPhase(
+    "🔧 Correction Application", "Applying enterprise-grade corrections", "🔧", 30),',
+        'ProcessPhase(
+    \n                "🔧 Correction Application",\n                "Applying enterprise-grade corrections",\n                "🔧", 30\n            ),'
     )
 
     content = content.replace(
-        'ProcessPhase("✅ Validation & Verification", "Validating corrections and updating database", "✅", 10)',
-        'ProcessPhase(\n                "✅ Validation & Verification",\n                "Validating corrections and updating database",\n                "✅", 10\n            )'
+        'ProcessPhase(
+    "✅ Validation & Verification", "Validating corrections and updating database", "✅", 10)',
+        'ProcessPhase(
+    \n                "✅ Validation & Verification",\n                "Validating corrections and updating database",\n                "✅", 10\n            )'
     )
 
     # Write the fixed content back

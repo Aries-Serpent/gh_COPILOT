@@ -226,16 +226,24 @@ class DetailedViolationsReporter:
             "top_violation_types": list(violations_by_type.items())[:10],
             "file_statistics": {
                 "total_files_with_violations": len(violations_by_file),
-                "average_violations_per_file": sum(violations_by_file.values()) / len(violations_by_file) if violations_by_file else 0,
-                "max_violations_in_single_file": max(violations_by_file.values()) if violations_by_file else 0
+                "average_violations_per_file": sum(
+    violations_by_file.values()) / len(violations_by_file) if violations_by_file else 0,
+                "max_violations_in_single_file": max(
+    violations_by_file.values()) if violations_by_file else 0
             },
             "type_categories": {
-                "import_errors": sum(count for code, count in violations_by_type.items() if code.startswith('F4')),
-                "undefined_names": sum(count for code, count in violations_by_type.items() if code == 'F821'),
-                "syntax_errors": sum(count for code, count in violations_by_type.items() if code.startswith('E9')),
-                "indentation_errors": sum(count for code, count in violations_by_type.items() if code.startswith('E1')),
-                "whitespace_issues": sum(count for code, count in violations_by_type.items() if code.startswith('E2')),
-                "line_length": sum(count for code, count in violations_by_type.items() if code == 'E501')
+                "import_errors": sum(
+    count for code, count in violations_by_type.items() if code.startswith('F4')),
+                "undefined_names": sum(
+    count for code, count in violations_by_type.items() if code == 'F821'),
+                "syntax_errors": sum(
+    count for code, count in violations_by_type.items() if code.startswith('E9')),
+                "indentation_errors": sum(
+    count for code, count in violations_by_type.items() if code.startswith('E1')),
+                "whitespace_issues": sum(
+    count for code, count in violations_by_type.items() if code.startswith('E2')),
+                "line_length": sum(
+    count for code, count in violations_by_type.items() if code == 'E501')
             }
         }
 
@@ -329,6 +337,9 @@ class DetailedViolationsReporter:
         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color:
     #f5f5f5; }}        .header {{ background: linear-gradient(135deg,
     #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }}        .summary {{ background: white; padding: 20px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(
+    
+
+
             0,
             0,
             0,
@@ -492,10 +503,10 @@ def main():
     try:
         print("🎯 DETAILED VIOLATIONS REPORTER")
         print("=" * 50)
-        
+
         reporter = DetailedViolationsReporter()
         print("✅ Detailed violations reporter initialized successfully")
-        
+
     except Exception as e:
         print(f"❌ Error in detailed violations reporter: {e}")
         sys.exit(1)

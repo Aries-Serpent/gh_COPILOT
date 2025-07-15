@@ -57,7 +57,8 @@ class EnterpriseFlake8Corrector:
                 pbar.update(25)
 
             duration = (datetime.now() - start_time).total_seconds()
-            self.logger.info(f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s")
+            self.logger.info(
+    f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s")
             return validation_passed
 
         except Exception as e:

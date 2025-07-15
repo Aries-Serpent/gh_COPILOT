@@ -115,8 +115,10 @@ class Phase4SystematicProcessorFixed:
                     violations = self._parse_flake8_output(result.stdout)
                     baseline_counts[code] = len(violations)
 
-                    logger.info(f"  {code}: {len(violations):3d} violations - {info['description']}")
-                    logger.info(f"       Difficulty: {info['difficulty']:4s} | Success: {info['success_rate']}%")
+                    logger.info(
+    f"  {code}: {len(violations):3d} violations - {info['description']}")
+                    logger.info(
+    f"       Difficulty: {info['difficulty']:4s} | Success: {info['success_rate']}%")
 
                 except subprocess.CalledProcessError as e:
                     logger.error(f"Failed to scan {code}: {e}")
@@ -172,7 +174,8 @@ class Phase4SystematicProcessorFixed:
                 self.metrics.violations_fixed += fixes_made
                 self.metrics.categories_processed += 1
 
-                logger.info(f"# # # ✅ {code} Processing Complete: {fixes_made} fixes in {duration:.1f}s")
+                logger.info(
+    f"# # # ✅ {code} Processing Complete: {fixes_made} fixes in {duration:.1f}s")
                 pbar.update(1)
 
         return category_results
@@ -189,7 +192,8 @@ class Phase4SystematicProcessorFixed:
 
             violations = self._parse_flake8_output(result.stdout)
 
-            with tqdm(total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
+            with tqdm(
+    total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
                 for file_path, line_num, col, msg in violations:
                     try:
                         if self._fix_single_e305(file_path, line_num):
@@ -262,7 +266,8 @@ class Phase4SystematicProcessorFixed:
 
             violations = self._parse_flake8_output(result.stdout)
 
-            with tqdm(total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
+            with tqdm(
+    total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
                 for file_path, line_num, col, msg in violations:
                     try:
                         if self._fix_single_e303(file_path, line_num):
@@ -333,7 +338,8 @@ class Phase4SystematicProcessorFixed:
 
             violations = self._parse_flake8_output(result.stdout)
 
-            with tqdm(total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
+            with tqdm(
+    total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
                 for file_path, line_num, col, msg in violations:
                     try:
                         if self._fix_single_w291(file_path, line_num):
@@ -398,7 +404,8 @@ class Phase4SystematicProcessorFixed:
 
             violations = self._parse_flake8_output(result.stdout)
 
-            with tqdm(total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
+            with tqdm(
+    total=len(violations), desc=f"# # # 🔧 Fixing {violation_code}", unit="fix") as pbar:
                 for file_path, line_num, col, msg in violations:
                     try:
                         if self._fix_single_f541(file_path, line_num):

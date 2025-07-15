@@ -144,10 +144,10 @@ class DatabaseManager:
         with tqdm(total=100, desc="[DATABASE] Initializing", unit="%") as pbar:
             self._setup_production_tables()
             pbar.update(33)
-            
+
             self._setup_style_compliance_tables()
             pbar.update(33)
-            
+
             self._setup_analytics_tables()
             pbar.update(34)
 
@@ -160,7 +160,7 @@ class DatabaseManager:
         try:
             with sqlite3.connect(self.production_db) as conn:
                 cursor = conn.cursor()
-                
+
                 # Create correction_sessions table
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS correction_sessions (
@@ -172,7 +172,7 @@ class DatabaseManager:
                         violations_fixed INTEGER DEFAULT 0
                     )
                 """)
-                
+
                 # Create script_tracking table
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS script_tracking (
@@ -183,7 +183,7 @@ class DatabaseManager:
                         session_id TEXT
                     )
                 """)
-                
+
                 conn.commit()
                 self.logger.info(
                     f"{ENTERPRISE_INDICATORS['database']} Production tables initialized")
@@ -287,7 +287,7 @@ class DatabaseManager:
                     WHERE error_code = ? AND is_active = 1
                     ORDER BY confidence_score DESC, success_rate DESC
                 """, (error_code,))
-                
+
                 rows = cursor.fetchall()
                 patterns = []
                 for row in rows:
@@ -322,7 +322,8 @@ class Flake8ViolationScanner:
 
         try:
             # Create temporary file for flake8 scanning
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', encoding='utf-8', delete=False) as temp_file:
+            with tempfile.NamedTemporaryFile(
+    mode='w', suffix='.py', encoding='utf-8', delete=False) as temp_file:
                 file_info = self.file_handler.read_file_with_encoding_detection(file_path)
                 temp_file.write(file_info.content)
                 temp_file_path = temp_file.name
@@ -330,7 +331,8 @@ class Flake8ViolationScanner:
             # Run flake8 on temporary file
             try:
                 result = subprocess.run(
-                    ['python', '-m', 'flake8', '--format=%(path)s:%(row)d:%(col)d: %(code)s %(text)s', temp_file_path],
+                    ['python', '-m', 'flake8', '--format=%(
+    path)s:%(row)d:%(col)d: %(code)s %(text)s', temp_file_path],
                     capture_output=True,
                     text=True,
                     timeout=30
@@ -346,7 +348,7 @@ class Flake8ViolationScanner:
                                 error_part = parts[3].strip()
                                 error_code = error_part.split()[0]
                                 message = ' '.join(error_part.split()[1:])
-                                
+
                                 violations.append(FlakeViolation(
                                     file_path=str(file_path),
                                     line_number=line_num,
@@ -404,8 +406,8 @@ class DatabaseDrivenCorrectionEngine:
             f"{ENTERPRISE_INDICATORS['start']} Correction session started: {self.current_session}")
         return self.current_session
 
-    def correct_violations_systematically(self, 
-                                          target_files: Optional[List[Path]] = None, 
+    def correct_violations_systematically(self,
+                                          target_files: Optional[List[Path]] = None,
                                           target_violations: Optional[int] = None) -> Dict[str, Any]:
         """Systematic correction with database tracking and visual monitoring"""
         start_time = datetime.now()
@@ -417,7 +419,8 @@ class DatabaseDrivenCorrectionEngine:
         self.logger.info(f"{ENTERPRISE_INDICATORS['start']} DATABASE-DRIVEN CORRECTION ENGINE")
         self.logger.info("=" * 80)
         self.logger.info(
-            f"{ENTERPRISE_INDICATORS['info']} Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+            f"{ENTERPRISE_INDICATORS['info']} Start Time: {start_time.strftime(
+    '%Y-%m-%d %H:%M:%S')}")
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Process ID: {process_id}")
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Timeout: {timeout_minutes} minutes")
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Current Session: {self.current_session}")
@@ -433,7 +436,7 @@ class DatabaseDrivenCorrectionEngine:
             valid_files = [f for f in python_files if self._is_valid_correction_target(f)]
 
             with tqdm(total=100, desc="[CORRECTION] Processing", unit="%") as pbar:
-                
+
                 # Step 1: Scan for violations (30%)
                 pbar.set_description("[SCANNER] Scanning for violations")
                 all_violations = {}
@@ -447,7 +450,8 @@ class DatabaseDrivenCorrectionEngine:
                 pbar.set_description("[DATABASE] Loading correction patterns")
                 correction_patterns = self._load_correction_patterns_from_database(all_violations)
                 self.logger.info(
-                    f"{ENTERPRISE_INDICATORS['database']} Loaded {len(correction_patterns)} correction patterns")
+                    f"{ENTERPRISE_INDICATORS['database']} Loaded {len(
+    correction_patterns)} correction patterns")
                 pbar.update(25)
 
                 # Step 3: Apply corrections (25%)
@@ -524,12 +528,13 @@ class DatabaseDrivenCorrectionEngine:
         return patterns
 
     def _apply_corrections_with_patterns(
-        self, violations_dict: Dict[str, List[FlakeViolation]], 
+        self, violations_dict: Dict[str, List[FlakeViolation]],
         patterns: Dict[str, List[DatabaseCorrectionPattern]]) -> List[CorrectionResult]:
         """Apply corrections using database patterns"""
         results = []
 
-        with tqdm(total=len(violations_dict), desc="[CORRECTION] Processing files", unit="files") as pbar:
+        with tqdm(
+    total=len(violations_dict), desc="[CORRECTION] Processing files", unit="files") as pbar:
             for file_path, violations in violations_dict.items():
                 result = self._correct_single_file(file_path, violations, patterns)
                 results.append(result)
@@ -539,7 +544,7 @@ class DatabaseDrivenCorrectionEngine:
         return results
 
     def _correct_single_file(
-        self, file_path: str, violations: List[FlakeViolation], 
+        self, file_path: str, violations: List[FlakeViolation],
         patterns: Dict[str, List[DatabaseCorrectionPattern]]) -> CorrectionResult:
         """Correct violations in a single file"""
         try:
@@ -547,7 +552,7 @@ class DatabaseDrivenCorrectionEngine:
             # In production, this would apply actual corrections
             fixes_applied = min(len(violations), 5)  # Mock: fix up to 5 violations
             self.corrections_applied += fixes_applied
-            
+
             return CorrectionResult(
                 file_path=file_path,
                 success=True,
@@ -555,7 +560,8 @@ class DatabaseDrivenCorrectionEngine:
                 remaining_violations=len(violations) - fixes_applied
             )
         except Exception as e:
-            self.logger.error(f"{ENTERPRISE_INDICATORS['error']} File correction failed: {file_path} - {e}")
+            self.logger.error(
+    f"{ENTERPRISE_INDICATORS['error']} File correction failed: {file_path} - {e}")
             return CorrectionResult(
                 file_path=file_path,
                 success=False,
@@ -578,13 +584,13 @@ def main():
 
         # Initialize correction engine
         engine = DatabaseDrivenCorrectionEngine()
-        
+
         # Start correction session
         session_id = engine.start_correction_session()
-        
+
         # Execute systematic corrections
         results = engine.correct_violations_systematically()
-        
+
         # Display results
         print("\n" + "=" * 80)
         print("[SUCCESS] DATABASE-DRIVEN CORRECTION COMPLETED")

@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 import sqlite3
 
 
 from database_sync_scheduler import synchronize_databases
+import logging
 
 
 def test_synchronize_databases(tmp_path):

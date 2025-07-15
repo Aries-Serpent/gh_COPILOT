@@ -25,6 +25,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any
+import logging
 
 
 class ComprehensiveViolationEliminationSummary:
@@ -53,7 +54,7 @@ class ComprehensiveViolationEliminationSummary:
                 "duration": "<0.1 seconds",
                 "key_achievements": [
                     "E999 syntax error resolution",
-                    "F821 type hint additions", 
+                    "F821 type hint additions",
                     "E501 line optimization",
                     "W293 whitespace cleanup"
                 ]
@@ -71,7 +72,7 @@ class ComprehensiveViolationEliminationSummary:
                 ]
             },
             "Phase 8 Final Cleanup": {
-                "violations_eliminated": 110, 
+                "violations_eliminated": 110,
                 "elimination_rate": 44.0,
                 "status": "SIGNIFICANT SUCCESS",
                 "target_violations": 250,
@@ -86,7 +87,7 @@ class ComprehensiveViolationEliminationSummary:
             "Phase 9 Ultimate Elimination": {
                 "violations_eliminated": 171,
                 "elimination_rate": 75.3,
-                "status": "ULTIMATE SUCCESS", 
+                "status": "ULTIMATE SUCCESS",
                 "target_violations": 227,
                 "duration": "0.1 seconds",
                 "key_achievements": [
@@ -101,7 +102,7 @@ class ComprehensiveViolationEliminationSummary:
                 "elimination_rate": 50.4,
                 "status": "SIGNIFICANT PROGRESS",
                 "target_violations": 123,
-                "duration": "0.2 seconds", 
+                "duration": "0.2 seconds",
                 "key_achievements": [
                     "E999 syntax errors (25 eliminated)",
                     "E501 line length (24 optimized)",
@@ -164,7 +165,7 @@ class ComprehensiveViolationEliminationSummary:
             },
             "violation_type_performance": {
                 "W293_whitespace": "EXCELLENT (187+ eliminated)",
-                "E999_syntax_errors": "VERY_GOOD (109+ eliminated)", 
+                "E999_syntax_errors": "VERY_GOOD (109+ eliminated)",
                 "E501_line_length": "GOOD (41+ optimized)",
                 "F821_type_hints": "MODERATE (10+ resolved)"
             },
@@ -264,13 +265,13 @@ class ComprehensiveViolationEliminationSummary:
 
         report_filename = f"comprehensive_elimination_campa \
             ign_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        
+
         try:
             with open(report_filename, 'w', encoding='utf-8') as f:
                 json.dump(summary, f, indent=2, default=str)
 
             print(f"\n📄 COMPREHENSIVE SUMMARY SAVED: {report_filename}")
-            
+
         except Exception as e:
             print(f"\n# # ⚠️  Error saving summary: {e}")
 

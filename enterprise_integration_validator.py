@@ -135,7 +135,8 @@ def test_chunk_imports() -> Dict[str, Any]:
     import_results['success_rate'] = success_rate
 
     logger.info(
-        f"{ENTERPRISE_INDICATORS['info']} Import Success Rate: {success_rate:.1f}% ({successful_imports}/{total_chunks})")
+        f"{ENTERPRISE_INDICATORS['info']} Import Success Rate: {success_rate:.1f}% (
+    {successful_imports}/{total_chunks})")
 
     return import_results
 
@@ -171,7 +172,8 @@ def test_basic_functionality() -> Dict[str, Any]:
         is_safe = validator.validate_workspace_integrity()
         functionality_results['anti_recursion_test'] = True
         logger.info(
-            f"{ENTERPRISE_INDICATORS['success']} Anti-recursion validation successful (workspace safe: {is_safe})")
+            f"{ENTERPRISE_INDICATORS['success']} Anti-recursion validation successful (
+    workspace safe: {is_safe})")
 
     except Exception as e:
         functionality_results['functionality_errors'].append(f"Anti-recursion test failed: {e}")
@@ -221,7 +223,8 @@ def test_basic_functionality() -> Dict[str, Any]:
     functionality_results['success_rate'] = success_rate
 
     logger.info(
-        f"{ENTERPRISE_INDICATORS['info']} Functionality Success Rate: {success_rate:.1f}% ({successful_tests}/{total_tests})")
+        f"{ENTERPRISE_INDICATORS['info']} Functionality Success Rate: {success_rate:.1f}% (
+    {successful_tests}/{total_tests})")
 
     return functionality_results
 
@@ -301,7 +304,8 @@ def test_integration_readiness() -> Dict[str, Any]:
                 f"{ENTERPRISE_INDICATORS['success']} Database files accessible: {accessible_databases}")
         else:
             logger.info(
-                f"{ENTERPRISE_INDICATORS['info']} No existing database files found (will be created)")
+                f"{ENTERPRISE_INDICATORS['info']} No existing database files found (
+    will be created)")
             integration_results['database_accessible'] = \
                 True  # OK to create new databases
 
@@ -465,7 +469,8 @@ def main():
     display_integration_report(report)
 
     # Save report to file
-    report_filename = f"enterprise_integration_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    report_filename = f"enterprise_integration_report_{datetime.now(
+    ).strftime('%Y%m%d_%H%M%S')}.json"
 
     try:
         import json

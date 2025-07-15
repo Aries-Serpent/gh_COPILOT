@@ -112,7 +112,8 @@ class Phase7FinalEliminationSystem:
 
         try:
             # Run flake8 for targeted violations
-            cmd = ["python", "-m", "flake8", "--select=E999,E501,F821,W293", "--format=%(code)s", "."]
+            cmd = ["python", "-m", "flake8", "--select=E999,E501,F821,W293", "--format=%(
+    code)s", "."]
             result = subprocess.run(
                                     cmd,
                                     cwd=self.workspace_path,
@@ -140,7 +141,8 @@ class Phase7FinalEliminationSystem:
 
         try:
             # Get E999 violations with detailed info
-            cmd = ["python", "-m", "flake8", "--select=E999", "--format=%(path)s:%(row)d:%(col)d:%(text)s", "."]
+            cmd = ["python", "-m", "flake8", "--select=E999", "--format=%(
+    path)s:%(row)d:%(col)d:%(text)s", "."]
             result = subprocess.run(
                 cmd,
                 cwd=self.workspace_path,
@@ -256,7 +258,8 @@ class Phase7FinalEliminationSystem:
             # Common syntax fixes
 
             # Fix missing colons
-            if re.search(r'(if|elif|else|for|while|def|class|try|except|finally|with)\b[^:]*$', line.strip()):
+            if re.search(
+    r'(if|elif|else|for|while|def|class|try|except|finally|with)\b[^:]*$', line.strip()):
                 if not line.rstrip().endswith(':'):
                     lines[line_num] = line.rstrip() + ':'
 
@@ -308,7 +311,8 @@ class Phase7FinalEliminationSystem:
 
         try:
             # Get E501 violations
-            cmd = ["python", "-m", "flake8", "--select=E501", "--format=%(path)s:%(row)d:%(col)d", "."]
+            cmd = ["python", "-m", "flake8", "--select=E501", "--format=%(
+    path)s:%(row)d:%(col)d", "."]
             result = subprocess.run(
                 cmd,
                 cwd=self.workspace_path,
@@ -394,7 +398,8 @@ class Phase7FinalEliminationSystem:
 
         # Strategy 2: Break long string concatenations
         if ' + ' in line and ('"' in line or "'" in line):
-            line = re.sub(r'("[^"]+"|\'[^\']+\')\s*\+\s*("[^"]+"|\'[^\']+\')', r'\1 +\n        \2', line)
+            line = re.sub(
+    r'("[^"]+"|\'[^\']+\')\s*\+\s*("[^"]+"|\'[^\']+\')', r'\1 +\n        \2', line)
 
         # Strategy 3: Break at logical operators
         if ' and ' in line or ' or ' in line:

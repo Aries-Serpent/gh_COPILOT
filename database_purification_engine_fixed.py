@@ -162,7 +162,8 @@ class DatabasePurificationEngine:
                         self.logger.info(f"[SUCCESS] Database integrity OK: {db_path.name}")
                     else:
                         self.logger.warning(f"[WARNING] Database integrity issues: {db_path.name}")
-                        self.purification_metrics["corrupted_entries_found"] += len(integrity_result)
+                        self.purification_metrics["corrupted_entries_found"] += len(
+    integrity_result)
 
                 self.purification_metrics["databases_processed"] += 1
 
@@ -223,7 +224,8 @@ class DatabasePurificationEngine:
         for db_path in self.databases:
             try:
                 # Create backup before repair
-                backup_path = f"{db_path}.backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                backup_path = f"{db_path}.backup_{datetime.datetime.now(
+    ).strftime('%Y%m%d_%H%M%S')}"
                 shutil.copy2(str(db_path), backup_path)
                 self.logger.info(f"[INFO] Backup created: {backup_path}")
 
@@ -275,7 +277,8 @@ class DatabasePurificationEngine:
                     column_name = column[1]
 
                     # Common patterns that benefit from indexes
-                    if any(pattern in column_name.lower() for pattern in ['id', 'name', 'path', 'timestamp']):
+                    if any(
+    pattern in column_name.lower() for pattern in ['id', 'name', 'path', 'timestamp']):
                         self.purification_metrics["schema_optimizations"] += 1
 
         except Exception as e:
@@ -360,8 +363,10 @@ def main():
         print("=" * 80)
         print(f"Databases Processed: {results['databases_discovered']}")
         print(f"Entries Audited: {results['purification_metrics']['entries_audited']}")
-        print(f"Corrupted Entries Found: {results['purification_metrics']['corrupted_entries_found']}")
-        print(f"Performance Improvements: {results['purification_metrics']['performance_improvements']}")
+        print(
+    f"Corrupted Entries Found: {results['purification_metrics']['corrupted_entries_found']}")
+        print(
+    f"Performance Improvements: {results['purification_metrics']['performance_improvements']}")
         print(f"Schema Optimizations: {results['purification_metrics']['schema_optimizations']}")
         print(f"Duration: {results['execution_summary']['duration_seconds']:.1f} seconds")
         print(f"Status: {results['status']}")

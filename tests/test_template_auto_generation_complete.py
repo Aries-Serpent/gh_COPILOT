@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 import sqlite3
 from pathlib import Path
 
 from template_auto_generation_complete import TemplateSynthesisEngine
+import logging
 
 
 def create_dbs(tmp_path: Path):

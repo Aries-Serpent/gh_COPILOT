@@ -12,6 +12,7 @@ import json
 import re
 from pathlib import Path
 from typing import List, Tuple
+import logging
 
 
 def _latest_report(directory: Path) -> Path | None:

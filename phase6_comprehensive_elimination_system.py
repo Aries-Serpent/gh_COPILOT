@@ -118,7 +118,9 @@ class Phase6ComprehensiveEliminationSystem:
                 total_targeted += result.initial_count
                 files_modified.update(getattr(result, 'modified_files', []))
 
-                logger.info(f"# # # ✅ {processor_name}: {result.eliminated_count}/{result.initial_count} eliminated ({result.elimination_rate:.1f}%)")
+                logger.info(
+    f"# # # ✅ {processor_name}: {result.eliminated_count}/{result.initial_count} eliminated (
+    {result.elimination_rate:.1f}%)")
 
             except Exception as e:
                 logger.error(f"❌ {processor_name} failed: {e}")
@@ -153,7 +155,8 @@ class Phase6ComprehensiveEliminationSystem:
 
         logger.info("="*80)
         logger.info(f"🏆 PHASE 6 COMPREHENSIVE ELIMINATION: {success_status}")
-        logger.info(f"# # # 📊 Overall Rate: {overall_rate:.1f}% ({total_eliminated}/{total_targeted})")
+        logger.info(
+    f"# # # 📊 Overall Rate: {overall_rate:.1f}% ({total_eliminated}/{total_targeted})")
         logger.info(f"📁 Files Modified: {len(files_modified)}")
         logger.info(f"⏱️ Duration: {processing_duration:.1f}s")
         logger.info("="*80)
@@ -230,7 +233,9 @@ class E999SyntaxErrorProcessor:
         processing_time = time.time() - start_time
         elimination_rate = (eliminated_count / initial_count * 100) if initial_count > 0 else 0
 
-        logger.info(f"# # # ✅ E999 Processor: {eliminated_count}/{initial_count} corrected ({elimination_rate:.1f}%)")
+        logger.info(
+    f"# # # ✅ E999 Processor: {eliminated_count}/{initial_count} corrected (
+    {elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             category=self.category,
@@ -353,7 +358,8 @@ class W293Whitespacedominator:
         processing_time = time.time() - start_time
         elimination_rate = (eliminated_count / initial_count * 100) if initial_count > 0 else 0
 
-        logger.info(f"🧹 W293 Dominator: {eliminated_count}/{initial_count} cleaned ({elimination_rate:.1f}%)")
+        logger.info(
+    f"🧹 W293 Dominator: {eliminated_count}/{initial_count} cleaned ({elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             category=self.category,
@@ -469,7 +475,8 @@ class F821TypeHintResolver:
         processing_time = time.time() - start_time
         elimination_rate = (eliminated_count / initial_count * 100) if initial_count > 0 else 0
 
-        logger.info(f"# # # 🔍 F821 Resolver: {eliminated_count}/{initial_count} resolved ({elimination_rate:.1f}%)")
+        logger.info(
+    f"# # # 🔍 F821 Resolver: {eliminated_count}/{initial_count} resolved ({elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             category=self.category,
@@ -545,7 +552,8 @@ class F821TypeHintResolver:
                     with open(full_path, 'w', encoding='utf-8') as f:
                         f.write(modified_content)
 
-                    logger.info(f"# # # 🔍 Added type imports to {file_path}: {', '.join(needed_imports)}")
+                    logger.info(
+    f"# # # 🔍 Added type imports to {file_path}: {', '.join(needed_imports)}")
                     return True
 
         except Exception as e:
@@ -632,7 +640,8 @@ class E501LineOptimizer:
         processing_time = time.time() - start_time
         elimination_rate = (eliminated_count / initial_count * 100) if initial_count > 0 else 0
 
-        logger.info(f"📏 E501 Optimizer: {eliminated_count}/{initial_count} optimized ({elimination_rate:.1f}%)")
+        logger.info(
+    f"📏 E501 Optimizer: {eliminated_count}/{initial_count} optimized ({elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             category=self.category,
@@ -776,7 +785,8 @@ class E501LineOptimizer:
             parts = line.split(' + ')
             if len(parts) > 1:
                 indent = len(line) - len(line.lstrip())
-                return ' +\n'.join(f"{' ' * indent if i == 0 else ' ' * (indent + 4)}{part}" for i, part in enumerate(parts))
+                return ' +\n'.join(
+    f"{' ' * indent if i == 0 else ' ' * (indent + 4)}{part}" for i, part in enumerate(parts))
 
         return line
 
@@ -792,7 +802,8 @@ class E501LineOptimizer:
                     arg_list = [arg.strip() for arg in args.split(',')]
                     indent = len(line) - len(line.lstrip())
                     broken_args = ',\n'.join(f"{' ' * (indent + 4)}{arg}" for arg in arg_list)
-                    return line.replace(f"{func_name}({args})", f"{func_name}(\n{broken_args}\n{' ' * indent})")
+                    return line.replace(
+    f"{func_name}({args})", f"{func_name}(\n{broken_args}\n{' ' * indent})")
 
         return line
 
@@ -811,7 +822,8 @@ def main():
     print("\n🏆 PHASE 6 COMPREHENSIVE ELIMINATION COMPLETE!")
     print(f"# # # 📊 Success Status: {results.success_status}")
     print(f"📈 Overall Elimination Rate: {results.overall_elimination_rate:.1f}%")
-    print(f"# # 🎯 Total Eliminated: {results.total_violations_eliminated}/{results.total_violations_targeted}")
+    print(
+    f"# # 🎯 Total Eliminated: {results.total_violations_eliminated}/{results.total_violations_targeted}")
     print(f"📁 Files Modified: {results.files_modified}")
     print(f"⏱️ Processing Duration: {results.processing_duration:.1f}s")
 

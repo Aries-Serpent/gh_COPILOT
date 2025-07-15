@@ -1,4 +1,6 @@
+#!/usr/bin/env python3
 from physics_optimization_engine import PhysicsOptimizationEngine
+import logging
 
 
 def test_grover_search_found():

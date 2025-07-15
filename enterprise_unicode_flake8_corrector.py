@@ -266,7 +266,8 @@ class UnicodeCompatibleFileHandler:
 
             processing_time = (datetime.now() - start_time).total_seconds()
             self.logger.info(
-                f"{ENTERPRISE_INDICATORS['success']} File read successfully: {normalized_path} ({encoding}, {size_bytes} bytes) in {processing_time:.3f}s")
+                f"{ENTERPRISE_INDICATORS['success']} File read successfully: {normalized_path} (
+    {encoding}, {size_bytes} bytes) in {processing_time:.3f}s")
 
             return UnicodeFileInfo(
                 file_path=normalized_path,
@@ -314,7 +315,8 @@ class UnicodeCompatibleFileHandler:
             processing_time = (datetime.now() - start_time).total_seconds()
 
             self.logger.info(
-                f"{ENTERPRISE_INDICATORS['success']} File written successfully: {normalized_path} ({encoding}, {file_size} bytes) in {processing_time:.3f}s")
+                f"{ENTERPRISE_INDICATORS['success']} File written successfully: {normalized_path} (
+    {encoding}, {file_size} bytes) in {processing_time:.3f}s")
 
             return True
 
@@ -379,7 +381,8 @@ class UnicodeCompatibleFileHandler:
         return {
             'total_files_processed': self.processed_files,
             'encoding_distribution': self.encoding_stats,
-            'most_common_encoding': max(self.encoding_stats.items(), key=lambda x: x[1])[0] if self.encoding_stats else 'utf-8'
+            'most_common_encoding': max(
+    self.encoding_stats.items(), key=lambda x: x[1])[0] if self.encoding_stats else 'utf-8'
         }
 
 
@@ -414,7 +417,7 @@ def main():
     """Main execution function for enterprise Unicode Flake8 corrector"""
     import logging
     import sys
-    
+
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
@@ -425,21 +428,21 @@ def main():
         ]
     )
     logger = logging.getLogger(__name__)
-    
+
     try:
         # MANDATORY: Start time and process tracking
         start_time = datetime.now()
         logger.info("=" * 80)
         logger.info(f"{ENTERPRISE_INDICATORS['start']} ENTERPRISE UNICODE FLAKE8 CORRECTOR")
         logger.info("=" * 80)
-        
+
         # Initialize components
         anti_recursion = AntiRecursionValidator()
         file_handler = UnicodeCompatibleFileHandler()
-        
+
         # Validate environment
         anti_recursion.validate_workspace_integrity()
-        
+
         # Test file handler
         test_files = list(Path("e:/gh_COPILOT").glob("*.py"))[:3]  # Test with first 3 files
         for test_file in test_files:
@@ -447,7 +450,8 @@ def main():
                 file_info = file_handler.read_file_with_encoding_detection(test_file)
                 logger.info(f"{ENTERPRISE_INDICATORS['success']} Test read: {test_file.name}")
             except Exception as e:
-                logger.warning(f"{ENTERPRISE_INDICATORS['warning']} Test failed: {test_file.name}: {e}")
+                logger.warning(
+    f"{ENTERPRISE_INDICATORS['warning']} Test failed: {test_file.name}: {e}")
 
         # MANDATORY: Completion summary with metrics
         end_time = datetime.now()

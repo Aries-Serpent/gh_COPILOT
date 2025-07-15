@@ -7,6 +7,7 @@ Validates the results of our database cleanup operation
 """
 
 from pathlib import Path
+import logging
 
 
 def main():

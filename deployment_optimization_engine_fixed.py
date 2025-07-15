@@ -116,7 +116,8 @@ class DeploymentOptimizationEngine:
 
     def _implement_intrusion_detection(self) -> str:
         """Implement intrusion detection system"""
-        logging.info("[SUCCESS] implement_intrusion_detection: Intrusion detection system implemented")
+        logging.info(
+    "[SUCCESS] implement_intrusion_detection: Intrusion detection system implemented")
         return "Intrusion detection system implemented"
 
     def implement_performance_monitoring(self) -> Dict[str, Any]:
@@ -270,7 +271,8 @@ class DeploymentOptimizationEngine:
 
     def _validate_reliability_requirements(self) -> str:
         """Validate reliability requirements"""
-        logging.info("[SUCCESS] validate_reliability_requirements: Reliability requirements validated")
+        logging.info(
+    "[SUCCESS] validate_reliability_requirements: Reliability requirements validated")
         return "Reliability requirements validated"
 
     def _validate_operational_readiness(self) -> str:
@@ -295,7 +297,8 @@ class DeploymentOptimizationEngine:
         with open(report_path, 'w', encoding='utf-8') as f:
             json.dump(report_data, f, indent=2)
 
-        logging.info("[SUCCESS] generate_certification_report: Final certification report generated")
+        logging.info(
+    "[SUCCESS] generate_certification_report: Final certification report generated")
         return f"Final certification report generated: {report_path}"
 
     def create_deployment_package(self) -> str:

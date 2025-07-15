@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
 
 from quantum_algorithms_functional import (run_grover_search,
+import logging
                                            run_kmeans_clustering,
                                            run_simple_qnn)
 

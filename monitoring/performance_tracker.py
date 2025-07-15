@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Performance tracking utilities for analytics.db."""
 
 import builtins

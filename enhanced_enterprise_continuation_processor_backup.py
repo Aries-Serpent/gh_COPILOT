@@ -9,11 +9,15 @@ Status: PRODUCTION READY - ENHANCED DEPLOYMENT
 
 ENHANCEMENTS:
 - Fixed database schema compatibility (no fixed_date column req                 conn.commit()
-                logger.info(f"📝 Enhanced update: {len(fixes_applied)} violations marked as '{status}'")           conn            # Enhanced final logging
+                logger.info(
+    f"📝 Enhanced update: {len(
+    fixes_applied)} violations marked as '{status}'")           conn            # Enhanced final logging
             logger.info("="*80)        print("\n✅ Phase 1 Results:")
         print(f"   Fixes Applied: {results_phase1['successful_fixes']}")
         print(f"   Success Rate: {results_phase1['overall_success_rate']:.1%}")
-        print(f"   Files Processed: {results_phase1['files_processed']}")          logger.info("✅ ENHANCED ENTERPRISE PROCESSING COMPLETED")
+        print(
+    f"   Files Processed: {results_phase1['files_processed']}")          logger.info(
+    "✅ ENHANCED ENTERPRISE PROCESSING COMPLETED")
             logger.info("="*80)
             logger.info(f"📊 Violations Processed: {total_violations_processed}")
             logger.info(f"✅ Successful Fixes: {total_successful_fixes}")
@@ -29,7 +33,10 @@ ENHANCEMENTS:
         except Exception as e:
             logger.error(f"❌ Enhanced processing failed: {e}")
             logger.error(f"❌ Traceback: {traceback.format_exc()}")
-            return self._create_empty_results()        logger.info(f"📝 Enhanced update: {len(fixes_applied)} violations marked as '{status}'")            logger.info(
+            return self._create_empty_results(
+    )        logger.info(
+    f"📝 Enhanced update: {len(
+    fixes_applied)} violations marked as '{status}'")            logger.info(
     f"📝 Enhanced update: {len(fixes_applied)} violations marked as '{status}'")ement)
 - Improved success rate targeting with better violation type prioritization
 - Enhanced monitoring with real-time health scoring
@@ -200,7 +207,8 @@ class EnhancedEnterpriseProcessor:
                         'error_codes': codes,
                         'line_numbers': lines,
                         'expected_success_rate': expected_success_rate,
-                        'priority': self._calculate_batch_priority(expected_success_rate, violation_count)
+                        'priority': self._calculate_batch_priority(
+    expected_success_rate, violation_count)
                     }
                     batches.append(batch)
 
@@ -298,7 +306,7 @@ class EnhancedEnterpriseProcessor:
                     failed_fixes += 1
                     fix_details.append(
                         f"Error enhancing fix {error_code} at line {line_number}: {str(e)}")
-            
+
             # Write enhanced content if fixes were applied
             if successful_fixes > 0:
                 with open(file_path, 'w', encoding='utf-8') as f:
@@ -340,7 +348,8 @@ class EnhancedEnterpriseProcessor:
                 return fixed_line
 
             elif error_code == 'E302':  # Expected 2 blank lines
-                if line.strip() and (line.startswith('def ') or line.startswith('class ') or line.startswith('async def ')):
+                if line.strip(
+    ) and (line.startswith('def ') or line.startswith('class ') or line.startswith('async def ')):
                     return '\n\n' + line
 
             elif error_code == 'E303':  # Too many blank lines
@@ -348,7 +357,8 @@ class EnhancedEnterpriseProcessor:
                     return '\n'  # Reduce to single blank line
 
             elif error_code == 'E305':  # Expected 2 blank lines after class/function
-                if line.strip() and (line.startswith('def ') or line.startswith('class ') or line.startswith('async def ')):
+                if line.strip(
+    ) and (line.startswith('def ') or line.startswith('class ') or line.startswith('async def ')):
                     return '\n\n' + line
 
         except Exception as e:
@@ -386,7 +396,8 @@ class EnhancedEnterpriseProcessor:
                 raise FileNotFoundError(f"Source file not found: {source_path}")
 
             # Create timestamped backup directory
-            backup_timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')[:17]  # Include microseconds
+            backup_timestamp = datetime.now(
+    ).strftime('%Y%m%d_%H%M%S_%f')[:17]  # Include microseconds
             backup_dir = self.backup_root / f"session_{self.session_id}" / backup_timestamp
             backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -399,7 +410,8 @@ class EnhancedEnterpriseProcessor:
             shutil.copy2(source_path, backup_file_path)
 
             # Verify backup
-            if backup_file_path.exists() and backup_file_path.stat().st_size == source_path.stat().st_size:
+            if backup_file_path.exists(
+    ) and backup_file_path.stat().st_size == source_path.stat().st_size:
                 logger.info(f"💾 Enhanced backup: {backup_file_path}")
                 return str(backup_file_path)
             else:
@@ -448,7 +460,8 @@ class EnhancedEnterpriseProcessor:
             batches_completed = 0
 
             # Process batches with enhanced monitoring
-            with tqdm(total=len(processing_batches), desc="# # # 🔄 Enhanced Processing", unit="batch") as pbar:
+            with tqdm(
+    total=len(processing_batches), desc="# # # 🔄 Enhanced Processing", unit="batch") as pbar:
 
                 for batch_idx, batch in enumerate(processing_batches):
                     batch_start_time = time.time()
@@ -600,7 +613,8 @@ def main():
             print("\n🏆 COMBINED RESULTS:")
             print(f"   Total Fixes: {total_fixes}")
             print(f"   Combined Success Rate: {combined_success_rate:.1%}")
-            print(f"   Total Files: {results_phase1['files_processed'] + results_phase2['files_processed']}")
+            print(
+    f"   Total Files: {results_phase1['files_processed'] + results_phase2['files_processed']}")
 
         print("\n🎉 Enhanced enterprise processing completed successfully!")
 

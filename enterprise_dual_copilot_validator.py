@@ -309,7 +309,7 @@ class PrimaryExecutorCopilot:
         self.logger.info("=" * 100)
         self.logger.info(
             f"{ENTERPRISE_INDICATORS['start']} PRIMARY COPILOT EXECUTOR - "
-            f"ENTERPRISE FLAKE8 CORRECTION"
+            "ENTERPRISE FLAKE8 CORRECTION"
         )
         self.logger.info("=" * 100)
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Execution ID: {self.execution_id}")
@@ -523,7 +523,8 @@ class SecondaryValidatorCopilot:
     def __init__(self, config: EnterpriseSystemConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
-        self.validation_id = f"SECONDARY_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+        self.validation_id = f"SECONDARY_{datetime.now(
+    ).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
         # Initialize validation components
         self.dual_validator = DualCopilotValidator()
@@ -543,7 +544,8 @@ class SecondaryValidatorCopilot:
         self.logger.info("=" * 100)
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Validation ID: {self.validation_id}")
         self.logger.info(
-            f"{ENTERPRISE_INDICATORS['info']} Start Time: {validation_start.strftime('%Y-%m-%d %H:%M:%S')}")
+            f"{ENTERPRISE_INDICATORS['info']} Start Time: {validation_start.strftime(
+    '%Y-%m-%d %H:%M:%S')}")
 
         # Initialize validation result
         validation_result = DualCopilotValidationResult(
@@ -694,9 +696,12 @@ class SecondaryValidatorCopilot:
                 for result in primary_results.values()
             ),
             # Absence of errors is good
-            'error_handling': any('error' in str(result) for result in primary_results.values()) or True,
-            'unicode_support': any('unicode' in str(result).lower() for result in primary_results.values()),
-            'session_tracking': any('session' in str(result).lower() for result in primary_results.values())
+            'error_handling': any(
+    'error' in str(result) for result in primary_results.values()) or True,
+            'unicode_support': any(
+    'unicode' in str(result).lower() for result in primary_results.values()),
+            'session_tracking': any(
+    'session' in str(result).lower() for result in primary_results.values())
         }
 
         compliance_score = (sum(1 for indicator in compliance_indicators.values()
@@ -733,9 +738,12 @@ class SecondaryValidatorCopilot:
         """Validate database operations completed successfully"""
 
         database_indicators = {
-            'session_created': any('session_id' in str(result) for result in primary_results.values()),
-            'tracking_enabled': any('tracking' in str(result).lower() for result in primary_results.values()),
-            'session_completed': any('session_completed' in str(result) for result in primary_results.values())
+            'session_created': any(
+    'session_id' in str(result) for result in primary_results.values()),
+            'tracking_enabled': any(
+    'tracking' in str(result).lower() for result in primary_results.values()),
+            'session_completed': any(
+    'session_completed' in str(result) for result in primary_results.values())
         }
 
         integrity_score = (sum(1 for indicator in database_indicators.values()
@@ -845,7 +853,8 @@ class EnterpriseOrchestrator:
         # Initialize logging manager and get logger from it
         logging_manager = EnterpriseLoggingManager()
         self.logger = logging_manager.logger  # Use the logger attribute directly
-        self.orchestration_id = f"ORCHESTRATOR_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+        self.orchestration_id = f"ORCHESTRATOR_{datetime.now(
+    ).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
         # Initialize DUAL COPILOT components
         self.primary_copilot = PrimaryExecutorCopilot(self.config)
@@ -868,7 +877,8 @@ class EnterpriseOrchestrator:
             f"{ENTERPRISE_INDICATORS['info']} Orchestration ID: {self.orchestration_id}")
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} Target Directory: {target_directory}")
         self.logger.info(
-            f"{ENTERPRISE_INDICATORS['info']} Start Time: {self.orchestration_start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+            f"{ENTERPRISE_INDICATORS['info']} Start Time: {self.orchestration_start_time.strftime(
+    '%Y-%m-%d %H:%M:%S')}")
         self.logger.info(f"{ENTERPRISE_INDICATORS['info']} System Configuration: Enterprise Grade")
         self.logger.info(
             f"{ENTERPRISE_INDICATORS['info']} DUAL COPILOT Pattern: PRIMARY + SECONDARY + ORCHESTRATOR")

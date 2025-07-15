@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
 from pathlib import Path
 
 from tools.generate_next_session_prompt import generate_next_session_prompt
+import logging
 
 
 def test_generate_next_session_prompt(tmp_path, monkeypatch):

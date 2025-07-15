@@ -23,6 +23,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 from tqdm import tqdm
+import logging
 
 
 class AggressiveF401Cleaner:
@@ -297,7 +298,8 @@ class AggressiveF401Cleaner:
                     insert_line = 0
                     for i, line in enumerate(lines):
                         if line.strip() and \
-                            not (line.startswith('import') or line.startswith('from') or line.startswith('#')):
+                            not (
+    line.startswith('import') or line.startswith('from') or line.startswith('#')):
                             insert_line = i
                             break
 

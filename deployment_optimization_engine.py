@@ -515,7 +515,8 @@ class DeploymentOptimizationEngine:
         with open(backup_config_file, 'w') as f:
             json.dump(backup_config, f, indent=2)
 
-        return f"Automated backup system implemented - {len(list(backup_dir.glob('*.db')))} backups created"
+        return f"Automated backup system implemented - {len(
+    list(backup_dir.glob('*.db')))} backups created"
 
     def implement_replication(self) -> str:
         """Implement database replication."""
@@ -978,7 +979,8 @@ This package represents a complete enterprise-grade deployment ready for product
                 component: len(list((package_dir / component).glob("*")))
                 for component in components.keys()
             },
-            "total_files": sum(len(list((package_dir / component).glob("*"))) for component in components.keys()),
+            "total_files": sum(
+    len(list((package_dir / component).glob("*"))) for component in components.keys()),
             "certification_status": "ENTERPRISE_PRODUCTION_READY"
         }
 
@@ -1046,7 +1048,8 @@ This package represents a complete enterprise-grade deployment ready for product
         # Save report to file
         report_file = \
             self.workspace_path / \
-                f"deployment_optimization_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                f"deployment_optimization_report_{datetime.datetime.now(
+    ).strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)
 

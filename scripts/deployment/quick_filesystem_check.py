@@ -5,6 +5,7 @@ Quick Filesystem Check Script
 
 import os
 import sys
+import logging
 
 print("FILESYSTEM ISOLATION CHECK")
 print("=" * 50)

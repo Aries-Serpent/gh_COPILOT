@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
 from pathlib import Path
 
 from unified_database_management_system import UnifiedDatabaseManager
+import logging
 
 
 def test_verify_expected_databases(monkeypatch) -> None:

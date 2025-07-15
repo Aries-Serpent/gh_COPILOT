@@ -64,7 +64,8 @@ class Phase3SystematicProcessor:
 
         baseline_violations = {}
 
-        with tqdm(total=len(self.violation_categories), desc="# # # 📊 Baseline Scan", unit="category") as pbar:
+        with tqdm(
+    total=len(self.violation_categories), desc="# # # 📊 Baseline Scan", unit="category") as pbar:
             for violation_code, info in self.violation_categories.items():
                 pbar.set_description(f"# # # 🔍 Scanning {violation_code}")
 
@@ -126,7 +127,8 @@ class Phase3SystematicProcessor:
             if result.stdout:
                 violation_lines = result.stdout.strip().split('\n')
 
-                with tqdm(total=len(violation_lines), desc="# # # 🔧 F541 Processing", unit="violation") as pbar:
+                with tqdm(
+    total=len(violation_lines), desc="# # # 🔧 F541 Processing", unit="violation") as pbar:
                     for line in violation_lines:
                         if ':' in line and 'F541' in line:
                             try:
@@ -161,7 +163,8 @@ class Phase3SystematicProcessor:
             "success_rate": (violations_fixed / max(files_processed, 1)) * 100
         }
 
-        logger.info(f"# # # ✅ F541 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(
+    f"# # # ✅ F541 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
         return result_data
 
     def fix_f541_violation(self, file_path: str, line_num: int) -> bool:
@@ -232,7 +235,8 @@ class Phase3SystematicProcessor:
             "success_rate": (violations_fixed / max(files_processed, 1)) * 100
         }
 
-        logger.info(f"# # # ✅ E302 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(
+    f"# # # ✅ E302 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
         return result_data
 
     def process_e128_violations(self) -> Dict[str, Any]:
@@ -273,7 +277,8 @@ class Phase3SystematicProcessor:
             "success_rate": (violations_fixed / max(files_processed, 1)) * 100
         }
 
-        logger.info(f"# # # ✅ E128 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(
+    f"# # # ✅ E128 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
         return result_data
 
     def process_e501_violations(self) -> Dict[str, Any]:
@@ -315,7 +320,8 @@ class Phase3SystematicProcessor:
             "success_rate": (violations_fixed / max(files_processed, 1)) * 100
         }
 
-        logger.info(f"# # # ✅ E501 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(
+    f"# # # ✅ E501 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
         return result_data
 
     def process_w293_violations(self) -> Dict[str, Any]:
@@ -356,7 +362,8 @@ class Phase3SystematicProcessor:
             "success_rate": (violations_fixed / max(files_processed, 1)) * 100
         }
 
-        logger.info(f"# # # ✅ W293 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(
+    f"# # # ✅ W293 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
         return result_data
 
     def execute_systematic_processing(self) -> Dict[str, Any]:
@@ -378,7 +385,8 @@ class Phase3SystematicProcessor:
         processing_results = []
         total_violations_fixed = 0
 
-        with tqdm(total=len(processing_methods), desc="# # # 🔄 Phase 3 Processing", unit="category") as pbar:
+        with tqdm(
+    total=len(processing_methods), desc="# # # 🔄 Phase 3 Processing", unit="category") as pbar:
             for method in processing_methods:
                 pbar.set_description(f"# # # 🔧 {method.__name__.split('_')[1].upper()}")
 
@@ -439,7 +447,8 @@ class Phase3SystematicProcessor:
             for violation_code, baseline_count in completion_data['baseline_violations'].items():
                 final_count = completion_data['final_violations'].get(violation_code, 0)
                 reduction = baseline_count - final_count
-                f.write(f"   {violation_code}: {baseline_count} → {final_count} ({reduction} fixed)\n")
+                f.write(
+    f"   {violation_code}: {baseline_count} → {final_count} ({reduction} fixed)\n")
 
             f.write("\n# # # ✅ PHASE 3 SYSTEMATIC PROCESSING COMPLETE\n")
             f.write("="*80 + "\n")

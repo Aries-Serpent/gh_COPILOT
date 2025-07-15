@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
 import shutil
 import sqlite3
 from pathlib import Path
 
 from unified_monitoring_optimization_system import EnterpriseUtility
+import logging
 
 
 def test_perform_utility_function_inserts_metrics(tmp_path, monkeypatch):

@@ -571,7 +571,8 @@ class DatabaseFirstFlake8Corrector:
         self.logger.info(f"Violations Fixed: {self.stats['violations_fixed']}", "info")
         self.logger.info(f"Files Modified: {self.stats['files_modified']}", "info")
         self.logger.info(
-            f"Success Rate: {(self.stats['violations_fixed']/max(1,self.stats['violations_found']))*100:.1f}%",
+            f"Success Rate: {(
+    self.stats['violations_fixed']/max(1,self.stats['violations_found']))*100:.1f}%",
             "info"
         )
         self.logger.info("=" * 60, "complete")
@@ -585,7 +586,9 @@ class DatabaseFirstFlake8Corrector:
         else:
             self.logger.warning("DUAL COPILOT VALIDATION: NO FIXES APPLIED - REVIEW REQUIRED")
     print(f"{VISUAL_INDICATORS['start']} Database-First Windows-Compatible Flake8 Corrector")
-    print(f"{VISUAL_INDICATORS['info']} Session started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(
+    f"{VISUAL_INDICATORS['info']} Session started at {datetime.now(
+    ).strftime('%Y-%m-%d %H:%M:%S')}")
 
     try:
         # Initialize corrector
@@ -599,7 +602,8 @@ class DatabaseFirstFlake8Corrector:
 
         elapsed = time.time() - start_time
         if elapsed > (timeout_minutes * 60):
-            print(f"{VISUAL_INDICATORS['warning']} Process exceeded {timeout_minutes} minute timeout")
+            print(
+    f"{VISUAL_INDICATORS['warning']} Process exceeded {timeout_minutes} minute timeout")
 
         print(f"{VISUAL_INDICATORS['complete']} Correction process completed successfully")
 

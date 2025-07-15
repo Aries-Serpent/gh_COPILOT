@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Bootstrap environment and ensure test requirements are installed."""
 
 from __future__ import annotations
@@ -6,6 +7,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+import logging
 
 
 def ensure_env() -> None:

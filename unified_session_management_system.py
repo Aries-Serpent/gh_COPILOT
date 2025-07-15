@@ -13,6 +13,7 @@ Enterprise Standards Compliance:
 from copilot.common.workspace_utils import get_workspace_path
 
 from session_protocol_validator import SessionProtocolValidator
+import logging
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {

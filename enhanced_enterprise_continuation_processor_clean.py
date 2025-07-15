@@ -79,7 +79,7 @@ class EnhancedEnterpriseProcessor:
         workspace_root = Path("e:/gh_COPILOT")
         if not workspace_root.exists():
             raise RuntimeError("CRITICAL: Enterprise workspace not found")
-        
+
         # Check for anti-recursion violations
         forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
         violations = []
@@ -87,7 +87,7 @@ class EnhancedEnterpriseProcessor:
             for folder in workspace_root.rglob(pattern):
                 if folder.is_dir() and 'enterprise_backups' not in str(folder):
                     violations.append(str(folder))
-        
+
         if violations:
             logger.warning(f"Potential recursive violations: {len(violations)}")
             for violation in violations[:5]:  # Show first 5
@@ -100,24 +100,25 @@ class EnhancedEnterpriseProcessor:
         try:
             with sqlite3.connect(self.database_path) as conn:
                 cursor = conn.cursor()
-                
+
                 # Focus on high-success violation types first
-                violation_filter = f"AND error_code IN ({','.join(['?' for _ in self.high_success_violation_types])})"
-                
+                violation_filter = f"AND error_code IN (
+    {','.join(['?' for _ in self.high_success_violation_types])})"
+
                 cursor.execute(f"""
                     SELECT error_code, file_path, line_number, message, line_content
-                    FROM flake8_violations 
+                    FROM flake8_violations
                     WHERE status = 'pending' {violation_filter}
                     ORDER BY error_code, file_path, line_number
                     LIMIT ?
                 """, (*self.high_success_violation_types, max_batches * 10))
-                
+
                 violations = cursor.fetchall()
-                
+
                 # Group into processing batches
                 batches = []
                 current_batch = []
-                
+
                 for violation in violations:
                     current_batch.append({
                         'error_code': violation[0],
@@ -126,7 +127,7 @@ class EnhancedEnterpriseProcessor:
                         'message': violation[3],
                         'line_content': violation[4]
                     })
-                    
+
                     if len(current_batch) >= 10:  # Batch size of 10
                         batches.append({
                             'batch_id': len(batches) + 1,
@@ -134,10 +135,10 @@ class EnhancedEnterpriseProcessor:
                             'expected_success_rate': 0.85  # High success rate expected
                         })
                         current_batch = []
-                        
+
                         if len(batches) >= max_batches:
                             break
-                
+
                 # Add remaining violations as final batch
                 if current_batch:
                     batches.append({
@@ -145,10 +146,10 @@ class EnhancedEnterpriseProcessor:
                         'violations': current_batch,
                         'expected_success_rate': 0.85
                     })
-                
+
                 logger.info(f"📦 Prepared {len(batches)} high-success batches")
                 return batches
-                
+
         except Exception as e:
             logger.error(f"❌ Error getting batches: {e}")
             return []
@@ -159,7 +160,7 @@ class EnhancedEnterpriseProcessor:
         successful_fixes = 0
         failed_fixes = 0
         fixed_files = []
-        
+
         # Group violations by file for efficient processing
         files_to_fix = {}
         for violation in violations:
@@ -167,24 +168,25 @@ class EnhancedEnterpriseProcessor:
             if file_path not in files_to_fix:
                 files_to_fix[file_path] = []
             files_to_fix[file_path].append(violation)
-        
+
         for file_path, file_violations in files_to_fix.items():
             try:
                 # Create backup
                 backup_path = self.create_external_backup(file_path)
-                
+
                 # Read file content
                 with open(file_path, 'r', encoding='utf-8') as f:
                     lines = f.readlines()
-                
+
                 # Apply fixes line by line
                 modifications_made = False
                 for violation in file_violations:
                     line_idx = violation['line_number'] - 1
                     if 0 <= line_idx < len(lines):
                         original_line = lines[line_idx]
-                        fixed_line = self.apply_high_success_fix(original_line, violation['error_code'])
-                        
+                        fixed_line = self.apply_high_success_fix(
+    original_line, violation['error_code'])
+
                         if fixed_line != original_line:
                             lines[line_idx] = fixed_line
                             modifications_made = True
@@ -193,17 +195,17 @@ class EnhancedEnterpriseProcessor:
                             failed_fixes += 1
                     else:
                         failed_fixes += 1
-                
+
                 # Write back if modifications were made
                 if modifications_made:
                     with open(file_path, 'w', encoding='utf-8') as f:
                         f.writelines(lines)
                     fixed_files.append(file_path)
-                    
+
             except Exception as e:
                 logger.error(f"❌ Error processing file {file_path}: {e}")
                 failed_fixes += len(file_violations)
-        
+
         return successful_fixes, failed_fixes, fixed_files
 
     def apply_high_success_fix(self, line: str, error_code: str) -> str:
@@ -225,21 +227,22 @@ class EnhancedEnterpriseProcessor:
         """📝 Update violation status in database"""
         if not fixes_applied:
             return
-            
+
         try:
             with sqlite3.connect(self.database_path) as conn:
                 cursor = conn.cursor()
-                
+
                 for fix in fixes_applied:
                     cursor.execute("""
-                        UPDATE flake8_violations 
-                        SET status = ? 
+                        UPDATE flake8_violations
+                        SET status = ?
                         WHERE file_path = ? AND line_number = ? AND error_code = ?
                     """, (status, fix['file_path'], fix['line_number'], fix['error_code']))
-                
+
                 conn.commit()
-                logger.info(f"📝 Enhanced update: {len(fixes_applied)} violations marked as '{status}'")
-                
+                logger.info(
+    f"📝 Enhanced update: {len(fixes_applied)} violations marked as '{status}'")
+
         except Exception as e:
             logger.error(f"❌ Error updating violation status: {e}")
 
@@ -247,12 +250,13 @@ class EnhancedEnterpriseProcessor:
         """💾 Create external backup for enterprise safety"""
         try:
             file_path_obj = Path(file_path)
-            backup_name = f"{file_path_obj.stem}_enhanced_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}{file_path_obj.suffix}"
+            backup_name = f"{file_path_obj.stem}_enhanced_backup_{datetime.now(
+    ).strftime('%Y%m%d_%H%M%S')}{file_path_obj.suffix}"
             backup_path = self.backup_root / backup_name
 
             shutil.copy2(file_path_obj, backup_path)
             return str(backup_path)
-            
+
         except Exception as e:
             logger.warning(f"⚠️ Backup creation failed for {file_path}: {e}")
             return ""
@@ -260,56 +264,56 @@ class EnhancedEnterpriseProcessor:
     def execute_enhanced_processing(self, max_batches: int = 30) -> Dict[str, Any]:
         """🚀 Execute enhanced enterprise processing"""
         start_time = datetime.now()
-        
+
         logger.info("="*80)
         logger.info("🚀 ENHANCED ENTERPRISE PROCESSING STARTED")
         logger.info("="*80)
-        
+
         try:
             # Get high-success batches
             processing_batches = self.get_high_success_batches(max_batches)
-            
+
             if not processing_batches:
                 logger.warning("⚠️ No high-success batches available")
                 return self._create_empty_results()
-            
+
             logger.info(f"📦 Processing {len(processing_batches)} optimized batches")
-            
+
             # Process batches with progress tracking
             total_violations_processed = 0
             total_successful_fixes = 0
             total_failed_fixes = 0
             files_processed = set()
-            
+
             with tqdm(total=len(processing_batches), desc="Enhanced Processing") as pbar:
                 for batch in processing_batches:
                     try:
                         # Apply fixes
                         successful, failed, fixed_files = self.apply_enhanced_fixes(batch)
-                        
+
                         total_violations_processed += len(batch['violations'])
                         total_successful_fixes += successful
                         total_failed_fixes += failed
                         files_processed.update(fixed_files)
-                        
+
                         # Update progress
                         overall_success_rate = total_successful_fixes / total_violations_processed if total_violations_processed > 0 else 0
-                        
+
                         pbar.set_postfix({
                             'Success': f"{overall_success_rate:.1%}",
                             'Fixed': total_successful_fixes,
                             'Failed': total_failed_fixes
                         })
                         pbar.update(1)
-                        
+
                     except Exception as e:
                         logger.error(f"❌ Enhanced batch failed: {e}")
                         pbar.update(1)
-            
+
             # Calculate final metrics
             processing_time = (datetime.now() - start_time).total_seconds()
             overall_success_rate = total_successful_fixes / total_violations_processed if total_violations_processed > 0 else 0
-            
+
             results = {
                 'session_id': self.session_id,
                 'processing_mode': f"ENHANCED_HIGH_SUCCESS",
@@ -321,7 +325,7 @@ class EnhancedEnterpriseProcessor:
                 'processing_time_seconds': processing_time,
                 'timestamp': datetime.now().isoformat()
             }
-            
+
             # Enhanced final logging
             logger.info("="*80)
             logger.info("✅ ENHANCED ENTERPRISE PROCESSING COMPLETED")

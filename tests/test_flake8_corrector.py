@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 import pytest
 from pathlib import Path
 
 from database_first_windows_compatible_flake8_corrector import (
+import logging
     DatabaseFirstFlake8Corrector,
 )
 

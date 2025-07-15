@@ -220,7 +220,8 @@ class RefinedEnterpriseProcessor:
                 # Update database with refined schema compatibility
                 self.update_violation_status_refined(fixes_applied, 'fixed')
 
-                logger.info(f"# # # ✅ Applied {successful_fixes} refined fixes to {Path(file_path).name}")
+                logger.info(
+    f"# # # ✅ Applied {successful_fixes} refined fixes to {Path(file_path).name}")
             else:
                 logger.info(f"ℹ️ No refined fixes applied to {Path(file_path).name}")
 
@@ -300,7 +301,8 @@ class RefinedEnterpriseProcessor:
             shutil.copy2(source_path, backup_file_path)
 
             # Verify external backup
-            if backup_file_path.exists() and backup_file_path.stat().st_size == source_path.stat().st_size:
+            if backup_file_path.exists(
+    ) and backup_file_path.stat().st_size == source_path.stat().st_size:
                 logger.info(f"# # 💾 External backup: {backup_file_path}")
                 return str(backup_file_path)
             else:
@@ -347,7 +349,8 @@ class RefinedEnterpriseProcessor:
             batches_completed = 0
 
             # Process batches with refined monitoring
-            with tqdm(total=len(high_success_batches), desc="# # # 🔄 Refined Processing", unit="batch") as pbar:
+            with tqdm(
+    total=len(high_success_batches), desc="# # # 🔄 Refined Processing", unit="batch") as pbar:
 
                 for batch_idx, batch in enumerate(high_success_batches):
                     batch_start_time = time.time()
@@ -385,9 +388,11 @@ class RefinedEnterpriseProcessor:
                         })
 
                         # Log refined results
-                        logger.info(f"# # # ✅ Refined batch completed: {successful_fixes}/{batch['violation_count']} fixes")
+                        logger.info(
+    f"# # # ✅ Refined batch completed: {successful_fixes}/{batch['violation_count']} fixes")
                         logger.info(f"# # # ✅ Refined batch completed: {successful_fixes}/{batch['violation_count']} fixes "
-                                    f"({actual_success_rate:.1%} actual vs {expected_rate:.1%} expected)")
+                                    "(
+    {actual_success_rate:.1%} actual vs {expected_rate:.1%} expected)")
                     except Exception as e:
                         logger.error(f"❌ Refined batch failed: {e}")
                         total_failed_fixes += batch['violation_count']

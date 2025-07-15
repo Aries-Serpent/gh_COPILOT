@@ -12,6 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from tqdm import tqdm
 from typing import Dict, List, Tuple, Optional, Any
+import logging
 
 class Phase11CorrectedParser:
     """Advanced violation elimination with improved parsing"""
@@ -312,7 +313,7 @@ class Phase11CorrectedParser:
                 if len(parts[0]) < 75:
                     return parts[0] + \
                         op.rstrip() + ' \\\n' + base_indent + '    ' + parts[1].lstrip() + '\n'
-        
+
         # Strategy 2: Break after commas
         if ',' in stripped and len(stripped) > 79:
             # Find a good comma to break at
@@ -320,7 +321,7 @@ class Phase11CorrectedParser:
                 if char == ',' and i > 40 and i < 75:
                     return stripped[:i+1] + \
                         ' \\\n' + base_indent + '    ' + stripped[i+1:].lstrip() + '\n'
-        
+
         # Strategy 3: Break long strings
         if '"' in stripped or "'" in stripped:
             # Simple string breaking (could be improved)
@@ -328,9 +329,9 @@ class Phase11CorrectedParser:
                 mid_point = len(stripped) // 2
                 return stripped[:mid_point] + \
                     ' \\\n' + base_indent + '    ' + stripped[mid_point:] + '\n'
-        
+
         return line
-    
+
     def _fix_syntax_error(self, violation: Dict[str, Any]) -> bool:
         """Fix a syntax error"""
         try:
@@ -346,7 +347,7 @@ class Phase11CorrectedParser:
 
             line = lines[line_num - 1]
             fixed_line = self._apply_syntax_fix(line, message)
-            
+
             if fixed_line != line:
                 lines[line_num - 1] = fixed_line
                 with open(file_path, 'w', encoding='utf-8') as f:
@@ -355,12 +356,12 @@ class Phase11CorrectedParser:
 
         except Exception as e:
             print(f"# # ⚠️ Error fixing syntax error: {e}")
-        
+
         return False
 
     def _apply_syntax_fix(self, line: str, message: str) -> str:
         """Apply specific syntax fixes based on error message"""
-        
+
         # Fix unterminated string literals
         if 'unterminated string literal' in message.lower():
             # Add missing quote at end of line
@@ -370,7 +371,7 @@ class Phase11CorrectedParser:
                     return stripped + '"\n'
                 elif "'" in stripped and not stripped.endswith("'"):
                     return stripped + "'\n"
-        
+
         # Fix f-string issues
         if 'f-string' in message.lower():
             # Common f-string fixes
@@ -378,7 +379,7 @@ class Phase11CorrectedParser:
                 return line.rstrip() + '}\n'
             if '}' in line and '{' not in line:
                 return line.replace('}', '{' + '}', 1)
-        
+
         # Fix invalid characters
         if 'invalid character' in message.lower():
             # Remove common invalid characters
@@ -386,16 +387,16 @@ class Phase11CorrectedParser:
             for char in ['\x00', '\x01', '\x02', '\x03', '\x04', '\x05']:
                 fixed = fixed.replace(char, '')
             return fixed
-        
+
         return line
-    
+
     def _fix_undefined_name(self, violation: Dict[str, Any]) -> bool:
         """Fix undefined name violations"""
         try:
             file_path = violation['file']
             line_num = violation['line']
             message = violation['message']
-            
+
             # Extract undefined variable name
             if "undefined name '" in message:
                 var_name = message.split("undefined name '")[1].split("'")[0]
@@ -404,29 +405,29 @@ class Phase11CorrectedParser:
 
             with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
                 lines = f.readlines()
-            
+
             # Simple fix: initialize common undefined variables
             if var_name in ['debug_results', 'results', 'data']:
                 line_idx = violation['line'] - 1
                 indent = len(lines[line_idx]) - len(lines[line_idx].lstrip())
                 init_line = ' ' * indent + f"{var_name} = {{}}\n"
                 lines.insert(line_idx, init_line)
-                
+
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.writelines(lines)
                 return True
 
         except Exception as e:
             print(f"# # ⚠️ Error fixing undefined name: {e}")
-        
+
         return False
-    
+
     def _fix_whitespace_in_file(self, file_path: str, violations: List[Dict[str, Any]]) -> bool:
         """Fix whitespace issues in a file"""
         try:
             with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
                 lines = f.readlines()
-            
+
             modified = False
             for violation in violations:
                 line_idx = violation['line'] - 1
@@ -436,7 +437,7 @@ class Phase11CorrectedParser:
                     if original_line.strip() == '':
                         lines[line_idx] = '\n'
                         modified = True
-            
+
             if modified:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.writelines(lines)
@@ -444,13 +445,13 @@ class Phase11CorrectedParser:
 
         except Exception as e:
             print(f"# # ⚠️ Error fixing whitespace in {file_path}: {e}")
-        
+
         return False
-    
+
     def _generate_completion_report(self, results: Dict[str, Any]) -> None:
         """Generate completion report"""
         duration = (datetime.now() - self.start_time).total_seconds()
-        
+
         print("\n" + "=" * 60)
         print("# # 🎯 PHASE 11 FINAL PRECISION SWEEP COMPLETED")
         print("=" * 60)
@@ -458,23 +459,23 @@ class Phase11CorrectedParser:
         print(f"# # 📊 Total violations found: {results['violations_found']}")
         print(f"# # ✅ Total violations fixed: {results['violations_fixed']}")
         print(f"📁 Files processed: {results['files_processed']}")
-        
+
         if results['processing_details']:
             print("\n📋 Processing Details:")
             for code, details in results['processing_details'].items():
                 print(f"  {code}: {details['fixed']}/{details['found']} fixed")
-        
+
         if results['violations_fixed'] > 0:
             success_rate = (results['violations_fixed'] / results['violations_found']) * 100
             print(f"# # 🎯 Success Rate: {success_rate:.1f}%")
-        
+
         print("=" * 60)
 
 
 if __name__ == "__main__":
     processor = Phase11CorrectedParser()
     results = processor.run_complete_sweep()
-    
+
     if results['violations_fixed'] > 0:
         print(f"\n# # 🚀 SUCCESS: Fixed {results['violations_fixed']} violations!")
     else:

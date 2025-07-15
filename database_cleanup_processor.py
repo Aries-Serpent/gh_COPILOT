@@ -149,7 +149,8 @@ class DatabaseCleanupProcessor:
                 already_fixed_ids = []
                 still_pending_ids = []
 
-                with tqdm(total=len(pending_violations), desc="🔍 Checking violations", unit="violation") as pbar:
+                with tqdm(
+    total=len(pending_violations), desc="🔍 Checking violations", unit="violation") as pbar:
 
                     for violation in pending_violations:
                         violation_id, file_path, line_number, error_code, message = violation
@@ -185,7 +186,7 @@ class DatabaseCleanupProcessor:
                     logger.info(f"✅ Updated {updated_count} violations to 'fixed' status")
 
                 logger.info(
-                    f"📊 Batch summary: "
+                    "📊 Batch summary: "
                     f"{len(already_fixed_ids)} already fixed, "
                     f"{len(still_pending_ids)} still pending")
 

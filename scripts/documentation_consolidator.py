@@ -9,6 +9,7 @@ import sqlite3
 import uuid
 from pathlib import Path
 from typing import Iterable, Tuple
+import logging
 
 CLEANUP_SQL = (
     "DELETE FROM enterprise_documentation "

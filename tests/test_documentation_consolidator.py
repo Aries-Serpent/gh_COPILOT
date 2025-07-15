@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
 import shutil
 import sqlite3
 from pathlib import Path
 
 from scripts.documentation_consolidator import consolidate
+import logging
 
 
 def _prepare_db(src: Path, dest: Path) -> None:

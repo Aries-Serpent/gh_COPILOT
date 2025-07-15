@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import logging
 
 from advanced_qubo_optimization import solve_qubo_bruteforce

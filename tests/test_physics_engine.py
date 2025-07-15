@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import math
@@ -14,6 +15,7 @@ from qiskit_aer import AerSimulator
 
 from physics_optimization_engine import PhysicsOptimizationEngine
 import numpy as np
+import logging
 
 
 def _grover_index(expected_index: int, num_qubits: int) -> int:

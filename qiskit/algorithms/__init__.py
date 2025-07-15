@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 """Minimal Shor implementation for tests."""
 from __future__ import annotations
 
 import numpy as np
+import logging
 
 
 class Shor:

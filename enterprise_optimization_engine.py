@@ -2,7 +2,8 @@
 """
 ENTERPRISE OPTIMIZATION ENGINE - Phase 2 Advanced Implementation
 ==================================================================
-Building upon successful Database Pur                self.logger.error(f"[ERROR] Query optimization failed: {db_path.name} - {e}")
+Building upon successful Database Pur                self.logger.error(
+    f"[ERROR] Query optimization failed: {db_path.name} - {e}")
 
         return f"{optimizations_applied} query optimizations applied"cation Engine completion.
 
@@ -667,7 +668,8 @@ class EnterpriseOptimizationEngine:
         # Save report to file
         report_file = \
             self.workspace_path / \
-                f"enterprise_optimization_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                f"enterprise_optimization_report_{datetime.datetime.now(
+    ).strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)
 

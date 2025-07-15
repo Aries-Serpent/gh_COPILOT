@@ -340,7 +340,8 @@ class OptimizedSuccessProcessor:
             batches_completed = 0
 
             # Process batches with optimized monitoring
-            with tqdm(total=len(ultra_success_batches), desc="🔄 Optimized Processing", unit="batch") as pbar:
+            with tqdm(
+    total=len(ultra_success_batches), desc="🔄 Optimized Processing", unit="batch") as pbar:
 
                 for batch_idx, batch in enumerate(ultra_success_batches):
                     batch_start_time = time.time()

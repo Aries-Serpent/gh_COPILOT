@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Benchmark quantum algorithms and load performance metrics."""
 
 from __future__ import annotations
@@ -33,6 +34,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from physics_optimization_engine import PhysicsOptimizationEngine
+import logging
 
 __all__ = [
     "load_metrics",

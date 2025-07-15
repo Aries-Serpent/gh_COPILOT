@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import logging
 
 from quantum_integration_orchestrator import integrate_qubo_problems

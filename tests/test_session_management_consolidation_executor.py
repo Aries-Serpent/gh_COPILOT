@@ -1,4 +1,6 @@
+#!/usr/bin/env python3
 from session_management_consolidation_executor import EnterpriseUtility
+import logging
 
 
 def test_consolidation_executor_pass(tmp_path, monkeypatch):

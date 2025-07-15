@@ -70,7 +70,8 @@ class EnterpriseOptimizationEngine:
     def setup_enterprise_logging(self):
         """Setup advanced enterprise logging with optimization tracking."""
         log_file = \
-            self.workspace_path / f"enterprise_optimization_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+            self.workspace_path / f"enterprise_optimization_{datetime.datetime.now(
+    ).strftime('%Y%m%d_%H%M%S')}.log"
 
         logging.basicConfig(
             level=logging.INFO,
@@ -657,7 +658,8 @@ class EnterpriseOptimizationEngine:
 
         # Save report to file
         report_file = \
-            self.workspace_path / f"enterprise_optimization_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            self.workspace_path / f"enterprise_optimization_report_{datetime.datetime.now(
+    ).strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)
 
@@ -686,10 +688,14 @@ def main():
         print("[SUCCESS] ENTERPRISE OPTIMIZATION COMPLETED")
         print("=" * 80)
         print(f"Databases Optimized: {results['databases_optimized']}")
-        print(f"Cross-Database Optimizations: {results['optimization_metrics']['cross_database_optimizations']}")
-        print(f"Performance Enhancements: {results['optimization_metrics']['performance_enhancements']}")
-        print(f"Intelligence Improvements: {results['optimization_metrics']['intelligence_improvements']}")
-        print(f"Compliance Automations: {results['optimization_metrics']['compliance_automations']}")
+        print(
+    f"Cross-Database Optimizations: {results['optimization_metrics']['cross_database_optimizations']}")
+        print(
+    f"Performance Enhancements: {results['optimization_metrics']['performance_enhancements']}")
+        print(
+    f"Intelligence Improvements: {results['optimization_metrics']['intelligence_improvements']}")
+        print(
+    f"Compliance Automations: {results['optimization_metrics']['compliance_automations']}")
         print(f"Quantum Preparations: {results['optimization_metrics']['quantum_preparations']}")
         print(f"Optimization Success Rate: {results['optimization_success_rate']}")
         print(f"Duration: {results['execution_summary']['duration_seconds']:.1f} seconds")

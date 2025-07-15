@@ -116,7 +116,9 @@ class Phase6FixedEliminationSystem:
                 # Track modified files
                 all_files_modified.update(result.files_modified)
 
-                logging.info(f"{processor_name}: {result.eliminated_count}/{result.initial_count} eliminated ({result.elimination_rate:.1f}%)")
+                logging.info(
+    f"{processor_name}: {result.eliminated_count}/{result.initial_count} eliminated (
+    {result.elimination_rate:.1f}%)")
 
             except Exception as e:
                 logging.error(f"Failed to process {processor_name}: {e}")
@@ -229,7 +231,8 @@ class E999SyntaxErrorProcessor:
         elimination_rate = (eliminated_count / max(initial_count, 1)) * 100
         processing_time = time.time() - start_time
 
-        logging.info(f"E999 Processor: {eliminated_count}/{initial_count} corrected ({elimination_rate:.1f}%)")
+        logging.info(
+    f"E999 Processor: {eliminated_count}/{initial_count} corrected ({elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             initial_count=initial_count,
@@ -375,7 +378,8 @@ class F821TypeHintResolver:
         elimination_rate = (eliminated_count / max(initial_count, 1)) * 100
         processing_time = time.time() - start_time
 
-        logging.info(f"F821 Resolver: {eliminated_count}/{initial_count} resolved ({elimination_rate:.1f}%)")
+        logging.info(
+    f"F821 Resolver: {eliminated_count}/{initial_count} resolved ({elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             initial_count=initial_count,
@@ -532,7 +536,8 @@ class E501LineOptimizer:
         elimination_rate = (eliminated_count / max(initial_count, 1)) * 100
         processing_time = time.time() - start_time
 
-        logging.info(f"E501 Optimizer: {eliminated_count}/{initial_count} optimized ({elimination_rate:.1f}%)")
+        logging.info(
+    f"E501 Optimizer: {eliminated_count}/{initial_count} optimized ({elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             initial_count=initial_count,
@@ -688,7 +693,8 @@ class W293Whitespacedominator:
         elimination_rate = (eliminated_count / max(initial_count, 1)) * 100
         processing_time = time.time() - start_time
 
-        logging.info(f"W293 Dominator: {eliminated_count}/{initial_count} cleaned ({elimination_rate:.1f}%)")
+        logging.info(
+    f"W293 Dominator: {eliminated_count}/{initial_count} cleaned ({elimination_rate:.1f}%)")
 
         return ViolationMetrics(
             initial_count=initial_count,
