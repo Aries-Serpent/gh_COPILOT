@@ -577,6 +577,7 @@ def _run_sql_commands(
                         )
             conn.commit()
         return True, None
+    except sqlite3.Error as e:
         return False, str(e)
 
 
