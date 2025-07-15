@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
+import logging
 import sqlite3
 
 from database_driven_flake8_corrector_functional import \
-import logging
     DatabaseDrivenFlake8CorrectorFunctional
 
 

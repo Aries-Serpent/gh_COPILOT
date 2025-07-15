@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-import pytest
+import logging
 from pathlib import Path
 
-from database_first_windows_compatible_flake8_corrector import (
-import logging
-    DatabaseFirstFlake8Corrector,
-)
+import pytest
+
+from database_first_windows_compatible_flake8_corrector import \
+    DatabaseFirstFlake8Corrector
 
 
 def test_flake8_scan_handles_non_ascii(tmp_path):

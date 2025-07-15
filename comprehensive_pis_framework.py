@@ -11,8 +11,8 @@ Enterprise Standards Compliance:
 
 import logging
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -53,9 +53,22 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Validate the workspace and check for required documentation."""
+        if not self.workspace_path.exists():
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Workspace missing: {self.workspace_path}"
+            )
+            return False
+
+        readme = self.workspace_path / "README.md"
+        if readme.exists():
+            self.logger.info(f"{TEXT_INDICATORS['info']} README found")
+            return True
+
+        self.logger.warning(
+            f"{TEXT_INDICATORS['error']} README not found in {self.workspace_path}"
+        )
+        return False
 
 
 def main():
