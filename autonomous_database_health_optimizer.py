@@ -414,7 +414,8 @@ class AutonomousDatabaseHealthOptimizer:
         except sqlite3.DatabaseError as e:
             msg = "%s Error loading optimization history from database: %s"
             self.logger.error(msg, TEXT_INDICATORS['error'], e)
-            self.logger.error(msg)
+        self.logger.error(msg)
+
 
 def load_enhanced_strategies(self) -> Dict[str, OptimizationStrategy]:
     """Load enhanced optimization strategies"""
@@ -464,9 +465,10 @@ def load_enhanced_strategies(self) -> Dict[str, OptimizationStrategy]:
             expected_improvement=value["expected_improvement"],
             risk_level="medium",  # Default or adjust as needed
             execution_time=0.0,
-            success_rate=1.0  # Default value, adjust as needed
+            success_rate=1.0,  # Default success rate, adjust as needed
         )
     return strategies
+
 
 def select_optimal_strategies(
     self, health_metrics: DatabaseHealthMetrics
@@ -503,8 +505,8 @@ def select_optimal_strategies(
                 self.logger.warning(
                     msg, TEXT_INDICATORS['learn'], strategy
                 )
-
     return strategies
+
 
 def execute_optimization_strategy(
     self, database_name: str, strategy_id: str
@@ -523,9 +525,9 @@ def execute_optimization_strategy(
             error_msg, TEXT_INDICATORS['error'], strategy_id
         )
         return False
-
     strategy = strategies[strategy_id]
     return self._execute_strategy_commands(strategy, database_name)
+
 
 def _execute_strategy_commands(
     self, strategy: OptimizationStrategy, database_name: str
@@ -549,11 +551,11 @@ def _execute_strategy_commands(
         'execution_time': 0.0,  # Could be calculated if needed
         'success': success,
         'improvement': strategy.expected_improvement if success else None,
-        'error_message': error_message
+        'error_message': error_message,
     }
     self.store_optimization_result(result_data)
-
     return success
+
 
 def _run_sql_commands(
     self, db_path: Path, strategy: OptimizationStrategy
@@ -575,12 +577,8 @@ def _run_sql_commands(
                         )
             conn.commit()
         return True, None
-    except sqlite3.DatabaseError as e:
-        error_msg = "%s Error executing %s: %s"
-        self.logger.error(
-            error_msg, TEXT_INDICATORS['error'], strategy.strategy_id, e
-        )
         return False, str(e)
+
 
 def store_optimization_result(self, result_data: Dict[str, Any]):
     """Store optimization execution result"""
