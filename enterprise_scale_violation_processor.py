@@ -150,7 +150,7 @@ class ProcessingResults:
 class EnterpriseScaleViolationProcessor:
     """🏢 Enterprise-Scale Violation Processing Engine with Full Safety Measures"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
         # CRITICAL: Environment validation and anti-recursion protection
         self.validate_enterprise_environment()
 

@@ -426,11 +426,12 @@ def initialize_pis_framework_database_infrastructure():
     """Initialize complete PIS framework database infrastructure."""
     
     # Core database connections
+    workspace = os.getenv("GH_COPILOT_WORKSPACE", "/path/to/workspace")
     databases = {
-        'production': 'e:/gh_COPILOT/production.db',
-        'analytics': 'e:/gh_COPILOT/analytics.db', 
-        'monitoring': 'e:/gh_COPILOT/monitoring.db',
-        'pis_framework': 'e:/gh_COPILOT/pis_framework.db'
+        'production': f"{workspace}/production.db",
+        'analytics': f"{workspace}/analytics.db",
+        'monitoring': f"{workspace}/monitoring.db",
+        'pis_framework': f"{workspace}/pis_framework.db"
     }
     
     # PIS-specific table creation order

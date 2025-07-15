@@ -74,7 +74,7 @@ class Phase4ComprehensiveViolationDominator:
     Real file modification with aggressive cleanup strategies
     """
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
         # MANDATORY: Initialize with enterprise standards
         self.start_time = datetime.now()
         self.process_id = os.getpid()
@@ -454,8 +454,8 @@ class Phase4ComprehensiveViolationDominator:
                 self.total_eliminations += (initial_count - final_count)
 
                 logger.info(
-    f"# # # 📊 {violation_code} DOMINATION: {initial_count}→{final_count} (
-    {elimination_rate:.1f}% elimination)")
+                    f"# # # 📊 {violation_code} DOMINATION: {initial_count}→{final_count} ({elimination_rate:.1f}% elimination)"
+                )
                 pbar.update(1)
 
         return self.domination_results

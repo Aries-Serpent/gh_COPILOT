@@ -31,7 +31,7 @@ import os
 
 # Initialize with your environment
 platform = TemplateIntelligencePlatform(
-    environment_root=os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"),
+    environment_root=os.getenv("GH_COPILOT_WORKSPACE", "/path/to/workspace"),
     environment_type="development"
 )
 ```
