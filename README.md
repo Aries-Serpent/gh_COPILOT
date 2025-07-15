@@ -68,12 +68,12 @@ See `archives/validation_tests/README.md` for historical validation scripts that
 ### 🧪 **Running Tests**
 1. `pip install -r requirements-test.txt`  # installs qiskit-machine-learning for ML tests
 2. `make test`
-3. Machine learning tests rely on `qiskit-machine-learning` which is included in `requirements-test.txt` and `requirements-ml.txt`.
-4. If your environment shows multiple Qiskit packages, see [Qiskit 1.0 Environment Validation](docs/validation/Qiskit1.0_Environment_Validation.md) for cleanup steps.
 
-### 🧪 **Running Tests**
-1. `pip install -r requirements-test.txt`  # installs qiskit-machine-learning for ML tests
-2. `make test`
+Machine learning tests rely on `qiskit-machine-learning`, included in
+`requirements-test.txt` and `requirements-ml.txt`. If your environment
+shows multiple Qiskit packages, see
+[Qiskit 1.0 Environment Validation](docs/validation/Qiskit1.0_Environment_Validation.md)
+for cleanup steps.
 
 For detailed instructions, see the generated documentation files in this directory.
 See [Feature Matrix](documentation/generated/feature_matrix.md) for implemented vs. planned features.
