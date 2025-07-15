@@ -8,9 +8,12 @@
 
 ## Table Definitions
 
+<<<<<<< HEAD
 All legacy `placeholder_mapping` fields were removed during the 2025 upgrade.
 Production now stores mappings in a JSON `template_map` column where applicable.
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ### file_system_mapping
 
 ```sql
@@ -657,7 +660,11 @@ CREATE TABLE generated_scripts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT NOT NULL,
                 script_name TEXT NOT NULL,
+<<<<<<< HEAD
                 script_path TEXT NOT NULL,
+=======
+                script_content TEXT NOT NULL,
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
                 content_hash TEXT UNIQUE,
                 lines_of_code INTEGER,
                 functions_count INTEGER,
@@ -929,11 +936,31 @@ CREATE TABLE shared_templates (
                         template_id TEXT NOT NULL,
                         source_database TEXT NOT NULL,
                         template_content TEXT NOT NULL,
+<<<<<<< HEAD
+=======
+                        placeholder_mapping TEXT, -- JSON
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
                         sync_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                         sync_status TEXT DEFAULT 'active'
                     )
 ```
 
+<<<<<<< HEAD
+=======
+### shared_placeholders
+
+```sql
+CREATE TABLE shared_placeholders (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        placeholder_name TEXT NOT NULL,
+                        placeholder_type TEXT NOT NULL,
+                        category TEXT NOT NULL,
+                        source_database TEXT DEFAULT 'learning_monitor',
+                        local_override TEXT,
+                        sync_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )
+```
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 ## Relationships
 

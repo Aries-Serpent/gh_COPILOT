@@ -4,7 +4,11 @@
 
 - **Deployment Date**: 2025-07-06 19:01:26
 - **Version**: 1.0.0
+<<<<<<< HEAD
 - **Target Environment**: `$GH_COPILOT_WORKSPACE`
+=======
+- **Target Environment**: e:\gh_COPILOT
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 ## Components Deployed
 
@@ -22,6 +26,10 @@
 - analytics.db
 - template_completion.db
 - enhanced_intelligence.db
+<<<<<<< HEAD
+=======
+- optimization_metrics.db
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 - executive_alerts.db
 - instruction_orchestrator.db
 - documentation_sync.db
@@ -54,11 +62,18 @@
 - autonomous_regeneration: Enabled
 - web_gui_dashboard: Enabled
 - enterprise_compliance: Enabled
+<<<<<<< HEAD
 - quantum_modules_simulation: Enabled (all quantum features run via simulators; hardware execution is disabled)
 
 ## Directory Structure
 - core: Core system components
 - databases: 27 SQLite databases
+=======
+
+## Directory Structure
+- core: Core system components
+- databases: 32 SQLite databases
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 - templates: Template Intelligence Platform
 - web_gui: Flask enterprise dashboard
 - scripts: about 440 Python scripts
@@ -73,6 +88,10 @@
 ### Database Synchronization
 
 The `database_sync_scheduler.py` script consumes
+<<<<<<< HEAD
 `documentation/DATABASE_LIST.md` to loop over all 27 databases.
+=======
+`documentation/DATABASE_LIST.md` to loop over all 32 databases.
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 It copies the master `production.db` into every other database,
 keeping the entire toolkit in sync.

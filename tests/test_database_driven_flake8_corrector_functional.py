@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 import sqlite3
 
+<<<<<<< HEAD
 from scripts.database.database_driven_flake8_corrector_functional import DatabaseDrivenFlake8CorrectorFunctional
+=======
+from database_driven_flake8_corrector_functional import \
+import logging
+    DatabaseDrivenFlake8CorrectorFunctional
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_corrector_records_corrections(tmp_path):
@@ -21,11 +27,22 @@ def test_corrector_records_corrections(tmp_path):
     py_file = tmp_path / "bad.py"
     py_file.write_text("print('hi')  \n")
 
+<<<<<<< HEAD
     corrector = DatabaseDrivenFlake8CorrectorFunctional(workspace_path=str(tmp_path), db_path=str(db_path))
     success = corrector.execute_correction()
     assert success
     with sqlite3.connect(db_path) as conn:
         rows = conn.execute("SELECT original_line, corrected_line FROM correction_history").fetchall()
+=======
+    corrector = DatabaseDrivenFlake8CorrectorFunctional(
+        workspace_path=str(tmp_path), db_path=str(db_path))
+    success = corrector.execute_correction()
+    assert success
+    with sqlite3.connect(db_path) as conn:
+        rows = conn.execute(
+            "SELECT original_line, corrected_line FROM correction_history"
+        ).fetchall()
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     assert rows
     # trailing whitespace removed by autopep8
     assert rows[0][1] == "print('hi')"
@@ -51,12 +68,27 @@ def test_unicode_paths_and_progress(tmp_path):
     for i in range(2):
         (unicode_dir / f"file{i}.py").write_text("print('hi')  \n")
 
+<<<<<<< HEAD
     corrector = DatabaseDrivenFlake8CorrectorFunctional(workspace_path=str(unicode_dir), db_path=str(db_path))
     assert corrector.execute_correction()
 
     with sqlite3.connect(db_path) as conn:
         recorded = conn.execute("SELECT file_path, corrected_line FROM correction_history").fetchall()
         progress = conn.execute("SELECT last_file_index, total_files FROM correction_progress WHERE id=1").fetchone()
+=======
+    corrector = DatabaseDrivenFlake8CorrectorFunctional(
+        workspace_path=str(unicode_dir), db_path=str(db_path)
+    )
+    assert corrector.execute_correction()
+
+    with sqlite3.connect(db_path) as conn:
+        recorded = conn.execute(
+            "SELECT file_path, corrected_line FROM correction_history"
+        ).fetchall()
+        progress = conn.execute(
+            "SELECT last_file_index, total_files FROM correction_progress WHERE id=1"
+        ).fetchone()
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
     assert len(recorded) >= 1
     assert all(r[1] == "print('hi')" for r in recorded)

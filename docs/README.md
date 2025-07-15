@@ -2,15 +2,19 @@
 
 This folder contains helper documentation for keeping repository metrics in sync.
 
+<<<<<<< HEAD
 On every push the CI pipeline automatically runs
 `scripts/generate_docs_metrics.py` followed by
 `scripts/validate_docs_metrics.py` to ensure documentation statistics stay
 consistent with the production database.
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ## Updating Metrics
 
 Run `python scripts/generate_docs_metrics.py` to refresh metrics in the main
 `README.md` and under `documentation/generated/`. The script queries
+<<<<<<< HEAD
 `databases/production.db` for the current number of tracked scripts and templates and counts
 database entries from `documentation/DATABASE_LIST.md`. Use the
 `--db-path` option to specify an alternate database file if needed.
@@ -20,30 +24,45 @@ python -m scripts.docs_metrics_validator
 python scripts/wlc_session_manager.py --db-path databases/production.db
 ```
 The session manager records the update in `production.db` and writes a log file under `$GH_COPILOT_BACKUP_ROOT/logs`.
+=======
+`production.db` for the current number of tracked scripts and templates and counts
+database entries from `documentation/DATABASE_LIST.md`.
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 ## Validation
 
 After updating documentation, execute
+<<<<<<< HEAD
 `python -m scripts.docs_metrics_validator`. The validator compares the numbers in
 `README.md`, `documentation/generated/README.md`, and the technical whitepaper (`docs/COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md`)
 against the real database values. Pass `--db-path` to override the database
 location. The command exits with an error if any values are inconsistent. The
 alias script `scripts/docs_metrics_validator.py` remains available for legacy
 calls.
+=======
+`python scripts/validate_docs_metrics.py`. The validator compares the numbers in
+`README.md`, `documentation/generated/README.md`, and the technical whitepaper
+against the real database values. The command exits with an error if any values
+are inconsistent.
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 This workflow ensures that documentation statistics accurately reflect the
 contents of the production database.
 
+<<<<<<< HEAD
 ### Related Requirements
 - **Database Maintenance Scheduler:** see [SYSTEM_OVERVIEW.md](../documentation/SYSTEM_OVERVIEW.md#database-synchronization).
 - **Validation Helper:** see [DATABASE_FIRST_USAGE_GUIDE.md](DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement).
 - **Visual Indicator Standards:** see [GITHUB_COPILOT_INTEGRATION_NOTES.md](GITHUB_COPILOT_INTEGRATION_NOTES.md#visual-processing).
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ## Resetting Benchmark Baselines
 
 Benchmark results are stored in ``benchmark_metrics.db``. Remove this file to
 clear previous baselines. The next call to ``benchmark()`` will generate a new
 baseline entry.
+<<<<<<< HEAD
 
 
 ## Additional Guides
@@ -103,3 +122,5 @@ in production builds. Importing them while `GH_COPILOT_ENV` is set to
 They remain importable for experimentation and planning.
 Progress on these placeholders and other pending modules is tracked in
 [STUB_MODULE_STATUS.md](STUB_MODULE_STATUS.md).
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

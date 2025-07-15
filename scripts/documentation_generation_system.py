@@ -8,17 +8,23 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+<<<<<<< HEAD
 
 import sys
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 import os
 
+=======
+import sys
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 import logging
 from pathlib import Path
 from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
+<<<<<<< HEAD
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
@@ -37,6 +43,20 @@ class EnterpriseUtility:
     def __init__(self, workspace_path: str | None = None):
         if workspace_path is None:
             workspace_path = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")
+=======
+TEXT_INDICATORS = {
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'info': '[INFO]'
+}
+
+
+class EnterpriseUtility:
+    """Enterprise utility class"""
+
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
@@ -51,7 +71,12 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
+<<<<<<< HEAD
                 self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+=======
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -62,6 +87,7 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
+<<<<<<< HEAD
         """Generate documentation files from the documentation database."""
         workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path))
         db_path = workspace / "databases" / "documentation.db"
@@ -99,6 +125,11 @@ class EnterpriseUtility:
         except Exception as exc:
             self.logger.error(f"{TEXT_INDICATORS['error']} Generation failed: {exc}")
             return False
+=======
+        """Perform the utility function"""
+        # Implementation placeholder
+        return True
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def main():
@@ -106,9 +137,12 @@ def main():
     utility = EnterpriseUtility()
     success = utility.execute_utility()
 
+<<<<<<< HEAD
     validator = SecondaryCopilotValidator()
     validator.validate_corrections([__file__])
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     if success:
         print(f"{TEXT_INDICATORS['success']} Utility completed")
     else:
@@ -118,5 +152,9 @@ def main():
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+=======
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     success = main()
     sys.exit(0 if success else 1)

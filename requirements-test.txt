@@ -1,11 +1,15 @@
 requests
 pytest
+<<<<<<< HEAD
 pytest-cov
 pytest-timeout
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 psutil
 tqdm
 numpy
 scikit-learn
+<<<<<<< HEAD
 Flask==3.1.1
 qiskit>=1.4,<2.0
 qiskit-aer==0.17.1
@@ -15,3 +19,10 @@ dill>=0.3.7
 py7zr
 schedule
 ruff
+=======
+Flask
+qiskit>=1.4,<2.0
+qiskit-aer==0.17.1
+qiskit-machine-learning>=0.6.0
+dill>=0.3.7
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

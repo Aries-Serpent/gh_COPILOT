@@ -11,6 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application source
 COPY . /app
+<<<<<<< HEAD
 
 
 RUN chown -R appuser:appgroup /app
@@ -22,6 +23,12 @@ RUN cp .env.example .env
 ENV GH_COPILOT_WORKSPACE=/app
 ENV GH_COPILOT_BACKUP_ROOT=/backup
 ENV FLASK_SECRET_KEY=changeme
+=======
+RUN chown -R appuser:appgroup /app
+
+# Set default workspace environment variable
+ENV GH_COPILOT_WORKSPACE=/app
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 # Switch to the non-root user
 USER appuser
@@ -36,9 +43,13 @@ USER appuser
 # Port 8080: Web interface
 EXPOSE 5000 5001 5002 5003 5004 5005 5006 8080
 
+<<<<<<< HEAD
 HEALTHCHECK --interval=30s --timeout=5s CMD ["python", "scripts/docker_healthcheck.py"]
 
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["python", "scripts/docker_entrypoint.py"]
+=======
+CMD ["python", "main.py"]
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

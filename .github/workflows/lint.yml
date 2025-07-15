@@ -1,0 +1,17 @@
+name: Lint Python
+
+on: [pull_request, push]
+
+jobs:
+  flake8-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Flake8
+        run: pip install flake8
+      - name: Run Flake8
+        run: flake8 --config=.flake8 . --count --show-source --statistics

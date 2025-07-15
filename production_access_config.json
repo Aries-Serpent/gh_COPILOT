@@ -1,0 +1,25 @@
+{
+  "authentication": {
+    "multi_factor_auth": "required",
+    "password_policy": {
+      "min_length": 12,
+      "complexity": "high",
+      "rotation_days": 90
+    },
+    "session_management": {
+      "timeout_minutes": 30,
+      "concurrent_sessions": 1,
+      "idle_timeout": 15
+    }
+  },
+  "authorization": {
+    "role_based_access": "enabled",
+    "principle_of_least_privilege": "enforced",
+    "permission_inheritance": "controlled"
+  },
+  "access_monitoring": {
+    "login_attempts": "tracked",
+    "privilege_escalation": "monitored",
+    "suspicious_activity": "flagged"
+  }
+}

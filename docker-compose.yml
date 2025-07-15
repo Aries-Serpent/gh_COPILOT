@@ -2,6 +2,7 @@ version: '3.8'
 services:
   app:
     build: .
+<<<<<<< HEAD
     command: python dashboard/enterprise_dashboard.py
     environment:
       - GH_COPILOT_WORKSPACE=/app
@@ -20,15 +21,32 @@ services:
     volumes:
       - .:/app
       - ${GH_COPILOT_BACKUP_ROOT:-/backup}:/backup
+=======
+    command: python main.py
+    environment:
+      - GH_COPILOT_WORKSPACE=/app
+    volumes:
+      - .:/app
+  web_gui:
+    build: .
+    command: python web_gui/app.py
+    environment:
+      - GH_COPILOT_WORKSPACE=/app
+    volumes:
+      - .:/app
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     ports:
       - "5000:5000"
       - "5001:5001"
       - "5002:5002"
+<<<<<<< HEAD
       - "5003:5003"
       - "5004:5004"
       - "5005:5005"
       - "5006:5006"
       - "8080:8080"
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     depends_on:
       - app
   monitoring:
@@ -36,10 +54,15 @@ services:
     command: python unified_monitoring_optimization_system.py --verify-continuous-operation
     environment:
       - GH_COPILOT_WORKSPACE=/app
+<<<<<<< HEAD
       - GH_COPILOT_BACKUP_ROOT=/backup
       - FLASK_SECRET_KEY=${FLASK_SECRET_KEY:-your_secret_key}
     volumes:
       - .:/app
       - ${GH_COPILOT_BACKUP_ROOT:-/backup}:/backup
+=======
+    volumes:
+      - .:/app
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     depends_on:
       - app

@@ -5,6 +5,7 @@ import builtins
 import logging
 import os
 import sqlite3
+<<<<<<< HEAD
 import threading
 from pathlib import Path
 from time import perf_counter, sleep
@@ -12,11 +13,18 @@ from typing import Dict, Iterable, Optional
 
 from quantum_algorithm_library_expansion import quantum_score_stub
 
+=======
+from pathlib import Path
+from time import perf_counter
+from typing import Dict, Iterable, Optional
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "analytics.db"
 
 WEB_DASHBOARD_ENABLED = os.getenv("WEB_DASHBOARD_ENABLED") == "1"
 
+<<<<<<< HEAD
 RESPONSE_TIME_ALERT_MS = 100.0
 ERROR_RATE_ALERT = 0.05
 ANOMALY_DEVIATION = 25.0
@@ -35,6 +43,11 @@ __all__ = [
     "ml_anomaly_detect",
     "quantum_hook",
 ]
+=======
+logger = logging.getLogger(__name__)
+
+__all__ = ["track_query_time", "record_error", "ensure_table", "benchmark_queries"]
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def _ensure_table(conn: sqlite3.Connection) -> None:
@@ -59,14 +72,24 @@ def ensure_table(conn: sqlite3.Connection) -> None:
 def _compute_metrics(conn: sqlite3.Connection) -> Dict[str, float]:
     cur = conn.execute("SELECT AVG(response_time_ms) FROM query_performance WHERE is_error = 0")
     avg_response = cur.fetchone()[0] or 0.0
+<<<<<<< HEAD
     cur = conn.execute("SELECT SUM(is_error), COUNT(*) FROM query_performance")
     errors, total = cur.fetchone()
     error_rate = (errors or 0) / total if total else 0.0
     metrics = {
+=======
+    cur = conn.execute(
+        "SELECT SUM(is_error), COUNT(*) FROM query_performance"
+    )
+    errors, total = cur.fetchone()
+    error_rate = (errors or 0) / total if total else 0.0
+    return {
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
         "avg_response_time_ms": avg_response,
         "error_rate": error_rate,
         "within_time_target": avg_response < 50.0,
         "within_error_target": error_rate < 0.01,
+<<<<<<< HEAD
         "response_time_alert": avg_response > RESPONSE_TIME_ALERT_MS,
         "error_rate_alert": error_rate > ERROR_RATE_ALERT,
     }
@@ -90,6 +113,9 @@ def quantum_hook(metrics: Dict[str, float]) -> float:
     score = quantum_score_stub(values)
     metrics["quantum_score"] = score
     return score
+=======
+    }
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def _update_dashboard(metrics: Dict[str, float]) -> None:
@@ -97,7 +123,13 @@ def _update_dashboard(metrics: Dict[str, float]) -> None:
         logger.info("[DASHBOARD] %s", metrics)
 
 
+<<<<<<< HEAD
 def track_query_time(query_name: str, duration_ms: float, db_path: Optional[Path] = None) -> Dict[str, float]:
+=======
+def track_query_time(
+    query_name: str, duration_ms: float, db_path: Optional[Path] = None
+) -> Dict[str, float]:
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     """Record a query's response time and return aggregate metrics."""
     path = db_path or DB_PATH
     with sqlite3.connect(path) as conn:
@@ -112,7 +144,13 @@ def track_query_time(query_name: str, duration_ms: float, db_path: Optional[Path
     return metrics
 
 
+<<<<<<< HEAD
 def record_error(query_name: str, db_path: Optional[Path] = None) -> Dict[str, float]:
+=======
+def record_error(
+    query_name: str, db_path: Optional[Path] = None
+) -> Dict[str, float]:
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     """Record an error occurrence for a query and return aggregate metrics."""
     path = db_path or DB_PATH
     with sqlite3.connect(path) as conn:
@@ -128,7 +166,13 @@ def record_error(query_name: str, db_path: Optional[Path] = None) -> Dict[str, f
     return metrics
 
 
+<<<<<<< HEAD
 def benchmark_queries(queries: Iterable[str], db_path: Optional[Path] = None) -> Dict[str, float]:
+=======
+def benchmark_queries(
+    queries: Iterable[str], db_path: Optional[Path] = None
+) -> Dict[str, float]:
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     """Execute queries while tracking performance metrics."""
     metrics: Dict[str, float] = {}
     path = db_path or DB_PATH
@@ -137,8 +181,12 @@ def benchmark_queries(queries: Iterable[str], db_path: Optional[Path] = None) ->
         try:
             with sqlite3.connect(path) as conn:
                 conn.execute(query)
+<<<<<<< HEAD
         except sqlite3.Error as exc:
             logger.error("Query failed: %s", exc)
+=======
+        except Exception:
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
             metrics = record_error(query, db_path=path)
         else:
             duration = (perf_counter() - start) * 1000
@@ -146,6 +194,7 @@ def benchmark_queries(queries: Iterable[str], db_path: Optional[Path] = None) ->
     return metrics
 
 
+<<<<<<< HEAD
 def push_metrics(db_path: Optional[Path] = None) -> Dict[str, float]:
     """Compute aggregate metrics and store them in ``analytics.db``."""
 
@@ -190,4 +239,6 @@ def schedule_metrics_push(
     return thread
 
 
+=======
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 builtins.benchmark_queries = benchmark_queries

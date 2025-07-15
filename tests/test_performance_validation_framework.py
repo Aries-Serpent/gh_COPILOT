@@ -3,7 +3,13 @@ import sqlite3
 import time
 from pathlib import Path
 
+<<<<<<< HEAD
 from scripts.validation.performance_validation_framework import PerformanceValidationFramework
+=======
+
+from performance_validation_framework import PerformanceValidationFramework
+import logging
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def _patch_algorithms(monkeypatch, delay: float) -> None:
@@ -11,6 +17,7 @@ def _patch_algorithms(monkeypatch, delay: float) -> None:
         time.sleep(delay)
         return {}
 
+<<<<<<< HEAD
     monkeypatch.setattr("scripts.validation.performance_validation_framework.run_grover_search", _sleep)
     monkeypatch.setattr("scripts.validation.performance_validation_framework.run_kmeans_clustering", _sleep)
     monkeypatch.setattr("scripts.validation.performance_validation_framework.run_simple_qnn", _sleep)
@@ -31,6 +38,34 @@ def _patch_algorithms(monkeypatch, delay: float) -> None:
     monkeypatch.setattr(
         "scripts.validation.performance_validation_framework.SecondaryCopilotValidator.validate_corrections",
         lambda self, files: True,
+=======
+    monkeypatch.setattr(
+        'performance_validation_framework.run_grover_search', _sleep
+    )
+    monkeypatch.setattr(
+        'performance_validation_framework.run_kmeans_clustering', _sleep
+    )
+    monkeypatch.setattr(
+        'performance_validation_framework.run_simple_qnn', _sleep
+    )
+    monkeypatch.setattr(
+        'performance_validation_framework.TemplateSynthesisEngine.synthesize_templates',
+        lambda self: ["tmpl"] * 5
+    )
+    monkeypatch.setattr(
+        'performance_validation_framework.Database \
+            DrivenFlake8CorrectorFunctional.scan_python_files',
+        lambda self: [Path("a.py")] * 5
+    )
+    monkeypatch.setattr(
+        'performance_validation_framework.DatabaseD \
+            rivenFlake8CorrectorFunctional.execute_correction',
+        lambda self: True
+    )
+    monkeypatch.setattr(
+        'performance_validation_framework.SecondaryCopilotValidator.validate_corrections',
+        lambda self, files: True
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     )
 
 
@@ -41,7 +76,13 @@ def test_baseline_and_regressions(tmp_path, monkeypatch):
     framework = PerformanceValidationFramework(str(db))
     baseline = framework.run_benchmarks(store_baseline=True)
     with sqlite3.connect(db) as conn:
+<<<<<<< HEAD
         count = conn.execute("SELECT COUNT(*) FROM performance_baseline").fetchone()[0]
+=======
+        count = conn.execute(
+            "SELECT COUNT(*) FROM performance_baseline"
+        ).fetchone()[0]
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     assert count == len(baseline)
 
     # faster second run

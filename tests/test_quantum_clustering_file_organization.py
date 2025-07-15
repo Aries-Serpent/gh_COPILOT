@@ -2,7 +2,11 @@
 import logging
 import os
 
+<<<<<<< HEAD
 from scripts.utilities.quantum_clustering_file_organization import EnterpriseUtility
+=======
+from quantum_clustering_file_organization import EnterpriseUtility
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def test_quantum_clustering(tmp_path, caplog):
@@ -31,9 +35,15 @@ def test_quantum_clustering(tmp_path, caplog):
     labels = {}
     for record in caplog.records:
         msg = record.getMessage()
+<<<<<<< HEAD
         if msg.startswith("[INFO]") and "cluster" in msg:
             name, label = msg.split()[1], msg.split()[-1]
             labels[name.rstrip(":")] = int(label)
+=======
+        if msg.startswith('[INFO]') and 'cluster' in msg:
+            name, label = msg.split()[1], msg.split()[-1]
+            labels[name.rstrip(':')] = int(label)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
     assert len(labels) == 4
     assert len(set(labels.values())) == 2

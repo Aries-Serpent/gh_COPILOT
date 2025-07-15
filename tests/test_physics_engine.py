@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 
+<<<<<<< HEAD
 import numpy as np_module
 from qiskit import QuantumCircuit
 
@@ -10,11 +11,25 @@ try:
     from qiskit.algorithms import Shor
 except Exception:  # pragma: no cover - use local stub
     from copilot_qiskit_stubs.algorithms import Shor  # type: ignore
+=======
+import numpy as np
+from qiskit import QuantumCircuit
+try:
+    from qiskit.algorithms import Shor
+except Exception:  # pragma: no cover - use local fallback
+    from physics_optimization_engine import Shor  # type: ignore
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 from qiskit.circuit.library import QFT
 from qiskit.quantum_info import Statevector
 from qiskit_aer import AerSimulator
 
+<<<<<<< HEAD
 from scripts.optimization.physics_optimization_engine import PhysicsOptimizationEngine
+=======
+from physics_optimization_engine import PhysicsOptimizationEngine
+import numpy as np
+import logging
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 
 def _grover_index(expected_index: int, num_qubits: int) -> int:
@@ -47,7 +62,11 @@ def _grover_index(expected_index: int, num_qubits: int) -> int:
         circ.x(range(num_qubits))
         circ.h(range(num_qubits))
 
+<<<<<<< HEAD
     iterations = max(1, int(math.pi / 4 * math.sqrt(2**num_qubits)))
+=======
+    iterations = max(1, int(math.pi / 4 * math.sqrt(2 ** num_qubits)))
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
     for _ in range(iterations):
         oracle(qc)
         diffusion(qc)
@@ -84,4 +103,8 @@ def test_fourier_transform():
     qc.append(QFT(2, do_swaps=False), range(2))
     expected = Statevector.from_instruction(qc).data.tolist()
     assert len(result) == len(expected)
+<<<<<<< HEAD
     assert np_module.allclose(result, expected)
+=======
+    assert np.allclose(result, expected)
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)

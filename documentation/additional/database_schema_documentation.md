@@ -3,6 +3,10 @@
 **Generated:** 2025-07-03 02:57:07  
 **Version:** 1.0.0  
 **System:** Enterprise Template Intelligence Platform  
+<<<<<<< HEAD
+=======
+
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 ## Overview
 
 This document provides comprehensive documentation for the Template Intelligence Platform database schemas. The platform utilizes 8 specialized databases to manage template intelligence, environment adaptation, and cross-database aggregation.
@@ -636,6 +640,7 @@ The Template Intelligence Platform employs a multi-database architecture with th
 **Type:** Core  
 **Description:** Template placeholder definitions and configurations
 
+<<<<<<< HEAD
 Entries in this table define allowed placeholders for all templates. Each
 placeholder type includes an optional validation pattern and default value.
 Usage statistics are aggregated in `template_usage_analytics`.
@@ -643,6 +648,12 @@ Usage statistics are aggregated in `template_usage_analytics`.
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | id | INTEGER | PRIMARY KEY | - |
+=======
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | INTEGER | PRIMARY KEY | - |
+| placeholder_name | TEXT | NOT NULL | - |
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 | placeholder_type | TEXT | NOT NULL | - |
 | default_value | TEXT |  | - |
 | description | TEXT | NOT NULL | - |
@@ -656,6 +667,10 @@ Usage statistics are aggregated in `template_usage_analytics`.
 **Indexes:**
 
 - `idx_placeholders_type`
+<<<<<<< HEAD
+=======
+- `idx_placeholder_name`
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 - `sqlite_autoindex_template_placeholders_1`
 
 #### code_pattern_analysis
@@ -671,6 +686,10 @@ Usage statistics are aggregated in `template_usage_analytics`.
 | pattern_type | TEXT | NOT NULL | - |
 | pattern_content | TEXT | NOT NULL | - |
 | confidence_score | REAL | DEFAULT 0.0 | - |
+<<<<<<< HEAD
+=======
+| placeholder_suggestions | TEXT |  | - |
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 | frequency_count | INTEGER | DEFAULT 1 | - |
 | analysis_timestamp | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | - |
 | environment_context | TEXT |  | - |
@@ -742,15 +761,26 @@ Usage statistics are aggregated in `template_usage_analytics`.
 - `idx_mapping_source`
 - `sqlite_autoindex_cross_database_template_mapping_1`
 
+<<<<<<< HEAD
 #### template_usage_analytics
 
 **Type:** Analytics
 **Description:** Records template usage metrics
+=======
+#### placeholder_usage_analytics
+
+**Type:** Unknown  
+**Description:** Table description not available
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | id | INTEGER | PRIMARY KEY | - |
 | usage_id | TEXT | NOT NULL | - |
+<<<<<<< HEAD
+=======
+| placeholder_name | TEXT | NOT NULL | - |
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 | template_id | TEXT |  | - |
 | environment | TEXT |  | - |
 | usage_context | TEXT |  | - |
@@ -763,11 +793,20 @@ Usage statistics are aggregated in `template_usage_analytics`.
 **Foreign Keys:**
 
 - `template_id` → `enhanced_templates.id`
+<<<<<<< HEAD
 
 **Indexes:**
 
 - `idx_usage_template`
 - `sqlite_autoindex_template_usage_analytics_1`
+=======
+- `placeholder_name` → `template_placeholders.placeholder_name`
+
+**Indexes:**
+
+- `idx_usage_placeholder`
+- `sqlite_autoindex_placeholder_usage_analytics_1`
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 #### environment_adaptation_intelligence
 
@@ -1790,7 +1829,11 @@ Usage statistics are aggregated in `template_usage_analytics`.
 | id | INTEGER | PRIMARY KEY | - |
 | session_id | TEXT | NOT NULL | - |
 | script_name | TEXT | NOT NULL | - |
+<<<<<<< HEAD
 | script_path | TEXT | NOT NULL | - |
+=======
+| script_content | TEXT | NOT NULL | - |
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 | content_hash | TEXT |  | - |
 | lines_of_code | INTEGER |  | - |
 | functions_count | INTEGER |  | - |
@@ -2275,12 +2318,22 @@ Usage statistics are aggregated in `template_usage_analytics`.
   - `template_id` → `id`
   - template_intelligence.template_id references enhanced_templates.id
 
+<<<<<<< HEAD
 - **template_usage_analytics** many-to-one **enhanced_templates**
   - `template_id` → `id`
   - template_usage_analytics.template_id references enhanced_templates.id
 
 - **template_usage_analytics** many-to-one **template_placeholders**
   - tracks how often each placeholder is used during generation
+=======
+- **placeholder_usage_analytics** many-to-one **enhanced_templates**
+  - `template_id` → `id`
+  - placeholder_usage_analytics.template_id references enhanced_templates.id
+
+- **placeholder_usage_analytics** many-to-one **template_placeholders**
+  - `placeholder_name` → `placeholder_name`
+  - placeholder_usage_analytics.placeholder_name references template_placeholders.placeholder_name
+>>>>>>> 072d1e7e (Nuclear fix: Complete repository rebuild - 2025-07-14 22:31:03)
 
 - **environment_variables** many-to-one **environment_profiles**
   - `profile_id` → `profile_id`
