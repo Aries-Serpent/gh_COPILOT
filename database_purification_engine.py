@@ -13,17 +13,17 @@ Achievement Foundation:
 
 Next Phase: Database Content Purification
 """
+import datetime
+import json
+import logging
+import os
+import shutil
+import sqlite3
+import sys
 from pathlib import Path
-from tqdm import tqdm
 from typing import Any, Dict, List, Optional
 
-import os
-import sys
-import sqlite3
-import json
-import datetime
-import logging
-import shutil
+from tqdm import tqdm
 
 
 class DatabasePurificationEngine:
@@ -199,16 +199,15 @@ class DatabasePurificationEngine:
 
                         for column in columns:
                             column_name = column[1]
-
                             # Check for NULL values
                             cursor.execute(
-    f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} IS NULL")
+                                f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} IS NULL"
+                            )
                             null_count = cursor.fetchone()[0]
 
                             if null_count > 0:
                                 self.logger.warning(
-                                    f"[WARNING] NULL values found: {table_name}.{column_name} (
-    {null_count})"
+                                    f"[WARNING] NULL values found: {table_name}.{column_name} ({null_count})"
                                 )
 
             except Exception as e:
@@ -241,7 +240,7 @@ class DatabasePurificationEngine:
                                         f"[WARNING] Foreign key violations: {len(result)}"
                                     )
                                     self.purification_metrics["corrupted_entries_found"] += len(
-    result)
+                                        result)
                             else:
                                 corruption_count = result[0][0] if result else 0
                                 if corruption_count > 0:
@@ -261,7 +260,7 @@ class DatabasePurificationEngine:
             try:
                 # Create backup before repair
                 backup_path = f"{db_path}.backup_{datetime.datetime.now(
-    ).strftime('%Y%m%d_%H%M%S')}"
+                ).strftime('%Y%m%d_%H%M%S')}"
                 shutil.copy2(str(db_path), backup_path)
                 self.logger.info(f"[INFO] Backup created: {backup_path}")
 
@@ -320,20 +319,19 @@ class DatabasePurificationEngine:
 
                     # Common patterns that benefit from indexes
                     if any(
-    pattern in column_name.lower() for pattern in ['id', 'name', 'path', 'timestamp']):
+                            pattern in column_name.lower() for pattern in ['id', 'name', 'path', 'timestamp']):
                         # Check if index already exists
                         cursor.execute(f"PRAGMA index_list({table_name})")
                         existing_indexes = cursor.fetchall()
 
                         index_exists = any(
-    column_name in idx[1] for idx in existing_indexes if idx[1])
+                            column_name in idx[1] for idx in existing_indexes if idx[1])
 
                         if not index_exists:
                             try:
                                 index_name = f"idx_{table_name}_{column_name}"
                                 cursor.execute(
-                                    f"CREATE INDEX IF NOT EXISTS {index_name} ON {table_name}(
-    {column_name})"
+                                    f"CREATE INDEX IF NOT EXISTS {index_name} ON {table_name}({column_name})"
                                 )
                                 self.logger.info(f"[SUCCESS] Index created: {index_name}")
                                 self.purification_metrics["schema_optimizations"] += 1
@@ -429,9 +427,9 @@ def main():
         print(f"Databases Processed: {results['databases_discovered']}")
         print(f"Entries Audited: {results['purification_metrics']['entries_audited']}")
         print(
-    f"Corrupted Entries Found: {results['purification_metrics']['corrupted_entries_found']}")
+            f"Corrupted Entries Found: {results['purification_metrics']['corrupted_entries_found']}")
         print(
-    f"Performance Improvements: {results['purification_metrics']['performance_improvements']}")
+            f"Performance Improvements: {results['purification_metrics']['performance_improvements']}")
         print(f"Schema Optimizations: {results['purification_metrics']['schema_optimizations']}")
         print(f"Duration: {results['execution_summary']['duration_seconds']:.1f} seconds")
         print(f"Status: {results['status']}")

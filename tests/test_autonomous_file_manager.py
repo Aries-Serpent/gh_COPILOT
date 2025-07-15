@@ -8,11 +8,10 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
-import sys
-
 import logging
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -69,6 +68,12 @@ def main():
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
     return success
+
+
+def test_execute_utility(tmp_path):
+    """Ensure the utility executes successfully."""
+    util = EnterpriseUtility(workspace_path=str(tmp_path))
+    assert util.execute_utility()
 
 
 if __name__ == "__main__":
