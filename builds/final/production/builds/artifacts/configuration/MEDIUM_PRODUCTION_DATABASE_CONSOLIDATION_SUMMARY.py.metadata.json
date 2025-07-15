@@ -1,0 +1,9 @@
+{
+  "original_path": "e:\\gh_COPILOT\\scripts\\deployment\\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py",
+  "archive_path": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\scripts\\deployment\\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py",
+  "migration_id": "DB_MIGRATION_20250707_074327",
+  "migration_timestamp": "2025-07-07T07:43:27.631394",
+  "file_size": 7346,
+  "last_modified": "2025-07-06T18:33:33.357181",
+  "consolidated_into": "unified_database_management_system.py"
+}

@@ -1,0 +1,24 @@
+{
+  "resource_scaling": {
+    "cpu_scaling": {
+      "min_cores": 2,
+      "max_cores": 32,
+      "scaling_step": 2
+    },
+    "memory_scaling": {
+      "min_memory_gb": 4,
+      "max_memory_gb": 256,
+      "scaling_step_gb": 4
+    },
+    "storage_scaling": {
+      "min_storage_gb": 100,
+      "max_storage_gb": 10240,
+      "scaling_step_gb": 100
+    }
+  },
+  "scaling_automation": {
+    "predictive_scaling": "enabled",
+    "schedule_based_scaling": "enabled",
+    "manual_override": "enabled"
+  }
+}

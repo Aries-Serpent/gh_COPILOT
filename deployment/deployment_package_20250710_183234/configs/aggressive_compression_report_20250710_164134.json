@@ -1,0 +1,52 @@
+{
+  "timestamp": "2025-07-10T16:40:57.966718",
+  "original_size_mb": 105.89453125,
+  "target_size_mb": 99,
+  "phases": {
+    "\ud83d\udcca Analysis": {
+      "current_size_mb": 105.89453125,
+      "target_size_mb": 99,
+      "reduction_needed_mb": 6.89453125,
+      "reduction_needed_percent": 6.5107528864952595,
+      "table_sizes": {
+        "enterprise_documentation": {
+          "rows": 267,
+          "content_size_bytes": 35159993
+        },
+        "documentation_relationships": {
+          "rows": 0
+        },
+        "documentation_analytics": {
+          "rows": 1421
+        },
+        "documentation_templates": {
+          "rows": 5
+        }
+      }
+    },
+    "\ud83d\udddc\ufe0f Content Compression": {
+      "docs_processed": 107,
+      "bytes_saved": 25718,
+      "compressed_content_count": 57,
+      "whitespace_optimized": 0
+    },
+    "\ud83d\uddd1\ufe0f Redundant Data Removal": {
+      "duplicate_analytics_removed": 1155,
+      "orphaned_relationships_removed": 0,
+      "empty_templates_removed": 0,
+      "obsolete_records_removed": 0
+    },
+    "\ud83c\udfd7\ufe0f Structure Optimization": {
+      "structure_optimized": true
+    },
+    "\ud83c\udfaf Final Compression": {
+      "target_achieved": false,
+      "final_size_mb": 105.94140625,
+      "reduction_achieved_mb": 0.0
+    }
+  },
+  "final_size_mb": 105.94140625,
+  "reduction_mb": -0.046875,
+  "reduction_percent": -0.04426574200450035,
+  "target_achieved": false
+}

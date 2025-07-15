@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    command: python main.py
+    environment:
+      - GH_COPILOT_WORKSPACE=/app
+    volumes:
+      - .:/app
+  web_gui:
+    build: .
+    command: python web_gui/app.py
+    environment:
+      - GH_COPILOT_WORKSPACE=/app
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+      - "5002:5002"
+    depends_on:
+      - app
+  monitoring:
+    build: .
+    command: python unified_monitoring_optimization_system.py --verify-continuous-operation
+    environment:
+      - GH_COPILOT_WORKSPACE=/app
+    volumes:
+      - .:/app
+    depends_on:
+      - app

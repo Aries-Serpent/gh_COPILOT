@@ -1,0 +1,1783 @@
+{
+  "backups_created": 222,
+  "backups_failed": 0,
+  "total_size_mb": 319.2952461242676,
+  "backup_manifest": [
+    {
+      "asset_id": "186434d4",
+      "source": "e:\\gh_COPILOT\\production.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_production.db",
+      "backup_time": "2025-07-07T08:04:29.746545",
+      "integrity_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_mb": 0.0
+    },
+    {
+      "asset_id": "72b55866",
+      "source": "e:\\gh_COPILOT\\databases\\advanced_analytics.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_advanced_analytics.db",
+      "backup_time": "2025-07-07T08:04:29.750134",
+      "integrity_hash": "34fe6e9c37bd9828a93a42439a4514cd0d7de68bce5543c42cfca8f29b185f17",
+      "size_mb": 0.03125
+    },
+    {
+      "asset_id": "dbf2d9dc",
+      "source": "e:\\gh_COPILOT\\databases\\analytics.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_analytics.db",
+      "backup_time": "2025-07-07T08:04:33.145056",
+      "integrity_hash": "a29d7fade04ff7424f1d0c06901f56c8f163459915084018279781d634519b2e",
+      "size_mb": 15.84765625
+    },
+    {
+      "asset_id": "a71b9b56",
+      "source": "e:\\gh_COPILOT\\databases\\analytics_collector.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_analytics_collector.db",
+      "backup_time": "2025-07-07T08:04:33.275053",
+      "integrity_hash": "d4d35af11e18e3bfad6d07ba731976585c5633b7e8c03d47c6474c575a31d014",
+      "size_mb": 15.875
+    },
+    {
+      "asset_id": "1c052d9a",
+      "source": "e:\\gh_COPILOT\\databases\\archive.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_archive.db",
+      "backup_time": "2025-07-07T08:04:33.425035",
+      "integrity_hash": "9b13cb14e85fd8a202d0f6d09c93ca59f03f9dbcde9ecab1a87922d73f0a5844",
+      "size_mb": 15.84765625
+    },
+    {
+      "asset_id": "6ef7c117",
+      "source": "e:\\gh_COPILOT\\databases\\autonomous_decisions.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_autonomous_decisions.db",
+      "backup_time": "2025-07-07T08:04:33.558776",
+      "integrity_hash": "0b1bb10ee536331940d4428685cf31aacdd5e4b8a1a574924f310fa9661351ad",
+      "size_mb": 15.8203125
+    },
+    {
+      "asset_id": "1bd0af73",
+      "source": "e:\\gh_COPILOT\\databases\\capability_scaler.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_capability_scaler.db",
+      "backup_time": "2025-07-07T08:04:33.691626",
+      "integrity_hash": "6e283c7fc9daaa7f5538a8d6401d1a9c4677fdbc425c74f6736cc555d952362c",
+      "size_mb": 15.87109375
+    },
+    {
+      "asset_id": "0beb4500",
+      "source": "e:\\gh_COPILOT\\databases\\continuous_innovation.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_continuous_innovation.db",
+      "backup_time": "2025-07-07T08:04:33.837745",
+      "integrity_hash": "602237e5f3843dc7fd8d865d0f3686f03564f3946cfe452cc60aca051b9579df",
+      "size_mb": 15.859375
+    },
+    {
+      "asset_id": "d61b6f40",
+      "source": "e:\\gh_COPILOT\\databases\\deployment_preparation.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_deployment_preparation.db",
+      "backup_time": "2025-07-07T08:04:33.900808",
+      "integrity_hash": "40675c659ae55147216fdabebee8da0f261ccc40e72a80754ed95fb512efd15f",
+      "size_mb": 0.0234375
+    },
+    {
+      "asset_id": "b4a54d64",
+      "source": "e:\\gh_COPILOT\\databases\\development.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_development.db",
+      "backup_time": "2025-07-07T08:04:33.975196",
+      "integrity_hash": "023a22a777595a65fa095a3f8a0f877fad751a50fdccf29345985d05680445bf",
+      "size_mb": 15.84765625
+    },
+    {
+      "asset_id": "ea6e0501",
+      "source": "e:\\gh_COPILOT\\databases\\documentation_sync.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_documentation_sync.db",
+      "backup_time": "2025-07-07T08:04:34.041934",
+      "integrity_hash": "f76ec3eb3e33e52773a85f75a21da821705b90adb5eff4f4841fb8b5b899ee62",
+      "size_mb": 0.2109375
+    },
+    {
+      "asset_id": "a9cfcc58",
+      "source": "e:\\gh_COPILOT\\databases\\enhanced_deployment_tracking.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_enhanced_deployment_tracking.db",
+      "backup_time": "2025-07-07T08:04:34.120275",
+      "integrity_hash": "3f61a9523a05ecd934773a4c0239c9491ce9b2d40249494d4cdd12cd3c40683d",
+      "size_mb": 15.82421875
+    },
+    {
+      "asset_id": "e00a6e07",
+      "source": "e:\\gh_COPILOT\\databases\\enhanced_intelligence.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_enhanced_intelligence.db",
+      "backup_time": "2025-07-07T08:04:34.208500",
+      "integrity_hash": "230cf7063a3f5136bc7f56526513b56dd15f776f5a4ea42934678dc7885d70d4",
+      "size_mb": 3.53515625
+    },
+    {
+      "asset_id": "8d2ca187",
+      "source": "e:\\gh_COPILOT\\databases\\enterprise_ml_engine.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_enterprise_ml_engine.db",
+      "backup_time": "2025-07-07T08:04:34.292016",
+      "integrity_hash": "6ee9f1d96cf0bbc7ad4494ec368aa50603304762a839086560d52753428c8fbd",
+      "size_mb": 15.86328125
+    },
+    {
+      "asset_id": "d1e52105",
+      "source": "e:\\gh_COPILOT\\databases\\executive_alerts.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_executive_alerts.db",
+      "backup_time": "2025-07-07T08:04:34.358589",
+      "integrity_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_mb": 0.0
+    },
+    {
+      "asset_id": "571f9583",
+      "source": "e:\\gh_COPILOT\\databases\\factory_deployment.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_factory_deployment.db",
+      "backup_time": "2025-07-07T08:04:34.370402",
+      "integrity_hash": "b0276a7bb45783a1df6ab09cc1691d01a855074d4e713e088b2c9ee222276df0",
+      "size_mb": 0.03125
+    },
+    {
+      "asset_id": "dbfb90fb",
+      "source": "e:\\gh_COPILOT\\databases\\instruction_orchestrator.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_instruction_orchestrator.db",
+      "backup_time": "2025-07-07T08:04:34.370402",
+      "integrity_hash": "3abdc53fae955d8db009d20c6078085785c6522d1357eaac92cf6a9b4da5b181",
+      "size_mb": 0.01953125
+    },
+    {
+      "asset_id": "0d204f99",
+      "source": "e:\\gh_COPILOT\\databases\\learning_monitor.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_learning_monitor.db",
+      "backup_time": "2025-07-07T08:04:34.458397",
+      "integrity_hash": "1b626136e713f62703435229f806c1293ffc5bd1bf6f58ff07eb27dfa5d3b292",
+      "size_mb": 18.33203125
+    },
+    {
+      "asset_id": "dc9ddc64",
+      "source": "e:\\gh_COPILOT\\databases\\ml_deployment_engine.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_ml_deployment_engine.db",
+      "backup_time": "2025-07-07T08:04:34.675454",
+      "integrity_hash": "c95be1eb1029425fa5d7d22108ea60822d6bdffb70c1abe3fd03eab765494c04",
+      "size_mb": 15.8203125
+    },
+    {
+      "asset_id": "ddf5c372",
+      "source": "e:\\gh_COPILOT\\databases\\monitoring.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_monitoring.db",
+      "backup_time": "2025-07-07T08:04:34.883874",
+      "integrity_hash": "8b3754d4764c6f350b8bb72b71737cb1b3418a78eb7e0085a337e0fb805e6c8a",
+      "size_mb": 15.796875
+    },
+    {
+      "asset_id": "9196d3e4",
+      "source": "e:\\gh_COPILOT\\databases\\optimization_metrics.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_optimization_metrics.db",
+      "backup_time": "2025-07-07T08:04:34.953243",
+      "integrity_hash": "1c15dbd233fc97f001ebf6aab36600ac2cc67dfbbd0011d228fe3f0d1885a0b5",
+      "size_mb": 0.03515625
+    },
+    {
+      "asset_id": "de27b750",
+      "source": "e:\\gh_COPILOT\\databases\\performance_analysis.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_performance_analysis.db",
+      "backup_time": "2025-07-07T08:04:35.025163",
+      "integrity_hash": "1d4ed400a5f8dc8c723d5192cb37b9723e6f04799be5389588d6ee4a6e537b00",
+      "size_mb": 15.87109375
+    },
+    {
+      "asset_id": "e600d1bf",
+      "source": "e:\\gh_COPILOT\\databases\\performance_monitoring.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_performance_monitoring.db",
+      "backup_time": "2025-07-07T08:04:35.125414",
+      "integrity_hash": "bb0e1beba66b0148597da896b3699d37a6138f05304744f1a93424fe38af1d45",
+      "size_mb": 0.02734375
+    },
+    {
+      "asset_id": "f8d89bec",
+      "source": "e:\\gh_COPILOT\\databases\\production.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_production.db",
+      "backup_time": "2025-07-07T08:04:35.260499",
+      "integrity_hash": "a0617646015632eb6d1e36927b18f16eae00c868b286af20891018c78d0e7772",
+      "size_mb": 20.7734375
+    },
+    {
+      "asset_id": "b20d54ac",
+      "source": "e:\\gh_COPILOT\\databases\\project_grading_database.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_project_grading_database.db",
+      "backup_time": "2025-07-07T08:04:35.408414",
+      "integrity_hash": "1503a941645513c5ca1552d3211bdc53b55bc384f4423021f093334d0ad4807b",
+      "size_mb": 0.01953125
+    },
+    {
+      "asset_id": "22638d17",
+      "source": "e:\\gh_COPILOT\\databases\\scaling_innovation.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_scaling_innovation.db",
+      "backup_time": "2025-07-07T08:04:35.553230",
+      "integrity_hash": "3614b5a9d2a90e1d20b5f8cdfa12ba58d4a673250c7125e4937b91b5f272f292",
+      "size_mb": 15.859375
+    },
+    {
+      "asset_id": "96e417cd",
+      "source": "e:\\gh_COPILOT\\databases\\staging.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_staging.db",
+      "backup_time": "2025-07-07T08:04:35.945634",
+      "integrity_hash": "9f590bee2502a6e545aaf950f3ae2f888c4f4cef5e7e37183ba747ebff8b8620",
+      "size_mb": 36.18359375
+    },
+    {
+      "asset_id": "88460708",
+      "source": "e:\\gh_COPILOT\\databases\\strategic_implementation.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_strategic_implementation.db",
+      "backup_time": "2025-07-07T08:04:36.121915",
+      "integrity_hash": "023256d951063cbdb51dc4621a3495b339237c458a6cb080b2de73b7cc387eea",
+      "size_mb": 0.01171875
+    },
+    {
+      "asset_id": "2c0d3125",
+      "source": "e:\\gh_COPILOT\\databases\\testing.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_testing.db",
+      "backup_time": "2025-07-07T08:04:36.341860",
+      "integrity_hash": "af9dc5f18d062cb2032ff80d2c210724812e1d6cecc3108eba9bada1700eef37",
+      "size_mb": 15.84765625
+    },
+    {
+      "asset_id": "827ea47c",
+      "source": "e:\\gh_COPILOT\\databases\\v3_self_learning_engine.db",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_v3_self_learning_engine.db",
+      "backup_time": "2025-07-07T08:04:36.542085",
+      "integrity_hash": "8b3a90423955bd130a520ada1a3c2605bffdd462472ff19b70fddf7752095ee1",
+      "size_mb": 15.8125
+    },
+    {
+      "asset_id": "5c0f8040",
+      "source": "e:\\gh_COPILOT\\unified_database_management_system.py",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_unified_database_management_system.py",
+      "backup_time": "2025-07-07T08:04:36.625201",
+      "integrity_hash": "ea758186f07bc00e05e292a171941e4cb596a4193130dc1692117144848ce620",
+      "size_mb": 0.023952484130859375
+    },
+    {
+      "asset_id": "746f12fa",
+      "source": "e:\\gh_COPILOT\\unified_deployment_orchestrator.py",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_unified_deployment_orchestrator.py",
+      "backup_time": "2025-07-07T08:04:36.625201",
+      "integrity_hash": "bd8fb9c73a5df9745fcecf748262765e16410fd438c1271b7b58ca7d2d5e4d31",
+      "size_mb": 0.04080677032470703
+    },
+    {
+      "asset_id": "32898936",
+      "source": "e:\\gh_COPILOT\\UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py",
+      "backup_time": "2025-07-07T08:04:36.637149",
+      "integrity_hash": "76c9385eb54d71aed225cb5d8f7cea02305d488e8dedfbab12f3966fd18d11e3",
+      "size_mb": 0.058938026428222656
+    },
+    {
+      "asset_id": "11787992",
+      "source": "e:\\gh_COPILOT\\UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE.py",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE.py",
+      "backup_time": "2025-07-07T08:04:36.640079",
+      "integrity_hash": "300442511d0e5e1fbdd9cc95c9b5ddb9a81a04c486abb8d868a10ccf9a598621",
+      "size_mb": 0.02819538116455078
+    },
+    {
+      "asset_id": "24a72b02",
+      "source": "e:\\gh_COPILOT\\unified_disaster_recovery_system.py",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_unified_disaster_recovery_system.py",
+      "backup_time": "2025-07-07T08:04:36.643894",
+      "integrity_hash": "8c544b7ebfd4e26bd74bb7e1b874e43a6bf73eefa37b077279455e91eb8e96a2",
+      "size_mb": 0.025524139404296875
+    },
+    {
+      "asset_id": "10cd47a3",
+      "source": "e:\\gh_COPILOT\\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_SCOPE_20250102_130700.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_SCOPE_20250102_130700.json",
+      "backup_time": "2025-07-07T08:04:36.643894",
+      "integrity_hash": "76913f28256fccfabf64e088aa9968b113c93066ff21e3a26a69e95dfe863284",
+      "size_mb": 0.027077674865722656
+    },
+    {
+      "asset_id": "8ac3d3fa",
+      "source": "e:\\gh_COPILOT\\advanced_features_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_advanced_features_config.json",
+      "backup_time": "2025-07-07T08:04:36.654926",
+      "integrity_hash": "48974742314f099a24ab829197937c640a4c85b60be2c6657826ad62c016ff7a",
+      "size_mb": 0.0022830963134765625
+    },
+    {
+      "asset_id": "aaaa106c",
+      "source": "e:\\gh_COPILOT\\comprehensive_efficiency_report_20250706_205853.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_comprehensive_efficiency_report_20250706_205853.json",
+      "backup_time": "2025-07-07T08:04:36.663720",
+      "integrity_hash": "b023ab4630a35248bf7beec9fce1bcd215a79b474cc69a8e9641b4080646f750",
+      "size_mb": 0.010145187377929688
+    },
+    {
+      "asset_id": "8da2fb8d",
+      "source": "e:\\gh_COPILOT\\deployment_manifest.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_deployment_manifest.json",
+      "backup_time": "2025-07-07T08:04:36.672196",
+      "integrity_hash": "0d04ddc78486f3dda89f9397b06eff5c1286516b7147eac32a086dcc7dbe13c0",
+      "size_mb": 0.0010309219360351562
+    },
+    {
+      "asset_id": "a617d680",
+      "source": "e:\\gh_COPILOT\\deployment_migration_report_MIGRATION_20250707_061405.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_deployment_migration_report_MIGRATION_20250707_061405.json",
+      "backup_time": "2025-07-07T08:04:36.675208",
+      "integrity_hash": "55fb2c4da2ee8bbcdb8a3296ac9b7fea39926b404a1625cb59bc483204f574e4",
+      "size_mb": 0.000331878662109375
+    },
+    {
+      "asset_id": "76af1de1",
+      "source": "e:\\gh_COPILOT\\DISASTER_RECOVERY_ENHANCEMENT_RESULTS.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_DISASTER_RECOVERY_ENHANCEMENT_RESULTS.json",
+      "backup_time": "2025-07-07T08:04:36.675208",
+      "integrity_hash": "5cfed3dcbc1d2353445c72ad30a26ca4a98a941e3ab2448b82490d851748b64d",
+      "size_mb": 0.0006961822509765625
+    },
+    {
+      "asset_id": "7fbf0ea9",
+      "source": "e:\\gh_COPILOT\\efficiency_calibration_results_20250706_205709.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_efficiency_calibration_results_20250706_205709.json",
+      "backup_time": "2025-07-07T08:04:36.691998",
+      "integrity_hash": "6837f1a63d6b725bcc871b02aaf822c260ac72be7d2976d54fd6b433f57d5fc5",
+      "size_mb": 0.000514984130859375
+    },
+    {
+      "asset_id": "31a4d20c",
+      "source": "e:\\gh_COPILOT\\efficiency_calibration_results_20250706_211551.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_efficiency_calibration_results_20250706_211551.json",
+      "backup_time": "2025-07-07T08:04:36.695854",
+      "integrity_hash": "fb5591b41b43e1829df98edfeaaf3cf7a1c62a211f0cbe8fbda4318df3e94866",
+      "size_mb": 0.0005397796630859375
+    },
+    {
+      "asset_id": "47c1c569",
+      "source": "e:\\gh_COPILOT\\efficiency_optimization_report_OPT_100_20250706_204822.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_efficiency_optimization_report_OPT_100_20250706_204822.json",
+      "backup_time": "2025-07-07T08:04:36.704609",
+      "integrity_hash": "68244eaf5cc2cb9fd99d9bdacc84848a1161f3e8533f4ed4f4907933882dbd15",
+      "size_mb": 0.0002613067626953125
+    },
+    {
+      "asset_id": "6e155a41",
+      "source": "e:\\gh_COPILOT\\final_deployment_report_FINAL_ORCH_20250706_203608.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_final_deployment_report_FINAL_ORCH_20250706_203608.json",
+      "backup_time": "2025-07-07T08:04:36.708738",
+      "integrity_hash": "c7c7250c59d2927a912e121d717c9fd7fe6cf26ea16c3627696927f5d7b213ca",
+      "size_mb": 0.0008144378662109375
+    },
+    {
+      "asset_id": "4a92aef4",
+      "source": "e:\\gh_COPILOT\\final_deployment_validation_report_20250706_180939.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_final_deployment_validation_report_20250706_180939.json",
+      "backup_time": "2025-07-07T08:04:36.721386",
+      "integrity_hash": "50e27145ee5ccc3a6042610c428921716e1a64782fc025e36d766ea3896d5dc6",
+      "size_mb": 0.0004329681396484375
+    },
+    {
+      "asset_id": "5c9a0928",
+      "source": "e:\\gh_COPILOT\\FINAL_WRAP_UP_REPORT_20250706_212050.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_FINAL_WRAP_UP_REPORT_20250706_212050.json",
+      "backup_time": "2025-07-07T08:04:36.727123",
+      "integrity_hash": "1bd9c9aaa46a2f932e0423f09f09c70f3bc5ba1c3f41d1bf636c43208aa8a9ca",
+      "size_mb": 0.0030155181884765625
+    },
+    {
+      "asset_id": "a5c65bdc",
+      "source": "e:\\gh_COPILOT\\master_efficiency_optimization_results_20250706_205550.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_master_efficiency_optimization_results_20250706_205550.json",
+      "backup_time": "2025-07-07T08:04:36.729285",
+      "integrity_hash": "4a2d5635909d17db093530e655a50bdd397e92aa08a7311cb30b376ff400dd77",
+      "size_mb": 0.0023660659790039062
+    },
+    {
+      "asset_id": "9c5242b3",
+      "source": "e:\\gh_COPILOT\\migration_plan_MIGRATION_20250707_061405.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_migration_plan_MIGRATION_20250707_061405.json",
+      "backup_time": "2025-07-07T08:04:36.729285",
+      "integrity_hash": "b8458bce1ccd288ca3a5e146f2d39644064a1f16225d4dec90082996b21aaaa7",
+      "size_mb": 0.0008306503295898438
+    },
+    {
+      "asset_id": "4b2d1dcd",
+      "source": "e:\\gh_COPILOT\\startup_report_ORCHESTRATOR_20250706_200715.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_startup_report_ORCHESTRATOR_20250706_200715.json",
+      "backup_time": "2025-07-07T08:04:36.735957",
+      "integrity_hash": "07d9b948a371c65f66f275839d0819d5272811bbcf661d3615cb51b995a5d03b",
+      "size_mb": 0.0012264251708984375
+    },
+    {
+      "asset_id": "e0478ec9",
+      "source": "e:\\gh_COPILOT\\system_status_report_STATUS_20250706_200933.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_system_status_report_STATUS_20250706_200933.json",
+      "backup_time": "2025-07-07T08:04:36.742831",
+      "integrity_hash": "b10e155c3d5ce3fd987bc4338909a9201531bccf7125783a5c5dddf01f0afcd5",
+      "size_mb": 0.012132644653320312
+    },
+    {
+      "asset_id": "dd1699d3",
+      "source": "e:\\gh_COPILOT\\system_status_report_STATUS_20250706_203057.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_system_status_report_STATUS_20250706_203057.json",
+      "backup_time": "2025-07-07T08:04:36.744915",
+      "integrity_hash": "61f82521e72a933aedac3ea77bd7b13a131f2efe267876413572baee3f979c1b",
+      "size_mb": 0.012392044067382812
+    },
+    {
+      "asset_id": "515eff37",
+      "source": "e:\\gh_COPILOT\\system_status_report_STATUS_20250706_203229.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_system_status_report_STATUS_20250706_203229.json",
+      "backup_time": "2025-07-07T08:04:36.751424",
+      "integrity_hash": "c2c5c0305b5693e5b0f0238c518840d2b0b6d9dc2c5a81c0807ec04a8a7d8c5f",
+      "size_mb": 0.012388229370117188
+    },
+    {
+      "asset_id": "fde22ad7",
+      "source": "e:\\gh_COPILOT\\system_status_report_STATUS_20250706_203403.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_system_status_report_STATUS_20250706_203403.json",
+      "backup_time": "2025-07-07T08:04:36.756539",
+      "integrity_hash": "abb21cfcab8a6adb78ffeea166c59873aa4914dd6ed178adb59263f4fdd59fe0",
+      "size_mb": 0.012380599975585938
+    },
+    {
+      "asset_id": "a597e6b2",
+      "source": "e:\\gh_COPILOT\\system_status_report_STATUS_20250706_203654.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_system_status_report_STATUS_20250706_203654.json",
+      "backup_time": "2025-07-07T08:04:36.760843",
+      "integrity_hash": "54094659b94b13282a32a0f65c3724e79727c07c5f7898f6da3b0c5d66788583",
+      "size_mb": 0.012603759765625
+    },
+    {
+      "asset_id": "26c4860d",
+      "source": "e:\\gh_COPILOT\\deployment\\advanced_features_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_advanced_features_config.json",
+      "backup_time": "2025-07-07T08:04:36.761916",
+      "integrity_hash": "48974742314f099a24ab829197937c640a4c85b60be2c6657826ad62c016ff7a",
+      "size_mb": 0.0022830963134765625
+    },
+    {
+      "asset_id": "150522d0",
+      "source": "e:\\gh_COPILOT\\deployment\\compliance_patterns.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_compliance_patterns.json",
+      "backup_time": "2025-07-07T08:04:36.761916",
+      "integrity_hash": "d676daba0463acd9538f01e2ed2ee039bc37f9ab241486d04e32556e858bffc0",
+      "size_mb": 0.0012559890747070312
+    },
+    {
+      "asset_id": "44d2ddc7",
+      "source": "e:\\gh_COPILOT\\deployment\\component_registry.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_component_registry.json",
+      "backup_time": "2025-07-07T08:04:36.773793",
+      "integrity_hash": "e795a13e05d611ae2832ac4eda419eca1372128261ae0ea2a89ab51ac3e8b6b2",
+      "size_mb": 0.004726409912109375
+    },
+    {
+      "asset_id": "bcf37fde",
+      "source": "e:\\gh_COPILOT\\deployment\\deployment_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_deployment_config.json",
+      "backup_time": "2025-07-07T08:04:36.777406",
+      "integrity_hash": "7906803363c638c9bc0d8be62b3eeb79d67b77ce871e86eabfe9ce5e27e40936",
+      "size_mb": 0.0005168914794921875
+    },
+    {
+      "asset_id": "447ebc3a",
+      "source": "e:\\gh_COPILOT\\deployment\\deployment_results.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_deployment_results.json",
+      "backup_time": "2025-07-07T08:04:36.779406",
+      "integrity_hash": "15f16a03993532bc2a31f917913a46b81c02639ab39d0b7a73302cda00a5776a",
+      "size_mb": 0.00042629241943359375
+    },
+    {
+      "asset_id": "05c6d879",
+      "source": "e:\\gh_COPILOT\\deployment\\dual_copilot_pattern.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_dual_copilot_pattern.json",
+      "backup_time": "2025-07-07T08:04:36.779406",
+      "integrity_hash": "6f569efc6d49656c1bf41fd39223487eb7f1824c50c30b90491372879638592f",
+      "size_mb": 0.0014190673828125
+    },
+    {
+      "asset_id": "b031f640",
+      "source": "e:\\gh_COPILOT\\deployment\\enhanced_compliance_patterns.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_enhanced_compliance_patterns.json",
+      "backup_time": "2025-07-07T08:04:36.785949",
+      "integrity_hash": "57c8de103a0930a2fef5d1e3a51b85397168729c5057986c80c20bd5ead61711",
+      "size_mb": 0.0020303726196289062
+    },
+    {
+      "asset_id": "038b75d9",
+      "source": "e:\\gh_COPILOT\\deployment\\performance_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_performance_config.json",
+      "backup_time": "2025-07-07T08:04:36.791656",
+      "integrity_hash": "e2244354fd3f6213752fc2a5cd763edc6dbaa8b24bbeb19ca4d9c599cc5ad782",
+      "size_mb": 0.0013370513916015625
+    },
+    {
+      "asset_id": "fdb04fbe",
+      "source": "e:\\gh_COPILOT\\deployment\\quantum_state_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_quantum_state_config.json",
+      "backup_time": "2025-07-07T08:04:36.795834",
+      "integrity_hash": "0cbde8e411229013324aa96b8de3c6de62969eac7b626f6b84cee3811e294613",
+      "size_mb": 0.0020151138305664062
+    },
+    {
+      "asset_id": "3455e417",
+      "source": "e:\\gh_COPILOT\\deployment\\regeneration_monitoring_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_regeneration_monitoring_config.json",
+      "backup_time": "2025-07-07T08:04:36.797875",
+      "integrity_hash": "809e4a5419dea871a84163108c9fb6a7f5e2b84eb65e1a58cc058a5fcf443fe8",
+      "size_mb": 0.0003452301025390625
+    },
+    {
+      "asset_id": "7d425b5d",
+      "source": "e:\\gh_COPILOT\\deployment\\validation_report.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_validation_report.json",
+      "backup_time": "2025-07-07T08:04:36.797875",
+      "integrity_hash": "cec3ff2cab61e6836892f26e38bfafaf4459277f620c742ff7c4b29a1f39287e",
+      "size_mb": 0.015480995178222656
+    },
+    {
+      "asset_id": "938809a8",
+      "source": "e:\\gh_COPILOT\\deployment\\visual_processing_indicators.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_visual_processing_indicators.json",
+      "backup_time": "2025-07-07T08:04:36.806471",
+      "integrity_hash": "70d48b55c2c1382027e39c4c408dd8dbabb5e65e64a951579cb0f558f15f698f",
+      "size_mb": 0.00160980224609375
+    },
+    {
+      "asset_id": "d95b4cd6",
+      "source": "e:\\gh_COPILOT\\deployment\\websocket_security_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_websocket_security_config.json",
+      "backup_time": "2025-07-07T08:04:36.809872",
+      "integrity_hash": "6605eca96a33bcf9519ea4d88b27c6ece7ae4d2087b6b668a1ed7acc19530d11",
+      "size_mb": 0.0005369186401367188
+    },
+    {
+      "asset_id": "a3874b17",
+      "source": "e:\\gh_COPILOT\\deployment\\web_interface_quantum_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_web_interface_quantum_config.json",
+      "backup_time": "2025-07-07T08:04:36.811868",
+      "integrity_hash": "85fe1e1dba2cae0e0d05ec0fdfaad5907c7741cad267a5726ef8ba43085857cc",
+      "size_mb": 0.0016765594482421875
+    },
+    {
+      "asset_id": "0b34b79c",
+      "source": "e:\\gh_COPILOT\\documentation\\DEPLOYMENT_SUMMARY.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_DEPLOYMENT_SUMMARY.json",
+      "backup_time": "2025-07-07T08:04:36.811868",
+      "integrity_hash": "5cc1d64b20b8b2da11508febaa5d5d65f6f845dd228ffb970ade7975217fbac1",
+      "size_mb": 0.0020151138305664062
+    },
+    {
+      "asset_id": "014472b9",
+      "source": "e:\\gh_COPILOT\\documentation\\session_wrap_up.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_session_wrap_up.json",
+      "backup_time": "2025-07-07T08:04:36.811868",
+      "integrity_hash": "1f579b79b92e4302bf5f0bbc812774bbac926e0cf058c1a13f978812f632c315",
+      "size_mb": 0.0016565322875976562
+    },
+    {
+      "asset_id": "5c4a22df",
+      "source": "e:\\gh_COPILOT\\web_gui\\platform_validation_results.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_platform_validation_results.json",
+      "backup_time": "2025-07-07T08:04:36.826290",
+      "integrity_hash": "a630f2863e257bd7eb624d6a2d8eb8e89864e3e262779c721242ab09ce183f45",
+      "size_mb": 0.0002422332763671875
+    },
+    {
+      "asset_id": "015ffa3a",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\advanced_features_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_advanced_features_config.json",
+      "backup_time": "2025-07-07T08:04:36.829328",
+      "integrity_hash": "48974742314f099a24ab829197937c640a4c85b60be2c6657826ad62c016ff7a",
+      "size_mb": 0.0022830963134765625
+    },
+    {
+      "asset_id": "3060fec6",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\compliance_patterns.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_compliance_patterns.json",
+      "backup_time": "2025-07-07T08:04:36.829328",
+      "integrity_hash": "d676daba0463acd9538f01e2ed2ee039bc37f9ab241486d04e32556e858bffc0",
+      "size_mb": 0.0012559890747070312
+    },
+    {
+      "asset_id": "328505f1",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\component_registry.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_component_registry.json",
+      "backup_time": "2025-07-07T08:04:36.829328",
+      "integrity_hash": "e795a13e05d611ae2832ac4eda419eca1372128261ae0ea2a89ab51ac3e8b6b2",
+      "size_mb": 0.004726409912109375
+    },
+    {
+      "asset_id": "d451506b",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\dual_copilot_pattern.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_dual_copilot_pattern.json",
+      "backup_time": "2025-07-07T08:04:36.837915",
+      "integrity_hash": "6f569efc6d49656c1bf41fd39223487eb7f1824c50c30b90491372879638592f",
+      "size_mb": 0.0014190673828125
+    },
+    {
+      "asset_id": "71608288",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\enhanced_compliance_patterns.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_enhanced_compliance_patterns.json",
+      "backup_time": "2025-07-07T08:04:36.841905",
+      "integrity_hash": "57c8de103a0930a2fef5d1e3a51b85397168729c5057986c80c20bd5ead61711",
+      "size_mb": 0.0020303726196289062
+    },
+    {
+      "asset_id": "d5950d9a",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\performance_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_performance_config.json",
+      "backup_time": "2025-07-07T08:04:36.844080",
+      "integrity_hash": "e2244354fd3f6213752fc2a5cd763edc6dbaa8b24bbeb19ca4d9c599cc5ad782",
+      "size_mb": 0.0013370513916015625
+    },
+    {
+      "asset_id": "4b3b9d3a",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\quantum_state_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_quantum_state_config.json",
+      "backup_time": "2025-07-07T08:04:36.846181",
+      "integrity_hash": "0cbde8e411229013324aa96b8de3c6de62969eac7b626f6b84cee3811e294613",
+      "size_mb": 0.0020151138305664062
+    },
+    {
+      "asset_id": "7eedd169",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\regeneration_monitoring_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_regeneration_monitoring_config.json",
+      "backup_time": "2025-07-07T08:04:36.846181",
+      "integrity_hash": "809e4a5419dea871a84163108c9fb6a7f5e2b84eb65e1a58cc058a5fcf443fe8",
+      "size_mb": 0.0003452301025390625
+    },
+    {
+      "asset_id": "5402afbf",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\visual_processing_indicators.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_visual_processing_indicators.json",
+      "backup_time": "2025-07-07T08:04:36.846181",
+      "integrity_hash": "70d48b55c2c1382027e39c4c408dd8dbabb5e65e64a951579cb0f558f15f698f",
+      "size_mb": 0.00160980224609375
+    },
+    {
+      "asset_id": "b751ccf4",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\websocket_security_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_websocket_security_config.json",
+      "backup_time": "2025-07-07T08:04:36.855361",
+      "integrity_hash": "6605eca96a33bcf9519ea4d88b27c6ece7ae4d2087b6b668a1ed7acc19530d11",
+      "size_mb": 0.0005369186401367188
+    },
+    {
+      "asset_id": "7b34e236",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\web_interface_quantum_config.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_web_interface_quantum_config.json",
+      "backup_time": "2025-07-07T08:04:36.858515",
+      "integrity_hash": "85fe1e1dba2cae0e0d05ec0fdfaad5907c7741cad267a5726ef8ba43085857cc",
+      "size_mb": 0.0016765594482421875
+    },
+    {
+      "asset_id": "1b509a6b",
+      "source": "e:\\gh_COPILOT\\deployment\\config\\additional\\DEPLOYMENT_MANIFEST_FINAL.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_DEPLOYMENT_MANIFEST_FINAL.json",
+      "backup_time": "2025-07-07T08:04:36.862055",
+      "integrity_hash": "a9388e7ad77dae704b2e73976161c408b15a1647510b2e25b38431233685068d",
+      "size_mb": 0.0007581710815429688
+    },
+    {
+      "asset_id": "a887f8a7",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\administrator_guide_documentation_metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_administrator_guide_documentation_metadata.json",
+      "backup_time": "2025-07-07T08:04:36.862055",
+      "integrity_hash": "95da9219593b0018af876382252cfcebe7cdad36e43a364c9edc13319c37aca7",
+      "size_mb": 0.00034618377685546875
+    },
+    {
+      "asset_id": "3e26b4d8",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\api_reference_documentation_metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_api_reference_documentation_metadata.json",
+      "backup_time": "2025-07-07T08:04:36.869401",
+      "integrity_hash": "161288f08738a18a6b10c0f98c7d7b89af8e140de5f65b8183506b160158a6f9",
+      "size_mb": 0.00034046173095703125
+    },
+    {
+      "asset_id": "faeffd25",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\security_and_compliance_documentation_metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_security_and_compliance_documentation_metadata.json",
+      "backup_time": "2025-07-07T08:04:36.875127",
+      "integrity_hash": "bfde9ae0675ed87554af25a3de7dafb4f37320e5dbff57e1172c342afa7ef411",
+      "size_mb": 0.00034999847412109375
+    },
+    {
+      "asset_id": "dcd9456e",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\technical_architecture_documentation_metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_technical_architecture_documentation_metadata.json",
+      "backup_time": "2025-07-07T08:04:36.878164",
+      "integrity_hash": "7b7092b7e0ecb4099804c54298cd6f7c0cedb247a163130360e87d4d0843c641",
+      "size_mb": 0.0003490447998046875
+    },
+    {
+      "asset_id": "a9635a71",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\troubleshooting_and_maintenance_guide_metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_troubleshooting_and_maintenance_guide_metadata.json",
+      "backup_time": "2025-07-07T08:04:36.878164",
+      "integrity_hash": "819221608fa1a7efa73fedf9fac21ca8cc7597827fa3f808d904861ad9c41198",
+      "size_mb": 0.00034999847412109375
+    },
+    {
+      "asset_id": "642c5343",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\user_guide_documentation_metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_user_guide_documentation_metadata.json",
+      "backup_time": "2025-07-07T08:04:36.878164",
+      "integrity_hash": "52898b8047bd124529b50cf71be0131ed7ad530bb8cd8d6a4e55344df63add08",
+      "size_mb": 0.0003376007080078125
+    },
+    {
+      "asset_id": "a34fd004",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\automated_schemas\\schema_documentation_SCHEMA_DOC_1751567359.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_schema_documentation_SCHEMA_DOC_1751567359.json",
+      "backup_time": "2025-07-07T08:04:36.889775",
+      "integrity_hash": "fb1b95a95ab8a3b38f74b703a516a71aed4194043f2f5487f272c9ff2724947a",
+      "size_mb": 0.13402938842773438
+    },
+    {
+      "asset_id": "925ee444",
+      "source": "e:\\gh_COPILOT\\scripts\\generated\\phase_1_completion_report.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_phase_1_completion_report.json",
+      "backup_time": "2025-07-07T08:04:36.893847",
+      "integrity_hash": "3eeca70be23baba71e6122c06e2b3621e17c5b5bb7241016a7c163053918c998",
+      "size_mb": 0.00042724609375
+    },
+    {
+      "asset_id": "75227e8f",
+      "source": "e:\\gh_COPILOT\\scripts\\generated\\phase_2_completion_report.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_phase_2_completion_report.json",
+      "backup_time": "2025-07-07T08:04:36.895969",
+      "integrity_hash": "4d3a931446bbc0482e2be18965b8fa2bea9e16a5066e4391d495cfd374d5c640",
+      "size_mb": 0.0007562637329101562
+    },
+    {
+      "asset_id": "64c6a649",
+      "source": "e:\\gh_COPILOT\\scripts\\generated\\phase_3_completion_report.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_phase_3_completion_report.json",
+      "backup_time": "2025-07-07T08:04:36.895969",
+      "integrity_hash": "3fcd612e6094bf95fb957c4582269992b9138fee225a9dfe72b5e515eefe38d5",
+      "size_mb": 0.000759124755859375
+    },
+    {
+      "asset_id": "3d70785e",
+      "source": "e:\\gh_COPILOT\\scripts\\generated\\phase_4_completion_report.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_phase_4_completion_report.json",
+      "backup_time": "2025-07-07T08:04:36.905639",
+      "integrity_hash": "3457ae0c1c118d35865ed794f56ab5492d58cad785f32afa43bb6958895734e4",
+      "size_mb": 0.0010700225830078125
+    },
+    {
+      "asset_id": "598a7681",
+      "source": "e:\\gh_COPILOT\\scripts\\generated\\phase_5_completion_report.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_phase_5_completion_report.json",
+      "backup_time": "2025-07-07T08:04:36.908694",
+      "integrity_hash": "8716cb3dfda469c11c1b6966c8847e6ab9a4053d1ed2e62510bbc09ba4f29fa7",
+      "size_mb": 0.001003265380859375
+    },
+    {
+      "asset_id": "7153f18c",
+      "source": "e:\\gh_COPILOT\\scripts\\generated\\placeholder_conversion_recommendations.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_placeholder_conversion_recommendations.json",
+      "backup_time": "2025-07-07T08:04:36.912285",
+      "integrity_hash": "4c89143d6a6d56c6dafcd4dad2579d5822a6786e3c3d0b88590ba19666a8ccfb",
+      "size_mb": 0.2028350830078125
+    },
+    {
+      "asset_id": "3c80cf1f",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\migration_manifest_DB_MIGRATION_20250707_074327.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_migration_manifest_DB_MIGRATION_20250707_074327.json",
+      "backup_time": "2025-07-07T08:04:36.912285",
+      "integrity_hash": "653c577fcd1736345a54d22bfe781794384be93496eca3f5028fbb325799a281",
+      "size_mb": 0.0038976669311523438
+    },
+    {
+      "asset_id": "e2d62899",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\metadata\\DATABASE_CLEANUP_EXECUTOR.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_DATABASE_CLEANUP_EXECUTOR.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.922070",
+      "integrity_hash": "234efcad20790637c45184a9093aba25a6eacf84976475561d6396cdb367a2a6",
+      "size_mb": 0.00046825408935546875
+    },
+    {
+      "asset_id": "4a137aa3",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\metadata\\database_organization_manager.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_database_organization_manager.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.926237",
+      "integrity_hash": "931e5c2bdb382b0975afd1c306571d78a9adf525d0051821940dacfe2f0e4a68",
+      "size_mb": 0.000476837158203125
+    },
+    {
+      "asset_id": "26e8d720",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\metadata\\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.930441",
+      "integrity_hash": "5289733013a88a1b2cba5a46706d1ade068530b7bb814ec33fdd85e0e0351bcb",
+      "size_mb": 0.0005006790161132812
+    },
+    {
+      "asset_id": "287bad52",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\metadata\\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.930441",
+      "integrity_hash": "c2f587381e22206f4f612f1ea920ebd671cc9d45cf528d0db307a19528a319b1",
+      "size_mb": 0.0004978179931640625
+    },
+    {
+      "asset_id": "53caefc8",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_deployment_scripts\\MIGRATION_20250707_061405\\comprehensive_deployment_analysis.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_comprehensive_deployment_analysis.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.939717",
+      "integrity_hash": "96ba551d24e59c58949b4488fb876c9c74e55304a3e2c726fd29321b2d9ca51b",
+      "size_mb": 0.00040721893310546875
+    },
+    {
+      "asset_id": "c63b86cb",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_deployment_scripts\\MIGRATION_20250707_061405\\comprehensive_deployment_manager.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_comprehensive_deployment_manager.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.942971",
+      "integrity_hash": "c52352986fdcff535e1aa7a29ea4f9d9734decef0d64a70feea5dfc8e76fe5a1",
+      "size_mb": 0.00042247772216796875
+    },
+    {
+      "asset_id": "3b92f64a",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_deployment_scripts\\MIGRATION_20250707_061405\\enterprise_deployment_packager.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_enterprise_deployment_packager.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.945972",
+      "integrity_hash": "428ae79fb9e715b83c95e94b75fd96c529ee4d1a608eac9f60b44059b35a5ea1",
+      "size_mb": 0.00039196014404296875
+    },
+    {
+      "asset_id": "9e989a4d",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_deployment_scripts\\MIGRATION_20250707_061405\\enterprise_deployment_preparation.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_enterprise_deployment_preparation.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.952022",
+      "integrity_hash": "e46b03efc8f29add11f114359e7f43f9f30ceb79e9cf5c1d094f4526f01bb506",
+      "size_mb": 0.00040531158447265625
+    },
+    {
+      "asset_id": "c3c4acd1",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_deployment_scripts\\MIGRATION_20250707_061405\\enterprise_deployment_validator.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_enterprise_deployment_validator.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.958630",
+      "integrity_hash": "3ae84dae8195996c99c34527f87e313505baa77406fdd8b2777be80075f230dd",
+      "size_mb": 0.00042724609375
+    },
+    {
+      "asset_id": "fc68d4d1",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_deployment_scripts\\MIGRATION_20250707_061405\\enterprise_gh_copilot_deployment_orchestrator.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_enterprise_gh_copilot_deployment_orchestrator.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.961641",
+      "integrity_hash": "0679eb38e6d47bb49f53a97dc49eb669f05df46691d40f2e6864031af9ed9e3e",
+      "size_mb": 0.000453948974609375
+    },
+    {
+      "asset_id": "2f2bf41f",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_deployment_scripts\\MIGRATION_20250707_061405\\enterprise_gh_copilot_deployment_orchestrator_windows.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_enterprise_gh_copilot_deployment_orchestrator_windows.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.962722",
+      "integrity_hash": "106e3a1b7153e6769c6250f9c4c58f376a9bb572158a27ba3311fb0b3cea987e",
+      "size_mb": 0.000461578369140625
+    },
+    {
+      "asset_id": "782d48c8",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_deployment_scripts\\MIGRATION_20250707_061405\\final_enterprise_deployment_executor.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_final_enterprise_deployment_executor.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.962722",
+      "integrity_hash": "f22f1ac0e2d0a135774c2b44dfc5060ed439d44ed13466ff8591050c9ea7184c",
+      "size_mb": 0.000408172607421875
+    },
+    {
+      "asset_id": "dcd750d1",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_deployment_scripts\\MIGRATION_20250707_061405\\integrated_deployment_orchestrator.py.metadata.json",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_integrated_deployment_orchestrator.py.metadata.json",
+      "backup_time": "2025-07-07T08:04:36.973413",
+      "integrity_hash": "5e56aa2fd9dad08c279315eb22c4c735315d517bd9cb11ee8036ea2a0afaaa16",
+      "size_mb": 0.0003871917724609375
+    },
+    {
+      "asset_id": "5a3b88e2",
+      "source": "e:\\gh_COPILOT\\DEPLOYMENT_CONSOLIDATION_SUMMARY.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_DEPLOYMENT_CONSOLIDATION_SUMMARY.md",
+      "backup_time": "2025-07-07T08:04:36.978536",
+      "integrity_hash": "aafbff2c3d7601f9814b11ec4f223d2bb4d2a1129f36749437d8c0a5feba6ba2",
+      "size_mb": 0.0063610076904296875
+    },
+    {
+      "asset_id": "373472e2",
+      "source": "e:\\gh_COPILOT\\ENTERPRISE_SCRIPT_CONSOLIDATION_STRATEGY.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_ENTERPRISE_SCRIPT_CONSOLIDATION_STRATEGY.md",
+      "backup_time": "2025-07-07T08:04:36.978536",
+      "integrity_hash": "fdcec92e974e9cb184b890b353bb40ee25e6947ef4bf0fe16065c05ca8c5308d",
+      "size_mb": 0.0069637298583984375
+    },
+    {
+      "asset_id": "cb76713d",
+      "source": "e:\\gh_COPILOT\\FINAL_OPTIMIZATION_SUMMARY.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_FINAL_OPTIMIZATION_SUMMARY.md",
+      "backup_time": "2025-07-07T08:04:36.978536",
+      "integrity_hash": "e9c9945d69e036422f146c5b3e30146bda170da8f6889245b359bf9dfa1496c9",
+      "size_mb": 0.006102561950683594
+    },
+    {
+      "asset_id": "cc94de08",
+      "source": "e:\\gh_COPILOT\\README.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_README.md",
+      "backup_time": "2025-07-07T08:04:36.989653",
+      "integrity_hash": "ce0d74a300015ba87b452d0ab90a29452a6cbf39ad743d76183e086a1c06cdf5",
+      "size_mb": 0.003025054931640625
+    },
+    {
+      "asset_id": "b31ea188",
+      "source": "e:\\gh_COPILOT\\UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATION_GUIDE.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATION_GUIDE.md",
+      "backup_time": "2025-07-07T08:04:36.993615",
+      "integrity_hash": "83f2e775137e7b7ac2b48238fce7207c66127a08ee3618e498964acfc7271676",
+      "size_mb": 0.012549400329589844
+    },
+    {
+      "asset_id": "c697db09",
+      "source": "e:\\gh_COPILOT\\docs\\EXTERNAL_DEPENDENCIES.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_EXTERNAL_DEPENDENCIES.md",
+      "backup_time": "2025-07-07T08:04:36.996980",
+      "integrity_hash": "43952fa3f8684d127b0ee35309b83ebfa52243adc57d12f476de629bf4c36f22",
+      "size_mb": 0.0008373260498046875
+    },
+    {
+      "asset_id": "d1fa5c38",
+      "source": "e:\\gh_COPILOT\\documentation\\api_documentation.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_api_documentation.md",
+      "backup_time": "2025-07-07T08:04:37.000077",
+      "integrity_hash": "f92416f6f51f422e387e435ee56cce6aea02c3ec7c06bcd33ecdc0ce16206ae1",
+      "size_mb": 0.001583099365234375
+    },
+    {
+      "asset_id": "404a8bd0",
+      "source": "e:\\gh_COPILOT\\documentation\\architecture_overview.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_architecture_overview.md",
+      "backup_time": "2025-07-07T08:04:37.004069",
+      "integrity_hash": "c7683535c20aa514ac35cde6bda82ce34000f903273ee8e43934c7c815081077",
+      "size_mb": 0.0030393600463867188
+    },
+    {
+      "asset_id": "121f5d1b",
+      "source": "e:\\gh_COPILOT\\documentation\\deployment_guide.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_deployment_guide.md",
+      "backup_time": "2025-07-07T08:04:37.008756",
+      "integrity_hash": "824219c004ac4054016ff71edc755d5b22c384f1fa861bf171d2091b949f1e44",
+      "size_mb": 0.0021371841430664062
+    },
+    {
+      "asset_id": "d10c5f3e",
+      "source": "e:\\gh_COPILOT\\documentation\\deployment_migration_guide_MIGRATION_20250707_061405.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_deployment_migration_guide_MIGRATION_20250707_061405.md",
+      "backup_time": "2025-07-07T08:04:37.012688",
+      "integrity_hash": "cb8062c9a43a30c0db41ad474adff06ddd93ddcf904d37e4a6255c0d3c25eb57",
+      "size_mb": 0.0038242340087890625
+    },
+    {
+      "asset_id": "062b7611",
+      "source": "e:\\gh_COPILOT\\documentation\\GETTING_STARTED.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_GETTING_STARTED.md",
+      "backup_time": "2025-07-07T08:04:37.016376",
+      "integrity_hash": "c1a16508b0db333218497a4b6f3f75d2419c1578292fc752bf9bacac6a6286c4",
+      "size_mb": 0.0029821395874023438
+    },
+    {
+      "asset_id": "1f3fe314",
+      "source": "e:\\gh_COPILOT\\documentation\\HAT_COPILOT_USER_GUIDE.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_HAT_COPILOT_USER_GUIDE.md",
+      "backup_time": "2025-07-07T08:04:37.022596",
+      "integrity_hash": "beb166cb32d962be4b10b8a35c442816160d420f425e0a2447cdd2bdf4a7e951",
+      "size_mb": 0.013102531433105469
+    },
+    {
+      "asset_id": "5d68e11f",
+      "source": "e:\\gh_COPILOT\\documentation\\INSTALLATION_GUIDE.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_INSTALLATION_GUIDE.md",
+      "backup_time": "2025-07-07T08:04:37.026079",
+      "integrity_hash": "f8af9b36dc6e8092237ae72f7a0e1a062fbd1bab46e1a5b484c4fb7c6fd6f0af",
+      "size_mb": 0.0006608963012695312
+    },
+    {
+      "asset_id": "8fa8af65",
+      "source": "e:\\gh_COPILOT\\documentation\\MANUAL_STARTUP_GUIDE.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_MANUAL_STARTUP_GUIDE.md",
+      "backup_time": "2025-07-07T08:04:37.029092",
+      "integrity_hash": "a9bb8ea4adba18d35ad8b4b8edb63718ebc9665c6a44277419fb448d1fbf851e",
+      "size_mb": 0.00617218017578125
+    },
+    {
+      "asset_id": "fe6715de",
+      "source": "e:\\gh_COPILOT\\documentation\\MISSION_COMPLETION_CERTIFICATE.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_MISSION_COMPLETION_CERTIFICATE.md",
+      "backup_time": "2025-07-07T08:04:37.031237",
+      "integrity_hash": "e23112624e6d92ee21eb04e2c684f9c6552e77dd882fe571ab0afd2f066bb614",
+      "size_mb": 0.007861137390136719
+    },
+    {
+      "asset_id": "e5e27a5f",
+      "source": "e:\\gh_COPILOT\\documentation\\README.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_README.md",
+      "backup_time": "2025-07-07T08:04:37.031237",
+      "integrity_hash": "78e346a1160e19bbb28d685e1dc3ed23925b87a4f9c9a58c56b2140997cd7b33",
+      "size_mb": 0.012396812438964844
+    },
+    {
+      "asset_id": "e41f0997",
+      "source": "e:\\gh_COPILOT\\documentation\\SYSTEM_OVERVIEW.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_SYSTEM_OVERVIEW.md",
+      "backup_time": "2025-07-07T08:04:37.039112",
+      "integrity_hash": "774126cc2b50a3f4ef704e936f9f1f343ef4620ff28e931dd701be36dbe52c52",
+      "size_mb": 0.0022001266479492188
+    },
+    {
+      "asset_id": "47327724",
+      "source": "e:\\gh_COPILOT\\documentation\\troubleshooting_guide.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_troubleshooting_guide.md",
+      "backup_time": "2025-07-07T08:04:37.041684",
+      "integrity_hash": "ba6d3a2e85df2fae3fb561950532295fa6bf5dc2ad7fceca2000b0ad54026e73",
+      "size_mb": 0.001132965087890625
+    },
+    {
+      "asset_id": "de15919d",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\AUTONOMOUS_FILE_MANAGEMENT.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_AUTONOMOUS_FILE_MANAGEMENT.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.041684",
+      "integrity_hash": "6d89f090a349a8bcdb674ce931ad80963e9047ce64f22526e4fb4c4b8d7593b6",
+      "size_mb": 0.009439468383789062
+    },
+    {
+      "asset_id": "b30570d7",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\COMPREHENSIVE_SESSION_INTEGRITY.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_COMPREHENSIVE_SESSION_INTEGRITY.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.041684",
+      "integrity_hash": "c4cae757702d0c46c3b52d058d858896d7129fe08b766d9fb37198fa6771a017",
+      "size_mb": 0.014122962951660156
+    },
+    {
+      "asset_id": "bc9c7873",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\CONTINUOUS_OPERATION_MODE.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_CONTINUOUS_OPERATION_MODE.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.041684",
+      "integrity_hash": "6141962095109c0df4d11ce66873976afb01618b386c7a32a40673bbbff64809",
+      "size_mb": 0.014264106750488281
+    },
+    {
+      "asset_id": "0e6de395",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\DUAL_COPILOT_PATTERN.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_DUAL_COPILOT_PATTERN.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.057085",
+      "integrity_hash": "71816aadf4b23825980aafb3a843e8d6ee3a0df2d90b2cd66a3226521334f81e",
+      "size_mb": 0.02211475372314453
+    },
+    {
+      "asset_id": "d1432a19",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\ENHANCED_COGNITIVE_PROCESSING.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_ENHANCED_COGNITIVE_PROCESSING.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.062031",
+      "integrity_hash": "67aa5f54cd4a1e3100f6703d478e981cfde3cdcb82768c82afe4de31192a0e03",
+      "size_mb": 0.01145172119140625
+    },
+    {
+      "asset_id": "e62bc1db",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\ENHANCED_LEARNING_COPILOT.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_ENHANCED_LEARNING_COPILOT.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.062031",
+      "integrity_hash": "1ebe4ba194c30301922e777591b8fbc955db17d5c81cdf042ccf8ee85af990c2",
+      "size_mb": 0.008641242980957031
+    },
+    {
+      "asset_id": "f9adfd51",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\ENTERPRISE_CONTEXT.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_ENTERPRISE_CONTEXT.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.062031",
+      "integrity_hash": "de5d3192981bca23f6b80d4698c88dc83dc0b6624d9432a05b070eb9c86acd86",
+      "size_mb": 0.010652542114257812
+    },
+    {
+      "asset_id": "5d6237a8",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\PHASE4_PHASE5_INTEGRATION.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_PHASE4_PHASE5_INTEGRATION.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.073379",
+      "integrity_hash": "3ad51f79f93a1afec295443700176292bbdde8ea848237865e232a468fb47d9b",
+      "size_mb": 0.015051841735839844
+    },
+    {
+      "asset_id": "2ba9bdcf",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\PLAN_ISSUED_STATEMENT.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_PLAN_ISSUED_STATEMENT.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.077441",
+      "integrity_hash": "9ae0b60af96de905826f4b5dc984ac64d37d72f9cc22f5775f9e8b4f5042dba1",
+      "size_mb": 0.008966445922851562
+    },
+    {
+      "asset_id": "d5e9898f",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\QUANTUM_OPTIMIZATION.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_QUANTUM_OPTIMIZATION.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.079553",
+      "integrity_hash": "fa463714be18d548a64b19109ddd5e1a891952134caa3c791891cd657304260d",
+      "size_mb": 0.013614654541015625
+    },
+    {
+      "asset_id": "40a7a800",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\RESPONSE_CHUNKING.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_RESPONSE_CHUNKING.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.079553",
+      "integrity_hash": "b224707bcb4a04c4cbc405d915b98ceee7b68dacaa278dca26be482abc610b64",
+      "size_mb": 0.004032135009765625
+    },
+    {
+      "asset_id": "bee956f9",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\SESSION_INSTRUCTION.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_SESSION_INSTRUCTION.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.086002",
+      "integrity_hash": "21170e9cd4dc16e801e36e8ba9ff52849a95d443dbbbd43bfd2eb404fcb8293e",
+      "size_mb": 0.01398468017578125
+    },
+    {
+      "asset_id": "2282a3c9",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\VISUAL_PROCESSING_INDICATORS.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_VISUAL_PROCESSING_INDICATORS.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.090836",
+      "integrity_hash": "de2598a5d9b3c665ff09be3c7bdfa3b680f9a7d580fd3291341740dbbdd9f25a",
+      "size_mb": 0.012134552001953125
+    },
+    {
+      "asset_id": "10307450",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\WEB_GUI_INTEGRATION.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_WEB_GUI_INTEGRATION.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.095291",
+      "integrity_hash": "bc5c2b0db9c4c18643c59542d4b09a5414596171959adf8adc1a1306aaade833",
+      "size_mb": 0.010947227478027344
+    },
+    {
+      "asset_id": "7b14a634",
+      "source": "e:\\gh_COPILOT\\.github\\instructions\\ZERO_TOLERANCE_VISUAL_PROCESSING.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_ZERO_TOLERANCE_VISUAL_PROCESSING.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.095291",
+      "integrity_hash": "f13adfe889baa52a4a6326b2329639bed3d44bfbfcf26ede5a3688981ba2910c",
+      "size_mb": 0.07715129852294922
+    },
+    {
+      "asset_id": "e7fee48f",
+      "source": "e:\\gh_COPILOT\\.github\\copilot\\conversations_with_human\\07062025-convo.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_07062025-convo.md",
+      "backup_time": "2025-07-07T08:04:37.104847",
+      "integrity_hash": "934ce10588aa6221dba30e1109fb70143fe601e326e71779d852dce2b0582722",
+      "size_mb": 0.06699752807617188
+    },
+    {
+      "asset_id": "e28bd2e6",
+      "source": "e:\\gh_COPILOT\\.github\\copilot\\conversations_with_human\\additional notes.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_additional notes.md",
+      "backup_time": "2025-07-07T08:04:37.108458",
+      "integrity_hash": "2dd93cebb4e8b5a8ee732f955149551d96085102725d03220050d4545eee9557",
+      "size_mb": 0.05077075958251953
+    },
+    {
+      "asset_id": "00edf139",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\administrator_guide_documentation_final.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_administrator_guide_documentation_final.md",
+      "backup_time": "2025-07-07T08:04:37.112552",
+      "integrity_hash": "243ce70809026a97cf1b3602dcc14d70c9ea3f4ec1f3e389b9dc01d90532de70",
+      "size_mb": 0.004688262939453125
+    },
+    {
+      "asset_id": "0660ac61",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\API_Documentation.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_API_Documentation.md",
+      "backup_time": "2025-07-07T08:04:37.112552",
+      "integrity_hash": "095454c735429462dd108982c63396b6fc55a6621fcd45f5561a3042753a6dd4",
+      "size_mb": 0.007447242736816406
+    },
+    {
+      "asset_id": "ff827a61",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\api_reference_documentation_final.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_api_reference_documentation_final.md",
+      "backup_time": "2025-07-07T08:04:37.112552",
+      "integrity_hash": "0e7474558217e9a725badbf3a1c95b40956e0d793dbee22d4690003d3c1c1b7c",
+      "size_mb": 0.00467681884765625
+    },
+    {
+      "asset_id": "53dddab6",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\Best_Practices_Guide.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_Best_Practices_Guide.md",
+      "backup_time": "2025-07-07T08:04:37.123830",
+      "integrity_hash": "4826052f24b7a6c2820e1ac41c55dc07c30ce0f8ff86722a14a12fcc59cd4f7e",
+      "size_mb": 0.0021295547485351562
+    },
+    {
+      "asset_id": "0ca01799",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\database_schema_documentation.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_database_schema_documentation.md",
+      "backup_time": "2025-07-07T08:04:37.131589",
+      "integrity_hash": "ddad268c8cf68e694f604a7731550def5f258618bb109439ac92f94689e0bb1a",
+      "size_mb": 0.07342147827148438
+    },
+    {
+      "asset_id": "b058a342",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\Environment_Configuration_Guide.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_Environment_Configuration_Guide.md",
+      "backup_time": "2025-07-07T08:04:37.134674",
+      "integrity_hash": "822770bbacc04aacb2dba55ae69f755213ec317ee48f98d8df3192ba291ccf02",
+      "size_mb": 0.0016450881958007812
+    },
+    {
+      "asset_id": "7e653e6c",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\er_diagrams.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_er_diagrams.md",
+      "backup_time": "2025-07-07T08:04:37.139700",
+      "integrity_hash": "0e827d3252020a9e7a20ad7686657f499eea169cb23dd4231db0803635f7a005",
+      "size_mb": 0.00751495361328125
+    },
+    {
+      "asset_id": "880c88a9",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\GitHub_Copilot_Integration_Guide.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_GitHub_Copilot_Integration_Guide.md",
+      "backup_time": "2025-07-07T08:04:37.141737",
+      "integrity_hash": "52787aec8ecded6fb7a0c020d889bdf0e5aba8b382d19281eb846f6f39d028a2",
+      "size_mb": 0.0017852783203125
+    },
+    {
+      "asset_id": "deeafe67",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\mission_completion_summary.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_mission_completion_summary.md",
+      "backup_time": "2025-07-07T08:04:37.141737",
+      "integrity_hash": "77a9bac77a6fbb4d6ae61c2ae6b7a967127f9e409cf53156b6786c0b4cb182ff",
+      "size_mb": 0.0097503662109375
+    },
+    {
+      "asset_id": "d08111b2",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\placeholder_reference_guide.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_placeholder_reference_guide.md",
+      "backup_time": "2025-07-07T08:04:37.141737",
+      "integrity_hash": "e40fbecc1055fd58e62f8ed3591d2db69a37170b9353f6506f03d22f4644abda",
+      "size_mb": 0.015364646911621094
+    },
+    {
+      "asset_id": "9f2a170b",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\security_and_compliance_documentation_final.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_security_and_compliance_documentation_final.md",
+      "backup_time": "2025-07-07T08:04:37.156542",
+      "integrity_hash": "fb705f1ab1075e92883dc6a064859b506be041b1314c2c22b58a44695aea9efa",
+      "size_mb": 0.004695892333984375
+    },
+    {
+      "asset_id": "128618fa",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\system_architecture.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_system_architecture.md",
+      "backup_time": "2025-07-07T08:04:37.160293",
+      "integrity_hash": "02cda7719082bb1760d27bc802b9555ce14dd3d150a04f01cccdf344682e5e06",
+      "size_mb": 0.009213447570800781
+    },
+    {
+      "asset_id": "722c1021",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\technical_architecture_documentation_final.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_technical_architecture_documentation_final.md",
+      "backup_time": "2025-07-07T08:04:37.162423",
+      "integrity_hash": "fd9e9edf39cfe1b26af5dfebf8ed2cdb83f2e9418f418f6c7b6fadcca9f2db52",
+      "size_mb": 0.0046939849853515625
+    },
+    {
+      "asset_id": "0c155265",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\troubleshooting_and_maintenance_guide_final.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_troubleshooting_and_maintenance_guide_final.md",
+      "backup_time": "2025-07-07T08:04:37.162423",
+      "integrity_hash": "30ac04ce0c7be46c86b333120baa09f1232cc1f3aa4f30b7c026417810b2e573",
+      "size_mb": 0.004695892333984375
+    },
+    {
+      "asset_id": "a1f4b09d",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\user_guide.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_user_guide.md",
+      "backup_time": "2025-07-07T08:04:37.173809",
+      "integrity_hash": "30a962017fce9523838034a9a8d807b9857f8036dc2f2e5b3de6f8f8baf58d7f",
+      "size_mb": 0.0012607574462890625
+    },
+    {
+      "asset_id": "5b9e8d61",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\user_guide_documentation_final.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_user_guide_documentation_final.md",
+      "backup_time": "2025-07-07T08:04:37.177478",
+      "integrity_hash": "e63d16aec996f14895b457a96b50d25d9a1e2b0f2b3c78f34c4e54ba4736ea60",
+      "size_mb": 0.0046710968017578125
+    },
+    {
+      "asset_id": "2cee63e1",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\advanced\\enterprise_integration_guide.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_enterprise_integration_guide.md",
+      "backup_time": "2025-07-07T08:04:37.179581",
+      "integrity_hash": "ec58f8516a9af1c5fed7dfee492cc0ca59fe8573c5c3ca616ab218dc53b62129",
+      "size_mb": 0.001415252685546875
+    },
+    {
+      "asset_id": "783d0f37",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\advanced\\performance_optimization_guide.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_performance_optimization_guide.md",
+      "backup_time": "2025-07-07T08:04:37.179581",
+      "integrity_hash": "b0ea1acd53c0c60346c8cb6d660cdc1eedd5914d08f40e3c9e9852313a40db0c",
+      "size_mb": 0.00140380859375
+    },
+    {
+      "asset_id": "a7f7b278",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\compliance\\enterprise_compliance.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_enterprise_compliance.md",
+      "backup_time": "2025-07-07T08:04:37.189144",
+      "integrity_hash": "e441bafaeb083d1ab83753747a0325c01a3fa939a4b2782a29c2292134b30b73",
+      "size_mb": 0.0055255889892578125
+    },
+    {
+      "asset_id": "7d24618f",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\diagrams\\comprehensive_er_diagram.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_comprehensive_er_diagram.md",
+      "backup_time": "2025-07-07T08:04:37.193883",
+      "integrity_hash": "76e82eeb6b67990c5c6cf489814494b55b11888aa57f62bc28a4d3cd8054b4cd",
+      "size_mb": 0.0063686370849609375
+    },
+    {
+      "asset_id": "0bd3be0e",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\er_diagrams\\analytics_er_diagram.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_analytics_er_diagram.md",
+      "backup_time": "2025-07-07T08:04:37.194927",
+      "integrity_hash": "77c51969718ef60eb3d4f6b3518a414f5747e17c62703628a4507897234bb9a2",
+      "size_mb": 0.0033254623413085938
+    },
+    {
+      "asset_id": "a20d280e",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\er_diagrams\\archive_er_diagram.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_archive_er_diagram.md",
+      "backup_time": "2025-07-07T08:04:37.205221",
+      "integrity_hash": "9d88c77b084e90435f78ff2376f26cf5c9abfc619c3cdca0360a2f2aca95aac7",
+      "size_mb": 0.0033216476440429688
+    },
+    {
+      "asset_id": "ee5b9cb5",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\er_diagrams\\development_er_diagram.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_development_er_diagram.md",
+      "backup_time": "2025-07-07T08:04:37.208742",
+      "integrity_hash": "a18a93d3d45b6e80cd30ebdc51e6b1376dd90bf4506564b215f520b6b67d1f28",
+      "size_mb": 0.0033292770385742188
+    },
+    {
+      "asset_id": "8f36956e",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\er_diagrams\\learning_monitor_er_diagram.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_learning_monitor_er_diagram.md",
+      "backup_time": "2025-07-07T08:04:37.208742",
+      "integrity_hash": "77e53a923a767800a5ea4f541a4868a904fba18f9ab52108f452f96838473dd1",
+      "size_mb": 0.026304244995117188
+    },
+    {
+      "asset_id": "d63c8e18",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\er_diagrams\\production_er_diagram.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_production_er_diagram.md",
+      "backup_time": "2025-07-07T08:04:37.221124",
+      "integrity_hash": "cb2170dc9d9abc187a87973c067f8103036a081f8c062af92d22a6a1c2bb357c",
+      "size_mb": 0.04230022430419922
+    },
+    {
+      "asset_id": "42e9839f",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\er_diagrams\\staging_er_diagram.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_staging_er_diagram.md",
+      "backup_time": "2025-07-07T08:04:37.227194",
+      "integrity_hash": "6f76af0169d27e7afc4802484a88d45a2f411f629fdfbe9e9b2fba8f62031ef1",
+      "size_mb": 0.0033216476440429688
+    },
+    {
+      "asset_id": "1b5783cc",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\er_diagrams\\testing_er_diagram.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_testing_er_diagram.md",
+      "backup_time": "2025-07-07T08:04:37.232190",
+      "integrity_hash": "1f554bbbf0b8adf32ac7b78b9cc37f3b07e52bd9d7818827744fc94c66c50c8f",
+      "size_mb": 0.0033216476440429688
+    },
+    {
+      "asset_id": "0370f7b8",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\executive\\enterprise_roi_analysis.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_enterprise_roi_analysis.md",
+      "backup_time": "2025-07-07T08:04:37.236905",
+      "integrity_hash": "27a6835c1b2b62c3469e9ef4e06eb2230fe31281dcc3b867d764fd12625b6a64",
+      "size_mb": 0.000934600830078125
+    },
+    {
+      "asset_id": "66692bad",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\executive\\strategic_roadmap.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_strategic_roadmap.md",
+      "backup_time": "2025-07-07T08:04:37.241965",
+      "integrity_hash": "04ac7305dc619e976e1cdfa9914ee9e70bf500f81a6e5c92cb124111b4f289e4",
+      "size_mb": 0.000888824462890625
+    },
+    {
+      "asset_id": "53f2d11b",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\analytics_collector_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_analytics_collector_schema.md",
+      "backup_time": "2025-07-07T08:04:37.241965",
+      "integrity_hash": "fbf6d3a49b3e63956aafd6accab87d79234c7e3f5914b96d5189919b6a330c4c",
+      "size_mb": 0.0038909912109375
+    },
+    {
+      "asset_id": "034b5bbf",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\analytics_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_analytics_schema.md",
+      "backup_time": "2025-07-07T08:04:37.241965",
+      "integrity_hash": "96a6e307cbae3e0307cf4c6553ac514204953efcf8773bce7480207c941b5b4b",
+      "size_mb": 0.004291534423828125
+    },
+    {
+      "asset_id": "aeb9c1de",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\archive_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_archive_schema.md",
+      "backup_time": "2025-07-07T08:04:37.256880",
+      "integrity_hash": "43fcfdaef3847293a52f42bcf5887327a50e33d0002c9b0fa2c36946407f8b84",
+      "size_mb": 0.004300117492675781
+    },
+    {
+      "asset_id": "e28bf686",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\capability_scaler_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_capability_scaler_schema.md",
+      "backup_time": "2025-07-07T08:04:37.261545",
+      "integrity_hash": "cdb4ed08a043dd0306926b41c42c86775f5c974caca708d6c391cf49b944e782",
+      "size_mb": 0.005208015441894531
+    },
+    {
+      "asset_id": "0f2e6f0e",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\continuous_innovation_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_continuous_innovation_schema.md",
+      "backup_time": "2025-07-07T08:04:37.262608",
+      "integrity_hash": "723b3966cb895ac54ca03dfeab60bc4bb538fd0067f51b03c046d7f1636c00a9",
+      "size_mb": 0.004939079284667969
+    },
+    {
+      "asset_id": "024f909b",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\development_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_development_schema.md",
+      "backup_time": "2025-07-07T08:04:37.262608",
+      "integrity_hash": "d137cfe25fe49bb10f9871ff139c7fa71b991cf22bd845acd09a6edc0e51e1a3",
+      "size_mb": 0.004302024841308594
+    },
+    {
+      "asset_id": "fd4616f7",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\factory_deployment_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_factory_deployment_schema.md",
+      "backup_time": "2025-07-07T08:04:37.270187",
+      "integrity_hash": "ae31665cbf27022de9fd46cffd2140cb3e01b90b3b0d6514f4566b517b94f33b",
+      "size_mb": 0.004016876220703125
+    },
+    {
+      "asset_id": "b3c648c8",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\learning_monitor_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_learning_monitor_schema.md",
+      "backup_time": "2025-07-07T08:04:37.278226",
+      "integrity_hash": "aca7fd0cec3ff9c039f03f6cfa4b05500fc23fe4cca2fac5c9978fb3b04e10ff",
+      "size_mb": 0.055572509765625
+    },
+    {
+      "asset_id": "5a9a8f6e",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\performance_analysis_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_performance_analysis_schema.md",
+      "backup_time": "2025-07-07T08:04:37.278226",
+      "integrity_hash": "8d0fc22ced70d6384447a8ab26cd906b0e1f3d84d72a93cb67ea66abc6990ad2",
+      "size_mb": 0.004914283752441406
+    },
+    {
+      "asset_id": "bc7fcc59",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\production_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_production_schema.md",
+      "backup_time": "2025-07-07T08:04:37.286929",
+      "integrity_hash": "da99f1eb0e86dcaf850ffd9b9d49828a722de952215ca710263a1bfafe82db76",
+      "size_mb": 0.06531333923339844
+    },
+    {
+      "asset_id": "e4f52834",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\scaling_innovation_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_scaling_innovation_schema.md",
+      "backup_time": "2025-07-07T08:04:37.291940",
+      "integrity_hash": "9a071317f5cb59be7ea8adddb4c1cf6eb59d0694317094c324326683614b0f9c",
+      "size_mb": 0.007152557373046875
+    },
+    {
+      "asset_id": "d79c798b",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\staging_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_staging_schema.md",
+      "backup_time": "2025-07-07T08:04:37.297173",
+      "integrity_hash": "67f2264cada5c9851ec4fe77788916dbf0acd76b8301c02c30381dfcc486b3cf",
+      "size_mb": 0.0043087005615234375
+    },
+    {
+      "asset_id": "4c351a8e",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\testing_schema.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_testing_schema.md",
+      "backup_time": "2025-07-07T08:04:37.300231",
+      "integrity_hash": "67b8b18dd2cc60c58c9d3fc16d44b018a207ba0bcde5872ddbebfd75dfd9a868",
+      "size_mb": 0.004305839538574219
+    },
+    {
+      "asset_id": "a5ec44ae",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\security_compliance\\security_compliance_framework.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_security_compliance_framework.md",
+      "backup_time": "2025-07-07T08:04:37.303806",
+      "integrity_hash": "ba08398505475d471957494416f41f80969b328801e2b646378096cd197e1522",
+      "size_mb": 0.005908012390136719
+    },
+    {
+      "asset_id": "a4649515",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\user_guides\\quick_start_guide.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_quick_start_guide.md",
+      "backup_time": "2025-07-07T08:04:37.308330",
+      "integrity_hash": "1a14b41b30f2781dc146531edd530fd4226f69d3e674e93e0813a4edc78e186b",
+      "size_mb": 0.0052490234375
+    },
+    {
+      "asset_id": "5649d272",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\compliance\\advanced\\data_governance_framework.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_data_governance_framework.md",
+      "backup_time": "2025-07-07T08:04:37.308330",
+      "integrity_hash": "303fa373177724addce2774fb7e2629ba9da5538cd068c8b699ecc04d16df15f",
+      "size_mb": 0.0008516311645507812
+    },
+    {
+      "asset_id": "4dc4f2f8",
+      "source": "e:\\gh_COPILOT\\documentation\\additional\\compliance\\advanced\\security_audit_report.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_security_audit_report.md",
+      "backup_time": "2025-07-07T08:04:37.318130",
+      "integrity_hash": "d31a16afa1cffe79169d2509f0b310722f0f855e6d5408afeb6da20f066d5fc1",
+      "size_mb": 0.0009250640869140625
+    },
+    {
+      "asset_id": "4e9d4469",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\AUTONOMOUS_FILE_MANAGEMENT.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_AUTONOMOUS_FILE_MANAGEMENT.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.320116",
+      "integrity_hash": "6d89f090a349a8bcdb674ce931ad80963e9047ce64f22526e4fb4c4b8d7593b6",
+      "size_mb": 0.009439468383789062
+    },
+    {
+      "asset_id": "7b93a0b8",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\COMPREHENSIVE_SESSION_INTEGRITY.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_COMPREHENSIVE_SESSION_INTEGRITY.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.325149",
+      "integrity_hash": "9e739890f21a95320fa6fbc244978a3fe0372418481a6e28655617badbdd6da5",
+      "size_mb": 0.014124870300292969
+    },
+    {
+      "asset_id": "447f6ff2",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\CONTINUOUS_OPERATION_MODE.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_CONTINUOUS_OPERATION_MODE.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.328409",
+      "integrity_hash": "6141962095109c0df4d11ce66873976afb01618b386c7a32a40673bbbff64809",
+      "size_mb": 0.014264106750488281
+    },
+    {
+      "asset_id": "166e4683",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\DUAL_COPILOT_PATTERN.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_DUAL_COPILOT_PATTERN.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.330411",
+      "integrity_hash": "71816aadf4b23825980aafb3a843e8d6ee3a0df2d90b2cd66a3226521334f81e",
+      "size_mb": 0.02211475372314453
+    },
+    {
+      "asset_id": "4fa0aa83",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\ENHANCED_COGNITIVE_PROCESSING.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_ENHANCED_COGNITIVE_PROCESSING.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.331467",
+      "integrity_hash": "67aa5f54cd4a1e3100f6703d478e981cfde3cdcb82768c82afe4de31192a0e03",
+      "size_mb": 0.01145172119140625
+    },
+    {
+      "asset_id": "c99070fa",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\ENHANCED_LEARNING_COPILOT.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_ENHANCED_LEARNING_COPILOT.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.331467",
+      "integrity_hash": "1ebe4ba194c30301922e777591b8fbc955db17d5c81cdf042ccf8ee85af990c2",
+      "size_mb": 0.008641242980957031
+    },
+    {
+      "asset_id": "f70561af",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\ENTERPRISE_CONTEXT.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_ENTERPRISE_CONTEXT.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.336956",
+      "integrity_hash": "de5d3192981bca23f6b80d4698c88dc83dc0b6624d9432a05b070eb9c86acd86",
+      "size_mb": 0.010652542114257812
+    },
+    {
+      "asset_id": "f84a02dc",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\PHASE4_PHASE5_INTEGRATION.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_PHASE4_PHASE5_INTEGRATION.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.342027",
+      "integrity_hash": "3ad51f79f93a1afec295443700176292bbdde8ea848237865e232a468fb47d9b",
+      "size_mb": 0.015051841735839844
+    },
+    {
+      "asset_id": "e00f87f5",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\PLAN_ISSUED_STATEMENT.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_PLAN_ISSUED_STATEMENT.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.345411",
+      "integrity_hash": "9ae0b60af96de905826f4b5dc984ac64d37d72f9cc22f5775f9e8b4f5042dba1",
+      "size_mb": 0.008966445922851562
+    },
+    {
+      "asset_id": "25abdb56",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\QUANTUM_OPTIMIZATION.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_QUANTUM_OPTIMIZATION.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.347402",
+      "integrity_hash": "fa463714be18d548a64b19109ddd5e1a891952134caa3c791891cd657304260d",
+      "size_mb": 0.013614654541015625
+    },
+    {
+      "asset_id": "43a72920",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\RESPONSE_CHUNKING.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_RESPONSE_CHUNKING.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.348470",
+      "integrity_hash": "b224707bcb4a04c4cbc405d915b98ceee7b68dacaa278dca26be482abc610b64",
+      "size_mb": 0.004032135009765625
+    },
+    {
+      "asset_id": "ac602a98",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\SESSION_INSTRUCTION.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_SESSION_INSTRUCTION.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.352479",
+      "integrity_hash": "21170e9cd4dc16e801e36e8ba9ff52849a95d443dbbbd43bfd2eb404fcb8293e",
+      "size_mb": 0.01398468017578125
+    },
+    {
+      "asset_id": "74ad2e26",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\VISUAL_PROCESSING_INDICATORS.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_VISUAL_PROCESSING_INDICATORS.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.353433",
+      "integrity_hash": "de2598a5d9b3c665ff09be3c7bdfa3b680f9a7d580fd3291341740dbbdd9f25a",
+      "size_mb": 0.012134552001953125
+    },
+    {
+      "asset_id": "d1130b1a",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\WEB_GUI_INTEGRATION.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_WEB_GUI_INTEGRATION.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.358462",
+      "integrity_hash": "bc5c2b0db9c4c18643c59542d4b09a5414596171959adf8adc1a1306aaade833",
+      "size_mb": 0.010947227478027344
+    },
+    {
+      "asset_id": "c278b03c",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\instructions\\ZERO_TOLERANCE_VISUAL_PROCESSING.instructions.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_ZERO_TOLERANCE_VISUAL_PROCESSING.instructions.md",
+      "backup_time": "2025-07-07T08:04:37.361835",
+      "integrity_hash": "f13adfe889baa52a4a6326b2329639bed3d44bfbfcf26ede5a3688981ba2910c",
+      "size_mb": 0.07715129852294922
+    },
+    {
+      "asset_id": "8b51542f",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\copilot\\conversations_with_human\\07032025-0100.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_07032025-0100.md",
+      "backup_time": "2025-07-07T08:04:37.364828",
+      "integrity_hash": "ab00b06bb46aff91893a30fd1f0252a21e8fbf7b2914bc4431053a06f181ff42",
+      "size_mb": 0.019575119018554688
+    },
+    {
+      "asset_id": "366a147f",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\copilot\\conversations_with_human\\07062025-1250.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_07062025-1250.md",
+      "backup_time": "2025-07-07T08:04:37.370200",
+      "integrity_hash": "208526a3bed3bd8a6aa342e758e16cc7c18a7bb971dae1d6deb9a4c9ba045002",
+      "size_mb": 0.10378360748291016
+    },
+    {
+      "asset_id": "73196c29",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\copilot\\conversations_with_human\\07062025-1405.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_07062025-1405.md",
+      "backup_time": "2025-07-07T08:04:37.375219",
+      "integrity_hash": "2ea353b7f465b47ee21da564674b4a7310676e4f5ebd37c2efc3b1fbf3f22ab4",
+      "size_mb": 0.07259082794189453
+    },
+    {
+      "asset_id": "da1d5e58",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\copilot\\conversations_with_human\\additional_notes-self_learning.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_additional_notes-self_learning.md",
+      "backup_time": "2025-07-07T08:04:37.380644",
+      "integrity_hash": "afa2e354f1e401f6096b521aa89226f2866e253058bb54f08adbf6f87dd0d608",
+      "size_mb": 0.1919384002685547
+    },
+    {
+      "asset_id": "01461391",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\copilot\\conversations_with_human\\disaster_recovery_enhancer_edited_additional_notes.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_disaster_recovery_enhancer_edited_additional_notes.md",
+      "backup_time": "2025-07-07T08:04:37.386810",
+      "integrity_hash": "d62722b815291950446b3ba3d2dde8aa5b651e8680490b8a6f572bbf5707708c",
+      "size_mb": 0.0679616928100586
+    },
+    {
+      "asset_id": "0ef28a65",
+      "source": "e:\\gh_COPILOT\\github_integration\\.github\\copilot\\conversations_with_human\\set_of_prompts.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_set_of_prompts.md",
+      "backup_time": "2025-07-07T08:04:37.391834",
+      "integrity_hash": "8ecc28119451f9a23831c03c712b8f7d61b5996255fca38f4626a85722cc8c1c",
+      "size_mb": 0.037375450134277344
+    },
+    {
+      "asset_id": "7325633e",
+      "source": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\documentation\\database_migration_guide_DB_MIGRATION_20250707_074327.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_database_migration_guide_DB_MIGRATION_20250707_074327.md",
+      "backup_time": "2025-07-07T08:04:37.398751",
+      "integrity_hash": "5c96103fb3b098f35234f5418fe92570f3d2027892105fdd9bbcbed1a9e3adf3",
+      "size_mb": 0.0025434494018554688
+    },
+    {
+      "asset_id": "ec664f3b",
+      "source": "e:\\gh_COPILOT\\web_gui\\documentation\\README.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_README.md",
+      "backup_time": "2025-07-07T08:04:37.398751",
+      "integrity_hash": "09f5d22114b45a4ff40f8f7768f4c25f49ac442a1ee15e3b01b47f00ef6d72a7",
+      "size_mb": 0.004242897033691406
+    },
+    {
+      "asset_id": "89ca6bb9",
+      "source": "e:\\gh_COPILOT\\web_gui\\documentation\\api_docs\\README.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_README.md",
+      "backup_time": "2025-07-07T08:04:37.403442",
+      "integrity_hash": "32be791c7b0c9dde75104448c87b5eb79e7246eadf628388f97288f4dc9ea4a0",
+      "size_mb": 0.00716400146484375
+    },
+    {
+      "asset_id": "49dde782",
+      "source": "e:\\gh_COPILOT\\web_gui\\documentation\\deployment\\README.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_README.md",
+      "backup_time": "2025-07-07T08:04:37.408472",
+      "integrity_hash": "e9cd9fa24591221ddc135dbb4d109582c959806404178c6334b2d6a53f5ecf12",
+      "size_mb": 0.0025539398193359375
+    },
+    {
+      "asset_id": "7b1ccca8",
+      "source": "e:\\gh_COPILOT\\web_gui\\documentation\\error_recovery\\README.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_README.md",
+      "backup_time": "2025-07-07T08:04:37.408472",
+      "integrity_hash": "a52741e2af7140b2784d1117fcc7ae704c0c6b0a6b42be69962950b556e409c6",
+      "size_mb": 0.008860588073730469
+    },
+    {
+      "asset_id": "b6ab0cb9",
+      "source": "e:\\gh_COPILOT\\web_gui\\documentation\\migration\\README.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_README.md",
+      "backup_time": "2025-07-07T08:04:37.408472",
+      "integrity_hash": "9a7efdd79c0f6114d2c0f3e1547bbde38764977ae89376aa5f07eb8e895e34b1",
+      "size_mb": 0.010138511657714844
+    },
+    {
+      "asset_id": "aaf44b2c",
+      "source": "e:\\gh_COPILOT\\web_gui\\documentation\\user_guides\\README.md",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\MEDIUM_README.md",
+      "backup_time": "2025-07-07T08:04:37.415593",
+      "integrity_hash": "8090d1e9ae739437f24299f3a31045357f3aeadbe93406b2ec2df353d645638e",
+      "size_mb": 0.006747245788574219
+    },
+    {
+      "asset_id": "6b0dff22",
+      "source": "e:\\gh_COPILOT\\requirements.txt",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_requirements.txt",
+      "backup_time": "2025-07-07T08:04:37.417608",
+      "integrity_hash": "52b8b19d8a42eeaf9bfb88660e096900af1c850bc535cc589d3b881d0bf7b002",
+      "size_mb": 0.008799552917480469
+    },
+    {
+      "asset_id": "91059bcd",
+      "source": "e:\\gh_COPILOT\\web_gui\\scripts\\requirements.txt",
+      "backup": "e:\\gh_COPILOT\\disaster_recovery\\backups\\HIGH_requirements.txt",
+      "backup_time": "2025-07-07T08:04:37.420154",
+      "integrity_hash": "98d33a2405d6b2632ea3042cece312ff1574927f83af615a19a1fc270cb345ff",
+      "size_mb": 0.0008182525634765625
+    }
+  ]
+}

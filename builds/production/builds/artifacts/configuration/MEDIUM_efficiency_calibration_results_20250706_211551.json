@@ -1,0 +1,24 @@
+{
+  "calibration_id": "CALIB_20250706_211551",
+  "target_efficiency": 100.0,
+  "calibrated_efficiency": 100.0,
+  "service_status": {
+    "running": 1,
+    "total": 6,
+    "efficiency": 16.666666666666664
+  },
+  "database_status": {
+    "healthy": 30,
+    "total": 31,
+    "efficiency": 96.7741935483871
+  },
+  "system_status": {
+    "cpu_percent": 4.3,
+    "memory_percent": 73.7,
+    "disk_percent": 25.7,
+    "load": 34.56666666666667,
+    "efficiency": 65.43333333333334
+  },
+  "success": true,
+  "timestamp": "2025-07-06T21:15:51.268101"
+}

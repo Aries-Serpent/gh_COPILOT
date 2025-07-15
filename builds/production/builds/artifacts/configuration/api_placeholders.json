@@ -1,0 +1,23 @@
+{
+  "endpoints": [
+    "{{API_BASE_URL}}",
+    "{{API_VERSION}}",
+    "{{ENDPOINT_PATH}}",
+    "{{REQUEST_METHOD}}",
+    "{{RESPONSE_FORMAT}}"
+  ],
+  "authentication": [
+    "{{API_KEY}}",
+    "{{AUTH_TOKEN}}",
+    "{{JWT_SECRET}}",
+    "{{OAUTH_CLIENT_ID}}",
+    "{{OAUTH_CLIENT_SECRET}}"
+  ],
+  "headers": [
+    "{{CONTENT_TYPE}}",
+    "{{ACCEPT_TYPE}}",
+    "{{USER_AGENT}}",
+    "{{CORRELATION_ID}}",
+    "{{REQUEST_ID}}"
+  ]
+}

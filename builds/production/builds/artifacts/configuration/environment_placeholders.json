@@ -1,0 +1,23 @@
+{
+  "development": [
+    "{{DEV_DATABASE_URL}}",
+    "{{DEV_API_URL}}",
+    "{{DEV_LOG_LEVEL}}",
+    "{{DEV_DEBUG_MODE}}",
+    "{{DEV_CACHE_SIZE}}"
+  ],
+  "staging": [
+    "{{STAGE_DATABASE_URL}}",
+    "{{STAGE_API_URL}}",
+    "{{STAGE_LOG_LEVEL}}",
+    "{{STAGE_PERFORMANCE_MODE}}",
+    "{{STAGE_MONITORING}}"
+  ],
+  "production": [
+    "{{PROD_DATABASE_URL}}",
+    "{{PROD_API_URL}}",
+    "{{PROD_LOG_LEVEL}}",
+    "{{PROD_SECURITY_MODE}}",
+    "{{PROD_BACKUP_SCHEDULE}}"
+  ]
+}

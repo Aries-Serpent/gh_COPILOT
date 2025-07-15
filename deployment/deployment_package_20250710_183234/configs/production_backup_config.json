@@ -1,0 +1,19 @@
+{
+  "backup_schedule": {
+    "full_backup": "weekly",
+    "incremental_backup": "daily",
+    "transaction_log_backup": "15_minutes",
+    "configuration_backup": "daily"
+  },
+  "backup_storage": {
+    "local_backup": "raid_6_array",
+    "offsite_backup": "cloud_storage",
+    "archive_backup": "tape_library",
+    "retention_policy": "7_years"
+  },
+  "backup_validation": {
+    "integrity_checks": "automated",
+    "restore_testing": "monthly",
+    "recovery_drills": "quarterly"
+  }
+}

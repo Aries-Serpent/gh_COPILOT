@@ -1,0 +1,17 @@
+{
+  "real_time_monitoring": {
+    "compliance_violations": "immediate_alert",
+    "policy_breaches": "immediate_alert",
+    "security_incidents": "immediate_alert"
+  },
+  "monitoring_metrics": {
+    "compliance_score": "percentage",
+    "violation_count": "absolute",
+    "remediation_time": "minutes"
+  },
+  "alert_mechanisms": {
+    "email_alerts": "enabled",
+    "dashboard_alerts": "enabled",
+    "api_webhooks": "enabled"
+  }
+}

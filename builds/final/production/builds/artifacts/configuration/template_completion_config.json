@@ -1,0 +1,49 @@
+{
+  "scanning": {
+    "enabled": true,
+    "scan_interval": 3600,
+    "deep_scan": true,
+    "include_hidden": false,
+    "max_file_size": 10485760,
+    "exclude_patterns": [
+      "*.pyc",
+      "*.pyo",
+      "*.pyd",
+      "__pycache__",
+      ".git",
+      ".vscode",
+      "node_modules"
+    ]
+  },
+  "completion": {
+    "auto_completion": true,
+    "require_manual_review": false,
+    "quality_threshold": 0.7,
+    "max_completion_time": 300,
+    "backup_originals": true,
+    "content_enhancement": true
+  },
+  "documentation": {
+    "auto_generation": true,
+    "include_api_docs": true,
+    "include_examples": true,
+    "markdown_format": true,
+    "include_diagrams": false,
+    "link_validation": true
+  },
+  "quality": {
+    "spell_check": true,
+    "grammar_check": true,
+    "consistency_check": true,
+    "completeness_check": true,
+    "readability_analysis": true,
+    "technical_accuracy": true
+  },
+  "content_generation": {
+    "use_ai_assistance": true,
+    "context_analysis": true,
+    "code_pattern_recognition": true,
+    "template_inheritance": true,
+    "content_personalization": true
+  }
+}

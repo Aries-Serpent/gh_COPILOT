@@ -1,0 +1,2469 @@
+{
+  "metadata": {
+    "report_type": "priority_analysis",
+    "generated_at": "2025-07-13T01:12:05.480603",
+    "database_path": "e:\\gh_COPILOT\\databases\\flake8_violations.db",
+    "total_pending_violations": 12635,
+    "analysis_duration_seconds": 0.130164
+  },
+  "priority_analysis": {
+    "violation_types": [
+      {
+        "error_code": "F821",
+        "count": 390,
+        "percentage": 3.086664028492283,
+        "severity": "CRITICAL",
+        "fix_complexity": "LOW",
+        "business_impact": "HIGH",
+        "priority_score": 100
+      },
+      {
+        "error_code": "E999",
+        "count": 12,
+        "percentage": 0.09497427779976257,
+        "severity": "CRITICAL",
+        "fix_complexity": "HIGH",
+        "business_impact": "HIGH",
+        "priority_score": 90
+      },
+      {
+        "error_code": "F401",
+        "count": 1899,
+        "percentage": 15.029679461812426,
+        "severity": "HIGH",
+        "fix_complexity": "LOW",
+        "business_impact": "MEDIUM",
+        "priority_score": 85
+      },
+      {
+        "error_code": "F841",
+        "count": 60,
+        "percentage": 0.4748713889988128,
+        "severity": "HIGH",
+        "fix_complexity": "LOW",
+        "business_impact": "MEDIUM",
+        "priority_score": 80
+      },
+      {
+        "error_code": "F811",
+        "count": 4,
+        "percentage": 0.031658092599920855,
+        "severity": "HIGH",
+        "fix_complexity": "MEDIUM",
+        "business_impact": "MEDIUM",
+        "priority_score": 75
+      },
+      {
+        "error_code": "E302",
+        "count": 2932,
+        "percentage": 23.20538187574199,
+        "severity": "MEDIUM",
+        "fix_complexity": "LOW",
+        "business_impact": "LOW",
+        "priority_score": 70
+      },
+      {
+        "error_code": "E305",
+        "count": 1478,
+        "percentage": 11.697665215670757,
+        "severity": "MEDIUM",
+        "fix_complexity": "LOW",
+        "business_impact": "LOW",
+        "priority_score": 65
+      },
+      {
+        "error_code": "E501",
+        "count": 1962,
+        "percentage": 15.52829442026118,
+        "severity": "MEDIUM",
+        "fix_complexity": "MEDIUM",
+        "business_impact": "LOW",
+        "priority_score": 60
+      },
+      {
+        "error_code": "W293",
+        "count": 3520,
+        "percentage": 27.85912148793035,
+        "severity": "LOW",
+        "fix_complexity": "LOW",
+        "business_impact": "LOW",
+        "priority_score": 50
+      },
+      {
+        "error_code": "W291",
+        "count": 149,
+        "percentage": 1.1792639493470518,
+        "severity": "LOW",
+        "fix_complexity": "LOW",
+        "business_impact": "LOW",
+        "priority_score": 45
+      },
+      {
+        "error_code": "W292",
+        "count": 7,
+        "percentage": 0.0554016620498615,
+        "severity": "LOW",
+        "fix_complexity": "LOW",
+        "business_impact": "LOW",
+        "priority_score": 40
+      },
+      {
+        "error_code": "E303",
+        "count": 6,
+        "percentage": 0.047487138899881286,
+        "severity": "LOW",
+        "fix_complexity": "LOW",
+        "business_impact": "LOW",
+        "priority_score": 35
+      },
+      {
+        "error_code": "W391",
+        "count": 4,
+        "percentage": 0.031658092599920855,
+        "severity": "LOW",
+        "fix_complexity": "LOW",
+        "business_impact": "LOW",
+        "priority_score": 10
+      },
+      {
+        "error_code": "F541",
+        "count": 84,
+        "percentage": 0.6648199445983379,
+        "severity": "UNKNOWN",
+        "fix_complexity": "UNKNOWN",
+        "business_impact": "UNKNOWN",
+        "priority_score": 1
+      },
+      {
+        "error_code": "E128",
+        "count": 70,
+        "percentage": 0.554016620498615,
+        "severity": "UNKNOWN",
+        "fix_complexity": "UNKNOWN",
+        "business_impact": "UNKNOWN",
+        "priority_score": 1
+      },
+      {
+        "error_code": "E122",
+        "count": 40,
+        "percentage": 0.31658092599920856,
+        "severity": "UNKNOWN",
+        "fix_complexity": "UNKNOWN",
+        "business_impact": "UNKNOWN",
+        "priority_score": 1
+      },
+      {
+        "error_code": "E722",
+        "count": 8,
+        "percentage": 0.06331618519984171,
+        "severity": "UNKNOWN",
+        "fix_complexity": "UNKNOWN",
+        "business_impact": "UNKNOWN",
+        "priority_score": 1
+      },
+      {
+        "error_code": "E231",
+        "count": 4,
+        "percentage": 0.031658092599920855,
+        "severity": "UNKNOWN",
+        "fix_complexity": "UNKNOWN",
+        "business_impact": "UNKNOWN",
+        "priority_score": 1
+      },
+      {
+        "error_code": "E129",
+        "count": 4,
+        "percentage": 0.031658092599920855,
+        "severity": "UNKNOWN",
+        "fix_complexity": "UNKNOWN",
+        "business_impact": "UNKNOWN",
+        "priority_score": 1
+      },
+      {
+        "error_code": "E402",
+        "count": 2,
+        "percentage": 0.015829046299960427,
+        "severity": "UNKNOWN",
+        "fix_complexity": "UNKNOWN",
+        "business_impact": "UNKNOWN",
+        "priority_score": 1
+      }
+    ],
+    "severity_breakdown": {
+      "CRITICAL": {
+        "count": 402,
+        "types": [
+          "F821",
+          "E999"
+        ]
+      },
+      "HIGH": {
+        "count": 1963,
+        "types": [
+          "F401",
+          "F841",
+          "F811"
+        ]
+      },
+      "MEDIUM": {
+        "count": 6372,
+        "types": [
+          "E302",
+          "E305",
+          "E501"
+        ]
+      },
+      "LOW": {
+        "count": 3686,
+        "types": [
+          "W293",
+          "W291",
+          "W292",
+          "E303",
+          "W391"
+        ]
+      }
+    }
+  },
+  "critical_files": [
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\systematic_flake8_error_analysis_corrector.py",
+      "total_violations": 34,
+      "critical_violations": 20
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\systematic_flake8_error_analysis_corrector.py",
+      "total_violations": 34,
+      "critical_violations": 20
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\systematic_flake8_error_analysis_corrector.py",
+      "total_violations": 34,
+      "critical_violations": 20
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\.github\\copilot\\conversations_with_human\\disaster_recovery_enhancer_edited.py",
+      "total_violations": 14,
+      "critical_violations": 8
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\database_first_windows_compatible_flake8_corrector.py",
+      "total_violations": 16,
+      "critical_violations": 4
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\database_first_windows_compatible_flake8_corrector.py",
+      "total_violations": 16,
+      "critical_violations": 4
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\database_sync_scheduler.py",
+      "total_violations": 4,
+      "critical_violations": 4
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\database_sync_scheduler.py",
+      "total_violations": 4,
+      "critical_violations": 4
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\web_gui\\scripts\\flask_apps\\enterprise_dashboard.py",
+      "total_violations": 10,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\builds\\final\\production\\builds\\artifacts\\validation\\database_file_system_synchronization_validator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\builds\\final\\production\\builds\\artifacts\\validation\\enterprise_database_query_validator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\builds\\final\\production\\builds\\artifacts\\validation\\enterprise_database_validator_generated.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\builds\\production\\builds\\artifacts\\validation\\database_file_system_synchronization_validator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\builds\\production\\builds\\artifacts\\validation\\enterprise_database_query_validator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\builds\\production\\builds\\artifacts\\validation\\enterprise_database_validator_generated.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\comprehensive_database_first_enhancer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\database_access_layer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\database_emoji_cleaner.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\database_file_system_synchronization_validator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\database_first_enhancement_executor.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\database_first_synchronization_engine.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\comprehensive_database_first_enhancer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\database_access_layer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\database_consolidation_migration.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\database_emoji_cleaner.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\database_file_system_synchronization_validator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\database_first_enhancement_executor.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\database_first_synchronization_engine.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\documentation_db_analyzer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\documentation_db_cleanup_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\documentation_db_comprehensive_cleanup.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\documentation_db_comprehensive_optimizer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\enhanced_database_first_integrator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\enterprise_database_driven_build_integration_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\enterprise_database_driven_build_orchestrator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\enterprise_database_driven_documentation_manager.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\enterprise_phase_database_executor.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\enterprise_script_database_synchronizer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\pis_database_enhancement.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\pis_database_setup.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\pis_framework_database_creator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\pis_framework_database_first_updater.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\surgical_database_compressor.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\unified_database_management_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\comprehensive_database_first_enhancer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\database_access_layer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\database_consolidation_migration.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\database_emoji_cleaner.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\database_file_system_synchronization_validator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\database_first_enhancement_executor.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\database_first_synchronization_engine.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\documentation_db_analyzer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\documentation_db_cleanup_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\documentation_db_comprehensive_cleanup.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\documentation_db_comprehensive_optimizer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\enhanced_database_first_integrator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\enterprise_database_driven_build_integration_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\enterprise_database_driven_build_orchestrator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\enterprise_database_driven_documentation_manager.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\enterprise_phase_database_executor.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\enterprise_script_database_synchronizer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\pis_database_enhancement.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\pis_database_setup.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\pis_framework_database_creator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\pis_framework_database_first_updater.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\surgical_database_compressor.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\unified_database_management_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\documentation_db_analyzer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\documentation_db_cleanup_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\documentation_db_comprehensive_cleanup.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\documentation_db_comprehensive_optimizer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\enhanced_database_first_integrator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\enterprise_database_driven_build_integration_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\enterprise_database_driven_build_orchestrator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\enterprise_database_driven_documentation_manager.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\enterprise_phase_database_executor.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\enterprise_script_database_synchronizer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\pis_database_enhancement.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\pis_database_setup.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\pis_framework_database_creator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\pis_framework_database_first_updater.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\DATABASE_CAPTURE_COMPLETE.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\DATABASE_CLEANUP_EXECUTOR.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\DATABASE_REDUNDANCY_ANALYZER.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\FINAL_DATABASE_CAPTURE_VALIDATION.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\PRODUCTION_DATABASE_ANALYZER.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\PRODUCTION_DB_VALIDATION.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\scripts\\DATABASE_CLEANUP_EXECUTOR.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\scripts\\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\scripts\\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\scripts\\database_organization_manager.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\scripts\\deployment\\DATABASE_CLEANUP_EXECUTOR.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\scripts\\deployment\\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\scripts\\deployment\\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\scripts\\deployment\\database_organization_manager.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\archived_database_scripts\\DB_MIGRATION_20250707_074327\\scripts\\regenerated\\database_organization_manager.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\comprehensive_database_structure_analyzer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\cross_database_aggregation_implementation.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\cross_database_aggregation_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\database_driven_web_gui_generator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\database_organization_manager.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\DATABASE_CAPTURE_COMPLETE.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\DATABASE_CLEANUP_EXECUTOR.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\DATABASE_REDUNDANCY_ANALYZER.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\FINAL_DATABASE_CAPTURE_VALIDATION.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\PRODUCTION_DATABASE_ANALYZER.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\PRODUCTION_DB_VALIDATION.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\comprehensive_database_structure_analyzer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\cross_database_aggregation_implementation.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\cross_database_aggregation_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\database_driven_web_gui_generator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\database_organization_manager.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\enhanced_multi_database_platform.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\enterprise_database_framework_analyzer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\enterprise_database_organizer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\enterprise_database_query_validator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\multi_database_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\phase_3_cross_database_aggregation.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\production_db_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\production_db_codebase_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\production_db_comprehensive_script_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\deployment\\quick_database_query.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\enhanced_multi_database_platform.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\enterprise_database_framework_analyzer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\enterprise_database_organizer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\enterprise_database_query_validator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\generated\\enterprise_database_validator_generated.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\generated\\phase_3_enhanced_cross_database_aggregation.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\multi_database_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\phase_3_cross_database_aggregation.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\production_db_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\production_db_codebase_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\production_db_comprehensive_script_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\quick_database_query.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\comprehensive_database_structure_analyzer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\cross_database_aggregation_implementation.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\cross_database_aggregation_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\enhanced_multi_database_platform.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\enterprise_database_framework_analyzer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\enterprise_database_organizer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\enterprise_database_query_validator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\enterprise_deployment\\advanced_database_query_system.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\enterprise_deployment\\autonomous_database_administration_finalization.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\enterprise_deployment\\database_first_copilot_enhancer.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\enterprise_deployment\\database_schema_documentation_automation_complete.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\generated_scripts\\enterprise_database_validator_generated.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\generated_scripts\\phase_3_enhanced_cross_database_aggregation.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\multi_database_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\phase_3_cross_database_aggregation.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\production_db_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\production_db_codebase_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\production_db_comprehensive_script_analysis.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\regenerated\\quick_database_query.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\verify_databases.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\surgical_database_compressor.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\web_gui\\database_driven_web_gui_generator.py",
+      "total_violations": 8,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\.git\\logs\\refs\\remotes\\origin\\codex\\clean-up-enterprise_dashboard.py",
+      "total_violations": 2,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\.git\\logs\\refs\\remotes\\origin\\codex\\implement-unified_monitoring_optimization_system.py",
+      "total_violations": 2,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\.git\\logs\\refs\\remotes\\origin\\codex\\remove-duplicate-enterprise_json_serialization_fix.py",
+      "total_violations": 2,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\.git\\refs\\remotes\\origin\\codex\\clean-up-enterprise_dashboard.py",
+      "total_violations": 2,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\.git\\refs\\remotes\\origin\\codex\\implement-unified_monitoring_optimization_system.py",
+      "total_violations": 2,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\.git\\refs\\remotes\\origin\\codex\\remove-duplicate-enterprise_json_serialization_fix.py",
+      "total_violations": 2,
+      "critical_violations": 2
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\scripts\\generated\\basic_utility_demo.py",
+      "total_violations": 2,
+      "critical_violations": 2
+    }
+  ],
+  "high_impact_files": [
+    {
+      "file_path": "e:\\gh_COPILOT\\unicode_flake8_master_controller.py",
+      "violation_count": 462
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\enterprise_dual_copilot_validator.py",
+      "violation_count": 460
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\enterprise_visual_processing_system.py",
+      "violation_count": 334
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\database_driven_correction_engine.py",
+      "violation_count": 334
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\comprehensive_flake8_violations_processor.py",
+      "violation_count": 296
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment_optimization_engine.py",
+      "violation_count": 294
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\deployment_optimization_engine.py",
+      "violation_count": 294
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\deployment_optimization_engine.py",
+      "violation_count": 294
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\enterprise_integration_validator.py",
+      "violation_count": 278
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\enterprise_optimization_engine.py",
+      "violation_count": 220
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\enterprise_optimization_engine.py",
+      "violation_count": 220
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\enterprise_optimization_engine.py",
+      "violation_count": 220
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\enterprise_unicode_flake8_corrector.py",
+      "violation_count": 208
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\database_purification_engine.py",
+      "violation_count": 208
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\database_purification_engine.py",
+      "violation_count": 208
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\database_purification_engine.py",
+      "violation_count": 208
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment_optimization_engine_fixed.py",
+      "violation_count": 176
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\deployment_optimization_engine_fixed.py",
+      "violation_count": 176
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\test_complete_enterprise_system.py",
+      "violation_count": 76
+    },
+    {
+      "file_path": "e:\\gh_COPILOT\\SESSION_INTEGRITY_MANAGER.py",
+      "violation_count": 43
+    }
+  ],
+  "processing_batches": [
+    {
+      "name": "CRITICAL_SECURITY_FUNCTIONALITY",
+      "description": "Critical security and functionality violations",
+      "priority": 100,
+      "violation_types": [
+        "F821",
+        "E999"
+      ],
+      "estimated_count": 402,
+      "complexity": "HIGH",
+      "requires_manual_review": true
+    },
+    {
+      "name": "HIGH_PRIORITY_CODE_QUALITY",
+      "description": "High priority code quality issues in top files",
+      "priority": 90,
+      "violation_types": [
+        "F401",
+        "F841",
+        "F811"
+      ],
+      "estimated_count": 1963,
+      "complexity": "MEDIUM",
+      "requires_manual_review": false,
+      "target_files": [
+        "e:\\gh_COPILOT\\unicode_flake8_master_controller.py",
+        "e:\\gh_COPILOT\\enterprise_dual_copilot_validator.py",
+        "e:\\gh_COPILOT\\enterprise_visual_processing_system.py",
+        "e:\\gh_COPILOT\\database_driven_correction_engine.py",
+        "e:\\gh_COPILOT\\comprehensive_flake8_violations_processor.py",
+        "e:\\gh_COPILOT\\deployment_optimization_engine.py",
+        "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\deployment_optimization_engine.py",
+        "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\deployment_optimization_engine.py",
+        "e:\\gh_COPILOT\\enterprise_integration_validator.py",
+        "e:\\gh_COPILOT\\enterprise_optimization_engine.py"
+      ]
+    },
+    {
+      "name": "MEDIUM_PRIORITY_FORMATTING",
+      "description": "Medium priority formatting issues (automated fixes)",
+      "priority": 80,
+      "violation_types": [
+        "E302",
+        "E305",
+        "E501"
+      ],
+      "estimated_count": 6372,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_1",
+      "description": "Low priority whitespace issues (batch 1/74)",
+      "priority": 70,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_2",
+      "description": "Low priority whitespace issues (batch 2/74)",
+      "priority": 69,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_3",
+      "description": "Low priority whitespace issues (batch 3/74)",
+      "priority": 68,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_4",
+      "description": "Low priority whitespace issues (batch 4/74)",
+      "priority": 67,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_5",
+      "description": "Low priority whitespace issues (batch 5/74)",
+      "priority": 66,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_6",
+      "description": "Low priority whitespace issues (batch 6/74)",
+      "priority": 65,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_7",
+      "description": "Low priority whitespace issues (batch 7/74)",
+      "priority": 64,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_8",
+      "description": "Low priority whitespace issues (batch 8/74)",
+      "priority": 63,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_9",
+      "description": "Low priority whitespace issues (batch 9/74)",
+      "priority": 62,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_10",
+      "description": "Low priority whitespace issues (batch 10/74)",
+      "priority": 61,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_11",
+      "description": "Low priority whitespace issues (batch 11/74)",
+      "priority": 60,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_12",
+      "description": "Low priority whitespace issues (batch 12/74)",
+      "priority": 59,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_13",
+      "description": "Low priority whitespace issues (batch 13/74)",
+      "priority": 58,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_14",
+      "description": "Low priority whitespace issues (batch 14/74)",
+      "priority": 57,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_15",
+      "description": "Low priority whitespace issues (batch 15/74)",
+      "priority": 56,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_16",
+      "description": "Low priority whitespace issues (batch 16/74)",
+      "priority": 55,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_17",
+      "description": "Low priority whitespace issues (batch 17/74)",
+      "priority": 54,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_18",
+      "description": "Low priority whitespace issues (batch 18/74)",
+      "priority": 53,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_19",
+      "description": "Low priority whitespace issues (batch 19/74)",
+      "priority": 52,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_20",
+      "description": "Low priority whitespace issues (batch 20/74)",
+      "priority": 51,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_21",
+      "description": "Low priority whitespace issues (batch 21/74)",
+      "priority": 50,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_22",
+      "description": "Low priority whitespace issues (batch 22/74)",
+      "priority": 49,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_23",
+      "description": "Low priority whitespace issues (batch 23/74)",
+      "priority": 48,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_24",
+      "description": "Low priority whitespace issues (batch 24/74)",
+      "priority": 47,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_25",
+      "description": "Low priority whitespace issues (batch 25/74)",
+      "priority": 46,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_26",
+      "description": "Low priority whitespace issues (batch 26/74)",
+      "priority": 45,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_27",
+      "description": "Low priority whitespace issues (batch 27/74)",
+      "priority": 44,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_28",
+      "description": "Low priority whitespace issues (batch 28/74)",
+      "priority": 43,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_29",
+      "description": "Low priority whitespace issues (batch 29/74)",
+      "priority": 42,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_30",
+      "description": "Low priority whitespace issues (batch 30/74)",
+      "priority": 41,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_31",
+      "description": "Low priority whitespace issues (batch 31/74)",
+      "priority": 40,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_32",
+      "description": "Low priority whitespace issues (batch 32/74)",
+      "priority": 39,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_33",
+      "description": "Low priority whitespace issues (batch 33/74)",
+      "priority": 38,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_34",
+      "description": "Low priority whitespace issues (batch 34/74)",
+      "priority": 37,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_35",
+      "description": "Low priority whitespace issues (batch 35/74)",
+      "priority": 36,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_36",
+      "description": "Low priority whitespace issues (batch 36/74)",
+      "priority": 35,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_37",
+      "description": "Low priority whitespace issues (batch 37/74)",
+      "priority": 34,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_38",
+      "description": "Low priority whitespace issues (batch 38/74)",
+      "priority": 33,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_39",
+      "description": "Low priority whitespace issues (batch 39/74)",
+      "priority": 32,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_40",
+      "description": "Low priority whitespace issues (batch 40/74)",
+      "priority": 31,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_41",
+      "description": "Low priority whitespace issues (batch 41/74)",
+      "priority": 30,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_42",
+      "description": "Low priority whitespace issues (batch 42/74)",
+      "priority": 29,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_43",
+      "description": "Low priority whitespace issues (batch 43/74)",
+      "priority": 28,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_44",
+      "description": "Low priority whitespace issues (batch 44/74)",
+      "priority": 27,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_45",
+      "description": "Low priority whitespace issues (batch 45/74)",
+      "priority": 26,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_46",
+      "description": "Low priority whitespace issues (batch 46/74)",
+      "priority": 25,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_47",
+      "description": "Low priority whitespace issues (batch 47/74)",
+      "priority": 24,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_48",
+      "description": "Low priority whitespace issues (batch 48/74)",
+      "priority": 23,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_49",
+      "description": "Low priority whitespace issues (batch 49/74)",
+      "priority": 22,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_50",
+      "description": "Low priority whitespace issues (batch 50/74)",
+      "priority": 21,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_51",
+      "description": "Low priority whitespace issues (batch 51/74)",
+      "priority": 20,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_52",
+      "description": "Low priority whitespace issues (batch 52/74)",
+      "priority": 19,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_53",
+      "description": "Low priority whitespace issues (batch 53/74)",
+      "priority": 18,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_54",
+      "description": "Low priority whitespace issues (batch 54/74)",
+      "priority": 17,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_55",
+      "description": "Low priority whitespace issues (batch 55/74)",
+      "priority": 16,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_56",
+      "description": "Low priority whitespace issues (batch 56/74)",
+      "priority": 15,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_57",
+      "description": "Low priority whitespace issues (batch 57/74)",
+      "priority": 14,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_58",
+      "description": "Low priority whitespace issues (batch 58/74)",
+      "priority": 13,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_59",
+      "description": "Low priority whitespace issues (batch 59/74)",
+      "priority": 12,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_60",
+      "description": "Low priority whitespace issues (batch 60/74)",
+      "priority": 11,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_61",
+      "description": "Low priority whitespace issues (batch 61/74)",
+      "priority": 10,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_62",
+      "description": "Low priority whitespace issues (batch 62/74)",
+      "priority": 9,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_63",
+      "description": "Low priority whitespace issues (batch 63/74)",
+      "priority": 8,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_64",
+      "description": "Low priority whitespace issues (batch 64/74)",
+      "priority": 7,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_65",
+      "description": "Low priority whitespace issues (batch 65/74)",
+      "priority": 6,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_66",
+      "description": "Low priority whitespace issues (batch 66/74)",
+      "priority": 5,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_67",
+      "description": "Low priority whitespace issues (batch 67/74)",
+      "priority": 4,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_68",
+      "description": "Low priority whitespace issues (batch 68/74)",
+      "priority": 3,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_69",
+      "description": "Low priority whitespace issues (batch 69/74)",
+      "priority": 2,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_70",
+      "description": "Low priority whitespace issues (batch 70/74)",
+      "priority": 1,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_71",
+      "description": "Low priority whitespace issues (batch 71/74)",
+      "priority": 0,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_72",
+      "description": "Low priority whitespace issues (batch 72/74)",
+      "priority": -1,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_73",
+      "description": "Low priority whitespace issues (batch 73/74)",
+      "priority": -2,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 50,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    },
+    {
+      "name": "LOW_PRIORITY_WHITESPACE_BATCH_74",
+      "description": "Low priority whitespace issues (batch 74/74)",
+      "priority": -3,
+      "violation_types": [
+        "W293",
+        "W291",
+        "W292",
+        "E303",
+        "W391"
+      ],
+      "estimated_count": 36,
+      "complexity": "LOW",
+      "requires_manual_review": false,
+      "automation_ready": true,
+      "bulk_processing": true
+    }
+  ],
+  "recommendations": {
+    "immediate_action": [
+      "Address 167 files with critical violations immediately"
+    ],
+    "automation_candidates": [
+      "Process 10,058 violations via automation across 75 batches"
+    ],
+    "manual_review_required": [
+      "Schedule manual review for 402 complex violations"
+    ]
+  }
+}

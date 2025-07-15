@@ -1,0 +1,25 @@
+{
+  "tests_executed": 3,
+  "tests_passed": 2,
+  "tests_failed": 1,
+  "test_details": [
+    {
+      "test_name": "Backup Integrity Test",
+      "result": "PASSED",
+      "duration_seconds": 0.0052297115325927734,
+      "timestamp": "2025-07-07T08:04:37.447137"
+    },
+    {
+      "test_name": "Recovery Time Test",
+      "result": "FAILED",
+      "duration_seconds": 0.001997232437133789,
+      "timestamp": "2025-07-07T08:04:37.449135"
+    },
+    {
+      "test_name": "Asset Restoration Test",
+      "result": "PASSED",
+      "duration_seconds": 0.0010004043579101562,
+      "timestamp": "2025-07-07T08:04:37.450135"
+    }
+  ]
+}

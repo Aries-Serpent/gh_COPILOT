@@ -1,0 +1,244 @@
+{
+  "session_id": "DETAILED_REPORT_20250713_010826",
+  "total_violations": 12844,
+  "violations_by_type": {
+    "W293": 3666,
+    "E302": 2950,
+    "E501": 1994,
+    "F401": 1908,
+    "E305": 1478,
+    "F821": 390,
+    "W291": 152,
+    "F541": 84,
+    "E128": 70,
+    "F841": 60,
+    "E122": 40,
+    "E999": 12,
+    "W292": 8,
+    "E722": 8,
+    "E303": 6,
+    "W391": 4,
+    "F811": 4,
+    "E231": 4,
+    "E129": 4,
+    "E402": 2
+  },
+  "violations_by_file": {
+    "e:\\gh_COPILOT\\unicode_flake8_master_controller.py": 462,
+    "e:\\gh_COPILOT\\enterprise_dual_copilot_validator.py": 460,
+    "e:\\gh_COPILOT\\enterprise_visual_processing_system.py": 334,
+    "e:\\gh_COPILOT\\database_driven_correction_engine.py": 334,
+    "e:\\gh_COPILOT\\comprehensive_flake8_violations_processor.py": 296,
+    "e:\\gh_COPILOT\\deployment_optimization_engine.py": 294,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\deployment_optimization_engine.py": 294,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\deployment_optimization_engine.py": 294,
+    "e:\\gh_COPILOT\\enterprise_integration_validator.py": 278,
+    "e:\\gh_COPILOT\\enterprise_optimization_engine.py": 220,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\enterprise_optimization_engine.py": 220,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\enterprise_optimization_engine.py": 220,
+    "e:\\gh_COPILOT\\enterprise_unicode_flake8_corrector.py": 208,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\database_purification_engine.py": 208,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\database_purification_engine.py": 208,
+    "e:\\gh_COPILOT\\database_purification_engine.py": 208,
+    "e:\\gh_COPILOT\\SESSION_INTEGRITY_MANAGER.py": 208,
+    "e:\\gh_COPILOT\\deployment_optimization_engine_fixed.py": 176,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\deployment_optimization_engine_fixed.py": 176,
+    "e:\\gh_COPILOT\\test_complete_enterprise_system.py": 76,
+    "e:\\gh_COPILOT\\systematic_flake8_error_analysis_corrector.py": 34,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\systematic_flake8_error_analysis_corrector.py": 34,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\systematic_flake8_error_analysis_corrector.py": 34,
+    "e:\\gh_COPILOT\\targeted_flake8_fixer.py": 16,
+    "e:\\gh_COPILOT\\scripts\\visual_processing_compliance_validator.py": 16,
+    "e:\\gh_COPILOT\\scripts\\regenerated\\visual_processing_compliance_validator.py": 16,
+    "e:\\gh_COPILOT\\scripts\\regenerated\\monitoring\\scripts\\security_audit_automation_compliance.py": 16,
+    "e:\\gh_COPILOT\\scripts\\regenerated\\monitoring\\scripts\\performance_compliance_compliance.py": 16,
+    "e:\\gh_COPILOT\\scripts\\regenerated\\monitoring\\scripts\\documentation_compliance_compliance.py": 16,
+    "e:\\gh_COPILOT\\scripts\\regenerated\\monitoring\\scripts\\data_privacy_compliance_compliance.py": 16,
+    "e:\\gh_COPILOT\\scripts\\regenerated\\enterprise_deployment\\integration_testing_compliance.py": 16,
+    "e:\\gh_COPILOT\\scripts\\enterprise_log_compliance_fix.py": 16,
+    "e:\\gh_COPILOT\\scripts\\deployment\\visual_processing_compliance_validator.py": 16,
+    "e:\\gh_COPILOT\\scripts\\deployment\\enterprise_log_compliance_fix.py": 16,
+    "e:\\gh_COPILOT\\phase3_systematic_style_compliance.py": 16,
+    "e:\\gh_COPILOT\\phase3_style_compliance_executor.py": 16,
+    "e:\\gh_COPILOT\\pattern_specific_e999_corrector.py": 16,
+    "e:\\gh_COPILOT\\immediate_flake8_corrector.py": 16,
+    "e:\\gh_COPILOT\\flake8_compliance_progress_reporter.py": 16,
+    "e:\\gh_COPILOT\\flake8_auto_fixer.py": 16,
+    "e:\\gh_COPILOT\\final_enterprise_flake8_corrector.py": 16,
+    "e:\\gh_COPILOT\\enterprise_unicode_compatible_flake8_corrector.py": 16,
+    "e:\\gh_COPILOT\\enhanced_systematic_flake8_corrector.py": 16,
+    "e:\\gh_COPILOT\\enhanced_database_driven_flake8_corrector.py": 16,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\targeted_flake8_fixer.py": 16,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\phase3_systematic_style_compliance.py": 16,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\phase3_style_compliance_executor.py": 16,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\pattern_specific_e999_corrector.py": 16,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\immediate_flake8_corrector.py": 16,
+    "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\flake8_compliance_progress_reporter.py": 16
+  },
+  "top_violating_files": [
+    {
+      "file": "e:\\gh_COPILOT\\unicode_flake8_master_controller.py",
+      "violations": 462,
+      "unique_types": 8
+    },
+    {
+      "file": "e:\\gh_COPILOT\\enterprise_dual_copilot_validator.py",
+      "violations": 460,
+      "unique_types": 6
+    },
+    {
+      "file": "e:\\gh_COPILOT\\enterprise_visual_processing_system.py",
+      "violations": 334,
+      "unique_types": 6
+    },
+    {
+      "file": "e:\\gh_COPILOT\\database_driven_correction_engine.py",
+      "violations": 334,
+      "unique_types": 7
+    },
+    {
+      "file": "e:\\gh_COPILOT\\comprehensive_flake8_violations_processor.py",
+      "violations": 296,
+      "unique_types": 9
+    },
+    {
+      "file": "e:\\gh_COPILOT\\deployment_optimization_engine.py",
+      "violations": 294,
+      "unique_types": 5
+    },
+    {
+      "file": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\deployment_optimization_engine.py",
+      "violations": 294,
+      "unique_types": 5
+    },
+    {
+      "file": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\deployment_optimization_engine.py",
+      "violations": 294,
+      "unique_types": 5
+    },
+    {
+      "file": "e:\\gh_COPILOT\\enterprise_integration_validator.py",
+      "violations": 278,
+      "unique_types": 9
+    },
+    {
+      "file": "e:\\gh_COPILOT\\enterprise_optimization_engine.py",
+      "violations": 220,
+      "unique_types": 5
+    },
+    {
+      "file": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\enterprise_optimization_engine.py",
+      "violations": 220,
+      "unique_types": 5
+    },
+    {
+      "file": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\enterprise_optimization_engine.py",
+      "violations": 220,
+      "unique_types": 5
+    },
+    {
+      "file": "e:\\gh_COPILOT\\enterprise_unicode_flake8_corrector.py",
+      "violations": 208,
+      "unique_types": 5
+    },
+    {
+      "file": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\database_purification_engine.py",
+      "violations": 208,
+      "unique_types": 6
+    },
+    {
+      "file": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_182951\\scripts\\database_purification_engine.py",
+      "violations": 208,
+      "unique_types": 6
+    },
+    {
+      "file": "e:\\gh_COPILOT\\database_purification_engine.py",
+      "violations": 208,
+      "unique_types": 6
+    },
+    {
+      "file": "e:\\gh_COPILOT\\SESSION_INTEGRITY_MANAGER.py",
+      "violations": 208,
+      "unique_types": 6
+    },
+    {
+      "file": "e:\\gh_COPILOT\\deployment_optimization_engine_fixed.py",
+      "violations": 176,
+      "unique_types": 8
+    },
+    {
+      "file": "e:\\gh_COPILOT\\deployment\\deployment_package_20250710_183234\\scripts\\deployment_optimization_engine_fixed.py",
+      "violations": 176,
+      "unique_types": 8
+    },
+    {
+      "file": "e:\\gh_COPILOT\\test_complete_enterprise_system.py",
+      "violations": 76,
+      "unique_types": 7
+    }
+  ],
+  "violation_severity": {
+    "critical": 466,
+    "error": 8548,
+    "warning": 3830,
+    "style": 0
+  },
+  "detailed_breakdown": {
+    "top_violation_types": [
+      [
+        "W293",
+        3666
+      ],
+      [
+        "E302",
+        2950
+      ],
+      [
+        "E501",
+        1994
+      ],
+      [
+        "F401",
+        1908
+      ],
+      [
+        "E305",
+        1478
+      ],
+      [
+        "F821",
+        390
+      ],
+      [
+        "W291",
+        152
+      ],
+      [
+        "F541",
+        84
+      ],
+      [
+        "E128",
+        70
+      ],
+      [
+        "F841",
+        60
+      ]
+    ],
+    "file_statistics": {
+      "total_files_with_violations": 50,
+      "average_violations_per_file": 114.16,
+      "max_violations_in_single_file": 462
+    },
+    "type_categories": {
+      "import_errors": 1908,
+      "undefined_names": 390,
+      "syntax_errors": 12,
+      "indentation_errors": 114,
+      "whitespace_issues": 4,
+      "line_length": 1994
+    }
+  },
+  "timestamp": "2025-07-13T01:08:26.864279"
+}

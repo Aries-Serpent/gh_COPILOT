@@ -1,0 +1,11 @@
+# Log and runtime files
+logs/
+
+# Local environment configuration.env
+
+.venv/
+/backups
+*.log
+/disaster_recovery/backups
+__pycache__/
+/Archive
