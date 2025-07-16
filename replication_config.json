@@ -1,6 +1,0 @@
-{
-  "master_db_count": 65,
-  "replication_factor": 3,
-  "sync_mode": "asynchronous",
-  "failover_enabled": true
-}

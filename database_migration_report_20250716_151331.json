@@ -1,0 +1,79 @@
+{
+  "start_time": "2025-07-16T15:13:31.639449",
+  "source_db": "E:\\gh_COPILOT\\logs.db",
+  "target_db": "E:\\gh_COPILOT\\databases\\logs.db",
+  "migration_status": "ERROR",
+  "tables_migrated": [],
+  "records_migrated": 0,
+  "errors": [
+    "Migration error: table enterprise_logs already exists"
+  ],
+  "source_analysis": {
+    "exists": true,
+    "tables": [
+      {
+        "name": "enterprise_logs",
+        "record_count": 112
+      },
+      {
+        "name": "sqlite_sequence",
+        "record_count": 1
+      },
+      {
+        "name": "archive_operations",
+        "record_count": 0
+      }
+    ],
+    "total_records": 113,
+    "size_mb": 0.08203125
+  },
+  "target_analysis": {
+    "exists": true,
+    "tables": [
+      {
+        "name": "enterprise_logs",
+        "record_count": 103
+      },
+      {
+        "name": "log_analytics",
+        "record_count": 0
+      },
+      {
+        "name": "log_relationships",
+        "record_count": 0
+      },
+      {
+        "name": "log_categories",
+        "record_count": 7
+      },
+      {
+        "name": "sqlite_stat1",
+        "record_count": 16
+      },
+      {
+        "name": "audit_logs",
+        "record_count": 4
+      },
+      {
+        "name": "sqlite_sequence",
+        "record_count": 4
+      },
+      {
+        "name": "deployment_logs",
+        "record_count": 3
+      },
+      {
+        "name": "database_info",
+        "record_count": 1
+      }
+    ],
+    "total_records": 138,
+    "size_mb": 31.4296875
+  },
+  "updated_tools": [
+    "archive_migration_executor.py",
+    "database_consistency_checker.py"
+  ],
+  "end_time": "2025-07-16T15:13:31.689243",
+  "duration_seconds": 0.049794
+}

@@ -1,0 +1,22 @@
+{
+  "start_time": "2025-07-16T15:14:39.930720",
+  "source_db": "E:\\gh_COPILOT\\logs.db",
+  "target_db": "E:\\gh_COPILOT\\databases\\logs.db",
+  "merge_status": "ERROR",
+  "records_merged": 0,
+  "conflicts_resolved": 0,
+  "duplicates_skipped": 0,
+  "errors": [
+    "Smart merge error: table enterprise_logs has 23 columns but 11 values were supplied"
+  ],
+  "conflict_analysis": {
+    "source_records": 112,
+    "target_records": 103,
+    "unique_source": 112,
+    "duplicates": 0,
+    "merge_strategy": "SMART_MERGE"
+  },
+  "updated_tools": [],
+  "end_time": "2025-07-16T15:14:40.814557",
+  "duration_seconds": 0.883837
+}

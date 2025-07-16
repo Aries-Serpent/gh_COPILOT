@@ -1,0 +1,724 @@
+{
+  "timestamp": "2025-07-16T14:41:16.943462",
+  "workspace_root": "e:\\gh_COPILOT",
+  "validation_results": {
+    "folder_structure": {
+      "valid": true,
+      "status": "PASS"
+    },
+    "routing_patterns": {
+      "success_rate": 100.0,
+      "passed_tests": 24,
+      "total_tests": 24,
+      "status": "PASS"
+    },
+    "current_file_locations": {
+      "total_misplaced": 90,
+      "misplaced_files": {
+        "logs": [
+          {
+            "file": "COMPREHENSIVE_LOG_EXTRACTION_PLAN.md",
+            "current_folder": "logs",
+            "predicted_folder": "documentation",
+            "path": "e:\\gh_COPILOT\\logs\\COMPREHENSIVE_LOG_EXTRACTION_PLAN.md"
+          },
+          {
+            "file": "execution_report_PHASE_EXEC_20250709_212038.json",
+            "current_folder": "logs",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\logs\\execution_report_PHASE_EXEC_20250709_212038.json"
+          },
+          {
+            "file": "EXECUTIVE_SUMMARY_20250714_225709.txt",
+            "current_folder": "logs",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\logs\\EXECUTIVE_SUMMARY_20250714_225709.txt"
+          },
+          {
+            "file": "flake8_report.txt",
+            "current_folder": "logs",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\logs\\flake8_report.txt"
+          },
+          {
+            "file": "log_extraction_report_20250710_164921.json",
+            "current_folder": "logs",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\logs\\log_extraction_report_20250710_164921.json"
+          },
+          {
+            "file": "phase2_completion_report_20250713_060940.txt",
+            "current_folder": "logs",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\logs\\phase2_completion_report_20250713_060940.txt"
+          },
+          {
+            "file": "phase3_completion_report_20250713_074339.txt",
+            "current_folder": "logs",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\logs\\phase3_completion_report_20250713_074339.txt"
+          },
+          {
+            "file": "phase4_completion_report_20250713_082753.txt",
+            "current_folder": "logs",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\logs\\phase4_completion_report_20250713_082753.txt"
+          },
+          {
+            "file": "phase4_completion_report_fixed_20250713_083240.txt",
+            "current_folder": "logs",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\logs\\phase4_completion_report_fixed_20250713_083240.txt"
+          },
+          {
+            "file": "phase4_e303_dominance_report_20250713_085009.txt",
+            "current_folder": "logs",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\logs\\phase4_e303_dominance_report_20250713_085009.txt"
+          },
+          {
+            "file": "07032025-0100.md",
+            "current_folder": "logs",
+            "predicted_folder": "documentation",
+            "path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\07032025-0100.md"
+          },
+          {
+            "file": "07062025-1250.md",
+            "current_folder": "logs",
+            "predicted_folder": "documentation",
+            "path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\07062025-1250.md"
+          },
+          {
+            "file": "07062025-1405.md",
+            "current_folder": "logs",
+            "predicted_folder": "documentation",
+            "path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\07062025-1405.md"
+          },
+          {
+            "file": "additional_notes-self_learning.md",
+            "current_folder": "logs",
+            "predicted_folder": "documentation",
+            "path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\additional_notes-self_learning.md"
+          },
+          {
+            "file": "disaster_recovery_enhancer_edited_additional_notes.md",
+            "current_folder": "logs",
+            "predicted_folder": "documentation",
+            "path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\disaster_recovery_enhancer_edited_additional_notes.md"
+          },
+          {
+            "file": "set_of_prompts.md",
+            "current_folder": "logs",
+            "predicted_folder": "documentation",
+            "path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\set_of_prompts.md"
+          },
+          {
+            "file": "configuration_recovery_engine.cpython-312.pyc",
+            "current_folder": "logs",
+            "predicted_folder": "config",
+            "path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\__pycache__\\configuration_recovery_engine.cpython-312.pyc"
+          }
+        ],
+        "reports": [
+          {
+            "file": "COPILOT_ENTERPRISE_CONFIG.json",
+            "current_folder": "reports",
+            "predicted_folder": "config",
+            "path": "e:\\gh_COPILOT\\reports\\COPILOT_ENTERPRISE_CONFIG.json"
+          },
+          {
+            "file": "critical_error_corrections_20250709_125919.json",
+            "current_folder": "reports",
+            "predicted_folder": "logs",
+            "path": "e:\\gh_COPILOT\\reports\\critical_error_corrections_20250709_125919.json"
+          },
+          {
+            "file": "critical_error_corrections_20250709_130037.json",
+            "current_folder": "reports",
+            "predicted_folder": "logs",
+            "path": "e:\\gh_COPILOT\\reports\\critical_error_corrections_20250709_130037.json"
+          },
+          {
+            "file": "database_consolidation_plan_20250716_003545.json",
+            "current_folder": "reports",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\reports\\database_consolidation_plan_20250716_003545.json"
+          },
+          {
+            "file": "database_consolidation_plan_20250716_003910.json",
+            "current_folder": "reports",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\reports\\database_consolidation_plan_20250716_003910.json"
+          },
+          {
+            "file": "database_consolidation_plan_phase2.json",
+            "current_folder": "reports",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\reports\\database_consolidation_plan_phase2.json"
+          },
+          {
+            "file": "database_consolidation_plan_refined.json",
+            "current_folder": "reports",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\reports\\database_consolidation_plan_refined.json"
+          },
+          {
+            "file": "DISASTER_RECOVERY_CONFIG.json",
+            "current_folder": "reports",
+            "predicted_folder": "config",
+            "path": "e:\\gh_COPILOT\\reports\\DISASTER_RECOVERY_CONFIG.json"
+          },
+          {
+            "file": "DISASTER_RECOVERY_ENHANCEMENT_RESULTS.json",
+            "current_folder": "reports",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\reports\\DISASTER_RECOVERY_ENHANCEMENT_RESULTS.json"
+          },
+          {
+            "file": "efficiency_calibration_results_20250706_205709.json",
+            "current_folder": "reports",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\reports\\efficiency_calibration_results_20250706_205709.json"
+          },
+          {
+            "file": "efficiency_calibration_results_20250706_211551.json",
+            "current_folder": "reports",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\reports\\efficiency_calibration_results_20250706_211551.json"
+          },
+          {
+            "file": "ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+            "current_folder": "reports",
+            "predicted_folder": "config",
+            "path": "e:\\gh_COPILOT\\reports\\ENTERPRISE_CONFIGURATION_OPTIMIZED.json"
+          },
+          {
+            "file": "immediate_actions_results_20250710_094232.json",
+            "current_folder": "reports",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\reports\\immediate_actions_results_20250710_094232.json"
+          },
+          {
+            "file": "immediate_actions_results_20250710_102801.json",
+            "current_folder": "reports",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\reports\\immediate_actions_results_20250710_102801.json"
+          },
+          {
+            "file": "master_efficiency_optimization_results_20250706_205550.json",
+            "current_folder": "reports",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\reports\\master_efficiency_optimization_results_20250706_205550.json"
+          }
+        ],
+        "results": [
+          {
+            "file": "standard_cycle_CLI_20250715_131122.json",
+            "current_folder": "results",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\results\\autonomous_cli\\standard_cycle_CLI_20250715_131122.json"
+          },
+          {
+            "file": "standard_cycle_CLI_20250715_174551.json",
+            "current_folder": "results",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\results\\autonomous_cli\\standard_cycle_CLI_20250715_174551.json"
+          },
+          {
+            "file": "health_analysis_AUTO_OPT_20250715_025945.json",
+            "current_folder": "results",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\results\\autonomous_optimization\\health_analysis_AUTO_OPT_20250715_025945.json"
+          },
+          {
+            "file": "optimization_summary_AUTO_OPT_20250715_025945.json",
+            "current_folder": "results",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\results\\autonomous_optimization\\optimization_summary_AUTO_OPT_20250715_025945.json"
+          },
+          {
+            "file": "enterprise_compliance_report_20250715_234828.md",
+            "current_folder": "results",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\results\\script_sync\\enterprise_compliance_report_20250715_234828.md"
+          },
+          {
+            "file": "enterprise_compliance_report_20250715_235035.md",
+            "current_folder": "results",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\results\\script_sync\\enterprise_compliance_report_20250715_235035.md"
+          },
+          {
+            "file": "final_report_sync_20250715_234838.md",
+            "current_folder": "results",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\results\\script_sync\\final_report_sync_20250715_234838.md"
+          },
+          {
+            "file": "sync_session_sync_20250715_234838.json",
+            "current_folder": "results",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\results\\script_sync\\sync_session_sync_20250715_234838.json"
+          },
+          {
+            "file": "validation_report_sync_20250715_234838.md",
+            "current_folder": "results",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\results\\script_sync\\validation_report_sync_20250715_234838.md"
+          }
+        ],
+        "documentation": [
+          {
+            "file": "databases_python_compliance_action_statement.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\databases_python_compliance_action_statement.md"
+          },
+          {
+            "file": "DATABASE_CONSOLIDATION_COMPLETION_REPORT_20250716_004155.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\DATABASE_CONSOLIDATION_COMPLETION_REPORT_20250716_004155.md"
+          },
+          {
+            "file": "DATABASE_OPTIMIZATION_COMPLETION_REPORT_20250715_030050.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\DATABASE_OPTIMIZATION_COMPLETION_REPORT_20250715_030050.md"
+          },
+          {
+            "file": "DEPLOYMENT_CONSOLIDATION_SUMMARY.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\DEPLOYMENT_CONSOLIDATION_SUMMARY.md"
+          },
+          {
+            "file": "DEPLOYMENT_SUMMARY.json",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\DEPLOYMENT_SUMMARY.json"
+          },
+          {
+            "file": "DOCUMENTATION_COVERAGE_SUCCESS_REPORT.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\DOCUMENTATION_COVERAGE_SUCCESS_REPORT.md"
+          },
+          {
+            "file": "DOCUMENTATION_DB_ANALYSIS_REPORT.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\DOCUMENTATION_DB_ANALYSIS_REPORT.md"
+          },
+          {
+            "file": "ENTERPRISE_FLAKE8_COMPLIANCE_FRAMEWORK_COMPLETE_SUMMARY.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\ENTERPRISE_FLAKE8_COMPLIANCE_FRAMEWORK_COMPLETE_SUMMARY.md"
+          },
+          {
+            "file": "ENTERPRISE_PIS_FRAMEWORK_COMPLETION_REPORT.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\ENTERPRISE_PIS_FRAMEWORK_COMPLETION_REPORT.md"
+          },
+          {
+            "file": "ENTERPRISE_VIOLATION_PROCESSING_SUMMARY.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\ENTERPRISE_VIOLATION_PROCESSING_SUMMARY.md"
+          },
+          {
+            "file": "FINAL_OPTIMIZATION_SUMMARY.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\FINAL_OPTIMIZATION_SUMMARY.md"
+          },
+          {
+            "file": "FINAL_PROJECT_VALIDATION_SUMMARY.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\FINAL_PROJECT_VALIDATION_SUMMARY.md"
+          },
+          {
+            "file": "IMMEDIATE_ACTIONS_COMPLETION_REPORT.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\IMMEDIATE_ACTIONS_COMPLETION_REPORT.md"
+          },
+          {
+            "file": "MODULARIZATION_IMPLEMENTATION_SUMMARY.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\MODULARIZATION_IMPLEMENTATION_SUMMARY.md"
+          },
+          {
+            "file": "PHASE4_COMPREHENSIVE_ACHIEVEMENT_ANALYSIS.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\PHASE4_COMPREHENSIVE_ACHIEVEMENT_ANALYSIS.md"
+          },
+          {
+            "file": "QUANTUM_INTEGRATION_ORCHESTRATION_COMPLETION_REPORT.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\QUANTUM_INTEGRATION_ORCHESTRATION_COMPLETION_REPORT.md"
+          },
+          {
+            "file": "script_database_validation_report.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\script_database_validation_report.md"
+          },
+          {
+            "file": "SELECTED_TEXT_INTEGRATION_REPORT.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\SELECTED_TEXT_INTEGRATION_REPORT.md"
+          },
+          {
+            "file": "SESSION_COMPLETION_REPORT_20250710.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\SESSION_COMPLETION_REPORT_20250710.md"
+          },
+          {
+            "file": "session_wrap_up.json",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\session_wrap_up.json"
+          },
+          {
+            "file": "SESSION_WRAP_UP_REPORT_20250710.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\SESSION_WRAP_UP_REPORT_20250710.md"
+          },
+          {
+            "file": "api_reference_documentation_metadata.json",
+            "current_folder": "documentation",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\api_reference_documentation_metadata.json"
+          },
+          {
+            "file": "mission_completion_summary.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\mission_completion_summary.md"
+          },
+          {
+            "file": "security_and_compliance_documentation_final.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\security_and_compliance_documentation_final.md"
+          },
+          {
+            "file": "security_and_compliance_documentation_metadata.json",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\security_and_compliance_documentation_metadata.json"
+          },
+          {
+            "file": "technical_architecture_documentation_metadata.json",
+            "current_folder": "documentation",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\technical_architecture_documentation_metadata.json"
+          },
+          {
+            "file": "troubleshooting_and_maintenance_guide_metadata.json",
+            "current_folder": "documentation",
+            "predicted_folder": "results",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\troubleshooting_and_maintenance_guide_metadata.json"
+          },
+          {
+            "file": "enterprise_build_report.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\builds\\enterprise_build_report.md"
+          },
+          {
+            "file": "enterprise_enhancement_report.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\builds\\enterprise_enhancement_report.md"
+          },
+          {
+            "file": "enterprise_integration_report.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\builds\\enterprise_integration_report.md"
+          },
+          {
+            "file": "template_engine_analytics_report.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\builds\\template_engine_analytics_report.md"
+          },
+          {
+            "file": "enterprise_template_compliance_report_20250710_142444.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\compliance\\enterprise_template_compliance_report_20250710_142444.md"
+          },
+          {
+            "file": "database_emoji_cleaning_report.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\generated\\database_emoji_cleaning_report.md"
+          },
+          {
+            "file": "ENTERPRISE_COMPLIANCE.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\generated\\ENTERPRISE_COMPLIANCE.md"
+          },
+          {
+            "file": "session_wrap_up_generator.cpython-312.pyc",
+            "current_folder": "documentation",
+            "predicted_folder": "logs",
+            "path": "e:\\gh_COPILOT\\documentation\\__pycache__\\session_wrap_up_generator.cpython-312.pyc"
+          },
+          {
+            "file": "schema_documentation_SCHEMA_DOC_1751567359.json",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\automated_schemas\\schema_documentation_SCHEMA_DOC_1751567359.json"
+          },
+          {
+            "file": "enterprise_compliance.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\compliance\\enterprise_compliance.md"
+          },
+          {
+            "file": "enterprise_roi_analysis.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\executive\\enterprise_roi_analysis.md"
+          },
+          {
+            "file": "performance_analysis_schema.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\schemas\\performance_analysis_schema.md"
+          },
+          {
+            "file": "security_compliance_framework.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\security_compliance\\security_compliance_framework.md"
+          },
+          {
+            "file": "security_audit_report.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\additional\\compliance\\advanced\\security_audit_report.md"
+          },
+          {
+            "file": "enterprise_report_20250710_131249.md",
+            "current_folder": "documentation",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\documentation\\generated\\automated\\enterprise_report_20250710_131249.md"
+          }
+        ],
+        "config": [
+          {
+            "file": "enterprise_reporting_config.json",
+            "current_folder": "config",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\config\\enterprise_reporting_config.json"
+          },
+          {
+            "file": "production_operational_validation.json",
+            "current_folder": "config",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\config\\production_operational_validation.json"
+          },
+          {
+            "file": "production_performance_validation.json",
+            "current_folder": "config",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\config\\production_performance_validation.json"
+          },
+          {
+            "file": "production_reliability_validation.json",
+            "current_folder": "config",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\config\\production_reliability_validation.json"
+          },
+          {
+            "file": "production_security_validation.json",
+            "current_folder": "config",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\config\\production_security_validation.json"
+          }
+        ],
+        "archives": [
+          {
+            "file": "detailed_violations_reporter.py.phase12_backup",
+            "current_folder": "archives",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\archives\\detailed_violations_reporter.py.phase12_backup"
+          },
+          {
+            "file": "simple_violations_reporter.py.phase12_backup",
+            "current_folder": "archives",
+            "predicted_folder": "reports",
+            "path": "e:\\gh_COPILOT\\archives\\simple_violations_reporter.py.phase12_backup"
+          }
+        ]
+      },
+      "status": "WARNING"
+    },
+    "workflow_test": {
+      "passed": true,
+      "status": "PASS"
+    }
+  },
+  "routing_patterns": {
+    "logs": {
+      "extensions": [
+        ".log",
+        ".txt"
+      ],
+      "keywords": [
+        "log",
+        "debug",
+        "trace",
+        "error",
+        "warning",
+        "audit",
+        "session"
+      ],
+      "patterns": [
+        ".*\\.log$",
+        ".*_log\\.txt$",
+        ".*\\.trace$",
+        ".*debug.*",
+        ".*error.*"
+      ],
+      "folder": "logs"
+    },
+    "reports": {
+      "extensions": [
+        ".json",
+        ".html",
+        ".csv",
+        ".xlsx",
+        ".md"
+      ],
+      "keywords": [
+        "report",
+        "summary",
+        "analysis",
+        "compliance",
+        "audit",
+        "certificate"
+      ],
+      "patterns": [
+        ".*_report.*",
+        ".*summary.*",
+        ".*analysis.*",
+        ".*compliance.*"
+      ],
+      "folder": "reports"
+    },
+    "results": {
+      "extensions": [
+        ".json",
+        ".csv",
+        ".txt",
+        ".xml"
+      ],
+      "keywords": [
+        "result",
+        "output",
+        "data",
+        "findings",
+        "outcome",
+        "metrics"
+      ],
+      "patterns": [
+        ".*_result.*",
+        ".*_output.*",
+        ".*_data.*",
+        ".*metrics.*"
+      ],
+      "folder": "results"
+    },
+    "documentation": {
+      "extensions": [
+        ".md",
+        ".rst",
+        ".txt",
+        ".pdf",
+        ".docx"
+      ],
+      "keywords": [
+        "doc",
+        "readme",
+        "guide",
+        "manual",
+        "instruction",
+        "spec"
+      ],
+      "patterns": [
+        ".*\\.md$",
+        ".*readme.*",
+        ".*guide.*",
+        ".*manual.*",
+        ".*spec.*"
+      ],
+      "folder": "documentation"
+    },
+    "config": {
+      "extensions": [
+        ".json",
+        ".yaml",
+        ".yml",
+        ".ini",
+        ".conf",
+        ".cfg"
+      ],
+      "keywords": [
+        "config",
+        "settings",
+        "parameters",
+        "environment",
+        "setup"
+      ],
+      "patterns": [
+        ".*config.*",
+        ".*settings.*",
+        ".*\\.env$",
+        ".*parameters.*"
+      ],
+      "folder": "config"
+    },
+    "archives": {
+      "extensions": [
+        ".zip",
+        ".tar",
+        ".gz",
+        ".bz2",
+        ".7z",
+        ".backup"
+      ],
+      "keywords": [
+        "archive",
+        "backup",
+        "old",
+        "deprecated",
+        "historical"
+      ],
+      "patterns": [
+        ".*\\.zip$",
+        ".*\\.tar.*",
+        ".*backup.*",
+        ".*archive.*"
+      ],
+      "folder": "archives"
+    }
+  },
+  "overall_status": "PASS"
+}

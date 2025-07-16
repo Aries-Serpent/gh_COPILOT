@@ -1,0 +1,579 @@
+{
+  "timestamp": "2025-07-16T14:44:12.016552",
+  "operation_id": "MIGRATION_20250716_144410",
+  "migration_summary": {
+    "total_files_processed": 112,
+    "successful_migrations": 112,
+    "failed_migrations": 0,
+    "success_rate": 100.0,
+    "total_size_migrated_mb": 7.2
+  },
+  "migrated_files": [
+    {
+      "filename": "compliance_scan_20250710_173622.log",
+      "source": "e:\\gh_COPILOT\\logs\\compliance_scan_20250710_173622.log",
+      "destination": "e:\\gh_COPILOT\\archives\\compliance_scan_20250710_173622.log"
+    },
+    {
+      "filename": "compliance_scan_20250710_173707.log",
+      "source": "e:\\gh_COPILOT\\logs\\compliance_scan_20250710_173707.log",
+      "destination": "e:\\gh_COPILOT\\archives\\compliance_scan_20250710_173707.log"
+    },
+    {
+      "filename": "database_driven_flake8_correction_20250709_122229.log",
+      "source": "e:\\gh_COPILOT\\logs\\database_driven_flake8_correction_20250709_122229.log",
+      "destination": "e:\\gh_COPILOT\\archives\\database_driven_flake8_correction_20250709_122229.log"
+    },
+    {
+      "filename": "database_first_compliance_resolution_20250710_180916.log",
+      "source": "e:\\gh_COPILOT\\logs\\database_first_compliance_resolution_20250710_180916.log",
+      "destination": "e:\\gh_COPILOT\\archives\\database_first_compliance_resolution_20250710_180916.log"
+    },
+    {
+      "filename": "database_purification_20250710_182136.log",
+      "source": "e:\\gh_COPILOT\\logs\\database_purification_20250710_182136.log",
+      "destination": "e:\\gh_COPILOT\\archives\\database_purification_20250710_182136.log"
+    },
+    {
+      "filename": "deployment_optimization_20250710_182951.log",
+      "source": "e:\\gh_COPILOT\\logs\\deployment_optimization_20250710_182951.log",
+      "destination": "e:\\gh_COPILOT\\archives\\deployment_optimization_20250710_182951.log"
+    },
+    {
+      "filename": "deployment_optimization_20250710_183234.log",
+      "source": "e:\\gh_COPILOT\\logs\\deployment_optimization_20250710_183234.log",
+      "destination": "e:\\gh_COPILOT\\archives\\deployment_optimization_20250710_183234.log"
+    },
+    {
+      "filename": "enhanced_systematic_corrections_20250709_130251.log",
+      "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_130251.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enhanced_systematic_corrections_20250709_130251.log"
+    },
+    {
+      "filename": "enhanced_systematic_corrections_20250709_130303.log",
+      "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_130303.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enhanced_systematic_corrections_20250709_130303.log"
+    },
+    {
+      "filename": "enhanced_systematic_corrections_20250709_133201.log",
+      "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_133201.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enhanced_systematic_corrections_20250709_133201.log"
+    },
+    {
+      "filename": "enhanced_systematic_corrections_20250709_133303.log",
+      "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_133303.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enhanced_systematic_corrections_20250709_133303.log"
+    },
+    {
+      "filename": "enhanced_systematic_corrections_20250709_135152.log",
+      "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_135152.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enhanced_systematic_corrections_20250709_135152.log"
+    },
+    {
+      "filename": "enhanced_systematic_corrections_20250709_135232.log",
+      "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_135232.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enhanced_systematic_corrections_20250709_135232.log"
+    },
+    {
+      "filename": "enhanced_systematic_corrections_20250709_144504.log",
+      "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144504.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enhanced_systematic_corrections_20250709_144504.log"
+    },
+    {
+      "filename": "enhanced_systematic_corrections_20250709_144521.log",
+      "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144521.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enhanced_systematic_corrections_20250709_144521.log"
+    },
+    {
+      "filename": "enhanced_systematic_corrections_20250709_144836.log",
+      "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144836.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enhanced_systematic_corrections_20250709_144836.log"
+    },
+    {
+      "filename": "enterprise_flake8_batch_correction_20250709_114832.log",
+      "source": "e:\\gh_COPILOT\\logs\\enterprise_flake8_batch_correction_20250709_114832.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enterprise_flake8_batch_correction_20250709_114832.log"
+    },
+    {
+      "filename": "enterprise_flake8_execution_20250709_113903.log",
+      "source": "e:\\gh_COPILOT\\logs\\enterprise_flake8_execution_20250709_113903.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enterprise_flake8_execution_20250709_113903.log"
+    },
+    {
+      "filename": "enterprise_integration_test_20250712_234959.log",
+      "source": "e:\\gh_COPILOT\\logs\\enterprise_integration_test_20250712_234959.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enterprise_integration_test_20250712_234959.log"
+    },
+    {
+      "filename": "enterprise_optimization_20250710_182716.log",
+      "source": "e:\\gh_COPILOT\\logs\\enterprise_optimization_20250710_182716.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enterprise_optimization_20250710_182716.log"
+    },
+    {
+      "filename": "enterprise_script_sync_20250710_120554.log",
+      "source": "e:\\gh_COPILOT\\logs\\enterprise_script_sync_20250710_120554.log",
+      "destination": "e:\\gh_COPILOT\\archives\\enterprise_script_sync_20250710_120554.log"
+    },
+    {
+      "filename": "execution_report_PHASE_EXEC_20250709_212038.json",
+      "source": "e:\\gh_COPILOT\\logs\\execution_report_PHASE_EXEC_20250709_212038.json",
+      "destination": "e:\\gh_COPILOT\\archives\\execution_report_PHASE_EXEC_20250709_212038.json"
+    },
+    {
+      "filename": "flake8_comprehensive_scan_20250709_121839.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_scan_20250709_121839.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_comprehensive_scan_20250709_121839.log"
+    },
+    {
+      "filename": "flake8_comprehensive_scan_20250709_121853.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_scan_20250709_121853.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_comprehensive_scan_20250709_121853.log"
+    },
+    {
+      "filename": "flake8_comprehensive_scan_20250709_121854.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_scan_20250709_121854.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_comprehensive_scan_20250709_121854.log"
+    },
+    {
+      "filename": "flake8_comprehensive_scan_20250709_124515.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_scan_20250709_124515.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_comprehensive_scan_20250709_124515.log"
+    },
+    {
+      "filename": "flake8_comprehensive_scan_20250709_124527.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_scan_20250709_124527.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_comprehensive_scan_20250709_124527.log"
+    },
+    {
+      "filename": "flake8_correction_SESSION_20250710_162140.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_correction_SESSION_20250710_162140.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_correction_SESSION_20250710_162140.log"
+    },
+    {
+      "filename": "flake8_correction_SESSION_20250710_162220.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_correction_SESSION_20250710_162220.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_correction_SESSION_20250710_162220.log"
+    },
+    {
+      "filename": "flake8_correction_SESSION_20250710_162312.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_correction_SESSION_20250710_162312.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_correction_SESSION_20250710_162312.log"
+    },
+    {
+      "filename": "flake8_correction_SESSION_20250710_170702.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_correction_SESSION_20250710_170702.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_correction_SESSION_20250710_170702.log"
+    },
+    {
+      "filename": "flake8_current_scan_20250709_130025.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_current_scan_20250709_130025.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_current_scan_20250709_130025.log"
+    },
+    {
+      "filename": "flake8_database_corrector_session_20250709_112353.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_database_corrector_session_20250709_112353.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_database_corrector_session_20250709_112353.log"
+    },
+    {
+      "filename": "flake8_enhanced_scan_20250709_130251.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_130251.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_enhanced_scan_20250709_130251.log"
+    },
+    {
+      "filename": "flake8_enhanced_scan_20250709_130303.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_130303.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_enhanced_scan_20250709_130303.log"
+    },
+    {
+      "filename": "flake8_enhanced_scan_20250709_133201.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_133201.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_enhanced_scan_20250709_133201.log"
+    },
+    {
+      "filename": "flake8_enhanced_scan_20250709_133303.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_133303.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_enhanced_scan_20250709_133303.log"
+    },
+    {
+      "filename": "flake8_enhanced_scan_20250709_135152.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_135152.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_enhanced_scan_20250709_135152.log"
+    },
+    {
+      "filename": "flake8_enhanced_scan_20250709_135232.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_135232.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_enhanced_scan_20250709_135232.log"
+    },
+    {
+      "filename": "flake8_enhanced_scan_20250709_144504.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_144504.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_enhanced_scan_20250709_144504.log"
+    },
+    {
+      "filename": "flake8_enhanced_scan_20250709_144521.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_144521.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_enhanced_scan_20250709_144521.log"
+    },
+    {
+      "filename": "flake8_enhanced_scan_20250709_144837.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_144837.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_enhanced_scan_20250709_144837.log"
+    },
+    {
+      "filename": "flake8_individual_test_20250709_114632.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_individual_test_20250709_114632.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_individual_test_20250709_114632.log"
+    },
+    {
+      "filename": "flake8_report.txt",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_report.txt",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_report.txt"
+    },
+    {
+      "filename": "flake8_systematic_scan_20250709_125737.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_systematic_scan_20250709_125737.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_systematic_scan_20250709_125737.log"
+    },
+    {
+      "filename": "flake8_systematic_scan_20250709_125804.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_systematic_scan_20250709_125804.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_systematic_scan_20250709_125804.log"
+    },
+    {
+      "filename": "flake8_systematic_scan_20250709_130053.log",
+      "source": "e:\\gh_COPILOT\\logs\\flake8_systematic_scan_20250709_130053.log",
+      "destination": "e:\\gh_COPILOT\\archives\\flake8_systematic_scan_20250709_130053.log"
+    },
+    {
+      "filename": "immediate_actions_validation_20250710_094200.log",
+      "source": "e:\\gh_COPILOT\\logs\\immediate_actions_validation_20250710_094200.log",
+      "destination": "e:\\gh_COPILOT\\archives\\immediate_actions_validation_20250710_094200.log"
+    },
+    {
+      "filename": "immediate_actions_validation_20250710_102729.log",
+      "source": "e:\\gh_COPILOT\\logs\\immediate_actions_validation_20250710_102729.log",
+      "destination": "e:\\gh_COPILOT\\archives\\immediate_actions_validation_20250710_102729.log"
+    },
+    {
+      "filename": "log_extraction_report_20250710_164921.json",
+      "source": "e:\\gh_COPILOT\\logs\\log_extraction_report_20250710_164921.json",
+      "destination": "e:\\gh_COPILOT\\archives\\log_extraction_report_20250710_164921.json"
+    },
+    {
+      "filename": "phase2_completion_report_20250713_060940.txt",
+      "source": "e:\\gh_COPILOT\\logs\\phase2_completion_report_20250713_060940.txt",
+      "destination": "e:\\gh_COPILOT\\archives\\phase2_completion_report_20250713_060940.txt"
+    },
+    {
+      "filename": "phase3_completion_report_20250713_074339.txt",
+      "source": "e:\\gh_COPILOT\\logs\\phase3_completion_report_20250713_074339.txt",
+      "destination": "e:\\gh_COPILOT\\archives\\phase3_completion_report_20250713_074339.txt"
+    },
+    {
+      "filename": "phase3_style_compliance_20250709_204250.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_204250.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase3_style_compliance_20250709_204250.log"
+    },
+    {
+      "filename": "phase3_style_compliance_20250709_212038.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_212038.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase3_style_compliance_20250709_212038.log"
+    },
+    {
+      "filename": "phase3_style_compliance_20250709_214632.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_214632.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase3_style_compliance_20250709_214632.log"
+    },
+    {
+      "filename": "phase3_systematic_processing_20250713_074223.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase3_systematic_processing_20250713_074223.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase3_systematic_processing_20250713_074223.log"
+    },
+    {
+      "filename": "phase4_completion_report_20250713_082753.txt",
+      "source": "e:\\gh_COPILOT\\logs\\phase4_completion_report_20250713_082753.txt",
+      "destination": "e:\\gh_COPILOT\\archives\\phase4_completion_report_20250713_082753.txt"
+    },
+    {
+      "filename": "phase4_completion_report_fixed_20250713_083240.txt",
+      "source": "e:\\gh_COPILOT\\logs\\phase4_completion_report_fixed_20250713_083240.txt",
+      "destination": "e:\\gh_COPILOT\\archives\\phase4_completion_report_fixed_20250713_083240.txt"
+    },
+    {
+      "filename": "phase4_debug_report_20250713_083018.txt",
+      "source": "e:\\gh_COPILOT\\logs\\phase4_debug_report_20250713_083018.txt",
+      "destination": "e:\\gh_COPILOT\\archives\\phase4_debug_report_20250713_083018.txt"
+    },
+    {
+      "filename": "phase4_e303_dominance_20250713_084958.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase4_e303_dominance_20250713_084958.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase4_e303_dominance_20250713_084958.log"
+    },
+    {
+      "filename": "phase4_e303_dominance_report_20250713_085009.txt",
+      "source": "e:\\gh_COPILOT\\logs\\phase4_e303_dominance_report_20250713_085009.txt",
+      "destination": "e:\\gh_COPILOT\\archives\\phase4_e303_dominance_report_20250713_085009.txt"
+    },
+    {
+      "filename": "phase4_enterprise_validation_20250709_204856.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase4_enterprise_validation_20250709_204856.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase4_enterprise_validation_20250709_204856.log"
+    },
+    {
+      "filename": "phase4_enterprise_validation_20250709_212725.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase4_enterprise_validation_20250709_212725.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase4_enterprise_validation_20250709_212725.log"
+    },
+    {
+      "filename": "phase5_advanced_scaling_20250713_101326.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase5_advanced_scaling_20250713_101326.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase5_advanced_scaling_20250713_101326.log"
+    },
+    {
+      "filename": "phase5_continuous_operation_20250709_212726.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase5_continuous_operation_20250709_212726.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase5_continuous_operation_20250709_212726.log"
+    },
+    {
+      "filename": "phase_execution_PHASE_EXEC_20250709_212038.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase_execution_PHASE_EXEC_20250709_212038.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase_execution_PHASE_EXEC_20250709_212038.log"
+    },
+    {
+      "filename": "pis_framework_20250709_235215.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250709_235215.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250709_235215.log"
+    },
+    {
+      "filename": "pis_framework_20250709_235339.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250709_235339.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250709_235339.log"
+    },
+    {
+      "filename": "pis_framework_20250709_235411.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250709_235411.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250709_235411.log"
+    },
+    {
+      "filename": "pis_framework_20250710_001305.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_001305.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_001305.log"
+    },
+    {
+      "filename": "pis_framework_20250710_005620.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_005620.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_005620.log"
+    },
+    {
+      "filename": "pis_framework_20250710_005830.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_005830.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_005830.log"
+    },
+    {
+      "filename": "pis_framework_20250710_005931.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_005931.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_005931.log"
+    },
+    {
+      "filename": "pis_framework_20250710_015745.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_015745.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_015745.log"
+    },
+    {
+      "filename": "pis_framework_20250710_015807.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_015807.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_015807.log"
+    },
+    {
+      "filename": "pis_framework_20250710_020747.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_020747.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_020747.log"
+    },
+    {
+      "filename": "pis_framework_20250710_020945.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_020945.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_020945.log"
+    },
+    {
+      "filename": "pis_framework_20250710_021156.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_021156.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_021156.log"
+    },
+    {
+      "filename": "pis_framework_20250710_090022.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_090022.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_090022.log"
+    },
+    {
+      "filename": "pis_framework_20250710_092401.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_092401.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_092401.log"
+    },
+    {
+      "filename": "pis_framework_20250710_094328.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_094328.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_framework_20250710_094328.log"
+    },
+    {
+      "filename": "quantum_clustering_20250710_102129.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_clustering_20250710_102129.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_clustering_20250710_102129.log"
+    },
+    {
+      "filename": "quantum_clustering_20250710_102453.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_clustering_20250710_102453.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_clustering_20250710_102453.log"
+    },
+    {
+      "filename": "quantum_expansion_20250710_095613.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_expansion_20250710_095613.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_expansion_20250710_095613.log"
+    },
+    {
+      "filename": "quantum_expansion_20250710_095850.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_expansion_20250710_095850.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_expansion_20250710_095850.log"
+    },
+    {
+      "filename": "quantum_expansion_20250710_100301.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_expansion_20250710_100301.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_expansion_20250710_100301.log"
+    },
+    {
+      "filename": "quantum_expansion_20250710_102451.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_expansion_20250710_102451.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_expansion_20250710_102451.log"
+    },
+    {
+      "filename": "quantum_nn_predictive_20250710_100756.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_nn_predictive_20250710_100756.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_nn_predictive_20250710_100756.log"
+    },
+    {
+      "filename": "quantum_nn_predictive_20250710_102128.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_nn_predictive_20250710_102128.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_nn_predictive_20250710_102128.log"
+    },
+    {
+      "filename": "quantum_nn_predictive_20250710_102452.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_nn_predictive_20250710_102452.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_nn_predictive_20250710_102452.log"
+    },
+    {
+      "filename": "quantum_orchestrator_20250710_101858.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_orchestrator_20250710_101858.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_orchestrator_20250710_101858.log"
+    },
+    {
+      "filename": "quantum_orchestrator_20250710_101906.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_orchestrator_20250710_101906.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_orchestrator_20250710_101906.log"
+    },
+    {
+      "filename": "quantum_orchestrator_20250710_101938.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_orchestrator_20250710_101938.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_orchestrator_20250710_101938.log"
+    },
+    {
+      "filename": "quantum_orchestrator_simplified_20250710_102126.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_orchestrator_simplified_20250710_102126.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_orchestrator_simplified_20250710_102126.log"
+    },
+    {
+      "filename": "quantum_orchestrator_simplified_20250710_102451.log",
+      "source": "e:\\gh_COPILOT\\logs\\quantum_orchestrator_simplified_20250710_102451.log",
+      "destination": "e:\\gh_COPILOT\\archives\\quantum_orchestrator_simplified_20250710_102451.log"
+    },
+    {
+      "filename": "qubo_optimization_20250710_100534.log",
+      "source": "e:\\gh_COPILOT\\logs\\qubo_optimization_20250710_100534.log",
+      "destination": "e:\\gh_COPILOT\\archives\\qubo_optimization_20250710_100534.log"
+    },
+    {
+      "filename": "qubo_optimization_20250710_102452.log",
+      "source": "e:\\gh_COPILOT\\logs\\qubo_optimization_20250710_102452.log",
+      "destination": "e:\\gh_COPILOT\\archives\\qubo_optimization_20250710_102452.log"
+    },
+    {
+      "filename": "recovery_validation_20250709_174725.log",
+      "source": "e:\\gh_COPILOT\\logs\\recovery_validation_20250709_174725.log",
+      "destination": "e:\\gh_COPILOT\\archives\\recovery_validation_20250709_174725.log"
+    },
+    {
+      "filename": "script_reproducibility_validation_20250710_120417.log",
+      "source": "e:\\gh_COPILOT\\logs\\script_reproducibility_validation_20250710_120417.log",
+      "destination": "e:\\gh_COPILOT\\archives\\script_reproducibility_validation_20250710_120417.log"
+    },
+    {
+      "filename": "session_integrity_20250710_205603.log",
+      "source": "e:\\gh_COPILOT\\logs\\session_integrity_20250710_205603.log",
+      "destination": "e:\\gh_COPILOT\\archives\\session_integrity_20250710_205603.log"
+    },
+    {
+      "filename": "session_integrity_20250710_205751.log",
+      "source": "e:\\gh_COPILOT\\logs\\session_integrity_20250710_205751.log",
+      "destination": "e:\\gh_COPILOT\\archives\\session_integrity_20250710_205751.log"
+    },
+    {
+      "filename": "specialized_quote_fixer_20250709_144705.log",
+      "source": "e:\\gh_COPILOT\\logs\\specialized_quote_fixer_20250709_144705.log",
+      "destination": "e:\\gh_COPILOT\\archives\\specialized_quote_fixer_20250709_144705.log"
+    },
+    {
+      "filename": "specialized_quote_fixer_20250709_144742.log",
+      "source": "e:\\gh_COPILOT\\logs\\specialized_quote_fixer_20250709_144742.log",
+      "destination": "e:\\gh_COPILOT\\archives\\specialized_quote_fixer_20250709_144742.log"
+    },
+    {
+      "filename": "syntax_check_20250709_111009.log",
+      "source": "e:\\gh_COPILOT\\logs\\syntax_check_20250709_111009.log",
+      "destination": "e:\\gh_COPILOT\\archives\\syntax_check_20250709_111009.log"
+    },
+    {
+      "filename": "systematic_correction_session_summary_20250709_145000.log",
+      "source": "e:\\gh_COPILOT\\logs\\systematic_correction_session_summary_20250709_145000.log",
+      "destination": "e:\\gh_COPILOT\\archives\\systematic_correction_session_summary_20250709_145000.log"
+    },
+    {
+      "filename": "template_compliance_enhancement_20250710_142414.log",
+      "source": "e:\\gh_COPILOT\\logs\\template_compliance_enhancement_20250710_142414.log",
+      "destination": "e:\\gh_COPILOT\\archives\\template_compliance_enhancement_20250710_142414.log"
+    },
+    {
+      "filename": "template_compliance_enhancement_20250710_142444.log",
+      "source": "e:\\gh_COPILOT\\logs\\template_compliance_enhancement_20250710_142444.log",
+      "destination": "e:\\gh_COPILOT\\archives\\template_compliance_enhancement_20250710_142444.log"
+    },
+    {
+      "filename": "enterprise_phase_execution_20250709_214631.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase_execution\\enterprise_phase_execution_20250709_214631.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase_execution\\enterprise_phase_execution_20250709_214631.log"
+    },
+    {
+      "filename": "phase3_stderr_20250709_214631.log",
+      "source": "e:\\gh_COPILOT\\logs\\phase_execution\\phase3_stderr_20250709_214631.log",
+      "destination": "e:\\gh_COPILOT\\archives\\phase_execution\\phase3_stderr_20250709_214631.log"
+    },
+    {
+      "filename": "database_first_discovery_20250709_225555.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_discovery\\database_first_discovery_20250709_225555.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_discovery\\database_first_discovery_20250709_225555.log"
+    },
+    {
+      "filename": "pis_phase2_compliance_scan_20250709_231714.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_phase2\\pis_phase2_compliance_scan_20250709_231714.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_phase2\\pis_phase2_compliance_scan_20250709_231714.log"
+    },
+    {
+      "filename": "pis_phase2_compliance_scan_20250709_232214.log",
+      "source": "e:\\gh_COPILOT\\logs\\pis_phase2\\pis_phase2_compliance_scan_20250709_232214.log",
+      "destination": "e:\\gh_COPILOT\\archives\\pis_phase2\\pis_phase2_compliance_scan_20250709_232214.log"
+    }
+  ],
+  "errors": [],
+  "post_migration_status": {
+    "logs_folder_cleaned": true,
+    "archives_folder_populated": true,
+    "database_updated": true
+  }
+}

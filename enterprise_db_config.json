@@ -1,6 +1,0 @@
-{
-  "max_connections": 20,
-  "connection_timeout": 30,
-  "idle_timeout": 300,
-  "validation_query": "SELECT 1"
-}

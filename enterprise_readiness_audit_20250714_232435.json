@@ -1,8 +1,0 @@
-{
-  "enterprise_readiness": 87.9,
-  "database_health": 100.0,
-  "script_coverage": 89.5,
-  "github_copilot_integration": 80,
-  "self_healing_status": 90.0,
-  "disaster_recovery": 80.0
-}

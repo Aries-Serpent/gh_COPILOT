@@ -1,0 +1,291 @@
+{
+  "scripts_found": [
+    {
+      "file": "logs\\aggressive_deployment_logs_compressor.py",
+      "current_location": "logs",
+      "file_size": 10780,
+      "should_be_executable": true
+    },
+    {
+      "file": "logs\\comprehensive_log_extraction_plan.py",
+      "current_location": "logs",
+      "file_size": 2156,
+      "should_be_executable": true
+    },
+    {
+      "file": "logs\\deployment_logs_rebuilder.py",
+      "current_location": "logs",
+      "file_size": 10950,
+      "should_be_executable": true
+    },
+    {
+      "file": "logs\\human_logs\\conversations_with_human\\configuration_recovery_engine.py",
+      "current_location": "logs",
+      "file_size": 2155,
+      "should_be_executable": true
+    },
+    {
+      "file": "logs\\human_logs\\conversations_with_human\\disaster_recovery_enhancer_edited.py",
+      "current_location": "logs",
+      "file_size": 2158,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\comprehensive_campaign_final_report.py",
+      "current_location": "reports",
+      "file_size": 14923,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\comprehensive_optimization_completion_report.py",
+      "current_location": "reports",
+      "file_size": 14887,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\database_compliance_checker.py",
+      "current_location": "reports",
+      "file_size": 1459,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\database_compliance_scanner.py",
+      "current_location": "reports",
+      "file_size": 3586,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\database_consolidation_completion_report_generator.py",
+      "current_location": "reports",
+      "file_size": 14548,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\database_first_compliance_resolver.py",
+      "current_location": "reports",
+      "file_size": 3592,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\database_first_flake8_compliance_scanner.py",
+      "current_location": "reports",
+      "file_size": 3957,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\database_first_flake8_compliance_scanner_v2.py",
+      "current_location": "reports",
+      "file_size": 3599,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\database_optimization_completion_report.py",
+      "current_location": "reports",
+      "file_size": 11249,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\detailed_violations_reporter.py",
+      "current_location": "reports",
+      "file_size": 21278,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\enterprise_audit_deployment_system.py",
+      "current_location": "reports",
+      "file_size": 36869,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\enterprise_audit_production_deployment.py",
+      "current_location": "reports",
+      "file_size": 54791,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\enterprise_template_compliance_enhancer.py",
+      "current_location": "reports",
+      "file_size": 3641,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\final_compliance_verifier.py",
+      "current_location": "reports",
+      "file_size": 5779,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\flake8_compliance_progress_reporter.py",
+      "current_location": "reports",
+      "file_size": 3593,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\phase2_completion_report_generator.py",
+      "current_location": "reports",
+      "file_size": 7825,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\phase3_style_compliance_executor.py",
+      "current_location": "reports",
+      "file_size": 3590,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\simple_violations_reporter.py",
+      "current_location": "reports",
+      "file_size": 17532,
+      "should_be_executable": true
+    },
+    {
+      "file": "reports\\systematic_flake8_error_analysis_corrector.py",
+      "current_location": "reports",
+      "file_size": 18960,
+      "should_be_executable": true
+    },
+    {
+      "file": "documentation\\session_wrap_up_generator.py",
+      "current_location": "documentation",
+      "file_size": 2148,
+      "should_be_executable": true
+    }
+  ],
+  "scripts_restored": [
+    {
+      "original_path": "logs\\aggressive_deployment_logs_compressor.py",
+      "restored_path": "aggressive_deployment_logs_compressor.py",
+      "status": "success"
+    },
+    {
+      "original_path": "logs\\comprehensive_log_extraction_plan.py",
+      "restored_path": "comprehensive_log_extraction_plan.py",
+      "status": "success"
+    },
+    {
+      "original_path": "logs\\deployment_logs_rebuilder.py",
+      "restored_path": "deployment_logs_rebuilder.py",
+      "status": "success"
+    },
+    {
+      "original_path": "logs\\human_logs\\conversations_with_human\\configuration_recovery_engine.py",
+      "restored_path": "configuration_recovery_engine.py",
+      "status": "success"
+    },
+    {
+      "original_path": "logs\\human_logs\\conversations_with_human\\disaster_recovery_enhancer_edited.py",
+      "restored_path": "disaster_recovery_enhancer_edited.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\comprehensive_campaign_final_report.py",
+      "restored_path": "comprehensive_campaign_final_report.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\comprehensive_optimization_completion_report.py",
+      "restored_path": "comprehensive_optimization_completion_report.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\database_compliance_checker.py",
+      "restored_path": "database_compliance_checker.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\database_compliance_scanner.py",
+      "restored_path": "database_compliance_scanner.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\database_consolidation_completion_report_generator.py",
+      "restored_path": "database_consolidation_completion_report_generator.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\database_first_compliance_resolver.py",
+      "restored_path": "database_first_compliance_resolver.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\database_first_flake8_compliance_scanner.py",
+      "restored_path": "database_first_flake8_compliance_scanner.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\database_first_flake8_compliance_scanner_v2.py",
+      "restored_path": "database_first_flake8_compliance_scanner_v2.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\database_optimization_completion_report.py",
+      "restored_path": "database_optimization_completion_report.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\detailed_violations_reporter.py",
+      "restored_path": "detailed_violations_reporter.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\enterprise_audit_deployment_system.py",
+      "restored_path": "enterprise_audit_deployment_system.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\enterprise_audit_production_deployment.py",
+      "restored_path": "enterprise_audit_production_deployment.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\enterprise_template_compliance_enhancer.py",
+      "restored_path": "enterprise_template_compliance_enhancer.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\final_compliance_verifier.py",
+      "restored_path": "final_compliance_verifier.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\flake8_compliance_progress_reporter.py",
+      "restored_path": "flake8_compliance_progress_reporter.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\phase2_completion_report_generator.py",
+      "restored_path": "phase2_completion_report_generator.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\phase3_style_compliance_executor.py",
+      "restored_path": "phase3_style_compliance_executor.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\simple_violations_reporter.py",
+      "restored_path": "simple_violations_reporter.py",
+      "status": "success"
+    },
+    {
+      "original_path": "reports\\systematic_flake8_error_analysis_corrector.py",
+      "restored_path": "systematic_flake8_error_analysis_corrector.py",
+      "status": "success"
+    },
+    {
+      "original_path": "documentation\\session_wrap_up_generator.py",
+      "restored_path": "session_wrap_up_generator.py",
+      "status": "success"
+    }
+  ],
+  "scripts_failed": [],
+  "database_updates": [],
+  "recovery_timestamp": "2025-07-16T14:36:44.790796",
+  "summary": {
+    "total_scripts_found": 25,
+    "total_scripts_restored": 25,
+    "total_scripts_failed": 0,
+    "database_records_updated": 0,
+    "recovery_success_rate": 100.0
+  }
+}

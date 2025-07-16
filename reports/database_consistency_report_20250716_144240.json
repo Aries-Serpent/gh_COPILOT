@@ -1,0 +1,4183 @@
+{
+  "timestamp": "2025-07-16T14:42:40.840646",
+  "workspace_root": "e:\\gh_COPILOT",
+  "database_consistency": {
+    "logs_db_exists": false,
+    "documentation_db_log_entries": 0,
+    "logs_folder_files": 196,
+    "consistency_status": "NEEDS_ATTENTION"
+  },
+  "file_inventory": {
+    "logs_folder_files": {
+      "autonomous_cli.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\autonomous_cli.log",
+        "size": 446,
+        "modified": "2025-07-15T17:46:03.721990",
+        "extension": ".log",
+        "hash": "7f2e76b72ec9fdeb7bd381d4b0542152",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "autonomous_monitoring.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\autonomous_monitoring.log",
+        "size": 8832,
+        "modified": "2025-07-14T23:43:04.839675",
+        "extension": ".log",
+        "hash": "a593a0a176d10a3ad5d9236070d0e8a2",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "autonomous_optimization.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\autonomous_optimization.log",
+        "size": 6657,
+        "modified": "2025-07-15T02:59:49.305259",
+        "extension": ".log",
+        "hash": "cf26a4d52e609b553edbf0aed8c712e6",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "compliance_scan_20250710_173622.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\compliance_scan_20250710_173622.log",
+        "size": 623,
+        "modified": "2025-07-10T17:36:22.051127",
+        "extension": ".log",
+        "hash": "c623a9dc8a3b7363468ccda3f365e9b5",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "compliance_scan_20250710_173707.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\compliance_scan_20250710_173707.log",
+        "size": 223112,
+        "modified": "2025-07-10T17:44:44.204604",
+        "extension": ".log",
+        "hash": "125c487f3c156106435d7d4cfdaea439",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "comprehensive_file_relocation.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\comprehensive_file_relocation.log",
+        "size": 34854,
+        "modified": "2025-07-16T14:06:53.330025",
+        "extension": ".log",
+        "hash": "6156fab10262e38ca764381c654c1cec",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "comprehensive_file_relocation_1.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\comprehensive_file_relocation_1.log",
+        "size": 1861,
+        "modified": "2025-07-16T13:49:48.705899",
+        "extension": ".log",
+        "hash": "d093d2930a058dfc2d2fe6bdf175accf",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "comprehensive_file_relocation_2.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\comprehensive_file_relocation_2.log",
+        "size": 33576,
+        "modified": "2025-07-16T14:06:20.466212",
+        "extension": ".log",
+        "hash": "16ce0350ace8251b525ea8471e7885f9",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "comprehensive_flake8_processor.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\comprehensive_flake8_processor.log",
+        "size": 590488,
+        "modified": "2025-07-13T01:03:50.950884",
+        "extension": ".log",
+        "hash": "42c7d69cd467521de3ccbeb2be2d0afc",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "COMPREHENSIVE_LOG_EXTRACTION_PLAN.md": {
+        "full_path": "e:\\gh_COPILOT\\logs\\COMPREHENSIVE_LOG_EXTRACTION_PLAN.md",
+        "size": 10497,
+        "modified": "2025-07-10T16:48:27.175304",
+        "extension": ".md",
+        "hash": "5ffd1255e7cde332a9c8192376f3a1b4",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "comprehensive_remaining_processor.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\comprehensive_remaining_processor.log",
+        "size": 1743,
+        "modified": "2025-07-13T01:40:20.971255",
+        "extension": ".log",
+        "hash": "41bac579992521fd4ff6045dc5c551e8",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "continuous_monitoring.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\continuous_monitoring.log",
+        "size": 736,
+        "modified": "2025-07-13T01:20:26.699452",
+        "extension": ".log",
+        "hash": "0a31e21696ee30f5916d51acdb3d47fc",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "critical_flake8_correction.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\critical_flake8_correction.log",
+        "size": 7683,
+        "modified": "2025-07-09T13:00:46.630350",
+        "extension": ".log",
+        "hash": "bf4dad06ca4cc15b5442dc537681dda2",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "database_cleanup.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\database_cleanup.log",
+        "size": 2173,
+        "modified": "2025-07-13T01:32:17.722817",
+        "extension": ".log",
+        "hash": "a40cac13dfb7440cdfd62a067701a076",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "database_consistency_check.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\database_consistency_check.log",
+        "size": 0,
+        "modified": "2025-07-16T14:42:39.849445",
+        "extension": ".log",
+        "hash": "d41d8cd98f00b204e9800998ecf8427e",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "database_correction_engine.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\database_correction_engine.log",
+        "size": 15010,
+        "modified": "2025-07-12T23:59:13.515177",
+        "extension": ".log",
+        "hash": "f1eef12c7b72eaac68331cd6139aa6df",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "database_driven_flake8_correction_20250709_122229.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\database_driven_flake8_correction_20250709_122229.log",
+        "size": 813,
+        "modified": "2025-07-09T12:22:29.686902",
+        "extension": ".log",
+        "hash": "0bcefdafce56d2f8f76abf98f83de3c7",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "database_first_compliance_resolution_20250710_180916.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\database_first_compliance_resolution_20250710_180916.log",
+        "size": 655424,
+        "modified": "2025-07-10T18:16:04.243293",
+        "extension": ".log",
+        "hash": "3f9d73d31853409189954d343d400a58",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "database_purification_20250710_182136.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\database_purification_20250710_182136.log",
+        "size": 191036,
+        "modified": "2025-07-10T18:23:41.236481",
+        "extension": ".log",
+        "hash": "d2c05adf8d5a4aeb18ec6221fb74e9c5",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "database_reproducibility_validation.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\database_reproducibility_validation.log",
+        "size": 471,
+        "modified": "2025-07-16T10:38:27.897740",
+        "extension": ".log",
+        "hash": "92c5b2d9f1f9b0344e75170c612c92bd",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "deployment_optimization_20250710_182951.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\deployment_optimization_20250710_182951.log",
+        "size": 2950,
+        "modified": "2025-07-10T18:29:51.897603",
+        "extension": ".log",
+        "hash": "858788a8622a995165153f069462bd01",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "deployment_optimization_20250710_183234.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\deployment_optimization_20250710_183234.log",
+        "size": 2950,
+        "modified": "2025-07-10T18:32:34.718722",
+        "extension": ".log",
+        "hash": "efdd334fa8e584ac9e42dde739cd9497",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "detailed_violations_reporter.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\detailed_violations_reporter.log",
+        "size": 227,
+        "modified": "2025-07-13T01:06:38.272956",
+        "extension": ".log",
+        "hash": "bfdfe280e3a6d26a172f3d6fdabfd3a0",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "efficient_database_validation.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\efficient_database_validation.log",
+        "size": 18447,
+        "modified": "2025-07-16T11:13:28.052220",
+        "extension": ".log",
+        "hash": "e2794df9b8e19cb8011b32a5b4de9930",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "emergency_cleanup.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\emergency_cleanup.log",
+        "size": 177,
+        "modified": "2025-07-10T17:11:37.686953",
+        "extension": ".log",
+        "hash": "2132987c2679d0cde4e14b6f2eb9180b",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enhanced_systematic_corrections_20250709_130251.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_130251.log",
+        "size": 4019,
+        "modified": "2025-07-09T13:02:55.474342",
+        "extension": ".log",
+        "hash": "df4feb4d9867c77ab9027f538045ea9d",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enhanced_systematic_corrections_20250709_130303.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_130303.log",
+        "size": 4019,
+        "modified": "2025-07-09T13:03:07.698241",
+        "extension": ".log",
+        "hash": "9a02a29c0e85c858160f4b365cb7515b",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enhanced_systematic_corrections_20250709_133201.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_133201.log",
+        "size": 4035,
+        "modified": "2025-07-09T13:32:05.238948",
+        "extension": ".log",
+        "hash": "8a538231615496a24fd6357dff5ae46d",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enhanced_systematic_corrections_20250709_133303.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_133303.log",
+        "size": 4035,
+        "modified": "2025-07-09T13:33:07.901708",
+        "extension": ".log",
+        "hash": "0837861b92ea3a9f5347032ff603d838",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enhanced_systematic_corrections_20250709_135152.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_135152.log",
+        "size": 4021,
+        "modified": "2025-07-09T13:51:56.364918",
+        "extension": ".log",
+        "hash": "b089f5cf9cebfa0b10e97c87fa6cd33e",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enhanced_systematic_corrections_20250709_135232.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_135232.log",
+        "size": 4021,
+        "modified": "2025-07-09T13:52:35.032194",
+        "extension": ".log",
+        "hash": "d524c7d6e6d6dd31473096e8d6155748",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enhanced_systematic_corrections_20250709_144504.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144504.log",
+        "size": 4122,
+        "modified": "2025-07-09T14:45:08.519052",
+        "extension": ".log",
+        "hash": "abd620bdc8fccfae5f7dadb3721393ca",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enhanced_systematic_corrections_20250709_144521.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144521.log",
+        "size": 4122,
+        "modified": "2025-07-09T14:45:26.420583",
+        "extension": ".log",
+        "hash": "011229fe19639fd965e512f6b61f996f",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enhanced_systematic_corrections_20250709_144836.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144836.log",
+        "size": 4122,
+        "modified": "2025-07-09T14:48:40.953884",
+        "extension": ".log",
+        "hash": "6dd700dc2157f8c7bd7f0321427d28c0",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_audit.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_audit.log",
+        "size": 5284,
+        "modified": "2025-07-14T23:21:51.620353",
+        "extension": ".log",
+        "hash": "1e9b1ce8fd49227f81c768acc8b49ace",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_audit_execution.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_audit_execution.log",
+        "size": 1363,
+        "modified": "2025-07-14T23:24:39.483698",
+        "extension": ".log",
+        "hash": "4feceaa586ced14ecc9e74e462fd6efb",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_build_enhancer.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_build_enhancer.log",
+        "size": 368,
+        "modified": "2025-07-10T12:55:21.697499",
+        "extension": ".log",
+        "hash": "b0c6e106db5a1573305eb5bfbf27c2c4",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_build_integration.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_build_integration.log",
+        "size": 1536,
+        "modified": "2025-07-10T12:58:27.908096",
+        "extension": ".log",
+        "hash": "1852a55e06d510dc957508dfc1ca7843",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_continuation_processing.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_continuation_processing.log",
+        "size": 281,
+        "modified": "2025-07-13T01:27:05.142938",
+        "extension": ".log",
+        "hash": "6fb943e0172389821933ef8da5d74473",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_documentation_manager.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_documentation_manager.log",
+        "size": 638,
+        "modified": "2025-07-10T12:58:06.703379",
+        "extension": ".log",
+        "hash": "f8c73c4d1d7327416e26cdecab9081c4",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_flake8_batch_correction_20250709_114832.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_flake8_batch_correction_20250709_114832.log",
+        "size": 242,
+        "modified": "2025-07-09T11:56:27.610606",
+        "extension": ".log",
+        "hash": "1b2828ae97b749bcab485cbdb9a2812c",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_flake8_correction.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_flake8_correction.log",
+        "size": 257,
+        "modified": "2025-07-10T17:12:04.421577",
+        "extension": ".log",
+        "hash": "d6324340cb9d9bbfead5395dcbf92268",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_flake8_execution_20250709_113903.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_flake8_execution_20250709_113903.log",
+        "size": 242,
+        "modified": "2025-07-09T11:45:02.121420",
+        "extension": ".log",
+        "hash": "2735b1c16308f3ae1aff6f0d6da57489",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_integration_test_20250712_234959.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_integration_test_20250712_234959.log",
+        "size": 1158,
+        "modified": "2025-07-12T23:50:00.908078",
+        "extension": ".log",
+        "hash": "feb2723bedf4e7e5b60675d516d48ec1",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_optimization.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_optimization.log",
+        "size": 907,
+        "modified": "2025-07-14T23:26:30.320344",
+        "extension": ".log",
+        "hash": "5ddb0f064d78b3d6e1c7937f2997e531",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_optimization_20250710_182716.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_optimization_20250710_182716.log",
+        "size": 2568,
+        "modified": "2025-07-10T18:27:17.897460",
+        "extension": ".log",
+        "hash": "cfd77052bb0cf8e4035bc1f96fc0a125",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_optimization_20250714_135316.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_optimization_20250714_135316.log",
+        "size": 2568,
+        "modified": "2025-07-14T13:53:16.607442",
+        "extension": ".log",
+        "hash": "59836bed807e4a9e7468b8442f1a34fc",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_readiness_completor_20250714_234055.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_readiness_completor_20250714_234055.log",
+        "size": 3437,
+        "modified": "2025-07-14T23:40:55.659385",
+        "extension": ".log",
+        "hash": "3b98ff129505c13de7af394424720967",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_readiness_optimizer_20250714_233924.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_readiness_optimizer_20250714_233924.log",
+        "size": 2900,
+        "modified": "2025-07-14T23:39:26.420290",
+        "extension": ".log",
+        "hash": "bdd75fb46b14cf94d9b7e603a24bd467",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_scale_processing.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_scale_processing.log",
+        "size": 7510,
+        "modified": "2025-07-13T01:24:25.236786",
+        "extension": ".log",
+        "hash": "4090bce4e572c4a1addc5c240eda3189",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_script_sync_20250710_120554.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_script_sync_20250710_120554.log",
+        "size": 232208,
+        "modified": "2025-07-10T12:07:15.147351",
+        "extension": ".log",
+        "hash": "9ba4418a40c7fd55dddf7142d3253a19",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_template_documentation.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_template_documentation.log",
+        "size": 1809,
+        "modified": "2025-07-10T14:14:32.043363",
+        "extension": ".log",
+        "hash": "c8a3d5b38c4738cc6cc259fbba0fde0e",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "enterprise_template_engine.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\enterprise_template_engine.log",
+        "size": 4352,
+        "modified": "2025-07-10T13:12:53.218482",
+        "extension": ".log",
+        "hash": "67e7f052ad2cb56f6f2cd2f8164f32f8",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "execution_report_PHASE_EXEC_20250709_212038.json": {
+        "full_path": "e:\\gh_COPILOT\\logs\\execution_report_PHASE_EXEC_20250709_212038.json",
+        "size": 1274,
+        "modified": "2025-07-09T21:27:26.355211",
+        "extension": ".json",
+        "hash": "c7c63599e152edabf5aa9a45d171ca3e",
+        "is_log_file": false,
+        "archive_ready": false
+      },
+      "EXECUTIVE_SUMMARY_20250714_225709.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\EXECUTIVE_SUMMARY_20250714_225709.txt",
+        "size": 2387,
+        "modified": "2025-07-14T22:57:09.676061",
+        "extension": ".txt",
+        "hash": "d622b8611467916e7e6350fea78b3fac",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "file_relocation_20250716_121852.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\file_relocation_20250716_121852.log",
+        "size": 485,
+        "modified": "2025-07-16T12:18:52.262108",
+        "extension": ".log",
+        "hash": "a859dcaa64236a3afc24978f5412f365",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "file_relocation_20250716_121901.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\file_relocation_20250716_121901.log",
+        "size": 485,
+        "modified": "2025-07-16T12:19:01.208620",
+        "extension": ".log",
+        "hash": "55cdcdbcf06287aff22e63d6a2e85a63",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "file_relocation_20250716_121948.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\file_relocation_20250716_121948.log",
+        "size": 484,
+        "modified": "2025-07-16T12:19:48.629573",
+        "extension": ".log",
+        "hash": "d6481b8cc47c393b7f4113832e5a35a1",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "file_relocation_20250716_122136.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\file_relocation_20250716_122136.log",
+        "size": 642,
+        "modified": "2025-07-16T12:21:36.669454",
+        "extension": ".log",
+        "hash": "b54eedfbbcd55e8d595770feac7d5458",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "file_relocation_20250716_122146.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\file_relocation_20250716_122146.log",
+        "size": 641,
+        "modified": "2025-07-16T12:21:46.632825",
+        "extension": ".log",
+        "hash": "871f20e26a0f1ddc766a8cbeefb60cd1",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_compliance.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_compliance.log",
+        "size": 26637786,
+        "modified": "2025-07-09T09:09:24.971885",
+        "extension": ".log",
+        "hash": "3e4cbb49877218751fab7f2c12676c11",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_comprehensive_run.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_run.log",
+        "size": 211,
+        "modified": "2025-07-09T10:30:02.715956",
+        "extension": ".log",
+        "hash": "ef8359b0d33e73dae80f4db8a439c3dd",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_comprehensive_scan_20250109_163000.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_scan_20250109_163000.log",
+        "size": 74322,
+        "modified": "2025-07-09T12:46:04.030866",
+        "extension": ".log",
+        "hash": "c6052b031023129ef0232558e1d24c04",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_comprehensive_scan_20250709_121839.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_scan_20250709_121839.log",
+        "size": 90523,
+        "modified": "2025-07-09T12:18:43.500873",
+        "extension": ".log",
+        "hash": "35fcb6941b7597657ae8a6dddf249be2",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_comprehensive_scan_20250709_121853.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_scan_20250709_121853.log",
+        "size": 91,
+        "modified": "2025-07-09T12:18:53.938032",
+        "extension": ".log",
+        "hash": "82ed98242c28916426057a1f308c4a59",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_comprehensive_scan_20250709_121854.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_scan_20250709_121854.log",
+        "size": 1,
+        "modified": "2025-07-09T12:18:54.004718",
+        "extension": ".log",
+        "hash": "68b329da9893e34099c7d8ad5cb9c940",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_comprehensive_scan_20250709_124515.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_scan_20250709_124515.log",
+        "size": 10362,
+        "modified": "2025-07-09T12:45:20.805198",
+        "extension": ".log",
+        "hash": "2085f3954741c1e6970511733a8732e6",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_comprehensive_scan_20250709_124527.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_comprehensive_scan_20250709_124527.log",
+        "size": 154749,
+        "modified": "2025-07-09T12:45:32.399641",
+        "extension": ".log",
+        "hash": "83dedd38adbf1c8b12d0f3181884bb2c",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_correction_SESSION_20250710_162140.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_correction_SESSION_20250710_162140.log",
+        "size": 1321,
+        "modified": "2025-07-10T16:21:42.248062",
+        "extension": ".log",
+        "hash": "64a2b79f5b09e461d2a720c9c83c1721",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_correction_SESSION_20250710_162220.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_correction_SESSION_20250710_162220.log",
+        "size": 311,
+        "modified": "2025-07-10T16:22:22.108058",
+        "extension": ".log",
+        "hash": "8b3408c36fa11b22c2dba3a16a9ea8fa",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_correction_SESSION_20250710_162312.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_correction_SESSION_20250710_162312.log",
+        "size": 369,
+        "modified": "2025-07-10T16:23:13.737741",
+        "extension": ".log",
+        "hash": "6934222782544940c2b3633f2adb6bb1",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_correction_SESSION_20250710_170702.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_correction_SESSION_20250710_170702.log",
+        "size": 1366400,
+        "modified": "2025-07-10T17:07:13.945627",
+        "extension": ".log",
+        "hash": "f150fbaecc5ade5c47e42916caf834d5",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_corrector.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_corrector.log",
+        "size": 1072859,
+        "modified": "2025-07-09T11:37:39.796546",
+        "extension": ".log",
+        "hash": "b9b67f76db3e5b02cebc9ee394bfe63a",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_current_scan_20250709_130025.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_current_scan_20250709_130025.log",
+        "size": 104537,
+        "modified": "2025-07-09T13:00:27.900581",
+        "extension": ".log",
+        "hash": "bfd1e94a9f13302b0b045fd9f332e1b2",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_database_corrector_session_20250709_112353.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_database_corrector_session_20250709_112353.log",
+        "size": 261302,
+        "modified": "2025-07-09T11:28:51.349944",
+        "extension": ".log",
+        "hash": "be4af53bf45252057b1b84aec5cac1c2",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_enhanced_scan_20250709_130251.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_130251.log",
+        "size": 114274,
+        "modified": "2025-07-09T13:02:55.181183",
+        "extension": ".log",
+        "hash": "973c4aab27d9b64e05a35cf5b2cef948",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_enhanced_scan_20250709_130303.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_130303.log",
+        "size": 114040,
+        "modified": "2025-07-09T13:03:07.414812",
+        "extension": ".log",
+        "hash": "2665882a69759ac04aa88f9d30fe019a",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_enhanced_scan_20250709_133201.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_133201.log",
+        "size": 118907,
+        "modified": "2025-07-09T13:32:04.990731",
+        "extension": ".log",
+        "hash": "f17b30929b8bfaa5db34851cc456ee36",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_enhanced_scan_20250709_133303.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_133303.log",
+        "size": 122920,
+        "modified": "2025-07-09T13:33:07.695409",
+        "extension": ".log",
+        "hash": "9e307f7a88b220aa9ac5f0cf02c6f61a",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_enhanced_scan_20250709_135152.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_135152.log",
+        "size": 127130,
+        "modified": "2025-07-09T13:51:56.116129",
+        "extension": ".log",
+        "hash": "2c980232aaefefe9f04cc563561a53db",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_enhanced_scan_20250709_135232.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_135232.log",
+        "size": 127089,
+        "modified": "2025-07-09T13:52:34.876714",
+        "extension": ".log",
+        "hash": "5a1f93ea7e7739dcd1c40eb254e83496",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_enhanced_scan_20250709_144504.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_144504.log",
+        "size": 110820,
+        "modified": "2025-07-09T14:45:08.317972",
+        "extension": ".log",
+        "hash": "52fad69e8d3a76e2197d26ca439f6781",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_enhanced_scan_20250709_144521.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_144521.log",
+        "size": 110819,
+        "modified": "2025-07-09T14:45:26.234791",
+        "extension": ".log",
+        "hash": "2ca0fe901e1e9f60bab1d67e62aba900",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_enhanced_scan_20250709_144837.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_enhanced_scan_20250709_144837.log",
+        "size": 112828,
+        "modified": "2025-07-09T14:48:40.761977",
+        "extension": ".log",
+        "hash": "5e39bdb949ff315414d791ad2a9f66bd",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_individual_test_20250709_114632.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_individual_test_20250709_114632.log",
+        "size": 341,
+        "modified": "2025-07-09T11:46:33.339934",
+        "extension": ".log",
+        "hash": "9f4e7d554a876aa216d96090a9bc8e40",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_report.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_report.txt",
+        "size": 3417,
+        "modified": "2025-07-09T01:56:36.919378",
+        "extension": ".txt",
+        "hash": "48c3629c1bb690a6bb5642ce14107928",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_systematic_scan_20250709_125737.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_systematic_scan_20250709_125737.log",
+        "size": 156,
+        "modified": "2025-07-09T12:57:39.842049",
+        "extension": ".log",
+        "hash": "2fa7085cbf8b36d2976ab0b5f1f0fef9",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_systematic_scan_20250709_125804.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_systematic_scan_20250709_125804.log",
+        "size": 174152,
+        "modified": "2025-07-09T12:58:06.754358",
+        "extension": ".log",
+        "hash": "25f2902c3f2bd7bc07ffa77969ab7db7",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "flake8_systematic_scan_20250709_130053.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\flake8_systematic_scan_20250709_130053.log",
+        "size": 197588,
+        "modified": "2025-07-09T13:00:56.129567",
+        "extension": ".log",
+        "hash": "ef2295b8e7739cc6e1f70185aded1b57",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "future_routing_validation.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\future_routing_validation.log",
+        "size": 408,
+        "modified": "2025-07-16T14:41:16.885272",
+        "extension": ".log",
+        "hash": "bd27183dfe38d23340de97f54fb79815",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "immediate_actions_validation_20250710_094200.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\immediate_actions_validation_20250710_094200.log",
+        "size": 1486,
+        "modified": "2025-07-10T09:42:32.134177",
+        "extension": ".log",
+        "hash": "ee522fc93c684a3cb355cd7f9a3f29dc",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "immediate_actions_validation_20250710_102729.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\immediate_actions_validation_20250710_102729.log",
+        "size": 3552,
+        "modified": "2025-07-10T10:28:01.259950",
+        "extension": ".log",
+        "hash": "49230a96ecc6d9e893c7a860fc75eee4",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "log_extraction_report_20250710_164921.json": {
+        "full_path": "e:\\gh_COPILOT\\logs\\log_extraction_report_20250710_164921.json",
+        "size": 6157,
+        "modified": "2025-07-10T16:49:21.314670",
+        "extension": ".json",
+        "hash": "dd342b2d1bf3503681fd053c6d4694ce",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "optimized_success_processing.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\optimized_success_processing.log",
+        "size": 11355,
+        "modified": "2025-07-13T01:33:51.226532",
+        "extension": ".log",
+        "hash": "e84ae65ba09f1c55e1c04214725c1046",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase2_completion_report_20250713_060940.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase2_completion_report_20250713_060940.txt",
+        "size": 2485,
+        "modified": "2025-07-13T06:09:40.723920",
+        "extension": ".txt",
+        "hash": "8202755395da2bf11c6ec711e53ef647",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase3_completion_report_20250713_074339.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase3_completion_report_20250713_074339.txt",
+        "size": 818,
+        "modified": "2025-07-13T07:43:39.681684",
+        "extension": ".txt",
+        "hash": "8e5b5973177eaa696462cb083c9fc1a2",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase3_style_compliance_20250709_204250.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_204250.log",
+        "size": 946,
+        "modified": "2025-07-09T20:48:56.397799",
+        "extension": ".log",
+        "hash": "0a71c8c8fff88990f567569c78612981",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase3_style_compliance_20250709_212038.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_212038.log",
+        "size": 504129,
+        "modified": "2025-07-09T21:27:25.360315",
+        "extension": ".log",
+        "hash": "434d68227a210cf32b7267c955bc1a5f",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase3_style_compliance_20250709_214632.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_214632.log",
+        "size": 522610,
+        "modified": "2025-07-09T21:52:05.322188",
+        "extension": ".log",
+        "hash": "967f03fba432084199f06112c967fc62",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase3_systematic_processing_20250713_074223.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase3_systematic_processing_20250713_074223.log",
+        "size": 689,
+        "modified": "2025-07-13T07:43:39.693803",
+        "extension": ".log",
+        "hash": "102cacd8030cb0c998b3fbb734625a67",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_completion_report_20250713_082753.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_completion_report_20250713_082753.txt",
+        "size": 2383,
+        "modified": "2025-07-13T08:27:53.090788",
+        "extension": ".txt",
+        "hash": "7c253c72978f9fbe99d19dbbd10c5149",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_completion_report_fixed_20250713_083240.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_completion_report_fixed_20250713_083240.txt",
+        "size": 640,
+        "modified": "2025-07-13T08:32:40.836535",
+        "extension": ".txt",
+        "hash": "41569e30dc35f268f1afde28a9f3ece7",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_comprehensive_domination.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_comprehensive_domination.log",
+        "size": 752,
+        "modified": "2025-07-13T09:44:47.179726",
+        "extension": ".log",
+        "hash": "7d62547c88a15bfe3bcb00b9724734fa",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_debug_analyzer.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_debug_analyzer.log",
+        "size": 3012,
+        "modified": "2025-07-13T08:30:18.751567",
+        "extension": ".log",
+        "hash": "020d2f71c8bb0bd1c8c13e682ab499ca",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_debug_report_20250713_083018.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_debug_report_20250713_083018.txt",
+        "size": 1241,
+        "modified": "2025-07-13T08:30:18.751567",
+        "extension": ".txt",
+        "hash": "4b171b5daab9f0659ebf78e2141f80c9",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_e303_dominance_20250713_084958.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_e303_dominance_20250713_084958.log",
+        "size": 1035,
+        "modified": "2025-07-13T08:50:09.700258",
+        "extension": ".log",
+        "hash": "85b207403e4d9d69209d05cf6c84c587",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_e303_dominance_corrected.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_e303_dominance_corrected.log",
+        "size": 756,
+        "modified": "2025-07-13T08:54:15.899871",
+        "extension": ".log",
+        "hash": "e12bf370b4446ce319b758eab3125064",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_e303_dominance_report_20250713_085009.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_e303_dominance_report_20250713_085009.txt",
+        "size": 785,
+        "modified": "2025-07-13T08:50:09.683378",
+        "extension": ".txt",
+        "hash": "8d3a736cfac7174a09cc3d60268db0e7",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_enterprise_validation_20250709_204856.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_enterprise_validation_20250709_204856.log",
+        "size": 520,
+        "modified": "2025-07-09T20:48:57.026000",
+        "extension": ".log",
+        "hash": "4a0e9f79a710088016244c7d26f42996",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_enterprise_validation_20250709_212725.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_enterprise_validation_20250709_212725.log",
+        "size": 2431,
+        "modified": "2025-07-09T21:27:25.913742",
+        "extension": ".log",
+        "hash": "edfb41dca6e4891380e39c987d7195e9",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_systematic_processing.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_systematic_processing.log",
+        "size": 2214,
+        "modified": "2025-07-13T08:27:53.103619",
+        "extension": ".log",
+        "hash": "22e5282be557a2f5764470b72cfa95fb",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase4_systematic_processing_fixed.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase4_systematic_processing_fixed.log",
+        "size": 3466,
+        "modified": "2025-07-13T08:32:40.836535",
+        "extension": ".log",
+        "hash": "38d1c035a98fc42a09a264c0806c8602",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase5_advanced_scaling_20250713_101326.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase5_advanced_scaling_20250713_101326.log",
+        "size": 751,
+        "modified": "2025-07-13T10:14:03.864528",
+        "extension": ".log",
+        "hash": "f6305b63f7c9a1997637b693fbf31852",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase5_continuous_operation_20250709_212726.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase5_continuous_operation_20250709_212726.log",
+        "size": 2369,
+        "modified": "2025-07-09T21:27:26.286704",
+        "extension": ".log",
+        "hash": "8cefc19e9c6971c3e0bb6cc1d676a3bd",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase6_comprehensive_elimination.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase6_comprehensive_elimination.log",
+        "size": 460,
+        "modified": "2025-07-13T10:38:43.907605",
+        "extension": ".log",
+        "hash": "1030658fb4c62e431b94d1453f40b92a",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase_execution_PHASE_EXEC_20250709_212038.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase_execution_PHASE_EXEC_20250709_212038.log",
+        "size": 529475,
+        "modified": "2025-07-09T21:27:26.317968",
+        "extension": ".log",
+        "hash": "d0e4c2a7da65c85b09d4eedcdf622205",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250709_235215.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250709_235215.log",
+        "size": 2940,
+        "modified": "2025-07-09T23:52:15.211891",
+        "extension": ".log",
+        "hash": "94f95f0cf3cff7c5d663c33a464a48db",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250709_235339.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250709_235339.log",
+        "size": 3401,
+        "modified": "2025-07-09T23:53:39.539388",
+        "extension": ".log",
+        "hash": "0d77bf3c19c7bb4da358f49f7037e088",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250709_235411.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250709_235411.log",
+        "size": 4238,
+        "modified": "2025-07-09T23:56:22.357366",
+        "extension": ".log",
+        "hash": "6fb71f41d6fff280eb5228de1d83b1a9",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_001305.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_001305.log",
+        "size": 5357,
+        "modified": "2025-07-10T00:16:14.372497",
+        "extension": ".log",
+        "hash": "1a7c0947ccf19e895780fffc36770db2",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_005620.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_005620.log",
+        "size": 1860,
+        "modified": "2025-07-10T00:56:20.840543",
+        "extension": ".log",
+        "hash": "1ceb15add1313464d8177405ddb4bece",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_005830.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_005830.log",
+        "size": 1860,
+        "modified": "2025-07-10T00:58:30.197337",
+        "extension": ".log",
+        "hash": "5500b893b88b2853fce7d96b526c0aa2",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_005931.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_005931.log",
+        "size": 2878,
+        "modified": "2025-07-10T00:59:32.777191",
+        "extension": ".log",
+        "hash": "b90707560dc8cc6b4a80b696aae75112",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_015745.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_015745.log",
+        "size": 1770,
+        "modified": "2025-07-10T01:57:46.845265",
+        "extension": ".log",
+        "hash": "dd1fb8d5dff306291f60bc092772b4fd",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_015807.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_015807.log",
+        "size": 1770,
+        "modified": "2025-07-10T01:58:08.101499",
+        "extension": ".log",
+        "hash": "e708a04605073b55385d424a24889848",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_020747.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_020747.log",
+        "size": 6165,
+        "modified": "2025-07-10T02:07:48.807123",
+        "extension": ".log",
+        "hash": "d018b8b48622bbdcf84cfe7ac1ed232d",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_020945.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_020945.log",
+        "size": 6087,
+        "modified": "2025-07-10T02:09:46.750007",
+        "extension": ".log",
+        "hash": "8369aa7de48aec6c6f803ced7361d012",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_021156.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_021156.log",
+        "size": 6087,
+        "modified": "2025-07-10T02:11:57.875410",
+        "extension": ".log",
+        "hash": "4d223bb2d3ab800f35ee4ad1a414c68b",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_090022.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_090022.log",
+        "size": 7533,
+        "modified": "2025-07-10T09:00:23.377893",
+        "extension": ".log",
+        "hash": "29e10cd2a6d6861f33184e7f8844633e",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_092401.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_092401.log",
+        "size": 9520,
+        "modified": "2025-07-10T09:24:02.774967",
+        "extension": ".log",
+        "hash": "a30ad5e7a5fb2e8bd485168355ed3bf6",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_framework_20250710_094328.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_framework_20250710_094328.log",
+        "size": 1982,
+        "modified": "2025-07-10T09:43:28.330024",
+        "extension": ".log",
+        "hash": "49f5fa2862dad348c2eb72ea7e0ad2bc",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_clustering_20250710_102129.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_clustering_20250710_102129.log",
+        "size": 2007,
+        "modified": "2025-07-10T10:21:30.218281",
+        "extension": ".log",
+        "hash": "e57a2ea24fec30be95bb02bc328688e1",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_clustering_20250710_102453.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_clustering_20250710_102453.log",
+        "size": 2006,
+        "modified": "2025-07-10T10:24:53.953280",
+        "extension": ".log",
+        "hash": "2efe1adff11dba98bd75a77c5c6226fa",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_expansion_20250710_095613.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_expansion_20250710_095613.log",
+        "size": 2527,
+        "modified": "2025-07-10T09:56:14.307170",
+        "extension": ".log",
+        "hash": "405da834e922abb5ac793d19db5562b6",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_expansion_20250710_095850.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_expansion_20250710_095850.log",
+        "size": 3289,
+        "modified": "2025-07-10T09:58:50.345085",
+        "extension": ".log",
+        "hash": "2a33b441aad75815852c9d61c235195a",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_expansion_20250710_100301.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_expansion_20250710_100301.log",
+        "size": 188,
+        "modified": "2025-07-10T10:03:01.122784",
+        "extension": ".log",
+        "hash": "4d9cbdf47c9b7ce6a3bba35a5ab62313",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_expansion_20250710_102451.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_expansion_20250710_102451.log",
+        "size": 188,
+        "modified": "2025-07-10T10:24:51.972005",
+        "extension": ".log",
+        "hash": "93a44fe89214db2d1f460ab4f2d66f87",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_nn_predictive_20250710_100756.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_nn_predictive_20250710_100756.log",
+        "size": 5908,
+        "modified": "2025-07-10T10:07:57.030156",
+        "extension": ".log",
+        "hash": "f7508268bbc3ac4a99ecf943fd521aaf",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_nn_predictive_20250710_102128.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_nn_predictive_20250710_102128.log",
+        "size": 5908,
+        "modified": "2025-07-10T10:21:28.440473",
+        "extension": ".log",
+        "hash": "9d48b0636d7e0de499f7cc605af8e26c",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_nn_predictive_20250710_102452.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_nn_predictive_20250710_102452.log",
+        "size": 5897,
+        "modified": "2025-07-10T10:24:53.053135",
+        "extension": ".log",
+        "hash": "cfc09b60d119669993fb4bb20065e994",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_orchestrator_20250710_101858.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_orchestrator_20250710_101858.log",
+        "size": 1715,
+        "modified": "2025-07-10T10:18:59.063057",
+        "extension": ".log",
+        "hash": "c294679f713eff705a5e50d5e452b8c2",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_orchestrator_20250710_101906.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_orchestrator_20250710_101906.log",
+        "size": 1715,
+        "modified": "2025-07-10T10:19:07.429707",
+        "extension": ".log",
+        "hash": "eff51c676f7115a62000bd169d268fcc",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_orchestrator_20250710_101938.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_orchestrator_20250710_101938.log",
+        "size": 2233,
+        "modified": "2025-07-10T10:19:38.690698",
+        "extension": ".log",
+        "hash": "faaa6fd3f4823ddc46748024c8edbb1e",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_orchestrator_simplified_20250710_102126.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_orchestrator_simplified_20250710_102126.log",
+        "size": 3255,
+        "modified": "2025-07-10T10:21:30.428050",
+        "extension": ".log",
+        "hash": "e36cace46fb6fcedeb0b78329346d151",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "quantum_orchestrator_simplified_20250710_102451.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\quantum_orchestrator_simplified_20250710_102451.log",
+        "size": 17567,
+        "modified": "2025-07-10T10:24:54.136779",
+        "extension": ".log",
+        "hash": "1cbefc67cca2d0ca503ca28671962536",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "qubo_optimization_20250710_100534.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\qubo_optimization_20250710_100534.log",
+        "size": 103,
+        "modified": "2025-07-10T10:05:34.243347",
+        "extension": ".log",
+        "hash": "e095d0785992b637e3ff6c1b525eed65",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "qubo_optimization_20250710_102452.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\qubo_optimization_20250710_102452.log",
+        "size": 103,
+        "modified": "2025-07-10T10:24:52.490969",
+        "extension": ".log",
+        "hash": "08c8a6130d9bcfbe52d198f59b21e848",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "recovery_validation_20250709_174725.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\recovery_validation_20250709_174725.log",
+        "size": 58,
+        "modified": "2025-07-09T17:47:25.802677",
+        "extension": ".log",
+        "hash": "cac8ee7d29409f6a9f8303bf48ed60ce",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "redaction.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\redaction.log",
+        "size": 2970,
+        "modified": "2025-07-09T16:48:12.159744",
+        "extension": ".log",
+        "hash": "bee009dbb27f07dfed845c98cc2cb0ed",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "refined_enterprise_processing.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\refined_enterprise_processing.log",
+        "size": 12849,
+        "modified": "2025-07-13T01:33:59.833768",
+        "extension": ".log",
+        "hash": "120beec36a6e531dc2f1092d13472eff",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "requirements-ml.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\requirements-ml.txt",
+        "size": 234,
+        "modified": "2025-07-12T22:40:39.757445",
+        "extension": ".txt",
+        "hash": "70c83e9d193a52bb9c44b8d9020d56e9",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "requirements-test.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\requirements-test.txt",
+        "size": 143,
+        "modified": "2025-07-12T22:40:39.764968",
+        "extension": ".txt",
+        "hash": "de6c959e01c12ec3a09d7215f7f05907",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "requirements-web.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\requirements-web.txt",
+        "size": 240,
+        "modified": "2025-07-07T11:55:54.518536",
+        "extension": ".txt",
+        "hash": "b752706d25853ce09556a43339ade175",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "requirements.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\requirements.txt",
+        "size": 1601,
+        "modified": "2025-07-12T22:40:39.767200",
+        "extension": ".txt",
+        "hash": "068ce8b83b97ca85eb57d7a6ff44a6f6",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "script_reproducibility_validation_20250710_120417.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\script_reproducibility_validation_20250710_120417.log",
+        "size": 1179,
+        "modified": "2025-07-10T12:04:19.219410",
+        "extension": ".log",
+        "hash": "e0274c2945547b5bd89309f5acde4429",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "session_integrity_20250710_205603.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\session_integrity_20250710_205603.log",
+        "size": 8589,
+        "modified": "2025-07-10T20:56:05.730163",
+        "extension": ".log",
+        "hash": "2a403b11f48b3c0ede61d4c25e39d04c",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "session_integrity_20250710_205751.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\session_integrity_20250710_205751.log",
+        "size": 4780,
+        "modified": "2025-07-10T20:57:53.113980",
+        "extension": ".log",
+        "hash": "489efa3a399b224727c723db5741ef5c",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "session_integrity_20250715_191813.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\session_integrity_20250715_191813.log",
+        "size": 106979,
+        "modified": "2025-07-15T19:18:30.913043",
+        "extension": ".log",
+        "hash": "bff130217d22bd4808d8c5bd7012945a",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "session_integrity_20250715_193351.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\session_integrity_20250715_193351.log",
+        "size": 1331,
+        "modified": "2025-07-15T19:34:06.473792",
+        "extension": ".log",
+        "hash": "ca83abf73629f65330e68b7fe3a9b16f",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "specialized_quote_fixer_20250709_144705.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\specialized_quote_fixer_20250709_144705.log",
+        "size": 1003,
+        "modified": "2025-07-09T14:47:06.014114",
+        "extension": ".log",
+        "hash": "e4e49a39d52dd86436ebbdc1b89963e5",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "specialized_quote_fixer_20250709_144742.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\specialized_quote_fixer_20250709_144742.log",
+        "size": 277,
+        "modified": "2025-07-09T14:47:42.113319",
+        "extension": ".log",
+        "hash": "8ae9f04ce4ee112f90533ac7e9222a41",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "syntax_check_20250709_111009.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\syntax_check_20250709_111009.log",
+        "size": 104,
+        "modified": "2025-07-09T11:10:09.224076",
+        "extension": ".log",
+        "hash": "8d688764c5b947b2ac6d17c32952a55c",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "syntax_fixer.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\syntax_fixer.log",
+        "size": 328396,
+        "modified": "2025-07-09T10:56:51.711171",
+        "extension": ".log",
+        "hash": "1890d625711a0c5a04f75e94efd22a84",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "syntax_fixing_log.txt": {
+        "full_path": "e:\\gh_COPILOT\\logs\\syntax_fixing_log.txt",
+        "size": 329577,
+        "modified": "2025-07-09T10:56:51.724321",
+        "extension": ".txt",
+        "hash": "5cf448220a46f64612dee3a02dc3757a",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "systematic_correction_session_summary_20250709_145000.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\systematic_correction_session_summary_20250709_145000.log",
+        "size": 3634,
+        "modified": "2025-07-09T14:54:32.907162",
+        "extension": ".log",
+        "hash": "4cb80713aaba137578779cbeb71d2cf6",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "systematic_f821_f401_processor.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\systematic_f821_f401_processor.log",
+        "size": 1101,
+        "modified": "2025-07-13T06:06:04.420604",
+        "extension": ".log",
+        "hash": "b5f42892976dacb1c158cad95186b259",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "systematic_flake8_analysis.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\systematic_flake8_analysis.log",
+        "size": 4778,
+        "modified": "2025-07-09T13:00:56.163331",
+        "extension": ".log",
+        "hash": "e5f0ba54632e12533020fcdbc716fc48",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "template_compliance_enhancement_20250710_142414.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\template_compliance_enhancement_20250710_142414.log",
+        "size": 760,
+        "modified": "2025-07-10T14:24:15.074132",
+        "extension": ".log",
+        "hash": "859b2ed4e005ec841fa98cb7ce27649b",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "template_compliance_enhancement_20250710_142444.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\template_compliance_enhancement_20250710_142444.log",
+        "size": 948,
+        "modified": "2025-07-10T14:24:44.991157",
+        "extension": ".log",
+        "hash": "3895fa2514671e7fb8d7edf6c197a987",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "unicode_flake8_correction.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\unicode_flake8_correction.log",
+        "size": 16124,
+        "modified": "2025-07-12T23:59:33.524122",
+        "extension": ".log",
+        "hash": "e495928bb62dc5d2e9f4164a8a3a57ae",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "unicode_flake8_master_controller.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\unicode_flake8_master_controller.log",
+        "size": 21452,
+        "modified": "2025-07-12T23:28:11.779510",
+        "extension": ".log",
+        "hash": "0d9a3623c3fa99be33329dfdef95234f",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "unicode_flake8_master_controller_1.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\unicode_flake8_master_controller_1.log",
+        "size": 6274,
+        "modified": "2025-07-14T16:46:05.134865",
+        "extension": ".log",
+        "hash": "6854c2e3c11e347ed834fb3f81f1b0e9",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "validation_output.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\validation_output.log",
+        "size": 31,
+        "modified": "2025-07-16T10:26:24.614477",
+        "extension": ".log",
+        "hash": "3539dcd40195892a148a1a463337a57d",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "violation_diagnostic.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\violation_diagnostic.log",
+        "size": 470,
+        "modified": "2025-07-13T01:31:23.757267",
+        "extension": ".log",
+        "hash": "be031492642b6f0cd32c227914607399",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "visual_processing_system.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\visual_processing_system.log",
+        "size": 13467,
+        "modified": "2025-07-12T23:59:25.785532",
+        "extension": ".log",
+        "hash": "4d886ed32e39ce3d4489fca454322153",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "autonomous_optimization\\database_health_optimization_20250715_174054.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\autonomous_optimization\\database_health_optimization_20250715_174054.log",
+        "size": 13732,
+        "modified": "2025-07-15T17:41:05.377631",
+        "extension": ".log",
+        "hash": "ca3ef52d43ff777bd9bcbcfe6beabb2d",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "autonomous_optimization\\database_health_optimization_20250715_175331.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\autonomous_optimization\\database_health_optimization_20250715_175331.log",
+        "size": 13731,
+        "modified": "2025-07-15T17:53:32.779935",
+        "extension": ".log",
+        "hash": "5c602c8a9f6a4c3a2a64e0dcec6e60d6",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "autonomous_optimization\\database_health_optimization_20250715_180839.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\autonomous_optimization\\database_health_optimization_20250715_180839.log",
+        "size": 13733,
+        "modified": "2025-07-15T18:08:49.852970",
+        "extension": ".log",
+        "hash": "2a6d8bbad89701989de961795587e11d",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "autonomous_optimization\\database_health_optimization_20250715_191353.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\autonomous_optimization\\database_health_optimization_20250715_191353.log",
+        "size": 13733,
+        "modified": "2025-07-15T19:14:04.258391",
+        "extension": ".log",
+        "hash": "2dce9ee4c0b79cb924f36815ab047e59",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "autonomous_optimization\\database_optimization_20250715_025747.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\autonomous_optimization\\database_optimization_20250715_025747.log",
+        "size": 1272,
+        "modified": "2025-07-15T02:57:49.672002",
+        "extension": ".log",
+        "hash": "f1c5221852c00cdf4900df4e04be4464",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "autonomous_optimization\\db_health_opt_20250715_024807.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\autonomous_optimization\\db_health_opt_20250715_024807.log",
+        "size": 12759,
+        "modified": "2025-07-15T02:48:14.846579",
+        "extension": ".log",
+        "hash": "bf3c0d3099892d0b5ae48e726d0860c4",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "human_logs\\note.markdown": {
+        "full_path": "e:\\gh_COPILOT\\logs\\human_logs\\note.markdown",
+        "size": 29313,
+        "modified": "2025-07-14T21:52:54.194120",
+        "extension": ".markdown",
+        "hash": "e095fc71c28527be526f62ff040da72f",
+        "is_log_file": false,
+        "archive_ready": false
+      },
+      "human_logs\\note0.markdown": {
+        "full_path": "e:\\gh_COPILOT\\logs\\human_logs\\note0.markdown",
+        "size": 37813,
+        "modified": "2025-07-15T12:08:46.307370",
+        "extension": ".markdown",
+        "hash": "12e29515978c6ab4893f930bd686e6f6",
+        "is_log_file": false,
+        "archive_ready": false
+      },
+      "phase_execution\\enterprise_phase_execution_20250709_214631.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase_execution\\enterprise_phase_execution_20250709_214631.log",
+        "size": 1690,
+        "modified": "2025-07-09T21:46:31.868433",
+        "extension": ".log",
+        "hash": "325b5e04e3182c1f79c5760b5bfccb8d",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "phase_execution\\phase3_stderr_20250709_214631.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\phase_execution\\phase3_stderr_20250709_214631.log",
+        "size": 542668,
+        "modified": "2025-07-09T21:52:20.578030",
+        "extension": ".log",
+        "hash": "c8298c5721858f49b77a9e7791c4ff27",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_discovery\\database_first_discovery_20250709_225555.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_discovery\\database_first_discovery_20250709_225555.log",
+        "size": 3420,
+        "modified": "2025-07-09T23:14:56.400463",
+        "extension": ".log",
+        "hash": "d161588fe4d72a9d20f5aad256ea27b1",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_phase2\\pis_phase2_compliance_scan_20250709_231714.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_phase2\\pis_phase2_compliance_scan_20250709_231714.log",
+        "size": 139,
+        "modified": "2025-07-09T23:17:14.654109",
+        "extension": ".log",
+        "hash": "290868d2fe2b8c60e22d47e583bf2372",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "pis_phase2\\pis_phase2_compliance_scan_20250709_232214.log": {
+        "full_path": "e:\\gh_COPILOT\\logs\\pis_phase2\\pis_phase2_compliance_scan_20250709_232214.log",
+        "size": 503560,
+        "modified": "2025-07-09T23:32:43.714301",
+        "extension": ".log",
+        "hash": "6106fb2ac4a03b040def6c285e1e59c0",
+        "is_log_file": true,
+        "archive_ready": false
+      },
+      "human_logs\\conversations_with_human\\07032025-0100.md": {
+        "full_path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\07032025-0100.md",
+        "size": 20582,
+        "modified": "2025-07-15T02:35:47.867899",
+        "extension": ".md",
+        "hash": "bd6f67cab4348b1244f7d002f9fcfe21",
+        "is_log_file": false,
+        "archive_ready": false
+      },
+      "human_logs\\conversations_with_human\\07062025-1250.md": {
+        "full_path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\07062025-1250.md",
+        "size": 108774,
+        "modified": "2025-07-07T13:08:34.332805",
+        "extension": ".md",
+        "hash": "0e1c5703380a9b4a724f1e01bf56f813",
+        "is_log_file": false,
+        "archive_ready": false
+      },
+      "human_logs\\conversations_with_human\\07062025-1405.md": {
+        "full_path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\07062025-1405.md",
+        "size": 76133,
+        "modified": "2025-07-15T02:35:47.869948",
+        "extension": ".md",
+        "hash": "b78a3b1e5030bd694b4190ce4a9fc315",
+        "is_log_file": false,
+        "archive_ready": false
+      },
+      "human_logs\\conversations_with_human\\additional_notes-self_learning.md": {
+        "full_path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\additional_notes-self_learning.md",
+        "size": 201262,
+        "modified": "2025-07-06T04:32:24.152821",
+        "extension": ".md",
+        "hash": "91b71692201a69f0e00e702bdeb195de",
+        "is_log_file": false,
+        "archive_ready": false
+      },
+      "human_logs\\conversations_with_human\\disaster_recovery_enhancer_edited_additional_notes.md": {
+        "full_path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\disaster_recovery_enhancer_edited_additional_notes.md",
+        "size": 71263,
+        "modified": "2025-07-03T16:35:42.259279",
+        "extension": ".md",
+        "hash": "77b154f82f84e8f4f57cf455bfc61f42",
+        "is_log_file": false,
+        "archive_ready": false
+      },
+      "human_logs\\conversations_with_human\\set_of_prompts.md": {
+        "full_path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\set_of_prompts.md",
+        "size": 39191,
+        "modified": "2025-07-03T15:35:04.771164",
+        "extension": ".md",
+        "hash": "d16a19cba82f4470db108429158f4ed1",
+        "is_log_file": false,
+        "archive_ready": false
+      },
+      "human_logs\\conversations_with_human\\__pycache__\\configuration_recovery_engine.cpython-312.pyc": {
+        "full_path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\__pycache__\\configuration_recovery_engine.cpython-312.pyc",
+        "size": 3156,
+        "modified": "2025-07-14T17:58:33.531127",
+        "extension": ".pyc",
+        "hash": "20c48507caf9938b1af6bbd07a5e2135",
+        "is_log_file": false,
+        "archive_ready": false
+      },
+      "human_logs\\conversations_with_human\\__pycache__\\disaster_recovery_enhancer_edited.cpython-312.pyc": {
+        "full_path": "e:\\gh_COPILOT\\logs\\human_logs\\conversations_with_human\\__pycache__\\disaster_recovery_enhancer_edited.cpython-312.pyc",
+        "size": 3163,
+        "modified": "2025-07-14T17:58:33.798022",
+        "extension": ".pyc",
+        "hash": "8e88bb7386c9e7cb48148cebd09fa7d4",
+        "is_log_file": false,
+        "archive_ready": false
+      }
+    },
+    "database_log_entries": {}
+  },
+  "migration_readiness": {
+    "ready_for_archive": [],
+    "needs_database_entry": [
+      {
+        "file": "autonomous_cli.log",
+        "size": 446,
+        "modified": "2025-07-15T17:46:03.721990",
+        "is_log_file": true
+      },
+      {
+        "file": "autonomous_monitoring.log",
+        "size": 8832,
+        "modified": "2025-07-14T23:43:04.839675",
+        "is_log_file": true
+      },
+      {
+        "file": "autonomous_optimization.log",
+        "size": 6657,
+        "modified": "2025-07-15T02:59:49.305259",
+        "is_log_file": true
+      },
+      {
+        "file": "compliance_scan_20250710_173622.log",
+        "size": 623,
+        "modified": "2025-07-10T17:36:22.051127",
+        "is_log_file": true
+      },
+      {
+        "file": "compliance_scan_20250710_173707.log",
+        "size": 223112,
+        "modified": "2025-07-10T17:44:44.204604",
+        "is_log_file": true
+      },
+      {
+        "file": "comprehensive_file_relocation.log",
+        "size": 34854,
+        "modified": "2025-07-16T14:06:53.330025",
+        "is_log_file": true
+      },
+      {
+        "file": "comprehensive_file_relocation_1.log",
+        "size": 1861,
+        "modified": "2025-07-16T13:49:48.705899",
+        "is_log_file": true
+      },
+      {
+        "file": "comprehensive_file_relocation_2.log",
+        "size": 33576,
+        "modified": "2025-07-16T14:06:20.466212",
+        "is_log_file": true
+      },
+      {
+        "file": "comprehensive_flake8_processor.log",
+        "size": 590488,
+        "modified": "2025-07-13T01:03:50.950884",
+        "is_log_file": true
+      },
+      {
+        "file": "COMPREHENSIVE_LOG_EXTRACTION_PLAN.md",
+        "size": 10497,
+        "modified": "2025-07-10T16:48:27.175304",
+        "is_log_file": true
+      },
+      {
+        "file": "comprehensive_remaining_processor.log",
+        "size": 1743,
+        "modified": "2025-07-13T01:40:20.971255",
+        "is_log_file": true
+      },
+      {
+        "file": "continuous_monitoring.log",
+        "size": 736,
+        "modified": "2025-07-13T01:20:26.699452",
+        "is_log_file": true
+      },
+      {
+        "file": "critical_flake8_correction.log",
+        "size": 7683,
+        "modified": "2025-07-09T13:00:46.630350",
+        "is_log_file": true
+      },
+      {
+        "file": "database_cleanup.log",
+        "size": 2173,
+        "modified": "2025-07-13T01:32:17.722817",
+        "is_log_file": true
+      },
+      {
+        "file": "database_consistency_check.log",
+        "size": 0,
+        "modified": "2025-07-16T14:42:39.849445",
+        "is_log_file": true
+      },
+      {
+        "file": "database_correction_engine.log",
+        "size": 15010,
+        "modified": "2025-07-12T23:59:13.515177",
+        "is_log_file": true
+      },
+      {
+        "file": "database_driven_flake8_correction_20250709_122229.log",
+        "size": 813,
+        "modified": "2025-07-09T12:22:29.686902",
+        "is_log_file": true
+      },
+      {
+        "file": "database_first_compliance_resolution_20250710_180916.log",
+        "size": 655424,
+        "modified": "2025-07-10T18:16:04.243293",
+        "is_log_file": true
+      },
+      {
+        "file": "database_purification_20250710_182136.log",
+        "size": 191036,
+        "modified": "2025-07-10T18:23:41.236481",
+        "is_log_file": true
+      },
+      {
+        "file": "database_reproducibility_validation.log",
+        "size": 471,
+        "modified": "2025-07-16T10:38:27.897740",
+        "is_log_file": true
+      },
+      {
+        "file": "deployment_optimization_20250710_182951.log",
+        "size": 2950,
+        "modified": "2025-07-10T18:29:51.897603",
+        "is_log_file": true
+      },
+      {
+        "file": "deployment_optimization_20250710_183234.log",
+        "size": 2950,
+        "modified": "2025-07-10T18:32:34.718722",
+        "is_log_file": true
+      },
+      {
+        "file": "detailed_violations_reporter.log",
+        "size": 227,
+        "modified": "2025-07-13T01:06:38.272956",
+        "is_log_file": true
+      },
+      {
+        "file": "efficient_database_validation.log",
+        "size": 18447,
+        "modified": "2025-07-16T11:13:28.052220",
+        "is_log_file": true
+      },
+      {
+        "file": "emergency_cleanup.log",
+        "size": 177,
+        "modified": "2025-07-10T17:11:37.686953",
+        "is_log_file": true
+      },
+      {
+        "file": "enhanced_systematic_corrections_20250709_130251.log",
+        "size": 4019,
+        "modified": "2025-07-09T13:02:55.474342",
+        "is_log_file": true
+      },
+      {
+        "file": "enhanced_systematic_corrections_20250709_130303.log",
+        "size": 4019,
+        "modified": "2025-07-09T13:03:07.698241",
+        "is_log_file": true
+      },
+      {
+        "file": "enhanced_systematic_corrections_20250709_133201.log",
+        "size": 4035,
+        "modified": "2025-07-09T13:32:05.238948",
+        "is_log_file": true
+      },
+      {
+        "file": "enhanced_systematic_corrections_20250709_133303.log",
+        "size": 4035,
+        "modified": "2025-07-09T13:33:07.901708",
+        "is_log_file": true
+      },
+      {
+        "file": "enhanced_systematic_corrections_20250709_135152.log",
+        "size": 4021,
+        "modified": "2025-07-09T13:51:56.364918",
+        "is_log_file": true
+      },
+      {
+        "file": "enhanced_systematic_corrections_20250709_135232.log",
+        "size": 4021,
+        "modified": "2025-07-09T13:52:35.032194",
+        "is_log_file": true
+      },
+      {
+        "file": "enhanced_systematic_corrections_20250709_144504.log",
+        "size": 4122,
+        "modified": "2025-07-09T14:45:08.519052",
+        "is_log_file": true
+      },
+      {
+        "file": "enhanced_systematic_corrections_20250709_144521.log",
+        "size": 4122,
+        "modified": "2025-07-09T14:45:26.420583",
+        "is_log_file": true
+      },
+      {
+        "file": "enhanced_systematic_corrections_20250709_144836.log",
+        "size": 4122,
+        "modified": "2025-07-09T14:48:40.953884",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_audit.log",
+        "size": 5284,
+        "modified": "2025-07-14T23:21:51.620353",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_audit_execution.log",
+        "size": 1363,
+        "modified": "2025-07-14T23:24:39.483698",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_build_enhancer.log",
+        "size": 368,
+        "modified": "2025-07-10T12:55:21.697499",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_build_integration.log",
+        "size": 1536,
+        "modified": "2025-07-10T12:58:27.908096",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_continuation_processing.log",
+        "size": 281,
+        "modified": "2025-07-13T01:27:05.142938",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_documentation_manager.log",
+        "size": 638,
+        "modified": "2025-07-10T12:58:06.703379",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_flake8_batch_correction_20250709_114832.log",
+        "size": 242,
+        "modified": "2025-07-09T11:56:27.610606",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_flake8_correction.log",
+        "size": 257,
+        "modified": "2025-07-10T17:12:04.421577",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_flake8_execution_20250709_113903.log",
+        "size": 242,
+        "modified": "2025-07-09T11:45:02.121420",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_integration_test_20250712_234959.log",
+        "size": 1158,
+        "modified": "2025-07-12T23:50:00.908078",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_optimization.log",
+        "size": 907,
+        "modified": "2025-07-14T23:26:30.320344",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_optimization_20250710_182716.log",
+        "size": 2568,
+        "modified": "2025-07-10T18:27:17.897460",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_optimization_20250714_135316.log",
+        "size": 2568,
+        "modified": "2025-07-14T13:53:16.607442",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_readiness_completor_20250714_234055.log",
+        "size": 3437,
+        "modified": "2025-07-14T23:40:55.659385",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_readiness_optimizer_20250714_233924.log",
+        "size": 2900,
+        "modified": "2025-07-14T23:39:26.420290",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_scale_processing.log",
+        "size": 7510,
+        "modified": "2025-07-13T01:24:25.236786",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_script_sync_20250710_120554.log",
+        "size": 232208,
+        "modified": "2025-07-10T12:07:15.147351",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_template_documentation.log",
+        "size": 1809,
+        "modified": "2025-07-10T14:14:32.043363",
+        "is_log_file": true
+      },
+      {
+        "file": "enterprise_template_engine.log",
+        "size": 4352,
+        "modified": "2025-07-10T13:12:53.218482",
+        "is_log_file": true
+      },
+      {
+        "file": "execution_report_PHASE_EXEC_20250709_212038.json",
+        "size": 1274,
+        "modified": "2025-07-09T21:27:26.355211",
+        "is_log_file": false
+      },
+      {
+        "file": "EXECUTIVE_SUMMARY_20250714_225709.txt",
+        "size": 2387,
+        "modified": "2025-07-14T22:57:09.676061",
+        "is_log_file": true
+      },
+      {
+        "file": "file_relocation_20250716_121852.log",
+        "size": 485,
+        "modified": "2025-07-16T12:18:52.262108",
+        "is_log_file": true
+      },
+      {
+        "file": "file_relocation_20250716_121901.log",
+        "size": 485,
+        "modified": "2025-07-16T12:19:01.208620",
+        "is_log_file": true
+      },
+      {
+        "file": "file_relocation_20250716_121948.log",
+        "size": 484,
+        "modified": "2025-07-16T12:19:48.629573",
+        "is_log_file": true
+      },
+      {
+        "file": "file_relocation_20250716_122136.log",
+        "size": 642,
+        "modified": "2025-07-16T12:21:36.669454",
+        "is_log_file": true
+      },
+      {
+        "file": "file_relocation_20250716_122146.log",
+        "size": 641,
+        "modified": "2025-07-16T12:21:46.632825",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_compliance.log",
+        "size": 26637786,
+        "modified": "2025-07-09T09:09:24.971885",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_comprehensive_run.log",
+        "size": 211,
+        "modified": "2025-07-09T10:30:02.715956",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_comprehensive_scan_20250109_163000.log",
+        "size": 74322,
+        "modified": "2025-07-09T12:46:04.030866",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_comprehensive_scan_20250709_121839.log",
+        "size": 90523,
+        "modified": "2025-07-09T12:18:43.500873",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_comprehensive_scan_20250709_121853.log",
+        "size": 91,
+        "modified": "2025-07-09T12:18:53.938032",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_comprehensive_scan_20250709_121854.log",
+        "size": 1,
+        "modified": "2025-07-09T12:18:54.004718",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_comprehensive_scan_20250709_124515.log",
+        "size": 10362,
+        "modified": "2025-07-09T12:45:20.805198",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_comprehensive_scan_20250709_124527.log",
+        "size": 154749,
+        "modified": "2025-07-09T12:45:32.399641",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_correction_SESSION_20250710_162140.log",
+        "size": 1321,
+        "modified": "2025-07-10T16:21:42.248062",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_correction_SESSION_20250710_162220.log",
+        "size": 311,
+        "modified": "2025-07-10T16:22:22.108058",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_correction_SESSION_20250710_162312.log",
+        "size": 369,
+        "modified": "2025-07-10T16:23:13.737741",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_correction_SESSION_20250710_170702.log",
+        "size": 1366400,
+        "modified": "2025-07-10T17:07:13.945627",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_corrector.log",
+        "size": 1072859,
+        "modified": "2025-07-09T11:37:39.796546",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_current_scan_20250709_130025.log",
+        "size": 104537,
+        "modified": "2025-07-09T13:00:27.900581",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_database_corrector_session_20250709_112353.log",
+        "size": 261302,
+        "modified": "2025-07-09T11:28:51.349944",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_enhanced_scan_20250709_130251.log",
+        "size": 114274,
+        "modified": "2025-07-09T13:02:55.181183",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_enhanced_scan_20250709_130303.log",
+        "size": 114040,
+        "modified": "2025-07-09T13:03:07.414812",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_enhanced_scan_20250709_133201.log",
+        "size": 118907,
+        "modified": "2025-07-09T13:32:04.990731",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_enhanced_scan_20250709_133303.log",
+        "size": 122920,
+        "modified": "2025-07-09T13:33:07.695409",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_enhanced_scan_20250709_135152.log",
+        "size": 127130,
+        "modified": "2025-07-09T13:51:56.116129",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_enhanced_scan_20250709_135232.log",
+        "size": 127089,
+        "modified": "2025-07-09T13:52:34.876714",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_enhanced_scan_20250709_144504.log",
+        "size": 110820,
+        "modified": "2025-07-09T14:45:08.317972",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_enhanced_scan_20250709_144521.log",
+        "size": 110819,
+        "modified": "2025-07-09T14:45:26.234791",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_enhanced_scan_20250709_144837.log",
+        "size": 112828,
+        "modified": "2025-07-09T14:48:40.761977",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_individual_test_20250709_114632.log",
+        "size": 341,
+        "modified": "2025-07-09T11:46:33.339934",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_report.txt",
+        "size": 3417,
+        "modified": "2025-07-09T01:56:36.919378",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_systematic_scan_20250709_125737.log",
+        "size": 156,
+        "modified": "2025-07-09T12:57:39.842049",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_systematic_scan_20250709_125804.log",
+        "size": 174152,
+        "modified": "2025-07-09T12:58:06.754358",
+        "is_log_file": true
+      },
+      {
+        "file": "flake8_systematic_scan_20250709_130053.log",
+        "size": 197588,
+        "modified": "2025-07-09T13:00:56.129567",
+        "is_log_file": true
+      },
+      {
+        "file": "future_routing_validation.log",
+        "size": 408,
+        "modified": "2025-07-16T14:41:16.885272",
+        "is_log_file": true
+      },
+      {
+        "file": "immediate_actions_validation_20250710_094200.log",
+        "size": 1486,
+        "modified": "2025-07-10T09:42:32.134177",
+        "is_log_file": true
+      },
+      {
+        "file": "immediate_actions_validation_20250710_102729.log",
+        "size": 3552,
+        "modified": "2025-07-10T10:28:01.259950",
+        "is_log_file": true
+      },
+      {
+        "file": "log_extraction_report_20250710_164921.json",
+        "size": 6157,
+        "modified": "2025-07-10T16:49:21.314670",
+        "is_log_file": true
+      },
+      {
+        "file": "optimized_success_processing.log",
+        "size": 11355,
+        "modified": "2025-07-13T01:33:51.226532",
+        "is_log_file": true
+      },
+      {
+        "file": "phase2_completion_report_20250713_060940.txt",
+        "size": 2485,
+        "modified": "2025-07-13T06:09:40.723920",
+        "is_log_file": true
+      },
+      {
+        "file": "phase3_completion_report_20250713_074339.txt",
+        "size": 818,
+        "modified": "2025-07-13T07:43:39.681684",
+        "is_log_file": true
+      },
+      {
+        "file": "phase3_style_compliance_20250709_204250.log",
+        "size": 946,
+        "modified": "2025-07-09T20:48:56.397799",
+        "is_log_file": true
+      },
+      {
+        "file": "phase3_style_compliance_20250709_212038.log",
+        "size": 504129,
+        "modified": "2025-07-09T21:27:25.360315",
+        "is_log_file": true
+      },
+      {
+        "file": "phase3_style_compliance_20250709_214632.log",
+        "size": 522610,
+        "modified": "2025-07-09T21:52:05.322188",
+        "is_log_file": true
+      },
+      {
+        "file": "phase3_systematic_processing_20250713_074223.log",
+        "size": 689,
+        "modified": "2025-07-13T07:43:39.693803",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_completion_report_20250713_082753.txt",
+        "size": 2383,
+        "modified": "2025-07-13T08:27:53.090788",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_completion_report_fixed_20250713_083240.txt",
+        "size": 640,
+        "modified": "2025-07-13T08:32:40.836535",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_comprehensive_domination.log",
+        "size": 752,
+        "modified": "2025-07-13T09:44:47.179726",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_debug_analyzer.log",
+        "size": 3012,
+        "modified": "2025-07-13T08:30:18.751567",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_debug_report_20250713_083018.txt",
+        "size": 1241,
+        "modified": "2025-07-13T08:30:18.751567",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_e303_dominance_20250713_084958.log",
+        "size": 1035,
+        "modified": "2025-07-13T08:50:09.700258",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_e303_dominance_corrected.log",
+        "size": 756,
+        "modified": "2025-07-13T08:54:15.899871",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_e303_dominance_report_20250713_085009.txt",
+        "size": 785,
+        "modified": "2025-07-13T08:50:09.683378",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_enterprise_validation_20250709_204856.log",
+        "size": 520,
+        "modified": "2025-07-09T20:48:57.026000",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_enterprise_validation_20250709_212725.log",
+        "size": 2431,
+        "modified": "2025-07-09T21:27:25.913742",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_systematic_processing.log",
+        "size": 2214,
+        "modified": "2025-07-13T08:27:53.103619",
+        "is_log_file": true
+      },
+      {
+        "file": "phase4_systematic_processing_fixed.log",
+        "size": 3466,
+        "modified": "2025-07-13T08:32:40.836535",
+        "is_log_file": true
+      },
+      {
+        "file": "phase5_advanced_scaling_20250713_101326.log",
+        "size": 751,
+        "modified": "2025-07-13T10:14:03.864528",
+        "is_log_file": true
+      },
+      {
+        "file": "phase5_continuous_operation_20250709_212726.log",
+        "size": 2369,
+        "modified": "2025-07-09T21:27:26.286704",
+        "is_log_file": true
+      },
+      {
+        "file": "phase6_comprehensive_elimination.log",
+        "size": 460,
+        "modified": "2025-07-13T10:38:43.907605",
+        "is_log_file": true
+      },
+      {
+        "file": "phase_execution_PHASE_EXEC_20250709_212038.log",
+        "size": 529475,
+        "modified": "2025-07-09T21:27:26.317968",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250709_235215.log",
+        "size": 2940,
+        "modified": "2025-07-09T23:52:15.211891",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250709_235339.log",
+        "size": 3401,
+        "modified": "2025-07-09T23:53:39.539388",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250709_235411.log",
+        "size": 4238,
+        "modified": "2025-07-09T23:56:22.357366",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_001305.log",
+        "size": 5357,
+        "modified": "2025-07-10T00:16:14.372497",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_005620.log",
+        "size": 1860,
+        "modified": "2025-07-10T00:56:20.840543",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_005830.log",
+        "size": 1860,
+        "modified": "2025-07-10T00:58:30.197337",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_005931.log",
+        "size": 2878,
+        "modified": "2025-07-10T00:59:32.777191",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_015745.log",
+        "size": 1770,
+        "modified": "2025-07-10T01:57:46.845265",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_015807.log",
+        "size": 1770,
+        "modified": "2025-07-10T01:58:08.101499",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_020747.log",
+        "size": 6165,
+        "modified": "2025-07-10T02:07:48.807123",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_020945.log",
+        "size": 6087,
+        "modified": "2025-07-10T02:09:46.750007",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_021156.log",
+        "size": 6087,
+        "modified": "2025-07-10T02:11:57.875410",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_090022.log",
+        "size": 7533,
+        "modified": "2025-07-10T09:00:23.377893",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_092401.log",
+        "size": 9520,
+        "modified": "2025-07-10T09:24:02.774967",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_framework_20250710_094328.log",
+        "size": 1982,
+        "modified": "2025-07-10T09:43:28.330024",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_clustering_20250710_102129.log",
+        "size": 2007,
+        "modified": "2025-07-10T10:21:30.218281",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_clustering_20250710_102453.log",
+        "size": 2006,
+        "modified": "2025-07-10T10:24:53.953280",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_expansion_20250710_095613.log",
+        "size": 2527,
+        "modified": "2025-07-10T09:56:14.307170",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_expansion_20250710_095850.log",
+        "size": 3289,
+        "modified": "2025-07-10T09:58:50.345085",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_expansion_20250710_100301.log",
+        "size": 188,
+        "modified": "2025-07-10T10:03:01.122784",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_expansion_20250710_102451.log",
+        "size": 188,
+        "modified": "2025-07-10T10:24:51.972005",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_nn_predictive_20250710_100756.log",
+        "size": 5908,
+        "modified": "2025-07-10T10:07:57.030156",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_nn_predictive_20250710_102128.log",
+        "size": 5908,
+        "modified": "2025-07-10T10:21:28.440473",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_nn_predictive_20250710_102452.log",
+        "size": 5897,
+        "modified": "2025-07-10T10:24:53.053135",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_orchestrator_20250710_101858.log",
+        "size": 1715,
+        "modified": "2025-07-10T10:18:59.063057",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_orchestrator_20250710_101906.log",
+        "size": 1715,
+        "modified": "2025-07-10T10:19:07.429707",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_orchestrator_20250710_101938.log",
+        "size": 2233,
+        "modified": "2025-07-10T10:19:38.690698",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_orchestrator_simplified_20250710_102126.log",
+        "size": 3255,
+        "modified": "2025-07-10T10:21:30.428050",
+        "is_log_file": true
+      },
+      {
+        "file": "quantum_orchestrator_simplified_20250710_102451.log",
+        "size": 17567,
+        "modified": "2025-07-10T10:24:54.136779",
+        "is_log_file": true
+      },
+      {
+        "file": "qubo_optimization_20250710_100534.log",
+        "size": 103,
+        "modified": "2025-07-10T10:05:34.243347",
+        "is_log_file": true
+      },
+      {
+        "file": "qubo_optimization_20250710_102452.log",
+        "size": 103,
+        "modified": "2025-07-10T10:24:52.490969",
+        "is_log_file": true
+      },
+      {
+        "file": "recovery_validation_20250709_174725.log",
+        "size": 58,
+        "modified": "2025-07-09T17:47:25.802677",
+        "is_log_file": true
+      },
+      {
+        "file": "redaction.log",
+        "size": 2970,
+        "modified": "2025-07-09T16:48:12.159744",
+        "is_log_file": true
+      },
+      {
+        "file": "refined_enterprise_processing.log",
+        "size": 12849,
+        "modified": "2025-07-13T01:33:59.833768",
+        "is_log_file": true
+      },
+      {
+        "file": "requirements-ml.txt",
+        "size": 234,
+        "modified": "2025-07-12T22:40:39.757445",
+        "is_log_file": true
+      },
+      {
+        "file": "requirements-test.txt",
+        "size": 143,
+        "modified": "2025-07-12T22:40:39.764968",
+        "is_log_file": true
+      },
+      {
+        "file": "requirements-web.txt",
+        "size": 240,
+        "modified": "2025-07-07T11:55:54.518536",
+        "is_log_file": true
+      },
+      {
+        "file": "requirements.txt",
+        "size": 1601,
+        "modified": "2025-07-12T22:40:39.767200",
+        "is_log_file": true
+      },
+      {
+        "file": "script_reproducibility_validation_20250710_120417.log",
+        "size": 1179,
+        "modified": "2025-07-10T12:04:19.219410",
+        "is_log_file": true
+      },
+      {
+        "file": "session_integrity_20250710_205603.log",
+        "size": 8589,
+        "modified": "2025-07-10T20:56:05.730163",
+        "is_log_file": true
+      },
+      {
+        "file": "session_integrity_20250710_205751.log",
+        "size": 4780,
+        "modified": "2025-07-10T20:57:53.113980",
+        "is_log_file": true
+      },
+      {
+        "file": "session_integrity_20250715_191813.log",
+        "size": 106979,
+        "modified": "2025-07-15T19:18:30.913043",
+        "is_log_file": true
+      },
+      {
+        "file": "session_integrity_20250715_193351.log",
+        "size": 1331,
+        "modified": "2025-07-15T19:34:06.473792",
+        "is_log_file": true
+      },
+      {
+        "file": "specialized_quote_fixer_20250709_144705.log",
+        "size": 1003,
+        "modified": "2025-07-09T14:47:06.014114",
+        "is_log_file": true
+      },
+      {
+        "file": "specialized_quote_fixer_20250709_144742.log",
+        "size": 277,
+        "modified": "2025-07-09T14:47:42.113319",
+        "is_log_file": true
+      },
+      {
+        "file": "syntax_check_20250709_111009.log",
+        "size": 104,
+        "modified": "2025-07-09T11:10:09.224076",
+        "is_log_file": true
+      },
+      {
+        "file": "syntax_fixer.log",
+        "size": 328396,
+        "modified": "2025-07-09T10:56:51.711171",
+        "is_log_file": true
+      },
+      {
+        "file": "syntax_fixing_log.txt",
+        "size": 329577,
+        "modified": "2025-07-09T10:56:51.724321",
+        "is_log_file": true
+      },
+      {
+        "file": "systematic_correction_session_summary_20250709_145000.log",
+        "size": 3634,
+        "modified": "2025-07-09T14:54:32.907162",
+        "is_log_file": true
+      },
+      {
+        "file": "systematic_f821_f401_processor.log",
+        "size": 1101,
+        "modified": "2025-07-13T06:06:04.420604",
+        "is_log_file": true
+      },
+      {
+        "file": "systematic_flake8_analysis.log",
+        "size": 4778,
+        "modified": "2025-07-09T13:00:56.163331",
+        "is_log_file": true
+      },
+      {
+        "file": "template_compliance_enhancement_20250710_142414.log",
+        "size": 760,
+        "modified": "2025-07-10T14:24:15.074132",
+        "is_log_file": true
+      },
+      {
+        "file": "template_compliance_enhancement_20250710_142444.log",
+        "size": 948,
+        "modified": "2025-07-10T14:24:44.991157",
+        "is_log_file": true
+      },
+      {
+        "file": "unicode_flake8_correction.log",
+        "size": 16124,
+        "modified": "2025-07-12T23:59:33.524122",
+        "is_log_file": true
+      },
+      {
+        "file": "unicode_flake8_master_controller.log",
+        "size": 21452,
+        "modified": "2025-07-12T23:28:11.779510",
+        "is_log_file": true
+      },
+      {
+        "file": "unicode_flake8_master_controller_1.log",
+        "size": 6274,
+        "modified": "2025-07-14T16:46:05.134865",
+        "is_log_file": true
+      },
+      {
+        "file": "validation_output.log",
+        "size": 31,
+        "modified": "2025-07-16T10:26:24.614477",
+        "is_log_file": true
+      },
+      {
+        "file": "violation_diagnostic.log",
+        "size": 470,
+        "modified": "2025-07-13T01:31:23.757267",
+        "is_log_file": true
+      },
+      {
+        "file": "visual_processing_system.log",
+        "size": 13467,
+        "modified": "2025-07-12T23:59:25.785532",
+        "is_log_file": true
+      },
+      {
+        "file": "autonomous_optimization\\database_health_optimization_20250715_174054.log",
+        "size": 13732,
+        "modified": "2025-07-15T17:41:05.377631",
+        "is_log_file": true
+      },
+      {
+        "file": "autonomous_optimization\\database_health_optimization_20250715_175331.log",
+        "size": 13731,
+        "modified": "2025-07-15T17:53:32.779935",
+        "is_log_file": true
+      },
+      {
+        "file": "autonomous_optimization\\database_health_optimization_20250715_180839.log",
+        "size": 13733,
+        "modified": "2025-07-15T18:08:49.852970",
+        "is_log_file": true
+      },
+      {
+        "file": "autonomous_optimization\\database_health_optimization_20250715_191353.log",
+        "size": 13733,
+        "modified": "2025-07-15T19:14:04.258391",
+        "is_log_file": true
+      },
+      {
+        "file": "autonomous_optimization\\database_optimization_20250715_025747.log",
+        "size": 1272,
+        "modified": "2025-07-15T02:57:49.672002",
+        "is_log_file": true
+      },
+      {
+        "file": "autonomous_optimization\\db_health_opt_20250715_024807.log",
+        "size": 12759,
+        "modified": "2025-07-15T02:48:14.846579",
+        "is_log_file": true
+      },
+      {
+        "file": "human_logs\\note.markdown",
+        "size": 29313,
+        "modified": "2025-07-14T21:52:54.194120",
+        "is_log_file": false
+      },
+      {
+        "file": "human_logs\\note0.markdown",
+        "size": 37813,
+        "modified": "2025-07-15T12:08:46.307370",
+        "is_log_file": false
+      },
+      {
+        "file": "phase_execution\\enterprise_phase_execution_20250709_214631.log",
+        "size": 1690,
+        "modified": "2025-07-09T21:46:31.868433",
+        "is_log_file": true
+      },
+      {
+        "file": "phase_execution\\phase3_stderr_20250709_214631.log",
+        "size": 542668,
+        "modified": "2025-07-09T21:52:20.578030",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_discovery\\database_first_discovery_20250709_225555.log",
+        "size": 3420,
+        "modified": "2025-07-09T23:14:56.400463",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_phase2\\pis_phase2_compliance_scan_20250709_231714.log",
+        "size": 139,
+        "modified": "2025-07-09T23:17:14.654109",
+        "is_log_file": true
+      },
+      {
+        "file": "pis_phase2\\pis_phase2_compliance_scan_20250709_232214.log",
+        "size": 503560,
+        "modified": "2025-07-09T23:32:43.714301",
+        "is_log_file": true
+      },
+      {
+        "file": "human_logs\\conversations_with_human\\07032025-0100.md",
+        "size": 20582,
+        "modified": "2025-07-15T02:35:47.867899",
+        "is_log_file": false
+      },
+      {
+        "file": "human_logs\\conversations_with_human\\07062025-1250.md",
+        "size": 108774,
+        "modified": "2025-07-07T13:08:34.332805",
+        "is_log_file": false
+      },
+      {
+        "file": "human_logs\\conversations_with_human\\07062025-1405.md",
+        "size": 76133,
+        "modified": "2025-07-15T02:35:47.869948",
+        "is_log_file": false
+      },
+      {
+        "file": "human_logs\\conversations_with_human\\additional_notes-self_learning.md",
+        "size": 201262,
+        "modified": "2025-07-06T04:32:24.152821",
+        "is_log_file": false
+      },
+      {
+        "file": "human_logs\\conversations_with_human\\disaster_recovery_enhancer_edited_additional_notes.md",
+        "size": 71263,
+        "modified": "2025-07-03T16:35:42.259279",
+        "is_log_file": false
+      },
+      {
+        "file": "human_logs\\conversations_with_human\\set_of_prompts.md",
+        "size": 39191,
+        "modified": "2025-07-03T15:35:04.771164",
+        "is_log_file": false
+      },
+      {
+        "file": "human_logs\\conversations_with_human\\__pycache__\\configuration_recovery_engine.cpython-312.pyc",
+        "size": 3156,
+        "modified": "2025-07-14T17:58:33.531127",
+        "is_log_file": false
+      },
+      {
+        "file": "human_logs\\conversations_with_human\\__pycache__\\disaster_recovery_enhancer_edited.cpython-312.pyc",
+        "size": 3163,
+        "modified": "2025-07-14T17:58:33.798022",
+        "is_log_file": false
+      }
+    ],
+    "database_only": [],
+    "conflicting_entries": [],
+    "total_files": 196,
+    "total_db_entries": 0
+  },
+  "archive_impact": {
+    "total_files_to_archive": 0,
+    "total_size_bytes": 0,
+    "total_size_mb": 0.0,
+    "by_file_type": {},
+    "estimated_logs_folder_reduction": "0.0 MB",
+    "archive_folder_increase": "0.0 MB"
+  },
+  "migration_plan": {
+    "phase_1_database_updates": {
+      "description": "Add missing log files to database before archiving",
+      "files_to_process": [
+        {
+          "file": "autonomous_cli.log",
+          "size": 446,
+          "modified": "2025-07-15T17:46:03.721990",
+          "is_log_file": true
+        },
+        {
+          "file": "autonomous_monitoring.log",
+          "size": 8832,
+          "modified": "2025-07-14T23:43:04.839675",
+          "is_log_file": true
+        },
+        {
+          "file": "autonomous_optimization.log",
+          "size": 6657,
+          "modified": "2025-07-15T02:59:49.305259",
+          "is_log_file": true
+        },
+        {
+          "file": "compliance_scan_20250710_173622.log",
+          "size": 623,
+          "modified": "2025-07-10T17:36:22.051127",
+          "is_log_file": true
+        },
+        {
+          "file": "compliance_scan_20250710_173707.log",
+          "size": 223112,
+          "modified": "2025-07-10T17:44:44.204604",
+          "is_log_file": true
+        },
+        {
+          "file": "comprehensive_file_relocation.log",
+          "size": 34854,
+          "modified": "2025-07-16T14:06:53.330025",
+          "is_log_file": true
+        },
+        {
+          "file": "comprehensive_file_relocation_1.log",
+          "size": 1861,
+          "modified": "2025-07-16T13:49:48.705899",
+          "is_log_file": true
+        },
+        {
+          "file": "comprehensive_file_relocation_2.log",
+          "size": 33576,
+          "modified": "2025-07-16T14:06:20.466212",
+          "is_log_file": true
+        },
+        {
+          "file": "comprehensive_flake8_processor.log",
+          "size": 590488,
+          "modified": "2025-07-13T01:03:50.950884",
+          "is_log_file": true
+        },
+        {
+          "file": "COMPREHENSIVE_LOG_EXTRACTION_PLAN.md",
+          "size": 10497,
+          "modified": "2025-07-10T16:48:27.175304",
+          "is_log_file": true
+        },
+        {
+          "file": "comprehensive_remaining_processor.log",
+          "size": 1743,
+          "modified": "2025-07-13T01:40:20.971255",
+          "is_log_file": true
+        },
+        {
+          "file": "continuous_monitoring.log",
+          "size": 736,
+          "modified": "2025-07-13T01:20:26.699452",
+          "is_log_file": true
+        },
+        {
+          "file": "critical_flake8_correction.log",
+          "size": 7683,
+          "modified": "2025-07-09T13:00:46.630350",
+          "is_log_file": true
+        },
+        {
+          "file": "database_cleanup.log",
+          "size": 2173,
+          "modified": "2025-07-13T01:32:17.722817",
+          "is_log_file": true
+        },
+        {
+          "file": "database_consistency_check.log",
+          "size": 0,
+          "modified": "2025-07-16T14:42:39.849445",
+          "is_log_file": true
+        },
+        {
+          "file": "database_correction_engine.log",
+          "size": 15010,
+          "modified": "2025-07-12T23:59:13.515177",
+          "is_log_file": true
+        },
+        {
+          "file": "database_driven_flake8_correction_20250709_122229.log",
+          "size": 813,
+          "modified": "2025-07-09T12:22:29.686902",
+          "is_log_file": true
+        },
+        {
+          "file": "database_first_compliance_resolution_20250710_180916.log",
+          "size": 655424,
+          "modified": "2025-07-10T18:16:04.243293",
+          "is_log_file": true
+        },
+        {
+          "file": "database_purification_20250710_182136.log",
+          "size": 191036,
+          "modified": "2025-07-10T18:23:41.236481",
+          "is_log_file": true
+        },
+        {
+          "file": "database_reproducibility_validation.log",
+          "size": 471,
+          "modified": "2025-07-16T10:38:27.897740",
+          "is_log_file": true
+        },
+        {
+          "file": "deployment_optimization_20250710_182951.log",
+          "size": 2950,
+          "modified": "2025-07-10T18:29:51.897603",
+          "is_log_file": true
+        },
+        {
+          "file": "deployment_optimization_20250710_183234.log",
+          "size": 2950,
+          "modified": "2025-07-10T18:32:34.718722",
+          "is_log_file": true
+        },
+        {
+          "file": "detailed_violations_reporter.log",
+          "size": 227,
+          "modified": "2025-07-13T01:06:38.272956",
+          "is_log_file": true
+        },
+        {
+          "file": "efficient_database_validation.log",
+          "size": 18447,
+          "modified": "2025-07-16T11:13:28.052220",
+          "is_log_file": true
+        },
+        {
+          "file": "emergency_cleanup.log",
+          "size": 177,
+          "modified": "2025-07-10T17:11:37.686953",
+          "is_log_file": true
+        },
+        {
+          "file": "enhanced_systematic_corrections_20250709_130251.log",
+          "size": 4019,
+          "modified": "2025-07-09T13:02:55.474342",
+          "is_log_file": true
+        },
+        {
+          "file": "enhanced_systematic_corrections_20250709_130303.log",
+          "size": 4019,
+          "modified": "2025-07-09T13:03:07.698241",
+          "is_log_file": true
+        },
+        {
+          "file": "enhanced_systematic_corrections_20250709_133201.log",
+          "size": 4035,
+          "modified": "2025-07-09T13:32:05.238948",
+          "is_log_file": true
+        },
+        {
+          "file": "enhanced_systematic_corrections_20250709_133303.log",
+          "size": 4035,
+          "modified": "2025-07-09T13:33:07.901708",
+          "is_log_file": true
+        },
+        {
+          "file": "enhanced_systematic_corrections_20250709_135152.log",
+          "size": 4021,
+          "modified": "2025-07-09T13:51:56.364918",
+          "is_log_file": true
+        },
+        {
+          "file": "enhanced_systematic_corrections_20250709_135232.log",
+          "size": 4021,
+          "modified": "2025-07-09T13:52:35.032194",
+          "is_log_file": true
+        },
+        {
+          "file": "enhanced_systematic_corrections_20250709_144504.log",
+          "size": 4122,
+          "modified": "2025-07-09T14:45:08.519052",
+          "is_log_file": true
+        },
+        {
+          "file": "enhanced_systematic_corrections_20250709_144521.log",
+          "size": 4122,
+          "modified": "2025-07-09T14:45:26.420583",
+          "is_log_file": true
+        },
+        {
+          "file": "enhanced_systematic_corrections_20250709_144836.log",
+          "size": 4122,
+          "modified": "2025-07-09T14:48:40.953884",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_audit.log",
+          "size": 5284,
+          "modified": "2025-07-14T23:21:51.620353",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_audit_execution.log",
+          "size": 1363,
+          "modified": "2025-07-14T23:24:39.483698",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_build_enhancer.log",
+          "size": 368,
+          "modified": "2025-07-10T12:55:21.697499",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_build_integration.log",
+          "size": 1536,
+          "modified": "2025-07-10T12:58:27.908096",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_continuation_processing.log",
+          "size": 281,
+          "modified": "2025-07-13T01:27:05.142938",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_documentation_manager.log",
+          "size": 638,
+          "modified": "2025-07-10T12:58:06.703379",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_flake8_batch_correction_20250709_114832.log",
+          "size": 242,
+          "modified": "2025-07-09T11:56:27.610606",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_flake8_correction.log",
+          "size": 257,
+          "modified": "2025-07-10T17:12:04.421577",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_flake8_execution_20250709_113903.log",
+          "size": 242,
+          "modified": "2025-07-09T11:45:02.121420",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_integration_test_20250712_234959.log",
+          "size": 1158,
+          "modified": "2025-07-12T23:50:00.908078",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_optimization.log",
+          "size": 907,
+          "modified": "2025-07-14T23:26:30.320344",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_optimization_20250710_182716.log",
+          "size": 2568,
+          "modified": "2025-07-10T18:27:17.897460",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_optimization_20250714_135316.log",
+          "size": 2568,
+          "modified": "2025-07-14T13:53:16.607442",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_readiness_completor_20250714_234055.log",
+          "size": 3437,
+          "modified": "2025-07-14T23:40:55.659385",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_readiness_optimizer_20250714_233924.log",
+          "size": 2900,
+          "modified": "2025-07-14T23:39:26.420290",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_scale_processing.log",
+          "size": 7510,
+          "modified": "2025-07-13T01:24:25.236786",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_script_sync_20250710_120554.log",
+          "size": 232208,
+          "modified": "2025-07-10T12:07:15.147351",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_template_documentation.log",
+          "size": 1809,
+          "modified": "2025-07-10T14:14:32.043363",
+          "is_log_file": true
+        },
+        {
+          "file": "enterprise_template_engine.log",
+          "size": 4352,
+          "modified": "2025-07-10T13:12:53.218482",
+          "is_log_file": true
+        },
+        {
+          "file": "execution_report_PHASE_EXEC_20250709_212038.json",
+          "size": 1274,
+          "modified": "2025-07-09T21:27:26.355211",
+          "is_log_file": false
+        },
+        {
+          "file": "EXECUTIVE_SUMMARY_20250714_225709.txt",
+          "size": 2387,
+          "modified": "2025-07-14T22:57:09.676061",
+          "is_log_file": true
+        },
+        {
+          "file": "file_relocation_20250716_121852.log",
+          "size": 485,
+          "modified": "2025-07-16T12:18:52.262108",
+          "is_log_file": true
+        },
+        {
+          "file": "file_relocation_20250716_121901.log",
+          "size": 485,
+          "modified": "2025-07-16T12:19:01.208620",
+          "is_log_file": true
+        },
+        {
+          "file": "file_relocation_20250716_121948.log",
+          "size": 484,
+          "modified": "2025-07-16T12:19:48.629573",
+          "is_log_file": true
+        },
+        {
+          "file": "file_relocation_20250716_122136.log",
+          "size": 642,
+          "modified": "2025-07-16T12:21:36.669454",
+          "is_log_file": true
+        },
+        {
+          "file": "file_relocation_20250716_122146.log",
+          "size": 641,
+          "modified": "2025-07-16T12:21:46.632825",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_compliance.log",
+          "size": 26637786,
+          "modified": "2025-07-09T09:09:24.971885",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_comprehensive_run.log",
+          "size": 211,
+          "modified": "2025-07-09T10:30:02.715956",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_comprehensive_scan_20250109_163000.log",
+          "size": 74322,
+          "modified": "2025-07-09T12:46:04.030866",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_comprehensive_scan_20250709_121839.log",
+          "size": 90523,
+          "modified": "2025-07-09T12:18:43.500873",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_comprehensive_scan_20250709_121853.log",
+          "size": 91,
+          "modified": "2025-07-09T12:18:53.938032",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_comprehensive_scan_20250709_121854.log",
+          "size": 1,
+          "modified": "2025-07-09T12:18:54.004718",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_comprehensive_scan_20250709_124515.log",
+          "size": 10362,
+          "modified": "2025-07-09T12:45:20.805198",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_comprehensive_scan_20250709_124527.log",
+          "size": 154749,
+          "modified": "2025-07-09T12:45:32.399641",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_correction_SESSION_20250710_162140.log",
+          "size": 1321,
+          "modified": "2025-07-10T16:21:42.248062",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_correction_SESSION_20250710_162220.log",
+          "size": 311,
+          "modified": "2025-07-10T16:22:22.108058",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_correction_SESSION_20250710_162312.log",
+          "size": 369,
+          "modified": "2025-07-10T16:23:13.737741",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_correction_SESSION_20250710_170702.log",
+          "size": 1366400,
+          "modified": "2025-07-10T17:07:13.945627",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_corrector.log",
+          "size": 1072859,
+          "modified": "2025-07-09T11:37:39.796546",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_current_scan_20250709_130025.log",
+          "size": 104537,
+          "modified": "2025-07-09T13:00:27.900581",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_database_corrector_session_20250709_112353.log",
+          "size": 261302,
+          "modified": "2025-07-09T11:28:51.349944",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_enhanced_scan_20250709_130251.log",
+          "size": 114274,
+          "modified": "2025-07-09T13:02:55.181183",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_enhanced_scan_20250709_130303.log",
+          "size": 114040,
+          "modified": "2025-07-09T13:03:07.414812",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_enhanced_scan_20250709_133201.log",
+          "size": 118907,
+          "modified": "2025-07-09T13:32:04.990731",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_enhanced_scan_20250709_133303.log",
+          "size": 122920,
+          "modified": "2025-07-09T13:33:07.695409",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_enhanced_scan_20250709_135152.log",
+          "size": 127130,
+          "modified": "2025-07-09T13:51:56.116129",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_enhanced_scan_20250709_135232.log",
+          "size": 127089,
+          "modified": "2025-07-09T13:52:34.876714",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_enhanced_scan_20250709_144504.log",
+          "size": 110820,
+          "modified": "2025-07-09T14:45:08.317972",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_enhanced_scan_20250709_144521.log",
+          "size": 110819,
+          "modified": "2025-07-09T14:45:26.234791",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_enhanced_scan_20250709_144837.log",
+          "size": 112828,
+          "modified": "2025-07-09T14:48:40.761977",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_individual_test_20250709_114632.log",
+          "size": 341,
+          "modified": "2025-07-09T11:46:33.339934",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_report.txt",
+          "size": 3417,
+          "modified": "2025-07-09T01:56:36.919378",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_systematic_scan_20250709_125737.log",
+          "size": 156,
+          "modified": "2025-07-09T12:57:39.842049",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_systematic_scan_20250709_125804.log",
+          "size": 174152,
+          "modified": "2025-07-09T12:58:06.754358",
+          "is_log_file": true
+        },
+        {
+          "file": "flake8_systematic_scan_20250709_130053.log",
+          "size": 197588,
+          "modified": "2025-07-09T13:00:56.129567",
+          "is_log_file": true
+        },
+        {
+          "file": "future_routing_validation.log",
+          "size": 408,
+          "modified": "2025-07-16T14:41:16.885272",
+          "is_log_file": true
+        },
+        {
+          "file": "immediate_actions_validation_20250710_094200.log",
+          "size": 1486,
+          "modified": "2025-07-10T09:42:32.134177",
+          "is_log_file": true
+        },
+        {
+          "file": "immediate_actions_validation_20250710_102729.log",
+          "size": 3552,
+          "modified": "2025-07-10T10:28:01.259950",
+          "is_log_file": true
+        },
+        {
+          "file": "log_extraction_report_20250710_164921.json",
+          "size": 6157,
+          "modified": "2025-07-10T16:49:21.314670",
+          "is_log_file": true
+        },
+        {
+          "file": "optimized_success_processing.log",
+          "size": 11355,
+          "modified": "2025-07-13T01:33:51.226532",
+          "is_log_file": true
+        },
+        {
+          "file": "phase2_completion_report_20250713_060940.txt",
+          "size": 2485,
+          "modified": "2025-07-13T06:09:40.723920",
+          "is_log_file": true
+        },
+        {
+          "file": "phase3_completion_report_20250713_074339.txt",
+          "size": 818,
+          "modified": "2025-07-13T07:43:39.681684",
+          "is_log_file": true
+        },
+        {
+          "file": "phase3_style_compliance_20250709_204250.log",
+          "size": 946,
+          "modified": "2025-07-09T20:48:56.397799",
+          "is_log_file": true
+        },
+        {
+          "file": "phase3_style_compliance_20250709_212038.log",
+          "size": 504129,
+          "modified": "2025-07-09T21:27:25.360315",
+          "is_log_file": true
+        },
+        {
+          "file": "phase3_style_compliance_20250709_214632.log",
+          "size": 522610,
+          "modified": "2025-07-09T21:52:05.322188",
+          "is_log_file": true
+        },
+        {
+          "file": "phase3_systematic_processing_20250713_074223.log",
+          "size": 689,
+          "modified": "2025-07-13T07:43:39.693803",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_completion_report_20250713_082753.txt",
+          "size": 2383,
+          "modified": "2025-07-13T08:27:53.090788",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_completion_report_fixed_20250713_083240.txt",
+          "size": 640,
+          "modified": "2025-07-13T08:32:40.836535",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_comprehensive_domination.log",
+          "size": 752,
+          "modified": "2025-07-13T09:44:47.179726",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_debug_analyzer.log",
+          "size": 3012,
+          "modified": "2025-07-13T08:30:18.751567",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_debug_report_20250713_083018.txt",
+          "size": 1241,
+          "modified": "2025-07-13T08:30:18.751567",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_e303_dominance_20250713_084958.log",
+          "size": 1035,
+          "modified": "2025-07-13T08:50:09.700258",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_e303_dominance_corrected.log",
+          "size": 756,
+          "modified": "2025-07-13T08:54:15.899871",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_e303_dominance_report_20250713_085009.txt",
+          "size": 785,
+          "modified": "2025-07-13T08:50:09.683378",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_enterprise_validation_20250709_204856.log",
+          "size": 520,
+          "modified": "2025-07-09T20:48:57.026000",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_enterprise_validation_20250709_212725.log",
+          "size": 2431,
+          "modified": "2025-07-09T21:27:25.913742",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_systematic_processing.log",
+          "size": 2214,
+          "modified": "2025-07-13T08:27:53.103619",
+          "is_log_file": true
+        },
+        {
+          "file": "phase4_systematic_processing_fixed.log",
+          "size": 3466,
+          "modified": "2025-07-13T08:32:40.836535",
+          "is_log_file": true
+        },
+        {
+          "file": "phase5_advanced_scaling_20250713_101326.log",
+          "size": 751,
+          "modified": "2025-07-13T10:14:03.864528",
+          "is_log_file": true
+        },
+        {
+          "file": "phase5_continuous_operation_20250709_212726.log",
+          "size": 2369,
+          "modified": "2025-07-09T21:27:26.286704",
+          "is_log_file": true
+        },
+        {
+          "file": "phase6_comprehensive_elimination.log",
+          "size": 460,
+          "modified": "2025-07-13T10:38:43.907605",
+          "is_log_file": true
+        },
+        {
+          "file": "phase_execution_PHASE_EXEC_20250709_212038.log",
+          "size": 529475,
+          "modified": "2025-07-09T21:27:26.317968",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250709_235215.log",
+          "size": 2940,
+          "modified": "2025-07-09T23:52:15.211891",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250709_235339.log",
+          "size": 3401,
+          "modified": "2025-07-09T23:53:39.539388",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250709_235411.log",
+          "size": 4238,
+          "modified": "2025-07-09T23:56:22.357366",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_001305.log",
+          "size": 5357,
+          "modified": "2025-07-10T00:16:14.372497",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_005620.log",
+          "size": 1860,
+          "modified": "2025-07-10T00:56:20.840543",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_005830.log",
+          "size": 1860,
+          "modified": "2025-07-10T00:58:30.197337",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_005931.log",
+          "size": 2878,
+          "modified": "2025-07-10T00:59:32.777191",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_015745.log",
+          "size": 1770,
+          "modified": "2025-07-10T01:57:46.845265",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_015807.log",
+          "size": 1770,
+          "modified": "2025-07-10T01:58:08.101499",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_020747.log",
+          "size": 6165,
+          "modified": "2025-07-10T02:07:48.807123",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_020945.log",
+          "size": 6087,
+          "modified": "2025-07-10T02:09:46.750007",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_021156.log",
+          "size": 6087,
+          "modified": "2025-07-10T02:11:57.875410",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_090022.log",
+          "size": 7533,
+          "modified": "2025-07-10T09:00:23.377893",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_092401.log",
+          "size": 9520,
+          "modified": "2025-07-10T09:24:02.774967",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_framework_20250710_094328.log",
+          "size": 1982,
+          "modified": "2025-07-10T09:43:28.330024",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_clustering_20250710_102129.log",
+          "size": 2007,
+          "modified": "2025-07-10T10:21:30.218281",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_clustering_20250710_102453.log",
+          "size": 2006,
+          "modified": "2025-07-10T10:24:53.953280",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_expansion_20250710_095613.log",
+          "size": 2527,
+          "modified": "2025-07-10T09:56:14.307170",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_expansion_20250710_095850.log",
+          "size": 3289,
+          "modified": "2025-07-10T09:58:50.345085",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_expansion_20250710_100301.log",
+          "size": 188,
+          "modified": "2025-07-10T10:03:01.122784",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_expansion_20250710_102451.log",
+          "size": 188,
+          "modified": "2025-07-10T10:24:51.972005",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_nn_predictive_20250710_100756.log",
+          "size": 5908,
+          "modified": "2025-07-10T10:07:57.030156",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_nn_predictive_20250710_102128.log",
+          "size": 5908,
+          "modified": "2025-07-10T10:21:28.440473",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_nn_predictive_20250710_102452.log",
+          "size": 5897,
+          "modified": "2025-07-10T10:24:53.053135",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_orchestrator_20250710_101858.log",
+          "size": 1715,
+          "modified": "2025-07-10T10:18:59.063057",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_orchestrator_20250710_101906.log",
+          "size": 1715,
+          "modified": "2025-07-10T10:19:07.429707",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_orchestrator_20250710_101938.log",
+          "size": 2233,
+          "modified": "2025-07-10T10:19:38.690698",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_orchestrator_simplified_20250710_102126.log",
+          "size": 3255,
+          "modified": "2025-07-10T10:21:30.428050",
+          "is_log_file": true
+        },
+        {
+          "file": "quantum_orchestrator_simplified_20250710_102451.log",
+          "size": 17567,
+          "modified": "2025-07-10T10:24:54.136779",
+          "is_log_file": true
+        },
+        {
+          "file": "qubo_optimization_20250710_100534.log",
+          "size": 103,
+          "modified": "2025-07-10T10:05:34.243347",
+          "is_log_file": true
+        },
+        {
+          "file": "qubo_optimization_20250710_102452.log",
+          "size": 103,
+          "modified": "2025-07-10T10:24:52.490969",
+          "is_log_file": true
+        },
+        {
+          "file": "recovery_validation_20250709_174725.log",
+          "size": 58,
+          "modified": "2025-07-09T17:47:25.802677",
+          "is_log_file": true
+        },
+        {
+          "file": "redaction.log",
+          "size": 2970,
+          "modified": "2025-07-09T16:48:12.159744",
+          "is_log_file": true
+        },
+        {
+          "file": "refined_enterprise_processing.log",
+          "size": 12849,
+          "modified": "2025-07-13T01:33:59.833768",
+          "is_log_file": true
+        },
+        {
+          "file": "requirements-ml.txt",
+          "size": 234,
+          "modified": "2025-07-12T22:40:39.757445",
+          "is_log_file": true
+        },
+        {
+          "file": "requirements-test.txt",
+          "size": 143,
+          "modified": "2025-07-12T22:40:39.764968",
+          "is_log_file": true
+        },
+        {
+          "file": "requirements-web.txt",
+          "size": 240,
+          "modified": "2025-07-07T11:55:54.518536",
+          "is_log_file": true
+        },
+        {
+          "file": "requirements.txt",
+          "size": 1601,
+          "modified": "2025-07-12T22:40:39.767200",
+          "is_log_file": true
+        },
+        {
+          "file": "script_reproducibility_validation_20250710_120417.log",
+          "size": 1179,
+          "modified": "2025-07-10T12:04:19.219410",
+          "is_log_file": true
+        },
+        {
+          "file": "session_integrity_20250710_205603.log",
+          "size": 8589,
+          "modified": "2025-07-10T20:56:05.730163",
+          "is_log_file": true
+        },
+        {
+          "file": "session_integrity_20250710_205751.log",
+          "size": 4780,
+          "modified": "2025-07-10T20:57:53.113980",
+          "is_log_file": true
+        },
+        {
+          "file": "session_integrity_20250715_191813.log",
+          "size": 106979,
+          "modified": "2025-07-15T19:18:30.913043",
+          "is_log_file": true
+        },
+        {
+          "file": "session_integrity_20250715_193351.log",
+          "size": 1331,
+          "modified": "2025-07-15T19:34:06.473792",
+          "is_log_file": true
+        },
+        {
+          "file": "specialized_quote_fixer_20250709_144705.log",
+          "size": 1003,
+          "modified": "2025-07-09T14:47:06.014114",
+          "is_log_file": true
+        },
+        {
+          "file": "specialized_quote_fixer_20250709_144742.log",
+          "size": 277,
+          "modified": "2025-07-09T14:47:42.113319",
+          "is_log_file": true
+        },
+        {
+          "file": "syntax_check_20250709_111009.log",
+          "size": 104,
+          "modified": "2025-07-09T11:10:09.224076",
+          "is_log_file": true
+        },
+        {
+          "file": "syntax_fixer.log",
+          "size": 328396,
+          "modified": "2025-07-09T10:56:51.711171",
+          "is_log_file": true
+        },
+        {
+          "file": "syntax_fixing_log.txt",
+          "size": 329577,
+          "modified": "2025-07-09T10:56:51.724321",
+          "is_log_file": true
+        },
+        {
+          "file": "systematic_correction_session_summary_20250709_145000.log",
+          "size": 3634,
+          "modified": "2025-07-09T14:54:32.907162",
+          "is_log_file": true
+        },
+        {
+          "file": "systematic_f821_f401_processor.log",
+          "size": 1101,
+          "modified": "2025-07-13T06:06:04.420604",
+          "is_log_file": true
+        },
+        {
+          "file": "systematic_flake8_analysis.log",
+          "size": 4778,
+          "modified": "2025-07-09T13:00:56.163331",
+          "is_log_file": true
+        },
+        {
+          "file": "template_compliance_enhancement_20250710_142414.log",
+          "size": 760,
+          "modified": "2025-07-10T14:24:15.074132",
+          "is_log_file": true
+        },
+        {
+          "file": "template_compliance_enhancement_20250710_142444.log",
+          "size": 948,
+          "modified": "2025-07-10T14:24:44.991157",
+          "is_log_file": true
+        },
+        {
+          "file": "unicode_flake8_correction.log",
+          "size": 16124,
+          "modified": "2025-07-12T23:59:33.524122",
+          "is_log_file": true
+        },
+        {
+          "file": "unicode_flake8_master_controller.log",
+          "size": 21452,
+          "modified": "2025-07-12T23:28:11.779510",
+          "is_log_file": true
+        },
+        {
+          "file": "unicode_flake8_master_controller_1.log",
+          "size": 6274,
+          "modified": "2025-07-14T16:46:05.134865",
+          "is_log_file": true
+        },
+        {
+          "file": "validation_output.log",
+          "size": 31,
+          "modified": "2025-07-16T10:26:24.614477",
+          "is_log_file": true
+        },
+        {
+          "file": "violation_diagnostic.log",
+          "size": 470,
+          "modified": "2025-07-13T01:31:23.757267",
+          "is_log_file": true
+        },
+        {
+          "file": "visual_processing_system.log",
+          "size": 13467,
+          "modified": "2025-07-12T23:59:25.785532",
+          "is_log_file": true
+        },
+        {
+          "file": "autonomous_optimization\\database_health_optimization_20250715_174054.log",
+          "size": 13732,
+          "modified": "2025-07-15T17:41:05.377631",
+          "is_log_file": true
+        },
+        {
+          "file": "autonomous_optimization\\database_health_optimization_20250715_175331.log",
+          "size": 13731,
+          "modified": "2025-07-15T17:53:32.779935",
+          "is_log_file": true
+        },
+        {
+          "file": "autonomous_optimization\\database_health_optimization_20250715_180839.log",
+          "size": 13733,
+          "modified": "2025-07-15T18:08:49.852970",
+          "is_log_file": true
+        },
+        {
+          "file": "autonomous_optimization\\database_health_optimization_20250715_191353.log",
+          "size": 13733,
+          "modified": "2025-07-15T19:14:04.258391",
+          "is_log_file": true
+        },
+        {
+          "file": "autonomous_optimization\\database_optimization_20250715_025747.log",
+          "size": 1272,
+          "modified": "2025-07-15T02:57:49.672002",
+          "is_log_file": true
+        },
+        {
+          "file": "autonomous_optimization\\db_health_opt_20250715_024807.log",
+          "size": 12759,
+          "modified": "2025-07-15T02:48:14.846579",
+          "is_log_file": true
+        },
+        {
+          "file": "human_logs\\note.markdown",
+          "size": 29313,
+          "modified": "2025-07-14T21:52:54.194120",
+          "is_log_file": false
+        },
+        {
+          "file": "human_logs\\note0.markdown",
+          "size": 37813,
+          "modified": "2025-07-15T12:08:46.307370",
+          "is_log_file": false
+        },
+        {
+          "file": "phase_execution\\enterprise_phase_execution_20250709_214631.log",
+          "size": 1690,
+          "modified": "2025-07-09T21:46:31.868433",
+          "is_log_file": true
+        },
+        {
+          "file": "phase_execution\\phase3_stderr_20250709_214631.log",
+          "size": 542668,
+          "modified": "2025-07-09T21:52:20.578030",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_discovery\\database_first_discovery_20250709_225555.log",
+          "size": 3420,
+          "modified": "2025-07-09T23:14:56.400463",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_phase2\\pis_phase2_compliance_scan_20250709_231714.log",
+          "size": 139,
+          "modified": "2025-07-09T23:17:14.654109",
+          "is_log_file": true
+        },
+        {
+          "file": "pis_phase2\\pis_phase2_compliance_scan_20250709_232214.log",
+          "size": 503560,
+          "modified": "2025-07-09T23:32:43.714301",
+          "is_log_file": true
+        },
+        {
+          "file": "human_logs\\conversations_with_human\\07032025-0100.md",
+          "size": 20582,
+          "modified": "2025-07-15T02:35:47.867899",
+          "is_log_file": false
+        },
+        {
+          "file": "human_logs\\conversations_with_human\\07062025-1250.md",
+          "size": 108774,
+          "modified": "2025-07-07T13:08:34.332805",
+          "is_log_file": false
+        },
+        {
+          "file": "human_logs\\conversations_with_human\\07062025-1405.md",
+          "size": 76133,
+          "modified": "2025-07-15T02:35:47.869948",
+          "is_log_file": false
+        },
+        {
+          "file": "human_logs\\conversations_with_human\\additional_notes-self_learning.md",
+          "size": 201262,
+          "modified": "2025-07-06T04:32:24.152821",
+          "is_log_file": false
+        },
+        {
+          "file": "human_logs\\conversations_with_human\\disaster_recovery_enhancer_edited_additional_notes.md",
+          "size": 71263,
+          "modified": "2025-07-03T16:35:42.259279",
+          "is_log_file": false
+        },
+        {
+          "file": "human_logs\\conversations_with_human\\set_of_prompts.md",
+          "size": 39191,
+          "modified": "2025-07-03T15:35:04.771164",
+          "is_log_file": false
+        },
+        {
+          "file": "human_logs\\conversations_with_human\\__pycache__\\configuration_recovery_engine.cpython-312.pyc",
+          "size": 3156,
+          "modified": "2025-07-14T17:58:33.531127",
+          "is_log_file": false
+        },
+        {
+          "file": "human_logs\\conversations_with_human\\__pycache__\\disaster_recovery_enhancer_edited.cpython-312.pyc",
+          "size": 3163,
+          "modified": "2025-07-14T17:58:33.798022",
+          "is_log_file": false
+        }
+      ],
+      "estimated_time": "392 minutes"
+    },
+    "phase_2_archive_migration": {
+      "description": "Move database-tracked files to archives",
+      "files_to_move": [],
+      "estimated_time": "0 minutes"
+    },
+    "phase_3_cleanup": {
+      "description": "Clean up empty folders and update references",
+      "tasks": [
+        "Remove empty subdirectories in logs/",
+        "Update file path references in databases",
+        "Validate archive folder structure"
+      ],
+      "estimated_time": "5 minutes"
+    },
+    "validation_requirements": [
+      "All files have database entries before archiving",
+      "No critical log files are archived (recent logs stay active)",
+      "Archive folder maintains same directory structure",
+      "Database references updated to point to archives"
+    ]
+  },
+  "recommendations": [
+    "Create logs.db if it doesn't exist",
+    "Add 196 files to database before archiving",
+    "Archive 0 database-tracked files",
+    "Implement automated log rotation to prevent future accumulation"
+  ],
+  "overall_status": "PREP_REQUIRED"
+}

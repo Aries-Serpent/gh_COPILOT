@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-07-16T14:56:47.906644",
+  "duration_seconds": 0.09,
+  "database_path": "E:\\gh_COPILOT\\databases\\logs.db",
+  "logs_folder_path": "E:\\gh_COPILOT\\logs",
+  "validation_results": {
+    "database_exists": true,
+    "logs_folder_exists": true,
+    "database_tables": [
+      "enterprise_logs",
+      "log_analytics",
+      "log_relationships",
+      "log_categories",
+      "sqlite_stat1",
+      "audit_logs",
+      "sqlite_sequence",
+      "deployment_logs",
+      "database_info"
+    ],
+    "log_files_count": 184,
+    "database_records": {
+      "enterprise_logs": 103,
+      "log_analytics": 0,
+      "log_relationships": 0,
+      "log_categories": 7,
+      "audit_logs": 4,
+      "deployment_logs": 3,
+      "database_info": 1
+    },
+    "consistency_status": "OPERATIONAL",
+    "migration_ready": false,
+    "recommendations": [
+      "\u26a0\ufe0f Low consistency - recommend updating database before migration"
+    ]
+  },
+  "consistency_analysis": {
+    "tracked_files": [],
+    "untracked_files": [],
+    "database_only_entries": [],
+    "consistency_percentage": 0
+  },
+  "summary": {
+    "status": "NEEDS_ATTENTION",
+    "database_operational": true,
+    "files_tracked_percentage": 0,
+    "migration_ready": false
+  }
+}

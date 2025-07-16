@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-07-16T14:49:43.688505",
+  "workspace_scripts": 11241,
+  "database_files": 39,
+  "estimated_database_scripts": 190,
+  "sample_syntax_validation": {
+    "total_tested": 10,
+    "valid": 10,
+    "error_rate": 0.0
+  },
+  "database_sample_analysis": {
+    "advanced_analytics.db.analytics_insights": 2,
+    "analytics.db.template_intelligence": 4,
+    "analytics.db.pattern_matching_engine": 3,
+    "analytics.db.regeneration_templates": 38,
+    "analytics.db.corrected_scripts": 4,
+    "analytics.db.script_regeneration_tracking": 4,
+    "analytics_collector.db.template_intelligence": 4,
+    "analytics_collector.db.pattern_matching_engine": 3,
+    "analytics_collector.db.regeneration_templates": 38,
+    "archive.db.template_intelligence": 4,
+    "archive.db.pattern_matching_engine": 3,
+    "archive.db.regeneration_templates": 38,
+    "autonomous_decisions.db.template_intelligence": 4,
+    "autonomous_decisions.db.pattern_matching_engine": 3,
+    "autonomous_decisions.db.regeneration_templates": 38
+  }
+}

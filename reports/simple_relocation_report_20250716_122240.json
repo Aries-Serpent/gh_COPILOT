@@ -1,0 +1,97 @@
+{
+  "session_id": "SIMPLE_RELOCATION_20250716_122240",
+  "timestamp": "2025-07-16T12:22:40.943304",
+  "workspace_root": "e:\\gh_COPILOT",
+  "results": {
+    "total_files": 21,
+    "successful_moves": 21,
+    "failed_moves": 0,
+    "moved_files": [
+      {
+        "src": "e:\\gh_COPILOT\\autonomous_cli.log",
+        "dest": "e:\\gh_COPILOT\\logs\\autonomous_cli.log"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\autonomous_monitoring.log",
+        "dest": "e:\\gh_COPILOT\\logs\\autonomous_monitoring.log"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\autonomous_optimization.log",
+        "dest": "e:\\gh_COPILOT\\logs\\autonomous_optimization.log"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\compliance_scan_20250710_173622.log",
+        "dest": "e:\\gh_COPILOT\\logs\\compliance_scan_20250710_173622.log"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\compliance_scan_20250710_173707.log",
+        "dest": "e:\\gh_COPILOT\\logs\\compliance_scan_20250710_173707.log"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\database_cleanup.log",
+        "dest": "e:\\gh_COPILOT\\logs\\database_cleanup.log"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\emergency_cleanup.log",
+        "dest": "e:\\gh_COPILOT\\logs\\emergency_cleanup.log"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\enterprise_audit.log",
+        "dest": "e:\\gh_COPILOT\\logs\\enterprise_audit.log"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\flake8_compliance.log",
+        "dest": "e:\\gh_COPILOT\\logs\\flake8_compliance.log"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\syntax_fixer.log",
+        "dest": "e:\\gh_COPILOT\\logs\\syntax_fixer.log"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\validation_output.log",
+        "dest": "e:\\gh_COPILOT\\logs\\validation_output.log"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\AGENTS.md",
+        "dest": "e:\\gh_COPILOT\\documentation\\AGENTS.md"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\CHANGELOG.md",
+        "dest": "e:\\gh_COPILOT\\documentation\\CHANGELOG.md"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\AUTONOMOUS_CLI_DEPLOYMENT_COMPLETE.md",
+        "dest": "e:\\gh_COPILOT\\documentation\\AUTONOMOUS_CLI_DEPLOYMENT_COMPLETE.md"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md",
+        "dest": "e:\\gh_COPILOT\\documentation\\COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\FAREWELL_MESSAGE.md",
+        "dest": "e:\\gh_COPILOT\\documentation\\FAREWELL_MESSAGE.md"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\compliance_report.json",
+        "dest": "e:\\gh_COPILOT\\reports\\compliance_report.json"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\aggressive_compression_report_20250710_164134.json",
+        "dest": "e:\\gh_COPILOT\\reports\\aggressive_compression_report_20250710_164134.json"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\comprehensive_campaign_final_report_20250713_111239.json",
+        "dest": "e:\\gh_COPILOT\\reports\\comprehensive_campaign_final_report_20250713_111239.json"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\quick_database_validation_results.json",
+        "dest": "e:\\gh_COPILOT\\results\\quick_database_validation_results.json"
+      },
+      {
+        "src": "e:\\gh_COPILOT\\database_validation_results.json",
+        "dest": "e:\\gh_COPILOT\\results\\database_validation_results.json"
+      }
+    ],
+    "failed_files": []
+  }
+}

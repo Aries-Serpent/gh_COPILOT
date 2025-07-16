@@ -1,0 +1,526 @@
+{
+  "timestamp": "2025-07-16T14:59:58.515342",
+  "duration_seconds": 0.22,
+  "database_path": "E:\\gh_COPILOT\\databases\\logs.db",
+  "logs_folder": "E:\\gh_COPILOT\\logs",
+  "archives_folder": "E:\\gh_COPILOT\\archives",
+  "migration_results": {
+    "database_operational": true,
+    "migration_candidates": [
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enterprise_build_integration.log",
+        "relative_path": "logs\\enterprise_build_integration.log",
+        "title": "enterprise_build_integration",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:09",
+        "file_size": 1076,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enterprise_build_integration.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144504.log",
+        "relative_path": "logs\\enhanced_systematic_corrections_20250709_144504.log",
+        "title": "enhanced_systematic_corrections_20250709_144504",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:09",
+        "file_size": 4085,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_144504.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_135232.log",
+        "relative_path": "logs\\enhanced_systematic_corrections_20250709_135232.log",
+        "title": "enhanced_systematic_corrections_20250709_135232",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:09",
+        "file_size": 3984,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_135232.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\phase4_enterprise_validation_20250709_204856.log",
+        "relative_path": "logs\\phase4_enterprise_validation_20250709_204856.log",
+        "title": "phase4_enterprise_validation_20250709_204856",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:09",
+        "file_size": 499,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\phase4_enterprise_validation_20250709_204856.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\phase4_enterprise_validation_20250709_212725.log",
+        "relative_path": "logs\\phase4_enterprise_validation_20250709_212725.log",
+        "title": "phase4_enterprise_validation_20250709_212725",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:09",
+        "file_size": 2279,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\phase4_enterprise_validation_20250709_212725.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_204250.log",
+        "relative_path": "logs\\phase3_style_compliance_20250709_204250.log",
+        "title": "phase3_style_compliance_20250709_204250",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:09",
+        "file_size": 889,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\phase3_style_compliance_20250709_204250.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enterprise_documentation_manager.log",
+        "relative_path": "logs\\enterprise_documentation_manager.log",
+        "title": "enterprise_documentation_manager",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:09",
+        "file_size": 629,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enterprise_documentation_manager.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\pis_phase2\\pis_phase2_compliance_scan_20250709_232214.log",
+        "relative_path": "logs\\pis_phase2\\pis_phase2_compliance_scan_20250709_232214.log",
+        "title": "pis_phase2_compliance_scan_20250709_232214",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:09",
+        "file_size": 498630,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\pis_phase2\\pis_phase2_compliance_scan_20250709_232214.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\pis_discovery\\database_first_discovery_20250709_225555.log",
+        "relative_path": "logs\\pis_discovery\\database_first_discovery_20250709_225555.log",
+        "title": "database_first_discovery_20250709_225555",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:09",
+        "file_size": 3389,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\pis_discovery\\database_first_discovery_20250709_225555.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_130303.log",
+        "relative_path": "logs\\enhanced_systematic_corrections_20250709_130303.log",
+        "title": "enhanced_systematic_corrections_20250709_130303",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:09",
+        "file_size": 3982,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_130303.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_135152.log",
+        "relative_path": "logs\\enhanced_systematic_corrections_20250709_135152.log",
+        "title": "enhanced_systematic_corrections_20250709_135152",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:09",
+        "file_size": 3984,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_135152.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_133201.log",
+        "relative_path": "logs\\enhanced_systematic_corrections_20250709_133201.log",
+        "title": "enhanced_systematic_corrections_20250709_133201",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 3998,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_133201.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\phase_execution\\phase3_stderr_20250709_214631.log",
+        "relative_path": "logs\\phase_execution\\phase3_stderr_20250709_214631.log",
+        "title": "phase3_stderr_20250709_214631",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 533437,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\phase_execution\\phase3_stderr_20250709_214631.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\pis_phase2\\pis_phase2_compliance_scan_20250709_231714.log",
+        "relative_path": "logs\\pis_phase2\\pis_phase2_compliance_scan_20250709_231714.log",
+        "title": "pis_phase2_compliance_scan_20250709_231714",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 138,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\pis_phase2\\pis_phase2_compliance_scan_20250709_231714.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_130251.log",
+        "relative_path": "logs\\enhanced_systematic_corrections_20250709_130251.log",
+        "title": "enhanced_systematic_corrections_20250709_130251",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 3982,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_130251.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_212038.log",
+        "relative_path": "logs\\phase3_style_compliance_20250709_212038.log",
+        "title": "phase3_style_compliance_20250709_212038",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 475585,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\phase3_style_compliance_20250709_212038.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\phase_execution\\enterprise_phase_execution_20250709_214631.log",
+        "relative_path": "logs\\phase_execution\\enterprise_phase_execution_20250709_214631.log",
+        "title": "enterprise_phase_execution_20250709_214631",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 1676,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\phase_execution\\enterprise_phase_execution_20250709_214631.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\systematic_flake8_analysis.log",
+        "relative_path": "logs\\systematic_flake8_analysis.log",
+        "title": "systematic_flake8_analysis",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 4709,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\systematic_flake8_analysis.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144836.log",
+        "relative_path": "logs\\enhanced_systematic_corrections_20250709_144836.log",
+        "title": "enhanced_systematic_corrections_20250709_144836",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 4085,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_144836.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\critical_flake8_correction.log",
+        "relative_path": "logs\\critical_flake8_correction.log",
+        "title": "critical_flake8_correction",
+        "log_level": "ERROR",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 7610,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 65,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\critical_flake8_correction.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\phase_execution_PHASE_EXEC_20250709_212038.log",
+        "relative_path": "logs\\phase_execution_PHASE_EXEC_20250709_212038.log",
+        "title": "phase_execution_PHASE_EXEC_20250709_212038",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 520511,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\phase_execution_PHASE_EXEC_20250709_212038.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_133303.log",
+        "relative_path": "logs\\enhanced_systematic_corrections_20250709_133303.log",
+        "title": "enhanced_systematic_corrections_20250709_133303",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 3998,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_133303.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144521.log",
+        "relative_path": "logs\\enhanced_systematic_corrections_20250709_144521.log",
+        "title": "enhanced_systematic_corrections_20250709_144521",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 4085,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_144521.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\phase5_continuous_operation_20250709_212726.log",
+        "relative_path": "logs\\phase5_continuous_operation_20250709_212726.log",
+        "title": "phase5_continuous_operation_20250709_212726",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 2208,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\phase5_continuous_operation_20250709_212726.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\enterprise_build_enhancer.log",
+        "relative_path": "logs\\enterprise_build_enhancer.log",
+        "title": "enterprise_build_enhancer",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 364,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\enterprise_build_enhancer.log"
+      },
+      {
+        "source_path": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_214632.log",
+        "relative_path": "logs\\phase3_style_compliance_20250709_214632.log",
+        "title": "phase3_style_compliance_20250709_214632",
+        "log_level": "INFO",
+        "last_updated": "2025-07-10 21:49:13",
+        "file_size": 492921,
+        "status": "active",
+        "database_tracked": true,
+        "migration_priority": 50,
+        "target_archive_path": "E:\\gh_COPILOT\\archives\\2025\\07\\phase3_style_compliance_20250709_214632.log"
+      }
+    ],
+    "migration_executed": [
+      {
+        "source": "e:\\gh_COPILOT\\logs\\critical_flake8_correction.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\critical_flake8_correction.log",
+        "size": 7610,
+        "timestamp": "2025-07-16T14:59:58.505529",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enterprise_build_integration.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enterprise_build_integration.log",
+        "size": 1076,
+        "timestamp": "2025-07-16T14:59:58.506532",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144504.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_144504.log",
+        "size": 4085,
+        "timestamp": "2025-07-16T14:59:58.506532",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_135232.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_135232.log",
+        "size": 3984,
+        "timestamp": "2025-07-16T14:59:58.506532",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\phase4_enterprise_validation_20250709_204856.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\phase4_enterprise_validation_20250709_204856.log",
+        "size": 499,
+        "timestamp": "2025-07-16T14:59:58.506532",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\phase4_enterprise_validation_20250709_212725.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\phase4_enterprise_validation_20250709_212725.log",
+        "size": 2279,
+        "timestamp": "2025-07-16T14:59:58.506532",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_204250.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\phase3_style_compliance_20250709_204250.log",
+        "size": 889,
+        "timestamp": "2025-07-16T14:59:58.506532",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enterprise_documentation_manager.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enterprise_documentation_manager.log",
+        "size": 629,
+        "timestamp": "2025-07-16T14:59:58.507877",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\pis_phase2\\pis_phase2_compliance_scan_20250709_232214.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\pis_phase2\\pis_phase2_compliance_scan_20250709_232214.log",
+        "size": 498630,
+        "timestamp": "2025-07-16T14:59:58.507877",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\pis_discovery\\database_first_discovery_20250709_225555.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\pis_discovery\\database_first_discovery_20250709_225555.log",
+        "size": 3389,
+        "timestamp": "2025-07-16T14:59:58.508875",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_130303.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_130303.log",
+        "size": 3982,
+        "timestamp": "2025-07-16T14:59:58.508875",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_135152.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_135152.log",
+        "size": 3984,
+        "timestamp": "2025-07-16T14:59:58.508875",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_133201.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_133201.log",
+        "size": 3998,
+        "timestamp": "2025-07-16T14:59:58.510614",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\phase_execution\\phase3_stderr_20250709_214631.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\phase_execution\\phase3_stderr_20250709_214631.log",
+        "size": 533437,
+        "timestamp": "2025-07-16T14:59:58.510614",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\pis_phase2\\pis_phase2_compliance_scan_20250709_231714.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\pis_phase2\\pis_phase2_compliance_scan_20250709_231714.log",
+        "size": 138,
+        "timestamp": "2025-07-16T14:59:58.510614",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_130251.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_130251.log",
+        "size": 3982,
+        "timestamp": "2025-07-16T14:59:58.510614",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_212038.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\phase3_style_compliance_20250709_212038.log",
+        "size": 475585,
+        "timestamp": "2025-07-16T14:59:58.512090",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\phase_execution\\enterprise_phase_execution_20250709_214631.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\phase_execution\\enterprise_phase_execution_20250709_214631.log",
+        "size": 1676,
+        "timestamp": "2025-07-16T14:59:58.512090",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\systematic_flake8_analysis.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\systematic_flake8_analysis.log",
+        "size": 4709,
+        "timestamp": "2025-07-16T14:59:58.512090",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144836.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_144836.log",
+        "size": 4085,
+        "timestamp": "2025-07-16T14:59:58.515342",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\phase_execution_PHASE_EXEC_20250709_212038.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\phase_execution_PHASE_EXEC_20250709_212038.log",
+        "size": 520511,
+        "timestamp": "2025-07-16T14:59:58.515342",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_133303.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_133303.log",
+        "size": 3998,
+        "timestamp": "2025-07-16T14:59:58.515342",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enhanced_systematic_corrections_20250709_144521.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enhanced_systematic_corrections_20250709_144521.log",
+        "size": 4085,
+        "timestamp": "2025-07-16T14:59:58.515342",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\phase5_continuous_operation_20250709_212726.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\phase5_continuous_operation_20250709_212726.log",
+        "size": 2208,
+        "timestamp": "2025-07-16T14:59:58.515342",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\enterprise_build_enhancer.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\enterprise_build_enhancer.log",
+        "size": 364,
+        "timestamp": "2025-07-16T14:59:58.515342",
+        "dry_run": true
+      },
+      {
+        "source": "e:\\gh_COPILOT\\logs\\phase3_style_compliance_20250709_214632.log",
+        "target": "E:\\gh_COPILOT\\archives\\2025\\07\\phase3_style_compliance_20250709_214632.log",
+        "size": 492921,
+        "timestamp": "2025-07-16T14:59:58.515342",
+        "dry_run": true
+      }
+    ],
+    "migration_skipped": [],
+    "migration_errors": [],
+    "migration_summary": {
+      "total_candidates": 26,
+      "successful_migrations": 26,
+      "skipped_migrations": 0,
+      "failed_migrations": 0,
+      "total_size_migrated": 2582733
+    },
+    "dry_run": true
+  },
+  "summary": {
+    "database_operational": true,
+    "total_candidates": 26,
+    "migration_executed": 26,
+    "migration_skipped": 0,
+    "migration_errors": 0,
+    "dry_run_mode": true
+  }
+}

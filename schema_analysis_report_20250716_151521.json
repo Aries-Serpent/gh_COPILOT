@@ -1,0 +1,452 @@
+{
+  "timestamp": "2025-07-16T15:15:21.636276",
+  "source_schema": {
+    "columns": [
+      {
+        "index": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 1
+      },
+      {
+        "index": 1,
+        "name": "filename",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 2,
+        "name": "original_path",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 3,
+        "name": "archive_path",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 4,
+        "name": "file_hash",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 5,
+        "name": "file_size",
+        "type": "INTEGER",
+        "not_null": 1,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 6,
+        "name": "created_date",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 7,
+        "name": "archived_date",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 8,
+        "name": "log_type",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 9,
+        "name": "status",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": "'active'",
+        "primary_key": 0
+      },
+      {
+        "index": 10,
+        "name": "metadata",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      }
+    ],
+    "column_count": 11,
+    "create_sql": "CREATE TABLE enterprise_logs (\n                        id INTEGER PRIMARY KEY AUTOINCREMENT,\n                        filename TEXT NOT NULL,\n                        original_path TEXT NOT NULL,\n                        archive_path TEXT,\n                        file_hash TEXT NOT NULL,\n                        file_size INTEGER NOT NULL,\n                        created_date TEXT NOT NULL,\n                        archived_date TEXT,\n                        log_type TEXT,\n                        status TEXT DEFAULT 'active',\n                        metadata TEXT,\n                        UNIQUE(filename, original_path)\n                    )",
+    "sample_data": [
+      [
+        1,
+        "compliance_scan_20250710_173622.log",
+        "e:\\gh_COPILOT\\logs\\compliance_scan_20250710_173622.log",
+        null,
+        "c623a9dc8a3b7363468ccda3f365e9b5",
+        623,
+        "2025-07-10T17:36:22.051127",
+        null,
+        "historical_log",
+        "active",
+        "{\"archive_reason\": \"historical_log\"}"
+      ],
+      [
+        2,
+        "compliance_scan_20250710_173707.log",
+        "e:\\gh_COPILOT\\logs\\compliance_scan_20250710_173707.log",
+        null,
+        "125c487f3c156106435d7d4cfdaea439",
+        223112,
+        "2025-07-10T17:44:44.204604",
+        null,
+        "historical_log",
+        "active",
+        "{\"archive_reason\": \"historical_log\"}"
+      ],
+      [
+        3,
+        "database_driven_flake8_correction_20250709_122229.log",
+        "e:\\gh_COPILOT\\logs\\database_driven_flake8_correction_20250709_122229.log",
+        null,
+        "0bcefdafce56d2f8f76abf98f83de3c7",
+        813,
+        "2025-07-09T12:22:29.686902",
+        null,
+        "historical_log",
+        "active",
+        "{\"archive_reason\": \"historical_log\"}"
+      ]
+    ]
+  },
+  "target_schema": {
+    "columns": [
+      {
+        "index": 0,
+        "name": "log_id",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 1
+      },
+      {
+        "index": 1,
+        "name": "doc_type",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": "'LOG'",
+        "primary_key": 0
+      },
+      {
+        "index": 2,
+        "name": "title",
+        "type": "TEXT",
+        "not_null": 1,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 3,
+        "name": "content",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 4,
+        "name": "source_path",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 5,
+        "name": "last_updated",
+        "type": "TIMESTAMP",
+        "not_null": 0,
+        "default": "CURRENT_TIMESTAMP",
+        "primary_key": 0
+      },
+      {
+        "index": 6,
+        "name": "version",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 7,
+        "name": "hash_signature",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 8,
+        "name": "enterprise_compliance",
+        "type": "BOOLEAN",
+        "not_null": 0,
+        "default": "1",
+        "primary_key": 0
+      },
+      {
+        "index": 9,
+        "name": "quantum_indexed",
+        "type": "BOOLEAN",
+        "not_null": 0,
+        "default": "0",
+        "primary_key": 0
+      },
+      {
+        "index": 10,
+        "name": "category",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 11,
+        "name": "priority",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": "5",
+        "primary_key": 0
+      },
+      {
+        "index": 12,
+        "name": "status",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": "'ACTIVE'",
+        "primary_key": 0
+      },
+      {
+        "index": 13,
+        "name": "log_level",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": "'INFO'",
+        "primary_key": 0
+      },
+      {
+        "index": 14,
+        "name": "component",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 15,
+        "name": "session_id",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 16,
+        "name": "execution_phase",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 17,
+        "name": "error_count",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": "0",
+        "primary_key": 0
+      },
+      {
+        "index": 18,
+        "name": "warning_count",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": "0",
+        "primary_key": 0
+      },
+      {
+        "index": 19,
+        "name": "file_size",
+        "type": "INTEGER",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 20,
+        "name": "compression_ratio",
+        "type": "REAL",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 21,
+        "name": "archival_date",
+        "type": "TIMESTAMP",
+        "not_null": 0,
+        "default": null,
+        "primary_key": 0
+      },
+      {
+        "index": 22,
+        "name": "retention_policy",
+        "type": "TEXT",
+        "not_null": 0,
+        "default": "'STANDARD'",
+        "primary_key": 0
+      }
+    ],
+    "column_count": 23,
+    "create_sql": "CREATE TABLE enterprise_logs (\n                        log_id TEXT PRIMARY KEY,\n                        doc_type TEXT DEFAULT 'LOG',\n                        title TEXT NOT NULL,\n                        content TEXT,\n                        source_path TEXT,\n                        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n                        version TEXT,\n                        hash_signature TEXT UNIQUE,\n                        enterprise_compliance BOOLEAN DEFAULT 1,\n                        quantum_indexed BOOLEAN DEFAULT 0,\n                        category TEXT,\n                        priority INTEGER DEFAULT 5,\n                        status TEXT DEFAULT 'ACTIVE',\n                        log_level TEXT DEFAULT 'INFO',\n                        component TEXT,\n                        session_id TEXT,\n                        execution_phase TEXT,\n                        error_count INTEGER DEFAULT 0,\n                        warning_count INTEGER DEFAULT 0,\n                        file_size INTEGER,\n                        compression_ratio REAL,\n                        archival_date TIMESTAMP,\n                        retention_policy TEXT DEFAULT 'STANDARD'\n                    )",
+    "sample_data": [
+      [
+        "doc_98d04e3696b9",
+        "LOG",
+        "replace-celebratory-log-lines",
+        "2989b0c0124e23c8be98dd6acd477bce7410af41\n",
+        "e:\\gh_COPILOT\\.git\\refs\\remotes\\origin\\codex\\replace-celebratory-log-lines",
+        "2025-07-10 21:49:09",
+        "1.0.0",
+        "98d04e3696b936bc91b34d72b995f8d366621c34e39a69bf153416f570fd8c1a",
+        0,
+        0,
+        "log",
+        1,
+        "active",
+        "INFO",
+        "replace-celebratory-log-lines",
+        "NO_SESSION",
+        "UNKNOWN_PHASE",
+        0,
+        0,
+        41,
+        1.0,
+        null,
+        "STANDARD"
+      ],
+      [
+        "doc_32858ae8543a",
+        "LOG",
+        "pis_framework_20250709_235215",
+        "2025-07-09 23:52:15,131 | INFO | PIS-FRAMEWORK | PIS FRAMEWORK INITIALIZED - SESSION: 0cb37d26-1416-4f34-85f5-f8a5eb4d4d6e\n2025-07-09 23:52:15,142 | INFO | PIS-FRAMEWORK | ================================================================================\n2025-07-09 23:52:15,142 | INFO | PIS-FRAMEWORK | ENTERPRISE ZERO-TOLERANCE STANDARDS ACTIVE\n2025-07-09 23:52:15,145 | INFO | PIS-FRAMEWORK | DUAL COPILOT VALIDATION ENABLED\n2025-07-09 23:52:15,146 | INFO | PIS-FRAMEWORK | ANTI-RECURSION PROTOCOL ACTIVE\n2025-07-09 23:52:15,146 | INFO | PIS-FRAMEWORK | VISUAL PROCESSING INDICATORS ENABLED\n2025-07-09 23:52:15,146 | INFO | PIS-FRAMEWORK | ================================================================================\n2025-07-09 23:52:15,149 | INFO | PIS-FRAMEWORK | ================================================================================\n2025-07-09 23:52:15,149 | INFO | PIS-FRAMEWORK | PIS PHASE 1: STRATEGIC PLANNING & DATABASE SETUP\n2025-07-09 23:52:15,149 | INFO | PIS-FRAMEWORK | ================================================================================\n2025-07-09 23:52:15,184 | INFO | PIS-FRAMEWORK | INITIALIZING ENTERPRISE DATABASE CONNECTIONS...\n2025-07-09 23:52:15,184 | INFO | PIS-FRAMEWORK | Production database connected\n2025-07-09 23:52:15,184 | INFO | PIS-FRAMEWORK | Analytics database connected\n2025-07-09 23:52:15,184 | INFO | PIS-FRAMEWORK | Analytics tables created/updated successfully\n2025-07-09 23:52:15,191 | INFO | PIS-FRAMEWORK | ACTIVATING ANTI-RECURSION PROTOCOL...\n2025-07-09 23:52:15,192 | INFO | PIS-FRAMEWORK | ANTI-RECURSION PROTOCOL ACTIVE\n2025-07-09 23:52:15,193 | INFO | PIS-FRAMEWORK | DISCOVERED 0 SCRIPTS FROM DATABASE\n2025-07-09 23:52:15,196 | INFO | PIS-FRAMEWORK | STRATEGIC ASSESSMENT: 0 scripts\n2025-07-09 23:52:15,196 | INFO | PIS-FRAMEWORK | PHASE 1 COMPLETE - 0 scripts discovered\n2025-07-09 23:52:15,200 | INFO | PIS-FRAMEWORK | ================================================================================\n2025-07-09 23:52:15,201 | INFO | PIS-FRAMEWORK | PIS PHASE 2: COMPLIANCE SCAN & ASSESSMENT\n2025-07-09 23:52:15,201 | INFO | PIS-FRAMEWORK | ================================================================================\n2025-07-09 23:52:15,201 | INFO | PIS-FRAMEWORK | DISCOVERED 0 SCRIPTS FROM DATABASE\n2025-07-09 23:52:15,201 | WARNING | PIS-FRAMEWORK | NO SCRIPTS DISCOVERED - PHASE 2 COMPLETE\n2025-07-09 23:52:15,201 | INFO | PIS-FRAMEWORK | ================================================================================\n2025-07-09 23:52:15,207 | INFO | PIS-FRAMEWORK | Total Duration: 0.05s\n2025-07-09 23:52:15,208 | INFO | PIS-FRAMEWORK | Phases Completed: 1\n2025-07-09 23:52:15,208 | INFO | PIS-FRAMEWORK | ================================================================================\n2025-07-09 23:52:15,211 | ERROR | PIS-FRAMEWORK | COMPREHENSIVE REPORT SAVE FAILED: Object of type datetime is not JSON serializable\n",
+        "e:\\gh_COPILOT\\pis_framework_20250709_235215.log",
+        "2025-07-10 21:49:09",
+        "1.0.0",
+        "32858ae8543a22724d31925a6a47150bb2fcb111f2e5f37a2e30a6136d54a081",
+        1,
+        1,
+        "log",
+        1,
+        "active",
+        "INFO",
+        "pis_framework_20250709_235215",
+        "20250709_235215",
+        "UNKNOWN_PHASE",
+        1,
+        2,
+        2911,
+        1.0,
+        null,
+        "STANDARD"
+      ],
+      [
+        "doc_4da1d61a925d",
+        "LOG",
+        "edit-database-synchronization-logic",
+        "77e84ec313a43e609725691bc169a35c0ac25eac\n",
+        "e:\\gh_COPILOT\\.git\\refs\\remotes\\origin\\codex\\edit-database-synchronization-logic",
+        "2025-07-10 21:49:09",
+        "1.0.0",
+        "4da1d61a925d4890dfd84b2e57f89a7e93999b75cff645a398d1cdfc1907379b",
+        0,
+        0,
+        "log",
+        1,
+        "active",
+        "INFO",
+        "edit-database-synchronization-logic",
+        "NO_SESSION",
+        "UNKNOWN_PHASE",
+        0,
+        0,
+        41,
+        1.0,
+        null,
+        "STANDARD"
+      ]
+    ]
+  },
+  "comparison": {
+    "common_columns": [
+      "file_size",
+      "status"
+    ],
+    "source_only": [
+      "file_hash",
+      "id",
+      "filename",
+      "original_path",
+      "archive_path",
+      "log_type",
+      "metadata",
+      "created_date",
+      "archived_date"
+    ],
+    "target_only": [
+      "execution_phase",
+      "component",
+      "priority",
+      "content",
+      "category",
+      "doc_type",
+      "retention_policy",
+      "warning_count",
+      "source_path",
+      "compression_ratio",
+      "enterprise_compliance",
+      "log_level",
+      "log_id",
+      "error_count",
+      "title",
+      "hash_signature",
+      "version",
+      "session_id",
+      "archival_date",
+      "last_updated",
+      "quantum_indexed"
+    ]
+  },
+  "migration_strategy": {
+    "approach": "SCHEMA_AWARE_MERGE",
+    "steps": [],
+    "sql_mapping": {},
+    "feasible": false,
+    "reason": "Insufficient common columns for safe migration"
+  }
+}
