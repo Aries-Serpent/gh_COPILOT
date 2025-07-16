@@ -1,0 +1,31 @@
+{
+  "start_time": "2025-07-16T15:16:22.847637",
+  "source_db": "E:\\gh_COPILOT\\logs.db",
+  "target_db": "E:\\gh_COPILOT\\databases\\logs.db",
+  "migration_status": "SUCCESS",
+  "tables_migrated": [
+    {
+      "source_table": "enterprise_logs",
+      "target_table": "archive_enterprise_logs",
+      "records_migrated": 112
+    },
+    {
+      "source_table": "sqlite_sequence",
+      "target_table": "archive_sqlite_sequence",
+      "records_migrated": 1
+    },
+    {
+      "source_table": "archive_operations",
+      "target_table": "archive_operations",
+      "records_migrated": 0
+    }
+  ],
+  "records_migrated": 113,
+  "conflicts_resolved": 2,
+  "errors": [
+    "Cleanup error: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\\\gh_COPILOT\\\\logs.db'"
+  ],
+  "updated_tools": [],
+  "end_time": "2025-07-16T15:16:22.915412",
+  "duration_seconds": 0.067775
+}
