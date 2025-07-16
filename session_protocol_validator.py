@@ -1,32 +1,17 @@
 #!/usr/bin/env python3
-"""SessionProtocolValidator - Validates workspace for zero-byte files."""
-import logging
+"""
+SessionProtocolValidator - Validates workspace for zero-byte files.
 
-from copilot.common.workspace_utils import get_workspace_path
+MODERNIZED: Now uses modular validation package for enhanced functionality
+while maintaining backward compatibility.
+"""
 
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+import sys
 
+# Import from new modular package
+from validation.protocols.session import SessionProtocolValidator as ModularSessionValidator, main
 
-class SessionProtocolValidator:
-    """Check workspace integrity on startup."""
-
-    def __init__(self, workspace_path: str | None = None) -> None:
-        self.workspace_path = get_workspace_path(workspace_path)
-        self.logger = logging.getLogger(__name__)
-
-    def validate_startup(self) -> bool:
-        """Return False if any zero-byte file is found."""
-        self.logger.info(
-            f"{TEXT_INDICATORS['start']} Validating {self.workspace_path}")
-        for path in self.workspace_path.rglob('*'):
-            if path.is_file() and path.stat().st_size == 0:
-                self.logger.error(
-                    f"{TEXT_INDICATORS['error']} Zero-byte file {path}")
-                return False
-        self.logger.info(f"{TEXT_INDICATORS['success']} Validation passed")
-        return True
+# This script now delegates to the modular implementation
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)
