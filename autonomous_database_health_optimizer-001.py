@@ -48,7 +48,7 @@ class TqdmFallback:
         print(f"Completed: {self.desc or 'process'}")
 
 
-tqdm_fallback = TqdmFallback
+TqdmFallback = TqdmFallback
 
 
 # Text-based indicators (NO Unicode emojis)
@@ -146,7 +146,7 @@ class AutonomousDatabaseHealthOptimizer:
 
     def create_progress_bar(self, total=None, desc=None):
         """Create progress bar using fallback implementation"""
-        return tqdm_fallback(total=total, desc=desc)
+        return TqdmFallback(total=total, desc=desc)
 
     def _setup_logging(self):
         """Setup logging configuration"""
