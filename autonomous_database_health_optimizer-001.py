@@ -48,9 +48,6 @@ class TqdmFallback:
         print(f"Completed: {self.desc or 'process'}")
 
 
-TqdmFallback = TqdmFallback
-
-
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     "optimize": "[OPTIMIZE]",
