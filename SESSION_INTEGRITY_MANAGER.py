@@ -160,9 +160,7 @@ class SessionIntegrityManager:
                 100) if database_count > 0 else 0
             self.validation_results['database_integrity'] = integrity_percentage >= 95.0
 
-            logging.info(
-                f"[VALIDATION] Database Integrity: {valid_databases}/{database_count} (
-    {integrity_percentage:.1f}%)")
+            logging.info(f"[VALIDATION] Database Integrity: {valid_databases}/{database_count} ({integrity_percentage:.1f}%)")
             return self.validation_results['database_integrity']
 
         except Exception as e:
