@@ -1,0 +1,111 @@
+{
+  "timestamp": "20250716_003545",
+  "consolidation_actions": [
+    {
+      "action": "MERGE_AND_REMOVE",
+      "source": "analytics_20250714_235950.db",
+      "target": "analytics.db",
+      "reason": "Timestamped backup of analytics.db",
+      "size_mb": 0.84,
+      "risk_level": "LOW",
+      "validation_required": true
+    },
+    {
+      "action": "MERGE_AND_REMOVE",
+      "source": "production_20250714_235950.db",
+      "target": "production.db",
+      "reason": "Timestamped backup of production.db",
+      "size_mb": 60.86,
+      "risk_level": "LOW",
+      "validation_required": true
+    },
+    {
+      "action": "MERGE_AND_REMOVE",
+      "source": "production_20250715_191429.db",
+      "target": "production.db",
+      "reason": "Timestamped backup of production.db",
+      "size_mb": 0.14,
+      "risk_level": "LOW",
+      "validation_required": true
+    },
+    {
+      "action": "MERGE_AND_REMOVE",
+      "source": "monitoring_20250714_235950.db",
+      "target": "monitoring.db",
+      "reason": "Timestamped backup of monitoring.db",
+      "size_mb": 0.01,
+      "risk_level": "LOW",
+      "validation_required": true
+    },
+    {
+      "action": "MERGE_AND_REMOVE",
+      "source": "logs_20250714_235950.db",
+      "target": "logs.db",
+      "reason": "Timestamped backup of logs.db",
+      "size_mb": 0.01,
+      "risk_level": "LOW",
+      "validation_required": true
+    },
+    {
+      "action": "ARCHIVE_AND_REMOVE",
+      "source": "backup.db",
+      "target": "archives/",
+      "reason": "Backup with production version available",
+      "size_mb": 0.01,
+      "risk_level": "LOW",
+      "validation_required": false
+    },
+    {
+      "action": "ARCHIVE_AND_REMOVE",
+      "source": "analytics_20250714_235950.db",
+      "target": "archives/",
+      "reason": "Backup with production version available",
+      "size_mb": 0.84,
+      "risk_level": "LOW",
+      "validation_required": false
+    },
+    {
+      "action": "ARCHIVE_AND_REMOVE",
+      "source": "production_20250714_235950.db",
+      "target": "archives/",
+      "reason": "Backup with production version available",
+      "size_mb": 60.86,
+      "risk_level": "LOW",
+      "validation_required": false
+    },
+    {
+      "action": "ARCHIVE_AND_REMOVE",
+      "source": "monitoring_20250714_235950.db",
+      "target": "archives/",
+      "reason": "Backup with production version available",
+      "size_mb": 0.01,
+      "risk_level": "LOW",
+      "validation_required": false
+    },
+    {
+      "action": "ARCHIVE_AND_REMOVE",
+      "source": "production_20250715_191429.db",
+      "target": "archives/",
+      "reason": "Backup with production version available",
+      "size_mb": 0.14,
+      "risk_level": "LOW",
+      "validation_required": false
+    },
+    {
+      "action": "ARCHIVE_AND_REMOVE",
+      "source": "logs_20250714_235950.db",
+      "target": "archives/",
+      "reason": "Backup with production version available",
+      "size_mb": 0.01,
+      "risk_level": "LOW",
+      "validation_required": false
+    }
+  ],
+  "estimated_reduction": {
+    "databases_removed": 11,
+    "size_saved_mb": 123.73,
+    "percentage_reduction": 17.5
+  },
+  "risk_assessment": {},
+  "implementation_steps": []
+}
