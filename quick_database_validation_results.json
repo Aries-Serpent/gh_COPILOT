@@ -1,0 +1,16 @@
+{
+  "validation_timestamp": "2025-07-16T11:13:32.151222",
+  "duration_seconds": 2.987036,
+  "total_python_scripts": 1032,
+  "total_database_files": 39,
+  "total_potential_templates": 177,
+  "sample_tested": 10,
+  "sample_reproducible": 4,
+  "sample_syntax_valid": 10,
+  "sample_flake8_compliant": 4,
+  "estimated_reproduction_rate": 40.0,
+  "estimated_syntax_rate": 100.0,
+  "estimated_flake8_rate": 40.0,
+  "estimated_reproducible_scripts": 412,
+  "estimated_non_reproducible_scripts": 620
+}

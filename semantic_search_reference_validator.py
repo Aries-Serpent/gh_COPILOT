@@ -112,27 +112,91 @@ def main():
                 logger.warning(f"Could not parse semantic_search_output.json: {e}")
         return list(referenced_files)
 
-    def scan_zero_byte_files():
+    def scan_and_handle_zero_byte_files():
         """
-        Scan workspace for zero-byte files and log any found.
-        Returns a list of zero-byte file paths.
+        Scan workspace for zero-byte files, log, and move them to a quarantine folder for review.
+        Returns a list of zero-byte file paths handled.
         """
         zero_byte_files = []
+        quarantine_dir = os.path.join(os.getcwd(), "_ZERO_BYTE_QUARANTINE")
+        if not os.path.exists(quarantine_dir):
+            os.makedirs(quarantine_dir)
         for root, dirs, files in os.walk(os.getcwd()):
+            # Don't quarantine files already in quarantine
+            if quarantine_dir in root:
+                continue
             for f in files:
                 fpath = os.path.join(root, f)
                 try:
                     if os.path.getsize(fpath) == 0:
-                        zero_byte_files.append(os.path.relpath(fpath, os.getcwd()))
+                        rel_path = os.path.relpath(fpath, os.getcwd())
+                        zero_byte_files.append(rel_path)
+                        # Move to quarantine
+                        dest_path = os.path.join(quarantine_dir, os.path.basename(fpath))
+                        try:
+                            os.replace(fpath, dest_path)
+                            logger.warning(f"[QUARANTINE] Zero-byte file moved: {rel_path} -> {dest_path}")
+                        except Exception as move_err:
+                            logger.error(f"[ERROR] Failed to quarantine {rel_path}: {move_err}")
                 except Exception:
                     continue
         if zero_byte_files:
-            logger.warning(f"⚠️ Zero-byte files detected: {len(zero_byte_files)}")
-            for zf in zero_byte_files:
-                logger.warning(f"   - {zf}")
+            logger.warning(f"⚠️ Zero-byte files handled: {len(zero_byte_files)} (moved to _ZERO_BYTE_QUARANTINE)")
         else:
             logger.info("✅ No zero-byte files detected in workspace.")
         return zero_byte_files
+
+    def lint_python_scripts_in_databases():
+        """
+        Traverse all .py files in databases/ and check for Python 3.10/3.11 lint compliance.
+        Uses py_compile for syntax and flake8 for linting.
+        Logs and summarizes results.
+        """
+        chunk_anti_recursion_validation()
+        databases_dir = os.path.join(os.getcwd(), "databases")
+        py_files = []
+        for root, dirs, files in os.walk(databases_dir):
+            for f in files:
+                if f.endswith(".py"):
+                    py_files.append(os.path.join(root, f))
+        logger.info(f"🔍 Found {len(py_files)} Python scripts in databases/ for linting.")
+
+        lint_results = []
+        with tqdm(total=len(py_files), desc="Linting Python scripts", unit="file") as pbar_lint:
+            for py_file in py_files:
+                rel_path = os.path.relpath(py_file, os.getcwd())
+                syntax_ok = True
+                for version in ("3.10", "3.11"):
+                    try:
+                        import subprocess
+                        subprocess.check_output(
+                            [f"python{version}", "-m", "py_compile", py_file],
+                            stderr=subprocess.STDOUT
+                        )
+                    except Exception as e:
+                        logger.error(f"❌ Syntax error ({version}) in {rel_path}: {e}")
+                        syntax_ok = False
+                try:
+                    import subprocess
+                    result = subprocess.run(
+                        ["flake8", py_file],
+                        capture_output=True, text=True
+                    )
+                    if result.returncode != 0:
+                        logger.error(f"❌ Lint error in {rel_path}:\n{result.stdout}")
+                        lint_results.append((rel_path, "lint error"))
+                    elif syntax_ok:
+                        logger.info(f"✅ {rel_path} is lint and syntax compliant.")
+                        lint_results.append((rel_path, "ok"))
+                except Exception as e:
+                    logger.error(f"❌ Flake8 failed for {rel_path}: {e}")
+                    lint_results.append((rel_path, "flake8 error"))
+                pbar_lint.update(1)
+        total = len(py_files)
+        passed = sum(1 for _, status in lint_results if status == "ok")
+        failed = total - passed
+        logger.info(f"📊 Lint summary: {passed}/{total} scripts passed, {failed} failed.")
+        return lint_results
 
     with tqdm(total=100, desc=process_name, unit="%", bar_format="{l_bar}{bar}| {n:.1f}/{total}{unit} [{elapsed}<{remaining}]") as pbar:
         # Phase 1: Initialization
@@ -234,17 +298,34 @@ def main():
         else:
             logger.error("❌ DUAL COPILOT VALIDATION FAILED: Compliance violations detected.")
 
+
+        # Lint all Python scripts in databases/ for 3.10/3.11 compliance
+        logger.info("🔄 Linting all Python scripts in databases/ for Python 3.10/3.11 compliance...")
+        lint_results = lint_python_scripts_in_databases()
+
         # Final session integrity and summary
         logger.info("🔄 Final session integrity checks...")
-        zero_byte_files = scan_zero_byte_files()
+        zero_byte_files = scan_and_handle_zero_byte_files()
         chunk_anti_recursion_validation()
         logger.info("📊 SUMMARY: ")
         logger.info(f"  - Referenced files checked: {len(referenced_files)}")
         logger.info(f"  - Databases files checked: {len(databases_files)}")
         logger.info(f"  - Compliance passed: {compliance_report['compliance_passed']}")
-        logger.info(f"  - Zero-byte files: {len(zero_byte_files)}")
+        logger.info(f"  - Zero-byte files quarantined: {len(zero_byte_files)}")
+        logger.info(f"  - Lint-compliant scripts: {sum(1 for _, status in lint_results if status == 'ok')}")
+        logger.info(f"  - Lint-noncompliant scripts: {sum(1 for _, status in lint_results if status != 'ok')}")
         logger.info("✅ CHUNK 4 COMPLETE: Optimization & finalization complete.")
         logger.info("🏁 SESSION COMPLETE. Please run session shutdown protocol for enterprise compliance.")
+
+        # Review compliance report (if exists)
+        try:
+            with open(report_path, "r", encoding="utf-8") as cf:
+                report_data = json.load(cf)
+            logger.info("📋 COMPLIANCE REPORT REVIEW:")
+            for k, v in report_data.items():
+                logger.info(f"  - {k}: {v}")
+        except Exception as e:
+            logger.error(f"[ERROR] Could not review compliance report: {e}")
 
 if __name__ == "__main__":
     main()
