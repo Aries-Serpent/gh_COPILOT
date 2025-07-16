@@ -110,7 +110,7 @@ def main():
     }
     
     # Save quick report
-    report_file = workspace / "quick_database_analysis_report.json"
+    report_file = workspace / "config/quick_database_analysis_report.json"
     with open(report_file, 'w') as f:
         json.dump(report, f, indent=2)
     

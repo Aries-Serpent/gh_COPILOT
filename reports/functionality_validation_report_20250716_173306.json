@@ -1,0 +1,118 @@
+{
+  "start_time": "2025-07-16T17:33:06.826514",
+  "test_results": {},
+  "summary": {
+    "total_scripts": 5,
+    "scripts_tested": 5,
+    "average_config_accessibility": 80.0,
+    "execution_success_rate": 0.0,
+    "overall_functionality_score": 40.0,
+    "validation_status": "NEEDS_ATTENTION"
+  },
+  "errors": [],
+  "recommendations": [
+    "Some configuration files may not be accessible - review config/ path references",
+    "Some scripts failed execution tests - review script functionality"
+  ],
+  "environment_check": {
+    "workspace_path": "e:\\gh_COPILOT",
+    "config_files_found": 67,
+    "test_scripts_available": 5,
+    "missing_scripts": []
+  },
+  "config_path_tests": {
+    "autonomous_monitoring_system.py": {
+      "total_references": 4,
+      "accessible_configs": [],
+      "inaccessible_configs": [],
+      "accessibility_rate": 0.0
+    },
+    "config_dependency_validator.py": {
+      "total_references": 8,
+      "accessible_configs": [
+        "config/ ",
+        "config/replication_config.json",
+        "config/ ",
+        "config/advanced_features_config.json",
+        "config/replication_config.json",
+        "config/enterprise_master_config.json",
+        "config/production_access_config.json",
+        "config/enterprise_quantum_config.json"
+      ],
+      "inaccessible_configs": [],
+      "accessibility_rate": 100.0
+    },
+    "deployment_optimization_engine.py": {
+      "total_references": 20,
+      "accessible_configs": [
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/production_alerting_config.json",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/production_security_validation.json",
+        "config/production_performance_validation.json",
+        "config/production_reliability_validation.json",
+        "config/production_operational_validation.json"
+      ],
+      "inaccessible_configs": [],
+      "accessibility_rate": 100.0
+    },
+    "enterprise_optimization_engine.py": {
+      "total_references": 12,
+      "accessible_configs": [
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ ",
+        "config/ "
+      ],
+      "inaccessible_configs": [],
+      "accessibility_rate": 100.0
+    },
+    "comprehensive_file_restoration_executor.py": {
+      "total_references": 3,
+      "accessible_configs": [
+        "config/COPILOT_ENTERPRISE_CONFIG.json",
+        "config/DISASTER_RECOVERY_CONFIG.json",
+        "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json"
+      ],
+      "inaccessible_configs": [],
+      "accessibility_rate": 100.0
+    }
+  },
+  "execution_tests": {
+    "config_dependency_validator.py": {
+      "success": false,
+      "return_code": 1,
+      "stdout_length": 0,
+      "stderr_length": 402,
+      "execution_time": "< 30s",
+      "test_type": "help_command"
+    }
+  },
+  "completion_time": "2025-07-16T17:33:10.021467",
+  "total_duration_seconds": 3.194953,
+  "report_generation_time": "2025-07-16T17:33:10.021467",
+  "validation_scope": "Phase 2 - Functionality Validation",
+  "enhanced_cognitive_processing": true,
+  "dual_copilot_validated": true
+}

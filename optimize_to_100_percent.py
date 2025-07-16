@@ -393,7 +393,7 @@ def enhance_copilot_integration() -> float:
             conn.commit()
         
         # Create Copilot configuration file
-        with open('COPILOT_ENTERPRISE_CONFIG.json', 'w') as f:
+        with open('config/COPILOT_ENTERPRISE_CONFIG.json', 'w') as f:
             json.dump(copilot_config, f, indent=2)
         
         return 100.0
@@ -523,7 +523,7 @@ def enhance_disaster_recovery() -> float:
             }
         }
         
-        with open('DISASTER_RECOVERY_CONFIG.json', 'w') as f:
+        with open('config/DISASTER_RECOVERY_CONFIG.json', 'w') as f:
             json.dump(dr_config, f, indent=2)
             
         return 100.0

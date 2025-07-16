@@ -119,11 +119,12 @@ class FileMovementAssessment:
         return misplaced_scripts
     
     def assess_config_file_misplacement(self):
-        """⚙️ Assess configuration files in wrong locations"""
-        print("⚙️ ASSESSING CONFIGURATION FILE MISPLACEMENT")
+        """⚙️ Assess configuration files that should be consolidated in config/"""
+        print("⚙️ ASSESSING CONFIGURATION FILE CONSOLIDATION NEEDS")
         print("="*40)
         
-        misplaced_configs = {
+        config_files_scattered = {
+            'in_root': [],
             'in_logs': [],
             'in_reports': [],
             'in_results': [],
@@ -132,22 +133,53 @@ class FileMovementAssessment:
         
         config_patterns = ['.json', '.yaml', '.yml', '.toml', '.ini', '.cfg']
         
-        for folder_name, folder_path in self.target_folders.items():
-            if folder_path.exists() and folder_name not in ['config', 'scripts']:
+        # Check root directory for config files (excluding critical system files)
+        critical_root_files = {
+            "COPILOT_NAVIGATION_MAP.json",  # Must stay in root
+            "package.json",                 # Must stay in root  
+            "pyproject.toml",              # Must stay in root
+            "requirements.txt",            # Must stay in root
+            "Dockerfile",                  # Must stay in root
+            "docker-compose.yml",          # Must stay in root
+            "Makefile"                     # Must stay in root
+        }
+        
+        # Check root for config files that should move to config/
+        for pattern in config_patterns:
+            root_configs = list(self.workspace_root.glob(f"*{pattern}"))
+            for config_file in root_configs:
+                if (config_file.name not in critical_root_files and 
+                    config_file.is_file() and 
+                    self._is_configuration_file(config_file)):
+                    print(f"📋 Config file in root (should move to config/): {config_file.name}")
+                    config_files_scattered['in_root'].append({
+                        'file': config_file.name,
+                        'path': str(config_file),
+                        'size': config_file.stat().st_size,
+                        'type': pattern,
+                        'action_needed': 'move_to_config_folder'
+                    })
+        
+        # Check other folders for scattered config files  
+        folders_to_check = ['logs', 'reports', 'results', 'documentation']
+        for folder_name in folders_to_check:
+            folder_path = self.target_folders[folder_name]
+            if folder_path.exists():
                 for pattern in config_patterns:
                     config_files = list(folder_path.glob(f"*{pattern}"))
                     for config_file in config_files:
                         # Check if it's actually a configuration file
                         if self._is_configuration_file(config_file):
-                            print(f"⚠️  Found config file: {config_file.name} in {folder_name}/")
-                            misplaced_configs[f'in_{folder_name}'].append({
+                            print(f"⚠️  Found config file: {config_file.name} in {folder_name}/ (should be in config/)")
+                            config_files_scattered[f'in_{folder_name}'].append({
                                 'file': config_file.name,
                                 'path': str(config_file),
-                                'size': config_file.stat().st_size if config_file.exists() else 0,
-                                'type': pattern
+                                'size': config_file.stat().st_size,
+                                'type': pattern,
+                                'action_needed': 'consolidate_to_config_folder'
                             })
         
-        return misplaced_configs
+        return config_files_scattered
     
     def assess_critical_files_moved(self):
         """🚨 Check for critical files that shouldn't have been moved"""
@@ -233,39 +265,40 @@ class FileMovementAssessment:
                 "timeline": "Immediate correction required"
             },
             "situation_analysis": {
-                "current_state": "File organization scripts moved executable Python scripts and config files incorrectly",
+                "current_state": "File organization scripts moved executable Python scripts and scattered config files incorrectly",
                 "misplaced_python_scripts": sum(len(scripts) for scripts in assessment_data['python_misplacement'].values()),
                 "misplaced_config_files": sum(len(configs) for configs in assessment_data['config_misplacement'].values()),
                 "critical_files_status": assessment_data['critical_files_status'],
-                "constraints": "Must maintain all script functionality and configuration accessibility"
+                "constraints": "Must maintain all script functionality and consolidate ALL config files in config/ folder"
             },
             "database_first_analysis": {
                 "production_db_status": "Available for file mapping updates",
-                "pattern_matching": "Executable scripts vs data files distinction required",
+                "pattern_matching": "Executable scripts vs data files + config consolidation required",
                 "integration_readiness": "High - existing patterns available for proper classification"
             },
             "implementation_strategy": {
                 "phase_1": "Identify and catalog all misplaced files",
-                "phase_2": "Create restoration plan with functionality validation", 
-                "phase_3": "Execute restoration with database updates",
+                "phase_2": "Create restoration plan with config consolidation and script path updates", 
+                "phase_3": "Execute restoration with config consolidation and database updates",
                 "phase_4": "Implement improved file classification logic"
             },
             "risk_assessment": {
                 "high_risk": "Script functionality broken by incorrect paths",
-                "medium_risk": "Configuration files inaccessible to dependent scripts",
-                "mitigation": "Test all restored files for functionality before completion"
+                "medium_risk": "Configuration files scattered across multiple locations",
+                "mitigation": "Update script paths for config/ consolidation, test all functionality"
             },
             "execution_plan": {
                 "immediate_actions": [
                     "Stop all file movement operations",
                     "Restore Python executables to root/scripts directory",
-                    "Restore configuration files to proper locations",
+                    "Consolidate ALL configuration files to config/ directory",
+                    "Update script references to config/ paths where needed",
                     "Update database mappings",
                     "Validate all functionality"
                 ],
                 "validation_steps": [
                     "Test Python script execution",
-                    "Verify configuration file accessibility",
+                    "Verify configuration file accessibility from config/",
                     "Confirm critical file locations",
                     "Update production database mappings"
                 ]

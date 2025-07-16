@@ -111,13 +111,7 @@ class EnterprisePerformanceOptimizer:
     
     def setup_enterprise_logging(self):
         """Setup enterprise-grade logging with performance tracking"""
-        log_format = "%(asctime)s - %(levelname)s - %(message)s"
-        logging.basicConfig(
-            level=logging.INFO,
-            format=log_format,
-            handlers=[
-                logging.StreamHandler(sys.stdout),
-                logging.FileHandler(self.workspace_path / "performance_optimization.log")
+        log_format = "%(asctime)s - %(levelname)s - %(message)s"config/ "performance_optimization.log")
             ]
         )
         self.logger = logging.getLogger(__name__)

@@ -195,7 +195,7 @@ def test_database_reproducibility():
     print(f"Validation Duration: {duration:.1f} seconds")
     
     # Save results
-    with open('quick_database_validation_results.json', 'w') as f:
+    with open('config/quick_database_validation_results.json', 'w') as f:
         json.dump(results, f, indent=2)
     
     # Generate action statement

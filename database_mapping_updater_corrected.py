@@ -67,7 +67,7 @@ class DatabaseMappingUpdaterCorrected:
             
             # Results files moved to results/
             "ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_SCOPE_20250102_130700.json": "results/ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_SCOPE_20250102_130700.json",
-            "advanced_features_config.json": "results/advanced_features_config.json"
+            "config/advanced_features_config.json": "config/advanced_features_config.json"
         }
         
         logger.info(f"🚀 DATABASE MAPPING UPDATER (CORRECTED) INITIALIZED")

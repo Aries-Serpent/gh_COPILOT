@@ -182,7 +182,7 @@ class EnterpriseFileRelocationOrchestrator:
         
         # Files to move to results/ folder
         result_files = [
-            "quick_database_validation_results.json", "database_validation_results.json",
+            "config/quick_database_validation_results.json", "database_validation_results.json",
             "session_validation_report_20250710_205605.json", "session_validation_report_20250710_205753.json",
             "session_validation_report_20250715_191830.json", "session_validation_report_20250715_193406.json"
         ]

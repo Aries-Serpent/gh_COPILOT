@@ -495,8 +495,8 @@ class EnterpriseReadinessOptimizer:
         """Check enterprise compliance status"""
         try:
             compliance_files = [
-                "COPILOT_ENTERPRISE_CONFIG.json",
-                "DISASTER_RECOVERY_CONFIG.json"
+                "config/COPILOT_ENTERPRISE_CONFIG.json",
+                "config/DISASTER_RECOVERY_CONFIG.json"
             ]
             
             existing_files = sum(1 for f in compliance_files if (self.workspace_path / f).exists())

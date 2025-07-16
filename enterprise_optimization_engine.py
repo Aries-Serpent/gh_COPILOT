@@ -212,11 +212,7 @@ class EnterpriseOptimizationEngine:
             "max_connections": 20,
             "connection_timeout": 30,
             "idle_timeout": 300,
-            "validation_query": "SELECT 1"
-        }
-
-        # Save configuration for enterprise applications
-        config_file = self.workspace_path / "enterprise_db_config.json"
+            "validation_query": "SELECT 1"config/ "config/enterprise_db_config.json"
         with open(config_file, 'w') as f:
             json.dump(pooling_config, f, indent=2)
 
@@ -240,12 +236,7 @@ class EnterpriseOptimizationEngine:
             },
             "metadata_cache": {
                 "enabled": True,
-                "refresh_interval": 1800
-            }
-        }
-
-        # Save caching configuration
-        cache_file = self.workspace_path / "enterprise_cache_config.json"
+                "refresh_interval"config/ "config/enterprise_cache_config.json"
         with open(cache_file, 'w') as f:
             json.dump(cache_strategies, f, indent=2)
 
@@ -317,12 +308,7 @@ class EnterpriseOptimizationEngine:
                 "data_collection": "automated",
                 "model_training": "scheduled",
                 "prediction_generation": "real_time",
-                "alert_system": "integrated"
-            }
-        }
-
-        # Save predictive analytics configuration
-        analytics_file = self.workspace_path / "enterprise_analytics_config.json"
+                "alert_system": "integrated"config/ "config/enterprise_analytics_config.json"
         with open(analytics_file, 'w') as f:
             json.dump(analytics_config, f, indent=2)
 
@@ -344,12 +330,7 @@ class EnterpriseOptimizationEngine:
             "trend_analysis": {
                 "time_series_analysis": "arima",
                 "seasonal_decomposition": "enabled",
-                "trend_detection": "mann_kendall"
-            }
-        }
-
-        # Save pattern recognition configuration
-        pattern_file = self.workspace_path / "enterprise_pattern_config.json"
+                "trend_detection": "mann_kendall"config/ "config/enterprise_pattern_config.json"
         with open(pattern_file, 'w') as f:
             json.dump(pattern_config, f, indent=2)
 
@@ -376,12 +357,7 @@ class EnterpriseOptimizationEngine:
             "performance_optimization": {
                 "training_optimization": "distributed",
                 "inference_optimization": "batch_processing",
-                "memory_optimization": "gradient_checkpointing"
-            }
-        }
-
-        # Save ML optimization configuration
-        ml_file = self.workspace_path / "enterprise_ml_config.json"
+                "memory_optimization": "gradient_checkpointing"config/ "config/enterprise_ml_config.json"
         with open(ml_file, 'w') as f:
             json.dump(ml_config, f, indent=2)
 
@@ -410,12 +386,7 @@ class EnterpriseOptimizationEngine:
             "visualization": {
                 "charts": ["line", "bar", "scatter", "heatmap"],
                 "interactive_features": "enabled",
-                "drill_down_capability": "enabled"
-            }
-        }
-
-        # Save dashboard configuration
-        dashboard_file = self.workspace_path / "enterprise_dashboard_config.json"
+                "drill_down_capability": "enabled"config/ "config/enterprise_dashboard_config.json"
         with open(dashboard_file, 'w') as f:
             json.dump(dashboard_config, f, indent=2)
 
@@ -459,12 +430,7 @@ class EnterpriseOptimizationEngine:
                 "iso_27001": "enabled",
                 "gdpr": "enabled",
                 "sox": "enabled",
-                "enterprise_policies": "enabled"
-            }
-        }
-
-        # Save audit configuration
-        audit_file = self.workspace_path / "enterprise_audit_config.json"
+                "enterprise_policies": "enabled"config/ "config/enterprise_audit_config.json"
         with open(audit_file, 'w') as f:
             json.dump(audit_config, f, indent=2)
 
@@ -486,12 +452,7 @@ class EnterpriseOptimizationEngine:
             "alert_mechanisms": {
                 "email_alerts": "enabled",
                 "dashboard_alerts": "enabled",
-                "api_webhooks": "enabled"
-            }
-        }
-
-        # Save monitoring configuration
-        monitoring_file = self.workspace_path / "enterprise_monitoring_config.json"
+                "api_webhooks": "enabled"config/ "config/enterprise_monitoring_config.json"
         with open(monitoring_file, 'w') as f:
             json.dump(monitoring_config, f, indent=2)
 
@@ -513,12 +474,7 @@ class EnterpriseOptimizationEngine:
             "policy_categories": {
                 "security_policies": "mandatory",
                 "data_governance": "mandatory",
-                "operational_policies": "enforced"
-            }
-        }
-
-        # Save policy configuration
-        policy_file = self.workspace_path / "enterprise_policy_config.json"
+                "operational_policies": "enforced"config/ "config/enterprise_policy_config.json"
         with open(policy_file, 'w') as f:
             json.dump(policy_config, f, indent=2)
 
@@ -541,12 +497,7 @@ class EnterpriseOptimizationEngine:
             "report_formats": {
                 "executive_summary": "pdf",
                 "detailed_analysis": "excel",
-                "raw_data": "json"
-            }
-        }
-
-        # Save reporting configuration
-        reporting_file = self.workspace_path / "enterprise_reporting_config.json"
+                "raw_data": "json"config/ "config/enterprise_reporting_config.json"
         with open(reporting_file, 'w') as f:
             json.dump(reporting_config, f, indent=2)
 
@@ -577,12 +528,7 @@ class EnterpriseOptimizationEngine:
             "health_monitoring": {
                 "system_health_score": "continuous",
                 "component_health": "per_database",
-                "trend_analysis": "weekly"
-            }
-        }
-
-        # Save maintenance configuration
-        maintenance_file = self.workspace_path / "enterprise_maintenance_config.json"
+                "trend_analysis": "weekly"config/ "config/enterprise_maintenance_config.json"
         with open(maintenance_file, 'w') as f:
             json.dump(maintenance_config, f, indent=2)
 
@@ -616,12 +562,7 @@ class EnterpriseOptimizationEngine:
             "hybrid_systems": {
                 "classical_quantum_integration": "enabled",
                 "quantum_advantage_detection": "automated",
-                "fallback_mechanisms": "implemented"
-            }
-        }
-
-        # Save quantum configuration
-        quantum_file = self.workspace_path / "enterprise_quantum_config.json"
+                "fallback_mechanisms": "implemented"config/ "config/enterprise_quantum_config.json"
         with open(quantum_file, 'w') as f:
             json.dump(quantum_config, f, indent=2)
 

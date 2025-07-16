@@ -263,7 +263,7 @@ def main():
         report = checker.execute_consistency_check()
         
         # Save report
-        report_file = Path("reports/database_consistency_report_corrected.json")
+        report_file = Path("config/database_consistency_report_corrected.json")
         report_file.parent.mkdir(exist_ok=True)
         
         with open(report_file, 'w') as f:

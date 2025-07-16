@@ -19,8 +19,7 @@ class ConfigDependencyValidator:
     
     def __init__(self, workspace_path: Optional[str] = None):
         """Initialize validator with workspace path"""
-        self.workspace_path = Path(workspace_path) if workspace_path else Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-        self.config_dir = self.workspace_path / "config"
+        self.workspace_path = Path(workspace_path) if workspace_path else Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"config/ "config"
         self.production_db = self.workspace_path / "production.db"
         self.validation_results = {
             "config_files_accessible": [],
@@ -101,10 +100,7 @@ class ConfigDependencyValidator:
         with tqdm(total=100, desc="🧪 Testing Patterns", unit="%") as pbar:
             
             # Test 1: Relative path loading (25%)
-            pbar.set_description("📂 Testing relative paths")
-            try:
-                # Test loading config from current directory context
-                test_file = self.config_dir / "advanced_features_config.json"
+            pbar.set_description("📂 Testing relative paths"config/ "config/advanced_features_config.json"
                 if test_file.exists():
                     with open(test_file, 'r') as f:
                         json.load(f)
@@ -116,7 +112,7 @@ class ConfigDependencyValidator:
             # Test 2: Absolute path loading (25%)
             pbar.set_description("🎯 Testing absolute paths")
             try:
-                test_file = self.workspace_path / "config" / "replication_config.json"
+                test_file = self.workspace_path / "config" / "config/replication_config.json"
                 if test_file.exists():
                     with open(test_file, 'r') as f:
                         json.load(f)
@@ -129,8 +125,7 @@ class ConfigDependencyValidator:
             pbar.set_description("🔄 Testing dynamic resolution")
             try:
                 # Test environment variable based resolution
-                workspace = os.getenv("GH_COPILOT_WORKSPACE", str(self.workspace_path))
-                config_path = Path(workspace) / "config" / "enterprise_master_config.json"
+                workspace = os.getenv("GH_COPILOT_WORKSPACE"config/ "config" / "config/enterprise_master_config.json"
                 if config_path.exists():
                     with open(config_path, 'r') as f:
                         json.load(f)
@@ -157,11 +152,11 @@ class ConfigDependencyValidator:
         print("🎯 Validating critical configuration files...")
         
         critical_configs = [
-            "advanced_features_config.json",
-            "replication_config.json", 
-            "enterprise_master_config.json",
-            "production_access_config.json",
-            "enterprise_quantum_config.json"
+            "config/advanced_features_config.json",
+            "config/replication_config.json", 
+            "config/enterprise_master_config.json",
+            "config/production_access_config.json",
+            "config/enterprise_quantum_config.json"
         ]
         
         critical_results = {

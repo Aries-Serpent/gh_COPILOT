@@ -45,7 +45,7 @@ def get_files_to_move():
     
     # Result files to move to results/
     result_files = [
-        "quick_database_validation_results.json", "database_validation_results.json"
+        "config/quick_database_validation_results.json", "database_validation_results.json"
     ]
     
     files_to_move = {}

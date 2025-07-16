@@ -198,12 +198,7 @@ class DeploymentOptimizationEngine:
             "access_monitoring": {
                 "login_attempts": "tracked",
                 "privilege_escalation": "monitored",
-                "suspicious_activity": "flagged"
-            }
-        }
-
-        # Save access control configuration
-        access_file = self.workspace_path / "production_access_config.json"
+                "suspicious_activity": "flagged"config/ "config/production_access_config.json"
         with open(access_file, 'w') as f:
             json.dump(access_config, f, indent=2)
 
@@ -232,12 +227,7 @@ class DeploymentOptimizationEngine:
             "key_management": {
                 "key_generation": "hardware_random",
                 "key_storage": "secure_vault",
-                "key_backup": "encrypted_offsite"
-            }
-        }
-
-        # Save encryption configuration
-        encryption_file = self.workspace_path / "production_encryption_config.json"
+                "key_backup": "encrypted_offsite"config/ "config/production_encryption_config.json"
         with open(encryption_file, 'w') as f:
             json.dump(encryption_config, f, indent=2)
 
@@ -261,12 +251,7 @@ class DeploymentOptimizationEngine:
             "monitoring": {
                 "real_time_analysis": "enabled",
                 "anomaly_detection": "ml_powered",
-                "alert_generation": "automated"
-            }
-        }
-
-        # Save audit configuration
-        audit_file = self.workspace_path / "production_audit_config.json"
+                "alert_generation": "automated"config/ "config/production_audit_config.json"
         with open(audit_file, 'w') as f:
             json.dump(audit_config, f, indent=2)
 
@@ -290,12 +275,7 @@ class DeploymentOptimizationEngine:
             "response_actions": {
                 "automated_blocking": "enabled",
                 "alert_escalation": "tiered",
-                "incident_response": "automated"
-            }
-        }
-
-        # Save IDS configuration
-        ids_file = self.workspace_path / "production_ids_config.json"
+                "incident_response": "automated"config/ "config/production_ids_config.json"
         with open(ids_file, 'w') as f:
             json.dump(ids_config, f, indent=2)
 
@@ -346,12 +326,7 @@ class DeploymentOptimizationEngine:
             "visualization": {
                 "real_time_dashboards": "enabled",
                 "historical_trends": "enabled",
-                "predictive_charts": "enabled"
-            }
-        }
-
-        # Save monitoring configuration
-        monitoring_file = self.workspace_path / "production_monitoring_config.json"
+                "predictive_charts": "enabled"config/ "config/production_monitoring_config.json"
         with open(monitoring_file, 'w') as f:
             json.dump(monitoring_config, f, indent=2)
 
@@ -374,12 +349,7 @@ class DeploymentOptimizationEngine:
             "optimization_recommendations": {
                 "automated_suggestions": "enabled",
                 "impact_analysis": "quantified",
-                "implementation_priority": "risk_based"
-            }
-        }
-
-        # Save analytics configuration
-        analytics_file = self.workspace_path / "production_analytics_config.json"
+                "implementation_priority": "risk_based"config/ "config/production_analytics_config.json"
         with open(analytics_file, 'w') as f:
             json.dump(analytics_config, f, indent=2)
 
@@ -407,12 +377,7 @@ class DeploymentOptimizationEngine:
             "capacity_alerts": {
                 "threshold_warnings": "80_percent",
                 "critical_alerts": "90_percent",
-                "forecast_alerts": "30_day_advance"
-            }
-        }
-
-        # Save capacity configuration
-        capacity_file = self.workspace_path / "production_capacity_config.json"
+                "forecast_alerts": "30_day_advance"config/ "config/production_capacity_config.json"
         with open(capacity_file, 'w') as f:
             json.dump(capacity_config, f, indent=2)
 
@@ -452,7 +417,7 @@ class DeploymentOptimizationEngine:
         }
 
         # Save alerting configuration
-        alerting_file = self.workspace_path / "production_alerting_config.json"
+        alerting_file = self.workspace_path / "config/production_alerting_config.json"
         with open(alerting_file, 'w') as f:
             json.dump(alerting_config, f, indent=2)
 
@@ -507,11 +472,7 @@ class DeploymentOptimizationEngine:
         for db_path in self.databases[:5]:  # Sample first 5 for demonstration
             backup_file = \
                 backup_dir / \
-                    f"{db_path.stem}_backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
-            shutil.copy2(db_path, backup_file)
-
-        # Save backup configuration
-        backup_config_file = self.workspace_path / "production_backup_config.json"
+                    f"{db_path.stem}_backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.db"config/ "config/production_backup_config.json"
         with open(backup_config_file, 'w') as f:
             json.dump(backup_config, f, indent=2)
 
@@ -534,12 +495,7 @@ class DeploymentOptimizationEngine:
             "failover_configuration": {
                 "automatic_failover": "enabled",
                 "failover_threshold": "30_seconds",
-                "failback_policy": "manual_approval"
-            }
-        }
-
-        # Save replication configuration
-        replication_file = self.workspace_path / "production_replication_config.json"
+                "failback_policy": "manual_approval"config/ "config/production_replication_config.json"
         with open(replication_file, 'w') as f:
             json.dump(replication_config, f, indent=2)
 
@@ -562,12 +518,7 @@ class DeploymentOptimizationEngine:
             "testing_schedule": {
                 "failover_testing": "monthly",
                 "disaster_simulation": "quarterly",
-                "business_continuity": "annually"
-            }
-        }
-
-        # Save failover configuration
-        failover_file = self.workspace_path / "production_failover_config.json"
+                "business_continuity": "annually"config/ "config/production_failover_config.json"
         with open(failover_file, 'w') as f:
             json.dump(failover_config, f, indent=2)
 
@@ -592,12 +543,7 @@ class DeploymentOptimizationEngine:
                 "recovery_time": "within_rto",
                 "data_integrity": "100_percent",
                 "functionality": "full_operational",
-                "performance": "within_sla"
-            }
-        }
-
-        # Save testing configuration
-        testing_file = self.workspace_path / "production_testing_config.json"
+                "performance": "within_sla"config/ "config/production_testing_config.json"
         with open(testing_file, 'w') as f:
             json.dump(testing_config, f, indent=2)
 
@@ -641,12 +587,7 @@ class DeploymentOptimizationEngine:
                 "scale_out_policy": "gradual_increase",
                 "scale_in_policy": "conservative_decrease",
                 "minimum_instances": 2,
-                "maximum_instances": 50
-            }
-        }
-
-        # Save horizontal scaling configuration
-        horizontal_file = self.workspace_path / "production_horizontal_scaling_config.json"
+                "maximum_instances"config/ "config/production_horizontal_scaling_config.json"
         with open(horizontal_file, 'w') as f:
             json.dump(horizontal_config, f, indent=2)
 
@@ -675,12 +616,7 @@ class DeploymentOptimizationEngine:
             "scaling_automation": {
                 "predictive_scaling": "enabled",
                 "schedule_based_scaling": "enabled",
-                "manual_override": "enabled"
-            }
-        }
-
-        # Save vertical scaling configuration
-        vertical_file = self.workspace_path / "production_vertical_scaling_config.json"
+                "manual_override": "enabled"config/ "config/production_vertical_scaling_config.json"
         with open(vertical_file, 'w') as f:
             json.dump(vertical_config, f, indent=2)
 
@@ -702,12 +638,7 @@ class DeploymentOptimizationEngine:
             "health_monitoring": {
                 "health_check_interval": "5_seconds",
                 "failure_threshold": 3,
-                "recovery_threshold": 2
-            }
-        }
-
-        # Save load balancer configuration
-        lb_file = self.workspace_path / "production_load_balancer_config.json"
+                "recovery_threshold"config/ "config/production_load_balancer_config.json"
         with open(lb_file, 'w') as f:
             json.dump(load_balancer_config, f, indent=2)
 
@@ -734,12 +665,7 @@ class DeploymentOptimizationEngine:
                 "cooldown_period": "300_seconds",
                 "scaling_adjustment": "50_percent",
                 "minimum_scaling_step": 1,
-                "maximum_scaling_step": 10
-            }
-        }
-
-        # Save auto-scaling configuration
-        auto_scaling_file = self.workspace_path / "production_auto_scaling_config.json"
+                "maximum_scaling_step"config/ "config/production_auto_scaling_config.json"
         with open(auto_scaling_file, 'w') as f:
             json.dump(auto_scaling_config, f, indent=2)
 
@@ -782,7 +708,7 @@ class DeploymentOptimizationEngine:
         }
 
         # Save security validation
-        security_file = self.workspace_path / "production_security_validation.json"
+        security_file = self.workspace_path / "config/production_security_validation.json"
         with open(security_file, 'w') as f:
             json.dump(security_validation, f, indent=2)
 
@@ -805,7 +731,7 @@ class DeploymentOptimizationEngine:
         }
 
         # Save performance validation
-        performance_file = self.workspace_path / "production_performance_validation.json"
+        performance_file = self.workspace_path / "config/production_performance_validation.json"
         with open(performance_file, 'w') as f:
             json.dump(performance_validation, f, indent=2)
 
@@ -825,7 +751,7 @@ class DeploymentOptimizationEngine:
         }
 
         # Save reliability validation
-        reliability_file = self.workspace_path / "production_reliability_validation.json"
+        reliability_file = self.workspace_path / "config/production_reliability_validation.json"
         with open(reliability_file, 'w') as f:
             json.dump(reliability_validation, f, indent=2)
 
@@ -845,7 +771,7 @@ class DeploymentOptimizationEngine:
         }
 
         # Save operational validation
-        operational_file = self.workspace_path / "production_operational_validation.json"
+        operational_file = self.workspace_path / "config/production_operational_validation.json"
         with open(operational_file, 'w') as f:
             json.dump(operational_validation, f, indent=2)
 

@@ -355,7 +355,7 @@ class GitRepositoryRepairWithDatabaseSync:
         }
         
         # Save report to file
-        report_file = self.workspace_path / "git_repair_database_sync_report.json"
+        report_file = self.workspace_path / "config/git_repair_database_sync_report.json"
         with open(report_file, 'w') as f:
             json.dump(report_data, f, indent=2)
         

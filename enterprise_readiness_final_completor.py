@@ -253,12 +253,7 @@ class EnterpriseReadinessCompletor:
                     "continuous_operation": "24_7_ACTIVE",
                     "self_healing_system": "AUTONOMOUS",
                     "quantum_scaffolding": "ENTERPRISE_READY",
-                    "template_intelligence": "100_PERCENT_COMPLETE"
-                }
-            }
-            
-            # Save enterprise configuration
-            config_path = self.workspace_path / "ENTERPRISE_CONFIGURATION_OPTIMIZED.json"
+                    "template_intelligence": "100_PERCENT_COMPLETE"config/ "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json"
             with open(config_path, 'w') as f:
                 json.dump(enterprise_config, f, indent=2)
             

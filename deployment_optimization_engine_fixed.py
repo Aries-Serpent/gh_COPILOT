@@ -195,7 +195,7 @@ class DeploymentOptimizationEngine:
             'failover_enabled': True
         }
 
-        config_path = self.workspace_path / "replication_config.json"
+        config_path = self.workspace_path / "config/replication_config.json"
         with open(config_path, 'w', encoding='utf-8') as f:
             json.dump(replication_config, f, indent=2)
 
@@ -329,10 +329,7 @@ class DeploymentOptimizationEngine:
                     logging.warning(f"[WARNING] Failed to copy {script}: {e}")
 
         # Copy configuration files
-        for config in self.workspace_path.glob("*.json"):
-            if config.is_file():
-                try:
-                    shutil.copy2(config, package_dir / "configs" / config.name)
+        for config in self.workspace_path.glob("*.json"config/ "configs" / config.name)
                 except Exception as e:
                     logging.warning(f"[WARNING] Failed to copy {config}: {e}")
 

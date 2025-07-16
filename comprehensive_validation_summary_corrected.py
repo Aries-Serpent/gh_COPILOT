@@ -106,7 +106,7 @@ class CorrectedValidationSummary:
             logger.info("✅ Loaded file routing validation report")
         
         # Load database consistency report (corrected version)
-        consistency_report = self.reports_folder / "database_consistency_report_final.json"
+        consistency_report = self.reports_folder / "config/database_consistency_report_final.json"
         if consistency_report.exists():
             with open(consistency_report) as f:
                 reports["database_consistency"] = json.load(f)

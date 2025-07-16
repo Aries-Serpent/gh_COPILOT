@@ -1,0 +1,1825 @@
+{
+  "comprehensive_functionality_revalidation": {
+    "execution_summary": {
+      "start_time": "2025-07-16T17:44:16.007641",
+      "completion_time": "2025-07-16T17:44:18.347936",
+      "duration_seconds": 2.340295,
+      "objective": "Achieve 99.9-100% functionality validation success rate"
+    },
+    "validation_results": {
+      "scripts_analyzed": 5,
+      "scripts_successful": 1,
+      "script_details": [
+        {
+          "script_name": "autonomous_monitoring_system.py",
+          "exists": true,
+          "config_references_found": 6,
+          "accessible_configs": 2,
+          "inaccessible_configs": 4,
+          "accessibility_rate": 33.33333333333333,
+          "status": "NEEDS_ATTENTION",
+          "config_details": [
+            {
+              "value": ".json",
+              "line": 211,
+              "type": "ast_string"
+            },
+            {
+              "value": ".yml",
+              "line": 212,
+              "type": "ast_string"
+            },
+            {
+              "value": ".yaml",
+              "line": 212,
+              "type": "ast_string"
+            },
+            {
+              "value": "config/COPILOT_ENTERPRISE_CONFIG.json",
+              "line": 295,
+              "type": "ast_string"
+            },
+            {
+              "value": "config/DISASTER_RECOVERY_CONFIG.json",
+              "line": 296,
+              "type": "ast_string"
+            },
+            {
+              "value": "ENTERPRISE_READINESS_100_PERCENT_CERTIFICATE.json",
+              "line": 297,
+              "type": "ast_string"
+            }
+          ],
+          "accessibility_details": {
+            "accessible": [
+              {
+                "config_reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+                "line": 295,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\COPILOT_ENTERPRISE_CONFIG.json"
+              },
+              {
+                "config_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+                "line": 296,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+              }
+            ],
+            "inaccessible": [
+              {
+                "config_reference": ".json",
+                "line": 211,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": ".yml",
+                "line": 212,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": ".yaml",
+                "line": 212,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "ENTERPRISE_READINESS_100_PERCENT_CERTIFICATE.json",
+                "line": 297,
+                "accessible": false,
+                "accessible_path": null
+              }
+            ],
+            "accessibility_rate": 33.33333333333333
+          }
+        },
+        {
+          "script_name": "config_dependency_validator.py",
+          "exists": true,
+          "config_references_found": 7,
+          "accessible_configs": 6,
+          "inaccessible_configs": 1,
+          "accessibility_rate": 85.71428571428571,
+          "status": "NEEDS_ATTENTION",
+          "config_details": [
+            {
+              "value": "*.json",
+              "line": 46,
+              "type": "regex_match",
+              "full_match": "\"*.json\""
+            },
+            {
+              "value": "COPILOT_NAVIGATION_MAP.json",
+              "line": 67,
+              "type": "regex_match",
+              "full_match": "\"COPILOT_NAVIGATION_MAP.json\""
+            },
+            {
+              "value": "config/advanced_features_config.json",
+              "line": 103,
+              "type": "regex_match",
+              "full_match": "\"config/advanced_features_config.json\""
+            },
+            {
+              "value": "config/replication_config.json",
+              "line": 115,
+              "type": "regex_match",
+              "full_match": "\"config/replication_config.json\""
+            },
+            {
+              "value": "config/enterprise_master_config.json",
+              "line": 128,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_master_config.json\""
+            },
+            {
+              "value": "config/production_access_config.json",
+              "line": 158,
+              "type": "regex_match",
+              "full_match": "\"config/production_access_config.json\""
+            },
+            {
+              "value": "config/enterprise_quantum_config.json",
+              "line": 159,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_quantum_config.json\""
+            }
+          ],
+          "accessibility_details": {
+            "accessible": [
+              {
+                "config_reference": "COPILOT_NAVIGATION_MAP.json",
+                "line": 67,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\COPILOT_NAVIGATION_MAP.json"
+              },
+              {
+                "config_reference": "config/advanced_features_config.json",
+                "line": 103,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\advanced_features_config.json"
+              },
+              {
+                "config_reference": "config/replication_config.json",
+                "line": 115,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\replication_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_master_config.json",
+                "line": 128,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_master_config.json"
+              },
+              {
+                "config_reference": "config/production_access_config.json",
+                "line": 158,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_access_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_quantum_config.json",
+                "line": 159,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_quantum_config.json"
+              }
+            ],
+            "inaccessible": [
+              {
+                "config_reference": "*.json",
+                "line": 46,
+                "accessible": false,
+                "accessible_path": null
+              }
+            ],
+            "accessibility_rate": 85.71428571428571
+          }
+        },
+        {
+          "script_name": "deployment_optimization_engine.py",
+          "exists": true,
+          "config_references_found": 23,
+          "accessible_configs": 20,
+          "inaccessible_configs": 3,
+          "accessibility_rate": 86.95652173913044,
+          "status": "NEEDS_ATTENTION",
+          "config_details": [
+            {
+              "value": "config/production_access_config.json",
+              "line": 201,
+              "type": "regex_match",
+              "full_match": "\"config/production_access_config.json\""
+            },
+            {
+              "value": "config/production_encryption_config.json",
+              "line": 230,
+              "type": "regex_match",
+              "full_match": "\"config/production_encryption_config.json\""
+            },
+            {
+              "value": "config/production_audit_config.json",
+              "line": 254,
+              "type": "regex_match",
+              "full_match": "\"config/production_audit_config.json\""
+            },
+            {
+              "value": "config/production_ids_config.json",
+              "line": 278,
+              "type": "regex_match",
+              "full_match": "\"config/production_ids_config.json\""
+            },
+            {
+              "value": "config/production_monitoring_config.json",
+              "line": 329,
+              "type": "regex_match",
+              "full_match": "\"config/production_monitoring_config.json\""
+            },
+            {
+              "value": "config/production_analytics_config.json",
+              "line": 352,
+              "type": "regex_match",
+              "full_match": "\"config/production_analytics_config.json\""
+            },
+            {
+              "value": "config/production_capacity_config.json",
+              "line": 380,
+              "type": "regex_match",
+              "full_match": "\"config/production_capacity_config.json\""
+            },
+            {
+              "value": "config/production_alerting_config.json",
+              "line": 420,
+              "type": "regex_match",
+              "full_match": "\"config/production_alerting_config.json\""
+            },
+            {
+              "value": "config/production_backup_config.json",
+              "line": 475,
+              "type": "regex_match",
+              "full_match": "\"config/production_backup_config.json\""
+            },
+            {
+              "value": "config/production_replication_config.json",
+              "line": 498,
+              "type": "regex_match",
+              "full_match": "\"config/production_replication_config.json\""
+            },
+            {
+              "value": "config/production_failover_config.json",
+              "line": 521,
+              "type": "regex_match",
+              "full_match": "\"config/production_failover_config.json\""
+            },
+            {
+              "value": "config/production_testing_config.json",
+              "line": 546,
+              "type": "regex_match",
+              "full_match": "\"config/production_testing_config.json\""
+            },
+            {
+              "value": "config/production_horizontal_scaling_config.json",
+              "line": 590,
+              "type": "regex_match",
+              "full_match": "\"config/production_horizontal_scaling_config.json\""
+            },
+            {
+              "value": "config/production_vertical_scaling_config.json",
+              "line": 619,
+              "type": "regex_match",
+              "full_match": "\"config/production_vertical_scaling_config.json\""
+            },
+            {
+              "value": "config/production_load_balancer_config.json",
+              "line": 641,
+              "type": "regex_match",
+              "full_match": "\"config/production_load_balancer_config.json\""
+            },
+            {
+              "value": "config/production_auto_scaling_config.json",
+              "line": 668,
+              "type": "regex_match",
+              "full_match": "\"config/production_auto_scaling_config.json\""
+            },
+            {
+              "value": "config/production_security_validation.json",
+              "line": 711,
+              "type": "regex_match",
+              "full_match": "\"config/production_security_validation.json\""
+            },
+            {
+              "value": "config/production_performance_validation.json",
+              "line": 734,
+              "type": "regex_match",
+              "full_match": "\"config/production_performance_validation.json\""
+            },
+            {
+              "value": "config/production_reliability_validation.json",
+              "line": 754,
+              "type": "regex_match",
+              "full_match": "\"config/production_reliability_validation.json\""
+            },
+            {
+              "value": "config/production_operational_validation.json",
+              "line": 774,
+              "type": "regex_match",
+              "full_match": "\"config/production_operational_validation.json\""
+            },
+            {
+              "value": "production_certification_report.json",
+              "line": 807,
+              "type": "regex_match",
+              "full_match": "\"production_certification_report.json\""
+            },
+            {
+              "value": "*.json",
+              "line": 825,
+              "type": "regex_match",
+              "full_match": "\"*.json\""
+            },
+            {
+              "value": "deployment_manifest.json",
+              "line": 913,
+              "type": "regex_match",
+              "full_match": "\"deployment_manifest.json\""
+            }
+          ],
+          "accessibility_details": {
+            "accessible": [
+              {
+                "config_reference": "config/production_access_config.json",
+                "line": 201,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_access_config.json"
+              },
+              {
+                "config_reference": "config/production_encryption_config.json",
+                "line": 230,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_encryption_config.json"
+              },
+              {
+                "config_reference": "config/production_audit_config.json",
+                "line": 254,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_audit_config.json"
+              },
+              {
+                "config_reference": "config/production_ids_config.json",
+                "line": 278,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_ids_config.json"
+              },
+              {
+                "config_reference": "config/production_monitoring_config.json",
+                "line": 329,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_monitoring_config.json"
+              },
+              {
+                "config_reference": "config/production_analytics_config.json",
+                "line": 352,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_analytics_config.json"
+              },
+              {
+                "config_reference": "config/production_capacity_config.json",
+                "line": 380,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_capacity_config.json"
+              },
+              {
+                "config_reference": "config/production_alerting_config.json",
+                "line": 420,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_alerting_config.json"
+              },
+              {
+                "config_reference": "config/production_backup_config.json",
+                "line": 475,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_backup_config.json"
+              },
+              {
+                "config_reference": "config/production_replication_config.json",
+                "line": 498,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_replication_config.json"
+              },
+              {
+                "config_reference": "config/production_failover_config.json",
+                "line": 521,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_failover_config.json"
+              },
+              {
+                "config_reference": "config/production_testing_config.json",
+                "line": 546,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_testing_config.json"
+              },
+              {
+                "config_reference": "config/production_horizontal_scaling_config.json",
+                "line": 590,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_horizontal_scaling_config.json"
+              },
+              {
+                "config_reference": "config/production_vertical_scaling_config.json",
+                "line": 619,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_vertical_scaling_config.json"
+              },
+              {
+                "config_reference": "config/production_load_balancer_config.json",
+                "line": 641,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_load_balancer_config.json"
+              },
+              {
+                "config_reference": "config/production_auto_scaling_config.json",
+                "line": 668,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_auto_scaling_config.json"
+              },
+              {
+                "config_reference": "config/production_security_validation.json",
+                "line": 711,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_security_validation.json"
+              },
+              {
+                "config_reference": "config/production_performance_validation.json",
+                "line": 734,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_performance_validation.json"
+              },
+              {
+                "config_reference": "config/production_reliability_validation.json",
+                "line": 754,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_reliability_validation.json"
+              },
+              {
+                "config_reference": "config/production_operational_validation.json",
+                "line": 774,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_operational_validation.json"
+              }
+            ],
+            "inaccessible": [
+              {
+                "config_reference": "production_certification_report.json",
+                "line": 807,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "*.json",
+                "line": 825,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "deployment_manifest.json",
+                "line": 913,
+                "accessible": false,
+                "accessible_path": null
+              }
+            ],
+            "accessibility_rate": 86.95652173913044
+          }
+        },
+        {
+          "script_name": "enterprise_optimization_engine.py",
+          "exists": true,
+          "config_references_found": 12,
+          "accessible_configs": 12,
+          "inaccessible_configs": 0,
+          "accessibility_rate": 100.0,
+          "status": "SUCCESS",
+          "config_details": [
+            {
+              "value": "config/enterprise_db_config.json",
+              "line": 215,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_db_config.json\""
+            },
+            {
+              "value": "config/enterprise_cache_config.json",
+              "line": 239,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_cache_config.json\""
+            },
+            {
+              "value": "config/enterprise_analytics_config.json",
+              "line": 311,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_analytics_config.json\""
+            },
+            {
+              "value": "config/enterprise_pattern_config.json",
+              "line": 333,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_pattern_config.json\""
+            },
+            {
+              "value": "config/enterprise_ml_config.json",
+              "line": 360,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_ml_config.json\""
+            },
+            {
+              "value": "config/enterprise_dashboard_config.json",
+              "line": 389,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_dashboard_config.json\""
+            },
+            {
+              "value": "config/enterprise_audit_config.json",
+              "line": 433,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_audit_config.json\""
+            },
+            {
+              "value": "config/enterprise_monitoring_config.json",
+              "line": 455,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_monitoring_config.json\""
+            },
+            {
+              "value": "config/enterprise_policy_config.json",
+              "line": 477,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_policy_config.json\""
+            },
+            {
+              "value": "config/enterprise_reporting_config.json",
+              "line": 500,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_reporting_config.json\""
+            },
+            {
+              "value": "config/enterprise_maintenance_config.json",
+              "line": 531,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_maintenance_config.json\""
+            },
+            {
+              "value": "config/enterprise_quantum_config.json",
+              "line": 565,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_quantum_config.json\""
+            }
+          ],
+          "accessibility_details": {
+            "accessible": [
+              {
+                "config_reference": "config/enterprise_db_config.json",
+                "line": 215,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_db_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_cache_config.json",
+                "line": 239,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_cache_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_analytics_config.json",
+                "line": 311,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_analytics_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_pattern_config.json",
+                "line": 333,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_pattern_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_ml_config.json",
+                "line": 360,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_ml_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_dashboard_config.json",
+                "line": 389,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_dashboard_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_audit_config.json",
+                "line": 433,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_audit_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_monitoring_config.json",
+                "line": 455,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_monitoring_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_policy_config.json",
+                "line": 477,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_policy_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_reporting_config.json",
+                "line": 500,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_reporting_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_maintenance_config.json",
+                "line": 531,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_maintenance_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_quantum_config.json",
+                "line": 565,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_quantum_config.json"
+              }
+            ],
+            "inaccessible": [],
+            "accessibility_rate": 100.0
+          }
+        },
+        {
+          "script_name": "comprehensive_file_restoration_executor.py",
+          "exists": true,
+          "config_references_found": 21,
+          "accessible_configs": 4,
+          "inaccessible_configs": 17,
+          "accessibility_rate": 19.047619047619047,
+          "status": "NEEDS_ATTENTION",
+          "config_details": [
+            {
+              "value": "🔧 Comprehensive File Restoration with Configuration Consolidation",
+              "line": 54,
+              "type": "ast_string"
+            },
+            {
+              "value": "reports/file_movement_assessment_report_20250716_171753.json",
+              "line": 78,
+              "type": "ast_string"
+            },
+            {
+              "value": "⚙️ Consolidate ALL configuration files to config/ folder",
+              "line": 146,
+              "type": "ast_string"
+            },
+            {
+              "value": "🔍 Check if config file might require script path updates",
+              "line": 198,
+              "type": "ast_string"
+            },
+            {
+              "value": "e:/gh_COPILOT/config",
+              "line": 69,
+              "type": "ast_string"
+            },
+            {
+              "value": "config_files_consolidated",
+              "line": 81,
+              "type": "ast_string"
+            },
+            {
+              "value": "\n⚙️ CONSOLIDATING CONFIGURATION FILES",
+              "line": 147,
+              "type": "ast_string"
+            },
+            {
+              "value": "config_misplacement",
+              "line": 150,
+              "type": "ast_string"
+            },
+            {
+              "value": "config/COPILOT_ENTERPRISE_CONFIG.json",
+              "line": 201,
+              "type": "ast_string"
+            },
+            {
+              "value": "config/DISASTER_RECOVERY_CONFIG.json",
+              "line": 202,
+              "type": "ast_string"
+            },
+            {
+              "value": "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+              "line": 203,
+              "type": "ast_string"
+            },
+            {
+              "value": "config_files_accessible",
+              "line": 260,
+              "type": "ast_string"
+            },
+            {
+              "value": ".json",
+              "line": 294,
+              "type": "ast_string"
+            },
+            {
+              "value": "✅ No configuration files need consolidation",
+              "line": 158,
+              "type": "ast_string"
+            },
+            {
+              "value": "✅ Config files accessible: ",
+              "line": 282,
+              "type": "ast_string"
+            },
+            {
+              "value": "Comprehensive File Restoration and Configuration Consolidation",
+              "line": 302,
+              "type": "ast_string"
+            },
+            {
+              "value": "Review script path updates needed for config files",
+              "line": 318,
+              "type": "ast_string"
+            },
+            {
+              "value": "🔄 Consolidating Configs",
+              "line": 162,
+              "type": "ast_string"
+            },
+            {
+              "value": "configs",
+              "line": 162,
+              "type": "ast_string"
+            },
+            {
+              "value": "Config Files Consolidated: ",
+              "line": 385,
+              "type": "ast_string"
+            },
+            {
+              "value": "Config not accessible: ",
+              "line": 279,
+              "type": "ast_string"
+            }
+          ],
+          "accessibility_details": {
+            "accessible": [
+              {
+                "config_reference": "reports/file_movement_assessment_report_20250716_171753.json",
+                "line": 78,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\reports\\file_movement_assessment_report_20250716_171753.json"
+              },
+              {
+                "config_reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+                "line": 201,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\COPILOT_ENTERPRISE_CONFIG.json"
+              },
+              {
+                "config_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+                "line": 202,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+              },
+              {
+                "config_reference": "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+                "line": 203,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\ENTERPRISE_CONFIGURATION_OPTIMIZED.json"
+              }
+            ],
+            "inaccessible": [
+              {
+                "config_reference": "🔧 Comprehensive File Restoration with Configuration Consolidation",
+                "line": 54,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "⚙️ Consolidate ALL configuration files to config/ folder",
+                "line": 146,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "🔍 Check if config file might require script path updates",
+                "line": 198,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "e:/gh_COPILOT/config",
+                "line": 69,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "config_files_consolidated",
+                "line": 81,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "\n⚙️ CONSOLIDATING CONFIGURATION FILES",
+                "line": 147,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "config_misplacement",
+                "line": 150,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "config_files_accessible",
+                "line": 260,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": ".json",
+                "line": 294,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "✅ No configuration files need consolidation",
+                "line": 158,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "✅ Config files accessible: ",
+                "line": 282,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "Comprehensive File Restoration and Configuration Consolidation",
+                "line": 302,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "Review script path updates needed for config files",
+                "line": 318,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "🔄 Consolidating Configs",
+                "line": 162,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "configs",
+                "line": 162,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "Config Files Consolidated: ",
+                "line": 385,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "Config not accessible: ",
+                "line": 279,
+                "accessible": false,
+                "accessible_path": null
+              }
+            ],
+            "accessibility_rate": 19.047619047619047
+          }
+        }
+      ],
+      "overall_success_rate": 20.0,
+      "total_config_references": 69,
+      "total_accessible_configs": 44,
+      "config_accessibility_rate": 63.76811594202898
+    },
+    "success_metrics": {
+      "scripts_analyzed": 5,
+      "scripts_successful": 1,
+      "overall_script_success_rate": 20.0,
+      "config_accessibility_rate": 63.76811594202898,
+      "mission_status": "NEEDS_REVIEW",
+      "target_achievement": false
+    },
+    "detailed_analysis": {
+      "successful_scripts": [
+        {
+          "script_name": "enterprise_optimization_engine.py",
+          "exists": true,
+          "config_references_found": 12,
+          "accessible_configs": 12,
+          "inaccessible_configs": 0,
+          "accessibility_rate": 100.0,
+          "status": "SUCCESS",
+          "config_details": [
+            {
+              "value": "config/enterprise_db_config.json",
+              "line": 215,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_db_config.json\""
+            },
+            {
+              "value": "config/enterprise_cache_config.json",
+              "line": 239,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_cache_config.json\""
+            },
+            {
+              "value": "config/enterprise_analytics_config.json",
+              "line": 311,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_analytics_config.json\""
+            },
+            {
+              "value": "config/enterprise_pattern_config.json",
+              "line": 333,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_pattern_config.json\""
+            },
+            {
+              "value": "config/enterprise_ml_config.json",
+              "line": 360,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_ml_config.json\""
+            },
+            {
+              "value": "config/enterprise_dashboard_config.json",
+              "line": 389,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_dashboard_config.json\""
+            },
+            {
+              "value": "config/enterprise_audit_config.json",
+              "line": 433,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_audit_config.json\""
+            },
+            {
+              "value": "config/enterprise_monitoring_config.json",
+              "line": 455,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_monitoring_config.json\""
+            },
+            {
+              "value": "config/enterprise_policy_config.json",
+              "line": 477,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_policy_config.json\""
+            },
+            {
+              "value": "config/enterprise_reporting_config.json",
+              "line": 500,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_reporting_config.json\""
+            },
+            {
+              "value": "config/enterprise_maintenance_config.json",
+              "line": 531,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_maintenance_config.json\""
+            },
+            {
+              "value": "config/enterprise_quantum_config.json",
+              "line": 565,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_quantum_config.json\""
+            }
+          ],
+          "accessibility_details": {
+            "accessible": [
+              {
+                "config_reference": "config/enterprise_db_config.json",
+                "line": 215,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_db_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_cache_config.json",
+                "line": 239,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_cache_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_analytics_config.json",
+                "line": 311,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_analytics_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_pattern_config.json",
+                "line": 333,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_pattern_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_ml_config.json",
+                "line": 360,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_ml_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_dashboard_config.json",
+                "line": 389,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_dashboard_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_audit_config.json",
+                "line": 433,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_audit_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_monitoring_config.json",
+                "line": 455,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_monitoring_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_policy_config.json",
+                "line": 477,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_policy_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_reporting_config.json",
+                "line": 500,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_reporting_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_maintenance_config.json",
+                "line": 531,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_maintenance_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_quantum_config.json",
+                "line": 565,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_quantum_config.json"
+              }
+            ],
+            "inaccessible": [],
+            "accessibility_rate": 100.0
+          }
+        }
+      ],
+      "attention_required": [
+        {
+          "script_name": "autonomous_monitoring_system.py",
+          "exists": true,
+          "config_references_found": 6,
+          "accessible_configs": 2,
+          "inaccessible_configs": 4,
+          "accessibility_rate": 33.33333333333333,
+          "status": "NEEDS_ATTENTION",
+          "config_details": [
+            {
+              "value": ".json",
+              "line": 211,
+              "type": "ast_string"
+            },
+            {
+              "value": ".yml",
+              "line": 212,
+              "type": "ast_string"
+            },
+            {
+              "value": ".yaml",
+              "line": 212,
+              "type": "ast_string"
+            },
+            {
+              "value": "config/COPILOT_ENTERPRISE_CONFIG.json",
+              "line": 295,
+              "type": "ast_string"
+            },
+            {
+              "value": "config/DISASTER_RECOVERY_CONFIG.json",
+              "line": 296,
+              "type": "ast_string"
+            },
+            {
+              "value": "ENTERPRISE_READINESS_100_PERCENT_CERTIFICATE.json",
+              "line": 297,
+              "type": "ast_string"
+            }
+          ],
+          "accessibility_details": {
+            "accessible": [
+              {
+                "config_reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+                "line": 295,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\COPILOT_ENTERPRISE_CONFIG.json"
+              },
+              {
+                "config_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+                "line": 296,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+              }
+            ],
+            "inaccessible": [
+              {
+                "config_reference": ".json",
+                "line": 211,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": ".yml",
+                "line": 212,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": ".yaml",
+                "line": 212,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "ENTERPRISE_READINESS_100_PERCENT_CERTIFICATE.json",
+                "line": 297,
+                "accessible": false,
+                "accessible_path": null
+              }
+            ],
+            "accessibility_rate": 33.33333333333333
+          }
+        },
+        {
+          "script_name": "config_dependency_validator.py",
+          "exists": true,
+          "config_references_found": 7,
+          "accessible_configs": 6,
+          "inaccessible_configs": 1,
+          "accessibility_rate": 85.71428571428571,
+          "status": "NEEDS_ATTENTION",
+          "config_details": [
+            {
+              "value": "*.json",
+              "line": 46,
+              "type": "regex_match",
+              "full_match": "\"*.json\""
+            },
+            {
+              "value": "COPILOT_NAVIGATION_MAP.json",
+              "line": 67,
+              "type": "regex_match",
+              "full_match": "\"COPILOT_NAVIGATION_MAP.json\""
+            },
+            {
+              "value": "config/advanced_features_config.json",
+              "line": 103,
+              "type": "regex_match",
+              "full_match": "\"config/advanced_features_config.json\""
+            },
+            {
+              "value": "config/replication_config.json",
+              "line": 115,
+              "type": "regex_match",
+              "full_match": "\"config/replication_config.json\""
+            },
+            {
+              "value": "config/enterprise_master_config.json",
+              "line": 128,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_master_config.json\""
+            },
+            {
+              "value": "config/production_access_config.json",
+              "line": 158,
+              "type": "regex_match",
+              "full_match": "\"config/production_access_config.json\""
+            },
+            {
+              "value": "config/enterprise_quantum_config.json",
+              "line": 159,
+              "type": "regex_match",
+              "full_match": "\"config/enterprise_quantum_config.json\""
+            }
+          ],
+          "accessibility_details": {
+            "accessible": [
+              {
+                "config_reference": "COPILOT_NAVIGATION_MAP.json",
+                "line": 67,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\COPILOT_NAVIGATION_MAP.json"
+              },
+              {
+                "config_reference": "config/advanced_features_config.json",
+                "line": 103,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\advanced_features_config.json"
+              },
+              {
+                "config_reference": "config/replication_config.json",
+                "line": 115,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\replication_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_master_config.json",
+                "line": 128,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_master_config.json"
+              },
+              {
+                "config_reference": "config/production_access_config.json",
+                "line": 158,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_access_config.json"
+              },
+              {
+                "config_reference": "config/enterprise_quantum_config.json",
+                "line": 159,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\enterprise_quantum_config.json"
+              }
+            ],
+            "inaccessible": [
+              {
+                "config_reference": "*.json",
+                "line": 46,
+                "accessible": false,
+                "accessible_path": null
+              }
+            ],
+            "accessibility_rate": 85.71428571428571
+          }
+        },
+        {
+          "script_name": "deployment_optimization_engine.py",
+          "exists": true,
+          "config_references_found": 23,
+          "accessible_configs": 20,
+          "inaccessible_configs": 3,
+          "accessibility_rate": 86.95652173913044,
+          "status": "NEEDS_ATTENTION",
+          "config_details": [
+            {
+              "value": "config/production_access_config.json",
+              "line": 201,
+              "type": "regex_match",
+              "full_match": "\"config/production_access_config.json\""
+            },
+            {
+              "value": "config/production_encryption_config.json",
+              "line": 230,
+              "type": "regex_match",
+              "full_match": "\"config/production_encryption_config.json\""
+            },
+            {
+              "value": "config/production_audit_config.json",
+              "line": 254,
+              "type": "regex_match",
+              "full_match": "\"config/production_audit_config.json\""
+            },
+            {
+              "value": "config/production_ids_config.json",
+              "line": 278,
+              "type": "regex_match",
+              "full_match": "\"config/production_ids_config.json\""
+            },
+            {
+              "value": "config/production_monitoring_config.json",
+              "line": 329,
+              "type": "regex_match",
+              "full_match": "\"config/production_monitoring_config.json\""
+            },
+            {
+              "value": "config/production_analytics_config.json",
+              "line": 352,
+              "type": "regex_match",
+              "full_match": "\"config/production_analytics_config.json\""
+            },
+            {
+              "value": "config/production_capacity_config.json",
+              "line": 380,
+              "type": "regex_match",
+              "full_match": "\"config/production_capacity_config.json\""
+            },
+            {
+              "value": "config/production_alerting_config.json",
+              "line": 420,
+              "type": "regex_match",
+              "full_match": "\"config/production_alerting_config.json\""
+            },
+            {
+              "value": "config/production_backup_config.json",
+              "line": 475,
+              "type": "regex_match",
+              "full_match": "\"config/production_backup_config.json\""
+            },
+            {
+              "value": "config/production_replication_config.json",
+              "line": 498,
+              "type": "regex_match",
+              "full_match": "\"config/production_replication_config.json\""
+            },
+            {
+              "value": "config/production_failover_config.json",
+              "line": 521,
+              "type": "regex_match",
+              "full_match": "\"config/production_failover_config.json\""
+            },
+            {
+              "value": "config/production_testing_config.json",
+              "line": 546,
+              "type": "regex_match",
+              "full_match": "\"config/production_testing_config.json\""
+            },
+            {
+              "value": "config/production_horizontal_scaling_config.json",
+              "line": 590,
+              "type": "regex_match",
+              "full_match": "\"config/production_horizontal_scaling_config.json\""
+            },
+            {
+              "value": "config/production_vertical_scaling_config.json",
+              "line": 619,
+              "type": "regex_match",
+              "full_match": "\"config/production_vertical_scaling_config.json\""
+            },
+            {
+              "value": "config/production_load_balancer_config.json",
+              "line": 641,
+              "type": "regex_match",
+              "full_match": "\"config/production_load_balancer_config.json\""
+            },
+            {
+              "value": "config/production_auto_scaling_config.json",
+              "line": 668,
+              "type": "regex_match",
+              "full_match": "\"config/production_auto_scaling_config.json\""
+            },
+            {
+              "value": "config/production_security_validation.json",
+              "line": 711,
+              "type": "regex_match",
+              "full_match": "\"config/production_security_validation.json\""
+            },
+            {
+              "value": "config/production_performance_validation.json",
+              "line": 734,
+              "type": "regex_match",
+              "full_match": "\"config/production_performance_validation.json\""
+            },
+            {
+              "value": "config/production_reliability_validation.json",
+              "line": 754,
+              "type": "regex_match",
+              "full_match": "\"config/production_reliability_validation.json\""
+            },
+            {
+              "value": "config/production_operational_validation.json",
+              "line": 774,
+              "type": "regex_match",
+              "full_match": "\"config/production_operational_validation.json\""
+            },
+            {
+              "value": "production_certification_report.json",
+              "line": 807,
+              "type": "regex_match",
+              "full_match": "\"production_certification_report.json\""
+            },
+            {
+              "value": "*.json",
+              "line": 825,
+              "type": "regex_match",
+              "full_match": "\"*.json\""
+            },
+            {
+              "value": "deployment_manifest.json",
+              "line": 913,
+              "type": "regex_match",
+              "full_match": "\"deployment_manifest.json\""
+            }
+          ],
+          "accessibility_details": {
+            "accessible": [
+              {
+                "config_reference": "config/production_access_config.json",
+                "line": 201,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_access_config.json"
+              },
+              {
+                "config_reference": "config/production_encryption_config.json",
+                "line": 230,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_encryption_config.json"
+              },
+              {
+                "config_reference": "config/production_audit_config.json",
+                "line": 254,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_audit_config.json"
+              },
+              {
+                "config_reference": "config/production_ids_config.json",
+                "line": 278,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_ids_config.json"
+              },
+              {
+                "config_reference": "config/production_monitoring_config.json",
+                "line": 329,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_monitoring_config.json"
+              },
+              {
+                "config_reference": "config/production_analytics_config.json",
+                "line": 352,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_analytics_config.json"
+              },
+              {
+                "config_reference": "config/production_capacity_config.json",
+                "line": 380,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_capacity_config.json"
+              },
+              {
+                "config_reference": "config/production_alerting_config.json",
+                "line": 420,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_alerting_config.json"
+              },
+              {
+                "config_reference": "config/production_backup_config.json",
+                "line": 475,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_backup_config.json"
+              },
+              {
+                "config_reference": "config/production_replication_config.json",
+                "line": 498,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_replication_config.json"
+              },
+              {
+                "config_reference": "config/production_failover_config.json",
+                "line": 521,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_failover_config.json"
+              },
+              {
+                "config_reference": "config/production_testing_config.json",
+                "line": 546,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_testing_config.json"
+              },
+              {
+                "config_reference": "config/production_horizontal_scaling_config.json",
+                "line": 590,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_horizontal_scaling_config.json"
+              },
+              {
+                "config_reference": "config/production_vertical_scaling_config.json",
+                "line": 619,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_vertical_scaling_config.json"
+              },
+              {
+                "config_reference": "config/production_load_balancer_config.json",
+                "line": 641,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_load_balancer_config.json"
+              },
+              {
+                "config_reference": "config/production_auto_scaling_config.json",
+                "line": 668,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_auto_scaling_config.json"
+              },
+              {
+                "config_reference": "config/production_security_validation.json",
+                "line": 711,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_security_validation.json"
+              },
+              {
+                "config_reference": "config/production_performance_validation.json",
+                "line": 734,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_performance_validation.json"
+              },
+              {
+                "config_reference": "config/production_reliability_validation.json",
+                "line": 754,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_reliability_validation.json"
+              },
+              {
+                "config_reference": "config/production_operational_validation.json",
+                "line": 774,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\production_operational_validation.json"
+              }
+            ],
+            "inaccessible": [
+              {
+                "config_reference": "production_certification_report.json",
+                "line": 807,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "*.json",
+                "line": 825,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "deployment_manifest.json",
+                "line": 913,
+                "accessible": false,
+                "accessible_path": null
+              }
+            ],
+            "accessibility_rate": 86.95652173913044
+          }
+        },
+        {
+          "script_name": "comprehensive_file_restoration_executor.py",
+          "exists": true,
+          "config_references_found": 21,
+          "accessible_configs": 4,
+          "inaccessible_configs": 17,
+          "accessibility_rate": 19.047619047619047,
+          "status": "NEEDS_ATTENTION",
+          "config_details": [
+            {
+              "value": "🔧 Comprehensive File Restoration with Configuration Consolidation",
+              "line": 54,
+              "type": "ast_string"
+            },
+            {
+              "value": "reports/file_movement_assessment_report_20250716_171753.json",
+              "line": 78,
+              "type": "ast_string"
+            },
+            {
+              "value": "⚙️ Consolidate ALL configuration files to config/ folder",
+              "line": 146,
+              "type": "ast_string"
+            },
+            {
+              "value": "🔍 Check if config file might require script path updates",
+              "line": 198,
+              "type": "ast_string"
+            },
+            {
+              "value": "e:/gh_COPILOT/config",
+              "line": 69,
+              "type": "ast_string"
+            },
+            {
+              "value": "config_files_consolidated",
+              "line": 81,
+              "type": "ast_string"
+            },
+            {
+              "value": "\n⚙️ CONSOLIDATING CONFIGURATION FILES",
+              "line": 147,
+              "type": "ast_string"
+            },
+            {
+              "value": "config_misplacement",
+              "line": 150,
+              "type": "ast_string"
+            },
+            {
+              "value": "config/COPILOT_ENTERPRISE_CONFIG.json",
+              "line": 201,
+              "type": "ast_string"
+            },
+            {
+              "value": "config/DISASTER_RECOVERY_CONFIG.json",
+              "line": 202,
+              "type": "ast_string"
+            },
+            {
+              "value": "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+              "line": 203,
+              "type": "ast_string"
+            },
+            {
+              "value": "config_files_accessible",
+              "line": 260,
+              "type": "ast_string"
+            },
+            {
+              "value": ".json",
+              "line": 294,
+              "type": "ast_string"
+            },
+            {
+              "value": "✅ No configuration files need consolidation",
+              "line": 158,
+              "type": "ast_string"
+            },
+            {
+              "value": "✅ Config files accessible: ",
+              "line": 282,
+              "type": "ast_string"
+            },
+            {
+              "value": "Comprehensive File Restoration and Configuration Consolidation",
+              "line": 302,
+              "type": "ast_string"
+            },
+            {
+              "value": "Review script path updates needed for config files",
+              "line": 318,
+              "type": "ast_string"
+            },
+            {
+              "value": "🔄 Consolidating Configs",
+              "line": 162,
+              "type": "ast_string"
+            },
+            {
+              "value": "configs",
+              "line": 162,
+              "type": "ast_string"
+            },
+            {
+              "value": "Config Files Consolidated: ",
+              "line": 385,
+              "type": "ast_string"
+            },
+            {
+              "value": "Config not accessible: ",
+              "line": 279,
+              "type": "ast_string"
+            }
+          ],
+          "accessibility_details": {
+            "accessible": [
+              {
+                "config_reference": "reports/file_movement_assessment_report_20250716_171753.json",
+                "line": 78,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\reports\\file_movement_assessment_report_20250716_171753.json"
+              },
+              {
+                "config_reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+                "line": 201,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\COPILOT_ENTERPRISE_CONFIG.json"
+              },
+              {
+                "config_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+                "line": 202,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+              },
+              {
+                "config_reference": "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+                "line": 203,
+                "accessible": true,
+                "accessible_path": "e:\\gh_COPILOT\\config\\ENTERPRISE_CONFIGURATION_OPTIMIZED.json"
+              }
+            ],
+            "inaccessible": [
+              {
+                "config_reference": "🔧 Comprehensive File Restoration with Configuration Consolidation",
+                "line": 54,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "⚙️ Consolidate ALL configuration files to config/ folder",
+                "line": 146,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "🔍 Check if config file might require script path updates",
+                "line": 198,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "e:/gh_COPILOT/config",
+                "line": 69,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "config_files_consolidated",
+                "line": 81,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "\n⚙️ CONSOLIDATING CONFIGURATION FILES",
+                "line": 147,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "config_misplacement",
+                "line": 150,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "config_files_accessible",
+                "line": 260,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": ".json",
+                "line": 294,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "✅ No configuration files need consolidation",
+                "line": 158,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "✅ Config files accessible: ",
+                "line": 282,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "Comprehensive File Restoration and Configuration Consolidation",
+                "line": 302,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "Review script path updates needed for config files",
+                "line": 318,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "🔄 Consolidating Configs",
+                "line": 162,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "configs",
+                "line": 162,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "Config Files Consolidated: ",
+                "line": 385,
+                "accessible": false,
+                "accessible_path": null
+              },
+              {
+                "config_reference": "Config not accessible: ",
+                "line": 279,
+                "accessible": false,
+                "accessible_path": null
+              }
+            ],
+            "accessibility_rate": 19.047619047619047
+          }
+        }
+      ],
+      "error_scripts": []
+    },
+    "recommendations": {
+      "next_phase": "Address remaining config accessibility issues",
+      "improvement_areas": [
+        "Fix 4 inaccessible config references in autonomous_monitoring_system.py",
+        "Fix 1 inaccessible config references in config_dependency_validator.py",
+        "Fix 3 inaccessible config references in deployment_optimization_engine.py",
+        "Fix 17 inaccessible config references in comprehensive_file_restoration_executor.py"
+      ],
+      "validation_approach": "Focus on scripts requiring attention for 100% success rate"
+    }
+  }
+}

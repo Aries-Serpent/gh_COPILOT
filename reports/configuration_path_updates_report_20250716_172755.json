@@ -1,0 +1,2626 @@
+{
+  "operation_metadata": {
+    "operation": "Configuration Path Updates",
+    "start_time": "2025-07-16T17:27:50.780404",
+    "end_time": "2025-07-16T17:27:55.171932",
+    "duration_seconds": 4.391528,
+    "process_id": 18200
+  },
+  "update_summary": {
+    "scripts_analyzed": 270,
+    "scripts_updated": 27,
+    "config_references_found": 129,
+    "config_references_updated": 129,
+    "errors_encountered": 0,
+    "updated_files": [
+      {
+        "script": "advanced_enterprise_features_expansion_framework.py",
+        "path": "E:\\gh_COPILOT\\advanced_enterprise_features_expansion_framework.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/ "
+        ]
+      },
+      {
+        "script": "autonomous_monitoring_system.py",
+        "path": "E:\\gh_COPILOT\\autonomous_monitoring_system.py",
+        "updates_made": 7,
+        "references_updated": [
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json"
+        ]
+      },
+      {
+        "script": "comprehensive_file_restoration_executor.py",
+        "path": "E:\\gh_COPILOT\\comprehensive_file_restoration_executor.py",
+        "updates_made": 6,
+        "references_updated": [
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+          "config/ ",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json"
+        ]
+      },
+      {
+        "script": "comprehensive_validation_summary_corrected.py",
+        "path": "E:\\gh_COPILOT\\comprehensive_validation_summary_corrected.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/database_consistency_report_final.json"
+        ]
+      },
+      {
+        "script": "configuration_path_updater.py",
+        "path": "E:\\gh_COPILOT\\configuration_path_updater.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/ "
+        ]
+      },
+      {
+        "script": "config_dependency_validator.py",
+        "path": "E:\\gh_COPILOT\\config_dependency_validator.py",
+        "updates_made": 18,
+        "references_updated": [
+          "config/advanced_features_config.json",
+          "config/replication_config.json",
+          "config/enterprise_master_config.json",
+          "config/advanced_features_config.json",
+          "config/replication_config.json",
+          "config/enterprise_master_config.json",
+          "config/production_access_config.json",
+          "config/enterprise_quantum_config.json",
+          "config/ ",
+          "config/ ",
+          "config/replication_config.json",
+          "config/ ",
+          "config/enterprise_master_config.json",
+          "config/advanced_features_config.json",
+          "config/replication_config.json",
+          "config/enterprise_master_config.json",
+          "config/production_access_config.json",
+          "config/enterprise_quantum_config.json"
+        ]
+      },
+      {
+        "script": "database_consistency_checker_corrected.py",
+        "path": "E:\\gh_COPILOT\\database_consistency_checker_corrected.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/database_consistency_report_corrected.json"
+        ]
+      },
+      {
+        "script": "database_consistency_checker_final.py",
+        "path": "E:\\gh_COPILOT\\database_consistency_checker_final.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/database_consistency_report_final.json"
+        ]
+      },
+      {
+        "script": "database_mapping_updater.py",
+        "path": "E:\\gh_COPILOT\\database_mapping_updater.py",
+        "updates_made": 4,
+        "references_updated": [
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json"
+        ]
+      },
+      {
+        "script": "database_mapping_updater_corrected.py",
+        "path": "E:\\gh_COPILOT\\database_mapping_updater_corrected.py",
+        "updates_made": 4,
+        "references_updated": [
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json"
+        ]
+      },
+      {
+        "script": "database_optimization_mission_complete.py",
+        "path": "E:\\gh_COPILOT\\database_optimization_mission_complete.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/DATABASE_OPTIMIZATION_MISSION_COMPLETE_REPORT.json"
+        ]
+      },
+      {
+        "script": "database_script_reproduction_validator.py",
+        "path": "E:\\gh_COPILOT\\database_script_reproduction_validator.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/database_reproduction_validation_report.json"
+        ]
+      },
+      {
+        "script": "deployment_optimization_engine.py",
+        "path": "E:\\gh_COPILOT\\deployment_optimization_engine.py",
+        "updates_made": 36,
+        "references_updated": [
+          "config/production_access_config.json",
+          "config/production_encryption_config.json",
+          "config/production_audit_config.json",
+          "config/production_ids_config.json",
+          "config/production_monitoring_config.json",
+          "config/production_analytics_config.json",
+          "config/production_capacity_config.json",
+          "config/production_alerting_config.json",
+          "config/production_backup_config.json",
+          "config/production_replication_config.json",
+          "config/production_failover_config.json",
+          "config/production_testing_config.json",
+          "config/production_horizontal_scaling_config.json",
+          "config/production_vertical_scaling_config.json",
+          "config/production_load_balancer_config.json",
+          "config/production_auto_scaling_config.json",
+          "config/production_security_validation.json",
+          "config/production_performance_validation.json",
+          "config/production_reliability_validation.json",
+          "config/production_operational_validation.json",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/production_alerting_config.json",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ "
+        ]
+      },
+      {
+        "script": "deployment_optimization_engine_fixed.py",
+        "path": "E:\\gh_COPILOT\\deployment_optimization_engine_fixed.py",
+        "updates_made": 3,
+        "references_updated": [
+          "config/replication_config.json",
+          "config/ ",
+          "config/ "
+        ]
+      },
+      {
+        "script": "enterprise_audit_production_deployment.py",
+        "path": "E:\\gh_COPILOT\\enterprise_audit_production_deployment.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/ "
+        ]
+      },
+      {
+        "script": "enterprise_file_relocation_orchestrator.py",
+        "path": "E:\\gh_COPILOT\\enterprise_file_relocation_orchestrator.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/quick_database_validation_results.json"
+        ]
+      },
+      {
+        "script": "enterprise_flake8_quality_enhancement_system.py",
+        "path": "E:\\gh_COPILOT\\enterprise_flake8_quality_enhancement_system.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/ "
+        ]
+      },
+      {
+        "script": "enterprise_optimization_engine.py",
+        "path": "E:\\gh_COPILOT\\enterprise_optimization_engine.py",
+        "updates_made": 24,
+        "references_updated": [
+          "config/enterprise_db_config.json",
+          "config/enterprise_cache_config.json",
+          "config/enterprise_analytics_config.json",
+          "config/enterprise_pattern_config.json",
+          "config/enterprise_ml_config.json",
+          "config/enterprise_dashboard_config.json",
+          "config/enterprise_audit_config.json",
+          "config/enterprise_monitoring_config.json",
+          "config/enterprise_policy_config.json",
+          "config/enterprise_reporting_config.json",
+          "config/enterprise_maintenance_config.json",
+          "config/enterprise_quantum_config.json",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ "
+        ]
+      },
+      {
+        "script": "enterprise_performance_optimization_framework.py",
+        "path": "E:\\gh_COPILOT\\enterprise_performance_optimization_framework.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/ "
+        ]
+      },
+      {
+        "script": "enterprise_readiness_100_percent_optimizer.py",
+        "path": "E:\\gh_COPILOT\\enterprise_readiness_100_percent_optimizer.py",
+        "updates_made": 4,
+        "references_updated": [
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json"
+        ]
+      },
+      {
+        "script": "enterprise_readiness_final_completor.py",
+        "path": "E:\\gh_COPILOT\\enterprise_readiness_final_completor.py",
+        "updates_made": 2,
+        "references_updated": [
+          "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+          "config/ "
+        ]
+      },
+      {
+        "script": "git_repository_repair_with_database_sync.py",
+        "path": "E:\\gh_COPILOT\\git_repository_repair_with_database_sync.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/git_repair_database_sync_report.json"
+        ]
+      },
+      {
+        "script": "optimize_to_100_percent.py",
+        "path": "E:\\gh_COPILOT\\optimize_to_100_percent.py",
+        "updates_made": 3,
+        "references_updated": [
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json"
+        ]
+      },
+      {
+        "script": "quick_database_analysis.py",
+        "path": "E:\\gh_COPILOT\\quick_database_analysis.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/quick_database_analysis_report.json"
+        ]
+      },
+      {
+        "script": "quick_database_test.py",
+        "path": "E:\\gh_COPILOT\\quick_database_test.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/quick_database_validation_results.json"
+        ]
+      },
+      {
+        "script": "self_healing_self_learning_system.py",
+        "path": "E:\\gh_COPILOT\\self_healing_self_learning_system.py",
+        "updates_made": 3,
+        "references_updated": [
+          "config/ ",
+          "config/ ",
+          "config/ "
+        ]
+      },
+      {
+        "script": "simple_file_relocator.py",
+        "path": "E:\\gh_COPILOT\\simple_file_relocator.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/quick_database_validation_results.json"
+        ]
+      }
+    ]
+  },
+  "detailed_results": {
+    "cognitive_analysis": "\n        DATABASE-FIRST COGNITIVE ANALYSIS FOR CONFIG PATH UPDATES:\n        1. RESTORATION COMPLETE: 45 Python scripts restored + 32 config files consolidated\n        2. OBJECTIVE: Update script references to config files in config/ folder\n        3. SYSTEMATIC APPROACH: Scan Python scripts for config file references\n        4. PATTERN MATCHING: Identify relative and absolute paths to config files\n        5. PATH TRANSFORMATION: Update paths to reference config/ folder\n        6. VALIDATION: Ensure updated paths are syntactically correct\n        7. DUAL_COPILOT_VALIDATION: Verify all updates maintain functionality\n        8. ANTI-RECURSION: Ensure no circular references created\n        \n        CONFIGURATION PATH UPDATE STRATEGY:\n        - Scan all Python scripts in root directory\n        - Identify references to config files that moved to config/\n        - Update relative paths to include config/ prefix\n        - Update absolute paths to point to config/ folder\n        - Validate syntax and path correctness\n        - Generate comprehensive update report\n        \n        EXPECTED PATTERNS TO UPDATE:\n        - \"config_file.json\" \u2192 \"config/config_file.json\"  \n        - \"./config_file.json\" \u2192 \"config/config_file.json\"\n        - \"reports/config_file.json\" \u2192 \"config/config_file.json\"\n        - workspace_root / \"config_file.json\" \u2192 workspace_root / \"config/config_file.json\"\n        ",
+    "config_references": {
+      "advanced_enterprise_features_expansion_framework.py": {
+        "file_path": "E:\\gh_COPILOT\\advanced_enterprise_features_expansion_framework.py",
+        "references": [
+          {
+            "original_reference": "\n        logging.basicConfig(\n            level=logging.INFO,\n            format=log_format,\n            handlers=[\n                logging.StreamHandler(sys.stdout),\n                logging.FileHandler(self.workspace_path / ",
+            "line_content": "log_format = \"%(asctime)s - %(levelname)s - %(message)s\"",
+            "line_number": 140,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "autonomous_monitoring_system.py": {
+        "file_path": "E:\\gh_COPILOT\\autonomous_monitoring_system.py",
+        "references": [
+          {
+            "original_reference": "COPILOT_ENTERPRISE_CONFIG.json",
+            "line_content": "'COPILOT_ENTERPRISE_CONFIG.json',",
+            "line_number": 295,
+            "config_file_name": "COPILOT_ENTERPRISE_CONFIG.json",
+            "new_reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "DISASTER_RECOVERY_CONFIG.json",
+            "line_content": "'DISASTER_RECOVERY_CONFIG.json',",
+            "line_number": 296,
+            "config_file_name": "DISASTER_RECOVERY_CONFIG.json",
+            "new_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "COPILOT_ENTERPRISE_CONFIG.json",
+            "line_content": "'COPILOT_ENTERPRISE_CONFIG.json',",
+            "line_number": 535,
+            "config_file_name": "COPILOT_ENTERPRISE_CONFIG.json",
+            "new_reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "DISASTER_RECOVERY_CONFIG.json",
+            "line_content": "'DISASTER_RECOVERY_CONFIG.json'",
+            "line_number": 536,
+            "config_file_name": "DISASTER_RECOVERY_CONFIG.json",
+            "new_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "DISASTER_RECOVERY_CONFIG.json",
+            "line_content": "'DISASTER_RECOVERY_CONFIG.json',",
+            "line_number": 296,
+            "config_file_name": "DISASTER_RECOVERY_CONFIG.json",
+            "new_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "COPILOT_ENTERPRISE_CONFIG.json",
+            "line_content": "'COPILOT_ENTERPRISE_CONFIG.json',",
+            "line_number": 535,
+            "config_file_name": "COPILOT_ENTERPRISE_CONFIG.json",
+            "new_reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "DISASTER_RECOVERY_CONFIG.json",
+            "line_content": "'DISASTER_RECOVERY_CONFIG.json'",
+            "line_number": 536,
+            "config_file_name": "DISASTER_RECOVERY_CONFIG.json",
+            "new_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "comprehensive_file_restoration_executor.py": {
+        "file_path": "E:\\gh_COPILOT\\comprehensive_file_restoration_executor.py",
+        "references": [
+          {
+            "original_reference": "COPILOT_ENTERPRISE_CONFIG.json",
+            "line_content": "\"COPILOT_ENTERPRISE_CONFIG.json\",",
+            "line_number": 201,
+            "config_file_name": "COPILOT_ENTERPRISE_CONFIG.json",
+            "new_reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "DISASTER_RECOVERY_CONFIG.json",
+            "line_content": "\"DISASTER_RECOVERY_CONFIG.json\",",
+            "line_number": 202,
+            "config_file_name": "DISASTER_RECOVERY_CONFIG.json",
+            "new_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+            "line_content": "\"ENTERPRISE_CONFIGURATION_OPTIMIZED.json\"",
+            "line_number": 203,
+            "config_file_name": "ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+            "new_reference": "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": ")\n        self.config_folder = self.workspace_root / ",
+            "line_content": "self.workspace_root = Path(\"e:/gh_COPILOT\")",
+            "line_number": 69,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "DISASTER_RECOVERY_CONFIG.json",
+            "line_content": "\"DISASTER_RECOVERY_CONFIG.json\",",
+            "line_number": 202,
+            "config_file_name": "DISASTER_RECOVERY_CONFIG.json",
+            "new_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+            "line_content": "\"ENTERPRISE_CONFIGURATION_OPTIMIZED.json\"",
+            "line_number": 203,
+            "config_file_name": "ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+            "new_reference": "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "comprehensive_validation_summary_corrected.py": {
+        "file_path": "E:\\gh_COPILOT\\comprehensive_validation_summary_corrected.py",
+        "references": [
+          {
+            "original_reference": "database_consistency_report_final.json",
+            "line_content": "consistency_report = self.reports_folder / \"database_consistency_report_final.json\"",
+            "line_number": 109,
+            "config_file_name": "database_consistency_report_final.json",
+            "new_reference": "config/database_consistency_report_final.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          }
+        ]
+      },
+      "configuration_path_updater.py": {
+        "file_path": "E:\\gh_COPILOT\\configuration_path_updater.py",
+        "references": [
+          {
+            "original_reference": "*80)\n        \n        # CRITICAL: Anti-recursion validation\n        self.validate_environment_compliance()\n        \n        # Initialize path mapping\n        self.config_folder = self.workspace_root / ",
+            "line_content": "print(\"=\"*80)",
+            "line_number": 40,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "config_dependency_validator.py": {
+        "file_path": "E:\\gh_COPILOT\\config_dependency_validator.py",
+        "references": [
+          {
+            "original_reference": "advanced_features_config.json",
+            "line_content": "test_file = self.config_dir / \"advanced_features_config.json\"",
+            "line_number": 107,
+            "config_file_name": "advanced_features_config.json",
+            "new_reference": "config/advanced_features_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "replication_config.json",
+            "line_content": "test_file = self.workspace_path / \"config\" / \"replication_config.json\"",
+            "line_number": 119,
+            "config_file_name": "replication_config.json",
+            "new_reference": "config/replication_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_master_config.json",
+            "line_content": "config_path = Path(workspace) / \"config\" / \"enterprise_master_config.json\"",
+            "line_number": 133,
+            "config_file_name": "enterprise_master_config.json",
+            "new_reference": "config/enterprise_master_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "advanced_features_config.json",
+            "line_content": "\"advanced_features_config.json\",",
+            "line_number": 160,
+            "config_file_name": "advanced_features_config.json",
+            "new_reference": "config/advanced_features_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "replication_config.json",
+            "line_content": "\"replication_config.json\",",
+            "line_number": 161,
+            "config_file_name": "replication_config.json",
+            "new_reference": "config/replication_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_master_config.json",
+            "line_content": "\"enterprise_master_config.json\",",
+            "line_number": 162,
+            "config_file_name": "enterprise_master_config.json",
+            "new_reference": "config/enterprise_master_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_access_config.json",
+            "line_content": "\"production_access_config.json\",",
+            "line_number": 163,
+            "config_file_name": "production_access_config.json",
+            "new_reference": "config/production_access_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_quantum_config.json",
+            "line_content": "\"enterprise_quantum_config.json\"",
+            "line_number": 164,
+            "config_file_name": "enterprise_quantum_config.json",
+            "new_reference": "config/enterprise_quantum_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "))\n        self.config_dir = self.workspace_path / ",
+            "line_content": "self.workspace_path = Path(workspace_path) if workspace_path else Path(os.getenv(\"GH_COPILOT_WORKSPACE\", \"e:/gh_COPILOT\"))",
+            "line_number": 22,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": ")\n            try:\n                # Test loading config from current directory context\n                test_file = self.config_dir / ",
+            "line_content": "pbar.set_description(\"\ud83d\udcc2 Testing relative paths\")",
+            "line_number": 104,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "replication_config.json",
+            "line_content": "test_file = self.workspace_path / \"config\" / \"replication_config.json\"",
+            "line_number": 119,
+            "config_file_name": "replication_config.json",
+            "new_reference": "config/replication_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": ", str(self.workspace_path))\n                config_path = Path(workspace) / ",
+            "line_content": "workspace = os.getenv(\"GH_COPILOT_WORKSPACE\", str(self.workspace_path))",
+            "line_number": 132,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_master_config.json",
+            "line_content": "config_path = Path(workspace) / \"config\" / \"enterprise_master_config.json\"",
+            "line_number": 133,
+            "config_file_name": "enterprise_master_config.json",
+            "new_reference": "config/enterprise_master_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "advanced_features_config.json",
+            "line_content": "\"advanced_features_config.json\",",
+            "line_number": 160,
+            "config_file_name": "advanced_features_config.json",
+            "new_reference": "config/advanced_features_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "replication_config.json",
+            "line_content": "\"replication_config.json\",",
+            "line_number": 161,
+            "config_file_name": "replication_config.json",
+            "new_reference": "config/replication_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_master_config.json",
+            "line_content": "\"enterprise_master_config.json\",",
+            "line_number": 162,
+            "config_file_name": "enterprise_master_config.json",
+            "new_reference": "config/enterprise_master_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "production_access_config.json",
+            "line_content": "\"production_access_config.json\",",
+            "line_number": 163,
+            "config_file_name": "production_access_config.json",
+            "new_reference": "config/production_access_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_quantum_config.json",
+            "line_content": "\"enterprise_quantum_config.json\"",
+            "line_number": 164,
+            "config_file_name": "enterprise_quantum_config.json",
+            "new_reference": "config/enterprise_quantum_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "database_consistency_checker_corrected.py": {
+        "file_path": "E:\\gh_COPILOT\\database_consistency_checker_corrected.py",
+        "references": [
+          {
+            "original_reference": "reports/database_consistency_report_corrected.json",
+            "line_content": "report_file = Path(\"reports/database_consistency_report_corrected.json\")",
+            "line_number": 266,
+            "config_file_name": "database_consistency_report_corrected.json",
+            "new_reference": "config/database_consistency_report_corrected.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          }
+        ]
+      },
+      "database_consistency_checker_final.py": {
+        "file_path": "E:\\gh_COPILOT\\database_consistency_checker_final.py",
+        "references": [
+          {
+            "original_reference": "reports/database_consistency_report_final.json",
+            "line_content": "report_file = Path(\"reports/database_consistency_report_final.json\")",
+            "line_number": 317,
+            "config_file_name": "database_consistency_report_final.json",
+            "new_reference": "config/database_consistency_report_final.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          }
+        ]
+      },
+      "database_mapping_updater.py": {
+        "file_path": "E:\\gh_COPILOT\\database_mapping_updater.py",
+        "references": [
+          {
+            "original_reference": "advanced_features_config.json",
+            "line_content": "\"advanced_features_config.json\": \"results/advanced_features_config.json\"",
+            "line_number": 69,
+            "config_file_name": "advanced_features_config.json",
+            "new_reference": "config/advanced_features_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "results/advanced_features_config.json",
+            "line_content": "\"advanced_features_config.json\": \"results/advanced_features_config.json\"",
+            "line_number": 69,
+            "config_file_name": "advanced_features_config.json",
+            "new_reference": "config/advanced_features_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "advanced_features_config.json",
+            "line_content": "\"advanced_features_config.json\": \"results/advanced_features_config.json\"",
+            "line_number": 69,
+            "config_file_name": "advanced_features_config.json",
+            "new_reference": "config/advanced_features_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "results/advanced_features_config.json",
+            "line_content": "\"advanced_features_config.json\": \"results/advanced_features_config.json\"",
+            "line_number": 69,
+            "config_file_name": "advanced_features_config.json",
+            "new_reference": "config/advanced_features_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "database_mapping_updater_corrected.py": {
+        "file_path": "E:\\gh_COPILOT\\database_mapping_updater_corrected.py",
+        "references": [
+          {
+            "original_reference": "advanced_features_config.json",
+            "line_content": "\"advanced_features_config.json\": \"results/advanced_features_config.json\"",
+            "line_number": 70,
+            "config_file_name": "advanced_features_config.json",
+            "new_reference": "config/advanced_features_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "results/advanced_features_config.json",
+            "line_content": "\"advanced_features_config.json\": \"results/advanced_features_config.json\"",
+            "line_number": 70,
+            "config_file_name": "advanced_features_config.json",
+            "new_reference": "config/advanced_features_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "advanced_features_config.json",
+            "line_content": "\"advanced_features_config.json\": \"results/advanced_features_config.json\"",
+            "line_number": 70,
+            "config_file_name": "advanced_features_config.json",
+            "new_reference": "config/advanced_features_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "results/advanced_features_config.json",
+            "line_content": "\"advanced_features_config.json\": \"results/advanced_features_config.json\"",
+            "line_number": 70,
+            "config_file_name": "advanced_features_config.json",
+            "new_reference": "config/advanced_features_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "database_optimization_mission_complete.py": {
+        "file_path": "E:\\gh_COPILOT\\database_optimization_mission_complete.py",
+        "references": [
+          {
+            "original_reference": "DATABASE_OPTIMIZATION_MISSION_COMPLETE_REPORT.json",
+            "line_content": "report_path = Path(\"DATABASE_OPTIMIZATION_MISSION_COMPLETE_REPORT.json\")",
+            "line_number": 136,
+            "config_file_name": "DATABASE_OPTIMIZATION_MISSION_COMPLETE_REPORT.json",
+            "new_reference": "config/DATABASE_OPTIMIZATION_MISSION_COMPLETE_REPORT.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          }
+        ]
+      },
+      "database_script_reproduction_validator.py": {
+        "file_path": "E:\\gh_COPILOT\\database_script_reproduction_validator.py",
+        "references": [
+          {
+            "original_reference": "database_reproduction_validation_report.json",
+            "line_content": "report_file = validator.workspace_path / \"database_reproduction_validation_report.json\"",
+            "line_number": 518,
+            "config_file_name": "database_reproduction_validation_report.json",
+            "new_reference": "config/database_reproduction_validation_report.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          }
+        ]
+      },
+      "deployment_optimization_engine.py": {
+        "file_path": "E:\\gh_COPILOT\\deployment_optimization_engine.py",
+        "references": [
+          {
+            "original_reference": "production_access_config.json",
+            "line_content": "access_file = self.workspace_path / \"production_access_config.json\"",
+            "line_number": 206,
+            "config_file_name": "production_access_config.json",
+            "new_reference": "config/production_access_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_encryption_config.json",
+            "line_content": "encryption_file = self.workspace_path / \"production_encryption_config.json\"",
+            "line_number": 240,
+            "config_file_name": "production_encryption_config.json",
+            "new_reference": "config/production_encryption_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_audit_config.json",
+            "line_content": "audit_file = self.workspace_path / \"production_audit_config.json\"",
+            "line_number": 269,
+            "config_file_name": "production_audit_config.json",
+            "new_reference": "config/production_audit_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_ids_config.json",
+            "line_content": "ids_file = self.workspace_path / \"production_ids_config.json\"",
+            "line_number": 298,
+            "config_file_name": "production_ids_config.json",
+            "new_reference": "config/production_ids_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_monitoring_config.json",
+            "line_content": "monitoring_file = self.workspace_path / \"production_monitoring_config.json\"",
+            "line_number": 354,
+            "config_file_name": "production_monitoring_config.json",
+            "new_reference": "config/production_monitoring_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_analytics_config.json",
+            "line_content": "analytics_file = self.workspace_path / \"production_analytics_config.json\"",
+            "line_number": 382,
+            "config_file_name": "production_analytics_config.json",
+            "new_reference": "config/production_analytics_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_capacity_config.json",
+            "line_content": "capacity_file = self.workspace_path / \"production_capacity_config.json\"",
+            "line_number": 415,
+            "config_file_name": "production_capacity_config.json",
+            "new_reference": "config/production_capacity_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_alerting_config.json",
+            "line_content": "alerting_file = self.workspace_path / \"production_alerting_config.json\"",
+            "line_number": 455,
+            "config_file_name": "production_alerting_config.json",
+            "new_reference": "config/production_alerting_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_backup_config.json",
+            "line_content": "backup_config_file = self.workspace_path / \"production_backup_config.json\"",
+            "line_number": 514,
+            "config_file_name": "production_backup_config.json",
+            "new_reference": "config/production_backup_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_replication_config.json",
+            "line_content": "replication_file = self.workspace_path / \"production_replication_config.json\"",
+            "line_number": 542,
+            "config_file_name": "production_replication_config.json",
+            "new_reference": "config/production_replication_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_failover_config.json",
+            "line_content": "failover_file = self.workspace_path / \"production_failover_config.json\"",
+            "line_number": 570,
+            "config_file_name": "production_failover_config.json",
+            "new_reference": "config/production_failover_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_testing_config.json",
+            "line_content": "testing_file = self.workspace_path / \"production_testing_config.json\"",
+            "line_number": 600,
+            "config_file_name": "production_testing_config.json",
+            "new_reference": "config/production_testing_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_horizontal_scaling_config.json",
+            "line_content": "horizontal_file = self.workspace_path / \"production_horizontal_scaling_config.json\"",
+            "line_number": 649,
+            "config_file_name": "production_horizontal_scaling_config.json",
+            "new_reference": "config/production_horizontal_scaling_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_vertical_scaling_config.json",
+            "line_content": "vertical_file = self.workspace_path / \"production_vertical_scaling_config.json\"",
+            "line_number": 683,
+            "config_file_name": "production_vertical_scaling_config.json",
+            "new_reference": "config/production_vertical_scaling_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_load_balancer_config.json",
+            "line_content": "lb_file = self.workspace_path / \"production_load_balancer_config.json\"",
+            "line_number": 710,
+            "config_file_name": "production_load_balancer_config.json",
+            "new_reference": "config/production_load_balancer_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_auto_scaling_config.json",
+            "line_content": "auto_scaling_file = self.workspace_path / \"production_auto_scaling_config.json\"",
+            "line_number": 742,
+            "config_file_name": "production_auto_scaling_config.json",
+            "new_reference": "config/production_auto_scaling_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_security_validation.json",
+            "line_content": "security_file = self.workspace_path / \"production_security_validation.json\"",
+            "line_number": 785,
+            "config_file_name": "production_security_validation.json",
+            "new_reference": "config/production_security_validation.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_performance_validation.json",
+            "line_content": "performance_file = self.workspace_path / \"production_performance_validation.json\"",
+            "line_number": 808,
+            "config_file_name": "production_performance_validation.json",
+            "new_reference": "config/production_performance_validation.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_reliability_validation.json",
+            "line_content": "reliability_file = self.workspace_path / \"production_reliability_validation.json\"",
+            "line_number": 828,
+            "config_file_name": "production_reliability_validation.json",
+            "new_reference": "config/production_reliability_validation.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "production_operational_validation.json",
+            "line_content": "operational_file = self.workspace_path / \"production_operational_validation.json\"",
+            "line_number": 848,
+            "config_file_name": "production_operational_validation.json",
+            "new_reference": "config/production_operational_validation.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save access control configuration\n        access_file = self.workspace_path / ",
+            "line_content": "\"suspicious_activity\": \"flagged\"",
+            "line_number": 201,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save encryption configuration\n        encryption_file = self.workspace_path / ",
+            "line_content": "\"key_backup\": \"encrypted_offsite\"",
+            "line_number": 235,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save audit configuration\n        audit_file = self.workspace_path / ",
+            "line_content": "\"alert_generation\": \"automated\"",
+            "line_number": 264,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save IDS configuration\n        ids_file = self.workspace_path / ",
+            "line_content": "\"incident_response\": \"automated\"",
+            "line_number": 293,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save monitoring configuration\n        monitoring_file = self.workspace_path / ",
+            "line_content": "\"predictive_charts\": \"enabled\"",
+            "line_number": 349,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save analytics configuration\n        analytics_file = self.workspace_path / ",
+            "line_content": "\"implementation_priority\": \"risk_based\"",
+            "line_number": 377,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save capacity configuration\n        capacity_file = self.workspace_path / ",
+            "line_content": "\"forecast_alerts\": \"30_day_advance\"",
+            "line_number": 410,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "production_alerting_config.json",
+            "line_content": "alerting_file = self.workspace_path / \"production_alerting_config.json\"",
+            "line_number": 455,
+            "config_file_name": "production_alerting_config.json",
+            "new_reference": "config/production_alerting_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            shutil.copy2(db_path, backup_file)\n\n        # Save backup configuration\n        backup_config_file = self.workspace_path / ",
+            "line_content": "f\"{db_path.stem}_backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.db\"",
+            "line_number": 510,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save replication configuration\n        replication_file = self.workspace_path / ",
+            "line_content": "\"failback_policy\": \"manual_approval\"",
+            "line_number": 537,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save failover configuration\n        failover_file = self.workspace_path / ",
+            "line_content": "\"business_continuity\": \"annually\"",
+            "line_number": 565,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save testing configuration\n        testing_file = self.workspace_path / ",
+            "line_content": "\"performance\": \"within_sla\"",
+            "line_number": 595,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": ": 50\n            }\n        }\n\n        # Save horizontal scaling configuration\n        horizontal_file = self.workspace_path / ",
+            "line_content": "\"maximum_instances\": 50",
+            "line_number": 644,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save vertical scaling configuration\n        vertical_file = self.workspace_path / ",
+            "line_content": "\"manual_override\": \"enabled\"",
+            "line_number": 678,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": ": 2\n            }\n        }\n\n        # Save load balancer configuration\n        lb_file = self.workspace_path / ",
+            "line_content": "\"recovery_threshold\": 2",
+            "line_number": 705,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": ": 10\n            }\n        }\n\n        # Save auto-scaling configuration\n        auto_scaling_file = self.workspace_path / ",
+            "line_content": "\"maximum_scaling_step\": 10",
+            "line_number": 737,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "deployment_optimization_engine_fixed.py": {
+        "file_path": "E:\\gh_COPILOT\\deployment_optimization_engine_fixed.py",
+        "references": [
+          {
+            "original_reference": "replication_config.json",
+            "line_content": "config_path = self.workspace_path / \"replication_config.json\"",
+            "line_number": 198,
+            "config_file_name": "replication_config.json",
+            "new_reference": "config/replication_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": ": True\n        }\n\n        config_path = self.workspace_path / ",
+            "line_content": "'failover_enabled': True",
+            "line_number": 195,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "):\n            if config.is_file():\n                try:\n                    shutil.copy2(config, package_dir / ",
+            "line_content": "for config in self.workspace_path.glob(\"*.json\"):",
+            "line_number": 332,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "enterprise_audit_production_deployment.py": {
+        "file_path": "E:\\gh_COPILOT\\enterprise_audit_production_deployment.py",
+        "references": [
+          {
+            "original_reference": "\n        logging.basicConfig(\n            level=logging.INFO,\n            format=log_format,\n            handlers=[\n                logging.FileHandler(self.workspace_path / ",
+            "line_content": "log_format = '%(asctime)s - %(levelname)s - %(message)s'",
+            "line_number": 114,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "enterprise_file_relocation_orchestrator.py": {
+        "file_path": "E:\\gh_COPILOT\\enterprise_file_relocation_orchestrator.py",
+        "references": [
+          {
+            "original_reference": "quick_database_validation_results.json",
+            "line_content": "\"quick_database_validation_results.json\", \"database_validation_results.json\",",
+            "line_number": 185,
+            "config_file_name": "quick_database_validation_results.json",
+            "new_reference": "config/quick_database_validation_results.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          }
+        ]
+      },
+      "enterprise_flake8_quality_enhancement_system.py": {
+        "file_path": "E:\\gh_COPILOT\\enterprise_flake8_quality_enhancement_system.py",
+        "references": [
+          {
+            "original_reference": "\n        logging.basicConfig(\n            level=logging.INFO,\n            format=log_format,\n            handlers=[\n                logging.StreamHandler(sys.stdout),\n                logging.FileHandler(self.workspace_path / ",
+            "line_content": "log_format = \"%(asctime)s - %(levelname)s - %(message)s\"",
+            "line_number": 107,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "enterprise_optimization_engine.py": {
+        "file_path": "E:\\gh_COPILOT\\enterprise_optimization_engine.py",
+        "references": [
+          {
+            "original_reference": "enterprise_db_config.json",
+            "line_content": "config_file = self.workspace_path / \"enterprise_db_config.json\"",
+            "line_number": 219,
+            "config_file_name": "enterprise_db_config.json",
+            "new_reference": "config/enterprise_db_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_cache_config.json",
+            "line_content": "cache_file = self.workspace_path / \"enterprise_cache_config.json\"",
+            "line_number": 248,
+            "config_file_name": "enterprise_cache_config.json",
+            "new_reference": "config/enterprise_cache_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_analytics_config.json",
+            "line_content": "analytics_file = self.workspace_path / \"enterprise_analytics_config.json\"",
+            "line_number": 325,
+            "config_file_name": "enterprise_analytics_config.json",
+            "new_reference": "config/enterprise_analytics_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_pattern_config.json",
+            "line_content": "pattern_file = self.workspace_path / \"enterprise_pattern_config.json\"",
+            "line_number": 352,
+            "config_file_name": "enterprise_pattern_config.json",
+            "new_reference": "config/enterprise_pattern_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_ml_config.json",
+            "line_content": "ml_file = self.workspace_path / \"enterprise_ml_config.json\"",
+            "line_number": 384,
+            "config_file_name": "enterprise_ml_config.json",
+            "new_reference": "config/enterprise_ml_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_dashboard_config.json",
+            "line_content": "dashboard_file = self.workspace_path / \"enterprise_dashboard_config.json\"",
+            "line_number": 418,
+            "config_file_name": "enterprise_dashboard_config.json",
+            "new_reference": "config/enterprise_dashboard_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_audit_config.json",
+            "line_content": "audit_file = self.workspace_path / \"enterprise_audit_config.json\"",
+            "line_number": 467,
+            "config_file_name": "enterprise_audit_config.json",
+            "new_reference": "config/enterprise_audit_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_monitoring_config.json",
+            "line_content": "monitoring_file = self.workspace_path / \"enterprise_monitoring_config.json\"",
+            "line_number": 494,
+            "config_file_name": "enterprise_monitoring_config.json",
+            "new_reference": "config/enterprise_monitoring_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_policy_config.json",
+            "line_content": "policy_file = self.workspace_path / \"enterprise_policy_config.json\"",
+            "line_number": 521,
+            "config_file_name": "enterprise_policy_config.json",
+            "new_reference": "config/enterprise_policy_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_reporting_config.json",
+            "line_content": "reporting_file = self.workspace_path / \"enterprise_reporting_config.json\"",
+            "line_number": 549,
+            "config_file_name": "enterprise_reporting_config.json",
+            "new_reference": "config/enterprise_reporting_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_maintenance_config.json",
+            "line_content": "maintenance_file = self.workspace_path / \"enterprise_maintenance_config.json\"",
+            "line_number": 585,
+            "config_file_name": "enterprise_maintenance_config.json",
+            "new_reference": "config/enterprise_maintenance_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "enterprise_quantum_config.json",
+            "line_content": "quantum_file = self.workspace_path / \"enterprise_quantum_config.json\"",
+            "line_number": 624,
+            "config_file_name": "enterprise_quantum_config.json",
+            "new_reference": "config/enterprise_quantum_config.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "\n        }\n\n        # Save configuration for enterprise applications\n        config_file = self.workspace_path / ",
+            "line_content": "\"validation_query\": \"SELECT 1\"",
+            "line_number": 215,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": ": 1800\n            }\n        }\n\n        # Save caching configuration\n        cache_file = self.workspace_path / ",
+            "line_content": "\"refresh_interval\": 1800",
+            "line_number": 243,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save predictive analytics configuration\n        analytics_file = self.workspace_path / ",
+            "line_content": "\"alert_system\": \"integrated\"",
+            "line_number": 320,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save pattern recognition configuration\n        pattern_file = self.workspace_path / ",
+            "line_content": "\"trend_detection\": \"mann_kendall\"",
+            "line_number": 347,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save ML optimization configuration\n        ml_file = self.workspace_path / ",
+            "line_content": "\"memory_optimization\": \"gradient_checkpointing\"",
+            "line_number": 379,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save dashboard configuration\n        dashboard_file = self.workspace_path / ",
+            "line_content": "\"drill_down_capability\": \"enabled\"",
+            "line_number": 413,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save audit configuration\n        audit_file = self.workspace_path / ",
+            "line_content": "\"enterprise_policies\": \"enabled\"",
+            "line_number": 462,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save monitoring configuration\n        monitoring_file = self.workspace_path / ",
+            "line_content": "\"api_webhooks\": \"enabled\"",
+            "line_number": 489,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save policy configuration\n        policy_file = self.workspace_path / ",
+            "line_content": "\"operational_policies\": \"enforced\"",
+            "line_number": 516,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save reporting configuration\n        reporting_file = self.workspace_path / ",
+            "line_content": "\"raw_data\": \"json\"",
+            "line_number": 544,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save maintenance configuration\n        maintenance_file = self.workspace_path / ",
+            "line_content": "\"trend_analysis\": \"weekly\"",
+            "line_number": 580,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "\n            }\n        }\n\n        # Save quantum configuration\n        quantum_file = self.workspace_path / ",
+            "line_content": "\"fallback_mechanisms\": \"implemented\"",
+            "line_number": 619,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "enterprise_performance_optimization_framework.py": {
+        "file_path": "E:\\gh_COPILOT\\enterprise_performance_optimization_framework.py",
+        "references": [
+          {
+            "original_reference": "\n        logging.basicConfig(\n            level=logging.INFO,\n            format=log_format,\n            handlers=[\n                logging.StreamHandler(sys.stdout),\n                logging.FileHandler(self.workspace_path / ",
+            "line_content": "log_format = \"%(asctime)s - %(levelname)s - %(message)s\"",
+            "line_number": 114,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "enterprise_readiness_100_percent_optimizer.py": {
+        "file_path": "E:\\gh_COPILOT\\enterprise_readiness_100_percent_optimizer.py",
+        "references": [
+          {
+            "original_reference": "COPILOT_ENTERPRISE_CONFIG.json",
+            "line_content": "\"COPILOT_ENTERPRISE_CONFIG.json\",",
+            "line_number": 498,
+            "config_file_name": "COPILOT_ENTERPRISE_CONFIG.json",
+            "new_reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "DISASTER_RECOVERY_CONFIG.json",
+            "line_content": "\"DISASTER_RECOVERY_CONFIG.json\"",
+            "line_number": 499,
+            "config_file_name": "DISASTER_RECOVERY_CONFIG.json",
+            "new_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "COPILOT_ENTERPRISE_CONFIG.json",
+            "line_content": "\"COPILOT_ENTERPRISE_CONFIG.json\",",
+            "line_number": 498,
+            "config_file_name": "COPILOT_ENTERPRISE_CONFIG.json",
+            "new_reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "DISASTER_RECOVERY_CONFIG.json",
+            "line_content": "\"DISASTER_RECOVERY_CONFIG.json\"",
+            "line_number": 499,
+            "config_file_name": "DISASTER_RECOVERY_CONFIG.json",
+            "new_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "enterprise_readiness_final_completor.py": {
+        "file_path": "E:\\gh_COPILOT\\enterprise_readiness_final_completor.py",
+        "references": [
+          {
+            "original_reference": "ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+            "line_content": "config_path = self.workspace_path / \"ENTERPRISE_CONFIGURATION_OPTIMIZED.json\"",
+            "line_number": 261,
+            "config_file_name": "ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+            "new_reference": "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "\n                }\n            }\n            \n            # Save enterprise configuration\n            config_path = self.workspace_path / ",
+            "line_content": "\"template_intelligence\": \"100_PERCENT_COMPLETE\"",
+            "line_number": 256,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "git_repository_repair_with_database_sync.py": {
+        "file_path": "E:\\gh_COPILOT\\git_repository_repair_with_database_sync.py",
+        "references": [
+          {
+            "original_reference": "git_repair_database_sync_report.json",
+            "line_content": "report_file = self.workspace_path / \"git_repair_database_sync_report.json\"",
+            "line_number": 358,
+            "config_file_name": "git_repair_database_sync_report.json",
+            "new_reference": "config/git_repair_database_sync_report.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          }
+        ]
+      },
+      "optimize_to_100_percent.py": {
+        "file_path": "E:\\gh_COPILOT\\optimize_to_100_percent.py",
+        "references": [
+          {
+            "original_reference": "COPILOT_ENTERPRISE_CONFIG.json",
+            "line_content": "with open('COPILOT_ENTERPRISE_CONFIG.json', 'w') as f:",
+            "line_number": 396,
+            "config_file_name": "COPILOT_ENTERPRISE_CONFIG.json",
+            "new_reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "DISASTER_RECOVERY_CONFIG.json",
+            "line_content": "with open('DISASTER_RECOVERY_CONFIG.json', 'w') as f:",
+            "line_number": 526,
+            "config_file_name": "DISASTER_RECOVERY_CONFIG.json",
+            "new_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          },
+          {
+            "original_reference": "DISASTER_RECOVERY_CONFIG.json",
+            "line_content": "with open('DISASTER_RECOVERY_CONFIG.json', 'w') as f:",
+            "line_number": 526,
+            "config_file_name": "DISASTER_RECOVERY_CONFIG.json",
+            "new_reference": "config/DISASTER_RECOVERY_CONFIG.json",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "quick_database_analysis.py": {
+        "file_path": "E:\\gh_COPILOT\\quick_database_analysis.py",
+        "references": [
+          {
+            "original_reference": "quick_database_analysis_report.json",
+            "line_content": "report_file = workspace / \"quick_database_analysis_report.json\"",
+            "line_number": 113,
+            "config_file_name": "quick_database_analysis_report.json",
+            "new_reference": "config/quick_database_analysis_report.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          }
+        ]
+      },
+      "quick_database_test.py": {
+        "file_path": "E:\\gh_COPILOT\\quick_database_test.py",
+        "references": [
+          {
+            "original_reference": "quick_database_validation_results.json",
+            "line_content": "with open('quick_database_validation_results.json', 'w') as f:",
+            "line_number": 198,
+            "config_file_name": "quick_database_validation_results.json",
+            "new_reference": "config/quick_database_validation_results.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          }
+        ]
+      },
+      "self_healing_self_learning_system.py": {
+        "file_path": "E:\\gh_COPILOT\\self_healing_self_learning_system.py",
+        "references": [
+          {
+            "original_reference": "\n        logging.basicConfig(\n            level=logging.INFO,\n            format=log_format,\n            handlers=[\n                logging.FileHandler(self.workspace_path / ",
+            "line_content": "log_format = '%(asctime)s - %(levelname)s - %(message)s'",
+            "line_number": 123,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "] = True\n            \n            # Backup configuration\n            config_backup_dir = backup_root / ",
+            "line_content": "backup_results['script_backup'] = True",
+            "line_number": 1146,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          },
+          {
+            "original_reference": "))\n            config_files = list((backup_root / ",
+            "line_content": "script_files = list((backup_root / 'scripts').rglob('*.py'))",
+            "line_number": 1187,
+            "config_file_name": " ",
+            "new_reference": "config/ ",
+            "match_pattern": "[\"\\']([^\"\\']*config[^\"\\']*)[\"\\']"
+          }
+        ]
+      },
+      "simple_file_relocator.py": {
+        "file_path": "E:\\gh_COPILOT\\simple_file_relocator.py",
+        "references": [
+          {
+            "original_reference": "quick_database_validation_results.json",
+            "line_content": "\"quick_database_validation_results.json\", \"database_validation_results.json\"",
+            "line_number": 48,
+            "config_file_name": "quick_database_validation_results.json",
+            "new_reference": "config/quick_database_validation_results.json",
+            "match_pattern": "[\"\\']([^\"\\']*\\.json)[\"\\']"
+          }
+        ]
+      }
+    },
+    "updated_files": [
+      {
+        "script": "advanced_enterprise_features_expansion_framework.py",
+        "path": "E:\\gh_COPILOT\\advanced_enterprise_features_expansion_framework.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/ "
+        ]
+      },
+      {
+        "script": "autonomous_monitoring_system.py",
+        "path": "E:\\gh_COPILOT\\autonomous_monitoring_system.py",
+        "updates_made": 7,
+        "references_updated": [
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json"
+        ]
+      },
+      {
+        "script": "comprehensive_file_restoration_executor.py",
+        "path": "E:\\gh_COPILOT\\comprehensive_file_restoration_executor.py",
+        "updates_made": 6,
+        "references_updated": [
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+          "config/ ",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json"
+        ]
+      },
+      {
+        "script": "comprehensive_validation_summary_corrected.py",
+        "path": "E:\\gh_COPILOT\\comprehensive_validation_summary_corrected.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/database_consistency_report_final.json"
+        ]
+      },
+      {
+        "script": "configuration_path_updater.py",
+        "path": "E:\\gh_COPILOT\\configuration_path_updater.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/ "
+        ]
+      },
+      {
+        "script": "config_dependency_validator.py",
+        "path": "E:\\gh_COPILOT\\config_dependency_validator.py",
+        "updates_made": 18,
+        "references_updated": [
+          "config/advanced_features_config.json",
+          "config/replication_config.json",
+          "config/enterprise_master_config.json",
+          "config/advanced_features_config.json",
+          "config/replication_config.json",
+          "config/enterprise_master_config.json",
+          "config/production_access_config.json",
+          "config/enterprise_quantum_config.json",
+          "config/ ",
+          "config/ ",
+          "config/replication_config.json",
+          "config/ ",
+          "config/enterprise_master_config.json",
+          "config/advanced_features_config.json",
+          "config/replication_config.json",
+          "config/enterprise_master_config.json",
+          "config/production_access_config.json",
+          "config/enterprise_quantum_config.json"
+        ]
+      },
+      {
+        "script": "database_consistency_checker_corrected.py",
+        "path": "E:\\gh_COPILOT\\database_consistency_checker_corrected.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/database_consistency_report_corrected.json"
+        ]
+      },
+      {
+        "script": "database_consistency_checker_final.py",
+        "path": "E:\\gh_COPILOT\\database_consistency_checker_final.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/database_consistency_report_final.json"
+        ]
+      },
+      {
+        "script": "database_mapping_updater.py",
+        "path": "E:\\gh_COPILOT\\database_mapping_updater.py",
+        "updates_made": 4,
+        "references_updated": [
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json"
+        ]
+      },
+      {
+        "script": "database_mapping_updater_corrected.py",
+        "path": "E:\\gh_COPILOT\\database_mapping_updater_corrected.py",
+        "updates_made": 4,
+        "references_updated": [
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json",
+          "config/advanced_features_config.json"
+        ]
+      },
+      {
+        "script": "database_optimization_mission_complete.py",
+        "path": "E:\\gh_COPILOT\\database_optimization_mission_complete.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/DATABASE_OPTIMIZATION_MISSION_COMPLETE_REPORT.json"
+        ]
+      },
+      {
+        "script": "database_script_reproduction_validator.py",
+        "path": "E:\\gh_COPILOT\\database_script_reproduction_validator.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/database_reproduction_validation_report.json"
+        ]
+      },
+      {
+        "script": "deployment_optimization_engine.py",
+        "path": "E:\\gh_COPILOT\\deployment_optimization_engine.py",
+        "updates_made": 36,
+        "references_updated": [
+          "config/production_access_config.json",
+          "config/production_encryption_config.json",
+          "config/production_audit_config.json",
+          "config/production_ids_config.json",
+          "config/production_monitoring_config.json",
+          "config/production_analytics_config.json",
+          "config/production_capacity_config.json",
+          "config/production_alerting_config.json",
+          "config/production_backup_config.json",
+          "config/production_replication_config.json",
+          "config/production_failover_config.json",
+          "config/production_testing_config.json",
+          "config/production_horizontal_scaling_config.json",
+          "config/production_vertical_scaling_config.json",
+          "config/production_load_balancer_config.json",
+          "config/production_auto_scaling_config.json",
+          "config/production_security_validation.json",
+          "config/production_performance_validation.json",
+          "config/production_reliability_validation.json",
+          "config/production_operational_validation.json",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/production_alerting_config.json",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ "
+        ]
+      },
+      {
+        "script": "deployment_optimization_engine_fixed.py",
+        "path": "E:\\gh_COPILOT\\deployment_optimization_engine_fixed.py",
+        "updates_made": 3,
+        "references_updated": [
+          "config/replication_config.json",
+          "config/ ",
+          "config/ "
+        ]
+      },
+      {
+        "script": "enterprise_audit_production_deployment.py",
+        "path": "E:\\gh_COPILOT\\enterprise_audit_production_deployment.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/ "
+        ]
+      },
+      {
+        "script": "enterprise_file_relocation_orchestrator.py",
+        "path": "E:\\gh_COPILOT\\enterprise_file_relocation_orchestrator.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/quick_database_validation_results.json"
+        ]
+      },
+      {
+        "script": "enterprise_flake8_quality_enhancement_system.py",
+        "path": "E:\\gh_COPILOT\\enterprise_flake8_quality_enhancement_system.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/ "
+        ]
+      },
+      {
+        "script": "enterprise_optimization_engine.py",
+        "path": "E:\\gh_COPILOT\\enterprise_optimization_engine.py",
+        "updates_made": 24,
+        "references_updated": [
+          "config/enterprise_db_config.json",
+          "config/enterprise_cache_config.json",
+          "config/enterprise_analytics_config.json",
+          "config/enterprise_pattern_config.json",
+          "config/enterprise_ml_config.json",
+          "config/enterprise_dashboard_config.json",
+          "config/enterprise_audit_config.json",
+          "config/enterprise_monitoring_config.json",
+          "config/enterprise_policy_config.json",
+          "config/enterprise_reporting_config.json",
+          "config/enterprise_maintenance_config.json",
+          "config/enterprise_quantum_config.json",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ ",
+          "config/ "
+        ]
+      },
+      {
+        "script": "enterprise_performance_optimization_framework.py",
+        "path": "E:\\gh_COPILOT\\enterprise_performance_optimization_framework.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/ "
+        ]
+      },
+      {
+        "script": "enterprise_readiness_100_percent_optimizer.py",
+        "path": "E:\\gh_COPILOT\\enterprise_readiness_100_percent_optimizer.py",
+        "updates_made": 4,
+        "references_updated": [
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json"
+        ]
+      },
+      {
+        "script": "enterprise_readiness_final_completor.py",
+        "path": "E:\\gh_COPILOT\\enterprise_readiness_final_completor.py",
+        "updates_made": 2,
+        "references_updated": [
+          "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+          "config/ "
+        ]
+      },
+      {
+        "script": "git_repository_repair_with_database_sync.py",
+        "path": "E:\\gh_COPILOT\\git_repository_repair_with_database_sync.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/git_repair_database_sync_report.json"
+        ]
+      },
+      {
+        "script": "optimize_to_100_percent.py",
+        "path": "E:\\gh_COPILOT\\optimize_to_100_percent.py",
+        "updates_made": 3,
+        "references_updated": [
+          "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json",
+          "config/DISASTER_RECOVERY_CONFIG.json"
+        ]
+      },
+      {
+        "script": "quick_database_analysis.py",
+        "path": "E:\\gh_COPILOT\\quick_database_analysis.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/quick_database_analysis_report.json"
+        ]
+      },
+      {
+        "script": "quick_database_test.py",
+        "path": "E:\\gh_COPILOT\\quick_database_test.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/quick_database_validation_results.json"
+        ]
+      },
+      {
+        "script": "self_healing_self_learning_system.py",
+        "path": "E:\\gh_COPILOT\\self_healing_self_learning_system.py",
+        "updates_made": 3,
+        "references_updated": [
+          "config/ ",
+          "config/ ",
+          "config/ "
+        ]
+      },
+      {
+        "script": "simple_file_relocator.py",
+        "path": "E:\\gh_COPILOT\\simple_file_relocator.py",
+        "updates_made": 1,
+        "references_updated": [
+          "config/quick_database_validation_results.json"
+        ]
+      }
+    ],
+    "validation_results": {
+      "valid_paths": 129,
+      "invalid_paths": 0,
+      "validation_details": [
+        {
+          "script": "advanced_enterprise_features_expansion_framework.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "autonomous_monitoring_system.py",
+          "reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\COPILOT_ENTERPRISE_CONFIG.json"
+        },
+        {
+          "script": "autonomous_monitoring_system.py",
+          "reference": "config/DISASTER_RECOVERY_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+        },
+        {
+          "script": "autonomous_monitoring_system.py",
+          "reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\COPILOT_ENTERPRISE_CONFIG.json"
+        },
+        {
+          "script": "autonomous_monitoring_system.py",
+          "reference": "config/DISASTER_RECOVERY_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+        },
+        {
+          "script": "autonomous_monitoring_system.py",
+          "reference": "config/DISASTER_RECOVERY_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+        },
+        {
+          "script": "autonomous_monitoring_system.py",
+          "reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\COPILOT_ENTERPRISE_CONFIG.json"
+        },
+        {
+          "script": "autonomous_monitoring_system.py",
+          "reference": "config/DISASTER_RECOVERY_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+        },
+        {
+          "script": "comprehensive_file_restoration_executor.py",
+          "reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\COPILOT_ENTERPRISE_CONFIG.json"
+        },
+        {
+          "script": "comprehensive_file_restoration_executor.py",
+          "reference": "config/DISASTER_RECOVERY_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+        },
+        {
+          "script": "comprehensive_file_restoration_executor.py",
+          "reference": "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ENTERPRISE_CONFIGURATION_OPTIMIZED.json"
+        },
+        {
+          "script": "comprehensive_file_restoration_executor.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "comprehensive_file_restoration_executor.py",
+          "reference": "config/DISASTER_RECOVERY_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+        },
+        {
+          "script": "comprehensive_file_restoration_executor.py",
+          "reference": "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ENTERPRISE_CONFIGURATION_OPTIMIZED.json"
+        },
+        {
+          "script": "comprehensive_validation_summary_corrected.py",
+          "reference": "config/database_consistency_report_final.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\database_consistency_report_final.json"
+        },
+        {
+          "script": "configuration_path_updater.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/advanced_features_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\advanced_features_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/replication_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\replication_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/enterprise_master_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_master_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/advanced_features_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\advanced_features_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/replication_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\replication_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/enterprise_master_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_master_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/production_access_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_access_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/enterprise_quantum_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_quantum_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/replication_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\replication_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/enterprise_master_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_master_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/advanced_features_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\advanced_features_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/replication_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\replication_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/enterprise_master_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_master_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/production_access_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_access_config.json"
+        },
+        {
+          "script": "config_dependency_validator.py",
+          "reference": "config/enterprise_quantum_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_quantum_config.json"
+        },
+        {
+          "script": "database_consistency_checker_corrected.py",
+          "reference": "config/database_consistency_report_corrected.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\database_consistency_report_corrected.json"
+        },
+        {
+          "script": "database_consistency_checker_final.py",
+          "reference": "config/database_consistency_report_final.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\database_consistency_report_final.json"
+        },
+        {
+          "script": "database_mapping_updater.py",
+          "reference": "config/advanced_features_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\advanced_features_config.json"
+        },
+        {
+          "script": "database_mapping_updater.py",
+          "reference": "config/advanced_features_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\advanced_features_config.json"
+        },
+        {
+          "script": "database_mapping_updater.py",
+          "reference": "config/advanced_features_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\advanced_features_config.json"
+        },
+        {
+          "script": "database_mapping_updater.py",
+          "reference": "config/advanced_features_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\advanced_features_config.json"
+        },
+        {
+          "script": "database_mapping_updater_corrected.py",
+          "reference": "config/advanced_features_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\advanced_features_config.json"
+        },
+        {
+          "script": "database_mapping_updater_corrected.py",
+          "reference": "config/advanced_features_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\advanced_features_config.json"
+        },
+        {
+          "script": "database_mapping_updater_corrected.py",
+          "reference": "config/advanced_features_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\advanced_features_config.json"
+        },
+        {
+          "script": "database_mapping_updater_corrected.py",
+          "reference": "config/advanced_features_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\advanced_features_config.json"
+        },
+        {
+          "script": "database_optimization_mission_complete.py",
+          "reference": "config/DATABASE_OPTIMIZATION_MISSION_COMPLETE_REPORT.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\DATABASE_OPTIMIZATION_MISSION_COMPLETE_REPORT.json"
+        },
+        {
+          "script": "database_script_reproduction_validator.py",
+          "reference": "config/database_reproduction_validation_report.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\database_reproduction_validation_report.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_access_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_access_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_encryption_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_encryption_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_audit_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_audit_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_ids_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_ids_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_monitoring_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_monitoring_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_analytics_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_analytics_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_capacity_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_capacity_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_alerting_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_alerting_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_backup_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_backup_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_replication_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_replication_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_failover_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_failover_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_testing_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_testing_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_horizontal_scaling_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_horizontal_scaling_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_vertical_scaling_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_vertical_scaling_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_load_balancer_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_load_balancer_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_auto_scaling_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_auto_scaling_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_security_validation.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_security_validation.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_performance_validation.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_performance_validation.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_reliability_validation.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_reliability_validation.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_operational_validation.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_operational_validation.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/production_alerting_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\production_alerting_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine_fixed.py",
+          "reference": "config/replication_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\replication_config.json"
+        },
+        {
+          "script": "deployment_optimization_engine_fixed.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "deployment_optimization_engine_fixed.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_audit_production_deployment.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_file_relocation_orchestrator.py",
+          "reference": "config/quick_database_validation_results.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\quick_database_validation_results.json"
+        },
+        {
+          "script": "enterprise_flake8_quality_enhancement_system.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_db_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_db_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_cache_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_cache_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_analytics_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_analytics_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_pattern_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_pattern_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_ml_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_ml_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_dashboard_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_dashboard_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_audit_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_audit_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_monitoring_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_monitoring_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_policy_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_policy_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_reporting_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_reporting_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_maintenance_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_maintenance_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/enterprise_quantum_config.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\enterprise_quantum_config.json"
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_optimization_engine.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_performance_optimization_framework.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "enterprise_readiness_100_percent_optimizer.py",
+          "reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\COPILOT_ENTERPRISE_CONFIG.json"
+        },
+        {
+          "script": "enterprise_readiness_100_percent_optimizer.py",
+          "reference": "config/DISASTER_RECOVERY_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+        },
+        {
+          "script": "enterprise_readiness_100_percent_optimizer.py",
+          "reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\COPILOT_ENTERPRISE_CONFIG.json"
+        },
+        {
+          "script": "enterprise_readiness_100_percent_optimizer.py",
+          "reference": "config/DISASTER_RECOVERY_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+        },
+        {
+          "script": "enterprise_readiness_final_completor.py",
+          "reference": "config/ENTERPRISE_CONFIGURATION_OPTIMIZED.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ENTERPRISE_CONFIGURATION_OPTIMIZED.json"
+        },
+        {
+          "script": "enterprise_readiness_final_completor.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "git_repository_repair_with_database_sync.py",
+          "reference": "config/git_repair_database_sync_report.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\git_repair_database_sync_report.json"
+        },
+        {
+          "script": "optimize_to_100_percent.py",
+          "reference": "config/COPILOT_ENTERPRISE_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\COPILOT_ENTERPRISE_CONFIG.json"
+        },
+        {
+          "script": "optimize_to_100_percent.py",
+          "reference": "config/DISASTER_RECOVERY_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+        },
+        {
+          "script": "optimize_to_100_percent.py",
+          "reference": "config/DISASTER_RECOVERY_CONFIG.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\DISASTER_RECOVERY_CONFIG.json"
+        },
+        {
+          "script": "quick_database_analysis.py",
+          "reference": "config/quick_database_analysis_report.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\quick_database_analysis_report.json"
+        },
+        {
+          "script": "quick_database_test.py",
+          "reference": "config/quick_database_validation_results.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\quick_database_validation_results.json"
+        },
+        {
+          "script": "self_healing_self_learning_system.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "self_healing_self_learning_system.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "self_healing_self_learning_system.py",
+          "reference": "config/ ",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\ "
+        },
+        {
+          "script": "simple_file_relocator.py",
+          "reference": "config/quick_database_validation_results.json",
+          "accessible": true,
+          "full_path": "E:\\gh_COPILOT\\config\\quick_database_validation_results.json"
+        }
+      ]
+    }
+  },
+  "success_metrics": {
+    "scripts_analyzed": 270,
+    "scripts_updated": 27,
+    "config_references_updated": 129,
+    "errors_encountered": 0,
+    "success_rate": "100.0%"
+  },
+  "recommendations": [
+    "Test updated scripts to ensure functionality",
+    "Verify config file accessibility from scripts",
+    "Monitor for any remaining path issues",
+    "Update documentation with new config/ structure"
+  ],
+  "next_steps": [
+    "Phase 2: Functionality Validation",
+    "Phase 3: Final System Validation",
+    "Complete workspace integrity check"
+  ]
+}

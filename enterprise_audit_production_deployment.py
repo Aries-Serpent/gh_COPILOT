@@ -111,12 +111,7 @@ class EnterpriseAuditSystem:
     
     def _setup_logging(self):
         """Setup comprehensive logging system"""
-        log_format = '%(asctime)s - %(levelname)s - %(message)s'
-        logging.basicConfig(
-            level=logging.INFO,
-            format=log_format,
-            handlers=[
-                logging.FileHandler(self.workspace_path / 'enterprise_audit.log'),
+        log_format = '%(asctime)s - %(levelname)s - %(message)s'config/ 'enterprise_audit.log'),
                 logging.StreamHandler(sys.stdout)
             ]
         )

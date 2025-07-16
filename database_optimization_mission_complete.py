@@ -133,7 +133,7 @@ def generate_mission_complete_report():
     }
     
     # Save completion report
-    report_path = Path("DATABASE_OPTIMIZATION_MISSION_COMPLETE_REPORT.json")
+    report_path = Path("config/DATABASE_OPTIMIZATION_MISSION_COMPLETE_REPORT.json")
     with open(report_path, 'w', encoding='utf-8') as f:
         json.dump(completion_report, f, indent=2, ensure_ascii=False)
     

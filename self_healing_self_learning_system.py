@@ -120,12 +120,7 @@ class SelfHealingSelfLearningSystem:
     
     def _setup_logging(self):
         """Setup comprehensive logging system"""
-        log_format = '%(asctime)s - %(levelname)s - %(message)s'
-        logging.basicConfig(
-            level=logging.INFO,
-            format=log_format,
-            handlers=[
-                logging.FileHandler(self.workspace_path / 'autonomous_system.log'),
+        log_format = '%(asctime)s - %(levelname)s - %(message)s'config/ 'autonomous_system.log'),
                 logging.StreamHandler(sys.stdout)
             ]
         )
@@ -1184,8 +1179,7 @@ class SelfHealingSelfLearningSystem:
             
             # Check if files were actually backed up
             db_files = list((backup_root / 'databases').glob('*.db'))
-            script_files = list((backup_root / 'scripts').rglob('*.py'))
-            config_files = list((backup_root / 'configuration').rglob('*.json'))
+            script_files = list((backup_root / 'scripts').rglob('*.py'config/ 'configuration').rglob('*.json'))
             
             return len(db_files) > 0 and len(script_files) > 0 and len(config_files) > 0
             

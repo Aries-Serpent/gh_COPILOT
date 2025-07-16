@@ -137,13 +137,7 @@ class AdvancedEnterpriseFeatureExpansion:
     
     def setup_enterprise_logging(self):
         """Setup enterprise logging with feature tracking"""
-        log_format = "%(asctime)s - %(levelname)s - %(message)s"
-        logging.basicConfig(
-            level=logging.INFO,
-            format=log_format,
-            handlers=[
-                logging.StreamHandler(sys.stdout),
-                logging.FileHandler(self.workspace_path / "enterprise_features_expansion.log")
+        log_format = "%(asctime)s - %(levelname)s - %(message)s"config/ "enterprise_features_expansion.log")
             ]
         )
         self.logger = logging.getLogger(__name__)

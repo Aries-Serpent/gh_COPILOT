@@ -515,7 +515,7 @@ def main():
         report, action_statement = validator.execute_full_validation()
         
         # Save report
-        report_file = validator.workspace_path / "database_reproduction_validation_report.json"
+        report_file = validator.workspace_path / "config/database_reproduction_validation_report.json"
         with open(report_file, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
         
