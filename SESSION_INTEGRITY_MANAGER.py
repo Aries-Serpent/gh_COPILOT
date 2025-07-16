@@ -130,29 +130,35 @@ class SessionIntegrityManager:
             database_count = 0
             valid_databases = 0
 
-            for db_file in self.workspace_path.glob("*.db"):
-                if db_file.is_file() and db_file.stat().st_size > 0:
-                    database_count += 1
+            # Search for databases in multiple locations
+            search_patterns = ["*.db", "databases/*.db", "**/*.db"]
+            
+            for pattern in search_patterns:
+                for db_file in self.workspace_path.glob(pattern):
+                    if (db_file.is_file() and 
+                        db_file.stat().st_size > 0 and 
+                        "_ZERO_BYTE_QUARANTINE" not in str(db_file)):
+                        database_count += 1
 
-                    try:
-                        with sqlite3.connect(db_file) as conn:
-                            # Perform integrity check
-                            cursor = conn.cursor()
-                            cursor.execute("PRAGMA integrity_check")
-                            result = cursor.fetchone()
+                        try:
+                            with sqlite3.connect(db_file) as conn:
+                                # Perform integrity check
+                                cursor = conn.cursor()
+                                cursor.execute("PRAGMA integrity_check")
+                                result = cursor.fetchone()
 
-                            if result and result[0] == "ok":
-                                valid_databases += 1
-                            else:
-                                logging.warning(f"[WARNING] Database integrity issue: {db_file}")
+                                if result and result[0] == "ok":
+                                    valid_databases += 1
+                                else:
+                                    logging.warning(f"[WARNING] Database integrity issue: {db_file}")
 
-                                if self.auto_fix:
-                                    # Attempt auto-repair
-                                    cursor.execute("VACUUM")
-                                    logging.info(f"[AUTOFIX] Attempted repair of {db_file}")
+                                    if self.auto_fix:
+                                        # Attempt auto-repair
+                                        cursor.execute("VACUUM")
+                                        logging.info(f"[AUTOFIX] Attempted repair of {db_file}")
 
-                    except Exception as e:
-                        logging.error(f"[ERROR] Database validation failed for {db_file}: {e}")
+                        except Exception as e:
+                            logging.error(f"[ERROR] Database validation failed for {db_file}: {e}")
 
             integrity_percentage = (
                 valid_databases /
@@ -262,9 +268,10 @@ class SessionIntegrityManager:
 
             enterprise_compliance = len(missing_components) == 0
 
-            # Check deployment package exists
+            # Check deployment package exists (ZIP or JSON)
             deployment_packages = list(self.workspace_path.glob("deployment_package_*.zip"))
-            has_deployment_package = len(deployment_packages) > 0
+            deployment_json = list(self.workspace_path.glob("deployment_package.json"))
+            has_deployment_package = len(deployment_packages) > 0 or len(deployment_json) > 0
 
             self.validation_results['enterprise_compliance'] = enterprise_compliance \
         and has_deployment_package
