@@ -46,7 +46,7 @@ Consult [`docs/INSTRUCTION_INDEX.md`](docs/INSTRUCTION_INDEX.md) for all availab
 1. **Database-First Operations** – Query `production.db` and related databases before any filesystem or code changes. All database files must remain below **99.9 MB**.
 2. **Dual Copilot Pattern** – Every critical workflow uses a primary executor and a secondary validator.
 3. **Visual Processing Indicators** – Scripts must include progress bars, start time logging, timeouts, ETC calculation, and real-time status updates.
-4. **Anti‑Recursion & Backup Rules** – Backups must never be stored inside the workspace. Use the external root `E:/temp/gh_COPILOT_Backups` and validate paths with `validate_enterprise_operation()`.
+4. **Anti‑Recursion & Backup Rules** – Backups must never be stored inside the workspace. Use the external root `/temp/gh_COPILOT_Backups` and validate paths with `validate_enterprise_operation()`.
 5. **Session Integrity & Continuous Operation** – Sessions begin and end with integrity validation and zero-byte checks. Continuous monitoring runs 24/7.
 6. **Response Chunking** – Responses should stay under 2,000 tokens (1,500–1,800 preferred) and start with anti-recursion validation.
 7. **Quantum & AI Protocols** – Quantum features are aspirational until fully implemented and tested. Placeholders must not be treated as production code.
