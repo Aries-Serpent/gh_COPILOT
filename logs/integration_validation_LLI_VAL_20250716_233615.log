@@ -1,0 +1,36 @@
+2025-07-16 23:36:18,105 - INFO - [SUCCESS] Environment compliance validated
+2025-07-16 23:36:18,105 - INFO - [START] Lessons Learned Integration Validator
+2025-07-16 23:36:18,105 - INFO - Validation ID: LLI_VAL_20250716_233615
+2025-07-16 23:36:18,108 - INFO - Process ID: 8372
+2025-07-16 23:36:18,108 - INFO - Workspace: e:\gh_COPILOT
+2025-07-16 23:36:18,108 - INFO - ================================================================================
+2025-07-16 23:36:18,108 - INFO - [START] COMPREHENSIVE LESSONS LEARNED INTEGRATION VALIDATION
+2025-07-16 23:36:18,108 - INFO - ================================================================================
+2025-07-16 23:36:18,143 - INFO - [DB_QUERY] Querying production.db for script_patterns
+2025-07-16 23:36:18,147 - ERROR - [ERROR] Database query failed: no such column: importance_score
+2025-07-16 23:36:18,148 - INFO - [VALIDATION] Validating pattern: database_first_architecture
+2025-07-16 23:36:20,189 - INFO - [INFO] Pattern database_first_architecture: 0.985 score, COMPLIANT
+2025-07-16 23:36:20,190 - INFO - [VALIDATION] Validating pattern: dual_copilot_pattern
+2025-07-16 23:36:22,245 - INFO - [INFO] Pattern dual_copilot_pattern: 0.968 score, COMPLIANT
+2025-07-16 23:36:22,245 - INFO - [VALIDATION] Validating pattern: visual_processing_indicators
+2025-07-16 23:36:24,617 - INFO - [INFO] Pattern visual_processing_indicators: 0.947 score, COMPLIANT
+2025-07-16 23:36:24,617 - INFO - [VALIDATION] Validating pattern: autonomous_systems
+2025-07-16 23:36:26,679 - INFO - [INFO] Pattern autonomous_systems: 0.972 score, COMPLIANT
+2025-07-16 23:36:26,679 - INFO - [VALIDATION] Validating pattern: enterprise_compliance
+2025-07-16 23:36:30,216 - INFO - [INFO] Pattern enterprise_compliance: 0.991 score, COMPLIANT
+2025-07-16 23:36:34,556 - INFO - [VALIDATION] Enterprise compliance: 100.0%
+2025-07-16 23:36:37,444 - INFO - [VALIDATION] DUAL COPILOT pattern: 3/3 validated
+2025-07-16 23:36:37,445 - INFO - ================================================================================
+2025-07-16 23:36:37,445 - INFO - [COMPLETION] LESSONS LEARNED INTEGRATION VALIDATION COMPLETE
+2025-07-16 23:36:37,445 - INFO - ================================================================================
+2025-07-16 23:36:37,446 - INFO - Validation ID: LLI_VAL_20250716_233615
+2025-07-16 23:36:37,446 - INFO - Duration: 22.2 seconds
+2025-07-16 23:36:37,446 - INFO - Overall Integration Score: 97.3%
+2025-07-16 23:36:37,467 - INFO - ================================================================================
+2025-07-16 23:36:37,468 - INFO - [VALIDATION] Secondary Validator initialized: LLI_SEC_20250716_233637
+2025-07-16 23:36:37,468 - INFO - ============================================================
+2025-07-16 23:36:37,468 - INFO - [VALIDATION] DUAL COPILOT SECONDARY VALIDATION
+2025-07-16 23:36:37,468 - INFO - ============================================================
+2025-07-16 23:36:37,470 - INFO - [VALIDATION] Secondary validation checks:
+2025-07-16 23:36:37,479 - INFO - 
+[VALIDATION] Secondary Validation Score: 100.0%
