@@ -39,16 +39,28 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     template_dir = template_dir or (workspace / "prompts")
     files = _gather_template_files(template_dir)
 
-    with sqlite3.connect(db_path) as conn, tqdm(total=len(files), desc="Templates", unit="file") as bar:
+    with sqlite3.connect(db_path) as conn, tqdm(
+        total=len(files), desc="Templates", unit="file"
+    ) as bar:
         for path in files:
             content = path.read_text(encoding="utf-8")
             digest = hashlib.sha256(content.encode()).hexdigest()
             conn.execute(
-                "INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)",
-                (str(path.relative_to(workspace)), digest, datetime.now(timezone.utc).isoformat()),
+                (
+                    "INSERT INTO template_assets (template_path, content_hash, "
+                    "created_at) VALUES (?, ?, ?)"
+                ),
+                (
+                    str(path.relative_to(workspace)),
+                    digest,
+                    datetime.now(timezone.utc).isoformat(),
+                ),
             )
             conn.execute(
-                "INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)",
+                (
+                    "INSERT INTO pattern_assets (pattern, usage_count, "
+                    "created_at) VALUES (?, 0, ?)"
+                ),
                 (content[:1000], datetime.now(timezone.utc).isoformat()),
             )
             bar.update(1)

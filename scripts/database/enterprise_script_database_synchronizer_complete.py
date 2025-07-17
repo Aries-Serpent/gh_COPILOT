@@ -12,11 +12,10 @@ Enterprise Standards Compliance:
 
 import json
 import logging
-import sqlite3
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 from script_database_validator import TEXT_INDICATORS, ScriptDatabaseValidator
 
