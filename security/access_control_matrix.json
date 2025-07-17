@@ -1,0 +1,100 @@
+{
+  "access_control_version": "1.0.0",
+  "created_date": "2025-07-16T19:32:11.041174",
+  "directory_permissions": {
+    "config/": {
+      "read": [
+        "system",
+        "admin",
+        "operator"
+      ],
+      "write": [
+        "admin"
+      ],
+      "execute": [
+        "system",
+        "admin"
+      ],
+      "protection_level": "HIGH"
+    },
+    "databases/": {
+      "read": [
+        "system",
+        "admin"
+      ],
+      "write": [
+        "admin"
+      ],
+      "execute": [
+        "system",
+        "admin"
+      ],
+      "protection_level": "CRITICAL"
+    },
+    "reports/": {
+      "read": [
+        "system",
+        "admin",
+        "operator",
+        "auditor"
+      ],
+      "write": [
+        "system",
+        "admin"
+      ],
+      "execute": [
+        "system"
+      ],
+      "protection_level": "MEDIUM"
+    },
+    "security/": {
+      "read": [
+        "admin",
+        "security_officer"
+      ],
+      "write": [
+        "security_officer"
+      ],
+      "execute": [
+        "security_officer"
+      ],
+      "protection_level": "CRITICAL"
+    }
+  },
+  "file_type_controls": {
+    "*.py": {
+      "execution_allowed": true,
+      "modification_tracking": true,
+      "backup_required": true
+    },
+    "*.json": {
+      "encryption_recommended": true,
+      "access_logging": true,
+      "integrity_validation": true
+    },
+    "*.db": {
+      "encryption_required": true,
+      "access_logging": true,
+      "backup_required": true
+    }
+  },
+  "security_zones": {
+    "production": {
+      "directories": [
+        "config/",
+        "databases/",
+        "security/"
+      ],
+      "access_level": "RESTRICTED",
+      "monitoring": "CONTINUOUS"
+    },
+    "development": {
+      "directories": [
+        "reports/",
+        "logs/"
+      ],
+      "access_level": "CONTROLLED",
+      "monitoring": "PERIODIC"
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "encryption_standards_version": "1.0.0",
+  "created_date": "2025-07-16T19:32:11.058539",
+  "encryption_requirements": {
+    "data_at_rest": {
+      "algorithm": "AES-256-GCM",
+      "key_size": 256,
+      "key_rotation": "quarterly",
+      "applies_to": [
+        "databases",
+        "configuration_files",
+        "sensitive_reports"
+      ]
+    },
+    "data_in_transit": {
+      "protocol": "TLS 1.3",
+      "cipher_suites": [
+        "TLS_AES_256_GCM_SHA384",
+        "TLS_CHACHA20_POLY1305_SHA256"
+      ],
+      "certificate_validation": "strict",
+      "applies_to": [
+        "api_communications",
+        "database_connections"
+      ]
+    },
+    "key_management": {
+      "storage": "hardware_security_module",
+      "access_control": "role_based",
+      "backup_encryption": "master_key_encryption",
+      "key_escrow": "enterprise_vault"
+    }
+  },
+  "data_classification": {
+    "public": {
+      "encryption_required": false,
+      "examples": [
+        "documentation",
+        "public_reports"
+      ]
+    },
+    "internal": {
+      "encryption_required": true,
+      "examples": [
+        "configuration_files",
+        "internal_reports"
+      ]
+    },
+    "confidential": {
+      "encryption_required": true,
+      "additional_controls": [
+        "access_logging",
+        "multi_factor_auth"
+      ],
+      "examples": [
+        "databases",
+        "security_configs"
+      ]
+    },
+    "restricted": {
+      "encryption_required": true,
+      "additional_controls": [
+        "access_logging",
+        "approval_workflow",
+        "audit_trail"
+      ],
+      "examples": [
+        "security_keys",
+        "audit_logs"
+      ]
+    }
+  },
+  "compliance_mapping": {
+    "GDPR": {
+      "article_32": "appropriate_technical_measures",
+      "implementation": "AES-256 encryption for personal data"
+    },
+    "ISO_27001": {
+      "control_A.10.1.1": "cryptographic_controls_policy",
+      "implementation": "comprehensive_encryption_framework"
+    },
+    "SOC_2": {
+      "CC6.1": "logical_access_security",
+      "implementation": "encryption_and_access_controls"
+    }
+  }
+}

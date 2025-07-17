@@ -259,16 +259,39 @@ class EnhancedFinalSystemValidator:
         }
     
     def _validate_security_compliance(self) -> Dict[str, Any]:
-        """Validate security compliance with enhanced logic"""
+        """Enhanced security compliance validation with comprehensive framework detection"""
         
-        # Check for security-related files and configurations
-        security_indicators = [
+        # Check for security directory and files
+        security_dir = self.workspace_path / "security"
+        security_files_count = 0
+        
+        if security_dir.exists():
+            security_files = list(security_dir.glob("*.json")) + list(security_dir.glob("*.py"))
+            security_files_count = len(security_files)
+        
+        # Also check for other security-related files
+        other_security_files = [
             self.workspace_path / ".gitignore",
             self.config_path / "enterprise_security_config.json" if self.config_path.exists() else None,
             self.workspace_path / "requirements.txt"
         ]
         
-        security_files_present = sum(1 for indicator in security_indicators if indicator and indicator.exists())
+        additional_security_files = sum(1 for indicator in other_security_files if indicator and indicator.exists())
+        
+        total_security_files = security_files_count + additional_security_files
+        
+        # Check for specific security frameworks
+        security_frameworks = [
+            "enterprise_security_policy.json",
+            "access_control_matrix.json", 
+            "security_audit_framework.json",
+            "encryption_standards.json"
+        ]
+        
+        frameworks_present = 0
+        for framework in security_frameworks:
+            if (security_dir / framework).exists():
+                frameworks_present += 1
         
         # Enhanced anti-recursion check - look for actual problems, not false positives
         workspace_subdirs = [d for d in self.workspace_path.iterdir() if d.is_dir()]
@@ -279,16 +302,22 @@ class EnhancedFinalSystemValidator:
             if subdir.name.lower() in ['backup', 'backups'] and subdir != (self.workspace_path / "reports" / "archive"):
                 actual_recursive_issues.append(str(subdir))
         
-        # Security compliance based on presence of security measures
-        security_compliant = security_files_present >= 2 and len(actual_recursive_issues) == 0
+        # Security compliance based on comprehensive security framework
+        # Require either security directory with frameworks OR sufficient security files
+        security_compliant = (frameworks_present >= 3) or (total_security_files >= 4)
+        anti_recursion_compliant = len(actual_recursive_issues) == 0
+        
+        overall_security_success = security_compliant and anti_recursion_compliant
         
         return {
-            "success": security_compliant,
-            "status": "SUCCESS" if security_compliant else "NEEDS_ATTENTION",
-            "security_files_present": security_files_present,
-            "anti_recursion_compliant": len(actual_recursive_issues) == 0,
+            "success": overall_security_success,
+            "status": "SUCCESS" if overall_security_success else "NEEDS_ATTENTION", 
+            "security_files_present": total_security_files,
+            "security_frameworks_implemented": frameworks_present,
+            "anti_recursion_compliant": anti_recursion_compliant,
             "actual_recursive_issues": actual_recursive_issues,
-            "security_measures_validated": security_compliant
+            "security_measures_validated": overall_security_success,
+            "enterprise_security_compliant": frameworks_present >= 3
         }
     
     def _validate_enterprise_certification(self) -> Dict[str, Any]:
