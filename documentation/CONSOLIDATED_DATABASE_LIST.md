@@ -3,6 +3,7 @@
 The following SQLite databases remain after consolidating analytics data:
 
 - analytics.db
+- enterprise_assets.db
 - archive.db
 - autonomous_decisions.db
 - capability_scaler.db
