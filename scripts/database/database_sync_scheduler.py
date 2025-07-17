@@ -13,6 +13,8 @@ from pathlib import Path
 from sqlite3 import connect
 from typing import Iterable
 
+from .cross_database_sync_logger import log_sync_operation
+
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     level=logging.INFO,
@@ -30,10 +32,28 @@ def _copy_database(source: Path, target: Path) -> None:
         logger.error("Failed to synchronize %s -> %s: %s", source, target, exc)
 
 
-def synchronize_databases(master: Path, replicas: Iterable[Path]) -> None:
-    """Synchronize replica databases with the master database."""
+def synchronize_databases(
+    master: Path, replicas: Iterable[Path], log_db: Path | None = None
+) -> None:
+    """Synchronize replica databases with the master database.
+
+    Parameters
+    ----------
+    master:
+        Source database to copy from.
+    replicas:
+        Iterable of replica database paths.
+    log_db:
+        Optional path to ``enterprise_assets.db`` for audit logging.
+    """
+    if log_db:
+        log_sync_operation(log_db, f"start_sync_from_{master.name}")
     for replica in replicas:
         _copy_database(master, replica)
+        if log_db:
+            log_sync_operation(log_db, f"synchronized_{replica.name}")
+    if log_db:
+        log_sync_operation(log_db, f"completed_sync_from_{master.name}")
 
 
 def _load_database_names(list_file: Path) -> list[str]:
@@ -49,11 +69,41 @@ def _load_database_names(list_file: Path) -> list[str]:
 
 
 if __name__ == "__main__":
-    workspace = Path("./databases")
-    master_db = workspace / "production.db"
-    list_path = Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md"
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Synchronize databases")
+    parser.add_argument(
+        "--workspace",
+        type=Path,
+        default=Path(".").resolve(),
+        help="Workspace root containing databases/",
+    )
+    parser.add_argument(
+        "--master",
+        type=str,
+        default="production.db",
+        help="Master database filename",
+    )
+    parser.add_argument(
+        "--list-file",
+        type=Path,
+        default=Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md",
+        help="File listing databases to sync",
+    )
+    parser.add_argument(
+        "--log-db",
+        type=str,
+        default="enterprise_assets.db",
+        help="Database filename used for logging",
+    )
+
+    args = parser.parse_args()
+
+    workspace = args.workspace / "databases"
+    master_db = workspace / args.master
+    list_path = args.list_file
     db_names = _load_database_names(list_path)
-    replica_dbs = [
-        workspace / name for name in db_names if name != "production.db"
-    ]
-    synchronize_databases(master_db, replica_dbs)
+    replica_dbs = [workspace / name for name in db_names if name != args.master]
+
+    log_db_path = workspace / args.log_db if args.log_db else None
+    synchronize_databases(master_db, replica_dbs, log_db=log_db_path)
