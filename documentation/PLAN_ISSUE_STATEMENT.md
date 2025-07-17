@@ -103,7 +103,7 @@ This document outlines the finalized strategy for merging 40+ SQLite databases i
 
 ## 🗂️ Autonomous File Management
 - All file operations must use `production.db` and approved databases for organization.
-- Backup roots outside the workspace only (`E:/temp/gh_COPILOT_Backups`).
+- Backup roots outside the workspace only (`/temp/gh_COPILOT_Backups`).
 
 ## 🛡️ Session Integrity & Dual Copilot
 - Begin and end sessions with integrity checks and zero-byte scanning.
@@ -111,4 +111,4 @@ This document outlines the finalized strategy for merging 40+ SQLite databases i
 
 ---
 
-This plan leverages the existing `PLAN_ISSUED_STATEMENT.instructions.md` as a template and provides explicit steps to achieve the unified database strategy while ensuring size compliance and regeneration capabilities.
+This plan leverages the existing `PLAN_ISSUE_STATEMENT.instructions.md` as a template and provides explicit steps to achieve the unified database strategy while ensuring size compliance and regeneration capabilities.
