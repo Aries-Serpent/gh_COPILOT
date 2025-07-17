@@ -18,7 +18,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
-from script_database_validator import ScriptDatabaseValidator, TEXT_INDICATORS
+from script_database_validator import TEXT_INDICATORS, ScriptDatabaseValidator
+
+from .cross_database_sync_logger import log_sync_operation
+from .unified_database_initializer import initialize_database
 
 
 class EnterpriseScriptDatabaseSynchronizer:
@@ -30,7 +33,11 @@ class EnterpriseScriptDatabaseSynchronizer:
         self.validator = ScriptDatabaseValidator(workspace_root)
         self.results_dir = self.workspace_root / 'results' / 'script_sync'
         self.results_dir.mkdir(parents=True, exist_ok=True)
-        
+
+        # Enterprise unified database
+        self.enterprise_db = self.workspace_root / 'databases' / 'enterprise_assets.db'
+        initialize_database(self.enterprise_db)
+
         # Setup logging
         logging.basicConfig(
             level=logging.INFO,
@@ -44,8 +51,10 @@ class EnterpriseScriptDatabaseSynchronizer:
 
     def perform_comprehensive_sync(self, auto_sync: bool = False, backup_db: bool = True) -> Dict:
         """Perform comprehensive synchronization with validation"""
-        self.logger.info(f"{TEXT_INDICATORS['start']} Starting comprehensive script database synchronization...")
-        
+        self.logger.info(
+            f"{TEXT_INDICATORS['start']} Starting comprehensive script database synchronization...")
+        log_sync_operation(self.enterprise_db, "start_sync")
+
         sync_session = {
             'session_id': f"sync_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
             'start_time': datetime.now().isoformat(),
@@ -55,57 +64,63 @@ class EnterpriseScriptDatabaseSynchronizer:
             'sync_results': {},
             'completion_status': 'in_progress'
         }
-        
+
         try:
             # Step 1: Backup database if requested
             if backup_db:
+                log_sync_operation(self.enterprise_db, "backup_start")
                 sync_session['backup_created'] = self._backup_databases()
-            
+                log_sync_operation(self.enterprise_db, "backup_complete")
+
             # Step 2: Validate current state
             self.logger.info(f"{TEXT_INDICATORS['info']} Performing initial validation...")
             initial_results = self.validator.validate_script_sync()
             sync_session['validation_results']['initial'] = initial_results
-            
+
             # Step 3: Generate detailed report
             report_file = self.results_dir / f"validation_report_{sync_session['session_id']}.md"
             self.validator.generate_validation_report(str(report_file))
             sync_session['initial_report'] = str(report_file)
-            
+
             # Step 4: Perform synchronization if requested
             if auto_sync:
                 sync_session['sync_results'] = self._perform_synchronization(initial_results)
-                
+
                 # Step 5: Post-sync validation
                 final_results = self.validator.validate_script_sync()
                 sync_session['validation_results']['final'] = final_results
-                
+
                 # Generate final report
-                final_report_file = self.results_dir / f"final_report_{sync_session['session_id']}.md"
+                final_report_file = self.results_dir / \
+                    f"final_report_{sync_session['session_id']}.md"
                 self.validator.generate_validation_report(str(final_report_file))
                 sync_session['final_report'] = str(final_report_file)
-            
+
             sync_session['completion_status'] = 'completed'
             sync_session['end_time'] = datetime.now().isoformat()
-            
+            log_sync_operation(self.enterprise_db, "sync_complete")
+
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Synchronization failed: {e}")
             sync_session['completion_status'] = 'failed'
             sync_session['error'] = str(e)
-        
+            log_sync_operation(self.enterprise_db, "sync_failed")
+
         # Save session results
         session_file = self.results_dir / f"sync_session_{sync_session['session_id']}.json"
         with open(session_file, 'w') as f:
             json.dump(sync_session, f, indent=2, default=str)
-        
+
         self._log_sync_summary(sync_session)
         return sync_session
 
     def _backup_databases(self) -> bool:
         """Create backup of all databases"""
         try:
-            backup_dir = self.workspace_root / 'archives' / 'database_backups' / datetime.now().strftime('%Y%m%d_%H%M%S')
+            backup_dir = self.workspace_root / 'archives' / \
+                'database_backups' / datetime.now().strftime('%Y%m%d_%H%M%S')
             backup_dir.mkdir(parents=True, exist_ok=True)
-            
+
             databases_dir = self.workspace_root / 'databases'
             if databases_dir.exists():
                 import shutil
@@ -113,8 +128,10 @@ class EnterpriseScriptDatabaseSynchronizer:
                     backup_file = backup_dir / db_file.name
                     shutil.copy2(db_file, backup_file)
                     self.logger.info(f"{TEXT_INDICATORS['database']} Backed up {db_file.name}")
-            
-            self.logger.info(f"{TEXT_INDICATORS['success']} Database backup completed: {backup_dir}")
+
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Database backup completed: {backup_dir}")
+            log_sync_operation(self.enterprise_db, f"backup_created_{backup_dir.name}")
             return True
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Backup failed: {e}")
@@ -128,33 +145,37 @@ class EnterpriseScriptDatabaseSynchronizer:
             'errors': [],
             'operations': []
         }
-        
+
         try:
             # Get scripts that need synchronization
             missing_scripts = [item['script'] for item in validation_results['missing_from_db']]
             out_of_sync_scripts = [item['script'] for item in validation_results['hash_mismatches']]
-            
+
             all_scripts_to_sync = list(set(missing_scripts + out_of_sync_scripts))
-            
+
             if all_scripts_to_sync:
-                self.logger.info(f"{TEXT_INDICATORS['sync']} Synchronizing {len(all_scripts_to_sync)} scripts...")
-                
+                self.logger.info(
+                    f"{TEXT_INDICATORS['sync']} Synchronizing {len(all_scripts_to_sync)} scripts...")
+
                 success = self.validator.update_database_scripts(all_scripts_to_sync)
                 if success:
                     sync_results['scripts_updated'] = len(out_of_sync_scripts)
                     sync_results['scripts_added'] = len(missing_scripts)
                     sync_results['operations'].append(f"Updated {len(all_scripts_to_sync)} scripts")
+                    log_sync_operation(self.enterprise_db,
+                                       f"updated_{len(all_scripts_to_sync)}_scripts")
                 else:
                     sync_results['errors'].append("Failed to update database scripts")
             else:
                 self.logger.info(f"{TEXT_INDICATORS['info']} No scripts require synchronization")
                 sync_results['operations'].append("No synchronization required")
-            
+                log_sync_operation(self.enterprise_db, "no_scripts_needed")
+
         except Exception as e:
             error_msg = f"Synchronization error: {e}"
             sync_results['errors'].append(error_msg)
             self.logger.error(f"{TEXT_INDICATORS['error']} {error_msg}")
-        
+
         return sync_results
 
     def _log_sync_summary(self, session: Dict) -> None:
@@ -163,30 +184,39 @@ class EnterpriseScriptDatabaseSynchronizer:
         self.logger.info(f"{TEXT_INDICATORS['info']} Session ID: {session['session_id']}")
         self.logger.info(f"{TEXT_INDICATORS['info']} Status: {session['completion_status']}")
         self.logger.info(f"{TEXT_INDICATORS['info']} Auto-sync: {session['auto_sync']}")
-        
+
         if 'validation_results' in session and 'initial' in session['validation_results']:
             initial = session['validation_results']['initial']
-            self.logger.info(f"{TEXT_INDICATORS['info']} Initial Sync: {initial['sync_percentage']:.2f}%")
-            self.logger.info(f"{TEXT_INDICATORS['info']} Scripts in Repo: {initial['total_repo_scripts']}")
-            self.logger.info(f"{TEXT_INDICATORS['info']} Scripts in DB: {initial['total_db_scripts']}")
-            self.logger.info(f"{TEXT_INDICATORS['warning']} Missing from DB: {len(initial['missing_from_db'])}")
-            self.logger.info(f"{TEXT_INDICATORS['warning']} Hash Mismatches: {len(initial['hash_mismatches'])}")
-        
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} Initial Sync: {initial['sync_percentage']:.2f}%")
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} Scripts in Repo: {initial['total_repo_scripts']}")
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} Scripts in DB: {initial['total_db_scripts']}")
+            self.logger.info(
+                f"{TEXT_INDICATORS['warning']} Missing from DB: {len(initial['missing_from_db'])}")
+            self.logger.info(
+                f"{TEXT_INDICATORS['warning']} Hash Mismatches: {len(initial['hash_mismatches'])}")
+
         if session['auto_sync'] and 'sync_results' in session:
             sync_res = session['sync_results']
-            self.logger.info(f"{TEXT_INDICATORS['sync']} Scripts Added: {sync_res['scripts_added']}")
-            self.logger.info(f"{TEXT_INDICATORS['sync']} Scripts Updated: {sync_res['scripts_updated']}")
-            
+            self.logger.info(
+                f"{TEXT_INDICATORS['sync']} Scripts Added: {sync_res['scripts_added']}")
+            self.logger.info(
+                f"{TEXT_INDICATORS['sync']} Scripts Updated: {sync_res['scripts_updated']}")
+
             if 'final' in session['validation_results']:
                 final = session['validation_results']['final']
-                self.logger.info(f"{TEXT_INDICATORS['success']} Final Sync: {final['sync_percentage']:.2f}%")
-        
-        self.logger.info(f"{TEXT_INDICATORS['info']} Session completed: {session.get('end_time', 'N/A')}")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Final Sync: {final['sync_percentage']:.2f}%")
+
+        self.logger.info(
+            f"{TEXT_INDICATORS['info']} Session completed: {session.get('end_time', 'N/A')}")
 
     def generate_enterprise_compliance_report(self) -> str:
         """Generate enterprise compliance report for audit purposes"""
         self.logger.info(f"{TEXT_INDICATORS['start']} Generating enterprise compliance report...")
-        
+
         compliance_data = {
             'report_timestamp': datetime.now().isoformat(),
             'validation_performed': True,
@@ -195,13 +225,13 @@ class EnterpriseScriptDatabaseSynchronizer:
             'database_backup_available': True,
             'audit_trail_complete': True
         }
-        
+
         # Perform validation for compliance data
         validation_results = self.validator.validate_script_sync()
         compliance_data['sync_percentage'] = validation_results['sync_percentage']
         compliance_data['total_scripts_validated'] = validation_results['total_repo_scripts']
         compliance_data['integrity_issues'] = len(validation_results['hash_mismatches'])
-        
+
         # Generate compliance report
         report_lines = [
             "# Enterprise Script Database Compliance Report",
@@ -224,14 +254,15 @@ class EnterpriseScriptDatabaseSynchronizer:
             f"- Recommendation: {'System is properly synchronized' if compliance_data['sync_percentage'] > 95 else 'Immediate synchronization required'}",
             ""
         ]
-        
+
         compliance_report = "\n".join(report_lines)
-        
+
         # Save compliance report
-        compliance_file = self.results_dir / f"enterprise_compliance_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+        compliance_file = self.results_dir / \
+            f"enterprise_compliance_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
         with open(compliance_file, 'w') as f:
             f.write(compliance_report)
-        
+
         self.logger.info(f"{TEXT_INDICATORS['success']} Compliance report saved: {compliance_file}")
         return compliance_report
 
@@ -239,21 +270,23 @@ class EnterpriseScriptDatabaseSynchronizer:
 def main():
     """Main execution function"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Enterprise Script Database Synchronizer")
     parser.add_argument('--workspace', '-w', default='.', help="Workspace root directory")
-    parser.add_argument('--auto-sync', '-s', action='store_true', help="Automatically synchronize databases")
+    parser.add_argument('--auto-sync', '-s', action='store_true',
+                        help="Automatically synchronize databases")
     parser.add_argument('--no-backup', action='store_true', help="Skip database backup")
-    parser.add_argument('--compliance-report', '-c', action='store_true', help="Generate compliance report")
+    parser.add_argument('--compliance-report', '-c', action='store_true',
+                        help="Generate compliance report")
     parser.add_argument('--verbose', '-v', action='store_true', help="Verbose output")
-    
+
     args = parser.parse_args()
-    
+
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
-    
+
     synchronizer = EnterpriseScriptDatabaseSynchronizer(args.workspace)
-    
+
     if args.compliance_report:
         report = synchronizer.generate_enterprise_compliance_report()
         print(report)
@@ -262,13 +295,14 @@ def main():
             auto_sync=args.auto_sync,
             backup_db=not args.no_backup
         )
-        
-        print(f"\n{TEXT_INDICATORS['success']} Synchronization session completed: {session['session_id']}")
+
+        print(
+            f"\n{TEXT_INDICATORS['success']} Synchronization session completed: {session['session_id']}")
         print(f"{TEXT_INDICATORS['info']} Status: {session['completion_status']}")
-        
+
         if 'initial_report' in session:
             print(f"{TEXT_INDICATORS['info']} Initial report: {session['initial_report']}")
-        
+
         if session['auto_sync'] and 'final_report' in session:
             print(f"{TEXT_INDICATORS['info']} Final report: {session['final_report']}")
 
