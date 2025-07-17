@@ -33,12 +33,23 @@ def check_database_sizes(directory: Path, threshold_mb: float = THRESHOLD_MB) ->
 
 
 def main() -> None:
-    root = Path(__file__).resolve().parents[1]
-    databases_dir = root / "databases"
-    if not databases_dir.exists():
-        logger.error("Databases directory not found: %s", databases_dir)
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Check SQLite database sizes")
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        default=Path(__file__).resolve().parents[1] / "databases",
+        type=Path,
+        help="Directory containing databases",
+    )
+
+    args = parser.parse_args()
+
+    if not args.directory.exists():
+        logger.error("Databases directory not found: %s", args.directory)
         sys.exit(1)
-    if check_database_sizes(databases_dir):
+    if check_database_sizes(args.directory):
         logger.info("All databases comply with size restrictions")
     else:
         sys.exit(1)

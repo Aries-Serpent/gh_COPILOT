@@ -18,12 +18,22 @@ logger = logging.getLogger(__name__)
 
 
 def _gather_template_files(directory: Path) -> list[Path]:
-    """Return list of markdown files under directory."""
-    return [p for p in directory.rglob("*.md") if p.is_file()]
+    """Return a sorted list of Markdown template files under ``directory``."""
+    files = [p for p in directory.rglob("*.md") if p.is_file()]
+    return sorted(files)
 
 
 def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
-    """Load template and pattern data into enterprise_assets.db."""
+    """Load template and pattern data into ``enterprise_assets.db``.
+
+    Parameters
+    ----------
+    workspace:
+        The workspace root containing the ``databases`` directory.
+    template_dir:
+        Optional path to the template directory. Defaults to
+        ``workspace / 'prompts'``.
+    """
     db_dir = workspace / "databases"
     db_path = db_dir / "enterprise_assets.db"
     template_dir = template_dir or (workspace / "prompts")
@@ -49,5 +59,20 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
 
 
 if __name__ == "__main__":
-    ROOT = Path(__file__).resolve().parents[1]
-    ingest_templates(ROOT)
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Ingest templates")
+    parser.add_argument(
+        "--workspace",
+        default=Path(__file__).resolve().parents[1],
+        type=Path,
+        help="Workspace root",
+    )
+    parser.add_argument(
+        "--templates-dir",
+        type=Path,
+        help="Directory containing template markdown files",
+    )
+
+    args = parser.parse_args()
+    ingest_templates(args.workspace, args.templates_dir)

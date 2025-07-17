@@ -29,9 +29,23 @@ def log_sync_operation(db_path: Path, operation: str) -> None:
 
 
 if __name__ == "__main__":
-    root = Path(__file__).resolve().parents[1]
-    db_path = root / "databases" / "enterprise_assets.db"
-    if not db_path.exists():
-        logger.error("Database not found: %s", db_path)
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Log a sync operation")
+    parser.add_argument(
+        "--database",
+        default=Path(__file__).resolve().parents[1] / "databases" / "enterprise_assets.db",
+        type=Path,
+        help="Path to enterprise_assets.db",
+    )
+    parser.add_argument(
+        "operation",
+        default="manual_invocation",
+        help="Operation description",
+    )
+
+    args = parser.parse_args()
+    if not args.database.exists():
+        logger.error("Database not found: %s", args.database)
     else:
-        log_sync_operation(db_path, "manual invocation")
+        log_sync_operation(args.database, args.operation)

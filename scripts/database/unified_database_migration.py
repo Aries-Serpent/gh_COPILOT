@@ -27,7 +27,15 @@ DEFAULT_SOURCES = [
 
 
 def run_migration(workspace: Path, sources: list[str] = DEFAULT_SOURCES) -> None:
-    """Migrate selected databases into enterprise_assets.db."""
+    """Migrate the given database ``sources`` into ``enterprise_assets.db``.
+
+    Parameters
+    ----------
+    workspace:
+        Workspace root containing the ``databases`` directory.
+    sources:
+        List of database file names to migrate.
+    """
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
@@ -49,5 +57,21 @@ def run_migration(workspace: Path, sources: list[str] = DEFAULT_SOURCES) -> None
 
 
 if __name__ == "__main__":
-    root = Path(__file__).resolve().parents[1]
-    run_migration(root)
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run unified database migration")
+    parser.add_argument(
+        "--workspace",
+        default=Path(__file__).resolve().parents[1],
+        type=Path,
+        help="Workspace root",
+    )
+    parser.add_argument(
+        "sources",
+        nargs="*",
+        default=DEFAULT_SOURCES,
+        help="Database files to migrate",
+    )
+
+    args = parser.parse_args()
+    run_migration(args.workspace, args.sources)

@@ -19,12 +19,22 @@ logger = logging.getLogger(__name__)
 
 
 def _gather_markdown_files(directory: Path) -> list[Path]:
-    """Return list of Markdown files under directory."""
-    return [p for p in directory.rglob("*.md") if p.is_file()]
+    """Return a sorted list of Markdown files under ``directory``."""
+    files = [p for p in directory.rglob("*.md") if p.is_file()]
+    return sorted(files)
 
 
 def ingest_documentation(workspace: Path, docs_dir: Path | None = None) -> None:
-    """Ingest markdown documentation into enterprise_assets.db."""
+    """Ingest Markdown files into ``enterprise_assets.db``.
+
+    Parameters
+    ----------
+    workspace:
+        The workspace root containing the ``databases`` directory.
+    docs_dir:
+        Optional path to the documentation directory. Defaults to
+        ``workspace / 'documentation'``.
+    """
     db_dir = workspace / "databases"
     db_path = db_dir / "enterprise_assets.db"
     docs_dir = docs_dir or (workspace / "documentation")
@@ -46,5 +56,20 @@ def ingest_documentation(workspace: Path, docs_dir: Path | None = None) -> None:
 
 
 if __name__ == "__main__":
-    ROOT = Path(__file__).resolve().parents[1]
-    ingest_documentation(ROOT)
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Ingest documentation")
+    parser.add_argument(
+        "--workspace",
+        default=Path(__file__).resolve().parents[1],
+        type=Path,
+        help="Workspace root",
+    )
+    parser.add_argument(
+        "--docs-dir",
+        type=Path,
+        help="Directory containing markdown files",
+    )
+
+    args = parser.parse_args()
+    ingest_documentation(args.workspace, args.docs_dir)
