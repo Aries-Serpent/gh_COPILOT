@@ -1,4 +1,4 @@
-# 📋 PLAN ISSUED STATEMENT – Unified Database Consolidation & Management
+# 📋 PLAN ISSUE STATEMENT – Unified Database Consolidation & Management
 
 ## 🎯 Objective Definition
 
@@ -136,10 +136,10 @@ Phased execution over 3–4 weeks.
 
 ## 🚀 Execution Plan
 
-1. **Week 1** – Inventory databases and finalize schema.
-2. **Week 2** – Migrate templates, patterns, scripts, and documentation.
-3. **Week 3** – Update synchronization workflow and ingest remaining assets.
-4. **Week 4** – Validate, archive old databases, and update documentation.
+1. Inventory databases and finalize schema.
+2. Migrate templates, patterns, scripts, and documentation.
+3. Update synchronization workflow and ingest remaining assets.
+4. Validate, archive old databases, and update documentation.
 
 ---
 
@@ -185,7 +185,7 @@ All new scripts must be generated using stored patterns in the `databases/` fold
 
 ## 🗂️ Autonomous File Management Mandate
 
-All file operations must leverage `production.db` and related databases for intelligent organization. Backup paths must reside outside the workspace (`E:/temp/gh_COPILOT_Backups`) and be validated with `validate_enterprise_operation()`.
+All file operations must leverage `production.db` and related databases for intelligent organization. Backup paths must reside outside the workspace (`/temp/gh_COPILOT_Backups`) and be validated with `validate_enterprise_operation()`.
 
 ---
 
