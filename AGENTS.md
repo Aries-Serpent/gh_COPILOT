@@ -1,119 +1,78 @@
-# AGENTS.md – gh_COPILOT Toolkit
+# AGENTS Guide for ChatGPT Codex
 
-## Overview
-
-This document defines all agent roles—**human and automated**—in the gh_COPILOT Toolkit (v4.0).  
-All agents are responsible for strict adherence to enterprise protocols:  
-- **Database-First Operations**
-- **Dual Copilot Validation**
-- **Anti-Recursion & Backup Rules**
-- **Mandatory Visual Progress Indicators**
-- **Session Integrity & Continuous Operation**
-- **Chunked Responses**
-
-**Quantum features** remain aspirational until backed by functional, validated code. No placeholder logic is permitted in production.  
-_This guide is optimized for use by ChatGPT-CODEX and similar agents._
+## Purpose
+This guide is written for **automated ChatGPT Codex agents** operating within the **gh_COPILOT Toolkit**. It summarizes environment setup, Codex agent roles, and mandatory protocols pulled from documentation, instructions, and Copilot notes.
 
 ---
 
-## Human Agent Roles
+## 1. Environment Setup
 
-| Role                    | Description                                                                                       |
-|-------------------------|---------------------------------------------------------------------------------------------------|
-| **Lead System Architect**    | Approves all architecture, system design, and compliance.                                         |
-| **DevOps Engineer**          | Manages CI/CD, infrastructure, Docker, and deployment.                                            |
-| **AI/ML Specialist**         | Implements, validates, and documents all AI and quantum features.                                 |
-| **Full-Stack Developer**     | Extends unified systems, APIs, and web GUIs.                                                     |
-| **Compliance Officer**       | Validates anti-recursion, backup policies, and session integrity.                                 |
-| **Database Engineer**        | Maintains, optimizes, and enforces schema/database-first protocols.                               |
+1. **Python 3.8+** required.
+2. Install core dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Optional extras:
+   ```bash
+   pip install -r requirements-web.txt     # Web dashboard
+   pip install -r requirements-ml.txt      # ML/AI features
+   ```
+4. Run tests with `make test`. This installs packages from `requirements-test.txt` such as `tqdm`, `numpy`, `qiskit>=1.4,<2.0`, `qiskit-aer`, and `qiskit-machine-learning`.
+5. Set the workspace root via the `GH_COPILOT_WORKSPACE` environment variable.
 
----
-
-## Automated Agent Roles
-
-| Agent Name                       | Responsibility & Scope                                                                                       |
-|----------------------------------|-------------------------------------------------------------------------------------------------------------|
-| **DualCopilotOrchestrator**      | Executes critical flows and validates all outputs (primary+secondary).                                       |
-| **UnifiedMonitoringOptimizationSystem** | Provides continuous system health monitoring, analytics, and optimization.                          |
-| **QuantumOptimizationEngine**    | (Planned) Implements real quantum optimizations—**no stubs allowed in production**.                         |
-| **UnifiedScriptGenerationSystem**| Generates scripts and code strictly from `production.db` templates/patterns.                                 |
-| **UnifiedSessionManagementSystem**| Enforces zero-byte file checks, anti-recursion, and session logging at boundaries.                        |
-| **UnifiedDisasterRecoverySystem**| Handles backup/restore events, disaster recovery workflows.                                                  |
-| **LegacyCleanupSystem**          | Cleans up workspace, archives legacy assets, prevents workspace bloat.                                       |
-| **WebGUIIntegrationSystem**      | Provides web dashboard endpoints, integrates UI monitoring and reporting.                                    |
-| **CI/CD Workflows**              | Automates lint, test, build, and deployment processes.                                                       |
-| **EnterpriseComplianceValidator**| Audits all security and protocol compliance; logs all critical actions.                                      |
-
-> **Agent Lifecycle:** Register new agents here; deprecate legacy roles in this file.  
-> **Audit Logging:** All agent actions must be logged to the audit database for traceability.
+Consult [`docs/INSTRUCTION_INDEX.md`](docs/INSTRUCTION_INDEX.md) for all available instruction modules.
 
 ---
 
-## Core Agent Protocols
+## 2. Agent Roles
 
-### 1. Database-First Operations
-> All file, code, and cognitive tasks must **first query `production.db`** (and any related schemas) for templates/patterns prior to performing any filesystem operations.
-
-### 2. Dual Copilot Pattern
-- Every critical workflow must utilize:
-  - **Primary Executor**: Executes action, logs outputs, visual progress.
-  - **Secondary Validator**: Validates output, context, and conformance to all standards.
-
-### 3. Visual Processing Compliance
-- Every Copilot/agent action must provide visual, **plain-text progress indicators** (e.g., progress bars/logs).
-- No emojis—cross-platform, text-based only.
-- See `final_enterprise_orchestrator.py` for reference.
-
-### 4. Anti-Recursion & Backup Rules
-- Never create backup folders inside the workspace.
-- All backups must reside in `E:/temp/gh_COPILOT_Backups`.
-- Validate backup paths with `validate_enterprise_operation()`.
-- Scan for zero-byte files at **session start and end**.
-
-### 5. Session Integrity & Continuous Operation
-- Integrity checks and session logs are required at every session boundary.
-- Monitoring and optimization systems must run in **continuous operation** (Phase 4+).
-
-### 6. Chunked Responses
-- All agent responses must be chunked under **2,000 tokens** (preferably 1,500–1,800).
-- Each chunk: starts with anti-recursion validation, provides context, details, next-step transition.
-
-### 7. Quantum & AI Protocols
-- **No quantum/AI features are considered implemented unless**:  
-  - Fully functional code exists in the repo.
-  - Accompanied by passing tests and updated documentation.
-- No references to incomplete/placeholder quantum features are permitted in production.
+### Codex Agents
+| Agent | Core Function |
+|-------|---------------|
+| **DualCopilotOrchestrator** | Primary executor with secondary validator. |
+| **UnifiedMonitoringOptimizationSystem** | Continuous health monitoring. |
+| **QuantumOptimizationEngine** | Aspirational quantum optimization. |
+| **UnifiedScriptGenerationSystem** | Generates scripts from `production.db` patterns. |
+| **UnifiedSessionManagementSystem** | Zero-byte and anti-recursion checks. |
+| **UnifiedDisasterRecoverySystem** | Backup and restore operations. |
+| **LegacyCleanupSystem** | Workspace cleanup and archival. |
+| **WebGUIIntegrationSystem** | Dashboard endpoints and reporting. |
+| **EnterpriseComplianceValidator** | Security and compliance audits. |
 
 ---
 
-## Coding, Contribution & Audit Standards
+## 3. Core Protocols
 
-- **Type hints and docstrings required** for all agent scripts.
-- Follow **PEP 8** and **flake8**.
-- Use `autopep8` and `isort` for formatting; lint with `flake8`.
-- Never modify bundled or version-controlled SQLite databases.
-- Always update/create tests when code changes; run `make test`.
-- **Short, imperative commit messages only.**
-- Store and validate documentation metrics using:
-  - `scripts/generate_docs_metrics.py`
-  - `scripts/validate_docs_metrics.py`
+1. **Database-First Operations** – Query `production.db` and related databases before any filesystem or code changes. All database files must remain below **99.9 MB**.
+2. **Dual Copilot Pattern** – Every critical workflow uses a primary executor and a secondary validator.
+3. **Visual Processing Indicators** – Scripts must include progress bars, start time logging, timeouts, ETC calculation, and real-time status updates.
+4. **Anti‑Recursion & Backup Rules** – Backups must never be stored inside the workspace. Use the external root `E:/temp/gh_COPILOT_Backups` and validate paths with `validate_enterprise_operation()`.
+5. **Session Integrity & Continuous Operation** – Sessions begin and end with integrity validation and zero-byte checks. Continuous monitoring runs 24/7.
+6. **Response Chunking** – Responses should stay under 2,000 tokens (1,500–1,800 preferred) and start with anti-recursion validation.
+7. **Quantum & AI Protocols** – Quantum features are aspirational until fully implemented and tested. Placeholders must not be treated as production code.
 
 ---
 
-## Agent Registration & Deprecation
+## 4. Coding & Contribution Standards
 
-- All new agents must be registered in this file with a clear role and responsibility.
-- Deprecate or update obsolete agent roles as the platform evolves.
-- All agents log critical actions to the audit database for compliance and traceability.
+- Use type hints and docstrings.
+- Follow PEP 8/flake8; format code with `autopep8` and `isort`.
+- Do **not** modify version‑controlled SQLite databases.
+- Add or update unit tests when modifying code and run `make test`.
+- Keep commit messages short and imperative.
+- Track documentation metrics with `scripts/generate_docs_metrics.py` and verify via `scripts/validate_docs_metrics.py`.
+
+---
+
+## 5. Agent Lifecycle Management
+
+- Register new agents in this file and deprecate obsolete ones.
+- Log critical actions to audit databases for traceability.
+- Support continuous improvement and prepare for future quantum integration.
 
 ---
 
-## Summary
+### Summary
 
-Every agent—human or automated—must internalize and adhere to the protocols above.  
-**No agent is permitted to bypass database-first logic, anti-recursion protocols, or visual compliance.**  
-Quantum features remain aspirational until actual code, tests, and documentation exist.
+ChatGPT Codex agents must strictly follow the database‑first mandate, dual Copilot validation, anti‑recursion rules, and visual processing standards. Database file sizes must never exceed **99.9 MB**. Quantum optimization references remain aspirational until fully implemented. This guide provides the baseline for Codex automation within the gh_COPILOT Toolkit.
 
-*This AGENTS.md is designed for direct use by ChatGPT-CODEX and automated workflows.*
-
----
