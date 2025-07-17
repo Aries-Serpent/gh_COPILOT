@@ -6,7 +6,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
@@ -36,7 +36,7 @@ def ingest_documentation(workspace: Path, docs_dir: Path | None = None) -> None:
             digest = hashlib.sha256(content.encode()).hexdigest()
             conn.execute(
                 "INSERT INTO documentation_assets (doc_path, content_hash, created_at) VALUES (?, ?, ?)",
-                (str(path.relative_to(workspace)), digest, datetime.utcnow().isoformat()),
+                (str(path.relative_to(workspace)), digest, datetime.now(timezone.utc).isoformat()),
             )
             bar.update(1)
         conn.commit()

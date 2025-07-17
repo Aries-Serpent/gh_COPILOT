@@ -6,7 +6,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from tqdm import tqdm
@@ -35,11 +35,11 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
             digest = hashlib.sha256(content.encode()).hexdigest()
             conn.execute(
                 "INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)",
-                (str(path.relative_to(workspace)), digest, datetime.utcnow().isoformat()),
+                (str(path.relative_to(workspace)), digest, datetime.now(timezone.utc).isoformat()),
             )
             conn.execute(
                 "INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)",
-                (content[:1000], datetime.utcnow().isoformat()),
+                (content[:1000], datetime.now(timezone.utc).isoformat()),
             )
             bar.update(1)
         conn.commit()

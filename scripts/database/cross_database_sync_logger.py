@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import logging
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 logging.basicConfig(
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def log_sync_operation(db_path: Path, operation: str) -> None:
     """Insert a sync operation record into the tracking table."""
-    timestamp = datetime.utcnow().isoformat()
+    timestamp = datetime.now(timezone.utc).isoformat()
     with sqlite3.connect(db_path) as conn:
         conn.execute(
             "INSERT INTO cross_database_sync_operations (operation, timestamp)"
