@@ -1,0 +1,25 @@
+🚀 STARTING CONFIG FILES CLEANUP AND VALIDATION
+======================================================================
+2025-07-16 19:20:01,887 - INFO - 🧹 Starting orphaned config files cleanup...
+2025-07-16 19:20:01,887 - INFO - ⚠️ File not found: reports/autonomous_monitoring_config_fix_report_20250716_173951.json
+2025-07-16 19:20:01,887 - INFO - ⚠️ File not found: reports/configuration_path_updates_report_20250716_172755.json
+2025-07-16 19:20:01,887 - INFO - ⚠️ File not found: reports/intelligent_config_validation_20250716_174635.json
+2025-07-16 19:20:01,887 - INFO - ============================================================
+2025-07-16 19:20:01,887 - INFO - ✅ CONFIG FILES CLEANUP COMPLETED
+2025-07-16 19:20:01,887 - INFO - Files Processed: 3
+2025-07-16 19:20:01,887 - INFO - Files Moved: 0
+2025-07-16 19:20:01,887 - INFO - Files Not Found: 3
+2025-07-16 19:20:01,887 - INFO - Cleanup Report: reports/config_cleanup_report_20250716_192001.json
+2025-07-16 19:20:01,887 - INFO - ============================================================
+2025-07-16 19:20:01,887 - INFO - 🔍 Validating config directory organization...
+2025-07-16 19:20:01,887 - INFO - ✅ Found 67 actual config files in config/ directory
+2025-07-16 19:20:01,903 - ERROR - ❌ Invalid config file config\database_compliance_report_20250710_171951.json: 'charmap' codec can't decode byte 0x8f in position 948173: character maps to <undefined>
+2025-07-16 19:20:01,920 - ERROR - ❌ Invalid config file config\database_filesystem_synchronization_report_20250710_115138.json: 'charmap' codec can't decode byte 0x9d in position 633279: character maps to <undefined>
+2025-07-16 19:20:01,928 - ERROR - ❌ Invalid config file config\database_filesystem_synchronization_report_20250710_115519.json: 'charmap' codec can't decode byte 0x9d in position 633575: character maps to <undefined>
+2025-07-16 19:20:03,162 - INFO - ✅ 64/67 config files are valid
+======================================================================
+🏆 CONFIG CLEANUP SUMMARY
+Orphaned Files Cleanup: ✅ SUCCESS
+Config Directory Validation: ❌ FAILED
+Overall Status: ⚠️ NEEDS ATTENTION
+======================================================================

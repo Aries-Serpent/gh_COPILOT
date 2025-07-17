@@ -1,0 +1,4 @@
+Python: C:\Users\110438\AppData\Local\Programs\Python\Python312\python.exe
+Venv: E:/gh_COPILOT/.venv
+CWD: E:\gh_COPILOT
+Violations: True

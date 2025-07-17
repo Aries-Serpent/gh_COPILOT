@@ -1,0 +1,68 @@
+2025-07-14 23:21:41,223 - INFO - [START] Enterprise Audit System Initialized
+2025-07-14 23:21:41,223 - INFO - Process ID: 2552
+2025-07-14 23:21:41,223 - INFO - Start Time: 2025-07-14 23:21:41.214947
+2025-07-14 23:21:41,223 - INFO - ================================================================================
+2025-07-14 23:21:41,223 - INFO - [START] ENTERPRISE AUDIT AND PRODUCTION DEPLOYMENT
+2025-07-14 23:21:41,223 - INFO - ================================================================================
+2025-07-14 23:21:41,223 - INFO - [AUDIT] Phase 1: Comprehensive Enterprise Audit
+2025-07-14 23:21:41,223 - INFO - [START] Executing Comprehensive Enterprise Audit
+2025-07-14 23:21:41,289 - INFO - [AUDIT] Auditing Database Architecture
+2025-07-14 23:21:41,309 - INFO - [SUCCESS] logs.db: 5 tables
+2025-07-14 23:21:41,314 - INFO - [SUCCESS] production.db: 35 tables
+2025-07-14 23:21:41,330 - INFO - [SUCCESS] analytics.db: 34 tables
+2025-07-14 23:21:41,330 - INFO - [SUCCESS] monitoring.db: 9 tables
+2025-07-14 23:21:41,335 - INFO - [SUCCESS] self_learning.db: 11 tables
+2025-07-14 23:21:41,340 - ERROR - [ERROR] Audit failed for database_architecture: no such table: audit_logs
+2025-07-14 23:21:41,345 - INFO - [AUDIT] Auditing Script Reproduction Capability
+2025-07-14 23:21:41,569 - ERROR - [ERROR] Audit failed for script_reproduction_system: no such table: audit_logs
+2025-07-14 23:21:41,569 - INFO - [AUDIT] Auditing GitHub Copilot Integration
+2025-07-14 23:21:41,579 - ERROR - [ERROR] Audit failed for github_copilot_integration: no such table: audit_logs
+2025-07-14 23:21:41,579 - INFO - [AUDIT] Auditing Self-Healing System
+2025-07-14 23:21:41,583 - ERROR - [ERROR] Audit failed for self_healing_framework: no such table: audit_logs
+2025-07-14 23:21:41,586 - INFO - [DEPLOY] Phase 2: Production Deployment
+2025-07-14 23:21:41,587 - INFO - [START] Executing Production Deployment
+2025-07-14 23:21:41,589 - INFO - [DEPLOY] Initialize Database Schemas
+2025-07-14 23:21:41,589 - INFO - [START] Initializing Database Schemas
+2025-07-14 23:21:41,609 - INFO - [SUCCESS] logs.db schema initialized
+2025-07-14 23:21:41,630 - INFO - [SUCCESS] production.db schema initialized
+2025-07-14 23:21:41,655 - INFO - [SUCCESS] self_learning.db schema initialized
+2025-07-14 23:21:41,662 - INFO - [SUCCESS] Initialize Database Schemas completed
+2025-07-14 23:21:41,663 - INFO - [DEPLOY] Store All Scripts
+2025-07-14 23:21:41,663 - INFO - [DEPLOY] Storing All Scripts in Database
+2025-07-14 23:21:46,385 - INFO - [SUCCESS] Stored 954 scripts in database
+2025-07-14 23:21:46,394 - INFO - [SUCCESS] Store All Scripts completed
+2025-07-14 23:21:46,397 - INFO - [DEPLOY] Store All Templates
+2025-07-14 23:21:46,397 - INFO - [DEPLOY] Storing All Templates in Database
+2025-07-14 23:21:48,680 - INFO - [START] Enterprise Audit System Initialized
+2025-07-14 23:21:48,680 - INFO - Process ID: 17844
+2025-07-14 23:21:48,680 - INFO - Start Time: 2025-07-14 23:21:48.680771
+2025-07-14 23:21:48,680 - INFO - ================================================================================
+2025-07-14 23:21:48,680 - INFO - [START] ENTERPRISE AUDIT AND PRODUCTION DEPLOYMENT
+2025-07-14 23:21:48,680 - INFO - ================================================================================
+2025-07-14 23:21:48,680 - INFO - [AUDIT] Phase 1: Comprehensive Enterprise Audit
+2025-07-14 23:21:48,680 - INFO - [START] Executing Comprehensive Enterprise Audit
+2025-07-14 23:21:48,731 - INFO - [AUDIT] Auditing Database Architecture
+2025-07-14 23:21:48,731 - INFO - [SUCCESS] logs.db: 8 tables
+2025-07-14 23:21:48,740 - INFO - [SUCCESS] production.db: 38 tables
+2025-07-14 23:21:48,749 - INFO - [SUCCESS] analytics.db: 34 tables
+2025-07-14 23:21:48,752 - INFO - [SUCCESS] monitoring.db: 9 tables
+2025-07-14 23:21:48,753 - INFO - [SUCCESS] self_learning.db: 13 tables
+2025-07-14 23:21:48,766 - INFO - [WARNING] database_architecture: 83.3%
+2025-07-14 23:21:48,766 - INFO - [AUDIT] Auditing Script Reproduction Capability
+2025-07-14 23:21:51,385 - INFO - [INFO] Scripts found: 954
+2025-07-14 23:21:51,385 - INFO - [INFO] Scripts stored: 954
+2025-07-14 23:21:51,394 - INFO - [SUCCESS] script_reproduction_system: 100.0%
+2025-07-14 23:21:51,397 - INFO - [AUDIT] Auditing GitHub Copilot Integration
+2025-07-14 23:21:51,405 - INFO - [WARNING] github_copilot_integration: 75.0%
+2025-07-14 23:21:51,406 - INFO - [AUDIT] Auditing Self-Healing System
+2025-07-14 23:21:51,605 - INFO - [WARNING] self_healing_framework: 25.0%
+2025-07-14 23:21:51,605 - INFO - [DEPLOY] Phase 2: Production Deployment
+2025-07-14 23:21:51,605 - INFO - [START] Executing Production Deployment
+2025-07-14 23:21:51,605 - INFO - [DEPLOY] Initialize Database Schemas
+2025-07-14 23:21:51,605 - INFO - [START] Initializing Database Schemas
+2025-07-14 23:21:51,610 - INFO - [SUCCESS] logs.db schema initialized
+2025-07-14 23:21:51,612 - INFO - [SUCCESS] production.db schema initialized
+2025-07-14 23:21:51,615 - INFO - [SUCCESS] self_learning.db schema initialized
+2025-07-14 23:21:51,619 - INFO - [SUCCESS] Initialize Database Schemas completed
+2025-07-14 23:21:51,620 - INFO - [DEPLOY] Store All Scripts
+2025-07-14 23:21:51,620 - INFO - [DEPLOY] Storing All Scripts in Database

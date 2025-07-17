@@ -1,0 +1,8 @@
+2025-07-10 17:36:22 [START] Starting comprehensive compliance scan
+2025-07-10 17:36:22 [DATABASE] Discovering scripts from databases
+2025-07-10 17:36:22 [WARNING] Could not access enhanced_script_tracking: no such table: enhanced_script_tracking
+2025-07-10 17:36:22 [WARNING] Could not access violations table: no such table: violations
+2025-07-10 17:36:22 [INFO] Total unique scripts discovered: 0
+2025-07-10 17:36:22 [WARNING] No scripts found in databases
+2025-07-10 17:36:22 [INFO] Generating compliance report
+2025-07-10 17:36:22 [SUCCESS] Report saved to: e:\gh_COPILOT\compliance_report_20250710_173622.json

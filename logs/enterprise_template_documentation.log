@@ -1,0 +1,20 @@
+2025-07-10 14:14:21,443 - [INFO] Enterprise Template-Driven Documentation System initialized
+2025-07-10 14:14:21,443 - [INFO] 🔍 Discovering templates across all databases...
+2025-07-10 14:14:22,376 - [INFO] 🔍 Discovered 799 templates across databases
+2025-07-10 14:14:22,376 - [INFO] 📊 Extracting datapoints from multiple databases...
+2025-07-10 14:14:23,946 - [INFO] 📊 Extracted 791 datapoints from databases
+2025-07-10 14:14:23,946 - [INFO] 📚 Creating enhanced documentation templates...
+2025-07-10 14:14:23,967 - [INFO] 📚 Created 3 enhanced documentation templates
+2025-07-10 14:14:23,968 - [INFO] 📝 Generating multi-datapoint documentation: comprehensive
+2025-07-10 14:14:24,213 - [ERROR] Failed to generate database report for learning_monitor: type NoneType doesn't define __round__ method
+2025-07-10 14:14:24,476 - [INFO] 📝 Generated 37 multi-datapoint documents
+2025-07-10 14:14:28,823 - [INFO] Enterprise Template-Driven Documentation System initialized
+2025-07-10 14:14:28,826 - [INFO] 🔍 Discovering templates across all databases...
+2025-07-10 14:14:30,388 - [INFO] 🔍 Discovered 1601 templates across databases
+2025-07-10 14:14:30,388 - [INFO] 📊 Extracting datapoints from multiple databases...
+2025-07-10 14:14:31,259 - [INFO] 📊 Extracted 791 datapoints from databases
+2025-07-10 14:14:31,259 - [INFO] 📚 Creating enhanced documentation templates...
+2025-07-10 14:14:31,276 - [INFO] 📚 Created 3 enhanced documentation templates
+2025-07-10 14:14:31,276 - [INFO] 📝 Generating multi-datapoint documentation: comprehensive
+2025-07-10 14:14:31,760 - [ERROR] Failed to generate database report for learning_monitor: type NoneType doesn't define __round__ method
+2025-07-10 14:14:32,043 - [INFO] 📝 Generated 37 multi-datapoint documents

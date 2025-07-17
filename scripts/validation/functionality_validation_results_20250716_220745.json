@@ -1,0 +1,735 @@
+{
+  "timestamp": "2025-07-16T22:07:38.266897",
+  "categories_tested": [],
+  "scripts_validated": 236,
+  "functional_scripts": 229,
+  "syntax_errors": 7,
+  "import_errors": 15,
+  "critical_scripts": {
+    "consolidation_scripts": [
+      "scripts\\analysis\\database_consolidation_completion_report_generator.py",
+      "scripts\\automation\\base_consolidation_executor.py",
+      "scripts\\automation\\batch_consolidation_processor.py",
+      "scripts\\automation\\database_consolidation_executor.py",
+      "scripts\\automation\\disaster_recovery_consolidation_executor.py",
+      "scripts\\database\\database_consolidation_analyzer.py",
+      "scripts\\database\\database_consolidation_migration.py",
+      "scripts\\database\\database_consolidation_validator.py",
+      "scripts\\database\\intelligent_database_merger.py",
+      "scripts\\database\\unified_database_management_system.py",
+      "scripts\\deployment\\cross_database_aggregation_system.py",
+      "scripts\\deployment\\phase_3_cross_database_aggregation.py",
+      "scripts\\deployment\\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py",
+      "scripts\\optimization\\unified_monitoring_optimization_system.py",
+      "scripts\\regenerated\\cross_database_aggregation_implementation.py",
+      "scripts\\utilities\\comprehensive_script_consolidation_engine.py",
+      "scripts\\utilities\\consolidation_implementation_engine.py",
+      "scripts\\utilities\\unified_script_generation_system.py",
+      "scripts\\utilities\\unified_session_management_system.py"
+    ],
+    "compression_scripts": [
+      "scripts\\automation\\archive_migration_executor.py",
+      "scripts\\automation\\archive_migration_executor_corrected.py",
+      "scripts\\database\\database_validation_compressor.py",
+      "scripts\\database\\verify_sqlite_compression.py",
+      "scripts\\enterprise\\aggressive_deployment_logs_compressor.py",
+      "scripts\\utilities\\aggressive_compression_strategies.py"
+    ],
+    "wrap_up_scripts": [
+      "scripts\\analysis\\comprehensive_campaign_final_report.py",
+      "scripts\\analysis\\comprehensive_optimization_completion_report.py",
+      "scripts\\analysis\\database_consolidation_completion_report_generator.py",
+      "scripts\\analysis\\database_optimization_completion_report.py",
+      "scripts\\analysis\\phase2_completion_report_generator.py",
+      "scripts\\automation\\phase4_e303_final_cleanup_processor.py",
+      "scripts\\automation\\template_auto_generation_complete.py",
+      "scripts\\database\\database_consistency_checker_final.py",
+      "scripts\\database\\database_optimization_mission_complete.py",
+      "scripts\\database\\database_schema_final_completion.py",
+      "scripts\\database\\enterprise_script_database_synchronizer_complete.py",
+      "scripts\\deployment\\DATABASE_CAPTURE_COMPLETE.py",
+      "scripts\\deployment\\ENHANCED_ML_STAGING_DEPLOYMENT_MISSION_COMPLETE.py",
+      "scripts\\deployment\\enterprise_mission_completion_certificator.py",
+      "scripts\\deployment\\FINAL_DATABASE_CAPTURE_VALIDATION.py",
+      "scripts\\deployment\\final_project_completion_summary_generator.py",
+      "scripts\\optimization\\enhanced_final_system_validator.py",
+      "scripts\\utilities\\complete_template_generator.py",
+      "scripts\\utilities\\comprehensive_template_intelligence_platform_completion.py",
+      "scripts\\utilities\\final_project_completion_summary_generator.py",
+      "scripts\\utilities\\final_template_intelligence_platform_completion.py",
+      "scripts\\utilities\\phase11_final_precision_sweep.py",
+      "scripts\\utilities\\phase8_final_cleanup_specialist.py",
+      "scripts\\utilities\\strategic_implementation_completion_summary.py",
+      "scripts\\validation\\final_compliance_verifier.py",
+      "scripts\\validation\\final_organization_validator.py",
+      "scripts\\validation\\final_system_validator.py",
+      "scripts\\validation\\final_validation_workflow_summary.py",
+      "scripts\\validation\\performance_validation_complete.py",
+      "scripts\\validation\\test_complete_enterprise_system.py",
+      "scripts\\validation\\validate_final_deployment.py"
+    ],
+    "database_scripts": [
+      "scripts\\analysis\\database_consolidation_completion_report_generator.py",
+      "scripts\\analysis\\database_optimization_completion_report.py",
+      "scripts\\analysis\\manual_database_analysis.py",
+      "scripts\\analysis\\quick_database_analysis.py",
+      "scripts\\automation\\archive_migration_executor.py",
+      "scripts\\automation\\archive_migration_executor_corrected.py",
+      "scripts\\automation\\autonomous_database_health_optimizer-001.py",
+      "scripts\\automation\\autonomous_database_health_optimizer.py",
+      "scripts\\automation\\autonomous_database_health_optimizer_production.py",
+      "scripts\\automation\\autonomous_database_optimizer_simplified.py",
+      "scripts\\automation\\database_cleanup_processor.py",
+      "scripts\\automation\\database_consolidation_executor.py",
+      "scripts\\database\\comprehensive_database_first_enhancer.py",
+      "scripts\\database\\comprehensive_database_optimization_system.py",
+      "scripts\\database\\database_access_layer.py",
+      "scripts\\database\\database_compliance_checker.py",
+      "scripts\\database\\database_consistency_checker.py",
+      "scripts\\database\\database_consistency_checker_final.py",
+      "scripts\\database\\database_consolidation_analyzer.py",
+      "scripts\\database\\database_consolidation_migration.py",
+      "scripts\\database\\database_consolidation_validator.py",
+      "scripts\\database\\database_driven_flake8_corrector_functional.py",
+      "scripts\\database\\database_first_correction_engine.py",
+      "scripts\\database\\database_first_flake8_compliance_scanner.py",
+      "scripts\\database\\database_first_windows_compatible_flake8_corrector.py",
+      "scripts\\database\\database_mapping_updater.py",
+      "scripts\\database\\database_migration_corrector.py",
+      "scripts\\database\\database_migration_verifier.py",
+      "scripts\\database\\database_optimization_mission_complete.py",
+      "scripts\\database\\database_purification_engine.py",
+      "scripts\\database\\database_schema_analyzer.py",
+      "scripts\\database\\database_schema_enhancer.py",
+      "scripts\\database\\database_schema_final_completion.py",
+      "scripts\\database\\database_script_reproducibility_validator.py",
+      "scripts\\database\\database_script_reproduction_validator.py",
+      "scripts\\database\\database_sync_scheduler.py",
+      "scripts\\database\\database_validation_compressor.py",
+      "scripts\\database\\documentation_db_analyzer.py",
+      "scripts\\database\\efficient_database_reproducibility_validator.py",
+      "scripts\\database\\enterprise_database_driven_build_integration_system.py",
+      "scripts\\database\\enterprise_script_database_synchronizer.py",
+      "scripts\\database\\enterprise_script_database_synchronizer_complete.py",
+      "scripts\\database\\git_repository_repair_with_database_sync.py",
+      "scripts\\database\\intelligent_database_merger.py",
+      "scripts\\database\\quick_database_test.py",
+      "scripts\\database\\safe_database_migrator.py",
+      "scripts\\database\\script_database_validator.py",
+      "scripts\\database\\unified_database_management_system.py",
+      "scripts\\database\\verify_sqlite_compression.py",
+      "scripts\\deployment\\comprehensive_database_structure_analyzer.py",
+      "scripts\\deployment\\cross_database_aggregation_system.py",
+      "scripts\\deployment\\DATABASE_CAPTURE_COMPLETE.py",
+      "scripts\\deployment\\enterprise_database_framework_analyzer.py",
+      "scripts\\deployment\\FINAL_DATABASE_CAPTURE_VALIDATION.py",
+      "scripts\\deployment\\multi_database_analysis.py",
+      "scripts\\deployment\\phase_3_cross_database_aggregation.py",
+      "scripts\\deployment\\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py",
+      "scripts\\deployment\\PRODUCTION_DB_VALIDATION.py",
+      "scripts\\deployment\\quick_database_query.py",
+      "scripts\\enterprise\\enterprise_modular_migration_assistant.py",
+      "scripts\\generated\\enterprise_database_validator_generated.py",
+      "scripts\\regenerated\\comprehensive_database_structure_analyzer.py",
+      "scripts\\regenerated\\cross_database_aggregation_implementation.py",
+      "scripts\\regenerated\\enterprise_database_framework_analyzer.py",
+      "scripts\\regenerated\\enterprise_database_query_validator.py",
+      "scripts\\regenerated\\multi_database_analysis.py",
+      "scripts\\regenerated\\production_db_analysis.py"
+    ],
+    "validation_scripts": [
+      "scripts\\database\\database_compliance_checker.py",
+      "scripts\\database\\database_consistency_checker.py",
+      "scripts\\database\\database_consistency_checker_final.py",
+      "scripts\\database\\database_consolidation_validator.py",
+      "scripts\\database\\database_script_reproducibility_validator.py",
+      "scripts\\database\\database_script_reproduction_validator.py",
+      "scripts\\database\\database_validation_compressor.py",
+      "scripts\\database\\efficient_database_reproducibility_validator.py",
+      "scripts\\database\\quick_database_test.py",
+      "scripts\\database\\script_database_validator.py",
+      "scripts\\database\\test_unicode_compat_backup_20250712_235901.py",
+      "scripts\\database\\verify_sqlite_compression.py",
+      "scripts\\deployment\\comprehensive_deployment_validator.py",
+      "scripts\\deployment\\enterprise_deployment_validator.py",
+      "scripts\\deployment\\FINAL_DATABASE_CAPTURE_VALIDATION.py",
+      "scripts\\deployment\\immediate_deployment_status_check.py",
+      "scripts\\deployment\\PRODUCTION_DB_VALIDATION.py",
+      "scripts\\deployment\\quick_filesystem_check.py",
+      "scripts\\enterprise\\enterprise_audit_deployment_system.py",
+      "scripts\\enterprise\\execute_enterprise_audit.py",
+      "scripts\\generated\\enterprise_database_validator_generated.py",
+      "scripts\\optimization\\enhanced_final_system_validator.py",
+      "scripts\\regenerated\\enterprise_database_query_validator.py",
+      "scripts\\validation\\comprehensive_functionality_revalidator.py",
+      "scripts\\validation\\comprehensive_functionality_validator.py",
+      "scripts\\validation\\comprehensive_validation_summary.py",
+      "scripts\\validation\\enterprise_dual_copilot_validator.py",
+      "scripts\\validation\\final_organization_validator.py",
+      "scripts\\validation\\final_system_validator.py",
+      "scripts\\validation\\final_validation_workflow_summary.py",
+      "scripts\\validation\\functionality_validation_tester.py",
+      "scripts\\validation\\future_file_routing_validator.py",
+      "scripts\\validation\\intelligent_config_validator.py",
+      "scripts\\validation\\performance_validation_complete.py",
+      "scripts\\validation\\performance_validation_framework.py",
+      "scripts\\validation\\quantum_performance_integration_tester.py",
+      "scripts\\validation\\secondary_copilot_validator.py",
+      "scripts\\validation\\semantic_search_reference_validator.py",
+      "scripts\\validation\\session_protocol_validator.py",
+      "scripts\\validation\\test_complete_enterprise_system.py",
+      "scripts\\validation\\test_consolidated_functionality.py",
+      "scripts\\validation\\test_sync_limited.py",
+      "scripts\\validation\\test_unicode_compat.py",
+      "scripts\\validation\\validate_final_deployment.py",
+      "scripts\\validation\\workspace_integrity_validator.py"
+    ],
+    "automation_scripts": [
+      "scripts\\automation\\archive_migration_executor.py",
+      "scripts\\automation\\archive_migration_executor_corrected.py",
+      "scripts\\automation\\automated_violations_fixer.py",
+      "scripts\\automation\\autonomous_launcher.py",
+      "scripts\\automation\\base_consolidation_executor.py",
+      "scripts\\automation\\batch_consolidation_processor.py",
+      "scripts\\automation\\comprehensive_file_restoration_executor.py",
+      "scripts\\automation\\comprehensive_modular_executor.py",
+      "scripts\\automation\\comprehensive_remaining_violations_processor.py",
+      "scripts\\automation\\config_cleanup_executor.py",
+      "scripts\\automation\\database_cleanup_processor.py",
+      "scripts\\automation\\database_consolidation_executor.py",
+      "scripts\\automation\\disaster_recovery_consolidation_executor.py",
+      "scripts\\automation\\enhanced_enterprise_continuation_processor_backup.py",
+      "scripts\\automation\\enhanced_enterprise_continuation_processor_fixed.py",
+      "scripts\\automation\\enterprise_file_relocation_orchestrator.py",
+      "scripts\\automation\\enterprise_scale_violation_processor.py",
+      "scripts\\automation\\ml_training_pipeline_orchestrator.py",
+      "scripts\\automation\\optimized_ultra_success_processor.py",
+      "scripts\\automation\\optimized_ultra_success_processor_fixed.py",
+      "scripts\\automation\\phase3_systematic_processor.py",
+      "scripts\\automation\\phase4_e303_dominance_processor_corrected.py",
+      "scripts\\automation\\phase4_e303_final_cleanup_processor.py",
+      "scripts\\automation\\phase4_systematic_processor.py",
+      "scripts\\automation\\quantum_integration_orchestrator.py",
+      "scripts\\automation\\refined_enterprise_continuation_processor_fixed.py",
+      "scripts\\automation\\strategic_implementation_orchestrator.py",
+      "scripts\\automation\\systematic_f821_f401_processor.py",
+      "scripts\\automation\\violation_diagnostic_processor.py",
+      "scripts\\deployment\\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py",
+      "scripts\\deployment\\strategic_implementation_executor.py",
+      "scripts\\enterprise\\enterprise_visual_processing_system.py",
+      "scripts\\enterprise\\execute_enterprise_audit.py",
+      "scripts\\regenerated\\integrated_deployment_orchestrator.py",
+      "scripts\\utilities\\executive_summary_file_organization.py"
+    ],
+    "enterprise_scripts": [
+      "scripts\\automation\\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py",
+      "scripts\\automation\\autonomous_database_health_optimizer_production.py",
+      "scripts\\automation\\enhanced_enterprise_continuation_processor_backup.py",
+      "scripts\\automation\\enhanced_enterprise_continuation_processor_fixed.py",
+      "scripts\\automation\\enterprise_file_relocation_orchestrator.py",
+      "scripts\\automation\\enterprise_scale_violation_processor.py",
+      "scripts\\automation\\refined_enterprise_continuation_processor_fixed.py",
+      "scripts\\database\\comprehensive_pis_framework_unicode_backup.py",
+      "scripts\\database\\database_script_reproduction_validator.py",
+      "scripts\\database\\enterprise_database_driven_build_integration_system.py",
+      "scripts\\database\\enterprise_script_database_synchronizer.py",
+      "scripts\\database\\enterprise_script_database_synchronizer_complete.py",
+      "scripts\\deployment\\AUTONOMOUS_FRAMEWORK_COMPREHENSIVE_SCOPE.py",
+      "scripts\\deployment\\chunk3_comprehensive_deployment_demo.py",
+      "scripts\\deployment\\comprehensive_deployment_validator.py",
+      "scripts\\deployment\\deployed_environment_error_analyzer_and_fixer.py",
+      "scripts\\deployment\\ENHANCED_ML_STAGING_DEPLOYMENT_MISSION_COMPLETE.py",
+      "scripts\\deployment\\enterprise_database_framework_analyzer.py",
+      "scripts\\deployment\\enterprise_deployment_validator.py",
+      "scripts\\deployment\\enterprise_log_compliance_fix.py",
+      "scripts\\deployment\\enterprise_mission_completion_certificator.py",
+      "scripts\\deployment\\ENTERPRISE_SELF_LEARNING_ANALYSIS_REPORT.py",
+      "scripts\\deployment\\immediate_deployment_status_check.py",
+      "scripts\\deployment\\phase1_deployment_simple.py",
+      "scripts\\deployment\\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py",
+      "scripts\\deployment\\PRODUCTION_DB_VALIDATION.py",
+      "scripts\\enterprise\\advanced_enterprise_features_expansion_framework.py",
+      "scripts\\enterprise\\aggressive_deployment_logs_compressor.py",
+      "scripts\\enterprise\\deployment_logs_rebuilder.py",
+      "scripts\\enterprise\\enterprise_api_infrastructure_framework.py",
+      "scripts\\enterprise\\enterprise_audit_deployment_system.py",
+      "scripts\\enterprise\\ENTERPRISE_DEPLOYMENT_SUCCESS_SUMMARY.py",
+      "scripts\\enterprise\\ENTERPRISE_MODULAR_IMPLEMENTATION_PLAN.py",
+      "scripts\\enterprise\\enterprise_modular_migration_assistant.py",
+      "scripts\\enterprise\\enterprise_readiness_100_monitor.py",
+      "scripts\\enterprise\\enterprise_unicode_flake8_corrector.py",
+      "scripts\\enterprise\\enterprise_visual_processing_system.py",
+      "scripts\\enterprise\\execute_enterprise_audit.py",
+      "scripts\\enterprise\\production_readiness_demo.py",
+      "scripts\\generated\\enterprise_database_validator_generated.py",
+      "scripts\\optimization\\deployment_optimization_engine.py",
+      "scripts\\optimization\\enterprise_flake8_quality_enhancement_system.py",
+      "scripts\\optimization\\enterprise_readiness_100_percent_optimizer.py",
+      "scripts\\optimization\\enterprise_template_compliance_enhancer.py",
+      "scripts\\optimization\\phase5_enterprise_optimization_framework.py",
+      "scripts\\regenerated\\enterprise_database_framework_analyzer.py",
+      "scripts\\regenerated\\enterprise_database_query_validator.py",
+      "scripts\\regenerated\\ENTERPRISE_QUALITY_ENHANCEMENT.py",
+      "scripts\\regenerated\\integrated_deployment_orchestrator.py",
+      "scripts\\regenerated\\production_db_analysis.py",
+      "scripts\\regenerated\\scaling_innovation_framework.py",
+      "scripts\\validation\\enterprise_dual_copilot_validator.py",
+      "scripts\\validation\\performance_validation_framework.py",
+      "scripts\\validation\\test_complete_enterprise_system.py",
+      "scripts\\validation\\validate_final_deployment.py"
+    ],
+    "optimization_scripts": [
+      "scripts\\analysis\\comprehensive_optimization_completion_report.py",
+      "scripts\\analysis\\database_optimization_completion_report.py",
+      "scripts\\automation\\autonomous_database_health_optimizer-001.py",
+      "scripts\\automation\\autonomous_database_health_optimizer.py",
+      "scripts\\automation\\autonomous_database_health_optimizer_production.py",
+      "scripts\\automation\\autonomous_database_optimizer_simplified.py",
+      "scripts\\automation\\enhanced_enterprise_continuation_processor_backup.py",
+      "scripts\\automation\\enhanced_enterprise_continuation_processor_fixed.py",
+      "scripts\\automation\\optimized_ultra_success_processor.py",
+      "scripts\\automation\\optimized_ultra_success_processor_fixed.py",
+      "scripts\\database\\comprehensive_database_first_enhancer.py",
+      "scripts\\database\\comprehensive_database_optimization_system.py",
+      "scripts\\database\\database_optimization_mission_complete.py",
+      "scripts\\database\\database_schema_enhancer.py",
+      "scripts\\deployment\\enhanced_intelligent_code_analyzer.py",
+      "scripts\\deployment\\ENHANCED_ML_STAGING_DEPLOYMENT_MISSION_COMPLETE.py",
+      "scripts\\generated\\phase_2_enhanced_code_analysis.py",
+      "scripts\\optimization\\advanced_qubo_optimization.py",
+      "scripts\\optimization\\deployment_optimization_engine.py",
+      "scripts\\optimization\\enhanced_final_system_validator.py",
+      "scripts\\optimization\\enterprise_flake8_quality_enhancement_system.py",
+      "scripts\\optimization\\enterprise_readiness_100_percent_optimizer.py",
+      "scripts\\optimization\\enterprise_template_compliance_enhancer.py",
+      "scripts\\optimization\\optimize_to_100_percent.py",
+      "scripts\\optimization\\phase12_1_enhanced_e999_repair_specialist.py",
+      "scripts\\optimization\\phase5_enterprise_optimization_framework.py",
+      "scripts\\optimization\\physics_optimization_engine.py",
+      "scripts\\optimization\\security_compliance_enhancer.py",
+      "scripts\\optimization\\unified_monitoring_optimization_system.py",
+      "scripts\\optimization\\windows_compatible_optimizer.py",
+      "scripts\\optimization\\windows_compatible_optimizer_async.py",
+      "scripts\\regenerated\\ENTERPRISE_QUALITY_ENHANCEMENT.py"
+    ]
+  },
+  "detailed_results": {},
+  "syntax_validation": {
+    "total_scripts": 236,
+    "valid_syntax": 229,
+    "syntax_errors": 7,
+    "category_results": {
+      "analysis": {
+        "total": 13,
+        "valid": 13,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "archived_database_scripts": {
+        "total": 0,
+        "valid": 0,
+        "errors": 0,
+        "percentage": 100
+      },
+      "archived_deployment_scripts": {
+        "total": 0,
+        "valid": 0,
+        "errors": 0,
+        "percentage": 100
+      },
+      "automation": {
+        "total": 39,
+        "valid": 39,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "database": {
+        "total": 40,
+        "valid": 40,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "deployment": {
+        "total": 28,
+        "valid": 28,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "enterprise": {
+        "total": 13,
+        "valid": 12,
+        "errors": 1,
+        "percentage": 92.3076923076923
+      },
+      "generated": {
+        "total": 3,
+        "valid": 3,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "maintenance": {
+        "total": 0,
+        "valid": 0,
+        "errors": 0,
+        "percentage": 100
+      },
+      "monitoring": {
+        "total": 1,
+        "valid": 1,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "optimization": {
+        "total": 14,
+        "valid": 12,
+        "errors": 2,
+        "percentage": 85.71428571428571
+      },
+      "regenerated": {
+        "total": 9,
+        "valid": 9,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "utilities": {
+        "total": 53,
+        "valid": 49,
+        "errors": 4,
+        "percentage": 92.45283018867924
+      },
+      "validation": {
+        "total": 23,
+        "valid": 23,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "__pycache__": {
+        "total": 0,
+        "valid": 0,
+        "errors": 0,
+        "percentage": 100
+      }
+    },
+    "error_details": [
+      {
+        "script": "scripts\\enterprise\\enterprise_unicode_flake8_corrector.py",
+        "error": "Syntax error at line 269: unterminated f-string literal (detected at line 269)",
+        "line": 269,
+        "category": "enterprise"
+      },
+      {
+        "script": "scripts\\optimization\\deployment_optimization_engine.py",
+        "error": "Syntax error at line 201: invalid syntax. Perhaps you forgot a comma?",
+        "line": 201,
+        "category": "optimization"
+      },
+      {
+        "script": "scripts\\optimization\\enterprise_flake8_quality_enhancement_system.py",
+        "error": "Syntax error at line 107: unmatched ')'",
+        "line": 107,
+        "category": "optimization"
+      },
+      {
+        "script": "scripts\\utilities\\comprehensive_e999_repair.py",
+        "error": "Syntax error at line 30: unterminated string literal (detected at line 30)",
+        "line": 30,
+        "category": "utilities"
+      },
+      {
+        "script": "scripts\\utilities\\main.py",
+        "error": "Syntax error at line 3: invalid syntax",
+        "line": 3,
+        "category": "utilities"
+      },
+      {
+        "script": "scripts\\utilities\\phase6_comprehensive_elimination_system.py",
+        "error": "Syntax error at line 122: unterminated f-string literal (detected at line 122)",
+        "line": 122,
+        "category": "utilities"
+      },
+      {
+        "script": "scripts\\utilities\\self_healing_self_learning_system.py",
+        "error": "Syntax error at line 123: unmatched ')'",
+        "line": 123,
+        "category": "utilities"
+      }
+    ]
+  },
+  "import_validation": {
+    "total_scripts": 236,
+    "valid_imports": 221,
+    "import_errors": 15,
+    "category_results": {
+      "analysis": {
+        "total": 13,
+        "valid": 13,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "archived_database_scripts": {
+        "total": 0,
+        "valid": 0,
+        "errors": 0,
+        "percentage": 100
+      },
+      "archived_deployment_scripts": {
+        "total": 0,
+        "valid": 0,
+        "errors": 0,
+        "percentage": 100
+      },
+      "automation": {
+        "total": 39,
+        "valid": 36,
+        "errors": 3,
+        "percentage": 92.3076923076923
+      },
+      "database": {
+        "total": 40,
+        "valid": 39,
+        "errors": 1,
+        "percentage": 97.5
+      },
+      "deployment": {
+        "total": 28,
+        "valid": 28,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "enterprise": {
+        "total": 13,
+        "valid": 13,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "generated": {
+        "total": 3,
+        "valid": 3,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "maintenance": {
+        "total": 0,
+        "valid": 0,
+        "errors": 0,
+        "percentage": 100
+      },
+      "monitoring": {
+        "total": 1,
+        "valid": 1,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "optimization": {
+        "total": 14,
+        "valid": 13,
+        "errors": 1,
+        "percentage": 92.85714285714286
+      },
+      "regenerated": {
+        "total": 9,
+        "valid": 9,
+        "errors": 0,
+        "percentage": 100.0
+      },
+      "utilities": {
+        "total": 53,
+        "valid": 46,
+        "errors": 7,
+        "percentage": 86.79245283018868
+      },
+      "validation": {
+        "total": 23,
+        "valid": 20,
+        "errors": 3,
+        "percentage": 86.95652173913044
+      },
+      "__pycache__": {
+        "total": 0,
+        "valid": 0,
+        "errors": 0,
+        "percentage": 100
+      }
+    },
+    "missing_modules": [
+      "database_driven_flake8_corrector_functional",
+      "QuantumCircuit",
+      "template_engine",
+      "qiskit.circuit",
+      "sklearn",
+      "advanced_qubo_optimization",
+      "SessionProtocolValidator",
+      "qiskit_aer"
+    ],
+    "error_details": [
+      {
+        "script": "scripts\\automation\\autonomous_database_health_optimizer-001.py",
+        "error": "Import error: No module named 'sklearn'",
+        "missing_module": "sklearn",
+        "category": "automation"
+      },
+      {
+        "script": "scripts\\automation\\quantum_integration_orchestrator.py",
+        "error": "Import error: No module named 'advanced_qubo_optimization'",
+        "missing_module": "advanced_qubo_optimization",
+        "category": "automation"
+      },
+      {
+        "script": "scripts\\automation\\template_auto_generation_complete.py",
+        "error": "Import error: No module named 'template_engine'",
+        "missing_module": "template_engine",
+        "category": "automation"
+      },
+      {
+        "script": "scripts\\database\\quantum_algorithms_functional_backup.py",
+        "error": "Import error: No module named 'qiskit_aer'",
+        "missing_module": "qiskit_aer",
+        "category": "database"
+      },
+      {
+        "script": "scripts\\optimization\\physics_optimization_engine.py",
+        "error": "Import error: cannot import name 'QuantumCircuit' from 'qiskit' (unknown location)",
+        "missing_module": "QuantumCircuit",
+        "category": "optimization"
+      },
+      {
+        "script": "scripts\\utilities\\complete_template_generator.py",
+        "error": "Import error: No module named 'template_engine'",
+        "missing_module": "template_engine",
+        "category": "utilities"
+      },
+      {
+        "script": "scripts\\utilities\\expanded_quantum_algorithm_library.py",
+        "error": "Import error: No module named 'qiskit_aer'",
+        "missing_module": "qiskit_aer",
+        "category": "utilities"
+      },
+      {
+        "script": "scripts\\utilities\\quantum_algorithms_functional.py",
+        "error": "Import error: No module named 'qiskit.circuit'",
+        "missing_module": "qiskit.circuit",
+        "category": "utilities"
+      },
+      {
+        "script": "scripts\\utilities\\quantum_algorithm_library_expansion.py",
+        "error": "Import error: No module named 'qiskit.circuit'",
+        "missing_module": "qiskit.circuit",
+        "category": "utilities"
+      },
+      {
+        "script": "scripts\\utilities\\quantum_clustering_file_organization.py",
+        "error": "Import error: No module named 'qiskit.circuit'",
+        "missing_module": "qiskit.circuit",
+        "category": "utilities"
+      },
+      {
+        "script": "scripts\\utilities\\quantum_neural_networks_predictive_maintenance.py",
+        "error": "Import error: No module named 'qiskit.circuit'",
+        "missing_module": "qiskit.circuit",
+        "category": "utilities"
+      },
+      {
+        "script": "scripts\\utilities\\unified_session_management_system.py",
+        "error": "Import error: cannot import name 'SessionProtocolValidator' from 'session_protocol_validator' (E:\\gh_COPILOT\\scripts\\validation\\session_protocol_validator.py)",
+        "missing_module": "SessionProtocolValidator",
+        "category": "utilities"
+      },
+      {
+        "script": "scripts\\validation\\performance_validation_complete.py",
+        "error": "Import error: No module named 'database_driven_flake8_corrector_functional'",
+        "missing_module": "database_driven_flake8_corrector_functional",
+        "category": "validation"
+      },
+      {
+        "script": "scripts\\validation\\performance_validation_framework.py",
+        "error": "Import error: No module named 'database_driven_flake8_corrector_functional'",
+        "missing_module": "database_driven_flake8_corrector_functional",
+        "category": "validation"
+      },
+      {
+        "script": "scripts\\validation\\quantum_performance_integration_tester.py",
+        "error": "Import error: No module named 'qiskit_aer'",
+        "missing_module": "qiskit_aer",
+        "category": "validation"
+      }
+    ]
+  },
+  "function_testing": {
+    "tested_functions": 6,
+    "successful_tests": 6,
+    "failed_tests": 0,
+    "test_details": [
+      {
+        "script": "scripts\\database\\database_mapping_updater.py",
+        "function": "get_database_connection",
+        "status": "found",
+        "category": "database"
+      },
+      {
+        "script": "scripts\\database\\database_schema_final_completion.py",
+        "function": "get_database_connection",
+        "status": "found",
+        "category": "database"
+      },
+      {
+        "script": "scripts\\validation\\comprehensive_functionality_revalidator.py",
+        "function": "validate_workspace_integrity",
+        "status": "found",
+        "category": "validation"
+      },
+      {
+        "script": "scripts\\validation\\comprehensive_functionality_validator.py",
+        "function": "validate_workspace_integrity",
+        "status": "found",
+        "category": "validation"
+      },
+      {
+        "script": "scripts\\validation\\enterprise_dual_copilot_validator.py",
+        "function": "validate_workspace_integrity",
+        "status": "found",
+        "category": "validation"
+      },
+      {
+        "script": "scripts\\validation\\intelligent_config_validator.py",
+        "function": "validate_workspace_integrity",
+        "status": "found",
+        "category": "validation"
+      }
+    ]
+  },
+  "integration_testing": {
+    "integration_points": 4,
+    "successful_integrations": 0,
+    "failed_integrations": 4,
+    "integration_details": [
+      {
+        "source": "automation",
+        "target": "database",
+        "status": "no_integration",
+        "description": "No active integration found from automation to database"
+      },
+      {
+        "source": "validation",
+        "target": "database",
+        "status": "no_integration",
+        "description": "No active integration found from validation to database"
+      },
+      {
+        "source": "enterprise",
+        "target": "automation",
+        "status": "no_integration",
+        "description": "No active integration found from enterprise to automation"
+      },
+      {
+        "source": "optimization",
+        "target": "database",
+        "status": "no_integration",
+        "description": "No active integration found from optimization to database"
+      }
+    ]
+  },
+  "overall_syntax_score": 97.03389830508475,
+  "overall_import_score": 93.64406779661016,
+  "overall_functionality_score": 95.33898305084745,
+  "status": "COMPLETED"
+}

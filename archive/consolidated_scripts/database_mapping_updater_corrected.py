@@ -1,0 +1,399 @@
+#!/usr/bin/env python3
+"""
+🗄️ Database Mapping Updater - CHUNK 2 (CORRECTED)
+Updates file system mappings in production.db after file relocation
+
+MANDATORY: Apply enterprise compliance from .github/instructions/
+MANDATORY: Implement DUAL COPILOT PATTERN validation
+MANDATORY: Use visual processing indicators
+"""
+
+import os
+import sqlite3
+import time
+import hashlib
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Tuple, Any
+from tqdm import tqdm
+import logging
+
+# Configure enterprise logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+class DatabaseMappingUpdaterCorrected:
+    """
+    🗄️ Enterprise Database Mapping Updater with Anti-Recursion Protection (CORRECTED)
+    """
+    
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+        self.workspace_path = Path(workspace_path)
+        self.db_path = self.workspace_path / "databases" / "production.db"
+        self.start_time = datetime.now()
+        
+        # CRITICAL: Anti-recursion validation
+        self.validate_environment_compliance()
+        
+        # File mapping updates from CHUNK 1 relocation
+        self.file_mappings = {
+            # Log files moved to logs/
+            "aggressive_deployment_logs_compressor.py": "logs/aggressive_deployment_logs_compressor.py",
+            "comprehensive_remaining_processor.log": "logs/comprehensive_remaining_processor.log",
+            "consolidation_execution_report_20250716_003737.json": "logs/consolidation_execution_report_20250716_003737.json",
+            "consolidation_execution_report_20250716_004032.json": "logs/consolidation_execution_report_20250716_004032.json",
+            "consolidation_execution_report_20250716_004214.json": "logs/consolidation_execution_report_20250716_004214.json",
+            "comprehensive_elimination_campaign_summary_20250713_110511.json": "logs/comprehensive_elimination_campaign_summary_20250713_110511.json",
+            "compliance_report_20250710_173622.json": "logs/compliance_report_20250710_173622.json",
+            "compliance_report_20250710_173707.json": "logs/compliance_report_20250710_173707.json",
+            "comprehensive_optimization_completion_report.py": "logs/comprehensive_optimization_completion_report.py",
+            "comprehensive_campaign_final_report.py": "logs/comprehensive_campaign_final_report.py",
+            "comprehensive_elimination_campaign_summary.py": "logs/comprehensive_elimination_campaign_summary.py",
+            
+            # Documentation files moved to documentation/
+            "AUTONOMOUS_CLI_README.md": "documentation/AUTONOMOUS_CLI_README.md",
+            "advanced_features_config_documentation.md": "documentation/advanced_features_config_documentation.md",
+            "comprehensive_database_reproduction_action_statement.md": "documentation/comprehensive_database_reproduction_action_statement.md",
+            "COMPREHENSIVE_LOG_EXTRACTION_PLAN.md": "documentation/COMPREHENSIVE_LOG_EXTRACTION_PLAN.md",
+            "enterprise_file_organization_plan.md": "documentation/enterprise_file_organization_plan.md",
+            
+            # Report files moved to reports/
+            "comprehensive_pis_framework_ascii.py": "reports/comprehensive_pis_framework_ascii.py",
+            "comprehensive_script_reproducibility_validator.py": "reports/comprehensive_script_reproducibility_validator.py",
+            "comprehensive_log_extraction_plan.py": "reports/comprehensive_log_extraction_plan.py",
+            
+            # Results files moved to results/
+            "ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_SCOPE_20250102_130700.json": "results/ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_SCOPE_20250102_130700.json",
+            "config/advanced_features_config.json": "config/advanced_features_config.json"
+        }
+        
+        logger.info(f"🚀 DATABASE MAPPING UPDATER (CORRECTED) INITIALIZED")
+        logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"Database Path: {self.db_path}")
+        logger.info(f"Files to Update: {len(self.file_mappings)}")
+    
+    def validate_environment_compliance(self):
+        """CRITICAL: Validate workspace integrity before database operations"""
+        workspace_root = self.workspace_path
+        
+        # MANDATORY: Check for recursive violations
+        forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+        violations = []
+        
+        for pattern in forbidden_patterns:
+            for folder in workspace_root.rglob(pattern):
+                if folder.is_dir() and folder != workspace_root:
+                    violations.append(str(folder))
+        
+        if violations:
+            logger.error(f"🚨 RECURSIVE FOLDER VIOLATIONS DETECTED:")
+            for violation in violations:
+                logger.error(f"   - {violation}")
+            raise RuntimeError("CRITICAL: Recursive folder violations prevent execution")
+        
+        # MANDATORY: Validate database exists
+        if not self.db_path.exists():
+            raise FileNotFoundError(f"Database not found: {self.db_path}")
+        
+        logger.info("✅ ENVIRONMENT COMPLIANCE VALIDATED")
+    
+    def get_database_connection(self) -> sqlite3.Connection:
+        """Get database connection with enterprise settings"""
+        try:
+            conn = sqlite3.connect(str(self.db_path))
+            conn.row_factory = sqlite3.Row
+            return conn
+        except Exception as e:
+            logger.error(f"Database connection failed: {e}")
+            raise
+    
+    def read_file_content(self, file_path: Path) -> str:
+        """Safely read file content for database storage"""
+        try:
+            if file_path.exists():
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    return f.read()
+            else:
+                return f"# File relocated to {file_path}\n# Content not available - file moved during organization"
+        except Exception as e:
+            logger.warning(f"Could not read {file_path}: {e}")
+            return f"# Error reading file: {str(e)}"
+    
+    def calculate_file_hash(self, content: str) -> str:
+        """Calculate SHA-256 hash of file content"""
+        return hashlib.sha256(content.encode('utf-8')).hexdigest()
+    
+    def get_file_stats(self, file_path: Path) -> Dict[str, Any]:
+        """Get file statistics"""
+        stats = {
+            'file_size': 0,
+            'lines_of_code': 0
+        }
+        
+        try:
+            if file_path.exists():
+                stats['file_size'] = file_path.stat().st_size
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    stats['lines_of_code'] = len(f.readlines())
+        except Exception as e:
+            logger.warning(f"Could not get stats for {file_path}: {e}")
+        
+        return stats
+    
+    def update_file_mappings(self) -> Dict[str, Any]:
+        """
+        🗄️ Update database mappings with progress monitoring
+        """
+        logger.info("="*60)
+        logger.info("🗄️ STARTING DATABASE MAPPING UPDATES (CORRECTED)")
+        logger.info("="*60)
+        
+        update_results = {
+            "total_files": len(self.file_mappings),
+            "successful_updates": 0,
+            "failed_updates": 0,
+            "new_entries": 0,
+            "updated_entries": 0,
+            "errors": []
+        }
+        
+        # MANDATORY: Progress bar for database operations
+        with tqdm(total=len(self.file_mappings), desc="🗄️ Updating Database", unit="files") as pbar:
+            
+            with self.get_database_connection() as conn:
+                cursor = conn.cursor()
+                
+                for old_path, new_path in self.file_mappings.items():
+                    try:
+                        pbar.set_description(f"📝 Processing: {old_path}")
+                        
+                        # Get file paths
+                        new_file_path = self.workspace_path / new_path
+                        
+                        # Read content and calculate hash
+                        content = self.read_file_content(new_file_path)
+                        content_hash = self.calculate_file_hash(content)
+                        file_stats = self.get_file_stats(new_file_path)
+                        
+                        # Check if old path exists in database
+                        cursor.execute("""
+                            SELECT script_id FROM enhanced_script_tracking 
+                            WHERE script_path = ? OR script_path LIKE ?
+                        """, (old_path, f"%{old_path}"))
+                        
+                        existing_entry = cursor.fetchone()
+                        
+                        if existing_entry:
+                            # Update existing entry with all required fields
+                            cursor.execute("""
+                                UPDATE enhanced_script_tracking 
+                                SET script_path = ?, 
+                                    script_content = ?,
+                                    script_hash = ?,
+                                    script_type = ?,
+                                    functionality_category = ?,
+                                    file_size = ?,
+                                    lines_of_code = ?,
+                                    last_updated = CURRENT_TIMESTAMP
+                                WHERE script_id = ?
+                            """, (
+                                new_path, 
+                                content,
+                                content_hash,
+                                self.get_file_type(new_path),
+                                self.categorize_file(new_path),
+                                file_stats['file_size'],
+                                file_stats['lines_of_code'],
+                                existing_entry['script_id']
+                            ))
+                            
+                            update_results["updated_entries"] += 1
+                            logger.info(f"📝 Updated: {old_path} → {new_path}")
+                        else:
+                            # Create new entry for relocated file with all required fields
+                            cursor.execute("""
+                                INSERT INTO enhanced_script_tracking 
+                                (script_path, script_content, script_hash, script_type, 
+                                 functionality_category, file_size, lines_of_code, last_updated)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                            """, (
+                                new_path,
+                                content,
+                                content_hash,
+                                self.get_file_type(new_path),
+                                self.categorize_file(new_path),
+                                file_stats['file_size'],
+                                file_stats['lines_of_code']
+                            ))
+                            
+                            update_results["new_entries"] += 1
+                            logger.info(f"➕ Added: {new_path}")
+                        
+                        update_results["successful_updates"] += 1
+                        
+                    except Exception as e:
+                        error_msg = f"Failed to update {old_path}: {str(e)}"
+                        update_results["errors"].append(error_msg)
+                        update_results["failed_updates"] += 1
+                        logger.error(f"❌ {error_msg}")
+                    
+                    pbar.update(1)
+                
+                # Commit all changes
+                conn.commit()
+                logger.info("💾 Database changes committed successfully")
+        
+        return update_results
+    
+    def categorize_file(self, file_path: str) -> str:
+        """Categorize file based on its new location"""
+        path_obj = Path(file_path)
+        
+        if path_obj.parts[0] == "logs":
+            return "logging"
+        elif path_obj.parts[0] == "documentation":
+            return "documentation"
+        elif path_obj.parts[0] == "reports":
+            return "reporting"
+        elif path_obj.parts[0] == "results":
+            return "results"
+        else:
+            return "general"
+    
+    def get_file_type(self, file_path: str) -> str:
+        """Determine file type based on extension"""
+        suffix = Path(file_path).suffix.lower()
+        
+        type_mapping = {
+            '.py': 'python_script',
+            '.md': 'documentation',
+            '.json': 'configuration',
+            '.log': 'log_file',
+            '.txt': 'text_file'
+        }
+        
+        return type_mapping.get(suffix, 'unknown')
+    
+    def validate_database_integrity(self) -> Dict[str, Any]:
+        """Validate database integrity after updates"""
+        logger.info("🔍 VALIDATING DATABASE INTEGRITY")
+        
+        integrity_results = {
+            "total_records": 0,
+            "relocated_files_found": 0,
+            "integrity_issues": [],
+            "database_health": "UNKNOWN"
+        }
+        
+        try:
+            with self.get_database_connection() as conn:
+                cursor = conn.cursor()
+                
+                # Count total records
+                cursor.execute("SELECT COUNT(*) FROM enhanced_script_tracking")
+                integrity_results["total_records"] = cursor.fetchone()[0]
+                
+                # Check for relocated files
+                relocated_paths = list(self.file_mappings.values())
+                placeholders = ','.join(['?' for _ in relocated_paths])
+                cursor.execute(f"""
+                    SELECT COUNT(*) FROM enhanced_script_tracking 
+                    WHERE script_path IN ({placeholders})
+                """, relocated_paths)
+                
+                integrity_results["relocated_files_found"] = cursor.fetchone()[0]
+                
+                # Validate integrity
+                if integrity_results["relocated_files_found"] >= len(self.file_mappings):
+                    integrity_results["database_health"] = "EXCELLENT"
+                    logger.info("✅ Database integrity validation PASSED")
+                elif integrity_results["relocated_files_found"] > 0:
+                    integrity_results["database_health"] = "GOOD"
+                    logger.info("✅ Database integrity validation GOOD")
+                else:
+                    integrity_results["database_health"] = "DEGRADED"
+                    logger.warning("⚠️ Database integrity validation PARTIAL")
+                
+        except Exception as e:
+            integrity_results["integrity_issues"].append(str(e))
+            integrity_results["database_health"] = "FAILED"
+            logger.error(f"❌ Database integrity validation FAILED: {e}")
+        
+        return integrity_results
+    
+    def generate_completion_report(self, update_results: Dict[str, Any], 
+                                 integrity_results: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate comprehensive completion report"""
+        end_time = datetime.now()
+        duration = (end_time - self.start_time).total_seconds()
+        
+        completion_report = {
+            "chunk_phase": "CHUNK 2 - Database Mapping Updates (CORRECTED)",
+            "start_time": self.start_time.isoformat(),
+            "end_time": end_time.isoformat(),
+            "duration_seconds": duration,
+            "update_results": update_results,
+            "integrity_results": integrity_results,
+            "success_rate": (update_results["successful_updates"] / update_results["total_files"]) * 100,
+            "overall_status": "SUCCESS" if update_results["failed_updates"] == 0 else "PARTIAL_SUCCESS"
+        }
+        
+        return completion_report
+
+def main():
+    """Main execution function with DUAL COPILOT validation"""
+    try:
+        # MANDATORY: Start time logging
+        start_time = datetime.now()
+        logger.info("🚀 CHUNK 2: DATABASE MAPPING UPDATES (CORRECTED) STARTED")
+        logger.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        # Initialize updater
+        updater = DatabaseMappingUpdaterCorrected()
+        
+        # Execute database mapping updates
+        update_results = updater.update_file_mappings()
+        
+        # Validate database integrity
+        integrity_results = updater.validate_database_integrity()
+        
+        # Generate completion report
+        completion_report = updater.generate_completion_report(update_results, integrity_results)
+        
+        # MANDATORY: Completion summary
+        logger.info("="*60)
+        logger.info("✅ CHUNK 2: DATABASE MAPPING UPDATES (CORRECTED) COMPLETE")
+        logger.info("="*60)
+        logger.info(f"Total Files Processed: {completion_report['update_results']['total_files']}")
+        logger.info(f"Successful Updates: {completion_report['update_results']['successful_updates']}")
+        logger.info(f"Failed Updates: {completion_report['update_results']['failed_updates']}")
+        logger.info(f"New Entries: {completion_report['update_results']['new_entries']}")
+        logger.info(f"Updated Entries: {completion_report['update_results']['updated_entries']}")
+        logger.info(f"Success Rate: {completion_report['success_rate']:.1f}%")
+        logger.info(f"Database Health: {completion_report['integrity_results']['database_health']}")
+        logger.info(f"Duration: {completion_report['duration_seconds']:.2f} seconds")
+        logger.info(f"Overall Status: {completion_report['overall_status']}")
+        
+        if completion_report['update_results']['errors']:
+            logger.warning("⚠️ ERRORS ENCOUNTERED:")
+            for error in completion_report['update_results']['errors']:
+                logger.warning(f"   - {error}")
+        
+        return completion_report
+        
+    except Exception as e:
+        logger.error(f"❌ CHUNK 2 EXECUTION FAILED: {str(e)}")
+        raise
+
+if __name__ == "__main__":
+    # Execute with visual processing indicators
+    completion_report = main()
+    
+    # DUAL COPILOT validation checkpoint
+    if completion_report['overall_status'] == 'SUCCESS':
+        print("🤖🤖 DUAL COPILOT VALIDATION: CHUNK 2 CORRECTED APPROVED ✅")
+    else:
+        print("🤖🤖 DUAL COPILOT VALIDATION: CHUNK 2 CORRECTED REQUIRES REVIEW ⚠️")

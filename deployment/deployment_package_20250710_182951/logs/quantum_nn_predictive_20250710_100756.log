@@ -1,0 +1,56 @@
+2025-07-10 10:07:56,853 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Quantum predictive maintenance tables created
+2025-07-10 10:07:56,854 | INFO | QUANTUM-NN-PREDICTIVE | [DB] Quantum predictive maintenance database initialized
+2025-07-10 10:07:56,854 | INFO | QUANTUM-NN-PREDICTIVE | [Q] Quantum Neural Network Predictor initialized
+2025-07-10 10:07:56,855 | INFO | QUANTUM-NN-PREDICTIVE | Session ID: bc026f13-256a-46e8-89c1-076aa0049c3e
+2025-07-10 10:07:56,857 | INFO | QUANTUM-NN-PREDICTIVE | [NN] Training Quantum Predictive Model for INDUSTRIAL_PUMP...
+2025-07-10 10:07:56,873 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Quantum Model Trained: 0.963 accuracy
+2025-07-10 10:07:56,874 | INFO | QUANTUM-NN-PREDICTIVE | [Q] Quantum Advantage: 5005.14x
+2025-07-10 10:07:56,876 | INFO | QUANTUM-NN-PREDICTIVE | [PRED] Predicting failure for equipment PUMP_001...
+2025-07-10 10:07:56,912 | ERROR | QUANTUM-NN-PREDICTIVE | Failed to record maintenance prediction: FOREIGN KEY constraint failed
+2025-07-10 10:07:56,912 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Failure Prediction: 0.509 probability
+2025-07-10 10:07:56,912 | INFO | QUANTUM-NN-PREDICTIVE | [MAINT] Priority: MEDIUM, Confidence: 0.916
+2025-07-10 10:07:56,915 | INFO | QUANTUM-NN-PREDICTIVE | [ENT] Monitoring equipment fleet (5 units)...
+2025-07-10 10:07:56,916 | INFO | QUANTUM-NN-PREDICTIVE | [NN] Training Quantum Predictive Model for TYPE_PUMP...
+2025-07-10 10:07:56,929 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Quantum Model Trained: 0.970 accuracy
+2025-07-10 10:07:56,930 | INFO | QUANTUM-NN-PREDICTIVE | [Q] Quantum Advantage: 1.00x
+2025-07-10 10:07:56,930 | INFO | QUANTUM-NN-PREDICTIVE | [PRED] Predicting failure for equipment PUMP_001...
+2025-07-10 10:07:56,932 | ERROR | QUANTUM-NN-PREDICTIVE | Failed to record maintenance prediction: FOREIGN KEY constraint failed
+2025-07-10 10:07:56,932 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Failure Prediction: 0.518 probability
+2025-07-10 10:07:56,932 | INFO | QUANTUM-NN-PREDICTIVE | [MAINT] Priority: MEDIUM, Confidence: 0.913
+2025-07-10 10:07:56,933 | INFO | QUANTUM-NN-PREDICTIVE | [NN] Training Quantum Predictive Model for TYPE_PUMP...
+2025-07-10 10:07:56,951 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Quantum Model Trained: 0.963 accuracy
+2025-07-10 10:07:56,951 | INFO | QUANTUM-NN-PREDICTIVE | [Q] Quantum Advantage: 1.00x
+2025-07-10 10:07:56,952 | INFO | QUANTUM-NN-PREDICTIVE | [PRED] Predicting failure for equipment PUMP_002...
+2025-07-10 10:07:56,962 | ERROR | QUANTUM-NN-PREDICTIVE | Failed to record maintenance prediction: FOREIGN KEY constraint failed
+2025-07-10 10:07:56,962 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Failure Prediction: 0.627 probability
+2025-07-10 10:07:56,963 | INFO | QUANTUM-NN-PREDICTIVE | [MAINT] Priority: HIGH, Confidence: 0.869
+2025-07-10 10:07:56,963 | INFO | QUANTUM-NN-PREDICTIVE | [NN] Training Quantum Predictive Model for TYPE_COMPRESSOR...
+2025-07-10 10:07:56,977 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Quantum Model Trained: 0.971 accuracy
+2025-07-10 10:07:56,978 | INFO | QUANTUM-NN-PREDICTIVE | [Q] Quantum Advantage: 1.00x
+2025-07-10 10:07:56,979 | INFO | QUANTUM-NN-PREDICTIVE | [PRED] Predicting failure for equipment COMPRESSOR_001...
+2025-07-10 10:07:56,981 | ERROR | QUANTUM-NN-PREDICTIVE | Failed to record maintenance prediction: FOREIGN KEY constraint failed
+2025-07-10 10:07:56,981 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Failure Prediction: 0.649 probability
+2025-07-10 10:07:56,981 | INFO | QUANTUM-NN-PREDICTIVE | [MAINT] Priority: HIGH, Confidence: 0.700
+2025-07-10 10:07:56,982 | INFO | QUANTUM-NN-PREDICTIVE | [NN] Training Quantum Predictive Model for TYPE_MOTOR...
+2025-07-10 10:07:56,997 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Quantum Model Trained: 0.955 accuracy
+2025-07-10 10:07:56,997 | INFO | QUANTUM-NN-PREDICTIVE | [Q] Quantum Advantage: 4982.54x
+2025-07-10 10:07:56,998 | INFO | QUANTUM-NN-PREDICTIVE | [PRED] Predicting failure for equipment MOTOR_001...
+2025-07-10 10:07:56,999 | ERROR | QUANTUM-NN-PREDICTIVE | Failed to record maintenance prediction: FOREIGN KEY constraint failed
+2025-07-10 10:07:56,999 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Failure Prediction: 0.585 probability
+2025-07-10 10:07:57,000 | INFO | QUANTUM-NN-PREDICTIVE | [MAINT] Priority: MEDIUM, Confidence: 0.886
+2025-07-10 10:07:57,000 | INFO | QUANTUM-NN-PREDICTIVE | [NN] Training Quantum Predictive Model for TYPE_GENERATOR...
+2025-07-10 10:07:57,016 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Quantum Model Trained: 0.977 accuracy
+2025-07-10 10:07:57,017 | INFO | QUANTUM-NN-PREDICTIVE | [Q] Quantum Advantage: 1.00x
+2025-07-10 10:07:57,017 | INFO | QUANTUM-NN-PREDICTIVE | [PRED] Predicting failure for equipment GENERATOR_001...
+2025-07-10 10:07:57,020 | ERROR | QUANTUM-NN-PREDICTIVE | Failed to record maintenance prediction: FOREIGN KEY constraint failed
+2025-07-10 10:07:57,021 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Failure Prediction: 0.739 probability
+2025-07-10 10:07:57,021 | INFO | QUANTUM-NN-PREDICTIVE | [MAINT] Priority: HIGH, Confidence: 0.904
+2025-07-10 10:07:57,022 | INFO | QUANTUM-NN-PREDICTIVE | [ENT] Fleet Analysis: 5 units
+2025-07-10 10:07:57,023 | INFO | QUANTUM-NN-PREDICTIVE |   Critical Priority: 0 units (0.0%)
+2025-07-10 10:07:57,026 | INFO | QUANTUM-NN-PREDICTIVE |   High Priority: 3 units (60.0%)
+2025-07-10 10:07:57,027 | INFO | QUANTUM-NN-PREDICTIVE |   Average Failure Probability: 0.624
+2025-07-10 10:07:57,027 | INFO | QUANTUM-NN-PREDICTIVE |   Average Prediction Confidence: 0.855
+2025-07-10 10:07:57,027 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Fleet monitoring complete: 5 predictions
+2025-07-10 10:07:57,028 | INFO | QUANTUM-NN-PREDICTIVE | [PROC] Real-time anomaly detection for PUMP_001...
+2025-07-10 10:07:57,030 | INFO | QUANTUM-NN-PREDICTIVE | [OK] Anomalies detected: 0/20
+2025-07-10 10:07:57,030 | INFO | QUANTUM-NN-PREDICTIVE | [Q] Real-time Quantum Advantage: 8947.05x

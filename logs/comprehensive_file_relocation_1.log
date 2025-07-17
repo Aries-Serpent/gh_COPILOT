@@ -1,0 +1,25 @@
+2025-07-16 13:48:29,449 - INFO - ================================================================================
+2025-07-16 13:48:29,468 - INFO - Start Time: 2025-07-16 13:48:29
+2025-07-16 13:48:29,468 - INFO - Process ID: 16860
+2025-07-16 13:48:29,469 - INFO - ================================================================================
+2025-07-16 13:49:44,924 - INFO - ================================================================================
+2025-07-16 13:49:44,924 - INFO - COMPREHENSIVE FILE RELOCATOR INITIALIZED
+2025-07-16 13:49:44,924 - INFO - Start Time: 2025-07-16 13:49:44
+2025-07-16 13:49:44,924 - INFO - Process ID: 13920
+2025-07-16 13:49:44,924 - INFO - ================================================================================
+2025-07-16 13:49:44,924 - INFO - VALIDATING ENVIRONMENT COMPLIANCE...
+2025-07-16 13:49:48,645 - INFO - ENVIRONMENT COMPLIANCE VALIDATED
+2025-07-16 13:49:48,645 - INFO - ENSURING TARGET DIRECTORIES...
+2025-07-16 13:49:48,645 - INFO - Directory exists: e:\gh_COPILOT\logs
+2025-07-16 13:49:48,645 - INFO - Directory exists: e:\gh_COPILOT\documentation
+2025-07-16 13:49:48,645 - INFO - Directory exists: e:\gh_COPILOT\reports
+2025-07-16 13:49:48,645 - INFO - Directory exists: e:\gh_COPILOT\results
+2025-07-16 13:49:48,645 - INFO - STARTING COMPREHENSIVE FILE RELOCATION...
+2025-07-16 13:49:48,645 - INFO - SCANNING WORKSPACE FOR FILES TO RELOCATE...
+2025-07-16 13:49:48,698 - INFO - LOGS: 5 files identified
+2025-07-16 13:49:48,698 - INFO - DOCUMENTATION: 39 files identified
+2025-07-16 13:49:48,705 - INFO - REPORTS: 169 files identified
+2025-07-16 13:49:48,705 - INFO - RESULTS: 0 files identified
+2025-07-16 13:49:48,705 - INFO - TOTAL FILES TO RELOCATE: 213
+2025-07-16 13:49:48,705 - INFO - SKIPPED FILES: 227
+2025-07-16 13:49:48,705 - INFO - EXECUTING FILE RELOCATIONS...

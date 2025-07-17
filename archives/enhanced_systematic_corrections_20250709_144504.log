@@ -1,0 +1,37 @@
+2025-07-09 14:45:04,256 - INFO - Starting enhanced critical error processing...
+2025-07-09 14:45:04,257 - INFO - Running enhanced Flake8 scan...
+2025-07-09 14:45:08,317 - INFO - Flake8 scan completed. Output saved to: E:\gh_COPILOT\flake8_enhanced_scan_20250709_144504.log
+2025-07-09 14:45:08,345 - INFO - Parsed 1046 errors from Flake8 output
+2025-07-09 14:45:08,346 - INFO - Found 430 critical errors
+2025-07-09 14:45:08,347 - INFO - Processing 30 files...
+2025-07-09 14:45:08,356 - ERROR - Error processing .\copilot\core\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py: [WinError 32] The process cannot access the file because it is being used by another process
+2025-07-09 14:45:08,363 - INFO - Processed .\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py: 0/1 errors fixed
+2025-07-09 14:45:08,363 - INFO - Processed .\copilot\core\enterprise_json_serialization_fix.py: 0/1 errors fixed
+2025-07-09 14:45:08,376 - INFO - Processed .\copilot\core\enterprise_orchestrator.py: 0/1 errors fixed
+2025-07-09 14:45:08,379 - INFO - Processed .\copilot\core\enterprise_unicode_compatibility_fix.py: 0/1 errors fixed
+2025-07-09 14:45:08,381 - INFO - Processed .\comprehensive_syntax_fixer.py: 1/1 errors fixed
+2025-07-09 14:45:08,389 - INFO - Processed .\copilot\core\final_deployment_validator.py: 0/1 errors fixed
+2025-07-09 14:45:08,399 - INFO - Processed .\copilot\core\frameworks\comprehensive_deployment_manager.py: 0/1 errors fixed
+2025-07-09 14:45:08,401 - INFO - Processed .\copilot\core\frameworks\intelligent_instruction_orchestrator.py: 0/1 errors fixed
+2025-07-09 14:45:08,404 - INFO - Processed .\copilot\core\frameworks\mission_completion_orchestrator.py: 0/1 errors fixed
+2025-07-09 14:45:08,409 - INFO - Processed .\copilot\core\autonomous_file_manager.py: 1/1 errors fixed
+2025-07-09 14:45:08,425 - INFO - Processed .\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE.py: 0/1 errors fixed
+2025-07-09 14:45:08,445 - INFO - Processed .\copilot\orchestrators\unified_deployment_orchestrator.py: 0/1 errors fixed
+2025-07-09 14:45:08,461 - INFO - Processed .\copilot\orchestrators\LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py: 0/1 errors fixed
+2025-07-09 14:45:08,484 - INFO - Processed .\database_driven_flake8_corrector.py: 0/1 errors fixed
+2025-07-09 14:45:08,484 - INFO - Processed .\database_sync_scheduler.py: 0/1 errors fixed
+2025-07-09 14:45:08,484 - INFO - Processed .\deployment\install.py: 0/1 errors fixed
+2025-07-09 14:45:08,499 - INFO - Processed .\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py: 0/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\deployment_migration_script.py: 0/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\disaster_recovery_consolidation_executor.py: 0/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\enhanced_database_driven_flake8_corrector.py: 0/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\documentation\session_wrap_up_generator.py: 1/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\final_deployment_validator.py: 0/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\enterprise_unicode_compatible_flake8_corrector.py: 0/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\fix_syntax_errors.py: 0/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\enterprise_unicode_compatibility_fix.py: 0/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\github_integration\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py: 1/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\enterprise_wrap_up_engine.py: 0/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\monitoring_optimization_consolidation_executor.py: 0/1 errors fixed
+2025-07-09 14:45:08,505 - INFO - Processed .\github_integration\.github\copilot\conversations_with_human\configuration_recovery_engine.py: 1/1 errors fixed
+2025-07-09 14:45:08,519 - INFO - Enhanced correction completed. Report saved to: E:\gh_COPILOT\enhanced_correction_report_ENHANCED_CRITICAL_20250709_144504.json

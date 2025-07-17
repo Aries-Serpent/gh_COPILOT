@@ -1,0 +1,37 @@
+2025-07-09 13:03:03,353 - INFO - Starting enhanced critical error processing...
+2025-07-09 13:03:03,353 - INFO - Running enhanced Flake8 scan...
+2025-07-09 13:03:07,414 - INFO - Flake8 scan completed. Output saved to: E:\gh_COPILOT\flake8_enhanced_scan_20250709_130303.log
+2025-07-09 13:03:07,441 - INFO - Parsed 1047 errors from Flake8 output
+2025-07-09 13:03:07,442 - INFO - Found 426 critical errors
+2025-07-09 13:03:07,442 - INFO - Processing 30 files...
+2025-07-09 13:03:07,468 - INFO - Processed .\copilot\core\enterprise_orchestrator.py: 0/1 errors fixed
+2025-07-09 13:03:07,472 - INFO - Processed .\copilot\core\enterprise_unicode_compatibility_fix.py: 0/1 errors fixed
+2025-07-09 13:03:07,482 - INFO - Processed .\copilot\core\autonomous_file_manager.py: 1/1 errors fixed
+2025-07-09 13:03:07,488 - INFO - Processed .\copilot\core\enterprise_json_serialization_fix.py: 1/1 errors fixed
+2025-07-09 13:03:07,497 - INFO - Processed .\copilot\core\final_deployment_validator.py: 1/1 errors fixed
+2025-07-09 13:03:07,506 - INFO - Processed .\copilot\core\frameworks\intelligent_instruction_orchestrator.py: 0/1 errors fixed
+2025-07-09 13:03:07,509 - INFO - Processed .\copilot\core\frameworks\comprehensive_deployment_manager.py: 1/1 errors fixed
+2025-07-09 13:03:07,510 - INFO - Processed .\copilot\core\frameworks\mission_completion_orchestrator.py: 1/1 errors fixed
+2025-07-09 13:03:07,519 - INFO - Processed .\copilot\orchestrators\LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py: 1/1 errors fixed
+2025-07-09 13:03:07,526 - INFO - Processed .\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py: 1/1 errors fixed
+2025-07-09 13:03:07,529 - INFO - Processed .\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE.py: 1/1 errors fixed
+2025-07-09 13:03:07,529 - INFO - Processed .\copilot\orchestrators\final_enterprise_orchestrator.py: 1/1 errors fixed
+2025-07-09 13:03:07,529 - INFO - Processed .\database_consolidation_migration.py: 0/1 errors fixed
+2025-07-09 13:03:07,545 - INFO - Processed .\database_sync_scheduler.py: 0/1 errors fixed
+2025-07-09 13:03:07,554 - INFO - Processed .\copilot\orchestrators\unified_deployment_orchestrator.py: 1/1 errors fixed
+2025-07-09 13:03:07,557 - INFO - Processed .\deployment\install.py: 1/1 errors fixed
+2025-07-09 13:03:07,562 - INFO - Processed .\disaster_recovery_consolidation_executor.py: 1/1 errors fixed
+2025-07-09 13:03:07,562 - INFO - Processed .\documentation\session_wrap_up_generator.py: 0/1 errors fixed
+2025-07-09 13:03:07,562 - INFO - Processed .\enterprise_unicode_compatibility_fix.py: 1/1 errors fixed
+2025-07-09 13:03:07,562 - INFO - Processed .\enterprise_wrap_up_engine.py: 1/1 errors fixed
+2025-07-09 13:03:07,583 - INFO - Processed .\final_deployment_validator.py: 1/1 errors fixed
+2025-07-09 13:03:07,594 - INFO - Processed .\fix_syntax_errors.py: 1/1 errors fixed
+2025-07-09 13:03:07,627 - INFO - Processed .\github_integration\.github\copilot\conversations_with_human\configuration_recovery_engine.py: 0/1 errors fixed
+2025-07-09 13:03:07,627 - INFO - Processed .\github_integration\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py: 0/1 errors fixed
+2025-07-09 13:03:07,638 - INFO - Processed .\monitoring_optimization_consolidation_executor.py: 1/1 errors fixed
+2025-07-09 13:03:07,641 - INFO - Processed .\physics_optimization_engine.py: 0/1 errors fixed
+2025-07-09 13:03:07,641 - INFO - Processed .\quantum\quantum_optimization.py: 1/1 errors fixed
+2025-07-09 13:03:07,641 - INFO - Processed .\script_generation_consolidation_executor.py: 1/1 errors fixed
+2025-07-09 13:03:07,666 - INFO - Processed .\scripts\ADVANCED_SCRIPT_ANALYSIS.py: 0/1 errors fixed
+2025-07-09 13:03:07,669 - INFO - Processed .\copilot\core\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py: 1/1 errors fixed
+2025-07-09 13:03:07,697 - INFO - Enhanced correction completed. Report saved to: E:\gh_COPILOT\enhanced_correction_report_ENHANCED_CRITICAL_20250709_130303.json

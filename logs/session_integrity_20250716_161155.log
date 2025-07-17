@@ -1,0 +1,33 @@
+2025-07-16 16:11:55,751 - INFO - [INIT] Session Integrity Manager initialized
+2025-07-16 16:11:55,767 - INFO - [INFO] Action: end, Level: enterprise, Auto-fix: True
+2025-07-16 16:11:55,767 - INFO - [INFO] Session ID: session_20250716_161155_14788
+2025-07-16 16:11:55,767 - INFO - [START] Session end validation initiated
+2025-07-16 16:11:55,768 - INFO - [VALIDATION] Database Integrity: 0/0 (0.0%)
+2025-07-16 16:11:55,768 - ERROR - [FAILED] Database Integrity validation failed
+2025-07-16 16:11:55,826 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\logs\archive_migration.log
+2025-07-16 16:11:55,833 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\logs\database_consistency_check.log
+2025-07-16 16:11:55,899 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\analytics_20250714_235950.db-wal
+2025-07-16 16:11:55,899 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\build_enhancements.db-wal
+2025-07-16 16:11:55,902 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\build_integration.db-wal
+2025-07-16 16:11:55,902 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\deployment_preparation.db-wal
+2025-07-16 16:11:55,902 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\executive_alerts.db-wal
+2025-07-16 16:11:55,902 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\factory_deployment.db-wal
+2025-07-16 16:11:55,902 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\instruction_orchestrator.db-wal
+2025-07-16 16:11:55,902 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\optimization_metrics.db-wal
+2025-07-16 16:11:55,908 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\performance_monitoring.db-wal
+2025-07-16 16:11:55,908 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\production.db
+2025-07-16 16:11:55,910 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\production_20250714_235950.db-wal
+2025-07-16 16:11:55,910 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\quantum_algorithms.db-wal
+2025-07-16 16:11:55,912 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\quantum_integration.db-wal
+2025-07-16 16:11:55,912 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\quantum_integration_simplified.db-wal
+2025-07-16 16:11:55,913 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\strategic_implementation.db-wal
+2025-07-16 16:11:55,914 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\template_compliance.db-wal
+2025-07-16 16:11:55,915 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\_ZERO_BYTE_QUARANTINE\test.db
+2025-07-16 16:12:06,278 - WARNING - [WARNING] Found 19 zero-byte files (0.04%)
+2025-07-16 16:12:06,278 - INFO - [PASSED] File System Integrity validation passed
+2025-07-16 16:12:09,433 - INFO - [SUCCESS] No anti-recursion violations detected
+2025-07-16 16:12:09,433 - INFO - [PASSED] Anti-Recursion Compliance validation passed
+2025-07-16 16:12:09,433 - WARNING - [WARNING] No deployment package found
+2025-07-16 16:12:09,433 - WARNING - [WARNING] Enterprise compliance issues detected
+2025-07-16 16:12:09,433 - ERROR - [FAILED] Enterprise Compliance validation failed
+2025-07-16 16:12:09,433 - INFO - [REPORT] Validation report saved: E:\gh_COPILOT\session_validation_report_20250716_161209.json

@@ -1,0 +1,14 @@
+2025-07-16 16:19:40,679 - INFO - [INIT] Session Integrity Manager initialized
+2025-07-16 16:19:40,679 - INFO - [INFO] Action: end, Level: enterprise, Auto-fix: True
+2025-07-16 16:19:40,679 - INFO - [INFO] Session ID: session_20250716_161940_17552
+2025-07-16 16:19:40,679 - INFO - [START] Session end validation initiated
+2025-07-16 16:19:40,679 - INFO - [VALIDATION] Database Integrity: 0/0 (0.0%)
+2025-07-16 16:19:40,679 - ERROR - [FAILED] Database Integrity validation failed
+2025-07-16 16:19:46,295 - INFO - [SUCCESS] No zero-byte files detected
+2025-07-16 16:19:46,295 - INFO - [PASSED] File System Integrity validation passed
+2025-07-16 16:19:49,000 - INFO - [SUCCESS] No anti-recursion violations detected
+2025-07-16 16:19:49,000 - INFO - [PASSED] Anti-Recursion Compliance validation passed
+2025-07-16 16:19:49,000 - WARNING - [WARNING] No deployment package found
+2025-07-16 16:19:49,000 - WARNING - [WARNING] Enterprise compliance issues detected
+2025-07-16 16:19:49,000 - ERROR - [FAILED] Enterprise Compliance validation failed
+2025-07-16 16:19:49,006 - INFO - [REPORT] Validation report saved: E:\gh_COPILOT\session_validation_report_20250716_161949.json

@@ -1,0 +1,31 @@
+2025-07-09 16:34:56,505 DEBUG:Subdomain dropdown menu populated.
+2025-07-09 16:45:46,126 DEBUG:Subdomain dropdown menu populated.
+2025-07-09 16:47:04,465 DEBUG:Subdomain dropdown menu populated.
+2025-07-09 16:47:17,091 DEBUG:Subdomain 'bgrs-test' selected.
+2025-07-09 16:47:30,712 WARNING:Username input is empty.
+2025-07-09 16:47:45,062 INFO:Fetching comments from URL: https://bgrs-test.zendesk.com/api/v2/tickets/78057/comments
+2025-07-09 16:47:45,067 DEBUG:Starting new HTTPS connection (1): bgrs-test.zendesk.com:443
+2025-07-09 16:47:45,533 DEBUG:https://bgrs-test.zendesk.com:443 "GET /api/v2/tickets/78057/comments HTTP/1.1" 401 None
+2025-07-09 16:47:45,535 ERROR:Error fetching comments: 401 - {"error":"Couldn't authenticate you"}
+2025-07-09 16:47:52,282 INFO:Fetching comments from URL: https://bgrs-test.zendesk.com/api/v2/tickets/78057/comments
+2025-07-09 16:47:52,283 DEBUG:Starting new HTTPS connection (1): bgrs-test.zendesk.com:443
+2025-07-09 16:47:52,488 DEBUG:https://bgrs-test.zendesk.com:443 "GET /api/v2/tickets/78057/comments HTTP/1.1" 401 None
+2025-07-09 16:47:52,488 ERROR:Error fetching comments: 401 - {"error":"Couldn't authenticate you"}
+2025-07-09 16:47:53,715 INFO:Fetching comments from URL: https://bgrs-test.zendesk.com/api/v2/tickets/78057/comments
+2025-07-09 16:47:53,717 DEBUG:Starting new HTTPS connection (1): bgrs-test.zendesk.com:443
+2025-07-09 16:47:53,914 DEBUG:https://bgrs-test.zendesk.com:443 "GET /api/v2/tickets/78057/comments HTTP/1.1" 401 None
+2025-07-09 16:47:53,915 ERROR:Error fetching comments: 401 - {"error":"Couldn't authenticate you"}
+2025-07-09 16:47:56,658 DEBUG:Subdomain 'bgrs' selected.
+2025-07-09 16:47:58,763 INFO:Fetching comments from URL: https://bgrs.zendesk.com/api/v2/tickets/78057/comments
+2025-07-09 16:47:58,765 DEBUG:Starting new HTTPS connection (1): bgrs.zendesk.com:443
+2025-07-09 16:47:58,948 DEBUG:https://bgrs.zendesk.com:443 "GET /api/v2/tickets/78057/comments HTTP/1.1" 401 None
+2025-07-09 16:47:58,949 ERROR:Error fetching comments: 401 - {"error":"Couldn't authenticate you"}
+2025-07-09 16:48:09,524 INFO:Fetching comments from URL: https://bgrs.zendesk.com/api/v2/tickets/78057/comments
+2025-07-09 16:48:09,525 DEBUG:Starting new HTTPS connection (1): bgrs.zendesk.com:443
+2025-07-09 16:48:09,722 DEBUG:https://bgrs.zendesk.com:443 "GET /api/v2/tickets/78057/comments HTTP/1.1" 401 None
+2025-07-09 16:48:09,723 ERROR:Error fetching comments: 401 - {"error":"Couldn't authenticate you"}
+2025-07-09 16:48:10,898 INFO:Fetching comments from URL: https://bgrs.zendesk.com/api/v2/tickets/78057/comments
+2025-07-09 16:48:10,900 DEBUG:Starting new HTTPS connection (1): bgrs.zendesk.com:443
+2025-07-09 16:48:11,070 DEBUG:https://bgrs.zendesk.com:443 "GET /api/v2/tickets/78057/comments HTTP/1.1" 401 None
+2025-07-09 16:48:11,071 ERROR:Error fetching comments: 401 - {"error":"Couldn't authenticate you"}
+2025-07-09 16:48:12,159 INFO:Application closed by user.

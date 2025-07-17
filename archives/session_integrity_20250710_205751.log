@@ -1,0 +1,31 @@
+2025-07-10 20:57:51,537 - INFO - [DB] Found session database: E:\gh_COPILOT\analytics.db with tables: [('pis_sessions',)]
+2025-07-10 20:57:51,537 - INFO - [DB] Found session database: E:\gh_COPILOT\pis_comprehensive.db with tables: [('pis_execution_sessions',), ('quantum_clustering_sessions',)]
+2025-07-10 20:57:51,548 - INFO - [DB] Found session database: E:\gh_COPILOT\pis_framework.db with tables: [('pis_framework_sessions',)]
+2025-07-10 20:57:51,551 - INFO - [DB] Found session database: E:\gh_COPILOT\pis_framework_enhanced.db with tables: [('pis_framework_sessions',), ('cross_session_learning',), ('pis_framework_sessions_enhanced',), ('semantic_search_sessions',)]
+2025-07-10 20:57:51,555 - INFO - [DB] Found session database: E:\gh_COPILOT\production.db with tables: [('pis_sessions',)]
+2025-07-10 20:57:51,559 - INFO - [DB] Found session database: E:\gh_COPILOT\quantum_integration.db with tables: [('quantum_integration_sessions',)]
+2025-07-10 20:57:51,560 - INFO - [DB] Found session database: E:\gh_COPILOT\quantum_integration_simplified.db with tables: [('quantum_execution_sessions',)]
+2025-07-10 20:57:51,563 - INFO - [INIT] Session Integrity Manager initialized
+2025-07-10 20:57:51,563 - INFO - [INFO] Action: end, Level: enterprise, Auto-fix: True
+2025-07-10 20:57:51,563 - INFO - [INFO] Session ID: session_20250710_205751_2652
+2025-07-10 20:57:51,563 - INFO - [START] Session end validation initiated
+2025-07-10 20:57:51,566 - INFO - [DB] Session record updated: session_20250710_205751_2652 - VALIDATING
+2025-07-10 20:57:51,814 - INFO - [VALIDATION] Database Integrity: 10/10 (100.0%)
+2025-07-10 20:57:51,814 - INFO - [PASSED] Database Integrity validation passed
+2025-07-10 20:57:51,838 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\enterprise_validation.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\enterprise_validation.db-wal'
+2025-07-10 20:57:51,855 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\pis_comprehensive.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\pis_comprehensive.db-wal'
+2025-07-10 20:57:51,855 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\pis_framework.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\pis_framework.db-wal'
+2025-07-10 20:57:51,863 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\pis_framework_enhanced.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\pis_framework_enhanced.db-wal'
+2025-07-10 20:57:51,863 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\production.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\production.db-wal'
+2025-07-10 20:57:51,866 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\quantum_algorithms.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\quantum_algorithms.db-wal'
+2025-07-10 20:57:51,868 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\quantum_integration.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\quantum_integration.db-wal'
+2025-07-10 20:57:51,871 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\quantum_integration_simplified.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\quantum_integration_simplified.db-wal'
+2025-07-10 20:57:51,874 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\style_compliance_intelligence.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\style_compliance_intelligence.db-wal'
+2025-07-10 20:57:52,711 - WARNING - [WARNING] Found 9 zero-byte files (0.12%)
+2025-07-10 20:57:52,711 - INFO - [PASSED] File System Integrity validation passed
+2025-07-10 20:57:53,091 - INFO - [SUCCESS] No anti-recursion violations detected
+2025-07-10 20:57:53,091 - INFO - [PASSED] Anti-Recursion Compliance validation passed
+2025-07-10 20:57:53,091 - INFO - [SUCCESS] Enterprise compliance validated
+2025-07-10 20:57:53,091 - INFO - [PASSED] Enterprise Compliance validation passed
+2025-07-10 20:57:53,091 - INFO - [DB] Session record updated: session_20250710_205751_2652 - COMPLETED
+2025-07-10 20:57:53,112 - INFO - [REPORT] Validation report saved: E:\gh_COPILOT\session_validation_report_20250710_205753.json

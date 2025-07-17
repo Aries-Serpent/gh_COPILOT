@@ -1,0 +1,73 @@
+2025-07-09 12:59:19,314 - INFO - CRITICAL FLAKE8 CORRECTOR INITIALIZED
+2025-07-09 12:59:19,314 - INFO - Workspace: E:\gh_COPILOT
+2025-07-09 12:59:19,314 - INFO - Correction patterns loaded: 6
+2025-07-09 12:59:19,314 - INFO - EXECUTING CRITICAL ERROR CORRECTIONS...
+2025-07-09 12:59:19,314 - INFO - LOADING CRITICAL ERRORS FROM ANALYSIS...
+2025-07-09 12:59:19,330 - INFO - Loading analysis from: E:\gh_COPILOT\systematic_error_analysis_20250709_125804.json
+2025-07-09 12:59:19,331 - INFO - Loaded 17 critical errors for correction
+2025-07-09 12:59:19,331 - INFO - Processing 17 files with critical errors
+2025-07-09 12:59:19,358 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py
+2025-07-09 12:59:19,366 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\core\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py
+2025-07-09 12:59:19,730 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\autonomous_file_manager.py
+2025-07-09 12:59:19,730 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\core\autonomous_file_manager.py
+2025-07-09 12:59:20,164 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\enterprise_json_serialization_fix.py
+2025-07-09 12:59:20,164 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\core\enterprise_json_serialization_fix.py
+2025-07-09 12:59:20,814 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\enterprise_orchestrator.py
+2025-07-09 12:59:20,814 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\core\enterprise_orchestrator.py
+2025-07-09 12:59:21,347 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\enterprise_unicode_compatibility_fix.py
+2025-07-09 12:59:21,347 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\core\enterprise_unicode_compatibility_fix.py
+2025-07-09 12:59:21,799 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\final_deployment_validator.py
+2025-07-09 12:59:21,814 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\core\final_deployment_validator.py
+2025-07-09 12:59:22,247 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\frameworks\comprehensive_deployment_manager.py
+2025-07-09 12:59:22,264 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\core\frameworks\comprehensive_deployment_manager.py
+2025-07-09 12:59:22,834 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\frameworks\intelligent_instruction_orchestrator.py
+2025-07-09 12:59:22,839 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\core\frameworks\intelligent_instruction_orchestrator.py
+2025-07-09 12:59:23,415 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\frameworks\mission_completion_orchestrator.py
+2025-07-09 12:59:23,865 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\orchestrators\LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py
+2025-07-09 12:59:23,881 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\orchestrators\LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py
+2025-07-09 12:59:24,381 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py
+2025-07-09 12:59:24,396 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py
+2025-07-09 12:59:24,959 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE.py
+2025-07-09 12:59:24,966 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE.py
+2025-07-09 12:59:25,548 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\orchestrators\final_enterprise_orchestrator.py
+2025-07-09 12:59:25,563 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\orchestrators\final_enterprise_orchestrator.py
+2025-07-09 12:59:26,132 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\orchestrators\unified_deployment_orchestrator.py
+2025-07-09 12:59:26,132 - INFO - Applied 1 corrections to E:\gh_COPILOT\copilot\orchestrators\unified_deployment_orchestrator.py
+2025-07-09 12:59:26,708 - INFO - CORRECTING FILE: E:\gh_COPILOT\database_consolidation_migration.py
+2025-07-09 12:59:26,716 - INFO - Applied 1 corrections to E:\gh_COPILOT\database_consolidation_migration.py
+2025-07-09 12:59:27,354 - INFO - CORRECTING FILE: E:\gh_COPILOT\database_sync_scheduler.py
+2025-07-09 12:59:27,359 - INFO - Applied 1 corrections to E:\gh_COPILOT\database_sync_scheduler.py
+2025-07-09 12:59:28,260 - INFO - CORRECTING FILE: E:\gh_COPILOT\deployment\install.py
+2025-07-09 12:59:28,845 - INFO - CRITICAL ERROR CORRECTIONS COMPLETED
+2025-07-09 12:59:28,845 - INFO - Files processed: 17
+2025-07-09 12:59:28,845 - INFO - Total errors fixed: 15
+2025-07-09 12:59:28,845 - INFO - Report saved to: E:\gh_COPILOT\critical_error_corrections_20250709_125919.json
+2025-07-09 13:00:37,635 - INFO - CRITICAL FLAKE8 CORRECTOR INITIALIZED
+2025-07-09 13:00:37,635 - INFO - Workspace: E:\gh_COPILOT
+2025-07-09 13:00:37,635 - INFO - Correction patterns loaded: 6
+2025-07-09 13:00:37,635 - INFO - EXECUTING CRITICAL ERROR CORRECTIONS...
+2025-07-09 13:00:37,635 - INFO - LOADING CRITICAL ERRORS FROM ANALYSIS...
+2025-07-09 13:00:37,635 - INFO - Loading analysis from: E:\gh_COPILOT\systematic_error_analysis_20250709_125804.json
+2025-07-09 13:00:37,650 - INFO - Loaded 17 critical errors for correction
+2025-07-09 13:00:37,651 - INFO - Processing 17 files with critical errors
+2025-07-09 13:00:37,681 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py
+2025-07-09 13:00:38,076 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\autonomous_file_manager.py
+2025-07-09 13:00:38,636 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\enterprise_json_serialization_fix.py
+2025-07-09 13:00:39,219 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\enterprise_orchestrator.py
+2025-07-09 13:00:39,664 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\enterprise_unicode_compatibility_fix.py
+2025-07-09 13:00:40,157 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\final_deployment_validator.py
+2025-07-09 13:00:40,637 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\frameworks\comprehensive_deployment_manager.py
+2025-07-09 13:00:41,134 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\frameworks\intelligent_instruction_orchestrator.py
+2025-07-09 13:00:41,602 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\core\frameworks\mission_completion_orchestrator.py
+2025-07-09 13:00:42,119 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\orchestrators\LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py
+2025-07-09 13:00:42,569 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py
+2025-07-09 13:00:43,153 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE.py
+2025-07-09 13:00:43,820 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\orchestrators\final_enterprise_orchestrator.py
+2025-07-09 13:00:44,410 - INFO - CORRECTING FILE: E:\gh_COPILOT\copilot\orchestrators\unified_deployment_orchestrator.py
+2025-07-09 13:00:44,985 - INFO - CORRECTING FILE: E:\gh_COPILOT\database_consolidation_migration.py
+2025-07-09 13:00:45,526 - INFO - CORRECTING FILE: E:\gh_COPILOT\database_sync_scheduler.py
+2025-07-09 13:00:46,086 - INFO - CORRECTING FILE: E:\gh_COPILOT\deployment\install.py
+2025-07-09 13:00:46,630 - INFO - CRITICAL ERROR CORRECTIONS COMPLETED
+2025-07-09 13:00:46,630 - INFO - Files processed: 17
+2025-07-09 13:00:46,630 - INFO - Total errors fixed: 0
+2025-07-09 13:00:46,630 - INFO - Report saved to: E:\gh_COPILOT\critical_error_corrections_20250709_130037.json

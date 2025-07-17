@@ -1,0 +1,141 @@
+2025-07-12 23:10:58,807 - __main__ - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:10:58,807 - __main__ - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_231058
+2025-07-12 23:10:58,807 - __main__ - INFO - [INFO] Log file: e:\gh_COPILOT\logs\unicode_flake8_correction.log
+2025-07-12 23:10:58,807 - __main__ - INFO - ================================================================================
+2025-07-12 23:10:58,807 - __main__ - INFO - [ENTERPRISE-START] ENTERPRISE UNICODE FLAKE8 CORRECTOR
+2025-07-12 23:10:58,807 - __main__ - INFO - ================================================================================
+2025-07-12 23:10:58,807 - __main__ - INFO - [INFO] Start Time: 2025-07-12 23:10:58
+2025-07-12 23:10:58,807 - __main__ - INFO - [INFO] Process ID: 3156
+2025-07-12 23:10:58,807 - __main__ - INFO - [INFO] Timeout: 30 minutes
+2025-07-12 23:10:58,807 - __main__ - INFO - [INFO] Unicode Compatibility: ENABLED
+2025-07-12 23:10:58,807 - __main__ - INFO - [INFO] Anti-Recursion Protection: ACTIVE
+2025-07-12 23:10:58,852 - __main__ - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:10:58.852030
+2025-07-12 23:10:59,186 - __main__ - ERROR - [ERROR] RECURSIVE VIOLATIONS DETECTED:
+2025-07-12 23:10:59,186 - __main__ - ERROR -    - e:\gh_COPILOT\template_engine
+2025-07-12 23:10:59,186 - __main__ - INFO - [SUCCESS] Removed violation: e:\gh_COPILOT\template_engine
+2025-07-12 23:10:59,186 - __main__ - ERROR -    - e:\gh_COPILOT\copilot\template_intelligence
+2025-07-12 23:10:59,186 - __main__ - INFO - [SUCCESS] Removed violation: e:\gh_COPILOT\copilot\template_intelligence
+2025-07-12 23:10:59,202 - __main__ - ERROR -    - e:\gh_COPILOT\web_gui\scripts\flask_apps\templates
+2025-07-12 23:10:59,202 - __main__ - INFO - [SUCCESS] Removed violation: e:\gh_COPILOT\web_gui\scripts\flask_apps\templates
+2025-07-12 23:10:59,202 - __main__ - ERROR - [ERROR] Chunk 1 execution failed: CRITICAL: Recursive violations prevented execution
+2025-07-12 23:11:38,977 - __main__ - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:11:38,977 - __main__ - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_231138
+2025-07-12 23:11:38,977 - __main__ - INFO - [INFO] Log file: e:\gh_COPILOT\logs\unicode_flake8_correction.log
+2025-07-12 23:11:38,977 - __main__ - INFO - ================================================================================
+2025-07-12 23:11:38,977 - __main__ - INFO - [ENTERPRISE-START] ENTERPRISE UNICODE FLAKE8 CORRECTOR
+2025-07-12 23:11:38,977 - __main__ - INFO - ================================================================================
+2025-07-12 23:11:38,977 - __main__ - INFO - [INFO] Start Time: 2025-07-12 23:11:38
+2025-07-12 23:11:38,977 - __main__ - INFO - [INFO] Process ID: 5488
+2025-07-12 23:11:38,977 - __main__ - INFO - [INFO] Timeout: 30 minutes
+2025-07-12 23:11:38,977 - __main__ - INFO - [INFO] Unicode Compatibility: ENABLED
+2025-07-12 23:11:38,977 - __main__ - INFO - [INFO] Anti-Recursion Protection: ACTIVE
+2025-07-12 23:11:39,001 - __main__ - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:11:39.001953
+2025-07-12 23:11:39,326 - __main__ - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:11:39,326 - __main__ - INFO - [SUCCESS] Anti-recursion validation completed in 0.3s
+2025-07-12 23:11:39,326 - __main__ - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:11:39.326939
+2025-07-12 23:11:39,676 - __main__ - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:11:39,690 - __main__ - INFO - [SUCCESS] Anti-recursion validation completed in 0.4s
+2025-07-12 23:11:39,692 - __main__ - INFO - [SUCCESS] File written successfully: E:\gh_COPILOT\test_unicode_compat.py (utf-8, 301 bytes) in 0.001s
+2025-07-12 23:11:39,694 - __main__ - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 0.99) in 0.001s
+2025-07-12 23:11:39,695 - __main__ - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\test_unicode_compat.py (utf-8, 301 bytes) in 0.002s
+2025-07-12 23:11:39,695 - __main__ - INFO - [SUCCESS] Unicode test successful: utf-8
+2025-07-12 23:11:39,696 - __main__ - INFO - [SUCCESS] Encoding statistics: {'total_files_processed': 1, 'encoding_distribution': {'utf-8': 1}, 'most_common_encoding': 'utf-8'}
+2025-07-12 23:11:39,697 - __main__ - INFO - ================================================================================
+2025-07-12 23:11:39,697 - __main__ - INFO - [COMPLETE] CHUNK 1 COMPLETION SUMMARY
+2025-07-12 23:11:39,698 - __main__ - INFO - ================================================================================
+2025-07-12 23:11:39,698 - __main__ - INFO - [SUCCESS] Unicode File Handler: OPERATIONAL
+2025-07-12 23:11:39,698 - __main__ - INFO - [SUCCESS] Anti-Recursion Protection: VALIDATED
+2025-07-12 23:11:39,699 - __main__ - INFO - [SUCCESS] Windows Compatibility: CONFIRMED
+2025-07-12 23:11:39,699 - __main__ - INFO - [SUCCESS] Processing Time: 0.72 seconds
+2025-07-12 23:11:39,699 - __main__ - INFO - [SUCCESS] Enterprise Compliance: 100%
+2025-07-12 23:11:39,699 - __main__ - INFO - ================================================================================
+2025-07-12 23:55:36,909 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:55:36,909 - enterprise_unicode_flake8_corrector - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_235536
+2025-07-12 23:55:36,909 - enterprise_unicode_flake8_corrector - INFO - [INFO] Log file: e:\gh_COPILOT\logs\unicode_flake8_correction.log
+2025-07-12 23:55:36,915 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:55:36.915012
+2025-07-12 23:55:37,543 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:55:37,543 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.6s
+2025-07-12 23:55:37,543 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:55:37.543710
+2025-07-12 23:55:38,393 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:55:38,393 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.8s
+2025-07-12 23:55:38,393 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:55:38.393471
+2025-07-12 23:55:39,226 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:55:39,226 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.8s
+2025-07-12 23:55:39,226 - database_driven_correction_engine - INFO - [DATABASE] Production tables initialized
+2025-07-12 23:55:39,235 - database_driven_correction_engine - INFO - [DATABASE] Style compliance tables initialized
+2025-07-12 23:55:39,240 - database_driven_correction_engine - INFO - [DATABASE] Analytics tables initialized
+2025-07-12 23:55:39,241 - database_driven_correction_engine - INFO - [DATABASE] Database initialization completed in 0.02s
+2025-07-12 23:58:51,969 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:58:51,970 - enterprise_unicode_flake8_corrector - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_235851
+2025-07-12 23:58:51,970 - enterprise_unicode_flake8_corrector - INFO - [INFO] Log file: e:\gh_COPILOT\logs\unicode_flake8_correction.log
+2025-07-12 23:58:51,970 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:58:51.970641
+2025-07-12 23:58:52,316 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:58:52,316 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.3s
+2025-07-12 23:58:52,316 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:58:52.316448
+2025-07-12 23:58:52,691 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:58:52,691 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.4s
+2025-07-12 23:58:52,698 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:58:52.698957
+2025-07-12 23:58:53,084 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:58:53,084 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.4s
+2025-07-12 23:58:53,084 - database_driven_correction_engine - INFO - [DATABASE] Production tables initialized
+2025-07-12 23:58:53,090 - database_driven_correction_engine - INFO - [DATABASE] Style compliance tables initialized
+2025-07-12 23:58:53,094 - database_driven_correction_engine - INFO - [DATABASE] Analytics tables initialized
+2025-07-12 23:58:53,095 - database_driven_correction_engine - INFO - [DATABASE] Database initialization completed in 0.01s
+2025-07-12 23:59:00,835 - __main__ - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:59:00,835 - __main__ - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_235900
+2025-07-12 23:59:00,835 - __main__ - INFO - [INFO] Log file: e:\gh_COPILOT\logs\unicode_flake8_correction.log
+2025-07-12 23:59:00,835 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:00,840 - __main__ - INFO - [ENTERPRISE-START] ENTERPRISE UNICODE FLAKE8 CORRECTOR
+2025-07-12 23:59:00,840 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:00,841 - __main__ - INFO - [INFO] Start Time: 2025-07-12 23:59:00
+2025-07-12 23:59:00,842 - __main__ - INFO - [INFO] Process ID: 15296
+2025-07-12 23:59:00,842 - __main__ - INFO - [INFO] Timeout: 30 minutes
+2025-07-12 23:59:00,842 - __main__ - INFO - [INFO] Unicode Compatibility: ENABLED
+2025-07-12 23:59:00,842 - __main__ - INFO - [INFO] Anti-Recursion Protection: ACTIVE
+2025-07-12 23:59:00,866 - __main__ - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:59:00.866869
+2025-07-12 23:59:01,313 - __main__ - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:59:01,313 - __main__ - INFO - [SUCCESS] Anti-recursion validation completed in 0.4s
+2025-07-12 23:59:01,313 - __main__ - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:59:01.313586
+2025-07-12 23:59:01,775 - __main__ - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:59:01,775 - __main__ - INFO - [SUCCESS] Anti-recursion validation completed in 0.5s
+2025-07-12 23:59:01,780 - __main__ - INFO - [INFO] Backup created: E:\gh_COPILOT\test_unicode_compat_backup_20250712_235901.py
+2025-07-12 23:59:01,780 - __main__ - INFO - [SUCCESS] File written successfully: E:\gh_COPILOT\test_unicode_compat.py (utf-8, 301 bytes) in 0.005s
+2025-07-12 23:59:01,789 - __main__ - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 0.99) in 0.001s
+2025-07-12 23:59:01,789 - __main__ - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\test_unicode_compat.py (utf-8, 301 bytes) in 0.008s
+2025-07-12 23:59:01,789 - __main__ - INFO - [SUCCESS] Unicode test successful: utf-8
+2025-07-12 23:59:01,790 - __main__ - INFO - [SUCCESS] Encoding statistics: {'total_files_processed': 1, 'encoding_distribution': {'utf-8': 1}, 'most_common_encoding': 'utf-8'}
+2025-07-12 23:59:01,790 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:01,791 - __main__ - INFO - [COMPLETE] CHUNK 1 COMPLETION SUMMARY
+2025-07-12 23:59:01,792 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:01,792 - __main__ - INFO - [SUCCESS] Unicode File Handler: OPERATIONAL
+2025-07-12 23:59:01,793 - __main__ - INFO - [SUCCESS] Anti-Recursion Protection: VALIDATED
+2025-07-12 23:59:01,793 - __main__ - INFO - [SUCCESS] Windows Compatibility: CONFIRMED
+2025-07-12 23:59:01,793 - __main__ - INFO - [SUCCESS] Processing Time: 0.95 seconds
+2025-07-12 23:59:01,794 - __main__ - INFO - [SUCCESS] Enterprise Compliance: 100%
+2025-07-12 23:59:01,794 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:32,064 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:59:32,064 - enterprise_unicode_flake8_corrector - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_235932
+2025-07-12 23:59:32,064 - enterprise_unicode_flake8_corrector - INFO - [INFO] Log file: e:\gh_COPILOT\logs\unicode_flake8_correction.log
+2025-07-12 23:59:32,064 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:59:32.064683
+2025-07-12 23:59:32,581 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:59:32,581 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.5s
+2025-07-12 23:59:32,581 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:59:32.581900
+2025-07-12 23:59:33,079 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:59:33,079 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.5s
+2025-07-12 23:59:33,089 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:59:33.089594
+2025-07-12 23:59:33,509 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:59:33,509 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.4s
+2025-07-12 23:59:33,509 - database_driven_correction_engine - INFO - [DATABASE] Production tables initialized
+2025-07-12 23:59:33,516 - database_driven_correction_engine - INFO - [DATABASE] Style compliance tables initialized
+2025-07-12 23:59:33,519 - database_driven_correction_engine - INFO - [DATABASE] Analytics tables initialized
+2025-07-12 23:59:33,520 - database_driven_correction_engine - INFO - [DATABASE] Database initialization completed in 0.01s
+2025-07-12 23:59:33,521 - enterprise_unicode_flake8_corrector - INFO - ========================================================================================================================
+2025-07-12 23:59:33,521 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] ENTERPRISE DUAL COPILOT ORCHESTRATOR
+2025-07-12 23:59:33,522 - enterprise_unicode_flake8_corrector - INFO - ========================================================================================================================
+2025-07-12 23:59:33,522 - enterprise_unicode_flake8_corrector - INFO - [INFO] Orchestration ID: ORCHESTRATOR_20250712_235932_ce024927
+2025-07-12 23:59:33,522 - enterprise_unicode_flake8_corrector - INFO - [INFO] Target Directory: E:\gh_COPILOT
+2025-07-12 23:59:33,522 - enterprise_unicode_flake8_corrector - INFO - [INFO] Start Time: 2025-07-12 23:59:33
+2025-07-12 23:59:33,523 - enterprise_unicode_flake8_corrector - INFO - [INFO] System Configuration: Enterprise Grade
+2025-07-12 23:59:33,523 - enterprise_unicode_flake8_corrector - INFO - [INFO] DUAL COPILOT Pattern: PRIMARY + SECONDARY + ORCHESTRATOR
+2025-07-12 23:59:33,523 - enterprise_unicode_flake8_corrector - INFO - ========================================================================================================================
+2025-07-12 23:59:33,523 - enterprise_unicode_flake8_corrector - ERROR - [ERROR] Orchestration failed: 'process'

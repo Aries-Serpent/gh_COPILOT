@@ -1,0 +1,132 @@
+2025-07-12 23:18:00,001 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:18:00,001 - enterprise_unicode_flake8_corrector - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_231800
+2025-07-12 23:18:00,001 - enterprise_unicode_flake8_corrector - INFO - [INFO] Log file: e:\gh_COPILOT\logs\visual_processing_system.log
+2025-07-12 23:18:00,001 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:18:00.001303
+2025-07-12 23:18:00,378 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:18:00,378 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.4s
+2025-07-12 23:18:00,381 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:00,381 - __main__ - INFO - [ENTERPRISE-START] ENTERPRISE VISUAL PROCESSING SYSTEM
+2025-07-12 23:18:00,381 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:00,381 - __main__ - INFO - [INFO] Task: Visual Processing Test
+2025-07-12 23:18:00,382 - __main__ - INFO - [INFO] Start Time: 2025-07-12 23:18:00
+2025-07-12 23:18:00,382 - __main__ - INFO - [INFO] Process ID: 10820
+2025-07-12 23:18:00,382 - __main__ - INFO - [INFO] Timeout: 10 minutes
+2025-07-12 23:18:00,383 - __main__ - INFO - [INFO] Phases: 4
+2025-07-12 23:18:00,386 - __main__ - INFO - [SUCCESS] Performance monitoring started for PID 10820
+2025-07-12 23:18:00,387 - __main__ - INFO - [INFO] Phase: INITIALIZATION - System initialization and validation
+2025-07-12 23:18:01,392 - __main__ - INFO - [SUCCESS] Progress: 15.0% | Elapsed: 1.0s | ETC: 5.7s
+2025-07-12 23:18:01,394 - __main__ - INFO - [INFO] Phase: FILE_DISCOVERY - Discovering and validating Python files
+2025-07-12 23:18:02,400 - __main__ - INFO - [SUCCESS] Progress: 40.0% | Elapsed: 2.0s | ETC: 2.6s
+2025-07-12 23:18:02,400 - __main__ - INFO - [INFO] Phase: VIOLATION_SCANNING - Scanning for Flake8 violations
+2025-07-12 23:18:03,406 - __main__ - INFO - [SUCCESS] Progress: 75.0% | Elapsed: 3.0s | ETC: 0.6s
+2025-07-12 23:18:03,407 - __main__ - INFO - [INFO] Phase: CORRECTION_APPLICATION - Applying systematic corrections
+2025-07-12 23:18:04,412 - __main__ - INFO - [SUCCESS] Progress: 100.0% | Elapsed: 4.0s | ETC: 0.0s
+2025-07-12 23:18:05,399 - __main__ - INFO - [INFO] Performance monitoring stopped
+2025-07-12 23:18:05,399 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:05,399 - __main__ - INFO - [COMPLETE] EXECUTION SUMMARY
+2025-07-12 23:18:05,399 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:05,399 - __main__ - INFO - [SUCCESS] Task: Visual Processing Test
+2025-07-12 23:18:05,399 - __main__ - INFO - [SUCCESS] Total Duration: 5.02 seconds
+2025-07-12 23:18:05,399 - __main__ - INFO - [SUCCESS] Files Processed: 10
+2025-07-12 23:18:05,399 - __main__ - INFO - [SUCCESS] Violations Found: 50
+2025-07-12 23:18:05,399 - __main__ - INFO - [SUCCESS] Corrections Applied: 30
+2025-07-12 23:18:05,399 - __main__ - INFO - [SUCCESS] Timeout Status: WITHIN_LIMITS
+2025-07-12 23:18:05,399 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:05,399 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:05,399 - __main__ - ERROR - [ERROR] Chunk 3 execution failed: 'validator'
+2025-07-12 23:18:22,532 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:18:22,532 - enterprise_unicode_flake8_corrector - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_231822
+2025-07-12 23:18:22,532 - enterprise_unicode_flake8_corrector - INFO - [INFO] Log file: e:\gh_COPILOT\logs\visual_processing_system.log
+2025-07-12 23:18:22,532 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:18:22.532187
+2025-07-12 23:18:22,846 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:18:22,862 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.3s
+2025-07-12 23:18:22,862 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:22,862 - __main__ - INFO - [ENTERPRISE-START] ENTERPRISE VISUAL PROCESSING SYSTEM
+2025-07-12 23:18:22,862 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:22,862 - __main__ - INFO - [INFO] Task: Visual Processing Test
+2025-07-12 23:18:22,862 - __main__ - INFO - [INFO] Start Time: 2025-07-12 23:18:22
+2025-07-12 23:18:22,862 - __main__ - INFO - [INFO] Process ID: 10160
+2025-07-12 23:18:22,862 - __main__ - INFO - [INFO] Timeout: 10 minutes
+2025-07-12 23:18:22,862 - __main__ - INFO - [INFO] Phases: 4
+2025-07-12 23:18:22,869 - __main__ - INFO - [SUCCESS] Performance monitoring started for PID 10160
+2025-07-12 23:18:22,871 - __main__ - INFO - [INFO] Phase: INITIALIZATION - System initialization and validation
+2025-07-12 23:18:23,875 - __main__ - INFO - [SUCCESS] Progress: 15.0% | Elapsed: 1.0s | ETC: 5.7s
+2025-07-12 23:18:23,875 - __main__ - INFO - [INFO] Phase: FILE_DISCOVERY - Discovering and validating Python files
+2025-07-12 23:18:24,880 - __main__ - INFO - [SUCCESS] Progress: 40.0% | Elapsed: 2.0s | ETC: 2.6s
+2025-07-12 23:18:24,880 - __main__ - INFO - [INFO] Phase: VIOLATION_SCANNING - Scanning for Flake8 violations
+2025-07-12 23:18:25,887 - __main__ - INFO - [SUCCESS] Progress: 75.0% | Elapsed: 3.0s | ETC: 0.6s
+2025-07-12 23:18:25,887 - __main__ - INFO - [INFO] Phase: CORRECTION_APPLICATION - Applying systematic corrections
+2025-07-12 23:18:26,893 - __main__ - INFO - [SUCCESS] Progress: 100.0% | Elapsed: 4.0s | ETC: 0.0s
+2025-07-12 23:18:27,881 - __main__ - INFO - [INFO] Performance monitoring stopped
+2025-07-12 23:18:27,881 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:27,881 - __main__ - INFO - [COMPLETE] EXECUTION SUMMARY
+2025-07-12 23:18:27,881 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:27,881 - __main__ - INFO - [SUCCESS] Task: Visual Processing Test
+2025-07-12 23:18:27,881 - __main__ - INFO - [SUCCESS] Total Duration: 5.02 seconds
+2025-07-12 23:18:27,881 - __main__ - INFO - [SUCCESS] Files Processed: 10
+2025-07-12 23:18:27,881 - __main__ - INFO - [SUCCESS] Violations Found: 50
+2025-07-12 23:18:27,881 - __main__ - INFO - [SUCCESS] Corrections Applied: 30
+2025-07-12 23:18:27,881 - __main__ - INFO - [SUCCESS] Timeout Status: WITHIN_LIMITS
+2025-07-12 23:18:27,881 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:27,881 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:27,881 - __main__ - INFO - [INFO] DUAL COPILOT VALIDATION
+2025-07-12 23:18:27,881 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:27,881 - __main__ - INFO - [INFO] Validation ID: VALIDATION_20250712_231827
+2025-07-12 23:18:27,881 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:18:27.881802
+2025-07-12 23:18:28,196 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:18:28,196 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.3s
+2025-07-12 23:18:28,196 - __main__ - INFO - [SUCCESS] Validation Checks: 4
+2025-07-12 23:18:28,196 - __main__ - INFO - [SUCCESS] Quality Score: 100.0%
+2025-07-12 23:18:28,211 - __main__ - INFO - [SUCCESS] Overall Status: ✅ PASSED
+2025-07-12 23:18:28,212 - __main__ - INFO - ================================================================================
+2025-07-12 23:18:28,212 - __main__ - INFO - [COMPLETE] CHUNK 3 COMPLETED SUCCESSFULLY
+2025-07-12 23:18:28,212 - __main__ - INFO - [SUCCESS] Quality Score: 100.0%
+2025-07-12 23:18:28,212 - __main__ - INFO - [SUCCESS] All validation checks passed
+2025-07-12 23:59:19,828 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:59:19,828 - enterprise_unicode_flake8_corrector - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_235919
+2025-07-12 23:59:19,828 - enterprise_unicode_flake8_corrector - INFO - [INFO] Log file: e:\gh_COPILOT\logs\visual_processing_system.log
+2025-07-12 23:59:19,828 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:59:19.828428
+2025-07-12 23:59:20,416 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:59:20,416 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.6s
+2025-07-12 23:59:20,416 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:20,416 - __main__ - INFO - [ENTERPRISE-START] ENTERPRISE VISUAL PROCESSING SYSTEM
+2025-07-12 23:59:20,416 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:20,416 - __main__ - INFO - [INFO] Task: Visual Processing Test
+2025-07-12 23:59:20,416 - __main__ - INFO - [INFO] Start Time: 2025-07-12 23:59:20
+2025-07-12 23:59:20,416 - __main__ - INFO - [INFO] Process ID: 3792
+2025-07-12 23:59:20,416 - __main__ - INFO - [INFO] Timeout: 10 minutes
+2025-07-12 23:59:20,416 - __main__ - INFO - [INFO] Phases: 4
+2025-07-12 23:59:20,426 - __main__ - INFO - [SUCCESS] Performance monitoring started for PID 3792
+2025-07-12 23:59:20,426 - __main__ - INFO - [INFO] Phase: INITIALIZATION - System initialization and validation
+2025-07-12 23:59:21,434 - __main__ - INFO - [SUCCESS] Progress: 15.0% | Elapsed: 1.0s | ETC: 5.8s
+2025-07-12 23:59:21,434 - __main__ - INFO - [INFO] Phase: FILE_DISCOVERY - Discovering and validating Python files
+2025-07-12 23:59:22,442 - __main__ - INFO - [SUCCESS] Progress: 40.0% | Elapsed: 2.0s | ETC: 2.6s
+2025-07-12 23:59:22,443 - __main__ - INFO - [INFO] Phase: VIOLATION_SCANNING - Scanning for Flake8 violations
+2025-07-12 23:59:23,448 - __main__ - INFO - [SUCCESS] Progress: 75.0% | Elapsed: 3.0s | ETC: 0.6s
+2025-07-12 23:59:23,449 - __main__ - INFO - [INFO] Phase: CORRECTION_APPLICATION - Applying systematic corrections
+2025-07-12 23:59:24,455 - __main__ - INFO - [SUCCESS] Progress: 100.0% | Elapsed: 4.0s | ETC: 0.0s
+2025-07-12 23:59:25,441 - __main__ - INFO - [INFO] Performance monitoring stopped
+2025-07-12 23:59:25,441 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:25,441 - __main__ - INFO - [COMPLETE] EXECUTION SUMMARY
+2025-07-12 23:59:25,442 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:25,442 - __main__ - INFO - [SUCCESS] Task: Visual Processing Test
+2025-07-12 23:59:25,442 - __main__ - INFO - [SUCCESS] Total Duration: 5.03 seconds
+2025-07-12 23:59:25,442 - __main__ - INFO - [SUCCESS] Files Processed: 10
+2025-07-12 23:59:25,442 - __main__ - INFO - [SUCCESS] Violations Found: 50
+2025-07-12 23:59:25,442 - __main__ - INFO - [SUCCESS] Corrections Applied: 30
+2025-07-12 23:59:25,442 - __main__ - INFO - [SUCCESS] Timeout Status: WITHIN_LIMITS
+2025-07-12 23:59:25,442 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:25,442 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:25,442 - __main__ - INFO - [INFO] DUAL COPILOT VALIDATION
+2025-07-12 23:59:25,442 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:25,442 - __main__ - INFO - [INFO] Validation ID: VALIDATION_20250712_235925
+2025-07-12 23:59:25,442 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:59:25.442625
+2025-07-12 23:59:25,776 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:59:25,776 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.3s
+2025-07-12 23:59:25,776 - __main__ - INFO - [SUCCESS] Validation Checks: 4
+2025-07-12 23:59:25,776 - __main__ - INFO - [SUCCESS] Quality Score: 100.0%
+2025-07-12 23:59:25,776 - __main__ - INFO - [SUCCESS] Overall Status: ✅ PASSED
+2025-07-12 23:59:25,776 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:25,776 - __main__ - INFO - [COMPLETE] CHUNK 3 COMPLETED SUCCESSFULLY
+2025-07-12 23:59:25,776 - __main__ - INFO - [SUCCESS] Quality Score: 100.0%
+2025-07-12 23:59:25,776 - __main__ - INFO - [SUCCESS] All validation checks passed

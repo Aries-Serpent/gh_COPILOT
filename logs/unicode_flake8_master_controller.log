@@ -1,0 +1,174 @@
+2025-07-12 23:28:05,835 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:28:05,835 - enterprise_unicode_flake8_corrector - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_232805
+2025-07-12 23:28:05,835 - enterprise_unicode_flake8_corrector - INFO - [INFO] Log file: e:\gh_COPILOT\logs\unicode_flake8_master_controller.log
+2025-07-12 23:28:05,835 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:28:05.835899
+2025-07-12 23:28:06,219 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:28:06,219 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.4s
+2025-07-12 23:28:06,219 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:28:06.219328
+2025-07-12 23:28:06,502 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:28:06,502 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.3s
+2025-07-12 23:28:06,502 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:28:06.502900
+2025-07-12 23:28:06,801 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:28:06,802 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.3s
+2025-07-12 23:28:06,802 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:28:06.802046
+2025-07-12 23:28:07,102 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:28:07,102 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.3s
+2025-07-12 23:28:07,102 - database_driven_correction_engine - INFO - [DATABASE] Production tables initialized
+2025-07-12 23:28:07,113 - database_driven_correction_engine - INFO - [DATABASE] Style compliance tables initialized
+2025-07-12 23:28:07,117 - database_driven_correction_engine - INFO - [DATABASE] Analytics tables initialized
+2025-07-12 23:28:07,118 - database_driven_correction_engine - INFO - [DATABASE] Database initialization completed in 0.02s
+2025-07-12 23:28:07,118 - __main__ - INFO - [ENTERPRISE-START] Unicode Flake8 Master Controller initialized
+2025-07-12 23:28:07,119 - __main__ - INFO - ====================================================================================================
+2025-07-12 23:28:07,119 - __main__ - INFO - [ENTERPRISE-START] UNICODE FLAKE8 MASTER CONTROLLER - PRODUCTION DEPLOYMENT
+2025-07-12 23:28:07,120 - __main__ - INFO - ====================================================================================================
+2025-07-12 23:28:07,120 - __main__ - INFO - [INFO] Deployment ID: PRODUCTION_DEPLOYMENT_20250712_232807
+2025-07-12 23:28:07,120 - __main__ - INFO - [INFO] Start Time: 2025-07-12 23:28:07
+2025-07-12 23:28:07,121 - __main__ - INFO - [INFO] Workspace: e:\gh_COPILOT
+2025-07-12 23:28:07,121 - __main__ - INFO - [INFO] Target Files: ALL
+2025-07-12 23:28:07,121 - __main__ - INFO - [INFO] Phase 1: Component Health Validation
+2025-07-12 23:28:07,122 - __main__ - INFO - ================================================================================
+2025-07-12 23:28:07,122 - __main__ - INFO - [ENTERPRISE-START] COMPONENT HEALTH VALIDATION
+2025-07-12 23:28:07,122 - __main__ - INFO - ================================================================================
+2025-07-12 23:28:07,123 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:28:07.123149
+2025-07-12 23:28:07,418 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:28:07,419 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.3s
+2025-07-12 23:28:07,419 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File written successfully: E:\gh_COPILOT\test_unicode_validation.py (utf-8, 72 bytes) in 0.000s
+2025-07-12 23:28:07,419 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 0.94) in 0.000s
+2025-07-12 23:28:07,419 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\test_unicode_validation.py (utf-8, 72 bytes) in 0.000s
+2025-07-12 23:28:07,428 - database_driven_correction_engine - INFO - [DATABASE] Production tables initialized
+2025-07-12 23:28:07,431 - database_driven_correction_engine - INFO - [DATABASE] Style compliance tables initialized
+2025-07-12 23:28:07,433 - database_driven_correction_engine - INFO - [DATABASE] Analytics tables initialized
+2025-07-12 23:28:07,434 - database_driven_correction_engine - INFO - [DATABASE] Database initialization completed in 0.01s
+2025-07-12 23:28:07,437 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:28:07.437422
+2025-07-12 23:28:07,719 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:28:07,719 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.3s
+2025-07-12 23:28:07,736 - __main__ - INFO - [SUCCESS] Component validation completed
+2025-07-12 23:28:07,736 - __main__ - INFO - [SUCCESS] Overall Health Score: 100.0%
+2025-07-12 23:28:07,736 - __main__ - INFO - [INFO] Phase 2: Flake8 Correction Execution
+2025-07-12 23:28:07,736 - database_driven_correction_engine - INFO - [DATABASE] Correction session created: CORRECTION_20250712_232807
+2025-07-12 23:28:07,736 - database_driven_correction_engine - INFO - [ENTERPRISE-START] Correction session started: CORRECTION_20250712_232807
+2025-07-12 23:28:07,752 - enterprise_visual_processing_system - INFO - ================================================================================
+2025-07-12 23:28:07,753 - enterprise_visual_processing_system - INFO - [ENTERPRISE-START] ENTERPRISE VISUAL PROCESSING SYSTEM
+2025-07-12 23:28:07,753 - enterprise_visual_processing_system - INFO - ================================================================================
+2025-07-12 23:28:07,753 - enterprise_visual_processing_system - INFO - [INFO] Task: Unicode Flake8 Correction
+2025-07-12 23:28:07,753 - enterprise_visual_processing_system - INFO - [INFO] Start Time: 2025-07-12 23:28:07
+2025-07-12 23:28:07,754 - enterprise_visual_processing_system - INFO - [INFO] Process ID: 6272
+2025-07-12 23:28:07,754 - enterprise_visual_processing_system - INFO - [INFO] Timeout: 30 minutes
+2025-07-12 23:28:07,755 - enterprise_visual_processing_system - INFO - [INFO] Phases: 4
+2025-07-12 23:28:07,758 - enterprise_visual_processing_system - INFO - [SUCCESS] Performance monitoring started for PID 6272
+2025-07-12 23:28:07,759 - enterprise_visual_processing_system - INFO - [INFO] Phase: HEALTH_VALIDATION - System health and component validation
+2025-07-12 23:28:07,759 - enterprise_visual_processing_system - INFO - [SUCCESS] Progress: 20.0% | Elapsed: 0.0s | ETC: 0.0s
+2025-07-12 23:28:07,759 - enterprise_visual_processing_system - INFO - [INFO] Phase: FILE_DISCOVERY - Python file discovery and validation
+2025-07-12 23:28:07,872 - enterprise_visual_processing_system - INFO - [SUCCESS] Progress: 35.0% | Elapsed: 0.1s | ETC: 0.2s
+2025-07-12 23:28:07,872 - enterprise_visual_processing_system - INFO - [INFO] Phase: VIOLATION_SCANNING - Comprehensive Flake8 violation scanning
+2025-07-12 23:28:07,884 - database_driven_correction_engine - INFO - ================================================================================
+2025-07-12 23:28:07,885 - database_driven_correction_engine - INFO - [ENTERPRISE-START] DATABASE-DRIVEN CORRECTION ENGINE
+2025-07-12 23:28:07,885 - database_driven_correction_engine - INFO - ================================================================================
+2025-07-12 23:28:07,886 - database_driven_correction_engine - INFO - [INFO] Start Time: 2025-07-12 23:28:07
+2025-07-12 23:28:07,886 - database_driven_correction_engine - INFO - [INFO] Process ID: 6272
+2025-07-12 23:28:07,886 - database_driven_correction_engine - INFO - [INFO] Timeout: 30 minutes
+2025-07-12 23:28:07,886 - database_driven_correction_engine - INFO - [INFO] Current Session: CORRECTION_20250712_232807
+2025-07-12 23:28:07,886 - database_driven_correction_engine - INFO - [INFO] Found 3 valid Python files
+2025-07-12 23:28:07,895 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.000s
+2025-07-12 23:28:07,895 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_access_layer.py (utf-8, 2509 bytes) in 0.001s
+2025-07-12 23:28:08,452 - database_driven_correction_engine - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_access_layer.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmp8da_zbce.py'
+2025-07-12 23:28:08,452 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.000s
+2025-07-12 23:28:08,452 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_compliance_checker.py (utf-8, 3617 bytes) in 0.000s
+2025-07-12 23:28:09,004 - database_driven_correction_engine - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_compliance_checker.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmph256tlk5.py'
+2025-07-12 23:28:09,007 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.002s
+2025-07-12 23:28:09,007 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_compliance_scanner.py (utf-8, 3617 bytes) in 0.002s
+2025-07-12 23:28:09,556 - database_driven_correction_engine - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_compliance_scanner.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmptzu1lec0.py'
+2025-07-12 23:28:09,556 - database_driven_correction_engine - INFO - [SUCCESS] Workspace scan completed: 0 files, 0 violations
+2025-07-12 23:28:09,556 - database_driven_correction_engine - INFO - [INFO] Found 0 total violations
+2025-07-12 23:28:09,556 - database_driven_correction_engine - INFO - [DATABASE] Loaded 0 correction patterns
+2025-07-12 23:28:09,568 - database_driven_correction_engine - INFO - ================================================================================
+2025-07-12 23:28:09,568 - database_driven_correction_engine - INFO - [COMPLETE] CORRECTION ENGINE SUMMARY
+2025-07-12 23:28:09,568 - database_driven_correction_engine - INFO - ================================================================================
+2025-07-12 23:28:09,568 - database_driven_correction_engine - INFO - [SUCCESS] Files Processed: 3
+2025-07-12 23:28:09,569 - database_driven_correction_engine - INFO - [SUCCESS] Violations Found: 0
+2025-07-12 23:28:09,569 - database_driven_correction_engine - INFO - [SUCCESS] Corrections Applied: 0
+2025-07-12 23:28:09,569 - database_driven_correction_engine - INFO - [SUCCESS] Success Rate: 0.0%
+2025-07-12 23:28:09,570 - database_driven_correction_engine - INFO - [SUCCESS] Processing Time: 1.68 seconds
+2025-07-12 23:28:09,570 - database_driven_correction_engine - INFO - ================================================================================
+2025-07-12 23:28:09,570 - enterprise_visual_processing_system - INFO - [SUCCESS] Progress: 65.0% | Elapsed: 1.8s | ETC: 0.6s
+2025-07-12 23:28:09,572 - enterprise_visual_processing_system - INFO - [INFO] Phase: CORRECTION_APPLICATION - Systematic violation correction
+2025-07-12 23:28:09,573 - database_driven_correction_engine - INFO - ================================================================================
+2025-07-12 23:28:09,574 - database_driven_correction_engine - INFO - [ENTERPRISE-START] DATABASE-DRIVEN CORRECTION ENGINE
+2025-07-12 23:28:09,575 - database_driven_correction_engine - INFO - ================================================================================
+2025-07-12 23:28:09,575 - database_driven_correction_engine - INFO - [INFO] Start Time: 2025-07-12 23:28:09
+2025-07-12 23:28:09,575 - database_driven_correction_engine - INFO - [INFO] Process ID: 6272
+2025-07-12 23:28:09,575 - database_driven_correction_engine - INFO - [INFO] Timeout: 30 minutes
+2025-07-12 23:28:09,575 - database_driven_correction_engine - INFO - [INFO] Current Session: CORRECTION_20250712_232807
+2025-07-12 23:28:09,577 - database_driven_correction_engine - INFO - [INFO] Found 3 valid Python files
+2025-07-12 23:28:09,583 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.002s
+2025-07-12 23:28:09,583 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_access_layer.py (utf-8, 2509 bytes) in 0.002s
+2025-07-12 23:28:10,120 - database_driven_correction_engine - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_access_layer.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmpil_ckkx5.py'
+2025-07-12 23:28:10,123 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.000s
+2025-07-12 23:28:10,123 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_compliance_checker.py (utf-8, 3617 bytes) in 0.000s
+2025-07-12 23:28:10,668 - database_driven_correction_engine - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_compliance_checker.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmpmsllisa6.py'
+2025-07-12 23:28:10,672 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.002s
+2025-07-12 23:28:10,673 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_compliance_scanner.py (utf-8, 3617 bytes) in 0.002s
+2025-07-12 23:28:11,252 - database_driven_correction_engine - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_compliance_scanner.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmp1gl86bdz.py'
+2025-07-12 23:28:11,252 - database_driven_correction_engine - INFO - [SUCCESS] Workspace scan completed: 0 files, 0 violations
+2025-07-12 23:28:11,252 - database_driven_correction_engine - INFO - [INFO] Found 0 total violations
+2025-07-12 23:28:11,252 - database_driven_correction_engine - INFO - [DATABASE] Loaded 0 correction patterns
+2025-07-12 23:28:11,252 - database_driven_correction_engine - INFO - ================================================================================
+2025-07-12 23:28:11,252 - database_driven_correction_engine - INFO - [COMPLETE] CORRECTION ENGINE SUMMARY
+2025-07-12 23:28:11,252 - database_driven_correction_engine - INFO - ================================================================================
+2025-07-12 23:28:11,252 - database_driven_correction_engine - INFO - [SUCCESS] Files Processed: 3
+2025-07-12 23:28:11,252 - database_driven_correction_engine - INFO - [SUCCESS] Violations Found: 0
+2025-07-12 23:28:11,252 - database_driven_correction_engine - INFO - [SUCCESS] Corrections Applied: 0
+2025-07-12 23:28:11,252 - database_driven_correction_engine - INFO - [SUCCESS] Success Rate: 0.0%
+2025-07-12 23:28:11,263 - database_driven_correction_engine - INFO - [SUCCESS] Processing Time: 1.68 seconds
+2025-07-12 23:28:11,263 - database_driven_correction_engine - INFO - ================================================================================
+2025-07-12 23:28:11,263 - enterprise_visual_processing_system - INFO - [SUCCESS] Progress: 100.0% | Elapsed: 3.5s | ETC: 0.0s
+2025-07-12 23:28:11,768 - enterprise_visual_processing_system - INFO - [INFO] Performance monitoring stopped
+2025-07-12 23:28:11,768 - enterprise_visual_processing_system - INFO - ================================================================================
+2025-07-12 23:28:11,768 - enterprise_visual_processing_system - INFO - [COMPLETE] EXECUTION SUMMARY
+2025-07-12 23:28:11,769 - enterprise_visual_processing_system - INFO - ================================================================================
+2025-07-12 23:28:11,769 - enterprise_visual_processing_system - INFO - [SUCCESS] Task: Unicode Flake8 Correction
+2025-07-12 23:28:11,769 - enterprise_visual_processing_system - INFO - [SUCCESS] Total Duration: 4.02 seconds
+2025-07-12 23:28:11,769 - enterprise_visual_processing_system - INFO - [SUCCESS] Files Processed: 788
+2025-07-12 23:28:11,769 - enterprise_visual_processing_system - INFO - [SUCCESS] Violations Found: 0
+2025-07-12 23:28:11,769 - enterprise_visual_processing_system - INFO - [SUCCESS] Corrections Applied: 0
+2025-07-12 23:28:11,769 - enterprise_visual_processing_system - INFO - [SUCCESS] Timeout Status: WITHIN_LIMITS
+2025-07-12 23:28:11,769 - enterprise_visual_processing_system - INFO - ================================================================================
+2025-07-12 23:28:11,769 - __main__ - INFO - [INFO] Phase 3: DUAL COPILOT Validation
+2025-07-12 23:28:11,769 - __main__ - INFO - ================================================================================
+2025-07-12 23:28:11,769 - __main__ - INFO - [INFO] PRODUCTION DUAL COPILOT VALIDATION
+2025-07-12 23:28:11,769 - __main__ - INFO - ================================================================================
+2025-07-12 23:28:11,769 - __main__ - INFO - [INFO] Validation ID: PRODUCTION_DUAL_COPILOT_20250712_232807
+2025-07-12 23:28:11,769 - __main__ - INFO - [INFO] PRIMARY COPILOT: Technical validation started
+2025-07-12 23:28:11,769 - __main__ - INFO - [SUCCESS] PRIMARY COPILOT: Score 16.7% - FAILED
+2025-07-12 23:28:11,769 - __main__ - INFO - [INFO] SECONDARY COPILOT: Quality assurance validation started
+2025-07-12 23:28:11,769 - __main__ - INFO - [SUCCESS] SECONDARY COPILOT: Score 50.0% - FAILED
+2025-07-12 23:28:11,769 - __main__ - INFO - [INFO] ORCHESTRATION: Final quality assessment
+2025-07-12 23:28:11,769 - __main__ - INFO - [SUCCESS] ORCHESTRATION: Combined Score 30.0%
+2025-07-12 23:28:11,769 - __main__ - INFO - [SUCCESS] ORCHESTRATION: Certification Level NOT_CERTIFIED
+2025-07-12 23:28:11,769 - __main__ - INFO - ================================================================================
+2025-07-12 23:28:11,769 - __main__ - INFO - [COMPLETE] DUAL COPILOT VALIDATION SUMMARY
+2025-07-12 23:28:11,769 - __main__ - INFO - ================================================================================
+2025-07-12 23:28:11,769 - __main__ - INFO - [SUCCESS] Validation ID: PRODUCTION_DUAL_COPILOT_20250712_232807
+2025-07-12 23:28:11,769 - __main__ - INFO - [SUCCESS] Primary Validation: FAILED
+2025-07-12 23:28:11,769 - __main__ - INFO - [SUCCESS] Secondary Validation: FAILED
+2025-07-12 23:28:11,775 - __main__ - INFO - [SUCCESS] Final Assessment: CERTIFICATION_FAILED
+2025-07-12 23:28:11,775 - __main__ - INFO - [SUCCESS] Certification Level: NOT_CERTIFIED
+2025-07-12 23:28:11,775 - __main__ - INFO - [SUCCESS] Validation Duration: 0.00s
+2025-07-12 23:28:11,775 - __main__ - INFO - ================================================================================
+2025-07-12 23:28:11,776 - __main__ - INFO - [INFO] Phase 4: Enterprise Certification
+2025-07-12 23:28:11,776 - __main__ - INFO - [SUCCESS] Enterprise certification generated: NOT_CERTIFIED
+2025-07-12 23:28:11,776 - __main__ - INFO - ====================================================================================================
+2025-07-12 23:28:11,776 - __main__ - INFO - [COMPLETE] UNICODE FLAKE8 PRODUCTION DEPLOYMENT SUMMARY
+2025-07-12 23:28:11,776 - __main__ - INFO - ====================================================================================================
+2025-07-12 23:28:11,777 - __main__ - INFO - [SUCCESS] Deployment ID: PRODUCTION_DEPLOYMENT_20250712_232807
+2025-07-12 23:28:11,777 - __main__ - INFO - [SUCCESS] System Integration: SUCCESS
+2025-07-12 23:28:11,777 - __main__ - INFO - [SUCCESS] Enterprise Certification: NOT_CERTIFIED
+2025-07-12 23:28:11,777 - __main__ - INFO - [SUCCESS] Compliance Score: 65.0%
+2025-07-12 23:28:11,777 - __main__ - INFO - [SUCCESS] Violations Processed: 0
+2025-07-12 23:28:11,778 - __main__ - INFO - [SUCCESS] Violations Fixed: 0
+2025-07-12 23:28:11,778 - __main__ - INFO - [SUCCESS] Success Rate: 0.0%
+2025-07-12 23:28:11,778 - __main__ - INFO - [SUCCESS] Production Ready: ❌ NO
+2025-07-12 23:28:11,778 - __main__ - INFO - [SUCCESS] Deployment Status: ⚠️ REQUIRES IMPROVEMENT
+2025-07-12 23:28:11,779 - __main__ - INFO - ====================================================================================================
+2025-07-12 23:28:11,779 - __main__ - WARNING - [WARNING] CHUNK 4 COMPLETED WITH WARNINGS
+2025-07-12 23:28:11,779 - __main__ - WARNING - [WARNING] System requires improvement before production deployment

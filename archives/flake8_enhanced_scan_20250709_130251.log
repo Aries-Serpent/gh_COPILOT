@@ -1,0 +1,1062 @@
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:17:1: F401 'os' imported but unused
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:18:1: F401 'sys' imported but unused
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:19:1: F401 'time' imported but unused
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:123:80: E501 line too long (94 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:294:80: E501 line too long (82 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:323:80: E501 line too long (91 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:552:80: E501 line too long (98 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:570:80: E501 line too long (85 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:606:80: E501 line too long (82 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:717:80: E501 line too long (81 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:769:80: E501 line too long (90 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:788:80: E501 line too long (94 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:805:80: E501 line too long (118 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:806:80: E501 line too long (109 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:808:80: E501 line too long (105 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:809:80: E501 line too long (96 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:811:80: E501 line too long (111 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:812:80: E501 line too long (102 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:818:80: E501 line too long (107 > 79 characters)
+.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:855:80: E501 line too long (90 > 79 characters)
+.\comprehensive_syntax_fixer.py:15:1: F401 'os' imported but unused
+.\comprehensive_syntax_fixer.py:20:1: F401 'typing.List' imported but unused
+.\comprehensive_syntax_fixer.py:215:15: F541 f-string is missing placeholders
+.\comprehensive_syntax_fixer.py:224:15: F541 f-string is missing placeholders
+.\copilot\common\__init__.py:1:1: F401 '.workspace_utils.get_workspace_path' imported but unused
+.\copilot\core\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:31:5: E999 IndentationError: unexpected indent
+.\copilot\core\autonomous_file_manager.py:36:12: E999 IndentationError: unexpected indent
+.\copilot\core\enterprise_json_serialization_fix.py:35:13: E999 IndentationError: unexpected indent
+.\copilot\core\enterprise_orchestrator.py:46:13: E999 IndentationError: unexpected indent
+.\copilot\core\enterprise_unicode_compatibility_fix.py:44:6: E999 SyntaxError: unmatched ')'
+.\copilot\core\final_deployment_validator.py:25:5: E999 IndentationError: unexpected indent
+.\copilot\core\frameworks\comprehensive_deployment_manager.py:27:5: E999 IndentationError: unexpected indent
+.\copilot\core\frameworks\intelligent_instruction_orchestrator.py:57:13: E999 IndentationError: unexpected indent
+.\copilot\core\frameworks\mission_completion_orchestrator.py:83:13: E999 IndentationError: unexpected indent
+.\copilot\orchestrators\LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py:33:5: E999 IndentationError: unexpected indent
+.\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py:65:9: E999 IndentationError: unexpected indent
+.\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE.py:37:5: E999 IndentationError: unexpected indent
+.\copilot\orchestrators\final_enterprise_orchestrator.py:72:13: E999 IndentationError: unexpected indent
+.\copilot\orchestrators\unified_deployment_orchestrator.py:77:9: E999 IndentationError: unexpected indent
+.\critical_flake8_error_corrector.py:5:80: E501 line too long (81 > 79 characters)
+.\critical_flake8_error_corrector.py:8:80: E501 line too long (84 > 79 characters)
+.\critical_flake8_error_corrector.py:9:80: E501 line too long (82 > 79 characters)
+.\critical_flake8_error_corrector.py:11:80: E501 line too long (97 > 79 characters)
+.\critical_flake8_error_corrector.py:14:37: W291 trailing whitespace
+.\critical_flake8_error_corrector.py:23:1: F401 'sqlite3' imported but unused
+.\critical_flake8_error_corrector.py:27:1: F401 'typing.Tuple' imported but unused
+.\critical_flake8_error_corrector.py:47:1: E302 expected 2 blank lines, found 1
+.\critical_flake8_error_corrector.py:58:1: E302 expected 2 blank lines, found 1
+.\critical_flake8_error_corrector.py:68:1: E302 expected 2 blank lines, found 1
+.\critical_flake8_error_corrector.py:70:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:73:80: E501 line too long (83 > 79 characters)
+.\critical_flake8_error_corrector.py:75:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:79:80: E501 line too long (81 > 79 characters)
+.\critical_flake8_error_corrector.py:84:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:85:70: W291 trailing whitespace
+.\critical_flake8_error_corrector.py:86:80: E501 line too long (82 > 79 characters)
+.\critical_flake8_error_corrector.py:91:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:98:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:105:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:112:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:120:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:124:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:127:80: E501 line too long (83 > 79 characters)
+.\critical_flake8_error_corrector.py:132:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:134:80: E501 line too long (91 > 79 characters)
+.\critical_flake8_error_corrector.py:136:80: E501 line too long (88 > 79 characters)
+.\critical_flake8_error_corrector.py:138:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:141:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:144:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:147:80: E501 line too long (99 > 79 characters)
+.\critical_flake8_error_corrector.py:154:80: E501 line too long (101 > 79 characters)
+.\critical_flake8_error_corrector.py:157:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:158:80: E501 line too long (84 > 79 characters)
+.\critical_flake8_error_corrector.py:174:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:175:80: E501 line too long (99 > 79 characters)
+.\critical_flake8_error_corrector.py:177:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:182:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:186:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:189:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:194:80: E501 line too long (104 > 79 characters)
+.\critical_flake8_error_corrector.py:197:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:201:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:205:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:206:13: F841 local variable 'original_content' is assigned to but never used
+.\critical_flake8_error_corrector.py:208:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:209:80: E501 line too long (83 > 79 characters)
+.\critical_flake8_error_corrector.py:210:80: E501 line too long (85 > 79 characters)
+.\critical_flake8_error_corrector.py:211:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:217:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:222:80: E501 line too long (84 > 79 characters)
+.\critical_flake8_error_corrector.py:223:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:228:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:229:80: E501 line too long (81 > 79 characters)
+.\critical_flake8_error_corrector.py:230:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:233:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:242:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:244:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:256:80: E501 line too long (99 > 79 characters)
+.\critical_flake8_error_corrector.py:261:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:264:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:269:45: W291 trailing whitespace
+.\critical_flake8_error_corrector.py:270:49: W291 trailing whitespace
+.\critical_flake8_error_corrector.py:275:80: E501 line too long (96 > 79 characters)
+.\critical_flake8_error_corrector.py:277:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:286:15: W291 trailing whitespace
+.\critical_flake8_error_corrector.py:287:13: E122 continuation line missing indentation or outdented
+.\critical_flake8_error_corrector.py:287:33: W291 trailing whitespace
+.\critical_flake8_error_corrector.py:288:13: E122 continuation line missing indentation or outdented
+.\critical_flake8_error_corrector.py:289:13: E122 continuation line missing indentation or outdented
+.\critical_flake8_error_corrector.py:290:13: E122 continuation line missing indentation or outdented
+.\critical_flake8_error_corrector.py:291:13: E122 continuation line missing indentation or outdented
+.\critical_flake8_error_corrector.py:293:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:297:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:302:80: E501 line too long (98 > 79 characters)
+.\critical_flake8_error_corrector.py:308:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:312:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:318:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:323:80: E501 line too long (81 > 79 characters)
+.\critical_flake8_error_corrector.py:324:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:327:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:336:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:337:80: E501 line too long (83 > 79 characters)
+.\critical_flake8_error_corrector.py:338:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:339:80: E501 line too long (95 > 79 characters)
+.\critical_flake8_error_corrector.py:340:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:343:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:345:80: E501 line too long (89 > 79 characters)
+.\critical_flake8_error_corrector.py:346:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:350:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:355:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:358:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:360:80: E501 line too long (95 > 79 characters)
+.\critical_flake8_error_corrector.py:363:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:368:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:378:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:382:1: W293 blank line contains whitespace
+.\critical_flake8_error_corrector.py:394:1: W293 blank line contains whitespace
+.\database_consolidation_migration.py:127:45: E999 SyntaxError: closing parenthesis ')' does not match opening parenthesis '[' on line 80
+.\database_driven_flake8_corrector.py:5:80: E501 line too long (86 > 79 characters)
+.\database_driven_flake8_corrector.py:8:80: E501 line too long (84 > 79 characters)
+.\database_driven_flake8_corrector.py:9:80: E501 line too long (82 > 79 characters)
+.\database_driven_flake8_corrector.py:11:80: E501 line too long (82 > 79 characters)
+.\database_driven_flake8_corrector.py:20:1: F401 'sys' imported but unused
+.\database_driven_flake8_corrector.py:21:1: F401 'json' imported but unused
+.\database_driven_flake8_corrector.py:30:1: F401 'dataclasses.asdict' imported but unused
+.\database_driven_flake8_corrector.py:169:80: E501 line too long (83 > 79 characters)
+.\database_driven_flake8_corrector.py:178:80: E501 line too long (98 > 79 characters)
+.\database_driven_flake8_corrector.py:180:80: E501 line too long (92 > 79 characters)
+.\database_driven_flake8_corrector.py:198:80: E501 line too long (86 > 79 characters)
+.\database_driven_flake8_corrector.py:252:80: E501 line too long (83 > 79 characters)
+.\database_driven_flake8_corrector.py:258:80: E501 line too long (86 > 79 characters)
+.\database_driven_flake8_corrector.py:263:80: E501 line too long (133 > 79 characters)
+.\database_driven_flake8_corrector.py:266:80: E501 line too long (97 > 79 characters)
+.\database_driven_flake8_corrector.py:276:80: E501 line too long (98 > 79 characters)
+.\database_driven_flake8_corrector.py:296:80: E501 line too long (99 > 79 characters)
+.\database_driven_flake8_corrector.py:301:80: E501 line too long (81 > 79 characters)
+.\database_driven_flake8_corrector.py:304:80: E501 line too long (83 > 79 characters)
+.\database_driven_flake8_corrector.py:307:80: E501 line too long (91 > 79 characters)
+.\database_driven_flake8_corrector.py:321:80: E501 line too long (93 > 79 characters)
+.\database_driven_flake8_corrector.py:324:80: E501 line too long (85 > 79 characters)
+.\database_driven_flake8_corrector.py:345:80: E501 line too long (88 > 79 characters)
+.\database_driven_flake8_corrector.py:351:80: E501 line too long (96 > 79 characters)
+.\database_driven_flake8_corrector.py:377:25: F841 local variable 'file_path_part' is assigned to but never used
+.\database_driven_flake8_corrector.py:441:80: E501 line too long (94 > 79 characters)
+.\database_driven_flake8_corrector.py:461:80: E501 line too long (89 > 79 characters)
+.\database_driven_flake8_corrector.py:464:80: E501 line too long (104 > 79 characters)
+.\database_driven_flake8_corrector.py:485:80: E501 line too long (80 > 79 characters)
+.\database_driven_flake8_corrector.py:511:80: E501 line too long (96 > 79 characters)
+.\database_driven_flake8_corrector.py:535:80: E501 line too long (84 > 79 characters)
+.\database_driven_flake8_corrector.py:561:80: E501 line too long (83 > 79 characters)
+.\database_driven_flake8_corrector.py:562:80: E501 line too long (103 > 79 characters)
+.\database_driven_flake8_corrector.py:601:80: E501 line too long (80 > 79 characters)
+.\database_driven_flake8_corrector.py:609:80: E501 line too long (100 > 79 characters)
+.\database_driven_flake8_corrector.py:610:80: E501 line too long (82 > 79 characters)
+.\database_driven_flake8_corrector.py:616:80: E501 line too long (83 > 79 characters)
+.\database_driven_flake8_corrector.py:656:80: E501 line too long (92 > 79 characters)
+.\database_driven_flake8_corrector.py:666:80: E501 line too long (94 > 79 characters)
+.\database_driven_flake8_corrector.py:670:80: E501 line too long (80 > 79 characters)
+.\database_driven_flake8_corrector.py:683:80: E501 line too long (91 > 79 characters)
+.\database_driven_flake8_corrector.py:687:9: F841 local variable 'correction_results' is assigned to but never used
+.\database_driven_flake8_corrector.py:697:80: E501 line too long (97 > 79 characters)
+.\database_driven_flake8_corrector.py:701:80: E501 line too long (80 > 79 characters)
+.\database_driven_flake8_corrector.py:710:80: E501 line too long (100 > 79 characters)
+.\database_driven_flake8_corrector.py:722:80: E501 line too long (89 > 79 characters)
+.\database_sync_scheduler.py:17:54: E999 SyntaxError: unmatched ')'
+.\deployment\install.py:21:9: E999 IndentationError: unexpected indent
+.\deployment_migration_script.py:72:80: E501 line too long (86 > 79 characters)
+.\deployment_migration_script.py:93:80: E501 line too long (90 > 79 characters)
+.\deployment_migration_script.py:136:80: E501 line too long (90 > 79 characters)
+.\deployment_migration_script.py:141:80: E501 line too long (98 > 79 characters)
+.\deployment_migration_script.py:153:80: E501 line too long (80 > 79 characters)
+.\deployment_migration_script.py:157:80: E501 line too long (80 > 79 characters)
+.\deployment_migration_script.py:159:80: E501 line too long (82 > 79 characters)
+.\deployment_migration_script.py:160:80: E501 line too long (81 > 79 characters)
+.\deployment_migration_script.py:172:80: E501 line too long (91 > 79 characters)
+.\deployment_migration_script.py:176:80: E501 line too long (87 > 79 characters)
+.\deployment_migration_script.py:182:80: E501 line too long (85 > 79 characters)
+.\deployment_migration_script.py:194:80: E501 line too long (102 > 79 characters)
+.\deployment_migration_script.py:202:80: E501 line too long (88 > 79 characters)
+.\deployment_migration_script.py:206:80: E501 line too long (81 > 79 characters)
+.\deployment_migration_script.py:206:80: E501 line too long (81 > 79 characters)
+.\deployment_migration_script.py:223:80: E501 line too long (81 > 79 characters)
+.\deployment_migration_script.py:253:80: E501 line too long (90 > 79 characters)
+.\deployment_migration_script.py:260:80: E501 line too long (80 > 79 characters)
+.\deployment_migration_script.py:262:80: E501 line too long (107 > 79 characters)
+.\deployment_migration_script.py:279:80: E501 line too long (96 > 79 characters)
+.\deployment_migration_script.py:285:80: E501 line too long (110 > 79 characters)
+.\deployment_migration_script.py:295:80: E501 line too long (85 > 79 characters)
+.\deployment_migration_script.py:316:80: E501 line too long (80 > 79 characters)
+.\deployment_migration_script.py:323:80: E501 line too long (82 > 79 characters)
+.\deployment_migration_script.py:331:80: E501 line too long (94 > 79 characters)
+.\deployment_migration_script.py:363:80: E501 line too long (97 > 79 characters)
+.\deployment_migration_script.py:384:80: E501 line too long (89 > 79 characters)
+.\deployment_migration_script.py:388:80: E501 line too long (107 > 79 characters)
+.\deployment_migration_script.py:434:80: E501 line too long (88 > 79 characters)
+.\deployment_migration_script.py:441:80: E501 line too long (89 > 79 characters)
+.\deployment_migration_script.py:444:80: E501 line too long (83 > 79 characters)
+.\deployment_migration_script.py:464:80: E501 line too long (97 > 79 characters)
+.\deployment_migration_script.py:478:80: E501 line too long (113 > 79 characters)
+.\deployment_migration_script.py:484:80: E501 line too long (80 > 79 characters)
+.\deployment_migration_script.py:496:80: E501 line too long (90 > 79 characters)
+.\deployment_migration_script.py:503:80: E501 line too long (124 > 79 characters)
+.\deployment_migration_script.py:520:80: E501 line too long (81 > 79 characters)
+.\deployment_migration_script.py:530:80: E501 line too long (86 > 79 characters)
+.\deployment_migration_script.py:540:80: E501 line too long (90 > 79 characters)
+.\deployment_migration_script.py:544:80: E501 line too long (83 > 79 characters)
+.\deployment_migration_script.py:571:80: E501 line too long (81 > 79 characters)
+.\deployment_migration_script.py:572:80: E501 line too long (81 > 79 characters)
+.\deployment_migration_script.py:619:80: E501 line too long (110 > 79 characters)
+.\deployment_migration_script.py:620:80: E501 line too long (124 > 79 characters)
+.\deployment_migration_script.py:667:80: E501 line too long (80 > 79 characters)
+.\disaster_recovery_consolidation_executor.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\documentation\session_wrap_up_generator.py:19:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\enhanced_database_driven_flake8_corrector.py:30:1: F401 'typing.Set' imported but unused
+.\enhanced_database_driven_flake8_corrector.py:32:1: F401 'contextlib.contextmanager' imported but unused
+.\enhanced_database_driven_flake8_corrector.py:33:1: F401 'concurrent.futures.ThreadPoolExecutor' imported but unused
+.\enhanced_database_driven_flake8_corrector.py:33:1: F401 'concurrent.futures.as_completed' imported but unused
+.\enhanced_database_driven_flake8_corrector.py:420:80: E501 line too long (94 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:545:80: E501 line too long (81 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:599:80: E501 line too long (103 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:603:80: E501 line too long (80 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:613:80: E501 line too long (87 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:613:80: E501 line too long (87 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:627:80: E501 line too long (85 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:686:80: E501 line too long (81 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:730:80: E501 line too long (84 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:765:80: E501 line too long (95 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:766:80: E501 line too long (83 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:770:80: E501 line too long (90 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:780:80: E501 line too long (85 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:782:80: E501 line too long (85 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:824:80: E501 line too long (95 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:830:80: E501 line too long (86 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:846:80: E501 line too long (86 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:856:80: E501 line too long (91 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:878:80: E501 line too long (84 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:891:80: E501 line too long (81 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:894:80: E501 line too long (116 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:899:80: E501 line too long (82 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:912:80: E501 line too long (98 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:913:80: E501 line too long (94 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:919:80: E501 line too long (91 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:919:80: E501 line too long (91 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:920:80: E501 line too long (89 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:920:80: E501 line too long (89 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:921:80: E501 line too long (89 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:921:80: E501 line too long (89 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:930:80: E501 line too long (89 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:942:80: E501 line too long (89 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:955:80: E501 line too long (84 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:972:80: E501 line too long (80 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:981:80: E501 line too long (88 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:984:80: E501 line too long (99 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:990:80: E501 line too long (83 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:1000:80: E501 line too long (85 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:1035:80: E501 line too long (81 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:1056:80: E501 line too long (94 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:1058:80: E501 line too long (100 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:1060:80: E501 line too long (91 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:1062:80: E501 line too long (93 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:1108:80: E501 line too long (87 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:1111:80: E501 line too long (86 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:1114:80: E501 line too long (90 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:1117:80: E501 line too long (84 > 79 characters)
+.\enhanced_database_driven_flake8_corrector.py:1128:80: E501 line too long (99 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:5:76: W291 trailing whitespace
+.\enhanced_systematic_flake8_corrector.py:18:1: F401 'sys' imported but unused
+.\enhanced_systematic_flake8_corrector.py:27:1: F401 'typing.Optional' imported but unused
+.\enhanced_systematic_flake8_corrector.py:27:1: F401 'typing.Set' imported but unused
+.\enhanced_systematic_flake8_corrector.py:60:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:64:80: E501 line too long (126 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:66:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:70:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:73:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:76:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:79:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:88:80: E501 line too long (115 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:89:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:103:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:119:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:141:80: E501 line too long (108 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:173:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:203:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:227:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:237:58: W291 trailing whitespace
+.\enhanced_systematic_flake8_corrector.py:238:80: E501 line too long (92 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:240:80: E501 line too long (86 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:240:87: W291 trailing whitespace
+.\enhanced_systematic_flake8_corrector.py:241:22: E128 continuation line under-indented for visual indent
+.\enhanced_systematic_flake8_corrector.py:246:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:251:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:255:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:261:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:262:80: E501 line too long (114 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:263:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:270:13: F541 f-string is missing placeholders
+.\enhanced_systematic_flake8_corrector.py:270:80: E501 line too long (100 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:273:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:276:21: W291 trailing whitespace
+.\enhanced_systematic_flake8_corrector.py:282:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:284:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:287:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:288:80: E501 line too long (86 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:290:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:301:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:304:51: E712 comparison to False should be 'if cond is False:' or 'if not cond:'
+.\enhanced_systematic_flake8_corrector.py:306:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:310:80: E501 line too long (82 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:311:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:315:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:324:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:328:80: E501 line too long (89 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:336:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:353:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:358:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:361:80: E501 line too long (99 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:366:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:369:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:385:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:389:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:393:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:395:80: E501 line too long (99 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:397:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:400:80: E501 line too long (83 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:404:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:407:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:419:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:422:80: E501 line too long (84 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:426:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:429:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:431:80: E501 line too long (81 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:432:80: E501 line too long (80 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:435:80: E501 line too long (84 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:439:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:446:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:449:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:459:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:466:80: E501 line too long (83 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:467:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:469:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:473:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:476:80: E501 line too long (83 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:480:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:483:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:485:80: E501 line too long (81 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:488:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:490:80: E501 line too long (89 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:493:80: E501 line too long (87 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:496:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:499:80: E501 line too long (81 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:503:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:509:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:512:80: E501 line too long (82 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:516:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:522:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:529:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:532:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:542:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:549:38: W291 trailing whitespace
+.\enhanced_systematic_flake8_corrector.py:551:40: W291 trailing whitespace
+.\enhanced_systematic_flake8_corrector.py:553:80: E501 line too long (81 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:557:80: E501 line too long (82 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:559:80: E501 line too long (81 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:562:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:566:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:570:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:573:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:578:80: E501 line too long (80 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:582:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:585:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:587:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:604:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:615:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:616:80: E501 line too long (84 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:617:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:620:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:624:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:626:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:628:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:636:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:640:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:642:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:646:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:650:80: E501 line too long (87 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:652:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:657:80: E501 line too long (130 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:661:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:664:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:671:80: E501 line too long (119 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:672:80: E501 line too long (112 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:673:80: E501 line too long (105 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:676:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:678:80: E501 line too long (91 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:681:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:682:80: E501 line too long (90 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:685:80: E501 line too long (87 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:690:51: W291 trailing whitespace
+.\enhanced_systematic_flake8_corrector.py:691:80: E501 line too long (92 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:691:93: W291 trailing whitespace
+.\enhanced_systematic_flake8_corrector.py:694:80: E501 line too long (96 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:695:22: E128 continuation line under-indented for visual indent
+.\enhanced_systematic_flake8_corrector.py:695:80: E501 line too long (108 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:704:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:706:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:708:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:712:1: W293 blank line contains whitespace
+.\enhanced_systematic_flake8_corrector.py:713:15: F541 f-string is missing placeholders
+.\enhanced_systematic_flake8_corrector.py:719:80: E501 line too long (83 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:720:80: E501 line too long (84 > 79 characters)
+.\enhanced_systematic_flake8_corrector.py:724:1: W293 blank line contains whitespace
+.\enterprise_unicode_compatibility_fix.py:41:19: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\enterprise_unicode_compatible_flake8_corrector.py:23:1: F401 'dataclasses.asdict' imported but unused
+.\enterprise_unicode_compatible_flake8_corrector.py:24:1: F401 'typing.Tuple' imported but unused
+.\enterprise_unicode_compatible_flake8_corrector.py:24:1: F401 'typing.Union' imported but unused
+.\enterprise_unicode_compatible_flake8_corrector.py:26:1: F401 'ast' imported but unused
+.\enterprise_unicode_compatible_flake8_corrector.py:142:21: F541 f-string is missing placeholders
+.\enterprise_unicode_compatible_flake8_corrector.py:158:80: E501 line too long (83 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:186:80: E501 line too long (80 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:217:80: E501 line too long (85 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:297:80: E501 line too long (95 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:419:80: E501 line too long (95 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:459:80: E501 line too long (86 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:493:80: E501 line too long (83 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:555:80: E501 line too long (83 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:556:80: E501 line too long (83 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:565:25: F541 f-string is missing placeholders
+.\enterprise_unicode_compatible_flake8_corrector.py:585:80: E501 line too long (82 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:594:80: E501 line too long (119 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:631:80: E501 line too long (116 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:635:80: E501 line too long (104 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:637:80: E501 line too long (92 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:719:80: E501 line too long (80 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:732:80: E501 line too long (80 > 79 characters)
+.\enterprise_unicode_compatible_flake8_corrector.py:763:80: E501 line too long (85 > 79 characters)
+.\enterprise_wrap_up_engine.py:32:37: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\final_deployment_validator.py:24:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\final_enterprise_flake8_corrector.py:21:1: F401 'pathlib.Path' imported but unused
+.\final_enterprise_flake8_corrector.py:25:1: F401 'time' imported but unused
+.\final_enterprise_flake8_corrector.py:43:1: E302 expected 2 blank lines, found 1
+.\final_enterprise_flake8_corrector.py:57:1: E302 expected 2 blank lines, found 1
+.\final_enterprise_flake8_corrector.py:87:80: E501 line too long (84 > 79 characters)
+.\final_enterprise_flake8_corrector.py:101:80: E501 line too long (81 > 79 characters)
+.\final_enterprise_flake8_corrector.py:115:80: E501 line too long (84 > 79 characters)
+.\final_enterprise_flake8_corrector.py:160:80: E501 line too long (84 > 79 characters)
+.\final_enterprise_flake8_corrector.py:180:80: E501 line too long (88 > 79 characters)
+.\final_enterprise_flake8_corrector.py:201:80: E501 line too long (95 > 79 characters)
+.\final_enterprise_flake8_corrector.py:202:80: E501 line too long (95 > 79 characters)
+.\final_enterprise_flake8_corrector.py:204:80: E501 line too long (93 > 79 characters)
+.\final_enterprise_flake8_corrector.py:206:80: E501 line too long (90 > 79 characters)
+.\final_enterprise_flake8_corrector.py:256:80: E501 line too long (84 > 79 characters)
+.\final_enterprise_flake8_corrector.py:280:80: E501 line too long (80 > 79 characters)
+.\final_enterprise_flake8_corrector.py:284:80: E501 line too long (87 > 79 characters)
+.\final_enterprise_flake8_corrector.py:289:80: E501 line too long (86 > 79 characters)
+.\final_enterprise_flake8_corrector.py:295:80: E501 line too long (95 > 79 characters)
+.\final_enterprise_flake8_corrector.py:300:80: E501 line too long (86 > 79 characters)
+.\final_enterprise_flake8_corrector.py:313:1: E302 expected 2 blank lines, found 1
+.\final_enterprise_flake8_corrector.py:316:80: E501 line too long (80 > 79 characters)
+.\final_enterprise_flake8_corrector.py:323:15: F541 f-string is missing placeholders
+.\final_enterprise_flake8_corrector.py:328:15: F541 f-string is missing placeholders
+.\final_enterprise_flake8_corrector.py:331:15: F541 f-string is missing placeholders
+.\final_enterprise_flake8_corrector.py:349:80: E501 line too long (108 > 79 characters)
+.\final_enterprise_flake8_corrector.py:353:15: F541 f-string is missing placeholders
+.\final_enterprise_flake8_corrector.py:358:80: E501 line too long (88 > 79 characters)
+.\final_enterprise_flake8_corrector.py:364:19: F541 f-string is missing placeholders
+.\final_enterprise_flake8_corrector.py:370:80: E501 line too long (97 > 79 characters)
+.\final_enterprise_flake8_corrector.py:374:15: F541 f-string is missing placeholders
+.\final_enterprise_flake8_corrector.py:384:1: E305 expected 2 blank lines after class or function definition, found 1
+.\fix_syntax_errors.py:16:34: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\github_integration\.github\copilot\conversations_with_human\configuration_recovery_engine.py:336:14: E999 SyntaxError: invalid syntax
+.\github_integration\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:261:14: E999 SyntaxError: invalid syntax
+.\immediate_flake8_corrector.py:9:1: F401 'os' imported but unused
+.\immediate_flake8_corrector.py:32:80: E501 line too long (82 > 79 characters)
+.\immediate_flake8_corrector.py:41:80: E501 line too long (83 > 79 characters)
+.\immediate_flake8_corrector.py:80:80: E501 line too long (98 > 79 characters)
+.\immediate_flake8_corrector.py:158:80: E501 line too long (85 > 79 characters)
+.\immediate_flake8_corrector.py:195:80: E501 line too long (98 > 79 characters)
+.\immediate_flake8_corrector.py:201:19: F541 f-string is missing placeholders
+.\immediate_flake8_corrector.py:221:11: F541 f-string is missing placeholders
+.\immediate_flake8_corrector.py:222:80: E501 line too long (81 > 79 characters)
+.\monitoring_optimization_consolidation_executor.py:51:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\physics_optimization_engine.py:54:23: E999 SyntaxError: unmatched ')'
+.\quantum\quantum_optimization.py:66:27: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\script_generation_consolidation_executor.py:39:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\ADVANCED_SCRIPT_ANALYSIS.py:40:9: E999 IndentationError: unexpected indent
+.\scripts\AUTONOMOUS_FRAMEWORK_COMPREHENSIVE_SCOPE.py:43:36: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 41
+.\scripts\AUTONOMOUS_PRODUCTION_CREATOR.py:23:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\AUTONOMOUS_PRODUCTION_CREATOR_CLEAN.py:23:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:20:11: F541 f-string is missing placeholders
+.\scripts\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:20:80: E501 line too long (86 > 79 characters)
+.\scripts\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:26:80: E501 line too long (85 > 79 characters)
+.\scripts\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:27:80: E501 line too long (87 > 79 characters)
+.\scripts\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:28:80: E501 line too long (90 > 79 characters)
+.\scripts\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:29:80: E501 line too long (82 > 79 characters)
+.\scripts\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:43:80: E501 line too long (87 > 79 characters)
+.\scripts\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:45:80: E501 line too long (96 > 79 characters)
+.\scripts\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:190:80: E501 line too long (83 > 79 characters)
+.\scripts\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:199:80: E501 line too long (87 > 79 characters)
+.\scripts\DATABASE_CAPTURE_COMPLETE.py:48:13: E999 SyntaxError: unmatched ')'
+.\scripts\DATABASE_CLEANUP_EXECUTOR.py:50:28: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\DATABASE_REDUNDANCY_ANALYZER.py:41:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\DEPLOY_ENTERPRISE_GH_COPILOT.py:27:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\DETAILED_STEP_FRAMEWORK_ANALYZER.py:103:46: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\ENHANCED_ML_AUTONOMOUS_FRAMEWORK_COMPREHENSIVE_SCOPE.py:34:9: E999 IndentationError: unexpected indent
+.\scripts\ENHANCED_ML_STAGING_DEPLOYMENT_EXECUTOR_V3_ADVANCED.py:66:61: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\ENHANCED_ML_STAGING_DEPLOYMENT_MISSION_COMPLETE.py:20:13: E999 IndentationError: unexpected indent
+.\scripts\ENTERPRISE_QUALITY_ENHANCEMENT.py:23:36: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\ENTERPRISE_SCHEMA_FIX_AND_ENHANCEMENT.py:116:21: E999 IndentationError: unexpected indent
+.\scripts\ENTERPRISE_SELF_LEARNING_ANALYSIS_REPORT.py:22:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\ENTERPRISE_ULTIMATE_QUALITY_BOOST.py:102:21: E999 IndentationError: unexpected indent
+.\scripts\FINAL_COMPREHENSIVE_PRODUCTION_TEST.py:17:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\FINAL_DATABASE_CAPTURE_VALIDATION.py:55:73: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\FINAL_PRODUCTION_COMPLETER.py:22:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py:32:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\MISSION_COMPLETION_REPORT_GENERATOR.py:80:10: E999 SyntaxError: unmatched '}'
+.\scripts\MISSION_COMPLETION_SUMMARY.py:136:9: E999 IndentationError: unexpected indent
+.\scripts\PRODUCTION_DATABASE_ANALYZER.py:46:61: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py:56:67: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py:19:23: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\PRODUCTION_DB_VALIDATION.py:58:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\STAGING_FILE_INGESTION_ANALYSIS.py:128:44: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\STAGING_ROOT_REDUNDANCY_ANALYZER.py:94:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\advanced_ai_ml_integration.py:29:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327\scripts\DATABASE_CLEANUP_EXECUTOR.py:50:28: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327\scripts\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py:56:67: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327\scripts\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py:19:23: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327\scripts\database_organization_manager.py:53:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327\scripts\deployment\DATABASE_CLEANUP_EXECUTOR.py:50:28: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327\scripts\deployment\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py:56:67: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327\scripts\deployment\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py:19:23: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327\scripts\deployment\database_organization_manager.py:53:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_database_scripts\DB_MIGRATION_20250707_074327\scripts\regenerated\database_organization_manager.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\archived_deployment_scripts\MIGRATION_20250707_061405\comprehensive_deployment_analysis.py:55:31: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_deployment_scripts\MIGRATION_20250707_061405\comprehensive_deployment_manager.py:26:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_deployment_packager.py:16:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_deployment_preparation.py:76:13: E999 SyntaxError: unmatched ')'
+.\scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_deployment_validator.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator.py:33:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_deployment_scripts\MIGRATION_20250707_061405\enterprise_gh_copilot_deployment_orchestrator_windows.py:33:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_deployment_scripts\MIGRATION_20250707_061405\final_enterprise_deployment_executor.py:58:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\archived_deployment_scripts\MIGRATION_20250707_061405\integrated_deployment_orchestrator.py:38:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\ascii_cleaner.py:66:19: E999 IndentationError: unexpected indent
+.\scripts\chunk2_completion_processor.py:45:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\chunk3_advanced_pattern_synthesizer.py:126:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\chunk3_comprehensive_deployment_demo.py:57:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\chunk3_enterprise_integration_validator.py:151:36: E999 SyntaxError: unmatched ']'
+.\scripts\chunk3_final_completion_generator.py:21:32: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\comprehensive_database_structure_analyzer.py:46:36: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\comprehensive_deployment_analysis.py:55:31: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\comprehensive_deployment_manager.py:26:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\comprehensive_deployment_validator.py:24:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\comprehensive_documentation_synchronizer.py:90:13: E999 SyntaxError: unmatched ')'
+.\scripts\comprehensive_lessons_learned_analyzer.py:113:18: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 105
+.\scripts\comprehensive_production_capability_tester.py:70:19: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\comprehensive_production_deployer.py:99:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\comprehensive_project_grading_system.py:105:13: E999 SyntaxError: unmatched ')'
+.\scripts\comprehensive_system_analysis_validator.py:28:31: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\critical_script_sync_operation.py:35:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\cross_database_aggregation_implementation.py:72:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\cross_database_aggregation_system.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\database_driven_web_gui_generator.py:53:14: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 52
+.\scripts\database_organization_manager.py:53:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployed_environment_error_analyzer_and_fixer.py:50:13: E999 IndentationError: unexpected indent
+.\scripts\deployment\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py:27:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\ADVANCED_SCRIPT_ANALYSIS.py:40:9: E999 IndentationError: unexpected indent
+.\scripts\deployment\AUTONOMOUS_FRAMEWORK_COMPREHENSIVE_SCOPE.py:43:36: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 41
+.\scripts\deployment\AUTONOMOUS_PRODUCTION_CREATOR.py:23:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\AUTONOMOUS_PRODUCTION_CREATOR_CLEAN.py:23:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:20:11: F541 f-string is missing placeholders
+.\scripts\deployment\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:20:80: E501 line too long (86 > 79 characters)
+.\scripts\deployment\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:26:80: E501 line too long (85 > 79 characters)
+.\scripts\deployment\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:27:80: E501 line too long (87 > 79 characters)
+.\scripts\deployment\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:28:80: E501 line too long (90 > 79 characters)
+.\scripts\deployment\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:29:80: E501 line too long (82 > 79 characters)
+.\scripts\deployment\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:43:80: E501 line too long (87 > 79 characters)
+.\scripts\deployment\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:45:80: E501 line too long (96 > 79 characters)
+.\scripts\deployment\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:190:80: E501 line too long (83 > 79 characters)
+.\scripts\deployment\COPILOT_VALIDATION_EXECUTIVE_SUMMARY_GENERATOR.py:199:80: E501 line too long (87 > 79 characters)
+.\scripts\deployment\DATABASE_CAPTURE_COMPLETE.py:48:13: E999 SyntaxError: unmatched ')'
+.\scripts\deployment\DATABASE_CLEANUP_EXECUTOR.py:50:28: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\DATABASE_REDUNDANCY_ANALYZER.py:41:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\deployment\DEPLOY_ENTERPRISE_GH_COPILOT.py:27:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\DETAILED_STEP_FRAMEWORK_ANALYZER.py:103:46: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\ENHANCED_ML_AUTONOMOUS_FRAMEWORK_COMPREHENSIVE_SCOPE.py:34:9: E999 IndentationError: unexpected indent
+.\scripts\deployment\ENHANCED_ML_STAGING_DEPLOYMENT_EXECUTOR_V3_ADVANCED.py:66:61: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\ENHANCED_ML_STAGING_DEPLOYMENT_MISSION_COMPLETE.py:20:13: E999 IndentationError: unexpected indent
+.\scripts\deployment\ENTERPRISE_QUALITY_ENHANCEMENT.py:23:36: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\ENTERPRISE_SCHEMA_FIX_AND_ENHANCEMENT.py:116:21: E999 IndentationError: unexpected indent
+.\scripts\deployment\ENTERPRISE_SELF_LEARNING_ANALYSIS_REPORT.py:22:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\ENTERPRISE_ULTIMATE_QUALITY_BOOST.py:102:21: E999 IndentationError: unexpected indent
+.\scripts\deployment\FINAL_COMPREHENSIVE_PRODUCTION_TEST.py:17:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\FINAL_DATABASE_CAPTURE_VALIDATION.py:55:73: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\FINAL_PRODUCTION_COMPLETER.py:22:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\FINAL_STAGING_DEPLOYMENT_ORCHESTRATOR.py:32:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\MISSION_COMPLETION_REPORT_GENERATOR.py:80:10: E999 SyntaxError: unmatched '}'
+.\scripts\deployment\MISSION_COMPLETION_SUMMARY.py:136:9: E999 IndentationError: unexpected indent
+.\scripts\deployment\PRODUCTION_DATABASE_ANALYZER.py:46:61: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\PRODUCTION_DATABASE_CONSOLIDATION_EXECUTOR.py:56:67: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\PRODUCTION_DATABASE_CONSOLIDATION_SUMMARY.py:19:23: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\PRODUCTION_DB_VALIDATION.py:58:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\STAGING_FILE_INGESTION_ANALYSIS.py:128:44: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\STAGING_ROOT_REDUNDANCY_ANALYZER.py:94:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\deployment\advanced_ai_ml_integration.py:29:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\ascii_cleaner.py:66:19: E999 IndentationError: unexpected indent
+.\scripts\deployment\chunk2_completion_processor.py:45:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\chunk3_advanced_pattern_synthesizer.py:126:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\chunk3_comprehensive_deployment_demo.py:57:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\chunk3_enterprise_integration_validator.py:151:36: E999 SyntaxError: unmatched ']'
+.\scripts\deployment\chunk3_final_completion_generator.py:21:32: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\deployment\comprehensive_database_structure_analyzer.py:45:36: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\comprehensive_deployment_analysis.py:55:31: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\comprehensive_deployment_manager.py:26:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\comprehensive_deployment_validator.py:24:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\comprehensive_documentation_synchronizer.py:90:13: E999 SyntaxError: unmatched ')'
+.\scripts\deployment\comprehensive_lessons_learned_analyzer.py:113:18: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 105
+.\scripts\deployment\comprehensive_production_capability_tester.py:70:19: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\comprehensive_production_deployer.py:99:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\comprehensive_project_grading_system.py:105:13: E999 SyntaxError: unmatched ')'
+.\scripts\deployment\comprehensive_system_analysis_validator.py:28:31: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\deployment\critical_script_sync_operation.py:35:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\cross_database_aggregation_implementation.py:72:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\cross_database_aggregation_system.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\database_driven_web_gui_generator.py:53:14: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 52
+.\scripts\deployment\database_organization_manager.py:53:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\deployed_environment_error_analyzer_and_fixer.py:50:13: E999 IndentationError: unexpected indent
+.\scripts\deployment\deployment_synchronization_fix.py:94:40: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\documentation_generation_system.py:32:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\emergency_c_temp_violation_prevention.py:22:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enhanced_intelligent_code_analyzer.py:77:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enhanced_learning_system_cli.py:53:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enhanced_multi_database_platform.py:43:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enhanced_platform_demo.py:9:56: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enhanced_platform_demonstration.py:31:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_business_rules_customization.py:110:37: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_data_migration_synchronization_validator.py:60:17: E999 IndentationError: unexpected indent
+.\scripts\deployment\enterprise_database_framework_analyzer.py:38:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_database_organizer.py:50:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_database_query_validator.py:55:37: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_deployment_packager.py:16:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_deployment_preparation.py:76:13: E999 SyntaxError: unmatched ')'
+.\scripts\deployment\enterprise_deployment_validator.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_enhancement_iterator.py:23:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_final_validation.py:20:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_gh_copilot_deployment_orchestrator.py:33:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_json_serialization_handler.py:67:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\deployment\enterprise_log_compliance_fix.py:47:26: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_mission_completion_certificator.py:46:47: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_scaling_validation.py:30:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_schema_fixer_and_template_populator.py:28:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_status_report_generator.py:49:71: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_unicode_compatibility_fix.py:41:19: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\enterprise_visual_processing_engine_fixed.py:49:48: E999 SyntaxError: unterminated string literal (detected at line 49)
+.\scripts\deployment\environment_adaptation_system.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\environment_profile_expansion.py:58:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\environment_schema_migration.py:29:15: E999 IndentationError: unexpected indent
+.\scripts\deployment\filesystem_isolation_audit.py:42:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\final_c_temp_cleanup.py:16:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\final_cleanup_validation.py:10:1: F401 'os' imported but unused
+.\scripts\deployment\final_deployment_validator.py:17:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\final_enterprise_deployment_executor.py:58:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\final_project_completion_summary_generator.py:33:35: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\deployment\final_web_gui_validation_and_certification.py:97:51: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\github_copilot_instruction_alignment_confirmer.py:135:27: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\github_copilot_instruction_set_validator.py:41:35: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\immediate_deployment_status_check.py:42:47: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\integrated_deployment_orchestrator.py:38:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\intelligent_code_analysis_placeholder_detection.py:71:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\intelligent_code_analyzer.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\intelligent_instruction_orchestrator.py:56:39: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\mission_completion_orchestrator.py:83:13: E999 IndentationError: unexpected indent
+.\scripts\deployment\multi_database_analysis.py:77:44: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\multi_template_demo.py:9:56: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\phase1_deployment_simple.py:143:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\deployment\phase3_5_deployment_completion.py:66:18: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 65
+.\scripts\deployment\phase4_comprehensive_completion_summary.py:54:13: E999 IndentationError: unexpected indent
+.\scripts\deployment\phase5_advanced_ai_integration.py:36:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\phase5_enterprise_scale_deployment.py:36:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\phase5_final_enterprise_completion.py:72:13: E999 IndentationError: unexpected indent
+.\scripts\deployment\phase_3_cross_database_aggregation.py:78:13: E999 IndentationError: unexpected indent
+.\scripts\deployment\phase_4_environment_adaptation.py:74:13: E999 IndentationError: unexpected indent
+.\scripts\deployment\phase_5_comprehensive_documentation.py:90:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\production_db_analysis.py:169:52: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\production_db_codebase_analysis.py:21:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\production_db_comprehensive_script_analysis.py:124:29: E999 SyntaxError: unterminated string literal (detected at line 124)
+.\scripts\deployment\production_deployment_orchestrator.py:61:85: E999 SyntaxError: closing parenthesis ')' does not match opening parenthesis '[' on line 60
+.\scripts\deployment\production_environment_builder.py:26:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\production_environment_builder_clean.py:26:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\professional_environment_validator.py:44:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\python_312_upgrade_manager.py:25:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\quick_database_query.py:20:9: E999 IndentationError: unexpected indent
+.\scripts\deployment\quick_filesystem_check.py:23:80: E501 line too long (84 > 79 characters)
+.\scripts\deployment\quick_filesystem_check.py:47:1: E122 continuation line missing indentation or outdented
+.\scripts\deployment\quick_filesystem_check.py:47:80: E501 line too long (81 > 79 characters)
+.\scripts\deployment\refined_production_builder.py:213:36: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\scaling_innovation_framework.py:25:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\schema_migration_fix.py:36:65: E999 SyntaxError: unterminated string literal (detected at line 36)
+.\scripts\deployment\simple_platform_activator.py:66:10: E999 SyntaxError: closing parenthesis '}' does not match opening parenthesis '[' on line 63
+.\scripts\deployment\simplified_critical_script_sync.py:30:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\staging_validation.py:21:13: E999 IndentationError: unexpected indent
+.\scripts\deployment\strategic_implementation_executor.py:154:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\ultimate_production_parity_validator.py:119:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\unicode_character_cleaner.py:46:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\validate_framework.py:96:25: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\visual_processing_compliance_validator.py:34:59: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\web_gui_development_success_reporter.py:39:14: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 38
+.\scripts\deployment\web_gui_documentation_generator.py:28:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\deployment\zero_tolerance_visual_processing_engine.py:56:48: E999 SyntaxError: unterminated string literal (detected at line 56)
+.\scripts\deployment_synchronization_fix.py:94:40: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\documentation_generation_system.py:32:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\emergency_c_temp_violation_prevention.py:22:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enhanced_intelligent_code_analyzer.py:77:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enhanced_learning_system_cli.py:53:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enhanced_multi_database_platform.py:43:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enhanced_platform_demo.py:9:56: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enhanced_platform_demonstration.py:31:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_business_rules_customization.py:110:37: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_data_migration_synchronization_validator.py:60:17: E999 IndentationError: unexpected indent
+.\scripts\enterprise_database_framework_analyzer.py:38:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_database_organizer.py:50:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_database_query_validator.py:55:37: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_deployment_packager.py:16:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_deployment_preparation.py:76:13: E999 SyntaxError: unmatched ')'
+.\scripts\enterprise_deployment_validator.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_enhancement_iterator.py:23:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_final_validation.py:20:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_gh_copilot_deployment_orchestrator.py:50:6: E999 SyntaxError: unterminated triple-quoted string literal (detected at line 56)
+.\scripts\enterprise_gh_copilot_deployment_orchestrator_deprecated.py:50:6: E999 SyntaxError: unterminated triple-quoted string literal (detected at line 56)
+.\scripts\enterprise_gh_copilot_deployment_orchestrator_windows.py:33:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_json_serialization_handler.py:67:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\enterprise_log_compliance_fix.py:47:26: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_mission_completion_certificator.py:46:47: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_scaling_validation.py:30:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_schema_fixer_and_template_populator.py:28:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_status_report_generator.py:49:71: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\enterprise_visual_processing_engine_fixed.py:49:48: E999 SyntaxError: unterminated string literal (detected at line 49)
+.\scripts\environment_adaptation_system.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\environment_profile_expansion.py:58:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\environment_schema_migration.py:29:15: E999 IndentationError: unexpected indent
+.\scripts\filesystem_isolation_audit.py:42:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\final_c_temp_cleanup.py:16:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\final_cleanup_validation.py:10:1: F401 'os' imported but unused
+.\scripts\final_enterprise_deployment_executor.py:58:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\final_project_completion_summary_generator.py:33:35: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\final_web_gui_validation_and_certification.py:97:51: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\generated\basic_utility_demo.py:5:5: F821 undefined name 'main'
+.\scripts\generated\enterprise_database_validator_generated.py:32:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\generated\generated_comprehensive_analyzer.py:17:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\generated\phase_1_enhanced_schema_evolution.py:127:18: E999 SyntaxError: closing parenthesis ')' does not match opening parenthesis '{' on line 125
+.\scripts\generated\phase_2_enhanced_code_analysis.py:43:14: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 36
+.\scripts\generated\phase_3_enhanced_cross_database_aggregation.py:47:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\generated\phase_4_enhanced_environment_adaptation.py:93:17: E999 IndentationError: unexpected indent
+.\scripts\generated\phase_5_enhanced_documentation_generation.py:45:6: E999 SyntaxError: invalid syntax
+.\scripts\generated\utility_demo.py:15:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\generated\validation_demo.py:17:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\github_copilot_instruction_alignment_confirmer.py:135:27: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\github_copilot_instruction_set_validator.py:41:35: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\immediate_deployment_status_check.py:42:47: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\integrated_deployment_orchestrator.py:50:6: E999 SyntaxError: unterminated triple-quoted string literal (detected at line 56)
+.\scripts\integrated_deployment_orchestrator_deprecated.py:50:6: E999 SyntaxError: unterminated triple-quoted string literal (detected at line 56)
+.\scripts\intelligent_code_analysis_placeholder_detection.py:71:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\intelligent_code_analyzer.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\intelligent_instruction_orchestrator.py:56:39: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\mission_completion_orchestrator.py:83:13: E999 IndentationError: unexpected indent
+.\scripts\multi_database_analysis.py:77:44: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\multi_template_demo.py:9:56: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\phase1_deployment_simple.py:143:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\phase3_5_deployment_completion.py:66:18: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 65
+.\scripts\phase4_comprehensive_completion_summary.py:54:13: E999 IndentationError: unexpected indent
+.\scripts\phase5_advanced_ai_integration.py:37:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\phase5_enterprise_scale_deployment.py:36:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\phase5_final_enterprise_completion.py:72:13: E999 IndentationError: unexpected indent
+.\scripts\phase_3_cross_database_aggregation.py:78:13: E999 IndentationError: unexpected indent
+.\scripts\phase_4_environment_adaptation.py:74:13: E999 IndentationError: unexpected indent
+.\scripts\phase_5_comprehensive_documentation.py:90:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\production_db_analysis.py:169:52: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\production_db_codebase_analysis.py:21:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\production_db_comprehensive_script_analysis.py:124:29: E999 SyntaxError: unterminated string literal (detected at line 124)
+.\scripts\production_deployment_orchestrator.py:61:85: E999 SyntaxError: closing parenthesis ')' does not match opening parenthesis '[' on line 60
+.\scripts\production_environment_builder.py:26:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\production_environment_builder_clean.py:26:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\professional_environment_validator.py:44:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\python_312_upgrade_manager.py:25:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\quick_database_query.py:20:9: E999 IndentationError: unexpected indent
+.\scripts\quick_filesystem_check.py:23:80: E501 line too long (84 > 79 characters)
+.\scripts\quick_filesystem_check.py:47:1: E122 continuation line missing indentation or outdented
+.\scripts\quick_filesystem_check.py:47:80: E501 line too long (81 > 79 characters)
+.\scripts\refined_production_builder.py:213:36: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:14:1: F401 'json' imported but unused
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:16:1: F401 'datetime.datetime' imported but unused
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:18:1: F401 'typing.Optional' imported but unused
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:20:1: E302 expected 2 blank lines, found 1
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:22:1: W293 blank line contains whitespace
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:26:1: W293 blank line contains whitespace
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:36:1: W293 blank line contains whitespace
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:37:80: E501 line too long (84 > 79 characters)
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:48:1: W293 blank line contains whitespace
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:54:80: E501 line too long (83 > 79 characters)
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:61:1: E302 expected 2 blank lines, found 1
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:64:1: W293 blank line contains whitespace
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:72:1: E305 expected 2 blank lines after class or function definition, found 1
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:74:5: F821 undefined name 'sys'
+.\scripts\regenerated\.github\copilot\conversations_with_human\disaster_recovery_enhancer_edited.py:74:34: W292 no newline at end of file
+.\scripts\regenerated\ENTERPRISE_QUALITY_ENHANCEMENT.py:47:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\ENTERPRISE_SCHEMA_FIX_AND_ENHANCEMENT.py:47:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\ENTERPRISE_ULTIMATE_QUALITY_BOOST.py:47:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\ascii_cleaner.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\comprehensive_database_structure_analyzer.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\comprehensive_deployment_analysis.py:41:35: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\comprehensive_deployment_manager.py:47:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\comprehensive_system_analysis_validator.py:41:35: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\critical_script_sync_operation.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\cross_database_aggregation_implementation.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\cross_database_aggregation_system.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\deployed_environment_error_analyzer_and_fixer.py:47:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\documentation_generation_system.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\emergency_c_temp_violation_prevention.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enhanced_multi_database_platform.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enhanced_platform_demo.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enhanced_platform_demonstration.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_data_migration_synchronization_validator.py:47:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\enterprise_database_framework_analyzer.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_database_organizer.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_database_query_validator.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\advanced_database_query_system.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\advanced_query_cache_system.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\automated_health_reports.py:41:35: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\enterprise_deployment\automated_health_scheduler.py:36:25: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\regenerated\enterprise_deployment\autonomous_database_administration_finalization.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\copilot_instructions_validator.py:34:45: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\enterprise_deployment\database_first_copilot_enhancer.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\database_schema_documentation_automation_complete.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\executive_alerts_test_suite.py:34:45: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\enterprise_deployment\executive_real_time_alerts.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\final_health_and_celebration.py:36:25: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\regenerated\enterprise_deployment\integration_testing_compliance.py:34:45: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\enterprise_deployment\natural_language_query_interface_advancement.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\natural_language_query_interface_completion.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\natural_language_query_interface_final_completion.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\natural_language_query_interface_finalization.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\phase4_enterprise_readiness.py:47:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\enterprise_deployment\predictive_proactive_alerting.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\quantum_enhanced_cache.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\quantum_enhanced_caching_finalization.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\query_performance_leaderboard.py:36:25: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\regenerated\enterprise_deployment\simplified_cache_deployment.py:47:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\enterprise_deployment\system_finalizer_and_executive_summary.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_deployment\template_library_expansion_automation_complete.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\enterprise_schema_fixer_and_template_populator.py:47:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\enterprise_visual_processing_engine_fixed.py:47:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\environment_adaptation_system.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\environment_profile_expansion.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\environment_schema_migration.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\final_c_temp_cleanup.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\generated_scripts\basic_utility_demo.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\generated_scripts\enterprise_database_validator_generated.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\generated_scripts\generated_comprehensive_analyzer.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\generated_scripts\phase_1_enhanced_schema_evolution.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\generated_scripts\phase_2_enhanced_code_analysis.py:41:35: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\generated_scripts\phase_3_enhanced_cross_database_aggregation.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\generated_scripts\phase_4_enhanced_environment_adaptation.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\generated_scripts\phase_5_enhanced_documentation_generation.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\generated_scripts\utility_demo.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\integrated_deployment_orchestrator.py:47:57: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\intelligent_code_analysis_placeholder_detection.py:41:35: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\intelligent_code_analyzer.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\mission_completion_orchestrator.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\ml_models\recommendation_api.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\monitoring\scripts\data_privacy_compliance_compliance.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\monitoring\scripts\documentation_compliance_compliance.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\monitoring\scripts\performance_compliance_compliance.py:36:25: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{'
+.\scripts\regenerated\monitoring\scripts\security_audit_automation_compliance.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\multi_database_analysis.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\multi_template_demo.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\phase_3_cross_database_aggregation.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\phase_4_environment_adaptation.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\phase_5_comprehensive_documentation.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\production_db_analysis.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\production_db_codebase_analysis.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\production_db_comprehensive_script_analysis.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\python_312_upgrade_manager.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\quick_database_query.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\scaling_innovation_framework.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\schema_migration_fix.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\simplified_critical_script_sync.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\unicode_character_cleaner.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\validate_framework.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\regenerated\visual_processing_compliance_validator.py:34:45: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\regenerated\zero_tolerance_visual_processing_engine.py:57:21: E999 IndentationError: unexpected indent
+.\scripts\scaling_innovation_framework.py:25:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\schema_migration_fix.py:36:65: E999 SyntaxError: unterminated string literal (detected at line 36)
+.\scripts\simple_platform_activator.py:66:10: E999 SyntaxError: closing parenthesis '}' does not match opening parenthesis '[' on line 63
+.\scripts\simplified_critical_script_sync.py:30:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\staging_validation.py:21:13: E999 IndentationError: unexpected indent
+.\scripts\strategic_implementation_executor.py:154:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\ultimate_production_parity_validator.py:119:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\unicode_character_cleaner.py:46:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\validate_framework.py:96:25: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\verify_databases.py:27:13: E999 IndentationError: unexpected indent
+.\scripts\visual_processing_compliance_validator.py:34:59: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\web_gui_development_success_reporter.py:39:14: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 38
+.\scripts\web_gui_documentation_generator.py:28:30: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\scripts\zero_tolerance_visual_processing_engine.py:56:48: E999 SyntaxError: unterminated string literal (detected at line 56)
+.\session_management_consolidation_executor.py:26:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\session_protocol_validator.py:27:28: E999 SyntaxError: '[' was never closed
+.\systematic_flake8_error_analysis_corrector.py:8:80: E501 line too long (84 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:9:80: E501 line too long (82 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:11:80: E501 line too long (86 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:14:37: W291 trailing whitespace
+.\systematic_flake8_error_analysis_corrector.py:27:1: F401 'typing.Tuple' imported but unused
+.\systematic_flake8_error_analysis_corrector.py:47:1: E302 expected 2 blank lines, found 1
+.\systematic_flake8_error_analysis_corrector.py:61:1: E302 expected 2 blank lines, found 1
+.\systematic_flake8_error_analysis_corrector.py:73:1: E302 expected 2 blank lines, found 1
+.\systematic_flake8_error_analysis_corrector.py:85:1: E302 expected 2 blank lines, found 1
+.\systematic_flake8_error_analysis_corrector.py:87:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:90:80: E501 line too long (83 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:92:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:100:80: E501 line too long (87 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:101:80: E501 line too long (88 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:140:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:143:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:153:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:170:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:185:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:188:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:190:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:198:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:199:80: E501 line too long (95 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:200:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:210:15: W291 trailing whitespace
+.\systematic_flake8_error_analysis_corrector.py:211:13: E122 continuation line missing indentation or outdented
+.\systematic_flake8_error_analysis_corrector.py:212:13: E122 continuation line missing indentation or outdented
+.\systematic_flake8_error_analysis_corrector.py:212:33: W291 trailing whitespace
+.\systematic_flake8_error_analysis_corrector.py:213:13: E122 continuation line missing indentation or outdented
+.\systematic_flake8_error_analysis_corrector.py:214:13: E122 continuation line missing indentation or outdented
+.\systematic_flake8_error_analysis_corrector.py:215:13: E122 continuation line missing indentation or outdented
+.\systematic_flake8_error_analysis_corrector.py:216:13: E122 continuation line missing indentation or outdented
+.\systematic_flake8_error_analysis_corrector.py:218:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:222:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:233:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:234:80: E501 line too long (86 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:236:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:247:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:252:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:255:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:260:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:263:80: E501 line too long (82 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:264:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:269:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:275:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:288:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:291:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:295:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:299:80: E501 line too long (87 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:302:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:306:23: W291 trailing whitespace
+.\systematic_flake8_error_analysis_corrector.py:310:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:313:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:316:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:320:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:325:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:330:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:332:80: E501 line too long (82 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:333:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:344:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:345:21: F541 f-string is missing placeholders
+.\systematic_flake8_error_analysis_corrector.py:351:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:354:80: E501 line too long (85 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:365:70: W291 trailing whitespace
+.\systematic_flake8_error_analysis_corrector.py:366:38: E128 continuation line under-indented for visual indent
+.\systematic_flake8_error_analysis_corrector.py:369:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:389:80: E501 line too long (96 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:391:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:393:80: E501 line too long (94 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:396:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:405:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:407:54: W291 trailing whitespace
+.\systematic_flake8_error_analysis_corrector.py:408:80: E501 line too long (84 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:408:85: W291 trailing whitespace
+.\systematic_flake8_error_analysis_corrector.py:409:80: E501 line too long (82 > 79 characters)
+.\systematic_flake8_error_analysis_corrector.py:422:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:425:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:427:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:434:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:436:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:438:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:443:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:448:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:453:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:458:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:463:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:473:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:478:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:488:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:492:1: W293 blank line contains whitespace
+.\systematic_flake8_error_analysis_corrector.py:504:1: W293 blank line contains whitespace
+.\targeted_flake8_fixer.py:8:1: F401 'os' imported but unused
+.\targeted_flake8_fixer.py:13:1: E302 expected 2 blank lines, found 1
+.\targeted_flake8_fixer.py:57:80: E501 line too long (84 > 79 characters)
+.\targeted_flake8_fixer.py:71:1: E302 expected 2 blank lines, found 1
+.\targeted_flake8_fixer.py:89:1: E302 expected 2 blank lines, found 1
+.\targeted_flake8_fixer.py:118:1: E302 expected 2 blank lines, found 1
+.\targeted_flake8_fixer.py:128:80: E501 line too long (80 > 79 characters)
+.\targeted_flake8_fixer.py:148:1: E302 expected 2 blank lines, found 1
+.\targeted_flake8_fixer.py:192:1: E305 expected 2 blank lines after class or function definition, found 1
+.\templates\intelligent_code_analyzer.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\tests\test_autonomous_file_manager.py:5:52: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\tests\test_dashboard.py:23:38: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\tests\test_database_sync.py:2:1: F401 'pathlib.Path' imported but unused
+.\tests\test_orchestration.py:14:18: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\tests\test_quantum_deploy.py:3:82: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\tests\test_quantum_optimizer.py:3:44: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\tests\test_serialization.py:2:80: E501 line too long (83 > 79 characters)
+.\tests\test_session_protocol_validator.py:1:1: F401 'pathlib.Path' imported but unused
+.\tests\test_unified_monitoring.py:23:26: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\tests\test_web_gui_endpoints.py:6:39: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\unified_database_management_system.py:30:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\unified_disaster_recovery_system.py:29:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\unified_legacy_cleanup_system.py:22:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\unified_monitoring_optimization_system.py:34:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\unified_script_generation_system.py:29:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\unified_session_management_system.py:35:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\validation\deployment_validation_report.py:35:9: E999 IndentationError: unexpected indent
+.\validation\system_status_checker.py:114:40: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\web_gui\app.py:29:33: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\web_gui\database_driven_web_gui_generator.py:53:14: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '{' on line 52
+.\web_gui\enhanced_platform_demo.py:9:56: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\web_gui\scripts\flask_apps\enterprise_dashboard.py:27:22: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+.\web_gui_integration_system.py:38:37: E999 SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+13    E122 continuation line missing indentation or outdented
+3     E128 continuation line under-indented for visual indent
+17    E302 expected 2 blank lines, found 1
+3     E305 expected 2 blank lines after class or function definition, found 1
+305   E501 line too long (94 > 79 characters)
+1     E712 comparison to False should be 'if cond is False:' or 'if not cond:'
+426   E999 IndentationError: unexpected indent
+34    F401 'os' imported but unused
+17    F541 f-string is missing placeholders
+2     F821 undefined name 'main'
+3     F841 local variable 'original_content' is assigned to but never used
+21    W291 trailing whitespace
+1     W292 no newline at end of file
+201   W293 blank line contains whitespace
+1047

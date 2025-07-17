@@ -1,0 +1,102 @@
+í´ COMPREHENSIVE FLAKE8 REPOSITORY SCAN - STARTING...
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m17[36m:[m1[36m:[m [1m[31mF401[m 'os' imported but unused
+import os
+^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m18[36m:[m1[36m:[m [1m[31mF401[m 'sys' imported but unused
+import sys
+^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m19[36m:[m1[36m:[m [1m[31mF401[m 'time' imported but unused
+import time
+^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m123[36m:[m80[36m:[m [1m[31mE501[m line too long (94 > 79 characters)
+        """Generate comprehensive specification for NEW PHASE 3: DATABASE-FIRST PREPARATION"""
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m294[36m:[m80[36m:[m [1m[31mE501[m line too long (82 > 79 characters)
+            description="Comprehensive database-first preparation and validation",
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m323[36m:[m80[36m:[m [1m[31mE501[m line too long (91 > 79 characters)
+        """Generate comprehensive specification for NEW PHASE 6: AUTONOMOUS OPTIMIZATION"""
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m552[36m:[m80[36m:[m [1m[31mE501[m line too long (98 > 79 characters)
+            description="Advanced autonomous optimization with ML-driven performance enhancement",
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m570[36m:[m80[36m:[m [1m[31mE501[m line too long (85 > 79 characters)
+            failure_recovery="autonomous_optimization_rollback_with_manual_override",
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m606[36m:[m80[36m:[m [1m[31mE501[m line too long (82 > 79 characters)
+                "PHASE_3": self.generate_new_phase_3_database_first_preparation(),
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m717[36m:[m80[36m:[m [1m[31mE501[m line too long (81 > 79 characters)
+            phase_3_spec = self.generate_new_phase_3_database_first_preparation()
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m769[36m:[m80[36m:[m [1m[31mE501[m line too long (90 > 79 characters)
+            filename = f"ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_SCOPE_{timestamp_str}.json"
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m788[36m:[m80[36m:[m [1m[31mE501[m line too long (94 > 79 characters)
+                "[LAUNCH] Starting Advanced Autonomous Framework 7-Phase Scope Generation...")
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m805[36m:[m80[36m:[m [1m[31mE501[m line too long (118 > 79 characters)
+                    scope_report["new_phases"]["PHASE_3_DATABASE_FIRST_PREPARATION"]["validation_checkpoints"]) + len(
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m806[36m:[m80[36m:[m [1m[31mE501[m line too long (109 > 79 characters)
+                    scope_report["new_phases"]["PHASE_6_AUTONOMOUS_OPTIMIZATION"]["validation_checkpoints"]),
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m808[36m:[m80[36m:[m [1m[31mE501[m line too long (105 > 79 characters)
+                    scope_report["new_phases"]["PHASE_3_DATABASE_FIRST_PREPARATION"]["libraries"]) + len(
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m809[36m:[m80[36m:[m [1m[31mE501[m line too long (96 > 79 characters)
+                    scope_report["new_phases"]["PHASE_6_AUTONOMOUS_OPTIMIZATION"]["libraries"]),
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m811[36m:[m80[36m:[m [1m[31mE501[m line too long (111 > 79 characters)
+                    scope_report["new_phases"]["PHASE_3_DATABASE_FIRST_PREPARATION"]["file_structures"]) + len(
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m812[36m:[m80[36m:[m [1m[31mE501[m line too long (102 > 79 characters)
+                    scope_report["new_phases"]["PHASE_6_AUTONOMOUS_OPTIMIZATION"]["file_structures"]),
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m818[36m:[m80[36m:[m [1m[31mE501[m line too long (107 > 79 characters)
+                "[COMPLETE] ADVANCED AUTONOMOUS FRAMEWORK 7-PHASE SCOPE GENERATION COMPLETED SUCCESSFULLY")
+                                                                               ^
+[1m.\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m855[36m:[m80[36m:[m [1m[31mE501[m line too long (90 > 79 characters)
+            "[COMPLETE] ADVANCED AUTONOMOUS FRAMEWORK 7-PHASE SCOPE GENERATION COMPLETED")
+                                                                               ^
+[1m.\comprehensive_syntax_fixer.py[m[36m:[m15[36m:[m1[36m:[m [1m[31mF401[m 'os' imported but unused
+import os
+^
+[1m.\comprehensive_syntax_fixer.py[m[36m:[m20[36m:[m1[36m:[m [1m[31mF401[m 'typing.List' imported but unused
+from typing import List, Dict, Any
+^
+[1m.\comprehensive_syntax_fixer.py[m[36m:[m215[36m:[m15[36m:[m [1m[31mF541[m f-string is missing placeholders
+        print(f"\nSYNTAX FIXING COMPLETE!")
+              ^
+[1m.\comprehensive_syntax_fixer.py[m[36m:[m224[36m:[m15[36m:[m [1m[31mF541[m f-string is missing placeholders
+        print(f"Report saved to: syntax_fixes_report.json")
+              ^
+[1m.\copilot\common\__init__.py[m[36m:[m1[36m:[m1[36m:[m [1m[31mF401[m '.workspace_utils.get_workspace_path' imported but unused
+from .workspace_utils import get_workspace_path
+^
+[1m.\copilot\core\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_COMPREHENSIVE_SCOPE.py[m[36m:[m30[36m:[m22[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+[1m.\copilot\core\autonomous_file_manager.py[m[36m:[m35[36m:[m51[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+        self.workspace_path = get_workspace_path(]
+                                                  ^
+[1m.\copilot\core\enterprise_json_serialization_fix.py[m[36m:[m34[36m:[m30[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+[1m.\copilot\core\enterprise_orchestrator.py[m[36m:[m45[36m:[m37[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+        self.workspace_root = Path(]
+                                    ^
+[1m.\copilot\core\enterprise_unicode_compatibility_fix.py[m[36m:[m41[36m:[m19[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+[1m.\copilot\core\final_deployment_validator.py[m[36m:[m24[36m:[m22[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+logging.basicConfig(]
+                     ^
+[1m.\copilot\core\frameworks\comprehensive_deployment_manager.py[m[36m:[m26[36m:[m22[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+[1m.\copilot\core\frameworks\intelligent_instruction_orchestrator.py[m[36m:[m56[36m:[m39[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+[1m.\copilot\core\frameworks\mission_completion_orchestrator.py[m[36m:[m83[36m:[m13[36m:[m [1m[31mE999[m IndentationError: unexpected indent
+[1m.\copilot\orchestrators\LEGACY_DEPLOYMENT_ORCHESTRATOR_CLEANUP.py[m[36m:[m32[36m:[m22[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+[1m.\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py[m[36m:[m64[36m:[m26[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+    logging.basicConfig(]
+                         ^
+[1m.\copilot\orchestrators\UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE.py[m[36m:[m36[36m:[m22[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+logging.basicConfig(]
+                     ^
+[1m.\copilot\orchestrators\final_enterprise_orchestrator.py[m[36m:[m71[36m:[m40[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+[1m.\copilot\orchestrators\unified_deployment_orchestrator.py[m[36m:[m76[36m:[m26[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+[1m.\database_consolidation_migration.py[m[36m:[m126[36m:[m61[36m:[m [1m[31mE999[m SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+[1m.\database_driven_flake8_corrector.py[m[36m:[m5[36m:[m80[36m:[m [1m[31mE501[m line too long (86 > 79 characters)

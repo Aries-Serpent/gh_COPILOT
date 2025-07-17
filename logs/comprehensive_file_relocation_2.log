@@ -1,0 +1,197 @@
+2025-07-16 13:48:29,449 - INFO - ================================================================================
+2025-07-16 13:48:29,468 - INFO - Start Time: 2025-07-16 13:48:29
+2025-07-16 13:48:29,468 - INFO - Process ID: 16860
+2025-07-16 13:48:29,469 - INFO - ================================================================================
+2025-07-16 13:49:44,924 - INFO - ================================================================================
+2025-07-16 13:49:44,924 - INFO - COMPREHENSIVE FILE RELOCATOR INITIALIZED
+2025-07-16 13:49:44,924 - INFO - Start Time: 2025-07-16 13:49:44
+2025-07-16 13:49:44,924 - INFO - Process ID: 13920
+2025-07-16 13:49:44,924 - INFO - ================================================================================
+2025-07-16 13:49:44,924 - INFO - VALIDATING ENVIRONMENT COMPLIANCE...
+2025-07-16 13:49:48,645 - INFO - ENVIRONMENT COMPLIANCE VALIDATED
+2025-07-16 13:49:48,645 - INFO - ENSURING TARGET DIRECTORIES...
+2025-07-16 13:49:48,645 - INFO - Directory exists: e:\gh_COPILOT\logs
+2025-07-16 13:49:48,645 - INFO - Directory exists: e:\gh_COPILOT\documentation
+2025-07-16 13:49:48,645 - INFO - Directory exists: e:\gh_COPILOT\reports
+2025-07-16 13:49:48,645 - INFO - Directory exists: e:\gh_COPILOT\results
+2025-07-16 13:49:48,645 - INFO - STARTING COMPREHENSIVE FILE RELOCATION...
+2025-07-16 13:49:48,645 - INFO - SCANNING WORKSPACE FOR FILES TO RELOCATE...
+2025-07-16 13:49:48,698 - INFO - LOGS: 5 files identified
+2025-07-16 13:49:48,698 - INFO - DOCUMENTATION: 39 files identified
+2025-07-16 13:49:48,705 - INFO - REPORTS: 169 files identified
+2025-07-16 13:49:48,705 - INFO - RESULTS: 0 files identified
+2025-07-16 13:49:48,705 - INFO - TOTAL FILES TO RELOCATE: 213
+2025-07-16 13:49:48,705 - INFO - SKIPPED FILES: 227
+2025-07-16 13:49:48,705 - INFO - EXECUTING FILE RELOCATIONS...
+2025-07-16 13:49:51,955 - ERROR - Failed to relocate e:\gh_COPILOT\comprehensive_file_relocation.log: [WinError 32] The process cannot access the file because it is being used by another process: 'e:\\gh_COPILOT\\comprehensive_file_relocation.log'
+2025-07-16 13:49:56,405 - ERROR - Database update failed for e:\gh_COPILOT\logs\systematic_correction_session_summary_20250709_145000.log: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:49:56,440 - ERROR - Database update failed for e:\gh_COPILOT\logs\systematic_f821_f401_processor.log: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:49:56,455 - ERROR - Database update failed for e:\gh_COPILOT\logs\unicode_flake8_master_controller_1.log: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:49:56,472 - ERROR - Database update failed for e:\gh_COPILOT\logs\violation_diagnostic.log: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:49:56,482 - ERROR - Database update failed for e:\gh_COPILOT\documentation\advanced_features_config_documentation.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:49:56,494 - ERROR - Database update failed for e:\gh_COPILOT\documentation\AUTONOMOUS_CLI_README.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:49:56,510 - ERROR - Database update failed for e:\gh_COPILOT\documentation\comprehensive_database_reproduction_action_statement.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:49:56,526 - ERROR - Database update failed for e:\gh_COPILOT\documentation\current_status_assessment_20250713.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:49:56,740 - ERROR - Database update failed for e:\gh_COPILOT\documentation\databases_python_compliance_action_statement.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:49:56,755 - ERROR - Database update failed for e:\gh_COPILOT\documentation\DATABASE_CONSOLIDATION_COMPLETION_REPORT_20250716_004155.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:00,580 - ERROR - Database update failed for e:\gh_COPILOT\documentation\DATABASE_FIRST_EXPANSION_PLAN.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:00,589 - ERROR - Database update failed for e:\gh_COPILOT\documentation\DATABASE_FIRST_SUCCESS_MOMENT_CAPTURE.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:00,597 - ERROR - Database update failed for e:\gh_COPILOT\documentation\DATABASE_OPTIMIZATION_COMPLETION_REPORT_20250715_030050.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:00,606 - ERROR - Database update failed for e:\gh_COPILOT\documentation\DEPLOYMENT_CONSOLIDATION_SUMMARY.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:00,616 - ERROR - Database update failed for e:\gh_COPILOT\documentation\DOCUMENTATION_COVERAGE_SUCCESS_REPORT.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:00,622 - ERROR - Database update failed for e:\gh_COPILOT\documentation\DOCUMENTATION_DB_ANALYSIS_REPORT.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:00,632 - ERROR - Database update failed for e:\gh_COPILOT\documentation\ENTERPRISE_DATABASE_FIRST_SYSTEM_FINAL_STATUS.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:00,644 - ERROR - Database update failed for e:\gh_COPILOT\documentation\ENTERPRISE_FLAKE8_COMPLIANCE_FRAMEWORK_COMPLETE_SUMMARY.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:00,656 - ERROR - Database update failed for e:\gh_COPILOT\documentation\ENTERPRISE_PHASE_EXECUTION_STRATEGY.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:00,664 - ERROR - Database update failed for e:\gh_COPILOT\documentation\ENTERPRISE_PIS_FRAMEWORK_COMPLETION_REPORT.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:04,589 - ERROR - Database update failed for e:\gh_COPILOT\documentation\ENTERPRISE_PIS_FRAMEWORK_PHASE5_COMPLETE.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:04,600 - ERROR - Database update failed for e:\gh_COPILOT\documentation\ENTERPRISE_SCRIPT_CONSOLIDATION_STRATEGY.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:04,605 - ERROR - Database update failed for e:\gh_COPILOT\documentation\ENTERPRISE_VIOLATION_PROCESSING_SUMMARY.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:04,605 - ERROR - Database update failed for e:\gh_COPILOT\documentation\FINAL_OPTIMIZATION_SUMMARY.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:04,616 - ERROR - Database update failed for e:\gh_COPILOT\documentation\FINAL_PROJECT_VALIDATION_SUMMARY.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:04,622 - ERROR - Database update failed for e:\gh_COPILOT\documentation\FINAL_SESSION_WRAP_UP_20250710.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:04,628 - ERROR - Database update failed for e:\gh_COPILOT\documentation\IMMEDIATE_ACTIONS_COMPLETION_REPORT.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:04,639 - ERROR - Database update failed for e:\gh_COPILOT\documentation\manual_repair.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:04,644 - ERROR - Database update failed for e:\gh_COPILOT\documentation\MODULARIZATION_IMPLEMENTATION_SUMMARY.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:04,652 - ERROR - Database update failed for e:\gh_COPILOT\documentation\NEXT_SESSION_ENTROPY_RESOLUTION.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:08,402 - ERROR - Database update failed for e:\gh_COPILOT\documentation\PHASE4_COMPREHENSIVE_ACHIEVEMENT_ANALYSIS.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:08,405 - ERROR - Database update failed for e:\gh_COPILOT\documentation\PIS_FRAMEWORK_IMPLEMENTATION_COMPLETE.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:08,418 - ERROR - Database update failed for e:\gh_COPILOT\documentation\QUANTUM_INTEGRATION_ORCHESTRATION_COMPLETION_REPORT.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:08,422 - ERROR - Database update failed for e:\gh_COPILOT\documentation\quick_database_action_statement.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:08,422 - ERROR - Database update failed for e:\gh_COPILOT\documentation\README_1.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:08,439 - ERROR - Database update failed for e:\gh_COPILOT\documentation\SCRIPT_DATABASE_VALIDATION_GUIDE.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:08,439 - ERROR - Database update failed for e:\gh_COPILOT\documentation\script_database_validation_report.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:08,456 - ERROR - Database update failed for e:\gh_COPILOT\documentation\SELECTED_TEXT_INTEGRATION_REPORT.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:08,456 - ERROR - Database update failed for e:\gh_COPILOT\documentation\SESSION_COMPLETION_REPORT_20250710.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:08,466 - ERROR - Database update failed for e:\gh_COPILOT\documentation\SESSION_WRAP_UP_20250710.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:11,722 - ERROR - Database update failed for e:\gh_COPILOT\documentation\SESSION_WRAP_UP_20250715.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:11,732 - ERROR - Database update failed for e:\gh_COPILOT\documentation\SESSION_WRAP_UP_REPORT_20250710.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:11,739 - ERROR - Database update failed for e:\gh_COPILOT\documentation\UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATION_GUIDE.md: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:11,748 - ERROR - Database update failed for e:\gh_COPILOT\reports\ADVANCED_AUTONOMOUS_FRAMEWORK_7_PHASE_SCOPE_20250102_130700.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:11,755 - ERROR - Database update failed for e:\gh_COPILOT\reports\advanced_features_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:11,764 - ERROR - Database update failed for e:\gh_COPILOT\reports\compliance_report_20250710_173622.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:11,772 - ERROR - Database update failed for e:\gh_COPILOT\reports\compliance_report_20250710_173707.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:11,782 - ERROR - Database update failed for e:\gh_COPILOT\reports\comprehensive_campaign_final_report.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:11,789 - ERROR - Database update failed for e:\gh_COPILOT\reports\comprehensive_elimination_campaign_summary_20250713_110511.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:11,799 - ERROR - Database update failed for e:\gh_COPILOT\reports\comprehensive_optimization_completion_report.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:18,006 - ERROR - Database update failed for e:\gh_COPILOT\reports\consolidation_execution_report_20250716_003737.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:18,015 - ERROR - Database update failed for e:\gh_COPILOT\reports\consolidation_execution_report_20250716_004032.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:18,027 - ERROR - Database update failed for e:\gh_COPILOT\reports\COPILOT_ENTERPRISE_CONFIG.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:18,039 - ERROR - Database update failed for e:\gh_COPILOT\reports\COPILOT_NAVIGATION_MAP.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:18,042 - ERROR - Database update failed for e:\gh_COPILOT\reports\critical_error_corrections_20250709_125919.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:18,059 - ERROR - Database update failed for e:\gh_COPILOT\reports\critical_error_corrections_20250709_130037.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:18,099 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_compliance_checker.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:19,282 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_compliance_report_20250710_171951.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:19,407 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_compliance_scanner.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:19,555 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_consolidation_analysis_20250716_003545.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:27,350 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_consolidation_analysis_20250716_003910.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:27,355 - ERROR - Database update failed for e:\gh_COPILOT\reports\DATABASE_CONSOLIDATION_COMPLETION_REPORT_20250716_004155.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:27,382 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_consolidation_completion_report_generator.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:27,389 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_consolidation_plan_20250716_003545.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:27,415 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_consolidation_plan_20250716_003910.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:27,432 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_consolidation_plan_phase2.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:27,449 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_consolidation_plan_refined.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:27,465 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_consolidation_validation_report_20250716_003900.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:27,482 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_consolidation_validation_report_20250716_004043.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:27,794 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_filesystem_synchronization_report_20250710_115138.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:35,405 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_filesystem_synchronization_report_20250710_115519.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:35,422 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_first_compliance_resolver.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:35,422 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_first_flake8_compliance_scanner.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:35,439 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_first_flake8_compliance_scanner_v2.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:35,455 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_optimization_completion_report.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:35,455 - ERROR - Database update failed for e:\gh_COPILOT\reports\DATABASE_OPTIMIZATION_MISSION_COMPLETE_REPORT.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:35,468 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_optimization_report_20250714_235958.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:35,472 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_optimization_report_20250715_191431.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:35,489 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_optimization_report_20250715_192008.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:35,506 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_optimization_report_20250715_192014.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:42,212 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_purification_report_20250710_182341.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:44,166 - ERROR - Database update failed for e:\gh_COPILOT\reports\database_reproduction_validation_report.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:44,299 - ERROR - Database update failed for e:\gh_COPILOT\reports\deployment_manifest.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:44,466 - ERROR - Database update failed for e:\gh_COPILOT\reports\detailed_violations_reporter.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:44,705 - ERROR - Database update failed for e:\gh_COPILOT\reports\DISASTER_RECOVERY_CONFIG.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:44,832 - ERROR - Database update failed for e:\gh_COPILOT\reports\documentation_cleanup_report_20250710_162350.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:44,949 - ERROR - Database update failed for e:\gh_COPILOT\reports\documentation_coverage_verification_20250714_234827.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:47,397 - ERROR - Database update failed for e:\gh_COPILOT\reports\documentation_db_analysis_report_20250710_160853.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:47,472 - ERROR - Database update failed for e:\gh_COPILOT\reports\documentation_db_optimization_report_20250710_163939.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:47,501 - ERROR - Database update failed for e:\gh_COPILOT\reports\documentation_modularization_report_20250710_162514.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:53,422 - ERROR - Database update failed for e:\gh_COPILOT\reports\enhanced_correction_report_ENHANCED_CRITICAL_20250709_130251.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:53,422 - ERROR - Database update failed for e:\gh_COPILOT\reports\enhanced_correction_report_ENHANCED_CRITICAL_20250709_130303.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:53,439 - ERROR - Database update failed for e:\gh_COPILOT\reports\enhanced_correction_report_ENHANCED_CRITICAL_20250709_133201.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:53,455 - ERROR - Database update failed for e:\gh_COPILOT\reports\enhanced_correction_report_ENHANCED_CRITICAL_20250709_133303.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:53,472 - ERROR - Database update failed for e:\gh_COPILOT\reports\enhanced_correction_report_ENHANCED_CRITICAL_20250709_135152.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:53,472 - ERROR - Database update failed for e:\gh_COPILOT\reports\enhanced_correction_report_ENHANCED_CRITICAL_20250709_135232.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:53,499 - ERROR - Database update failed for e:\gh_COPILOT\reports\enhanced_correction_report_ENHANCED_CRITICAL_20250709_144504.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:53,506 - ERROR - Database update failed for e:\gh_COPILOT\reports\enhanced_correction_report_ENHANCED_CRITICAL_20250709_144521.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:53,522 - ERROR - Database update failed for e:\gh_COPILOT\reports\enhanced_correction_report_ENHANCED_CRITICAL_20250709_144837.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:53,539 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_100_percent_achievement_20250714_232630.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:59,306 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_analytics_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:59,306 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_audit_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:59,322 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_audit_deployment_system.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:59,322 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_audit_production_deployment.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:59,339 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_cache_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:59,339 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_certification_report_20250710_183234.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:59,355 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_compliance_report_20250710_120715.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:59,355 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_compliance_report_20250710_171247.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:59,370 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_compliance_report_20250714_225347.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:50:59,372 - ERROR - Database update failed for e:\gh_COPILOT\reports\ENTERPRISE_CONFIGURATION_OPTIMIZED.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:04,939 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_dashboard_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:04,948 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_db_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:04,957 - ERROR - Database update failed for e:\gh_COPILOT\reports\ENTERPRISE_DEPLOYMENT_COMPLETION_REPORT.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:04,973 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_flake8_correction_report_20250709_101825.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:04,975 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_integration_report_20250712_235000.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:04,992 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_maintenance_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:05,001 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_master_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:05,008 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_ml_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:05,022 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_monitoring_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:05,035 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_optimization_report_20250710_182717.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:10,089 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_optimization_report_20250714_135316.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:10,089 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_pattern_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:10,103 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_policy_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:10,110 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_quantum_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:10,118 - ERROR - Database update failed for e:\gh_COPILOT\reports\ENTERPRISE_READINESS_100_PERCENT_CERTIFICATE.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:10,124 - ERROR - Database update failed for e:\gh_COPILOT\reports\ENTERPRISE_READINESS_100_PERCENT_FINAL_CERTIFICATE.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:10,137 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_readiness_audit_20250714_232435.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:10,143 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_readiness_report_20250714_225552.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:10,149 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_reporting_config.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:10,160 - ERROR - Database update failed for e:\gh_COPILOT\reports\enterprise_template_compliance_enhancer.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:15,739 - ERROR - Database update failed for e:\gh_COPILOT\reports\final_compliance_verifier.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:15,755 - ERROR - Database update failed for e:\gh_COPILOT\reports\FINAL_DEPLOYMENT_VALIDATION.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:15,762 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_compliance_progress_reporter.py: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:15,772 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_compliance_progress_report_20250709_133257.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:15,779 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_compliance_progress_report_20250709_135241.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:15,789 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_compliance_progress_report_20250709_144515.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:15,793 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_compliance_progress_report_20250709_144848.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:15,806 - ERROR - Database update failed for e:\gh_COPILOT\reports\FLAKE8_COMPLIANCE_REPORT_FLAKE8_COMPLIANCE_1752044603.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:15,815 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_correction_report_20250709_084625.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:15,822 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_correction_report_20250709_085457.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:22,439 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_correction_report_20250709_085941.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:22,456 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_correction_report_20250709_093643.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:22,479 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_correction_report_20250709_100441.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:22,506 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_correction_report_20250709_112851.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:22,539 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_correction_report_20250709_113525.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:22,561 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_correction_report_20250709_114502.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:22,582 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_correction_report_20250709_115627.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:22,597 - ERROR - Database update failed for e:\gh_COPILOT\reports\flake8_correction_report_20250709_124411.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:22,610 - ERROR - Database update failed for e:\gh_COPILOT\reports\gh_COPILOT_v4_optimization_completion_report_20250714_225656.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 13:51:22,624 - ERROR - Database update failed for e:\gh_COPILOT\reports\gh_COPILOT_v4_optimization_completion_report_20250714_225709.json: table enhanced_script_tracking has no column named importance_score
+2025-07-16 14:06:15,617 - INFO - ================================================================================
+2025-07-16 14:06:15,618 - INFO - COMPREHENSIVE FILE RELOCATOR INITIALIZED
+2025-07-16 14:06:15,618 - INFO - Start Time: 2025-07-16 14:06:15
+2025-07-16 14:06:15,618 - INFO - Process ID: 14788
+2025-07-16 14:06:15,619 - INFO - ================================================================================
+2025-07-16 14:06:15,619 - INFO - VALIDATING ENVIRONMENT COMPLIANCE...
+2025-07-16 14:06:20,421 - INFO - ENVIRONMENT COMPLIANCE VALIDATED
+2025-07-16 14:06:20,421 - INFO - ENSURING TARGET DIRECTORIES...
+2025-07-16 14:06:20,421 - INFO - Directory exists: e:\gh_COPILOT\logs
+2025-07-16 14:06:20,437 - INFO - Directory exists: e:\gh_COPILOT\documentation
+2025-07-16 14:06:20,437 - INFO - Directory exists: e:\gh_COPILOT\reports
+2025-07-16 14:06:20,437 - INFO - Directory exists: e:\gh_COPILOT\results
+2025-07-16 14:06:20,437 - INFO - STARTING COMPREHENSIVE FILE RELOCATION...
+2025-07-16 14:06:20,437 - INFO - SCANNING WORKSPACE FOR FILES TO RELOCATE...
+2025-07-16 14:06:20,458 - INFO - LOGS: 1 files identified
+2025-07-16 14:06:20,458 - INFO - DOCUMENTATION: 0 files identified
+2025-07-16 14:06:20,458 - INFO - REPORTS: 62 files identified
+2025-07-16 14:06:20,458 - INFO - RESULTS: 0 files identified
+2025-07-16 14:06:20,458 - INFO - TOTAL FILES TO RELOCATE: 63
+2025-07-16 14:06:20,466 - INFO - SKIPPED FILES: 227
+2025-07-16 14:06:20,466 - INFO - EXECUTING FILE RELOCATIONS...

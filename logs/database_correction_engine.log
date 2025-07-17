@@ -1,0 +1,122 @@
+2025-07-12 23:14:08,475 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:14:08,475 - enterprise_unicode_flake8_corrector - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_231408
+2025-07-12 23:14:08,475 - enterprise_unicode_flake8_corrector - INFO - [INFO] Log file: e:\gh_COPILOT\logs\database_correction_engine.log
+2025-07-12 23:14:08,475 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:14:08.475666
+2025-07-12 23:14:08,883 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:14:08,884 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.4s
+2025-07-12 23:14:08,885 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:14:08.885127
+2025-07-12 23:14:09,310 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:14:09,310 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.4s
+2025-07-12 23:14:09,356 - __main__ - INFO - [DATABASE] Production tables initialized
+2025-07-12 23:14:09,384 - __main__ - INFO - [DATABASE] Style compliance tables initialized
+2025-07-12 23:14:09,409 - __main__ - INFO - [DATABASE] Analytics tables initialized
+2025-07-12 23:14:09,410 - __main__ - INFO - [DATABASE] Database initialization completed in 0.10s
+2025-07-12 23:14:09,417 - __main__ - INFO - [DATABASE] Correction session created: CORRECTION_20250712_231409
+2025-07-12 23:14:09,417 - __main__ - INFO - [ENTERPRISE-START] Correction session started: CORRECTION_20250712_231409
+2025-07-12 23:14:09,421 - __main__ - ERROR - [ERROR] Chunk 2 execution failed: name 'os' is not defined
+2025-07-12 23:15:10,093 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:15:10,093 - enterprise_unicode_flake8_corrector - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_231510
+2025-07-12 23:15:10,093 - enterprise_unicode_flake8_corrector - INFO - [INFO] Log file: e:\gh_COPILOT\logs\database_correction_engine.log
+2025-07-12 23:15:10,093 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:15:10.093750
+2025-07-12 23:15:10,460 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:15:10,460 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.4s
+2025-07-12 23:15:10,460 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:15:10.460406
+2025-07-12 23:15:10,810 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:15:10,810 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.3s
+2025-07-12 23:15:10,810 - __main__ - INFO - [DATABASE] Production tables initialized
+2025-07-12 23:15:10,825 - __main__ - INFO - [DATABASE] Style compliance tables initialized
+2025-07-12 23:15:10,826 - __main__ - INFO - [DATABASE] Analytics tables initialized
+2025-07-12 23:15:10,826 - __main__ - INFO - [DATABASE] Database initialization completed in 0.02s
+2025-07-12 23:15:10,840 - __main__ - INFO - [DATABASE] Correction session created: CORRECTION_20250712_231510
+2025-07-12 23:15:10,840 - __main__ - INFO - [ENTERPRISE-START] Correction session started: CORRECTION_20250712_231510
+2025-07-12 23:15:10,841 - __main__ - INFO - ================================================================================
+2025-07-12 23:15:10,842 - __main__ - INFO - [ENTERPRISE-START] DATABASE-DRIVEN CORRECTION ENGINE
+2025-07-12 23:15:10,842 - __main__ - INFO - ================================================================================
+2025-07-12 23:15:10,842 - __main__ - INFO - [INFO] Start Time: 2025-07-12 23:15:10
+2025-07-12 23:15:10,842 - __main__ - INFO - [INFO] Process ID: 11132
+2025-07-12 23:15:10,843 - __main__ - INFO - [INFO] Timeout: 30 minutes
+2025-07-12 23:15:10,843 - __main__ - INFO - [INFO] Current Session: CORRECTION_20250712_231510
+2025-07-12 23:15:10,843 - __main__ - INFO - [INFO] Found 5 valid Python files
+2025-07-12 23:15:10,855 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.002s
+2025-07-12 23:15:10,856 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_access_layer.py (utf-8, 2509 bytes) in 0.013s
+2025-07-12 23:15:11,710 - __main__ - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_access_layer.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmp5zcv1yz6.py'
+2025-07-12 23:15:11,710 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.000s
+2025-07-12 23:15:11,710 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_compliance_checker.py (utf-8, 3617 bytes) in 0.000s
+2025-07-12 23:15:12,410 - __main__ - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_compliance_checker.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmp21we9s5f.py'
+2025-07-12 23:15:12,410 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.000s
+2025-07-12 23:15:12,410 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_compliance_scanner.py (utf-8, 3617 bytes) in 0.000s
+2025-07-12 23:15:13,110 - __main__ - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_compliance_scanner.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmpd7zzr64t.py'
+2025-07-12 23:15:13,110 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.000s
+2025-07-12 23:15:13,110 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_consolidation_migration.py (utf-8, 3432 bytes) in 0.000s
+2025-07-12 23:15:13,710 - __main__ - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_consolidation_migration.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmpu1_imt1r.py'
+2025-07-12 23:15:13,710 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 0.99) in 0.000s
+2025-07-12 23:15:13,725 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_driven_correction_engine.py (utf-8, 31875 bytes) in 0.016s
+2025-07-12 23:15:14,410 - __main__ - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_driven_correction_engine.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmpl0drj0lt.py'
+2025-07-12 23:15:14,414 - __main__ - INFO - [SUCCESS] Workspace scan completed: 0 files, 0 violations
+2025-07-12 23:15:14,414 - __main__ - INFO - [INFO] Found 0 total violations
+2025-07-12 23:15:14,415 - __main__ - INFO - [DATABASE] Loaded 0 correction patterns
+2025-07-12 23:15:14,415 - __main__ - INFO - ================================================================================
+2025-07-12 23:15:14,415 - __main__ - INFO - [COMPLETE] CORRECTION ENGINE SUMMARY
+2025-07-12 23:15:14,419 - __main__ - INFO - ================================================================================
+2025-07-12 23:15:14,419 - __main__ - INFO - [SUCCESS] Files Processed: 5
+2025-07-12 23:15:14,419 - __main__ - INFO - [SUCCESS] Violations Found: 0
+2025-07-12 23:15:14,420 - __main__ - INFO - [SUCCESS] Corrections Applied: 0
+2025-07-12 23:15:14,420 - __main__ - INFO - [SUCCESS] Success Rate: 0.0%
+2025-07-12 23:15:14,420 - __main__ - INFO - [SUCCESS] Processing Time: 3.57 seconds
+2025-07-12 23:15:14,420 - __main__ - INFO - ================================================================================
+2025-07-12 23:15:14,420 - __main__ - INFO - [COMPLETE] CHUNK 2 COMPLETED SUCCESSFULLY
+2025-07-12 23:15:14,421 - __main__ - INFO - [SUCCESS] Session ID: CORRECTION_20250712_231510
+2025-07-12 23:15:14,421 - __main__ - INFO - [SUCCESS] Success Rate: 0.0%
+2025-07-12 23:59:07,859 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Enterprise logging initialized
+2025-07-12 23:59:07,859 - enterprise_unicode_flake8_corrector - INFO - [INFO] Session ID: UNICODE_FLAKE8_20250712_235907
+2025-07-12 23:59:07,859 - enterprise_unicode_flake8_corrector - INFO - [INFO] Log file: e:\gh_COPILOT\logs\database_correction_engine.log
+2025-07-12 23:59:07,859 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:59:07.859210
+2025-07-12 23:59:08,292 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:59:08,292 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.4s
+2025-07-12 23:59:08,292 - enterprise_unicode_flake8_corrector - INFO - [ENTERPRISE-START] Anti-recursion validation started: 2025-07-12 23:59:08.292693
+2025-07-12 23:59:08,830 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] No recursive violations detected
+2025-07-12 23:59:08,830 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] Anti-recursion validation completed in 0.5s
+2025-07-12 23:59:08,830 - __main__ - INFO - [DATABASE] Production tables initialized
+2025-07-12 23:59:08,840 - __main__ - INFO - [DATABASE] Style compliance tables initialized
+2025-07-12 23:59:08,847 - __main__ - INFO - [DATABASE] Analytics tables initialized
+2025-07-12 23:59:08,848 - __main__ - INFO - [DATABASE] Database initialization completed in 0.02s
+2025-07-12 23:59:08,860 - __main__ - INFO - [DATABASE] Correction session created: CORRECTION_20250712_235908
+2025-07-12 23:59:08,861 - __main__ - INFO - [ENTERPRISE-START] Correction session started: CORRECTION_20250712_235908
+2025-07-12 23:59:08,863 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:08,864 - __main__ - INFO - [ENTERPRISE-START] DATABASE-DRIVEN CORRECTION ENGINE
+2025-07-12 23:59:08,864 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:08,864 - __main__ - INFO - [INFO] Start Time: 2025-07-12 23:59:08
+2025-07-12 23:59:08,865 - __main__ - INFO - [INFO] Process ID: 14304
+2025-07-12 23:59:08,865 - __main__ - INFO - [INFO] Timeout: 30 minutes
+2025-07-12 23:59:08,865 - __main__ - INFO - [INFO] Current Session: CORRECTION_20250712_235908
+2025-07-12 23:59:08,867 - __main__ - INFO - [INFO] Found 5 valid Python files
+2025-07-12 23:59:08,886 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.002s
+2025-07-12 23:59:08,886 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_access_layer.py (utf-8, 2509 bytes) in 0.003s
+2025-07-12 23:59:09,968 - __main__ - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_access_layer.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmp5jp1e9x7.py'
+2025-07-12 23:59:09,978 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.004s
+2025-07-12 23:59:09,978 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_compliance_checker.py (utf-8, 3617 bytes) in 0.004s
+2025-07-12 23:59:10,943 - __main__ - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_compliance_checker.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmpqm1dfwnk.py'
+2025-07-12 23:59:10,948 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.000s
+2025-07-12 23:59:10,948 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_compliance_scanner.py (utf-8, 3617 bytes) in 0.005s
+2025-07-12 23:59:11,809 - __main__ - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_compliance_scanner.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmpc3st44zo.py'
+2025-07-12 23:59:11,817 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 1.00) in 0.000s
+2025-07-12 23:59:11,817 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_consolidation_migration.py (utf-8, 3432 bytes) in 0.000s
+2025-07-12 23:59:12,599 - __main__ - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_consolidation_migration.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmp5ghy95jl.py'
+2025-07-12 23:59:12,615 - enterprise_unicode_flake8_corrector - INFO - [UNICODE] Encoding detected: utf-8 (confidence: 0.99) in 0.011s
+2025-07-12 23:59:12,616 - enterprise_unicode_flake8_corrector - INFO - [SUCCESS] File read successfully: E:\gh_COPILOT\database_driven_correction_engine.py (utf-8, 31875 bytes) in 0.012s
+2025-07-12 23:59:13,505 - __main__ - ERROR - [ERROR] Flake8 scan failed for e:\gh_COPILOT\database_driven_correction_engine.py: invalid literal for int() with base 10: '\\Users\\110438\\AppData\\Local\\Temp\\tmp2r47ixmc.py'
+2025-07-12 23:59:13,509 - __main__ - INFO - [SUCCESS] Workspace scan completed: 0 files, 0 violations
+2025-07-12 23:59:13,509 - __main__ - INFO - [INFO] Found 0 total violations
+2025-07-12 23:59:13,509 - __main__ - INFO - [DATABASE] Loaded 0 correction patterns
+2025-07-12 23:59:13,509 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:13,513 - __main__ - INFO - [COMPLETE] CORRECTION ENGINE SUMMARY
+2025-07-12 23:59:13,513 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:13,513 - __main__ - INFO - [SUCCESS] Files Processed: 5
+2025-07-12 23:59:13,514 - __main__ - INFO - [SUCCESS] Violations Found: 0
+2025-07-12 23:59:13,514 - __main__ - INFO - [SUCCESS] Corrections Applied: 0
+2025-07-12 23:59:13,514 - __main__ - INFO - [SUCCESS] Success Rate: 0.0%
+2025-07-12 23:59:13,514 - __main__ - INFO - [SUCCESS] Processing Time: 4.65 seconds
+2025-07-12 23:59:13,515 - __main__ - INFO - ================================================================================
+2025-07-12 23:59:13,515 - __main__ - INFO - [COMPLETE] CHUNK 2 COMPLETED SUCCESSFULLY
+2025-07-12 23:59:13,515 - __main__ - INFO - [SUCCESS] Session ID: CORRECTION_20250712_235908
+2025-07-12 23:59:13,515 - __main__ - INFO - [SUCCESS] Success Rate: 0.0%
