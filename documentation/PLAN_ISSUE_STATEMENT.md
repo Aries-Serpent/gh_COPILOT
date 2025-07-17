@@ -111,4 +111,4 @@ This document outlines the finalized strategy for merging 40+ SQLite databases i
 
 ---
 
-This plan leverages the existing `PLAN_ISSUED_STATEMENT.instructions.md` as a template and provides explicit steps to achieve the unified database strategy while ensuring size compliance and regeneration capabilities.
+This plan leverages the existing `PLAN_ISSUE_STATEMENT.instructions.md` as a template and provides explicit steps to achieve the unified database strategy while ensuring size compliance and regeneration capabilities.
