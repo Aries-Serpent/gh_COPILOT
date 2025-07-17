@@ -95,6 +95,10 @@ This document outlines the finalized strategy for merging 40 + SQLite databases 
 ### Scripts to Create
 - Unit tests covering new utilities
 
+### Status Update
+- Initial unit tests for ingestion, migration, sync logging, and size
+  compliance utilities have been implemented and verified with pytest.
+
 ## 🗂️ Autonomous File Management
 - All file operations must use `production.db` and approved databases for organization.
 - Backup roots outside the workspace only (`/temp/gh_COPILOT_Backups`).
