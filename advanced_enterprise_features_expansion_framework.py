@@ -30,7 +30,6 @@ from typing import Dict, List, Any, Optional
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
-import schedule
 
 
 @dataclass
@@ -137,7 +136,13 @@ class AdvancedEnterpriseFeatureExpansion:
     
     def setup_enterprise_logging(self):
         """Setup enterprise logging with feature tracking"""
-        log_format = "%(asctime)s - %(levelname)s - %(message)s"config/ "enterprise_features_expansion.log")
+        log_format = "%(asctime)s - %(levelname)s - %(message)s"
+        logging.basicConfig(
+            level=logging.INFO,
+            format=log_format,
+            handlers=[
+                logging.FileHandler(self.workspace_path / "logs" / "enterprise_features_expansion.log"),
+                logging.StreamHandler()
             ]
         )
         self.logger = logging.getLogger(__name__)
