@@ -1,4 +1,4 @@
-"""Thin wrapper for :mod:"scripts.automation.template_auto_generation_complete"."""
+"""Thin wrapper for :mod:`scripts.automation.template_auto_generation_complete`."""
 from scripts.automation.template_auto_generation_complete import \
     TemplateSynthesisEngine
 
