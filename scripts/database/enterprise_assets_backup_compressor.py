@@ -19,8 +19,7 @@ BACKUP_ROOT = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", str(DEFAULT_BACKUP_ROOT))
 
 
 def _resolve(path: Path | str) -> Path:
-    path = Path(path)
-    return Path(PureWindowsPath(path)) if os.name == "nt" else path
+    return Path(path).resolve()
 
 
 def _ensure_valid_destination(dest: Path, workspace: Path) -> None:
