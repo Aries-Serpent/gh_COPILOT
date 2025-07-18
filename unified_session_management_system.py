@@ -1,4 +1,4 @@
-"""Thin wrapper for :mod:"scripts.utilities.unified_session_management_system"."""
+"""Thin wrapper for :mod:`scripts.utilities.unified_session_management_system`."""
 from scripts.utilities.unified_session_management_system import \
     UnifiedSessionManagementSystem
 
