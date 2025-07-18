@@ -43,7 +43,24 @@ DEFAULT_SOURCES = [
 ]
 
 
-def run_migration(workspace: Path, sources: list[str] = DEFAULT_SOURCES) -> None:
+def compress_database(db_path: Path) -> None:
+    """Compress ``db_path`` in place using VACUUM and ANALYZE."""
+    if not db_path.exists():
+        return
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("VACUUM")
+        conn.execute("REINDEX")
+        conn.execute("ANALYZE")
+        conn.commit()
+
+
+def run_migration(
+    workspace: Path,
+    sources: list[str] = DEFAULT_SOURCES,
+    *,
+    compression_first: bool = False,
+    monitor_size: bool = False,
+) -> None:
     """Migrate the given database ``sources`` into ``enterprise_assets.db``.
 
     Parameters
@@ -62,14 +79,18 @@ def run_migration(workspace: Path, sources: list[str] = DEFAULT_SOURCES) -> None
     with tqdm(total=len(source_paths), desc="Migrating", unit="db") as bar:
         for src in source_paths:
             logger.info("Migrating %s", src.name)
-            _compress_database(src)
+            if compression_first:
+                compress_database(src)
             log_sync_operation(enterprise_db, f"start_migrate_{src.name}")
             consolidate_databases(enterprise_db, [src])
             log_sync_operation(enterprise_db, f"completed_migrate_{src.name}")
             _compress_database(enterprise_db)
             bar.update(1)
-            if not check_database_sizes(db_dir):
-                raise RuntimeError("Database size limit exceeded")
+            if monitor_size:
+                validate_database_size(db_dir)
+
+    if monitor_size:
+        validate_database_size(db_dir)
 
     log_sync_operation(enterprise_db, "migration_complete")
     logger.info("Migration process completed")
@@ -91,6 +112,21 @@ if __name__ == "__main__":
         default=DEFAULT_SOURCES,
         help="Database files to migrate",
     )
+    parser.add_argument(
+        "--compression-first",
+        action="store_true",
+        help="Compress databases before migration",
+    )
+    parser.add_argument(
+        "--monitor-size",
+        action="store_true",
+        help="Check size compliance during migration",
+    )
 
     args = parser.parse_args()
-    run_migration(args.workspace, args.sources)
+    run_migration(
+        args.workspace,
+        args.sources,
+        compression_first=args.compression_first,
+        monitor_size=args.monitor_size,
+    )
