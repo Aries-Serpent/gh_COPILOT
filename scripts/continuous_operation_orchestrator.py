@@ -54,26 +54,6 @@ from tqdm import tqdm
 def validate_enterprise_operation() -> bool:
     """Validate workspace and remove forbidden recursive folders."""
     workspace_root = Path(os.getcwd())
-    proper_root = r"E:/gh_COPILOT"
-
-    workspace_validation_result = {
-        "current_workspace": str(workspace_root),
-        "expected_root": proper_root,
-        "is_compliant": False,
-        "validation_status": "PENDING",
-    }
-
-    if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
-        logging.warning("⚠️ Non-standard workspace root: %s", workspace_root)
-        logging.info("💡 Expected workspace pattern: %s", proper_root)
-        workspace_validation_result["validation_status"] = "WARNING_NON_STANDARD"
-    else:
-        workspace_validation_result["is_compliant"] = True
-        workspace_validation_result["validation_status"] = "COMPLIANT"
-        logging.info("✅ Workspace validation passed: %s", workspace_root)
-
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
-    violations = []
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
@@ -85,14 +65,7 @@ def validate_enterprise_operation() -> bool:
             logging.error("🗑️ Removed recursive violation: %s", violation)
         raise RuntimeError("CRITICAL: Recursive violations prevented execution")
 
-    logging.info("=" * 60)
-    logging.info("🛡️ ENTERPRISE WORKSPACE VALIDATION COMPLETE")
-    logging.info("Current: %s", workspace_validation_result["current_workspace"])
-    logging.info("Status: %s", workspace_validation_result["validation_status"])
-    logging.info("Compliant: %s", workspace_validation_result["is_compliant"])
-    logging.info("=" * 60)
-
-    return workspace_validation_result["is_compliant"]
+    return True
 
 
 # Validate environment compliance before proceeding
@@ -169,8 +142,9 @@ class ContinuousOperationOrchestrator:
         logging.info("="*80)
 
         # Initialize workspace
-        self.workspace_path = Path(workspace_path or os.getenv(
-            "GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+        self.workspace_path = Path(
+            workspace_path or os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
+        )
         self.production_db = self.workspace_path / "production.db"
 
         # 🏗️ Initialize continuous operation components
