@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+import logging
+import os
 import shutil
 import sqlite3
 from pathlib import Path
 
 from scripts.documentation_consolidator import consolidate
-import logging
 
 
 def _prepare_db(src: Path, dest: Path) -> None:
@@ -19,7 +20,7 @@ def _prepare_db(src: Path, dest: Path) -> None:
                 "BACKUP_LOG",
                 "Backup",
                 "data",
-                "e:/gh_COPILOT/backups/tmp.bak",
+                str(Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())) + "/backups/tmp.bak"),
             ),
         )
         conn.execute(

@@ -4,15 +4,16 @@ Refactored from original database_compliance_checker.py with enhanced functional
 """
 
 import logging
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 from tqdm import tqdm
-from typing import List, Dict, Any, Optional
 
 from ..core.connection import DatabaseConnection
 from ..core.exceptions import DatabaseError
-
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -29,10 +30,10 @@ class DatabaseComplianceChecker:
 
     def __init__(self, workspace_path: Optional[str] = None):
         if workspace_path is None:
-            workspace_path = "e:/gh_COPILOT"
-        
+            workspace_path = os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
+
         self.workspace_path = Path(workspace_path)
-        self.database_path = self.workspace_path / "databases" / "flake8_violations.db" 
+        self.database_path = self.workspace_path / "databases" / "flake8_violations.db"
         self.db_connection = DatabaseConnection(self.database_path)
         self.logger = logging.getLogger(__name__)
 
@@ -68,17 +69,19 @@ class DatabaseComplianceChecker:
     def scan_python_files(self) -> List[str]:
         """Scan for Python files requiring correction"""
         python_files = []
-        
+
         # Check if workspace path exists
         if not self.workspace_path.exists():
-            self.logger.warning(f"{TEXT_INDICATORS['error']} Workspace path does not exist: {self.workspace_path}")
+            self.logger.warning(
+                f"{TEXT_INDICATORS['error']} Workspace path does not exist: {self.workspace_path}")
             return python_files
-            
+
         for py_file in self.workspace_path.rglob("*.py"):
             if self.should_process_file(py_file):
                 python_files.append(str(py_file))
-                
-        self.logger.info(f"{TEXT_INDICATORS['info']} Found {len(python_files)} Python files to check")
+
+        self.logger.info(
+            f"{TEXT_INDICATORS['info']} Found {len(python_files)} Python files to check")
         return python_files
 
     def should_process_file(self, file_path: Path) -> bool:
@@ -86,18 +89,18 @@ class DatabaseComplianceChecker:
         # Skip hidden directories and files
         if any(part.startswith('.') for part in file_path.parts):
             return False
-            
+
         # Skip common build/cache directories
         skip_dirs = {'__pycache__', 'node_modules', 'venv', 'env', '.git', 'build', 'dist'}
         if any(part in skip_dirs for part in file_path.parts):
             return False
-            
+
         return True
 
     def apply_corrections(self, files: List[str]) -> List[str]:
         """Apply corrections to files with database logging"""
         corrected = []
-        
+
         for file_path in files:
             try:
                 if self.correct_file(file_path):
@@ -108,7 +111,7 @@ class DatabaseComplianceChecker:
             except Exception as e:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Failed to correct {file_path}: {e}")
                 self.log_correction_to_database(file_path, False, str(e))
-                
+
         return corrected
 
     def correct_file(self, file_path: str) -> bool:
@@ -118,12 +121,13 @@ class DatabaseComplianceChecker:
             # For now, just validate the file can be read
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-                
+
             # Basic validation that file is readable
             return len(content) >= 0
-            
+
         except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} File correction failed for {file_path}: {e}")
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} File correction failed for {file_path}: {e}")
             return False
 
     def validate_corrections(self, files: List[str]) -> bool:
@@ -131,7 +135,7 @@ class DatabaseComplianceChecker:
         if not files:
             self.logger.info(f"{TEXT_INDICATORS['info']} No files were corrected")
             return True
-            
+
         self.logger.info(f"{TEXT_INDICATORS['info']} Validated {len(files)} corrected files")
         return len(files) > 0
 
@@ -141,16 +145,17 @@ class DatabaseComplianceChecker:
             # Check if corrections table exists, create if not
             if not self.db_connection.table_exists('corrections'):
                 self.create_corrections_table()
-                
+
             query = """
                 INSERT INTO corrections (file_path, timestamp, success, error_message)
                 VALUES (?, ?, ?, ?)
             """
             params = (file_path, datetime.now().isoformat(), success, error_message)
             self.db_connection.execute_query(query, params)
-            
+
         except Exception as e:
-            self.logger.warning(f"{TEXT_INDICATORS['error']} Failed to log correction to database: {e}")
+            self.logger.warning(
+                f"{TEXT_INDICATORS['error']} Failed to log correction to database: {e}")
 
     def create_corrections_table(self) -> None:
         """Create corrections tracking table"""
@@ -170,7 +175,7 @@ class DatabaseComplianceChecker:
         try:
             if not self.db_connection.table_exists('corrections'):
                 return {'total': 0, 'successful': 0, 'failed': 0}
-                
+
             stats_query = """
                 SELECT 
                     COUNT(*) as total,
@@ -183,11 +188,11 @@ class DatabaseComplianceChecker:
                 row = result[0]
                 return {
                     'total': row['total'],
-                    'successful': row['successful'], 
+                    'successful': row['successful'],
                     'failed': row['failed']
                 }
             return {'total': 0, 'successful': 0, 'failed': 0}
-            
+
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Failed to get correction stats: {e}")
             return {'total': 0, 'successful': 0, 'failed': 0}

@@ -11,9 +11,9 @@ Enterprise Standards Compliance:
 
 import json
 import logging
+import os
 import sys
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -29,7 +29,7 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: Path = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 

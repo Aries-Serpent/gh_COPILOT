@@ -8,15 +8,15 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
-import flask
-
-import sys
 import logging
+import os
 import sqlite3
-from pathlib import Path
+import sys
 from datetime import datetime
-from typing import List, Dict
+from pathlib import Path
+from typing import Dict, List
 
+import flask
 from flask import Flask, jsonify, render_template
 
 # Text-based indicators (NO Unicode emojis)
@@ -68,7 +68,7 @@ def metrics() -> "flask.Response":
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: Path = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
