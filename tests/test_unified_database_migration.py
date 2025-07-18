@@ -34,18 +34,28 @@ def test_run_migration_monitor_size(tmp_path: Path) -> None:
     assert db_path.exists()
 
 
-def test_run_migration_creates_backup(tmp_path: Path, monkeypatch) -> None:
-    databases = tmp_path / "databases"
-    databases.mkdir()
-    src = databases / "sample.db"
-    _create_db(src)
+def test_default_sources_from_documentation(tmp_path: Path) -> None:
+    databases_dir = tmp_path / "databases"
+    docs_dir = tmp_path / "documentation"
+    databases_dir.mkdir()
+    docs_dir.mkdir()
 
-    backup_root = tmp_path / "external"
-    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+    source_names = ["source1.db", "source2.db"]
+    for name in source_names:
+        with sqlite3.connect(databases_dir / name) as conn:
+            conn.execute("CREATE TABLE t(id INTEGER)")
+            conn.execute("INSERT INTO t VALUES (1)")
 
-    run_migration(tmp_path, sources=[src.name], compression_first=True)
+    list_file = docs_dir / "CONSOLIDATED_DATABASE_LIST.md"
+    list_file.write_text("\n".join(f"- {name}" for name in source_names))
 
-    backup_dir = backup_root / "database_consolidation"
-    backups = list(backup_dir.glob("sample_*.backup"))
-    assert backups
-    assert not str(backups[0]).startswith(str(tmp_path))
+    run_migration(tmp_path)
+
+    enterprise_db = databases_dir / "enterprise_assets.db"
+    with sqlite3.connect(enterprise_db) as conn:
+        ops = [row[0] for row in conn.execute(
+            "SELECT operation FROM cross_database_sync_operations"
+        )]
+    for name in source_names:
+        assert any(f"start_migrate_{name}" == op for op in ops)
+        assert any(f"completed_migrate_{name}" == op for op in ops)

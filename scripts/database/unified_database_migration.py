@@ -43,11 +43,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-DEFAULT_SOURCES = [
-    "analytics.db",
-    "documentation.db",
-    "template_completion.db",
-]
+DATABASE_LIST_FILE = Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md"
+
+
+def _load_database_names(list_file: Path) -> list[str]:
+    """Return database names listed in ``list_file``.
+
+    Lines may include comments after a ``#`` which are ignored.
+    """
+    names: list[str] = []
+    for line in list_file.read_text().splitlines():
+        line = line.strip()
+        if line.startswith("- "):
+            name = line[2:]
+            name = name.split("#", 1)[0].strip()
+            if name:
+                names.append(name)
+    return names
+
+
+def validate_database_size(databases_dir: Path) -> None:
+    """Check size compliance for databases in ``databases_dir``."""
+    check_database_sizes(databases_dir)
 
 
 def compress_database(db_path: Path) -> None:
@@ -74,7 +91,7 @@ def validate_database_size(databases_dir: Path, limit_mb: float = 99.9) -> None:
 
 def run_migration(
     workspace: Path,
-    sources: list[str] = DEFAULT_SOURCES,
+    sources: list[str] | None = None,
     *,
     compression_first: bool = False,
     monitor_size: bool = False,
@@ -92,6 +109,10 @@ def run_migration(
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
+
+    if sources is None:
+        list_file = workspace / DATABASE_LIST_FILE
+        sources = _load_database_names(list_file)
 
     source_paths = [db_dir / name for name in sources if (db_dir / name).exists()]
 
@@ -129,8 +150,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "sources",
         nargs="*",
-        default=DEFAULT_SOURCES,
-        help="Database files to migrate",
+        default=None,
+        help="Database files to migrate (defaults to list from documentation)",
     )
     parser.add_argument(
         "--compression-first",
