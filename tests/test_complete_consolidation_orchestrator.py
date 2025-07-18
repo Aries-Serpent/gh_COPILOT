@@ -75,3 +75,20 @@ def test_migrate_and_compress_archives_large_tables(tmp_path: Path) -> None:
     assert log_file.exists()
     content = log_file.read_text()
     assert "Session" in content and "ended" in content
+
+
+def test_create_external_backup(tmp_path: Path, monkeypatch) -> None:
+    source = tmp_path / "test.db"
+    source.write_text("data")
+
+    backup_root = tmp_path / "backups"
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+
+    from scripts.database.complete_consolidation_orchestrator import \
+        create_external_backup
+
+    backup = create_external_backup(source, "unit_test", backup_dir=backup_root)
+
+    assert backup.exists()
+    assert backup.parent == backup_root
+    assert not str(backup).startswith(str(tmp_path))
