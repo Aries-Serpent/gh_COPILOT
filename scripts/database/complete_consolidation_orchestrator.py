@@ -129,7 +129,7 @@ def migrate_and_compress(
     conn: Optional[sqlite3.Connection] = None
     try:
         conn = sqlite3.connect(enterprise_db)
-        conn.execute("BEGIN")
+        conn.execute("BEGIN IMMEDIATE")
         total = len(sources)
         start = perf_counter()
         with tqdm(total=total, desc="Consolidating", unit="db") as bar:
