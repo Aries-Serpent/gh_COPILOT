@@ -8,10 +8,8 @@ import signal
 import time
 from pathlib import Path
 
-
 from .database_sync_scheduler import synchronize_databases
 from .size_compliance_checker import check_database_sizes
-
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +20,16 @@ def configure_logging():
 
 
 def _load_database_names(list_file: Path) -> list[str]:
-    """Return database names listed in the markdown file."""
+    """Return database names listed in the markdown file.
+
+    Lines may include comments after a ``#`` which are ignored.
+    """
     names: list[str] = []
     for line in list_file.read_text().splitlines():
         line = line.strip()
         if line.startswith("- "):
-            name = line[2:].strip()
+            name = line[2:]
+            name = name.split("#", 1)[0].strip()
             if name:
                 names.append(name)
     return names

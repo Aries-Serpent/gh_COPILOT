@@ -26,11 +26,16 @@ class UnifiedDatabaseManager:
         self.databases_dir = self.workspace_root / "databases"
 
     def _load_expected_names(self) -> list[str]:
+        """Return database names from the consolidated list.
+
+        Lines may include comments after a ``#`` which are ignored.
+        """
         names: list[str] = []
         for line in DATABASE_LIST_FILE.read_text().splitlines():
             line = line.strip()
             if line.startswith("- "):
-                name = line[2:].strip()
+                name = line[2:]
+                name = name.split("#", 1)[0].strip()
                 if name:
                     names.append(name)
         return names

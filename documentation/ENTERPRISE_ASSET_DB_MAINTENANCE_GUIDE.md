@@ -16,6 +16,11 @@ python -m scripts.database.template_asset_ingestor --workspace .
 
 # 4. Verify database sizes remain under 99.9 MB
 python -m scripts.database.size_compliance_checker databases
+
+# 5. Record documentation updates in the audit log
+python -m scripts.database.cross_database_sync_logger \
+  --database databases/enterprise_assets.db \
+  consolidated_database_list_updated
 ```
 
 Only `archive.db`, `development.db`, `staging.db`, `testing.db`, and `production.db` are synchronized alongside `enterprise_assets.db` after consolidation.
