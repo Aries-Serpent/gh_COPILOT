@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # isort: skip_file
 """Move zero-byte log files to _ZERO_BYTE_QUARANTINE."""
-from utils.file_utils import quarantine_zero_byte_files
-import logging
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from utils.file_utils import quarantine_zero_byte_files
+import logging
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
