@@ -689,7 +689,7 @@ def health_check():
     return jsonify(get_comprehensive_health_status())
 ```
 
-#### **HTML Template Architecture (5 Templates - 100% Coverage)**
+#### **HTML Template Architecture (4 Templates - 100% Coverage)**
 
 **1. dashboard.html - Executive Dashboard**
 ```html

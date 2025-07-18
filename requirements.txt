@@ -39,6 +39,7 @@ boto3==1.39.3  # Omit if not actually imported/used
 qiskit-aer==0.17.1  # Omit if not imported
 
 # --- Any other verified code dependencies can go here ---
+py7zr
 
 # ===========================
 # End of requirements
