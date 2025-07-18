@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import signal
 import time
 from pathlib import Path
 
@@ -16,6 +17,8 @@ logger = logging.getLogger(__name__)
 def configure_logging():
     """Configure logging for the script."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+
 def _load_database_names(list_file: Path) -> list[str]:
     """Return database names listed in the markdown file."""
     names: list[str] = []
