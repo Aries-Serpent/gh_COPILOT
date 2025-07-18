@@ -11,11 +11,12 @@ from tqdm import tqdm
 
 THRESHOLD_MB = 99.9
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
 logger = logging.getLogger(__name__)
+
+
+def setup_logging(level: int = logging.INFO) -> None:
+    """Configure module logging."""
+    logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 def check_database_sizes(directory: Path, threshold_mb: float = THRESHOLD_MB) -> bool:
@@ -45,6 +46,8 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+
+    setup_logging()
 
     if not args.directory.exists():
         logger.error("Databases directory not found: %s", args.directory)
