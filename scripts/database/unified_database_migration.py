@@ -13,6 +13,13 @@ from .cross_database_sync_logger import log_sync_operation
 from .database_consolidation_migration import consolidate_databases
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
+from .complete_consolidation_orchestrator import create_external_backup
+from scripts.validation.semantic_search_reference_validator import (
+    chunk_anti_recursion_validation,
+)
+
+# Alias for legacy reference
+validate_database_size = check_database_sizes
 
 
 def _compress_database(db_path: Path) -> None:
@@ -70,6 +77,7 @@ def run_migration(
     sources:
         List of database file names to migrate.
     """
+    chunk_anti_recursion_validation()
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
@@ -81,6 +89,7 @@ def run_migration(
             logger.info("Migrating %s", src.name)
             if compression_first:
                 compress_database(src)
+            create_external_backup(src, src.stem)
             log_sync_operation(enterprise_db, f"start_migrate_{src.name}")
             consolidate_databases(enterprise_db, [src])
             log_sync_operation(enterprise_db, f"completed_migrate_{src.name}")
