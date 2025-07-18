@@ -19,6 +19,7 @@ This guide is written for **automated ChatGPT Codex agents ** operating within t
     ```
 4. Run tests with `make test`. This installs packages from `requirements-test.txt` such as `tqdm`, `numpy`, `qiskit >= 1.4, < 2.0`, `qiskit-aer`, and `qiskit-machine-learning`.
 5. Set the workspace root via the `GH_COPILOT_WORKSPACE` environment variable.
+6. Populate the `.env` file with `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT`, then `source .env` to load these variables before running tasks.
 
 Consult[`docs/INSTRUCTION_INDEX.md`](docs/INSTRUCTION_INDEX.md) for all available instruction modules.
 
