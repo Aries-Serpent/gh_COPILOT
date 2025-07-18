@@ -2,7 +2,7 @@
 
 ## Active Enterprise Databases
 
-- enterprise_assets.db
+- enterprise_assets.db  # Limit: 99.9 MB
 - archive.db  # Size: 2.57 MB
 - development.db  # Size: 2.57 MB
 - staging.db  # Size: 22.98 MB
