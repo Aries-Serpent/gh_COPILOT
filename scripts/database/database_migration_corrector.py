@@ -30,7 +30,9 @@ class DatabaseMigrationCorrector:
         self.validate_environment_compliance()
 
         # Database paths
-        self.workspace_root = Path(os.getcwd())
+        self.workspace_root = Path(
+            os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
+        )
         self.source_db = self.workspace_root / "logs.db"
         self.target_db = self.workspace_root / "databases" / "logs.db"
 
@@ -47,8 +49,7 @@ class DatabaseMigrationCorrector:
 
     def validate_environment_compliance(self):
         """CRITICAL: Validate proper environment root usage"""
-        workspace_root = Path(os.getcwd())
-        proper_root = "E:/gh_COPILOT"
+        workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
 
         if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
             print(f"⚠️ Non-standard workspace root: {workspace_root}")
