@@ -56,7 +56,11 @@ class EnterpriseLoggingManager:
         if log_file:
             log_path = Path(log_file)
             log_path.parent.mkdir(parents=True, exist_ok=True)
-            file_handler = logging.FileHandler(log_file, encoding='utf-8')
+            # delay file creation until the first log message to avoid
+            # generating empty log files
+            file_handler = logging.FileHandler(
+                log_file, encoding='utf-8', delay=True
+            )
             file_handler.setFormatter(formatter)
             handlers.append(file_handler)
 
