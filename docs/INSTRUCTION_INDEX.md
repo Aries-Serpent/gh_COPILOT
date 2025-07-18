@@ -20,3 +20,6 @@ This document lists all instruction modules available in the repository. Each en
 | VISUAL_PROCESSING_INDICATORS.instructions.md | [.github/instructions/VISUAL_PROCESSING_INDICATORS.instructions.md](../.github/instructions/VISUAL_PROCESSING_INDICATORS.instructions.md) |
 | WEB_GUI_INTEGRATION.instructions.md | [.github/instructions/WEB_GUI_INTEGRATION.instructions.md](../.github/instructions/WEB_GUI_INTEGRATION.instructions.md) |
 | ZERO_TOLERANCE_VISUAL_PROCESSING.instructions.md | [.github/instructions/ZERO_TOLERANCE_VISUAL_PROCESSING.instructions.md](../.github/instructions/ZERO_TOLERANCE_VISUAL_PROCESSING.instructions.md) |
+
+### Additional Utilities
+- **Complete Consolidation Orchestrator**: [scripts/database/complete_consolidation_orchestrator.py](../scripts/database/complete_consolidation_orchestrator.py) - compresses large tables before migrating them into `enterprise_assets.db`.

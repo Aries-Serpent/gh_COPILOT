@@ -69,6 +69,26 @@ python scripts/database/database_sync_scheduler.py \
     --add-documentation-sync documentation/EXTRA_DATABASES.md \
     --target staging.db
 
+# 3c. Consolidate databases with compression
+python scripts/database/complete_consolidation_orchestrator.py \
+    --input-databases db1.db db2.db db3.db \
+    --output-database consolidated.db \
+    --compression-level 5
+
+# The `complete_consolidation_orchestrator.py` script consolidates multiple databases into a single compressed database.
+# 
+# **Parameters:**
+# - `--input-databases`: A list of input database files to consolidate.
+# - `--output-database`: The name of the output consolidated database file.
+# - `--compression-level`: An optional parameter to specify the compression level (default: 5).
+#
+# **Example Usage:**
+# ```bash
+# python scripts/database/complete_consolidation_orchestrator.py \
+#     --input-databases production.db analytics.db monitoring.db \
+#     --output-database enterprise_consolidated.db \
+#     --compression-level 7
+# ```
 # 4. Validate enterprise compliance
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 
