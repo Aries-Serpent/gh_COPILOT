@@ -50,15 +50,10 @@ import schedule
 from tqdm import tqdm
 
 
-# 🚨 CRITICAL: Anti-recursion validation
-def validate_enterprise_operation():
-    """🚨 CRITICAL: Validate workspace before any operations"""
+# 🚨 CRITICAL: Anti-recursion validation with proper_root enforcement
+def validate_enterprise_operation() -> bool:
+    """Validate workspace and remove forbidden recursive folders."""
     workspace_root = Path(os.getcwd())
-
-    # Prevent recursive backup violations
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
-    violations = []
-
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
@@ -67,7 +62,7 @@ def validate_enterprise_operation():
     if violations:
         for violation in violations:
             shutil.rmtree(violation)
-            logging.error(f"🗑️ Removed recursive violation: {violation}")
+            logging.error("🗑️ Removed recursive violation: %s", violation)
         raise RuntimeError("CRITICAL: Recursive violations prevented execution")
 
     return True
