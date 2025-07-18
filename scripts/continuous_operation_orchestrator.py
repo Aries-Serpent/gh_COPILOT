@@ -33,7 +33,6 @@ import asyncio
 import json
 import logging
 import os
-import shutil
 import sqlite3
 import sys
 import threading
@@ -49,11 +48,20 @@ import numpy as np
 import schedule
 from tqdm import tqdm
 
+from utils.cross_platform_paths import CrossPlatformPathManager
 
-# 🚨 CRITICAL: Anti-recursion validation with proper_root enforcement
-def validate_enterprise_operation() -> bool:
-    """Validate workspace and remove forbidden recursive folders."""
+# 🚨 CRITICAL: Anti-recursion validation
+
+
+def validate_enterprise_operation():
+    """🚨 CRITICAL: Validate workspace before any operations"""
     workspace_root = Path(os.getcwd())
+    proper_root = CrossPlatformPathManager.get_workspace_path()
+
+    # Prevent recursive backup violations
+    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    violations = []
+
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
@@ -143,7 +151,8 @@ class ContinuousOperationOrchestrator:
 
         # Initialize workspace
         self.workspace_path = Path(
-            workspace_path or os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
+            workspace_path or os.getenv("GH_COPILOT_WORKSPACE")
+            or CrossPlatformPathManager.get_workspace_path()
         )
         self.production_db = self.workspace_path / "production.db"
 
