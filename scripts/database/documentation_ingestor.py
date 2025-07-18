@@ -15,15 +15,7 @@ from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
 
 
-def _table_exists(conn: sqlite3.Connection, table: str) -> bool:
-    """Return True if ``table`` exists in the database."""
-    result = conn.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-        (table,),
-    ).fetchone()
-    return result is not None
-
-
+from .utils import _table_exists
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
