@@ -69,11 +69,11 @@ def run_migration(
             consolidate_databases(enterprise_db, [src])
             log_sync_operation(enterprise_db, f"completed_migrate_{src.name}")
             bar.update(1)
-            if monitor_size and not check_database_sizes(db_dir):
-                raise RuntimeError("Database size limit exceeded")
+            if monitor_size:
+                validate_database_size(db_dir)
 
-    if monitor_size and not check_database_sizes(db_dir):
-        raise RuntimeError("Database size limit exceeded")
+    if monitor_size:
+        validate_database_size(db_dir)
 
     log_sync_operation(enterprise_db, "migration_complete")
     logger.info("Migration process completed")
