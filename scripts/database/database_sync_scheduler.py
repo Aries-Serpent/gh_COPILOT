@@ -105,10 +105,14 @@ class EnhancedDatabaseSyncScheduler:
         except Exception as exc:
             log_sync_operation(
                 self.enterprise_db,
-                f"sync_cycle_failed_{cycle_id}_{str(exc)[:100]}",
+                f"sync_cycle_failed_{cycle_id}_{format_exception_message(exc)}",
             )
             raise
 
+def format_exception_message(exc: Exception) -> str:
+    """Format exception message with truncation."""
+    exc_message = f"{type(exc).__name__}: {str(exc)}"
+    return exc_message if len(exc_message) <= TRUNCATION_LIMIT else exc_message[:TRUNCATION_LIMIT] + "..."
 
 if __name__ == "__main__":
     import argparse
