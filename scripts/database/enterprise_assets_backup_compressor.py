@@ -58,7 +58,7 @@ def compress_assets_backup(workspace: Path | str, source_dir: Path | str, backup
 
     backup_dir = BACKUP_ROOT / workspace.name
     backup_dir.mkdir(parents=True, exist_ok=True)
-    backup_name = backup_name or f"assets_backup_{datetime.utcnow():%Y%m%d_%H%M%S}.zip"
+    backup_name = backup_name or f"assets_backup_{datetime.now(timezone.utc):%Y%m%d_%H%M%S}.zip"
     dest_zip = backup_dir / backup_name
 
     _ensure_valid_destination(dest_zip, workspace)
