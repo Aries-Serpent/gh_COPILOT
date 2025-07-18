@@ -168,8 +168,17 @@ if __name__ == "__main__":
         def run_cycle() -> None:
             scheduler.execute_sync_cycle()
 
+        termination_event = Event()
+
+        def handle_termination_signal(signum, frame):
+            logging.info("Termination signal received. Shutting down gracefully...")
+            termination_event.set()
+
+        signal.signal(signal.SIGINT, handle_termination_signal)
+        signal.signal(signal.SIGTERM, handle_termination_signal)
+
         run_cycle()
-        while args.continuous_mode:
+        while args.continuous_mode and not termination_event.is_set():
             time.sleep(args.interval)
             run_cycle()
     else:
