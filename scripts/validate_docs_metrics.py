@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
+import argparse
 import re
 import sqlite3
 import sys
 from pathlib import Path
-import logging
 
 ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "production.db"
@@ -63,9 +63,9 @@ def parse_template_metric(path: Path) -> int | None:
     return None
 
 
-def validate() -> bool:
+def validate(db_path: Path = DB_PATH) -> bool:
     """Validate metrics across documentation."""
-    db_metrics = get_db_metrics(DB_PATH)
+    db_metrics = get_db_metrics(db_path)
     readme_metrics = parse_readme(README_PATH)
     generated_metrics = parse_readme(GENERATED_README)
     whitepaper_templates = parse_template_metric(WHITEPAPER_PATH)
@@ -88,9 +88,9 @@ def validate() -> bool:
 
     if whitepaper_templates is not None and whitepaper_templates != db_metrics["templates"]:
         print(
-        f"Mismatch in whitepaper templates: {whitepaper_templates} vs {db_metrics['templates']}",
-        file=sys.stderr,
-    )
+            f"Mismatch in whitepaper templates: {whitepaper_templates} vs {db_metrics['templates']}",
+            file=sys.stderr,
+        )
         success = False
 
     if success:
@@ -99,4 +99,14 @@ def validate() -> bool:
 
 
 if __name__ == "__main__":
-    sys.exit(0 if validate() else 1)
+    parser = argparse.ArgumentParser(
+        description="Validate documentation metrics against the database."
+    )
+    parser.add_argument(
+        "--db-path",
+        type=Path,
+        default=DB_PATH,
+        help="Path to the production database",
+    )
+    args = parser.parse_args()
+    sys.exit(0 if validate(args.db_path) else 1)
