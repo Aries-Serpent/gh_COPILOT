@@ -65,6 +65,9 @@ TABLES: dict[str, str] = {
         "CREATE TABLE IF NOT EXISTS cross_database_sync_operations ("
         "id INTEGER PRIMARY KEY,"
         "operation TEXT NOT NULL,"
+        "status TEXT NOT NULL,"
+        "start_time TEXT NOT NULL,"
+        "duration REAL NOT NULL,"
         "timestamp TEXT NOT NULL"
         ")"
     ),
