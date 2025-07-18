@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 from typing import Optional, Union
 
+
 def read_file_safely(file_path: Union[str, Path], encoding: str = 'utf-8') -> Optional[str]:
     """Read file with safe encoding handling"""
     try:
@@ -12,6 +13,7 @@ def read_file_safely(file_path: Union[str, Path], encoding: str = 'utf-8') -> Op
             return f.read()
     except Exception:
         return None
+
 
 def write_file_safely(file_path: Union[str, Path], content: str, encoding: str = 'utf-8') -> bool:
     """Write file with safe error handling"""
@@ -23,6 +25,7 @@ def write_file_safely(file_path: Union[str, Path], content: str, encoding: str =
     except Exception:
         return False
 
+
 def copy_file_safely(src: Union[str, Path], dst: Union[str, Path]) -> bool:
     """Copy file with safe error handling"""
     try:
@@ -31,3 +34,24 @@ def copy_file_safely(src: Union[str, Path], dst: Union[str, Path]) -> bool:
         return True
     except Exception:
         return False
+
+
+def quarantine_zero_byte_files(
+    target_dir: Union[str, Path], quarantine_dir: Union[str, Path]
+) -> int:
+    """Move zero-byte files from ``target_dir`` to ``quarantine_dir``."""
+    target = Path(target_dir)
+    quarantine = Path(quarantine_dir)
+    quarantine.mkdir(parents=True, exist_ok=True)
+    moved = 0
+    for file_path in target.rglob("*"):
+        if file_path.is_file() and file_path.stat().st_size == 0:
+            try:
+                relative_path = file_path.relative_to(target)
+                destination = quarantine / relative_path
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                file_path.replace(destination)
+                moved += 1
+            except Exception:
+                continue
+    return moved
