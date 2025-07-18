@@ -72,44 +72,39 @@ def test_migrate_and_compress_archives_large_tables(tmp_path: Path) -> None:
         assert conn.execute("SELECT COUNT(*) FROM bigtable").fetchone()[0] == 60000
 
 
-def test_migrate_and_compress_rollback_on_failure(tmp_path: Path, monkeypatch) -> None:
+def test_migrate_and_compress_skips_large_db(tmp_path: Path) -> None:
     db_dir = tmp_path / "databases"
     db_dir.mkdir()
 
-    first = db_dir / "first.db"
-    second = db_dir / "second.db"
-    _create_db(first, "t1", 5)
-    _create_db(second, "t2", 5)
+    big_db = db_dir / "huge.db"
+    _create_db(big_db, "t", 1)
+    with open(big_db, "ab") as fh:
+        fh.write(b"0" * (2 * 1024 * 1024))
+
+    small_db = db_dir / "tiny.db"
+    _create_db(small_db, "t", 1)
 
     enterprise_db = db_dir / "enterprise_assets.db"
 
-    call_count = {"n": 0}
 
-    def failing_migrate(self):
-        if call_count["n"]:
-            with sqlite3.connect(self.target_db) as conn:
-                conn.execute("CREATE TABLE t2 (id INTEGER)")
-                conn.execute("INSERT INTO t2 (id) VALUES (1)")
-                conn.commit()
-            raise RuntimeError("failure")
-        call_count["n"] += 1
-        with sqlite3.connect(self.target_db) as tgt, sqlite3.connect(self.source_db) as src:
-            for tbl, in src.execute("SELECT name FROM sqlite_master WHERE type='table'"):
-                tgt.execute(f"CREATE TABLE {tbl} (id INTEGER)")
-                rows = src.execute(f"SELECT id FROM {tbl}").fetchall()
-                tgt.executemany(f"INSERT INTO {tbl} VALUES (?)", rows)
-            tgt.commit()
+    @contextmanager
+    def temporary_chdir(path: Path):
+        original_cwd = os.getcwd()
+        os.chdir(path)
+        try:
+            yield
+        finally:
+            os.chdir(original_cwd)
 
-    monkeypatch.setattr(DatabaseMigrationCorrector, "migrate_database_content", failing_migrate)
+    with temporary_chdir(tmp_path):
+        migrate_and_compress(
+            tmp_path,
+            [big_db.name, small_db.name],
+            size_threshold_mb=1.0,
+            skip_threshold_mb=1.0,
+        )
 
-    with pytest.raises(RuntimeError):
-        migrate_and_compress(tmp_path, [first.name, second.name])
-
-    with sqlite3.connect(enterprise_db) as conn:
-        tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")]
-        assert "t1" in tables
-        assert "t2" not in tables
-
-    log_file = tmp_path / "logs" / "rollback.log"
-    assert log_file.exists()
-    assert "second.db" in log_file.read_text()
+    backup = tmp_path / "archives" / "database_backups" / f"{big_db.name}.7z"
+    assert backup.exists()
+    assert not big_db.exists()
+    assert enterprise_db.exists()

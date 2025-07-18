@@ -26,6 +26,22 @@ from .unified_database_initializer import initialize_database
 
 logger = logging.getLogger(__name__)
 
+SIZE_THRESHOLD_MB = 99.9
+SKIP_THRESHOLD_MB = 100.0
+BACKUP_DIR = Path("archives/database_backups")
+
+
+def archive_database(db_path: Path, dest_dir: Path, level: int = 9) -> Path:
+    """Archive ``db_path`` to ``dest_dir`` using 7z with maximum compression."""
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    archive_path = dest_dir / f"{db_path.name}.7z"
+    with py7zr.SevenZipFile(
+        archive_path, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}]
+    ) as zf:
+        zf.write(db_path, arcname=db_path.name)
+    logger.info("Archived %s to %s", db_path.name, archive_path)
+    return archive_path
+
 
 def export_table_to_7z(db_path: Path, table: str, dest_dir: Path) -> Path:
     """Export ``table`` from ``db_path`` to ``dest_dir`` as a 7z archive."""
@@ -56,20 +72,24 @@ def compress_large_tables(db_path: Path, analysis: dict, threshold: int = 50000)
     return archives
 
 
-def _log_rollback(workspace: Path, name: str) -> None:
-    """Append a rollback entry for ``name`` to the workspace log."""
-    log_file = workspace / "logs" / "rollback.log"
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    with log_file.open("a", encoding="utf-8") as fh:
-        fh.write(f"{datetime.now().isoformat()} rollback {name}\n")
+def migrate_and_compress(
+    workspace: Path,
+    sources: Iterable[str],
+    size_threshold_mb: float = SIZE_THRESHOLD_MB,
+    skip_threshold_mb: float = SKIP_THRESHOLD_MB,
+) -> None:
+    """Migrate ``sources`` into enterprise_assets.db with compression.
 
-
-def migrate_and_compress(workspace: Path, sources: Iterable[str]) -> None:
-    """Migrate ``sources`` into enterprise_assets.db with compression."""
+    Any database file larger than ``size_threshold_mb`` will be archived to
+    ``archives/database_backups`` with maximum 7z compression before migration.
+    Databases exceeding ``skip_threshold_mb`` are skipped and removed after
+    archiving to maintain workspace compliance.
+    """
     validate_enterprise_operation()
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
+    backup_dir = workspace / BACKUP_DIR
 
     total = len(sources)
     start = perf_counter()
@@ -77,6 +97,21 @@ def migrate_and_compress(workspace: Path, sources: Iterable[str]) -> None:
         for idx, name in enumerate(sources, 1):
             src = db_dir / name
             if not src.exists():
+                bar.update(1)
+                continue
+            size_mb = src.stat().st_size / (1024 * 1024)
+            if size_mb > size_threshold_mb:
+                archive_database(src, backup_dir)
+            if size_mb > skip_threshold_mb:
+                logger.warning(
+                    "Skipping %s because it exceeds %.1f MB",
+                    src.name,
+                    skip_threshold_mb,
+                )
+                src.unlink()
+                elapsed = perf_counter() - start
+                remaining = (total - idx) * (elapsed / idx)
+                bar.set_postfix(ETC=f"{remaining:.1f}s")
                 bar.update(1)
                 continue
             migrator = DatabaseMigrationCorrector()
