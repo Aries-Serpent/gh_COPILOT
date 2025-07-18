@@ -69,6 +69,9 @@ python scripts/database/database_sync_scheduler.py \
     --add-documentation-sync documentation/EXTRA_DATABASES.md \
     --target staging.db
 
+# 3c. Consolidate databases with compression
+python scripts/database/complete_consolidation_orchestrator.py
+
 # 4. Validate enterprise compliance
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 
