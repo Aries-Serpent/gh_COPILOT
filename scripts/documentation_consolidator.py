@@ -20,17 +20,7 @@ DEDUPE_SQL = (
 )
 
 WORKSPACE_ENV_VAR = "GH_COPILOT_WORKSPACE"
-
-# SQL statements for cleanup operations
-CLEANUP_SQL = (
-    "DELETE FROM enterprise_documentation "
-    "WHERE doc_type='BACKUP_LOG' OR source_path LIKE '%backup%'"
-)
-DEDUPE_SQL = (
-    "DELETE FROM enterprise_documentation WHERE rowid NOT IN ("
-    "SELECT MIN(rowid) FROM enterprise_documentation GROUP BY title"
-    ")"
-)
+DOC_DB_ENV_VAR = "DOCUMENTATION_DB_PATH"
 
 
 def get_workspace() -> Path:
@@ -40,8 +30,19 @@ def get_workspace() -> Path:
     return workspace
 
 
+def get_doc_db_path(workspace: Path) -> Path:
+    """Return documentation database path from environment or workspace."""
+    env_path = os.getenv(DOC_DB_ENV_VAR)
+    if env_path:
+        return Path(env_path)
+    return workspace / "archives" / "documentation.db"
+
+
 def cleanup_database(db_path: Path) -> None:
     """Remove backup and duplicate documentation entries."""
+    if not db_path.exists():
+        raise FileNotFoundError(f"Database not found at {db_path}")
+
     with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(CLEANUP_SQL)
@@ -142,7 +143,7 @@ def generate_feature_matrix(workspace: Path) -> None:
 def consolidate() -> None:
     """Run consolidation steps for documentation."""
     workspace = get_workspace()
-    db_path = workspace / "databases" / "documentation.db"
+    db_path = get_doc_db_path(workspace)
     cleanup_database(db_path)
     populate_templates(db_path)
     generate_feature_matrix(workspace)
