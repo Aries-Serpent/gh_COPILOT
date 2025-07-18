@@ -54,6 +54,17 @@ def compress_database(db_path: Path) -> None:
         conn.commit()
 
 
+def validate_database_size(databases_dir: Path, limit_mb: float = 99.9) -> None:
+    """Raise ``RuntimeError`` if any database exceeds ``limit_mb``."""
+    sizes = check_database_sizes(databases_dir, threshold_mb=limit_mb)
+    oversized = {name: size for name, size in sizes.items() if size > limit_mb}
+    if oversized:
+        details = ", ".join(
+            f"{name}: {size:.2f} MB" for name, size in oversized.items()
+        )
+        raise RuntimeError(f"Database size limit exceeded: {details}")
+
+
 def run_migration(
     workspace: Path,
     sources: list[str] = DEFAULT_SOURCES,
