@@ -42,11 +42,27 @@ def run_cycle(workspace: Path) -> None:
 
 def main(workspace: Path, interval: int, once: bool = False) -> None:
     """Run maintenance cycles at a fixed interval."""
-    while True:
-        run_cycle(workspace)
+    def handle_signal(signum, frame):
+        nonlocal running
+        logger.info("Received termination signal. Shutting down...")
+        running = False
+
+    signal.signal(signal.SIGINT, handle_signal)
+    signal.signal(signal.SIGTERM, handle_signal)
+
+    running = True
+    while running:
+        try:
+            run_cycle(workspace)
+        except Exception as e:
+            logger.error("An error occurred during the maintenance cycle: %s", e, exc_info=True)
         if once:
             break
-        time.sleep(interval * 60)
+        try:
+            time.sleep(interval * 60)
+        except InterruptedError:
+            logger.info("Sleep interrupted. Exiting loop.")
+            break
 
 
 if __name__ == "__main__":
