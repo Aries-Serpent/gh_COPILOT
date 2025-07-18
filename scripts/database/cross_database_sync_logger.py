@@ -8,12 +8,10 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
+from utils.logging_utils import setup_enterprise_logging
+
 from .unified_database_initializer import initialize_database
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
 logger = logging.getLogger(__name__)
 
 
@@ -64,4 +62,5 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    setup_enterprise_logging()
     log_sync_operation(args.database, args.operation)
