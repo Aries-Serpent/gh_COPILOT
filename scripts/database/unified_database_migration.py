@@ -14,6 +14,22 @@ from .database_consolidation_migration import consolidate_databases
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
 
+
+def _compress_database(db_path: Path) -> None:
+    """Compress the SQLite database in-place.
+
+    Parameters
+    ----------
+    db_path:
+        Path to the database file to compress.
+    """
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("VACUUM")
+        conn.execute("REINDEX")
+        conn.execute("ANALYZE")
+        conn.commit()
+
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -68,6 +84,7 @@ def run_migration(
             log_sync_operation(enterprise_db, f"start_migrate_{src.name}")
             consolidate_databases(enterprise_db, [src])
             log_sync_operation(enterprise_db, f"completed_migrate_{src.name}")
+            _compress_database(enterprise_db)
             bar.update(1)
             if monitor_size:
                 validate_database_size(db_dir)

@@ -9,10 +9,8 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+from utils.logging_utils import setup_enterprise_logging
+
 logger = logging.getLogger(__name__)
 
 TABLES: dict[str, str] = {
@@ -97,4 +95,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    setup_enterprise_logging()
     main()
