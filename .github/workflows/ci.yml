@@ -23,9 +23,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install test dependencies
-        run: |
-          pip install -r requirements-test.txt
-          pip install qiskit-machine-learning
+        run: pip install -r requirements-test.txt
 
       - name: Lint src
         run: |

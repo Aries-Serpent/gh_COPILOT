@@ -1,2 +1,9 @@
 pytest
+tqdm
+numpy
+qiskit>=1.4,<2.0
+qiskit-aer
+qiskit-machine-learning
+flask
+schedule
 py7zr
