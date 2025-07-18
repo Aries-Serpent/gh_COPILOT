@@ -34,8 +34,7 @@ class UnifiedDatabaseManager:
         for line in DATABASE_LIST_FILE.read_text().splitlines():
             line = line.strip()
             if line.startswith("- "):
-                name = line[2:]
-                name = name.split("#", 1)[0].strip()
+                name = parse_comment(line[2:])
                 if name:
                     names.append(name)
         return names
