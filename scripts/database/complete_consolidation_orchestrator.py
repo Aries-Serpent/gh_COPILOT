@@ -6,6 +6,7 @@ from __future__ import annotations
 import csv
 import logging
 import os
+import shutil
 import sqlite3
 import tempfile
 from datetime import datetime
@@ -24,6 +25,22 @@ from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
 
 logger = logging.getLogger(__name__)
+
+SIZE_THRESHOLD_MB = 99.9
+SKIP_THRESHOLD_MB = 100.0
+BACKUP_DIR = Path("archives/database_backups")
+
+
+def archive_database(db_path: Path, dest_dir: Path, level: int = 9) -> Path:
+    """Archive ``db_path`` to ``dest_dir`` using 7z with maximum compression."""
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    archive_path = dest_dir / f"{db_path.name}.7z"
+    with py7zr.SevenZipFile(
+        archive_path, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}]
+    ) as zf:
+        zf.write(db_path, arcname=db_path.name)
+    logger.info("Archived %s to %s", db_path.name, archive_path)
+    return archive_path
 
 
 def export_table_to_7z(
@@ -109,6 +126,7 @@ def migrate_and_compress(
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
+    backup_dir = workspace / BACKUP_DIR
 
     total = len(sources)
     start = perf_counter()
@@ -118,12 +136,37 @@ def migrate_and_compress(
             if not src.exists():
                 bar.update(1)
                 continue
+            size_mb = src.stat().st_size / (1024 * 1024)
+            if size_mb > size_threshold_mb:
+                archive_database(src, backup_dir)
+            if size_mb > skip_threshold_mb:
+                logger.warning(
+                    "Skipping %s because it exceeds %.1f MB",
+                    src.name,
+                    skip_threshold_mb,
+                )
+                src.unlink()
+                elapsed = perf_counter() - start
+                remaining = (total - idx) * (elapsed / idx)
+                bar.set_postfix(ETC=f"{remaining:.1f}s")
+                bar.update(1)
+                continue
             migrator = DatabaseMigrationCorrector()
             migrator.workspace_root = workspace
             migrator.source_db = src
             migrator.target_db = enterprise_db
             migrator.migration_report = {"errors": []}
-            migrator.migrate_database_content()
+            backup = enterprise_db.with_suffix(".bak")
+            shutil.copy2(enterprise_db, backup)
+            try:
+                migrator.migrate_database_content()
+            except Exception:
+                shutil.copy2(backup, enterprise_db)
+                _log_rollback(workspace, name)
+                raise
+            finally:
+                if backup.exists():
+                    backup.unlink()
             analysis = migrator.analyze_database_structure(enterprise_db)
             compress_large_tables(enterprise_db, analysis, level=level)
             elapsed = perf_counter() - start

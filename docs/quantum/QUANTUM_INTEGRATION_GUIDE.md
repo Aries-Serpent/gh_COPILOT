@@ -15,7 +15,9 @@ PIS Framework
 ```
 
 ### Database Integration
-The quantum features are fully integrated with the database-first architecture:
+The quantum features are fully integrated with the database-first architecture.
+The newly added **Quantum Database Search** module provides Grover-based
+lookup capabilities for any database column:
 
 ```sql
 -- Quantum optimization metrics table
@@ -26,6 +28,18 @@ CREATE TABLE quantum_optimization_metrics (
     speedup_factor REAL,
     performance_improvement REAL
 );
+```
+
+### Quantum Database Search Usage
+```python
+from quantum.algorithms.database_search import QuantumDatabaseSearch
+
+search = QuantumDatabaseSearch(
+    database_path="production.db",
+    table="enterprise_metadata",
+    column="database_name",
+)
+found = search.execute_algorithm("production.db")
 ```
 
 ### API Integration
