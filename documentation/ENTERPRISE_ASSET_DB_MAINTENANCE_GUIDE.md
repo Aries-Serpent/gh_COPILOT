@@ -1,6 +1,6 @@
 # Enterprise Asset Database Maintenance Guide
 
-The `enterprise_assets.db` database stores consolidated scripts, documentation, and template assets. Use the following commands to recreate or update the database.
+The `enterprise_assets.db` database stores consolidated scripts, documentation, and template assets. Use the following commands to recreate or update the database and synchronize the minimal replica set.
 
 ```bash
 # 1. Initialize the database (creates tables if missing)
@@ -18,4 +18,4 @@ python -m scripts.database.template_asset_ingestor --workspace .
 python -m scripts.database.size_compliance_checker databases
 ```
 
-These utilities ensure `enterprise_assets.db` stays synchronized and compliant.
+Only `archive.db`, `development.db`, `staging.db`, `testing.db`, and `production.db` are synchronized alongside `enterprise_assets.db` after consolidation.
