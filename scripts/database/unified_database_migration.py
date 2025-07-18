@@ -13,6 +13,13 @@ from .cross_database_sync_logger import log_sync_operation
 from .database_consolidation_migration import consolidate_databases
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
+from .complete_consolidation_orchestrator import create_external_backup
+from scripts.validation.semantic_search_reference_validator import (
+    chunk_anti_recursion_validation,
+)
+
+# Alias for legacy reference
+validate_database_size = check_database_sizes
 
 
 def _compress_database(db_path: Path) -> None:
@@ -71,6 +78,17 @@ def compress_database(db_path: Path) -> None:
         conn.commit()
 
 
+def validate_database_size(databases_dir: Path, limit_mb: float = 99.9) -> None:
+    """Raise ``RuntimeError`` if any database exceeds ``limit_mb``."""
+    sizes = check_database_sizes(databases_dir, threshold_mb=limit_mb)
+    oversized = {name: size for name, size in sizes.items() if size > limit_mb}
+    if oversized:
+        details = ", ".join(
+            f"{name}: {size:.2f} MB" for name, size in oversized.items()
+        )
+        raise RuntimeError(f"Database size limit exceeded: {details}")
+
+
 def run_migration(
     workspace: Path,
     sources: list[str] | None = None,
@@ -87,6 +105,7 @@ def run_migration(
     sources:
         List of database file names to migrate.
     """
+    chunk_anti_recursion_validation()
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
@@ -102,6 +121,7 @@ def run_migration(
             logger.info("Migrating %s", src.name)
             if compression_first:
                 compress_database(src)
+            create_external_backup(src, src.stem)
             log_sync_operation(enterprise_db, f"start_migrate_{src.name}")
             consolidate_databases(enterprise_db, [src])
             log_sync_operation(enterprise_db, f"completed_migrate_{src.name}")
