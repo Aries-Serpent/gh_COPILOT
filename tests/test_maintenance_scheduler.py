@@ -21,7 +21,10 @@ def test_run_cycle(tmp_path: Path) -> None:
         conn.execute("INSERT INTO t (id) VALUES (1)")
 
     list_file = docs_dir / "CONSOLIDATED_DATABASE_LIST.md"
-    list_file.write_text("- production.db\n- replica.db\n")
+    list_file.write_text(
+        "- production.db  # Size: 0.01 MB\n"
+        "- replica.db  # Size: 0.01 MB\n"
+    )
 
     run_cycle(tmp_path)
 

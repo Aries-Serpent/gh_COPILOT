@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
+import argparse
 import re
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-import logging
 
 ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "production.db"
@@ -19,8 +19,9 @@ README_PATHS = [
 DATABASE_LIST = ROOT / "documentation" / "DATABASE_LIST.md"
 
 
-def get_metrics() -> dict[str, int]:
-    conn = sqlite3.connect(DB_PATH)
+def get_metrics(db_path: Path = DB_PATH) -> dict[str, int]:
+    """Return metrics gathered from the specified database."""
+    conn = sqlite3.connect(db_path)
     cur = conn.cursor()
     cur.execute("SELECT COUNT(*) FROM enterprise_script_tracking")
     scripts = cur.fetchone()[0]
@@ -66,8 +67,20 @@ def update_file(path: Path, metrics: dict[str, int]) -> None:
     path.write_text(content)
 
 
-def main() -> None:
-    metrics = get_metrics()
+def main(argv: list[str] | None = None) -> None:
+    """Entry point for command-line execution."""
+    parser = argparse.ArgumentParser(
+        description="Generate documentation metrics in README files."
+    )
+    parser.add_argument(
+        "--db-path",
+        type=Path,
+        default=DB_PATH,
+        help="Path to the production database",
+    )
+    args = parser.parse_args(argv)
+
+    metrics = get_metrics(args.db_path)
     for path in README_PATHS:
         if path.exists():
             update_file(path, metrics)

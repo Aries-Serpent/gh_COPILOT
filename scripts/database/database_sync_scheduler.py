@@ -8,12 +8,15 @@ synchronization gap.
 """
 from __future__ import annotations
 
+import datetime
 import logging
+import time
 from pathlib import Path
 from sqlite3 import connect
-from typing import Iterable
+from typing import Iterable, List
 
 from .cross_database_sync_logger import log_sync_operation
+from .unified_database_initializer import initialize_database
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -57,16 +60,63 @@ def synchronize_databases(
 
 
 def _load_database_names(list_file: Path) -> list[str]:
-    """Return database names listed in the documentation file."""
+    """Return database names listed in the documentation file.
+
+    Lines may include comments after a ``#`` which are ignored.
+    """
     names: list[str] = []
     for line in list_file.read_text().splitlines():
         line = line.strip()
         if line.startswith("- "):
-            name = line[2:].strip()
+            name = line[2:]
+            name = name.split("#", 1)[0].strip()
             if name:
                 names.append(name)
     return names
 
+
+class EnhancedDatabaseSyncScheduler:
+    """Scheduler with detailed sync cycle logging."""
+
+    def __init__(self, workspace_root: Path = Path(".")) -> None:
+        self.workspace_root = workspace_root.resolve()
+        self.databases_dir = self.workspace_root / "databases"
+        self.enterprise_db = self.databases_dir / "enterprise_assets.db"
+        if not self.enterprise_db.exists():
+            initialize_database(self.enterprise_db)
+        self.master_db = self.databases_dir / "production.db"
+        self.list_file = (
+            self.workspace_root / "documentation" / "CONSOLIDATED_DATABASE_LIST.md"
+        )
+
+    def execute_sync_cycle(self) -> None:
+        """Execute a synchronization cycle with logging."""
+        cycle_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_sync_operation(self.enterprise_db, f"sync_cycle_start_{cycle_id}")
+        try:
+            db_names: List[str] = _load_database_names(self.list_file)
+            replicas = [
+                self.databases_dir / name
+                for name in db_names
+                if name != self.master_db.name
+            ]
+            synchronize_databases(
+                self.master_db, replicas, log_db=self.enterprise_db
+            )
+            log_sync_operation(
+                self.enterprise_db, f"sync_cycle_complete_{cycle_id}"
+            )
+        except Exception as exc:
+            log_sync_operation(
+                self.enterprise_db,
+                f"sync_cycle_failed_{cycle_id}_{format_exception_message(exc)}",
+            )
+            raise
+
+def format_exception_message(exc: Exception) -> str:
+    """Format exception message with truncation."""
+    exc_message = f"{type(exc).__name__}: {str(exc)}"
+    return exc_message if len(exc_message) <= TRUNCATION_LIMIT else exc_message[:TRUNCATION_LIMIT] + "..."
 
 if __name__ == "__main__":
     import argparse
@@ -107,6 +157,22 @@ if __name__ == "__main__":
         type=str,
         default="enterprise_assets.db",
         help="Database filename used for logging",
+    )
+    parser.add_argument(
+        "--execute-cycle",
+        action="store_true",
+        help="Run a full synchronization cycle",
+    )
+    parser.add_argument(
+        "--continuous-mode",
+        action="store_true",
+        help="Run synchronization cycles continuously",
+    )
+    parser.add_argument(
+        "--interval",
+        type=int,
+        default=1800,
+        help="Interval between cycles in continuous mode (seconds)",
     )
 
     args = parser.parse_args()
