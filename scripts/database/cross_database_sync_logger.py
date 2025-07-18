@@ -32,20 +32,18 @@ def log_sync_operation(db_path: Path, operation: str) -> None:
         initialize_database(db_path)
 
     timestamp = datetime.now(timezone.utc).isoformat()
-    conn = sqlite3.connect(db_path)
-    try:
+    with sqlite3.connect(db_path) as conn:
         if not _table_exists(conn, "cross_database_sync_operations"):
             conn.close()
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
-        conn.execute(
-            "INSERT INTO cross_database_sync_operations (operation, timestamp)"
-            " VALUES (?, ?)",
-            (operation, timestamp),
-        )
-        conn.commit()
-    finally:
-        conn.close()
+        with conn:  # Start a transaction context
+            conn.execute(
+                "INSERT INTO cross_database_sync_operations (operation, timestamp)"
+                " VALUES (?, ?)",
+                (operation, timestamp),
+            )
+            conn.commit()
     logger.info("Logged sync operation %s at %s", operation, timestamp)
 
 
