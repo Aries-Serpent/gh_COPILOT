@@ -32,4 +32,6 @@ replicas should be kept in sync with `production.db`.
 
 The unified `enterprise_assets.db` replaces `analytics.db`, `documentation.db`, and `template_completion.db`.
 
-**Note:** Initial attempt on 2025-07-18 exceeded the 99.9 MB limit. After cleanup, migration succeeded but the resulting database remains untracked.
+**Note:** Initial attempt on 2025-07-18 exceeded the 99.9 MB limit. Cleanup involved removing redundant data and compressing tables to reduce the database size. 
+The migration succeeded, but the resulting database remains untracked due to size constraints and the lack of an immediate need for tracking. 
+Future migrations should evaluate whether tracking this database is necessary and consider additional cleanup or optimization steps if required.
