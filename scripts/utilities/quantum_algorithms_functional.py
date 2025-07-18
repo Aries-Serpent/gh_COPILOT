@@ -1,21 +1,36 @@
 #!/usr/bin/env python3
-"""QuantumAlgorithmsFunctional
-==============================
+"""Utility wrappers for quantum functional algorithms."""
+from __future__ import annotations
 
-Collection of functional quantum algorithms used across the
-``gh_COPILOT`` toolkit. Each function returns useful performance
-metrics in addition to computational results.
+from quantum.algorithms.functional import QuantumFunctional
 
-MODERNIZED: Now uses modular quantum package for enhanced functionality
-while maintaining backward compatibility.
-"""
+__all__ = [
+    "run_grover_search",
+    "run_kmeans_clustering",
+    "run_simple_qnn",
+]
 
-import sys
 
-# Import from new modular package  
-from quantum.algorithms.functional import QuantumFunctional, main
+def run_grover_search(data, target):
+    """Run Grover search and return metrics."""
+    return QuantumFunctional().run_grover_search(data, target)
 
-# This script now delegates to the modular implementation
+
+def run_kmeans_clustering(samples=100, clusters=2):
+    """Run KMeans clustering and return metrics."""
+    return QuantumFunctional().run_kmeans_clustering(samples, clusters)
+
+
+def run_simple_qnn():
+    """Run simple QNN classifier and return metrics."""
+    return QuantumFunctional().run_simple_qnn()
+
+
+def main() -> bool:
+    util = QuantumFunctional()
+    return util.execute_utility()
+
+
 if __name__ == "__main__":  # pragma: no cover - manual execution
-    success = main()
-    sys.exit(0 if success else 1)
+    import sys
+    sys.exit(0 if main() else 1)

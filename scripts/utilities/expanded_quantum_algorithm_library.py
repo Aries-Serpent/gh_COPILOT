@@ -15,9 +15,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from qiskit_aer import AerSimulator
 
-from qiskit import QuantumCircuit
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -61,6 +59,8 @@ class EnterpriseUtility:
     def perform_utility_function(self) -> bool:
         """Generate and verify a three-qubit GHZ state."""
         self.logger.info(f"{TEXT_INDICATORS['info']} Creating GHZ state")
+        from qiskit import QuantumCircuit
+        from qiskit_aer import AerSimulator
 
         circuit = QuantumCircuit(3, 3)
         circuit.h(0)
