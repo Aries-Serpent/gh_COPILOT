@@ -3,9 +3,12 @@ import sqlite3
 from pathlib import Path
 
 import py7zr
+import pytest
 
 from scripts.database.complete_consolidation_orchestrator import (
     export_table_to_7z, migrate_and_compress)
+from scripts.database.database_migration_corrector import \
+    DatabaseMigrationCorrector
 
 
 def test_export_table_to_7z(tmp_path: Path) -> None:

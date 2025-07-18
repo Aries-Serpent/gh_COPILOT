@@ -6,6 +6,7 @@ from __future__ import annotations
 import csv
 import logging
 import os
+import shutil
 import sqlite3
 import tempfile
 from datetime import datetime
@@ -118,7 +119,17 @@ def migrate_and_compress(
             migrator.source_db = src
             migrator.target_db = enterprise_db
             migrator.migration_report = {"errors": []}
-            migrator.migrate_database_content()
+            backup = enterprise_db.with_suffix(".bak")
+            shutil.copy2(enterprise_db, backup)
+            try:
+                migrator.migrate_database_content()
+            except Exception:
+                shutil.copy2(backup, enterprise_db)
+                _log_rollback(workspace, name)
+                raise
+            finally:
+                if backup.exists():
+                    backup.unlink()
             analysis = migrator.analyze_database_structure(enterprise_db)
             compress_large_tables(enterprise_db, analysis)
             elapsed = perf_counter() - start
