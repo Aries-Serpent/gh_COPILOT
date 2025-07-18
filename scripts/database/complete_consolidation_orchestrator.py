@@ -28,7 +28,8 @@ logger = logging.getLogger(__name__)
 
 SIZE_THRESHOLD_MB = 99.9
 SKIP_THRESHOLD_MB = 100.0
-BACKUP_DIR = Path("archives/database_backups")
+BACKUP_ROOT = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/temp/gh_COPILOT_Backups"))
+BACKUP_DIR = BACKUP_ROOT / "database_backups"
 
 
 def archive_database(db_path: Path, dest_dir: Path, level: int = 9) -> Path:
@@ -118,7 +119,7 @@ def migrate_and_compress(
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
-    backup_dir = workspace / BACKUP_DIR
+    backup_dir = BACKUP_DIR
 
     handler = logging.FileHandler(log_file)
     logger.addHandler(handler)

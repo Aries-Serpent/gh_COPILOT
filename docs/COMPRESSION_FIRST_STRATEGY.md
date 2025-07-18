@@ -2,7 +2,7 @@
 
 The `complete_consolidation_orchestrator.py` script prioritizes compression before moving large tables into the consolidated `enterprise_assets.db` database. Tables exceeding 50,000 rows are exported to CSV and archived with 7z prior to migration. This approach keeps the target database lean and preserves historical records in the `archives/table_exports` folder.
 
-Beginning with version 4.0, database files larger than **99.9 MB** are first backed up to `archives/database_backups` using 7z with maximum compression. Files exceeding **100 MB** are archived and skipped during migration, with the original removed after backup.
+Beginning with version 4.0, database files larger than **99.9 MB** are first backed up to `/temp/gh_COPILOT_Backups/database_backups` using 7z with maximum compression. Files exceeding **100 MB** are archived and skipped during migration, with the original removed after backup.
 
 Selective migration ensures only existing source databases are processed. Each migration run checks `analytics.db`, `documentation.db`, and `template_completion.db` in the workspace `databases/` directory and skips any that are missing.
 
