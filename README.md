@@ -62,6 +62,12 @@ pip install -r requirements.txt
 # 3. Initialize databases
 python scripts/database/database_initializer.py
 
+# 3b. Synchronize databases
+python scripts/database/database_sync_scheduler.py \
+    --workspace . \
+    --add-documentation-sync documentation/EXTRA_DATABASES.md \
+    --target staging.db
+
 # 4. Validate enterprise compliance
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 

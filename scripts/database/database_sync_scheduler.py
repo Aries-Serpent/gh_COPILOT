@@ -135,10 +135,22 @@ if __name__ == "__main__":
         help="Master database filename",
     )
     parser.add_argument(
+        "--target",
+        type=str,
+        help="Target database filename (overrides --master if specified)",
+    )
+    parser.add_argument(
         "--list-file",
         type=Path,
         default=Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md",
         help="File listing databases to sync",
+    )
+    parser.add_argument(
+        "--add-documentation-sync",
+        action="append",
+        type=Path,
+        default=[],
+        help="Additional files listing databases to sync",
     )
     parser.add_argument(
         "--log-db",
@@ -165,33 +177,22 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    workspace = args.workspace
-    scheduler = EnhancedDatabaseSyncScheduler(workspace)
+    workspace = args.workspace / "databases"
+    master_name = args.target if args.target else args.master
+    master_db = workspace / master_name
+    list_path = args.list_file
+    db_names = _load_database_names(list_path)
+    for extra in args.add_documentation_sync:
+        db_names.extend(_load_database_names(extra))
+    # remove duplicates while preserving order
+    seen = set()
+    unique_names: list[str] = []
+    for name in db_names:
+        if name not in seen:
+            seen.add(name)
+            unique_names.append(name)
+    db_names = unique_names
+    replica_dbs = [workspace / name for name in db_names if name != master_name]
 
-    if args.execute_cycle or args.continuous_mode:
-        def run_cycle() -> None:
-            scheduler.execute_sync_cycle()
-
-        termination_event = Event()
-
-        def handle_termination_signal(signum, frame):
-            logging.info("Termination signal received. Shutting down gracefully...")
-            termination_event.set()
-
-        signal.signal(signal.SIGINT, handle_termination_signal)
-        signal.signal(signal.SIGTERM, handle_termination_signal)
-
-        run_cycle()
-        while args.continuous_mode and not termination_event.is_set():
-            time.sleep(args.interval)
-            run_cycle()
-    else:
-        databases_dir = workspace / "databases"
-        master_db = databases_dir / args.master
-        list_path = args.list_file
-        db_names = _load_database_names(list_path)
-        replica_dbs = [
-            databases_dir / name for name in db_names if name != args.master
-        ]
-        log_db_path = databases_dir / args.log_db if args.log_db else None
-        synchronize_databases(master_db, replica_dbs, log_db=log_db_path)
+    log_db_path = workspace / args.log_db if args.log_db else None
+    synchronize_databases(master_db, replica_dbs, log_db=log_db_path)
