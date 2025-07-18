@@ -45,19 +45,19 @@ python web_gui_scripts/flask_apps/enterprise_dashboard.py
 
 ### Service Script Availability Checklist
 
-| Script Path | Status |
-|-------------|--------|
-| `file_browser_api.py` | ❌ Not found |
-| `database_query_api.py` | ❌ Not found |
-| `copilot_cli_relay_api.py` | ❌ Not found |
-| `documentation_generation_api.py` | ❌ Not found |
-| `file_browser_websocket.py` | ❌ Not found |
-| `copilot_cli_relay_websocket.py` | ❌ Not found |
-| `web_gui/database_driven_web_gui_generator.py` | ✅ Present |
-| `web_gui_scripts/flask_apps/enterprise_dashboard.py` | ✅ Present |
-| `start_all_services.bat` | ❌ Not found |
-| `start_all_services.sh` | ❌ Not found |
-| `START_ALL_SERVICES.py` | ❌ Not found |
+| Script Path | Expected Location | Status |
+|-------------|-------------------|--------|
+| `file_browser_api.py` | `./file_browser_api.py` | ❌ Not found |
+| `database_query_api.py` | `./database_query_api.py` | ❌ Not found |
+| `copilot_cli_relay_api.py` | `./copilot_cli_relay_api.py` | ❌ Not found |
+| `documentation_generation_api.py` | `./documentation_generation_api.py` | ❌ Not found |
+| `file_browser_websocket.py` | `./file_browser_websocket.py` | ❌ Not found |
+| `copilot_cli_relay_websocket.py` | `./copilot_cli_relay_websocket.py` | ❌ Not found |
+| `web_gui/database_driven_web_gui_generator.py` | `./web_gui/database_driven_web_gui_generator.py` | ✅ Present |
+| `web_gui_scripts/flask_apps/enterprise_dashboard.py` | `./web_gui_scripts/flask_apps/enterprise_dashboard.py` | ✅ Present |
+| `start_all_services.bat` | `./start_all_services.bat` | ❌ Not found |
+| `start_all_services.sh` | `./start_all_services.sh` | ❌ Not found |
+| `START_ALL_SERVICES.py` | `./START_ALL_SERVICES.py` | ❌ Not found |
 
 ### Method 2: Batch Startup Scripts
 
