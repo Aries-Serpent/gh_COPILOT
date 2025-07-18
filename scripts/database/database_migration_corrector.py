@@ -145,9 +145,9 @@ class DatabaseMigrationCorrector:
             try:
                 # Connect to both databases
                 source_conn = sqlite3.connect(str(self.source_db))
-                target_conn = getattr(self, "target_conn", None)
+                target_conn = self.target_conn
                 close_target = False
-                if target_conn is None:
+                if self.target_conn is None:
                     target_conn = sqlite3.connect(str(self.target_db))
                     close_target = True
 
