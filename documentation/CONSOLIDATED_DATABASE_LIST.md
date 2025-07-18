@@ -2,7 +2,7 @@
 
 The following SQLite databases remain after merging all analytics and documentation sources:
 
-_Updated after running consolidation scripts on {{TIMESTAMP}}._
+_Updated after running consolidation scripts on 2025-07-18 06:20 UTC._
 
 - enterprise_assets.db
 - archive.db
@@ -13,7 +13,8 @@ _Updated after running consolidation scripts on {{TIMESTAMP}}._
 
 `database_sync_scheduler.py` reads this file to keep these replicas synchronized with `production.db`. 
 All other databases have been archived following the consolidation campaign.
-`analytics.db` and `documentation.db` were moved to `archives/` on 2025-07-18 06:08 UTC.
+`analytics.db`, `documentation.db`, and other legacy databases were moved to
+`archives/` on 2025-07-18 06:20 UTC.
 
 The unified `enterprise_assets.db` replaces `analytics.db`, `documentation.db`, and `template_completion.db`.
 
