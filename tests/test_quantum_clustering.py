@@ -5,7 +5,7 @@ import pytest
 
 pytest.importorskip("qiskit_machine_learning")
 
-from quantum_clustering_file_organization import EnterpriseUtility
+from scripts.utilities.quantum_clustering_file_organization import EnterpriseUtility
 # isort: on
 
 logging.getLogger().setLevel(logging.CRITICAL)

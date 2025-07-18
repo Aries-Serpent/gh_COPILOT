@@ -2,9 +2,11 @@
 
 import logging
 
-from quantum_algorithms_functional import (run_grover_search,
-                                           run_kmeans_clustering,
-                                           run_simple_qnn)
+from scripts.utilities.quantum_algorithms_functional import (
+    run_grover_search,
+    run_kmeans_clustering,
+    run_simple_qnn,
+)
 
 
 def test_run_grover_search_find_index():

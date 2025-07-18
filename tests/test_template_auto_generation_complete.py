@@ -3,7 +3,7 @@ import logging
 import sqlite3
 from pathlib import Path
 
-from template_auto_generation_complete import TemplateSynthesisEngine
+from scripts.automation.template_auto_generation_complete import TemplateSynthesisEngine
 
 
 def create_dbs(tmp_path: Path):

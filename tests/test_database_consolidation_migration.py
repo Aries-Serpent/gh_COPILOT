@@ -3,7 +3,7 @@ import logging
 import sqlite3
 from pathlib import Path
 
-from database_consolidation_migration import consolidate_databases
+from scripts.database.database_consolidation_migration import consolidate_databases
 
 
 def benchmark_queries(queries, db_path=None):

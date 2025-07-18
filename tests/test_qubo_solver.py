@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import logging
 
-from advanced_qubo_optimization import solve_qubo_bruteforce
+from scripts.optimization.advanced_qubo_optimization import solve_qubo_bruteforce
 
 logging.getLogger().setLevel(logging.CRITICAL)
 

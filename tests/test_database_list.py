@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
-from unified_database_management_system import UnifiedDatabaseManager
+from scripts.database.unified_database_management_system import UnifiedDatabaseManager
 import logging
 
 

@@ -6,7 +6,7 @@ import pytest
 pytest.importorskip("qiskit_machine_learning")
 
 try:
-    from quantum_neural_networks_predictive_maintenance import (
+    from scripts.utilities.quantum_neural_networks_predictive_maintenance import (
         EnterpriseUtility,
         EstimatorQNN as ModuleEstimatorQNN,
     )

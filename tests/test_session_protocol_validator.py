@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 
-from session_protocol_validator import SessionProtocolValidator
-from unified_session_management_system import UnifiedSessionManagementSystem
+from validation.protocols.session import SessionProtocolValidator
+from scripts.utilities.unified_session_management_system import UnifiedSessionManagementSystem
 import logging
 
 

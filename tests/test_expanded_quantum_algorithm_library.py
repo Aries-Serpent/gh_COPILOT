@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from expanded_quantum_algorithm_library import EnterpriseUtility
+from scripts.utilities.expanded_quantum_algorithm_library import EnterpriseUtility
 import logging
 
 
