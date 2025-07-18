@@ -1,0 +1,59 @@
+2025-07-10 20:56:03,255 - INFO - [DB] Found session database: E:\gh_COPILOT\analytics.db with tables: [('pis_sessions',)]
+2025-07-10 20:56:03,255 - INFO - [DB] Found session database: E:\gh_COPILOT\pis_comprehensive.db with tables: [('pis_execution_sessions',), ('quantum_clustering_sessions',)]
+2025-07-10 20:56:03,255 - INFO - [DB] Found session database: E:\gh_COPILOT\pis_framework.db with tables: [('pis_framework_sessions',)]
+2025-07-10 20:56:03,273 - INFO - [DB] Found session database: E:\gh_COPILOT\pis_framework_enhanced.db with tables: [('pis_framework_sessions',), ('cross_session_learning',), ('pis_framework_sessions_enhanced',), ('semantic_search_sessions',)]
+2025-07-10 20:56:03,277 - INFO - [DB] Found session database: E:\gh_COPILOT\production.db with tables: [('pis_sessions',)]
+2025-07-10 20:56:03,278 - INFO - [DB] Found session database: E:\gh_COPILOT\quantum_integration.db with tables: [('quantum_integration_sessions',)]
+2025-07-10 20:56:03,278 - INFO - [DB] Found session database: E:\gh_COPILOT\quantum_integration_simplified.db with tables: [('quantum_execution_sessions',)]
+2025-07-10 20:56:03,284 - INFO - [INIT] Session Integrity Manager initialized
+2025-07-10 20:56:03,284 - INFO - [INFO] Action: end, Level: enterprise, Auto-fix: True
+2025-07-10 20:56:03,284 - INFO - [INFO] Session ID: session_20250710_205603_6732
+2025-07-10 20:56:03,284 - INFO - [START] Session end validation initiated
+2025-07-10 20:56:03,284 - INFO - [DB] Session record updated: session_20250710_205603_6732 - VALIDATING
+2025-07-10 20:56:03,532 - INFO - [VALIDATION] Database Integrity: 10/10 (100.0%)
+2025-07-10 20:56:03,532 - INFO - [PASSED] Database Integrity validation passed
+2025-07-10 20:56:03,562 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\enterprise_flake8_batch_correction_20250709_121903.log
+2025-07-10 20:56:03,581 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\enterprise_validation.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\enterprise_validation.db-wal'
+2025-07-10 20:56:03,611 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\pis_comprehensive.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\pis_comprehensive.db-wal'
+2025-07-10 20:56:03,613 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\pis_framework.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\pis_framework.db-wal'
+2025-07-10 20:56:03,614 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\pis_framework_20250710_102729.log
+2025-07-10 20:56:03,614 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\pis_framework_enhanced.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\pis_framework_enhanced.db-wal'
+2025-07-10 20:56:03,614 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\production.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\production.db-wal'
+2025-07-10 20:56:03,614 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\quantum_algorithms.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\quantum_algorithms.db-wal'
+2025-07-10 20:56:03,630 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\quantum_clustering_20250710_102552.log
+2025-07-10 20:56:03,630 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\quantum_expansion_20250710_101938.log
+2025-07-10 20:56:03,632 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\quantum_expansion_20250710_102126.log
+2025-07-10 20:56:03,632 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\quantum_expansion_20250710_102549.log
+2025-07-10 20:56:03,632 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\quantum_integration.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\quantum_integration.db-wal'
+2025-07-10 20:56:03,632 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\quantum_integration_simplified.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\quantum_integration_simplified.db-wal'
+2025-07-10 20:56:03,632 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\quantum_nn_predictive_20250710_102551.log
+2025-07-10 20:56:03,632 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\qubo_optimization_20250710_102127.log
+2025-07-10 20:56:03,632 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\qubo_optimization_20250710_102550.log
+2025-07-10 20:56:03,648 - WARNING - [WARNING] Could not remove zero-byte file E:\gh_COPILOT\style_compliance_intelligence.db-wal: [WinError 32] The process cannot access the file because it is being used by another process: 'E:\\gh_COPILOT\\style_compliance_intelligence.db-wal'
+2025-07-10 20:56:03,649 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\.git\FETCH_HEAD
+2025-07-10 20:56:03,649 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\databases\executive_alerts.db.backup_20250710_182251
+2025-07-10 20:56:03,668 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\deployment_package_20250710_182951\README.md
+2025-07-10 20:56:03,680 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\logs\enterprise_build_orchestrator.log
+2025-07-10 20:56:03,680 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\logs\template_compliance_enhancement_20250710_141817.log
+2025-07-10 20:56:05,157 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\deployment_package_20250710_182951\logs\enterprise_flake8_batch_correction_20250709_121903.log
+2025-07-10 20:56:05,169 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\deployment_package_20250710_182951\logs\pis_framework_20250710_102729.log
+2025-07-10 20:56:05,171 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\deployment_package_20250710_182951\logs\quantum_clustering_20250710_102552.log
+2025-07-10 20:56:05,172 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\deployment_package_20250710_182951\logs\quantum_expansion_20250710_101938.log
+2025-07-10 20:56:05,173 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\deployment_package_20250710_182951\logs\quantum_expansion_20250710_102126.log
+2025-07-10 20:56:05,174 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\deployment_package_20250710_182951\logs\quantum_expansion_20250710_102549.log
+2025-07-10 20:56:05,176 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\deployment_package_20250710_182951\logs\quantum_nn_predictive_20250710_102551.log
+2025-07-10 20:56:05,176 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\deployment_package_20250710_182951\logs\qubo_optimization_20250710_102127.log
+2025-07-10 20:56:05,176 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\deployment_package_20250710_182951\logs\qubo_optimization_20250710_102550.log
+2025-07-10 20:56:05,273 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\logs\phases\master_execution_20250709_204250.log
+2025-07-10 20:56:05,273 - INFO - [AUTOFIX] Removed zero-byte file: E:\gh_COPILOT\logs\phase_execution\phase3_stdout_20250709_214631.log
+2025-07-10 20:56:05,359 - WARNING - [WARNING] Found 34 zero-byte files (0.45%)
+2025-07-10 20:56:05,359 - INFO - [PASSED] File System Integrity validation passed
+2025-07-10 20:56:05,371 - INFO - [AUTOFIX] Removed recursive folder: E:\gh_COPILOT\enterprise_backups
+2025-07-10 20:56:05,375 - INFO - [AUTOFIX] Removed recursive folder: E:\gh_COPILOT\production_backups
+2025-07-10 20:56:05,702 - WARNING - [WARNING] Anti-recursion violations found: ['E:\\gh_COPILOT\\enterprise_backups', 'E:\\gh_COPILOT\\production_backups']
+2025-07-10 20:56:05,702 - ERROR - [FAILED] Anti-Recursion Compliance validation failed
+2025-07-10 20:56:05,702 - WARNING - [WARNING] No deployment package found
+2025-07-10 20:56:05,702 - WARNING - [WARNING] Enterprise compliance issues detected
+2025-07-10 20:56:05,702 - ERROR - [FAILED] Enterprise Compliance validation failed
+2025-07-10 20:56:05,702 - INFO - [DB] Session record updated: session_20250710_205603_6732 - FAILED
+2025-07-10 20:56:05,730 - INFO - [REPORT] Validation report saved: E:\gh_COPILOT\session_validation_report_20250710_205605.json

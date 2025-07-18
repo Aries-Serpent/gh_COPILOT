@@ -1,0 +1,9 @@
+2025-07-09 14:47:05,987 - INFO - Processing file: database_sync_scheduler.py
+2025-07-09 14:47:05,992 - INFO - Applied pattern 'Pat"h""' -> 'Path' (2 times) in database_sync_scheduler.py
+2025-07-09 14:47:05,996 - INFO - Applied pattern '"documentati"o""n"' -> '"documentation"' (1 times) in database_sync_scheduler.py
+2025-07-09 14:47:05,997 - INFO - Applied pattern '"/""' -> '"/"' (2 times) in database_sync_scheduler.py
+2025-07-09 14:47:05,998 - INFO - Applied pattern '"production\."d""b"' -> '"production.db"' (2 times) in database_sync_scheduler.py
+2025-07-09 14:47:05,999 - INFO - Applied pattern '"DATABASE_LIST\."m""d"' -> '"DATABASE_LIST.md"' (1 times) in database_sync_scheduler.py
+2025-07-09 14:47:06,005 - INFO - Applied pattern '""s"' -> 's"' (2 times) in database_sync_scheduler.py
+2025-07-09 14:47:06,010 - INFO - Applied pattern '""([^"]+)""' -> '"\1"' (7 times) in database_sync_scheduler.py
+2025-07-09 14:47:06,014 - INFO - Fixed 17 quote issues in database_sync_scheduler.py
