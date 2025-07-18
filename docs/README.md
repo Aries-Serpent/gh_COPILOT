@@ -7,15 +7,16 @@ This folder contains helper documentation for keeping repository metrics in sync
 Run `python scripts/generate_docs_metrics.py` to refresh metrics in the main
 `README.md` and under `documentation/generated/`. The script queries
 `production.db` for the current number of tracked scripts and templates and counts
-database entries from `documentation/DATABASE_LIST.md`.
+database entries from `documentation/DATABASE_LIST.md`. Use the
+`--db-path` option to specify an alternate database file if needed.
 
 ## Validation
 
 After updating documentation, execute
 `python scripts/validate_docs_metrics.py`. The validator compares the numbers in
 `README.md`, `documentation/generated/README.md`, and the technical whitepaper
-against the real database values. The command exits with an error if any values
-are inconsistent.
+against the real database values. Pass `--db-path` to override the database
+location. The command exits with an error if any values are inconsistent.
 
 This workflow ensures that documentation statistics accurately reflect the
 contents of the production database.

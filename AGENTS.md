@@ -60,7 +60,7 @@ Consult [`docs/INSTRUCTION_INDEX.md`](docs/INSTRUCTION_INDEX.md) for all availab
 - Do **not** modify version‑controlled SQLite databases.
 - Add or update unit tests when modifying code and run `make test`.
 - Keep commit messages short and imperative.
-- Track documentation metrics with `scripts/generate_docs_metrics.py` and verify via `scripts/validate_docs_metrics.py`.
+- Track documentation metrics with `scripts/generate_docs_metrics.py` and verify via `scripts/validate_docs_metrics.py`. Both scripts accept `--db-path` for specifying an alternate database.
 
 ---
 
