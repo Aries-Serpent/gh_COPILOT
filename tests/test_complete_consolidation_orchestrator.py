@@ -18,7 +18,7 @@ def test_export_table_to_7z(tmp_path: Path) -> None:
         conn.executemany("INSERT INTO t (id) VALUES (?)", [(i,) for i in range(5)])
         conn.commit()
 
-    archive = export_table_to_7z(db, "t", tmp_path)
+    archive = export_table_to_7z(db, "t", tmp_path, level=5)
     assert archive.exists()
     with py7zr.SevenZipFile(archive, "r") as zf:
         names = zf.getnames()
@@ -58,7 +58,7 @@ def test_migrate_and_compress_archives_large_tables(tmp_path: Path) -> None:
             os.chdir(original_cwd)
 
     with temporary_chdir(tmp_path):
-        migrate_and_compress(tmp_path, [big_db.name, small_db.name])
+        migrate_and_compress(tmp_path, [big_db.name, small_db.name], level=5)
 
     assert enterprise_db.exists()
     archive = tmp_path / "archives" / "table_exports" / f"{enterprise_db.stem}_bigtable.7z"

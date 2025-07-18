@@ -43,8 +43,22 @@ def archive_database(db_path: Path, dest_dir: Path, level: int = 9) -> Path:
     return archive_path
 
 
-def export_table_to_7z(db_path: Path, table: str, dest_dir: Path) -> Path:
-    """Export ``table`` from ``db_path`` to ``dest_dir`` as a 7z archive."""
+def export_table_to_7z(
+    db_path: Path, table: str, dest_dir: Path, level: int = 5
+) -> Path:
+    """Export ``table`` from ``db_path`` to ``dest_dir`` as a 7z archive.
+
+    Parameters
+    ----------
+    db_path:
+        Path to the database containing ``table``.
+    table:
+        Table name to export.
+    dest_dir:
+        Directory where the resulting archive will be created.
+    level:
+        Compression level passed to ``py7zr``.
+    """
     dest_dir.mkdir(parents=True, exist_ok=True)
     archive_path = dest_dir / f"{db_path.stem}_{table}.7z"
     with sqlite3.connect(db_path) as conn, tempfile.NamedTemporaryFile(
@@ -55,35 +69,58 @@ def export_table_to_7z(db_path: Path, table: str, dest_dir: Path) -> Path:
         writer.writerow([d[0] for d in cur.description])
         writer.writerows(cur.fetchall())
         tmp_path = Path(tmp.name)
-    with py7zr.SevenZipFile(archive_path, "w") as zf:
+    with py7zr.SevenZipFile(
+        archive_path, mode="w", compression_level=level
+    ) as zf:
         zf.write(tmp_path, arcname=tmp_path.name)
     tmp_path.unlink()
     logger.info("Compressed %s.%s to %s", db_path.name, table, archive_path)
     return archive_path
 
 
-def compress_large_tables(db_path: Path, analysis: dict, threshold: int = 50000) -> List[Path]:
-    """Compress tables with a row count greater than ``threshold``."""
+def compress_large_tables(
+    db_path: Path, analysis: dict, threshold: int = 50000, *, level: int = 5
+) -> List[Path]:
+    """Compress tables with a row count greater than ``threshold``.
+
+    Parameters
+    ----------
+    db_path:
+        Database being analyzed.
+    analysis:
+        Table structure analysis from ``DatabaseMigrationCorrector``.
+    threshold:
+        Minimum row count required to trigger compression.
+    level:
+        Compression level to use when creating the archive.
+    """
     archives: List[Path] = []
     for table in analysis.get("tables", []):
         if table.get("record_count", 0) > threshold:
-            archives.append(export_table_to_7z(
-                db_path, table["name"], Path("archives/table_exports")))
+            archives.append(
+                export_table_to_7z(
+                    db_path,
+                    table["name"],
+                    Path("archives/table_exports"),
+                    level,
+                )
+            )
     return archives
 
 
 def migrate_and_compress(
-    workspace: Path,
-    sources: Iterable[str],
-    size_threshold_mb: float = SIZE_THRESHOLD_MB,
-    skip_threshold_mb: float = SKIP_THRESHOLD_MB,
+    workspace: Path, sources: Iterable[str], *, level: int = 5
 ) -> None:
     """Migrate ``sources`` into enterprise_assets.db with compression.
 
-    Any database file larger than ``size_threshold_mb`` will be archived to
-    ``archives/database_backups`` with maximum 7z compression before migration.
-    Databases exceeding ``skip_threshold_mb`` are skipped and removed after
-    archiving to maintain workspace compliance.
+    Parameters
+    ----------
+    workspace:
+        Workspace root containing the databases directory.
+    sources:
+        Iterable of database file names to consolidate.
+    level:
+        Compression level used when exporting large tables.
     """
     validate_enterprise_operation()
     db_dir = workspace / "databases"
@@ -131,7 +168,7 @@ def migrate_and_compress(
                 if backup.exists():
                     backup.unlink()
             analysis = migrator.analyze_database_structure(enterprise_db)
-            compress_large_tables(enterprise_db, analysis)
+            compress_large_tables(enterprise_db, analysis, level=level)
             elapsed = perf_counter() - start
             remaining = (total - idx) * (elapsed / idx)
             bar.set_postfix(ETC=f"{remaining:.1f}s")
@@ -143,6 +180,32 @@ def migrate_and_compress(
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
-    migrate_and_compress(workspace, ["analytics.db", "documentation.db", "template_completion.db"])
+    import argparse
+
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+
+    parser = argparse.ArgumentParser(
+        description="Consolidate databases with optional table compression"
+    )
+    parser.add_argument(
+        "--workspace",
+        type=Path,
+        default=Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())),
+        help="Workspace root",
+    )
+    parser.add_argument(
+        "--compression-level",
+        type=int,
+        default=5,
+        help="Compression level for 7z archives",
+    )
+
+    args = parser.parse_args()
+
+    migrate_and_compress(
+        args.workspace,
+        ["analytics.db", "documentation.db", "template_completion.db"],
+        level=args.compression_level,
+    )
