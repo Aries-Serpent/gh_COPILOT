@@ -1,4 +1,4 @@
-"""Thin wrapper for :mod:"scripts.database.unified_database_management_system"."""
+"""Thin wrapper for :mod:`scripts.database.unified_database_management_system`."""
 from scripts.database.unified_database_management_system import (
     UnifiedDatabaseManager, synchronize_databases)
 
