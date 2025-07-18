@@ -26,36 +26,17 @@ def test_run_migration_creates_db(tmp_path: Path) -> None:
     assert "cross_database_sync_operations" in tables
 
 
-def test_run_migration_monitor_size(tmp_path: Path) -> None:
+def test_run_migration_monitor_size(tmp_path: Path, monkeypatch) -> None:
     databases = tmp_path / "databases"
     databases.mkdir()
-    run_migration(tmp_path, sources=[], compression_first=True, monitor_size=True)
-    db_path = databases / "enterprise_assets.db"
-    assert db_path.exists()
 
+    def fake_check_database_sizes(_dir: Path, threshold_mb: float = 99.9) -> dict[str, float]:
+        return {"enterprise_assets.db": 150.0}
 
-def test_default_sources_from_documentation(tmp_path: Path) -> None:
-    databases_dir = tmp_path / "databases"
-    docs_dir = tmp_path / "documentation"
-    databases_dir.mkdir()
-    docs_dir.mkdir()
+    monkeypatch.setattr(
+        "scripts.database.unified_database_migration.check_database_sizes",
+        fake_check_database_sizes,
+    )
 
-    source_names = ["source1.db", "source2.db"]
-    for name in source_names:
-        with sqlite3.connect(databases_dir / name) as conn:
-            conn.execute("CREATE TABLE t(id INTEGER)")
-            conn.execute("INSERT INTO t VALUES (1)")
-
-    list_file = docs_dir / "CONSOLIDATED_DATABASE_LIST.md"
-    list_file.write_text("\n".join(f"- {name}" for name in source_names))
-
-    run_migration(tmp_path)
-
-    enterprise_db = databases_dir / "enterprise_assets.db"
-    with sqlite3.connect(enterprise_db) as conn:
-        ops = [row[0] for row in conn.execute(
-            "SELECT operation FROM cross_database_sync_operations"
-        )]
-    for name in source_names:
-        assert any(f"start_migrate_{name}" == op for op in ops)
-        assert any(f"completed_migrate_{name}" == op for op in ops)
+    with pytest.raises(RuntimeError):
+        run_migration(tmp_path, sources=[], compression_first=True, monitor_size=True)

@@ -128,10 +128,14 @@ def run_migration(
             _compress_database(enterprise_db)
             bar.update(1)
             if monitor_size:
-                validate_database_size(db_dir)
+                sizes = check_database_sizes(db_dir)
+                if any(size > 99.9 for size in sizes.values()):
+                    raise RuntimeError("Database size limit exceeded")
 
     if monitor_size:
-        validate_database_size(db_dir)
+        sizes = check_database_sizes(db_dir)
+        if any(size > 99.9 for size in sizes.values()):
+            raise RuntimeError("Database size limit exceeded")
 
     log_sync_operation(enterprise_db, "migration_complete")
     logger.info("Migration process completed")
