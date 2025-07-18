@@ -43,12 +43,19 @@ def test_migrate_and_compress_archives_large_tables(tmp_path: Path) -> None:
     _create_db(small_db, "smalltable", 10)
 
     enterprise_db = db_dir / "enterprise_assets.db"
-    cwd = os.getcwd()
-    os.chdir(tmp_path)
-    try:
+    from contextlib import contextmanager
+
+    @contextmanager
+    def temporary_chdir(path):
+        original_cwd = os.getcwd()
+        os.chdir(path)
+        try:
+            yield
+        finally:
+            os.chdir(original_cwd)
+
+    with temporary_chdir(tmp_path):
         migrate_and_compress(tmp_path, [big_db.name, small_db.name])
-    finally:
-        os.chdir(cwd)
 
     assert enterprise_db.exists()
     archive = tmp_path / "archives" / "table_exports" / f"{enterprise_db.stem}_bigtable.7z"
