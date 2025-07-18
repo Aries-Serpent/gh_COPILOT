@@ -83,7 +83,6 @@ def test_migrate_and_compress_skips_large_db(tmp_path: Path) -> None:
 
     enterprise_db = db_dir / "enterprise_assets.db"
 
-    from contextlib import contextmanager
 
     @contextmanager
     def temporary_chdir(path: Path):
