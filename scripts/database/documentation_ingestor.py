@@ -12,7 +12,10 @@ from pathlib import Path
 from tqdm import tqdm
 
 from .size_compliance_checker import check_database_sizes
+from .unified_database_initializer import initialize_database
 
+
+from .utils import _table_exists
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -36,26 +39,38 @@ def ingest_documentation(workspace: Path, docs_dir: Path | None = None) -> None:
     """
     db_dir = workspace / "databases"
     db_path = db_dir / "enterprise_assets.db"
+
+    if not db_path.exists():
+        initialize_database(db_path)
+
     docs_dir = docs_dir or (workspace / "documentation")
     files = _gather_markdown_files(docs_dir)
 
-    with sqlite3.connect(db_path) as conn, tqdm(total=len(files), desc="Docs", unit="file") as bar:
-        for path in files:
-            content = path.read_text(encoding="utf-8")
-            digest = hashlib.sha256(content.encode()).hexdigest()
-            conn.execute(
-                (
-                    "INSERT INTO documentation_assets "
-                    "(doc_path, content_hash, created_at) VALUES (?, ?, ?)"
-                ),
-                (
-                    str(path.relative_to(workspace)),
-                    digest,
-                    datetime.now(timezone.utc).isoformat(),
-                ),
-            )
-            bar.update(1)
+    conn = sqlite3.connect(db_path)
+    try:
+        if not _table_exists(conn, "documentation_assets"):
+            conn.close()
+            initialize_database(db_path)
+            conn = sqlite3.connect(db_path)
+        with conn, tqdm(total=len(files), desc="Docs", unit="file") as bar:
+            for path in files:
+                content = path.read_text(encoding="utf-8")
+                digest = hashlib.sha256(content.encode()).hexdigest()
+                conn.execute(
+                    (
+                        "INSERT INTO documentation_assets "
+                        "(doc_path, content_hash, created_at) VALUES (?, ?, ?)"
+                    ),
+                    (
+                        str(path.relative_to(workspace)),
+                        digest,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
+                bar.update(1)
+    finally:
         conn.commit()
+        conn.close()
 
     if not check_database_sizes(db_dir):
         raise RuntimeError("Database size limit exceeded")

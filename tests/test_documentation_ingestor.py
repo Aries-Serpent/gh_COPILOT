@@ -2,7 +2,6 @@ import sqlite3
 from pathlib import Path
 
 from scripts.database.documentation_ingestor import ingest_documentation
-from scripts.database.unified_database_initializer import initialize_database
 
 
 def test_ingest_documentation(tmp_path: Path) -> None:
@@ -10,7 +9,6 @@ def test_ingest_documentation(tmp_path: Path) -> None:
     db_dir = workspace / "databases"
     db_dir.mkdir()
     db_path = db_dir / "enterprise_assets.db"
-    initialize_database(db_path)
     docs_dir = workspace / "documentation"
     docs_dir.mkdir()
     doc = docs_dir / "guide.md"
