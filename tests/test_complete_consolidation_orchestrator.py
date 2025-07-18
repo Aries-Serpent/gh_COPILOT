@@ -67,3 +67,8 @@ def test_migrate_and_compress_archives_large_tables(tmp_path: Path) -> None:
     with sqlite3.connect(enterprise_db) as conn:
         assert conn.execute("SELECT COUNT(*) FROM smalltable").fetchone()[0] == 10
         assert conn.execute("SELECT COUNT(*) FROM bigtable").fetchone()[0] == 60000
+
+    log_file = tmp_path / "migration.log"
+    assert log_file.exists()
+    content = log_file.read_text()
+    assert "Session" in content and "ended" in content

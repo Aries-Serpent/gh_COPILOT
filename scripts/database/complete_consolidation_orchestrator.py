@@ -11,7 +11,7 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from time import perf_counter
-from typing import Iterable, List
+from typing import Iterable, List, Optional
 
 import py7zr
 from tqdm import tqdm
@@ -55,40 +55,92 @@ def compress_large_tables(db_path: Path, analysis: dict, threshold: int = 50000)
     return archives
 
 
-def migrate_and_compress(workspace: Path, sources: Iterable[str]) -> None:
-    """Migrate ``sources`` into enterprise_assets.db with compression."""
+def migrate_and_compress(
+    workspace: Path,
+    sources: Iterable[str],
+    log_file: Path | str = "migration.log",
+) -> None:
+    """Migrate ``sources`` into ``enterprise_assets.db`` with compression."""
     validate_enterprise_operation()
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
 
-    total = len(sources)
-    start = perf_counter()
-    with tqdm(total=total, desc="Consolidating", unit="db") as bar:
-        for idx, name in enumerate(sources, 1):
-            src = db_dir / name
-            if not src.exists():
-                bar.update(1)
-                continue
-            migrator = DatabaseMigrationCorrector()
-            migrator.workspace_root = workspace
-            migrator.source_db = src
-            migrator.target_db = enterprise_db
-            migrator.migration_report = {"errors": []}
-            migrator.migrate_database_content()
-            analysis = migrator.analyze_database_structure(enterprise_db)
-            compress_large_tables(enterprise_db, analysis)
-            elapsed = perf_counter() - start
-            remaining = (total - idx) * (elapsed / idx)
-            bar.set_postfix(ETC=f"{remaining:.1f}s")
-            bar.update(1)
+    handler = logging.FileHandler(log_file)
+    logger.addHandler(handler)
+    session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    start_ts = datetime.now()
+    logger.info("Session %s started at %s", session_id, start_ts.isoformat())
 
-    if not check_database_sizes(db_dir):
-        raise RuntimeError("Database size limit exceeded")
-    logger.info("Consolidation complete")
+    conn: Optional[sqlite3.Connection] = None
+    try:
+        conn = sqlite3.connect(enterprise_db)
+        conn.execute("BEGIN")
+        total = len(sources)
+        start = perf_counter()
+        with tqdm(total=total, desc="Consolidating", unit="db") as bar:
+            for idx, name in enumerate(sources, 1):
+                src = db_dir / name
+                if not src.exists():
+                    bar.update(1)
+                    continue
+                migrator = DatabaseMigrationCorrector()
+                migrator.workspace_root = workspace
+                migrator.source_db = src
+                migrator.target_db = enterprise_db
+                migrator.target_conn = conn
+                migrator.migration_report = {"errors": []}
+                migrator.migrate_database_content()
+                analysis = migrator.analyze_database_structure(enterprise_db)
+                compress_large_tables(enterprise_db, analysis)
+                elapsed = perf_counter() - start
+                remaining = (total - idx) * (elapsed / idx)
+                bar.set_postfix(ETC=f"{remaining:.1f}s")
+                bar.update(1)
+
+        if not check_database_sizes(db_dir):
+            raise RuntimeError("Database size limit exceeded")
+        conn.commit()
+        logger.info("Consolidation complete")
+    except Exception as exc:
+        logger.exception("Migration failed: %s", exc)
+        if conn is not None:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if conn is not None:
+            conn.close()
+        end_ts = datetime.now()
+        duration = (end_ts - start_ts).total_seconds()
+        logger.info(
+            "Session %s ended at %s (%.2fs)",
+            session_id,
+            end_ts.isoformat(),
+            duration,
+        )
+        logger.removeHandler(handler)
+        handler.close()
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Consolidate enterprise databases")
+    parser.add_argument(
+        "--log-file",
+        type=Path,
+        default=Path("migration.log"),
+        help="Path to the migration log file",
+    )
+    args = parser.parse_args()
+
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
-    migrate_and_compress(workspace, ["analytics.db", "documentation.db", "template_completion.db"])
+    migrate_and_compress(
+        workspace,
+        ["analytics.db", "documentation.db", "template_completion.db"],
+        log_file=args.log_file,
+    )
