@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import importlib.resources
 import sqlite3
 import subprocess
 import sys
@@ -9,9 +10,9 @@ from scripts.database.unified_database_initializer import initialize_database
 
 
 def test_synchronize_databases(tmp_path):
-    master = tmp_path / "master.db"
+    master = tmp_path / "enterprise_assets.db"
     replica = tmp_path / "replica.db"
-    log_db = tmp_path / "enterprise_assets.db"
+    log_db = tmp_path / "log.db"
     initialize_database(log_db)
     with sqlite3.connect(master) as conn:
         conn.execute("CREATE TABLE t (id INTEGER)")
@@ -31,10 +32,10 @@ def test_scheduler_cli(tmp_path):
     workspace = tmp_path / "ws"
     db_dir = workspace / "databases"
     db_dir.mkdir(parents=True)
-    master = db_dir / "master.db"
+    master = db_dir / "enterprise_assets.db"
     replica = db_dir / "replica.db"
     extra_replica = db_dir / "extra.db"
-    log_db = db_dir / "enterprise_assets.db"
+    log_db = db_dir / "log.db"
     for db in (master, replica, extra_replica, log_db):
         with sqlite3.connect(db) as conn:
             conn.execute("CREATE TABLE t (id INTEGER)")
@@ -48,17 +49,18 @@ def test_scheduler_cli(tmp_path):
     subprocess.check_call(
         [
             sys.executable,
-            str(importlib.resources.files("scripts.database") / "database_sync_scheduler.py"),
+            str(
+                importlib.resources.files("scripts.database")
+                / "database_sync_scheduler.py"
+            ),
             "--workspace",
             str(workspace),
-            "--master",
-            master.name,
             "--list-file",
             str(list_file),
             "--add-documentation-sync",
             str(extra_file),
-            "--target",
-            master.name,
+            "--log-db",
+            log_db.name,
         ]
     )
 
