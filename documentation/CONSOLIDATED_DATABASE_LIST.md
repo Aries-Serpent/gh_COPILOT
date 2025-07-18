@@ -31,3 +31,5 @@ The `database_sync_scheduler.py` utility now reads this file to determine which
 replicas should be kept in sync with `production.db`.
 
 The unified `enterprise_assets.db` replaces `analytics.db`, `documentation.db`, and `template_completion.db`.
+
+**Note:** Initial attempt on 2025-07-18 exceeded the 99.9 MB limit. After cleanup, migration succeeded but the resulting database remains untracked.
