@@ -23,6 +23,8 @@ def test_export_table_to_7z(tmp_path: Path) -> None:
 
 
 def _create_db(path: Path, table: str, rows: int) -> None:
+    if not table.isidentifier():
+        raise ValueError(f"Invalid table name: {table}")
     with sqlite3.connect(path) as conn:
         conn.execute(f"CREATE TABLE {table} (id INTEGER)")
         conn.executemany(f"INSERT INTO {table} (id) VALUES (?)", [(i,) for i in range(rows)])
