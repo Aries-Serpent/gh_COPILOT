@@ -382,6 +382,9 @@ validate_enterprise_standards(final_result)
 
 ### **Testing & Validation**
 ```bash
+# Install test dependencies
+pip install -r requirements-test.txt
+
 # Run comprehensive test suite
 make test
 
