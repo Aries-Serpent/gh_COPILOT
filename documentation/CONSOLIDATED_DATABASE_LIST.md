@@ -13,7 +13,7 @@ _Updated after running consolidation scripts on 2025-07-18 06:20 UTC._
 
 `database_sync_scheduler.py` reads this file to keep these replicas synchronized with `production.db`. 
 All other databases have been archived following the consolidation campaign.
-`analytics.db`, `documentation.db`, and other legacy databases were moved to
+`analytics.db`, `documentation.db`, `template_completion.db`, and `user_activity.db` were moved to
 `archives/` on 2025-07-18 06:20 UTC.
 
 The unified `enterprise_assets.db` replaces `analytics.db`, `documentation.db`, and `template_completion.db`.
