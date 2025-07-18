@@ -137,7 +137,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--target",
         type=str,
-        help="Override master database filename",
+        help="Target database filename (overrides --master if specified)",
     )
     parser.add_argument(
         "--list-file",
