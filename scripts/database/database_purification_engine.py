@@ -259,8 +259,10 @@ class DatabasePurificationEngine:
         for db_path in self.databases:
             try:
                 # Create backup before repair
-                backup_path = f"{db_path}.backup_{datetime.datetime.now(
-                ).strftime('%Y%m%d_%H%M%S')}"
+                backup_path = (
+                    f"{db_path}.backup_"
+                    f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                )
                 shutil.copy2(str(db_path), backup_path)
                 self.logger.info(f"[INFO] Backup created: {backup_path}")
 
