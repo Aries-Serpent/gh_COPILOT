@@ -18,6 +18,7 @@ The **gh\_COPILOT Toolkit v4.0** repository supports enterprise deployment, moni
 * Tests: `make test` (installs `requirements-test.txt` and runs `pytest`)
 * Test dependencies include `tqdm`, `numpy`, `qiskit` (>=1.4,<2.0), `qiskit-aer`, and `qiskit-machine-learning` (installed from `requirements-test.txt`).
 * Set workspace root via `GH_COPILOT_WORKSPACE` (default `/path/to/workspace`).
+* Populate `.env` with `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT`, then `source .env` before executing scripts.
 
 ---
 
