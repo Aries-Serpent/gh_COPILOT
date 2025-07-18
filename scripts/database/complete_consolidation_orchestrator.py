@@ -6,6 +6,7 @@ from __future__ import annotations
 import csv
 import logging
 import os
+import shutil
 import sqlite3
 import tempfile
 from datetime import datetime
@@ -55,6 +56,14 @@ def compress_large_tables(db_path: Path, analysis: dict, threshold: int = 50000)
     return archives
 
 
+def _log_rollback(workspace: Path, name: str) -> None:
+    """Append a rollback entry for ``name`` to the workspace log."""
+    log_file = workspace / "logs" / "rollback.log"
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    with log_file.open("a", encoding="utf-8") as fh:
+        fh.write(f"{datetime.now().isoformat()} rollback {name}\n")
+
+
 def migrate_and_compress(workspace: Path, sources: Iterable[str]) -> None:
     """Migrate ``sources`` into enterprise_assets.db with compression."""
     validate_enterprise_operation()
@@ -75,7 +84,17 @@ def migrate_and_compress(workspace: Path, sources: Iterable[str]) -> None:
             migrator.source_db = src
             migrator.target_db = enterprise_db
             migrator.migration_report = {"errors": []}
-            migrator.migrate_database_content()
+            backup = enterprise_db.with_suffix(".bak")
+            shutil.copy2(enterprise_db, backup)
+            try:
+                migrator.migrate_database_content()
+            except Exception:
+                shutil.copy2(backup, enterprise_db)
+                _log_rollback(workspace, name)
+                raise
+            finally:
+                if backup.exists():
+                    backup.unlink()
             analysis = migrator.analyze_database_structure(enterprise_db)
             compress_large_tables(enterprise_db, analysis)
             elapsed = perf_counter() - start
