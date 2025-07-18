@@ -2,6 +2,8 @@
 
 The following SQLite databases remain after merging all analytics and documentation sources:
 
+_Updated after running consolidation scripts on 2025-07-18._
+
 - enterprise_assets.db
 - archive.db
 - development.db
