@@ -28,7 +28,8 @@ logger = logging.getLogger(__name__)
 
 SIZE_THRESHOLD_MB = 99.9
 SKIP_THRESHOLD_MB = 100.0
-BACKUP_ROOT = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/temp/gh_COPILOT_Backups"))
+BACKUP_ROOT = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "./gh_COPILOT_Backups"))
+BACKUP_ROOT.mkdir(parents=True, exist_ok=True)  # Ensure the directory exists
 BACKUP_DIR = BACKUP_ROOT / "database_backups"
 
 
