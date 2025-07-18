@@ -73,14 +73,14 @@ python scripts/database/database_sync_scheduler.py \
 python scripts/database/complete_consolidation_orchestrator.py \
     --input-databases db1.db db2.db db3.db \
     --output-database consolidated.db \
-    --compression-level 5
+    --compression-level 5  # specify 7z compression level
 
 # The `complete_consolidation_orchestrator.py` script consolidates multiple databases into a single compressed database.
 # 
 # **Parameters:**
 # - `--input-databases`: A list of input database files to consolidate.
 # - `--output-database`: The name of the output consolidated database file.
-# - `--compression-level`: An optional parameter to specify the compression level (default: 5).
+# - `--compression-level`: Compression level for the 7z archives (default: 5).
 #
 # **Example Usage:**
 # ```bash

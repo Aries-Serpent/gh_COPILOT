@@ -11,6 +11,14 @@ The script accepts the following command-line arguments:
 - `--compression-level`: Compression level for 7z (default: 5).
 - `--log-file`: Path to the log file for recording migration details (default: `migration.log`).
 
+### Example
+Use a higher compression level to maximize archive reduction:
+
+```bash
+python scripts/database/complete_consolidation_orchestrator.py \
+    --compression-level 7
+```
+
 ## Prerequisites
 - Python 3.8 or higher.
 - The `7z` utility must be installed and available in the system's PATH.
