@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from session_management_consolidation_executor import EnterpriseUtility
+from archive.consolidated_scripts.session_management_consolidation_executor import EnterpriseUtility
 import logging
 
 

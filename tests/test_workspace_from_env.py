@@ -2,7 +2,7 @@
 
 import logging
 
-from database_purification_engine import DatabasePurificationEngine
+from scripts.database.database_purification_engine import DatabasePurificationEngine
 
 
 def test_engine_uses_env_var(tmp_path, monkeypatch):

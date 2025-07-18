@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from database_first_windows_compatible_flake8_corrector import \
+from scripts.database.database_first_windows_compatible_flake8_corrector import \
     DatabaseFirstFlake8Corrector
 
 

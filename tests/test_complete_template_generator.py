@@ -2,7 +2,7 @@
 import sqlite3
 from pathlib import Path
 
-from complete_template_generator import CompleteTemplateGenerator
+from scripts.utilities.complete_template_generator import CompleteTemplateGenerator
 import logging
 
 

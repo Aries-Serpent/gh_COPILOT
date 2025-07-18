@@ -15,7 +15,8 @@ import os
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from autonomous_database_health_optimizer import AutonomousDatabaseHealthOptimizer
+from scripts.automation.autonomous_database_health_optimizer import \
+    AutonomousDatabaseHealthOptimizer
 
 
 class TestAutonomousDatabaseHealthOptimizer:
@@ -99,7 +100,7 @@ class TestAutonomousDatabaseHealthOptimizer:
     def test_tqdm_import_handling(self):
         """Test that tqdm import is handled gracefully"""
         # Test that tqdm can be imported from the module
-        from autonomous_database_health_optimizer import tqdm
+        from scripts.automation.autonomous_database_health_optimizer import tqdm
         
         # Test fallback implementation if real tqdm is not available
         # Create a test instance
@@ -145,7 +146,8 @@ class TestAutonomousDatabaseHealthOptimizer:
     
     def test_strategy_selection(self, optimizer):
         """Test optimal strategy selection"""
-        from autonomous_database_health_optimizer import DatabaseHealthMetrics
+        from scripts.automation.autonomous_database_health_optimizer import \
+            DatabaseHealthMetrics
         from datetime import datetime
         
         # Create test health metrics with integrity issues

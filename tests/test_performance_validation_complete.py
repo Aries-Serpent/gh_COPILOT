@@ -4,7 +4,7 @@ import sqlite3
 import time
 
 
-from performance_validation_complete import benchmark
+from scripts.validation.performance_validation_complete import benchmark
 
 
 def test_benchmark_runs():
@@ -19,23 +19,23 @@ def test_metrics_are_stored(tmp_path, monkeypatch):
     db_file = tmp_path / "bench.db"
 
     monkeypatch.setattr(
-        "performance_validation_complete.run_grover_search",
+        "scripts.validation.performance_validation_complete.run_grover_search",
         lambda *a, **k: time.sleep(0.01),
     )
     monkeypatch.setattr(
-        "performance_validation_complete.run_kmeans_clustering",
+        "scripts.validation.performance_validation_complete.run_kmeans_clustering",
         lambda *a, **k: time.sleep(0.01),
     )
     monkeypatch.setattr(
-        "performance_validation_complete.run_simple_qnn",
+        "scripts.validation.performance_validation_complete.run_simple_qnn",
         lambda *a, **k: time.sleep(0.01),
     )
     monkeypatch.setattr(
-        "performance_validation_complete.TemplateSynthesisEngine.synthesize_templates",
+        "scripts.validation.performance_validation_complete.TemplateSynthesisEngine.synthesize_templates",
         lambda self: None,
     )
     monkeypatch.setattr(
-        "performance_validation_complete.DatabaseD \
+        "scripts.validation.performance_validation_complete.DatabaseD \
             rivenFlake8CorrectorFunctional.execute_correction",
         lambda self: True,
     )
@@ -53,23 +53,23 @@ def test_regression_warning(tmp_path, monkeypatch, caplog):
 
     # baseline run
     monkeypatch.setattr(
-        "performance_validation_complete.run_grover_search",
+        "scripts.validation.performance_validation_complete.run_grover_search",
         lambda *a, **k: time.sleep(0.01),
     )
     monkeypatch.setattr(
-        "performance_validation_complete.run_kmeans_clustering",
+        "scripts.validation.performance_validation_complete.run_kmeans_clustering",
         lambda *a, **k: time.sleep(0.01),
     )
     monkeypatch.setattr(
-        "performance_validation_complete.run_simple_qnn",
+        "scripts.validation.performance_validation_complete.run_simple_qnn",
         lambda *a, **k: time.sleep(0.01),
     )
     monkeypatch.setattr(
-        "performance_validation_complete.TemplateSynthesisEngine.synthesize_templates",
+        "scripts.validation.performance_validation_complete.TemplateSynthesisEngine.synthesize_templates",
         lambda self: None,
     )
     monkeypatch.setattr(
-        "performance_validation_complete.DatabaseD \
+        "scripts.validation.performance_validation_complete.DatabaseD \
             rivenFlake8CorrectorFunctional.execute_correction",
         lambda self: True,
     )
@@ -78,15 +78,15 @@ def test_regression_warning(tmp_path, monkeypatch, caplog):
 
     # slower second run to trigger regression
     monkeypatch.setattr(
-        "performance_validation_complete.run_grover_search",
+        "scripts.validation.performance_validation_complete.run_grover_search",
         lambda *a, **k: time.sleep(0.02),
     )
     monkeypatch.setattr(
-        "performance_validation_complete.run_kmeans_clustering",
+        "scripts.validation.performance_validation_complete.run_kmeans_clustering",
         lambda *a, **k: time.sleep(0.02),
     )
     monkeypatch.setattr(
-        "performance_validation_complete.run_simple_qnn",
+        "scripts.validation.performance_validation_complete.run_simple_qnn",
         lambda *a, **k: time.sleep(0.02),
     )
 

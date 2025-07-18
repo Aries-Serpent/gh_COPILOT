@@ -2,7 +2,7 @@
 import logging
 import os
 
-from quantum_clustering_file_organization import EnterpriseUtility
+from scripts.utilities.quantum_clustering_file_organization import EnterpriseUtility
 
 
 def test_quantum_clustering(tmp_path, caplog):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pytest
-import database_driven_flake8_corrector_functional as mod
-from database_driven_flake8_corrector_functional import DatabaseDrivenFlake8CorrectorFunctional
+import scripts.database.database_driven_flake8_corrector_functional as mod
+from scripts.database.database_driven_flake8_corrector_functional import DatabaseDrivenFlake8CorrectorFunctional
 from pathlib import PureWindowsPath
 import logging
 

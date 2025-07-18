@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import logging
 
-from quantum_integration_orchestrator import integrate_qubo_problems
+from scripts.automation.quantum_integration_orchestrator import integrate_qubo_problems
 
 logging.getLogger().setLevel(logging.CRITICAL)
 

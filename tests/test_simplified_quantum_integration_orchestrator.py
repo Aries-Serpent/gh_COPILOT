@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from simplified_quantum_integration_orchestrator import EnterpriseUtility
+from archive.consolidated_scripts.simplified_quantum_integration_orchestrator import EnterpriseUtility
 import logging
 
 

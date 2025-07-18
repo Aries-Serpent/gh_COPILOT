@@ -8,12 +8,12 @@ from qiskit import QuantumCircuit
 try:
     from qiskit.algorithms import Shor
 except Exception:  # pragma: no cover - use local fallback
-    from physics_optimization_engine import Shor  # type: ignore
+    from scripts.optimization.physics_optimization_engine import Shor  # type: ignore
 from qiskit.circuit.library import QFT
 from qiskit.quantum_info import Statevector
 from qiskit_aer import AerSimulator
 
-from physics_optimization_engine import PhysicsOptimizationEngine
+from scripts.optimization.physics_optimization_engine import PhysicsOptimizationEngine
 import numpy as np
 import logging
 

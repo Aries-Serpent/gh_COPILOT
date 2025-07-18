@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from quantum_performance_integration_tester import EnterpriseUtility
+from archive.consolidated_scripts.quantum_performance_integration_tester import EnterpriseUtility
 import logging
 
 

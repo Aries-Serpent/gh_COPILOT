@@ -2,7 +2,7 @@
 import logging
 import sqlite3
 
-from database_driven_flake8_corrector_functional import \
+from scripts.database.database_driven_flake8_corrector_functional import \
     DatabaseDrivenFlake8CorrectorFunctional
 
 

@@ -3,7 +3,7 @@ import logging
 import sqlite3
 from datetime import datetime, timedelta
 
-from database_first_windows_compatible_flake8_corrector import \
+from scripts.database.database_first_windows_compatible_flake8_corrector import \
     DatabaseFirstFlake8Corrector
 
 

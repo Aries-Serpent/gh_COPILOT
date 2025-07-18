@@ -2,7 +2,7 @@
 from pathlib import Path
 import shutil
 
-from unified_script_generation_system import EnterpriseUtility
+from scripts.utilities.unified_script_generation_system import EnterpriseUtility
 import logging
 
 
