@@ -8,16 +8,7 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, Dict
 
-from qiskit.circuit.library import RealAmplitudes, ZZFeatureMap
-
-try:
-    from qiskit.primitives import Estimator
-    from qiskit_machine_learning.algorithms.classifiers import \
-        NeuralNetworkClassifier
-    from qiskit_machine_learning.neural_networks import EstimatorQNN
-except Exception:  # pragma: no cover - optional dependency
-    EstimatorQNN = None
-    NeuralNetworkClassifier = None
+# Imports are deferred in functions to avoid heavy dependencies at import time
 
 try:
     from qiskit.utils import algorithm_globals
@@ -72,8 +63,13 @@ def benchmark_physics_engine() -> Dict[str, Any]:
 
 def benchmark_qnn() -> Dict[str, float]:
     """Benchmark the QNN predictive maintenance example."""
-    if NeuralNetworkClassifier is None or EstimatorQNN is None:
-        raise ImportError("qiskit_machine_learning is required")
+    try:
+        from qiskit.circuit.library import RealAmplitudes, ZZFeatureMap
+        from qiskit.primitives import Estimator
+        from qiskit_machine_learning.algorithms.classifiers import NeuralNetworkClassifier
+        from qiskit_machine_learning.neural_networks import EstimatorQNN
+    except Exception as exc:  # pragma: no cover - optional dependency
+        raise ImportError("qiskit_machine_learning is required") from exc
 
     _set_seed(42)
 
@@ -94,8 +90,6 @@ def benchmark_qnn() -> Dict[str, float]:
 
     feature_map = ZZFeatureMap(feature_dimension=2, reps=1)
     ansatz = RealAmplitudes(num_qubits=2, reps=1)
-    if NeuralNetworkClassifier is None or EstimatorQNN is None:
-        raise ImportError("qiskit_machine_learning is required")
 
     circuit = feature_map.compose(ansatz)
     qnn = EstimatorQNN(
