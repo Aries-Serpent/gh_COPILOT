@@ -9,10 +9,20 @@ import sqlite3
 from pathlib import Path
 from typing import Iterable, Tuple
 
+from tqdm import tqdm
+
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from .cross_database_sync_logger import log_sync_operation
+
 logger = logging.getLogger(__name__)
 
 DATABASE_LIST_FILE = Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md"
 WORKSPACE_ENV_VAR = "GH_COPILOT_WORKSPACE"
+
+
+def parse_comment(text: str) -> str:
+    """Return ``text`` with any trailing ``#`` comment removed."""
+    return text.split("#", 1)[0].strip()
 
 
 class UnifiedDatabaseManager:
@@ -47,17 +57,27 @@ class UnifiedDatabaseManager:
         return len(missing) == 0, missing
 
 
-def _backup_database(source: Path, target: Path) -> None:
+def _backup_database(source: Path, target: Path, log_db: Path | None = None) -> None:
     """Copy source SQLite database to target using backup API."""
-    with sqlite3.connect(source) as src, sqlite3.connect(target) as dest:
+    validate_enterprise_operation()
+    with sqlite3.connect(source) as src, sqlite3.connect(target) as dest, tqdm(
+        total=1, desc=f"Backup {source.name}", unit="db"
+    ) as bar:
         src.backup(dest)
-        logger.info("Synchronized %s -> %s", source, target)
+        bar.update(1)
+    logger.info("Synchronized %s -> %s", source, target)
+    if log_db:
+        log_sync_operation(log_db, f"backup_{source.name}_to_{target.name}")
 
 
-def synchronize_databases(master: Path, replicas: Iterable[Path]) -> None:
+def synchronize_databases(master: Path, replicas: Iterable[Path], log_db: Path | None = None) -> None:
     """Synchronize replica databases with the master database."""
-    for replica in replicas:
-        _backup_database(master, replica)
+    validate_enterprise_operation()
+    replica_list = list(replicas)
+    with tqdm(total=len(replica_list), desc="Synchronizing", unit="db") as bar:
+        for replica in replica_list:
+            _backup_database(master, replica, log_db=log_db)
+            bar.update(1)
 
 
 if __name__ == "__main__":
