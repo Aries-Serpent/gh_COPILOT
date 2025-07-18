@@ -48,7 +48,7 @@ def test_scheduler_cli(tmp_path):
     subprocess.check_call(
         [
             sys.executable,
-            str(Path(__file__).resolve().parents[1] / "scripts/database/database_sync_scheduler.py"),
+            str(importlib.resources.files("scripts.database") / "database_sync_scheduler.py"),
             "--workspace",
             str(workspace),
             "--master",
