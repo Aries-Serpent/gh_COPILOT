@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import sqlite3
+import subprocess
+import sys
+from pathlib import Path
 
 from scripts.database.database_sync_scheduler import synchronize_databases
 from scripts.database.unified_database_initializer import initialize_database
@@ -22,3 +25,43 @@ def test_synchronize_databases(tmp_path):
             "SELECT COUNT(*) FROM cross_database_sync_operations"
         ).fetchone()[0]
     assert count >= 2
+
+
+def test_scheduler_cli(tmp_path):
+    workspace = tmp_path / "ws"
+    db_dir = workspace / "databases"
+    db_dir.mkdir(parents=True)
+    master = db_dir / "master.db"
+    replica = db_dir / "replica.db"
+    extra_replica = db_dir / "extra.db"
+    log_db = db_dir / "enterprise_assets.db"
+    for db in (master, replica, extra_replica, log_db):
+        with sqlite3.connect(db) as conn:
+            conn.execute("CREATE TABLE t (id INTEGER)")
+            conn.execute("INSERT INTO t (id) VALUES (1)")
+
+    list_file = workspace / "list.md"
+    list_file.write_text(f"- {replica.name}\n")
+    extra_file = workspace / "extra.md"
+    extra_file.write_text(f"- {extra_replica.name}\n")
+
+    subprocess.check_call(
+        [
+            sys.executable,
+            str(Path(__file__).resolve().parents[1] / "scripts/database/database_sync_scheduler.py"),
+            "--workspace",
+            str(workspace),
+            "--master",
+            master.name,
+            "--list-file",
+            str(list_file),
+            "--add-documentation-sync",
+            str(extra_file),
+            "--target",
+            master.name,
+        ]
+    )
+
+    for db in (replica, extra_replica):
+        with sqlite3.connect(db) as conn:
+            assert conn.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 1

@@ -85,10 +85,22 @@ if __name__ == "__main__":
         help="Master database filename",
     )
     parser.add_argument(
+        "--target",
+        type=str,
+        help="Override master database filename",
+    )
+    parser.add_argument(
         "--list-file",
         type=Path,
         default=Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md",
         help="File listing databases to sync",
+    )
+    parser.add_argument(
+        "--add-documentation-sync",
+        action="append",
+        type=Path,
+        default=[],
+        help="Additional files listing databases to sync",
     )
     parser.add_argument(
         "--log-db",
@@ -100,10 +112,21 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     workspace = args.workspace / "databases"
-    master_db = workspace / args.master
+    master_name = args.target if args.target else args.master
+    master_db = workspace / master_name
     list_path = args.list_file
     db_names = _load_database_names(list_path)
-    replica_dbs = [workspace / name for name in db_names if name != args.master]
+    for extra in args.add_documentation_sync:
+        db_names.extend(_load_database_names(extra))
+    # remove duplicates while preserving order
+    seen = set()
+    unique_names: list[str] = []
+    for name in db_names:
+        if name not in seen:
+            seen.add(name)
+            unique_names.append(name)
+    db_names = unique_names
+    replica_dbs = [workspace / name for name in db_names if name != master_name]
 
     log_db_path = workspace / args.log_db if args.log_db else None
     synchronize_databases(master_db, replica_dbs, log_db=log_db_path)
