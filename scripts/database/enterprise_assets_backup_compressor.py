@@ -12,10 +12,11 @@ from scripts.continuous_operation_orchestrator import \
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_BACKUP_ROOT = (
-    Path("E:/temp/gh_COPILOT_Backups") if os.name == "nt" else Path("/temp/gh_COPILOT_Backups")
-)
+import tempfile
+
+DEFAULT_BACKUP_ROOT = Path(tempfile.gettempdir()) / "gh_COPILOT_Backups"
 BACKUP_ROOT = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", str(DEFAULT_BACKUP_ROOT)))
+BACKUP_ROOT.mkdir(parents=True, exist_ok=True)
 
 
 def _resolve(path: Path | str) -> Path:
