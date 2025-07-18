@@ -1,21 +1,30 @@
 # Enterprise Asset Database Maintenance Guide
 
-The `enterprise_assets.db` database stores consolidated scripts, documentation, and template assets. Use the following commands to recreate or update the database and synchronize the minimal replica set.
+## Sync Operation Logging
 
-```bash
-# 1. Initialize the database (creates tables if missing)
-python -m scripts.database.unified_database_initializer
+### Overview
+The enhanced database sync scheduler automatically logs all sync operations to the `cross_database_sync_operations` table in `enterprise_assets.db`.
 
-# 2. Migrate data from all source databases listed in CONSOLIDATED_DATABASE_LIST.md
-python -m scripts.database.unified_database_migration --workspace . \
-  $(grep '^-' documentation/CONSOLIDATED_DATABASE_LIST.md | cut -d' ' -f2 | grep -v 'enterprise_assets.db')
+### Monitoring Sync Operations
+```sql
+-- View recent sync operations
+SELECT operation, timestamp 
+FROM cross_database_sync_operations 
+ORDER BY timestamp DESC 
+LIMIT 20;
 
-# 3. Ingest documentation and templates
-python -m scripts.database.documentation_ingestor --workspace .
-python -m scripts.database.template_asset_ingestor --workspace .
-
-# 4. Verify database sizes remain under 99.9 MB
-python -m scripts.database.size_compliance_checker databases
+-- Check for failed operations
+SELECT * FROM cross_database_sync_operations 
+WHERE operation LIKE '%failed%';
 ```
 
-Only `archive.db`, `development.db`, `staging.db`, `testing.db`, and `production.db` are synchronized alongside `enterprise_assets.db` after consolidation.
+### Scheduled Sync Cycles
+- **Frequency**: Every 30 minutes during business hours
+- **Logging**: Start, completion, and error states
+- **Retention**: 90 days of sync operation history
+
+### Troubleshooting
+1. Check sync operation logs for error patterns
+2. Verify database connectivity and permissions
+3. Monitor database size compliance (<99.9 MB)
+4. Review enterprise dashboard for sync health metrics
