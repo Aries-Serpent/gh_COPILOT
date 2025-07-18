@@ -52,7 +52,7 @@ def _copy_table(src: sqlite3.Connection, \
     rows = list(src.execute(f"SELECT {', '.join(columns)} FROM {table}"))
     if rows:
         dest.executemany(
-            f"INSERT INTO {dest_name} ({', '.join(columns)}) VALUES ({placeholder})",
+            f"INSERT OR IGNORE INTO {dest_name} ({', '.join(columns)}) VALUES ({placeholder})",
             rows,
         )
 
@@ -66,8 +66,8 @@ def consolidate_databases(target: Path, sources: Iterable[Path]) -> None:
                 tables = [
                     row[0]
                     for row in src.execute(
-                        "SELECT name FROM sqlite_mas \
-                            ter WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+                        "SELECT name FROM sqlite_master "
+                        "WHERE type='table' AND name NOT LIKE 'sqlite_%'"
                     )
                 ]
                 for table in tables:
