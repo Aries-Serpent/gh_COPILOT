@@ -2,7 +2,6 @@
 
 The following SQLite databases remain after consolidating analytics data:
 
-- analytics.db
 - enterprise_assets.db
 - archive.db
 - autonomous_decisions.db
@@ -11,7 +10,6 @@ The following SQLite databases remain after consolidating analytics data:
 - continuous_innovation.db
 - deployment_preparation.db
 - development.db
-- documentation_sync.db
 - enhanced_deployment_tracking.db
 - enhanced_intelligence.db
 - enterprise_ml_engine.db
@@ -26,9 +24,10 @@ The following SQLite databases remain after consolidating analytics data:
 - script_generation.db
 - staging.db
 - strategic_implementation.db
-- template_completion.db
 - testing.db
 - v3_self_learning_engine.db
 
 The `database_sync_scheduler.py` utility now reads this file to determine which
 replicas should be kept in sync with `production.db`.
+
+The unified `enterprise_assets.db` replaces `analytics.db`, `documentation.db`, and `template_completion.db`.

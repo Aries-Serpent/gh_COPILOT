@@ -40,7 +40,7 @@ def _schemas_match(src: sqlite3.Connection, dest: sqlite3.Connection, table: str
     return _table_sql(src, table) == _table_sql(dest, table)
 
 
-def _copy_table(src: sqlite3.Connection, \
+def _copy_table(src: sqlite3.Connection,
                 dest: sqlite3.Connection, table: str, dest_name: str) -> None:
     create_sql = _table_sql(src, table)
     if dest_name != table:
@@ -66,8 +66,7 @@ def consolidate_databases(target: Path, sources: Iterable[Path]) -> None:
                 tables = [
                     row[0]
                     for row in src.execute(
-                        "SELECT name FROM sqlite_mas \
-                            ter WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
                     )
                 ]
                 for table in tables:
