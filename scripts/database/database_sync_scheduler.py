@@ -15,6 +15,8 @@ from pathlib import Path
 from sqlite3 import connect
 from typing import Iterable, List
 
+from tqdm import tqdm
+
 from .cross_database_sync_logger import log_sync_operation
 from .unified_database_initializer import initialize_database
 
@@ -51,10 +53,19 @@ def synchronize_databases(
     """
     if log_db:
         log_sync_operation(log_db, f"start_sync_from_{master.name}")
-    for replica in replicas:
+    start_time = time.time()
+    logger.info("Starting synchronization at %s", datetime.datetime.fromtimestamp(start_time))
+
+    replica_list = list(replicas)
+    for replica in tqdm(replica_list, desc="Syncing", unit="db"):
         _copy_database(master, replica)
         if log_db:
             log_sync_operation(log_db, f"synchronized_{replica.name}")
+
+    end_time = time.time()
+    logger.info(
+        "Finished synchronization at %s", datetime.datetime.fromtimestamp(end_time)
+    )
     if log_db:
         log_sync_operation(log_db, f"completed_sync_from_{master.name}")
 
@@ -84,7 +95,7 @@ class EnhancedDatabaseSyncScheduler:
         self.enterprise_db = self.databases_dir / "enterprise_assets.db"
         if not self.enterprise_db.exists():
             initialize_database(self.enterprise_db)
-        self.master_db = self.databases_dir / "production.db"
+        self.master_db = self.databases_dir / "enterprise_assets.db"
         self.list_file = (
             self.workspace_root / "documentation" / "CONSOLIDATED_DATABASE_LIST.md"
         )
@@ -113,10 +124,12 @@ class EnhancedDatabaseSyncScheduler:
             )
             raise
 
+
 def format_exception_message(exc: Exception) -> str:
     """Format exception message with truncation."""
     exc_message = f"{type(exc).__name__}: {str(exc)}"
     return exc_message if len(exc_message) <= TRUNCATION_LIMIT else exc_message[:TRUNCATION_LIMIT] + "..."
+
 
 if __name__ == "__main__":
     import argparse
@@ -131,7 +144,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--master",
         type=str,
-        default="production.db",
+        default="enterprise_assets.db",
         help="Master database filename",
     )
     parser.add_argument(
