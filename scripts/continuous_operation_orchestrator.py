@@ -70,7 +70,7 @@ def validate_enterprise_operation():
     if violations:
         for violation in violations:
             shutil.rmtree(violation)
-            logging.error(f"🗑️ Removed recursive violation: {violation}")
+            logging.error("🗑️ Removed recursive violation: %s", violation)
         raise RuntimeError("CRITICAL: Recursive violations prevented execution")
 
     return True

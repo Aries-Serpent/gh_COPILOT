@@ -28,7 +28,30 @@ logger = logging.getLogger(__name__)
 
 SIZE_THRESHOLD_MB = 99.9
 SKIP_THRESHOLD_MB = 100.0
-BACKUP_DIR = Path("archives/database_backups")
+
+
+class ExternalBackupConfiguration:
+    """Enterprise external backup configuration."""
+
+    @staticmethod
+    def get_backup_root() -> Path:
+        env_path = os.getenv("GH_COPILOT_BACKUP_ROOT")
+        if env_path:
+            return Path(env_path)
+        if os.name == "nt":
+            return Path("E:/temp/gh_COPILOT_Backups")
+        return Path("/temp/gh_COPILOT_Backups")
+
+    @staticmethod
+    def validate_external_backup_location(backup_path: Path, workspace_path: Path) -> None:
+        if str(backup_path).startswith(str(workspace_path)):
+            raise RuntimeError(f"CRITICAL: Backup location inside workspace: {backup_path}")
+
+
+WORKSPACE_PATH = Path(os.getenv("GH_COPILOT_WORKSPACE", os.getcwd()))
+BACKUP_ROOT = ExternalBackupConfiguration.get_backup_root()
+BACKUP_DIR = BACKUP_ROOT / "database_consolidation"
+ExternalBackupConfiguration.validate_external_backup_location(BACKUP_DIR, WORKSPACE_PATH)
 
 
 def archive_database(db_path: Path, dest_dir: Path, level: int = 9) -> Path:
@@ -78,6 +101,35 @@ def export_table_to_7z(
     return archive_path
 
 
+def create_external_backup(source_path: Path, backup_name: str, *, backup_dir: Path | None = None) -> Path:
+    """Create a timestamped backup in the external backup directory."""
+
+    target_dir = backup_dir or BACKUP_DIR
+    target_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    dest = target_dir / f"{backup_name}_{timestamp}.backup"
+
+    with tqdm(total=100, desc=f"Creating backup: {backup_name}", unit="%") as bar:
+        bar.set_description("Validating source")
+        if not source_path.exists():
+            raise RuntimeError(f"Source path does not exist: {source_path}")
+        bar.update(25)
+
+        bar.set_description("Copying")
+        shutil.copy2(source_path, dest)
+        bar.update(50)
+
+        bar.set_description("Verifying")
+        if not dest.exists():
+            raise RuntimeError(f"Backup creation failed: {dest}")
+        bar.update(25)
+
+        bar.set_description("Backup complete")
+        logger.info("External backup created: %s", dest)
+
+    return dest
+
+
 def compress_large_tables(
     db_path: Path, analysis: dict, threshold: int = 50000, *, level: int = 5
 ) -> List[Path]:
@@ -118,7 +170,8 @@ def migrate_and_compress(
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
-    backup_dir = workspace / BACKUP_DIR
+    session_backup_dir = BACKUP_DIR / f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    session_backup_dir.mkdir(parents=True, exist_ok=True)
 
     handler = logging.FileHandler(log_file)
     logger.addHandler(handler)
@@ -138,6 +191,7 @@ def migrate_and_compress(
                 if not src.exists():
                     bar.update(1)
                     continue
+                create_external_backup(src, name.replace('.db', ''), backup_dir=session_backup_dir)
                 migrator = DatabaseMigrationCorrector()
                 migrator.workspace_root = workspace
                 migrator.source_db = src
@@ -156,6 +210,8 @@ def migrate_and_compress(
             raise RuntimeError("Database size limit exceeded")
         conn.commit()
         logger.info("Consolidation complete")
+        logger.info("Backup Root: %s", BACKUP_ROOT)
+        logger.info("Session Backup Directory: %s", session_backup_dir)
     except Exception as exc:
         logger.exception("Migration failed: %s", exc)
         if conn is not None:
