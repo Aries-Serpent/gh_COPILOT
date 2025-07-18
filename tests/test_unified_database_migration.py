@@ -6,6 +6,13 @@ import pytest
 from scripts.database.unified_database_migration import run_migration
 
 
+def _create_db(path: Path) -> None:
+    with sqlite3.connect(path) as conn:
+        conn.execute("CREATE TABLE t (id INTEGER)")
+        conn.executemany("INSERT INTO t (id) VALUES (?)", [(i,) for i in range(5)])
+        conn.commit()
+
+
 def test_run_migration_creates_db(tmp_path: Path) -> None:
     databases = tmp_path / "databases"
     databases.mkdir()
