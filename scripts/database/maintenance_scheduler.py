@@ -11,6 +11,7 @@ from pathlib import Path
 from .database_sync_scheduler import synchronize_databases
 from .size_compliance_checker import check_database_sizes
 
+
 logger = logging.getLogger(__name__)
 
 
