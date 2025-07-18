@@ -111,7 +111,7 @@ def compress_large_tables(
 def migrate_and_compress(
     workspace: Path,
     sources: Iterable[str],
-    log_file: Path | str = "migration.log",
+    log_file: Union[Path, str] = "migration.log",
 ) -> None:
     """Migrate ``sources`` into ``enterprise_assets.db`` with compression."""
     validate_enterprise_operation()
