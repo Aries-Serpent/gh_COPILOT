@@ -11,9 +11,9 @@ def test_run_cycle(tmp_path: Path) -> None:
     db_dir.mkdir()
     docs_dir.mkdir()
 
-    master = db_dir / "production.db"
+    master = db_dir / "enterprise_assets.db"
     replica = db_dir / "replica.db"
-    log_db = db_dir / "enterprise_assets.db"
+    log_db = master
     initialize_database(log_db)
 
     with sqlite3.connect(master) as conn:
@@ -22,7 +22,7 @@ def test_run_cycle(tmp_path: Path) -> None:
 
     list_file = docs_dir / "CONSOLIDATED_DATABASE_LIST.md"
     list_file.write_text(
-        "- production.db  # Size: 0.01 MB\n"
+        "- enterprise_assets.db  # Size: 0.01 MB\n"
         "- replica.db  # Size: 0.01 MB\n"
     )
 

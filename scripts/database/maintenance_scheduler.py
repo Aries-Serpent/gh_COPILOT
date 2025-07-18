@@ -6,8 +6,12 @@ import argparse
 import logging
 import signal
 import time
+from datetime import datetime, timedelta
 from pathlib import Path
 
+from tqdm import tqdm
+
+from .cross_database_sync_logger import log_sync_operation
 from .database_sync_scheduler import synchronize_databases
 from .size_compliance_checker import check_database_sizes
 
@@ -38,13 +42,29 @@ def _load_database_names(list_file: Path) -> list[str]:
 def run_cycle(workspace: Path) -> None:
     """Synchronize replicas and check database sizes."""
     db_dir = workspace / "databases"
-    master = db_dir / "production.db"
+    master = db_dir / "enterprise_assets.db"
     list_path = workspace / "documentation" / "CONSOLIDATED_DATABASE_LIST.md"
     replica_names = _load_database_names(list_path)
     replicas = [db_dir / name for name in replica_names if name != master.name]
     log_db = db_dir / "enterprise_assets.db"
-    synchronize_databases(master, replicas, log_db=log_db)
-    check_database_sizes(db_dir)
+
+    start_time = datetime.now()
+    log_sync_operation(log_db, f"cycle_start_{start_time.isoformat()}")
+    etc = start_time + timedelta(seconds=len(replicas) + 1)
+    log_sync_operation(log_db, f"cycle_estimated_complete_{etc.isoformat()}")
+
+    status = "success"
+    try:
+        with tqdm(total=2, desc="Maintenance Cycle", unit="task") as bar:
+            synchronize_databases(master, replicas, log_db=log_db)
+            bar.update(1)
+            check_database_sizes(db_dir)
+            bar.update(1)
+    except Exception as exc:
+        status = f"failed_{type(exc).__name__}"
+        raise
+    finally:
+        log_sync_operation(log_db, f"cycle_status_{status}")
 
 
 def main(workspace: Path, interval: int, once: bool = False) -> None:
