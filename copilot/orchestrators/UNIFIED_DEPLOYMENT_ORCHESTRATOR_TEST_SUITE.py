@@ -8,11 +8,11 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
-import sys
-
 import logging
-from pathlib import Path
+import os
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -26,7 +26,7 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: Path = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
