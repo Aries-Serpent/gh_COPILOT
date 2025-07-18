@@ -47,7 +47,10 @@ def quarantine_zero_byte_files(
     for file_path in target.rglob("*"):
         if file_path.is_file() and file_path.stat().st_size == 0:
             try:
-                file_path.replace(quarantine / file_path.name)
+                relative_path = file_path.relative_to(target)
+                destination = quarantine / relative_path
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                file_path.replace(destination)
                 moved += 1
             except Exception:
                 continue
