@@ -1,10 +1,11 @@
+import os
 import sqlite3
 from pathlib import Path
 
 import py7zr
 
-from scripts.database.complete_consolidation_orchestrator import \
-    export_table_to_7z
+from scripts.database.complete_consolidation_orchestrator import (
+    export_table_to_7z, migrate_and_compress)
 
 
 def test_export_table_to_7z(tmp_path: Path) -> None:
@@ -19,3 +20,39 @@ def test_export_table_to_7z(tmp_path: Path) -> None:
     with py7zr.SevenZipFile(archive, "r") as zf:
         names = zf.getnames()
     assert any(name.endswith("t.csv") for name in names)
+
+
+def _create_db(path: Path, table: str, rows: int) -> None:
+    with sqlite3.connect(path) as conn:
+        conn.execute(f"CREATE TABLE {table} (id INTEGER)")
+        conn.executemany(f"INSERT INTO {table} (id) VALUES (?)", [(i,) for i in range(rows)])
+        conn.commit()
+
+
+def test_migrate_and_compress_archives_large_tables(tmp_path: Path) -> None:
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+
+    big_db = db_dir / "big.db"
+    small_db = db_dir / "small.db"
+    _create_db(big_db, "bigtable", 60000)
+    _create_db(small_db, "smalltable", 10)
+
+    enterprise_db = db_dir / "enterprise_assets.db"
+    cwd = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        migrate_and_compress(tmp_path, [big_db.name, small_db.name])
+    finally:
+        os.chdir(cwd)
+
+    assert enterprise_db.exists()
+    archive = tmp_path / "archives" / "table_exports" / f"{enterprise_db.stem}_bigtable.7z"
+    assert archive.exists()
+    with py7zr.SevenZipFile(archive, "r") as zf:
+        names = zf.getnames()
+    assert any(name.endswith("bigtable.csv") for name in names)
+
+    with sqlite3.connect(enterprise_db) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM smalltable").fetchone()[0] == 10
+        assert conn.execute("SELECT COUNT(*) FROM bigtable").fetchone()[0] == 60000
