@@ -13,9 +13,8 @@ from tqdm import tqdm
 
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
-
-
 from .utils import _table_exists
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
