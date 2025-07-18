@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import logging
+import sqlite3
 from pathlib import Path
 
 from tqdm import tqdm
@@ -12,6 +13,22 @@ from .cross_database_sync_logger import log_sync_operation
 from .database_consolidation_migration import consolidate_databases
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
+
+
+def _compress_database(db_path: Path) -> None:
+    """Compress the SQLite database in-place.
+
+    Parameters
+    ----------
+    db_path:
+        Path to the database file to compress.
+    """
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("VACUUM")
+        conn.execute("REINDEX")
+        conn.execute("ANALYZE")
+        conn.commit()
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,9 +62,11 @@ def run_migration(workspace: Path, sources: list[str] = DEFAULT_SOURCES) -> None
     with tqdm(total=len(source_paths), desc="Migrating", unit="db") as bar:
         for src in source_paths:
             logger.info("Migrating %s", src.name)
+            _compress_database(src)
             log_sync_operation(enterprise_db, f"start_migrate_{src.name}")
             consolidate_databases(enterprise_db, [src])
             log_sync_operation(enterprise_db, f"completed_migrate_{src.name}")
+            _compress_database(enterprise_db)
             bar.update(1)
             if not check_database_sizes(db_dir):
                 raise RuntimeError("Database size limit exceeded")
