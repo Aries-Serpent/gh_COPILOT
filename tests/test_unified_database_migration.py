@@ -1,6 +1,8 @@
 import sqlite3
 from pathlib import Path
 
+import pytest
+
 from scripts.database.unified_database_migration import run_migration
 
 
