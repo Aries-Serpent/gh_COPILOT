@@ -54,8 +54,26 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            target = self.workspace_path / "scripts" / "comprehensive_production_deployer.py"
+            with open(target, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            functions = re.findall(r"^def ", content, re.MULTILINE)
+            classes = re.findall(r"^class ", content, re.MULTILINE)
+            todos = re.findall(r"TODO", content)
+            lines = len(content.splitlines())
+
+            self.logger.info(f"{TEXT_INDICATORS['info']} Functions: {len(functions)}")
+            self.logger.info(f"{TEXT_INDICATORS['info']} Classes: {len(classes)}")
+            self.logger.info(f"{TEXT_INDICATORS['info']} TODO markers: {len(todos)}")
+            self.logger.info(f"{TEXT_INDICATORS['info']} Total lines: {lines}")
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Analysis failed: {exc}"
+            )
+            return False
 
 
 def main():

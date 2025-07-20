@@ -54,8 +54,35 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            source = self.workspace_path / "README.md"
+            target = self.workspace_path / "README_clean.md"
+            if source.resolve() == target.resolve():
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Input and output paths must differ"
+                )
+                return False
+
+            with open(source, "r", encoding="utf-8", errors="ignore") as f:
+                text = f.read()
+
+            cleaned = []
+            for ch in text:
+                if ord(ch) < 128 and ch.isprintable():
+                    cleaned.append(ch)
+                else:
+                    cleaned.append("?")
+            with open(target, "w", encoding="utf-8") as f:
+                f.write("".join(cleaned))
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Cleaned file written to {target}"
+            )
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Unicode cleaning failed: {exc}"
+            )
+            return False
 
 
 def main():

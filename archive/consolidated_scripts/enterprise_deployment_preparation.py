@@ -54,8 +54,31 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            cfg = {
+                "required_dirs": [self.workspace_path / "builds", self.workspace_path / "logs"],
+                "required_vars": ["GH_COPILOT_WORKSPACE", "GH_COPILOT_BACKUP_ROOT"],
+            }
+            for d in cfg["required_dirs"]:
+                Path(d).mkdir(parents=True, exist_ok=True)
+                self.logger.info(f"{TEXT_INDICATORS['info']} Ensured directory {d}")
+
+            for var in cfg["required_vars"]:
+                if os.getenv(var) is None:
+                    self.logger.error(
+                        f"{TEXT_INDICATORS['error']} Missing env var {var}"
+                    )
+                    return False
+
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Deployment preparation complete"
+            )
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Preparation failed: {exc}"
+            )
+            return False
 
 
 def main():

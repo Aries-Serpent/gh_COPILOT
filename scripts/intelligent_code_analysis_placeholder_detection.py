@@ -54,8 +54,40 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            target_file = self.workspace_path / "scripts" / "comprehensive_production_deployer.py"
+            if not target_file.exists():
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Target file not found: {target_file}"
+                )
+                return False
+
+            with open(target_file, "r", encoding="utf-8") as f:
+                text = f.read()
+
+            patterns = [r"TODO", r"FIXME", r"pass\b", r"NotImplementedError", r"placeholder"]
+            issues = []
+            for pat in patterns:
+                for m in re.finditer(pat, text):
+                    issues.append((pat, m.start()))
+
+            if issues:
+                self.logger.warning(
+                    f"{TEXT_INDICATORS['info']} Placeholders detected in {target_file}"
+                )
+                for pat, pos in issues:
+                    self.logger.warning(f" - {pat} at {pos}")
+                return False
+
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} No placeholders found in {target_file}"
+            )
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Analysis failed: {exc}"
+            )
+            return False
 
 
 def main():

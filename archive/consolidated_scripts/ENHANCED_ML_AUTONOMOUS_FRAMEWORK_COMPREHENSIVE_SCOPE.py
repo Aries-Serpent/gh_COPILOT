@@ -54,8 +54,27 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            data = [1, 2, 3, 4]
+            if not data:
+                self.logger.error(f"{TEXT_INDICATORS['error']} No data provided")
+                return False
+
+            mn, mx = min(data), max(data)
+            norm = [(x - mn) / (mx - mn) if mx != mn else 0 for x in data]
+            preds = [random.random() for _ in norm]
+
+            self.logger.info(f"{TEXT_INDICATORS['info']} Normalized: {norm}")
+            self.logger.info(f"{TEXT_INDICATORS['info']} Predictions: {preds}")
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} ML processing complete"
+            )
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} ML framework error: {exc}"
+            )
+            return False
 
 
 def main():

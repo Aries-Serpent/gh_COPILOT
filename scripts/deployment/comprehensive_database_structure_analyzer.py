@@ -59,7 +59,18 @@ class EnterpriseDatabaseProcessor:
     def process_operations(self, cursor) -> bool:
         """Process database operations"""
         try:
-            # Implementation for database operations
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            tables = cursor.fetchall()
+            if not tables:
+                self.logger.error(f"{TEXT_INDICATORS['error']} No tables found")
+                return False
+            for tbl in tables:
+                cursor.execute(f"PRAGMA table_info({tbl[0]})")
+                columns = cursor.fetchall()
+                self.logger.info(f"{TEXT_INDICATORS['info']} {tbl[0]}: {len(columns)} columns")
+                if not columns:
+                    self.logger.error(f"{TEXT_INDICATORS['error']} Table {tbl[0]} has no columns")
+                    return False
             return True
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")

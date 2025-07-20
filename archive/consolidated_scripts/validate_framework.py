@@ -54,8 +54,48 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            config_file = self.workspace_path / "config" / "enterprise.json"
+            if not config_file.exists():
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Config file missing: {config_file}"
+                )
+                return False
+
+            with open(config_file, "r", encoding="utf-8") as f:
+                cfg = json.load(f)
+
+            required = ["framework_name", "version", "modules", "required_dirs", "env_vars"]
+            for key in required:
+                if key not in cfg:
+                    self.logger.error(
+                        f"{TEXT_INDICATORS['error']} Missing config key: {key}"
+                    )
+                    return False
+
+            for d in cfg.get("required_dirs", []):
+                if not Path(d).is_dir():
+                    self.logger.error(
+                        f"{TEXT_INDICATORS['error']} Required directory missing: {d}"
+                    )
+                    return False
+
+            for var in cfg.get("env_vars", []):
+                if os.getenv(var) is None:
+                    self.logger.error(
+                        f"{TEXT_INDICATORS['error']} Environment variable not set: {var}"
+                    )
+                    return False
+
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Framework validation passed"
+            )
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Validation exception: {exc}"
+            )
+            return False
 
 
 def main():
