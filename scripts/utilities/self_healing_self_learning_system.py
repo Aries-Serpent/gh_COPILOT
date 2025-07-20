@@ -16,22 +16,19 @@ CAPABILITIES:
 - Disaster Recovery automation
 """
 
-import os
-import sys
 import json
-import sqlite3
 import logging
-import asyncio
 import schedule
+import sqlite3
+import sys
 import threading
-from pathlib import Path
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
-import time
-import hashlib
-import subprocess
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import shutil
+import time
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 import numpy as np
@@ -101,6 +98,7 @@ class SelfHealingSelfLearningSystem:
         # Machine learning models for system optimization
         self.ml_models: Dict[str, Optional[Any]] = {
             'anomaly_detector': None,
+            'scaler': None,
             'performance_predictor': None,
             'healing_strategy_selector': None
         }
@@ -120,9 +118,14 @@ class SelfHealingSelfLearningSystem:
     
     def _setup_logging(self):
         """Setup comprehensive logging system"""
-        log_format = '%(asctime)s - %(levelname)s - %(message)s'config/ 'autonomous_system.log'),
-                logging.StreamHandler(sys.stdout)
-            ]
+        log_format = '%(asctime)s - %(levelname)s - %(message)s'
+        logging.basicConfig(
+            level=logging.INFO,
+            format=log_format,
+            handlers=[
+                logging.FileHandler(self.workspace_path / 'autonomous_system.log'),
+                logging.StreamHandler(sys.stdout),
+            ],
         )
         self.logger = logging.getLogger(__name__)
     
@@ -234,6 +237,14 @@ class SelfHealingSelfLearningSystem:
                 self.ml_models['anomaly_detector'] = pickle.load(f)
         else:
             self.ml_models['anomaly_detector'] = IsolationForest(contamination=0.1, random_state=42)
+
+        # StandardScaler for preprocessing
+        scaler_path = models_dir / "scaler.pkl"
+        if scaler_path.exists():
+            with open(scaler_path, 'rb') as f:
+                self.ml_models['scaler'] = pickle.load(f)
+        else:
+            self.ml_models['scaler'] = StandardScaler()
             
         self.logger.info(f"{TEXT_INDICATORS['ai']} ML models loaded/initialized")
     
@@ -585,8 +596,21 @@ class SelfHealingSelfLearningSystem:
         
         for component, health in system_metrics.items():
             try:
-                # Check if healing is needed
-                if health.health_score < self.monitoring_config['performance_threshold'] * 100:
+                features = np.array([[
+                    health.health_score,
+                    len(health.issues),
+                    len(health.recommendations)
+                ]])
+
+                if self.ml_models.get('scaler') is not None:
+                    features = self.ml_models['scaler'].transform(features)
+
+                is_anomaly = False
+                if self.ml_models.get('anomaly_detector') is not None:
+                    prediction = self.ml_models['anomaly_detector'].predict(features)[0]
+                    is_anomaly = prediction == -1
+
+                if is_anomaly or health.health_score < self.monitoring_config['performance_threshold'] * 100:
                     self.logger.info(f"{TEXT_INDICATORS['heal']} Healing needed for {component}: {health.health_score:.1f}%")
                     
                     # Generate healing strategy
@@ -997,12 +1021,20 @@ class SelfHealingSelfLearningSystem:
                     ])
             
             if len(health_data) > 10:  # Need minimum data for training
-                # Update anomaly detection model
+                models_dir = self.workspace_path / "models" / "autonomous"
+
+                if self.ml_models['scaler'] is not None:
+                    self.ml_models['scaler'].fit(health_data)
+                    with open(models_dir / "scaler.pkl", 'wb') as f:
+                        pickle.dump(self.ml_models['scaler'], f)
+
                 if self.ml_models['anomaly_detector'] is not None:
-                    self.ml_models['anomaly_detector'].fit(np.array(health_data))
-                    
-                    # Save updated model
-                    models_dir = self.workspace_path / "models" / "autonomous"
+                    scaled_data = (
+                        self.ml_models['scaler'].transform(health_data)
+                        if self.ml_models['scaler'] is not None
+                        else np.array(health_data)
+                    )
+                    self.ml_models['anomaly_detector'].fit(scaled_data)
                     with open(models_dir / "anomaly_detector.pkl", 'wb') as f:
                         pickle.dump(self.ml_models['anomaly_detector'], f)
             
@@ -1179,8 +1211,9 @@ class SelfHealingSelfLearningSystem:
             
             # Check if files were actually backed up
             db_files = list((backup_root / 'databases').glob('*.db'))
-            script_files = list((backup_root / 'scripts').rglob('*.py'config/ 'configuration').rglob('*.json'))
-            
+            script_files = list((backup_root / 'scripts').rglob('*.py'))
+            config_files = list((backup_root / 'configuration').rglob('*.json'))
+
             return len(db_files) > 0 and len(script_files) > 0 and len(config_files) > 0
             
         except Exception as e:
@@ -1407,7 +1440,7 @@ def main():
         print(f"\n{TEXT_INDICATORS['auto']} Self-Healing Self-Learning Self-Managing System Activated!")
         print(f"System ID: {operation_status['system_id']}")
         print(f"Overall Health Score: {system_report['system_overview']['overall_health_score']:.1f}%")
-        print(f"Autonomous Capabilities: All systems operational")
+        print("Autonomous Capabilities: All systems operational")
         print(f"Continuous Operation: {operation_status['continuous_operation']}")
         
         # Keep main thread alive for continuous operation

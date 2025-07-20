@@ -241,6 +241,7 @@ TEXT_INDICATORS = {
 - **Automatic Error Detection:** Real-time issue identification
 - **Autonomous Correction:** Self-fixing common problems
 - **Learning Integration:** ML-powered pattern recognition
+- **Anomaly Detection Models:** StandardScaler preprocessing with IsolationForest
 - **Continuous Monitoring:** 24/7 system health tracking
 
 ### **Autonomous System Architecture**

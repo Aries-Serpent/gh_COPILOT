@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List
 
+from utils.cross_platform_paths import CrossPlatformPathManager
+
 
 def validate_workspace_integrity() -> Dict[str, Any]:
     """Validate workspace integrity and structure"""
@@ -73,3 +75,20 @@ def validate_script_organization() -> Dict[str, Any]:
         )
 
     return organization_status
+
+
+def detect_zero_byte_files(target_dir: Path) -> List[Path]:
+    """Return a list of zero-byte files under ``target_dir``."""
+    target = Path(target_dir)
+    return [f for f in target.rglob("*") if f.is_file() and f.stat().st_size == 0]
+
+
+def validate_path(path: Path) -> bool:
+    """Return True if ``path`` is within workspace and not inside backup."""
+    workspace = CrossPlatformPathManager.get_workspace_path().resolve()
+    backup_root = CrossPlatformPathManager.get_backup_root().resolve()
+    try:
+        resolved = path.resolve()
+    except FileNotFoundError:
+        return False
+    return workspace in resolved.parents and backup_root not in resolved.parents
