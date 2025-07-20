@@ -111,8 +111,6 @@ def run_migration(
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
 
-    migration_start = log_sync_operation(enterprise_db, "migration_start")
-
     if sources is None:
         list_file = workspace / DATABASE_LIST_FILE
         sources = _load_database_names(list_file)
@@ -149,7 +147,6 @@ def run_migration(
         "migration_complete",
         start_time=migration_start,
     )
-    logger.info("Migration process completed")
 
 
 if __name__ == "__main__":

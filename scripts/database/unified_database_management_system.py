@@ -15,6 +15,11 @@ from tqdm import tqdm
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 from .cross_database_sync_logger import log_sync_operation
 
+from tqdm import tqdm
+
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from .cross_database_sync_logger import log_sync_operation
+
 logger = logging.getLogger(__name__)
 
 DATABASE_LIST_FILE = Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md"
@@ -61,7 +66,6 @@ class UnifiedDatabaseManager:
 def _backup_database(source: Path, target: Path, log_db: Path | None = None) -> None:
     """Copy source SQLite database to target using backup API."""
     validate_enterprise_operation()
-    start_time = datetime.datetime.now(datetime.timezone.utc)
     with sqlite3.connect(source) as src, sqlite3.connect(target) as dest, tqdm(
         total=1, desc=f"Backup {source.name}", unit="db"
     ) as bar:

@@ -19,3 +19,4 @@ def test_log_sync_operation(tmp_path: Path) -> None:
     assert row[1] == "SUCCESS"
     assert row[2] == start.isoformat()
     assert row[3] > 0
+

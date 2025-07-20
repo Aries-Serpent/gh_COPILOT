@@ -60,7 +60,6 @@ def synchronize_databases(
         start_dt = log_sync_operation(log_db, f"start_sync_from_{master.name}")
     else:
         start_dt = datetime.datetime.now(timezone.utc)
-    start_time = time.time()
     logger.info("Starting synchronization at %s", datetime.datetime.fromtimestamp(start_time))
 
     replica_list = list(replicas)
