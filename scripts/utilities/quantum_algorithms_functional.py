@@ -8,6 +8,10 @@ __all__ = [
     "run_grover_search",
     "run_kmeans_clustering",
     "run_simple_qnn",
+    "run_shor_factorization",
+    "run_quantum_fourier_transform",
+    "run_variational_circuit",
+    "run_quantum_teleportation",
 ]
 
 
@@ -24,6 +28,26 @@ def run_kmeans_clustering(samples=100, clusters=2):
 def run_simple_qnn():
     """Run simple QNN classifier and return metrics."""
     return QuantumFunctional().run_simple_qnn()
+
+
+def run_shor_factorization(n: int):
+    """Factor ``n`` using Shor's algorithm."""
+    return QuantumFunctional().run_shor_factorization(n)
+
+
+def run_quantum_fourier_transform(data):
+    """Apply QFT to ``data`` and return the resulting statevector."""
+    return QuantumFunctional().run_quantum_fourier_transform(data)
+
+
+def run_variational_circuit(steps: int = 20, lr: float = 0.1):
+    """Optimize a simple variational circuit."""
+    return QuantumFunctional().run_variational_circuit(steps, lr)
+
+
+def run_quantum_teleportation(state):
+    """Teleport ``state`` and return final density matrix."""
+    return QuantumFunctional().run_quantum_teleportation(state)
 
 
 def main() -> bool:
