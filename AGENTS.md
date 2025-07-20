@@ -1,194 +1,134 @@
 # AGENTS Guide for ChatGPT Codex
 
-
-
-
-# AI Agent Contribution Guidelines
-
-*This `AGENTS.md` is intended for AI contributors (e.g., OpenAI Codex agents) working on this repository. It outlines the required environment setup, permitted actions, coding standards, testing procedures, and contribution conventions that the agent must follow to produce acceptable pull requests.*
+*This guide is intended for AI contributors (OpenAI Codex/ChatGPT agents) working on the **gh\_COPILOT** repository. It outlines the required environment setup, permitted actions, coding standards, testing procedures, and other protocols that the agent **must** follow to produce acceptable pull requests.*
 
 ## Environment Setup
 
-Ensure the development environment is correctly configured before making changes:
+Ensure the development environment is correctly configured **before** making any changes or running code:
 
-* **Setup Script**: If a `setup.sh` script is present at the repository root, execute it (e.g. `bash setup.sh`) to perform initial setup (such as creating the virtual environment and installing required dependencies).
-* **Virtual Environment**: Always activate the Python virtual environment before running commands. Use `source .venv/bin/activate` to activate the venv. This ensures you're using the project-specific packages.
-* **Dependencies**: Do **not** attempt to install any new packages beyond what is specified in `pyproject.toml`. Only the listed dependencies are available for use. You cannot add new packages on your own. If an additional package is absolutely needed to complete a task, **do not** install it; instead, note this requirement in the pull request description for maintainers to review.
+* **Setup Script**: If a `setup.sh` script is present at the repository root, run it (e.g. `bash setup.sh`) to perform initial setup tasks (creating the virtual environment, installing dependencies, etc.). This project provides a `setup.sh` – use it to avoid missing any required steps.
+* **Python & Tools**: Use **Python 3.8+** (already provided in Codex). The setup will install necessary system packages (development headers, build tools, SQLite, etc.) and Python packages as specified by the project. Do **not** install additional packages beyond those listed in `requirements.txt` (and optional `requirements-web.txt`, `requirements-ml.txt`, etc.). **Only use** the dependencies declared by the project. If you believe a new package is required, **do not install it yourself** – instead, mention the need in the PR description for maintainers.
+* **Virtual Environment**: Always activate the Python virtual environment after running setup. For example, use `source .venv/bin/activate` to ensure you’re using the project’s isolated environment and packages.
+* **Environment Variables**: Certain environment variables must be set for the toolkit to function correctly. In particular:
+
+  * **GH\_COPILOT\_WORKSPACE** – Absolute path to the repository’s root workspace. This should point to the project root (in the Codex container it defaults to `/app`, but set it explicitly). Many scripts use this to locate files and databases.
+  * **GH\_COPILOT\_BACKUP\_ROOT** – Path to an **external** backup directory (must be outside the workspace). This enforces anti-recursion: backups **must not** be stored under the project root. If not set, the toolkit defaults to a temp directory (e.g. `/tmp/<user>/gh_COPILOT_Backups` on Linux). It’s recommended to set this to a dedicated folder.
+  * *Optional variables:* **WORKSPACE\_ROOT** (alias for `GH_COPILOT_WORKSPACE`), **FLASK\_SECRET\_KEY** (for the optional Flask web UI, default `'your_secret_key'` – replace in production), **FLASK\_RUN\_PORT** (Flask dev server port, default 5000), **CONFIG\_PATH** (path to a custom config file if not using the default `config/enterprise.json`), **WEB\_DASHBOARD\_ENABLED** (`"1"` or `"0"` to toggle logging of performance metrics with `[DASHBOARD]` tags). Configure these as needed if using those features.
+* After installing dependencies and setting variables, **run the test suite** (see [Testing and Validation](#testing-and-validation)) to verify the environment is correctly set up.
 
 ## Allowed Tools and Commands (Agent Behavior)
 
-Follow these guidelines for executing commands and editing files:
+When using the terminal or editing files, the agent must adhere to the following rules:
 
-* **Non-Interactive Commands Only**: Use only non-interactive shell commands to inspect and modify files. For example, use `cat` or `sed` to read or manipulate file contents, and use the `apply_patch` command to apply changes as unified diffs. **Do NOT** open interactive editors (no `vim`, `nano`, etc.) or any tool that requires user input.
-* **Sandbox Restrictions**: The agent operates in an isolated environment. Do not start background services or make external network calls unless explicitly permitted. Focus on using the terminal tools available in the sandbox.
-* **Playwright Browser**: If running end-to-end tests or any automation that requires a browser (e.g. using Playwright), use **Chromium only**. (Chromium is pre-installed; other browsers like Firefox or WebKit are not available.)
-* **Single Source of Instructions**: There are no nested agent instruction files in this project. This `AGENTS.md` is the sole guide for AI agent behavior, so adhere to it and do not look for additional agent directives elsewhere.
-* **Adhere to Instructions**: Follow the task prompt and these guidelines closely. Do not perform extraneous changes or stray from the requested task. The agent should work within the given scope and constraints at all times.
+* **Non-Interactive Commands Only**: Use only non-interactive shell commands for inspecting and modifying files. For example, use `cat`, `grep`, `sed`, or `jq` for reading or searching file contents, and use the `apply_patch` tool (provided by the Codex environment) to apply changes via unified diff. **Do NOT** open interactive editors (no `vim`, `nano`, etc.) or run any command that requires human input.
+* **No External Network Calls**: The agent runs in a sandboxed environment with no internet access (except perhaps to fetch specified resources in setup). Do not attempt to download assets or call external APIs unless explicitly allowed by the task. Focus on local repository files and the tools available in the container.
+* **Sandbox Restrictions**: Do not start background services or long-running daemons. Avoid any operations that could stall or escape the sandbox. The environment is isolated; stick to file I/O, database access, and computations relevant to the repository.
+* **Browser Usage**: If end-to-end tests or automation require a browser (e.g. via Playwright), use **Chromium only** (Chromium is pre-installed; other browsers like Firefox/WebKit are unavailable).
+* **Single Source of Truth**: This `AGENTS.md` is the **sole** instructions file for agent behavior. There are no nested or secondary agent guides. Do not look for hidden instructions elsewhere in the repo; follow this guide and the user’s prompt only.
+* **Stay On Task**: Follow the given prompt and these guidelines exactly. Do not make unrelated changes. Every command and edit should be purposeful and within scope. Avoid any explorations or modifications not relevant to the task at hand.
+* **Shell Output Limits (1600-Byte Rule)**: The Codex terminal has a hard limit of \~1600 bytes per line of output. If any command outputs a line longer than this, the session **will crash and reset**. To prevent this, you **must proactively manage command output**:
+
+  * For any command likely to produce large or continuous output (e.g. `cat` on a big file, recursive `find` or `ls -R`, using `jq` to dump a large JSON, etc.), **do not print the full output to console** outright. Instead, use safe output strategies:
+
+    * **Strategy 2 – Log and Chunk**: Redirect the command’s output to a file (e.g. `>` to write to a log file). Then read that file in manageable chunks using tools like `head`, `tail`, or small `sed` slices. This way you can inspect contents piecewise without ever flooding the console.
+    * **Strategy 3 – Use the Line Wrapper (`clw`)**: The environment includes a custom utility called **`clw`** (installed at `/usr/local/bin/clw`) specifically to mitigate long-line outputs. Pipe any potentially large output through `clw`. For example: `find / -type f | clw` or `cat largefile.txt | clw`. The `clw` tool will pass through lines under \~1550 bytes unchanged, but will **hard-wrap longer lines** at a safe length (inserting a visible “⏎” line-break marker). This ensures no single line exceeds the limit, preventing crashes.
+  * These output management strategies are **mandatory** for high-risk commands. Always anticipate if a command could produce very long lines or a flood of data. When in doubt, err on the side of caution and apply one of the above methods (or use filtering commands like `grep`, `cut`, or `awk` to reduce output size). **Never** allow an unbounded output stream to print directly to the terminal.
+* **Anti-Recursion & Backups**: Never write backup files or any output to the repository workspace itself. All backup or log files (if any) should go to the designated external backup directory (see **GH\_COPILOT\_BACKUP\_ROOT** above). The agent should validate paths (using any provided `validate_enterprise_operation()` or similar, if available) before performing file writes, to ensure compliance with anti-recursion rules.
+* **Dual Execution Pattern**: When appropriate, follow the “Dual Copilot” approach – i.e., for critical operations, simulate having a primary action followed by a validation step. (For example, after generating a script, perform a dry-run or static analysis to verify it before finalizing.)
+* **Adhere to Protocol**: Always incorporate required safety checks (e.g., zero-byte file checks, recursion detection, etc.) as described in project protocols. Before concluding any major operation, ensure you run any integrity validations mandated by the project’s standards.
 
 ## Commit and PR Guidelines
 
-To ensure contributions integrate smoothly, follow these conventions for commits and pull requests:
+To ensure your contributions can be easily reviewed and integrated, follow these conventions for commits and pull requests:
 
-* **Conventional Commit Titles**: Format the commit and PR title using the Conventional Commits style (e.g., `feat: ...` for a new feature, `fix: ...` for a bug fix, etc.). In particular, use a concise prefix and description (for example, `fix: resolve issue with user login`).
-* **Pull Request Description**: When writing the PR description, include the *original user prompt or issue* that led to this change (for context). Provide a brief summary of what was done to address it. If relevant, also mention any follow-up needed or any special notes (e.g., if a new dependency is required but not installed).
-* **Scope of PR**: Each PR should ideally address a single focused issue or feature. Do not mix unrelated changes in one PR. Keep the changeset relevant to the prompt. If multiple steps are required to complete the task, group them into the same PR, but avoid creating separate PRs for one logical task.
-* **Complete Solution**: Ensure that the changes fully solve the problem described in the prompt. The PR should not be a partial or work-in-progress solution. Before marking the task complete, verify that all requirements are met (and tests are passing, as noted below).
-* **PR Content**: Aside from code changes, the PR should include any necessary updates to documentation or configuration. However, avoid gratuitous changes (no random formatting edits or refactors unrelated to the task). Every change should have a purpose tied to the prompt.
+* **Conventional Commits**: Use Conventional Commits style for your commit and PR titles. For example:
+
+  * `feat: add user login audit logging` for a new feature.
+  * `fix: resolve crash on empty input in parser` for a bug fix.
+  * Use a concise prefix (`feat:`, `fix:`, `docs:`, `chore:`, etc.) and a brief description of the change.
+* **Pull Request Description**: Begin the PR description with a reference to the original user prompt or issue being addressed (for context). Provide a summary of what was changed and why. If the change is part of a series or has caveats, note them (e.g. mention if a new dependency is needed but wasn’t installed due to the rules).
+* **Focused Scope**: Keep each PR focused on a single issue or feature. Do not lump unrelated changes together. If a task involves multiple steps or components, they can be in one PR if they are part of the same overall goal, but avoid mixing in changes that are not relevant to the main task.
+* **Complete Solutions**: Only mark the task complete when the changes fully address the prompt. Partial solutions are not acceptable. Ensure that after your changes, the problem is resolved and all acceptance criteria are met.
+* **Include Documentation**: If your change affects user-facing behavior or requires knowledge to use, update relevant documentation or comments. For example, if you add a new command or script, update the README or usage docs accordingly. However, avoid gratuitous edits—only change documentation as needed for your update.
+* **No Extraneous Changes**: Do not perform drive-by refactoring or formatting changes that are not asked for. Every change in the diff should be attributable to solving the task at hand. Unrelated changes make review harder and may be rejected.
 
 ## Code Style and Linting
 
-Maintain code quality by adhering to the project's style and running automated checks:
+Maintain code quality and consistency with the project’s established style:
 
-* **Follow Project Style**: Write code that is consistent with the existing codebase in format and conventions. Follow PEP8 guidelines for Python (which the linter will enforce) and use naming conventions and patterns similar to the existing code.
-* **Linting and Formatting**: Use `ruff check` to lint the code for any errors or style issues, and use `ruff format` to automatically format the code. Address all issues flagged by the linter before committing. The code should pass **ruff** with no warnings.
-* **Type Checking**: Run `pyright` to perform static type checking on the project. Ensure that your changes do not introduce type errors. Resolve any type-check issues reported.
-* **Clean Code**: Remove any temporary debugging code or prints before finalizing changes. The final code should be clean and production-ready, with appropriate comments or docstrings where necessary to explain complex logic (follow the commenting style used in the repository).
+* **Follow Existing Style**: Adhere to PEP 8 for Python and the project’s conventions. Match the coding style of the surrounding code (naming, structure, patterns). If the project uses specific idioms or design patterns, try to follow those.
+* **Automated Linting**: Use `ruff` for linting and formatting (as this project does). Before committing, run `ruff check .` and address any warnings or errors. Then run `ruff format .` (or ensure your changes are formatted) so that the code meets the style guidelines. The code must pass lint checks with **no** warnings.
+* **Type Checking**: Run `pyright` (or `mypy` if specified) to perform static type checking. The project should remain type-clean. If your changes introduce type errors, fix them or adjust type annotations as needed. Do not ignore type checker output.
+* **Clean and Commented Code**: Remove any debugging prints or leftover test code before committing. Comments and docstrings should be added for complex logic or important sections, following the project’s commenting style. Keep comments clear and helpful, but avoid redundant comments for self-explanatory code.
 
 ## Testing and Validation
 
-Verify that all tests pass and add new tests for new features or bug fixes:
+Before submitting, ensure that all tests pass and that you have added new tests if you introduced new functionality:
 
-* **Run Tests**: After making changes, always run the project's test suite to ensure nothing is broken. Use `pytest` to run tests (or the appropriate test command). For example:
+* **Run All Tests**: Use `pytest` (or the project’s test runner) to run the test suite. For example:
 
-  * Run backend/server tests with `pytest tests/test_server.py` if server logic was modified.
-  * Run frontend/UI tests with `pytest tests/test_web.py` if frontend components were changed.
-  * (If unsure, running `pytest` with no arguments will run all tests.)
-* **Passing Tests**: Ensure that **all tests pass** before concluding the task. If any tests fail, debug and fix the issues. Do not ignore failing tests; they must be resolved or updated to reflect intentional changes in behavior.
-* **Add Tests for New Code**: When you add new functionality or fix a bug, include corresponding tests:
+  * Run specific test modules if you know what area is affected (e.g. `pytest tests/test_server.py` for server-side changes, or `pytest tests/test_web.py` for front-end/UI changes).
+  * If unsure, run `pytest` without arguments to run all tests.
+* **Passing Tests Required**: All tests **must pass** before completion. If tests are failing, investigate and fix the issues. Do not assume failing tests are “not relevant” – if a test is failing, either your change broke something or the test needs updating due to intentional changes in behavior.
+* **Add Tests for New Code**: When you implement new features or fix bugs, add corresponding tests:
 
-  * For server-side features or fixes, add or update tests in `tests/test_server.py`.
-  * For front-end features or UI changes, add or update tests in `tests/test_web.py`.
-    Ensure new tests cover the relevant logic and edge cases, and that they also pass.
-* **Iterate if Necessary**: If a test fails or a new test exposes an issue, revise the code to fix the problem and run the tests again. The agent should iterate until the test suite is green.
-* **Automated Verification**: Rely on tests and linters as the gatekeepers for code quality. Do not consider the task done until both linting and all tests are successful.
+  * If you fix a bug, add a test that would have caught that bug to prevent regressions.
+  * If you add a new feature, write tests for its expected behavior (including edge cases).
+  * Place new tests in the appropriate file under `tests/` (matching the structure, e.g., server-related tests in `test_server.py`, UI tests in `test_web.py`, etc.).
+* **Iterate as Needed**: If your new tests reveal issues or if you discover new failing cases, fix the code and re-run tests until everything passes.
+* **Automated Checks**: In addition to tests, ensure linting and type checks are green (as noted in the Code Style section). The CI or maintainers will run these, so you should too, to catch issues early.
 
 ## Project Structure and Conventions
 
-Understand and follow the repository structure so that your changes integrate correctly:
+Understand the repository structure and place your changes appropriately:
 
-* **Match Directory Structure**: Place new files or modules in their appropriate locations. For example, if implementing a backend feature, keep related code in the server/back-end directory or module (following the organization of existing server code). Similarly, front-end/UI changes should be made in the designated front-end portions of the project. Avoid creating new top-level directories; instead, use the existing structure.
-* **Key Directories**: Familiarize yourself with important directories in the project:
+* **Match the Structure**: Add new files or modules only if necessary, and put them in the correct location. For example, backend logic should reside in the backend-related directory or module, frontend code in the frontend directory, etc., following how the project is organized. Do not create new top-level directories. Instead, integrate with the existing structure.
+* **Key Directories**: Be aware of important directories:
 
-  * `tests/` – contains test files (e.g., `test_server.py`, `test_web.py` as noted above).
-  * *(Identify and use other relevant directories for source code – e.g., a backend or frontend directory – based on the current project structure.)*
-* **Consistency**: Follow the naming conventions and file organization patterns already present. If similar functionality exists elsewhere in the codebase, use it as a reference for how to structure your solution.
-* **No Duplicate Files**: Do not create duplicate or redundant files. If you need to extend functionality, modify existing files or add to existing modules unless a new file is absolutely necessary for a new component.
-* **Documentation and Comments**: If your changes require it, update any relevant documentation or comments in the code to keep them up-to-date. Maintain clarity and helpfulness in comments for any complex sections of code.
+  * `tests/` – contains test cases (unit tests, integration tests). Update or add here for any code changes.
+  * `scripts/`, `server/`, `client/` (or similar) – the exact structure depends on the project, but follow the established pattern. For instance, if there’s a `database/` or `utils/` directory, put new database-related or utility scripts there rather than at root.
+  * `config/` – contains configuration files (like `enterprise.json` or others). If you need to change defaults or add config, ensure it goes through these files.
+* **Consistency**: Follow naming conventions already in use. E.g., if existing classes use CamelCase, do the same; if functions\_are\_snake\_case, stick to that. Consistent naming and organization make the codebase maintainable.
+* **Avoid Duplicates**: Do not duplicate existing functionality. Before writing new code, check if similar functionality exists that you can extend or reuse. Only create a new file or function if you’re sure the logic isn’t already present. Redundant code will be rejected.
+* **Documentation Updates**: If your change alters how the system works (for example, changes a command-line interface, adds an environment variable, affects deployment, etc.), update relevant documentation in `README.md` or the `docs/` folder. Make sure instructions remain accurate. Also update in-line docstrings or comments if behavior changes.
 
-By adhering to all of the above guidelines, the AI agent will produce changes that are easy for maintainers to review and integrate. **Always ensure that your contribution conforms to these rules before marking the task as complete.**
+## Agent Roles
 
-======
+In the **gh\_COPILOT** toolkit, multiple conceptual “agent” components work together. The AI agent should be aware of these roles to understand the context of the system (note: some are aspirational or in development):
 
-Understood. I will now analyze the `gh_COPILOT` repository to identify all environment variables—both required and optional—that should be set within the ChatGPT - Codex environment settings. I’ll provide variable keys, inferred default values, and a brief description of each for human context. I’ll return shortly with a structured list you can input directly into the Codex environment configuration.
+| Agent System                            | Core Function                                                                                                                |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **DualCopilotOrchestrator**             | Primary executor with a secondary validator (dual-agent pattern for critical tasks).                                         |
+| **UnifiedMonitoringOptimizationSystem** | Continuous health monitoring of the system (ensures uptime, performance metrics).                                            |
+| **QuantumOptimizationEngine**           | *Aspirational:* placeholder for quantum optimization features (not fully implemented, do not rely on actual quantum output). |
+| **UnifiedScriptGenerationSystem**       | Generates scripts based on patterns from `production.db` (automating common tasks using database-driven templates).          |
+| **UnifiedSessionManagementSystem**      | Manages session integrity (zero-byte file checks, anti-recursion enforcement, ensures each session starts/ends cleanly).     |
+| **UnifiedDisasterRecoverySystem**       | Handles backup and restore processes (enterprise backup compliance and recovery protocols).                                  |
+| **LegacyCleanupSystem**                 | Performs cleanup of legacy files and workspace tidying (archiving old data, removing deprecated files).                      |
+| **WebGUIIntegrationSystem**             | Integrates with the Web Dashboard UI (exposes endpoints, updates dashboard with status logs and metrics).                    |
+| **EnterpriseComplianceValidator**       | Runs security and compliance audits (ensures changes meet enterprise rules and regulations).                                 |
+| **CompleteConsolidationOrchestrator**   | Orchestrates database consolidation (merging or optimizing `production.db` and other databases).                             |
 
+*Be mindful of these roles when writing code or documentation. For example, if you write a backup script, ensure it aligns with **UnifiedDisasterRecoverySystem** protocols, or if outputting logs or metrics, consider the **WebGUIIntegrationSystem** expectations.* Many of these systems implement the dual-copilot validation and other enterprise patterns.
 
-# Environment Configuration for ChatGPT–Codex (gh\_COPILOT Toolkit)
+## Core Protocols
 
-Properly setting environment variables is crucial for running the **gh\_COPILOT** toolkit in the ChatGPT-Codex environment. Below are the **required** and **optional** environment variables to configure, along with recommended default values and their purposes.
+The gh\_COPILOT project adheres to several core protocols and standards that the agent must follow in its solutions:
 
-## Required Environment Variables
+1. **Database-First Operations** – Always query or utilize `production.db` (and related databases) as the primary source of truth before making filesystem changes. Database files must remain under **99.9 MB** each (monitor sizes if your task involves DB migrations or insertions).
+2. **Dual Copilot Pattern** – Implement a dual-phase approach for critical workflows: a primary action followed by a validation or review step by a secondary process. This ensures every major operation is verified by an independent check within the automation.
+3. **Visual Processing Indicators** – Any long-running script should include user-friendly indicators (progress bars, timestamps for start/end, ETA calculations, and real-time status updates). This aligns with enterprise UI/UX standards for long processes.
+4. **Anti-Recursion & Backup Rules** – Absolutely no recursive copying of the workspace. Backups must be stored in the external backup directory (never inside the workspace). Always validate paths and use provided safety checks (e.g., `validate_enterprise_operation()` if available) before file operations to enforce this.
+5. **Session Integrity & Continuous Operation** – Each session or run should begin and end with integrity checks (e.g., ensure no zero-byte files introduced, all expected processes completed). The system is expected to run continuously 24/7, so any automation should be robust to long uptimes and not degrade over time.
+6. **Response Chunking** – (For AI responses in multi-turn scenarios) Keep responses under \~2000 tokens (aim for 1500–1800 for readability). Break down large outputs into logically separate chunks or phases. Each chunk of output or code should end with a clear validation or summary, and possibly a hand-off to the next chunk. This ensures manageability and clarity in review.
+7. **Quantum & AI Protocols** – Quantum computing features and certain advanced AI functions are currently **aspirational**. They should be treated as placeholders or experimental. Do not rely on them for critical logic. If you integrate with these parts, clearly mark outputs as simulated or placeholder. Ensure that the presence of these features doesn’t break core functionality if they are inactive.
 
-* **GH\_COPILOT\_WORKSPACE** – **Absolute path to the repository workspace root**. This variable must point to the root directory of the `gh_COPILOT` project (e.g. `/path/to/workspace`). All tests and scripts use this path to locate databases and configuration files. If not set, the code will fall back to the current working directory by default. (In the provided Docker container, it defaults to `/app`, but you should explicitly set it to your workspace path.)
-
-* **GH\_COPILOT\_BACKUP\_ROOT** – **Path to an external backup directory**, **outside** of the workspace. This is required to enforce anti-recursion rules (backups must not be stored under the workspace). If not set, the toolkit will default to a temp location (e.g. `E:/temp/gh_COPILOT_Backups` on Windows or `/tmp/<user>/gh_COPILOT_Backups` on Linux). It’s recommended to set this to a dedicated backup folder on your system.
-
-## Optional (Additional) Environment Variables
-
-* **WORKSPACE\_ROOT** – *Alias for* **GH\_COPILOT\_WORKSPACE**. In the example `.env` file it is set to the same path as `GH_COPILOT_WORKSPACE`. While the code primarily uses `GH_COPILOT_WORKSPACE`, you can set `WORKSPACE_ROOT` as well (to the same value) for consistency or if any legacy components reference it.
-
-* **FLASK\_SECRET\_KEY** – **Secret key string for Flask web apps**. Used to secure sessions and cookies in the optional web dashboard/UI. By default the example `.env` uses a placeholder `'your_secret_key'` – you **should replace this** with a strong, random string for production (e.g. a 32-byte hex string). This is only needed if you run the Flask-based enterprise dashboard; it ensures features like session management or CSRF protection function correctly.
-
-* **FLASK\_RUN\_PORT** – **Port number for the Flask development server** (if using the Flask CLI to run the app). The example default is **`5000`**. You can change this if you need the Flask web interface to listen on a different port in your environment. (Note: When running the dashboard via the provided script, it may use a hard-coded port like 8080, but this env var is used when launching via `flask run` or similar dev commands.)
-
-* **CONFIG\_PATH** – **Path to a custom configuration file** (YAML or JSON). This is optional; if set, it should point to a config file (e.g. `/path/to/config.yml`) that some utilities or scripts will load for configuration settings. If not provided, the system uses the default configuration file (`enterprise.json`) located in the `config/` folder of the workspace. Use this if you need to override default configuration by pointing the toolkit to a specific config file.
-
-* **WEB\_DASHBOARD\_ENABLED** – **Flag to enable the web dashboard logging**. Optional toggle (expects **`"1"` for true**). If set to `"1"`, performance metrics will be logged with a `[DASHBOARD]` tag for integration with the web dashboard interface. By default (unset or `"0"`), these dashboard metric logs are disabled. Set this to `"1"` only if you are actively using the real-time web dashboard feature for monitoring performance.
-
-Each of the above variables helps ensure the Codex container and toolkit operate correctly. Setting **GH\_COPILOT\_WORKSPACE** and **GH\_COPILOT\_BACKUP\_ROOT** is mandatory for path resolution and backup compliance. The others can be configured as needed based on which features (Flask web UI, custom configs, dashboard metrics) you plan to use. Always double-check that no secret or credential is accidentally hard-coded when configuring these variables.
-
-**Sources:**
-
-* gh\_COPILOT Documentation – *Environment Configuration*
-* gh\_COPILOT Example `.env` file
-* Relevant code references in gh\_COPILOT (for defaults and usage)
-
-======
-
-# Purpose
-This guide is written for **automated ChatGPT Codex agents ** operating within the ** gh_COPILOT Toolkit**. It summarizes environment setup, Codex agent roles, and mandatory protocols pulled from documentation, instructions, and Copilot notes.
+By adhering strictly to the above guidelines and protocols, the AI agent will produce contributions that are consistent with the project’s standards and less likely to be rejected. **Always double-check your work against these rules before considering the task complete.**
 
 ---
 
-# 1. Environment Setup
-
-1. ** Python 3.8+** required.
-2. Install core dependencies:
-    ```bash
-    pip install - r requirements.txt
-    ```
-3. Optional extras:
-    ```bash
-    pip install - r requirements-web.txt     # Web dashboard
-    pip install - r requirements-ml.txt      # ML/AI features
-    ```
-4. Run tests with `make test`. This installs packages from `requirements-test.txt` such as `tqdm`, `numpy`, `qiskit >= 1.4, < 2.0`, `qiskit-aer`, and `qiskit-machine-learning`.
-5. Set the workspace root via the `GH_COPILOT_WORKSPACE` environment variable.
-6. Populate the `.env` file with `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT`, then `source .env` to load these variables before running tasks.
-
-Consult[`docs/INSTRUCTION_INDEX.md`](docs/INSTRUCTION_INDEX.md) for all available instruction modules.
+*Following these instructions is mandatory for all AI-driven contributions to **gh\_COPILOT**. Deviation from these guidelines may result in the pull request being declined or the agent’s changes being reverted. Stay within the bounds of the guide, and focus on delivering value aligned with the project’s goals and constraints.*
 
 ---
 
-# 2. Agent Roles
-
-# Codex Agents
-| Agent | Core Function |
-|------- | ---------------|
-| **DualCopilotOrchestrator ** | Primary executor with secondary validator. |
-| **UnifiedMonitoringOptimizationSystem ** | Continuous health monitoring. |
-| **QuantumOptimizationEngine ** | Aspirational quantum optimization. |
-| **UnifiedScriptGenerationSystem ** | Generates scripts from `production.db` patterns. |
-| **UnifiedSessionManagementSystem ** | Zero-byte and anti-recursion checks. |
-| **UnifiedDisasterRecoverySystem ** | Backup and restore operations. |
-| **LegacyCleanupSystem ** | Workspace cleanup and archival. |
-| **WebGUIIntegrationSystem ** | Dashboard endpoints and reporting. |
-| **EnterpriseComplianceValidator ** | Security and compliance audits. |
-| **CompleteConsolidationOrchestrator ** | Database consolidation orchestrator. |
-
----
-
-# 3. Core Protocols
-
-1. ** Database-First Operations ** – Query `production.db` and related databases before any filesystem or code changes. All database files must remain below ** 99.9 MB**.
-2. ** Dual Copilot Pattern ** – Every critical workflow uses a primary executor and a secondary validator.
-3. ** Visual Processing Indicators ** – Scripts must include progress bars, start time logging, timeouts, ETC calculation, and real-time status updates.
-4. ** Anti‑Recursion & Backup Rules ** – Backups must never be stored inside the workspace. Use the external root `/temp/gh_COPILOT_Backups` and validate paths with `validate_enterprise_operation()`.
-5. ** Session Integrity & Continuous Operation ** – Sessions begin and end with integrity validation and zero-byte checks. Continuous monitoring runs 24/7.
-6. ** Response Chunking ** – Responses should stay under 2, 000 tokens(1, 500–1, 800 preferred) and start with anti-recursion validation.
-7. ** Quantum & AI Protocols ** – Quantum features are aspirational until fully implemented and tested. Placeholders must not be treated as production code.
-
----
-
-# 4. Coding & Contribution Standards
-
-- Use type hints and docstrings.
-- Follow PEP 8/flake8
-format code with `autopep8` and `isort`.
-- Do ** not ** modify version‑controlled SQLite databases.
-- Add or update unit tests when modifying code and run `make test`.
-- Keep commit messages short and imperative.
-- Track documentation metrics with `scripts/generate_docs_metrics.py` and verify via `scripts/validate_docs_metrics.py`. Both scripts accept `--db-path` for specifying an alternate database.
-
----
-
-# 5. Agent Lifecycle Management
-
-- Register new agents in this file and deprecate obsolete ones.
-- Log critical actions to audit databases for traceability.
-- Support continuous improvement and prepare for future quantum integration.
-
----
-
-# Summary
-
-ChatGPT Codex agents must strictly follow the database‑first mandate, dual Copilot validation, anti‑recursion rules, and visual processing standards. Database file sizes must never exceed ** 99.9 MB**. Quantum optimization references remain aspirational until fully implemented. This guide provides the baseline for Codex automation within the gh_COPILOT Toolkit.
+**Sources and References:** Best practices distilled from the gh\_COPILOT documentation and environment, including environment config examples and the Codex known limitations. Adherence to these guidelines ensures smooth operation within the ChatGPT–Codex environment and compliance with enterprise requirements.
