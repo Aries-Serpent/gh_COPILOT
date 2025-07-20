@@ -60,7 +60,7 @@
   - Component dependency mapping
   - Modularization recommendations
   - Database-driven script organization patterns
-  - `prevent_executable_misclassification()` ensures Python, shell, and batch scripts are correctly recognized
+  - `prevent_executable_misclassification()` inspects headers and magic numbers to ensure Python, shell, and batch scripts are correctly recognized and flagged when extensions lie
 
 ---
 
