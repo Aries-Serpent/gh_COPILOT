@@ -15,11 +15,6 @@ from tqdm import tqdm
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 from .cross_database_sync_logger import log_sync_operation
 
-from tqdm import tqdm
-
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
-from .cross_database_sync_logger import log_sync_operation
-
 logger = logging.getLogger(__name__)
 
 DATABASE_LIST_FILE = Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md"
@@ -58,14 +53,16 @@ class UnifiedDatabaseManager:
     def verify_expected_databases(self) -> Tuple[bool, list[str]]:
         """Return whether all expected databases exist and any missing ones."""
         expected = self._load_expected_names()
-        missing = [name for name in expected if not (
-            self.databases_dir / name).exists()]
+        missing = [
+            name for name in expected if not (self.databases_dir / name).exists()
+        ]
         return len(missing) == 0, missing
 
 
 def _backup_database(source: Path, target: Path, log_db: Path | None = None) -> None:
     """Copy source SQLite database to target using backup API."""
     validate_enterprise_operation()
+    start_dt = datetime.datetime.now(datetime.timezone.utc)
     with sqlite3.connect(source) as src, sqlite3.connect(target) as dest, tqdm(
         total=1, desc=f"Backup {source.name}", unit="db"
     ) as bar:
@@ -76,11 +73,13 @@ def _backup_database(source: Path, target: Path, log_db: Path | None = None) -> 
         log_sync_operation(
             log_db,
             f"backup_{source.name}_to_{target.name}",
-            start_time=start_time,
+            start_time=start_dt,
         )
 
 
-def synchronize_databases(master: Path, replicas: Iterable[Path], log_db: Path | None = None) -> None:
+def synchronize_databases(
+    master: Path, replicas: Iterable[Path], log_db: Path | None = None
+) -> None:
     """Synchronize replica databases with the master database."""
     validate_enterprise_operation()
     replica_list = list(replicas)
@@ -91,7 +90,7 @@ def synchronize_databases(master: Path, replicas: Iterable[Path], log_db: Path |
 
 
 if __name__ == "__main__":
-    mgr = UnifiedDatabaseManager(Path.cwd())
+    mgr = UnifiedDatabaseManager(str(Path.cwd()))
     ok, missing_dbs = mgr.verify_expected_databases()
     if not ok:
         print("Missing databases:", ", ".join(missing_dbs))
