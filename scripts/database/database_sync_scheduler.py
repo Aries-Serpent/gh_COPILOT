@@ -11,6 +11,7 @@ from __future__ import annotations
 import datetime
 import logging
 import time
+from datetime import timezone
 from pathlib import Path
 from sqlite3 import connect
 from typing import Iterable, List
@@ -38,7 +39,11 @@ def _copy_database(source: Path, target: Path) -> None:
 
 
 def synchronize_databases(
-    master: Path, replicas: Iterable[Path], log_db: Path | None = None
+    master: Path,
+    replicas: Iterable[Path],
+    *,
+    log_db: Path | None = None,
+    timeout: int | None = None,
 ) -> None:
     """Synchronize replica databases with the master database.
 
@@ -52,22 +57,44 @@ def synchronize_databases(
         Optional path to ``enterprise_assets.db`` for audit logging.
     """
     if log_db:
-        log_sync_operation(log_db, f"start_sync_from_{master.name}")
-    start_time = time.time()
+        start_dt = log_sync_operation(log_db, f"start_sync_from_{master.name}")
+    else:
+        start_dt = datetime.datetime.now(timezone.utc)
     logger.info("Starting synchronization at %s", datetime.datetime.fromtimestamp(start_time))
 
     replica_list = list(replicas)
-    for replica in tqdm(replica_list, desc="Syncing", unit="db"):
-        _copy_database(master, replica)
-        if log_db:
-            log_sync_operation(log_db, f"synchronized_{replica.name}")
+    status = "SUCCESS"
+    try:
+        with tqdm(total=len(replica_list), desc="Syncing", unit="db", dynamic_ncols=True) as bar:
+            for replica in replica_list:
+                if timeout and time.time() - start_time > timeout:
+                    logger.error("Synchronization timed out")
+                    status = "TIMEOUT"
+                    break
+                _copy_database(master, replica)
+                if log_db:
+                    log_sync_operation(
+                        log_db, f"synchronized_{replica.name}", start_time=start_dt
+                    )
+                etc = bar.format_dict.get("elapsed", 0) + bar.format_dict.get("remaining", 0)
+                etc_time = datetime.datetime.fromtimestamp(start_time + etc)
+                bar.set_postfix_str(f"ETC {etc_time.strftime('%H:%M:%S')}")
+                bar.update(1)
+    except Exception:
+        status = "FAILURE"
+        raise
 
     end_time = time.time()
     logger.info(
         "Finished synchronization at %s", datetime.datetime.fromtimestamp(end_time)
     )
     if log_db:
-        log_sync_operation(log_db, f"completed_sync_from_{master.name}")
+        op = (
+            f"timeout_sync_from_{master.name}"
+            if status == "TIMEOUT"
+            else f"completed_sync_from_{master.name}"
+        )
+        log_sync_operation(log_db, op, status=status, start_time=start_dt)
 
 
 def _load_database_names(list_file: Path) -> list[str]:
@@ -89,7 +116,7 @@ def _load_database_names(list_file: Path) -> list[str]:
 class EnhancedDatabaseSyncScheduler:
     """Scheduler with detailed sync cycle logging."""
 
-    def __init__(self, workspace_root: Path = Path(".")) -> None:
+    def __init__(self, workspace_root: Path = Path("."), timeout: int | None = None) -> None:
         self.workspace_root = workspace_root.resolve()
         self.databases_dir = self.workspace_root / "databases"
         self.enterprise_db = self.databases_dir / "enterprise_assets.db"
@@ -99,11 +126,14 @@ class EnhancedDatabaseSyncScheduler:
         self.list_file = (
             self.workspace_root / "documentation" / "CONSOLIDATED_DATABASE_LIST.md"
         )
+        self.timeout = timeout
 
     def execute_sync_cycle(self) -> None:
         """Execute a synchronization cycle with logging."""
         cycle_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_sync_operation(self.enterprise_db, f"sync_cycle_start_{cycle_id}")
+        start_dt = log_sync_operation(
+            self.enterprise_db, f"sync_cycle_start_{cycle_id}"
+        )
         try:
             db_names: List[str] = _load_database_names(self.list_file)
             replicas = [
@@ -112,15 +142,22 @@ class EnhancedDatabaseSyncScheduler:
                 if name != self.master_db.name
             ]
             synchronize_databases(
-                self.master_db, replicas, log_db=self.enterprise_db
+                self.master_db,
+                replicas,
+                log_db=self.enterprise_db,
+                timeout=self.timeout,
             )
             log_sync_operation(
-                self.enterprise_db, f"sync_cycle_complete_{cycle_id}"
+                self.enterprise_db,
+                f"sync_cycle_complete_{cycle_id}",
+                start_time=start_dt,
             )
         except Exception as exc:
             log_sync_operation(
                 self.enterprise_db,
                 f"sync_cycle_failed_{cycle_id}_{format_exception_message(exc)}",
+                status="FAILURE",
+                start_time=start_dt,
             )
             raise
 
@@ -187,6 +224,12 @@ if __name__ == "__main__":
         default=1800,
         help="Interval between cycles in continuous mode (seconds)",
     )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=None,
+        help="Abort sync if it runs longer than this many seconds",
+    )
 
     args = parser.parse_args()
 
@@ -208,4 +251,9 @@ if __name__ == "__main__":
     replica_dbs = [workspace / name for name in db_names if name != master_name]
 
     log_db_path = workspace / args.log_db if args.log_db else None
-    synchronize_databases(master_db, replica_dbs, log_db=log_db_path)
+    synchronize_databases(
+        master_db,
+        replica_dbs,
+        log_db=log_db_path,
+        timeout=args.timeout,
+    )

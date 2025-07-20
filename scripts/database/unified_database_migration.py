@@ -6,6 +6,7 @@ from __future__ import annotations
 import logging
 import sqlite3
 from pathlib import Path
+from datetime import datetime, timezone, timedelta
 
 from tqdm import tqdm
 
@@ -122,9 +123,13 @@ def run_migration(
             if compression_first:
                 compress_database(src)
             create_external_backup(src, src.stem)
-            log_sync_operation(enterprise_db, f"start_migrate_{src.name}")
+            start_dt = log_sync_operation(
+                enterprise_db, f"start_migrate_{src.name}", start_time=None
+            )
             consolidate_databases(enterprise_db, [src])
-            log_sync_operation(enterprise_db, f"completed_migrate_{src.name}")
+            log_sync_operation(
+                enterprise_db, f"completed_migrate_{src.name}", start_time=start_dt
+            )
             _compress_database(enterprise_db)
             bar.update(1)
             if monitor_size:
@@ -137,8 +142,11 @@ def run_migration(
         if any(size > 99.9 for size in sizes.values()):
             raise RuntimeError("Database size limit exceeded")
 
-    log_sync_operation(enterprise_db, "migration_complete")
-    logger.info("Migration process completed")
+    log_sync_operation(
+        enterprise_db,
+        "migration_complete",
+        start_time=migration_start,
+    )
 
 
 if __name__ == "__main__":
