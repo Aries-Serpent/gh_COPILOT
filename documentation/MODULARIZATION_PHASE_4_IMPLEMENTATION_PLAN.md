@@ -108,7 +108,8 @@ def operations___init__(workspace_path=None):
 # utils/general_utils.py
 def operations_main():
     """Main function pattern used by 135 scripts"""
-    # Consolidated main function logic
+    # Consolidated main function logic. Call your core
+    # ``main`` routine and print the result if any.
 ```
 
 #### **Priority 2: Reporting Framework**
@@ -123,6 +124,8 @@ def operations_generate_comprehensive_report():
 def operations_generate_action_statement():
     """Used by 3 scripts - 443 lines savings"""
 ```
+Common helpers ``generate_json_report`` and ``generate_markdown_report`` are
+used to create machine-readable and Markdown summaries.
 
 ### **Phase 4.2: Advanced Modules (Week 2)**
 
@@ -146,6 +149,8 @@ def operations_validate_workspace():
 def operations_save_analysis_results():
     """File saving patterns"""
 ```
+The validation utilities also expose ``detect_zero_byte_files`` and
+``validate_path`` for thorough workspace checks.
 
 ### **Phase 4.3: Integration & Migration (Week 3)**
 

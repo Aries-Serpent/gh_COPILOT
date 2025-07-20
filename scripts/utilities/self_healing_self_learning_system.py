@@ -16,22 +16,19 @@ CAPABILITIES:
 - Disaster Recovery automation
 """
 
-import os
-import sys
 import json
-import sqlite3
 import logging
-import asyncio
 import schedule
+import sqlite3
+import sys
 import threading
-from pathlib import Path
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
-import time
-import hashlib
-import subprocess
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import shutil
+import time
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 import numpy as np
@@ -1443,7 +1440,7 @@ def main():
         print(f"\n{TEXT_INDICATORS['auto']} Self-Healing Self-Learning Self-Managing System Activated!")
         print(f"System ID: {operation_status['system_id']}")
         print(f"Overall Health Score: {system_report['system_overview']['overall_health_score']:.1f}%")
-        print(f"Autonomous Capabilities: All systems operational")
+        print("Autonomous Capabilities: All systems operational")
         print(f"Continuous Operation: {operation_status['continuous_operation']}")
         
         # Keep main thread alive for continuous operation

@@ -1,0 +1,48 @@
+import json
+from utils.general_utils import operations_main
+from utils.reporting_utils import generate_json_report, generate_markdown_report
+from utils.validation_utils import detect_zero_byte_files, validate_path
+
+
+def test_operations_main(capsys):
+    def _main():
+        return "ok"
+    operations_main(_main)
+    assert "ok" in capsys.readouterr().out
+
+
+def test_generate_json_report(tmp_path):
+    out = tmp_path / "report.json"
+    generate_json_report({"a": 1}, out)
+    assert json.loads(out.read_text()) == {"a": 1}
+
+
+def test_generate_markdown_report(tmp_path):
+    out = tmp_path / "report.md"
+    generate_markdown_report({"a": 1}, out, title="T")
+    text = out.read_text()
+    assert text.startswith("# T") and "**a**" in text
+
+
+def test_detect_zero_byte_files(tmp_path):
+    z = tmp_path / "z.txt"
+    z.touch()
+    (tmp_path / "n.txt").write_text("data")
+    files = detect_zero_byte_files(tmp_path)
+    assert files == [z]
+
+
+def test_validate_path(tmp_path, monkeypatch):
+    ws = tmp_path / "ws"
+    bk = tmp_path / "bk"
+    ws.mkdir()
+    bk.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(ws))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(bk))
+    inside = ws / "a.txt"
+    inside.touch()
+    assert validate_path(inside)
+    outside = bk / "b.txt"
+    outside.touch()
+    assert not validate_path(outside)
+
