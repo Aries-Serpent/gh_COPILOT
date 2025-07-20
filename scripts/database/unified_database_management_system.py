@@ -8,6 +8,7 @@ import os
 import sqlite3
 from pathlib import Path
 from typing import Iterable, Tuple
+import datetime
 
 from tqdm import tqdm
 
@@ -60,6 +61,7 @@ class UnifiedDatabaseManager:
 def _backup_database(source: Path, target: Path, log_db: Path | None = None) -> None:
     """Copy source SQLite database to target using backup API."""
     validate_enterprise_operation()
+    start_time = datetime.datetime.now(datetime.timezone.utc)
     with sqlite3.connect(source) as src, sqlite3.connect(target) as dest, tqdm(
         total=1, desc=f"Backup {source.name}", unit="db"
     ) as bar:
@@ -67,7 +69,11 @@ def _backup_database(source: Path, target: Path, log_db: Path | None = None) -> 
         bar.update(1)
     logger.info("Synchronized %s -> %s", source, target)
     if log_db:
-        log_sync_operation(log_db, f"backup_{source.name}_to_{target.name}")
+        log_sync_operation(
+            log_db,
+            f"backup_{source.name}_to_{target.name}",
+            start_time=start_time,
+        )
 
 
 def synchronize_databases(master: Path, replicas: Iterable[Path], log_db: Path | None = None) -> None:

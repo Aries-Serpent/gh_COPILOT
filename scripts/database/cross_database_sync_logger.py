@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Log cross-database sync operations."""
+"""Cross-database sync operation logger.
+
+This module provides :func:`log_sync_operation` which records an operation name,
+status, caller supplied start time, calculated duration and a timestamp to the
+``cross_database_sync_operations`` table.  The
+``validate_enterprise_operation`` guard is executed before any write occurs and
+CLI usage displays a progress bar when logging multiple operations.
+"""
 
 from __future__ import annotations
 
@@ -29,10 +36,17 @@ def _table_exists(conn: sqlite3.Connection, table: str) -> bool:
 def log_sync_operation(
     db_path: Path,
     operation: str,
+    *,
     status: str = "SUCCESS",
     start_time: datetime | None = None,
-) -> None:
-    """Insert a sync operation record into the tracking table."""
+) -> datetime:
+    """Insert a sync operation record and return the start timestamp.
+
+    ``start_time`` should be the timestamp captured when the operation began.
+    If ``None`` it is set to the current time so callers can reuse the returned
+    value when logging completion events.  ``duration`` is computed from the
+    captured start time to the log call time.
+    """
     validate_enterprise_operation()
 
     if not db_path.exists():
@@ -61,6 +75,7 @@ def log_sync_operation(
         timestamp,
         status,
     )
+    return start_dt
 
 
 if __name__ == "__main__":

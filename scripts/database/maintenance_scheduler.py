@@ -6,7 +6,7 @@ import argparse
 import logging
 import signal
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from tqdm import tqdm
@@ -39,7 +39,7 @@ def _load_database_names(list_file: Path) -> list[str]:
     return names
 
 
-def run_cycle(workspace: Path) -> None:
+def run_cycle(workspace: Path, *, timeout: int | None = None) -> None:
     """Synchronize replicas and check database sizes."""
     db_dir = workspace / "databases"
     master = db_dir / "enterprise_assets.db"
@@ -48,26 +48,41 @@ def run_cycle(workspace: Path) -> None:
     replicas = [db_dir / name for name in replica_names if name != master.name]
     log_db = db_dir / "enterprise_assets.db"
 
-    start_time = datetime.now()
-    log_sync_operation(log_db, f"cycle_start_{start_time.isoformat()}")
-    etc = start_time + timedelta(seconds=len(replicas) + 1)
+    start_dt = datetime.now(timezone.utc)
+    log_sync_operation(log_db, f"cycle_start_{start_dt.isoformat()}")
+    etc = start_dt + timedelta(seconds=len(replicas) + 1)
     log_sync_operation(log_db, f"cycle_estimated_complete_{etc.isoformat()}")
 
     status = "success"
+    start_ts = time.time()
     try:
-        with tqdm(total=2, desc="Maintenance Cycle", unit="task") as bar:
-            synchronize_databases(master, replicas, log_db=log_db)
+        with tqdm(total=2, desc="Maintenance Cycle", unit="task", dynamic_ncols=True) as bar:
+            synchronize_databases(
+                master,
+                replicas,
+                log_db=log_db,
+                timeout=timeout,
+            )
+            etc_time = start_dt + timedelta(seconds=bar.format_dict.get("elapsed", 0) + bar.format_dict.get("remaining", 0))
+            bar.set_postfix_str(f"ETC {etc_time.strftime('%H:%M:%S')}")
             bar.update(1)
+            if timeout and time.time() - start_ts > timeout:
+                status = "timeout"
+                raise TimeoutError("Maintenance cycle timed out")
             check_database_sizes(db_dir)
+            etc_time = start_dt + timedelta(seconds=bar.format_dict.get("elapsed", 0) + bar.format_dict.get("remaining", 0))
+            bar.set_postfix_str(f"ETC {etc_time.strftime('%H:%M:%S')}")
             bar.update(1)
+    except TimeoutError:
+        status = "timeout"
     except Exception as exc:
         status = f"failed_{type(exc).__name__}"
         raise
     finally:
-        log_sync_operation(log_db, f"cycle_status_{status}")
+        log_sync_operation(log_db, f"cycle_status_{status}", start_time=start_dt)
 
 
-def main(workspace: Path, interval: int, once: bool = False) -> None:
+def main(workspace: Path, interval: int, once: bool = False, timeout: int | None = None) -> None:
     """Run maintenance cycles at a fixed interval."""
     def handle_signal(signum, frame):
         nonlocal running
@@ -80,7 +95,7 @@ def main(workspace: Path, interval: int, once: bool = False) -> None:
     running = True
     while running:
         try:
-            run_cycle(workspace)
+            run_cycle(workspace, timeout=timeout)
         except Exception as e:
             logger.error("An error occurred during the maintenance cycle: %s", e, exc_info=True)
         if once:
@@ -97,5 +112,6 @@ if __name__ == "__main__":
     parser.add_argument("--workspace", type=Path, default=Path("."), help="Workspace root")
     parser.add_argument("--interval", type=int, default=60, help="Minutes between cycles")
     parser.add_argument("--once", action="store_true", help="Run a single maintenance cycle")
+    parser.add_argument("--timeout", type=int, help="Abort cycle if it exceeds this many seconds")
     args = parser.parse_args()
-    main(args.workspace, args.interval, args.once)
+    main(args.workspace, args.interval, args.once, args.timeout)
