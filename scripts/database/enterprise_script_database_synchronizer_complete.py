@@ -52,7 +52,7 @@ class EnterpriseScriptDatabaseSynchronizer:
         """Perform comprehensive synchronization with validation"""
         self.logger.info(
             f"{TEXT_INDICATORS['start']} Starting comprehensive script database synchronization...")
-        log_sync_operation(self.enterprise_db, "start_sync")
+        start_dt = log_sync_operation(self.enterprise_db, "start_sync")
 
         sync_session = {
             'session_id': f"sync_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
@@ -67,9 +67,13 @@ class EnterpriseScriptDatabaseSynchronizer:
         try:
             # Step 1: Backup database if requested
             if backup_db:
-                log_sync_operation(self.enterprise_db, "backup_start")
+                backup_start = log_sync_operation(self.enterprise_db, "backup_start")
                 sync_session['backup_created'] = self._backup_databases()
-                log_sync_operation(self.enterprise_db, "backup_complete")
+                log_sync_operation(
+                    self.enterprise_db,
+                    "backup_complete",
+                    start_time=backup_start,
+                )
 
             # Step 2: Validate current state
             self.logger.info(f"{TEXT_INDICATORS['info']} Performing initial validation...")
@@ -97,13 +101,22 @@ class EnterpriseScriptDatabaseSynchronizer:
 
             sync_session['completion_status'] = 'completed'
             sync_session['end_time'] = datetime.now().isoformat()
-            log_sync_operation(self.enterprise_db, "sync_complete")
+            log_sync_operation(
+                self.enterprise_db,
+                "sync_complete",
+                start_time=start_dt,
+            )
 
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Synchronization failed: {e}")
             sync_session['completion_status'] = 'failed'
             sync_session['error'] = str(e)
-            log_sync_operation(self.enterprise_db, "sync_failed")
+            log_sync_operation(
+                self.enterprise_db,
+                "sync_failed",
+                start_time=start_dt,
+                status="FAILURE",
+            )
 
         # Save session results
         session_file = self.results_dir / f"sync_session_{sync_session['session_id']}.json"
@@ -115,6 +128,7 @@ class EnterpriseScriptDatabaseSynchronizer:
 
     def _backup_databases(self) -> bool:
         """Create backup of all databases"""
+        start_dt = log_sync_operation(self.enterprise_db, "backup_create_start")
         try:
             backup_dir = self.workspace_root / 'archives' / \
                 'database_backups' / datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -130,10 +144,20 @@ class EnterpriseScriptDatabaseSynchronizer:
 
             self.logger.info(
                 f"{TEXT_INDICATORS['success']} Database backup completed: {backup_dir}")
-            log_sync_operation(self.enterprise_db, f"backup_created_{backup_dir.name}")
+            log_sync_operation(
+                self.enterprise_db,
+                f"backup_created_{backup_dir.name}",
+                start_time=start_dt,
+            )
             return True
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Backup failed: {e}")
+            log_sync_operation(
+                self.enterprise_db,
+                "backup_create_failed",
+                status="FAILURE",
+                start_time=start_dt,
+            )
             return False
 
     def _perform_synchronization(self, validation_results: Dict) -> Dict:
@@ -161,14 +185,21 @@ class EnterpriseScriptDatabaseSynchronizer:
                     sync_results['scripts_updated'] = len(out_of_sync_scripts)
                     sync_results['scripts_added'] = len(missing_scripts)
                     sync_results['operations'].append(f"Updated {len(all_scripts_to_sync)} scripts")
-                    log_sync_operation(self.enterprise_db,
-                                       f"updated_{len(all_scripts_to_sync)}_scripts")
+                    log_sync_operation(
+                        self.enterprise_db,
+                        f"updated_{len(all_scripts_to_sync)}_scripts",
+                        start_time=start_dt,
+                    )
                 else:
                     sync_results['errors'].append("Failed to update database scripts")
             else:
                 self.logger.info(f"{TEXT_INDICATORS['info']} No scripts require synchronization")
                 sync_results['operations'].append("No synchronization required")
-                log_sync_operation(self.enterprise_db, "no_scripts_needed")
+                log_sync_operation(
+                    self.enterprise_db,
+                    "no_scripts_needed",
+                    start_time=start_dt,
+                )
 
         except Exception as e:
             error_msg = f"Synchronization error: {e}"

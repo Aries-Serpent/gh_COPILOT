@@ -67,7 +67,10 @@ python scripts/database/database_initializer.py
 python scripts/database/database_sync_scheduler.py \
     --workspace . \
     --add-documentation-sync documentation/EXTRA_DATABASES.md \
+#    Optional: --timeout 300
     --target staging.db
+# Progress bars display elapsed time and estimated completion while operations
+# are logged with start time and duration in `cross_database_sync_operations`.
 
 # 3c. Consolidate databases with compression
 python scripts/database/complete_consolidation_orchestrator.py \
