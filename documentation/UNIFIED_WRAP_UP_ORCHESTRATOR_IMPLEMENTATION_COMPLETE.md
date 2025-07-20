@@ -60,6 +60,7 @@
   - Component dependency mapping
   - Modularization recommendations
   - Database-driven script organization patterns
+  - `prevent_executable_misclassification()` inspects headers and magic numbers to ensure Python, shell, and batch scripts are correctly recognized and flagged when extensions lie
 
 ---
 
@@ -92,6 +93,7 @@
 - **Automated Directory Creation:** Creates logs/, reports/, results/, documentation/, config/
 - **Pattern Matching:** 232 proven organization patterns from production.db
 - **Compliance Scoring:** Real-time compliance percentage calculation
+- **Executable Classification:** Detects Python (.py), shell (.sh/.ps1), and batch (.bat/.cmd) scripts before organization
 
 ### **Enterprise Validation Framework**
 - **DUAL COPILOT Pattern:** Primary executor + secondary validator
