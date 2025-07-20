@@ -53,9 +53,19 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Perform the utility function with basic file check"""
+        try:
+            required_path = self.workspace_path / "README.md"
+            if not required_path.exists():
+                self.logger.error(f"{TEXT_INDICATORS['error']} Missing {required_path}")
+                return False
+
+            size = required_path.stat().st_size
+            self.logger.info(f"{TEXT_INDICATORS['info']} README size: {size} bytes")
+            return True
+        except Exception as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Utility execution failed: {exc}")
+            return False
 
 
 def main():

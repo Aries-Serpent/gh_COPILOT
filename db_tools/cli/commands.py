@@ -81,6 +81,10 @@ class DatabaseCLI:
     def run_access_layer(self, args) -> bool:
         """Run database access layer"""
         try:
+            if not args.database:
+                print("Error: --database path required")
+                return False
+
             processor = DatabaseAccessLayer(args.database)
             return processor.execute_processing()
         except Exception as e:
@@ -90,7 +94,8 @@ class DatabaseCLI:
     def run_cleanup_processor(self, args) -> bool:
         """Run database cleanup processor"""
         try:
-            processor = DatabaseCleanupProcessor(args.workspace)
+            workspace = args.workspace or str(Path.cwd())
+            processor = DatabaseCleanupProcessor(workspace)
             results = processor.execute_cleanup(args.batch_size)
             
             print("\nCleanup Results:")
@@ -106,7 +111,8 @@ class DatabaseCLI:
     def run_compliance_checker(self, args) -> bool:
         """Run database compliance checker"""
         try:
-            checker = DatabaseComplianceChecker(args.workspace)
+            workspace = args.workspace or str(Path.cwd())
+            checker = DatabaseComplianceChecker(workspace)
             success = checker.execute_correction()
             
             # Display statistics
@@ -135,8 +141,12 @@ class DatabaseCLI:
             print(f"Unknown command: {parsed_args.command}")
             return 1
         
-        success = command_func(parsed_args)
-        return 0 if success else 1
+        try:
+            success = command_func(parsed_args)
+            return 0 if success else 1
+        except Exception as exc:
+            print(f"Command execution failed: {exc}")
+            return 1
 
 
 def main():
