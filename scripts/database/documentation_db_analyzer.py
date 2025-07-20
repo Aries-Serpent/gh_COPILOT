@@ -1,85 +1,63 @@
 #!/usr/bin/env python3
-"""
-DocumentationDbAnalyzer - Enterprise Database Processor
-Generated: 2025-07-10 18:09:39
+"""Analyze and clean documentation database."""
+from __future__ import annotations
 
-Enterprise Standards Compliance:
-- Flake8/PEP 8 Compliant
-- Emoji-free code (text-based indicators only)
-- Database-first architecture
-"""
-import sys
-
-import sqlite3
+import json
 import logging
+import sqlite3
+from datetime import datetime, timezone
 from pathlib import Path
-from datetime import datetime
 
-# Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'database': '[DATABASE]',
-    'info': '[INFO]'
-}
+logger = logging.getLogger(__name__)
 
 
-class EnterpriseDatabaseProcessor:
-    """Enterprise database processing system"""
+CLEANUP_SQL = (
+    "DELETE FROM enterprise_documentation "
+    "WHERE doc_type='BACKUP_LOG' OR source_path LIKE '%backup%'"
+)
 
-    def __init__(self, database_path: str = "production.db"):
-        self.database_path = Path(database_path)
-        self.logger = logging.getLogger(__name__)
-
-    def execute_processing(self) -> bool:
-        """Execute database processing"""
-        start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Processing started: {start_time}")
-
-        try:
-            with sqlite3.connect(self.database_path) as conn:
-                cursor = conn.cursor()
-
-                # Process database operations
-                success = self.process_operations(cursor)
-
-                if success:
-                    conn.commit()
-                    self.logger.info(f"{TEXT_INDICATORS['success']} Database processing completed")
-                    return True
-                else:
-                    self.logger.error(f"{TEXT_INDICATORS['error']} Database processing failed")
-                    return False
-
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {e}")
-            return False
-
-    def process_operations(self, cursor) -> bool:
-        """Process database operations"""
-        try:
-            # Implementation for database operations
-            return True
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")
-            return False
+DEDUP_SQL = (
+    "DELETE FROM enterprise_documentation WHERE rowid NOT IN ("
+    "SELECT MIN(rowid) FROM enterprise_documentation GROUP BY title, source_path)"
+)
 
 
-def main():
-    """Main execution function"""
-    processor = EnterpriseDatabaseProcessor()
-    success = processor.execute_processing()
+def analyze_and_cleanup(db_path: Path) -> dict[str, int]:
+    """Remove backups and duplicates from ``db_path`` and return a report."""
+    if not db_path.exists():
+        raise FileNotFoundError(f"Database not found at {db_path}")
 
-    if success:
-        print(f"{TEXT_INDICATORS['success']} Database processing completed")
-    else:
-        print(f"{TEXT_INDICATORS['error']} Database processing failed")
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        before = cur.execute(
+            "SELECT COUNT(*) FROM enterprise_documentation"
+        ).fetchone()[0]
+        removed_backups = cur.execute(CLEANUP_SQL).rowcount
+        removed_dupes = cur.execute(DEDUP_SQL).rowcount
+        after = cur.execute(
+            "SELECT COUNT(*) FROM enterprise_documentation"
+        ).fetchone()[0]
+        conn.commit()
 
-    return success
+    return {
+        "before": before,
+        "after": after,
+        "removed_backups": removed_backups,
+        "removed_duplicates": removed_dupes,
+    }
+
+
+def main() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    db_path = repo_root / "archives" / "documentation.db"
+    report = analyze_and_cleanup(db_path)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    report_path = repo_root / "reports" / f"documentation_cleanup_report_{timestamp}.json"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(report, indent=2))
+    logger.info("Cleanup complete: %s", report_path)
 
 
 if __name__ == "__main__":
-
-    success = main()
-    sys.exit(0 if success else 1)
+    logging.basicConfig(level=logging.INFO)
+    main()

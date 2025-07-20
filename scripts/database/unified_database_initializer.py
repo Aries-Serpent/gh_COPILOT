@@ -27,7 +27,8 @@ TABLES: dict[str, str] = {
         "id INTEGER PRIMARY KEY,"
         "doc_path TEXT NOT NULL,"
         "content_hash TEXT NOT NULL,"
-        "created_at TEXT NOT NULL"
+        "created_at TEXT NOT NULL,"
+        "modified_at TEXT NOT NULL"
         ")"
     ),
     "template_assets": (
