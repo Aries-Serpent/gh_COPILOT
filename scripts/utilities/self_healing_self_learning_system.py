@@ -33,6 +33,7 @@ from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pickle
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -237,6 +238,8 @@ class SelfHealingSelfLearningSystem:
                 self.ml_models['anomaly_detector'] = pickle.load(f)
         else:
             self.ml_models['anomaly_detector'] = IsolationForest(contamination=0.1, random_state=42)
+            with open(anomaly_model_path, 'wb') as f:
+                pickle.dump(self.ml_models['anomaly_detector'], f)
 
         # StandardScaler for preprocessing
         scaler_path = models_dir / "scaler.pkl"
@@ -245,6 +248,8 @@ class SelfHealingSelfLearningSystem:
                 self.ml_models['scaler'] = pickle.load(f)
         else:
             self.ml_models['scaler'] = StandardScaler()
+            with open(scaler_path, 'wb') as f:
+                pickle.dump(self.ml_models['scaler'], f)
             
         self.logger.info(f"{TEXT_INDICATORS['ai']} ML models loaded/initialized")
     
@@ -275,21 +280,31 @@ class SelfHealingSelfLearningSystem:
             'auto_optimization': True,
             'learning_integration': True
         }
-        
+
+        primary_check = True
+        secondary_check = SecondaryCopilotValidator(self.logger).validate_corrections([])
+        validation_details = {
+            'primary_check': primary_check,
+            'secondary_check': secondary_check
+        }
+
         with self._get_database_connection('self_learning') as conn:
             cursor = conn.cursor()
-            cursor.execute("""
-                INSERT OR REPLACE INTO copilot_interactions 
+            cursor.execute(
+                """
+                INSERT OR REPLACE INTO copilot_interactions
                 (interaction_id, interaction_type, request_data, response_data, success, processing_time)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (
-                f"INIT_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
-                'INITIALIZATION',
-                json.dumps(copilot_config),
-                json.dumps({'status': 'CONFIGURED'}),
-                True,
-                0.0
-            ))
+                """,
+                (
+                    f"INIT_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+                    'INITIALIZATION',
+                    json.dumps(copilot_config),
+                    json.dumps({'status': 'CONFIGURED', 'validation': validation_details}),
+                    True,
+                    0.0,
+                ),
+            )
             conn.commit()
     
     def collect_system_metrics(self) -> Dict[str, SystemHealth]:
