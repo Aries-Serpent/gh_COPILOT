@@ -41,11 +41,19 @@ For immediate implementation, start with the Integration Guide and follow the de
 - [x] Compliance requirements met
 - [x] Security assessment completed
 
-### Generated Information
-- **Documentation Version**: 1.0
-- **Generated**: 2025-07-10T10:28:01.243876
+-### Generated Information
+-**Documentation Version**: 1.1
+-**Generated**: 2025-07-10T10:28:01.243876
 - **Total Documents**: 5
 - **Status**: Enterprise Review Ready
+
+### Newly Added Algorithms (v1.1)
+The library now includes reference implementations for:
+1. Grover search
+2. Shor factorization
+3. Quantum Fourier transform
+4. Variational circuits
+5. Quantum teleportation
 
 ---
 *Quantum Documentation Suite - Enterprise Grade*
