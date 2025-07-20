@@ -38,3 +38,34 @@ def test_config_dependency_analysis_basic(config_workspace: Path) -> None:
     assert any(
         set(cycle) == {"a.json", "b.json"} for cycle in report["circular_dependencies"]
     )
+
+
+def test_config_dependency_analysis_nested(config_workspace: Path) -> None:
+    """Handle nested references across multiple files without cycles."""
+    _write_config(
+        config_workspace / "config" / "a.json",
+        {"files": ["b.json", {"extra": "c.json"}]},
+    )
+    _write_config(config_workspace / "config" / "b.json", {"next": "c.json"})
+    _write_config(config_workspace / "config" / "c.json", {"value": 42})
+
+    optimizer = AutonomousDatabaseOptimizer(workspace_path=str(config_workspace))
+    report = optimizer.analyze_config_dependencies()
+
+    assert report["dependencies"]["a.json"] == ["b.json", "c.json"]
+    assert report["dependencies"]["b.json"] == ["c.json"]
+    assert report["dependencies"]["c.json"] == []
+    assert report["missing_configs"] == []
+    assert report["circular_dependencies"] == []
+
+
+def test_config_dependency_analysis_self_reference(config_workspace: Path) -> None:
+    """Detect self-referential configs."""
+    _write_config(config_workspace / "config" / "self.json", {"include": "self.json"})
+
+    optimizer = AutonomousDatabaseOptimizer(workspace_path=str(config_workspace))
+    report = optimizer.analyze_config_dependencies()
+
+    assert report["dependencies"]["self.json"] == ["self.json"]
+    assert report["missing_configs"] == []
+    assert ["self.json"] in report["circular_dependencies"]

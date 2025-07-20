@@ -18,11 +18,10 @@ import sys
 import json
 import sqlite3
 import shutil
-import hashlib
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict, field
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass, field
 from tqdm import tqdm
 import time
 import logging
@@ -89,7 +88,7 @@ class UnifiedWrapUpOrchestrator:
             'compliance_checker': self._initialize_compliance_checker()
         }
         
-        logger.info(f"🚀 UNIFIED WRAP-UP ORCHESTRATOR INITIALIZED")
+        logger.info("🚀 UNIFIED WRAP-UP ORCHESTRATOR INITIALIZED")
         logger.info(f"Session ID: {self.session_id}")
         logger.info(f"Workspace: {self.workspace_path}")
         
@@ -312,6 +311,21 @@ class UnifiedWrapUpOrchestrator:
             try:
                 file_name = Path(file_path).name.lower()
                 organized = False
+
+                script_type = self.prevent_executable_misclassification(Path(file_path))
+                if script_type != 'unknown':
+                    target_folder = file_organizer['target_folders']['scripts']
+                    target_path = target_folder / Path(file_path).name
+                    shutil.move(file_path, target_path)
+                    organized_count += 1
+                    organized = True
+                    pbar.set_description(
+                        f"📦 Moved {Path(file_path).name} -> scripts/ ({script_type})"
+                    )
+                    logger.info(
+                        f"📦 Organized: {Path(file_path).name} -> scripts/ ({script_type})"
+                    )
+                    continue
                 
                 # Apply organization patterns
                 for folder_type, patterns in self.organization_patterns.items():
@@ -473,10 +487,11 @@ class UnifiedWrapUpOrchestrator:
             )
             
             recommended_folder = self._recommend_script_folder(script_file.name, category)
-            
+
             return {
                 'script_path': script_path,
                 'script_name': script_file.name,
+                'script_type': self.prevent_executable_misclassification(script_file),
                 'size_kb': round(size_kb, 2),
                 'lines': len(lines),
                 'category': category,
@@ -489,6 +504,7 @@ class UnifiedWrapUpOrchestrator:
             return {
                 'script_path': script_path,
                 'script_name': Path(script_path).name,
+                'script_type': self.prevent_executable_misclassification(Path(script_path)),
                 'error': str(e),
                 'should_modularize': True,  # Default to modularize on error
                 'recommended_folder': 'scripts/utilities'
@@ -529,6 +545,17 @@ class UnifiedWrapUpOrchestrator:
             return 'optimization'
         else:
             return 'utilities'
+
+    def prevent_executable_misclassification(self, script_path: Path) -> str:
+        """Detect script file type to avoid misclassification."""
+        ext = script_path.suffix.lower()
+        if ext in {'.py', '.pyw'}:
+            return 'python'
+        if ext in {'.sh', '.bash', '.zsh', '.ps1'}:
+            return 'shell'
+        if ext in {'.bat', '.cmd'}:
+            return 'batch'
+        return 'unknown'
     
     def _recommend_script_folder(self, script_name: str, category: str) -> str:
         """📁 Recommend appropriate folder for script"""
@@ -672,7 +699,7 @@ class UnifiedWrapUpOrchestrator:
         with open(summary_file, 'w', encoding='utf-8') as f:
             f.write(markdown_summary)
         
-        logger.info(f"📊 Reports saved:")
+        logger.info("📊 Reports saved:")
         logger.info(f"  - {report_file}")
         logger.info(f"  - {summary_file}")
         
