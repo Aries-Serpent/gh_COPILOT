@@ -11,6 +11,7 @@ Enterprise Standards Compliance:
 import sys
 
 import logging
+import json
 from pathlib import Path
 from datetime import datetime
 
@@ -54,8 +55,35 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            summary = {
+                "workspace": str(self.workspace_path),
+                "timestamp": datetime.now().isoformat(),
+            }
+
+            results_dir = self.workspace_path / "results"
+            results_dir.mkdir(exist_ok=True)
+            summary_file = results_dir / "strategic_executor_summary.json"
+            with open(summary_file, "w", encoding="utf-8") as f:
+                json.dump(summary, f)
+
+            log_file = self.workspace_path / "misc" / "strategic_implementation.log"
+            with open(log_file, "a", encoding="utf-8") as lf:
+                lf.write(f"{datetime.now().isoformat()} - EXECUTOR run completed\n")
+
+            self.logger.info(
+                "%s Summary stored: %s",
+                TEXT_INDICATORS["info"],
+                summary_file,
+            )
+            return True
+        except Exception as e:
+            self.logger.error(
+                "%s Executor utility failed: %s",
+                TEXT_INDICATORS["error"],
+                e,
+            )
+            return False
 
 
 def main():
