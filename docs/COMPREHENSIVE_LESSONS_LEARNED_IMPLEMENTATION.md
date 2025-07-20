@@ -199,6 +199,11 @@ def analyze_config_dependencies(self) -> Dict[str, Any]:
         "circular_dependencies": [...],
     }
 ```
+This routine walks through every ``*.json`` file in ``config/`` and scans values
+for strings ending with ``.json``. It maps these references into a dependency
+graph, notes any referenced files that do not exist, and performs a depth-first
+search to surface cycles. The resulting report lists each file's dependencies,
+missing references, and any circular relationships discovered.
 
 **IDENTIFIED LEARNING PATTERN:** Validation gaps led to rework cycles
 **IMPLEMENTATION:** Mandatory checkpoint systems
