@@ -54,8 +54,24 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            src = self.workspace_path / "scripts"
+            dst = self.workspace_path / "archive" / "synced_scripts"
+            dst.mkdir(parents=True, exist_ok=True)
+
+            for item in src.glob("*.py"):
+                target = dst / item.name
+                if not target.exists() or item.stat().st_mtime > target.stat().st_mtime:
+                    shutil.copy2(item, target)
+                    self.logger.info(f"{TEXT_INDICATORS['info']} Synced {item.name}")
+
+            self.logger.info(f"{TEXT_INDICATORS['success']} Synchronization complete")
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Sync failed: {exc}"
+            )
+            return False
 
 
 def main():

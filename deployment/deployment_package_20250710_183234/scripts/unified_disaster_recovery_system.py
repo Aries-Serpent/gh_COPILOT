@@ -53,8 +53,35 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            backup_dir = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
+            source = backup_dir / "production_backup"
+            restore = self.workspace_path / "restored"
+            restore.mkdir(parents=True, exist_ok=True)
+
+            if not source.exists():
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Backup source missing: {source}"
+                )
+                return False
+
+            for f in source.glob("*"):
+                shutil.copy2(f, restore / f.name)
+                self.logger.info(f"{TEXT_INDICATORS['info']} Restored {f.name}")
+
+            if not any(restore.iterdir()):
+                self.logger.error(f"{TEXT_INDICATORS['error']} No files restored")
+                return False
+
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Disaster recovery completed"
+            )
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Recovery error: {exc}"
+            )
+            return False
 
 
 def main():

@@ -3,3 +3,4 @@ databases/enterprise_assets.db
 /_MANUAL_DELETE_FOLDER/
 /databases/*.db-shm
 /databases/*.db-wal
+.venv/

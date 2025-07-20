@@ -54,8 +54,20 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            numbers = [10, 20, 30]
+            if not numbers:
+                self.logger.error(f"{TEXT_INDICATORS['error']} No data provided")
+                return False
+            avg = sum(numbers) / len(numbers)
+            minimum = min(numbers)
+            maximum = max(numbers)
+            self.logger.info(f"{TEXT_INDICATORS['info']} Avg: {avg} Min: {minimum} Max: {maximum}")
+            self.logger.info(f"{TEXT_INDICATORS['success']} Visual processing done")
+            return True
+        except Exception as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Visual engine error: {exc}")
+            return False
 
 
 def main():

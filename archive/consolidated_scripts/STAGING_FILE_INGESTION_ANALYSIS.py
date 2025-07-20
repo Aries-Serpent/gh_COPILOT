@@ -54,8 +54,28 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            staging = self.workspace_path / "staging"
+            if not staging.exists():
+                self.logger.error(f"{TEXT_INDICATORS['error']} Staging dir missing")
+                return False
+
+            report = []
+            for f in staging.glob("*"):
+                if f.is_file():
+                    content = f.read_text(encoding="utf-8")
+                    if not content.strip():
+                        self.logger.error(f"{TEXT_INDICATORS['error']} Empty file {f.name}")
+                        return False
+                    report.append((f.name, len(content), content.count("\n") + 1))
+
+            for name, size, lines in report:
+                self.logger.info(f"{TEXT_INDICATORS['info']} {name}: {size} bytes, {lines} lines")
+            self.logger.info(f"{TEXT_INDICATORS['success']} Staging analysis complete")
+            return True
+        except Exception as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Staging analysis error: {exc}")
+            return False
 
 
 def main():

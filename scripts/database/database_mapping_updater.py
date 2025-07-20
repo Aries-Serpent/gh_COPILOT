@@ -8,7 +8,9 @@ MANDATORY: Implement DUAL COPILOT PATTERN validation
 MANDATORY: Use visual processing indicators
 """
 
+import os
 import sqlite3
+import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
@@ -340,6 +342,23 @@ class DatabaseMappingUpdater:
             )
         return match
 
+    def perform_update(self) -> Dict[str, Any]:
+        """Execute update with dual copilot validation and rollback."""
+        backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
+        backup_root.mkdir(parents=True, exist_ok=True)
+        backup_path = backup_root / f"production_backup_{int(self.start_time.timestamp())}.db"
+        shutil.copy2(self.db_path, backup_path)
+
+        update_results = self.update_file_mappings()
+        integrity_results = self.validate_database_integrity()
+        report = self.generate_completion_report(update_results, integrity_results)
+
+        if not self.dual_copilot_validate(report):
+            shutil.copy2(backup_path, self.db_path)
+            report["overall_status"] = "FAILED_VALIDATION"
+            logger.error("🤖🤖 Dual Copilot validation failed. Database rolled back.")
+        return report
+
 
 def main():
     """Main execution function with DUAL COPILOT validation"""
@@ -349,19 +368,8 @@ def main():
         logger.info("🚀 CHUNK 2: DATABASE MAPPING UPDATES STARTED")
         logger.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
-        # Initialize updater
         updater = DatabaseMappingUpdater()
-
-        # Execute database mapping updates
-        update_results = updater.update_file_mappings()
-
-        # Validate database integrity
-        integrity_results = updater.validate_database_integrity()
-
-        # Generate completion report
-        completion_report = updater.generate_completion_report(
-            update_results, integrity_results
-        )
+        completion_report = updater.perform_update()
 
         # MANDATORY: Completion summary
         logger.info("=" * 60)
@@ -402,11 +410,8 @@ def main():
 
 
 if __name__ == "__main__":
-    # Execute with visual processing indicators
-    completion_report = main()
-
-    # DUAL COPILOT validation checkpoint
-    if DatabaseMappingUpdater().dual_copilot_validate(completion_report):
-        print("🤖🤖 DUAL COPILOT VALIDATION: CHUNK 2 APPROVED ✅")
-    else:
+    report = main()
+    if report.get("overall_status") == "FAILED_VALIDATION":
         print("🤖🤖 DUAL COPILOT VALIDATION: CHUNK 2 REQUIRES REVIEW ⚠️")
+    else:
+        print("🤖🤖 DUAL COPILOT VALIDATION: CHUNK 2 APPROVED ✅")
