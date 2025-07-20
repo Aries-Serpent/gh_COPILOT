@@ -150,7 +150,14 @@ def operations_save_analysis_results():
     """File saving patterns"""
 ```
 The validation utilities also expose ``detect_zero_byte_files`` and
-``validate_path`` for thorough workspace checks.
+``validate_path`` for thorough workspace checks. Call
+``operations_validate_workspace`` in your entrypoint to print a JSON
+report summarizing integrity, organization, and zero-byte file checks:
+
+```python
+if __name__ == "__main__":
+    operations_validate_workspace()
+```
 
 ### **Phase 4.3: Integration & Migration (Week 3)**
 

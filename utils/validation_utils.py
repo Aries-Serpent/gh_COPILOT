@@ -1,6 +1,7 @@
 """Validation utilities for gh_COPILOT Enterprise Toolkit"""
 
 import os
+import json
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -92,3 +93,17 @@ def validate_path(path: Path) -> bool:
     except FileNotFoundError:
         return False
     return workspace in resolved.parents and backup_root not in resolved.parents
+
+
+def operations_validate_workspace() -> None:
+    """Run comprehensive workspace checks and print a JSON report."""
+    workspace = CrossPlatformPathManager.get_workspace_path()
+    integrity = validate_workspace_integrity()
+    organization = validate_script_organization()
+    zero_bytes = [str(p) for p in detect_zero_byte_files(workspace)]
+    report = {
+        "integrity": integrity,
+        "organization": organization,
+        "zero_byte_files": zero_bytes,
+    }
+    print(json.dumps(report, indent=2))
