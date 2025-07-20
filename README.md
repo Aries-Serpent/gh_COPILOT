@@ -497,6 +497,7 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 ### **Contact & Support**
 - **Documentation:** `docs/` directory
 - **Repository Guidelines:** `docs/REPOSITORY_GUIDELINES.md`
+- **Root Maintenance Validator:** `docs/ROOT_MAINTENANCE_VALIDATOR.md`
 - **Enterprise Support:** GitHub Issues with enterprise tag
 - **Learning Pattern Updates:** Automatic integration via autonomous systems
 
