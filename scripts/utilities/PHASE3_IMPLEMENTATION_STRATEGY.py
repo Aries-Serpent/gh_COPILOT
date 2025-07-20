@@ -12,6 +12,7 @@ Enterprise Standards Compliance:
 # import os
 import sys
 import logging
+import json
 from pathlib import Path
 from datetime import datetime
 
@@ -56,8 +57,43 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            config_file = self.workspace_path / "config" / "phase3.json"
+            results_dir = self.workspace_path / "results"
+            results_dir.mkdir(exist_ok=True)
+
+            data = {}
+            if config_file.exists():
+                with open(config_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+
+            metrics = {
+                "timestamp": datetime.now().isoformat(),
+                "config_present": config_file.exists(),
+                "config_keys": sorted(data.keys()),
+            }
+
+            result_file = results_dir / "phase3_summary.json"
+            with open(result_file, "w", encoding="utf-8") as f:
+                json.dump(metrics, f)
+
+            log_file = self.workspace_path / "misc" / "strategic_implementation.log"
+            with open(log_file, "a", encoding="utf-8") as lf:
+                lf.write(f"{datetime.now().isoformat()} - PHASE3 metrics saved\n")
+
+            self.logger.info(
+                "%s Phase 3 metrics stored: %s",
+                TEXT_INDICATORS["info"],
+                result_file,
+            )
+            return True
+        except Exception as e:
+            self.logger.error(
+                "%s Phase 3 utility failed: %s",
+                TEXT_INDICATORS["error"],
+                e,
+            )
+            return False
 
 
 def main():
