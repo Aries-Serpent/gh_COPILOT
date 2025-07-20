@@ -77,6 +77,42 @@ Understand and follow the repository structure so that your changes integrate co
 
 By adhering to all of the above guidelines, the AI agent will produce changes that are easy for maintainers to review and integrate. **Always ensure that your contribution conforms to these rules before marking the task as complete.**
 
+======
+
+Understood. I will now analyze the `gh_COPILOT` repository to identify all environment variables—both required and optional—that should be set within the ChatGPT - Codex environment settings. I’ll provide variable keys, inferred default values, and a brief description of each for human context. I’ll return shortly with a structured list you can input directly into the Codex environment configuration.
+
+
+# Environment Configuration for ChatGPT–Codex (gh\_COPILOT Toolkit)
+
+Properly setting environment variables is crucial for running the **gh\_COPILOT** toolkit in the ChatGPT-Codex environment. Below are the **required** and **optional** environment variables to configure, along with recommended default values and their purposes.
+
+## Required Environment Variables
+
+* **GH\_COPILOT\_WORKSPACE** – **Absolute path to the repository workspace root**. This variable must point to the root directory of the `gh_COPILOT` project (e.g. `/path/to/workspace`). All tests and scripts use this path to locate databases and configuration files. If not set, the code will fall back to the current working directory by default. (In the provided Docker container, it defaults to `/app`, but you should explicitly set it to your workspace path.)
+
+* **GH\_COPILOT\_BACKUP\_ROOT** – **Path to an external backup directory**, **outside** of the workspace. This is required to enforce anti-recursion rules (backups must not be stored under the workspace). If not set, the toolkit will default to a temp location (e.g. `E:/temp/gh_COPILOT_Backups` on Windows or `/tmp/<user>/gh_COPILOT_Backups` on Linux). It’s recommended to set this to a dedicated backup folder on your system.
+
+## Optional (Additional) Environment Variables
+
+* **WORKSPACE\_ROOT** – *Alias for* **GH\_COPILOT\_WORKSPACE**. In the example `.env` file it is set to the same path as `GH_COPILOT_WORKSPACE`. While the code primarily uses `GH_COPILOT_WORKSPACE`, you can set `WORKSPACE_ROOT` as well (to the same value) for consistency or if any legacy components reference it.
+
+* **FLASK\_SECRET\_KEY** – **Secret key string for Flask web apps**. Used to secure sessions and cookies in the optional web dashboard/UI. By default the example `.env` uses a placeholder `'your_secret_key'` – you **should replace this** with a strong, random string for production (e.g. a 32-byte hex string). This is only needed if you run the Flask-based enterprise dashboard; it ensures features like session management or CSRF protection function correctly.
+
+* **FLASK\_RUN\_PORT** – **Port number for the Flask development server** (if using the Flask CLI to run the app). The example default is **`5000`**. You can change this if you need the Flask web interface to listen on a different port in your environment. (Note: When running the dashboard via the provided script, it may use a hard-coded port like 8080, but this env var is used when launching via `flask run` or similar dev commands.)
+
+* **CONFIG\_PATH** – **Path to a custom configuration file** (YAML or JSON). This is optional; if set, it should point to a config file (e.g. `/path/to/config.yml`) that some utilities or scripts will load for configuration settings. If not provided, the system uses the default configuration file (`enterprise.json`) located in the `config/` folder of the workspace. Use this if you need to override default configuration by pointing the toolkit to a specific config file.
+
+* **WEB\_DASHBOARD\_ENABLED** – **Flag to enable the web dashboard logging**. Optional toggle (expects **`"1"` for true**). If set to `"1"`, performance metrics will be logged with a `[DASHBOARD]` tag for integration with the web dashboard interface. By default (unset or `"0"`), these dashboard metric logs are disabled. Set this to `"1"` only if you are actively using the real-time web dashboard feature for monitoring performance.
+
+Each of the above variables helps ensure the Codex container and toolkit operate correctly. Setting **GH\_COPILOT\_WORKSPACE** and **GH\_COPILOT\_BACKUP\_ROOT** is mandatory for path resolution and backup compliance. The others can be configured as needed based on which features (Flask web UI, custom configs, dashboard metrics) you plan to use. Always double-check that no secret or credential is accidentally hard-coded when configuring these variables.
+
+**Sources:**
+
+* gh\_COPILOT Documentation – *Environment Configuration*
+* gh\_COPILOT Example `.env` file
+* Relevant code references in gh\_COPILOT (for defaults and usage)
+
+======
 
 # Purpose
 This guide is written for **automated ChatGPT Codex agents ** operating within the ** gh_COPILOT Toolkit**. It summarizes environment setup, Codex agent roles, and mandatory protocols pulled from documentation, instructions, and Copilot notes.
