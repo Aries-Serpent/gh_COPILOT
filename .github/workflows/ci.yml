@@ -33,6 +33,9 @@ jobs:
           flake8 src
           bandit -r src -ll
 
+      - name: Check for zero-byte logs
+        run: bash scripts/check_zero_logs.sh
+
       - name: Run tests
         run: make test
 

@@ -57,8 +57,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 git clone https://github.com/your-org/gh_COPILOT.git
 cd gh_COPILOT
 
-# 2. Install dependencies
-pip install -r requirements.txt
+# 2. Run setup script (creates `.venv` and installs requirements)
+bash setup.sh
 
 # 3. Initialize databases
 python scripts/database/database_initializer.py
@@ -495,6 +495,7 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 
 ### **Contact & Support**
 - **Documentation:** `docs/` directory
+- **Repository Guidelines:** `docs/REPOSITORY_GUIDELINES.md`
 - **Enterprise Support:** GitHub Issues with enterprise tag
 - **Learning Pattern Updates:** Automatic integration via autonomous systems
 
