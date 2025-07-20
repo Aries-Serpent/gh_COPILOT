@@ -228,6 +228,7 @@ def _load_ml_models(self):
     """Load or initialize machine learning models"""
     # LESSON LEARNED: ML-powered pattern recognition
     self.ml_models['anomaly_detector'] = IsolationForest(contamination=0.1)
+    self.ml_models['scaler'] = StandardScaler()
     # Implements learned patterns for autonomous detection
 ```
 
