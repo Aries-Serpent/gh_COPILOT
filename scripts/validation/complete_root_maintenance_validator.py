@@ -19,14 +19,19 @@ import os
 import sys
 import json
 import sqlite3
-import hashlib
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict, field
+from typing import Dict, List, Optional
+from dataclasses import dataclass, field
 from tqdm import tqdm
-import time
 import logging
+
+# Severity weights for compliance scoring
+SEVERITY_WEIGHTS = {
+    "LOW": 1,
+    "MEDIUM": 3,
+    "HIGH": 5,
+}
 
 # Configure logging
 logging.basicConfig(
@@ -44,6 +49,7 @@ class ComplianceViolation:
     violation_type: str
     severity: str = "MEDIUM"
     auto_fixable: bool = True
+    fix_command: str = ""
 
 @dataclass
 class ComplianceResult:
@@ -118,9 +124,9 @@ class CompleteRootMaintenanceValidator:
             'COPILOT_NAVIGATION_MAP.json'
         }
         
-        logger.info(f"🏠 Complete Root Maintenance Validator initialized")
-        logger.info(f"Session ID: {self.session_id}")
-        logger.info(f"Workspace: {self.workspace_path}")
+        logger.info("🏠 Complete Root Maintenance Validator initialized")
+        logger.info("Session ID: %s", self.session_id)
+        logger.info("Workspace: %s", self.workspace_path)
     
     def validate_complete_compliance(self) -> ComplianceResult:
         """
@@ -168,15 +174,15 @@ class CompleteRootMaintenanceValidator:
                 self._store_compliance_results(result, pbar)
                 pbar.update(100)
             
-            logger.info(f"✅ Compliance validation completed")
-            logger.info(f"📊 Overall Compliance: {result.compliance_score:.1f}%")
-            logger.info(f"📊 Violations Found: {len(result.violations)}")
+            logger.info("✅ Compliance validation completed")
+            logger.info("📊 Overall Compliance: %.1f%%", result.compliance_score)
+            logger.info("📊 Violations Found: %d", len(result.violations))
             
         except Exception as e:
-            logger.error(f"❌ Compliance validation failed: {e}")
+            logger.error("❌ Compliance validation failed: %s", e)
             if result.recommendations is None:
                 result.recommendations = []
-            result.recommendations.append(f"ERROR: Validation failed - {str(e)}")
+            result.recommendations.append(f"ERROR: Validation failed - {e}")
         
         return result
     
@@ -205,9 +211,9 @@ class CompleteRootMaintenanceValidator:
                         if sub_file.is_file():
                             all_files.append(sub_file)
                 except (PermissionError, OSError) as e:
-                    logger.warning(f"⚠️ Cannot access {item}: {e}")
+                    logger.warning("⚠️ Cannot access %s: %s", item, e)
         
-        logger.info(f"📊 Discovered {len(all_files)} files for validation")
+        logger.info("📊 Discovered %d files for validation", len(all_files))
         return all_files
     
     def _validate_file_placements(self, all_files: List[Path], pbar: tqdm) -> List[ComplianceViolation]:
@@ -231,9 +237,9 @@ class CompleteRootMaintenanceValidator:
                     pbar.refresh()
                 
             except Exception as e:
-                logger.warning(f"⚠️ Failed to check {file_path}: {e}")
+                logger.warning("⚠️ Failed to check %s: %s", file_path, e)
         
-        logger.info(f"📊 Found {len(violations)} compliance violations")
+        logger.info("📊 Found %d compliance violations", len(violations))
         return violations
     
     def _check_file_compliance(self, file_path: Path) -> Optional[ComplianceViolation]:
@@ -268,13 +274,15 @@ class CompleteRootMaintenanceValidator:
                     violation_type = "MISPLACED_FILE"
                     severity = "HIGH" if current_folder == "root" else "MEDIUM"
                     
+                    dest = self.workspace_path / expected_folder / file_path.name
                     return ComplianceViolation(
                         file_path=str(file_path),
                         expected_folder=expected_folder,
                         current_location=current_folder,
                         violation_type=violation_type,
                         severity=severity,
-                        auto_fixable=True
+                        auto_fixable=True,
+                        fix_command=f"mv '{file_path}' '{dest}'"
                     )
             
             # Check for files in root that should be organized
@@ -283,13 +291,15 @@ class CompleteRootMaintenanceValidator:
                 best_folder = self._determine_best_folder(file_path)
                 
                 if best_folder:
+                    dest = self.workspace_path / best_folder / file_path.name
                     return ComplianceViolation(
                         file_path=str(file_path),
                         expected_folder=best_folder,
                         current_location="root",
                         violation_type="ROOT_CLUTTER",
                         severity="MEDIUM",
-                        auto_fixable=True
+                        auto_fixable=True,
+                        fix_command=f"mv '{file_path}' '{dest}'"
                     )
             
             return None
@@ -337,15 +347,20 @@ class CompleteRootMaintenanceValidator:
     def _calculate_compliance_scores(self, result: ComplianceResult, pbar: tqdm):
         """📊 Calculate detailed compliance scores"""
         total_files = result.total_files_checked
-        violation_count = len(result.violations)
-        
-        # Overall compliance score
-        result.compliant_files = total_files - violation_count
-        result.compliance_score = (result.compliant_files / total_files * 100) if total_files > 0 else 100
+
+        # Weighted score based on violation severity
+        weighted_violations = 0
+        for v in result.violations:
+            weighted_violations += SEVERITY_WEIGHTS.get(v.severity, 1)
+
+        max_score = total_files * max(SEVERITY_WEIGHTS.values())
+        compliance_ratio = 1 - (weighted_violations / max_score) if max_score > 0 else 1
+
+        result.compliant_files = total_files - len(result.violations)
+        result.compliance_score = round(compliance_ratio * 100, 1)
         
         # Folder-specific compliance scores
         folder_violations = {}
-        folder_totals = {}
         
         pbar.set_description("📊 Calculating folder compliance")
         
@@ -375,7 +390,7 @@ class CompleteRootMaintenanceValidator:
             else:
                 result.folder_compliance[folder] = 100.0
         
-        logger.info(f"📊 Compliance calculated: {result.compliance_score:.1f}%")
+        logger.info("📊 Compliance calculated: %.1f%%", result.compliance_score)
     
     def _generate_compliance_recommendations(self, result: ComplianceResult, pbar: tqdm):
         """🎯 Generate actionable compliance recommendations"""
@@ -405,6 +420,9 @@ class CompleteRootMaintenanceValidator:
         auto_fixable = len([v for v in result.violations if v.auto_fixable])
         if auto_fixable > 0:
             recommendations.append(f"🔧 AUTO-FIX: {auto_fixable} violations can be automatically resolved")
+            for v in result.violations[:5]:
+                if v.auto_fixable and v.fix_command:
+                    recommendations.append(f"  - {v.fix_command}")
         
         # High-priority recommendations
         high_priority = len([v for v in result.violations if v.severity == "HIGH"])
@@ -414,11 +432,13 @@ class CompleteRootMaintenanceValidator:
         # Root cleanup recommendations
         root_violations = len([v for v in result.violations if v.current_location == "root"])
         if root_violations > 0:
-            recommendations.append(f"🏠 ROOT CLEANUP: {root_violations} files should be moved from root directory")
+            recommendations.append(
+                f"🏠 ROOT CLEANUP: {root_violations} files should be moved from root directory"
+            )
         
         result.recommendations = recommendations
         
-        logger.info(f"🎯 Generated {len(recommendations)} recommendations")
+        logger.info("🎯 Generated %d recommendations", len(recommendations))
     
     def _store_compliance_results(self, result: ComplianceResult, pbar: tqdm):
         """💾 Store compliance results in database"""
@@ -493,10 +513,10 @@ class CompleteRootMaintenanceValidator:
                     ))
                 
                 conn.commit()
-                logger.info(f"💾 Compliance results stored in database")
+                logger.info("💾 Compliance results stored in database")
                 
         except Exception as e:
-            logger.error(f"❌ Database storage failed: {e}")
+            logger.error("❌ Database storage failed: %s", e)
     
     def generate_compliance_report(self, result: ComplianceResult) -> str:
         """📊 Generate comprehensive compliance report"""
@@ -572,14 +592,19 @@ class CompleteRootMaintenanceValidator:
             report_lines.extend([
                 "",
                 "## 🔧 Auto-Fix Available",
-                f"",
+                "",
                 f"{auto_fixable_count} violations can be automatically resolved using the file organization tools.",
                 "",
                 "Run the following command to auto-fix violations:",
                 "```bash",
                 "python scripts/orchestrators/unified_wrapup_orchestrator.py",
-                "```"
+                "```",
+                "",
+                "### Suggested Commands",
             ])
+            for v in result.violations[:5]:
+                if v.auto_fixable and v.fix_command:
+                    report_lines.append(f"- {v.fix_command}")
         
         report_lines.extend([
             "",
@@ -605,7 +630,7 @@ class CompleteRootMaintenanceValidator:
         with open(report_file, 'w', encoding='utf-8') as f:
             f.write(report_content)
         
-        logger.info(f"📊 Compliance report exported: {report_file}")
+        logger.info("📊 Compliance report exported: %s", report_file)
         
         return report_file
 
