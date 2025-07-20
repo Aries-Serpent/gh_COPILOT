@@ -190,11 +190,13 @@ def prevent_executable_misclassification(self, file_path: str) -> bool:
 **IMPLEMENTATION:** Smart config routing with dependency analysis
 ```python
 # Implemented in autonomous_database_optimizer_simplified.py
-def analyze_config_dependencies(self, config_file: str) -> Dict[str, List[str]]:
-    """Explicit implementation of learned lesson"""
-    # Query database for known config dependencies
-    dependencies = self.query_config_dependencies_from_db(config_file)
-    return dependencies
+def analyze_config_dependencies(self) -> Dict[str, Any]:
+    """Parse config files and detect missing or circular references."""
+    return {
+        "dependencies": {...},
+        "missing_configs": [...],
+        "circular_dependencies": [...],
+    }
 ```
 
 **IDENTIFIED LEARNING PATTERN:** Validation gaps led to rework cycles
