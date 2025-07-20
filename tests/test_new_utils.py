@@ -1,7 +1,11 @@
 import json
 from utils.general_utils import operations_main
 from utils.reporting_utils import generate_json_report, generate_markdown_report
-from utils.validation_utils import detect_zero_byte_files, validate_path
+from utils.validation_utils import (
+    detect_zero_byte_files,
+    validate_path,
+    operations_validate_workspace,
+)
 
 
 def test_operations_main(capsys):
@@ -45,4 +49,18 @@ def test_validate_path(tmp_path, monkeypatch):
     outside = bk / "b.txt"
     outside.touch()
     assert not validate_path(outside)
+
+
+def test_operations_validate_workspace(tmp_path, monkeypatch, capsys):
+    ws = tmp_path / "ws"
+    bk = tmp_path / "bk"
+    ws.mkdir()
+    bk.mkdir()
+    for name in ["databases", "scripts", "utils", "documentation"]:
+        (ws / name).mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(ws))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(bk))
+    operations_validate_workspace()
+    out = json.loads(capsys.readouterr().out)
+    assert out["integrity"]["overall_status"] == "VALID"
 
