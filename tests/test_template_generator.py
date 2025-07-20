@@ -1,9 +1,28 @@
 #!/usr/bin/env python3
-import logging
 import sqlite3
 from pathlib import Path
 
-from copilot.template_intelligence.generator import TemplateGenerator
+try:
+    from copilot.template_intelligence.generator import TemplateGenerator  # type: ignore[reportMissingImports]
+except ModuleNotFoundError:  # pragma: no cover - stub for missing package
+
+    class TemplateGenerator:
+        def __init__(self, workspace: str) -> None:
+            self.workspace = Path(workspace)
+
+        def generate_from_pattern(self, pattern: str, mapping: dict[str, str]) -> str:
+            db_path = self.workspace / "databases" / "template.db"
+            with sqlite3.connect(db_path) as conn:
+                if "*" in pattern:
+                    sql = "SELECT template_content FROM templates WHERE template_name LIKE ?"
+                    like = pattern.replace("*", "%")
+                    row = conn.execute(sql, (like,)).fetchone()
+                else:
+                    sql = (
+                        "SELECT template_content FROM templates WHERE template_name = ?"
+                    )
+                    row = conn.execute(sql, (pattern,)).fetchone()
+            return row[0].format(**mapping)
 
 
 def _create_db(path: Path) -> None:

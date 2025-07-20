@@ -3,10 +3,34 @@ import importlib.resources
 import sqlite3
 import subprocess
 import sys
-from pathlib import Path
+from typing import Any
 
 from scripts.database.database_sync_scheduler import synchronize_databases
 from scripts.database.unified_database_initializer import initialize_database
+
+
+class DummyTqdm:
+    """Minimal tqdm replacement for progress validation."""
+
+    def __init__(
+        self, *args: Any, total: int, desc: str, unit: str = "db", **kwargs: Any
+    ) -> None:
+        self.total = total
+        self.desc = desc
+        self.unit = unit
+        self.updates = 0
+
+    def __enter__(self) -> "DummyTqdm":
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        pass
+
+    def update(self, n: int = 1) -> None:
+        self.updates += n
+
+    def set_postfix_str(self, *args: str, **kwargs: str) -> None:
+        pass
 
 
 def test_synchronize_databases(tmp_path):
@@ -67,3 +91,32 @@ def test_scheduler_cli(tmp_path):
     for db in (replica, extra_replica):
         with sqlite3.connect(db) as conn:
             assert conn.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 1
+
+
+def test_synchronize_logging_progress(tmp_path, monkeypatch):
+    master = tmp_path / "master.db"
+    replica = tmp_path / "replica.db"
+    log_db = tmp_path / "enterprise_assets.db"
+    initialize_database(log_db)
+    for db in (master, replica):
+        with sqlite3.connect(db) as conn:
+            conn.execute("CREATE TABLE t (id INTEGER)")
+            conn.execute("INSERT INTO t (id) VALUES (1)")
+
+    bars: list[DummyTqdm] = []
+
+    def dummy_tqdm(*args: Any, **kwargs: Any) -> DummyTqdm:
+        bar = DummyTqdm(*args, **kwargs)
+        bars.append(bar)
+        return bar
+
+    monkeypatch.setattr("scripts.database.database_sync_scheduler.tqdm", dummy_tqdm)
+
+    synchronize_databases(master, [replica], log_db=log_db)
+
+    assert bars and bars[0].updates == 1
+    with sqlite3.connect(log_db) as conn:
+        count = conn.execute(
+            "SELECT COUNT(*) FROM cross_database_sync_operations"
+        ).fetchone()[0]
+    assert count >= 2
