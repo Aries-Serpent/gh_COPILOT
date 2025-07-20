@@ -1,17 +1,18 @@
 """Database utilities for gh_COPILOT Enterprise Toolkit"""
 
-import sqlite3
 import os
-from pathlib import Path
+import sqlite3
 from contextlib import contextmanager
-from typing import Optional, Iterator
+from pathlib import Path
+from typing import Iterator, Optional
+
 
 @contextmanager
 def get_enterprise_database_connection(db_name: str = "production.db") -> Iterator[sqlite3.Connection]:
     """Get enterprise database connection with proper handling"""
-    workspace = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")
+    workspace = os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
     db_path = Path(workspace) / "databases" / db_name
-    
+
     conn = None
     try:
         conn = sqlite3.connect(db_path)
@@ -20,6 +21,7 @@ def get_enterprise_database_connection(db_name: str = "production.db") -> Iterat
     finally:
         if conn:
             conn.close()
+
 
 def execute_safe_query(query: str, params: tuple = (), db_name: str = "production.db") -> Optional[list]:
     """Execute database query safely"""
@@ -30,6 +32,7 @@ def execute_safe_query(query: str, params: tuple = (), db_name: str = "productio
             return cursor.fetchall()
     except Exception:
         return None
+
 
 def check_table_exists(table_name: str, db_name: str = "production.db") -> bool:
     """Check if table exists in database"""

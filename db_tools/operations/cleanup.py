@@ -3,17 +3,17 @@ Database cleanup processor operations.
 Refactored from original database_cleanup_processor.py with enhanced modular design.
 """
 
+import logging
 import os
 import sys
-import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Any, Dict, List, Optional, Tuple
+
 from tqdm import tqdm
 
 from ..core.connection import DatabaseConnection
 from ..core.exceptions import DatabaseError
-
 
 # Configure cleanup logging
 logging.basicConfig(
@@ -32,8 +32,8 @@ class DatabaseCleanupProcessor:
 
     def __init__(self, workspace_path: Optional[str] = None):
         if workspace_path is None:
-            workspace_path = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")
-        
+            workspace_path = os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
+
         self.workspace_path = Path(workspace_path)
         self.database_path = self.workspace_path / "databases" / "flake8_violations.db"
         self.db_connection = DatabaseConnection(self.database_path)
@@ -58,7 +58,7 @@ class DatabaseCleanupProcessor:
             return []
 
     def check_violation_still_exists(
-        self, file_path: str, line_number: int, error_code: str) -> bool:
+            self, file_path: str, line_number: int, error_code: str) -> bool:
         """Check if violation still exists in file"""
         try:
             if not Path(file_path).exists():
@@ -92,11 +92,11 @@ class DatabaseCleanupProcessor:
         try:
             if not violation_ids:
                 return 0
-                
+
             # Convert list to comma-separated string for IN clause
             placeholders = ','.join('?' * len(violation_ids))
             query = f"UPDATE violations SET status = ? WHERE id IN ({placeholders})"
-            
+
             return self.db_connection.execute_query(query, [status] + violation_ids)
 
         except Exception as e:
@@ -140,7 +140,7 @@ class DatabaseCleanupProcessor:
                 still_pending_ids = []
 
                 with tqdm(
-                    total=len(pending_violations), desc="Checking violations", unit="violation") as pbar:
+                        total=len(pending_violations), desc="Checking violations", unit="violation") as pbar:
 
                     for violation in pending_violations:
                         violation_id, file_path, line_number, error_code, message = violation

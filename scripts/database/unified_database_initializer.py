@@ -27,7 +27,8 @@ TABLES: dict[str, str] = {
         "id INTEGER PRIMARY KEY,"
         "doc_path TEXT NOT NULL,"
         "content_hash TEXT NOT NULL,"
-        "created_at TEXT NOT NULL"
+        "created_at TEXT NOT NULL,"
+        "modified_at TEXT NOT NULL"
         ")"
     ),
     "template_assets": (
@@ -65,6 +66,9 @@ TABLES: dict[str, str] = {
         "CREATE TABLE IF NOT EXISTS cross_database_sync_operations ("
         "id INTEGER PRIMARY KEY,"
         "operation TEXT NOT NULL,"
+        "status TEXT NOT NULL,"
+        "start_time TEXT NOT NULL,"
+        "duration REAL NOT NULL,"
         "timestamp TEXT NOT NULL"
         ")"
     ),

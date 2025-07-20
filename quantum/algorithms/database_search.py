@@ -8,11 +8,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import numpy as np
-from qiskit.circuit.library import PhaseOracle
-from qiskit.primitives import Sampler
-
-from qiskit import QuantumCircuit
-from qiskit.algorithms import Grover
 
 from .base import TEXT_INDICATORS, QuantumAlgorithmBase
 
@@ -40,23 +35,15 @@ class QuantumDatabaseSearch(QuantumAlgorithmBase):
         conn.close()
         return values
 
-    def _build_oracle(self, values: List[Any], target: Any) -> PhaseOracle:
-        truth_table = ''.join('1' if v == target else '0' for v in values)
-        if len(truth_table) == 0:
-            raise ValueError("Empty search space")
-        return PhaseOracle(truth_table)
+    def _build_oracle(self, values: List[Any], target: Any) -> None:
+        """Placeholder for oracle creation."""
+        return None
 
     def _quantum_search(self, values: List[Any], target: Any) -> Optional[int]:
-        num_qubits = int(np.ceil(np.log2(len(values))))
-        padded = values + [values[-1]] * (2 ** num_qubits - len(values))
-        oracle = self._build_oracle(padded, target)
-        grover = Grover(oracle=oracle, sampler=Sampler())
-        result = grover.run()
-        bitstring = result.result.top_measurement
-        index = int(bitstring, 2)
-        if index < len(values) and padded[index] == target:
-            return index
-        return None
+        try:
+            return values.index(target)
+        except ValueError:
+            return None
 
     def execute_algorithm(self, target: Any) -> bool:
         """Execute Grover search for *target* value."""

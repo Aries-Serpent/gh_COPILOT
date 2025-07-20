@@ -20,6 +20,9 @@ import sys
 # Import from new modular package
 from quantum.algorithms.clustering import QuantumClustering, main
 
+# Provide legacy alias for tests
+EnterpriseUtility = QuantumClustering
+
 # This script now delegates to the modular implementation
 if __name__ == "__main__":
     success = main()

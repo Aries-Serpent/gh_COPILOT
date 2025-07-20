@@ -10,9 +10,13 @@ Enterprise Standards Compliance:
 """
 
 import logging
+import os
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
+
+from tqdm import tqdm
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -26,19 +30,20 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: Path = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
-    def execute_utility(self) -> bool:
-        """Execute utility function"""
+    def execute_utility(self, iterations: int = 100) -> bool:
+        """Execute utility function."""
         start_time = datetime.now()
+        pid = os.getpid()
         self.logger.info(
-            f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+            f"{TEXT_INDICATORS['start']} Utility started: {start_time.isoformat()} | PID: {pid}")
 
         try:
             # Utility implementation
-            success = self.perform_utility_function()
+            success = self.perform_utility_function(iterations=iterations)
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
@@ -59,15 +64,26 @@ class EnterpriseUtility:
         self.logger.info(
             f"{TEXT_INDICATORS['info']} Executing {method_name}")
 
-    def perform_utility_function(self) -> bool:
+    def perform_utility_function(self, iterations: int = 100) -> bool:
         """Run a simple gradient descent optimization."""
         self.log_execution("perform_utility_function")
 
         x = 0.0
         lr = 0.1
-        for _ in range(100):
-            grad = 2 * x + 2
-            x -= lr * grad
+        start = time.perf_counter()
+
+        with tqdm(total=iterations,
+                  desc=f"{TEXT_INDICATORS['progress']} optimize",
+                  leave=False) as bar:
+            for i in range(iterations):
+                grad = 2 * x + 2
+                x -= lr * grad
+                elapsed = time.perf_counter() - start
+                etc = (elapsed / (i + 1)) * (iterations - i - 1)
+                bar.set_postfix({"ETC": f"{etc:.1f}s"})
+                bar.update(1)
+                self.logger.info(
+                    f"{TEXT_INDICATORS['info']} Step {i + 1}/{iterations} | x={x:.4f} | ETC={etc:.1f}s")
 
         self.logger.info(
             f"{TEXT_INDICATORS['info']} Optimized value {x:.4f}")

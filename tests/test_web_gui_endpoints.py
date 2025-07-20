@@ -9,6 +9,7 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 import logging
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -25,7 +26,7 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: Path = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
@@ -70,8 +71,9 @@ def main():
     return success
 
 
-def test_execute_utility(tmp_path):
+def test_execute_utility(tmp_path, monkeypatch):
     """Ensure the web GUI utility runs successfully."""
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     util = EnterpriseUtility(workspace_path=str(tmp_path))
     assert util.execute_utility()
 

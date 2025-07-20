@@ -8,6 +8,8 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
+from scripts.continuous_operation_orchestrator import \
+    validate_enterprise_operation
 from utils.logging_utils import setup_enterprise_logging
 
 from .unified_database_initializer import initialize_database
@@ -24,25 +26,41 @@ def _table_exists(conn: sqlite3.Connection, table: str) -> bool:
     return result is not None
 
 
-def log_sync_operation(db_path: Path, operation: str) -> None:
+def log_sync_operation(
+    db_path: Path,
+    operation: str,
+    status: str = "SUCCESS",
+    start_time: datetime | None = None,
+) -> None:
     """Insert a sync operation record into the tracking table."""
+    validate_enterprise_operation()
+
     if not db_path.exists():
         initialize_database(db_path)
 
-    timestamp = datetime.now(timezone.utc).isoformat()
+    start_dt = start_time or datetime.now(timezone.utc)
+    end_dt = datetime.now(timezone.utc)
+    duration = (end_dt - start_dt).total_seconds()
+    timestamp = end_dt.isoformat()
+
     with sqlite3.connect(db_path) as conn:
         if not _table_exists(conn, "cross_database_sync_operations"):
             conn.close()
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
-        with conn:  # Start a transaction context
+        with conn:
             conn.execute(
-                "INSERT INTO cross_database_sync_operations (operation, timestamp)"
-                " VALUES (?, ?)",
-                (operation, timestamp),
+                "INSERT INTO cross_database_sync_operations (operation, status, start_time, duration, timestamp)"
+                " VALUES (?, ?, ?, ?, ?)",
+                (operation, status, start_dt.isoformat(), duration, timestamp),
             )
             conn.commit()
-    logger.info("Logged sync operation %s at %s", operation, timestamp)
+    logger.info(
+        "Logged sync operation %s at %s with status %s",
+        operation,
+        timestamp,
+        status,
+    )
 
 
 if __name__ == "__main__":
@@ -56,11 +74,35 @@ if __name__ == "__main__":
         help="Path to enterprise_assets.db",
     )
     parser.add_argument(
+        "--status",
+        default="SUCCESS",
+        help="Operation status",
+    )
+    parser.add_argument(
+        "--start-time",
+        default=None,
+        help="Optional start time in ISO format",
+    )
+    parser.add_argument(
         "operation",
-        default="manual_invocation",
-        help="Operation description",
+        nargs="+",
+        default=["manual_invocation"],
+        help="Operation description(s)",
     )
 
     args = parser.parse_args()
     setup_enterprise_logging()
-    log_sync_operation(args.database, args.operation)
+
+    start_dt = (
+        datetime.fromisoformat(args.start_time)
+        if args.start_time
+        else datetime.now(timezone.utc)
+    )
+    ops = args.operation
+    if len(ops) > 1:
+        from tqdm import tqdm
+
+        for op in tqdm(ops, desc="Logging operations"):
+            log_sync_operation(args.database, op, status=args.status, start_time=start_dt)
+    else:
+        log_sync_operation(args.database, ops[0], status=args.status, start_time=start_dt)
