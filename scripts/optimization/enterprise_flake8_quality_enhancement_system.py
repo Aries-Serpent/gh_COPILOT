@@ -104,8 +104,17 @@ class EnterpriseFlake8QualityEnhancer:
     
     def setup_enterprise_logging(self):
         """Setup enterprise logging with quality tracking"""
-        log_format = "%(asctime)s - %(levelname)s - %(message)s"config/ "code_quality_enhancement.log")
-            ]
+        log_format = "%(asctime)s - %(levelname)s - %(message)s"
+        log_dir = self.workspace_path / "logs"
+        log_dir.mkdir(exist_ok=True)
+
+        logging.basicConfig(
+            level=logging.INFO,
+            format=log_format,
+            handlers=[
+                logging.FileHandler(log_dir / "code_quality_enhancement.log", encoding="utf-8"),
+                logging.StreamHandler(sys.stdout),
+            ],
         )
         self.logger = logging.getLogger(__name__)
     
