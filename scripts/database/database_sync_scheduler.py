@@ -6,6 +6,7 @@ schema and data from a source database to one or more targets. It
 is a minimal starting point to satisfy the planned cross-database
 synchronization gap.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -18,6 +19,8 @@ from typing import Iterable, List
 
 from tqdm import tqdm
 
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+
 from .cross_database_sync_logger import log_sync_operation
 from .unified_database_initializer import initialize_database
 
@@ -27,9 +30,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+TRUNCATION_LIMIT = 200
+
 
 def _copy_database(source: Path, target: Path) -> None:
     """Copy source database file to target using sqlite3 backup API."""
+    validate_enterprise_operation()
     try:
         with connect(source) as source_conn, connect(target) as target_conn:
             source_conn.backup(target_conn)
@@ -60,12 +66,17 @@ def synchronize_databases(
         start_dt = log_sync_operation(log_db, f"start_sync_from_{master.name}")
     else:
         start_dt = datetime.datetime.now(timezone.utc)
-    logger.info("Starting synchronization at %s", datetime.datetime.fromtimestamp(start_time))
+    start_time = time.time()
+    logger.info(
+        "Starting synchronization at %s", datetime.datetime.fromtimestamp(start_time)
+    )
 
     replica_list = list(replicas)
     status = "SUCCESS"
     try:
-        with tqdm(total=len(replica_list), desc="Syncing", unit="db", dynamic_ncols=True) as bar:
+        with tqdm(
+            total=len(replica_list), desc="Syncing", unit="db", dynamic_ncols=True
+        ) as bar:
             for replica in replica_list:
                 if timeout and time.time() - start_time > timeout:
                     logger.error("Synchronization timed out")
@@ -76,7 +87,9 @@ def synchronize_databases(
                     log_sync_operation(
                         log_db, f"synchronized_{replica.name}", start_time=start_dt
                     )
-                etc = bar.format_dict.get("elapsed", 0) + bar.format_dict.get("remaining", 0)
+                etc = bar.format_dict.get("elapsed", 0) + bar.format_dict.get(
+                    "remaining", 0
+                )
                 etc_time = datetime.datetime.fromtimestamp(start_time + etc)
                 bar.set_postfix_str(f"ETC {etc_time.strftime('%H:%M:%S')}")
                 bar.update(1)
@@ -116,7 +129,9 @@ def _load_database_names(list_file: Path) -> list[str]:
 class EnhancedDatabaseSyncScheduler:
     """Scheduler with detailed sync cycle logging."""
 
-    def __init__(self, workspace_root: Path = Path("."), timeout: int | None = None) -> None:
+    def __init__(
+        self, workspace_root: Path = Path("."), timeout: int | None = None
+    ) -> None:
         self.workspace_root = workspace_root.resolve()
         self.databases_dir = self.workspace_root / "databases"
         self.enterprise_db = self.databases_dir / "enterprise_assets.db"
@@ -165,7 +180,11 @@ class EnhancedDatabaseSyncScheduler:
 def format_exception_message(exc: Exception) -> str:
     """Format exception message with truncation."""
     exc_message = f"{type(exc).__name__}: {str(exc)}"
-    return exc_message if len(exc_message) <= TRUNCATION_LIMIT else exc_message[:TRUNCATION_LIMIT] + "..."
+    return (
+        exc_message
+        if len(exc_message) <= TRUNCATION_LIMIT
+        else exc_message[:TRUNCATION_LIMIT] + "..."
+    )
 
 
 if __name__ == "__main__":
