@@ -52,9 +52,41 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Validate deployment readiness via database check."""
+        db_path = self.workspace_path / "databases" / "production.db"
+        config_file = self.workspace_path / "deployment_config.json"
+
+        if not db_path.exists() or not config_file.exists():
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Missing database or config file"
+            )
+            return False
+
+        import sqlite3
+
+        try:
+            with sqlite3.connect(db_path) as conn:
+                cur = conn.execute(
+                    "SELECT COUNT(*) FROM enterprise_readiness_final "
+                    "WHERE production_ready=1"
+                )
+                ready = cur.fetchone()[0]
+        except sqlite3.Error as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Database query failed: {exc}"
+            )
+            return False
+
+        if ready:
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Deployment validated"
+            )
+            return True
+
+        self.logger.error(
+            f"{TEXT_INDICATORS['error']} Deployment not ready"
+        )
+        return False
 
 
 def main():
