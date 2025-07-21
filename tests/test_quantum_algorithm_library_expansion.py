@@ -2,10 +2,12 @@
 from quantum_algorithm_library_expansion import (
     EnterpriseUtility,
     demo_grover_search,
-    demo_quantum_teleportation,
+    demo_shor_factorization,
     demo_quantum_fourier_transform,
+    demo_variational_quantum_eigensolver,
+    demo_quantum_phase_estimation,
+    demo_quantum_teleportation,
 )
-import logging
 
 
 def test_perform_utility_function_runs():
@@ -26,3 +28,18 @@ def test_demo_quantum_teleportation():
 def test_demo_quantum_fourier_transform():
     vec = demo_quantum_fourier_transform()
     assert len(vec) == 4
+
+
+def test_demo_shor_factorization():
+    factors = demo_shor_factorization(15)
+    assert 3 in factors and 5 in factors
+
+
+def test_demo_variational_quantum_eigensolver():
+    result = demo_variational_quantum_eigensolver(steps=5, lr=0.2)
+    assert "theta" in result and "energy" in result
+
+
+def test_demo_quantum_phase_estimation():
+    estimate = demo_quantum_phase_estimation(0.3)
+    assert isinstance(estimate, float)

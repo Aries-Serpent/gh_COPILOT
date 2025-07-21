@@ -518,3 +518,16 @@ Several small modules provide common helpers:
 - `utils.reporting_utils.generate_markdown_report` – produce a Markdown report.
 - `utils.validation_utils.detect_zero_byte_files` – find empty files for cleanup.
 - `utils.validation_utils.validate_path` – verify a path is inside the workspace and outside the backup root.
+
+## Future Roadmap
+
+Phase 6 development will introduce additional quantum features, expanded
+machine-learning driven pattern recognition and enhanced compliance checks.
+Planned highlights include:
+
+1. **Advanced Quantum Algorithms** – integrate phase estimation and VQE demos
+   with the lightweight library.
+2. **ML Pattern Recognition** – broaden anomaly detection models and automated
+   healing recommendations.
+3. **Compliance Framework Evolution** – stricter session validation and
+   enterprise audit logging improvements.

@@ -52,8 +52,9 @@ The library now includes reference implementations for:
 1. Grover search
 2. Shor factorization
 3. Quantum Fourier transform
-4. Variational circuits
-5. Quantum teleportation
+4. Variational Quantum Eigensolver
+5. Quantum Phase Estimation
+6. Quantum teleportation
 
 ---
 *Quantum Documentation Suite - Enterprise Grade*
