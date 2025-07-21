@@ -45,6 +45,7 @@ with sqlite3.connect(workspace / "databases" / "documentation.db") as conn:
 
 - `scripts/documentation_generation_system.py`
 - `scripts/documentation_consolidator.py`
+- `scripts/documentation/enterprise_documentation_manager.py`
 - `scripts/utilities/complete_template_generator.py`
 
 These utilities rely on the databases above to generate scripts and docs.
