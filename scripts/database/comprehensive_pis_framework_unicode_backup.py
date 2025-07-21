@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
+from scripts.utilities.production_template_utils import generate_script_from_repository
+
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     'start': '[START]',
@@ -54,8 +56,8 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        name = f"{Path(__file__).stem}.py"
+        return generate_script_from_repository(self.workspace_path, name)
 
 
 def main():

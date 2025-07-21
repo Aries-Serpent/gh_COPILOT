@@ -7,6 +7,7 @@ import os
 import re
 import sqlite3
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable, Tuple
 
@@ -50,6 +51,21 @@ def cleanup_database(db_path: Path) -> None:
         conn.commit()
 
 
+def ensure_registry_table(db_path: Path) -> None:
+    """Create template registry if missing."""
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS template_registry (
+                template_id TEXT PRIMARY KEY,
+                doc_type TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.commit()
+
+
 def extract_headings(text: str) -> str:
     """Return newline-separated Markdown headings from ``text``."""
     headings: list[str] = []
@@ -80,6 +96,11 @@ def populate_templates(db_path: Path) -> None:
                 " (template_id, template_name, template_type, template_content)"
                 " VALUES (?, ?, ?, ?)",
                 (template_id, template_name, doc_type, pattern),
+            )
+            conn.execute(
+                "INSERT OR REPLACE INTO template_registry"
+                " (template_id, doc_type, created_at) VALUES (?, ?, ?)",
+                (template_id, doc_type, datetime.utcnow().isoformat()),
             )
         conn.commit()
 
@@ -144,6 +165,7 @@ def consolidate() -> None:
     """Run consolidation steps for documentation."""
     workspace = get_workspace()
     db_path = get_doc_db_path(workspace)
+    ensure_registry_table(db_path)
     cleanup_database(db_path)
     populate_templates(db_path)
     generate_feature_matrix(workspace)

@@ -68,8 +68,14 @@ class EnterpriseDatabaseProcessor:
                 )
                 return False
 
-            cursor.execute("SELECT COUNT(*) FROM enterprise_documentation")
-            total = cursor.fetchone()[0]
+            cursor.execute(
+                "SELECT doc_type, COUNT(*) FROM enterprise_documentation GROUP BY doc_type"
+            )
+            rows = cursor.fetchall()
+
+            from tqdm import tqdm
+
+            total = sum(count for _, count in rows)
             self.logger.info(
                 f"{TEXT_INDICATORS['info']} Documentation entries: {total}"
             )

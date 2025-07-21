@@ -2,6 +2,13 @@
 
 This guide describes how to operate the **gh_COPILOT** toolkit using the recommended database-first workflow.
 
+Set the ``GH_COPILOT_WORKSPACE`` environment variable to the repository root so
+utility scripts locate databases and output paths correctly. Example:
+
+```bash
+export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
+```
+
 ## 1. Query Before Code
 - Always query `production.db`, `template_documentation.db` or `documentation.db` for existing patterns before creating new code or documentation.
 - Example:

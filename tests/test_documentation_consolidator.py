@@ -67,5 +67,8 @@ def test_documentation_consolidator(tmp_path, monkeypatch):
         cur = conn.execute("SELECT COUNT(*) FROM documentation_templates")
         assert cur.fetchone()[0] > 0
 
+        cur = conn.execute("SELECT COUNT(*) FROM template_registry")
+        assert cur.fetchone()[0] > 0
+
     assert (doc_dir / "generated" / "feature_matrix.csv").exists()
     assert (doc_dir / "generated" / "feature_matrix.md").exists()
