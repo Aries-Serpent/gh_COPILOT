@@ -128,6 +128,13 @@ python simplified_quantum_integration_orchestrator.py
 echo "def foo(): pass" | python scripts/template_matcher.py
 ```
 
+### Data Backup Feature
+The toolkit includes an enterprise-grade data backup feature. Set the
+`GH_COPILOT_BACKUP_ROOT` environment variable to an external directory and
+follow the steps in [docs/enterprise_backup_guide.md](docs/enterprise_backup_guide.md)
+to create and manage backups. This variable ensures backups never reside in the
+workspace, maintaining anti-recursion compliance.
+
 ---
 
 ## 🗄️ DATABASE-FIRST ARCHITECTURE
