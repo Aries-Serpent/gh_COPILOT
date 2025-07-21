@@ -14,7 +14,7 @@ def test_generation_system(tmp_path, monkeypatch):
             "INSERT INTO documentation_templates VALUES ('sample', '# Example', 1)"
         )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    util = EnterpriseUtility(workspace_path=str(tmp_path))
+    util = EnterpriseUtility()
     assert util.perform_utility_function() is True
     output = tmp_path / "documentation" / "generated" / "templates" / "sample.md"
     assert output.exists()
