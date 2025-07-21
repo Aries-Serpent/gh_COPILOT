@@ -11,6 +11,7 @@ Enterprise Standards Compliance:
 
 import sqlite3
 import logging
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -79,7 +80,10 @@ class EnterpriseDatabaseProcessor:
                 f"{TEXT_INDICATORS['info']} Documentation entries: {total}"
             )
 
-            for doc_type, count in tqdm(rows, desc="Summarizing", unit="type"):
+            cursor.execute(
+                "SELECT doc_type, COUNT(*) FROM enterprise_documentation GROUP BY doc_type"
+            )
+            for doc_type, count in cursor.fetchall():
                 self.logger.info(
                     f"{TEXT_INDICATORS['info']} {doc_type}: {count}"
                 )

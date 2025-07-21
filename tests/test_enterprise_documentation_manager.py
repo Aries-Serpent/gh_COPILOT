@@ -1,6 +1,8 @@
 import logging
 import sqlite3
-from deployment.deployment_package_20250710_183234.scripts.enterprise_database_driven_documentation_manager import EnterpriseDatabaseProcessor
+from deployment.deployment_package_20250710_183234.scripts.enterprise_database_driven_documentation_manager import (
+    EnterpriseDatabaseProcessor,
+)
 
 
 def test_process_operations(tmp_path, caplog):

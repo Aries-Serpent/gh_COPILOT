@@ -11,6 +11,7 @@ Enterprise Standards Compliance:
 
 import sqlite3
 import logging
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -71,10 +72,7 @@ class EnterpriseDatabaseProcessor:
                 "SELECT title, COUNT(*) FROM enterprise_documentation GROUP BY title"
             )
             summaries = cursor.fetchall()
-
-            from tqdm import tqdm
-
-            for title, count in tqdm(summaries, desc="Summarizing", unit="doc"):
+            for title, count in summaries:
                 self.logger.info(
                     f"{TEXT_INDICATORS['info']} {title}: {count} versions"
                 )

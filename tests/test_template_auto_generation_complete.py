@@ -32,3 +32,4 @@ def test_synthesize_templates(tmp_path):
     engine = TemplateSynthesisEngine(analytics, completion)
     templates = engine.synthesize_templates()
     assert templates
+    assert templates == engine.generator.get_cluster_representatives()
