@@ -12,8 +12,10 @@ Enterprise Standards Compliance:
 # import os
 import sys
 import logging
+import sqlite3
 from pathlib import Path
 from datetime import datetime
+from tqdm import tqdm
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -56,8 +58,26 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
+        db_path = self.workspace_path / "databases" / "production.db"
+        if not db_path.exists():
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database missing: {db_path}")
+            return False
+
+        try:
+            with sqlite3.connect(db_path) as conn:
+                cursor = conn.execute("SELECT script_path FROM script_repository LIMIT 5")
+                scripts = [row[0] for row in cursor.fetchall()]
+        except sqlite3.Error as e:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {e}")
+            return False
+
+        for script in tqdm(scripts, desc='[PROGRESS] Checking files', unit='file'):
+            if not (self.workspace_path / script).exists():
+                self.logger.error(f"{TEXT_INDICATORS['error']} Missing file: {script}")
+                return False
+
         return True
+
 
 
 def main():

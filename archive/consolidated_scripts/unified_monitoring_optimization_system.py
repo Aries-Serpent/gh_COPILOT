@@ -14,6 +14,7 @@ import sqlite3
 import sys
 from pathlib import Path
 from datetime import datetime
+from tqdm import tqdm
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -73,6 +74,7 @@ class EnterpriseUtility:
         except sqlite3.Error as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {e}")
             return False
+
 
 
 def main():
