@@ -53,9 +53,45 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Generate documentation files from the documentation database."""
+        db_path = self.workspace_path / "archives" / "documentation.db"
+        output_dir = (
+            self.workspace_path / "documentation" / "generated" / "templates"
+        )
+        try:
+            if not db_path.exists():
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Database not found: {db_path}"
+                )
+                return False
+
+            output_dir.mkdir(parents=True, exist_ok=True)
+
+            import sqlite3
+            from tqdm import tqdm
+
+            with sqlite3.connect(db_path) as conn:
+                cur = conn.cursor()
+                cur.execute(
+                    "SELECT template_name, template_content FROM documentation_templates "
+                    "WHERE enterprise_compliant=1"
+                )
+                rows = cur.fetchall()
+
+            for name, content in tqdm(
+                rows, desc="Rendering", unit="template", disable=len(rows) == 0
+            ):
+                (output_dir / f"{name}.md").write_text(content)
+
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Generated {len(rows)} templates"
+            )
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Generation failed: {exc}"
+            )
+            return False
 
 
 def main():

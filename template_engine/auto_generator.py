@@ -4,16 +4,16 @@ import ast
 import logging
 import sqlite3
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import numpy as np
 from sklearn.cluster import KMeans
-
-logger = logging.getLogger(__name__)
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 DEFAULT_ANALYTICS_DB = Path("analytics.db")
 DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
 
+logger = logging.getLogger(__name__)
 
 class TemplateAutoGenerator:
     """Generate templates from stored database patterns."""
@@ -23,7 +23,7 @@ class TemplateAutoGenerator:
         self.completion_db = Path(completion_db)
         self.patterns: List[str] = self._load_patterns()
         self.templates: List[str] = self._load_templates()
-        self.cluster_model: Optional[KMeans] = self._cluster_patterns()
+        self.cluster_model: Optional[KMeans] = self._create_cluster_model()
         self._last_template: str = ""
 
     # ------------------------------------------------------------------
@@ -50,31 +50,31 @@ class TemplateAutoGenerator:
             return []
 
     # ------------------------------------------------------------------
-    def _cluster_patterns(self) -> Optional[KMeans]:
-        if not self.patterns:
+    def _create_cluster_model(self) -> Optional[KMeans]:
+        data = self.templates or self.patterns
+        if not data:
             return None
-        data = np.array([[len(p)] for p in self.patterns])
-        n_clusters = min(len(self.patterns), 2)
-        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=42)
-        model.fit(data)
+        vectorizer = TfidfVectorizer()
+        matrix = vectorizer.fit_transform(data)
+        n_clusters = min(len(data), 2)
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+        model.fit(matrix)
+        self._vectorizer = vectorizer
+        self._matrix = matrix
         return model
 
-    # ------------------------------------------------------------------
     def get_cluster_representatives(self) -> List[str]:
-        if not self.cluster_model:
+        data = self.templates or self.patterns
+        if not data or not self.cluster_model:
             return []
-        reps: List[str] = []
-        centers = self.cluster_model.cluster_centers_.ravel()
+        reps = []
         for idx in range(self.cluster_model.n_clusters):
             indices = np.where(self.cluster_model.labels_ == idx)[0]
-            if not indices.size:
+            if not len(indices):
                 continue
-            cluster_patterns = [self.patterns[i] for i in indices]
-            rep = min(
-                cluster_patterns,
-                key=lambda p: abs(len(p) - centers[idx]),
-            )
-            reps.append(rep)
+            centroid = self.cluster_model.cluster_centers_[idx]
+            best = min(indices, key=lambda i: np.linalg.norm(self._matrix[i].toarray() - centroid))
+            reps.append(data[best])
         return reps
 
     # ------------------------------------------------------------------

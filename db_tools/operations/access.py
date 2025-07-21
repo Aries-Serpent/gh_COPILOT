@@ -3,11 +3,11 @@ Database access layer operations.
 Refactored from original database_access_layer.py with enhanced functionality.
 """
 
-import logging
 import sys
+import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 from ..core.connection import DatabaseConnection
 from ..core.exceptions import DatabaseError
@@ -30,6 +30,7 @@ class DatabaseAccessLayer:
         self.database_path = Path(database_path)
         self.db_connection = DatabaseConnection(self.database_path)
         self.logger = logging.getLogger(__name__)
+        self.table_stats: Dict[str, int] = {}
 
     def execute_processing(self) -> bool:
         """Execute database processing with enhanced error handling"""
@@ -57,10 +58,20 @@ class DatabaseAccessLayer:
     def process_operations(self) -> bool:
         """Process database operations using unified connection"""
         try:
-            # Example operations - can be extended based on specific needs
             tables_info = self.get_tables_info()
-            self.logger.info(f"{TEXT_INDICATORS['info']} Found {len(tables_info)} tables")
-            
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} Found {len(tables_info)} tables"
+            )
+
+            from tqdm import tqdm
+
+            for name in tqdm(tables_info.keys(), desc="Scanning", unit="table"):
+                count = self.get_table_row_count(name)
+                self.table_stats[name] = count
+
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Collected row counts for {len(self.table_stats)} tables"
+            )
             return True
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")

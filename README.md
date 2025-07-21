@@ -123,6 +123,11 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 python simplified_quantum_integration_orchestrator.py
 ```
 
+### Run Template Matcher
+```bash
+echo "def foo(): pass" | python scripts/template_matcher.py
+```
+
 ---
 
 ## 🗄️ DATABASE-FIRST ARCHITECTURE

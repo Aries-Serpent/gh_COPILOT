@@ -26,3 +26,7 @@ contents of the production database.
 Benchmark results are stored in ``benchmark_metrics.db``. Remove this file to
 clear previous baselines. The next call to ``benchmark()`` will generate a new
 baseline entry.
+
+
+## Additional Guides
+See [DATABASE_FIRST_USAGE_GUIDE.md](DATABASE_FIRST_USAGE_GUIDE.md) for database-first workflow details.
