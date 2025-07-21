@@ -57,7 +57,7 @@ class EnterpriseDatabaseProcessor:
             return False
 
     def process_operations(self, cursor) -> bool:
-        """Process database operations"""
+        """Process database operations with progress logging."""
         try:
             cursor.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name='enterprise_documentation'"
@@ -73,20 +73,22 @@ class EnterpriseDatabaseProcessor:
             )
             rows = cursor.fetchall()
 
-            from tqdm import tqdm
-
             total = sum(count for _, count in rows)
             self.logger.info(
                 f"{TEXT_INDICATORS['info']} Documentation entries: {total}"
             )
 
-            cursor.execute(
-                "SELECT doc_type, COUNT(*) FROM enterprise_documentation GROUP BY doc_type"
-            )
-            for doc_type, count in cursor.fetchall():
+            from tqdm import tqdm
+
+            for doc_type, count in tqdm(rows, desc="[SCAN]", unit="type"):
                 self.logger.info(
                     f"{TEXT_INDICATORS['info']} {doc_type}: {count}"
                 )
+
+            summary = {dt: cnt for dt, cnt in rows}
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Summary: {summary}"
+            )
 
             return True
         except Exception as e:
