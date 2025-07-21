@@ -1,5 +1,6 @@
-from pathlib import Path
 import importlib.util
+from pathlib import Path
+import pytest
 
 from scripts.orchestrators.unified_wrapup_orchestrator import (
     UnifiedWrapUpOrchestrator,
@@ -31,7 +32,8 @@ def test_classify_shell_shebang_txt(tmp_path: Path) -> None:
     path = tmp_path / "foo.txt"
     path.write_text("#!/bin/bash\necho hi")
     orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
-    assert orchestrator.prevent_executable_misclassification(path) == "shell"
+    with pytest.raises(ValueError):
+        orchestrator.prevent_executable_misclassification(path)
 
 
 def test_classify_batch(tmp_path: Path) -> None:
@@ -54,3 +56,18 @@ def test_classify_unknown(tmp_path: Path) -> None:
     path.write_text("abc")
     orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
     assert orchestrator.prevent_executable_misclassification(path) == "unknown"
+
+
+def test_classify_javascript(tmp_path: Path) -> None:
+    path = tmp_path / "app.js"
+    path.write_text("console.log('hi')")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "javascript"
+
+
+def test_mismatch_extension(tmp_path: Path) -> None:
+    path = tmp_path / "bad.txt"
+    path.write_text("#!/usr/bin/env node\nconsole.log('hi')")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    with pytest.raises(ValueError):
+        orchestrator.prevent_executable_misclassification(path)

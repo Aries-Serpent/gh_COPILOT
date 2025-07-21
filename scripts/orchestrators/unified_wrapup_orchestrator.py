@@ -615,7 +615,13 @@ class UnifiedWrapUpOrchestrator:
             return "utilities"
 
     def prevent_executable_misclassification(self, script_path: Path) -> str:
-        """Detect script file type via extension and file header."""
+        """Detect script file type via extension and file header.
+
+        Raises ``ValueError`` when a shebang indicates an executable script but
+        the extension does not match the detected type. This prevents text files
+        from masquerading as executables.
+        """
+
         try:
             with open(script_path, "rb") as f:
                 first_bytes = f.read(4)
@@ -626,24 +632,54 @@ class UnifiedWrapUpOrchestrator:
             first_line = ""
 
         ext = script_path.suffix.lower()
+
+        # Python bytecode detection
         if first_bytes.startswith(importlib.util.MAGIC_NUMBER):
-            return "python"
-
-        if "#!" in first_line:
+            detected = "python"
+        elif "#!" in first_line:
             if "python" in first_line:
-                return "python"
-            if any(
-                sh in first_line for sh in ["sh", "bash", "zsh", "pwsh", "powershell"]
-            ):
-                return "shell"
+                detected = "python"
+            elif any(sh in first_line for sh in ["sh", "bash", "zsh", "pwsh", "powershell"]):
+                detected = "shell"
+            elif "node" in first_line or "javascript" in first_line:
+                detected = "javascript"
+            elif "ruby" in first_line:
+                detected = "ruby"
+            elif "perl" in first_line:
+                detected = "perl"
+            elif "php" in first_line:
+                detected = "php"
+            else:
+                detected = "unknown"
+        else:
+            detected = {
+                ".py": "python",
+                ".pyw": "python",
+                ".pyc": "python",
+                ".sh": "shell",
+                ".bash": "shell",
+                ".zsh": "shell",
+                ".ps1": "shell",
+                ".bat": "batch",
+                ".cmd": "batch",
+                ".js": "javascript",
+                ".rb": "ruby",
+                ".pl": "perl",
+                ".php": "php",
+                ".exe": "binary",
+                ".dll": "binary",
+                ".jar": "java",
+            }.get(ext, "unknown")
 
-        if ext in {".py", ".pyw"}:
-            return "python"
-        if ext in {".sh", ".bash", ".zsh", ".ps1"}:
-            return "shell"
-        if ext in {".bat", ".cmd"}:
-            return "batch"
-        return "unknown"
+        # If a script type was detected from the header but extension does not
+        # match, raise an error to flag potential misclassification.
+        if detected != "unknown" and ext not in {
+            ".py", ".pyw", ".pyc", ".sh", ".bash", ".zsh", ".ps1", ".bat", ".cmd",
+            ".js", ".rb", ".pl", ".php", ".exe", ".dll", ".jar",
+        }:
+            raise ValueError(f"File extension {ext} does not match detected script type {detected}")
+
+        return detected
 
     def _recommend_script_folder(self, script_name: str, category: str) -> str:
         """📁 Recommend appropriate folder for script"""
