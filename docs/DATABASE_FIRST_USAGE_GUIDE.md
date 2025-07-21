@@ -26,6 +26,10 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - Templates may include placeholders such as `{workspace}` which will be
   automatically replaced with the active workspace path by
   `DatabaseFirstCopilotEnhancer`.
+- To automatically cluster templates and extract representative examples, use
+  `template_engine.auto_generator.TemplateAutoGenerator`. It relies on
+  `sklearn.cluster.KMeans` and provides a `get_cluster_representatives()` method
+  for retrieving key patterns.
 
 ## 3. Documentation Generation
 - Documentation patterns are stored in `documentation.db`.
