@@ -12,15 +12,16 @@ Enterprise Standards Compliance:
 # import os
 import sys
 import logging
+import sqlite3
 from pathlib import Path
 from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
+    "start": "[START]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "info": "[INFO]",
 }
 
 
@@ -42,9 +43,9 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Uti" \
-               " \
-                                  "                  "ity completed in {duration:.1f}s")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s"
+                )
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -55,9 +56,21 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Perform the utility function.
+
+        Fetch the count of placeholder usages from ``archives/analytics.db`` and
+        log it. This aligns with the project's database-first policy.
+        """
+        try:
+            db_path = self.workspace_path / "archives" / "analytics.db"
+            with sqlite3.connect(db_path) as conn:
+                cursor = conn.execute("SELECT COUNT(*) FROM placeholder_usage")
+                count = cursor.fetchone()[0]
+            self.logger.info(f"{TEXT_INDICATORS['info']} Placeholder records: {count}")
+            return True
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} DB query failed: {exc}")
+            return False
 
 
 def main():
@@ -70,9 +83,8 @@ def main():
     else:
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
-
-
     return success
+
 
 if __name__ == "__main__":
     success = main()
