@@ -36,7 +36,9 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - Render Markdown files from these entries and record the generation event.
 
 ## 4. Synchronization
-- Run `synchronize_templates()` to ensure templates are consistent across all databases.
+- Run `template_engine.template_synchronizer.synchronize_templates()` to ensure
+  templates are consistent across development, staging, and production
+  databases.
 
 ## 5. Compliance & Correction
 - All generation actions must be logged for compliance review.
