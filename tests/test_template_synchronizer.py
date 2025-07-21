@@ -1,8 +1,9 @@
 # [Test]: Template Synchronizer Integration & Compliance
-# > Generated: 2025-07-21 20:18 | Author: mbaetiong
+# > Generated: 2025-07-21 20:36:06 | Author: mbaetion
 
 import sqlite3
 from pathlib import Path
+import pytest
 
 from template_engine import template_synchronizer
 
@@ -31,7 +32,6 @@ def test_synchronize_templates(tmp_path: Path, monkeypatch) -> None:
                 "SELECT name, template_content FROM templates ORDER BY name"
             ).fetchall()
             assert rows == [("t1", "foo"), ("t2", "bar")]
-
     with sqlite3.connect(analytics) as conn:
         count = conn.execute("SELECT COUNT(*) FROM sync_events").fetchone()[0]
         assert count == 2

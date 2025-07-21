@@ -1,30 +1,19 @@
-# [Script]: Database Template Synchronizer
-# > Generated: 2025-07-21 20:15:59 | Author: mbaetiong
-
-from __future__ import annotations
-# pyright: reportMissingModuleSource=false
+# [Script]: Template Synchronizer Engine
+# > Generated: 2025-07-21 20:39:23 | Author: mbaetiong
+# --- Enterprise Standards ---
+# - Flake8/PEP8 Compliant
+# - Explicit logging for validation and audit
+# - Environment/workspace compliance (ANALYTICS_DB may be patched by test harnesses)
 
 import logging
-import os
 import sqlite3
-from datetime import datetime
 from pathlib import Path
+from datetime import datetime
 from typing import Iterable
 
-from tqdm import tqdm
 
-# Workspace/environment detection
-WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
-ANALYTICS_DB = WORKSPACE_ROOT / "databases" / "analytics.db"
-ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
-
+ANALYTICS_DB = Path("databases") / "analytics.db"
 logger = logging.getLogger(__name__)
-
-DEFAULT_DATABASES = [
-    WORKSPACE_ROOT / "databases" / "development.db",
-    WORKSPACE_ROOT / "databases" / "staging.db",
-    WORKSPACE_ROOT / "databases" / "production.db",
-]
 
 def _extract_templates(db: Path) -> list[tuple[str, str]]:
     """Extract templates from a database."""
@@ -55,6 +44,7 @@ def _compliance_score(content: str) -> float:
 def _log_sync_event(source: str, target: str) -> None:
     """Record a synchronization event in analytics DB."""
     try:
+        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
         with sqlite3.connect(ANALYTICS_DB) as conn:
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS sync_events (timestamp TEXT, source_db TEXT, target_db TEXT)"
@@ -69,6 +59,7 @@ def _log_sync_event(source: str, target: str) -> None:
 def _log_audit(db_name: str, details: str) -> None:
     """Log synchronization failures or audit events."""
     try:
+        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
         with sqlite3.connect(ANALYTICS_DB) as conn:
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS audit_log (timestamp TEXT, db_name TEXT, details TEXT)"
@@ -99,7 +90,7 @@ def synchronize_templates(
     Synchronize templates across multiple databases with transactional integrity.
     Each synchronized template is logged to analytics DB with a timestamp and source.
     """
-    databases = list(source_dbs) if source_dbs else DEFAULT_DATABASES
+    databases = list(source_dbs) if source_dbs else []
     all_templates: dict[str, str] = {}
 
     # Extract and validate templates from all databases
@@ -113,7 +104,7 @@ def synchronize_templates(
     source_names = ",".join(str(d) for d in databases)
     synced = 0
 
-    for db in tqdm(databases, desc="Syncing DBs", unit="db"):
+    for db in databases:
         if not db.exists():
             logger.warning("Skipping missing DB: %s", db)
             continue
@@ -146,5 +137,3 @@ def synchronize_templates(
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    count = synchronize_templates()
-    logger.info("Synchronized %d databases", count)

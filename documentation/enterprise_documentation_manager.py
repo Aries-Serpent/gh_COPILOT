@@ -1,3 +1,6 @@
+# [Script]: Enterprise Documentation Manager
+# > Generated: 2025-07-21 20:42:41 | Author: mbaetiong
+
 import logging
 import os
 import sqlite3
@@ -7,6 +10,7 @@ from typing import List, Tuple
 
 from tqdm import tqdm
 
+# Workspace/environment detection
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 ANALYTICS_DB = WORKSPACE_ROOT / "analytics.db"
 
@@ -17,13 +21,15 @@ TEXT_INDICATORS = {
     "info": "[INFO]",
 }
 
+logger = logging.getLogger(__name__)
 
 class EnterpriseDocumentationManager:
-    """Database-driven documentation manager."""
+    """Database-driven documentation manager for enterprise templates and analytics."""
 
     def __init__(self, db_path: str = "production.db") -> None:
+        # If not absolute, treat as workspace-relative
         self.db_path = WORKSPACE_ROOT / db_path if not Path(db_path).is_absolute() else Path(db_path)
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger
 
     def query_documentation_database(self, doc_type: str) -> List[Tuple[str, str]]:
         """Fetch documentation entries of a given type."""
@@ -94,6 +100,7 @@ class EnterpriseDocumentationManager:
 
     def store_documentation(self, content: str, compliance_score: float) -> None:
         """Persist generated documentation event to analytics.db."""
+        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
         with sqlite3.connect(ANALYTICS_DB) as conn:
             conn.execute(
                 """
@@ -111,4 +118,3 @@ class EnterpriseDocumentationManager:
             )
             conn.commit()
         self.logger.info(f"{TEXT_INDICATORS['success']} Documentation stored")
-
