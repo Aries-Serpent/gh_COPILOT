@@ -34,9 +34,11 @@ def test_generate_markdown_report(tmp_path):
 
 def test_generate_text_report(tmp_path):
     out = tmp_path / "report.txt"
-    generate_text_report({"a": 1, "b": 2}, out)
+    generate_text_report({"a": 1}, out, title="MyReport")
     text = out.read_text()
-    assert "a: 1" in text and "b: 2" in text
+    assert text.splitlines()[0] == "MyReport"
+    assert "a: 1" in text
+
 
 
 def test_detect_zero_byte_files(tmp_path):

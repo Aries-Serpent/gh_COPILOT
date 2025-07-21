@@ -6,3 +6,5 @@ databases/enterprise_assets.db
 /databases/*.db-shm
 /databases/*.db-wal
 .venv/
+__pycache__/
+*.pyc

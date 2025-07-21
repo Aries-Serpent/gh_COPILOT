@@ -43,6 +43,13 @@ def test_classify_batch(tmp_path: Path) -> None:
     assert orchestrator.prevent_executable_misclassification(path) == "batch"
 
 
+def test_classify_psm1(tmp_path: Path) -> None:
+    path = tmp_path / "module.psm1"
+    path.write_text("Write-Host hello")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "shell"
+
+
 def test_detect_pyc(tmp_path: Path) -> None:
     path = tmp_path / "module.pyc"
     with open(path, "wb") as f:
@@ -68,6 +75,70 @@ def test_classify_javascript(tmp_path: Path) -> None:
 def test_mismatch_extension(tmp_path: Path) -> None:
     path = tmp_path / "bad.txt"
     path.write_text("#!/usr/bin/env node\nconsole.log('hi')")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    with pytest.raises(ValueError):
+        orchestrator.prevent_executable_misclassification(path)
+
+
+def test_classify_go(tmp_path: Path) -> None:
+    path = tmp_path / "main.go"
+    path.write_text("package main")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "go"
+
+
+def test_classify_rust(tmp_path: Path) -> None:
+    path = tmp_path / "lib.rs"
+    path.write_text("fn main() {}")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "rust"
+
+
+def test_classify_c(tmp_path: Path) -> None:
+    path = tmp_path / "prog.c"
+    path.write_text("int main(){}")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "c"
+
+
+def test_classify_java(tmp_path: Path) -> None:
+    path = tmp_path / "Main.java"
+    path.write_text("class Main{}")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "java"
+
+
+def test_classify_ruby(tmp_path: Path) -> None:
+    path = tmp_path / "tool.rb"
+    path.write_text("puts 'hi'")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "ruby"
+
+
+def test_classify_perl(tmp_path: Path) -> None:
+    path = tmp_path / "script.pl"
+    path.write_text("print 'hi';")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "perl"
+
+
+def test_classify_php(tmp_path: Path) -> None:
+    path = tmp_path / "index.php"
+    path.write_text("<?php echo 'hi'; ?>")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "php"
+
+
+def test_classify_csharp(tmp_path: Path) -> None:
+    path = tmp_path / "Program.cs"
+    path.write_text("class Program {}")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "csharp"
+
+
+def test_mismatch_ruby_shebang(tmp_path: Path) -> None:
+    path = tmp_path / "bad.txt"
+    path.write_text("#!/usr/bin/env ruby\nputs 'hi'")
     orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
     with pytest.raises(ValueError):
         orchestrator.prevent_executable_misclassification(path)

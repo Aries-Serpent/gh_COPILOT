@@ -513,7 +513,7 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 Several small modules provide common helpers:
 
 - `utils.general_utils.operations_main` – standard script entrypoint wrapper.
-- `utils.configuration_utils.load_enterprise_configuration` – load toolkit configuration with defaults.
+- `utils.configuration_utils.load_enterprise_configuration` – load toolkit configuration from JSON or YAML with environment overrides.
 - `utils.reporting_utils.generate_json_report` – write data to a JSON file.
 - `utils.reporting_utils.generate_markdown_report` – produce a Markdown report.
 - `utils.validation_utils.detect_zero_byte_files` – find empty files for cleanup.
@@ -531,3 +531,7 @@ Planned highlights include:
    healing recommendations.
 3. **Compliance Framework Evolution** – stricter session validation and
    enterprise audit logging improvements.
+4. **Reporting Enhancements** – standardized text report output alongside
+   JSON and Markdown formats.
+5. **Improved Script Classification** – broader file-type detection to prevent
+   misclassification of non-executable files.
