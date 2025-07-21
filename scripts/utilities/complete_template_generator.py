@@ -85,7 +85,7 @@ class CompleteTemplateGenerator:
         templates: List[str] = []
         clusters = self.generator.cluster_model
         patterns = self.generator.patterns
-        if not patterns or clusters:
+        if not patterns or clusters is None:
             return templates
 
         with sqlite3.connect(self.production_db) as conn:

@@ -1,74 +1,59 @@
 from __future__ import annotations
 
 import ast
+import logging
 import sqlite3
 from pathlib import Path
-from typing import Dict, List
+from typing import List, Optional, Dict
 
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 DEFAULT_ANALYTICS_DB = Path("analytics.db")
-DEFAULT_COMPLETION_DB = Path("template_completion.db")
+DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
 
+logger = logging.getLogger(__name__)
 
 class TemplateAutoGenerator:
-    """Generate templates from stored patterns using clustering."""
+    """Generate templates from stored database patterns."""
 
-    def __init__(self, analytics_db: Path, completion_db: Path) -> None:
+    def __init__(self, analytics_db: Path | str, completion_db: Path | str) -> None:
         self.analytics_db = Path(analytics_db)
         self.completion_db = Path(completion_db)
-        self.patterns = self._load_patterns()
-        self.templates = self._load_templates()
-        self.cluster_model = self._create_cluster_model()
-        self._last_template: str | None = None
+        self.patterns: List[str] = self._load_patterns()
+        self.templates: List[str] = self._load_templates()
+        self.cluster_model: Optional[KMeans] = self._create_cluster_model()
+        self._last_template: str = ""
 
     # ------------------------------------------------------------------
     def _load_patterns(self) -> List[str]:
+        query = "SELECT replacement_template FROM ml_pattern_optimization"
         if not self.analytics_db.exists():
             return []
-        with sqlite3.connect(self.analytics_db) as conn:
-            cur = conn.execute("SELECT replacement_template FROM ml_pattern_optimization")
-            return [row[0] for row in cur.fetchall()]
+        try:
+            with sqlite3.connect(self.analytics_db) as conn:
+                rows = conn.execute(query).fetchall()
+                return [r[0] for r in rows]
+        except sqlite3.Error:
+            return []
 
     def _load_templates(self) -> List[str]:
+        query = "SELECT template_content FROM templates"
         if not self.completion_db.exists():
             return []
-        with sqlite3.connect(self.completion_db) as conn:
-            cur = conn.execute("SELECT template_content FROM templates")
-            return [row[0] for row in cur.fetchall()]
-
-    # ------------------------------------------------------------------
-    def generate_template(self, config: Dict[str, str]) -> str:
-        keyword = next(iter(config.values()), "")
-        for text in self.patterns + self.templates:
-            if keyword and keyword in text:
-                self._validate_template(text)
-                self._last_template = text
-                return text
-        if self.patterns:
-            candidate = self.patterns[0]
-            self._validate_template(candidate)
-            self._last_template = candidate
-            return candidate
-        self._last_template = ""
-        return ""
-
-    def regenerate_template(self) -> str:
-        return self._last_template or ""
-
-    # ------------------------------------------------------------------
-    def _validate_template(self, text: str) -> None:
         try:
-            ast.parse(text)
-        except SyntaxError as exc:
-            raise ValueError("Invalid template syntax") from exc
+            with sqlite3.connect(self.completion_db) as conn:
+                rows = conn.execute(query).fetchall()
+                return [r[0] for r in rows]
+        except sqlite3.Error:
+            return []
 
-    def _create_cluster_model(self) -> KMeans:
+    # ------------------------------------------------------------------
+    def _create_cluster_model(self) -> Optional[KMeans]:
         data = self.templates or self.patterns
         if not data:
-            return KMeans(n_clusters=1, n_init="auto")
+            return None
         vectorizer = TfidfVectorizer()
         matrix = vectorizer.fit_transform(data)
         n_clusters = min(len(data), 2)
@@ -80,7 +65,7 @@ class TemplateAutoGenerator:
 
     def get_cluster_representatives(self) -> List[str]:
         data = self.templates or self.patterns
-        if not data:
+        if not data or not self.cluster_model:
             return []
         reps = []
         for idx in range(self.cluster_model.n_clusters):
@@ -91,3 +76,34 @@ class TemplateAutoGenerator:
             best = min(indices, key=lambda i: np.linalg.norm(self._matrix[i].toarray() - centroid))
             reps.append(data[best])
         return reps
+
+    # ------------------------------------------------------------------
+    def _format_candidate(self, candidate: str, replacements: dict) -> str:
+        try:
+            return candidate.format(**replacements)
+        except Exception:
+            return candidate
+
+    def _is_valid_python(self, text: str) -> bool:
+        try:
+            ast.parse(text)
+            return True
+        except SyntaxError:
+            return False
+
+    # ------------------------------------------------------------------
+    def generate_template(self, replacements: dict) -> str:
+        search_terms = set(map(str, replacements.values()))
+        candidates = self.patterns + self.templates
+        match = next((p for p in candidates if any(t in p for t in search_terms)), None)
+        if not match:
+            return ""
+        candidate = self._format_candidate(match, replacements)
+        if not self._is_valid_python(candidate):
+            raise ValueError("Generated template has invalid syntax")
+        self._last_template = candidate
+        return candidate
+
+    # ------------------------------------------------------------------
+    def regenerate_template(self) -> str:
+        return self._last_template

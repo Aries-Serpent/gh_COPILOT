@@ -1,5 +1,8 @@
-"""Template engine package for tests."""
-
+"""Template engine package."""
 from .auto_generator import TemplateAutoGenerator, DEFAULT_ANALYTICS_DB, DEFAULT_COMPLETION_DB
 
-__all__ = ["TemplateAutoGenerator", "DEFAULT_ANALYTICS_DB", "DEFAULT_COMPLETION_DB"]
+__all__ = [
+    "TemplateAutoGenerator",
+    "DEFAULT_ANALYTICS_DB",
+    "DEFAULT_COMPLETION_DB",
+]
