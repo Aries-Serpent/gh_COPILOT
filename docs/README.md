@@ -30,3 +30,4 @@ baseline entry.
 
 ## Additional Guides
 See [DATABASE_FIRST_USAGE_GUIDE.md](DATABASE_FIRST_USAGE_GUIDE.md) for database-first workflow details.
+For upcoming work items, refer to [DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md](DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md).
