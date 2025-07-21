@@ -78,3 +78,31 @@ def test_mismatch_extension(tmp_path: Path) -> None:
     orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
     with pytest.raises(ValueError):
         orchestrator.prevent_executable_misclassification(path)
+
+
+def test_classify_go(tmp_path: Path) -> None:
+    path = tmp_path / "main.go"
+    path.write_text("package main")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "go"
+
+
+def test_classify_rust(tmp_path: Path) -> None:
+    path = tmp_path / "lib.rs"
+    path.write_text("fn main() {}")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "rust"
+
+
+def test_classify_c(tmp_path: Path) -> None:
+    path = tmp_path / "prog.c"
+    path.write_text("int main(){}")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "c"
+
+
+def test_classify_java(tmp_path: Path) -> None:
+    path = tmp_path / "Main.java"
+    path.write_text("class Main{}")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "java"
