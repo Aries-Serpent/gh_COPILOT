@@ -48,3 +48,27 @@ def test_query_before_filesystem_order(monkeypatch, tmp_path: Path) -> None:
     result = enhancer.query_before_filesystem("hello")
     assert result["database_solutions"] == ["print('hi')"]
     assert calls == ["db", "fs"]
+
+
+def test_similarity_scoring(tmp_path: Path) -> None:
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    db_path = db_dir / "production.db"
+    enhancer = DatabaseFirstCopilotEnhancer(workspace_path=str(tmp_path))
+
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("CREATE TABLE solutions (objective TEXT, code TEXT)")
+        conn.execute(
+            "INSERT INTO solutions (objective, code) VALUES (?, ?)",
+            ("hello world", "print('hello world')"),
+        )
+        conn.commit()
+
+    result = enhancer.query_before_filesystem("hello")
+    assert "print('hello world')" in result["database_solutions"]
+
+
+def test_environment_adaptation(tmp_path: Path) -> None:
+    enhancer = DatabaseFirstCopilotEnhancer(workspace_path=str(tmp_path))
+    result = enhancer.query_before_filesystem("hello")
+    assert str(tmp_path) in result["template_code"]

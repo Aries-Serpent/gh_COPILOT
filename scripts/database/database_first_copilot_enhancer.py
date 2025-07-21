@@ -5,6 +5,8 @@ from __future__ import annotations
 import logging
 import sqlite3
 from pathlib import Path
+import os
+from difflib import SequenceMatcher
 from typing import Any, Dict, List
 
 from tqdm import tqdm
@@ -24,10 +26,24 @@ class DatabaseFirstCopilotEnhancer:
         """Ensure no forbidden backup folders exist inside the workspace."""
         if any(self.workspace.glob("**/*backup*")):
             raise RuntimeError("Forbidden backup folder detected")
+        backup_root = os.getenv("GH_COPILOT_BACKUP_ROOT")
+        if backup_root:
+            backup_path = Path(backup_root).resolve()
+            try:
+                backup_path.relative_to(self.workspace.resolve())
+                raise RuntimeError("Backup root must be outside the workspace")
+            except ValueError:
+                pass
 
     def _initialize_template_engine(self) -> Any:
-        """Return a simple template engine placeholder."""
-        return lambda name: f"# Template for {name}"
+        """Return a simple template engine placeholder.
+
+        The template includes the workspace placeholder so that
+        :meth:`_adapt_to_current_environment` can inject environment
+        specific values.
+        """
+
+        return lambda name: f"# Template for {name} in {{workspace}}"
 
     def _query_database_solutions(self, objective: str) -> List[str]:
         """Return code snippets matching ``objective`` from ``production.db``."""
@@ -38,19 +54,27 @@ class DatabaseFirstCopilotEnhancer:
             cur.execute(
                 "CREATE TABLE IF NOT EXISTS solutions (objective TEXT, code TEXT)"
             )
-            cur.execute(
-                "SELECT code FROM solutions WHERE objective=?", (objective,)
-            )
-            return [row[0] for row in cur.fetchall()]
+            cur.execute("SELECT objective, code FROM solutions")
+            matches: List[tuple[float, str]] = []
+            for obj, code in cur.fetchall():
+                score = SequenceMatcher(None, objective, obj).ratio()
+                if score >= 0.5:
+                    matches.append((score, code))
+            matches.sort(key=lambda x: x[0], reverse=True)
+            return [code for _, code in matches]
 
     def _find_template_matches(self, objective: str) -> str:
         return self.template_engine(objective)
 
     def _adapt_to_current_environment(self, template: str) -> str:
-        return template
+        """Inject environment specific values into ``template``."""
+        return template.replace("{workspace}", str(self.workspace))
 
     def _calculate_confidence(self, solutions: List[str]) -> float:
-        return float(bool(solutions))
+        if not solutions:
+            return 0.0
+        # simplistic confidence based on number of solutions
+        return min(1.0, len(solutions) / 5)
 
     def query_before_filesystem(self, objective: str) -> Dict[str, Any]:
         """Query database before using filesystem templates."""
@@ -66,7 +90,6 @@ class DatabaseFirstCopilotEnhancer:
 
     def generate_integration_ready_code(self, objective: str) -> str:
         """Generate code using progress indicators."""
-        start = 0
         with tqdm(total=3, desc="generate", unit="step") as bar:
             bar.update(1)
             result = self.query_before_filesystem(objective)

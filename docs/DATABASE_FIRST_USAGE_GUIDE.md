@@ -23,6 +23,9 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 ## 2. Generate From Templates
 - Use retrieved templates as the base for new scripts.
 - Log template usage in `template_usage_tracking` for auditing.
+- Templates may include placeholders such as `{workspace}` which will be
+  automatically replaced with the active workspace path by
+  `DatabaseFirstCopilotEnhancer`.
 
 ## 3. Documentation Generation
 - Documentation patterns are stored in `documentation.db`.
