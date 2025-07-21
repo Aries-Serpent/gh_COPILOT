@@ -1,6 +1,10 @@
 import json
 from utils.general_utils import operations_main
-from utils.reporting_utils import generate_json_report, generate_markdown_report
+from utils.reporting_utils import (
+    generate_json_report,
+    generate_markdown_report,
+    generate_text_report,
+)
 from utils.validation_utils import (
     detect_zero_byte_files,
     validate_path,
@@ -26,6 +30,13 @@ def test_generate_markdown_report(tmp_path):
     generate_markdown_report({"a": 1}, out, title="T")
     text = out.read_text()
     assert text.startswith("# T") and "**a**" in text
+
+
+def test_generate_text_report(tmp_path):
+    out = tmp_path / "report.txt"
+    generate_text_report({"a": 1, "b": 2}, out)
+    text = out.read_text()
+    assert "a: 1" in text and "b: 2" in text
 
 
 def test_detect_zero_byte_files(tmp_path):
