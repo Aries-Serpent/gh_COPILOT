@@ -53,8 +53,22 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            if not self.workspace_path.exists():
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Missing workspace: {self.workspace_path}"
+                )
+                return False
+            file_count = len(list(self.workspace_path.iterdir()))
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} workspace files: {file_count}"
+            )
+            return file_count > 0
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Validation failed: {exc}"
+            )
+            return False
 
 
 def main():
