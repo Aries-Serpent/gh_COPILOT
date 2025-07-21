@@ -118,6 +118,11 @@ result = generator.generate_with_validation(
 print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 ```
 
+### Run Simplified Quantum Integration Orchestrator
+```bash
+python simplified_quantum_integration_orchestrator.py
+```
+
 ---
 
 ## 🗄️ DATABASE-FIRST ARCHITECTURE

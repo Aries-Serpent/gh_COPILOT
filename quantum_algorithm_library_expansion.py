@@ -15,6 +15,10 @@ import numpy as np
 class EnterpriseUtility:
     """Minimal enterprise utility wrapper used for testing."""
 
+    def __init__(self, workspace_path: str | None = None) -> None:  # pragma: no cover - thin wrapper
+        """Initialize utility; workspace path is optional."""
+        self.workspace_path = workspace_path
+
     def perform_utility_function(self) -> bool:  # pragma: no cover - thin wrapper
         """Run the Grover demo and report success."""
         return demo_grover_search() == 3
