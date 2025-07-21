@@ -58,7 +58,27 @@ class EnterpriseDatabaseProcessor:
     def process_operations(self, cursor) -> bool:
         """Process database operations"""
         try:
-            # Implementation for database operations
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='enterprise_documentation'"
+            )
+            if not cursor.fetchone():
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Missing enterprise_documentation table"
+                )
+                return False
+
+            cursor.execute(
+                "SELECT title, COUNT(*) FROM enterprise_documentation GROUP BY title"
+            )
+            summaries = cursor.fetchall()
+
+            from tqdm import tqdm
+
+            for title, count in tqdm(summaries, desc="Summarizing", unit="doc"):
+                self.logger.info(
+                    f"{TEXT_INDICATORS['info']} {title}: {count} versions"
+                )
+
             return True
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")

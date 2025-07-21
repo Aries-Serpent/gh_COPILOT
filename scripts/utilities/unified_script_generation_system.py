@@ -17,6 +17,7 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
+from dataclasses import dataclass
 from tqdm import tqdm
 
 # Text-based indicators (NO Unicode emojis)
@@ -26,6 +27,22 @@ TEXT_INDICATORS = {
     'error': '[ERROR]',
     'info': '[INFO]'
 }
+
+
+@dataclass
+class ValidationResult:
+    """Result of script generation validation."""
+
+    output_file: Path
+    progress_complete: bool
+
+
+class DualCopilotValidator:
+    """Secondary copilot validator."""
+
+    def validate(self, result: ValidationResult) -> bool:
+        """Validate generation results."""
+        return result.output_file.exists() and result.progress_complete
 
 
 class EnterpriseUtility:
@@ -77,35 +94,48 @@ class EnterpriseUtility:
 
             placeholder_counter: Counter[str] = Counter()
 
-            with sqlite3.connect(db_path) as conn:
-                cursor = conn.execute(
-                    "SELECT template_id, content FROM template_metadata"
-                )
-                rows = cursor.fetchall()
+            with tqdm(total=100, desc="Script Generation", unit="%") as pbar:
+                with sqlite3.connect(db_path) as conn:
+                    cursor = conn.execute(
+                        "SELECT template_id, content FROM template_metadata"
+                    )
+                    rows = cursor.fetchall()
+                pbar.update(20)
 
-            for _, content in tqdm(rows, desc="Processing patterns", unit="template"):
-                placeholders = re.findall(r"{(.*?)}", content)
-                placeholder_counter.update(placeholders)
+                for _, content in tqdm(rows, desc="Processing patterns", unit="template"):
+                    placeholders = re.findall(r"{(.*?)}", content)
+                    placeholder_counter.update(placeholders)
+                pbar.update(60)
 
-            if not rows:
-                self.logger.error(
-                    f"{TEXT_INDICATORS['error']} No templates found in database"
-                )
-                return False
+                if not rows:
+                    self.logger.error(
+                        f"{TEXT_INDICATORS['error']} No templates found in database"
+                    )
+                    return False
 
-            top_placeholders = [p for p, _ in placeholder_counter.most_common(5)]
-            synthesized_lines = ["# Synthesized template", ""]
-            synthesized_lines.extend(f"{{{p}}}" for p in top_placeholders)
-            synthesized_template = "\n".join(synthesized_lines)
+                top_placeholders = [p for p, _ in placeholder_counter.most_common(5)]
+                synthesized_lines = ["# Synthesized template", ""]
+                synthesized_lines.extend(f"{{{p}}}" for p in top_placeholders)
+                synthesized_template = "\n".join(synthesized_lines)
 
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file = generated_dir / f"template_{timestamp}.txt"
-            with open(output_file, "w", encoding="utf-8") as handle:
-                handle.write(synthesized_template)
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                output_file = generated_dir / f"template_{timestamp}.txt"
+                with open(output_file, "w", encoding="utf-8") as handle:
+                    handle.write(synthesized_template)
+                pbar.update(20)
 
             self.logger.info(
                 f"{TEXT_INDICATORS['success']} Generated template stored at {output_file}"
             )
+
+            validator = DualCopilotValidator()
+            valid = validator.validate(
+                ValidationResult(output_file=output_file, progress_complete=pbar.n == 100)
+            )
+            if not valid:
+                self.logger.error(f"{TEXT_INDICATORS['error']} Validation failed")
+                return False
+
             return True
         except Exception as exc:  # pragma: no cover - log and propagate failure
             self.logger.error(

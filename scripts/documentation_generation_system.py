@@ -9,6 +9,7 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 import sys
+import os
 
 import logging
 import os
@@ -25,9 +26,20 @@ TEXT_INDICATORS = {
 
 
 class EnterpriseUtility:
-    """Enterprise utility class"""
+    """Enterprise utility class.
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    Parameters
+    ----------
+    workspace_path:
+        Optional path to the workspace. If ``None`` the path is retrieved from
+        the ``GH_COPILOT_WORKSPACE`` environment variable. This aligns with the
+        project requirement that scripts respect the configured workspace and
+        avoids hard coded paths.
+    """
+
+    def __init__(self, workspace_path: str | None = None):
+        if workspace_path is None:
+            workspace_path = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
@@ -66,6 +78,9 @@ class EnterpriseUtility:
                 return False
 
             output_dir.mkdir(parents=True, exist_ok=True)
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} Writing documentation to {output_dir}"
+            )
 
             import sqlite3
             from tqdm import tqdm
@@ -73,8 +88,7 @@ class EnterpriseUtility:
             with sqlite3.connect(db_path) as conn:
                 cur = conn.cursor()
                 cur.execute(
-                    "SELECT template_name, template_content FROM documentation_templates "
-                    "WHERE enterprise_compliant=1"
+                    "SELECT template_name, template_content FROM documentation_templates WHERE enterprise_compliant=1"
                 )
                 rows = cur.fetchall()
 
@@ -84,7 +98,11 @@ class EnterpriseUtility:
                 unit="template",
                 disable=len(rows) == 0,
             ):
-                (output_dir / f"{name}.md").write_text(content)
+                file_path = output_dir / f"{name}.md"
+                file_path.write_text(content)
+                self.logger.info(
+                    f"{TEXT_INDICATORS['info']} Generated {file_path.name}"
+                )
 
             self.logger.info(
                 f"{TEXT_INDICATORS['success']} Generated {len(rows)} templates"
