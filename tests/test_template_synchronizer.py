@@ -25,3 +25,16 @@ def test_synchronize_templates(tmp_path: Path) -> None:
         with sqlite3.connect(db) as conn:
             rows = conn.execute("SELECT name, template_content FROM templates ORDER BY name").fetchall()
             assert rows == [("t1", "foo"), ("t2", "bar")]
+
+
+def test_invalid_templates_ignored(tmp_path: Path) -> None:
+    db_a = tmp_path / "a.db"
+    db_b = tmp_path / "b.db"
+    create_db(db_a, {"t1": "foo", "empty": ""})
+    create_db(db_b, {})
+
+    synchronize_templates([db_a, db_b])
+
+    with sqlite3.connect(db_b) as conn:
+        rows = conn.execute("SELECT name FROM templates ORDER BY name").fetchall()
+        assert rows == [("t1",),]
