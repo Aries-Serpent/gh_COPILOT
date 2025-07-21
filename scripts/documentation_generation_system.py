@@ -67,8 +67,9 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Generate documentation files from the documentation database."""
-        db_path = self.workspace_path / "archives" / "documentation.db"
-        output_dir = self.workspace_path / "documentation" / "generated" / "templates"
+        workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path))
+        db_path = workspace / "databases" / "documentation.db"
+        output_dir = workspace / "documentation" / "generated" / "templates"
         try:
             if not db_path.exists():
                 self.logger.error(
@@ -92,7 +93,10 @@ class EnterpriseUtility:
                 rows = cur.fetchall()
 
             for name, content in tqdm(
-                rows, desc="Rendering", unit="template", disable=len(rows) == 0
+                rows,
+                desc="Rendering docs",
+                unit="template",
+                disable=len(rows) == 0,
             ):
                 file_path = output_dir / f"{name}.md"
                 file_path.write_text(content)
