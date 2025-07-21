@@ -22,3 +22,11 @@ def generate_markdown_report(data: Dict[str, Any], output_path: Path, title: str
     output_path.write_text("\n".join(lines), encoding="utf-8")
     return output_path
 
+
+def generate_text_report(data: Dict[str, Any], output_path: Path) -> Path:
+    """Write ``data`` to ``output_path`` in plain text format."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [f"{key}: {value}" for key, value in data.items()]
+    output_path.write_text("\n".join(lines), encoding="utf-8")
+    return output_path
+
