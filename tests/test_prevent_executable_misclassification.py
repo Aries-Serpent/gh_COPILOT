@@ -142,3 +142,46 @@ def test_mismatch_ruby_shebang(tmp_path: Path) -> None:
     orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
     with pytest.raises(ValueError):
         orchestrator.prevent_executable_misclassification(path)
+
+
+def test_classify_pyz(tmp_path: Path) -> None:
+    path = tmp_path / "archive.pyz"
+    path.write_bytes(b"PK\x03\x04")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "python"
+
+
+def test_classify_binary_lib(tmp_path: Path) -> None:
+    path = tmp_path / "lib.so"
+    path.write_bytes(b"\x7fELF")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "binary"
+
+
+def test_classify_msi(tmp_path: Path) -> None:
+    path = tmp_path / "setup.msi"
+    path.write_bytes(b"d0cf11e0")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "binary"
+
+
+def test_classify_war(tmp_path: Path) -> None:
+    path = tmp_path / "app.war"
+    path.write_text("dummy")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "java"
+
+
+def test_classify_class(tmp_path: Path) -> None:
+    path = tmp_path / "Main.class"
+    path.write_bytes(b"\xca\xfe\xba\xbe")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "java"
+
+
+def test_mismatch_shell_shebang_md(tmp_path: Path) -> None:
+    path = tmp_path / "README.md"
+    path.write_text("#!/bin/sh\necho hi")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    with pytest.raises(ValueError):
+        orchestrator.prevent_executable_misclassification(path)
