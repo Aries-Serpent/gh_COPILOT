@@ -8,13 +8,21 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
 
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 DEFAULT_ANALYTICS_DB = Path("analytics.db")
 DEFAULT_COMPLETION_DB = Path("template_completion.db")
 
 
+
 @dataclass
-class DummyClusterModel:
+class ClusterModel:
+    """Wrapper around :class:`sklearn.cluster.KMeans`."""
+
     n_clusters: int
+    kmeans: KMeans
 
 
 class TemplateAutoGenerator:
@@ -25,7 +33,18 @@ class TemplateAutoGenerator:
         self.completion_db = Path(completion_db)
         self.patterns = self._load_patterns()
         self.templates = self._load_templates()
-        self.cluster_model = DummyClusterModel(max(1, len(self.templates)))
+
+        all_items = self.templates + self.patterns
+        n_clusters = max(1, len(self.templates))
+        if all_items:
+            self._vectorizer = TfidfVectorizer()
+            features = self._vectorizer.fit_transform(all_items)
+            kmeans = KMeans(n_clusters=n_clusters, n_init='auto', random_state=42)
+            kmeans.fit(features)
+        else:
+            self._vectorizer = None
+            kmeans = KMeans(n_clusters=n_clusters, n_init='auto', random_state=42)
+        self.cluster_model = ClusterModel(n_clusters=n_clusters, kmeans=kmeans)
         self._last_template: str | None = None
 
     def _load_patterns(self) -> List[str]:
@@ -67,14 +86,34 @@ class TemplateAutoGenerator:
         return self._last_template or ""
 
     def get_cluster_representatives(self) -> List[str]:
-        count = self.cluster_model.n_clusters
-        reps = self.templates[:count]
-        if len(reps) < count:
-            reps.extend(self.patterns[: count - len(reps)])
+        if not self._vectorizer or not (self.templates or self.patterns):
+            return []
+
+        data = self.templates + self.patterns
+        features = self._vectorizer.transform(data)
+        labels = self.cluster_model.kmeans.labels_
+        reps: List[str] = []
+
+        for idx in range(self.cluster_model.n_clusters):
+            cluster_indices = np.where(labels == idx)[0]
+            if cluster_indices.size == 0:
+                continue
+            center = self.cluster_model.kmeans.cluster_centers_[idx]
+            dists = np.linalg.norm(features[cluster_indices] - center, axis=1)
+            nearest_idx = cluster_indices[int(dists.argmin())]
+            reps.append(data[nearest_idx])
         return reps
 
     def objective_similarity(self, a: str, b: str) -> float:
-        return 1.0 if a == b else 0.0
+        if not self._vectorizer:
+            return 1.0 if a == b else 0.0
+        vec = self._vectorizer.transform([a, b])
+        sim = float((vec[0] @ vec[1].T).toarray()[0][0])
+        return sim
 
     def select_best_template(self, target: str) -> str:
-        return target
+        if not self.templates:
+            return target
+        scores = [self.objective_similarity(target, t) for t in self.templates]
+        best_idx = int(np.argmax(scores))
+        return self.templates[best_idx]
