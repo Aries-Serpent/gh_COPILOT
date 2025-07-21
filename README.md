@@ -518,6 +518,10 @@ Several small modules provide common helpers:
 - `utils.reporting_utils.generate_markdown_report` – produce a Markdown report.
 - `utils.validation_utils.detect_zero_byte_files` – find empty files for cleanup.
 - `utils.validation_utils.validate_path` – verify a path is inside the workspace and outside the backup root.
+- `scripts.optimization.physics_optimization_engine.PhysicsOptimizationEngine` –
+  provides lightweight quantum-assisted utilities such as Grover search,
+  Shor factorization and Fourier transforms used for physics-oriented
+  optimizations and demonstrations.
 
 ## Future Roadmap
 
