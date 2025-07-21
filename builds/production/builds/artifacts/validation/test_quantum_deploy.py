@@ -53,8 +53,21 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            if "GH_COPILOT_WORKSPACE" not in os.environ:
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Environment not configured"
+                )
+                return False
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} Environment detected"
+            )
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Deployment check failed: {exc}"
+            )
+            return False
 
 
 def main():

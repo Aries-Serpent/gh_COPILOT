@@ -58,8 +58,14 @@ class EnterpriseDatabaseProcessor:
     def process_operations(self, cursor) -> bool:
         """Process database operations"""
         try:
-            # Implementation for database operations
-            return True
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
+            tables = cursor.fetchall()
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} tables discovered: {len(tables)}"
+            )
+            return len(tables) > 0
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")
             return False

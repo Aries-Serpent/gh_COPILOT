@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
-import logging
-#!/usr/bin/env python3
-# Base template for utility scripts
+
+"""Basic utility demo script."""
+
+
+def main() -> None:
+    """Main function"""
+    print("Basic utility demo executed")
 
 
 if __name__ == "__main__":
-
-
-# SYNTAX_ERROR_COMMENTED: def main():
-    """Main function"""
-    print("Basic utility demo")
-    pass
-
     main()

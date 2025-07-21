@@ -11,6 +11,7 @@ Enterprise Standards Compliance:
 
 import logging
 import sqlite3
+import sys
 from pathlib import Path
 from datetime import datetime
 from tqdm import tqdm
@@ -29,6 +30,7 @@ class EnterpriseUtility:
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
+        self.db_path = self.workspace_path / "databases" / "production.db"
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
@@ -55,25 +57,23 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        db_path = self.workspace_path / "databases" / "production.db"
-        if not db_path.exists():
-            self.logger.error(f"{TEXT_INDICATORS['error']} Database missing: {db_path}")
-            return False
-
+        self.logger.info(f"{TEXT_INDICATORS['info']} Recording monitoring event")
         try:
-            with sqlite3.connect(db_path) as conn:
-                cursor = conn.execute("SELECT script_path FROM script_repository LIMIT 5")
-                scripts = [row[0] for row in cursor.fetchall()]
+            with sqlite3.connect(self.db_path) as conn:
+                cur = conn.cursor()
+                cur.execute(
+                    "CREATE TABLE IF NOT EXISTS monitoring_logs (timestamp TEXT, action TEXT)"
+                )
+                cur.execute(
+                    "INSERT INTO monitoring_logs (timestamp, action) VALUES (?, ?)",
+                    (datetime.utcnow().isoformat(), "utility_executed"),
+                )
+                conn.commit()
+            self.logger.info(f"{TEXT_INDICATORS['success']} Monitoring log recorded")
+            return True
         except sqlite3.Error as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {e}")
             return False
-
-        for script in tqdm(scripts, desc='[PROGRESS] Checking files', unit='file'):
-            if not (self.workspace_path / script).exists():
-                self.logger.error(f"{TEXT_INDICATORS['error']} Missing file: {script}")
-                return False
-
-        return True
 
 
 

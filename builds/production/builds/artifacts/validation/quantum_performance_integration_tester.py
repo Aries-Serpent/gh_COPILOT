@@ -53,8 +53,22 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            py_files = list(self.workspace_path.rglob("*.py"))
+            if not py_files:
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} No Python files found"
+                )
+                return False
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} {len(py_files)} files scanned"
+            )
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Scan failed: {exc}"
+            )
+            return False
 
 
 def main():
