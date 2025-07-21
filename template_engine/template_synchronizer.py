@@ -5,6 +5,7 @@ import logging
 import sqlite3
 from pathlib import Path
 from typing import Iterable
+from datetime import datetime
 
 from tqdm import tqdm
 
@@ -29,6 +30,22 @@ def _extract_templates(db: Path) -> list[tuple[str, str]]:
 
 def _validate_template(name: str, content: str) -> bool:
     return bool(name and content and content.strip())
+
+
+def _log_template_sync(name: str, source: Path) -> None:
+    """Record a template synchronization event in analytics.db."""
+    try:
+        with sqlite3.connect("analytics.db") as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS templates_sync_log (name TEXT, source TEXT, synced_at TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO templates_sync_log (name, source, synced_at) VALUES (?, ?, ?)",
+                (name, str(source), datetime.utcnow().isoformat()),
+            )
+            conn.commit()
+    except sqlite3.Error as exc:
+        logger.warning("Failed to log template %s from %s: %s", name, source, exc)
 
 
 def synchronize_templates(source_dbs: Iterable[Path] | None = None) -> int:
@@ -57,6 +74,7 @@ def synchronize_templates(source_dbs: Iterable[Path] | None = None) -> int:
                             "INSERT OR REPLACE INTO templates (name, template_content) VALUES (?, ?)",
                             (name, content),
                         )
+                        _log_template_sync(name, db)
                     conn.commit()
                     synced += 1
                 except sqlite3.Error as exc:

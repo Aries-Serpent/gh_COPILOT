@@ -9,6 +9,7 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 import logging
+import sqlite3
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -53,8 +54,16 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            with sqlite3.connect('production.db') as conn:
+                conn.execute('CREATE TABLE IF NOT EXISTS utility_log (script_name TEXT, executed_at TEXT)')
+                conn.execute('INSERT INTO utility_log (script_name, executed_at) VALUES (?, ?)', (__name__, datetime.now().isoformat()))
+                conn.commit()
+            self.logger.info(f"{TEXT_INDICATORS['info']} Logged execution to DB")
+            return True
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} DB error: {exc}")
+            return False
 
 
 def main():
