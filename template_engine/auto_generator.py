@@ -4,7 +4,7 @@ import ast
 import logging
 import sqlite3
 from pathlib import Path
-from typing import List, Optional, Dict
+from typing import List, Optional
 
 import numpy as np
 from sklearn.cluster import KMeans

@@ -12,6 +12,7 @@ import sys
 import os
 
 import logging
+import os
 from pathlib import Path
 from datetime import datetime
 
@@ -25,11 +26,20 @@ TEXT_INDICATORS = {
 
 
 class EnterpriseUtility:
-    """Enterprise utility class"""
+    """Enterprise utility class.
+
+    Parameters
+    ----------
+    workspace_path:
+        Optional path to the workspace. If ``None`` the path is retrieved from
+        the ``GH_COPILOT_WORKSPACE`` environment variable. This aligns with the
+        project requirement that scripts respect the configured workspace and
+        avoids hard coded paths.
+    """
 
     def __init__(self, workspace_path: str | None = None):
         if workspace_path is None:
-            workspace_path = os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT")
+            workspace_path = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
@@ -67,6 +77,9 @@ class EnterpriseUtility:
                 return False
 
             output_dir.mkdir(parents=True, exist_ok=True)
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} Writing documentation to {output_dir}"
+            )
 
             import sqlite3
             from tqdm import tqdm
@@ -78,9 +91,14 @@ class EnterpriseUtility:
                 )
                 rows = cur.fetchall()
 
-            for name, content in tqdm(rows, desc="Rendering", unit="template", disable=len(rows) == 0):
-                (output_dir / f"{name}.md").write_text(content)
-                self.logger.info(f"{TEXT_INDICATORS['info']} Rendered {name}")
+            for name, content in tqdm(
+                rows, desc="Rendering", unit="template", disable=len(rows) == 0
+            ):
+                file_path = output_dir / f"{name}.md"
+                file_path.write_text(content)
+                self.logger.info(
+                    f"{TEXT_INDICATORS['info']} Generated {file_path.name}"
+                )
 
             self.logger.info(
                 f"{TEXT_INDICATORS['success']} Generated {len(rows)} templates"
