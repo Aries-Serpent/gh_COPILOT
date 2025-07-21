@@ -668,6 +668,8 @@ class UnifiedWrapUpOrchestrator:
                 ".pyi": "python",
                 ".pyw": "python",
                 ".pyc": "python",
+                ".pyz": "python",
+                ".whl": "python",
                 ".sh": "shell",
                 ".ksh": "shell",
                 ".csh": "shell",
@@ -687,7 +689,14 @@ class UnifiedWrapUpOrchestrator:
                 ".vbe": "vbscript",
                 ".exe": "binary",
                 ".dll": "binary",
+                ".so": "binary",
+                ".dylib": "binary",
+                ".msi": "binary",
+                ".apk": "binary",
+                ".com": "binary",
                 ".jar": "java",
+                ".war": "java",
+                ".class": "java",
                 ".go": "go",
                 ".rs": "rust",
                 ".c": "c",
@@ -703,9 +712,12 @@ class UnifiedWrapUpOrchestrator:
         # If a script type was detected from the header but extension does not
         # match, raise an error to flag potential misclassification.
         if detected != "unknown" and ext not in {
-            ".py", ".pyi", ".pyw", ".pyc", ".sh", ".bash", ".zsh", ".ksh", ".csh",
-            ".tcsh", ".dash", ".ps1", ".psm1", ".bat", ".cmd", ".js", ".rb",
-            ".pl", ".php", ".vbs", ".vbe", ".exe", ".dll", ".jar",
+            ".py", ".pyi", ".pyw", ".pyc", ".pyz", ".whl",
+            ".sh", ".bash", ".zsh", ".ksh", ".csh", ".tcsh", ".dash", ".ps1", ".psm1",
+            ".bat", ".cmd",
+            ".js", ".rb", ".pl", ".php", ".vbs", ".vbe",
+            ".exe", ".dll", ".so", ".dylib", ".msi", ".apk", ".com",
+            ".jar", ".war", ".class",
             ".go", ".rs", ".c", ".cpp", ".cc", ".cxx", ".h", ".hpp", ".java", ".cs",
         }:
             raise ValueError(f"File extension {ext} does not match detected script type {detected}")
