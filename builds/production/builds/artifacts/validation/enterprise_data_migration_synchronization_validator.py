@@ -53,8 +53,12 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        db_path = self.workspace_path / "databases" / "production.db"
+        if db_path.exists():
+            self.logger.info(f"{TEXT_INDICATORS['info']} Found database: {db_path}")
+            return True
+        self.logger.error(f"{TEXT_INDICATORS['error']} Missing database: {db_path}")
+        return False
 
 
 def main():
