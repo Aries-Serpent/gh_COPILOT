@@ -649,6 +649,14 @@ class UnifiedWrapUpOrchestrator:
                 detected = "perl"
             elif "php" in first_line:
                 detected = "php"
+            elif "go" in first_line:
+                detected = "go"
+            elif "rust" in first_line:
+                detected = "rust"
+            elif "csharp" in first_line or "dotnet" in first_line:
+                detected = "csharp"
+            elif "java" in first_line:
+                detected = "java"
             else:
                 detected = "unknown"
         else:
@@ -677,6 +685,16 @@ class UnifiedWrapUpOrchestrator:
                 ".exe": "binary",
                 ".dll": "binary",
                 ".jar": "java",
+                ".go": "go",
+                ".rs": "rust",
+                ".c": "c",
+                ".h": "c_header",
+                ".cpp": "cpp",
+                ".cc": "cpp",
+                ".cxx": "cpp",
+                ".hpp": "cpp_header",
+                ".java": "java",
+                ".cs": "csharp",
             }.get(ext, "unknown")
 
         # If a script type was detected from the header but extension does not
@@ -685,6 +703,7 @@ class UnifiedWrapUpOrchestrator:
             ".py", ".pyi", ".pyw", ".pyc", ".sh", ".bash", ".zsh", ".ksh", ".csh",
             ".tcsh", ".dash", ".ps1", ".psm1", ".bat", ".cmd", ".js", ".rb",
             ".pl", ".php", ".vbs", ".vbe", ".exe", ".dll", ".jar",
+            ".go", ".rs", ".c", ".cpp", ".cc", ".cxx", ".h", ".hpp", ".java", ".cs",
         }:
             raise ValueError(f"File extension {ext} does not match detected script type {detected}")
 
