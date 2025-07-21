@@ -4,7 +4,7 @@ Refactored from original session_protocol_validator.py with enhanced modular des
 """
 
 import logging
-from pathlib import Path
+import os
 from typing import Optional
 
 from copilot.common.workspace_utils import get_workspace_path
@@ -21,7 +21,15 @@ TEXT_INDICATORS = {
 
 
 class SessionProtocolValidator(BaseValidator):
-    """Enhanced session protocol validator with comprehensive workspace checking"""
+    """Enhanced session protocol validator.
+
+    Checks include:
+    - workspace integrity and zero-byte files
+    - session cleanup and permissions
+    - credential sanitization
+    - session timeout enforcement
+    - secure connection requirements
+    """
 
     def __init__(self, workspace_path: Optional[str] = None):
         super().__init__("Session Protocol Validator")
@@ -150,6 +158,65 @@ class SessionProtocolValidator(BaseValidator):
                 errors=[str(e)]
             )
 
+    def validate_credential_sanitization(self) -> ValidationResult:
+        """Check for sensitive credentials in environment variables."""
+        sensitive_keys = [
+            k for k in os.environ
+            if any(sub in k.lower() for sub in ["password", "secret", "token"])
+        ]
+        leaked = {k: os.environ[k] for k in sensitive_keys if os.environ.get(k)}
+
+        if leaked:
+            return ValidationResult(
+                status=ValidationStatus.FAILED,
+                message="Sensitive credentials detected",
+                errors=[f"{k} present" for k in leaked],
+                details=leaked,
+            )
+
+        return ValidationResult(
+            status=ValidationStatus.PASSED,
+            message="Credential sanitization passed",
+        )
+
+    def validate_session_timeout(self) -> ValidationResult:
+        """Ensure SESSION_TIMEOUT <= 24 hours."""
+        timeout = os.getenv("SESSION_TIMEOUT")
+        try:
+            hours = float(timeout) if timeout else 1.0
+        except ValueError:
+            return ValidationResult(
+                status=ValidationStatus.ERROR,
+                message="Invalid SESSION_TIMEOUT",
+                errors=[f"value: {timeout}"],
+            )
+
+        if hours > 24:
+            return ValidationResult(
+                status=ValidationStatus.FAILED,
+                message="Session timeout exceeds limit",
+                details={"timeout_hours": hours},
+            )
+
+        return ValidationResult(
+            status=ValidationStatus.PASSED,
+            message="Session timeout within limits",
+            details={"timeout_hours": hours},
+        )
+
+    def validate_secure_connection(self) -> ValidationResult:
+        """Require HTTPS for secure sessions."""
+        use_https = os.getenv("USE_HTTPS", "1") == "1"
+        if not use_https:
+            return ValidationResult(
+                status=ValidationStatus.FAILED,
+                message="HTTPS is required",
+            )
+        return ValidationResult(
+            status=ValidationStatus.PASSED,
+            message="Secure connection enforced",
+        )
+
     def validate_comprehensive_session(self) -> ValidationResult:
         """Run comprehensive session validation"""
         validators = [
@@ -158,15 +225,25 @@ class SessionProtocolValidator(BaseValidator):
         
         # Create composite validator for comprehensive check
         from ..core.validators import CompositeValidator
-        composite = CompositeValidator("comprehensive_session", validators)
+        CompositeValidator("comprehensive_session", validators)
         
         # Add additional checks
         startup_result = self.validate_startup()
         cleanup_result = self.validate_session_cleanup()
         permission_result = self.validate_session_permissions()
+        credential_result = self.validate_credential_sanitization()
+        timeout_result = self.validate_session_timeout()
+        secure_result = self.validate_secure_connection()
         
         # Aggregate results
-        all_results = [startup_result, cleanup_result, permission_result]
+        all_results = [
+            startup_result,
+            cleanup_result,
+            permission_result,
+            credential_result,
+            timeout_result,
+            secure_result,
+        ]
         errors = []
         warnings = []
         details = {}
@@ -184,8 +261,8 @@ class SessionProtocolValidator(BaseValidator):
             status = ValidationStatus.FAILED
             message = f"Comprehensive session validation failed: {failed_count} checks failed"
         elif warning_count > 0:
-            status = ValidationStatus.WARNING  
-            message = f"Comprehensive session validation passed with warnings"
+            status = ValidationStatus.WARNING
+            message = "Comprehensive session validation passed with warnings"
         else:
             status = ValidationStatus.PASSED
             message = "Comprehensive session validation passed"

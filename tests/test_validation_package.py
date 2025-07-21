@@ -2,16 +2,14 @@
 Tests for the validation package.
 """
 
-import pytest
 import tempfile
 import json
 import sqlite3
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 from validation.core.validators import BaseValidator, ValidationResult, ValidationStatus, CompositeValidator
 from validation.core.rules import (
-    ValidationRule, FileExistsRule, NoZeroByteFilesRule, 
+    FileExistsRule, NoZeroByteFilesRule,
     DatabaseIntegrityRule, JsonValidRule, ThresholdRule, RuleBasedValidator
 )
 from validation.protocols.session import SessionProtocolValidator
@@ -267,6 +265,24 @@ class TestSessionProtocolValidator:
             assert result.is_success
             assert result.details['write_permission'] is True
             assert result.details['read_permission'] is True
+
+    def test_validate_credential_sanitization(self, monkeypatch):
+        monkeypatch.setenv("MY_PASSWORD", "secret")
+        validator = SessionProtocolValidator()
+        result = validator.validate_credential_sanitization()
+        assert result.is_failure
+
+    def test_validate_session_timeout(self, monkeypatch):
+        monkeypatch.setenv("SESSION_TIMEOUT", "30")
+        validator = SessionProtocolValidator()
+        result = validator.validate_session_timeout()
+        assert result.is_failure
+
+    def test_validate_secure_connection(self, monkeypatch):
+        monkeypatch.setenv("USE_HTTPS", "0")
+        validator = SessionProtocolValidator()
+        result = validator.validate_secure_connection()
+        assert result.is_failure
 
 
 class TestDeploymentValidator:
