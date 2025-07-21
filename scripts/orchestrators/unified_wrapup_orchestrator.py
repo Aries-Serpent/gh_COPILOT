@@ -56,7 +56,10 @@ class WrapUpResult:
     error_details: List[str] = field(default_factory=list)
 
     def __post_init__(self):
-        pass
+        if self.end_time is not None and self.end_time < self.start_time:
+            raise ValueError("end_time cannot be earlier than start_time")
+        if not 0.0 <= self.compliance_score <= 100.0:
+            raise ValueError("compliance_score must be between 0 and 100")
 
 
 class UnifiedWrapUpOrchestrator:
