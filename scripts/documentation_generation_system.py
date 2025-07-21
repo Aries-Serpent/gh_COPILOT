@@ -9,6 +9,7 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 import sys
+import os
 
 import logging
 import os
@@ -67,9 +68,7 @@ class EnterpriseUtility:
     def perform_utility_function(self) -> bool:
         """Generate documentation files from the documentation database."""
         db_path = self.workspace_path / "archives" / "documentation.db"
-        output_dir = (
-            self.workspace_path / "documentation" / "generated" / "templates"
-        )
+        output_dir = self.workspace_path / "documentation" / "generated" / "templates"
         try:
             if not db_path.exists():
                 self.logger.error(
@@ -88,8 +87,7 @@ class EnterpriseUtility:
             with sqlite3.connect(db_path) as conn:
                 cur = conn.cursor()
                 cur.execute(
-                    "SELECT template_name, template_content FROM documentation_templates "
-                    "WHERE enterprise_compliant=1"
+                    "SELECT template_name, template_content FROM documentation_templates WHERE enterprise_compliant=1"
                 )
                 rows = cur.fetchall()
 
