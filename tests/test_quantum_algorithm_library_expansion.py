@@ -41,5 +41,5 @@ def test_demo_variational_quantum_eigensolver():
 
 
 def test_demo_quantum_phase_estimation():
-    estimate = demo_quantum_phase_estimation(0.3)
-    assert isinstance(estimate, float)
+    estimate = demo_quantum_phase_estimation(0.3, precision=3)
+    assert abs(estimate - 0.3) <= 0.125
