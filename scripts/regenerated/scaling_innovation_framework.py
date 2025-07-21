@@ -53,9 +53,38 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Gather basic statistics from the production database."""
+        db_path = self.workspace_path / "databases" / "production.db"
+        try:
+            if not db_path.exists():
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Database not found: {db_path}"
+                )
+                return False
+
+            import sqlite3
+            from tqdm import tqdm
+
+            with sqlite3.connect(db_path) as conn:
+                cur = conn.cursor()
+                cur.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+                )
+                tables = [row[0] for row in cur.fetchall()]
+
+                for table in tqdm(tables, desc="Counting", unit="table"):
+                    cur.execute(f"SELECT COUNT(*) FROM {table}")
+                    count = cur.fetchone()[0]
+                    self.logger.info(
+                        f"{TEXT_INDICATORS['info']} {table}: {count} rows"
+                    )
+
+            return True
+        except Exception as exc:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Processing failed: {exc}"
+            )
+            return False
 
 
 def main():
