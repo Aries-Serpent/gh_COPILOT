@@ -461,6 +461,7 @@ python scripts/validation/dual_copilot_pattern_tester.py
 - **[DUAL COPILOT Pattern Guide](.github/instructions/DUAL_COPILOT_PATTERN.instructions.md)** - Implementation guide
 - **[Enterprise Context Guide](.github/instructions/ENTERPRISE_CONTEXT.instructions.md)** - System overview
 - **[Instruction Module Index](docs/INSTRUCTION_INDEX.md)** - Complete instruction listing
+- **Quantum Template Placeholder** `docs/quantum_template_placeholder.py` - future template generator
 
 ### **GitHub Copilot Integration**
 The toolkit includes 16 specialized instruction modules for GitHub Copilot integration:

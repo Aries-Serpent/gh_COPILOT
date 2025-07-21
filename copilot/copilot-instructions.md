@@ -180,7 +180,7 @@ class EnterpriseDocumentationManager:
 #### 2. Cross-Database Template Synchronization
 ```python
 def synchronize_templates():
-    """Sync templates across multiple databases with transactional integrity."""
+    """Sync templates across dev, staging and production with rollback."""
     source_dbs = ["development.db", "staging.db", "production.db"]
     try:
         for source in source_dbs:
@@ -196,7 +196,8 @@ def synchronize_templates():
                     except Exception:
                         cur.execute("ROLLBACK")
                         logger.exception(f"Failed to sync {name} from {source}")
-        compliance_check()
+        if not compliance_check():
+            raise RuntimeError("Compliance validation failed")
     except Exception as exc:
         logger.error(f"Synchronization failed: {exc}")
 ```

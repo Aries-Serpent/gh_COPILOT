@@ -74,3 +74,19 @@ def test_get_cluster_representatives(tmp_path):
     reps = generator.get_cluster_representatives()
     assert len(reps) == generator.cluster_model.n_clusters
     assert all(r in generator.templates or r in generator.patterns for r in reps)
+
+
+def test_objective_similarity(tmp_path):
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    generator = TemplateAutoGenerator(analytics_db, completion_db)
+    template = generator.templates[0]
+    score = generator.objective_similarity(template, template)
+    assert score > 0.9
+
+
+def test_select_best_template(tmp_path):
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    generator = TemplateAutoGenerator(analytics_db, completion_db)
+    target = generator.templates[0]
+    best = generator.select_best_template(target)
+    assert best == target
