@@ -55,6 +55,8 @@ The library now includes reference implementations for:
 4. Variational Quantum Eigensolver
 5. Quantum Phase Estimation
 6. Quantum teleportation
+All algorithms leverage Qiskit's simulator backend for reproducible results in
+test environments.
 
 ---
 *Quantum Documentation Suite - Enterprise Grade*

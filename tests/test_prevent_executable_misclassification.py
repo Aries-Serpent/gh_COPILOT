@@ -43,6 +43,13 @@ def test_classify_batch(tmp_path: Path) -> None:
     assert orchestrator.prevent_executable_misclassification(path) == "batch"
 
 
+def test_classify_psm1(tmp_path: Path) -> None:
+    path = tmp_path / "module.psm1"
+    path.write_text("Write-Host hello")
+    orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(tmp_path))
+    assert orchestrator.prevent_executable_misclassification(path) == "shell"
+
+
 def test_detect_pyc(tmp_path: Path) -> None:
     path = tmp_path / "module.pyc"
     with open(path, "wb") as f:
