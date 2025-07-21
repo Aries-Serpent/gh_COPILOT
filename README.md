@@ -531,3 +531,7 @@ Planned highlights include:
    healing recommendations.
 3. **Compliance Framework Evolution** – stricter session validation and
    enterprise audit logging improvements.
+4. **Reporting Enhancements** – standardized text report output alongside
+   JSON and Markdown formats.
+5. **Improved Script Classification** – broader file-type detection to prevent
+   misclassification of non-executable files.
