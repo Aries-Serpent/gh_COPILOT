@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
@@ -31,8 +32,14 @@ def _validate_template(name: str, content: str) -> bool:
     return bool(name and content and content.strip())
 
 
-def synchronize_templates(source_dbs: Iterable[Path] | None = None) -> int:
-    """Synchronize templates across multiple databases with transactional integrity."""
+def synchronize_templates(
+    source_dbs: Iterable[Path] | None = None,
+    analytics_db: Path | None = Path("analytics.db"),
+) -> int:
+    """Synchronize templates across multiple databases with transactional integrity.
+
+    Each synchronized template is logged to ``analytics_db`` with a timestamp and source.
+    """
     databases = list(source_dbs) if source_dbs else DEFAULT_DATABASES
     all_templates: dict[str, str] = {}
 
@@ -64,7 +71,26 @@ def synchronize_templates(source_dbs: Iterable[Path] | None = None) -> int:
                     logger.error("Failed to synchronize %s: %s", db, exc)
         except sqlite3.Error as exc:
             logger.error("Database error %s: %s", db, exc)
+    if analytics_db:
+        _log_sync_events(Path(analytics_db), all_templates.keys())
     return synced
+
+
+def _log_sync_events(db: Path, names: Iterable[str]) -> None:
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS templates_sync_log (timestamp TEXT, source TEXT)"
+        )
+        entries = [
+            (datetime.utcnow().isoformat(), name)
+            for name in names
+        ]
+        conn.executemany(
+            "INSERT INTO templates_sync_log (timestamp, source) VALUES (?, ?)",
+            entries,
+        )
+        conn.commit()
+    logger.info("Logged %d template sync events", len(entries))
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
