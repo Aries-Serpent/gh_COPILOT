@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 UnifiedMonitoringOptimizationSystem - Enterprise Utility Script
-Generated: 2025-07-10 18:10:23
+Generated: 2025-07-21 20:27:40 | Author: mbaetiong
 
 Enterprise Standards Compliance:
 - Flake8/PEP 8 Compliant
@@ -25,7 +25,7 @@ TEXT_INDICATORS = {
 
 
 class EnterpriseUtility:
-    """Enterprise utility class"""
+    """Enterprise utility class for monitoring and optimization."""
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
@@ -33,18 +33,18 @@ class EnterpriseUtility:
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
-        """Execute utility function"""
+        """Executes the utility function with monitoring, logging, and compliance."""
         start_time = datetime.now()
         self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
-            # Utility implementation
             success = self.perform_utility_function()
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
                 self.logger.info(
-    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s"
+                )
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -55,9 +55,15 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
+        """
+        Perform the utility function:
+        - Record monitoring event in the DB.
+        - Ensure table exists.
+        - Log all actions and errors.
+        """
         self.logger.info(f"{TEXT_INDICATORS['info']} Recording monitoring event")
         try:
+            self.db_path.parent.mkdir(exist_ok=True, parents=True)
             with sqlite3.connect(self.db_path) as conn:
                 cur = conn.cursor()
                 cur.execute(
@@ -75,8 +81,9 @@ class EnterpriseUtility:
             return False
 
 
-def main():
-    """Main execution function"""
+def main() -> bool:
+    """Main execution function."""
+    logging.basicConfig(level=logging.INFO)
     utility = EnterpriseUtility()
     success = utility.execute_utility()
 
@@ -88,7 +95,5 @@ def main():
     return success
 
 if __name__ == "__main__":
-
-
     success = main()
     sys.exit(0 if success else 1)

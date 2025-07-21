@@ -11,6 +11,7 @@ Enterprise Standards Compliance:
 import logging
 import sys
 from datetime import datetime
+import sqlite3
 from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
@@ -53,8 +54,17 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+                db_path = self.workspace_path / 'databases' / 'production.db'
+        try:
+            with sqlite3.connect(db_path) as conn:
+                cur = conn.cursor()
+                cur.execute('SELECT 1')
+                result = cur.fetchone()[0]
+                self.logger.info(f"{TEXT_INDICATORS['info']} DB check result: {result}")
+            return True
+        except sqlite3.Error as e:
+            self.logger.error(f"{TEXT_INDICATORS['error']} DB check failed: {e}")
+            return False
 
 
 def main():

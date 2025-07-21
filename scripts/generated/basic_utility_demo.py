@@ -1,12 +1,9 @@
-#!/usr/bin/env python3
-
-"""Basic utility demo script."""
-
+import logging
 
 def main() -> None:
-    """Main function"""
-    print("Basic utility demo executed")
-
+    """Run the basic utility demo."""
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Basic utility demo executed")
 
 if __name__ == "__main__":
     main()
