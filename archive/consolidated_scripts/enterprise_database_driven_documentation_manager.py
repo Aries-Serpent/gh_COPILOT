@@ -11,6 +11,7 @@ Enterprise Standards Compliance:
 
 import sqlite3
 import logging
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -58,10 +59,29 @@ class EnterpriseDatabaseProcessor:
     def process_operations(self, cursor) -> bool:
         """Process database operations"""
         try:
-            # Implementation for database operations
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='enterprise_documentation'"
+            )
+            if not cursor.fetchone():
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Missing enterprise_documentation table"
+                )
+                return False
+
+            cursor.execute(
+                "SELECT title, COUNT(*) FROM enterprise_documentation GROUP BY title"
+            )
+            summaries = cursor.fetchall()
+            for title, count in summaries:
+                self.logger.info(
+                    f"{TEXT_INDICATORS['info']} {title}: {count} versions"
+                )
+
             return True
         except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Operation failed: {e}"
+            )
             return False
 
 
