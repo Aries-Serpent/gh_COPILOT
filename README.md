@@ -515,6 +515,10 @@ python web_gui/scripts/flask_apps/enterprise_dashboard.py
 
 # DUAL COPILOT validation
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
+
+# Placeholder audit
+python scripts/intelligent_code_analysis_placeholder_detection.py \
+    --workspace $GH_COPILOT_WORKSPACE --db analytics.db
 ```
 
 ### **Contact & Support**

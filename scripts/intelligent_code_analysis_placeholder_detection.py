@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import sys
 
 import logging
@@ -18,17 +19,19 @@ from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
+    "start": "[START]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "info": "[INFO]",
 }
 
 
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT", db_path: str = "analytics.db"):
+    def __init__(
+        self, workspace_path: str = "e:/gh_COPILOT", db_path: str = "analytics.db"
+    ):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
         self.db_path = Path(db_path)
@@ -45,7 +48,8 @@ class EnterpriseUtility:
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
                 self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s"
+                )
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -56,41 +60,44 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
+        """Scan all Python files in the workspace for placeholders."""
         try:
-            target_file = self.workspace_path / "scripts" / "comprehensive_production_deployer.py"
-            if not target_file.exists():
+            if not self.workspace_path.exists():
                 self.logger.error(
-                    f"{TEXT_INDICATORS['error']} Target file not found: {target_file}"
+                    f"{TEXT_INDICATORS['error']} Workspace not found: {self.workspace_path}"
                 )
                 return False
 
-            with open(target_file, "r", encoding="utf-8") as f:
-                text = f.read()
+            patterns = [
+                r"TODO",
+                r"FIXME",
+                r"pass\b",
+                r"NotImplementedError",
+                r"placeholder",
+            ]
+            placeholder_found = False
+            for py_file in self.workspace_path.rglob("*.py"):
+                try:
+                    text = py_file.read_text(encoding="utf-8")
+                except OSError:
+                    continue
+                for pat in patterns:
+                    for match in re.finditer(pat, text):
+                        self._log_issue(str(py_file), pat, match.start())
+                        placeholder_found = True
 
-            patterns = [r"TODO", r"FIXME", r"pass\b", r"NotImplementedError", r"placeholder"]
-            issues = []
-            for pat in patterns:
-                for m in re.finditer(pat, text):
-                    issues.append((pat, m.start()))
-                    self._log_issue(str(target_file), pat, m.start())
-
-            if issues:
+            if placeholder_found:
                 self.logger.warning(
-                    f"{TEXT_INDICATORS['info']} Placeholders detected in {target_file}"
+                    f"{TEXT_INDICATORS['info']} Placeholders detected within {self.workspace_path}"
                 )
-                for pat, pos in issues:
-                    self.logger.warning(f" - {pat} at {pos}")
                 return False
 
             self.logger.info(
-                f"{TEXT_INDICATORS['success']} No placeholders found in {target_file}"
+                f"{TEXT_INDICATORS['success']} No placeholders found in workspace"
             )
             return True
         except Exception as exc:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Analysis failed: {exc}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Analysis failed: {exc}")
             return False
 
     # ------------------------------------------------------------------
@@ -129,6 +136,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)
