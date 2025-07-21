@@ -41,6 +41,10 @@ def test_create_templates(tmp_path):
             "SELECT COUNT(*) FROM template_generation_stats"
         ).fetchone()[0]
     assert count == len(templates)
+    recorded = conn.execute(
+        "SELECT COUNT(*) FROM generated_templates"
+    ).fetchone()[0]
+    assert recorded == len(templates)
 
 
 def test_regenerate_templates(tmp_path):

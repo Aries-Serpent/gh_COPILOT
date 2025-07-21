@@ -3,7 +3,7 @@ from scripts.documentation_generation_system import EnterpriseUtility
 
 
 def test_generation_system(tmp_path, monkeypatch):
-    db_dir = tmp_path / "archives"
+    db_dir = tmp_path / "databases"
     db_dir.mkdir()
     db_path = db_dir / "documentation.db"
     with sqlite3.connect(db_path) as conn:

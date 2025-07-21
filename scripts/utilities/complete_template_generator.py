@@ -46,6 +46,7 @@ class CompleteTemplateGenerator:
         self.production_db = production_db
         self.generator = TemplateAutoGenerator(analytics_db, completion_db)
         self._ensure_stats_table()
+        self._ensure_generated_table()
 
     # ------------------------------------------------------------------
     def _ensure_stats_table(self) -> None:
@@ -57,6 +58,22 @@ class CompleteTemplateGenerator:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     cluster_id INTEGER NOT NULL,
                     template_length INTEGER NOT NULL,
+                    generated_at TEXT NOT NULL
+                )
+                """
+            )
+            conn.commit()
+
+    # ------------------------------------------------------------------
+    def _ensure_generated_table(self) -> None:
+        """Create generated templates table if needed."""
+        with sqlite3.connect(self.production_db) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS generated_templates (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    template_id TEXT NOT NULL,
+                    template_content TEXT NOT NULL,
                     generated_at TEXT NOT NULL
                 )
                 """
@@ -90,6 +107,7 @@ class CompleteTemplateGenerator:
 
         with sqlite3.connect(self.production_db) as conn:
             data_to_insert = []
+            generated_records = []
             with tqdm(total=clusters.n_clusters, \
                 desc=f"{TEXT_INDICATORS['progress']} create") as bar:
                 for cluster_id in range(clusters.n_clusters):
@@ -103,12 +121,20 @@ class CompleteTemplateGenerator:
                         templates.append(candidate)
                         timestamp = datetime.utcnow().isoformat()
                         data_to_insert.append((cluster_id, len(candidate), timestamp))
+                        template_id = f"cluster_{cluster_id}_{len(candidate)}"
+                        generated_records.append((template_id, candidate, timestamp))
                     bar.update(1)
             if data_to_insert:
                 conn.executemany(
                     "INSERT INTO template_generation_stats"
                     " (cluster_id, template_length, generated_at) VALUES (?, ?, ?)",
                     data_to_insert,
+                )
+            if generated_records:
+                conn.executemany(
+                    "INSERT INTO generated_templates"
+                    " (template_id, template_content, generated_at) VALUES (?, ?, ?)",
+                    generated_records,
                 )
         return templates
 
