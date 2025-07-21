@@ -15,7 +15,7 @@ def create_db(path: Path, templates: dict[str, str]) -> None:
         )
 
 
-def test_synchronize_templates(tmp_path: Path) -> None:
+def test_synchronize_templates(tmp_path: Path, monkeypatch) -> None:
     db_a = tmp_path / "a.db"
     db_b = tmp_path / "b.db"
     analytics_db = tmp_path / "analytics.db"
@@ -26,13 +26,16 @@ def test_synchronize_templates(tmp_path: Path) -> None:
         with sqlite3.connect(db) as conn:
             rows = conn.execute("SELECT name, template_content FROM templates ORDER BY name").fetchall()
             assert rows == [("t1", "foo"), ("t2", "bar")]
+    with sqlite3.connect(tmp_path / "analytics.db") as conn:
+        result = conn.execute("SELECT result FROM template_sync_log ORDER BY timestamp DESC LIMIT 1").fetchone()[0]
+        assert result == "success"
 
     with sqlite3.connect(analytics_db) as conn:
         count = conn.execute("SELECT COUNT(*) FROM templates_sync_log").fetchone()[0]
         assert count == 2
 
 
-def test_invalid_templates_ignored(tmp_path: Path) -> None:
+def test_invalid_templates_rollback(tmp_path: Path, monkeypatch) -> None:
     db_a = tmp_path / "a.db"
     db_b = tmp_path / "b.db"
     analytics_db = tmp_path / "analytics.db"

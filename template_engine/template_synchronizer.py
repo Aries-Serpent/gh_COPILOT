@@ -2,12 +2,16 @@ from __future__ import annotations
 # pyright: reportMissingModuleSource=false
 
 import logging
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
 from tqdm import tqdm
+
+WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+ANALYTICS_DB = WORKSPACE_ROOT / "analytics.db"
 
 logger = logging.getLogger(__name__)
 
@@ -64,12 +68,18 @@ def synchronize_templates(
                             "INSERT OR REPLACE INTO templates (name, template_content) VALUES (?, ?)",
                             (name, content),
                         )
+                    if not _compliance_check(conn):
+                        raise RuntimeError("validation failed")
                     conn.commit()
                     synced += 1
+                    _log_result(db, "success")
                 except sqlite3.Error as exc:
                     conn.rollback()
+                    _log_result(db, "failed")
                     logger.error("Failed to synchronize %s: %s", db, exc)
+                    raise
         except sqlite3.Error as exc:
+            _log_result(db, "failed")
             logger.error("Database error %s: %s", db, exc)
     if analytics_db:
         _log_sync_events(Path(analytics_db), all_templates.keys())
