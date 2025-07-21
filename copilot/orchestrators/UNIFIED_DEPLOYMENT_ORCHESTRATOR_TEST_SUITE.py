@@ -11,6 +11,7 @@ Enterprise Standards Compliance:
 import logging
 import os
 import sys
+import sqlite3
 from datetime import datetime
 from pathlib import Path
 
@@ -54,8 +55,27 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        db_path = self.workspace_path / "databases" / "production.db"
+        if not db_path.exists():
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} Database not found: {db_path}"
+            )
+            return True
+
+        try:
+            with sqlite3.connect(db_path) as conn:
+                cur = conn.cursor()
+                cur.execute("SELECT COUNT(*) FROM code_templates")
+                count = cur.fetchone()[0]
+                self.logger.info(
+                    f"{TEXT_INDICATORS['info']} Template count: {count}"
+                )
+            return True
+        except sqlite3.Error as e:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Database error: {e}"
+            )
+            return False
 
 
 def main():
