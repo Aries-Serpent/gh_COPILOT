@@ -40,6 +40,7 @@ def test_generate_text_report(tmp_path):
     assert "a: 1" in text
 
 
+
 def test_detect_zero_byte_files(tmp_path):
     z = tmp_path / "z.txt"
     z.touch()

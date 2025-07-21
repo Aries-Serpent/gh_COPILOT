@@ -54,13 +54,19 @@ def demo_shor_factorization(n: int = 15) -> List[int]:
     return [n, 1]
 
 
-def demo_quantum_teleportation(state: Iterable[complex] | None = None) -> List[List[complex]]:
+def demo_quantum_teleportation(
+    state: Iterable[complex] | None = None,
+) -> List[List[complex]]:
     """Teleport ``state`` (default Bell) and return the resulting density matrix."""
     if state is None:
         state = [1 / np.sqrt(2), 1 / np.sqrt(2)]
     alpha, beta = list(state)
-    rho = np.array([[abs(alpha) ** 2, alpha * np.conjugate(beta)],
-                    [np.conjugate(alpha) * beta, abs(beta) ** 2]])
+    rho = np.array(
+        [
+            [abs(alpha) ** 2, alpha * np.conjugate(beta)],
+            [np.conjugate(alpha) * beta, abs(beta) ** 2],
+        ]
+    )
     return rho.tolist()
 
 
@@ -82,7 +88,8 @@ def demo_variational_quantum_eigensolver(steps: int = 20, lr: float = 0.1) -> di
     return {"theta": float(theta), "energy": float(energy)}
 
 
-def demo_quantum_phase_estimation(theta: float = 0.25) -> float:
-    """Return an estimate of ``theta`` from a simulated phase estimation."""
-    return round(float(theta), 2)
-
+def demo_quantum_phase_estimation(theta: float = 0.25, precision: int = 3) -> float:
+    """Estimate ``theta`` using a simple rounding-based simulation."""
+    factor = 2**precision
+    estimate = round(theta * factor) / factor
+    return float(estimate)
