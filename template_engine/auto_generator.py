@@ -52,7 +52,7 @@ class TemplateAutoGenerator:
 
     # ------------------------------------------------------------------
     def _create_cluster_model(self) -> Optional[KMeans]:
-        data = self.templates or self.patterns
+        data = self.patterns + self.templates
         if not data:
             return None
         vectorizer = TfidfVectorizer()
@@ -83,8 +83,7 @@ class TemplateAutoGenerator:
         return data[index]
 
     def get_cluster_representatives(self) -> List[str]:
-        """Return the template closest to each cluster centroid."""
-        data = self.templates or self.patterns
+        data = self.patterns + self.templates
         if not data or not self.cluster_model:
             return []
         reps = []

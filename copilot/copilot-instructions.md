@@ -192,6 +192,7 @@ def synchronize_templates():
                         cur.execute("BEGIN")
                         sync_template_across_databases(name, content)
                         cur.execute("COMMIT")
+                        audit_log(name, source)
                         logger.info(f"Synced {name} from {source}")
                     except Exception:
                         cur.execute("ROLLBACK")
@@ -200,6 +201,9 @@ def synchronize_templates():
             raise RuntimeError("Compliance validation failed")
     except Exception as exc:
         logger.error(f"Synchronization failed: {exc}")
+        raise
+    finally:
+        logger.info("Template synchronization complete")
 ```
 
 #### 3. Enterprise Build Management
