@@ -33,7 +33,7 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 
 ## 3. Documentation Generation
 - Documentation patterns are stored in `documentation.db`.
-- Render Markdown files from these entries and record the generation event.
+- Use `scripts/documentation/enterprise_documentation_manager.py` to render Markdown files from these entries and record the generation event.
 
 ## 4. Synchronization
 - Run `template_engine.template_synchronizer.synchronize_templates()` to ensure
