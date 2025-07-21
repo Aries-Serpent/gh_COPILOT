@@ -60,7 +60,7 @@
   - Component dependency mapping
   - Modularization recommendations
   - Database-driven script organization patterns
-  - `prevent_executable_misclassification()` inspects headers and magic numbers to ensure Python, shell, and batch scripts are correctly recognized and flagged when extensions lie
+  - `prevent_executable_misclassification()` inspects headers and magic numbers to ensure Python, shell, batch, JavaScript, Ruby, Perl and PHP scripts are correctly recognized. It raises an error when a shebang does not match the file extension, preventing misclassified text files from executing.
 
 ---
 
