@@ -11,6 +11,8 @@ Enterprise Standards Compliance:
 import sys
 
 import logging
+import sqlite3
+import re
 from pathlib import Path
 from datetime import datetime
 
@@ -26,9 +28,10 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = "e:/gh_COPILOT", db_path: str = "analytics.db"):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
+        self.db_path = Path(db_path)
 
     def execute_utility(self) -> bool:
         """Execute utility function"""
@@ -70,6 +73,7 @@ class EnterpriseUtility:
             for pat in patterns:
                 for m in re.finditer(pat, text):
                     issues.append((pat, m.start()))
+                    self._log_issue(str(target_file), pat, m.start())
 
             if issues:
                 self.logger.warning(
@@ -88,6 +92,27 @@ class EnterpriseUtility:
                 f"{TEXT_INDICATORS['error']} Analysis failed: {exc}"
             )
             return False
+
+    # ------------------------------------------------------------------
+    def _log_issue(self, file_path: str, pattern: str, position: int) -> None:
+        """Record placeholder details to analytics.db."""
+        if not self.db_path.parent.exists():
+            return
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS placeholder_audit ("
+                    "id INTEGER PRIMARY KEY, file_path TEXT, pattern TEXT, "
+                    "position INTEGER, ts TEXT)"
+                )
+                conn.execute(
+                    "INSERT INTO placeholder_audit (file_path, pattern, position, ts) "
+                    "VALUES (?, ?, ?, ?)",
+                    (file_path, pattern, position, datetime.now().isoformat()),
+                )
+                conn.commit()
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} DB log failed: {exc}")
 
 
 def main():
