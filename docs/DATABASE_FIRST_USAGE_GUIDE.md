@@ -43,6 +43,7 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 ## 5. Compliance & Correction
 - All generation actions must be logged for compliance review.
 - When corrections occur, update `analytics.db:correction_patterns` for future reference.
+- Placeholder detection results are written to `analytics.db:placeholder_audit`.
 - Script generation events are recorded in `production.db:enhanced_script_tracking` with the
   template version and a computed compliance score.
 - The `EnterpriseComplianceValidator` verifies that every generated script comes from an approved
