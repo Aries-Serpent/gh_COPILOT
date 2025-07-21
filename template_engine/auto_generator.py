@@ -58,7 +58,7 @@ class TemplateAutoGenerator:
         vectorizer = TfidfVectorizer()
         matrix = vectorizer.fit_transform(data)
         n_clusters = min(len(data), 2)
-        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+        model = KMeans(n_clusters=n_clusters, n_init=10, random_state=0)
         model.fit(matrix)
         self._vectorizer = vectorizer
         self._matrix = matrix
