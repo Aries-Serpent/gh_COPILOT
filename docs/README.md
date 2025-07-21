@@ -35,3 +35,13 @@ Consult [DATABASE_QUERY_GUIDE.md](DATABASE_QUERY_GUIDE.md) for examples on query
 The `template_engine.auto_generator` module clusters stored patterns using KMeans and can return representative templates for automation tasks.
 
 For validation details see [validation/Database_First_Validation.md](validation/Database_First_Validation.md). Copilot-specific notes are available under [.github/docs/Database_First_Copilot.md](../.github/docs/Database_First_Copilot.md).
+
+## Quantum Template Generation
+
+The `docs/quantum_template_placeholder.py` script demonstrates how future
+documentation templates will be generated with help from the quantum modules.
+It currently queries `production.db` for representative templates using the
+`TemplateAutoGenerator` class and prints them. When quantum components are
+enabled, the script will rank candidate templates through a `QuantumExecutor`.
+Run the script with `python docs/quantum_template_placeholder.py` to preview the
+placeholder functionality.

@@ -9,6 +9,7 @@ from typing import List, Optional
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 DEFAULT_ANALYTICS_DB = Path("analytics.db")
 DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
@@ -62,6 +63,24 @@ class TemplateAutoGenerator:
         self._vectorizer = vectorizer
         self._matrix = matrix
         return model
+
+    def objective_similarity(self, template: str, objective: str) -> float:
+        """Return cosine similarity between template and objective text."""
+        if not hasattr(self, "_vectorizer"):
+            vec = TfidfVectorizer().fit_transform([template, objective])
+        else:
+            vec = self._vectorizer.transform([template, objective])
+        score = cosine_similarity(vec[0], vec[1])[0, 0]
+        return float(score)
+
+    def select_best_template(self, objective: str) -> str:
+        """Select the template most similar to the objective."""
+        data = self.templates or self.patterns
+        if not data:
+            return ""
+        scores = [self.objective_similarity(t, objective) for t in data]
+        index = int(np.argmax(scores))
+        return data[index]
 
     def get_cluster_representatives(self) -> List[str]:
         data = self.patterns + self.templates

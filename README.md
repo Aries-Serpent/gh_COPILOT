@@ -128,6 +128,13 @@ python simplified_quantum_integration_orchestrator.py
 echo "def foo(): pass" | python scripts/template_matcher.py
 ```
 
+### Data Backup Feature
+The toolkit includes an enterprise-grade data backup feature. Set the
+`GH_COPILOT_BACKUP_ROOT` environment variable to an external directory and
+follow the steps in [docs/enterprise_backup_guide.md](docs/enterprise_backup_guide.md)
+to create and manage backups. This variable ensures backups never reside in the
+workspace, maintaining anti-recursion compliance.
+
 ---
 
 ## 🗄️ DATABASE-FIRST ARCHITECTURE
@@ -454,6 +461,7 @@ python scripts/validation/dual_copilot_pattern_tester.py
 - **[DUAL COPILOT Pattern Guide](.github/instructions/DUAL_COPILOT_PATTERN.instructions.md)** - Implementation guide
 - **[Enterprise Context Guide](.github/instructions/ENTERPRISE_CONTEXT.instructions.md)** - System overview
 - **[Instruction Module Index](docs/INSTRUCTION_INDEX.md)** - Complete instruction listing
+- **Quantum Template Placeholder** `docs/quantum_template_placeholder.py` - future template generator
 
 ### **GitHub Copilot Integration**
 The toolkit includes 16 specialized instruction modules for GitHub Copilot integration:
