@@ -78,7 +78,7 @@ class EnterpriseUtility:
             placeholder_found = False
             for py_file in self.workspace_path.rglob("*.py"):
                 try:
-                    text = py_file.read_text(encoding="utf-8")
+                    text = py_file.read_text(encoding="utf-8", errors="ignore")
                 except OSError:
                     continue
                 for pat in patterns:
