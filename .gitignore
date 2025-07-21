@@ -8,3 +8,5 @@ databases/enterprise_assets.db
 .venv/
 __pycache__/
 *.pyc
+target/
+Cargo.lock
