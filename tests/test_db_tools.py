@@ -2,13 +2,11 @@
 Tests for the db_tools package.
 """
 
-import pytest
 import tempfile
 import sqlite3
 from pathlib import Path
 
 from db_tools.core.connection import DatabaseConnection
-from db_tools.core.exceptions import DatabaseConnectionError, DatabaseQueryError
 from db_tools.core.models import DatabaseConfig
 from db_tools.operations.access import DatabaseAccessLayer
 from db_tools.operations.cleanup import DatabaseCleanupProcessor
@@ -135,6 +133,23 @@ class TestDatabaseAccessLayer:
         # Test nonexistent table
         count = access_layer.get_table_row_count('nonexistent')
         assert count == 0
+
+    def test_process_operations_stats(self):
+        """Table statistics collected correctly"""
+        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as f:
+            db_path = f.name
+
+        with sqlite3.connect(db_path) as conn:
+            conn.execute("CREATE TABLE a (id INTEGER)")
+            conn.execute("INSERT INTO a VALUES (1)")
+            conn.execute("CREATE TABLE b (name TEXT)")
+            conn.execute("INSERT INTO b VALUES ('x')")
+            conn.commit()
+
+        access_layer = DatabaseAccessLayer(db_path)
+        assert access_layer.process_operations() is True
+        assert access_layer.table_stats["a"] == 1
+        assert access_layer.table_stats["b"] == 1
 
 
 class TestQueryBuilder:
