@@ -33,3 +33,5 @@ See [DATABASE_FIRST_USAGE_GUIDE.md](DATABASE_FIRST_USAGE_GUIDE.md) for database-
 For upcoming work items, refer to [DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md](DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md).
 Consult [DATABASE_QUERY_GUIDE.md](DATABASE_QUERY_GUIDE.md) for examples on querying the databases before implementing new features.
 The `template_engine.auto_generator` module clusters stored patterns using KMeans and can return representative templates for automation tasks.
+
+For validation details see [validation/Database_First_Validation.md](validation/Database_First_Validation.md). Copilot-specific notes are available under [.github/docs/Database_First_Copilot.md](../.github/docs/Database_First_Copilot.md).
