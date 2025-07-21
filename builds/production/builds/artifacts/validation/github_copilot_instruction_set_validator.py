@@ -10,6 +10,7 @@ Enterprise Standards Compliance:
 """
 
 import logging
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -52,8 +53,26 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
+        """Validate presence of required Copilot instructions."""
+        instructions = self.workspace_path / "copilot" / "copilot-instructions.md"
+        if not instructions.exists():
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Instructions not found: {instructions}"
+            )
+            return False
+
+        content = instructions.read_text(encoding="utf-8").lower()
+        required = ["dual copilot", "visual processing indicators"]
+        missing = [r for r in required if r not in content]
+        if missing:
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Missing keywords: {', '.join(missing)}"
+            )
+            return False
+
+        self.logger.info(
+            f"{TEXT_INDICATORS['success']} Instruction set validated"
+        )
         return True
 
 
