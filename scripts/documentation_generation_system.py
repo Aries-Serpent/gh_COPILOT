@@ -9,6 +9,7 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 import sys
+import os
 
 import logging
 from pathlib import Path
@@ -26,7 +27,9 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str | None = None):
+        if workspace_path is None:
+            workspace_path = os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT")
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
@@ -55,9 +58,7 @@ class EnterpriseUtility:
     def perform_utility_function(self) -> bool:
         """Generate documentation files from the documentation database."""
         db_path = self.workspace_path / "archives" / "documentation.db"
-        output_dir = (
-            self.workspace_path / "documentation" / "generated" / "templates"
-        )
+        output_dir = self.workspace_path / "documentation" / "generated" / "templates"
         try:
             if not db_path.exists():
                 self.logger.error(
@@ -73,15 +74,13 @@ class EnterpriseUtility:
             with sqlite3.connect(db_path) as conn:
                 cur = conn.cursor()
                 cur.execute(
-                    "SELECT template_name, template_content FROM documentation_templates "
-                    "WHERE enterprise_compliant=1"
+                    "SELECT template_name, template_content FROM documentation_templates WHERE enterprise_compliant=1"
                 )
                 rows = cur.fetchall()
 
-            for name, content in tqdm(
-                rows, desc="Rendering", unit="template", disable=len(rows) == 0
-            ):
+            for name, content in tqdm(rows, desc="Rendering", unit="template", disable=len(rows) == 0):
                 (output_dir / f"{name}.md").write_text(content)
+                self.logger.info(f"{TEXT_INDICATORS['info']} Rendered {name}")
 
             self.logger.info(
                 f"{TEXT_INDICATORS['success']} Generated {len(rows)} templates"

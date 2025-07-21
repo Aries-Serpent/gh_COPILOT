@@ -168,29 +168,37 @@ def validate_workspace_integrity():
 ```python
 class EnterpriseDocumentationManager:
     def generate_documentation(self, doc_type: str):
-        # Query existing documentation patterns
+        """Generate documentation with intelligent template selection."""
         existing_docs = self.query_documentation_database(doc_type)
-        
-        # Find relevant templates
         templates = self.discover_templates(doc_type)
-        
-        # Generate using template intelligence
-        content = self.apply_template_intelligence(templates, existing_docs)
-        
-        # Store in database with compliance tracking
-        self.store_documentation(content, compliance_score=self.calculate_compliance())
+        best_template = self.select_optimal_template(templates, existing_docs)
+        content = self.apply_template_intelligence([best_template], existing_docs)
+        compliance = self.calculate_compliance(content)
+        self.store_documentation(content, compliance_score=compliance)
 ```
 
 #### 2. Cross-Database Template Synchronization
 ```python
 def synchronize_templates():
-    """Sync templates across multiple databases"""
-    source_dbs = ['development.db', 'staging.db', 'production.db']
-    
-    for source_db in source_dbs:
-        templates = extract_templates(source_db)
-        for template in templates:
-            sync_template_across_databases(template, source_db)
+    """Sync templates across multiple databases with transactional integrity."""
+    source_dbs = ["development.db", "staging.db", "production.db"]
+    try:
+        for source in source_dbs:
+            templates = extract_templates(source)
+            with sqlite3.connect(source) as conn:
+                cur = conn.cursor()
+                for name, content in templates:
+                    try:
+                        cur.execute("BEGIN")
+                        sync_template_across_databases(name, content)
+                        cur.execute("COMMIT")
+                        logger.info(f"Synced {name} from {source}")
+                    except Exception:
+                        cur.execute("ROLLBACK")
+                        logger.exception(f"Failed to sync {name} from {source}")
+        compliance_check()
+    except Exception as exc:
+        logger.error(f"Synchronization failed: {exc}")
 ```
 
 #### 3. Enterprise Build Management
