@@ -10,6 +10,8 @@ Enterprise Standards Compliance:
 """
 
 import logging
+import sqlite3
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -27,6 +29,7 @@ class EnterpriseUtility:
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
+        self.db_path = self.workspace_path / "databases" / "production.db"
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
@@ -53,8 +56,23 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        self.logger.info(f"{TEXT_INDICATORS['info']} Recording monitoring event")
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cur = conn.cursor()
+                cur.execute(
+                    "CREATE TABLE IF NOT EXISTS monitoring_logs (timestamp TEXT, action TEXT)"
+                )
+                cur.execute(
+                    "INSERT INTO monitoring_logs (timestamp, action) VALUES (?, ?)",
+                    (datetime.utcnow().isoformat(), "utility_executed"),
+                )
+                conn.commit()
+            self.logger.info(f"{TEXT_INDICATORS['success']} Monitoring log recorded")
+            return True
+        except sqlite3.Error as e:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {e}")
+            return False
 
 
 def main():

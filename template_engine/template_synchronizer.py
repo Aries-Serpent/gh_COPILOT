@@ -36,27 +36,14 @@ def _validate_template(name: str, content: str) -> bool:
     return bool(name and content and content.strip())
 
 
-def _log_result(db: Path, result: str) -> None:
-    with sqlite3.connect(ANALYTICS_DB) as conn:
-        conn.execute(
-            "CREATE TABLE IF NOT EXISTS template_sync_log (timestamp DATETIME, source TEXT, result TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO template_sync_log (timestamp, source, result) VALUES (?, ?, ?)",
-            (datetime.now(), str(db), result),
-        )
-        conn.commit()
+def synchronize_templates(
+    source_dbs: Iterable[Path] | None = None,
+    analytics_db: Path | None = Path("analytics.db"),
+) -> int:
+    """Synchronize templates across multiple databases with transactional integrity.
 
-
-def _compliance_check(conn: sqlite3.Connection) -> bool:
-    cur = conn.execute(
-        "SELECT COUNT(*) FROM templates WHERE template_content = '' OR template_content IS NULL"
-    )
-    return cur.fetchone()[0] == 0
-
-
-def synchronize_templates(source_dbs: Iterable[Path] | None = None) -> int:
-    """Synchronize templates across multiple databases with transactional integrity and logging."""
+    Each synchronized template is logged to ``analytics_db`` with a timestamp and source.
+    """
     databases = list(source_dbs) if source_dbs else DEFAULT_DATABASES
     all_templates: dict[str, str] = {}
 
@@ -94,8 +81,26 @@ def synchronize_templates(source_dbs: Iterable[Path] | None = None) -> int:
         except sqlite3.Error as exc:
             _log_result(db, "failed")
             logger.error("Database error %s: %s", db, exc)
-            raise
+    if analytics_db:
+        _log_sync_events(Path(analytics_db), all_templates.keys())
     return synced
+
+
+def _log_sync_events(db: Path, names: Iterable[str]) -> None:
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS templates_sync_log (timestamp TEXT, source TEXT)"
+        )
+        entries = [
+            (datetime.utcnow().isoformat(), name)
+            for name in names
+        ]
+        conn.executemany(
+            "INSERT INTO templates_sync_log (timestamp, source) VALUES (?, ?)",
+            entries,
+        )
+        conn.commit()
+    logger.info("Logged %d template sync events", len(entries))
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
