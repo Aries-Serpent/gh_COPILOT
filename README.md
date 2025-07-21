@@ -254,6 +254,8 @@ TEXT_INDICATORS = {
 - **Anomaly Detection Models:** StandardScaler preprocessing with IsolationForest
 - **Model Persistence:** ML models are serialized to `models/autonomous/`
 - **Continuous Monitoring:** 24/7 system health tracking
+- **Data-Driven Metrics:** Health statistics are stored in `analytics.db` via
+  `monitoring.health_monitor` for historical analysis
 
 ### **Autonomous System Architecture**
 ```python
