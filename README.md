@@ -137,6 +137,9 @@ follow the steps in [docs/enterprise_backup_guide.md](docs/enterprise_backup_gui
 to create and manage backups. This variable ensures backups never reside in the
 workspace, maintaining anti-recursion compliance.
 
+### Workspace Detection
+Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment variable. If the variable is not set, the current working directory is used by default.
+
 ---
 
 ## 🗄️ DATABASE-FIRST ARCHITECTURE

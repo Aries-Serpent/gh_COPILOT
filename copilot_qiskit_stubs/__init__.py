@@ -1,5 +1,7 @@
-"""Lightweight Qiskit stubs used for testing.
+"""Minimal Qiskit stubs used for unit tests."""
 
-These stubs provide minimal implementations of select Qiskit modules so that
-tests can run without the real Qiskit package installed.
-"""
+from pkgutil import extend_path
+
+# Ensure all submodules under this package are discoverable.
+__path__ = extend_path(__path__, __name__)
+
