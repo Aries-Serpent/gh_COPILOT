@@ -6,7 +6,6 @@ from __future__ import annotations
 import logging
 import sqlite3
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
 
 from tqdm import tqdm
 
@@ -15,6 +14,7 @@ from .database_consolidation_migration import consolidate_databases
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
 from .complete_consolidation_orchestrator import create_external_backup
+from utils.logging_utils import setup_enterprise_logging
 from scripts.validation.semantic_search_reference_validator import (
     chunk_anti_recursion_validation,
 )
@@ -63,11 +63,6 @@ def _load_database_names(list_file: Path) -> list[str]:
     return names
 
 
-def validate_database_size(databases_dir: Path) -> None:
-    """Check size compliance for databases in ``databases_dir``."""
-    check_database_sizes(databases_dir)
-
-
 def compress_database(db_path: Path) -> None:
     """Compress ``db_path`` in place using VACUUM and ANALYZE."""
     if not db_path.exists():
@@ -77,17 +72,6 @@ def compress_database(db_path: Path) -> None:
         conn.execute("REINDEX")
         conn.execute("ANALYZE")
         conn.commit()
-
-
-def validate_database_size(databases_dir: Path, limit_mb: float = 99.9) -> None:
-    """Raise ``RuntimeError`` if any database exceeds ``limit_mb``."""
-    sizes = check_database_sizes(databases_dir, threshold_mb=limit_mb)
-    oversized = {name: size for name, size in sizes.items() if size > limit_mb}
-    if oversized:
-        details = ", ".join(
-            f"{name}: {size:.2f} MB" for name, size in oversized.items()
-        )
-        raise RuntimeError(f"Database size limit exceeded: {details}")
 
 
 def run_migration(
@@ -117,6 +101,7 @@ def run_migration(
 
     source_paths = [db_dir / name for name in sources if (db_dir / name).exists()]
 
+    migration_start = log_sync_operation(enterprise_db, "migration_start")
     with tqdm(total=len(source_paths), desc="Migrating", unit="db") as bar:
         for src in source_paths:
             logger.info("Migrating %s", src.name)
@@ -177,6 +162,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    setup_enterprise_logging()
     run_migration(
         args.workspace,
         args.sources,

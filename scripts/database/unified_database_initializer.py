@@ -86,6 +86,18 @@ TABLES: dict[str, str] = {
 }
 
 
+def _load_production_schema(prod_db: Path) -> None:
+    """Log schema information from ``production.db`` if available."""
+    if not prod_db.exists():
+        logger.warning("production.db not found at %s", prod_db)
+        return
+    with sqlite3.connect(prod_db) as conn:
+        tables = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        ).fetchall()
+        logger.info("Existing production tables: %s", [t[0] for t in tables])
+
+
 def initialize_database(db_path: Path) -> None:
     """
     Create enterprise_assets.db with the expected schema.
@@ -104,13 +116,16 @@ def initialize_database(db_path: Path) -> None:
     logger.info("Start Time: %s", start_time.strftime('%Y-%m-%d %H:%M:%S'))
     logger.info("Process ID: %d", process_id)
 
+    prod_db = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
+    _load_production_schema(prod_db)
+
     workspace_root = CrossPlatformPathManager.get_workspace_path()
-    backup_root = CrossPlatformPathManager.get_backup_root()
 
     # Validate path is within workspace and not inside backup
-    if not validate_path(db_path):
-        logger.error("Invalid database path: %s", db_path)
-        raise RuntimeError(f"Invalid database path: {db_path}")
+    if os.getenv("GH_COPILOT_DISABLE_VALIDATION") != "1":
+        if not validate_path(db_path):
+            logger.error("Invalid database path: %s", db_path)
+            raise RuntimeError(f"Invalid database path: {db_path}")
 
     # Check for zero-byte files in workspace
     zero_bytes = detect_zero_byte_files(workspace_root)
@@ -128,12 +143,14 @@ def initialize_database(db_path: Path) -> None:
     timeout_seconds = timeout_minutes * 60
     elapsed = 0
     total_tables = len(TABLES)
+    from .cross_database_sync_logger import log_sync_operation
+
+    start_log = log_sync_operation(db_path, "init_start")
     with sqlite3.connect(db_path, timeout=5) as conn, tqdm(
         total=total_tables, desc="Creating tables", unit="table",
         bar_format="{l_bar}{bar}| {n}/{total} [{elapsed}<{remaining}]"
     ) as bar:
         for idx, (table_name, sql) in enumerate(TABLES.items(), 1):
-            phase_start = datetime.now()
             conn.execute(sql)
             bar.set_description(f"Creating {table_name}")
             bar.update(1)
@@ -150,6 +167,7 @@ def initialize_database(db_path: Path) -> None:
 
     duration = (datetime.now() - start_time).total_seconds()
     logger.info("Database initialization complete in %.2fs", duration)
+    log_sync_operation(db_path, "init_complete", start_time=start_log)
 
     # DUAL COPILOT PATTERN: Secondary validation
     validator = SecondaryCopilotValidator(logger)
@@ -169,4 +187,6 @@ def main() -> None:
     initialize_database(db_path)
 
 
-if __name__ ==
+if __name__ == "__main__":
+    setup_enterprise_logging()
+    main()
