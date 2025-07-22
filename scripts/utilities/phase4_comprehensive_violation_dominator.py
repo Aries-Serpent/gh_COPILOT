@@ -186,11 +186,14 @@ class Phase4ComprehensiveViolationDominator:
         logger.info(f"# # # 🔍 Scanning for {violation_code} violations...")
 
         violations_by_file = {}
-        cmd = f"flake8 --select={violation_code} ."
+
+        # Sanitize violation code to prevent command injection
+        safe_code = re.sub(r"[^A-Z0-9]", "", violation_code.upper())
+        cmd = ["flake8", f"--select={safe_code}", "."]
 
         try:
             result = subprocess.run(
-                cmd, shell=True, capture_output=True, text=True, cwd=self.workspace_path
+                cmd, capture_output=True, text=True, cwd=self.workspace_path
             )
 
             for line in result.stdout.strip().split('\n'):

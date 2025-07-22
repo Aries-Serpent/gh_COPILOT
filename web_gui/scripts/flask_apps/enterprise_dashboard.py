@@ -25,6 +25,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
+COMPLIANCE_JSON = Path(__file__).resolve().parents[3] / "dashboard" / "compliance" / "placeholder_summary.json"
+
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -41,7 +43,6 @@ DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
 LOGS_DIR = Path("logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"auto_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
