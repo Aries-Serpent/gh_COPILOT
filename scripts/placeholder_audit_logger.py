@@ -84,7 +84,13 @@ def scan_files(workspace: Path, patterns: Iterable[str]) -> List[dict]:
 
 
 def log_results(results: List[dict], db_path: Path) -> None:
-    """Insert placeholder findings into ``analytics.db``."""
+    """Insert placeholder findings into ``analytics.db``.
+
+    In addition to the legacy ``placeholder_audit`` table used by
+    existing tools, this function now also maintains a ``code_audit_log``
+    table.  The new table is used by the compliance dashboard to track
+    placeholder-removal progress across the repository.
+    """
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(db_path) as conn:
         conn.execute(
@@ -97,7 +103,19 @@ def log_results(results: List[dict], db_path: Path) -> None:
                 severity TEXT,
                 ts TEXT
             )
+            """,
+        )
+        conn.execute(
             """
+            CREATE TABLE IF NOT EXISTS code_audit_log (
+                id INTEGER PRIMARY KEY,
+                file_path TEXT,
+                line_number INTEGER,
+                placeholder_type TEXT,
+                context TEXT,
+                timestamp TEXT
+            )
+            """,
         )
         for row in results:
             conn.execute(
@@ -108,6 +126,17 @@ def log_results(results: List[dict], db_path: Path) -> None:
                     row["pattern"],
                     row["line"],
                     _severity(row["pattern"]),
+                    datetime.now().isoformat(),
+                ),
+            )
+            conn.execute(
+                "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
+                " VALUES (?, ?, ?, ?, ?)",
+                (
+                    row["file"],
+                    row["line"],
+                    row["pattern"],
+                    row["context"],
                     datetime.now().isoformat(),
                 ),
             )

@@ -551,6 +551,10 @@ python scripts/placeholder_audit_logger.py \
     --workspace $GH_COPILOT_WORKSPACE \
     --analytics-db databases/analytics.db \
     --production-db databases/production.db
+
+The audit results are used by the `/dashboard/compliance` endpoint to
+report ongoing placeholder removal progress and overall compliance
+metrics.
 ```
 
 ### **Contact & Support**
