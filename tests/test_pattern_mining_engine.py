@@ -1,7 +1,14 @@
+import os
 import sqlite3
 from pathlib import Path
 
-from template_engine.pattern_mining_engine import extract_patterns, mine_patterns
+os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
+
+from template_engine.pattern_mining_engine import (
+    extract_patterns,
+    mine_patterns,
+    validate_mining,
+)
 
 
 def test_extract_patterns():
@@ -17,8 +24,10 @@ def test_mine_patterns(tmp_path: Path):
             "CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)"
         )
         conn.execute("INSERT INTO code_templates (template_code) VALUES ('def x(): pass')")
-    patterns = mine_patterns(prod)
+    analytics = tmp_path / "analytics.db"
+    patterns = mine_patterns(prod, analytics)
     assert patterns
     with sqlite3.connect(prod) as conn:
         count = conn.execute("SELECT COUNT(*) FROM mined_patterns").fetchone()[0]
     assert count == len(patterns)
+    assert validate_mining(len(patterns), analytics)
