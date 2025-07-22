@@ -122,7 +122,7 @@ python migration_scripts/update_config_paths.py \
 #### Step 4: Validation
 ```bash
 # Start staging application
-cd e:/gh_COPILOT/web_gui/scripts/flask_apps
+cd $(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))/web_gui/scripts/flask_apps
 python enterprise_dashboard.py &
 
 # Run validation tests
@@ -147,7 +147,7 @@ python backup_scripts/full_backup.py \
 ```bash
 # Deploy validated staging to production
 python migration_scripts/deploy_to_production.py \
-  --source e:/gh_COPILOT \
+  --source $(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))) \
   --target e:/_copilot_production \
   --validate
 ```

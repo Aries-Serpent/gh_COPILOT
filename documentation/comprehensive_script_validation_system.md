@@ -234,7 +234,7 @@ recovery_procedures = {
         "start_time": "2025-01-01T12:00:00",
         "end_time": "2025-01-01T12:01:30",
         "duration_seconds": 90.5,
-        "workspace_path": "e:/gh_COPILOT"
+        "workspace_path": os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
     },
     "validation_summary": {
         "total_scripts": 8,

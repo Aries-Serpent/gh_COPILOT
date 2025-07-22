@@ -15,7 +15,16 @@ def test_backup_root_from_env(tmp_path, monkeypatch):
     assert CrossPlatformPathManager.get_backup_root() == tmp_path
 
 
-def test_workspace_defaults_to_cwd(monkeypatch):
-    """Workspace path falls back to current directory when env var unset."""
+def test_workspace_fallback(monkeypatch, tmp_path):
     monkeypatch.delenv("GH_COPILOT_WORKSPACE", raising=False)
-    assert CrossPlatformPathManager.get_workspace_path() == Path.cwd()
+    monkeypatch.chdir(tmp_path)
+    assert CrossPlatformPathManager.get_workspace_path() == tmp_path
+
+
+def test_workspace_parent_detection(monkeypatch, tmp_path):
+    ws = tmp_path / "gh_COPILOT"
+    sub = ws / "subdir"
+    sub.mkdir(parents=True)
+    monkeypatch.delenv("GH_COPILOT_WORKSPACE", raising=False)
+    monkeypatch.chdir(sub)
+    assert CrossPlatformPathManager.get_workspace_path() == sub

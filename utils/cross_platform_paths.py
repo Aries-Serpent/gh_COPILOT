@@ -17,9 +17,10 @@ class CrossPlatformPathManager:
     @staticmethod
     def get_workspace_path() -> Path:
         """Return workspace path with cross-platform detection."""
-        workspace_env = os.getenv("GH_COPILOT_WORKSPACE")
-        if workspace_env:
-            return Path(workspace_env)
+        workspace_env = os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
+        workspace_path = Path(workspace_env)
+        if workspace_path.exists():
+            return workspace_path
 
         current_dir = Path.cwd()
         if current_dir.name == "gh_COPILOT":

@@ -103,7 +103,7 @@ with tqdm(total=100, desc='Learning Pattern Analysis', unit='%') as pbar:
 class SelfHealingSelfLearningSystem:
     """Autonomous self-healing, self-learning, and self-managing system"""
     
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))):
         self.system_id = f"AUTONOMOUS_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 ```
 
