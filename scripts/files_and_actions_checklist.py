@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Database-first file audit and checklist generator.
-
-This script audits key repository files using patterns pulled from
-``production.db``. Findings are logged to ``analytics.db`` and a JSON
-report is written to ``reports``.
+"""
+DUAL COPILOT, DATABASE-FIRST PROMPT:
+1. Query production.db for file and action checklist patterns.
+2. Audit all key files, log missing actions, generate checklist report.
+3. Fetch web search for file audit and checklist best practices.
+4. Use tqdm for progress, start time logging, timeout, ETC calculation, and real-time status updates.
+5. Validate anti-recursion and workspace integrity before file audit.
+6. DUAL COPILOT: Secondary validator checks for compliance and visual indicators.
 """
 
 from __future__ import annotations
