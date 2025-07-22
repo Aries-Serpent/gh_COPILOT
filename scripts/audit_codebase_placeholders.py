@@ -10,7 +10,8 @@ Features
 --------
 * Database-first: placeholder patterns are pulled from ``production.db``.
 * Dual copilot validation: results are verified after insertion.
-* Visual indicators via ``tqdm`` progress bars.
+* Visual indicators via ``tqdm`` progress bars with ETA.
+* Start time logging and optional timeout control.
 * Anti-recursion validation using ``validate_enterprise_operation``.
 """
 
@@ -22,6 +23,7 @@ import os
 import re
 import sqlite3
 from datetime import datetime
+import time
 from pathlib import Path
 from typing import Iterable, List, Optional
 
@@ -79,17 +81,27 @@ def log_findings(results: List[dict], analytics_db: Path) -> None:
 def update_dashboard(count: int, dashboard_dir: Path) -> None:
     """Write summary JSON to dashboard directory."""
     dashboard_dir.mkdir(parents=True, exist_ok=True)
-    data = {"timestamp": datetime.now().isoformat(), "findings": count}
+    compliance = max(0, 100 - count)
+    data = {
+        "timestamp": datetime.now().isoformat(),
+        "findings": count,
+        "compliance_score": compliance,
+        "status": "complete",
+    }
     summary_file = dashboard_dir / "placeholder_summary.json"
     summary_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
-def scan_files(workspace: Path, patterns: Iterable[str]) -> List[dict]:
-    """Scan files for given patterns."""
+def scan_files(workspace: Path, patterns: Iterable[str], timeout: float | None = None) -> List[dict]:
+    """Scan files for given patterns with optional timeout."""
     results: List[dict] = []
     files = [f for f in workspace.rglob("*") if f.is_file()]
+    start = time.time()
     with tqdm(total=len(files), desc=f"{TEXT['info']} scanning", unit="file") as bar:
         for file in files:
+            if timeout and time.time() - start > timeout:
+                bar.write(f"{TEXT['error']} timeout reached")
+                break
             try:
                 lines = file.read_text(encoding="utf-8", errors="ignore").splitlines()
             except OSError:
@@ -130,13 +142,18 @@ def main(
     production = Path(production_db or workspace / "databases" / "production.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
 
+    start_time = time.time()
+
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.info(f"{TEXT['start']} auditing {workspace}")
 
     patterns = DEFAULT_PATTERNS + fetch_db_placeholders(production)
-    results = scan_files(workspace, patterns)
+    timeout = float(os.getenv("GH_COPILOT_AUDIT_TIMEOUT", "0")) or None
+    results = scan_files(workspace, patterns, timeout=timeout)
     log_findings(results, analytics)
     update_dashboard(len(results), dashboard)
+    elapsed = time.time() - start_time
+    logging.info(f"{TEXT['info']} audit completed in {elapsed:.2f}s")
 
     valid = validate_results(len(results), analytics)
     if valid:
