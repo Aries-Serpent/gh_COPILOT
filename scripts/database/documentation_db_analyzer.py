@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+ANALYTICS_DB = Path("analytics.db")
 
 
 CLEANUP_SQL = (
@@ -47,6 +48,22 @@ def analyze_and_cleanup(db_path: Path) -> dict[str, int]:
     }
 
 
+def _log_report(report: dict) -> None:
+    """Persist report summary to analytics DB."""
+    try:
+        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS doc_audit (timestamp TEXT, details TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO doc_audit (timestamp, details) VALUES (?, ?)",
+                (datetime.utcnow().isoformat(), json.dumps(report)),
+            )
+    except Exception as exc:  # pragma: no cover - logging failure should not fail tests
+        logger.debug("analytics log failed: %s", exc)
+
+
 def main() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     db_path = repo_root / "archives" / "documentation.db"
@@ -55,6 +72,7 @@ def main() -> None:
     report_path = repo_root / "reports" / f"documentation_cleanup_report_{timestamp}.json"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2))
+    _log_report(report)
     logger.info("Cleanup complete: %s", report_path)
 
 

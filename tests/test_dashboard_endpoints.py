@@ -16,3 +16,10 @@ def test_metrics_endpoint():
     assert resp.status_code == 200
     data = resp.get_json()
     assert isinstance(data, list)
+
+
+def test_compliance_endpoint():
+    client = app.test_client()
+    resp = client.get('/compliance')
+    assert resp.status_code == 200
+    assert isinstance(resp.get_json(), list)

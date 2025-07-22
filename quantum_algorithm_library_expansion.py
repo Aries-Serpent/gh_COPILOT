@@ -32,6 +32,7 @@ __all__ = [
     "demo_variational_quantum_eigensolver",
     "demo_quantum_phase_estimation",
     "demo_quantum_teleportation",
+    "quantum_cluster_score",
 ]
 
 
@@ -97,3 +98,9 @@ def demo_quantum_phase_estimation(theta: float = 0.25, precision: int = 3) -> fl
     factor = 2**precision
     estimate = round(theta * factor) / factor
     return float(estimate)
+
+
+def quantum_cluster_score(values: Iterable[float]) -> float:
+    """Return a placeholder quantum-inspired cluster score."""
+    arr = np.array(list(values), dtype=float)
+    return float(arr.mean())

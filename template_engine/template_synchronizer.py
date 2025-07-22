@@ -92,6 +92,7 @@ def synchronize_templates(
     Synchronize templates across multiple databases with transactional integrity.
     Each synchronized template is logged to analytics DB with a timestamp and source.
     """
+    start = datetime.utcnow()
     databases = list(source_dbs) if source_dbs else []
     all_templates: dict[str, str] = {}
 
@@ -133,7 +134,8 @@ def synchronize_templates(
             _log_audit(str(db), f"DB connection error: {exc}")
             logger.error("Database error %s: %s", db, exc)
 
-    logger.info("Synchronization completed for %s databases", synced)
+    duration = (datetime.utcnow() - start).total_seconds()
+    logger.info("Synchronization completed for %s databases in %.2fs", synced, duration)
     return synced
 
 if __name__ == "__main__":
