@@ -4,7 +4,7 @@ The project relies on several external packages and services:
 
 - **SQLite**: used for local data persistence. Databases are stored in the `databases/` folder.
 - **psutil**: required for performance monitoring scripts.
-- **Flask** and related packages: used by the optional web dashboard in `web_gui/`.
+- **Flask** and related packages: used by the optional web dashboard in `web_gui/` (e.g., `dashboard_actionable_gui.py`).
 - **tqdm** and **rich**: provide progress bars and colored console output.
 - **qiskit-machine-learning**: enables quantum-enhanced ML demos and tests.
 
