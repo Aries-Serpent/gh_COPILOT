@@ -7,15 +7,13 @@ import numpy as np
 from qiskit import QuantumCircuit
 try:
     from qiskit.algorithms import Shor
-except Exception:  # pragma: no cover - use local fallback
-    from scripts.optimization.physics_optimization_engine import Shor  # type: ignore
+except Exception:  # pragma: no cover - use local stub
+    from copilot_qiskit_stubs.algorithms import Shor  # type: ignore
 from qiskit.circuit.library import QFT
 from qiskit.quantum_info import Statevector
 from qiskit_aer import AerSimulator
 
 from scripts.optimization.physics_optimization_engine import PhysicsOptimizationEngine
-import numpy as np
-import logging
 
 
 def _grover_index(expected_index: int, num_qubits: int) -> int:

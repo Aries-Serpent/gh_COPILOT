@@ -7,6 +7,9 @@ import shutil
 from pathlib import Path
 from typing import Any, Dict
 
+# Default workspace path using environment variable or current directory
+DEFAULT_WORKSPACE = os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
+
 
 class CrossPlatformPathManager:
     """Cross-Platform Path Management System."""
@@ -14,9 +17,10 @@ class CrossPlatformPathManager:
     @staticmethod
     def get_workspace_path() -> Path:
         """Return workspace path with cross-platform detection."""
-        workspace_env = os.getenv("GH_COPILOT_WORKSPACE")
-        if workspace_env:
-            return Path(workspace_env)
+        workspace_env = os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
+        workspace_path = Path(workspace_env)
+        if workspace_path.exists():
+            return workspace_path
 
         current_dir = Path.cwd()
         if current_dir.name == "gh_COPILOT":
@@ -28,6 +32,7 @@ class CrossPlatformPathManager:
 
         if os.name == "nt":
             potential_paths = [
+                Path(DEFAULT_WORKSPACE),
                 Path("E:/gh_COPILOT"),
                 Path("C:/gh_COPILOT"),
                 Path("D:/gh_COPILOT"),
@@ -35,6 +40,7 @@ class CrossPlatformPathManager:
         else:
             user_home = Path.home()
             potential_paths = [
+                Path(DEFAULT_WORKSPACE),
                 user_home / "gh_COPILOT",
                 Path("/opt/gh_COPILOT"),
                 Path("/usr/local/gh_COPILOT"),
@@ -44,7 +50,9 @@ class CrossPlatformPathManager:
             if path.exists():
                 return path
 
-        logging.warning("Could not detect gh_COPILOT workspace, using current directory")
+        logging.warning(
+            "Could not detect gh_COPILOT workspace, using current directory"
+        )
         return current_dir
 
     @staticmethod
@@ -82,7 +90,9 @@ class CrossPlatformPathManager:
             if pattern in file_path:
                 validation_result["is_portable"] = False
                 validation_result["issues"].append(f"Hard-coded path found: {pattern}")
-                validation_result["suggested_fix"] = "Use CrossPlatformPathManager.get_workspace_path()"
+                validation_result["suggested_fix"] = (
+                    "Use CrossPlatformPathManager.get_workspace_path()"
+                )
 
         return validation_result
 
@@ -115,9 +125,15 @@ def migrate_hard_coded_paths(file_path: Path) -> Dict[str, Any]:
         shutil.copy2(file_path, backup_path)
         file_path.write_text(updated_content, encoding="utf-8")
 
-        if "CrossPlatformPathManager" in updated_content and "from utils.cross_platform_paths import CrossPlatformPathManager" not in updated_content:
+        if (
+            "CrossPlatformPathManager" in updated_content
+            and "from utils.cross_platform_paths import CrossPlatformPathManager"
+            not in updated_content
+        ):
             lines = updated_content.split("\n")
-            import_line = "from utils.cross_platform_paths import CrossPlatformPathManager"
+            import_line = (
+                "from utils.cross_platform_paths import CrossPlatformPathManager"
+            )
             insert_index = 0
             for i, line in enumerate(lines):
                 if line.startswith("import ") or line.startswith("from "):

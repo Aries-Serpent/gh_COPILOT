@@ -1,3 +1,0 @@
-2025-07-09 14:47:42,110 - INFO - Processing file: database_sync_scheduler.py
-2025-07-09 14:47:42,112 - INFO - Applied pattern '""([^"]+)""' -> '"\1"' (2 times) in database_sync_scheduler.py
-2025-07-09 14:47:42,113 - INFO - Fixed 2 quote issues in database_sync_scheduler.py

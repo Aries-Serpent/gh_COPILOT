@@ -391,7 +391,7 @@ alert_thresholds = {
         "start_time": "2025-01-01T12:00:00",
         "end_time": "2025-01-01T12:05:30",
         "duration_seconds": 330.5,
-        "workspace_path": "e:/gh_COPILOT"
+        "workspace_path": os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
     },
     "database_discovery": {
         "databases_found": 8,

@@ -13,7 +13,7 @@
 ```python
 # IMPLEMENTATION: Always query databases before filesystem operations
 class DatabaseFirstOperator:
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))):
         self.production_db = workspace_path + "/databases/production.db"
         self.patterns = self.load_organization_patterns_from_db()
     

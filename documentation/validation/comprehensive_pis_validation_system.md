@@ -87,7 +87,7 @@ Each validation component includes:
 from comprehensive_pis_validator import ComprehensivePISValidator
 
 # Initialize validator
-validator = ComprehensivePISValidator(workspace_path="e:/gh_COPILOT")
+validator = ComprehensivePISValidator(workspace_path=os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
 
 # Validate PIS document
 result = validator.validate_pis_document("path/to/pis_document.md")
@@ -107,7 +107,7 @@ else:
 python comprehensive_pis_validator.py path/to/pis_document.md
 
 # With custom workspace and timeout
-python comprehensive_pis_validator.py path/to/pis_document.md --workspace e:/gh_COPILOT --timeout 60
+python comprehensive_pis_validator.py path/to/pis_document.md --workspace $(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))) --timeout 60
 
 # Validation with output redirection
 python comprehensive_pis_validator.py pis_document.md > validation_results.txt 2>&1

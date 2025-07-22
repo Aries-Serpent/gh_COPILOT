@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ComprehensiveProductionCapabilityTester - Enterprise Utility Script
-Generated: 2025-07-22 02:23:36 | Author: mbaetiong
+Generated: 2025-07-22 02:35:18 | Author: mbaetiong
 
 Enterprise Standards Compliance:
 - Flake8/PEP 8 Compliant
@@ -14,25 +14,26 @@ import sqlite3
 import sys
 from pathlib import Path
 from datetime import datetime
+from tqdm import tqdm
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
+    "start": "[START]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "info": "[INFO]",
 }
 
 
 class EnterpriseUtility:
-    """Enterprise utility class"""
+    """Enterprise utility class for comprehensive capability testing."""
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
-        """Execute utility function"""
+        """Execute utility function and log lifecycle events."""
         start_time = datetime.now()
         self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
@@ -50,65 +51,65 @@ class EnterpriseUtility:
 
         except Exception as exc:
             self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {exc}")
-            self._log_validation_result(self._get_script_name(), False)
+            self._log_validation(False)
             return False
 
-    def _get_script_name(self) -> str:
-        """Get the current script/module name for logging."""
-        try:
-            return Path(__file__).name
-        except Exception:
-            return "comprehensive_production_capability_tester.py"
+    def perform_utility_function(self) -> bool:
+        """
+        Validate production database by checking top 5 script files registered in script_repository.
+        - Ensures production.db exists and is accessible.
+        - Validates presence of top 5 script files.
+        - Logs all events and errors.
+        """
+        db_path = self.workspace_path / "databases" / "production.db"
+        if not db_path.exists():
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database missing: {db_path}")
+            self._log_validation(False)
+            return False
 
-    def _log_validation_result(self, script: str, success: bool) -> None:
-        """Log validation result to analytics.db"""
-        analytics_db = self.workspace_path / "analytics.db"
         try:
-            with sqlite3.connect(analytics_db) as conn:
+            with sqlite3.connect(db_path) as conn:
+                cursor = conn.execute(
+                    "SELECT script_path FROM script_repository LIMIT 5"
+                )
+                scripts = [row[0] for row in cursor.fetchall()]
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {exc}")
+            self._log_validation(False)
+            return False
+
+        for script in tqdm(scripts, desc="[PROGRESS] Checking files", unit="file"):
+            script_full_path = self.workspace_path / script
+            if not script_full_path.exists():
+                self.logger.error(f"{TEXT_INDICATORS['error']} Missing file: {script_full_path}")
+                self._log_validation(False)
+                return False
+
+        self._log_validation(True)
+        return True
+
+    def _log_validation(self, success: bool) -> None:
+        """Record validation result in analytics.db."""
+        analytics_path = self.workspace_path / "analytics.db"
+        try:
+            with sqlite3.connect(analytics_path) as conn:
                 conn.execute(
                     """
-                    CREATE TABLE IF NOT EXISTS validation_history (
+                    CREATE TABLE IF NOT EXISTS validation_log (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         script_name TEXT,
-                        run_time TEXT,
-                        success INTEGER
+                        success BOOLEAN,
+                        ts DATETIME DEFAULT CURRENT_TIMESTAMP
                     )
                     """
                 )
                 conn.execute(
-                    "INSERT INTO validation_history (script_name, run_time, success) VALUES (?, ?, ?)",
-                    (script, datetime.now().isoformat(), int(success)),
+                    "INSERT INTO validation_log (script_name, success) VALUES (?, ?)",
+                    (Path(__file__).name, int(success)),
                 )
                 conn.commit()
         except sqlite3.Error as exc:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Log failure: {exc}")
-
-    def perform_utility_function(self) -> bool:
-        """
-        Validate production database and log result to analytics.db.
-
-        - Checks integrity of production.db
-        - Logs validation result to analytics.db
-        - Logging and indicators for each step
-        """
-        prod_db = self.workspace_path / "production.db"
-        analytics_db = self.workspace_path / "analytics.db"
-        script_name = self._get_script_name()
-
-        try:
-            if prod_db.exists():
-                with sqlite3.connect(prod_db) as conn:
-                    result = conn.execute("PRAGMA integrity_check;").fetchone()
-                success = bool(result and result[0] == "ok")
-            else:
-                self.logger.error(f"{TEXT_INDICATORS['error']} Missing database: {prod_db}")
-                success = False
-        except sqlite3.Error as exc:
-            self.logger.error(f"{TEXT_INDICATORS['error']} DB error: {exc}")
-            success = False
-
-        self._log_validation_result(script_name, success)
-        return success
+            self.logger.error(f"{TEXT_INDICATORS['error']} Analytics log error: {exc}")
 
 
 def main() -> bool:
