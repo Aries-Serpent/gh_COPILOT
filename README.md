@@ -557,6 +557,8 @@ Several small modules provide common helpers:
   provides lightweight quantum-assisted utilities such as Grover search,
   Shor factorization and Fourier transforms used for physics-oriented
   optimizations and demonstrations.
+- `template_engine.pattern_clustering_sync.PatternClusteringSync` – cluster templates from `production.db` and synchronize them with compliance auditing.
+- `template_engine.workflow_enhancer.TemplateWorkflowEnhancer` – enhance template workflows using clustering, pattern mining and dashboard reports.
 
 ## Future Roadmap
 
