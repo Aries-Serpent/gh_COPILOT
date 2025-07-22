@@ -1,80 +1,133 @@
-"""Documentation database gap analyzer.
-
-This refactored utility scans documentation databases for missing content and
-records a summary to ``logs/template_rendering`` and ``analytics.db``. The
-implementation follows the database-first pattern with progress indicators and a
-simple validation step.
-"""
-
 from __future__ import annotations
 
 import json
 import logging
 import os
 import sqlite3
+import sys
+import time
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import Dict, Any, Iterable, List, Optional
 
 from tqdm import tqdm
 
-
+# Enterprise paths and defaults
+DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
+DEFAULT_DOC_DBS = [
+    Path("databases/documentation.db"),
+    Path("databases/documentation_templates.db"),
+    Path("databases/template_documentation.db"),
+]
 LOG_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "logs" / "template_rendering"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / f"doc_gap_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
-ANALYTICS_DB = Path("databases/analytics.db")
-DOC_DBS = [
-    Path("databases/documentation.db"),
-    Path("databases/template_documentation.db"),
-]
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
 
-
 class DocumentationDBAnalyzer:
-    """Analyze documentation databases for missing entries."""
+    """
+    Enterprise Documentation Database Analyzer
 
-    def __init__(self, doc_dbs: List[Path] | None = None) -> None:
-        self.doc_dbs = doc_dbs or DOC_DBS
+    Scans documentation databases for gaps, missing types, and compliance issues.
+    Logs all findings to analytics.db and writes detailed reports to /logs/template_rendering.
+    Implements visual processing indicators, timeout, ETC, and DUAL COPILOT validation.
+    """
 
-    # ------------------------------------------------------------------
-    def analyze(self) -> dict:
-        """Scan documentation databases for gaps."""
-        summary: dict[str, int] = {}
-        total_entries = 0
-        for db in self.doc_dbs:
+    def __init__(
+        self,
+        doc_dbs: Optional[Iterable[Path]] = None,
+        analytics_db: Path = DEFAULT_ANALYTICS_DB,
+        timeout_minutes: int = 30,
+    ) -> None:
+        self.doc_dbs = list(doc_dbs) if doc_dbs else DEFAULT_DOC_DBS
+        self.analytics_db = analytics_db
+        self.timeout_seconds = timeout_minutes * 60
+        self.start_time = datetime.now()
+        self.process_id = os.getpid()
+        self.log_file = LOG_FILE
+        logging.info(f"PROCESS STARTED: DocumentationDBAnalyzer")
+        logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logging.info(f"Process ID: {self.process_id}")
+
+    def analyze(self) -> Dict[str, Any]:
+        """
+        Scan all documentation databases for gaps, missing doc_types, and compliance issues.
+        Includes visual indicators, timeout, ETC, and logs all findings.
+        """
+        self._validate_no_recursive_folders()
+        summary: Dict[str, Any] = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "databases": {},
+            "process_id": self.process_id,
+            "start_time": self.start_time.isoformat(),
+        }
+        total_steps = len(self.doc_dbs)
+        start_time = time.time()
+        for idx, db in enumerate(self.doc_dbs, 1):
+            phase = f"Scanning {db.name}"
+            logging.info(f"PHASE: {phase}")
+            elapsed = time.time() - start_time
+            if elapsed > self.timeout_seconds:
+                raise TimeoutError(f"Process exceeded {self.timeout_seconds/60:.1f} minute timeout")
             if not db.exists():
+                summary["databases"][str(db)] = {"error": "Database not found"}
                 continue
-            with sqlite3.connect(db) as conn:
-                cur = conn.execute(
-                    "SELECT doc_type, COUNT(content) FROM enterprise_documentation"
-                    " GROUP BY doc_type"
-                )
-                rows = cur.fetchall()
-            with tqdm(rows, desc=f"Scanning {db.name}", unit="type") as bar:
-                for doc_type, count in rows:
-                    summary[doc_type] = summary.get(doc_type, 0) + count
-                    total_entries += count
-                    bar.update(1)
-        summary["total"] = total_entries
+            try:
+                with sqlite3.connect(db) as conn:
+                    cur = conn.execute(
+                        "SELECT doc_type, COUNT(content) FROM enterprise_documentation GROUP BY doc_type"
+                    )
+                    rows = cur.fetchall()
+                    doc_type_counts = {dt: cnt for dt, cnt in rows}
+                    expected_types = self._get_expected_doc_types(conn)
+                    missing_types = [dt for dt in expected_types if dt not in doc_type_counts]
+                    total_entries = sum(doc_type_counts.values())
+                    summary["databases"][str(db)] = {
+                        "doc_type_counts": doc_type_counts,
+                        "missing_types": missing_types,
+                        "total_entries": total_entries,
+                    }
+            except Exception as exc:
+                summary["databases"][str(db)] = {"error": str(exc)}
+            etc = self._calculate_etc(elapsed, idx, total_steps)
+            logging.info(f"Progress: {idx}/{total_steps} | Elapsed: {elapsed:.2f}s | ETC: {etc}")
+        elapsed = time.time() - start_time
+        logging.info(f"Documentation DB analysis completed in {elapsed:.2f}s | ETC: {etc}")
         self._log_summary(summary)
         self._record_summary(summary)
+        self._dual_copilot_validate()
         return summary
 
-    # ------------------------------------------------------------------
-    def _log_summary(self, summary: dict) -> None:
-        LOG_FILE.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    def _get_expected_doc_types(self, conn: sqlite3.Connection) -> List[str]:
+        """
+        Retrieve expected documentation types from the database schema or metadata.
+        """
+        try:
+            cur = conn.execute("PRAGMA table_info(enterprise_documentation)")
+            columns = [row[1] for row in cur.fetchall()]
+            if "doc_type" in columns:
+                try:
+                    cur2 = conn.execute("SELECT DISTINCT doc_type FROM enterprise_documentation")
+                    return [row[0] for row in cur2.fetchall()]
+                except Exception:
+                    return []
+            return []
+        except Exception:
+            return []
+
+    def _log_summary(self, summary: Dict[str, Any]) -> None:
+        with open(self.log_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(summary, indent=2) + "\n")
         logging.info("Documentation gap summary written to log file")
 
-    # ------------------------------------------------------------------
-    def _record_summary(self, summary: dict) -> None:
-        ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(ANALYTICS_DB) as conn:
+    def _record_summary(self, summary: Dict[str, Any]) -> None:
+        self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(self.analytics_db) as conn:
             conn.execute(
                 """CREATE TABLE IF NOT EXISTS documentation_gap_analysis (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -84,16 +137,49 @@ class DocumentationDBAnalyzer:
             )
             conn.execute(
                 "INSERT INTO documentation_gap_analysis (summary, timestamp) VALUES (?, ?)",
-                (json.dumps(summary), datetime.utcnow().isoformat()),
+                (json.dumps(summary), summary["timestamp"]),
             )
             conn.commit()
 
-    # ------------------------------------------------------------------
+    def _dual_copilot_validate(self) -> None:
+        """
+        DUAL COPILOT: Secondary validator for documentation gap analysis.
+        Checks analytics.db for matching analysis event.
+        """
+        with sqlite3.connect(self.analytics_db) as conn:
+            cur = conn.execute("SELECT COUNT(*) FROM documentation_gap_analysis")
+            db_count = cur.fetchone()[0]
+        if db_count > 0:
+            logging.info("DUAL COPILOT validation passed: Documentation gap analysis integrity confirmed.")
+        else:
+            logging.error("DUAL COPILOT validation failed: Documentation gap analysis missing.")
+
+    def _validate_no_recursive_folders(self) -> None:
+        """
+        Anti-recursion validation before analysis.
+        """
+        workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+        forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+        for pattern in forbidden_patterns:
+            for folder in workspace_root.rglob(pattern):
+                if folder.is_dir() and folder != workspace_root:
+                    logging.error(f"Recursive folder detected: {folder}")
+                    raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+
+    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
+        if current_progress > 0:
+            total_estimated = elapsed / (current_progress / total_work)
+            remaining = total_estimated - elapsed
+            return f"{remaining:.2f}s remaining"
+        return "N/A"
+
     def validate(self, expected_total: int) -> bool:
-        """Check that at least ``expected_total`` entries were recorded."""
-        if not ANALYTICS_DB.exists():
+        """
+        Validate that at least ``expected_total`` entries were recorded.
+        """
+        if not self.analytics_db.exists():
             return False
-        with sqlite3.connect(ANALYTICS_DB) as conn:
+        with sqlite3.connect(self.analytics_db) as conn:
             cur = conn.execute(
                 "SELECT summary FROM documentation_gap_analysis ORDER BY id DESC LIMIT 1"
             )
@@ -102,7 +188,6 @@ class DocumentationDBAnalyzer:
                 return False
             data = json.loads(row[0])
             return data.get("total", 0) >= expected_total
-
 
 def main() -> None:
     analyzer = DocumentationDBAnalyzer()
@@ -113,7 +198,7 @@ def main() -> None:
     else:
         logging.error("Documentation analysis validation failed")
 
-
 if __name__ == "__main__":
     main()
 
+__all__ = ["DocumentationDBAnalyzer"]

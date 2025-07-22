@@ -1,16 +1,21 @@
 import os
 import sqlite3
 from pathlib import Path
-
-os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
+from datetime import datetime
 
 from template_engine.template_placeholder_remover import (
-    remove_placeholders,
+    remove_unused_placeholders,
     validate_removals,
 )
 
+def test_remove_unused_placeholders(tmp_path: Path) -> None:
+    # Start time logging for visual processing indicator
+    start_time = datetime.now()
+    print(f"PROCESS STARTED: test_remove_unused_placeholders")
+    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Process ID: {os.getpid()}")
 
-def test_remove_placeholders(tmp_path: Path) -> None:
+    # Setup test databases
     prod = tmp_path / "production.db"
     analytics = tmp_path / "analytics.db"
     with sqlite3.connect(prod) as conn:
@@ -18,14 +23,28 @@ def test_remove_placeholders(tmp_path: Path) -> None:
             "CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)"
         )
         conn.execute(
-            "INSERT INTO code_templates (template_code) VALUES ('def x(): {{PLACE}}')"
+            "CREATE TABLE template_placeholders (placeholder_name TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO code_templates (id, template_code) VALUES (1, 'def foo(): {{PLACE}}')"
+        )
+        conn.execute(
+            "INSERT INTO template_placeholders (placeholder_name) VALUES ('VALID_PLACEHOLDER')"
         )
 
-    removed = remove_placeholders(prod, analytics)
-    assert removed == 1
-
+    # Remove unused placeholders from template string
     with sqlite3.connect(prod) as conn:
-        code = conn.execute("SELECT template_code FROM code_templates").fetchone()[0]
-    assert "{{" not in code
-    assert validate_removals(1, analytics)
+        code = conn.execute(
+            "SELECT template_code FROM code_templates WHERE id=1"
+        ).fetchone()[0]
+    result = remove_unused_placeholders(code, prod, analytics, timeout_minutes=1)
+    assert "{{" not in result, "Placeholder not removed from template"
 
+    # Validate DUAL COPILOT pattern: check analytics for removal records
+    assert validate_removals(1, analytics), "DUAL COPILOT validation failed"
+
+    # Completion summary
+    end_time = datetime.now()
+    duration = (end_time - start_time).total_seconds()
+    print(f"TEST COMPLETED: test_remove_unused_placeholders in {duration:.2f}s")
+    

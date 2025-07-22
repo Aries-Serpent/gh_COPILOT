@@ -1,110 +1,171 @@
-"""Objective similarity scoring utilities.
+"""
+Objective similarity scoring utilities.
 
-Each function follows the database-first pattern by reading templates from
-``production.db`` before computing similarity scores. All scoring events are
-recorded in ``analytics.db``. Visual progress indicators are provided via
-``tqdm`` and a simple dual-copilot validation hook verifies that records were
-written successfully.
+This module implements database-first, enterprise-grade similarity scoring for objectives
+against code templates in production.db. All scoring events are logged in analytics.db.
+Visual processing indicators, timeout controls, start time logging, ETC calculation,
+and real-time status updates are enforced per enterprise standards and DUAL COPILOT pattern.
 """
 
 from __future__ import annotations
 
+import logging
+import os
 import sqlite3
+import sys
+import time
+import json
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, List, Tuple
+from typing import List, Tuple, Dict, Any
 
+from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from tqdm import tqdm
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
+LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOGS_DIR / f"objective_similarity_scorer_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
-def _fetch_templates(production_db: Path) -> List[str]:
-    """Return template text from ``production_db``."""
-    if not production_db.exists():
-        return []
-    with sqlite3.connect(production_db) as conn:
-        try:
-            cur = conn.execute("SELECT template_code FROM code_templates")
-            return [row[0] for row in cur.fetchall()]
-        except sqlite3.Error:
-            return []
+def validate_no_recursive_folders() -> None:
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    for pattern in forbidden_patterns:
+        for folder in workspace_root.rglob(pattern):
+            if folder.is_dir() and folder != workspace_root:
+                logging.error(f"Recursive folder detected: {folder}")
+                raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
 
+def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
+    elapsed = time.time() - start_time
+    if current_progress > 0:
+        total_estimated = elapsed / (current_progress / total_work)
+        remaining = total_estimated - elapsed
+        return f"{remaining:.2f}s remaining"
+    return "N/A"
 
-def _log_scores(
-    analytics_db: Path, objective: str, scores: Iterable[Tuple[int, float]]
-) -> None:
-    """Store similarity scores in ``analytics_db``."""
-    analytics_db.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            """CREATE TABLE IF NOT EXISTS objective_similarity_scores (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                objective TEXT,
-                template_index INTEGER,
-                score REAL,
-                timestamp TEXT
-            )"""
-        )
-        insert_sql = (
-            "INSERT INTO objective_similarity_scores ("
-            "objective, template_index, score, timestamp"
-            ") VALUES (?, ?, ?, ?)"
-        )
-        for idx, score in scores:
-            conn.execute(
-                insert_sql,
-                (objective, idx, float(score), datetime.utcnow().isoformat()),
-            )
-        conn.commit()
+def _write_log(scores: List[Tuple[int, float]], objective: str) -> None:
+    log_entry = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "objective": objective,
+        "scores": scores
+    }
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(json.dumps(log_entry, indent=2) + "\n")
 
-
-def score_objective_similarity(
+def compute_similarity_scores(
     objective: str,
     production_db: Path = DEFAULT_PRODUCTION_DB,
     analytics_db: Path = DEFAULT_ANALYTICS_DB,
+    timeout_minutes: int = 30,
 ) -> List[Tuple[int, float]]:
-    """Return similarity scores against templates in ``production_db``."""
+    """
+    Compute similarity scores between the objective and all templates in the production database.
+    Uses TF-IDF vectorization and cosine similarity for scoring.
+    Includes visual processing indicators, start time logging, timeout, ETC, and status updates.
+    Logs all scores to analytics.db and /logs/template_rendering.
+    """
+    # Start time logging and anti-recursion validation
+    start_time = datetime.now()
+    process_id = os.getpid()
+    timeout_seconds = timeout_minutes * 60
+    logging.info(f"PROCESS STARTED: Objective Similarity Scoring")
+    logging.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    logging.info(f"Process ID: {process_id}")
+    validate_no_recursive_folders()
 
-    templates = _fetch_templates(production_db)
+    # Fetch templates from production.db
+    templates: List[Tuple[int, str]] = []
+    if production_db.exists():
+        with sqlite3.connect(production_db) as conn:
+            try:
+                cur = conn.execute("SELECT id, template_code FROM code_templates")
+                templates = [(row[0], row[1]) for row in cur.fetchall()]
+            except sqlite3.Error as exc:
+                logging.error(f"Error querying production.db: {exc}")
+                templates = []
     if not templates:
+        logging.warning("No templates found in production.db")
         return []
 
-    corpus = [objective] + templates
-    vec = TfidfVectorizer().fit_transform(corpus)
-    target_vec = vec[0]
-    template_vecs = vec[1:]
+    # Prepare corpus and vectorizer
+    corpus = [objective] + [t[1] for t in templates]
+    vectorizer = TfidfVectorizer().fit(corpus)
+    obj_vec = vectorizer.transform([objective])
 
+    # Visual processing indicators: progress bar, ETC, timeout, status updates
     scores: List[Tuple[int, float]] = []
-    with tqdm(total=len(templates), desc="Scoring", unit="tmpl") as bar:
-        for idx in range(len(templates)):
-            sim = cosine_similarity(target_vec, template_vecs[idx])[0][0]
-            scores.append((idx, float(sim)))
-            bar.update(1)
-
-    _log_scores(analytics_db, objective, scores)
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    total_steps = len(templates)
+    elapsed = 0.0
+    with tqdm(total=total_steps, desc="Scoring Templates", unit="tmpl") as pbar:
+        for idx, (tid, text) in enumerate(templates, 1):
+            phase = f"Scoring template {tid}"
+            pbar.set_description(phase)
+            vec = vectorizer.transform([text])
+            score = float(cosine_similarity(obj_vec, vec)[0][0])
+            scores.append((tid, score))
+            with sqlite3.connect(analytics_db) as conn:
+                conn.execute(
+                    """CREATE TABLE IF NOT EXISTS objective_similarity (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        objective TEXT,
+                        template_id INTEGER,
+                        score REAL,
+                        ts TEXT
+                    )"""
+                )
+                conn.execute(
+                    "INSERT INTO objective_similarity (objective, template_id, score, ts) VALUES (?, ?, ?, ?)",
+                    (objective, tid, score, datetime.utcnow().isoformat()),
+                )
+                conn.commit()
+            elapsed = time.time() - start_time.timestamp()
+            etc = calculate_etc(start_time.timestamp(), idx, total_steps)
+            pbar.set_postfix(ETC=etc)
+            pbar.update(1)
+            if elapsed > timeout_seconds:
+                logging.error("Timeout exceeded during similarity scoring")
+                raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
+    logging.info(f"Objective similarity scoring completed in {elapsed:.2f}s | ETC: {etc}")
+    _write_log(scores, objective)
     return scores
 
-
 def validate_scores(
-    objective: str, analytics_db: Path = DEFAULT_ANALYTICS_DB
+    objective: str,
+    expected_count: int,
+    analytics_db: Path = DEFAULT_ANALYTICS_DB,
 ) -> bool:
-    """Dual-copilot validation that scores for ``objective`` were logged."""
-    if not analytics_db.exists():
-        return False
+    """
+    DUAL COPILOT validation for similarity scoring.
+    Checks analytics.db for matching similarity events.
+    """
     with sqlite3.connect(analytics_db) as conn:
         cur = conn.execute(
-            "SELECT COUNT(*) FROM objective_similarity_scores WHERE objective=?",
+            "SELECT COUNT(*) FROM objective_similarity WHERE objective = ?",
             (objective,),
         )
-        return cur.fetchone()[0] > 0
-
+        count = cur.fetchone()[0]
+    if count >= expected_count:
+        logging.info("DUAL COPILOT validation passed: Objective similarity scoring integrity confirmed.")
+        return True
+    else:
+        logging.error("DUAL COPILOT validation failed: Objective similarity scoring mismatch.")
+        return False
 
 __all__ = [
-    "score_objective_similarity",
+    "compute_similarity_scores",
     "validate_scores",
     "DEFAULT_PRODUCTION_DB",
     "DEFAULT_ANALYTICS_DB",
