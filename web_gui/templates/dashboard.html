@@ -1,0 +1,19 @@
+<!doctype html>
+<title>Compliance Dashboard</title>
+<h1>Compliance Dashboard</h1>
+<h2>Metrics</h2>
+<ul>
+{% for key, value in metrics.items() %}
+<li>{{ key }}: {{ value }}</li>
+{% endfor %}
+</ul>
+<h2>Corrections</h2>
+<ul>
+{% for c in corrections %}
+<li>{{ c.file_path }} - {{ c.rationale }}</li>
+{% endfor %}
+</ul>
+<form method="post" action="{{ url_for('trigger_rollback') }}">
+<input type="text" name="target" placeholder="File path">
+<button type="submit">Rollback</button>
+</form>
