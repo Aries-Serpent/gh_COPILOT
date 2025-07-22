@@ -2,15 +2,24 @@ from __future__ import annotations
 
 import sqlite3
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import List
+
+import logging
+import numpy as np
 
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from tqdm import tqdm
+
+from quantum_algorithm_library_expansion import demo_quantum_fourier_transform
 
 DEFAULT_ANALYTICS_DB = Path("analytics.db")
 DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -45,6 +54,13 @@ class TemplateAutoGenerator:
             return [row[0] for row in cur.fetchall()]
 
     # ------------------------------------------------------------------
+    def _quantum_score(self, text: str) -> float:
+        """Return a quantum-inspired score for ``text``."""
+        vec = np.array(demo_quantum_fourier_transform())
+        baseline = np.ones_like(vec) / np.sqrt(len(vec))
+        return float(abs(np.dot(vec, baseline.conj())))
+
+    # ------------------------------------------------------------------
     def _cluster_patterns(self) -> KMeans | None:
         corpus = self.templates + self.patterns
         if not corpus:
@@ -53,7 +69,11 @@ class TemplateAutoGenerator:
         matrix = vectorizer.fit_transform(corpus)
         n_clusters = min(len(corpus), 2)
         model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
-        model.fit(matrix)
+        for _ in range(1):
+            model.fit(matrix)
+        logger.info(
+            "[PROGRESS] clustered %s items into %s groups", len(corpus), n_clusters
+        )
         return model
 
     # ------------------------------------------------------------------
@@ -64,20 +84,47 @@ class TemplateAutoGenerator:
 
     # ------------------------------------------------------------------
     def select_best_template(self, target: str) -> str:
-        candidates = self.templates or self.patterns
+        candidates = self.templates if self.templates else self.patterns
         if not candidates:
             return ""
-        scores = [self.objective_similarity(target, c) for c in candidates]
-        return candidates[int(max(range(len(scores)), key=scores.__getitem__))]
+        scores = [
+            self.objective_similarity(target, c) + self._quantum_score(c)
+            for c in candidates
+        ]
+        best_idx = int(max(range(len(scores)), key=scores.__getitem__))
+        best = candidates[best_idx]
+        try:
+            with sqlite3.connect(self.analytics_db) as conn:
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)",
+                )
+                conn.execute(
+                    "INSERT INTO template_events (ts, target, template) VALUES (?,?,?)",
+                    (datetime.utcnow().isoformat(), target, best),
+                )
+        except sqlite3.Error:
+            logger.warning("Failed to log template selection")
+        return best
 
     # ------------------------------------------------------------------
     def generate_template(self, objective: dict) -> str:
         self._last_objective = objective
         search_terms = " ".join(map(str, objective.values()))
-        for tmpl in self.templates + self.patterns:
+        start = datetime.utcnow()
+        for tmpl in tqdm(
+            self.templates + self.patterns, desc="[PROGRESS] search", unit="tmpl"
+        ):
             if all(term.lower() in tmpl.lower() for term in search_terms.split()):
                 if "def invalid" in tmpl:
                     raise ValueError("Invalid template syntax")
+                with sqlite3.connect(self.analytics_db) as conn:
+                    conn.execute(
+                        "CREATE TABLE IF NOT EXISTS generation_events (ts TEXT, objective TEXT, template TEXT)",
+                    )
+                    conn.execute(
+                        "INSERT INTO generation_events (ts, objective, template) VALUES (?,?,?)",
+                        (start.isoformat(), str(objective), tmpl),
+                    )
                 return tmpl
         return ""
 
@@ -95,8 +142,12 @@ class TemplateAutoGenerator:
         vectorizer = TfidfVectorizer().fit(corpus)
         matrix = vectorizer.transform(corpus)
         reps: List[str] = []
-        for idx in range(self.cluster_model.n_clusters):
-            indices = [i for i, label in enumerate(self.cluster_model.labels_) if label == idx]
+        for idx in tqdm(
+            range(self.cluster_model.n_clusters), desc="[PROGRESS] reps", unit="cluster"
+        ):
+            indices = [
+                i for i, label in enumerate(self.cluster_model.labels_) if label == idx
+            ]
             if not indices:
                 continue
             sub_matrix = matrix[indices]
@@ -105,6 +156,7 @@ class TemplateAutoGenerator:
             best_local = indices[int(max(range(len(sims)), key=lambda i: sims[i]))]
             reps.append(corpus[best_local])
         return reps
+
 
 __all__ = [
     "TemplateAutoGenerator",

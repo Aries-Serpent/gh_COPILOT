@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import logging
 import os
 import sqlite3
@@ -21,10 +22,10 @@ from flask import Flask, jsonify, render_template
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
+    "start": "[START]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "info": "[INFO]",
 }
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
@@ -52,6 +53,19 @@ def get_metrics(limit: int = 10) -> List[Dict[str, str]]:
         return [dict(row) for row in cur.fetchall()]
 
 
+def get_compliance(limit: int = 10) -> List[Dict[str, str]]:
+    """Return recent compliance events."""
+    if not DB_PATH.exists():
+        return []
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        cur = conn.execute(
+            "SELECT timestamp, compliance FROM documentation_events ORDER BY id DESC LIMIT ?",
+            (limit,),
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+
 @app.route("/")
 def dashboard() -> str:
     """Display dashboard metrics."""
@@ -65,10 +79,18 @@ def metrics() -> "flask.Response":
     return jsonify(get_metrics())
 
 
+@app.route("/compliance")
+def compliance() -> "flask.Response":
+    """Return compliance events as JSON."""
+    return jsonify(get_compliance())
+
+
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: Path = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))):
+    def __init__(
+        self, workspace_path: Path = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    ):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
@@ -84,7 +106,8 @@ class EnterpriseUtility:
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
                 self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s"
+                )
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -100,9 +123,7 @@ class EnterpriseUtility:
             app.run(host="0.0.0.0", port=8080)
             return True
         except Exception as exc:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Server start failed: {exc}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Server start failed: {exc}")
             return False
 
 
@@ -120,6 +141,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

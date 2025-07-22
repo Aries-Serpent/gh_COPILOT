@@ -33,11 +33,34 @@ This document lists high-level tasks required to fully implement the database-fi
 - Replace the placeholder clustering in `template_engine/auto_generator.py` with `sklearn.cluster.KMeans`.
 - Add a `get_cluster_representatives()` method and unit tests verifying cluster selection and retrieval.
 
-## 8. Placeholder Implementations
+## 8. Placeholder/TODO Audit Logging
+- Search the codebase for `TODO`, `FIXME`, or `placeholder` comments.
+- Log each occurrence in `analytics.db` with cross-links to the dashboard audit view.
+- Provide rollback utilities for automated cleanup scripts.
+
+## 9. DB-First Code Generation
+- Enforce that all code generation modules read templates from the database before falling back to filesystem copies.
+- Score templates using quantum-inspired functions from `quantum_algorithm_library_expansion.py`.
+- Display progress and ETA indicators for generation tasks.
+
+## 10. Pattern Clustering and Correction Rollback
+- Use clustering to group similar templates and patterns for easier review.
+- Track correction history and provide rollback for any cluster-wide changes.
+- Surface these events on the compliance dashboard.
+
+## 11. Quantum/AI Integration
+- Integrate visual indicators for simulated quantum scoring and pattern matching.
+- Ensure all quantum modules log actions to `analytics.db` for compliance review.
+
+## 12. Dashboard and Compliance Cross-Linking
+- Cross-reference every audit log and generation event with the web dashboard.
+- Provide links from the dashboard to detailed analytics reports and correction logs.
+
+## 13. Placeholder Implementations
 - Search the repository for "Implementation placeholder" comments and replace them with real database-driven functionality.
 - Update utilities like `documentation_db_analyzer.py` and `enterprise_database_driven_documentation_manager.py` to process database entries and log progress.
 
-## 9. Documentation Updates
+## 14. Documentation Updates
 - Extend `docs/README.md` with references to the new database-first utilities.
 - Keep `DATABASE_FIRST_USAGE_GUIDE.md` aligned with the implemented logic.
 

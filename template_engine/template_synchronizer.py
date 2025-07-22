@@ -17,6 +17,7 @@ from tqdm import tqdm
 ANALYTICS_DB = Path("databases") / "analytics.db"
 logger = logging.getLogger(__name__)
 
+
 def _extract_templates(db: Path) -> list[tuple[str, str]]:
     """Extract templates from a database."""
     if not db.exists():
@@ -32,9 +33,11 @@ def _extract_templates(db: Path) -> list[tuple[str, str]]:
         logger.warning("Failed to read templates from %s: %s", db, exc)
         return []
 
+
 def _validate_template(name: str, content: str) -> bool:
     """Validate that template has a name and non-empty content."""
     return bool(name and content and content.strip())
+
 
 def _compliance_score(content: str) -> float:
     """Return a simple compliance score for template content."""
@@ -42,6 +45,7 @@ def _compliance_score(content: str) -> float:
     if "TODO" in content.upper() or not content.strip():
         return 50.0
     return 100.0
+
 
 def _log_sync_event(source: str, target: str) -> None:
     """Record a synchronization event in analytics DB."""
@@ -58,6 +62,7 @@ def _log_sync_event(source: str, target: str) -> None:
     except sqlite3.Error as exc:
         logger.error("Failed to log sync event: %s", exc)
 
+
 def _log_audit(db_name: str, details: str) -> None:
     """Log synchronization failures or audit events."""
     try:
@@ -73,6 +78,7 @@ def _log_audit(db_name: str, details: str) -> None:
     except sqlite3.Error as exc:
         logger.error("Failed to log audit event: %s", exc)
 
+
 def _compliance_check(conn: sqlite3.Connection) -> bool:
     """Check that all templates in DB are compliant (PEP8/flake8 placeholder)."""
     try:
@@ -85,6 +91,7 @@ def _compliance_check(conn: sqlite3.Connection) -> bool:
         logger.error("Compliance check failed: %s", exc)
         return False
 
+
 def synchronize_templates(
     source_dbs: Iterable[Path] | None = None,
 ) -> int:
@@ -92,6 +99,7 @@ def synchronize_templates(
     Synchronize templates across multiple databases with transactional integrity.
     Each synchronized template is logged to analytics DB with a timestamp and source.
     """
+    start = datetime.utcnow()
     databases = list(source_dbs) if source_dbs else []
     all_templates: dict[str, str] = {}
 
@@ -133,8 +141,10 @@ def synchronize_templates(
             _log_audit(str(db), f"DB connection error: {exc}")
             logger.error("Database error %s: %s", db, exc)
 
-    logger.info("Synchronization completed for %s databases", synced)
+    duration = (datetime.utcnow() - start).total_seconds()
+    logger.info("Synchronization completed for %s databases in %.2fs", synced, duration)
     return synced
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
