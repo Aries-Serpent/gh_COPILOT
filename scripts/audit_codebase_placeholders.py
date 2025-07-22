@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
-"""Audit repository for TODO/FIXME and placeholders.
-
-This script traverses the workspace and logs any occurrence of
-code placeholders or legacy template markers. Findings are stored
-in ``analytics.db`` under the ``todo_fixme_tracking`` table and a
-summary JSON file is written to ``dashboard/compliance``.
-
-Features
---------
-* Database-first: placeholder patterns are pulled from ``production.db``.
-* Dual copilot validation: results are verified after insertion.
-* Visual indicators via ``tqdm`` progress bars.
-* Anti-recursion validation using ``validate_enterprise_operation``.
+"""
+MANDATORY: Database-first audit of all files for 'Implementation placeholder', TODO, FIXME, legacy template logic.
+1. Query production.db for tracked file patterns and audit templates.
+2. Traverse all files, extract line number, context, and type.
+3. Log each finding to analytics.db.todo_fixme_tracking with file path, line number, context, timestamp.
+4. Update /dashboard/compliance with removal status and compliance metrics.
+5. Include tqdm progress bar, start time logging, timeout, ETC calculation, anti-recursion validation.
+6. DUAL COPILOT: Secondary validator checks audit completeness and compliance.
+7. Fetch web search for comparable audit scripts and integrate best practices.
 """
 
 from __future__ import annotations
