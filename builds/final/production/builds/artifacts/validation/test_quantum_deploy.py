@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 TestQuantumDeploy - Enterprise Utility Script
-Generated: 2025-07-10 18:12:41
+Generated: 2025-07-22 02:32:24 | Author: mbaetiong
 
 Enterprise Standards Compliance:
 - Flake8/PEP 8 Compliant
@@ -26,19 +26,18 @@ TEXT_INDICATORS = {
 
 
 class EnterpriseUtility:
-    """Enterprise utility class"""
+    """Enterprise utility class for quantum deploy validation."""
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
-        """Execute utility function"""
+        """Execute utility function and log lifecycle events."""
         start_time = datetime.now()
         self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
-            # Utility implementation
             success = self.perform_utility_function()
 
             if success:
@@ -51,12 +50,18 @@ class EnterpriseUtility:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
                 return False
 
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
+        except Exception as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {exc}")
+            self._log_validation(False)
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
+        """
+        Validate deployment by checking required files registered in the production database.
+        - Ensures production.db exists and is accessible.
+        - Validates presence of top 5 script files from script_repository table.
+        - Logs all events and errors.
+        """
         db_path = self.workspace_path / "databases" / "production.db"
         if not db_path.exists():
             self.logger.error(f"{TEXT_INDICATORS['error']} Database missing: {db_path}")
@@ -69,14 +74,15 @@ class EnterpriseUtility:
                     "SELECT script_path FROM script_repository LIMIT 5"
                 )
                 scripts = [row[0] for row in cursor.fetchall()]
-        except sqlite3.Error as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {e}")
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {exc}")
             self._log_validation(False)
             return False
 
         for script in tqdm(scripts, desc="[PROGRESS] Checking files", unit="file"):
-            if not (self.workspace_path / script).exists():
-                self.logger.error(f"{TEXT_INDICATORS['error']} Missing file: {script}")
+            script_full_path = self.workspace_path / script
+            if not script_full_path.exists():
+                self.logger.error(f"{TEXT_INDICATORS['error']} Missing file: {script_full_path}")
                 self._log_validation(False)
                 return False
 
@@ -103,12 +109,13 @@ class EnterpriseUtility:
                     (Path(__file__).name, int(success)),
                 )
                 conn.commit()
-        except sqlite3.Error:
-            pass
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Analytics log error: {exc}")
 
 
 def main():
     """Main execution function"""
+    logging.basicConfig(level=logging.INFO)
     utility = EnterpriseUtility()
     success = utility.execute_utility()
 
@@ -118,7 +125,6 @@ def main():
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
     return success
-
 
 if __name__ == "__main__":
     success = main()
