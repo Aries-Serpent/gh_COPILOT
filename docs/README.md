@@ -44,4 +44,7 @@ It currently queries `production.db` for representative templates using the
 `TemplateAutoGenerator` class and prints them. When quantum components are
 enabled, the script will rank candidate templates through a `QuantumExecutor`.
 Run the script with `python docs/quantum_template_placeholder.py` to preview the
-placeholder functionality.
+placeholder functionality. The underlying `TemplateAutoGenerator` now clusters
+templates using `sklearn.cluster.KMeans` and exposes a
+`get_cluster_representatives()` method for retrieving the best pattern from each
+cluster.

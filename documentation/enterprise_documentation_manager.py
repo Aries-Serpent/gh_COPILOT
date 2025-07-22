@@ -11,8 +11,7 @@ from typing import List, Tuple
 from tqdm import tqdm
 
 # Workspace/environment detection
-WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
-ANALYTICS_DB = WORKSPACE_ROOT / "analytics.db"
+DEFAULT_WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -22,13 +21,18 @@ TEXT_INDICATORS = {
 }
 
 logger = logging.getLogger(__name__)
+LOG_RENDER_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", DEFAULT_WORKSPACE_ROOT)) / "logs" / "template_rendering"
+LOG_RENDER_DIR.mkdir(parents=True, exist_ok=True)
 
 class EnterpriseDocumentationManager:
     """Database-driven documentation manager for enterprise templates and analytics."""
 
     def __init__(self, db_path: str = "production.db") -> None:
+        workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", DEFAULT_WORKSPACE_ROOT))
         # If not absolute, treat as workspace-relative
-        self.db_path = WORKSPACE_ROOT / db_path if not Path(db_path).is_absolute() else Path(db_path)
+        self.db_path = workspace_root / db_path if not Path(db_path).is_absolute() else Path(db_path)
+        self.analytics_db = workspace_root / "analytics.db"
+        self.workspace_root = workspace_root
         self.logger = logger
 
     def query_documentation_database(self, doc_type: str) -> List[Tuple[str, str]]:
@@ -75,11 +79,17 @@ class EnterpriseDocumentationManager:
     def select_optimal_template(
         self, templates: List[Tuple[str, str]], existing_docs: List[Tuple[str, str]]
     ) -> Tuple[str, str]:
-        """Select the first available template."""
+        """Select template with highest compliance score."""
         if not templates:
             raise ValueError("No templates available")
-        self.logger.info(f"{TEXT_INDICATORS['info']} Template selected {templates[0][0]}")
-        return templates[0]
+        scored = [
+            (name, content, self.calculate_compliance(content)) for name, content in templates
+        ]
+        best = max(scored, key=lambda t: t[2])
+        self.logger.info(
+            f"{TEXT_INDICATORS['info']} Template selected {best[0]} with score {best[2]:.2f}"
+        )
+        return best[0], best[1]
 
     def apply_template_intelligence(
         self, templates: List[Tuple[str, str]], existing_docs: List[Tuple[str, str]]
@@ -89,7 +99,12 @@ class EnterpriseDocumentationManager:
         for name, content in tqdm(templates, desc="[PROGRESS] rendering", unit="template"):
             rendered.append(content.format(count=len(existing_docs)))
         combined = "\n".join(rendered)
-        self.logger.info(f"{TEXT_INDICATORS['info']} Rendered {len(rendered)} templates")
+        log_file = LOG_RENDER_DIR / f"render_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+        with open(log_file, "w", encoding="utf-8") as f:
+            f.write(combined)
+        self.logger.info(
+            f"{TEXT_INDICATORS['info']} Rendered {len(rendered)} templates -> {log_file.name}"
+        )
         return combined
 
     def calculate_compliance(self, content: str) -> float:
@@ -100,8 +115,8 @@ class EnterpriseDocumentationManager:
 
     def store_documentation(self, content: str, compliance_score: float) -> None:
         """Persist generated documentation event to analytics.db."""
-        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
-        with sqlite3.connect(ANALYTICS_DB) as conn:
+        self.analytics_db.parent.mkdir(exist_ok=True, parents=True)
+        with sqlite3.connect(self.analytics_db) as conn:
             conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS documentation_events (
