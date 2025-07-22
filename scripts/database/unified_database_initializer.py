@@ -15,7 +15,6 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from utils.logging_utils import setup_enterprise_logging
 from utils.validation_utils import detect_zero_byte_files, validate_path
 from utils.cross_platform_paths import CrossPlatformPathManager
 from secondary_copilot_validator import SecondaryCopilotValidator
@@ -105,7 +104,6 @@ def initialize_database(db_path: Path) -> None:
     logger.info("Process ID: %d", process_id)
 
     workspace_root = CrossPlatformPathManager.get_workspace_path()
-    backup_root = CrossPlatformPathManager.get_backup_root()
 
     # Validate path is within workspace and not inside backup
     if not validate_path(db_path):
@@ -133,7 +131,6 @@ def initialize_database(db_path: Path) -> None:
         bar_format="{l_bar}{bar}| {n}/{total} [{elapsed}<{remaining}]"
     ) as bar:
         for idx, (table_name, sql) in enumerate(TABLES.items(), 1):
-            phase_start = datetime.now()
             conn.execute(sql)
             bar.set_description(f"Creating {table_name}")
             bar.update(1)
@@ -169,4 +166,5 @@ def main() -> None:
     initialize_database(db_path)
 
 
-if __name__ ==
+if __name__ == "__main__":
+    main()
