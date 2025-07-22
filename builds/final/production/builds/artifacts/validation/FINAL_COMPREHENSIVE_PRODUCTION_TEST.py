@@ -12,6 +12,7 @@ Enterprise Standards Compliance:
 # import os
 import sys
 import logging
+import sqlite3
 from pathlib import Path
 from datetime import datetime
 
@@ -42,9 +43,9 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Uti" \
-               " \
-                                  "                  "ity completed in {duration:.1f}s")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s"
+                )
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -55,9 +56,37 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Validate production and analytics databases and log result."""
+        prod_db = self.workspace_path / "production.db"
+        analytics_db = self.workspace_path / "analytics.db"
+
+        try:
+            with sqlite3.connect(prod_db) as prod_conn:
+                prod_result = prod_conn.execute("PRAGMA integrity_check;").fetchone()
+
+            with sqlite3.connect(analytics_db) as an_conn:
+                an_result = an_conn.execute("PRAGMA integrity_check;").fetchone()
+
+            success = bool(prod_result and prod_result[0] == "ok" and an_result and an_result[0] == "ok")
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {exc}")
+            success = False
+
+        try:
+            with sqlite3.connect(analytics_db) as conn:
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS validation_results ("
+                    "id INTEGER PRIMARY KEY, script_name TEXT, success INTEGER, timestamp TEXT)"
+                )
+                conn.execute(
+                    "INSERT INTO validation_results (script_name, success, timestamp) VALUES (?, ?, ?)",
+                    (Path(__file__).name, int(success), datetime.now().isoformat()),
+                )
+                conn.commit()
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Analytics log failed: {exc}")
+
+        return success
 
 
 def main():

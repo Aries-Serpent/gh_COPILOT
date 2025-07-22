@@ -10,6 +10,8 @@ Enterprise Standards Compliance:
 """
 
 import logging
+import sqlite3
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -52,9 +54,37 @@ class EnterpriseUtility:
             return False
 
     def perform_utility_function(self) -> bool:
-        """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        """Validate production database and log result to analytics.db."""
+        prod_db = self.workspace_path / "production.db"
+        analytics_db = self.workspace_path / "analytics.db"
+
+        try:
+            if prod_db.exists():
+                with sqlite3.connect(prod_db) as conn:
+                    result = conn.execute("PRAGMA integrity_check;").fetchone()
+                success = bool(result and result[0] == "ok")
+            else:
+                self.logger.error(f"{TEXT_INDICATORS['error']} Missing database: {prod_db}")
+                success = False
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} DB error: {exc}")
+            success = False
+
+        try:
+            with sqlite3.connect(analytics_db) as conn:
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS validation_results ("
+                    "id INTEGER PRIMARY KEY, script_name TEXT, success INTEGER, timestamp TEXT)"
+                )
+                conn.execute(
+                    "INSERT INTO validation_results (script_name, success, timestamp) VALUES (?, ?, ?)",
+                    (Path(__file__).name, int(success), datetime.now().isoformat()),
+                )
+                conn.commit()
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Analytics log failed: {exc}")
+
+        return success
 
 
 def main():
