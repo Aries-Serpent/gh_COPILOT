@@ -121,16 +121,32 @@ class EnterpriseUtility:
                 conn.execute(
                     "CREATE TABLE IF NOT EXISTS placeholder_audit ("
                     "id INTEGER PRIMARY KEY, file_path TEXT, pattern TEXT, "
-                    "position INTEGER, ts TEXT)"
+                    "position INTEGER, severity TEXT, ts TEXT)"
                 )
                 conn.execute(
-                    "INSERT INTO placeholder_audit (file_path, pattern, position, ts) "
-                    "VALUES (?, ?, ?, ?)",
-                    (file_path, pattern, position, datetime.now().isoformat()),
+                    "INSERT INTO placeholder_audit (file_path, pattern, position, severity, ts) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (
+                        file_path,
+                        pattern,
+                        position,
+                        self._severity_for_pattern(pattern),
+                        datetime.now().isoformat(),
+                    ),
                 )
                 conn.commit()
         except sqlite3.Error as exc:
             self.logger.error(f"{TEXT_INDICATORS['error']} DB log failed: {exc}")
+
+
+    def _severity_for_pattern(self, pattern: str) -> str:
+        """Return a severity level for the given placeholder pattern."""
+        normalized = pattern.lower()
+        if normalized in {"todo", "pass"}:
+            return "low"
+        if normalized == "fixme":
+            return "medium"
+        return "high"
 
 
 def main():
