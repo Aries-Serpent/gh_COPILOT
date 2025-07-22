@@ -568,3 +568,4 @@ Planned highlights include:
    JSON and Markdown formats.
 5. **Improved Script Classification** – broader file-type detection to prevent
    misclassification of non-executable files.
+6. **Cluster-based Template Retrieval** – use `get_cluster_representatives` to group templates for database-first generation.
