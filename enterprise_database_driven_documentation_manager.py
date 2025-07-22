@@ -6,6 +6,7 @@ import json
 import logging
 import sqlite3
 import sys
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -24,16 +25,20 @@ class DocumentationManager:
 
     database: Path = Path("production.db")
 
+    def _refresh_rows(self) -> list[tuple[str, str, int]]:
+        with sqlite3.connect(self.database) as conn:
+            return conn.execute(
+                "SELECT title, content, compliance_score FROM documentation"
+            ).fetchall()
+
     def render(self) -> int:
         if not self.database.exists():
             logger.error("Database not found: %s", self.database)
             return 0
-        with sqlite3.connect(self.database) as conn:
-            rows = conn.execute(
-                "SELECT title, content, compliance_score FROM documentation"
-            ).fetchall()
+        rows = self._refresh_rows()
         RENDER_LOG_DIR.mkdir(parents=True, exist_ok=True)
         count = 0
+        start = time.time()
         for title, content, score in tqdm(rows, desc="render", unit="doc", leave=False):
             if score < 60:
                 continue
@@ -46,6 +51,8 @@ class DocumentationManager:
             )
             self._log_event("render", title)
             count += 1
+        duration = time.time() - start
+        self._log_event("render_complete", str(duration))
         return count
 
     def _log_event(self, action: str, title: str) -> None:
@@ -58,6 +65,8 @@ class DocumentationManager:
                     "INSERT INTO render_events (timestamp, action, title) VALUES (?, ?, ?)",
                     (datetime.utcnow().isoformat(), action, title),
                 )
+            with open(RENDER_LOG_DIR / "render.log", "a", encoding="utf-8") as f:
+                f.write(f"{datetime.utcnow().isoformat()}|{action}|{title}\n")
         except sqlite3.Error as exc:
             logger.error("Failed to log render event: %s", exc)
 

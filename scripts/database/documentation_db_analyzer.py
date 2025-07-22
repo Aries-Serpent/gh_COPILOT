@@ -10,7 +10,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 from tqdm import tqdm
 
-from tqdm import tqdm
+def log_correction(db: Path, details: str) -> None:
+    """Record corrections to analytics DB."""
+    try:
+        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS correction_log (timestamp TEXT, db TEXT, details TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO correction_log (timestamp, db, details) VALUES (?, ?, ?)",
+                (datetime.utcnow().isoformat(), str(db), details),
+            )
+            conn.commit()
+    except sqlite3.Error:
+        logger.debug("correction log failed")
 
 logger = logging.getLogger(__name__)
 ANALYTICS_DB = Path("analytics.db")
@@ -120,6 +134,7 @@ def main() -> None:
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2))
     _log_report(report)
+    log_correction(db_path, json.dumps(report))
     logger.info("Cleanup complete: %s", report_path)
     _log_event(db_path, {"report": str(report_path)})
 

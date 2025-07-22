@@ -6,7 +6,7 @@ import sqlite3
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any
 
@@ -73,6 +73,7 @@ class TemplateAutoGenerator:
         logger.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"Process ID: {os.getpid()}")
         validate_no_recursive_folders()
+        # DB-first loading of patterns and templates
         self.patterns = self._load_patterns()
         self.templates = self._load_templates()
         self.cluster_model = self._cluster_patterns()
@@ -95,6 +96,11 @@ class TemplateAutoGenerator:
                     logger.error(f"Error loading patterns: {exc}")
         logger.info(f"Loaded {len(patterns)} patterns")
         return patterns
+
+    def _refresh_templates(self) -> None:
+        """Reload templates and patterns from their databases."""
+        self.patterns = self._load_patterns()
+        self.templates = self._load_templates()
 
     def _load_templates(self) -> List[str]:
         logger.info("Loading templates from completion DB...")
@@ -129,7 +135,9 @@ class TemplateAutoGenerator:
         with tqdm(total=1, desc="clustering", unit="step") as pbar:
             model.fit(matrix)
             pbar.update(1)
-        logger.info(f"Clustered {len(corpus)} items into {n_clusters} groups in {(time.time()-start):.2f}s")
+        duration = time.time() - start
+        logger.info(f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s")
+        self._log_event("cluster", {"items": len(corpus), "clusters": n_clusters, "duration": duration})
         return model
 
     def objective_similarity(self, a: str, b: str) -> float:
@@ -139,14 +147,19 @@ class TemplateAutoGenerator:
 
     def select_best_template(self, target: str) -> str:
         logger.info(f"Selecting best template for target: {target}")
+        # Ensure the latest templates are loaded from the database
+        self._refresh_templates()
         candidates = self.templates if self.templates else self.patterns
         if not candidates:
             logger.warning("No candidates available for selection")
             return ""
-        scores = [
-            self.objective_similarity(target, c) + self._quantum_score(c)
-            for c in candidates
-        ]
+        scores = []
+        start = time.time()
+        with tqdm(candidates, desc="template score", unit="tmpl") as bar:
+            for c in bar:
+                score = self.objective_similarity(target, c) + self._quantum_score(c)
+                scores.append(score)
+                bar.set_postfix({"etc": calculate_etc(start, len(scores), len(candidates))})
         best_idx = int(max(range(len(scores)), key=scores.__getitem__))
         best = candidates[best_idx]
         try:
@@ -168,7 +181,7 @@ class TemplateAutoGenerator:
         self._last_objective = objective
         search_terms = " ".join(map(str, objective.values()))
         logger.info(f"Generating template for objective: {search_terms}")
-        start = datetime.utcnow()
+        start_time = time.time()
         found = ""
         with tqdm(self.templates + self.patterns, desc="[PROGRESS] search", unit="tmpl") as bar:
             for tmpl in bar:
@@ -181,16 +194,19 @@ class TemplateAutoGenerator:
                         )
                         conn.execute(
                             "INSERT INTO generation_events (ts, objective, template) VALUES (?,?,?)",
-                            (start.isoformat(), str(objective), tmpl),
+                            (datetime.utcnow().isoformat(), str(objective), tmpl),
                         )
                         conn.commit()
                     found = tmpl
                     logger.info("Template generated and logged")
                     break
                 bar.update(1)
+                bar.set_postfix({"etc": calculate_etc(start_time, bar.n, len(self.templates + self.patterns))})
         if not found:
             self._log_event("generate", {"objective": search_terms, "status": "none"})
             logger.warning("No template found for objective")
+        duration = time.time() - start_time
+        self._log_event("generate_complete", {"objective": search_terms, "duration": duration})
         return found
 
     def regenerate_template(self) -> str:
@@ -222,6 +238,7 @@ class TemplateAutoGenerator:
             best_local = indices[int(max(range(len(sims)), key=lambda i: sims[i]))]
             reps.append(corpus[best_local])
         logger.info(f"Cluster representatives selected: {len(reps)}")
+        self._log_event("cluster_representatives", {"count": len(reps)})
         return reps
 
     def _log_event(self, name: str, data: dict) -> None:

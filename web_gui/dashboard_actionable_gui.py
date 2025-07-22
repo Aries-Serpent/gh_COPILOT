@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from flask import Flask, jsonify, request
+import sqlite3
+from datetime import datetime
 
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 
@@ -28,6 +30,22 @@ def get_corrections():
     if summary.exists():
         data = json.loads(summary.read_text())
     return jsonify(data)
+
+
+@app.get("/compliance")
+def get_compliance():
+    """Return recent compliance metrics from analytics.db."""
+    metrics = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS compliance_metrics (ts TEXT, metric TEXT, value REAL)"
+            )
+            rows = conn.execute(
+                "SELECT ts, metric, value FROM compliance_metrics ORDER BY ts DESC LIMIT 10"
+            ).fetchall()
+            metrics = [dict(ts=row[0], metric=row[1], value=row[2]) for row in rows]
+    return jsonify({"metrics": metrics, "timestamp": datetime.utcnow().isoformat()})
 
 
 @app.post("/rollback")
