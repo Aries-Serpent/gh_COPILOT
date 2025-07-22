@@ -51,10 +51,50 @@ class EnterpriseUtility:
             self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
             return False
 
+    def _log_validation_result(self, script: str, success: bool) -> None:
+        """Log validation result to analytics.db"""
+        analytics_db = self.workspace_path / "analytics.db"
+        try:
+            with sqlite3.connect(analytics_db) as conn:
+                conn.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS validation_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        script_name TEXT,
+                        run_time TEXT,
+                        success INTEGER
+                    )
+                    """
+                )
+                conn.execute(
+                    "INSERT INTO validation_history (script_name, run_time, success) VALUES (?, ?, ?)",
+                    (script, datetime.now().isoformat(), int(success)),
+                )
+                conn.commit()
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Log failure: {exc}")
+
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
-        # Implementation placeholder
-        return True
+        try:
+            prod_db = self.workspace_path / "production.db"
+            analytics_db = self.workspace_path / "analytics.db"
+
+            success = False
+            if prod_db.exists() and analytics_db.exists():
+                with sqlite3.connect(prod_db) as prod_conn:
+                    prod_result = prod_conn.execute("PRAGMA integrity_check;").fetchone()
+                with sqlite3.connect(analytics_db) as an_conn:
+                    an_result = an_conn.execute("PRAGMA integrity_check;").fetchone()
+                success = bool(prod_result and prod_result[0] == "ok" and an_result and an_result[0] == "ok")
+
+            self._log_validation_result(Path(__file__).name, success)
+            return success
+
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {exc}")
+            self._log_validation_result(Path(__file__).name, False)
+            return False
 
 
 def main():
