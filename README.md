@@ -168,6 +168,20 @@ optimization_metrics.db         # Continuous optimization data
 
 ---
 
+### Template Engine Modules
+Several helper scripts under `template_engine` implement the database-first
+workflow. They provide progress indicators, DUAL COPILOT validation and
+compliance logging:
+
+* **DBFirstCodeGenerator** – generates code or documentation by querying
+  `production.db`, `documentation.db` and `template_documentation.db`. It logs
+  all generation events to `analytics.db`.
+* **PatternClusteringSync** – clusters stored patterns with KMeans and
+  synchronizes representative templates using transactional auditing.
+* **TemplateWorkflowEnhancer** – mines patterns from existing templates,
+  computes compliance scores and writes dashboard-ready reports.
+
+
 ## 🤖 DUAL COPILOT PATTERN
 
 ### **Architecture**
