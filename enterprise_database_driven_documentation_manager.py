@@ -9,11 +9,14 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+import time
+
+from template_engine.auto_generator import calculate_etc
 
 from tqdm import tqdm
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
-ANALYTICS_DB = Path("analytics.db")
+ANALYTICS_DB = Path("databases") / "analytics.db"
 
 logger = logging.getLogger(__name__)
 
@@ -28,13 +31,14 @@ class DocumentationManager:
         if not self.database.exists():
             logger.error("Database not found: %s", self.database)
             return 0
+        start_ts = time.time()
         with sqlite3.connect(self.database) as conn:
             rows = conn.execute(
                 "SELECT title, content, compliance_score FROM documentation"
             ).fetchall()
         RENDER_LOG_DIR.mkdir(parents=True, exist_ok=True)
         count = 0
-        for title, content, score in tqdm(rows, desc="render", unit="doc", leave=False):
+        for idx, (title, content, score) in enumerate(tqdm(rows, desc="render", unit="doc", leave=False), 1):
             if score < 60:
                 continue
             (RENDER_LOG_DIR / f"{title}.md").write_text(content)
@@ -45,6 +49,8 @@ class DocumentationManager:
                 json.dumps({"title": title, "content": content}, indent=2)
             )
             self._log_event("render", title)
+            etc = calculate_etc(start_ts, idx, len(rows))
+            tqdm.write(f"ETC: {etc}")
             count += 1
         return count
 

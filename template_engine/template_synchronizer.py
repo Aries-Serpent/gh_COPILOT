@@ -7,6 +7,7 @@
 
 import logging
 import sqlite3
+import time
 from pathlib import Path
 from datetime import datetime
 from typing import Iterable
@@ -16,6 +17,15 @@ from tqdm import tqdm
 
 ANALYTICS_DB = Path("databases") / "analytics.db"
 logger = logging.getLogger(__name__)
+
+
+def _calculate_etc(start_ts: float, current: int, total: int) -> str:
+    if current == 0:
+        return "N/A"
+    elapsed = time.time() - start_ts
+    est_total = elapsed / (current / total)
+    remaining = est_total - elapsed
+    return f"{remaining:.2f}s remaining"
 
 
 def _extract_templates(db: Path) -> list[tuple[str, str]]:
@@ -79,6 +89,22 @@ def _log_audit(db_name: str, details: str) -> None:
         logger.error("Failed to log audit event: %s", exc)
 
 
+def _log_event(name: str, details: str) -> None:
+    """Generic event logger for synchronization steps."""
+    try:
+        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS sync_status (timestamp TEXT, name TEXT, details TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO sync_status (timestamp, name, details) VALUES (?, ?, ?)",
+                (datetime.utcnow().isoformat(), name, details),
+            )
+    except sqlite3.Error as exc:
+        logger.error("Failed to log event: %s", exc)
+
+
 def _compliance_check(conn: sqlite3.Connection) -> bool:
     """Check that all templates in DB are compliant (PEP8/flake8 placeholder)."""
     try:
@@ -99,22 +125,26 @@ def synchronize_templates(
     Synchronize templates across multiple databases with transactional integrity.
     Each synchronized template is logged to analytics DB with a timestamp and source.
     """
-    start = datetime.utcnow()
+    start_dt = datetime.utcnow()
+    start_ts = time.time()
+    _log_event("sync_start", ",".join(str(p) for p in source_dbs or []))
     databases = list(source_dbs) if source_dbs else []
     all_templates: dict[str, str] = {}
 
     # Extract and validate templates from all databases
-    for db in tqdm(databases, desc="Extracting", unit="db"):
+    for idx, db in enumerate(tqdm(databases, desc="Extracting", unit="db"), 1):
         for name, content in _extract_templates(db):
             if _validate_template(name, content):
                 all_templates[name] = content
             else:
                 logger.warning("Invalid template from %s: %s", db, name)
+        etc = _calculate_etc(start_ts, idx, len(databases))
+        tqdm.write(f"ETC: {etc}")
 
     source_names = ",".join(str(d) for d in databases)
     synced = 0
 
-    for db in tqdm(databases, desc="Synchronizing", unit="db"):
+    for idx, db in enumerate(tqdm(databases, desc="Synchronizing", unit="db"), 1):
         if not db.exists():
             logger.warning("Skipping missing DB: %s", db)
             continue
@@ -140,9 +170,12 @@ def synchronize_templates(
         except sqlite3.Error as exc:
             _log_audit(str(db), f"DB connection error: {exc}")
             logger.error("Database error %s: %s", db, exc)
+        etc = _calculate_etc(start_ts, idx + len(databases), len(databases) * 2)
+        tqdm.write(f"ETC: {etc}")
 
-    duration = (datetime.utcnow() - start).total_seconds()
+    duration = (datetime.utcnow() - start_dt).total_seconds()
     logger.info("Synchronization completed for %s databases in %.2fs", synced, duration)
+    _log_event("sync_complete", f"{synced} databases in {duration:.2f}s")
     return synced
 
 
