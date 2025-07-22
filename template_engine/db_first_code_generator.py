@@ -91,7 +91,6 @@ class DBFirstCodeGenerator:
 
     def _similarity_score(self, template: Dict[str, Any], objective: str) -> float:
         """Compute similarity score between template and objective."""
-        # Simple scoring: compliance_score + keyword match
         score = float(template.get("score", 0.0))
         if objective.lower() in template.get("name", "").lower():
             score += 0.5
@@ -195,8 +194,9 @@ class DBFirstCodeGenerator:
             else:
                 pbar.set_description("Auto-Generating Template")
                 pbar.update(1)
-                content = self._auto_generate_template(objective)["content"]
-                self._log_generation_event(objective, self._auto_generate_template(objective), status="auto-generated")
+                auto_template = self._auto_generate_template(objective)
+                content = auto_template["content"]
+                self._log_generation_event(objective, auto_template, status="auto-generated")
             etc = self._calculate_etc(elapsed, total_steps, total_steps)
             pbar.set_postfix(ETC=etc)
         elapsed = time.time() - start_time
