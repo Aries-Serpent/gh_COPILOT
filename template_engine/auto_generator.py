@@ -1,147 +1,113 @@
-#!/usr/bin/env python3
-# [Script]: Template Generation Engine using KMeans Clustering
-# > Generated: 2025-07-22 00:23:23 | Author: mbaetiong
-
 from __future__ import annotations
 
-import logging
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List
+from typing import List
 
-from difflib import SequenceMatcher
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
-logger = logging.getLogger(__name__)
-
-
-@dataclass
-class ClusterModel:
-    """Simple wrapper holding clustering results."""
-
-    n_clusters: int
-    labels_: List[int]
+DEFAULT_ANALYTICS_DB = Path("analytics.db")
+DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
 
 
 @dataclass
 class TemplateAutoGenerator:
-    """
-    Generate templates from stored patterns using clustering.
-    Enterprise Standards: PEP8/flake8 compliant, explicit error handling, environment/path compliance.
-    """
+    """Generate and cluster templates loaded from SQLite databases."""
 
-    analytics_db: Path
-    completion_db: Path
+    analytics_db: Path = DEFAULT_ANALYTICS_DB
+    completion_db: Path = DEFAULT_COMPLETION_DB
 
-    def __init__(self, analytics_db: Path, completion_db: Path) -> None:
-        self.analytics_db = Path(analytics_db)
-        self.completion_db = Path(completion_db)
-        self.patterns = self._load_patterns(self.analytics_db)
-        self.templates = self._load_templates(self.completion_db)
-        self.vectorizer: TfidfVectorizer | None = None
-        self.cluster_model: ClusterModel | None = None
-        self._last_template: str | None = None
-        self._build_cluster_model()
+    def __post_init__(self) -> None:
+        self.patterns = self._load_patterns()
+        self.templates = self._load_templates()
+        self.cluster_model = self._cluster_patterns()
+        self._last_objective: dict | None = None
 
-    @staticmethod
-    def _load_patterns(db_path: Path) -> List[str]:
-        """Load replacement templates from ml_pattern_optimization table."""
-        if not db_path.exists():
-            logger.warning("Patterns DB does not exist: %s", db_path)
+    # ------------------------------------------------------------------
+    def _load_patterns(self) -> List[str]:
+        if not self.analytics_db.exists():
             return []
-        try:
-            with sqlite3.connect(db_path) as conn:
-                rows = conn.execute(
-                    "SELECT replacement_template FROM ml_pattern_optimization"
-                ).fetchall()
-            return [r[0] for r in rows]
-        except sqlite3.Error as exc:
-            logger.error("Failed to load patterns from %s: %s", db_path, exc)
-            return []
+        with sqlite3.connect(self.analytics_db) as conn:
+            cur = conn.execute(
+                "SELECT replacement_template FROM ml_pattern_optimization"
+            )
+            return [row[0] for row in cur.fetchall()]
 
-    @staticmethod
-    def _load_templates(db_path: Path) -> List[str]:
-        """Load template contents from templates table."""
-        if not db_path.exists():
-            logger.warning("Templates DB does not exist: %s", db_path)
+    # ------------------------------------------------------------------
+    def _load_templates(self) -> List[str]:
+        if not self.completion_db.exists():
             return []
-        try:
-            with sqlite3.connect(db_path) as conn:
-                rows = conn.execute("SELECT template_content FROM templates").fetchall()
-            return [r[0] for r in rows]
-        except sqlite3.Error as exc:
-            logger.error("Failed to load templates from %s: %s", db_path, exc)
-            return []
+        with sqlite3.connect(self.completion_db) as conn:
+            cur = conn.execute("SELECT template_content FROM templates")
+            return [row[0] for row in cur.fetchall()]
 
-    def _build_cluster_model(self) -> None:
-        """Build clustering model from corpus."""
-        corpus = self.patterns + self.templates
+    # ------------------------------------------------------------------
+    def _cluster_patterns(self) -> KMeans | None:
+        corpus = self.templates + self.patterns
         if not corpus:
-            self.cluster_model = None
-            self.vectorizer = None
-            logger.info("No corpus; cluster model not built.")
-            return
-        self.vectorizer = TfidfVectorizer()
-        matrix = self.vectorizer.fit_transform(corpus)
-        n_clusters = min(4, len(corpus))
-        model = KMeans(n_clusters=n_clusters, n_init=5, random_state=0)
-        labels = model.fit_predict(matrix)
-        self.cluster_model = ClusterModel(n_clusters=n_clusters, labels_=labels.tolist())
-        logger.info("Cluster model built with %d clusters.", n_clusters)
+            return None
+        vectorizer = TfidfVectorizer()
+        matrix = vectorizer.fit_transform(corpus)
+        n_clusters = min(len(corpus), 2)
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+        model.fit(matrix)
+        return model
 
-    def generate_template(self, params: Dict[str, str]) -> str:
-        """
-        Return the best template for the provided parameters.
-        Raises ValueError if pattern syntax is invalid.
-        """
-        objective = " ".join(params.values())
-        candidate = self.select_best_template(objective)
-        if candidate and "def invalid:" in candidate:
-            logger.error("Invalid pattern syntax detected in generated template.")
-            raise ValueError("Invalid pattern syntax")
-        self._last_template = candidate
-        logger.info("Generated template selected.")
-        return candidate
+    # ------------------------------------------------------------------
+    def objective_similarity(self, a: str, b: str) -> float:
+        vectorizer = TfidfVectorizer().fit([a, b])
+        vecs = vectorizer.transform([a, b])
+        return float(cosine_similarity(vecs[0], vecs[1])[0][0])
 
+    # ------------------------------------------------------------------
+    def select_best_template(self, target: str) -> str:
+        candidates = self.templates or self.patterns
+        if not candidates:
+            return ""
+        scores = [self.objective_similarity(target, c) for c in candidates]
+        return candidates[int(max(range(len(scores)), key=scores.__getitem__))]
+
+    # ------------------------------------------------------------------
+    def generate_template(self, objective: dict) -> str:
+        self._last_objective = objective
+        search_terms = " ".join(map(str, objective.values()))
+        for tmpl in self.templates + self.patterns:
+            if all(term.lower() in tmpl.lower() for term in search_terms.split()):
+                if "def invalid" in tmpl:
+                    raise ValueError("Invalid template syntax")
+                return tmpl
+        return ""
+
+    # ------------------------------------------------------------------
     def regenerate_template(self) -> str:
-        """Return the last generated template (if any)."""
-        logger.info("Regenerating last template.")
-        return self._last_template or ""
+        if not self._last_objective:
+            return ""
+        return self.generate_template(self._last_objective)
 
+    # ------------------------------------------------------------------
     def get_cluster_representatives(self) -> List[str]:
-        """Return representative template from each cluster."""
-        if not self.cluster_model or not self.vectorizer:
-            logger.warning("Cluster model or vectorizer not available.")
+        if not self.cluster_model:
             return []
+        corpus = self.templates + self.patterns
+        vectorizer = TfidfVectorizer().fit(corpus)
+        matrix = vectorizer.transform(corpus)
         reps: List[str] = []
-        corpus = self.patterns + self.templates
-        for cluster_id in range(self.cluster_model.n_clusters):
-            indices = [
-                idx
-                for idx, label in enumerate(self.cluster_model.labels_)
-                if label == cluster_id
-            ]
+        for idx in range(self.cluster_model.n_clusters):
+            indices = [i for i, label in enumerate(self.cluster_model.labels_) if label == idx]
             if not indices:
                 continue
-            candidates = [corpus[i] for i in indices]
-            reps.append(max(candidates, key=len))
-        logger.info("Cluster representatives selected.")
+            sub_matrix = matrix[indices]
+            centroid = self.cluster_model.cluster_centers_[idx].reshape(1, -1)
+            sims = cosine_similarity(sub_matrix, centroid).ravel()
+            best_local = indices[int(max(range(len(sims)), key=lambda i: sims[i]))]
+            reps.append(corpus[best_local])
         return reps
 
-    @staticmethod
-    def objective_similarity(a: str, b: str) -> float:
-        """Return a similarity ratio between two strings."""
-        return SequenceMatcher(None, a, b).ratio()
-
-    def select_best_template(self, target: str) -> str:
-        """Return template most similar to ``target``."""
-        candidates: Iterable[str] = self.templates or self.patterns
-        if not candidates:
-            logger.warning("No candidates available for template selection.")
-            return ""
-        scored = [(self.objective_similarity(t, target), t) for t in candidates]
-        best = max(scored, key=lambda x: x[0])[1]
-        logger.info("Best template selected (score: %.3f)", max(scored, key=lambda x: x[0])[0])
-        return best
+__all__ = [
+    "TemplateAutoGenerator",
+    "DEFAULT_ANALYTICS_DB",
+    "DEFAULT_COMPLETION_DB",
+]
