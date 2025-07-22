@@ -378,6 +378,8 @@ gh_COPILOT/
 - **`scripts/validation/enterprise_dual_copilot_validator.py`** - DUAL COPILOT validation
 - **`scripts/utilities/unified_script_generation_system.py`** - Database-first generation
 - **`web_gui/scripts/flask_apps/enterprise_dashboard.py`** - Enterprise dashboard
+- **`validation/compliance_report_generator.py`** - Summarize lint and test results
+- **`web_gui/dashboard_actionable_gui.py`** - Actionable compliance dashboard
 
 ---
 
