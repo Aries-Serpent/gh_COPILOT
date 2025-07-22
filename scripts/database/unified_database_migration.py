@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 UnifiedDatabaseMigration - Enterprise Utility Script
-Generated: 2025-07-22 09:03:14 | Author: mbaetiong
+Generated: 2025-07-22 09:08:49 | Author: mbaetiong
 
 Enterprise Standards Compliance:
 - Flake8/PEP 8 Compliant
@@ -25,6 +25,7 @@ from .database_consolidation_migration import consolidate_databases
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
 from .complete_consolidation_orchestrator import create_external_backup
+from utils.logging_utils import setup_enterprise_logging
 from scripts.validation.semantic_search_reference_validator import (
     chunk_anti_recursion_validation,
 )
@@ -47,10 +48,6 @@ def _compress_database(db_path: Path) -> None:
         conn.execute("ANALYZE")
         conn.commit()
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
 logger = logging.getLogger(__name__)
 
 DATABASE_LIST_FILE = Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md"
@@ -182,7 +179,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    setup_enterprise_logging()
     run_migration(
         args.workspace,
         args.sources,
