@@ -26,23 +26,35 @@ from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "cross_reference"
+LOGS_DIR = (
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    / "logs"
+    / "cross_reference"
+)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"cross_reference_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
-PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "production.db"
+PRODUCTION_DB = (
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "production.db"
+)
 ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "analytics.db"
-DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "dashboard" / "compliance"
-TASK_SUGGESTIONS_FILE = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
+DASHBOARD_DIR = (
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    / "dashboard"
+    / "compliance"
+)
+TASK_SUGGESTIONS_FILE = (
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    / "docs"
+    / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
+)
+
 
 class CrossReferenceValidator:
     """
@@ -50,7 +62,13 @@ class CrossReferenceValidator:
     Ensures all actions are auditable and tied to compliance/correction records.
     """
 
-    def __init__(self, production_db: Path = PRODUCTION_DB, analytics_db: Path = ANALYTICS_DB, dashboard_dir: Path = DASHBOARD_DIR, task_suggestions_file: Path = TASK_SUGGESTIONS_FILE) -> None:
+    def __init__(
+        self,
+        production_db: Path = PRODUCTION_DB,
+        analytics_db: Path = ANALYTICS_DB,
+        dashboard_dir: Path = DASHBOARD_DIR,
+        task_suggestions_file: Path = TASK_SUGGESTIONS_FILE,
+    ) -> None:
         self.production_db = production_db
         self.analytics_db = analytics_db
         self.dashboard_dir = dashboard_dir
@@ -71,9 +89,7 @@ class CrossReferenceValidator:
             logging.warning("production.db not found, using default patterns.")
             return patterns
         with sqlite3.connect(self.production_db) as conn:
-            cur = conn.execute(
-                "SELECT pattern_name FROM cross_reference_patterns"
-            )
+            cur = conn.execute("SELECT pattern_name FROM cross_reference_patterns")
             patterns = [row[0] for row in cur.fetchall()]
         logging.info(f"Cross-reference patterns found: {patterns}")
         return patterns
@@ -81,7 +97,9 @@ class CrossReferenceValidator:
     def _scan_task_suggestions(self) -> List[str]:
         """Scan task suggestion file for actionable items."""
         if not self.task_suggestions_file.exists():
-            logging.warning(f"Task suggestions file not found: {self.task_suggestions_file}")
+            logging.warning(
+                f"Task suggestions file not found: {self.task_suggestions_file}"
+            )
             return []
         with open(self.task_suggestions_file, "r", encoding="utf-8") as f:
             lines = f.readlines()
@@ -97,14 +115,18 @@ class CrossReferenceValidator:
             logging.warning("analytics.db not found, skipping cross-link.")
             return actions
         with sqlite3.connect(self.analytics_db) as conn:
-            cur = conn.execute("SELECT file_path, item_type, status, last_updated FROM todo_fixme_tracking WHERE status='open'")
+            cur = conn.execute(
+                "SELECT file_path, item_type, status, last_updated FROM todo_fixme_tracking WHERE status='open'"
+            )
             for row in cur.fetchall():
-                actions.append({
-                    "file_path": row[0],
-                    "item_type": row[1],
-                    "status": row[2],
-                    "last_updated": row[3],
-                })
+                actions.append(
+                    {
+                        "file_path": row[0],
+                        "item_type": row[1],
+                        "status": row[2],
+                        "last_updated": row[3],
+                    }
+                )
         logging.info(f"Cross-linked actions found: {len(actions)}")
         return actions
 
@@ -117,6 +139,7 @@ class CrossReferenceValidator:
             "status": "complete" if actions else "none",
         }
         import json
+
         summary_file = self.dashboard_dir / "cross_reference_summary.json"
         summary_file.write_text(json.dumps(summary, indent=2), encoding="utf-8")
         logging.info(f"Dashboard cross-reference summary updated: {summary_file}")
@@ -131,7 +154,9 @@ class CrossReferenceValidator:
         tasks = self._scan_task_suggestions()
         actions = self._cross_link_actions()
         total_steps = 3
-        with tqdm(total=total_steps, desc="Cross-Reference Validation", unit="step") as bar:
+        with tqdm(
+            total=total_steps, desc="Cross-Reference Validation", unit="step"
+        ) as bar:
             bar.set_description("Querying Patterns")
             bar.update(1)
             bar.set_description("Scanning Task Suggestions")
@@ -140,16 +165,22 @@ class CrossReferenceValidator:
             bar.update(1)
         elapsed = time.time() - start_time
         etc = self._calculate_etc(elapsed, total_steps, total_steps)
-        logging.info(f"Cross-reference validation completed in {elapsed:.2f}s | ETC: {etc}")
+        logging.info(
+            f"Cross-reference validation completed in {elapsed:.2f}s | ETC: {etc}"
+        )
         self._update_dashboard(actions)
         valid = self._dual_copilot_validate(len(actions))
         if valid:
-            logging.info("DUAL COPILOT validation passed: Cross-reference integrity confirmed.")
+            logging.info(
+                "DUAL COPILOT validation passed: Cross-reference integrity confirmed."
+            )
         else:
             logging.error("DUAL COPILOT validation failed: Cross-reference mismatch.")
         return valid
 
-    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
+    def _calculate_etc(
+        self, elapsed: float, current_progress: int, total_work: int
+    ) -> str:
         if current_progress > 0:
             total_estimated = elapsed / (current_progress / total_work)
             remaining = total_estimated - elapsed
@@ -163,10 +194,12 @@ class CrossReferenceValidator:
         if not summary_file.exists():
             return False
         import json
+
         with open(summary_file, "r", encoding="utf-8") as f:
             data = json.load(f)
         actual_count = len(data.get("cross_linked_actions", []))
         return actual_count >= expected_count
+
 
 def main(
     production_db_path: Optional[str] = None,
@@ -187,16 +220,24 @@ def main(
     validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
 
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    production_db = Path(production_db_path or workspace / "databases" / "production.db")
+    production_db = Path(
+        production_db_path or workspace / "databases" / "production.db"
+    )
     analytics_db = Path(analytics_db_path or workspace / "databases" / "analytics.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
-    task_suggestions = Path(task_suggestions_file or workspace / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md")
+    task_suggestions = Path(
+        task_suggestions_file
+        or workspace / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
+    )
 
-    validator = CrossReferenceValidator(production_db, analytics_db, dashboard, task_suggestions)
+    validator = CrossReferenceValidator(
+        production_db, analytics_db, dashboard, task_suggestions
+    )
     valid = validator.validate(timeout_minutes=timeout_minutes)
     elapsed = time.time() - start_time
     logging.info(f"Cross-reference validator completed in {elapsed:.2f}s")
     return valid
+
 
 if __name__ == "__main__":
     success = main()

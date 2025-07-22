@@ -24,38 +24,45 @@ from tqdm import tqdm
 
 try:
     from qiskit import QuantumCircuit, execute, Aer
+
     QISKIT_AVAILABLE = True
 except ImportError:
     QISKIT_AVAILABLE = False
 
 # Enterprise logging setup
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "quantum_compliance"
+LOGS_DIR = (
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    / "logs"
+    / "quantum_compliance"
+)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = LOGS_DIR / f"quantum_compliance_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+LOG_FILE = (
+    LOGS_DIR / f"quantum_compliance_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+)
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
+
 
 # Anti-recursion validation
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
 
+
 def validate_environment_root() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
     if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
         logging.warning(f"Non-standard workspace root: {workspace_root}")
+
 
 class QuantumComplianceEngine:
     """
@@ -65,7 +72,9 @@ class QuantumComplianceEngine:
     """
 
     def __init__(self, workspace: Optional[Path] = None) -> None:
-        self.workspace = workspace or Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+        self.workspace = workspace or Path(
+            os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")
+        )
         self.start_time = datetime.now()
         self.process_id = os.getpid()
         self.timeout_seconds = 1800  # 30 minutes
@@ -76,7 +85,12 @@ class QuantumComplianceEngine:
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
 
-    def score(self, target: Path, patterns: List[str], modular_weights: Optional[List[float]] = None) -> float:
+    def score(
+        self,
+        target: Path,
+        patterns: List[str],
+        modular_weights: Optional[List[float]] = None,
+    ) -> float:
         """
         Quantum-inspired compliance scoring for a target file.
         Applies multi-pattern matching, quantum field redundancy, modular weighting.
@@ -91,7 +105,9 @@ class QuantumComplianceEngine:
             pbar.update(30)
 
             pbar.set_description("Applying Modular Weighting")
-            weighted_score = self._apply_modular_weighting(pattern_matches, modular_weights)
+            weighted_score = self._apply_modular_weighting(
+                pattern_matches, modular_weights
+            )
             pbar.update(30)
 
             if QISKIT_AVAILABLE:
@@ -109,7 +125,9 @@ class QuantumComplianceEngine:
 
         elapsed = time.time() - start_time
         etc = self._calculate_etc(elapsed, 100, 100)
-        logging.info(f"Quantum compliance scoring completed in {elapsed:.2f}s | ETC: {etc}")
+        logging.info(
+            f"Quantum compliance scoring completed in {elapsed:.2f}s | ETC: {etc}"
+        )
         logging.info(f"Target: {target} | Score: {score:.4f}")
         self.status = "COMPLETED"
         return score
@@ -126,7 +144,9 @@ class QuantumComplianceEngine:
         logging.info(f"Pattern matches: {matches}")
         return matches
 
-    def _apply_modular_weighting(self, matches: Dict[str, int], weights: Optional[List[float]]) -> float:
+    def _apply_modular_weighting(
+        self, matches: Dict[str, int], weights: Optional[List[float]]
+    ) -> float:
         """Apply modular weighting to pattern matches."""
         if not matches:
             return 0.0
@@ -147,15 +167,17 @@ class QuantumComplianceEngine:
         qc.h(0)
         qc.rz(classical_score * 3.1415, 0)
         qc.measure_all()
-        backend = Aer.get_backend('qasm_simulator')
+        backend = Aer.get_backend("qasm_simulator")
         job = execute(qc, backend, shots=1024)
         result = job.result()
         counts = result.get_counts()
-        quantum_score = counts.get('1', 0) / 1024
+        quantum_score = counts.get("1", 0) / 1024
         logging.info(f"Quantum field redundancy score: {quantum_score:.4f}")
         return quantum_score
 
-    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
+    def _calculate_etc(
+        self, elapsed: float, current_progress: int, total_work: int
+    ) -> str:
         if current_progress > 0:
             total_estimated = elapsed / (current_progress / total_work)
             remaining = total_estimated - elapsed
@@ -166,10 +188,15 @@ class QuantumComplianceEngine:
         """DUAL COPILOT: Secondary validator for quantum logic integrity and compliance."""
         valid = score >= threshold
         if valid:
-            logging.info("DUAL COPILOT validation passed: Quantum compliance score meets threshold.")
+            logging.info(
+                "DUAL COPILOT validation passed: Quantum compliance score meets threshold."
+            )
         else:
-            logging.error("DUAL COPILOT validation failed: Quantum compliance score below threshold.")
+            logging.error(
+                "DUAL COPILOT validation failed: Quantum compliance score below threshold."
+            )
         return valid
+
 
 def main() -> None:
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
@@ -180,6 +207,7 @@ def main() -> None:
     weights = [1.5, 2.0, 1.0, 1.0]
     score = engine.score(target_file, patterns, weights)
     engine.validate_compliance(score, threshold=0.85)
+
 
 if __name__ == "__main__":
     main()

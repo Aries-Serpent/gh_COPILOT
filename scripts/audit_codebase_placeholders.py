@@ -38,7 +38,13 @@ TEXT = {
     "complete": "[COMPLETE]",
 }
 
-DEFAULT_PATTERNS = [r"TODO", r"FIXME", r"Implementation placeholder", r"legacy template logic"]
+DEFAULT_PATTERNS = [
+    r"TODO",
+    r"FIXME",
+    r"Implementation placeholder",
+    r"legacy template logic",
+]
+
 
 # Database-first: fetch placeholder patterns from production.db
 def fetch_db_placeholders(production_db: Path) -> List[str]:
@@ -50,8 +56,11 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
             cur = conn.execute("SELECT placeholder_name FROM template_placeholders")
             return [row[0] for row in cur.fetchall()]
         except Exception as e:
-            logging.error(f"{TEXT['error']} Failed to fetch placeholders from production.db: {e}")
+            logging.error(
+                f"{TEXT['error']} Failed to fetch placeholders from production.db: {e}"
+            )
             return []
+
 
 # Insert findings into analytics.db.todo_fixme_tracking
 def log_findings(results: List[Dict], analytics_db: Path) -> None:
@@ -128,6 +137,7 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
             )
         conn.commit()
 
+
 # Update dashboard/compliance with summary JSON
 def update_dashboard(count: int, dashboard_dir: Path) -> None:
     """Write summary JSON to dashboard/compliance directory."""
@@ -142,13 +152,18 @@ def update_dashboard(count: int, dashboard_dir: Path) -> None:
     summary_file = dashboard_dir / "placeholder_summary.json"
     summary_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
+
 # Scan files for patterns with timeout and visual indicators
-def scan_files(workspace: Path, patterns: List[str], timeout: Optional[float] = None) -> List[Dict]:
+def scan_files(
+    workspace: Path, patterns: List[str], timeout: Optional[float] = None
+) -> List[Dict]:
     """Scan files for given patterns with optional timeout and progress bar."""
     results: List[Dict] = []
     files = [f for f in workspace.rglob("*") if f.is_file()]
     start = time.time()
-    with tqdm(total=len(files), desc=f"{TEXT['progress']} scanning", unit="file") as bar:
+    with tqdm(
+        total=len(files), desc=f"{TEXT['progress']} scanning", unit="file"
+    ) as bar:
         for file in files:
             if timeout and time.time() - start > timeout:
                 bar.write(f"{TEXT['error']} timeout reached")
@@ -162,14 +177,17 @@ def scan_files(workspace: Path, patterns: List[str], timeout: Optional[float] = 
             for idx, line in enumerate(lines, 1):
                 for pat in patterns:
                     if re.search(pat, line):
-                        results.append({
-                            "file": str(file),
-                            "line": idx,
-                            "pattern": pat,
-                            "context": line.strip()[:200],
-                        })
+                        results.append(
+                            {
+                                "file": str(file),
+                                "line": idx,
+                                "pattern": pat,
+                                "context": line.strip()[:200],
+                            }
+                        )
             bar.update(1)
     return results
+
 
 # DUAL COPILOT: Secondary validator for audit completeness
 def validate_results(expected_count: int, analytics_db: Path) -> bool:
@@ -179,6 +197,7 @@ def validate_results(expected_count: int, analytics_db: Path) -> bool:
         db_count = cur.fetchone()[0]
     return db_count >= expected_count
 
+
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     """Calculate estimated time to completion."""
     elapsed = time.time() - start_time
@@ -187,6 +206,7 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
         remaining = total_estimated - elapsed
         return f"{remaining:.2f}s remaining"
     return "N/A"
+
 
 def main(
     workspace_path: Optional[str] = None,
@@ -220,7 +240,9 @@ def main(
     # Scan files with progress bar and ETC calculation
     files = [f for f in workspace.rglob("*") if f.is_file()]
     results: List[Dict] = []
-    with tqdm(total=len(files), desc=f"{TEXT['progress']} scanning", unit="file") as bar:
+    with tqdm(
+        total=len(files), desc=f"{TEXT['progress']} scanning", unit="file"
+    ) as bar:
         for idx, file in enumerate(files, 1):
             if timeout and time.time() - start_time > timeout:
                 bar.write(f"{TEXT['error']} timeout reached")
@@ -234,12 +256,14 @@ def main(
             for line_num, line in enumerate(lines, 1):
                 for pat in patterns:
                     if re.search(pat, line):
-                        results.append({
-                            "file": str(file),
-                            "line": line_num,
-                            "pattern": pat,
-                            "context": line.strip()[:200],
-                        })
+                        results.append(
+                            {
+                                "file": str(file),
+                                "line": line_num,
+                                "pattern": pat,
+                                "context": line.strip()[:200],
+                            }
+                        )
             elapsed = time.time() - start_time
             etc = calculate_etc(start_time, idx, len(files))
             bar.set_postfix(ETC=etc)
@@ -259,6 +283,7 @@ def main(
     else:
         logging.error(f"{TEXT['error']} validation mismatch")
     return valid
+
 
 if __name__ == "__main__":
     success = main()
