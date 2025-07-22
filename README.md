@@ -31,6 +31,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Multiple SQLite Databases:** `production.db`, `analytics.db`, `monitoring.db`
 - **Flask Enterprise Dashboard:** basic endpoints and templates
 - **Template Intelligence Platform:** tracks generated scripts
+- **Documentation logs:** rendered templates saved under `logs/template_rendering/`
 - **Script Validation**: automated checks available
 - **Self-Healing Systems:** experimental correction scripts
 - **Continuous Operation Mode:** optional monitoring utilities
