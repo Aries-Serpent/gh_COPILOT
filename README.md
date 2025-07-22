@@ -20,7 +20,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **DUAL COPILOT Pattern:** primary/secondary validation framework available
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
-- **Placeholder Auditing:** detection script logs findings to `analytics.db`
+- **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Quantum features:** planned, not yet implemented
 
 ---

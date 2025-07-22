@@ -52,6 +52,22 @@ def get_metrics(limit: int = 10) -> List[Dict[str, str]]:
         return [dict(row) for row in cur.fetchall()]
 
 
+def get_compliance_metrics() -> Dict[str, int | float]:
+    """Return placeholder compliance metrics."""
+    metrics = {
+        "placeholder_count": 0,
+        "compliance_score": 100,
+    }
+    if not DB_PATH.exists():
+        return metrics
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.execute("SELECT COUNT(*) FROM code_audit_log")
+        count = cur.fetchone()[0]
+    metrics["placeholder_count"] = count
+    metrics["compliance_score"] = max(0, 100 - count)
+    return metrics
+
+
 @app.route("/")
 def dashboard() -> str:
     """Display dashboard metrics."""
@@ -63,6 +79,12 @@ def dashboard() -> str:
 def metrics() -> "flask.Response":
     """Return metrics as JSON."""
     return jsonify(get_metrics())
+
+
+@app.route("/dashboard/compliance")
+def dashboard_compliance() -> "flask.Response":
+    """Return compliance metrics as JSON."""
+    return jsonify(get_compliance_metrics())
 
 
 class EnterpriseUtility:
