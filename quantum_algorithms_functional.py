@@ -13,7 +13,6 @@ from typing import Iterable, List
 
 import numpy as np
 from qiskit.circuit import QuantumCircuit
-from qiskit.circuit import Parameter
 from qiskit.quantum_info import DensityMatrix, Statevector
 from qiskit.circuit.library import QFT
 from qiskit_aer import AerSimulator
@@ -21,17 +20,7 @@ from qiskit_aer import AerSimulator
 try:
     from qiskit.algorithms import Shor
 except Exception:  # pragma: no cover - fallback when algorithms module missing
-    class Shor:  # type: ignore
-        """Basic classical fallback for Shor factorization."""
-
-        def __init__(self, quantum_instance: object | None = None) -> None:
-            self.quantum_instance = quantum_instance
-
-        def factor(self, n: int):
-            for i in range(2, int(np.sqrt(n)) + 1):
-                if n % i == 0:
-                    return type("Res", (), {"factors": [[i, n // i]]})()
-            return type("Res", (), {"factors": [[n, 1]]})()
+    from copilot_qiskit_stubs.algorithms import Shor  # type: ignore
 
 
 __all__ = [
