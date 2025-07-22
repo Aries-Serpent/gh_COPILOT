@@ -11,6 +11,11 @@ This document lists high-level tasks required to fully implement the database-fi
 - Finish `synchronize_templates()` in `copilot/copilot-instructions.md` with transactional integrity and audit logging.
 - Synchronize templates across development, staging and production databases.
 
+## 2a. Compliance Dashboard
+- Add `/dashboard/compliance` endpoint to the Flask dashboard.
+- Pull placeholder and code audit metrics from `analytics.db` for
+  real-time compliance reporting.
+
 ## 3. Documentation Generation System
 - Update `EnterpriseDocumentationManager` to select the best template based on compliance scores and log generation events.
 - Modify `scripts/documentation_generation_system.py` to query templates from `documentation.db` and render markdown files with progress indicators.

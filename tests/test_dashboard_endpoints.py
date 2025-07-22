@@ -6,7 +6,7 @@ def test_index_endpoint():
     client = app.test_client()
     resp = client.get('/')
     assert resp.status_code == 200
-    assert b'Enterprise Dashboard' in resp.data
+    assert b'Compliance Dashboard' in resp.data
 
 
 def test_metrics_endpoint():

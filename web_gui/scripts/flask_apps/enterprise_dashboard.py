@@ -30,7 +30,8 @@ TEXT_INDICATORS = {
     'info': '[INFO]'
 }
 
-TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
+# Templates are stored under ``web_gui/templates`` relative to the repository
+TEMPLATES_DIR = Path(__file__).resolve().parents[2] / "templates"
 DB_PATH = Path(__file__).resolve().parents[3] / "analytics.db"
 
 app = Flask(__name__, template_folder=str(TEMPLATES_DIR))
@@ -66,11 +67,37 @@ def get_metrics(limit: int = 10) -> List[Dict[str, str]]:
         return [dict(row) for row in cur.fetchall()]
 
 
+def get_compliance_metrics() -> Dict[str, int]:
+    """Return placeholder metrics from ``analytics.db``."""
+    metrics = {
+        "placeholder_findings": 0,
+        "code_audit_entries": 0,
+    }
+    if not DB_PATH.exists():
+        return metrics
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.cursor()
+        try:
+            cur.execute("SELECT COUNT(*) FROM placeholder_audit")
+            metrics["placeholder_findings"] = cur.fetchone()[0]
+        except sqlite3.Error:
+            metrics["placeholder_findings"] = 0
+        try:
+            cur.execute("SELECT COUNT(*) FROM code_audit_log")
+            metrics["code_audit_entries"] = cur.fetchone()[0]
+        except sqlite3.Error:
+            metrics["code_audit_entries"] = 0
+    return metrics
+
+
 @app.route("/")
 def dashboard() -> str:
     """Display dashboard metrics."""
     metrics = get_metrics()
-    return render_template("dashboard.html", metrics=metrics)
+    compliance = get_compliance_metrics()
+    return render_template(
+        "dashboard.html", metrics=metrics, compliance=compliance
+    )
 
 
 @app.route("/metrics")
