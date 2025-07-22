@@ -19,7 +19,7 @@ import os
 import re
 import sqlite3
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional
 
@@ -62,76 +62,31 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
             return []
 
 
-# Insert findings into analytics.db.todo_fixme_tracking
+# Insert findings into analytics.db.code_audit_log
 def log_findings(results: List[Dict], analytics_db: Path) -> None:
-    """Insert findings into analytics.db.todo_fixme_tracking."""
+    """Insert findings into analytics.db.code_audit_log."""
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
-                item_id TEXT PRIMARY KEY,
-                session_id TEXT,
-                item_type TEXT NOT NULL,
-                priority_level TEXT,
-                category TEXT,
-                file_path TEXT NOT NULL,
-                line_number INTEGER NOT NULL,
-                function_context TEXT,
-                class_context TEXT,
-                original_text TEXT NOT NULL,
-                description TEXT,
-                estimated_effort TEXT,
-                status TEXT,
-                assigned_to TEXT,
-                resolution TEXT,
-                resolution_effectiveness REAL,
-                similar_items TEXT,
-                common_patterns TEXT,
-                root_cause TEXT,
-                business_impact TEXT,
-                technical_debt_score REAL,
-                urgency_score REAL,
-                learning_insights TEXT,
-                prevention_strategies TEXT,
-                last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
-            )"""
+            """
+            CREATE TABLE IF NOT EXISTS code_audit_log (
+                file_path TEXT,
+                line_number INTEGER,
+                placeholder_type TEXT,
+                context TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            """
         )
         for row in results:
             conn.execute(
-                """INSERT INTO todo_fixme_tracking (
-                    item_id, session_id, item_type, priority_level, category,
-                    file_path, line_number, function_context, class_context,
-                    original_text, description, estimated_effort, status,
-                    assigned_to, resolution, resolution_effectiveness,
-                    similar_items, common_patterns, root_cause, business_impact,
-                    technical_debt_score, urgency_score, learning_insights,
-                    prevention_strategies, last_updated
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
+                " VALUES (?, ?, ?, ?, ?)",
                 (
-                    f"{row['file']}:{row['line']}:{row['pattern']}",
-                    row.get("session_id", ""),
-                    row["pattern"],
-                    row.get("priority_level", "medium"),
-                    row.get("category", ""),
                     row["file"],
                     row["line"],
-                    row.get("function_context", ""),
-                    row.get("class_context", ""),
+                    row["pattern"],
                     row["context"],
-                    row.get("description", ""),
-                    row.get("estimated_effort", ""),
-                    "open",
-                    row.get("assigned_to", ""),
-                    row.get("resolution", ""),
-                    row.get("resolution_effectiveness", None),
-                    row.get("similar_items", ""),
-                    row.get("common_patterns", ""),
-                    row.get("root_cause", ""),
-                    row.get("business_impact", ""),
-                    row.get("technical_debt_score", None),
-                    row.get("urgency_score", None),
-                    row.get("learning_insights", ""),
-                    row.get("prevention_strategies", ""),
                     datetime.now().isoformat(),
                 ),
             )
