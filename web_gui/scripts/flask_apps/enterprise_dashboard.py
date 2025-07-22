@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
 """
-EnterpriseDashboard - Enterprise Utility Script
+TemplateAutoGenerator - Enterprise Template Generation and Clustering Engine
 Generated: 2025-07-10 18:16:03
 
 Enterprise Standards Compliance:
 - Flake8/PEP 8 Compliant
 - Emoji-free code (text-based indicators only)
-- Visual processing indicators
+- Visual processing indicators (progress bars, timeout, ETC, status updates)
 """
 
 import logging
 import os
 import sqlite3
 import sys
-from datetime import datetime
+import time
+from dataclasses import dataclass
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Any
 
-import flask
-from flask import Flask, jsonify, render_template
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from tqdm import tqdm
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -26,120 +31,231 @@ TEXT_INDICATORS = {
     "success": "[SUCCESS]",
     "error": "[ERROR]",
     "info": "[INFO]",
+    "progress": "[PROGRESS]",
+    "timeout": "[TIMEOUT]",
+    "complete": "[COMPLETE]",
 }
 
-TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
-DB_PATH = Path(__file__).resolve().parents[3] / "analytics.db"
+DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
+DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
+LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOGS_DIR / f"auto_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
-app = Flask(__name__, template_folder=str(TEMPLATES_DIR))
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
+def validate_no_recursive_folders() -> None:
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    for pattern in forbidden_patterns:
+        for folder in workspace_root.rglob(pattern):
+            if folder.is_dir() and folder != workspace_root:
+                logger.error(f"{TEXT_INDICATORS['error']} Recursive folder detected: {folder}")
+                raise RuntimeError("CRITICAL: Recursive folder violation: {0}".format(folder))
 
-def get_metrics(limit: int = 10) -> List[Dict[str, str]]:
-    """Return recent metrics from ``analytics.db``."""
-    if not DB_PATH.exists():
-        return []
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
-        cur = conn.execute(
-            """
-            SELECT id, metric_timestamp, continuous_uptime,
-                   violations_detected
-            FROM continuous_operation_metrics
-            ORDER BY id DESC
-            LIMIT ?
-            """,
-            (limit,),
-        )
-        return [dict(row) for row in cur.fetchall()]
+def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
+    elapsed = time.time() - start_time
+    if current_progress > 0:
+        total_estimated = elapsed / (current_progress / total_work)
+        remaining = total_estimated - elapsed
+        return f"{remaining:.2f}s remaining"
+    return "N/A"
 
+@dataclass
+class TemplateAutoGenerator:
+    """Enterprise template generator and clustering engine with visual processing indicators."""
 
-def get_compliance(limit: int = 10) -> List[Dict[str, str]]:
-    """Return recent compliance events."""
-    if not DB_PATH.exists():
-        return []
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
-        cur = conn.execute(
-            "SELECT timestamp, compliance FROM documentation_events ORDER BY id DESC LIMIT ?",
-            (limit,),
-        )
-        return [dict(row) for row in cur.fetchall()]
+    analytics_db: Path = DEFAULT_ANALYTICS_DB
+    completion_db: Path = DEFAULT_COMPLETION_DB
 
-
-@app.route("/")
-def dashboard() -> str:
-    """Display dashboard metrics."""
-    metrics = get_metrics()
-    return render_template("dashboard.html", metrics=metrics)
-
-
-@app.route("/metrics")
-def metrics() -> "flask.Response":
-    """Return metrics as JSON."""
-    return jsonify(get_metrics())
-
-
-@app.route("/compliance")
-def compliance() -> "flask.Response":
-    """Return compliance events as JSON."""
-    return jsonify(get_compliance())
-
-
-class EnterpriseUtility:
-    """Enterprise utility class"""
-
-    def __init__(
-        self, workspace_path: Path = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
-    ):
-        self.workspace_path = Path(workspace_path)
+    def __post_init__(self) -> None:
         self.logger = logging.getLogger(__name__)
-
-    def execute_utility(self) -> bool:
-        """Execute utility function"""
+        self._log_event("init_start", {"timestamp": datetime.utcnow().isoformat()})
         start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+        logger.info(f"{TEXT_INDICATORS['start']} TemplateAutoGenerator Initialization")
+        logger.info(f"{TEXT_INDICATORS['info']} Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"{TEXT_INDICATORS['info']} Process ID: {os.getpid()}")
+        validate_no_recursive_folders()
+        self.patterns = self._load_patterns()
+        self.templates = self._load_templates()
+        self.cluster_model = self._cluster_patterns()
+        self._last_objective: Dict[str, Any] | None = None
+        duration = (datetime.now() - start_time).total_seconds()
+        self._log_event("init_complete", {"duration": duration})
+        logger.info(f"{TEXT_INDICATORS['success']} Initialization completed in {duration:.2f}s")
 
+    def _load_patterns(self) -> List[str]:
+        logger.info(f"{TEXT_INDICATORS['info']} Loading patterns from analytics DB...")
+        patterns = []
+        if self.analytics_db.exists():
+            with sqlite3.connect(self.analytics_db) as conn:
+                try:
+                    cur = conn.execute(
+                        "SELECT replacement_template FROM ml_pattern_optimization"
+                    )
+                    patterns = [row[0] for row in cur.fetchall()]
+                except sqlite3.Error as exc:
+                    logger.error(f"{TEXT_INDICATORS['error']} Error loading patterns: {exc}")
+        logger.info(f"{TEXT_INDICATORS['info']} Loaded {len(patterns)} patterns")
+        return patterns
+
+    def _load_templates(self) -> List[str]:
+        logger.info(f"{TEXT_INDICATORS['info']} Loading templates from completion DB...")
+        templates = []
+        if self.completion_db.exists():
+            with sqlite3.connect(self.completion_db) as conn:
+                try:
+                    cur = conn.execute("SELECT template_content FROM templates")
+                    templates = [row[0] for row in cur.fetchall()]
+                except sqlite3.Error as exc:
+                    logger.error(f"{TEXT_INDICATORS['error']} Error loading templates: {exc}")
+        logger.info(f"{TEXT_INDICATORS['info']} Loaded {len(templates)} templates")
+        return templates
+
+    def _quantum_score(self, text: str) -> float:
+        """Return a quantum-inspired score for ``text``."""
+        # Placeholder for quantum scoring; returns a normalized value
+        vec = np.ones(8) / np.sqrt(8)
+        baseline = np.ones_like(vec) / np.sqrt(len(vec))
+        return float(abs(np.dot(vec, baseline.conj())))
+
+    def _cluster_patterns(self) -> KMeans | None:
+        logger.info(f"{TEXT_INDICATORS['info']} Clustering patterns and templates...")
+        corpus = self.templates + self.patterns
+        if not corpus:
+            logger.warning(f"{TEXT_INDICATORS['error']} No corpus to cluster")
+            return None
+        vectorizer = TfidfVectorizer()
+        matrix = vectorizer.fit_transform(corpus)
+        n_clusters = min(len(corpus), 2)
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+        start = time.time()
+        with tqdm(total=1, desc="clustering", unit="step") as pbar:
+            model.fit(matrix)
+            pbar.update(1)
+        logger.info(f"{TEXT_INDICATORS['success']} Clustered {len(corpus)} items into {n_clusters} groups in {(time.time()-start):.2f}s")
+        return model
+
+    def objective_similarity(self, a: str, b: str) -> float:
+        vectorizer = TfidfVectorizer().fit([a, b])
+        vecs = vectorizer.transform([a, b])
+        return float(cosine_similarity(vecs[0], vecs[1])[0][0])
+
+    def select_best_template(self, target: str) -> str:
+        logger.info(f"{TEXT_INDICATORS['info']} Selecting best template for target: {target}")
+        candidates = self.templates if self.templates else self.patterns
+        if not candidates:
+            logger.warning(f"{TEXT_INDICATORS['error']} No candidates available for selection")
+            return ""
+        scores = [
+            self.objective_similarity(target, c) + self._quantum_score(c)
+            for c in candidates
+        ]
+        best_idx = int(max(range(len(scores)), key=scores.__getitem__))
+        best = candidates[best_idx]
         try:
-            # Utility implementation
-            success = self.perform_utility_function()
-
-            if success:
-                duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s"
+            with sqlite3.connect(self.analytics_db) as conn:
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)",
                 )
-                return True
-            else:
-                self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
-                return False
+                conn.execute(
+                    "INSERT INTO template_events (ts, target, template) VALUES (?,?,?)",
+                    (datetime.utcnow().isoformat(), target, best),
+                )
+                conn.commit()
+        except sqlite3.Error as exc:
+            logger.warning(f"{TEXT_INDICATORS['error']} Failed to log template selection: {exc}")
+        logger.info(f"{TEXT_INDICATORS['success']} Best template selected and logged")
+        return best
 
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
-            return False
+    def generate_template(self, objective: dict) -> str:
+        self._last_objective = objective
+        search_terms = " ".join(map(str, objective.values()))
+        logger.info(f"{TEXT_INDICATORS['info']} Generating template for objective: {search_terms}")
+        start = datetime.utcnow()
+        found = ""
+        with tqdm(self.templates + self.patterns, desc="[PROGRESS] search", unit="tmpl") as bar:
+            for tmpl in bar:
+                if all(term.lower() in tmpl.lower() for term in search_terms.split()):
+                    if "def invalid" in tmpl:
+                        raise ValueError("Invalid template syntax")
+                    with sqlite3.connect(self.analytics_db) as conn:
+                        conn.execute(
+                            "CREATE TABLE IF NOT EXISTS generation_events (ts TEXT, objective TEXT, template TEXT)",
+                        )
+                        conn.execute(
+                            "INSERT INTO generation_events (ts, objective, template) VALUES (?,?,?)",
+                            (start.isoformat(), str(objective), tmpl),
+                        )
+                        conn.commit()
+                    found = tmpl
+                    logger.info(f"{TEXT_INDICATORS['success']} Template generated and logged")
+                    break
+                bar.update(1)
+        if not found:
+            self._log_event("generate", {"objective": search_terms, "status": "none"})
+            logger.warning(f"{TEXT_INDICATORS['error']} No template found for objective")
+        return found
 
-    def perform_utility_function(self) -> bool:
-        """Start the Flask dashboard server."""
+    def regenerate_template(self) -> str:
+        if not self._last_objective:
+            logger.warning(f"{TEXT_INDICATORS['error']} No last objective to regenerate")
+            return ""
+        return self.generate_template(self._last_objective)
+
+    def get_cluster_representatives(self) -> List[str]:
+        logger.info(f"{TEXT_INDICATORS['info']} Getting cluster representatives...")
+        if not self.cluster_model:
+            logger.warning(f"{TEXT_INDICATORS['error']} No cluster model available")
+            return []
+        corpus = self.templates + self.patterns
+        vectorizer = TfidfVectorizer().fit(corpus)
+        matrix = vectorizer.transform(corpus)
+        reps: List[str] = []
+        for idx in tqdm(
+            range(self.cluster_model.n_clusters), desc="[PROGRESS] reps", unit="cluster"
+        ):
+            indices = [
+                i for i, label in enumerate(self.cluster_model.labels_) if label == idx
+            ]
+            if not indices:
+                continue
+            sub_matrix = matrix[indices]
+            centroid = self.cluster_model.cluster_centers_[idx].reshape(1, -1)
+            sims = cosine_similarity(sub_matrix, centroid).ravel()
+            best_local = indices[int(max(range(len(sims)), key=lambda i: sims[i]))]
+            reps.append(corpus[best_local])
+        logger.info(f"{TEXT_INDICATORS['success']} Cluster representatives selected: {len(reps)}")
+        return reps
+
+    def _log_event(self, name: str, data: dict) -> None:
+        """Log events to analytics DB and file."""
         try:
-            app.run(host="0.0.0.0", port=8080)
-            return True
+            self.analytics_db.parent.mkdir(exist_ok=True, parents=True)
+            with sqlite3.connect(self.analytics_db) as conn:
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS generator_events (timestamp REAL, name TEXT, details TEXT)"
+                )
+                conn.execute(
+                    "INSERT INTO generator_events (timestamp, name, details) VALUES (?,?,?)",
+                    (time.time(), name, str(data)),
+                )
+                conn.commit()
+            with open(LOG_FILE, "a", encoding="utf-8") as f:
+                f.write(f"{datetime.utcnow().isoformat()} | {name} | {data}\n")
         except Exception as exc:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Server start failed: {exc}")
-            return False
+            self.logger.debug("log_event failed: %s", exc)
 
-
-def main():
-    """Main execution function"""
-    utility = EnterpriseUtility()
-    success = utility.execute_utility()
-
-    if success:
-        print(f"{TEXT_INDICATORS['success']} Utility completed")
-    else:
-        print(f"{TEXT_INDICATORS['error']} Utility failed")
-
-    return success
-
-
-if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+__all__ = [
+    "TemplateAutoGenerator",
+    "DEFAULT_ANALYTICS_DB",
+    "DEFAULT_COMPLETION_DB",
+]
