@@ -19,13 +19,15 @@ import os
 import re
 import sqlite3
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional
 
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from scripts.continuous_operation_orchestrator import (
+    validate_enterprise_operation,
+)
 
 # Visual processing indicator constants
 TEXT = {
@@ -64,7 +66,7 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
 
 # Insert findings into analytics.db.todo_fixme_tracking
 def log_findings(results: List[Dict], analytics_db: Path) -> None:
-    """Insert findings into analytics.db.todo_fixme_tracking."""
+    """Insert findings into analytics.db todo_fixme_tracking and code_audit_log."""
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
@@ -94,6 +96,15 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
                 learning_insights TEXT,
                 prevention_strategies TEXT,
                 last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+            )"""
+        )
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS code_audit_log (
+                file_path TEXT,
+                line_number INTEGER,
+                placeholder_type TEXT,
+                context TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )"""
         )
         for row in results:
@@ -133,6 +144,17 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
                     row.get("learning_insights", ""),
                     row.get("prevention_strategies", ""),
                     datetime.now().isoformat(),
+                ),
+            )
+        for row in results:
+            conn.execute(
+                "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context)"
+                " VALUES (?, ?, ?, ?)",
+                (
+                    row["file"],
+                    row["line"],
+                    row["pattern"],
+                    row["context"],
                 ),
             )
         conn.commit()
