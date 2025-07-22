@@ -50,7 +50,7 @@ class DocumentationDBAnalyzer:
         self.start_time = datetime.now()
         self.process_id = os.getpid()
         self.log_file = LOG_FILE
-        logging.info(f"PROCESS STARTED: DocumentationDBAnalyzer")
+        logging.info("PROCESS STARTED: DocumentationDBAnalyzer")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
 
@@ -68,34 +68,39 @@ class DocumentationDBAnalyzer:
         }
         total_steps = len(self.doc_dbs)
         start_time = time.time()
-        for idx, db in enumerate(self.doc_dbs, 1):
-            phase = f"Scanning {db.name}"
-            logging.info(f"PHASE: {phase}")
-            elapsed = time.time() - start_time
-            if elapsed > self.timeout_seconds:
-                raise TimeoutError(f"Process exceeded {self.timeout_seconds/60:.1f} minute timeout")
-            if not db.exists():
-                summary["databases"][str(db)] = {"error": "Database not found"}
-                continue
-            try:
-                with sqlite3.connect(db) as conn:
-                    cur = conn.execute(
-                        "SELECT doc_type, COUNT(content) FROM enterprise_documentation GROUP BY doc_type"
+        with tqdm(total=total_steps, desc="Documentation DB Analysis", unit="db") as bar:
+            for idx, db in enumerate(self.doc_dbs, 1):
+                phase = f"Scanning {db.name}"
+                bar.set_description(phase)
+                elapsed = time.time() - start_time
+                if elapsed > self.timeout_seconds:
+                    raise TimeoutError(
+                        f"Process exceeded {self.timeout_seconds/60:.1f} minute timeout"
                     )
-                    rows = cur.fetchall()
-                    doc_type_counts = {dt: cnt for dt, cnt in rows}
-                    expected_types = self._get_expected_doc_types(conn)
-                    missing_types = [dt for dt in expected_types if dt not in doc_type_counts]
-                    total_entries = sum(doc_type_counts.values())
-                    summary["databases"][str(db)] = {
-                        "doc_type_counts": doc_type_counts,
-                        "missing_types": missing_types,
-                        "total_entries": total_entries,
-                    }
-            except Exception as exc:
-                summary["databases"][str(db)] = {"error": str(exc)}
-            etc = self._calculate_etc(elapsed, idx, total_steps)
-            logging.info(f"Progress: {idx}/{total_steps} | Elapsed: {elapsed:.2f}s | ETC: {etc}")
+                if not db.exists():
+                    summary["databases"][str(db)] = {"error": "Database not found"}
+                    bar.update(1)
+                    continue
+                try:
+                    with sqlite3.connect(db) as conn:
+                        cur = conn.execute(
+                            "SELECT doc_type, COUNT(content) FROM enterprise_documentation GROUP BY doc_type"
+                        )
+                        rows = cur.fetchall()
+                        doc_type_counts = {dt: cnt for dt, cnt in rows}
+                        expected_types = self._get_expected_doc_types(conn)
+                        missing_types = [dt for dt in expected_types if dt not in doc_type_counts]
+                        total_entries = sum(doc_type_counts.values())
+                        summary["databases"][str(db)] = {
+                            "doc_type_counts": doc_type_counts,
+                            "missing_types": missing_types,
+                            "total_entries": total_entries,
+                        }
+                except Exception as exc:
+                    summary["databases"][str(db)] = {"error": str(exc)}
+                etc = self._calculate_etc(elapsed, idx, total_steps)
+                bar.set_postfix(ETC=etc)
+                bar.update(1)
         elapsed = time.time() - start_time
         logging.info(f"Documentation DB analysis completed in {elapsed:.2f}s | ETC: {etc}")
         self._log_summary(summary)
