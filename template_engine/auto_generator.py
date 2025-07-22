@@ -6,7 +6,7 @@ import sqlite3
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any
 
@@ -137,18 +137,32 @@ class TemplateAutoGenerator:
         vecs = vectorizer.transform([a, b])
         return float(cosine_similarity(vecs[0], vecs[1])[0][0])
 
-    def select_best_template(self, target: str) -> str:
+    def select_best_template(self, target: str, timeout: int = 60) -> str:
+        """Select the best template using DB-first data with quantum scoring."""
         logger.info(f"Selecting best template for target: {target}")
         candidates = self.templates if self.templates else self.patterns
         if not candidates:
             logger.warning("No candidates available for selection")
             return ""
-        scores = [
-            self.objective_similarity(target, c) + self._quantum_score(c)
-            for c in candidates
-        ]
-        best_idx = int(max(range(len(scores)), key=scores.__getitem__))
-        best = candidates[best_idx]
+        start = time.time()
+        best = ""
+        best_score = -float("inf")
+        total_candidates = len(candidates)
+        with tqdm(candidates, desc="[PROGRESS] select", unit="tmpl") as bar:
+            for idx, tmpl in enumerate(bar, start=1):
+                etc = calculate_etc(start, idx, total_candidates)
+                bar.set_postfix(etc=etc)
+                if time.time() - start > timeout:
+                    logger.warning("Selection timeout reached")
+                    break
+                score = self.objective_similarity(target, tmpl) + self._quantum_score(tmpl)
+                if score > best_score:
+                    best_score = score
+                    best = tmpl
+                bar.update(1)
+        if not best:
+            logger.warning("No template selected")
+            return ""
         try:
             with sqlite3.connect(self.analytics_db) as conn:
                 conn.execute(
@@ -164,14 +178,21 @@ class TemplateAutoGenerator:
         logger.info("Best template selected and logged")
         return best
 
-    def generate_template(self, objective: dict) -> str:
+    def generate_template(self, objective: dict, timeout: int = 60) -> str:
+        """Generate a template for ``objective`` with progress indicators and timeout."""
         self._last_objective = objective
         search_terms = " ".join(map(str, objective.values()))
         logger.info(f"Generating template for objective: {search_terms}")
-        start = datetime.utcnow()
+        start = time.time()
         found = ""
+        total_candidates = len(self.templates + self.patterns)
         with tqdm(self.templates + self.patterns, desc="[PROGRESS] search", unit="tmpl") as bar:
-            for tmpl in bar:
+            for idx, tmpl in enumerate(bar, start=1):
+                etc = calculate_etc(start, idx, total_candidates)
+                bar.set_postfix(etc=etc)
+                if time.time() - start > timeout:
+                    logger.warning("Generation timeout reached")
+                    break
                 if all(term.lower() in tmpl.lower() for term in search_terms.split()):
                     if "def invalid" in tmpl:
                         raise ValueError("Invalid template syntax")
@@ -181,7 +202,7 @@ class TemplateAutoGenerator:
                         )
                         conn.execute(
                             "INSERT INTO generation_events (ts, objective, template) VALUES (?,?,?)",
-                            (start.isoformat(), str(objective), tmpl),
+                            (datetime.utcnow().isoformat(), str(objective), tmpl),
                         )
                         conn.commit()
                     found = tmpl

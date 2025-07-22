@@ -5,11 +5,10 @@ from __future__ import annotations
 
 import json
 import logging
+import shutil
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
-from tqdm import tqdm
-
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -41,6 +40,30 @@ def _log_event(db: Path, data: dict) -> None:
             )
     except sqlite3.Error:
         logger.error("Failed to log analysis results")
+
+
+def audit_placeholders(db_path: Path) -> int:
+    """Log TODO/FIXME placeholders from documentation table."""
+    if not db_path.exists():
+        return 0
+    count = 0
+    with sqlite3.connect(db_path) as conn:
+        rows = conn.execute(
+            "SELECT rowid, content FROM enterprise_documentation"
+        ).fetchall()
+        for rowid, content in rows:
+            if any(tag in content.upper() for tag in ("TODO", "FIXME", "PLACEHOLDER")):
+                count += 1
+                with sqlite3.connect(ANALYTICS_DB) as aconn:
+                    aconn.execute(
+                        "CREATE TABLE IF NOT EXISTS placeholder_audit (ts TEXT, db TEXT, rowid INTEGER)"
+                    )
+                    aconn.execute(
+                        "INSERT INTO placeholder_audit (ts, db, rowid) VALUES (?,?,?)",
+                        (datetime.utcnow().isoformat(), str(db_path), rowid),
+                    )
+    logger.info("Placeholder audit complete: %s issues", count)
+    return count
 
 
 def analyze_and_cleanup(db_path: Path) -> dict[str, int]:
@@ -92,6 +115,16 @@ def analyze_and_cleanup(db_path: Path) -> dict[str, int]:
     }
 
 
+def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
+    """Restore ``db_path`` from ``backup_path``."""
+    if not backup_path.exists():
+        logger.error("Backup not found: %s", backup_path)
+        return False
+    shutil.copy2(backup_path, db_path)
+    logger.info("Database restored from backup: %s", backup_path)
+    return True
+
+
 def _log_report(report: dict) -> None:
     """Persist report summary to analytics DB."""
     try:
@@ -111,8 +144,12 @@ def _log_report(report: dict) -> None:
 def main() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     db_path = repo_root / "archives" / "documentation.db"
-    for step in tqdm(["cleanup"], desc="[PROGRESS]", unit="step"):
-        report = analyze_and_cleanup(db_path)
+    steps = ["cleanup", "audit"]
+    for step in tqdm(steps, desc="[PROGRESS]", unit="step"):
+        if step == "cleanup":
+            report = analyze_and_cleanup(db_path)
+        else:
+            audit_placeholders(db_path)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     report_path = (
         repo_root / "reports" / f"documentation_cleanup_report_{timestamp}.json"

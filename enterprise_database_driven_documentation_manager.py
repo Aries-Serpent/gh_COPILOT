@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from template_engine.auto_generator import TemplateAutoGenerator
+
 from tqdm import tqdm
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
@@ -23,6 +25,8 @@ class DocumentationManager:
     """Render compliant documentation from the database."""
 
     database: Path = Path("production.db")
+    analytics_db: Path = ANALYTICS_DB
+    completion_db: Path = Path("databases/template_completion.db")
 
     def render(self) -> int:
         if not self.database.exists():
@@ -32,17 +36,20 @@ class DocumentationManager:
             rows = conn.execute(
                 "SELECT title, content, compliance_score FROM documentation"
             ).fetchall()
+        generator = TemplateAutoGenerator(self.analytics_db, self.completion_db)
         RENDER_LOG_DIR.mkdir(parents=True, exist_ok=True)
         count = 0
         for title, content, score in tqdm(rows, desc="render", unit="doc", leave=False):
             if score < 60:
                 continue
-            (RENDER_LOG_DIR / f"{title}.md").write_text(content)
+            template = generator.select_best_template(title)
+            final_content = template or content
+            (RENDER_LOG_DIR / f"{title}.md").write_text(final_content)
             (RENDER_LOG_DIR / f"{title}.html").write_text(
-                f"<html><body><pre>{content}</pre></body></html>"
+                f"<html><body><pre>{final_content}</pre></body></html>"
             )
             (RENDER_LOG_DIR / f"{title}.json").write_text(
-                json.dumps({"title": title, "content": content}, indent=2)
+                json.dumps({"title": title, "content": final_content}, indent=2)
             )
             self._log_event("render", title)
             count += 1
