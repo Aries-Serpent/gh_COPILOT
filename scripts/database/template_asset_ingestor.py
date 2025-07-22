@@ -11,7 +11,11 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+from scripts.continuous_operation_orchestrator import \
+    validate_enterprise_operation
+from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes
+from .unified_database_initializer import initialize_database
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -34,37 +38,53 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
         Optional path to the template directory. Defaults to
         ``workspace / 'prompts'``.
     """
+    validate_enterprise_operation()
+
     db_dir = workspace / "databases"
     db_path = db_dir / "enterprise_assets.db"
+
+    if not db_path.exists():
+        initialize_database(db_path)
+
     template_dir = template_dir or (workspace / "prompts")
     files = _gather_template_files(template_dir)
 
-    with sqlite3.connect(db_path) as conn, tqdm(
-        total=len(files), desc="Templates", unit="file"
-    ) as bar:
-        for path in files:
-            content = path.read_text(encoding="utf-8")
-            digest = hashlib.sha256(content.encode()).hexdigest()
-            conn.execute(
-                (
-                    "INSERT INTO template_assets (template_path, content_hash, "
-                    "created_at) VALUES (?, ?, ?)"
-                ),
-                (
-                    str(path.relative_to(workspace)),
-                    digest,
-                    datetime.now(timezone.utc).isoformat(),
-                ),
-            )
-            conn.execute(
-                (
-                    "INSERT INTO pattern_assets (pattern, usage_count, "
-                    "created_at) VALUES (?, 0, ?)"
-                ),
-                (content[:1000], datetime.now(timezone.utc).isoformat()),
-            )
-            bar.update(1)
+    start_time = datetime.now(timezone.utc)
+
+    conn = sqlite3.connect(db_path)
+    try:
+        if not _table_exists(conn, "template_assets"):
+            conn.close()
+            initialize_database(db_path)
+            conn = sqlite3.connect(db_path)
+        with conn, tqdm(total=len(files), desc="Templates", unit="file") as bar:
+            for path in files:
+                content = path.read_text(encoding="utf-8")
+                digest = hashlib.sha256(content.encode()).hexdigest()
+                conn.execute(
+                    (
+                        "INSERT INTO template_assets (template_path, content_hash, created_at)"
+                        " VALUES (?, ?, ?)"
+                    ),
+                    (
+                        str(path.relative_to(workspace)),
+                        digest,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
+                conn.execute(
+                    (
+                        "INSERT INTO pattern_assets (pattern, usage_count, created_at)"
+                        " VALUES (?, 0, ?)"
+                    ),
+                    (content[:1000], datetime.now(timezone.utc).isoformat()),
+                )
+                bar.update(1)
+    finally:
         conn.commit()
+        conn.close()
+
+    log_sync_operation(db_path, "template_ingestion", start_time=start_time)
 
     if not check_database_sizes(db_dir):
         raise RuntimeError("Database size limit exceeded")

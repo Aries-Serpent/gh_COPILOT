@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
 UnifiedDatabaseInitializer - Enterprise Utility Script
-Generated: 2025-07-22 08:59:48 | Author: mbaetiong
+Generated: 2025-07-22 09:05:29 | Author: mbaetiong
 
 Enterprise Standards Compliance:
 - Flake8/PEP 8 Compliant
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
-
-Roles: [Primary] ⚡ Energy: 5 | Physics: Path🛤️ Fields🔄 Patterns👁️ Redundancy🔀 Balance⚖️
 """
 
 from __future__ import annotations
@@ -21,7 +19,6 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from utils.logging_utils import setup_enterprise_logging
 from utils.validation_utils import detect_zero_byte_files, validate_path
 from utils.cross_platform_paths import CrossPlatformPathManager
 from secondary_copilot_validator import SecondaryCopilotValidator
@@ -94,7 +91,6 @@ TABLES: dict[str, str] = {
     ),
 }
 
-
 def load_schema_from_production(tables: dict[str, str]) -> dict[str, str]:
     """Load CREATE TABLE statements from production.db if available."""
     if not PRODUCTION_DB.exists():
@@ -112,7 +108,6 @@ def load_schema_from_production(tables: dict[str, str]) -> dict[str, str]:
 
     # merge production schema with defaults
     return {**tables, **schema}
-
 
 def initialize_database(db_path: Path) -> None:
     """
@@ -196,7 +191,6 @@ def initialize_database(db_path: Path) -> None:
     else:
         logger.error("DUAL COPILOT VALIDATION: FAILED")
 
-
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     db_path = root / "databases" / "enterprise_assets.db"
@@ -205,7 +199,7 @@ def main() -> None:
         return
     initialize_database(db_path)
 
-
 if __name__ == "__main__":
+    from utils.logging_utils import setup_enterprise_logging
     setup_enterprise_logging()
     main()
