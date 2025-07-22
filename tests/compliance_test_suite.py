@@ -60,7 +60,7 @@ def run_compliance_tests(tmp_path: Path) -> Dict[str, Any]:
     process_id = os.getpid()
     timeout_seconds = 1800  # 30 minutes
     status = "INITIALIZED"
-    logging.info(f"🚀 COMPLIANCE TEST SUITE STARTED")
+    logging.info(f"PROCESS STARTED: COMPLIANCE TEST SUITE")
     logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
 
@@ -81,10 +81,10 @@ def run_compliance_tests(tmp_path: Path) -> Dict[str, Any]:
             try:
                 result = test_func(tmp_path)
                 test_results.append({"name": name, "result": "PASS", "details": result})
-                logging.info(f"✅ {name} test PASSED")
+                logging.info(f"{name} test PASSED")
             except Exception as exc:
                 test_results.append({"name": name, "result": "FAIL", "details": str(exc)})
-                logging.error(f"❌ {name} test FAILED: {exc}")
+                logging.error(f"{name} test FAILED: {exc}")
             etc = calculate_etc(start_time, idx, total_steps)
             bar.set_postfix(ETC=etc)
             bar.update(1)
