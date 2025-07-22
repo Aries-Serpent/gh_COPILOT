@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
-"""Initialize the enterprise_assets.db database.
-This script creates the unified schema used across all consolidation tools.
-It performs integrity checks before writing to disk and includes visual
-processing indicators and dual copilot validation hooks.
+"""
+UnifiedDatabaseInitializer - Enterprise Utility Script
+Generated: 2025-07-22 08:59:48 | Author: mbaetiong
+
+Enterprise Standards Compliance:
+- Flake8/PEP 8 Compliant
+- Emoji-free code (text-based indicators only)
+- Visual processing indicators
+
+Roles: [Primary] ⚡ Energy: 5 | Physics: Path🛤️ Fields🔄 Patterns👁️ Redundancy🔀 Balance⚖️
 """
 
 from __future__ import annotations
@@ -21,10 +27,7 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 # Database paths
-PRODUCTION_DB = (
-    CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
-)
-
+PRODUCTION_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
 
 logger = logging.getLogger(__name__)
 
@@ -154,8 +157,10 @@ def initialize_database(db_path: Path) -> None:
     tables = load_schema_from_production(TABLES)
     total_tables = len(tables)
     with sqlite3.connect(db_path, timeout=5) as conn, tqdm(
-        total=total_tables, desc="Creating tables", unit="table",
-        bar_format="{l_bar}{bar}| {n}/{total} [{elapsed}<{remaining}]"
+        total=total_tables,
+        desc="Creating tables",
+        unit="table",
+        bar_format="{l_bar}{bar}| {n}/{total} [{elapsed}<{remaining}]",
     ) as bar:
         for idx, (table_name, sql) in enumerate(tables.items(), 1):
             conn.execute(sql)
@@ -165,7 +170,11 @@ def initialize_database(db_path: Path) -> None:
             etc = ((elapsed / idx) * (total_tables - idx)) if idx > 0 else 0
             logger.info(
                 "%s: Created | Progress: %d/%d | Elapsed: %.2fs | ETC: %.2fs",
-                table_name, idx, total_tables, elapsed, etc
+                table_name,
+                idx,
+                total_tables,
+                elapsed,
+                etc,
             )
             if elapsed > timeout_seconds:
                 logger.error("Timeout exceeded during table creation")
