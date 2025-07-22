@@ -86,6 +86,14 @@ def _log_pattern(analytics_db: Path, pattern: str) -> None:
         )
         conn.commit()
 
+def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
+    elapsed = time.time() - start_time
+    if current_progress > 0:
+        total_estimated = elapsed / (current_progress / total_work)
+        remaining = total_estimated - elapsed
+        return f"{remaining:.2f}s remaining"
+    return "N/A"
+
 def mine_patterns(
     production_db: Path = DEFAULT_PRODUCTION_DB,
     analytics_db: Path = DEFAULT_ANALYTICS_DB,
@@ -141,14 +149,6 @@ def mine_patterns(
     _log_patterns(patterns, analytics_db)
     logging.info(f"Pattern mining completed in {elapsed:.2f}s | ETC: {etc}")
     return patterns
-
-def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
-    elapsed = time.time() - start_time
-    if current_progress > 0:
-        total_estimated = elapsed / (current_progress / total_work)
-        remaining = total_estimated - elapsed
-        return f"{remaining:.2f}s remaining"
-    return "N/A"
 
 def validate_mining(expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_DB) -> bool:
     """

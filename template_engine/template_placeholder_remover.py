@@ -8,7 +8,7 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 
 from tqdm import tqdm
 
@@ -52,6 +52,24 @@ def _load_valid_placeholders(db: Path) -> List[str]:
                 logging.error(f"Error querying template_placeholders: {exc}")
                 names = []
     return names
+
+def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
+    elapsed = time.time() - start_time
+    if current_progress > 0:
+        total_estimated = elapsed / (current_progress / total_work)
+        remaining = total_estimated - elapsed
+        return f"{remaining:.2f}s remaining"
+    return "N/A"
+
+def _write_log(found: List[str], valid: set, result: str) -> None:
+    log_entry = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "found_placeholders": found,
+        "valid_placeholders": list(valid),
+        "result": result
+    }
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(str(log_entry) + "\n")
 
 def remove_unused_placeholders(
     template: str,
@@ -106,24 +124,6 @@ def remove_unused_placeholders(
     logging.info(f"Placeholder removal completed in {elapsed:.2f}s | ETC: {etc}")
     _write_log(found, valid, result)
     return result
-
-def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
-    elapsed = time.time() - start_time
-    if current_progress > 0:
-        total_estimated = elapsed / (current_progress / total_work)
-        remaining = total_estimated - elapsed
-        return f"{remaining:.2f}s remaining"
-    return "N/A"
-
-def _write_log(found: List[str], valid: set, result: str) -> None:
-    log_entry = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "found_placeholders": found,
-        "valid_placeholders": list(valid),
-        "result": result
-    }
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(str(log_entry) + "\n")
 
 def validate_removals(expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_DB) -> bool:
     """

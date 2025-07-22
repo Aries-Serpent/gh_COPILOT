@@ -1,6 +1,10 @@
 """Template engine package."""
 
-from .auto_generator import TemplateAutoGenerator, DEFAULT_ANALYTICS_DB, DEFAULT_COMPLETION_DB
+from .auto_generator import (
+    TemplateAutoGenerator,
+    DEFAULT_ANALYTICS_DB,
+    DEFAULT_COMPLETION_DB,
+)
 from .template_synchronizer import synchronize_templates
 from .pattern_clustering_sync import PatternClusteringSync
 from .workflow_enhancer import TemplateWorkflowEnhancer
@@ -12,9 +16,14 @@ from .placeholder_utils import (
     DEFAULT_ANALYTICS_DB as PLACEHOLDER_ANALYTICS_DB,
 )
 from .pattern_mining_engine import extract_patterns, mine_patterns
-from .objective_similarity_scorer import score_objective, validate_similarity
-from .template_placeholder_remover import remove_placeholders, validate_removals
-
+from .objective_similarity_scorer import (
+    compute_similarity_scores,
+    validate_scores,
+)
+from .template_placeholder_remover import (
+    remove_unused_placeholders,
+    validate_removals,
+)
 
 __all__ = [
     "TemplateAutoGenerator",
@@ -30,9 +39,8 @@ __all__ = [
     "PLACEHOLDER_ANALYTICS_DB",
     "extract_patterns",
     "mine_patterns",
-    "score_objective",
-    "validate_similarity",
-    "remove_placeholders",
+    "compute_similarity_scores",
+    "validate_scores",
+    "remove_unused_placeholders",
     "validate_removals",
 ]
-
