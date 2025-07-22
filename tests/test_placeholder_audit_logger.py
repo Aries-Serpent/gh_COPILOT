@@ -1,10 +1,10 @@
 import os
 import sqlite3
 
-from scripts.audit_codebase_placeholders import main
+from scripts.placeholder_audit_logger import main
 
 
-def test_audit_places(tmp_path):
+def test_placeholder_audit_logger(tmp_path):
     workspace = tmp_path / "ws"
     workspace.mkdir()
     target = workspace / "demo.py"
