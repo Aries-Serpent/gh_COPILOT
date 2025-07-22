@@ -33,6 +33,7 @@ This document lists high-level tasks required to fully implement the database-fi
 - Extend `enhanced_script_tracking` with new columns including `importance_score` and `template_version`.
 - Create `code_templates`, `template_usage_tracking` and `template_registry` tables. Write migration scripts for existing databases.
 - Ensure `documentation` table stores `compliance_score` for each document.
+- Add `code_audit_log` table in `analytics.db` for placeholder scanning results.
 
 ## 7. Template Engine Upgrades
 - Replace the placeholder clustering in `template_engine/auto_generator.py` with `sklearn.cluster.KMeans`.

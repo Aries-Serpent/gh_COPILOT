@@ -15,9 +15,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
+import json
 
 import flask
 from flask import Flask, jsonify, render_template
+
+COMPLIANCE_JSON = Path(__file__).resolve().parents[3] / "dashboard" / "compliance" / "placeholder_summary.json"
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -32,6 +35,17 @@ TEMPLATES_DIR = Path(__file__).resolve().parents[2] / "templates"
 DB_PATH = Path(__file__).resolve().parents[3] / "analytics.db"
 
 app = Flask(__name__, template_folder=str(TEMPLATES_DIR))
+
+
+def get_placeholder_metrics() -> Dict[str, str]:
+    """Return placeholder audit metrics from placeholder_summary.json."""
+    if not COMPLIANCE_JSON.exists():
+        return {}
+    try:
+        with COMPLIANCE_JSON.open("r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:
+        return {}
 
 
 def get_metrics(limit: int = 10) -> List[Dict[str, str]]:
@@ -94,8 +108,8 @@ def metrics() -> "flask.Response":
 
 @app.route("/dashboard/compliance")
 def compliance() -> "flask.Response":
-    """Return compliance metrics as JSON."""
-    return jsonify(get_compliance_metrics())
+    """Return placeholder compliance metrics."""
+    return jsonify(get_placeholder_metrics())
 
 
 class EnterpriseUtility:

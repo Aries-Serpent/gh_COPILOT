@@ -546,6 +546,9 @@ python scripts/audit_codebase_placeholders.py \
     --analytics-db databases/analytics.db \
     --production-db databases/production.db
 
+# The audit automatically populates `code_audit_log` in analytics.db for
+# compliance reporting.
+
 # Simple wrapper script
 python scripts/placeholder_audit_logger.py \
     --workspace $GH_COPILOT_WORKSPACE \
