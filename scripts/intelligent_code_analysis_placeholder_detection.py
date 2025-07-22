@@ -16,6 +16,9 @@ import sqlite3
 import re
 from pathlib import Path
 from datetime import datetime
+from typing import Iterable
+
+from tqdm import tqdm
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -68,7 +71,7 @@ class EnterpriseUtility:
                 )
                 return False
 
-            patterns = [
+            patterns: Iterable[str] = [
                 r"TODO",
                 r"FIXME",
                 r"pass\b",
@@ -76,15 +79,23 @@ class EnterpriseUtility:
                 r"placeholder",
             ]
             placeholder_found = False
-            for py_file in self.workspace_path.rglob("*.py"):
-                try:
-                    text = py_file.read_text(encoding="utf-8")
-                except OSError:
-                    continue
-                for pat in patterns:
-                    for match in re.finditer(pat, text):
-                        self._log_issue(str(py_file), pat, match.start())
-                        placeholder_found = True
+            py_files = list(self.workspace_path.rglob("*.py"))
+            with tqdm(
+                total=len(py_files),
+                desc=f"{TEXT_INDICATORS['info']} scanning",
+                unit="file",
+            ) as bar:
+                for py_file in py_files:
+                    try:
+                        text = py_file.read_text(encoding="utf-8")
+                    except OSError:
+                        bar.update(1)
+                        continue
+                    for pat in patterns:
+                        for match in re.finditer(pat, text):
+                            self._log_issue(str(py_file), pat, match.start())
+                            placeholder_found = True
+                    bar.update(1)
 
             if placeholder_found:
                 self.logger.warning(
