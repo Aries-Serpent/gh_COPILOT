@@ -15,8 +15,9 @@ def test_placeholder_logging(tmp_path):
 
     with sqlite3.connect(db_path) as conn:
         row = conn.execute(
-            "SELECT file_path, pattern FROM placeholder_audit"
+            "SELECT file_path, pattern, severity FROM placeholder_audit"
         ).fetchone()
     assert row[0].endswith("comprehensive_production_deployer.py")
     assert row[1] == "TODO"
+    assert row[2] == "low"
 
