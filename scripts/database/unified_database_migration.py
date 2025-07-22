@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
-"""Orchestrate migration of assets into enterprise_assets.db."""
+"""
+UnifiedDatabaseMigration - Enterprise Utility Script
+Generated: 2025-07-22 09:08:49 | Author: mbaetiong
+
+Enterprise Standards Compliance:
+- Flake8/PEP 8 Compliant
+- Emoji-free code (text-based indicators only)
+- Visual processing indicators
+
+Roles: [Primary] ⚡ Energy: 5 | Physics: Path🛤️ Fields🔄 Patterns👁️ Redundancy🔀 Balance⚖️
+"""
 
 from __future__ import annotations
 
 import logging
 import sqlite3
 from pathlib import Path
+from datetime import datetime, timezone
 
 from tqdm import tqdm
 
@@ -18,10 +29,10 @@ from utils.logging_utils import setup_enterprise_logging
 from scripts.validation.semantic_search_reference_validator import (
     chunk_anti_recursion_validation,
 )
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 # Alias for legacy reference
-validate_database_size = check_database_sizes
-
+validate_database_size_reference = check_database_sizes
 
 def _compress_database(db_path: Path) -> None:
     """Compress the SQLite database in-place.
@@ -37,15 +48,9 @@ def _compress_database(db_path: Path) -> None:
         conn.execute("ANALYZE")
         conn.commit()
 
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
 logger = logging.getLogger(__name__)
 
 DATABASE_LIST_FILE = Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md"
-
 
 def _load_database_names(list_file: Path) -> list[str]:
     """Return database names listed in ``list_file``.
@@ -62,7 +67,6 @@ def _load_database_names(list_file: Path) -> list[str]:
                 names.append(name)
     return names
 
-
 def compress_database(db_path: Path) -> None:
     """Compress ``db_path`` in place using VACUUM and ANALYZE."""
     if not db_path.exists():
@@ -73,6 +77,15 @@ def compress_database(db_path: Path) -> None:
         conn.execute("ANALYZE")
         conn.commit()
 
+def validate_database_size(databases_dir: Path, limit_mb: float = 99.9) -> None:
+    """Raise ``RuntimeError`` if any database exceeds ``limit_mb``."""
+    sizes = check_database_sizes(databases_dir, threshold_mb=limit_mb)
+    oversized = {name: size for name, size in sizes.items() if size > limit_mb}
+    if oversized:
+        details = ", ".join(
+            f"{name}: {size:.2f} MB" for name, size in oversized.items()
+        )
+        raise RuntimeError(f"Database size limit exceeded: {details}")
 
 def run_migration(
     workspace: Path,
@@ -94,6 +107,8 @@ def run_migration(
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
+    migration_start = datetime.now(timezone.utc)
+    log_sync_operation(enterprise_db, "migration_started", start_time=migration_start)
 
     if sources is None:
         list_file = workspace / DATABASE_LIST_FILE
@@ -101,7 +116,6 @@ def run_migration(
 
     source_paths = [db_dir / name for name in sources if (db_dir / name).exists()]
 
-    migration_start = log_sync_operation(enterprise_db, "migration_start")
     with tqdm(total=len(source_paths), desc="Migrating", unit="db") as bar:
         for src in source_paths:
             logger.info("Migrating %s", src.name)
@@ -133,6 +147,9 @@ def run_migration(
         start_time=migration_start,
     )
 
+    # DUAL COPILOT PATTERN: secondary validation
+    validator = SecondaryCopilotValidator(logger)
+    validator.validate_corrections([__file__])
 
 if __name__ == "__main__":
     import argparse

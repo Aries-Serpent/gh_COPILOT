@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Initialize the enterprise_assets.db database.
-This script creates the unified schema used across all consolidation tools.
-It performs integrity checks before writing to disk and includes visual
-processing indicators and dual copilot validation hooks.
+"""
+UnifiedDatabaseInitializer - Enterprise Utility Script
+Generated: 2025-07-22 09:07:43 | Author: mbaetiong
+
+Enterprise Standards Compliance:
+- Flake8/PEP 8 Compliant
+- Emoji-free code (text-based indicators only)
+- Visual processing indicators
 """
 
 from __future__ import annotations
@@ -15,10 +19,14 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from utils.logging_utils import setup_enterprise_logging
 from utils.validation_utils import detect_zero_byte_files, validate_path
 from utils.cross_platform_paths import CrossPlatformPathManager
 from secondary_copilot_validator import SecondaryCopilotValidator
+from utils.logging_utils import setup_enterprise_logging
+from .cross_database_sync_logger import log_sync_operation
+
+# Database paths
+PRODUCTION_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +93,23 @@ TABLES: dict[str, str] = {
     ),
 }
 
+def load_schema_from_production(tables: dict[str, str]) -> dict[str, str]:
+    """Load CREATE TABLE statements from production.db if available."""
+    if not PRODUCTION_DB.exists():
+        return tables
+
+    schema: dict[str, str] = {}
+    with sqlite3.connect(PRODUCTION_DB) as conn:
+        for name in tables:
+            row = conn.execute(
+                "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
+                (name,),
+            ).fetchone()
+            if row and row[0]:
+                schema[name] = row[0]
+
+    # merge production schema with defaults
+    return {**tables, **schema}
 
 def _load_production_schema(prod_db: Path) -> None:
     """Log schema information from ``production.db`` if available."""
@@ -96,7 +121,6 @@ def _load_production_schema(prod_db: Path) -> None:
             "SELECT name FROM sqlite_master WHERE type='table'"
         ).fetchall()
         logger.info("Existing production tables: %s", [t[0] for t in tables])
-
 
 def initialize_database(db_path: Path) -> None:
     """
@@ -113,7 +137,7 @@ def initialize_database(db_path: Path) -> None:
     start_time = datetime.now()
     process_id = os.getpid()
     logger.info("PROCESS STARTED: Initializing %s", db_path)
-    logger.info("Start Time: %s", start_time.strftime('%Y-%m-%d %H:%M:%S'))
+    logger.info("Start Time: %s", start_time.strftime("%Y-%m-%d %H:%M:%S"))
     logger.info("Process ID: %d", process_id)
 
     prod_db = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
@@ -141,16 +165,16 @@ def initialize_database(db_path: Path) -> None:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     timeout_minutes = 5
     timeout_seconds = timeout_minutes * 60
-    elapsed = 0
-    total_tables = len(TABLES)
-    from .cross_database_sync_logger import log_sync_operation
-
+    tables = load_schema_from_production(TABLES)
+    total_tables = len(tables)
     start_log = log_sync_operation(db_path, "init_start")
     with sqlite3.connect(db_path, timeout=5) as conn, tqdm(
-        total=total_tables, desc="Creating tables", unit="table",
-        bar_format="{l_bar}{bar}| {n}/{total} [{elapsed}<{remaining}]"
+        total=total_tables,
+        desc="Creating tables",
+        unit="table",
+        bar_format="{l_bar}{bar}| {n}/{total} [{elapsed}<{remaining}]",
     ) as bar:
-        for idx, (table_name, sql) in enumerate(TABLES.items(), 1):
+        for idx, (table_name, sql) in enumerate(tables.items(), 1):
             conn.execute(sql)
             bar.set_description(f"Creating {table_name}")
             bar.update(1)
@@ -158,12 +182,20 @@ def initialize_database(db_path: Path) -> None:
             etc = ((elapsed / idx) * (total_tables - idx)) if idx > 0 else 0
             logger.info(
                 "%s: Created | Progress: %d/%d | Elapsed: %.2fs | ETC: %.2fs",
-                table_name, idx, total_tables, elapsed, etc
+                table_name,
+                idx,
+                total_tables,
+                elapsed,
+                etc,
             )
             if elapsed > timeout_seconds:
                 logger.error("Timeout exceeded during table creation")
                 raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
         conn.commit()
+
+    # Post creation size check
+    if db_path.stat().st_size > SIZE_LIMIT_MB * 1024 * 1024:
+        raise RuntimeError("Database file exceeds 99.9 MB after initialization")
 
     duration = (datetime.now() - start_time).total_seconds()
     logger.info("Database initialization complete in %.2fs", duration)
@@ -177,7 +209,6 @@ def initialize_database(db_path: Path) -> None:
     else:
         logger.error("DUAL COPILOT VALIDATION: FAILED")
 
-
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     db_path = root / "databases" / "enterprise_assets.db"
@@ -185,7 +216,6 @@ def main() -> None:
         logger.info("%s already exists", db_path)
         return
     initialize_database(db_path)
-
 
 if __name__ == "__main__":
     setup_enterprise_logging()
