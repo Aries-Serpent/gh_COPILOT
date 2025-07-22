@@ -32,7 +32,11 @@ def test_placeholder_audit_logger(tmp_path):
 
     with sqlite3.connect(analytics) as conn:
         rows = conn.execute("SELECT pattern FROM placeholder_audit").fetchall()
+        code_rows = conn.execute(
+            "SELECT placeholder_type FROM code_audit_log"
+        ).fetchall()
     assert rows
+    assert code_rows
     assert dash_dir.joinpath("placeholder_summary.json").exists()
 
 
