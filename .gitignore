@@ -6,6 +6,7 @@ databases/enterprise_assets.db
 /databases/*.db-shm
 /databases/*.db-wal
 .venv/
+# Python bytecode
 __pycache__/
 *.pyc
 target/
