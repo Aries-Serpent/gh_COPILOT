@@ -15,6 +15,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
 
+from tqdm import tqdm
+
 TEXT_INDICATORS = {
     "start": "[START]",
     "success": "[SUCCESS]",
@@ -52,51 +54,66 @@ def generate_compliance_report(
 ) -> Dict[str, Any]:
     """Generate JSON and Markdown compliance reports."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    ruff_metrics = (
-        parse_ruff_output(ruff_file.read_text(encoding="utf-8"))
-        if ruff_file.exists()
-        else {"issues": 0}
-    )
-    pytest_metrics = parse_pytest_report(pytest_file)
-    timestamp = datetime.now().isoformat()
-    summary = {
-        "timestamp": timestamp,
-        "ruff": ruff_metrics,
-        "pytest": pytest_metrics,
-    }
-
-    json_path = output_dir / "compliance_report.json"
-    json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-
-    md_path = output_dir / "compliance_report.md"
-    with open(md_path, "w", encoding="utf-8") as md:
-        md.write("# Compliance Report\n\n")
-        md.write(f"Generated: {timestamp}\n\n")
-        md.write("## Ruff\n")
-        md.write(f"- Issues: {ruff_metrics['issues']}\n")
-        md.write("\n## Pytest\n")
-        md.write(f"- Total: {pytest_metrics['tests']}\n")
-        md.write(f"- Passed: {pytest_metrics['passed']}\n")
-        md.write(f"- Failed: {pytest_metrics['failed']}\n")
-
-    analytics_db.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            """CREATE TABLE IF NOT EXISTS code_quality_metrics (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                operation TEXT,
-                timestamp TEXT,
-                metrics TEXT,
-                recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )"""
+    with tqdm(total=4, desc="Compliance Report", unit="step") as bar:
+        bar.set_description("Parse Ruff")
+        ruff_metrics = (
+            parse_ruff_output(ruff_file.read_text(encoding="utf-8"))
+            if ruff_file.exists()
+            else {"issues": 0}
         )
-        conn.execute(
-            "INSERT INTO code_quality_metrics (operation, timestamp, metrics) VALUES (?, ?, ?)",
-            ("compliance_report", timestamp, json.dumps(summary)),
-        )
-        conn.commit()
+        bar.update(1)
+
+        bar.set_description("Parse Pytest")
+        pytest_metrics = parse_pytest_report(pytest_file)
+        bar.update(1)
+
+        timestamp = datetime.now().isoformat()
+        summary = {
+            "timestamp": timestamp,
+            "ruff": ruff_metrics,
+            "pytest": pytest_metrics,
+        }
+
+        bar.set_description("Write Reports")
+        json_path = output_dir / "compliance_report.json"
+        json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        md_path = output_dir / "compliance_report.md"
+        with open(md_path, "w", encoding="utf-8") as md:
+            md.write("# Compliance Report\n\n")
+            md.write(f"Generated: {timestamp}\n\n")
+            md.write("## Ruff\n")
+            md.write(f"- Issues: {ruff_metrics['issues']}\n")
+            md.write("\n## Pytest\n")
+            md.write(f"- Total: {pytest_metrics['tests']}\n")
+            md.write(f"- Passed: {pytest_metrics['passed']}\n")
+            md.write(f"- Failed: {pytest_metrics['failed']}\n")
+        bar.update(1)
+
+        bar.set_description("Log Metrics")
+        analytics_db.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(analytics_db) as conn:
+            conn.execute(
+                """CREATE TABLE IF NOT EXISTS code_quality_metrics (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    operation TEXT,
+                    timestamp TEXT,
+                    metrics TEXT,
+                    recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )"""
+            )
+            conn.execute(
+                "INSERT INTO code_quality_metrics (operation, timestamp, metrics) VALUES (?, ?, ?)",
+                ("compliance_report", timestamp, json.dumps(summary)),
+            )
+            conn.commit()
+        bar.update(1)
 
     return summary
+
+
+def validate_report(output_dir: Path) -> bool:
+    json_path = output_dir / "compliance_report.json"
+    return json_path.exists() and json_path.stat().st_size > 0
 
 
 if __name__ == "__main__":

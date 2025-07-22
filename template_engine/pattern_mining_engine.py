@@ -8,6 +8,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
+DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 
 
 def extract_patterns(templates: list[str]) -> list[str]:
@@ -20,7 +21,27 @@ def extract_patterns(templates: list[str]) -> list[str]:
     return list(patterns)
 
 
-def mine_patterns(production_db: Path = DEFAULT_PRODUCTION_DB) -> list[str]:
+def _log_pattern(analytics_db: Path, pattern: str) -> None:
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS pattern_mining_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                pattern TEXT,
+                timestamp TEXT
+            )"""
+        )
+        conn.execute(
+            "INSERT INTO pattern_mining_logs (pattern, timestamp) VALUES (?, ?)",
+            (pattern, datetime.utcnow().isoformat()),
+        )
+        conn.commit()
+
+
+def mine_patterns(
+    production_db: Path = DEFAULT_PRODUCTION_DB,
+    analytics_db: Path = DEFAULT_ANALYTICS_DB,
+) -> list[str]:
     """Mine templates in ``production_db`` and store discovered patterns."""
     templates = []
     if production_db.exists():
@@ -45,5 +66,14 @@ def mine_patterns(production_db: Path = DEFAULT_PRODUCTION_DB) -> list[str]:
                     "INSERT INTO mined_patterns (pattern, mined_at) VALUES (?, ?)",
                     (pat, datetime.utcnow().isoformat()),
                 )
+                _log_pattern(analytics_db, pat)
             conn.commit()
     return patterns
+
+
+def validate_mining(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> bool:
+    if not analytics_db.exists():
+        return False
+    with sqlite3.connect(analytics_db) as conn:
+        cur = conn.execute("SELECT COUNT(*) FROM pattern_mining_logs")
+        return cur.fetchone()[0] > 0
