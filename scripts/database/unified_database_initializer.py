@@ -20,6 +20,12 @@ from utils.validation_utils import detect_zero_byte_files, validate_path
 from utils.cross_platform_paths import CrossPlatformPathManager
 from secondary_copilot_validator import SecondaryCopilotValidator
 
+# Database paths
+PRODUCTION_DB = (
+    CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
+)
+
+
 logger = logging.getLogger(__name__)
 
 SIZE_LIMIT_MB = 99.9
@@ -86,6 +92,25 @@ TABLES: dict[str, str] = {
 }
 
 
+def load_schema_from_production(tables: dict[str, str]) -> dict[str, str]:
+    """Load CREATE TABLE statements from production.db if available."""
+    if not PRODUCTION_DB.exists():
+        return tables
+
+    schema: dict[str, str] = {}
+    with sqlite3.connect(PRODUCTION_DB) as conn:
+        for name in tables:
+            row = conn.execute(
+                "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
+                (name,),
+            ).fetchone()
+            if row and row[0]:
+                schema[name] = row[0]
+
+    # merge production schema with defaults
+    return {**tables, **schema}
+
+
 def initialize_database(db_path: Path) -> None:
     """
     Create enterprise_assets.db with the expected schema.
@@ -101,11 +126,10 @@ def initialize_database(db_path: Path) -> None:
     start_time = datetime.now()
     process_id = os.getpid()
     logger.info("PROCESS STARTED: Initializing %s", db_path)
-    logger.info("Start Time: %s", start_time.strftime('%Y-%m-%d %H:%M:%S'))
+    logger.info("Start Time: %s", start_time.strftime("%Y-%m-%d %H:%M:%S"))
     logger.info("Process ID: %d", process_id)
 
     workspace_root = CrossPlatformPathManager.get_workspace_path()
-    backup_root = CrossPlatformPathManager.get_backup_root()
 
     # Validate path is within workspace and not inside backup
     if not validate_path(db_path):
@@ -127,13 +151,13 @@ def initialize_database(db_path: Path) -> None:
     timeout_minutes = 5
     timeout_seconds = timeout_minutes * 60
     elapsed = 0
-    total_tables = len(TABLES)
+    tables = load_schema_from_production(TABLES)
+    total_tables = len(tables)
     with sqlite3.connect(db_path, timeout=5) as conn, tqdm(
         total=total_tables, desc="Creating tables", unit="table",
         bar_format="{l_bar}{bar}| {n}/{total} [{elapsed}<{remaining}]"
     ) as bar:
-        for idx, (table_name, sql) in enumerate(TABLES.items(), 1):
-            phase_start = datetime.now()
+        for idx, (table_name, sql) in enumerate(tables.items(), 1):
             conn.execute(sql)
             bar.set_description(f"Creating {table_name}")
             bar.update(1)
@@ -147,6 +171,10 @@ def initialize_database(db_path: Path) -> None:
                 logger.error("Timeout exceeded during table creation")
                 raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
         conn.commit()
+
+    # Post creation size check
+    if db_path.stat().st_size > SIZE_LIMIT_MB * 1024 * 1024:
+        raise RuntimeError("Database file exceeds 99.9 MB after initialization")
 
     duration = (datetime.now() - start_time).total_seconds()
     logger.info("Database initialization complete in %.2fs", duration)
@@ -169,4 +197,6 @@ def main() -> None:
     initialize_database(db_path)
 
 
-if __name__ ==
+if __name__ == "__main__":
+    setup_enterprise_logging()
+    main()
