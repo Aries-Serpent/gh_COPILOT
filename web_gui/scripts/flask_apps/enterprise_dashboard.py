@@ -80,8 +80,16 @@ def metrics() -> "flask.Response":
 
 @app.route("/compliance")
 def compliance() -> "flask.Response":
-    """Return compliance audit logs."""
-    return jsonify(get_compliance())
+    """Return basic compliance metrics."""
+    data = []
+    if DB_PATH.exists():
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.execute(
+                "SELECT timestamp, details FROM doc_audit ORDER BY rowid DESC LIMIT 5"
+            )
+            data = [dict(row) for row in cur.fetchall()]
+    return jsonify(data)
 
 
 class EnterpriseUtility:

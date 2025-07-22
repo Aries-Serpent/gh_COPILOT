@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import logging
 import sqlite3
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
@@ -8,6 +10,7 @@ from typing import List
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from tqdm import tqdm
 
 DEFAULT_ANALYTICS_DB = Path("analytics.db")
 DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
@@ -21,10 +24,13 @@ class TemplateAutoGenerator:
     completion_db: Path = DEFAULT_COMPLETION_DB
 
     def __post_init__(self) -> None:
+        self.logger = logging.getLogger(__name__)
+        start = time.time()
         self.patterns = self._load_patterns()
         self.templates = self._load_templates()
         self.cluster_model = self._cluster_patterns()
         self._last_objective: dict | None = None
+        self._log_event("init", {"duration": time.time() - start})
 
     # ------------------------------------------------------------------
     def _load_patterns(self) -> List[str]:
@@ -53,7 +59,8 @@ class TemplateAutoGenerator:
         matrix = vectorizer.fit_transform(corpus)
         n_clusters = min(len(corpus), 2)
         model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
-        model.fit(matrix)
+        for _ in tqdm(range(1), desc="clustering", leave=False):
+            model.fit(matrix)
         return model
 
     # ------------------------------------------------------------------
@@ -62,23 +69,29 @@ class TemplateAutoGenerator:
         vecs = vectorizer.transform([a, b])
         return float(cosine_similarity(vecs[0], vecs[1])[0][0])
 
+    def _quantum_score(self, template: str, target: str) -> float:
+        """Placeholder for quantum-inspired scoring."""
+        return self.objective_similarity(template, target)
+
     # ------------------------------------------------------------------
     def select_best_template(self, target: str) -> str:
         candidates = self.templates or self.patterns
         if not candidates:
             return ""
-        scores = [self.objective_similarity(target, c) for c in candidates]
+        scores = [self._quantum_score(c, target) for c in candidates]
         return candidates[int(max(range(len(scores)), key=scores.__getitem__))]
 
     # ------------------------------------------------------------------
     def generate_template(self, objective: dict) -> str:
         self._last_objective = objective
         search_terms = " ".join(map(str, objective.values()))
-        for tmpl in self.templates + self.patterns:
+        for tmpl in tqdm(self.templates + self.patterns, desc="search", leave=False):
             if all(term.lower() in tmpl.lower() for term in search_terms.split()):
                 if "def invalid" in tmpl:
                     raise ValueError("Invalid template syntax")
+                self._log_event("generate", {"objective": search_terms})
                 return tmpl
+        self._log_event("generate", {"objective": search_terms, "status": "none"})
         return ""
 
     # ------------------------------------------------------------------
@@ -105,6 +118,22 @@ class TemplateAutoGenerator:
             best_local = indices[int(max(range(len(sims)), key=lambda i: sims[i]))]
             reps.append(corpus[best_local])
         return reps
+
+    def _log_event(self, name: str, data: dict) -> None:
+        """Log events to analytics DB."""
+        try:
+            self.analytics_db.parent.mkdir(exist_ok=True, parents=True)
+            with sqlite3.connect(self.analytics_db) as conn:
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS generator_events (\n"
+                    "  timestamp REAL, name TEXT, details TEXT\n)"
+                )
+                conn.execute(
+                    "INSERT INTO generator_events (timestamp, name, details) VALUES (?,?,?)",
+                    (time.time(), name, str(data)),
+                )
+        except Exception as exc:  # pragma: no cover - logging failure should not crash
+            self.logger.debug("log_event failed: %s", exc)
 
 __all__ = [
     "TemplateAutoGenerator",

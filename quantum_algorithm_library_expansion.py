@@ -100,8 +100,7 @@ def demo_quantum_phase_estimation(theta: float = 0.25, precision: int = 3) -> fl
     return float(estimate)
 
 
-def quantum_cluster_score(vectors: np.ndarray) -> float:
-    """Return a mock quantum-inspired clustering score."""
-    if vectors.size == 0:
-        return 0.0
-    return float(np.linalg.norm(np.mean(vectors, axis=0)))
+def quantum_cluster_score(values: Iterable[float]) -> float:
+    """Return a placeholder quantum-inspired cluster score."""
+    arr = np.array(list(values), dtype=float)
+    return float(arr.mean())

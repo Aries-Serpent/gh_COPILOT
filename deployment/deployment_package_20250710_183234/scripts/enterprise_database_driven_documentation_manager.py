@@ -12,8 +12,9 @@ Enterprise Standards Compliance:
 import sqlite3
 import logging
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from tqdm import tqdm
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -23,6 +24,8 @@ TEXT_INDICATORS = {
     'database': '[DATABASE]',
     'info': '[INFO]'
 }
+
+RENDER_LOG_DIR = Path("logs") / "template_rendering"
 
 
 class EnterpriseDatabaseProcessor:
@@ -76,11 +79,21 @@ class EnterpriseDatabaseProcessor:
                 self.logger.info(
                     f"{TEXT_INDICATORS['info']} {title}: {count} versions"
                 )
+                self.render_documentation(title, f"# {title}\nCount: {count}")
 
             return True
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")
             return False
+
+    def render_documentation(self, title: str, content: str) -> None:
+        """Render documentation in multiple formats and log."""
+        RENDER_LOG_DIR.mkdir(parents=True, exist_ok=True)
+        for ext in ["md", "html", "json"]:
+            path = RENDER_LOG_DIR / f"{title}.{ext}"
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(content)
+        self.logger.info("%s Rendered %s", TEXT_INDICATORS['info'], title)
 
 
 def main():
