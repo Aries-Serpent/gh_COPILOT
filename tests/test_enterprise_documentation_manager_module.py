@@ -1,6 +1,6 @@
 import logging
 import sqlite3
-from documentation.enterprise_documentation_manager import EnterpriseDocumentationManager
+from documentation import EnterpriseDocumentationManager
 
 
 def test_documentation_generation(tmp_path, monkeypatch, caplog):
