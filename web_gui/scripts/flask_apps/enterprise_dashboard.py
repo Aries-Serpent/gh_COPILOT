@@ -52,6 +52,19 @@ def get_metrics(limit: int = 10) -> List[Dict[str, str]]:
         return [dict(row) for row in cur.fetchall()]
 
 
+def get_compliance(limit: int = 10) -> List[Dict[str, str]]:
+    """Return recent compliance and rollback events."""
+    if not DB_PATH.exists():
+        return []
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        cur = conn.execute(
+            "SELECT timestamp, db_name, details FROM audit_log ORDER BY timestamp DESC LIMIT ?",
+            (limit,),
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+
 @app.route("/")
 def dashboard() -> str:
     """Display dashboard metrics."""
@@ -63,6 +76,12 @@ def dashboard() -> str:
 def metrics() -> "flask.Response":
     """Return metrics as JSON."""
     return jsonify(get_metrics())
+
+
+@app.route("/compliance")
+def compliance() -> "flask.Response":
+    """Return compliance audit logs."""
+    return jsonify(get_compliance())
 
 
 class EnterpriseUtility:

@@ -7,7 +7,9 @@ from quantum_algorithm_library_expansion import (
     demo_variational_quantum_eigensolver,
     demo_quantum_phase_estimation,
     demo_quantum_teleportation,
+    quantum_cluster_score,
 )
+import numpy as np
 
 
 def test_perform_utility_function_runs():
@@ -43,3 +45,9 @@ def test_demo_variational_quantum_eigensolver():
 def test_demo_quantum_phase_estimation():
     estimate = demo_quantum_phase_estimation(0.3, precision=3)
     assert abs(estimate - 0.3) <= 0.125
+
+
+def test_quantum_cluster_score():
+    vecs = np.array([[1, 0], [0, 1]], dtype=float)
+    score = quantum_cluster_score(vecs)
+    assert score > 0

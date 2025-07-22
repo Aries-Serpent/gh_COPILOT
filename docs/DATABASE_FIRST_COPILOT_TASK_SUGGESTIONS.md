@@ -41,5 +41,41 @@ This document lists high-level tasks required to fully implement the database-fi
 - Extend `docs/README.md` with references to the new database-first utilities.
 - Keep `DATABASE_FIRST_USAGE_GUIDE.md` aligned with the implemented logic.
 
+## 10. Placeholder and TODO Audit Logging
+- **ID:** `AUD-001`
+  - Scan all modules for TODO/FIXME comments and log findings to `analytics.db` in the `placeholder_audit` table.
+  - **Module:** `scripts/validation/placeholder_audit_logger.py`
+  - **Cross-Reference:** Dashboard `/audit` endpoint and analytics reports.
+
+## 11. DB-First Code Generation
+- **ID:** `GEN-001`
+  - Enforce template selection from databases first with pattern fallbacks.
+  - **Module:** `template_engine/auto_generator.py`
+  - **Cross-Reference:** Generation metrics logged to `analytics.db` and surfaced on the dashboard.
+
+## 12. Pattern Clustering and Representatives
+- **ID:** `CLUS-001`
+  - Cluster templates and patterns with `KMeans` and expose cluster representatives via `get_cluster_representatives()`.
+  - **Module:** `template_engine/auto_generator.py`
+  - **Cross-Reference:** Clustering stats linked in dashboard analytics.
+
+## 13. Correction Logging and Rollback
+- **ID:** `ROLL-001`
+  - Record all correction and rollback events with timestamps.
+  - **Module:** `template_engine/template_synchronizer.py`
+  - **Cross-Reference:** Compliance dashboard lists recent rollback events.
+
+## 14. Quantum/AI Integration
+- **ID:** `QAI-001`
+  - Integrate quantum-inspired scoring for template selection and pattern matching.
+  - **Module:** `quantum_algorithm_library_expansion.py`
+  - **Cross-Reference:** Quantum processing logs stored in `analytics.db`.
+
+## 15. Dashboard and Compliance Cross-Linking
+- **ID:** `DASH-001`
+  - Extend the Flask dashboard with cross-links to compliance reports and audit logs.
+  - **Module:** `web_gui/scripts/flask_apps/enterprise_dashboard.py`
+  - **Cross-Reference:** Real-time metrics pulled from `analytics.db` and correction logs.
+
 ---
 These tasks derive from the provided enhancement prompt and are meant to guide ongoing work toward a robust database-first Copilot integration.
