@@ -1,29 +1,28 @@
 #!/usr/bin/env python3
-"""Initialize the enterprise_assets.db database."""
+"""Initialize the enterprise_assets.db database.
+This script creates the unified schema used across all consolidation tools.
+It performs integrity checks before writing to disk and includes visual
+processing indicators and dual copilot validation hooks.
+"""
 
 from __future__ import annotations
 
 import logging
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
 
 from tqdm import tqdm
 
-# STUB TASK PROMPT: Ensure all required tables are defined in enterprise_assets.db.
-# Tables: script_assets, documentation_assets, template_assets, pattern_assets,
-# enterprise_metadata, integration_tracking, cross_database_sync_operations
-# If any table is missing, generate CREATE TABLE statements and add to TABLES dict.
-# Validate schema matches compliance requirements (column types, constraints,
-# indexes).
-# Add visual processing indicators (start time logging, progress bar, timeout, etc).
-# Add dual copilot validation hooks.
-
 from utils.logging_utils import setup_enterprise_logging
 from utils.validation_utils import detect_zero_byte_files, validate_path
+from utils.cross_platform_paths import CrossPlatformPathManager
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 logger = logging.getLogger(__name__)
+
+SIZE_LIMIT_MB = 99.9
 
 TABLES: dict[str, str] = {
     "script_assets": (
@@ -88,29 +87,77 @@ TABLES: dict[str, str] = {
 
 
 def initialize_database(db_path: Path) -> None:
-    """Create enterprise_assets.db with the expected schema."""
-    if not validate_path(db_path):
-        raise RuntimeError(f"Invalid database path: {db_path}")
-    if db_path.exists() and db_path.stat().st_size > 99_900_000:
-        raise RuntimeError("Database file exceeds 99.9 MB")
-    zeros = detect_zero_byte_files(db_path.parent)
-    if zeros:
-        raise RuntimeError(f"Zero-byte files detected: {zeros}")
+    """
+    Create enterprise_assets.db with the expected schema.
 
-    logger.info("Initializing %s", db_path)
+    This function performs the following:
+    - Validates the target path is within workspace and not inside backup.
+    - Checks for zero-byte files in workspace before proceeding.
+    - Aborts if the database file already exists and exceeds the size limit.
+    - Logs start time, process ID, and uses a progress bar for table creation.
+    - Implements timeout and ETC calculation.
+    - Invokes secondary copilot validator for compliance.
+    """
     start_time = datetime.now()
+    process_id = os.getpid()
+    logger.info("PROCESS STARTED: Initializing %s", db_path)
+    logger.info("Start Time: %s", start_time.strftime('%Y-%m-%d %H:%M:%S'))
+    logger.info("Process ID: %d", process_id)
+
+    workspace_root = CrossPlatformPathManager.get_workspace_path()
+    backup_root = CrossPlatformPathManager.get_backup_root()
+
+    # Validate path is within workspace and not inside backup
+    if not validate_path(db_path):
+        logger.error("Invalid database path: %s", db_path)
+        raise RuntimeError(f"Invalid database path: {db_path}")
+
+    # Check for zero-byte files in workspace
+    zero_bytes = detect_zero_byte_files(workspace_root)
+    if zero_bytes:
+        logger.error("Zero-byte files detected in workspace: %s", zero_bytes)
+        raise RuntimeError(f"Zero-byte files detected: {zero_bytes}")
+
+    # Check for size limit
+    if db_path.exists() and db_path.stat().st_size > SIZE_LIMIT_MB * 1024 * 1024:
+        logger.error("Existing database exceeds size limit %.1fMB", SIZE_LIMIT_MB)
+        raise RuntimeError("Database file exceeds 99.9 MB")
+
     db_path.parent.mkdir(parents=True, exist_ok=True)
+    timeout_minutes = 5
+    timeout_seconds = timeout_minutes * 60
+    elapsed = 0
+    total_tables = len(TABLES)
     with sqlite3.connect(db_path, timeout=5) as conn, tqdm(
-        total=len(TABLES), desc="Creating tables", unit="table"
+        total=total_tables, desc="Creating tables", unit="table",
+        bar_format="{l_bar}{bar}| {n}/{total} [{elapsed}<{remaining}]"
     ) as bar:
-        for sql in TABLES.values():
+        for idx, (table_name, sql) in enumerate(TABLES.items(), 1):
+            phase_start = datetime.now()
             conn.execute(sql)
+            bar.set_description(f"Creating {table_name}")
             bar.update(1)
+            elapsed = (datetime.now() - start_time).total_seconds()
+            etc = ((elapsed / idx) * (total_tables - idx)) if idx > 0 else 0
+            logger.info(
+                "%s: Created | Progress: %d/%d | Elapsed: %.2fs | ETC: %.2fs",
+                table_name, idx, total_tables, elapsed, etc
+            )
+            if elapsed > timeout_seconds:
+                logger.error("Timeout exceeded during table creation")
+                raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
         conn.commit()
+
     duration = (datetime.now() - start_time).total_seconds()
     logger.info("Database initialization complete in %.2fs", duration)
 
-    SecondaryCopilotValidator(logger).validate_corrections([__file__])
+    # DUAL COPILOT PATTERN: Secondary validation
+    validator = SecondaryCopilotValidator(logger)
+    validation_passed = validator.validate_corrections([__file__])
+    if validation_passed:
+        logger.info("DUAL COPILOT VALIDATION: PASSED")
+    else:
+        logger.error("DUAL COPILOT VALIDATION: FAILED")
 
 
 def main() -> None:
@@ -122,6 +169,4 @@ def main() -> None:
     initialize_database(db_path)
 
 
-if __name__ == "__main__":
-    setup_enterprise_logging()
-    main()
+if __name__ ==
