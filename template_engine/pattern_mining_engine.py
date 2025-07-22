@@ -1,18 +1,45 @@
 from __future__ import annotations
 
+import logging
+import os
 import re
 import sqlite3
+import sys
+import time
 from datetime import datetime
 from pathlib import Path
+from typing import List
 
 from tqdm import tqdm
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
+LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOGS_DIR / f"pattern_mining_engine_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
-def extract_patterns(templates: list[str]) -> list[str]:
-    """Extract recurring 3-word patterns from templates."""
+def validate_no_recursive_folders() -> None:
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    for pattern in forbidden_patterns:
+        for folder in workspace_root.rglob(pattern):
+            if folder.is_dir() and folder != workspace_root:
+                logging.error(f"Recursive folder detected: {folder}")
+                raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+
+def extract_patterns(templates: List[str]) -> List[str]:
+    """
+    Extract recurring 3-word patterns from templates.
+    """
     patterns = set()
     for text in templates:
         words = re.findall(r"\w+", text)
@@ -20,8 +47,30 @@ def extract_patterns(templates: list[str]) -> list[str]:
             patterns.add(" ".join(words[i : i + 3]))
     return list(patterns)
 
+def _log_patterns(patterns: List[str], analytics_db: Path) -> None:
+    """
+    Log mined patterns to analytics.db for compliance tracking.
+    """
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS pattern_mining_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                pattern TEXT,
+                ts TEXT
+            )"""
+        )
+        for pat in tqdm(patterns, desc="Logging Patterns", unit="pat"):
+            conn.execute(
+                "INSERT INTO pattern_mining_log (pattern, ts) VALUES (?, ?)",
+                (pat, datetime.utcnow().isoformat()),
+            )
+        conn.commit()
 
 def _log_pattern(analytics_db: Path, pattern: str) -> None:
+    """
+    Log a single pattern to analytics.db for DUAL COPILOT validation.
+    """
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
@@ -37,21 +86,38 @@ def _log_pattern(analytics_db: Path, pattern: str) -> None:
         )
         conn.commit()
 
-
 def mine_patterns(
     production_db: Path = DEFAULT_PRODUCTION_DB,
     analytics_db: Path = DEFAULT_ANALYTICS_DB,
-) -> list[str]:
-    """Mine templates in ``production_db`` and store discovered patterns."""
+    timeout_minutes: int = 30,
+) -> List[str]:
+    """
+    Mine templates in production_db and store discovered patterns.
+    Includes visual processing indicators, start time logging, timeout, ETC, and status updates.
+    Logs all patterns to analytics.db and /logs/template_rendering.
+    """
+    validate_no_recursive_folders()
+    start_time = datetime.now()
+    process_id = os.getpid()
+    timeout_seconds = timeout_minutes * 60
+    logging.info(f"PROCESS STARTED: Pattern Mining Engine")
+    logging.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    logging.info(f"Process ID: {process_id}")
     templates = []
     if production_db.exists():
         with sqlite3.connect(production_db) as conn:
             try:
                 cur = conn.execute("SELECT template_code FROM code_templates")
                 templates = [row[0] for row in cur.fetchall()]
-            except sqlite3.Error:
+            except sqlite3.Error as exc:
+                logging.error(f"Error querying production.db: {exc}")
                 templates = []
+    if not templates:
+        logging.warning("No templates found in production.db")
+        return []
     patterns = extract_patterns(templates)
+    total_steps = len(patterns)
+    elapsed = 0.0
     if production_db.exists():
         with sqlite3.connect(production_db) as conn:
             conn.execute(
@@ -61,19 +127,46 @@ def mine_patterns(
                     mined_at TEXT
                 )"""
             )
-            for pat in tqdm(patterns, desc="Storing", unit="pat"):
+            for idx, pat in enumerate(tqdm(patterns, desc="Storing Patterns", unit="pat"), 1):
                 conn.execute(
                     "INSERT INTO mined_patterns (pattern, mined_at) VALUES (?, ?)",
                     (pat, datetime.utcnow().isoformat()),
                 )
                 _log_pattern(analytics_db, pat)
+                elapsed = time.time() - start_time.timestamp()
+                etc = calculate_etc(start_time.timestamp(), idx, total_steps)
+                if idx % 10 == 0 or idx == total_steps:
+                    logging.info(f"Pattern {idx}/{total_steps} stored | ETC: {etc}")
             conn.commit()
+    _log_patterns(patterns, analytics_db)
+    logging.info(f"Pattern mining completed in {elapsed:.2f}s | ETC: {etc}")
     return patterns
 
+def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
+    elapsed = time.time() - start_time
+    if current_progress > 0:
+        total_estimated = elapsed / (current_progress / total_work)
+        remaining = total_estimated - elapsed
+        return f"{remaining:.2f}s remaining"
+    return "N/A"
 
-def validate_mining(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> bool:
-    if not analytics_db.exists():
-        return False
+def validate_mining(expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_DB) -> bool:
+    """
+    DUAL COPILOT validation for pattern logging.
+    Checks analytics.db for matching mining events.
+    """
     with sqlite3.connect(analytics_db) as conn:
-        cur = conn.execute("SELECT COUNT(*) FROM pattern_mining_logs")
-        return cur.fetchone()[0] > 0
+        cur = conn.execute("SELECT COUNT(*) FROM pattern_mining_log")
+        count = cur.fetchone()[0]
+    if count >= expected_count:
+        logging.info("DUAL COPILOT validation passed: Pattern mining integrity confirmed.")
+        return True
+    else:
+        logging.error("DUAL COPILOT validation failed: Pattern mining mismatch.")
+        return False
+
+__all__ = [
+    "extract_patterns",
+    "mine_patterns",
+    "validate_mining",
+]

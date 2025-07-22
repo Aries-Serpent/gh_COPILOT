@@ -1,120 +1,182 @@
-"""
-Compliance Report Generator - Summarize lint and test results.
-
-Enterprise Standards Compliance:
-- Flake8/PEP 8 Compliant
-- Emoji-free code (text-based indicators only)
-- Database-first architecture
-"""
-
 from __future__ import annotations
 
 import json
+import logging
+import os
 import sqlite3
+import sys
+import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict
+from typing import Dict, Any
 
 from tqdm import tqdm
 
-TEXT_INDICATORS = {
-    "start": "[START]",
-    "success": "[SUCCESS]",
-    "error": "[ERROR]",
-}
+DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
+LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOGS_DIR / f"compliance_report_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
-def parse_ruff_output(output: str) -> Dict[str, int]:
-    """Parse ruff output and count issues."""
-    lines = [line for line in output.splitlines() if line.strip() and ":" in line]
-    return {"issues": len(lines)}
+def validate_no_recursive_folders() -> None:
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    for pattern in forbidden_patterns:
+        for folder in workspace_root.rglob(pattern):
+            if folder.is_dir() and folder != workspace_root:
+                logging.error(f"Recursive folder detected: {folder}")
+                raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
 
+def _parse_ruff(path: Path) -> Dict[str, Any]:
+    """
+    Parse Ruff output file for issue count.
+    """
+    issues = 0
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                issues += 1
+    return {"issues": issues}
 
-def parse_pytest_report(path: Path) -> Dict[str, int]:
-    """Parse pytest JSON report."""
+def _parse_pytest(path: Path) -> Dict[str, Any]:
+    """
+    Parse Pytest JSON report for test metrics.
+    """
     if not path.exists():
-        return {"tests": 0, "passed": 0, "failed": 0}
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-        summary = data.get("summary", {})
-        return {
-            "tests": summary.get("total", 0),
-            "passed": summary.get("passed", 0),
-            "failed": summary.get("failed", 0),
-        }
-    except Exception:
-        return {"tests": 0, "passed": 0, "failed": 0}
+        return {"total": 0, "passed": 0, "failed": 0}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    summary = data.get("summary", {})
+    return {
+        "total": summary.get("total", 0),
+        "passed": summary.get("passed", 0),
+        "failed": summary.get("failed", 0),
+    }
 
+def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
+    elapsed = time.time() - start_time
+    if current_progress > 0:
+        total_estimated = elapsed / (current_progress / total_work)
+        remaining = total_estimated - elapsed
+        return f"{remaining:.2f}s remaining"
+    return "N/A"
 
 def generate_compliance_report(
     ruff_file: Path,
     pytest_file: Path,
     output_dir: Path,
-    analytics_db: Path,
+    analytics_db: Path = DEFAULT_ANALYTICS_DB,
+    timeout_minutes: int = 30,
 ) -> Dict[str, Any]:
-    """Generate JSON and Markdown compliance reports."""
+    """
+    Compile results from Ruff and Pytest runs into JSON and Markdown compliance reports.
+    Includes visual processing indicators, start time logging, timeout, ETC, and status updates.
+    Logs all metrics to analytics.db and /logs/template_rendering.
+    """
+    validate_no_recursive_folders()
+    start_time_dt = datetime.now()
+    process_id = os.getpid()
+    timeout_seconds = timeout_minutes * 60
+    logging.info(f"PROCESS STARTED: Compliance Report Generation")
+    logging.info(f"Start Time: {start_time_dt.strftime('%Y-%m-%d %H:%M:%S')}")
+    logging.info(f"Process ID: {process_id}")
     output_dir.mkdir(parents=True, exist_ok=True)
-    with tqdm(total=4, desc="Compliance Report", unit="step") as bar:
-        bar.set_description("Parse Ruff")
-        ruff_metrics = (
-            parse_ruff_output(ruff_file.read_text(encoding="utf-8"))
-            if ruff_file.exists()
-            else {"issues": 0}
-        )
+    total_steps = 4
+    start_time = time.time()
+    with tqdm(total=total_steps, desc="Compliance Report Generation", unit="step") as bar:
+        bar.set_description("Parsing Ruff Output")
+        ruff_metrics = _parse_ruff(ruff_file)
         bar.update(1)
+        elapsed = time.time() - start_time
+        etc = calculate_etc(start_time, 1, total_steps)
+        bar.set_postfix(ETC=etc)
+        if elapsed > timeout_seconds:
+            raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
 
-        bar.set_description("Parse Pytest")
-        pytest_metrics = parse_pytest_report(pytest_file)
+        bar.set_description("Parsing Pytest Output")
+        pytest_metrics = _parse_pytest(pytest_file)
         bar.update(1)
+        elapsed = time.time() - start_time
+        etc = calculate_etc(start_time, 2, total_steps)
+        bar.set_postfix(ETC=etc)
+        if elapsed > timeout_seconds:
+            raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
 
-        timestamp = datetime.now().isoformat()
+        timestamp = datetime.utcnow().isoformat()
         summary = {
             "timestamp": timestamp,
             "ruff": ruff_metrics,
             "pytest": pytest_metrics,
+            "process_id": process_id,
+            "start_time": start_time_dt.isoformat(),
         }
 
-        bar.set_description("Write Reports")
+        bar.set_description("Writing Reports")
         json_path = output_dir / "compliance_report.json"
         json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
         md_path = output_dir / "compliance_report.md"
         with open(md_path, "w", encoding="utf-8") as md:
             md.write("# Compliance Report\n\n")
-            md.write(f"Generated: {timestamp}\n\n")
-            md.write("## Ruff\n")
-            md.write(f"- Issues: {ruff_metrics['issues']}\n")
-            md.write("\n## Pytest\n")
-            md.write(f"- Total: {pytest_metrics['tests']}\n")
-            md.write(f"- Passed: {pytest_metrics['passed']}\n")
-            md.write(f"- Failed: {pytest_metrics['failed']}\n")
+            md.write(f"**Timestamp:** {summary['timestamp']}\n\n")
+            md.write(f"**Process ID:** {process_id}\n")
+            md.write(f"**Start Time:** {start_time_dt.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            md.write(f"## Ruff Issues: {ruff_metrics['issues']}\n")
+            md.write(
+                f"## Pytest Results: {pytest_metrics['passed']} passed / {pytest_metrics['failed']} failed of {pytest_metrics['total']} total\n"
+            )
         bar.update(1)
+        elapsed = time.time() - start_time
+        etc = calculate_etc(start_time, 3, total_steps)
+        bar.set_postfix(ETC=etc)
+        if elapsed > timeout_seconds:
+            raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
 
-        bar.set_description("Log Metrics")
+        bar.set_description("Logging Metrics to Database")
         analytics_db.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(analytics_db) as conn:
             conn.execute(
                 """CREATE TABLE IF NOT EXISTS code_quality_metrics (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    operation TEXT,
-                    timestamp TEXT,
-                    metrics TEXT,
-                    recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    ruff_issues INTEGER,
+                    tests_passed INTEGER,
+                    tests_failed INTEGER,
+                    ts TEXT,
+                    process_id INTEGER
                 )"""
             )
             conn.execute(
-                "INSERT INTO code_quality_metrics (operation, timestamp, metrics) VALUES (?, ?, ?)",
-                ("compliance_report", timestamp, json.dumps(summary)),
+                "INSERT INTO code_quality_metrics (ruff_issues, tests_passed, tests_failed, ts, process_id) VALUES (?, ?, ?, ?, ?)",
+                (
+                    ruff_metrics["issues"],
+                    pytest_metrics["passed"],
+                    pytest_metrics["failed"],
+                    summary["timestamp"],
+                    process_id,
+                ),
             )
             conn.commit()
         bar.update(1)
-
+        elapsed = time.time() - start_time
+        etc = calculate_etc(start_time, 4, total_steps)
+        bar.set_postfix(ETC=etc)
+        if elapsed > timeout_seconds:
+            raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
+    logging.info(f"Compliance report generation completed in {elapsed:.2f}s | ETC: {etc}")
     return summary
 
-
 def validate_report(output_dir: Path) -> bool:
+    """
+    Validate that compliance report JSON exists and is non-zero-byte.
+    """
     json_path = output_dir / "compliance_report.json"
     return json_path.exists() and json_path.stat().st_size > 0
-
 
 if __name__ == "__main__":
     import argparse
@@ -131,8 +193,16 @@ if __name__ == "__main__":
         default=Path("databases") / "analytics.db",
         help="Analytics database path",
     )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=30,
+        help="Timeout in minutes"
+    )
     args = parser.parse_args()
 
-    print(TEXT_INDICATORS["start"], "Generating compliance report")
-    result = generate_compliance_report(args.ruff, args.pytest, args.output, args.db)
-    print(TEXT_INDICATORS["success"], json.dumps(result, indent=2))
+    print("[START] Generating compliance report")
+    result = generate_compliance_report(args.ruff, args.pytest, args.output, args.db, args.timeout)
+    print("[SUCCESS]", json.dumps(result, indent=2))
+
+__all__ = ["generate_compliance_report", "validate_report"]
