@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 FinalComprehensiveProductionTest - Enterprise Utility Script
-Generated: 2025-07-10 18:12:32
+Generated: 2025-07-22 02:19:26 | Author: mbaetiong
 
 Enterprise Standards Compliance:
 - Flake8/PEP 8 Compliant
@@ -9,7 +9,6 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
-# import os
 import sys
 import logging
 import sqlite3
@@ -26,19 +25,18 @@ TEXT_INDICATORS = {
 
 
 class EnterpriseUtility:
-    """Enterprise utility class"""
+    """Enterprise utility class for comprehensive production validation."""
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
-        """Execute utility function"""
+        """Execute utility function and log results."""
         start_time = datetime.now()
         self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
-            # Utility implementation
             success = self.perform_utility_function()
 
             if success:
@@ -53,44 +51,68 @@ class EnterpriseUtility:
 
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
+            self._log_validation_result(Path(__file__).name, False)
             return False
 
-    def perform_utility_function(self) -> bool:
-        """Validate production and analytics databases and log result."""
-        prod_db = self.workspace_path / "production.db"
+    def _log_validation_result(self, script: str, success: bool) -> None:
+        """Log validation result to analytics.db."""
         analytics_db = self.workspace_path / "analytics.db"
-
         try:
-            with sqlite3.connect(prod_db) as prod_conn:
-                prod_result = prod_conn.execute("PRAGMA integrity_check;").fetchone()
-
-            with sqlite3.connect(analytics_db) as an_conn:
-                an_result = an_conn.execute("PRAGMA integrity_check;").fetchone()
-
-            success = bool(prod_result and prod_result[0] == "ok" and an_result and an_result[0] == "ok")
-        except sqlite3.Error as exc:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {exc}")
-            success = False
-
-        try:
+            analytics_db.parent.mkdir(exist_ok=True, parents=True)
             with sqlite3.connect(analytics_db) as conn:
                 conn.execute(
-                    "CREATE TABLE IF NOT EXISTS validation_results ("
-                    "id INTEGER PRIMARY KEY, script_name TEXT, success INTEGER, timestamp TEXT)"
+                    """
+                    CREATE TABLE IF NOT EXISTS validation_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        script_name TEXT,
+                        run_time TEXT,
+                        success INTEGER
+                    )
+                    """
                 )
                 conn.execute(
-                    "INSERT INTO validation_results (script_name, success, timestamp) VALUES (?, ?, ?)",
-                    (Path(__file__).name, int(success), datetime.now().isoformat()),
+                    "INSERT INTO validation_history (script_name, run_time, success) VALUES (?, ?, ?)",
+                    (script, datetime.now().isoformat(), int(success)),
                 )
                 conn.commit()
         except sqlite3.Error as exc:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Analytics log failed: {exc}")
+            self.logger.error(f"{TEXT_INDICATORS['error']} Log failure: {exc}")
+
+    def perform_utility_function(self) -> bool:
+        """
+        Validate production and analytics databases and log result.
+        - Runs PRAGMA integrity_check on both DBs.
+        - Logs results in analytics DB.
+        """
+        prod_db = self.workspace_path / "production.db"
+        analytics_db = self.workspace_path / "analytics.db"
+        success = False
+
+        try:
+            if prod_db.exists() and analytics_db.exists():
+                with sqlite3.connect(prod_db) as prod_conn:
+                    prod_result = prod_conn.execute("PRAGMA integrity_check;").fetchone()
+                with sqlite3.connect(analytics_db) as an_conn:
+                    an_result = an_conn.execute("PRAGMA integrity_check;").fetchone()
+                success = bool(
+                    prod_result and prod_result[0] == "ok" and an_result and an_result[0] == "ok"
+                )
+            else:
+                self.logger.error(f"{TEXT_INDICATORS['error']} One or both DBs missing: {prod_db}, {analytics_db}")
+
+            self._log_validation_result(Path(__file__).name, success)
+
+        except sqlite3.Error as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {exc}")
+            self._log_validation_result(Path(__file__).name, False)
+            success = False
 
         return success
 
 
 def main():
-    """Main execution function"""
+    """Main execution function."""
+    logging.basicConfig(level=logging.INFO)
     utility = EnterpriseUtility()
     success = utility.execute_utility()
 
@@ -98,8 +120,6 @@ def main():
         print(f"{TEXT_INDICATORS['success']} Utility completed")
     else:
         print(f"{TEXT_INDICATORS['error']} Utility failed")
-
-
 
     return success
 
