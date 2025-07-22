@@ -14,9 +14,10 @@ class CrossPlatformPathManager:
     @staticmethod
     def get_workspace_path() -> Path:
         """Return workspace path with cross-platform detection."""
-        workspace_env = os.getenv("GH_COPILOT_WORKSPACE")
-        if workspace_env:
-            return Path(workspace_env)
+        workspace_env = os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
+        workspace_path = Path(workspace_env)
+        if workspace_path.exists():
+            return workspace_path
 
         current_dir = Path.cwd()
         if current_dir.name == "gh_COPILOT":
@@ -26,19 +27,12 @@ class CrossPlatformPathManager:
             if parent.name == "gh_COPILOT":
                 return parent
 
-        if os.name == "nt":
-            potential_paths = [
-                Path("E:/gh_COPILOT"),
-                Path("C:/gh_COPILOT"),
-                Path("D:/gh_COPILOT"),
-            ]
-        else:
-            user_home = Path.home()
-            potential_paths = [
-                user_home / "gh_COPILOT",
-                Path("/opt/gh_COPILOT"),
-                Path("/usr/local/gh_COPILOT"),
-            ]
+        user_home = Path.home()
+        potential_paths = [
+            user_home / "gh_COPILOT",
+            Path("/opt/gh_COPILOT"),
+            Path("/usr/local/gh_COPILOT"),
+        ]
 
         for path in potential_paths:
             if path.exists():

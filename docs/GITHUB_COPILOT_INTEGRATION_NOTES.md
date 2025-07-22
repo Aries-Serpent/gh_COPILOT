@@ -164,7 +164,7 @@ def copilot_file_operation_safety(target_path):
         raise ValueError("[ERROR] Recursive backup violation prevented")
     
     # MANDATORY: Validate proper environment root
-    proper_root = "e:/gh_COPILOT"
+    proper_root = os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
     if not target_path.startswith(proper_root):
         logger.warning(f"[WARNING] Non-standard path: {target_path}")
     

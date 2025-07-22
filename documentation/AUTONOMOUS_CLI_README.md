@@ -118,7 +118,7 @@ python autonomous_cli.py status
 ## 🔧 Configuration
 
 ### Environment Setup
-The CLI automatically detects the workspace at `e:/gh_COPILOT` and creates necessary directories:
+The CLI automatically detects the workspace at `$(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))` and creates necessary directories:
 - `results/autonomous_cli/` - CLI operation results
 - `autonomous_cli.log` - Comprehensive logging
 
@@ -221,13 +221,13 @@ python -c "import sqlite3, asyncio, json"
 **2. Workspace Not Found**
 ```bash
 # Verify workspace path
-ls -la e:/gh_COPILOT/
+ls -la $(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))/
 ```
 
 **3. Permission Issues**
 ```bash
 # Check file permissions
-python -c "from pathlib import Path; print(Path('e:/gh_COPILOT').exists())"
+python -c "from pathlib import Path; print(Path('$(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))').exists())"
 ```
 
 ### Debug Mode
