@@ -19,8 +19,15 @@ DEFAULT_DOC_DBS = [
     Path("databases/documentation_templates.db"),
     Path("databases/template_documentation.db"),
 ]
-LOG_DIR = Path("logs/template_rendering")
+LOG_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "logs" / "template_rendering"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOG_DIR / f"doc_gap_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
+)
 
 class DocumentationDBAnalyzer:
     """
@@ -42,20 +49,12 @@ class DocumentationDBAnalyzer:
         self.timeout_seconds = timeout_minutes * 60
         self.start_time = datetime.now()
         self.process_id = os.getpid()
-        self.log_file = LOG_DIR / f"doc_db_analyzer_{self.start_time.strftime('%Y%m%d_%H%M%S')}.log"
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s - %(levelname)s - %(message)s",
-            handlers=[
-                logging.FileHandler(self.log_file),
-                logging.StreamHandler(sys.stdout)
-            ]
-        )
+        self.log_file = LOG_FILE
         logging.info(f"PROCESS STARTED: DocumentationDBAnalyzer")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
 
-    def scan(self) -> Dict[str, Any]:
+    def analyze(self) -> Dict[str, Any]:
         """
         Scan all documentation databases for gaps, missing doc_types, and compliance issues.
         Includes visual indicators, timeout, ETC, and logs all findings.
@@ -69,41 +68,38 @@ class DocumentationDBAnalyzer:
         }
         total_steps = len(self.doc_dbs)
         start_time = time.time()
-        with tqdm(total=total_steps, desc="Scanning Documentation DBs", unit="db") as pbar:
-            for idx, db in enumerate(self.doc_dbs, 1):
-                pbar.set_description(f"Scanning {db.name}")
-                elapsed = time.time() - start_time
-                if elapsed > self.timeout_seconds:
-                    raise TimeoutError(f"Process exceeded {self.timeout_seconds/60:.1f} minute timeout")
-                if not db.exists():
-                    summary["databases"][str(db)] = {"error": "Database not found"}
-                    pbar.update(1)
-                    continue
-                try:
-                    with sqlite3.connect(db) as conn:
-                        # Check for missing doc_types and count entries
-                        cur = conn.execute(
-                            "SELECT doc_type, COUNT(*) FROM enterprise_documentation GROUP BY doc_type"
-                        )
-                        rows = cur.fetchall()
-                        doc_type_counts = {dt: cnt for dt, cnt in rows}
-                        # Find missing doc_types (if any expected types are defined)
-                        expected_types = self._get_expected_doc_types(conn)
-                        missing_types = [dt for dt in expected_types if dt not in doc_type_counts]
-                        summary["databases"][str(db)] = {
-                            "doc_type_counts": doc_type_counts,
-                            "missing_types": missing_types,
-                            "total_entries": sum(doc_type_counts.values()),
-                        }
-                except Exception as exc:
-                    summary["databases"][str(db)] = {"error": str(exc)}
-                etc = self._calculate_etc(elapsed, idx, total_steps)
-                pbar.set_postfix(ETC=etc)
-                pbar.update(1)
+        for idx, db in enumerate(self.doc_dbs, 1):
+            phase = f"Scanning {db.name}"
+            logging.info(f"PHASE: {phase}")
+            elapsed = time.time() - start_time
+            if elapsed > self.timeout_seconds:
+                raise TimeoutError(f"Process exceeded {self.timeout_seconds/60:.1f} minute timeout")
+            if not db.exists():
+                summary["databases"][str(db)] = {"error": "Database not found"}
+                continue
+            try:
+                with sqlite3.connect(db) as conn:
+                    cur = conn.execute(
+                        "SELECT doc_type, COUNT(content) FROM enterprise_documentation GROUP BY doc_type"
+                    )
+                    rows = cur.fetchall()
+                    doc_type_counts = {dt: cnt for dt, cnt in rows}
+                    expected_types = self._get_expected_doc_types(conn)
+                    missing_types = [dt for dt in expected_types if dt not in doc_type_counts]
+                    total_entries = sum(doc_type_counts.values())
+                    summary["databases"][str(db)] = {
+                        "doc_type_counts": doc_type_counts,
+                        "missing_types": missing_types,
+                        "total_entries": total_entries,
+                    }
+            except Exception as exc:
+                summary["databases"][str(db)] = {"error": str(exc)}
+            etc = self._calculate_etc(elapsed, idx, total_steps)
+            logging.info(f"Progress: {idx}/{total_steps} | Elapsed: {elapsed:.2f}s | ETC: {etc}")
         elapsed = time.time() - start_time
         logging.info(f"Documentation DB analysis completed in {elapsed:.2f}s | ETC: {etc}")
-        self._write_log(summary)
-        self._log_to_db(summary)
+        self._log_summary(summary)
+        self._record_summary(summary)
         self._dual_copilot_validate()
         return summary
 
@@ -115,7 +111,6 @@ class DocumentationDBAnalyzer:
             cur = conn.execute("PRAGMA table_info(enterprise_documentation)")
             columns = [row[1] for row in cur.fetchall()]
             if "doc_type" in columns:
-                # Optionally, query a metadata table for expected types
                 try:
                     cur2 = conn.execute("SELECT DISTINCT doc_type FROM enterprise_documentation")
                     return [row[0] for row in cur2.fetchall()]
@@ -125,22 +120,23 @@ class DocumentationDBAnalyzer:
         except Exception:
             return []
 
-    def _write_log(self, summary: Dict[str, Any]) -> None:
+    def _log_summary(self, summary: Dict[str, Any]) -> None:
         with open(self.log_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(summary, indent=2) + "\n")
+        logging.info("Documentation gap summary written to log file")
 
-    def _log_to_db(self, summary: Dict[str, Any]) -> None:
+    def _record_summary(self, summary: Dict[str, Any]) -> None:
         self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(self.analytics_db) as conn:
             conn.execute(
                 """CREATE TABLE IF NOT EXISTS documentation_gap_analysis (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    details TEXT,
-                    ts TEXT
+                    summary TEXT,
+                    timestamp TEXT
                 )"""
             )
             conn.execute(
-                "INSERT INTO documentation_gap_analysis (details, ts) VALUES (?, ?)",
+                "INSERT INTO documentation_gap_analysis (summary, timestamp) VALUES (?, ?)",
                 (json.dumps(summary), summary["timestamp"]),
             )
             conn.commit()
@@ -177,12 +173,32 @@ class DocumentationDBAnalyzer:
             return f"{remaining:.2f}s remaining"
         return "N/A"
 
-    def validate(self) -> bool:
+    def validate(self, expected_total: int) -> bool:
         """
-        Validate that documentation gap analysis events exist in analytics.db.
+        Validate that at least ``expected_total`` entries were recorded.
         """
+        if not self.analytics_db.exists():
+            return False
         with sqlite3.connect(self.analytics_db) as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM documentation_gap_analysis")
-            return cur.fetchone()[0] > 0
+            cur = conn.execute(
+                "SELECT summary FROM documentation_gap_analysis ORDER BY id DESC LIMIT 1"
+            )
+            row = cur.fetchone()
+            if not row:
+                return False
+            data = json.loads(row[0])
+            return data.get("total", 0) >= expected_total
+
+def main() -> None:
+    analyzer = DocumentationDBAnalyzer()
+    summary = analyzer.analyze()
+    valid = analyzer.validate(summary.get("total", 0))
+    if valid:
+        logging.info("Documentation analysis validated successfully")
+    else:
+        logging.error("Documentation analysis validation failed")
+
+if __name__ == "__main__":
+    main()
 
 __all__ = ["DocumentationDBAnalyzer"]

@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from pathlib import Path
 
@@ -7,14 +8,31 @@ from template_engine.pattern_mining_engine import (
     validate_mining,
 )
 
-
 def test_extract_patterns():
+    # Start time logging for visual processing indicator
+    from datetime import datetime
+    start_time = datetime.now()
+    print(f"PROCESS STARTED: test_extract_patterns")
+    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Process ID: {os.getpid()}")
+
     templates = ["def foo(bar): return bar", "def foo(baz): return baz"]
     patterns = extract_patterns(templates)
     assert any("def foo" in p for p in patterns)
 
+    # Completion summary
+    end_time = datetime.now()
+    duration = (end_time - start_time).total_seconds()
+    print(f"TEST COMPLETED: test_extract_patterns in {duration:.2f}s")
 
 def test_mine_patterns(tmp_path: Path):
+    # Start time logging for visual processing indicator
+    from datetime import datetime
+    start_time = datetime.now()
+    print(f"PROCESS STARTED: test_mine_patterns")
+    print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Process ID: {os.getpid()}")
+
     prod = tmp_path / "production.db"
     with sqlite3.connect(prod) as conn:
         conn.execute(
@@ -25,8 +43,13 @@ def test_mine_patterns(tmp_path: Path):
         )
     analytics = tmp_path / "analytics.db"
     patterns = mine_patterns(prod, analytics)
-    assert patterns
+    assert patterns, "No patterns mined from templates"
     with sqlite3.connect(prod) as conn:
         count = conn.execute("SELECT COUNT(*) FROM mined_patterns").fetchone()[0]
-    assert count == len(patterns)
-    assert validate_mining(analytics, len(patterns))
+    assert count == len(patterns), "Pattern count mismatch in mined_patterns table"
+    assert validate_mining(len(patterns), analytics), "DUAL COPILOT validation failed"
+
+    # Completion summary
+    end_time = datetime.now()
+    duration = (end_time - start_time).total_seconds()
+    print(f"TEST COMPLETED: test_mine_patterns in {duration:.2f}s")

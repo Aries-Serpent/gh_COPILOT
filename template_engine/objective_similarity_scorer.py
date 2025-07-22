@@ -1,3 +1,12 @@
+"""
+Objective similarity scoring utilities.
+
+This module implements database-first, enterprise-grade similarity scoring for objectives
+against code templates in production.db. All scoring events are logged in analytics.db.
+Visual processing indicators, timeout controls, start time logging, ETC calculation,
+and real-time status updates are enforced per enterprise standards and DUAL COPILOT pattern.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -38,6 +47,23 @@ def validate_no_recursive_folders() -> None:
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
 
+def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
+    elapsed = time.time() - start_time
+    if current_progress > 0:
+        total_estimated = elapsed / (current_progress / total_work)
+        remaining = total_estimated - elapsed
+        return f"{remaining:.2f}s remaining"
+    return "N/A"
+
+def _write_log(scores: List[Tuple[int, float]], objective: str) -> None:
+    log_entry = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "objective": objective,
+        "scores": scores
+    }
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(json.dumps(log_entry, indent=2) + "\n")
+
 def compute_similarity_scores(
     objective: str,
     production_db: Path = DEFAULT_PRODUCTION_DB,
@@ -50,13 +76,16 @@ def compute_similarity_scores(
     Includes visual processing indicators, start time logging, timeout, ETC, and status updates.
     Logs all scores to analytics.db and /logs/template_rendering.
     """
-    validate_no_recursive_folders()
+    # Start time logging and anti-recursion validation
     start_time = datetime.now()
     process_id = os.getpid()
     timeout_seconds = timeout_minutes * 60
     logging.info(f"PROCESS STARTED: Objective Similarity Scoring")
     logging.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
+    validate_no_recursive_folders()
+
+    # Fetch templates from production.db
     templates: List[Tuple[int, str]] = []
     if production_db.exists():
         with sqlite3.connect(production_db) as conn:
@@ -69,9 +98,13 @@ def compute_similarity_scores(
     if not templates:
         logging.warning("No templates found in production.db")
         return []
+
+    # Prepare corpus and vectorizer
     corpus = [objective] + [t[1] for t in templates]
     vectorizer = TfidfVectorizer().fit(corpus)
     obj_vec = vectorizer.transform([objective])
+
+    # Visual processing indicators: progress bar, ETC, timeout, status updates
     scores: List[Tuple[int, float]] = []
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     total_steps = len(templates)
@@ -103,27 +136,11 @@ def compute_similarity_scores(
             pbar.set_postfix(ETC=etc)
             pbar.update(1)
             if elapsed > timeout_seconds:
+                logging.error("Timeout exceeded during similarity scoring")
                 raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
     logging.info(f"Objective similarity scoring completed in {elapsed:.2f}s | ETC: {etc}")
     _write_log(scores, objective)
     return scores
-
-def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
-    elapsed = time.time() - start_time
-    if current_progress > 0:
-        total_estimated = elapsed / (current_progress / total_work)
-        remaining = total_estimated - elapsed
-        return f"{remaining:.2f}s remaining"
-    return "N/A"
-
-def _write_log(scores: List[Tuple[int, float]], objective: str) -> None:
-    log_entry = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "objective": objective,
-        "scores": scores
-    }
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(log_entry, indent=2) + "\n")
 
 def validate_scores(
     objective: str,
@@ -147,4 +164,9 @@ def validate_scores(
         logging.error("DUAL COPILOT validation failed: Objective similarity scoring mismatch.")
         return False
 
-__all__ = ["compute_similarity_scores", "validate_scores"]
+__all__ = [
+    "compute_similarity_scores",
+    "validate_scores",
+    "DEFAULT_PRODUCTION_DB",
+    "DEFAULT_ANALYTICS_DB",
+]

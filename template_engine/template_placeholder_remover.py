@@ -1,3 +1,10 @@
+"""Template placeholder removal utilities.
+
+This module removes placeholders from templates stored in ``production.db`` and
+logs each removal event to ``analytics.db``. Operations display progress using
+``tqdm`` and a validation hook ensures that removal events were recorded.
+"""
+
 from __future__ import annotations
 
 import logging

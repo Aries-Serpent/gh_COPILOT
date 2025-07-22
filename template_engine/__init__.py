@@ -15,7 +15,10 @@ from .placeholder_utils import (
     DEFAULT_TEMPLATE_DOC_DB as PLACEHOLDER_TEMPLATE_DOC_DB,
     DEFAULT_ANALYTICS_DB as PLACEHOLDER_ANALYTICS_DB,
 )
-from .pattern_mining_engine import extract_patterns, mine_patterns
+from .pattern_mining_engine import (
+    extract_patterns,
+    mine_patterns,
+)
 from .objective_similarity_scorer import (
     compute_similarity_scores,
     validate_scores,
