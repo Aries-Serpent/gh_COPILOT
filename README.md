@@ -571,6 +571,8 @@ Several small modules provide common helpers:
   provides lightweight quantum-assisted utilities such as Grover search,
   Shor factorization and Fourier transforms used for physics-oriented
   optimizations and demonstrations.
+- `template_engine.pattern_clustering_sync.PatternClusteringSync` – cluster templates from `production.db` and synchronize them with compliance auditing.
+- `template_engine.workflow_enhancer.TemplateWorkflowEnhancer` – enhance template workflows using clustering, pattern mining and dashboard reports.
 
 ## Future Roadmap
 
@@ -589,3 +591,4 @@ Planned highlights include:
 5. **Improved Script Classification** – broader file-type detection to prevent
    misclassification of non-executable files.
 6. **Cluster-based Template Retrieval** – use `get_cluster_representatives` to group templates for database-first generation.
+7. **Pattern Clustering Sync Utility** – leverage `PatternClusteringSync` and `DBFirstCodeGenerator` to synchronize templates and generate code using the database-first workflow.
