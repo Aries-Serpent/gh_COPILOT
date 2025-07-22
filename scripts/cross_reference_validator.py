@@ -78,7 +78,7 @@ class CrossReferenceValidator:
         self.timeout_seconds = 1800  # 30 minutes
         self.status = "INITIALIZED"
         validate_enterprise_operation(str(production_db))
-        logging.info(f"PROCESS STARTED: Cross-Reference Validation")
+        logging.info("PROCESS STARTED: Cross-Reference Validation")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
 
@@ -150,8 +150,8 @@ class CrossReferenceValidator:
         """
         self.status = "VALIDATING"
         start_time = time.time()
-        patterns = self._query_cross_reference_patterns()
-        tasks = self._scan_task_suggestions()
+        self._query_cross_reference_patterns()
+        self._scan_task_suggestions()
         actions = self._cross_link_actions()
         total_steps = 3
         with tqdm(
@@ -213,7 +213,7 @@ def main(
     """
     start_time = time.time()
     process_id = os.getpid()
-    logging.info(f"PROCESS STARTED: Cross-Reference Validator")
+    logging.info("PROCESS STARTED: Cross-Reference Validator")
     logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
 

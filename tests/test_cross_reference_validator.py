@@ -1,0 +1,47 @@
+import importlib
+import json
+import sqlite3
+
+
+def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+
+    crv = importlib.import_module("scripts.cross_reference_validator")
+    importlib.reload(crv)
+    monkeypatch.setattr(crv, "validate_enterprise_operation", lambda *a, **k: True)
+
+    production_db = tmp_path / "production.db"
+    with sqlite3.connect(production_db) as conn:
+        conn.execute("CREATE TABLE cross_reference_patterns (pattern_name TEXT)")
+        conn.execute("INSERT INTO cross_reference_patterns VALUES ('foo')")
+
+    analytics_db = tmp_path / "analytics.db"
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE todo_fixme_tracking (
+                file_path TEXT,
+                item_type TEXT,
+                status TEXT,
+                last_updated TEXT
+            )
+            """
+        )
+        conn.execute(
+            "INSERT INTO todo_fixme_tracking VALUES ('file.py', 'code', 'open', '2024-01-01')"
+        )
+
+    dashboard_dir = tmp_path / "dashboard"
+    task_file = tmp_path / "tasks.md"
+    task_file.write_text("- [ ] Example task\n", encoding="utf-8")
+
+    validator = crv.CrossReferenceValidator(
+        production_db, analytics_db, dashboard_dir, task_file
+    )
+    assert validator.validate(timeout_minutes=1)
+
+    summary_file = dashboard_dir / "cross_reference_summary.json"
+    assert summary_file.exists()
+    data = json.loads(summary_file.read_text())
+    assert len(data["cross_linked_actions"]) == 1
