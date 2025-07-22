@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Tests for CrossPlatformPathManager."""
 
+from pathlib import Path
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 
