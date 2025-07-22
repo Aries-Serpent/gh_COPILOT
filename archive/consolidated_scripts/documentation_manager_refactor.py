@@ -42,7 +42,6 @@ logging.basicConfig(
 PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "production.db"
 TEMPLATE_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "template_documentation.db"
 
-# Anti-recursion validation
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
     forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
@@ -174,8 +173,6 @@ class EnterpriseDocumentationManager:
 
     def validate_render(self) -> bool:
         """DUAL COPILOT: Secondary validator for documentation integrity and compliance."""
-        # Placeholder for secondary validation logic
-        # Should check for existence, non-zero-byte, compliance score, and log validation
         valid = True
         for fmt in ["README.md", "README.html", "README.json"]:
             file_path = self.doc_root / fmt
@@ -189,3 +186,16 @@ class EnterpriseDocumentationManager:
         return valid
 
 def main() -> None:
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    doc_root = workspace / "documentation"
+    doc_root.mkdir(parents=True, exist_ok=True)
+    manager = EnterpriseDocumentationManager(doc_root)
+    manager.render("README")
+    valid = manager.validate_render()
+    if valid:
+        logging.info("Documentation rendering and validation complete.")
+    else:
+        logging.error("Documentation rendering failed validation.")
+
+if __name__ == "__main__":
+    main()

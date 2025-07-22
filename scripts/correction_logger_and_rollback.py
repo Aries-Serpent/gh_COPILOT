@@ -59,18 +59,9 @@ class CorrectionLoggerRollback:
         logging.info(f"PROCESS STARTED: Correction Logging and Rollback")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
+        self._ensure_table_exists()
 
-    def log_change(
-        self,
-        file_path: Path,
-        rationale: str,
-        compliance_score: float = 1.0,
-        rollback_reference: Optional[str] = None,
-    ) -> None:
-        """
-        Record a correction event in analytics.db with compliance score and rollback reference.
-        """
-        self.status = "LOGGING"
+    def _ensure_table_exists(self) -> None:
         self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(self.analytics_db) as conn:
             conn.execute(
@@ -83,6 +74,20 @@ class CorrectionLoggerRollback:
                     ts TEXT
                 )"""
             )
+            conn.commit()
+
+    def log_change(
+        self,
+        file_path: Path,
+        rationale: str,
+        compliance_score: float = 1.0,
+        rollback_reference: Optional[str] = None,
+    ) -> None:
+        """
+        Record a correction event in analytics.db with compliance score and rollback reference.
+        """
+        self.status = "LOGGING"
+        with sqlite3.connect(self.analytics_db) as conn:
             conn.execute(
                 "INSERT INTO corrections (file_path, rationale, compliance_score, rollback_reference, ts) VALUES (?, ?, ?, ?, ?)",
                 (
