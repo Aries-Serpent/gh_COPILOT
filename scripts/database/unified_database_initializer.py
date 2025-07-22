@@ -5,11 +5,23 @@ from __future__ import annotations
 
 import logging
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 
 from tqdm import tqdm
 
+# STUB TASK PROMPT: Ensure all required tables are defined in enterprise_assets.db.
+# Tables: script_assets, documentation_assets, template_assets, pattern_assets,
+# enterprise_metadata, integration_tracking, cross_database_sync_operations
+# If any table is missing, generate CREATE TABLE statements and add to TABLES dict.
+# Validate schema matches compliance requirements (column types, constraints,
+# indexes).
+# Add visual processing indicators (start time logging, progress bar, timeout, etc).
+# Add dual copilot validation hooks.
+
 from utils.logging_utils import setup_enterprise_logging
+from utils.validation_utils import detect_zero_byte_files, validate_path
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 logger = logging.getLogger(__name__)
 
@@ -77,16 +89,28 @@ TABLES: dict[str, str] = {
 
 def initialize_database(db_path: Path) -> None:
     """Create enterprise_assets.db with the expected schema."""
+    if not validate_path(db_path):
+        raise RuntimeError(f"Invalid database path: {db_path}")
+    if db_path.exists() and db_path.stat().st_size > 99_900_000:
+        raise RuntimeError("Database file exceeds 99.9 MB")
+    zeros = detect_zero_byte_files(db_path.parent)
+    if zeros:
+        raise RuntimeError(f"Zero-byte files detected: {zeros}")
+
     logger.info("Initializing %s", db_path)
+    start_time = datetime.now()
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(db_path) as conn, tqdm(
+    with sqlite3.connect(db_path, timeout=5) as conn, tqdm(
         total=len(TABLES), desc="Creating tables", unit="table"
     ) as bar:
         for sql in TABLES.values():
             conn.execute(sql)
             bar.update(1)
         conn.commit()
-    logger.info("Database initialization complete")
+    duration = (datetime.now() - start_time).total_seconds()
+    logger.info("Database initialization complete in %.2fs", duration)
+
+    SecondaryCopilotValidator(logger).validate_corrections([__file__])
 
 
 def main() -> None:
