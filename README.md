@@ -523,6 +523,12 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 # Placeholder audit (with progress display)
 python scripts/intelligent_code_analysis_placeholder_detection.py \
     --workspace $GH_COPILOT_WORKSPACE --db analytics.db
+
+# Repository-wide placeholder audit
+python scripts/audit_codebase_placeholders.py \
+    --workspace $GH_COPILOT_WORKSPACE \
+    --analytics-db databases/analytics.db \
+    --production-db databases/production.db
 ```
 
 ### **Contact & Support**
