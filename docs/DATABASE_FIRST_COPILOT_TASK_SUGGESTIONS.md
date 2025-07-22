@@ -33,38 +33,34 @@ This document lists high-level tasks required to fully implement the database-fi
 - Replace the placeholder clustering in `template_engine/auto_generator.py` with `sklearn.cluster.KMeans`.
 - Add a `get_cluster_representatives()` method and unit tests verifying cluster selection and retrieval.
 
-## 8. Placeholder/TODO/FIXME Audit Logging
-- Add utilities to scan the codebase for TODO, FIXME and placeholder comments.
-- Log all findings to `analytics.db` and display counts on the dashboard.
-- Provide compliance hooks to flag unresolved placeholders during testing.
+## 8. Placeholder/TODO Audit Logging
+- Search the codebase for `TODO`, `FIXME`, or `placeholder` comments.
+- Log each occurrence in `analytics.db` with cross-links to the dashboard audit view.
+- Provide rollback utilities for automated cleanup scripts.
 
 ## 9. DB-First Code Generation
-- Implement DB-first template lookups for all code generators.
-- Score templates using compliance metrics before rendering.
-- Cross-reference selection results on the dashboard and analytics reports.
+- Enforce that all code generation modules read templates from the database before falling back to filesystem copies.
+- Score templates using quantum-inspired functions from `quantum_algorithm_library_expansion.py`.
+- Display progress and ETA indicators for generation tasks.
 
-## 10. Pattern Clustering and Representatives
-- Expand clustering logic to group templates by usage pattern.
-- Provide cluster-wide representatives via `get_cluster_representatives()`.
-- Surface clustering metrics in the compliance dashboard.
+## 10. Pattern Clustering and Correction Rollback
+- Use clustering to group similar templates and patterns for easier review.
+- Track correction history and provide rollback for any cluster-wide changes.
+- Surface these events on the compliance dashboard.
 
-## 11. Correction Logging and Rollback
-- Record all corrections in `analytics.db` with timestamps and source modules.
-- Implement rollback utilities for any failed synchronization events.
+## 11. Quantum/AI Integration
+- Integrate visual indicators for simulated quantum scoring and pattern matching.
+- Ensure all quantum modules log actions to `analytics.db` for compliance review.
 
-## 12. Quantum/AI Integration Stubs
-- Include quantum-inspired scoring hooks in clustering modules.
-- Keep implementations lightweight and clearly marked as placeholders.
+## 12. Dashboard and Compliance Cross-Linking
+- Cross-reference every audit log and generation event with the web dashboard.
+- Provide links from the dashboard to detailed analytics reports and correction logs.
 
-## 13. Dashboard and Compliance Cross-Linking
-- Cross-link audit logs, clustering stats and rollback events to the dashboard.
-- Ensure all metrics are available to analytics for further processing.
-
-## 14. Placeholder Implementations
+## 13. Placeholder Implementations
 - Search the repository for "Implementation placeholder" comments and replace them with real database-driven functionality.
 - Update utilities like `documentation_db_analyzer.py` and `enterprise_database_driven_documentation_manager.py` to process database entries and log progress.
 
-## 15. Documentation Updates
+## 14. Documentation Updates
 - Extend `docs/README.md` with references to the new database-first utilities.
 - Keep `DATABASE_FIRST_USAGE_GUIDE.md` aligned with the implemented logic.
 
