@@ -19,6 +19,6 @@ def test_metrics_endpoint():
 
 def test_compliance_endpoint():
     client = app.test_client()
-    resp = client.get('/dashboard/compliance')
+    resp = client.get('/compliance')
     assert resp.status_code == 200
-    assert isinstance(resp.get_json(), dict)
+    assert isinstance(resp.get_json(), list)

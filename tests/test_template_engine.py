@@ -90,3 +90,10 @@ def test_select_best_template(tmp_path):
     target = generator.templates[0]
     best = generator.select_best_template(target)
     assert best == target
+
+
+def test_quantum_score(tmp_path):
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    generator = TemplateAutoGenerator(analytics_db, completion_db)
+    score = generator._quantum_score("dummy")
+    assert 0.0 <= score <= 1.0

@@ -15,7 +15,9 @@ import numpy as np
 class EnterpriseUtility:
     """Minimal enterprise utility wrapper used for testing."""
 
-    def __init__(self, workspace_path: str | None = None) -> None:  # pragma: no cover - thin wrapper
+    def __init__(
+        self, workspace_path: str | None = None
+    ) -> None:  # pragma: no cover - thin wrapper
         """Initialize utility; workspace path is optional."""
         self.workspace_path = workspace_path
 
@@ -32,6 +34,9 @@ __all__ = [
     "demo_variational_quantum_eigensolver",
     "demo_quantum_phase_estimation",
     "demo_quantum_teleportation",
+    "quantum_cluster_stub",
+    "quantum_score_stub",
+    "quantum_pattern_match_stub",
 ]
 
 
@@ -97,3 +102,27 @@ def demo_quantum_phase_estimation(theta: float = 0.25, precision: int = 3) -> fl
     factor = 2**precision
     estimate = round(theta * factor) / factor
     return float(estimate)
+
+
+def quantum_cluster_stub(data: Iterable[float]) -> List[int]:
+    """Return cluster labels using a placeholder algorithm."""
+    labels = []
+    for i, _ in enumerate(data):
+        labels.append(i % 2)
+    return labels
+
+
+def quantum_score_stub(values: Iterable[float]) -> float:
+    """Return a fake quantum-inspired score."""
+    arr = np.fromiter(values, dtype=float)
+    return float(np.sum(arr) / (len(arr) + 1))
+
+
+def quantum_pattern_match_stub(pattern: Iterable[int], data: Iterable[int]) -> bool:
+    """Return True if pattern is found in data."""
+    seq = list(data)
+    pat = list(pattern)
+    for i in range(len(seq) - len(pat) + 1):
+        if seq[i : i + len(pat)] == pat:
+            return True
+    return False
