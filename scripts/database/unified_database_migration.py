@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 import sqlite3
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 from tqdm import tqdm
 
@@ -18,9 +18,6 @@ from .complete_consolidation_orchestrator import create_external_backup
 from scripts.validation.semantic_search_reference_validator import (
     chunk_anti_recursion_validation,
 )
-
-# Alias for legacy reference
-validate_database_size = check_database_sizes
 
 
 def _compress_database(db_path: Path) -> None:
@@ -61,11 +58,6 @@ def _load_database_names(list_file: Path) -> list[str]:
             if name:
                 names.append(name)
     return names
-
-
-def validate_database_size(databases_dir: Path) -> None:
-    """Check size compliance for databases in ``databases_dir``."""
-    check_database_sizes(databases_dir)
 
 
 def compress_database(db_path: Path) -> None:
@@ -110,6 +102,9 @@ def run_migration(
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
+
+    migration_start = datetime.now(timezone.utc)
+    log_sync_operation(enterprise_db, "migration_started", start_time=migration_start)
 
     if sources is None:
         list_file = workspace / DATABASE_LIST_FILE
