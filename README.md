@@ -543,6 +543,12 @@ python scripts/audit_codebase_placeholders.py \
     --workspace $GH_COPILOT_WORKSPACE \
     --analytics-db databases/analytics.db \
     --production-db databases/production.db
+
+# Simple wrapper script
+python scripts/placeholder_audit_logger.py \
+    --workspace $GH_COPILOT_WORKSPACE \
+    --analytics-db databases/analytics.db \
+    --production-db databases/production.db
 ```
 
 ### **Contact & Support**

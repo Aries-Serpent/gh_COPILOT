@@ -160,4 +160,3 @@ def main(
 if __name__ == "__main__":  # pragma: no cover - CLI execution
     success = main()
     raise SystemExit(0 if success else 1)
-

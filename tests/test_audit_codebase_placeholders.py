@@ -30,6 +30,6 @@ def test_audit_places(tmp_path):
     )
 
     with sqlite3.connect(analytics) as conn:
-        rows = conn.execute("SELECT pattern FROM todo_fixme_tracking").fetchall()
+        rows = conn.execute("SELECT item_type FROM todo_fixme_tracking").fetchall()
     assert len(rows) >= 2
     assert dash_dir.joinpath("placeholder_summary.json").exists()

@@ -19,7 +19,6 @@ def test_placeholder_audit_logger(tmp_path):
         conn.execute(
             "INSERT INTO template_placeholders (placeholder_name) VALUES ('legacy template logic')"
         )
-        conn.commit()
 
     analytics = tmp_path / "analytics.db"
     dash_dir = tmp_path / "dashboard" / "compliance"
@@ -56,4 +55,3 @@ def test_dashboard_placeholder_sync(tmp_path):
     sync(dash, analytics)
     data = json.loads(dash.joinpath("placeholder_summary.json").read_text())
     assert data["findings"] == 2
-
