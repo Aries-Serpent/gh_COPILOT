@@ -27,35 +27,41 @@ from tqdm import tqdm
 
 # Enterprise logging setup
 ARCHIVE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "ARCHIVE(S)"
-MANUAL_DELETE_FOLDER = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "_MANUAL_DELETE_FOLDER"
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "archive_delete"
+MANUAL_DELETE_FOLDER = (
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "_MANUAL_DELETE_FOLDER"
+)
+LOGS_DIR = (
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "archive_delete"
+)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"archive_delete_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
-PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "production.db"
+PRODUCTION_DB = (
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "production.db"
+)
+
 
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
 
+
 def validate_environment_root() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
     if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
         logging.warning(f"Non-standard workspace root: {workspace_root}")
+
 
 class ArchiveAndDeleteManager:
     """
@@ -63,7 +69,11 @@ class ArchiveAndDeleteManager:
     Database-driven workflow with DUAL COPILOT compliance.
     """
 
-    def __init__(self, archive_root: Path = ARCHIVE_ROOT, manual_delete_folder: Path = MANUAL_DELETE_FOLDER) -> None:
+    def __init__(
+        self,
+        archive_root: Path = ARCHIVE_ROOT,
+        manual_delete_folder: Path = MANUAL_DELETE_FOLDER,
+    ) -> None:
         self.archive_root = archive_root
         self.manual_delete_folder = manual_delete_folder
         self.start_time = datetime.now()
@@ -107,7 +117,11 @@ class ArchiveAndDeleteManager:
             pbar.update(20)
 
             pbar.set_description("Compressing")
-            with py7zr.SevenZipFile(archive_path, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": compression_level}]) as zf:
+            with py7zr.SevenZipFile(
+                archive_path,
+                "w",
+                filters=[{"id": py7zr.FILTER_LZMA2, "preset": compression_level}],
+            ) as zf:
                 zf.write(target, arcname=target.name)
             pbar.update(60)
 
@@ -162,7 +176,9 @@ class ArchiveAndDeleteManager:
         logging.info(f"Deletion completed in {elapsed:.2f}s | ETC: {etc}")
         self.status = "DELETED"
 
-    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
+    def _calculate_etc(
+        self, elapsed: float, current_progress: int, total_work: int
+    ) -> str:
         if current_progress > 0:
             total_estimated = elapsed / (current_progress / total_work)
             remaining = total_estimated - elapsed
@@ -177,16 +193,23 @@ class ArchiveAndDeleteManager:
         archive_path = self.archive_root / f"{target.name}.7z"
         valid = archive_path.exists() and archive_path.stat().st_size > 0
         if valid:
-            logging.info("DUAL COPILOT validation passed: Archive present and non-zero-byte.")
+            logging.info(
+                "DUAL COPILOT validation passed: Archive present and non-zero-byte."
+            )
         else:
-            logging.error("DUAL COPILOT validation failed: Archive missing or zero-byte.")
+            logging.error(
+                "DUAL COPILOT validation failed: Archive missing or zero-byte."
+            )
         return valid
+
 
 def main() -> None:
     # Example usage: archive and delete a file
     manager = ArchiveAndDeleteManager()
     # Replace 'target_file_path' with actual file path to archive and delete
-    target_file_path = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "example.txt"
+    target_file_path = (
+        Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "example.txt"
+    )
     if target_file_path.exists():
         archive_path = manager.archive(target_file_path)
         manager.move_to_manual_delete(archive_path)
@@ -194,6 +217,7 @@ def main() -> None:
         manager.validate_archival_deletion(target_file_path)
     else:
         logging.warning(f"Target file does not exist: {target_file_path}")
+
 
 if __name__ == "__main__":
     main()
