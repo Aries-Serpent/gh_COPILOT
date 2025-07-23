@@ -8,6 +8,7 @@ from quantum_algorithm_library_expansion import (
     demo_quantum_phase_estimation,
     demo_quantum_teleportation,
     quantum_cluster_score,
+    demo_quantum_neural_network,
 )
 import numpy as np
 
@@ -51,3 +52,9 @@ def test_quantum_cluster_score():
     vecs = np.array([[1, 0], [0, 1]], dtype=float)
     score = quantum_cluster_score(vecs)
     assert score > 0
+
+
+def test_demo_quantum_neural_network():
+    data = [1.0, 2.0, 3.0]
+    result = demo_quantum_neural_network(data)
+    assert len(result) == len(data)

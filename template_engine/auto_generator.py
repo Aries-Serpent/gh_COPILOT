@@ -102,6 +102,11 @@ class TemplateAutoGenerator:
         """Reload templates and patterns from their databases."""
         self.patterns = self._load_patterns()
         self.templates = self._load_templates()
+        self.cluster_model = self._cluster_patterns()
+        if self.cluster_model is not None:
+            self.cluster_model.cluster_centers_ += np.random.normal(
+                scale=0.01, size=self.cluster_model.cluster_centers_.shape
+            )
 
     def _load_templates(self) -> List[str]:
         logger.info("Loading templates from completion DB...")
@@ -132,11 +137,12 @@ class TemplateAutoGenerator:
         vectorizer = TfidfVectorizer()
         matrix = vectorizer.fit_transform(corpus)
         n_clusters = min(len(corpus), 2)
-        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=int(time.time()))
         start_ts = time.time()
         with tqdm(total=1, desc="clustering", unit="step") as pbar:
             model.fit(matrix)
             pbar.update(1)
+        model.cluster_centers_ += np.random.normal(scale=0.01, size=model.cluster_centers_.shape)
         duration = time.time() - start_ts
         logger.info(f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s")
         self._log_event("cluster", {"items": len(corpus), "clusters": n_clusters, "duration": duration})
@@ -216,14 +222,13 @@ class TemplateAutoGenerator:
                     found = tmpl
                     logger.info("Template generated and logged")
                     break
-                etc = calculate_etc(start_ts, idx, len(corpus))
-                bar.set_postfix_str(etc)
+                etc = calculate_etc(start, idx, total_candidates)
+                bar.set_postfix(etc=etc)
                 bar.update(1)
-                bar.set_postfix({"etc": calculate_etc(start_time, bar.n, len(self.templates + self.patterns))})
         if not found:
             self._log_event("generate", {"objective": search_terms, "status": "none"})
             logger.warning("No template found for objective")
-        duration = time.time() - start_time
+        duration = time.time() - start
         self._log_event("generate_complete", {"objective": search_terms, "duration": duration})
         return found
 

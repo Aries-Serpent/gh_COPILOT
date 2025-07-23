@@ -18,7 +18,10 @@ COMPLIANCE_DIR = Path("dashboard/compliance")
 app = Flask(__name__)
 LOG_FILE = Path("logs/dashboard") / "dashboard.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()]
+)
 
 
 def _fetch_metrics() -> Dict[str, Any]:
@@ -63,6 +66,16 @@ def metrics() -> Any:
     etc = f"ETC: {calculate_etc(start, 1, 1)}"
     logging.info("Metrics served | %s", etc)
     return jsonify(data)
+
+
+@app.get("/compliance")
+def compliance() -> Any:
+    start = time.time()
+    metrics = _fetch_metrics()
+    rollbacks = _fetch_rollbacks()
+    etc = f"ETC: {calculate_etc(start, 1, 1)}"
+    logging.info("Compliance data served | %s", etc)
+    return jsonify({"metrics": metrics, "rollbacks": rollbacks})
 
 
 @app.get("/rollback_alerts")
