@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Database-driven documentation renderer with compliance checks."""
+
 from __future__ import annotations
 
 import json
@@ -11,6 +12,7 @@ from datetime import datetime
 import time
 from pathlib import Path
 from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
+from utils.logging_utils import _log_event
 
 from tqdm import tqdm
 
@@ -66,7 +68,11 @@ class DocumentationManager:
             (RENDER_LOG_DIR / f"{title}.json").write_text(
                 json.dumps({"title": title, "content": final_content}, indent=2)
             )
-            self._log_event("render", title)
+            _log_event(
+                "render", title, table="render_events", analytics_db=self.analytics_db
+            )
+            with open(LOG_FILE, "a", encoding="utf-8") as logf:
+                logf.write(f"{datetime.utcnow().isoformat()}|render|{title}\n")
             tqdm.write(f"ETC: {calculate_etc(start_ts, idx, len(rows))}")
             count += 1
         logger.info(
@@ -75,21 +81,6 @@ class DocumentationManager:
             calculate_etc(start_ts, len(rows), len(rows)),
         )
         return count
-
-    def _log_event(self, action: str, title: str) -> None:
-        try:
-            with sqlite3.connect(self.analytics_db) as conn:
-                conn.execute(
-                    "CREATE TABLE IF NOT EXISTS render_events (timestamp TEXT, action TEXT, title TEXT)"
-                )
-                conn.execute(
-                    "INSERT INTO render_events (timestamp, action, title) VALUES (?, ?, ?)",
-                    (datetime.utcnow().isoformat(), action, title),
-                )
-            with open(LOG_FILE, "a", encoding="utf-8") as logf:
-                logf.write(f"{datetime.utcnow().isoformat()}|{action}|{title}\n")
-        except sqlite3.Error as exc:
-            logger.error("Failed to log render event: %s", exc)
 
 
 def dual_validate() -> bool:
@@ -102,4 +93,3 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     success = dual_validate()
     sys.exit(0 if success else 1)
-
