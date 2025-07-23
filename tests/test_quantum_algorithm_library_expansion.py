@@ -7,8 +7,8 @@ from quantum_algorithm_library_expansion import (
     demo_variational_quantum_eigensolver,
     demo_quantum_phase_estimation,
     demo_quantum_teleportation,
-    quantum_cluster_score,
-    demo_quantum_neural_network,
+    quantum_cluster_representatives,
+    quantum_similarity_score,
 )
 import numpy as np
 
@@ -48,13 +48,16 @@ def test_demo_quantum_phase_estimation():
     assert abs(estimate - 0.3) <= 0.125
 
 
-def test_quantum_cluster_score():
-    vecs = np.array([[1, 0], [0, 1]], dtype=float)
-    score = quantum_cluster_score(vecs)
-    assert score > 0
+def test_quantum_similarity_score_basic():
+    score = quantum_similarity_score([1, 0], [1, 0])
+    assert score == 1.0
 
 
-def test_demo_quantum_neural_network():
-    data = [1.0, 2.0, 3.0]
-    result = demo_quantum_neural_network(data)
-    assert len(result) == len(data)
+def test_quantum_cluster_representatives():
+    reps = quantum_cluster_representatives(["a", "b", "c", "d"], 2)
+    assert len(reps) == 2
+
+
+def test_quantum_similarity_score():
+    score = quantum_similarity_score([1, 0], [0.5, 0.5])
+    assert 0.0 <= score <= 1.0

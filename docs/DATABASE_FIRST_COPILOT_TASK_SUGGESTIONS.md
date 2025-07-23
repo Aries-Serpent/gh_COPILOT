@@ -110,6 +110,9 @@ This document lists high-level tasks required to fully implement the database-fi
 | `ROLL-002` | Transactional correction logging and rollback handling | `template_engine/template_synchronizer.py` | rollback alerts widget |
 | `QAI-002` | Quantum/AI scoring hooks for patterns and templates | `quantum_algorithm_library_expansion.py` | quantum analytics panel |
 | `DASH-002` | Dashboard compliance links and visual monitoring for all audit events | `web_gui/scripts/flask_apps/enterprise_dashboard.py` | compliance dashboard section |
+| `AUD-003` | Visual placeholder scanning with progress bars | `scripts/validation/placeholder_audit_logger.py` | dashboard audit timeline |
+| `GEN-003` | DB-first template clustering with quantum scoring | `template_engine/auto_generator.py` | generation metrics table |
+| `ROLL-003` | Correction rollback history cross-linked to dashboard | `template_engine/template_synchronizer.py` | rollback alerts widget |
 
 ## 17. Expanded Audit, Compliance and Quantum Tasks
 

@@ -9,7 +9,6 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-
 from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
 
 from tqdm import tqdm
@@ -21,13 +20,6 @@ ANALYTICS_DB = Path("databases") / "analytics.db"
 logger = logging.getLogger(__name__)
 
 
-def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
-    elapsed = time.time() - start_time
-    if current_progress > 0:
-        total_estimated = elapsed / (current_progress / total_work)
-        remaining = total_estimated - elapsed
-        return f"{remaining:.2f}s remaining"
-    return "N/A"
 
 
 @dataclass
@@ -54,9 +46,10 @@ class DocumentationManager:
         rows = self._refresh_rows()
         RENDER_LOG_DIR.mkdir(parents=True, exist_ok=True)
         count = 0
-        if self.generator is None:
-            self.generator = TemplateAutoGenerator(self.analytics_db, self.completion_db)
-        for idx, (title, content, score) in enumerate(tqdm(rows, desc="render", unit="doc", leave=False), start=1):
+        generator = TemplateAutoGenerator(self.analytics_db, self.completion_db)
+        for idx, (title, content, score) in enumerate(
+            tqdm(rows, desc="render", unit="doc", leave=False), 1
+        ):
             if score < 60:
                 continue
             template = self.generator.select_best_template(title)
