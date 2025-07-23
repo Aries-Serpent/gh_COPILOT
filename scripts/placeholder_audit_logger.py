@@ -84,15 +84,12 @@ def scan_files(workspace: Path, patterns: Iterable[str]) -> List[dict]:
 
 
 def log_results(results: List[dict], db_path: Path) -> None:
-    """Insert placeholder findings into ``analytics.db``.
+    """Insert placeholder findings into ``analytics.db`` with progress bars."""
 
-    In addition to the legacy ``placeholder_audit`` table used by
-    existing tools, this function now also maintains a ``code_audit_log``
-    table.  The new table is used by the compliance dashboard to track
-    placeholder-removal progress across the repository.
-    """
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path) as conn, tqdm(
+        total=len(results), desc=f"{TEXT['progress']} logging", unit="item"
+    ) as bar:
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS placeholder_audit (
@@ -140,7 +137,32 @@ def log_results(results: List[dict], db_path: Path) -> None:
                     datetime.now().isoformat(),
                 ),
             )
+            bar.update(1)
         conn.commit()
+
+
+def rollback_last_entry(db_path: Path) -> bool:
+    """Remove the most recent placeholder audit entry with progress feedback."""
+
+    if not db_path.exists():
+        return False
+    with sqlite3.connect(db_path) as conn, tqdm(total=1, desc=f"{TEXT['progress']} rollback", unit="step") as bar:
+        try:
+            cur = conn.execute("SELECT id FROM placeholder_audit ORDER BY id DESC LIMIT 1")
+            row = cur.fetchone()
+            if not row:
+                bar.write(f"{TEXT['info']} no entries to rollback")
+                return False
+            entry_id = row[0]
+            conn.execute("DELETE FROM placeholder_audit WHERE id=?", (entry_id,))
+            conn.execute("DELETE FROM code_audit_log WHERE id=?", (entry_id,))
+            conn.commit()
+            bar.update(1)
+            bar.write(f"{TEXT['success']} rollback complete")
+            return True
+        except Exception as exc:  # pragma: no cover - log only
+            bar.write(f"{TEXT['error']} rollback failed: {exc}")
+            return False
 
 
 def update_dashboard(results: List[dict], dashboard_dir: Path) -> None:
