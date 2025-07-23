@@ -6,6 +6,7 @@
 # - Environment/workspace compliance (ANALYTICS_DB may be patched by test harnesses)
 
 import logging
+import os
 import sqlite3
 import time
 from pathlib import Path
@@ -14,19 +15,34 @@ from typing import Iterable
 
 from tqdm import tqdm
 
+def _log_event(event: str, details: str) -> None:
+    """Generic event logger for analytics DB."""
+    try:
+        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS sync_events_log (timestamp TEXT, event TEXT, details TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO sync_events_log (timestamp, event, details) VALUES (?, ?, ?)",
+                (datetime.utcnow().isoformat(), event, details),
+            )
+            conn.commit()
+    except sqlite3.Error as exc:
+        logger.debug("log_event failed: %s", exc)
+
 
 ANALYTICS_DB = Path("databases") / "analytics.db"
 logger = logging.getLogger(__name__)
 
 
-def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
-    """Return estimated time remaining."""
-    elapsed = time.time() - start_time
-    if current_progress > 0:
-        total_estimated = elapsed / (current_progress / total_work)
-        remaining = total_estimated - elapsed
-        return f"{remaining:.2f}s remaining"
-    return "N/A"
+def _calculate_etc(start_ts: float, current: int, total: int) -> str:
+    if current == 0:
+        return "N/A"
+    elapsed = time.time() - start_ts
+    est_total = elapsed / (current / total)
+    remaining = est_total - elapsed
+    return f"{remaining:.2f}s remaining"
 
 
 def _extract_templates(db: Path) -> list[tuple[str, str]]:
@@ -90,6 +106,22 @@ def _log_audit(db_name: str, details: str) -> None:
         logger.error("Failed to log audit event: %s", exc)
 
 
+def _log_event(name: str, details: str) -> None:
+    """Generic event logger for synchronization steps."""
+    try:
+        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS sync_status (timestamp TEXT, name TEXT, details TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO sync_status (timestamp, name, details) VALUES (?, ?, ?)",
+                (datetime.utcnow().isoformat(), name, details),
+            )
+    except sqlite3.Error as exc:
+        logger.error("Failed to log event: %s", exc)
+
+
 def _compliance_check(conn: sqlite3.Connection) -> bool:
     """Check that all templates in DB are compliant (PEP8/flake8 placeholder)."""
     try:
@@ -110,24 +142,26 @@ def synchronize_templates(
     Synchronize templates across multiple databases with transactional integrity.
     Each synchronized template is logged to analytics DB with a timestamp and source.
     """
+    start_dt = datetime.utcnow()
     start_ts = time.time()
-    start = datetime.utcnow()
-    _log_sync_event("synchronizer", "start")
+    _log_event("sync_start", ",".join(str(p) for p in source_dbs or []))
     databases = list(source_dbs) if source_dbs else []
     all_templates: dict[str, str] = {}
 
     # Extract and validate templates from all databases
-    for db in tqdm(databases, desc="Extracting", unit="db"):
+    for idx, db in enumerate(tqdm(databases, desc="Extracting", unit="db"), 1):
         for name, content in _extract_templates(db):
             if _validate_template(name, content):
                 all_templates[name] = content
             else:
                 logger.warning("Invalid template from %s: %s", db, name)
+        etc = _calculate_etc(start_ts, idx, len(databases))
+        tqdm.write(f"ETC: {etc}")
 
     source_names = ",".join(str(d) for d in databases)
     synced = 0
 
-    for db in tqdm(databases, desc="Synchronizing", unit="db"):
+    for idx, db in enumerate(tqdm(databases, desc="Synchronizing", unit="db"), 1):
         if not db.exists():
             logger.warning("Skipping missing DB: %s", db)
             continue
@@ -144,26 +178,30 @@ def synchronize_templates(
                             (name, content),
                         )
                     conn.commit()
+                    if not _compliance_check(conn):
+                        raise ValueError("Post-sync compliance validation failed")
                     synced += 1
                     _log_sync_event(source_names, str(db))
+                    _log_event("sync_success", str(db))
                 except Exception as exc:
                     conn.rollback()
                     _log_audit(str(db), f"Sync failure: {exc}")
+                    _log_event("sync_failure", str(exc))
                     logger.error("Failed to synchronize %s: %s", db, exc)
         except sqlite3.Error as exc:
             _log_audit(str(db), f"DB connection error: {exc}")
             logger.error("Database error %s: %s", db, exc)
+        etc = _calculate_etc(start_ts, idx + len(databases), len(databases) * 2)
+        tqdm.write(f"ETC: {etc}")
 
-    duration = (datetime.utcnow() - start).total_seconds()
-    etc = calculate_etc(start_ts, len(databases), len(databases))
-    logger.info(
-        "Synchronization completed for %s databases in %.2fs | ETC: %s",
-        synced,
-        duration,
-        etc,
-    )
+    duration = (datetime.utcnow() - start_dt).total_seconds()
+    logger.info("Synchronization completed for %s databases in %.2fs", synced, duration)
+    _log_event("sync_complete", f"{synced} databases in {duration:.2f}s")
     return synced
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
+    dbs_env = os.getenv("TEMPLATE_SYNC_DBS", "").split(os.pathsep)
+    source_dbs = [Path(p) for p in dbs_env if p]
+    synchronize_templates(source_dbs)

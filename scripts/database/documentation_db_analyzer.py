@@ -3,8 +3,10 @@
 
 from __future__ import annotations
 
+import os
 import json
 import logging
+import shutil
 import sqlite3
 import time
 from datetime import datetime, timezone
@@ -13,7 +15,32 @@ from typing import List, Tuple
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
-ANALYTICS_DB = Path("analytics.db")
+ANALYTICS_DB = Path("databases") / "analytics.db"
+
+
+def _calculate_etc(start_ts: float, current: int, total: int) -> str:
+    if current == 0:
+        return "N/A"
+    elapsed = time.time() - start_ts
+    est_total = elapsed / (current / total)
+    remaining = est_total - elapsed
+    return f"{remaining:.2f}s remaining"
+
+
+def _create_backup(db: Path) -> Optional[Path]:
+    backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
+    backup_root.mkdir(parents=True, exist_ok=True)
+    if not db.exists():
+        return None
+    backup = backup_root / f"{db.name}.{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.bak"
+    shutil.copy(db, backup)
+    return backup
+
+
+def rollback_db(db: Path, backup: Path) -> None:
+    if backup.exists():
+        shutil.copy(backup, db)
+        _log_event(db, {"rollback": str(backup)})
 
 
 CLEANUP_SQL = (
@@ -111,6 +138,16 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
         "removed_duplicates": removed_dupes,
         "placeholders": len(placeholders),
     }
+
+
+def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
+    """Restore ``db_path`` from ``backup_path``."""
+    if not backup_path.exists():
+        logger.error("Backup not found: %s", backup_path)
+        return False
+    shutil.copy2(backup_path, db_path)
+    logger.info("Database restored from backup: %s", backup_path)
+    return True
 
 
 def _log_report(report: dict) -> None:
