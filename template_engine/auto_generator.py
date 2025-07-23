@@ -215,7 +215,7 @@ class TemplateAutoGenerator:
                         raise ValueError("Invalid template syntax")
                     with sqlite3.connect(self.analytics_db) as conn:
                         conn.execute(
-                            "CREATE TABLE IF NOT EXISTS generation_events (ts TEXT, objective TEXT, template TEXT)",
+                            "CREATE TABLE IF NOT EXISTS generation_events (ts TEXT, objective TEXT, template TEXT)"
                         )
                         conn.execute(
                             "INSERT INTO generation_events (ts, objective, template) VALUES (?,?,?)",

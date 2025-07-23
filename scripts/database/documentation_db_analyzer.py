@@ -3,15 +3,15 @@
 
 from __future__ import annotations
 
-import os
 import json
 import logging
+import os
 import shutil
 import sqlite3
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -85,6 +85,14 @@ def audit_placeholders(db_path: Path) -> int:
     return count
 
 
+def audit_placeholders(db_path: Path) -> int:
+    """Return count of placeholder entries in ``db_path``."""
+    if not db_path.exists():
+        return 0
+    with sqlite3.connect(db_path) as conn:
+        return len(_audit_placeholders_conn(conn))
+
+
 def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[str, int]:
     """Remove backups and duplicates from ``db_path`` and return a report.
     Optionally record removed entries for rollback.
@@ -94,7 +102,7 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
 
     with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
-        placeholders = audit_placeholders(conn)
+        placeholders = _audit_placeholders_conn(conn)
         before = cur.execute(
             "SELECT COUNT(*) FROM enterprise_documentation"
         ).fetchone()[0]
