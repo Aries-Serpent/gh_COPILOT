@@ -70,19 +70,20 @@ def _log_event(db: Path, data: dict) -> None:
         logger.error("Failed to log analysis results")
 
 
-def audit_placeholders(db_path: Path) -> int:
-    """Return count of TODO/FIXME markers in ``db_path``."""
-    if not db_path.exists():
-        return 0
-    count = 0
-    with sqlite3.connect(db_path) as conn:
-        cur = conn.execute("SELECT content FROM enterprise_documentation")
-        for (content,) in cur.fetchall():
-            text = content or ""
-            if any(tok in text.upper() for tok in ["TODO", "FIXME", "PLACEHOLDER"]):
-                count += 1
-    _log_event(db_path, {"placeholders": count})
-    return count
+def _audit_placeholders_conn(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
+    """Return all placeholder entries from ``conn``."""
+    placeholders: List[Tuple[str, str]] = []
+    cur = conn.execute("PRAGMA table_info(enterprise_documentation)")
+    columns = [row[1] for row in cur.fetchall()]
+    if "title" in columns:
+        query = "SELECT title, content FROM enterprise_documentation"
+    else:
+        query = "SELECT NULL as title, content FROM enterprise_documentation"
+    for title, content in conn.execute(query).fetchall():
+        text = content or ""
+        if any(tok in text.upper() for tok in ["TODO", "FIXME", "PLACEHOLDER"]):
+            placeholders.append((title or "", text))
+    return placeholders
 
 
 def audit_placeholders(db_path: Path) -> int:
@@ -90,7 +91,9 @@ def audit_placeholders(db_path: Path) -> int:
     if not db_path.exists():
         return 0
     with sqlite3.connect(db_path) as conn:
-        return len(_audit_placeholders_conn(conn))
+        placeholders = _audit_placeholders_conn(conn)
+    _log_event(db_path, {"placeholders": len(placeholders)})
+    return len(placeholders)
 
 
 def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[str, int]:
