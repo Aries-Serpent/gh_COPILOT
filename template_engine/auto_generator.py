@@ -191,14 +191,12 @@ class TemplateAutoGenerator:
         self._last_objective = objective
         search_terms = " ".join(map(str, objective.values()))
         logger.info(f"Generating template for objective: {search_terms}")
-        start = time.time()
+        start_time = time.time()
+        candidates = self.templates + self.patterns
         found = ""
-        total_candidates = len(self.templates + self.patterns)
-        with tqdm(self.templates + self.patterns, desc="[PROGRESS] search", unit="tmpl") as bar:
-            for idx, tmpl in enumerate(bar, start=1):
-                etc = calculate_etc(start, idx, total_candidates)
-                bar.set_postfix(etc=etc)
-                if time.time() - start > timeout:
+        with tqdm(total=len(candidates), desc="[PROGRESS] search", unit="tmpl") as bar:
+            for idx, tmpl in enumerate(candidates, 1):
+                if time.time() - start_time > timeout:
                     logger.warning("Generation timeout reached")
                     break
                 if all(term.lower() in tmpl.lower() for term in search_terms.split()):
@@ -206,7 +204,7 @@ class TemplateAutoGenerator:
                         raise ValueError("Invalid template syntax")
                     with sqlite3.connect(self.analytics_db) as conn:
                         conn.execute(
-                            "CREATE TABLE IF NOT EXISTS generation_events (ts TEXT, objective TEXT, template TEXT)",
+                            "CREATE TABLE IF NOT EXISTS generation_events (ts TEXT, objective TEXT, template TEXT)"
                         )
                         conn.execute(
                             "INSERT INTO generation_events (ts, objective, template) VALUES (?,?,?)",
@@ -216,10 +214,8 @@ class TemplateAutoGenerator:
                     found = tmpl
                     logger.info("Template generated and logged")
                     break
-                etc = calculate_etc(start_ts, idx, len(corpus))
-                bar.set_postfix_str(etc)
                 bar.update(1)
-                bar.set_postfix({"etc": calculate_etc(start_time, bar.n, len(self.templates + self.patterns))})
+                bar.set_postfix(etc=calculate_etc(start_time, idx, len(candidates)))
         if not found:
             self._log_event("generate", {"objective": search_terms, "status": "none"})
             logger.warning("No template found for objective")

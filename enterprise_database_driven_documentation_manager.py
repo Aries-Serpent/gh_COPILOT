@@ -10,7 +10,6 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-import time
 
 from template_engine.auto_generator import calculate_etc
 
@@ -23,15 +22,6 @@ LOG_FILE = RENDER_LOG_DIR / "documentation_render.log"
 ANALYTICS_DB = Path("analytics.db")
 
 logger = logging.getLogger(__name__)
-
-
-def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
-    elapsed = time.time() - start_time
-    if current_progress > 0:
-        total_estimated = elapsed / (current_progress / total_work)
-        remaining = total_estimated - elapsed
-        return f"{remaining:.2f}s remaining"
-    return "N/A"
 
 
 @dataclass
@@ -55,9 +45,13 @@ class DocumentationManager:
             return 0
         rows = self._refresh_rows()
         RENDER_LOG_DIR.mkdir(parents=True, exist_ok=True)
+        generator = TemplateAutoGenerator(
+            analytics_db=self.analytics_db, completion_db=self.completion_db
+        )
         count = 0
-        start = time.time()
-        for title, content, score in tqdm(rows, desc="render", unit="doc", leave=False):
+        for idx, (title, content, score) in enumerate(
+            tqdm(rows, desc="render", unit="doc", leave=False), start=1
+        ):
             if score < 60:
                 continue
             template = generator.select_best_template(title)
@@ -70,11 +64,13 @@ class DocumentationManager:
                 json.dumps({"title": title, "content": final_content}, indent=2)
             )
             self._log_event("render", title)
-            etc = calculate_etc(start_ts, idx, len(rows))
-            tqdm.write(f"ETC: {etc}")
+            tqdm.write(f"ETC: {calculate_etc(start_ts, idx, len(rows))}")
             count += 1
-        etc = calculate_etc(start_ts, len(rows), len(rows))
-        logger.info("Rendered %s documents | ETC: %s", count, etc)
+        logger.info(
+            "Rendered %s documents | ETC: %s",
+            count,
+            calculate_etc(start_ts, len(rows), len(rows)),
+        )
         return count
 
     def _log_event(self, action: str, title: str) -> None:
