@@ -61,6 +61,8 @@ cd gh_COPILOT
 
 # 2. Run setup script (creates `.venv` and installs requirements)
 bash setup.sh
+# Always run this script before executing tests or automation tasks to ensure
+# dependencies and environment variables are correctly initialized.
 
 # 3. Initialize databases
 python scripts/database/database_initializer.py
