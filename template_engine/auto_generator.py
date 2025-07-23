@@ -17,8 +17,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 from .log_utils import _log_event
 
-from .log_utils import _log_event, DEFAULT_ANALYTICS_DB as LOG_DB
-
 # Quantum demo import (placeholder for quantum-inspired scoring)
 try:
     from quantum_algorithm_library_expansion import demo_quantum_fourier_transform
