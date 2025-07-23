@@ -15,24 +15,11 @@ from typing import Iterable
 
 from tqdm import tqdm
 
-def _log_event(event: str, details: str) -> None:
-    """Generic event logger for synchronization steps."""
-    try:
-        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
-        with sqlite3.connect(ANALYTICS_DB) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS sync_events_log (timestamp TEXT, event TEXT, details TEXT)"
-            )
-            conn.execute(
-                "INSERT INTO sync_events_log (timestamp, event, details) VALUES (?, ?, ?)",
-                (datetime.utcnow().isoformat(), event, details),
-            )
-            conn.commit()
-    except sqlite3.Error as exc:
-        logger.debug("log_event failed: %s", exc)
+from .log_utils import _log_event, DEFAULT_ANALYTICS_DB
 
 
-ANALYTICS_DB = Path("databases") / "analytics.db"
+
+ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 logger = logging.getLogger(__name__)
 
 
@@ -130,7 +117,7 @@ def synchronize_templates(
     """
     start_dt = datetime.utcnow()
     start_ts = time.time()
-    _log_event("sync_start", ",".join(str(p) for p in source_dbs or []))
+    _log_event({"event": "sync_start", "sources": ",".join(str(p) for p in source_dbs or [])}, db_path=ANALYTICS_DB)
     databases = list(source_dbs) if source_dbs else []
     all_templates: dict[str, str] = {}
 
@@ -168,11 +155,11 @@ def synchronize_templates(
                         raise ValueError("Post-sync compliance validation failed")
                     synced += 1
                     _log_sync_event(source_names, str(db))
-                    _log_event("sync_success", str(db))
+                    _log_event({"event": "sync_success", "db": str(db)}, db_path=ANALYTICS_DB)
                 except Exception as exc:
                     conn.rollback()
                     _log_audit(str(db), f"Sync failure: {exc}")
-                    _log_event("sync_failure", str(exc))
+                    _log_event({"event": "sync_failure", "error": str(exc)}, db_path=ANALYTICS_DB)
                     logger.error("Failed to synchronize %s: %s", db, exc)
         except sqlite3.Error as exc:
             _log_audit(str(db), f"DB connection error: {exc}")
@@ -182,7 +169,7 @@ def synchronize_templates(
 
     duration = (datetime.utcnow() - start_dt).total_seconds()
     logger.info("Synchronization completed for %s databases in %.2fs", synced, duration)
-    _log_event("sync_complete", f"{synced} databases in {duration:.2f}s")
+    _log_event({"event": "sync_complete", "summary": f"{synced} databases in {duration:.2f}s"}, db_path=ANALYTICS_DB)
     return synced
 
 
