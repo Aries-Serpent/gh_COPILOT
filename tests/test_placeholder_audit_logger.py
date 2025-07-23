@@ -3,8 +3,6 @@ import sqlite3
 
 import os
 
-os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
-
 from scripts.placeholder_audit_logger import main, rollback_last_entry
 from scripts.dashboard_placeholder_sync import sync
 
