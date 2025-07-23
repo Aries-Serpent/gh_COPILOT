@@ -1,49 +1,14 @@
-"""Template engine package."""
+"""Template engine package with lazy imports."""
+from importlib import import_module
+from typing import TYPE_CHECKING
 
-from .auto_generator import (
-    TemplateAutoGenerator,
-    DEFAULT_ANALYTICS_DB,
-    DEFAULT_COMPLETION_DB,
-)
-from .template_synchronizer import synchronize_templates
-from .pattern_clustering_sync import PatternClusteringSync
-from .workflow_enhancer import TemplateWorkflowEnhancer
-from .placeholder_utils import (
-    find_placeholders,
-    replace_placeholders,
-    DEFAULT_PRODUCTION_DB as PLACEHOLDER_PRODUCTION_DB,
-    DEFAULT_TEMPLATE_DOC_DB as PLACEHOLDER_TEMPLATE_DOC_DB,
-    DEFAULT_ANALYTICS_DB as PLACEHOLDER_ANALYTICS_DB,
-)
-from .pattern_mining_engine import (
-    extract_patterns,
-    mine_patterns,
-)
-from .objective_similarity_scorer import (
-    compute_similarity_scores,
-    validate_scores,
-)
-from .template_placeholder_remover import (
-    remove_unused_placeholders,
-    validate_removals,
-)
+if TYPE_CHECKING:  # pragma: no cover
+    from . import auto_generator, template_synchronizer
 
-__all__ = [
-    "TemplateAutoGenerator",
-    "synchronize_templates",
-    "DEFAULT_ANALYTICS_DB",
-    "DEFAULT_COMPLETION_DB",
-    "PatternClusteringSync",
-    "TemplateWorkflowEnhancer",
-    "find_placeholders",
-    "replace_placeholders",
-    "PLACEHOLDER_PRODUCTION_DB",
-    "PLACEHOLDER_TEMPLATE_DOC_DB",
-    "PLACEHOLDER_ANALYTICS_DB",
-    "extract_patterns",
-    "mine_patterns",
-    "compute_similarity_scores",
-    "validate_scores",
-    "remove_unused_placeholders",
-    "validate_removals",
-]
+__all__ = ["auto_generator", "template_synchronizer"]
+
+
+def __getattr__(name: str):
+    if name in __all__:
+        return import_module(f".{name}", __name__)
+    raise AttributeError(f"module {__name__} has no attribute {name}")

@@ -23,8 +23,10 @@ _log_mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(_log_mod)
 _log_event = _log_mod._log_event
 
+from template_engine.log_utils import _log_event, DEFAULT_ANALYTICS_DB
+
 logger = logging.getLogger(__name__)
-ANALYTICS_DB = Path("databases") / "analytics.db"
+ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 
 
 def _calculate_etc(start_ts: float, current: int, total: int) -> str:
