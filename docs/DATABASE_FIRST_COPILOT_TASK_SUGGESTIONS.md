@@ -113,3 +113,11 @@ This document lists high-level tasks required to fully implement the database-fi
 
 ---
 These tasks derive from the provided enhancement prompt and are meant to guide ongoing work toward a robust database-first Copilot integration.
+
+## 17. Visual Processing and Compliance Links
+
+| ID | Description | Module Path | Dashboard Cross-Reference |
+|----|-------------|-------------|---------------------------|
+| `VIS-001` | Add progress indicators and ETC tracking to all long running tasks | various modules | `/metrics` view |
+| `VIS-002` | Cross-link analytics events with dashboard pages for audit trails | dashboard templates | `/compliance` section |
+
