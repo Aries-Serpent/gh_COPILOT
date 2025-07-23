@@ -42,35 +42,3 @@ def log_enterprise_operation(operation: str, status: str, details: str = "") -> 
 
 
 ANALYTICS_DB = Path("databases") / "analytics.db"
-
-
-def _log_event(
-    event: str,
-    details: str,
-    *,
-    table: str = "sync_events_log",
-    analytics_db: Path = ANALYTICS_DB,
-) -> None:
-    """Log synchronization or status events to ``analytics_db``."""
-    try:
-        analytics_db.parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(analytics_db) as conn:
-            if table == "sync_status":
-                conn.execute(
-                    "CREATE TABLE IF NOT EXISTS sync_status (timestamp TEXT, event TEXT, status TEXT)"
-                )
-                conn.execute(
-                    "INSERT INTO sync_status (timestamp, event, status) VALUES (?, ?, ?)",
-                    (datetime.utcnow().isoformat(), event, details),
-                )
-            else:
-                conn.execute(
-                    "CREATE TABLE IF NOT EXISTS sync_events_log (timestamp TEXT, event TEXT, details TEXT)"
-                )
-                conn.execute(
-                    "INSERT INTO sync_events_log (timestamp, event, details) VALUES (?, ?, ?)",
-                    (datetime.utcnow().isoformat(), event, details),
-                )
-            conn.commit()
-    except sqlite3.Error as exc:
-        logging.getLogger(__name__).debug("log_event failed: %s", exc)

@@ -13,6 +13,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Tuple, Optional
 from tqdm import tqdm
+import importlib.util
+
+_LOG_UTILS_PATH = (
+    Path(__file__).resolve().parents[2] / "template_engine" / "log_utils.py"
+)
+spec = importlib.util.spec_from_file_location("log_utils", _LOG_UTILS_PATH)
+_log_mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(_log_mod)
+_log_event = _log_mod._log_event
 
 from template_engine.log_utils import _log_event, DEFAULT_ANALYTICS_DB
 
@@ -34,7 +43,9 @@ def _create_backup(db: Path) -> Optional[Path]:
     backup_root.mkdir(parents=True, exist_ok=True)
     if not db.exists():
         return None
-    backup = backup_root / f"{db.name}.{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.bak"
+    backup = (
+        backup_root / f"{db.name}.{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.bak"
+    )
     shutil.copy(db, backup)
     return backup
 
@@ -42,7 +53,11 @@ def _create_backup(db: Path) -> Optional[Path]:
 def rollback_db(db: Path, backup: Path) -> None:
     if backup.exists():
         shutil.copy(backup, db)
-        _log_event({"db": str(db), "rollback": str(backup)}, table="doc_analysis", db_path=ANALYTICS_DB)
+        _log_event(
+            {"db": str(db), "rollback": str(backup)},
+            table="doc_analysis",
+            db_path=ANALYTICS_DB,
+        )
 
 
 CLEANUP_SQL = (
@@ -54,8 +69,6 @@ DEDUP_SQL = (
     "DELETE FROM enterprise_documentation WHERE rowid NOT IN ("
     "SELECT MIN(rowid) FROM enterprise_documentation GROUP BY title, source_path)"
 )
-
-
 
 
 def _audit_placeholders_conn(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
@@ -80,11 +93,17 @@ def audit_placeholders(db_path: Path) -> int:
         return 0
     with sqlite3.connect(db_path) as conn:
         placeholders = _audit_placeholders_conn(conn)
-    _log_event({"db": str(db_path), "placeholders": len(placeholders)}, table="doc_analysis", db_path=ANALYTICS_DB)
+    _log_event(
+        {"db": str(db_path), "placeholders": len(placeholders)},
+        table="doc_analysis",
+        db_path=ANALYTICS_DB,
+    )
     return len(placeholders)
 
 
-def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[str, int]:
+def analyze_and_cleanup(
+    db_path: Path, backup_path: Path | None = None
+) -> dict[str, int]:
     """Remove backups and duplicates from ``db_path`` and return a report.
     Optionally record removed entries for rollback.
     """
@@ -177,7 +196,11 @@ def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
         logger.error("Backup not found: %s", backup_path)
         return False
     shutil.copy2(backup_path, db_path)
-    _log_event({"db": str(db_path), "rollback": str(backup_path)}, table="doc_analysis", db_path=ANALYTICS_DB)
+    _log_event(
+        {"db": str(db_path), "rollback": str(backup_path)},
+        table="doc_analysis",
+        db_path=ANALYTICS_DB,
+    )
     logger.info("Database restored from backup: %s", backup_path)
     return True
 
