@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from pathlib import Path
 import sqlite3
 from datetime import datetime
 from tqdm import tqdm
 from flask import Flask, jsonify, request
+import sqlite3
+from datetime import datetime
 
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 
@@ -55,6 +58,17 @@ def get_corrections():
     if summary.exists():
         data = json.loads(summary.read_text())
     return jsonify(data)
+
+
+@app.get("/violations")
+def get_violations():
+    logs = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT timestamp, details FROM violation_logs ORDER BY timestamp DESC LIMIT 50")
+            logs = [dict(timestamp=row[0], details=row[1]) for row in cur.fetchall()]
+    return jsonify({"violations": logs})
 
 
 @app.post("/rollback")

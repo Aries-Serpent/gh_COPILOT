@@ -7,12 +7,40 @@ import json
 import logging
 import shutil
 import sqlite3
+import time
 from datetime import datetime, timezone
 from pathlib import Path
-from tqdm import tqdm
+from typing import Optional
+import shutil
+import os
 
 logger = logging.getLogger(__name__)
-ANALYTICS_DB = Path("analytics.db")
+ANALYTICS_DB = Path("databases") / "analytics.db"
+
+
+def _calculate_etc(start_ts: float, current: int, total: int) -> str:
+    if current == 0:
+        return "N/A"
+    elapsed = time.time() - start_ts
+    est_total = elapsed / (current / total)
+    remaining = est_total - elapsed
+    return f"{remaining:.2f}s remaining"
+
+
+def _create_backup(db: Path) -> Optional[Path]:
+    backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
+    backup_root.mkdir(parents=True, exist_ok=True)
+    if not db.exists():
+        return None
+    backup = backup_root / f"{db.name}.{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.bak"
+    shutil.copy(db, backup)
+    return backup
+
+
+def rollback_db(db: Path, backup: Path) -> None:
+    if backup.exists():
+        shutil.copy(backup, db)
+        _log_event(db, {"rollback": str(backup)})
 
 
 CLEANUP_SQL = (
@@ -70,24 +98,30 @@ def analyze_and_cleanup(db_path: Path) -> dict[str, int]:
     """Remove backups and duplicates from ``db_path`` and return a report."""
     if not db_path.exists():
         raise FileNotFoundError(f"Database not found at {db_path}")
-
-    with sqlite3.connect(db_path) as conn:
-        cur = conn.cursor()
-        before = cur.execute(
-            "SELECT COUNT(*) FROM enterprise_documentation"
-        ).fetchone()[0]
-        removed_backups = cur.execute(CLEANUP_SQL).rowcount
-        removed_dupes = cur.execute(DEDUP_SQL).rowcount
-        after = cur.execute("SELECT COUNT(*) FROM enterprise_documentation").fetchone()[
-            0
-        ]
-        conn.commit()
-        _log_event(db_path, {
-            "before": before,
-            "after": after,
-            "removed_backups": removed_backups,
-            "removed_duplicates": removed_dupes,
-        })
+    backup = _create_backup(db_path)
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cur = conn.cursor()
+            before = cur.execute(
+                "SELECT COUNT(*) FROM enterprise_documentation"
+            ).fetchone()[0]
+            removed_backups = cur.execute(CLEANUP_SQL).rowcount
+            removed_dupes = cur.execute(DEDUP_SQL).rowcount
+            after = cur.execute("SELECT COUNT(*) FROM enterprise_documentation").fetchone()[
+                0
+            ]
+            conn.commit()
+            _log_event(db_path, {
+                "before": before,
+                "after": after,
+                "removed_backups": removed_backups,
+                "removed_duplicates": removed_dupes,
+            })
+    except Exception as exc:
+        logger.error("Cleanup failed: %s", exc)
+        if backup:
+            rollback_db(db_path, backup)
+        raise
 
     try:
         ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
@@ -157,6 +191,7 @@ def main() -> None:
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2))
     _log_report(report)
+    log_correction(db_path, json.dumps(report))
     logger.info("Cleanup complete: %s", report_path)
     _log_event(db_path, {"report": str(report_path)})
 

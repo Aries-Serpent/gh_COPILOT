@@ -6,16 +6,20 @@ import json
 import logging
 import sqlite3
 import sys
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+import time
+
+from template_engine.auto_generator import calculate_etc
 
 from template_engine.auto_generator import TemplateAutoGenerator
 
 from tqdm import tqdm
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
-ANALYTICS_DB = Path("analytics.db")
+ANALYTICS_DB = Path("databases") / "analytics.db"
 
 logger = logging.getLogger(__name__)
 
@@ -28,17 +32,20 @@ class DocumentationManager:
     analytics_db: Path = ANALYTICS_DB
     completion_db: Path = Path("databases/template_completion.db")
 
+    def _refresh_rows(self) -> list[tuple[str, str, int]]:
+        with sqlite3.connect(self.database) as conn:
+            return conn.execute(
+                "SELECT title, content, compliance_score FROM documentation"
+            ).fetchall()
+
     def render(self) -> int:
         if not self.database.exists():
             logger.error("Database not found: %s", self.database)
             return 0
-        with sqlite3.connect(self.database) as conn:
-            rows = conn.execute(
-                "SELECT title, content, compliance_score FROM documentation"
-            ).fetchall()
-        generator = TemplateAutoGenerator(self.analytics_db, self.completion_db)
+        rows = self._refresh_rows()
         RENDER_LOG_DIR.mkdir(parents=True, exist_ok=True)
         count = 0
+        start = time.time()
         for title, content, score in tqdm(rows, desc="render", unit="doc", leave=False):
             if score < 60:
                 continue
@@ -52,7 +59,11 @@ class DocumentationManager:
                 json.dumps({"title": title, "content": final_content}, indent=2)
             )
             self._log_event("render", title)
+            etc = calculate_etc(start_ts, idx, len(rows))
+            tqdm.write(f"ETC: {etc}")
             count += 1
+        duration = time.time() - start
+        self._log_event("render_complete", str(duration))
         return count
 
     def _log_event(self, action: str, title: str) -> None:
@@ -65,6 +76,8 @@ class DocumentationManager:
                     "INSERT INTO render_events (timestamp, action, title) VALUES (?, ?, ?)",
                     (datetime.utcnow().isoformat(), action, title),
                 )
+            with open(RENDER_LOG_DIR / "render.log", "a", encoding="utf-8") as f:
+                f.write(f"{datetime.utcnow().isoformat()}|{action}|{title}\n")
         except sqlite3.Error as exc:
             logger.error("Failed to log render event: %s", exc)
 
