@@ -12,3 +12,8 @@ requires-python = ">=3.8"
 [project.scripts]
 final-enterprise-orchestrator = "copilot.orchestrators.final_enterprise_orchestrator:main"
 unified-deployment-orchestrator = "copilot.orchestrators.unified_deployment_orchestrator:main"
+
+[tool.ruff]
+target-version = "py38"
+line-length = 120
+select = ["E", "F", "I"]

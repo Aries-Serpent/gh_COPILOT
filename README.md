@@ -481,6 +481,7 @@ pip install -r requirements-test.txt
 make test
 
 # Run linter
+ruff format .
 ruff check .
 
 # Enterprise validation
