@@ -10,6 +10,7 @@ import shutil
 import sqlite3
 import time
 from datetime import datetime, timezone
+from template_engine.placeholder_utils import DEFAULT_ANALYTICS_DB
 from pathlib import Path
 from typing import List, Tuple, Optional
 from tqdm import tqdm
@@ -24,7 +25,7 @@ spec.loader.exec_module(_log_mod)
 _log_event = _log_mod._log_event
 
 logger = logging.getLogger(__name__)
-ANALYTICS_DB = Path("databases") / "analytics.db"
+ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 
 
 def _calculate_etc(start_ts: float, current: int, total: int) -> str:

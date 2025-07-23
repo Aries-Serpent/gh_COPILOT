@@ -17,7 +17,7 @@ from tqdm import tqdm
 from .log_utils import _log_event
 
 
-ANALYTICS_DB = Path("databases") / "analytics.db"
+ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 logger = logging.getLogger(__name__)
 
 

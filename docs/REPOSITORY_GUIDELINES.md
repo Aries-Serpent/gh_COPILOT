@@ -16,3 +16,14 @@ bash scripts/check_zero_logs.sh
 
 Any zero-size files should be removed or quarantined using `scripts/maintenance/quarantine_zero_byte_logs.py`.
 
+## Running Tests
+
+Always initialize the project environment before executing the test suite. Run
+`bash setup.sh` and activate the virtual environment prior to invoking `make test`
+or `pytest`:
+
+```bash
+bash setup.sh
+source .venv/bin/activate
+```
+

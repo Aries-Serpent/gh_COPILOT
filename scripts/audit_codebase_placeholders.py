@@ -78,7 +78,7 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-            """
+            """,
         )
         conn.execute(
             """
@@ -92,16 +92,17 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
             """
         )
         for row in results:
+            values = (
+                row["file"],
+                row["line"],
+                row["pattern"],
+                row["context"],
+                datetime.now().isoformat(),
+            )
             conn.execute(
                 "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
                 " VALUES (?, ?, ?, ?, ?)",
-                (
-                    row["file"],
-                    row["line"],
-                    row["pattern"],
-                    row["context"],
-                    datetime.now().isoformat(),
-                ),
+                values,
             )
             conn.execute(
                 "INSERT INTO todo_fixme_tracking (file_path, line_number, item_type, context, timestamp)"
