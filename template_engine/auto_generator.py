@@ -15,14 +15,17 @@ from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
+from .log_utils import _log_event
 
 # Quantum demo import (placeholder for quantum-inspired scoring)
 try:
     from quantum_algorithm_library_expansion import demo_quantum_fourier_transform
 except ImportError:
+
     def demo_quantum_fourier_transform():
         # Fallback: return a normalized vector
         return np.ones(8) / np.sqrt(8)
+
 
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
@@ -34,21 +37,20 @@ LOG_FILE = LOGS_DIR / f"auto_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
 
+
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 logger.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     elapsed = time.time() - start_time
@@ -57,6 +59,7 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
         remaining = total_estimated - elapsed
         return f"{remaining:.2f}s remaining"
     return "N/A"
+
 
 @dataclass
 class TemplateAutoGenerator:
@@ -67,7 +70,11 @@ class TemplateAutoGenerator:
 
     def __post_init__(self) -> None:
         self.logger = logging.getLogger(__name__)
-        self._log_event("init_start", {"timestamp": datetime.utcnow().isoformat()})
+        _log_event(
+            {"event": "init_start", "timestamp": datetime.utcnow().isoformat()},
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         start_time = datetime.now()
         logger.info("PROCESS STARTED: TemplateAutoGenerator Initialization")
         logger.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -79,7 +86,11 @@ class TemplateAutoGenerator:
         self.cluster_model = self._cluster_patterns()
         self._last_objective: Dict[str, Any] | None = None
         duration = (datetime.now() - start_time).total_seconds()
-        self._log_event("init_complete", {"duration": duration})
+        _log_event(
+            {"event": "init_complete", "duration": duration},
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         logger.info(f"Initialization completed in {duration:.2f}s")
 
     def _load_patterns(self) -> List[str]:
@@ -95,7 +106,11 @@ class TemplateAutoGenerator:
                 except sqlite3.Error as exc:
                     logger.error(f"Error loading patterns: {exc}")
         logger.info(f"Loaded {len(patterns)} patterns")
-        self._log_event("load_patterns", {"count": len(patterns)})
+        _log_event(
+            {"event": "load_patterns", "count": len(patterns)},
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         return patterns
 
     def _refresh_templates(self) -> None:
@@ -119,7 +134,11 @@ class TemplateAutoGenerator:
                 except sqlite3.Error as exc:
                     logger.error(f"Error loading templates: {exc}")
         logger.info(f"Loaded {len(templates)} templates")
-        self._log_event("load_templates", {"count": len(templates)})
+        _log_event(
+            {"event": "load_templates", "count": len(templates)},
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         return templates
 
     def _quantum_score(self, text: str) -> float:
@@ -137,17 +156,30 @@ class TemplateAutoGenerator:
         vectorizer = TfidfVectorizer()
         matrix = vectorizer.fit_transform(corpus)
         n_clusters = min(len(corpus), 2)
-        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=int(time.time()))
+        model = KMeans(
+            n_clusters=n_clusters, n_init="auto", random_state=int(time.time())
+        )
         start_ts = time.time()
         with tqdm(total=1, desc="clustering", unit="step") as pbar:
             model.fit(matrix)
             pbar.update(1)
-        model.cluster_centers_ += np.random.normal(scale=0.01, size=model.cluster_centers_.shape)
+        model.cluster_centers_ += np.random.normal(
+            scale=0.01, size=model.cluster_centers_.shape
+        )
         duration = time.time() - start_ts
         logger.info(
             f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s"
         )
-        self._log_event("cluster", {"items": len(corpus), "clusters": n_clusters, "duration": duration})
+        _log_event(
+            {
+                "event": "cluster",
+                "items": len(corpus),
+                "clusters": n_clusters,
+                "duration": duration,
+            },
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         return model
 
     def objective_similarity(self, a: str, b: str) -> float:
@@ -166,7 +198,9 @@ class TemplateAutoGenerator:
         start = time.time()
         with tqdm(total=len(candidates), desc="[PROGRESS] select", unit="tmpl") as bar:
             for idx, tmpl in enumerate(candidates, 1):
-                score = self.objective_similarity(target, tmpl) + self._quantum_score(tmpl)
+                score = self.objective_similarity(target, tmpl) + self._quantum_score(
+                    tmpl
+                )
                 if score > best_score:
                     best_score = score
                     best = tmpl
@@ -189,9 +223,17 @@ class TemplateAutoGenerator:
                 conn.commit()
         except sqlite3.Error as exc:
             logger.warning(f"Failed to log template selection: {exc}")
-        self._log_event("select_complete", {"target": target, "template": best})
+        _log_event(
+            {"event": "select_complete", "target": target, "template": best},
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         logger.info("Best template selected and logged")
-        self._log_event("select_best", {"target": target, "template": best})
+        _log_event(
+            {"event": "select_best", "target": target, "template": best},
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         return best
 
     def generate_template(self, objective: dict, timeout: int = 60) -> str:
@@ -227,10 +269,22 @@ class TemplateAutoGenerator:
                     break
                 bar.update(1)
         if not found:
-            self._log_event("generate", {"objective": search_terms, "status": "none"})
+            _log_event(
+                {"event": "generate", "objective": search_terms, "status": "none"},
+                table="generator_events",
+                db_path=self.analytics_db,
+            )
             logger.warning("No template found for objective")
         duration = time.time() - start_ts
-        self._log_event("generate_complete", {"objective": search_terms, "duration": duration})
+        _log_event(
+            {
+                "event": "generate_complete",
+                "objective": search_terms,
+                "duration": duration,
+            },
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         return found
 
     def regenerate_template(self) -> str:
@@ -268,26 +322,13 @@ class TemplateAutoGenerator:
             best_local = indices[int(max(range(len(sims)), key=lambda i: sims[i]))]
             reps.append(corpus[best_local])
         logger.info(f"Cluster representatives selected: {len(reps)}")
-        self._log_event("cluster_reps", {"count": len(reps)})
+        _log_event(
+            {"event": "cluster_reps", "count": len(reps)},
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         return reps
 
-    def _log_event(self, name: str, data: dict) -> None:
-        """Log events to analytics DB and file."""
-        try:
-            self.analytics_db.parent.mkdir(exist_ok=True, parents=True)
-            with sqlite3.connect(self.analytics_db) as conn:
-                conn.execute(
-                    "CREATE TABLE IF NOT EXISTS generator_events (timestamp REAL, name TEXT, details TEXT)"
-                )
-                conn.execute(
-                    "INSERT INTO generator_events (timestamp, name, details) VALUES (?,?,?)",
-                    (time.time(), name, str(data)),
-                )
-                conn.commit()
-            with open(LOG_FILE, "a", encoding="utf-8") as f:
-                f.write(f"{datetime.utcnow().isoformat()} | {name} | {data}\n")
-        except Exception as exc:
-            self.logger.debug("log_event failed: %s", exc)
 
 __all__ = [
     "TemplateAutoGenerator",
