@@ -427,11 +427,18 @@ validate_enterprise_standards(final_result)
 
 ### **Testing & Validation**
 ```bash
+# Ensure environment setup
+bash setup.sh
+source .venv/bin/activate
+
 # Install test dependencies
 pip install -r requirements-test.txt
 
 # Run comprehensive test suite
 make test
+
+# Run linter
+ruff check .
 
 # Enterprise validation
 python -m pytest tests/enterprise/ -v

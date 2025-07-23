@@ -14,11 +14,37 @@ def test_metrics_endpoint():
     resp = client.get('/metrics')
     assert resp.status_code == 200
     data = resp.get_json()
-    assert isinstance(data, list)
+    assert isinstance(data, dict)
 
 
 def test_compliance_endpoint():
     client = app.test_client()
     resp = client.get('/compliance')
     assert resp.status_code == 200
-    assert isinstance(resp.get_json(), list)
+    assert isinstance(resp.get_json(), dict)
+
+
+def test_rollback_alerts_endpoint():
+    client = app.test_client()
+    resp = client.get('/rollback_alerts')
+    assert resp.status_code == 200
+
+
+def test_dashboard_info_endpoint():
+    client = app.test_client()
+    resp = client.get('/dashboard_info')
+    assert resp.status_code == 200
+    assert isinstance(resp.get_json(), dict)
+
+
+def test_health_endpoint():
+    client = app.test_client()
+    resp = client.get('/health')
+    assert resp.status_code == 200
+    assert resp.get_json()['status'] == 'ok'
+
+
+def test_reports_endpoint():
+    client = app.test_client()
+    resp = client.get('/reports')
+    assert resp.status_code == 200

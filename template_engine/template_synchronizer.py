@@ -16,7 +16,7 @@ from typing import Iterable
 from tqdm import tqdm
 
 def _log_event(event: str, details: str) -> None:
-    """Generic event logger for analytics DB."""
+    """Generic event logger for synchronization steps."""
     try:
         ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
         with sqlite3.connect(ANALYTICS_DB) as conn:
@@ -106,20 +106,6 @@ def _log_audit(db_name: str, details: str) -> None:
         logger.error("Failed to log audit event: %s", exc)
 
 
-def _log_event(name: str, details: str) -> None:
-    """Generic event logger for synchronization steps."""
-    try:
-        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
-        with sqlite3.connect(ANALYTICS_DB) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS sync_status (timestamp TEXT, name TEXT, details TEXT)"
-            )
-            conn.execute(
-                "INSERT INTO sync_status (timestamp, name, details) VALUES (?, ?, ?)",
-                (datetime.utcnow().isoformat(), name, details),
-            )
-    except sqlite3.Error as exc:
-        logger.error("Failed to log event: %s", exc)
 
 
 def _compliance_check(conn: sqlite3.Connection) -> bool:
