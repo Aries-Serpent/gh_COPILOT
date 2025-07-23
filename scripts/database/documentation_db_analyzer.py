@@ -13,6 +13,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Tuple, Optional
 from tqdm import tqdm
+import importlib.util
+
+_LOG_UTILS_PATH = (
+    Path(__file__).resolve().parents[2] / "template_engine" / "log_utils.py"
+)
+spec = importlib.util.spec_from_file_location("log_utils", _LOG_UTILS_PATH)
+_log_mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(_log_mod)
+_log_event = _log_mod._log_event
 
 logger = logging.getLogger(__name__)
 ANALYTICS_DB = Path("databases") / "analytics.db"
@@ -32,7 +41,9 @@ def _create_backup(db: Path) -> Optional[Path]:
     backup_root.mkdir(parents=True, exist_ok=True)
     if not db.exists():
         return None
-    backup = backup_root / f"{db.name}.{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.bak"
+    backup = (
+        backup_root / f"{db.name}.{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.bak"
+    )
     shutil.copy(db, backup)
     return backup
 
@@ -40,7 +51,11 @@ def _create_backup(db: Path) -> Optional[Path]:
 def rollback_db(db: Path, backup: Path) -> None:
     if backup.exists():
         shutil.copy(backup, db)
-        _log_event(db, {"rollback": str(backup)})
+        _log_event(
+            {"db": str(db), "rollback": str(backup)},
+            table="doc_analysis",
+            db_path=ANALYTICS_DB,
+        )
 
 
 CLEANUP_SQL = (
@@ -52,22 +67,6 @@ DEDUP_SQL = (
     "DELETE FROM enterprise_documentation WHERE rowid NOT IN ("
     "SELECT MIN(rowid) FROM enterprise_documentation GROUP BY title, source_path)"
 )
-
-
-def _log_event(db: Path, data: dict) -> None:
-    """Log audit results to analytics.db."""
-    analytics = Path("analytics.db")
-    try:
-        with sqlite3.connect(analytics) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS doc_analysis (timestamp TEXT, db TEXT, details TEXT)"
-            )
-            conn.execute(
-                "INSERT INTO doc_analysis (timestamp, db, details) VALUES (?, ?, ?)",
-                (datetime.utcnow().isoformat(), str(db), json.dumps(data)),
-            )
-    except sqlite3.Error:
-        logger.error("Failed to log analysis results")
 
 
 def _audit_placeholders_conn(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
@@ -92,11 +91,17 @@ def audit_placeholders(db_path: Path) -> int:
         return 0
     with sqlite3.connect(db_path) as conn:
         placeholders = _audit_placeholders_conn(conn)
-    _log_event(db_path, {"placeholders": len(placeholders)})
+    _log_event(
+        {"db": str(db_path), "placeholders": len(placeholders)},
+        table="doc_analysis",
+        db_path=ANALYTICS_DB,
+    )
     return len(placeholders)
 
 
-def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[str, int]:
+def analyze_and_cleanup(
+    db_path: Path, backup_path: Path | None = None
+) -> dict[str, int]:
     """Remove backups and duplicates from ``db_path`` and return a report.
     Optionally record removed entries for rollback.
     """
@@ -115,13 +120,18 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
             0
         ]
         conn.commit()
-        _log_event(db_path, {
-            "before": before,
-            "after": after,
-            "removed_backups": removed_backups,
-            "removed_duplicates": removed_dupes,
-            "placeholders": len(placeholders),
-        })
+        _log_event(
+            {
+                "db": str(db_path),
+                "before": before,
+                "after": after,
+                "removed_backups": removed_backups,
+                "removed_duplicates": removed_dupes,
+                "placeholders": len(placeholders),
+            },
+            table="doc_analysis",
+            db_path=ANALYTICS_DB,
+        )
 
         if backup_path:
             backup_path.write_text(json.dumps(placeholders, indent=2), encoding="utf-8")
@@ -184,7 +194,11 @@ def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
         logger.error("Backup not found: %s", backup_path)
         return False
     shutil.copy2(backup_path, db_path)
-    _log_event(db_path, {"rollback": str(backup_path)})
+    _log_event(
+        {"db": str(db_path), "rollback": str(backup_path)},
+        table="doc_analysis",
+        db_path=ANALYTICS_DB,
+    )
     logger.info("Database restored from backup: %s", backup_path)
     return True
 
@@ -203,7 +217,15 @@ def restore_entries(db_path: Path, backup_path: Path) -> None:
                 (title, content),
             )
         conn.commit()
-    _log_event(db_path, {"rollback_restored": len(items), "backup": str(backup_path)})
+    _log_event(
+        {
+            "db": str(db_path),
+            "rollback_restored": len(items),
+            "backup": str(backup_path),
+        },
+        table="doc_analysis",
+        db_path=ANALYTICS_DB,
+    )
 
 
 def main() -> None:
@@ -222,7 +244,11 @@ def main() -> None:
     _log_report(report)
     etc = calculate_etc(start_ts, 1, 1)
     logger.info("Cleanup complete: %s | ETC: %s", report_path, etc)
-    _log_event(db_path, {"report": str(report_path)})
+    _log_event(
+        {"db": str(db_path), "report": str(report_path)},
+        table="doc_analysis",
+        db_path=ANALYTICS_DB,
+    )
 
 
 if __name__ == "__main__":
