@@ -102,6 +102,16 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 # 5. Start enterprise dashboard
 python web_gui/scripts/flask_apps/enterprise_dashboard.py
 ```
+### **Output Safety with `clw`**
+Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit:
+
+```bash
+ls -R | /usr/local/bin/clw
+```
+
+If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
+
+
 
 ### **Basic Usage**
 ```python
