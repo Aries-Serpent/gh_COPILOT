@@ -10,6 +10,7 @@ import shutil
 import sqlite3
 import time
 from datetime import datetime, timezone
+from template_engine.placeholder_utils import DEFAULT_ANALYTICS_DB
 from pathlib import Path
 from typing import List, Tuple, Optional
 from tqdm import tqdm

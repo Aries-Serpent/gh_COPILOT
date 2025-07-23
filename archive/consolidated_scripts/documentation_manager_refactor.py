@@ -18,7 +18,7 @@ import logging
 import os
 import sqlite3
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
 
@@ -71,7 +71,7 @@ class EnterpriseDocumentationManager:
         self.status = "INITIALIZED"
         validate_no_recursive_folders()
         validate_environment_root()
-        logging.info(f"PROCESS STARTED: Documentation Rendering")
+        logging.info("PROCESS STARTED: Documentation Rendering")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
 
