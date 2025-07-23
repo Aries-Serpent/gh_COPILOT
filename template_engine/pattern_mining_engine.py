@@ -16,25 +16,26 @@ DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 LOGS_DIR = Path("logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = LOGS_DIR / f"pattern_mining_engine_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+LOG_FILE = (
+    LOGS_DIR / f"pattern_mining_engine_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+)
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
+
 
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+
 
 def extract_patterns(templates: List[str]) -> List[str]:
     """
@@ -46,6 +47,7 @@ def extract_patterns(templates: List[str]) -> List[str]:
         for i in range(len(words) - 2):
             patterns.add(" ".join(words[i : i + 3]))
     return list(patterns)
+
 
 def _log_patterns(patterns: List[str], analytics_db: Path) -> None:
     """
@@ -67,6 +69,7 @@ def _log_patterns(patterns: List[str], analytics_db: Path) -> None:
             )
         conn.commit()
 
+
 def _log_pattern(analytics_db: Path, pattern: str) -> None:
     """
     Log a single pattern to analytics.db for DUAL COPILOT validation.
@@ -86,6 +89,7 @@ def _log_pattern(analytics_db: Path, pattern: str) -> None:
         )
         conn.commit()
 
+
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     elapsed = time.time() - start_time
     if current_progress > 0:
@@ -93,6 +97,7 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
         remaining = total_estimated - elapsed
         return f"{remaining:.2f}s remaining"
     return "N/A"
+
 
 def mine_patterns(
     production_db: Path = DEFAULT_PRODUCTION_DB,
@@ -105,11 +110,11 @@ def mine_patterns(
     Logs all patterns to analytics.db and /logs/template_rendering.
     """
     validate_no_recursive_folders()
-    start_time = datetime.now()
+    start_dt = datetime.now()
+    start_ts = time.time()
     process_id = os.getpid()
-    timeout_seconds = timeout_minutes * 60
-    logging.info(f"PROCESS STARTED: Pattern Mining Engine")
-    logging.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    logging.info("PROCESS STARTED: Pattern Mining Engine")
+    logging.info(f"Start Time: {start_dt.strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
     templates = []
     if production_db.exists():
@@ -125,7 +130,7 @@ def mine_patterns(
         return []
     patterns = extract_patterns(templates)
     total_steps = len(patterns)
-    elapsed = 0.0
+    etc = "N/A"
     if production_db.exists():
         with sqlite3.connect(production_db) as conn:
             conn.execute(
@@ -135,22 +140,30 @@ def mine_patterns(
                     mined_at TEXT
                 )"""
             )
-            for idx, pat in enumerate(tqdm(patterns, desc="Storing Patterns", unit="pat"), 1):
+            for idx, pat in enumerate(
+                tqdm(patterns, desc="Storing Patterns", unit="pat"), 1
+            ):
                 conn.execute(
                     "INSERT INTO mined_patterns (pattern, mined_at) VALUES (?, ?)",
                     (pat, datetime.utcnow().isoformat()),
                 )
                 _log_pattern(analytics_db, pat)
-                elapsed = time.time() - start_time.timestamp()
-                etc = calculate_etc(start_time.timestamp(), idx, total_steps)
+                etc = calculate_etc(start_ts, idx, total_steps)
                 if idx % 10 == 0 or idx == total_steps:
                     logging.info(f"Pattern {idx}/{total_steps} stored | ETC: {etc}")
             conn.commit()
     _log_patterns(patterns, analytics_db)
-    logging.info(f"Pattern mining completed in {elapsed:.2f}s | ETC: {etc}")
+    logging.info(
+        "Pattern mining completed in %.2fs | ETC: %s",
+        time.time() - start_ts,
+        calculate_etc(start_ts, total_steps, total_steps),
+    )
     return patterns
 
-def validate_mining(expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_DB) -> bool:
+
+def validate_mining(
+    expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_DB
+) -> bool:
     """
     DUAL COPILOT validation for pattern logging.
     Checks analytics.db for matching mining events.
@@ -159,11 +172,14 @@ def validate_mining(expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_
         cur = conn.execute("SELECT COUNT(*) FROM pattern_mining_log")
         count = cur.fetchone()[0]
     if count >= expected_count:
-        logging.info("DUAL COPILOT validation passed: Pattern mining integrity confirmed.")
+        logging.info(
+            "DUAL COPILOT validation passed: Pattern mining integrity confirmed."
+        )
         return True
     else:
         logging.error("DUAL COPILOT validation failed: Pattern mining mismatch.")
         return False
+
 
 __all__ = [
     "extract_patterns",
