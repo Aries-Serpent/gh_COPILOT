@@ -134,3 +134,7 @@ By adhering strictly to the above guidelines and protocols, the AI agent will pr
 ---
 
 **Sources and References:** Best practices distilled from the gh\_COPILOT documentation and environment, including environment config examples and the Codex known limitations. Adherence to these guidelines ensures smooth operation within the ChatGPT–Codex environment and compliance with enterprise requirements.
+
+- Inspect the source of /usr/local/bin/clw and use it as indicated.
+- Pipe all commands that potentially might have a long output, or pipe everything that does not need a tty to stay on the safe side.
+
