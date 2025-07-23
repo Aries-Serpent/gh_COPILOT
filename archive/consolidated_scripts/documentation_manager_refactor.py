@@ -25,36 +25,45 @@ from typing import Dict, Any, Optional
 from tqdm import tqdm
 
 # Enterprise logging setup
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "template_rendering"
+LOGS_DIR = (
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    / "logs"
+    / "template_rendering"
+)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"render_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
 # Database-first compliance scoring
-PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "production.db"
-TEMPLATE_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "template_documentation.db"
+PRODUCTION_DB = (
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "production.db"
+)
+TEMPLATE_DB = (
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    / "template_documentation.db"
+)
+
 
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
 
+
 def validate_environment_root() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
     if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
         logging.warning(f"Non-standard workspace root: {workspace_root}")
+
 
 class EnterpriseDocumentationManager:
     """
@@ -84,7 +93,7 @@ class EnterpriseDocumentationManager:
             with sqlite3.connect(db_path) as conn:
                 cur = conn.execute(
                     "SELECT template_name, template_content, compliance_score FROM templates WHERE template_name LIKE ?",
-                    (f"%{doc_type}%",)
+                    (f"%{doc_type}%",),
                 )
                 templates.extend(cur.fetchall())
         return templates if templates else None
@@ -93,11 +102,13 @@ class EnterpriseDocumentationManager:
         """Select the most compliant template based on compliance_score."""
         if not templates:
             return None
-        sorted_templates = sorted(templates, key=lambda x: x[2] if len(x) > 2 else 0, reverse=True)
+        sorted_templates = sorted(
+            templates, key=lambda x: x[2] if len(x) > 2 else 0, reverse=True
+        )
         return {
             "name": sorted_templates[0][0],
             "content": sorted_templates[0][1],
-            "score": sorted_templates[0][2] if len(sorted_templates[0]) > 2 else 0
+            "score": sorted_templates[0][2] if len(sorted_templates[0]) > 2 else 0,
         }
 
     def _render_markdown(self, content: str) -> Path:
@@ -115,6 +126,7 @@ class EnterpriseDocumentationManager:
 
     def _render_json(self, content: str) -> Path:
         import json
+
         json_path = self.doc_root / "README.json"
         json_content = {"documentation": content}
         json_path.write_text(json.dumps(json_content, indent=2), encoding="utf-8")
@@ -164,7 +176,9 @@ class EnterpriseDocumentationManager:
         logging.info(f"Rendering completed in {elapsed:.2f}s | ETC: {etc}")
         self.status = "COMPLETED"
 
-    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
+    def _calculate_etc(
+        self, elapsed: float, current_progress: int, total_work: int
+    ) -> str:
         if current_progress > 0:
             total_estimated = elapsed / (current_progress / total_work)
             remaining = total_estimated - elapsed
@@ -180,10 +194,15 @@ class EnterpriseDocumentationManager:
                 logging.error(f"Validation failed: {fmt} missing or zero-byte.")
                 valid = False
         if valid:
-            logging.info("DUAL COPILOT validation passed: All documentation files present and non-zero-byte.")
+            logging.info(
+                "DUAL COPILOT validation passed: All documentation files present and non-zero-byte."
+            )
         else:
-            logging.error("DUAL COPILOT validation failed: Documentation integrity issue detected.")
+            logging.error(
+                "DUAL COPILOT validation failed: Documentation integrity issue detected."
+            )
         return valid
+
 
 def main() -> None:
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
@@ -196,6 +215,7 @@ def main() -> None:
         logging.info("Documentation rendering and validation complete.")
     else:
         logging.error("Documentation rendering failed validation.")
+
 
 if __name__ == "__main__":
     main()
