@@ -48,6 +48,17 @@ def _fetch_rollbacks() -> List[Dict[str, Any]]:
             logging.warning("Invalid correction summary JSON")
     return records
 
+@app.get("/compliance")
+def compliance() -> Any:
+    with tqdm(total=1, desc="compliance", unit="step") as pbar:
+        data = {
+            "metrics": _fetch_metrics(),
+            "rollbacks": _fetch_rollbacks(),
+        }
+        pbar.update(1)
+    logging.info("Compliance data served")
+    return jsonify(data)
+
 
 @app.get("/")
 def index() -> str:

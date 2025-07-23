@@ -150,6 +150,27 @@ def quantum_cluster_stub(data: Iterable[float]) -> List[int]:
     return labels
 
 
+def quantum_cluster_representatives(data: Iterable[str], n_clusters: int) -> List[str]:
+    """Return representative strings for each cluster (placeholder)."""
+    log_quantum_event("cluster_reps", f"n={n_clusters}")
+    items = list(data)
+    if not items:
+        return []
+    step = max(1, len(items) // n_clusters)
+    return [items[i] for i in range(0, len(items), step)][:n_clusters]
+
+
+def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
+    """Return simple normalized dot product as quantum-inspired score."""
+    arr_a = np.fromiter(a, dtype=float)
+    arr_b = np.fromiter(b, dtype=float)
+    if arr_a.size == 0 or arr_b.size == 0:
+        return 0.0
+    score = float(np.dot(arr_a, arr_b) / (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)))
+    log_quantum_event("similarity_score", str(score))
+    return score
+
+
 def quantum_score_stub(values: Iterable[float]) -> float:
     """Return a fake quantum-inspired score."""
     arr = np.fromiter(values, dtype=float)
