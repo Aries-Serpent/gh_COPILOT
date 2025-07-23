@@ -7,6 +7,7 @@
 
 import logging
 import sqlite3
+import time
 from pathlib import Path
 from datetime import datetime
 from typing import Iterable
@@ -16,6 +17,16 @@ from tqdm import tqdm
 
 ANALYTICS_DB = Path("databases") / "analytics.db"
 logger = logging.getLogger(__name__)
+
+
+def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
+    """Return estimated time remaining."""
+    elapsed = time.time() - start_time
+    if current_progress > 0:
+        total_estimated = elapsed / (current_progress / total_work)
+        remaining = total_estimated - elapsed
+        return f"{remaining:.2f}s remaining"
+    return "N/A"
 
 
 def _extract_templates(db: Path) -> list[tuple[str, str]]:
@@ -99,7 +110,9 @@ def synchronize_templates(
     Synchronize templates across multiple databases with transactional integrity.
     Each synchronized template is logged to analytics DB with a timestamp and source.
     """
+    start_ts = time.time()
     start = datetime.utcnow()
+    _log_sync_event("synchronizer", "start")
     databases = list(source_dbs) if source_dbs else []
     all_templates: dict[str, str] = {}
 
@@ -142,7 +155,13 @@ def synchronize_templates(
             logger.error("Database error %s: %s", db, exc)
 
     duration = (datetime.utcnow() - start).total_seconds()
-    logger.info("Synchronization completed for %s databases in %.2fs", synced, duration)
+    etc = calculate_etc(start_ts, len(databases), len(databases))
+    logger.info(
+        "Synchronization completed for %s databases in %.2fs | ETC: %s",
+        synced,
+        duration,
+        etc,
+    )
     return synced
 
 

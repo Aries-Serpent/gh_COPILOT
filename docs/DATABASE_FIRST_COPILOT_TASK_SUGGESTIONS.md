@@ -106,5 +106,16 @@ This document lists high-level tasks required to fully implement the database-fi
   - **Module:** `web_gui/scripts/flask_apps/enterprise_dashboard.py`
   - **Cross-Reference:** Real-time metrics pulled from `analytics.db` and correction logs.
 
+## 16. Enterprise Audit and Quantum Processing Enhancements
+
+| ID | Description | Module Path | Dashboard Cross-Reference |
+|----|-------------|-------------|---------------------------|
+| `AUD-002` | Placeholder/TODO/FIXME audit logging with rollback utilities | `scripts/validation/placeholder_audit_logger.py` | `/audit` view, analytics logs |
+| `GEN-002` | Strict DB-first code generation with quantum scoring and progress indicators | `template_engine/auto_generator.py` | generation metrics table |
+| `CLUS-002` | Pattern clustering via KMeans with `get_cluster_representatives()` retrieval | `template_engine/auto_generator.py` | clustering stats dashboard |
+| `ROLL-002` | Transactional correction logging and rollback handling | `template_engine/template_synchronizer.py` | rollback alerts widget |
+| `QAI-002` | Quantum/AI scoring hooks for patterns and templates | `quantum_algorithm_library_expansion.py` | quantum analytics panel |
+| `DASH-002` | Dashboard compliance links and visual monitoring for all audit events | `web_gui/scripts/flask_apps/enterprise_dashboard.py` | compliance dashboard section |
+
 ---
 These tasks derive from the provided enhancement prompt and are meant to guide ongoing work toward a robust database-first Copilot integration.

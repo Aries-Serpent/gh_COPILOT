@@ -6,6 +6,7 @@ import json
 import logging
 import sqlite3
 import sys
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -13,9 +14,19 @@ from pathlib import Path
 from tqdm import tqdm
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
+LOG_FILE = RENDER_LOG_DIR / "documentation_render.log"
 ANALYTICS_DB = Path("analytics.db")
 
 logger = logging.getLogger(__name__)
+
+
+def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
+    elapsed = time.time() - start_time
+    if current_progress > 0:
+        total_estimated = elapsed / (current_progress / total_work)
+        remaining = total_estimated - elapsed
+        return f"{remaining:.2f}s remaining"
+    return "N/A"
 
 
 @dataclass
@@ -25,6 +36,7 @@ class DocumentationManager:
     database: Path = Path("production.db")
 
     def render(self) -> int:
+        start_ts = time.time()
         if not self.database.exists():
             logger.error("Database not found: %s", self.database)
             return 0
@@ -46,6 +58,8 @@ class DocumentationManager:
             )
             self._log_event("render", title)
             count += 1
+        etc = calculate_etc(start_ts, len(rows), len(rows))
+        logger.info("Rendered %s documents | ETC: %s", count, etc)
         return count
 
     def _log_event(self, action: str, title: str) -> None:
@@ -58,6 +72,8 @@ class DocumentationManager:
                     "INSERT INTO render_events (timestamp, action, title) VALUES (?, ?, ?)",
                     (datetime.utcnow().isoformat(), action, title),
                 )
+            with open(LOG_FILE, "a", encoding="utf-8") as logf:
+                logf.write(f"{datetime.utcnow().isoformat()}|{action}|{title}\n")
         except sqlite3.Error as exc:
             logger.error("Failed to log render event: %s", exc)
 

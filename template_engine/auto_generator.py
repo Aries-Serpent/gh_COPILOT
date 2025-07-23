@@ -6,7 +6,7 @@ import sqlite3
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any
 
@@ -137,22 +137,32 @@ class TemplateAutoGenerator:
         vecs = vectorizer.transform([a, b])
         return float(cosine_similarity(vecs[0], vecs[1])[0][0])
 
-    def select_best_template(self, target: str) -> str:
+    def select_best_template(self, target: str, timeout: float = 30.0) -> str:
         logger.info(f"Selecting best template for target: {target}")
-        candidates = self.templates if self.templates else self.patterns
+        candidates = self.templates or self.patterns
         if not candidates:
             logger.warning("No candidates available for selection")
             return ""
-        scores = [
-            self.objective_similarity(target, c) + self._quantum_score(c)
-            for c in candidates
-        ]
-        best_idx = int(max(range(len(scores)), key=scores.__getitem__))
-        best = candidates[best_idx]
+        best = ""
+        best_score = -float("inf")
+        start = time.time()
+        with tqdm(total=len(candidates), desc="[PROGRESS] select", unit="tmpl") as bar:
+            for idx, tmpl in enumerate(candidates, 1):
+                score = self.objective_similarity(target, tmpl) + self._quantum_score(tmpl)
+                if score > best_score:
+                    best_score = score
+                    best = tmpl
+                if idx % 5 == 0:
+                    etc = calculate_etc(start, idx, len(candidates))
+                    bar.set_postfix_str(f"ETC: {etc}")
+                if time.time() - start > timeout:
+                    logger.warning("Selection timeout reached")
+                    break
+                bar.update(1)
         try:
             with sqlite3.connect(self.analytics_db) as conn:
                 conn.execute(
-                    "CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)",
+                    "CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)"
                 )
                 conn.execute(
                     "INSERT INTO template_events (ts, target, template) VALUES (?,?,?)",
@@ -161,6 +171,7 @@ class TemplateAutoGenerator:
                 conn.commit()
         except sqlite3.Error as exc:
             logger.warning(f"Failed to log template selection: {exc}")
+        self._log_event("select_complete", {"target": target, "template": best})
         logger.info("Best template selected and logged")
         return best
 
