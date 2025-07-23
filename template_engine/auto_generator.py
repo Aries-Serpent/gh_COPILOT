@@ -17,6 +17,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 from .log_utils import _log_event
 
+from .log_utils import _log_event, DEFAULT_ANALYTICS_DB as LOG_DB
+
 # Quantum demo import (placeholder for quantum-inspired scoring)
 try:
     from quantum_algorithm_library_expansion import demo_quantum_fourier_transform
@@ -26,8 +28,7 @@ except ImportError:
         # Fallback: return a normalized vector
         return np.ones(8) / np.sqrt(8)
 
-
-DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
+DEFAULT_ANALYTICS_DB = LOG_DB
 DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
 
 LOGS_DIR = Path("logs/template_rendering")
@@ -70,11 +71,7 @@ class TemplateAutoGenerator:
 
     def __post_init__(self) -> None:
         self.logger = logging.getLogger(__name__)
-        _log_event(
-            {"event": "init_start", "timestamp": datetime.utcnow().isoformat()},
-            table="generator_events",
-            db_path=self.analytics_db,
-        )
+        _log_event({"timestamp": datetime.utcnow().isoformat()}, table="generator_events", db_path=self.analytics_db)
         start_time = datetime.now()
         logger.info("PROCESS STARTED: TemplateAutoGenerator Initialization")
         logger.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -86,11 +83,7 @@ class TemplateAutoGenerator:
         self.cluster_model = self._cluster_patterns()
         self._last_objective: Dict[str, Any] | None = None
         duration = (datetime.now() - start_time).total_seconds()
-        _log_event(
-            {"event": "init_complete", "duration": duration},
-            table="generator_events",
-            db_path=self.analytics_db,
-        )
+        _log_event({"duration": duration}, table="generator_events", db_path=self.analytics_db)
         logger.info(f"Initialization completed in {duration:.2f}s")
 
     def _load_patterns(self) -> List[str]:
@@ -106,11 +99,7 @@ class TemplateAutoGenerator:
                 except sqlite3.Error as exc:
                     logger.error(f"Error loading patterns: {exc}")
         logger.info(f"Loaded {len(patterns)} patterns")
-        _log_event(
-            {"event": "load_patterns", "count": len(patterns)},
-            table="generator_events",
-            db_path=self.analytics_db,
-        )
+        _log_event({"count": len(patterns)}, table="generator_events", db_path=self.analytics_db)
         return patterns
 
     def _refresh_templates(self) -> None:
@@ -134,11 +123,7 @@ class TemplateAutoGenerator:
                 except sqlite3.Error as exc:
                     logger.error(f"Error loading templates: {exc}")
         logger.info(f"Loaded {len(templates)} templates")
-        _log_event(
-            {"event": "load_templates", "count": len(templates)},
-            table="generator_events",
-            db_path=self.analytics_db,
-        )
+        _log_event({"count": len(templates)}, table="generator_events", db_path=self.analytics_db)
         return templates
 
     def _quantum_score(self, text: str) -> float:
@@ -170,16 +155,7 @@ class TemplateAutoGenerator:
         logger.info(
             f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s"
         )
-        _log_event(
-            {
-                "event": "cluster",
-                "items": len(corpus),
-                "clusters": n_clusters,
-                "duration": duration,
-            },
-            table="generator_events",
-            db_path=self.analytics_db,
-        )
+        _log_event({"items": len(corpus), "clusters": n_clusters, "duration": duration}, table="generator_events", db_path=self.analytics_db)
         return model
 
     def objective_similarity(self, a: str, b: str) -> float:
@@ -223,17 +199,9 @@ class TemplateAutoGenerator:
                 conn.commit()
         except sqlite3.Error as exc:
             logger.warning(f"Failed to log template selection: {exc}")
-        _log_event(
-            {"event": "select_complete", "target": target, "template": best},
-            table="generator_events",
-            db_path=self.analytics_db,
-        )
+        _log_event({"target": target, "template": best}, table="generator_events", db_path=self.analytics_db)
         logger.info("Best template selected and logged")
-        _log_event(
-            {"event": "select_best", "target": target, "template": best},
-            table="generator_events",
-            db_path=self.analytics_db,
-        )
+        _log_event({"target": target, "template": best}, table="generator_events", db_path=self.analytics_db)
         return best
 
     def generate_template(self, objective: dict, timeout: int = 60) -> str:
@@ -269,22 +237,10 @@ class TemplateAutoGenerator:
                     break
                 bar.update(1)
         if not found:
-            _log_event(
-                {"event": "generate", "objective": search_terms, "status": "none"},
-                table="generator_events",
-                db_path=self.analytics_db,
-            )
+            _log_event({"objective": search_terms, "status": "none"}, table="generator_events", db_path=self.analytics_db)
             logger.warning("No template found for objective")
         duration = time.time() - start_ts
-        _log_event(
-            {
-                "event": "generate_complete",
-                "objective": search_terms,
-                "duration": duration,
-            },
-            table="generator_events",
-            db_path=self.analytics_db,
-        )
+        _log_event({"objective": search_terms, "duration": duration}, table="generator_events", db_path=self.analytics_db)
         return found
 
     def regenerate_template(self) -> str:
@@ -322,11 +278,7 @@ class TemplateAutoGenerator:
             best_local = indices[int(max(range(len(sims)), key=lambda i: sims[i]))]
             reps.append(corpus[best_local])
         logger.info(f"Cluster representatives selected: {len(reps)}")
-        _log_event(
-            {"event": "cluster_reps", "count": len(reps)},
-            table="generator_events",
-            db_path=self.analytics_db,
-        )
+        _log_event({"count": len(reps)}, table="generator_events", db_path=self.analytics_db)
         return reps
 
 
