@@ -78,39 +78,36 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-            """
+            """,
         )
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS code_audit_log (
+            """
+            CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
                 file_path TEXT,
                 line_number INTEGER,
                 placeholder_type TEXT,
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-            )"""
+            )
+            """,
         )
         for row in results:
+            values = (
+                row["file"],
+                row["line"],
+                row["pattern"],
+                row["context"],
+                datetime.now().isoformat(),
+            )
             conn.execute(
                 "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
                 " VALUES (?, ?, ?, ?, ?)",
-                (
-                    row["file"],
-                    row["line"],
-                    row["pattern"],
-                    row["context"],
-                    datetime.now().isoformat(),
-                ),
+                values,
             )
-        for row in results:
             conn.execute(
-                "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context)"
-                " VALUES (?, ?, ?, ?)",
-                (
-                    row["file"],
-                    row["line"],
-                    row["pattern"],
-                    row["context"],
-                ),
+                "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp)"
+                " VALUES (?, ?, ?, ?, ?)",
+                values,
             )
         conn.commit()
 
