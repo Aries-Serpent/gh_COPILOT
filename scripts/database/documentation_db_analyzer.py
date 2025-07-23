@@ -90,7 +90,7 @@ def _audit_placeholders_conn(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
             title, content = f"row{idx}", row[0]
         text = content or ""
         if any(token in text.upper() for token in ["TODO", "FIXME", "PLACEHOLDER"]):
-            flagged.append((title, text))
+            flagged += 1
     return flagged
 
 
@@ -159,16 +159,6 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
     }
 
 
-def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
-    """Restore ``db_path`` from ``backup_path``."""
-    if not backup_path.exists():
-        logger.error("Backup not found: %s", backup_path)
-        return False
-    shutil.copy2(backup_path, db_path)
-    logger.info("Database restored from backup: %s", backup_path)
-    return True
-
-
 def _log_report(report: dict) -> None:
     """Persist report summary to analytics DB."""
     try:
@@ -197,16 +187,27 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
 def restore_entries(db_path: Path, backup_path: Path) -> None:
     """Restore entries from ``backup_path`` into ``db_path``."""
     if not backup_path.exists() or not db_path.exists():
-        return
-    items = json.loads(backup_path.read_text())
-    with sqlite3.connect(db_path) as conn:
-        cur = conn.cursor()
-        for title, content in items:
-            cur.execute(
-                "INSERT OR IGNORE INTO enterprise_documentation (title, content) VALUES (?, ?)",
-                (title, content),
-            )
-        conn.commit()
+        return False
+    try:
+        try:
+            data = backup_path.read_text(encoding="utf-8")
+            items = json.loads(data)
+        except UnicodeDecodeError:
+            raise json.JSONDecodeError("binary", "", 0)
+        with sqlite3.connect(db_path) as conn:
+            cur = conn.cursor()
+            for title, content in items:
+                cur.execute(
+                    "INSERT OR IGNORE INTO enterprise_documentation (title, content) VALUES (?, ?)",
+                    (title, content),
+                )
+            conn.commit()
+        return True
+    except json.JSONDecodeError:
+        shutil.copy2(backup_path, db_path)
+        return True
+    except Exception:
+        return False
 
 
 def main() -> None:

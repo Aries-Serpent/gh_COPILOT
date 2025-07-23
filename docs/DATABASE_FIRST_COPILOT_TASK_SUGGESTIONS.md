@@ -114,13 +114,9 @@ This document lists high-level tasks required to fully implement the database-fi
 ---
 These tasks derive from the provided enhancement prompt and are meant to guide ongoing work toward a robust database-first Copilot integration.
 
-## 17. Extended Visual Processing and Compliance Tasks
+## 17. Visual Processing and Compliance Links
 
 | ID | Description | Module Path | Dashboard Cross-Reference |
 |----|-------------|-------------|---------------------------|
-| `AUD-003` | Visual TODO/FIXME audit logs with progress bars | `scripts/validation/placeholder_audit_logger.py` | `/audit` metrics panel |
-| `GEN-003` | DB-first template selection enforcing quantum scores | `template_engine/auto_generator.py` | generation metrics table |
-| `CLUS-003` | Cluster representatives exposed via `get_cluster_representatives()` | `template_engine/auto_generator.py` | clustering dashboard |
-| `ROLL-003` | Correction event logging with transactional rollback utilities | `template_engine/template_synchronizer.py` | rollback alerts widget |
-| `QAI-003` | Quantum/AI hooks for pattern scoring and matching | `quantum_algorithm_library_expansion.py` | quantum analytics panel |
-| `DASH-003` | Compliance dashboard cross-links for all audit and rollback events | `web_gui/scripts/flask_apps/enterprise_dashboard.py` | compliance dashboard |
+| `VIS-001` | Add progress indicators and ETC tracking to all long running tasks | various modules | `/metrics` view |
+| `VIS-002` | Cross-link analytics events with dashboard pages for audit trails | dashboard templates | `/compliance` section |

@@ -194,9 +194,12 @@ class TemplateAutoGenerator:
         start_time = time.time()
         candidates = self.templates + self.patterns
         found = ""
-        with tqdm(total=len(candidates), desc="[PROGRESS] search", unit="tmpl") as bar:
-            for idx, tmpl in enumerate(candidates, 1):
-                if time.time() - start_time > timeout:
+        total_candidates = len(self.templates + self.patterns)
+        with tqdm(self.templates + self.patterns, desc="[PROGRESS] search", unit="tmpl") as bar:
+            for idx, tmpl in enumerate(bar, start=1):
+                etc = calculate_etc(start, idx, total_candidates)
+                bar.set_postfix_str(f"ETC: {etc}")
+                if time.time() - start > timeout:
                     logger.warning("Generation timeout reached")
                     break
                 if all(term.lower() in tmpl.lower() for term in search_terms.split()):
@@ -215,11 +218,10 @@ class TemplateAutoGenerator:
                     logger.info("Template generated and logged")
                     break
                 bar.update(1)
-                bar.set_postfix(etc=calculate_etc(start_time, idx, len(candidates)))
         if not found:
             self._log_event("generate", {"objective": search_terms, "status": "none"})
             logger.warning("No template found for objective")
-        duration = time.time() - start_time
+        duration = time.time() - start
         self._log_event("generate_complete", {"objective": search_terms, "duration": duration})
         return found
 
