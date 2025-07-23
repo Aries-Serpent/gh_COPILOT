@@ -8,7 +8,6 @@ import logging
 import sqlite3
 import sys
 from dataclasses import dataclass
-from datetime import datetime
 import time
 from pathlib import Path
 from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
@@ -23,7 +22,7 @@ _log_event = _log_mod._log_event
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
 LOG_FILE = RENDER_LOG_DIR / "documentation_render.log"
-ANALYTICS_DB = Path("databases") / "analytics.db"
+ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 
 logger = logging.getLogger(__name__)
 

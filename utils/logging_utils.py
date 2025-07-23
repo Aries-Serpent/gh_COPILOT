@@ -2,6 +2,7 @@
 
 import logging
 import os
+import sqlite3
 from datetime import datetime
 from pathlib import Path
 
@@ -41,5 +42,3 @@ def log_enterprise_operation(operation: str, status: str, details: str = "") -> 
 
 
 ANALYTICS_DB = Path("databases") / "analytics.db"
-
-
