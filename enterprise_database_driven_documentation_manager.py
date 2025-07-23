@@ -19,9 +19,19 @@ from template_engine.auto_generator import TemplateAutoGenerator
 from tqdm import tqdm
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
-ANALYTICS_DB = Path("databases") / "analytics.db"
+LOG_FILE = RENDER_LOG_DIR / "documentation_render.log"
+ANALYTICS_DB = Path("analytics.db")
 
 logger = logging.getLogger(__name__)
+
+
+def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
+    elapsed = time.time() - start_time
+    if current_progress > 0:
+        total_estimated = elapsed / (current_progress / total_work)
+        remaining = total_estimated - elapsed
+        return f"{remaining:.2f}s remaining"
+    return "N/A"
 
 
 @dataclass
@@ -39,6 +49,7 @@ class DocumentationManager:
             ).fetchall()
 
     def render(self) -> int:
+        start_ts = time.time()
         if not self.database.exists():
             logger.error("Database not found: %s", self.database)
             return 0
@@ -62,8 +73,8 @@ class DocumentationManager:
             etc = calculate_etc(start_ts, idx, len(rows))
             tqdm.write(f"ETC: {etc}")
             count += 1
-        duration = time.time() - start
-        self._log_event("render_complete", str(duration))
+        etc = calculate_etc(start_ts, len(rows), len(rows))
+        logger.info("Rendered %s documents | ETC: %s", count, etc)
         return count
 
     def _log_event(self, action: str, title: str) -> None:
@@ -76,8 +87,8 @@ class DocumentationManager:
                     "INSERT INTO render_events (timestamp, action, title) VALUES (?, ?, ?)",
                     (datetime.utcnow().isoformat(), action, title),
                 )
-            with open(RENDER_LOG_DIR / "render.log", "a", encoding="utf-8") as f:
-                f.write(f"{datetime.utcnow().isoformat()}|{action}|{title}\n")
+            with open(LOG_FILE, "a", encoding="utf-8") as logf:
+                logf.write(f"{datetime.utcnow().isoformat()}|{action}|{title}\n")
         except sqlite3.Error as exc:
             logger.error("Failed to log render event: %s", exc)
 

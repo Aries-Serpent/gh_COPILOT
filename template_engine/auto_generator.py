@@ -147,38 +147,32 @@ class TemplateAutoGenerator:
         vecs = vectorizer.transform([a, b])
         return float(cosine_similarity(vecs[0], vecs[1])[0][0])
 
-    def select_best_template(self, target: str, timeout: int = 60) -> str:
-        """Select the best template using DB-first data with quantum scoring."""
+    def select_best_template(self, target: str, timeout: float = 30.0) -> str:
         logger.info(f"Selecting best template for target: {target}")
-        # Ensure the latest templates are loaded from the database
-        self._refresh_templates()
-        candidates = self.templates if self.templates else self.patterns
+        candidates = self.templates or self.patterns
         if not candidates:
             logger.warning("No candidates available for selection")
             return ""
-        start = time.time()
         best = ""
         best_score = -float("inf")
-        total_candidates = len(candidates)
-        with tqdm(candidates, desc="[PROGRESS] select", unit="tmpl") as bar:
-            for idx, tmpl in enumerate(bar, start=1):
-                etc = calculate_etc(start, idx, total_candidates)
-                bar.set_postfix(etc=etc)
-                if time.time() - start > timeout:
-                    logger.warning("Selection timeout reached")
-                    break
+        start = time.time()
+        with tqdm(total=len(candidates), desc="[PROGRESS] select", unit="tmpl") as bar:
+            for idx, tmpl in enumerate(candidates, 1):
                 score = self.objective_similarity(target, tmpl) + self._quantum_score(tmpl)
                 if score > best_score:
                     best_score = score
                     best = tmpl
+                if idx % 5 == 0:
+                    etc = calculate_etc(start, idx, len(candidates))
+                    bar.set_postfix_str(f"ETC: {etc}")
+                if time.time() - start > timeout:
+                    logger.warning("Selection timeout reached")
+                    break
                 bar.update(1)
-        if not best:
-            logger.warning("No template selected")
-            return ""
         try:
             with sqlite3.connect(self.analytics_db) as conn:
                 conn.execute(
-                    "CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)",
+                    "CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)"
                 )
                 conn.execute(
                     "INSERT INTO template_events (ts, target, template) VALUES (?,?,?)",
@@ -187,6 +181,7 @@ class TemplateAutoGenerator:
                 conn.commit()
         except sqlite3.Error as exc:
             logger.warning(f"Failed to log template selection: {exc}")
+        self._log_event("select_complete", {"target": target, "template": best})
         logger.info("Best template selected and logged")
         self._log_event("select_best", {"target": target, "template": best})
         return best

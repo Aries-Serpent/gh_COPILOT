@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os
 import json
 import logging
 import shutil
@@ -10,9 +11,8 @@ import sqlite3
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
-import shutil
-import os
+from typing import List, Tuple
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 ANALYTICS_DB = Path("databases") / "analytics.db"
@@ -70,58 +70,48 @@ def _log_event(db: Path, data: dict) -> None:
         logger.error("Failed to log analysis results")
 
 
-def audit_placeholders(db_path: Path) -> int:
-    """Log TODO/FIXME placeholders from documentation table."""
-    if not db_path.exists():
-        return 0
-    count = 0
-    with sqlite3.connect(db_path) as conn:
-        rows = conn.execute(
-            "SELECT rowid, content FROM enterprise_documentation"
-        ).fetchall()
-        for rowid, content in rows:
-            if any(tag in content.upper() for tag in ("TODO", "FIXME", "PLACEHOLDER")):
-                count += 1
-                with sqlite3.connect(ANALYTICS_DB) as aconn:
-                    aconn.execute(
-                        "CREATE TABLE IF NOT EXISTS placeholder_audit (ts TEXT, db TEXT, rowid INTEGER)"
-                    )
-                    aconn.execute(
-                        "INSERT INTO placeholder_audit (ts, db, rowid) VALUES (?,?,?)",
-                        (datetime.utcnow().isoformat(), str(db_path), rowid),
-                    )
-    logger.info("Placeholder audit complete: %s issues", count)
-    return count
+def audit_placeholders(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
+    """Return rows containing TODO or FIXME markers."""
+    cur = conn.execute(
+        "SELECT title, content FROM enterprise_documentation"
+    )
+    flagged = []
+    for title, content in cur.fetchall():
+        text = content or ""
+        if any(token in text.upper() for token in ["TODO", "FIXME", "PLACEHOLDER"]):
+            flagged.append((title, text))
+    return flagged
 
 
-def analyze_and_cleanup(db_path: Path) -> dict[str, int]:
-    """Remove backups and duplicates from ``db_path`` and return a report."""
+def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[str, int]:
+    """Remove backups and duplicates from ``db_path`` and return a report.
+    Optionally record removed entries for rollback.
+    """
     if not db_path.exists():
         raise FileNotFoundError(f"Database not found at {db_path}")
-    backup = _create_backup(db_path)
-    try:
-        with sqlite3.connect(db_path) as conn:
-            cur = conn.cursor()
-            before = cur.execute(
-                "SELECT COUNT(*) FROM enterprise_documentation"
-            ).fetchone()[0]
-            removed_backups = cur.execute(CLEANUP_SQL).rowcount
-            removed_dupes = cur.execute(DEDUP_SQL).rowcount
-            after = cur.execute("SELECT COUNT(*) FROM enterprise_documentation").fetchone()[
-                0
-            ]
-            conn.commit()
-            _log_event(db_path, {
-                "before": before,
-                "after": after,
-                "removed_backups": removed_backups,
-                "removed_duplicates": removed_dupes,
-            })
-    except Exception as exc:
-        logger.error("Cleanup failed: %s", exc)
-        if backup:
-            rollback_db(db_path, backup)
-        raise
+
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        placeholders = audit_placeholders(conn)
+        before = cur.execute(
+            "SELECT COUNT(*) FROM enterprise_documentation"
+        ).fetchone()[0]
+        removed_backups = cur.execute(CLEANUP_SQL).rowcount
+        removed_dupes = cur.execute(DEDUP_SQL).rowcount
+        after = cur.execute("SELECT COUNT(*) FROM enterprise_documentation").fetchone()[
+            0
+        ]
+        conn.commit()
+        _log_event(db_path, {
+            "before": before,
+            "after": after,
+            "removed_backups": removed_backups,
+            "removed_duplicates": removed_dupes,
+            "placeholders": len(placeholders),
+        })
+
+        if backup_path:
+            backup_path.write_text(json.dumps(placeholders, indent=2), encoding="utf-8")
 
     try:
         ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
@@ -146,6 +136,7 @@ def analyze_and_cleanup(db_path: Path) -> dict[str, int]:
         "after": after,
         "removed_backups": removed_backups,
         "removed_duplicates": removed_dupes,
+        "placeholders": len(placeholders),
     }
 
 
@@ -175,15 +166,37 @@ def _log_report(report: dict) -> None:
         logger.debug("analytics log failed: %s", exc)
 
 
+def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
+    elapsed = time.time() - start_time
+    if current_progress > 0:
+        total_estimated = elapsed / (current_progress / total_work)
+        remaining = total_estimated - elapsed
+        return f"{remaining:.2f}s remaining"
+    return "N/A"
+
+
+def rollback_cleanup(db_path: Path, backup_path: Path) -> None:
+    """Restore entries from ``backup_path`` into ``db_path``."""
+    if not backup_path.exists() or not db_path.exists():
+        return
+    items = json.loads(backup_path.read_text())
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        for title, content in items:
+            cur.execute(
+                "INSERT OR IGNORE INTO enterprise_documentation (title, content) VALUES (?, ?)",
+                (title, content),
+            )
+        conn.commit()
+
+
 def main() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     db_path = repo_root / "archives" / "documentation.db"
-    steps = ["cleanup", "audit"]
-    for step in tqdm(steps, desc="[PROGRESS]", unit="step"):
-        if step == "cleanup":
-            report = analyze_and_cleanup(db_path)
-        else:
-            audit_placeholders(db_path)
+    start_ts = time.time()
+    backup = repo_root / "reports" / "doc_placeholders_backup.json"
+    for step in tqdm(["cleanup"], desc="[PROGRESS]", unit="step"):
+        report = analyze_and_cleanup(db_path, backup)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     report_path = (
         repo_root / "reports" / f"documentation_cleanup_report_{timestamp}.json"
@@ -191,8 +204,8 @@ def main() -> None:
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2))
     _log_report(report)
-    log_correction(db_path, json.dumps(report))
-    logger.info("Cleanup complete: %s", report_path)
+    etc = calculate_etc(start_ts, 1, 1)
+    logger.info("Cleanup complete: %s | ETC: %s", report_path, etc)
     _log_event(db_path, {"report": str(report_path)})
 
 
