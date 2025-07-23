@@ -34,7 +34,7 @@ def test_audit_places(tmp_path):
     )
 
     with sqlite3.connect(analytics) as conn:
-        rows = conn.execute("SELECT item_type FROM todo_fixme_tracking").fetchall()
+        rows = conn.execute("SELECT placeholder_type FROM todo_fixme_tracking").fetchall()
         rows2 = conn.execute("SELECT placeholder_type FROM code_audit_log").fetchall()
     assert len(rows) >= 2
     assert len(rows2) >= 2
