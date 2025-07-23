@@ -73,6 +73,7 @@ class TemplateAutoGenerator:
         logger.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"Process ID: {os.getpid()}")
         validate_no_recursive_folders()
+        # DB-first loading of patterns and templates
         self.patterns = self._load_patterns()
         self.templates = self._load_templates()
         self.cluster_model = self._cluster_patterns()
@@ -96,6 +97,11 @@ class TemplateAutoGenerator:
         logger.info(f"Loaded {len(patterns)} patterns")
         self._log_event("load_patterns", {"count": len(patterns)})
         return patterns
+
+    def _refresh_templates(self) -> None:
+        """Reload templates and patterns from their databases."""
+        self.patterns = self._load_patterns()
+        self.templates = self._load_templates()
 
     def _load_templates(self) -> List[str]:
         logger.info("Loading templates from completion DB...")
@@ -143,14 +149,19 @@ class TemplateAutoGenerator:
 
     def select_best_template(self, target: str) -> str:
         logger.info(f"Selecting best template for target: {target}")
+        # Ensure the latest templates are loaded from the database
+        self._refresh_templates()
         candidates = self.templates if self.templates else self.patterns
         if not candidates:
             logger.warning("No candidates available for selection")
             return ""
-        scores = [
-            self.objective_similarity(target, c) + self._quantum_score(c)
-            for c in candidates
-        ]
+        scores = []
+        start = time.time()
+        with tqdm(candidates, desc="template score", unit="tmpl") as bar:
+            for c in bar:
+                score = self.objective_similarity(target, c) + self._quantum_score(c)
+                scores.append(score)
+                bar.set_postfix({"etc": calculate_etc(start, len(scores), len(candidates))})
         best_idx = int(max(range(len(scores)), key=scores.__getitem__))
         best = candidates[best_idx]
         try:
@@ -203,9 +214,12 @@ class TemplateAutoGenerator:
                 etc = calculate_etc(start_ts, idx, len(corpus))
                 bar.set_postfix_str(etc)
                 bar.update(1)
+                bar.set_postfix({"etc": calculate_etc(start_time, bar.n, len(self.templates + self.patterns))})
         if not found:
             self._log_event("generate", {"objective": search_terms, "status": "none"})
             logger.warning("No template found for objective")
+        duration = time.time() - start_time
+        self._log_event("generate_complete", {"objective": search_terms, "duration": duration})
         return found
 
     def regenerate_template(self) -> str:

@@ -14,6 +14,22 @@ from typing import Iterable
 
 from tqdm import tqdm
 
+def _log_event(event: str, details: str) -> None:
+    """Generic event logger for analytics DB."""
+    try:
+        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS sync_events_log (timestamp TEXT, event TEXT, details TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO sync_events_log (timestamp, event, details) VALUES (?, ?, ?)",
+                (datetime.utcnow().isoformat(), event, details),
+            )
+            conn.commit()
+    except sqlite3.Error as exc:
+        logger.debug("log_event failed: %s", exc)
+
 
 ANALYTICS_DB = Path("databases") / "analytics.db"
 logger = logging.getLogger(__name__)
@@ -163,9 +179,11 @@ def synchronize_templates(
                     conn.commit()
                     synced += 1
                     _log_sync_event(source_names, str(db))
+                    _log_event("sync_success", str(db))
                 except Exception as exc:
                     conn.rollback()
                     _log_audit(str(db), f"Sync failure: {exc}")
+                    _log_event("sync_failure", str(exc))
                     logger.error("Failed to synchronize %s: %s", db, exc)
         except sqlite3.Error as exc:
             _log_audit(str(db), f"DB connection error: {exc}")
