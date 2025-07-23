@@ -79,19 +79,46 @@ def metrics() -> Any:
     return jsonify(data)
 
 
-@app.get("/compliance")
-def compliance() -> Any:
-    start = time.time()
-    metrics = _fetch_metrics()
-    rollbacks = _fetch_rollbacks()
-    etc = f"ETC: {calculate_etc(start, 1, 1)}"
-    logging.info("Compliance data served | %s", etc)
-    return jsonify({"metrics": metrics, "rollbacks": rollbacks})
 
 
 @app.get("/rollback_alerts")
 def rollback_alerts() -> Any:
     data = _fetch_rollbacks()
+    return jsonify(data)
+
+
+@app.get("/dashboard_info")
+def dashboard_info() -> Any:
+    start = time.time()
+    with tqdm(total=1, desc="dashboard_info", unit="step") as pbar:
+        data = {
+            "metrics": _fetch_metrics(),
+            "rollbacks": _fetch_rollbacks(),
+        }
+        pbar.update(1)
+    etc = f"ETC: {calculate_etc(start, 1, 1)}"
+    logging.info("Dashboard info served | %s", etc)
+    return jsonify(data)
+
+
+@app.get("/health")
+def health() -> Any:
+    start = time.time()
+    with tqdm(total=1, desc="health", unit="step") as pbar:
+        pbar.update(1)
+    etc = f"ETC: {calculate_etc(start, 1, 1)}"
+    logging.info("Health check served | %s", etc)
+    return jsonify({"status": "ok"})
+
+
+@app.get("/reports")
+def reports() -> Any:
+    start = time.time()
+    with tqdm(total=1, desc="reports", unit="step") as pbar:
+        data = _fetch_rollbacks()
+        pbar.update(1)
+    etc = f"ETC: {calculate_etc(start, 1, 1)}"
+    logging.info("Reports served | %s", etc)
     return jsonify(data)
 
 
