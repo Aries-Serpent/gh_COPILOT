@@ -58,61 +58,47 @@ This document lists high-level tasks required to fully implement the database-fi
 - Integrate visual indicators for simulated quantum scoring and pattern matching.
 - Ensure all quantum modules log actions to `analytics.db` for compliance review.
 
-## 12. Dashboard and Compliance Cross-Linking
-- Cross-reference every audit log and generation event with the web dashboard.
-- Provide links from the dashboard to detailed analytics reports and correction logs.
-
-## 13. Placeholder Implementations
+## 12. Placeholder Implementations
 - Search the repository for "Implementation placeholder" comments and replace them with real database-driven functionality.
 - Update utilities like `documentation_db_analyzer.py` and `enterprise_database_driven_documentation_manager.py` to process database entries and log progress.
 
-## 14. Documentation Updates
+## 13. Documentation Updates
 - Extend `docs/README.md` with references to the new database-first utilities.
 - Keep `DATABASE_FIRST_USAGE_GUIDE.md` aligned with the implemented logic.
 
-## 15. Audit & Compliance Tasks
+---
 
-### 15.1 Placeholder and TODO Audit Logging (`AUD-001`)
+## Enterprise Audit and Compliance Tasks
+
+### AUD-001 Placeholder and TODO Audit Logging
 - Scan all modules for TODO/FIXME comments and log findings to `analytics.db` in the `placeholder_audit` table.
 - **Module:** `scripts/validation/placeholder_audit_logger.py`
 - **Cross-Reference:** Dashboard `/audit` endpoint and analytics reports.
 
-### 15.2 DB-First Code Generation (`GEN-001`)
+### GEN-001 DB-First Code Generation
 - Enforce template selection from databases first with pattern fallbacks.
 - **Module:** `template_engine/auto_generator.py`
 - **Cross-Reference:** Generation metrics logged to `analytics.db` and surfaced on the dashboard.
 
-### 15.3 Pattern Clustering and Representatives (`CLUS-001`)
+### CLUS-001 Pattern Clustering and Representatives
 - Cluster templates and patterns with `KMeans` and expose cluster representatives via `get_cluster_representatives()`.
 - **Module:** `template_engine/auto_generator.py`
 - **Cross-Reference:** Clustering stats linked in dashboard analytics.
 
-### 15.4 Correction Logging and Rollback (`ROLL-001`)
+### ROLL-001 Correction Logging and Rollback
 - Record all correction and rollback events with timestamps.
 - **Module:** `template_engine/template_synchronizer.py`
 - **Cross-Reference:** Compliance dashboard lists recent rollback events.
 
-### 15.5 Quantum/AI Integration (`QAI-001`)
+### QAI-001 Quantum/AI Integration
 - Integrate quantum-inspired scoring for template selection and pattern matching.
 - **Module:** `quantum_algorithm_library_expansion.py`
 - **Cross-Reference:** Quantum processing logs stored in `analytics.db`.
 
-### 15.6 Dashboard and Compliance Cross-Linking (`DASH-001`)
+### DASH-001 Dashboard and Compliance Cross-Linking
 - Extend the Flask dashboard with cross-links to compliance reports and audit logs.
 - **Module:** `web_gui/scripts/flask_apps/enterprise_dashboard.py`
 - **Cross-Reference:** Real-time metrics pulled from `analytics.db` and correction logs.
-
-## 16. Quantum and Visual Processing Tracking
-- **ID:** `VIS-001`
-  - Add progress bars, ETA, and timeout status to all long-running tasks.
-  - **Module:** `template_engine/auto_generator.py`
-  - **Cross-Reference:** Visual indicators logged to `analytics.db` and displayed on the dashboard.
-
-## 17. Compliance Alerting Enhancements
-- **ID:** `CMP-001`
-  - Surface compliance score changes and rollback alerts in real time.
-  - **Module:** `web_gui/scripts/flask_apps/enterprise_dashboard.py`
-  - **Cross-Reference:** Pull latest audit events from `analytics.db` for dashboard notifications.
 
 ---
 These tasks derive from the provided enhancement prompt and are meant to guide ongoing work toward a robust database-first Copilot integration.

@@ -147,7 +147,8 @@ class TemplateAutoGenerator:
         vecs = vectorizer.transform([a, b])
         return float(cosine_similarity(vecs[0], vecs[1])[0][0])
 
-    def select_best_template(self, target: str) -> str:
+    def select_best_template(self, target: str, timeout: int = 60) -> str:
+        """Select the best template using DB-first data with quantum scoring."""
         logger.info(f"Selecting best template for target: {target}")
         # Ensure the latest templates are loaded from the database
         self._refresh_templates()
@@ -155,15 +156,25 @@ class TemplateAutoGenerator:
         if not candidates:
             logger.warning("No candidates available for selection")
             return ""
-        scores = []
         start = time.time()
-        with tqdm(candidates, desc="template score", unit="tmpl") as bar:
-            for c in bar:
-                score = self.objective_similarity(target, c) + self._quantum_score(c)
-                scores.append(score)
-                bar.set_postfix({"etc": calculate_etc(start, len(scores), len(candidates))})
-        best_idx = int(max(range(len(scores)), key=scores.__getitem__))
-        best = candidates[best_idx]
+        best = ""
+        best_score = -float("inf")
+        total_candidates = len(candidates)
+        with tqdm(candidates, desc="[PROGRESS] select", unit="tmpl") as bar:
+            for idx, tmpl in enumerate(bar, start=1):
+                etc = calculate_etc(start, idx, total_candidates)
+                bar.set_postfix(etc=etc)
+                if time.time() - start > timeout:
+                    logger.warning("Selection timeout reached")
+                    break
+                score = self.objective_similarity(target, tmpl) + self._quantum_score(tmpl)
+                if score > best_score:
+                    best_score = score
+                    best = tmpl
+                bar.update(1)
+        if not best:
+            logger.warning("No template selected")
+            return ""
         try:
             with sqlite3.connect(self.analytics_db) as conn:
                 conn.execute(
@@ -180,21 +191,20 @@ class TemplateAutoGenerator:
         self._log_event("select_best", {"target": target, "template": best})
         return best
 
-    def generate_template(self, objective: dict, timeout: int = 30) -> str:
-        """Generate a template based on ``objective`` with progress bars and timeout."""
+    def generate_template(self, objective: dict, timeout: int = 60) -> str:
+        """Generate a template for ``objective`` with progress indicators and timeout."""
         self._last_objective = objective
         search_terms = " ".join(map(str, objective.values()))
         logger.info(f"Generating template for objective: {search_terms}")
-        start_dt = datetime.utcnow()
-        start_ts = time.time()
+        start = time.time()
         found = ""
-        corpus = self.templates + self.patterns
-        with tqdm(corpus, desc="[PROGRESS] search", unit="tmpl") as bar:
-            for idx, tmpl in enumerate(corpus, 1):
-                if time.time() - start_ts > timeout:
-                    bar.set_description("timeout")
+        total_candidates = len(self.templates + self.patterns)
+        with tqdm(self.templates + self.patterns, desc="[PROGRESS] search", unit="tmpl") as bar:
+            for idx, tmpl in enumerate(bar, start=1):
+                etc = calculate_etc(start, idx, total_candidates)
+                bar.set_postfix(etc=etc)
+                if time.time() - start > timeout:
                     logger.warning("Generation timeout reached")
-                    self._log_event("generate_timeout", {"objective": search_terms, "elapsed": time.time() - start_ts})
                     break
                 if all(term.lower() in tmpl.lower() for term in search_terms.split()):
                     if "def invalid" in tmpl:
@@ -205,7 +215,7 @@ class TemplateAutoGenerator:
                         )
                         conn.execute(
                             "INSERT INTO generation_events (ts, objective, template) VALUES (?,?,?)",
-                            (start_dt.isoformat(), str(objective), tmpl),
+                            (datetime.utcnow().isoformat(), str(objective), tmpl),
                         )
                         conn.commit()
                     found = tmpl

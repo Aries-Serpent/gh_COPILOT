@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 import sqlite3
 from pathlib import Path
+import sqlite3
+from datetime import datetime
+from tqdm import tqdm
 from flask import Flask, jsonify, request
 import sqlite3
 from datetime import datetime
@@ -16,24 +19,36 @@ ANALYTICS_DB = Path("databases/analytics.db")
 app = Flask(__name__)
 
 
-@app.get("/metrics")
-def get_metrics():
-    metrics = {
+def fetch_db_metrics() -> dict:
+    """Fetch real-time metrics from analytics.db."""
+    data = {
+        "placeholder_removal": 0,
         "compliance_score": 0.0,
         "violation_count": 0,
         "rollback_count": 0,
+        "timestamp": datetime.utcnow().isoformat(),
     }
-    if ANALYTICS_DB.exists():
-        with sqlite3.connect(ANALYTICS_DB) as conn:
-            cur = conn.cursor()
-            cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
-            row = cur.fetchone()
-            metrics["compliance_score"] = float(row[0]) if row and row[0] is not None else 0.0
-            cur.execute("SELECT COUNT(*) FROM violation_logs")
-            metrics["violation_count"] = cur.fetchone()[0]
+    if not ANALYTICS_DB.exists():
+        return data
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        cur = conn.cursor()
+        try:
+            cur.execute("SELECT COUNT(*) FROM placeholder_audit")
+            data["violation_count"] = cur.fetchone()[0]
             cur.execute("SELECT COUNT(*) FROM rollback_logs")
-            metrics["rollback_count"] = cur.fetchone()[0]
-    return jsonify(metrics)
+            data["rollback_count"] = cur.fetchone()[0]
+        except sqlite3.Error:
+            pass
+    return data
+
+
+@app.get("/metrics")
+def get_metrics():
+    data = fetch_db_metrics()
+    if METRICS_PATH.exists():
+        file_data = json.loads(METRICS_PATH.read_text())
+        data.update(file_data)
+    return jsonify(data)
 
 
 @app.get("/corrections")
@@ -62,7 +77,9 @@ def trigger_rollback():
     target = Path(payload.get("target", ""))
     backup = payload.get("backup")
     rollbacker = CorrectionLoggerRollback(ANALYTICS_DB)
-    ok = rollbacker.auto_rollback(target, Path(backup) if backup else None)
+    with tqdm(total=1, desc="rollback", unit="step") as bar:
+        ok = rollbacker.auto_rollback(target, Path(backup) if backup else None)
+        bar.update(1)
     return jsonify({"status": "ok" if ok else "failed"})
 
 

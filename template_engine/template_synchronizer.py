@@ -6,6 +6,7 @@
 # - Environment/workspace compliance (ANALYTICS_DB may be patched by test harnesses)
 
 import logging
+import os
 import sqlite3
 import time
 from pathlib import Path
@@ -177,6 +178,8 @@ def synchronize_templates(
                             (name, content),
                         )
                     conn.commit()
+                    if not _compliance_check(conn):
+                        raise ValueError("Post-sync compliance validation failed")
                     synced += 1
                     _log_sync_event(source_names, str(db))
                     _log_event("sync_success", str(db))
@@ -199,3 +202,6 @@ def synchronize_templates(
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
+    dbs_env = os.getenv("TEMPLATE_SYNC_DBS", "").split(os.pathsep)
+    source_dbs = [Path(p) for p in dbs_env if p]
+    synchronize_templates(source_dbs)
