@@ -1,7 +1,7 @@
 import json
 import logging
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 from pathlib import Path
 
@@ -29,7 +29,7 @@ def _log_event(
                 )
                 conn.execute(
                     f"INSERT INTO {table} (timestamp, data) VALUES (?, ?)",
-                    (datetime.utcnow().isoformat(), event_json),
+                    (datetime.now(timezone.utc).isoformat(), event_json),
                 )
                 conn.commit()
             bar.update(1)
