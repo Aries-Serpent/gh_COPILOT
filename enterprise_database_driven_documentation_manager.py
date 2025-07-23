@@ -8,6 +8,7 @@ import sqlite3
 import sys
 from dataclasses import dataclass
 from datetime import datetime
+import time
 from pathlib import Path
 from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
 
@@ -24,11 +25,18 @@ logger = logging.getLogger(__name__)
 class DocumentationManager:
     """Render compliant documentation from the database."""
 
-    database: Path = Path("production.db")
+    database: Path = Path("databases") / "production.db"
     analytics_db: Path = ANALYTICS_DB
     completion_db: Path = Path("databases/template_completion.db")
 
     generator: TemplateAutoGenerator | None = None
+
+    def __post_init__(self) -> None:
+        if self.generator is None:
+            self.generator = TemplateAutoGenerator(
+                analytics_db=self.analytics_db,
+                completion_db=self.completion_db,
+            )
 
     def _refresh_rows(self) -> list[tuple[str, str, int]]:
         with sqlite3.connect(self.database) as conn:
@@ -43,11 +51,7 @@ class DocumentationManager:
             return 0
         rows = self._refresh_rows()
         RENDER_LOG_DIR.mkdir(parents=True, exist_ok=True)
-        generator = TemplateAutoGenerator(
-            analytics_db=self.analytics_db, completion_db=self.completion_db
-        )
         count = 0
-        generator = TemplateAutoGenerator(self.analytics_db, self.completion_db)
         for idx, (title, content, score) in enumerate(
             tqdm(rows, desc="render", unit="doc", leave=False), 1
         ):
