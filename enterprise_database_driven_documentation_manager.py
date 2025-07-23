@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Database-driven documentation renderer with compliance checks."""
+
 from __future__ import annotations
 
 import json
@@ -77,7 +78,6 @@ class DocumentationManager:
         return count
 
 
-
 def dual_validate() -> bool:
     manager = DocumentationManager()
     processed = manager.render()
@@ -88,4 +88,3 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     success = dual_validate()
     sys.exit(0 if success else 1)
-

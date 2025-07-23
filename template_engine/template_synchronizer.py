@@ -93,8 +93,6 @@ def _log_audit(db_name: str, details: str) -> None:
         logger.error("Failed to log audit event: %s", exc)
 
 
-
-
 def _compliance_check(conn: sqlite3.Connection) -> bool:
     """Check that all templates in DB are compliant (PEP8/flake8 placeholder)."""
     try:
