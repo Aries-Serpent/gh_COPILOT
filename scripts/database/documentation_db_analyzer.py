@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import List, Tuple, Optional
 from tqdm import tqdm
 import importlib.util
+from template_engine.auto_generator import DEFAULT_ANALYTICS_DB
 
 _LOG_UTILS_PATH = (
     Path(__file__).resolve().parents[2] / "template_engine" / "log_utils.py"

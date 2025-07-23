@@ -455,6 +455,7 @@ validate_enterprise_standards(final_result)
 
 ### **Testing & Validation**
 ```bash
+# Contributors must execute `bash setup.sh` before running tests.
 # Ensure environment setup
 bash setup.sh
 source .venv/bin/activate
