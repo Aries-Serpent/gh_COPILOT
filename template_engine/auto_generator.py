@@ -102,6 +102,11 @@ class TemplateAutoGenerator:
         """Reload templates and patterns from their databases."""
         self.patterns = self._load_patterns()
         self.templates = self._load_templates()
+        self.cluster_model = self._cluster_patterns()
+        if self.cluster_model is not None:
+            self.cluster_model.cluster_centers_ += np.random.normal(
+                scale=0.01, size=self.cluster_model.cluster_centers_.shape
+            )
 
     def _load_templates(self) -> List[str]:
         logger.info("Loading templates from completion DB...")
@@ -132,11 +137,12 @@ class TemplateAutoGenerator:
         vectorizer = TfidfVectorizer()
         matrix = vectorizer.fit_transform(corpus)
         n_clusters = min(len(corpus), 2)
-        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=int(time.time()))
         start_ts = time.time()
         with tqdm(total=1, desc="clustering", unit="step") as pbar:
             model.fit(matrix)
             pbar.update(1)
+        model.cluster_centers_ += np.random.normal(scale=0.01, size=model.cluster_centers_.shape)
         duration = time.time() - start_ts
         logger.info(
             f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s"

@@ -70,17 +70,19 @@ def _log_event(db: Path, data: dict) -> None:
         logger.error("Failed to log analysis results")
 
 
-def audit_placeholders(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
-    """Return rows containing TODO or FIXME markers."""
-    cur = conn.execute(
-        "SELECT title, content FROM enterprise_documentation"
-    )
-    flagged = []
-    for title, content in cur.fetchall():
-        text = content or ""
-        if any(token in text.upper() for token in ["TODO", "FIXME", "PLACEHOLDER"]):
-            flagged.append((title, text))
-    return flagged
+def audit_placeholders(db_path: Path) -> int:
+    """Return count of TODO/FIXME markers in ``db_path``."""
+    if not db_path.exists():
+        return 0
+    count = 0
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.execute("SELECT content FROM enterprise_documentation")
+        for (content,) in cur.fetchall():
+            text = content or ""
+            if any(tok in text.upper() for tok in ["TODO", "FIXME", "PLACEHOLDER"]):
+                count += 1
+    _log_event(db_path, {"placeholders": count})
+    return count
 
 
 def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[str, int]:
@@ -140,16 +142,6 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
     }
 
 
-def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
-    """Restore ``db_path`` from ``backup_path``."""
-    if not backup_path.exists():
-        logger.error("Backup not found: %s", backup_path)
-        return False
-    shutil.copy2(backup_path, db_path)
-    logger.info("Database restored from backup: %s", backup_path)
-    return True
-
-
 def _log_report(report: dict) -> None:
     """Persist report summary to analytics DB."""
     try:
@@ -175,9 +167,21 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
     return "N/A"
 
 
-def rollback_cleanup(db_path: Path, backup_path: Path) -> None:
-    """Restore entries from ``backup_path`` into ``db_path``."""
+def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
+    """Restore ``db_path`` from ``backup_path``."""
+    if not backup_path.exists():
+        logger.error("Backup not found: %s", backup_path)
+        return False
+    shutil.copy2(backup_path, db_path)
+    _log_event(db_path, {"rollback": str(backup_path)})
+    logger.info("Database restored from backup: %s", backup_path)
+    return True
+
+
+def restore_entries(db_path: Path, backup_path: Path) -> None:
+    """Restore entries from ``backup_path`` JSON into ``db_path``."""
     if not backup_path.exists() or not db_path.exists():
+        logger.error("Backup or database not found for rollback")
         return
     items = json.loads(backup_path.read_text())
     with sqlite3.connect(db_path) as conn:
@@ -188,6 +192,7 @@ def rollback_cleanup(db_path: Path, backup_path: Path) -> None:
                 (title, content),
             )
         conn.commit()
+    _log_event(db_path, {"rollback_restored": len(items), "backup": str(backup_path)})
 
 
 def main() -> None:

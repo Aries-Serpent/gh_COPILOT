@@ -114,5 +114,16 @@ This document lists high-level tasks required to fully implement the database-fi
 | `GEN-003` | DB-first template clustering with quantum scoring | `template_engine/auto_generator.py` | generation metrics table |
 | `ROLL-003` | Correction rollback history cross-linked to dashboard | `template_engine/template_synchronizer.py` | rollback alerts widget |
 
+## 17. Expanded Audit, Compliance and Quantum Tasks
+
+| ID | Description | Module Path | Dashboard Cross-Reference |
+|----|-------------|-------------|---------------------------|
+| `AUD-003` | Enhanced placeholder/TODO/FIXME scanning with visual indicators | `scripts/validation/placeholder_audit_logger.py` | `/audit` table, `analytics.db` |
+| `GEN-003` | DB-first code generation enforcing quantum-inspired scoring | `template_engine/auto_generator.py` | generation metrics, `analytics.db` |
+| `CLUS-003` | Retrieve cluster representatives via `get_cluster_representatives()` | `template_engine/auto_generator.py` | clustering page, `analytics.db` |
+| `ROLL-003` | Correction logging with automatic rollback utilities | `template_engine/template_synchronizer.py` | rollback alerts, `analytics.db` |
+| `QAI-003` | Visual processing for quantum/AI pattern matching | `quantum_algorithm_library_expansion.py` | quantum analytics panel |
+| `DASH-003` | Cross-link compliance metrics with audit logs and rollbacks | `web_gui/scripts/flask_apps/enterprise_dashboard.py` | compliance dashboard |
+
 ---
 These tasks derive from the provided enhancement prompt and are meant to guide ongoing work toward a robust database-first Copilot integration.
