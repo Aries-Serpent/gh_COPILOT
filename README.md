@@ -180,6 +180,14 @@ compliance logging:
   synchronizes representative templates using transactional auditing.
 * **TemplateWorkflowEnhancer** – mines patterns from existing templates,
   computes compliance scores and writes dashboard-ready reports.
+* **Log Utilities** – unified `_log_event` helper under `template_engine.log_utils`
+  logs events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
+  `analytics.db` with visual indicators and DUAL COPILOT validation.
+
+```python
+from template_engine.log_utils import _log_event
+_log_event({"event": "sync_start"})
+```
 
 
 ## 🤖 DUAL COPILOT PATTERN

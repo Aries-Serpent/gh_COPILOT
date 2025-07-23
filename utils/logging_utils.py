@@ -42,5 +42,3 @@ def log_enterprise_operation(operation: str, status: str, details: str = "") -> 
 
 
 ANALYTICS_DB = Path("databases") / "analytics.db"
-
-
