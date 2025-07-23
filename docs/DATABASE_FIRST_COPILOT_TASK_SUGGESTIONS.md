@@ -120,4 +120,3 @@ These tasks derive from the provided enhancement prompt and are meant to guide o
 |----|-------------|-------------|---------------------------|
 | `VIS-001` | Add progress indicators and ETC tracking to all long running tasks | various modules | `/metrics` view |
 | `VIS-002` | Cross-link analytics events with dashboard pages for audit trails | dashboard templates | `/compliance` section |
-

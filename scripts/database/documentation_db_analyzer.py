@@ -3,15 +3,15 @@
 
 from __future__ import annotations
 
-import os
 import json
 import logging
+import os
 import shutil
 import sqlite3
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import List, Tuple, Optional
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -70,24 +70,36 @@ def _log_event(db: Path, data: dict) -> None:
         logger.error("Failed to log analysis results")
 
 
-def audit_placeholders(db: Path | sqlite3.Connection) -> int:
-    """Return number of rows containing TODO or FIXME markers."""
-    if isinstance(db, sqlite3.Connection):
-        conn = db
-    else:
-        conn = sqlite3.connect(db)
+def _audit_placeholders_conn(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
+    """Return rows containing TODO or FIXME markers."""
+    cursor = conn.cursor()
     try:
-        cur = conn.execute(
-            "SELECT content FROM enterprise_documentation"
-        )
-    except sqlite3.OperationalError:
-        return 0
-    flagged = 0
-    for (content,) in cur.fetchall():
+        cursor.execute("PRAGMA table_info(enterprise_documentation)")
+        cols = [row[1] for row in cursor.fetchall()]
+        if "title" in cols and "content" in cols:
+            cursor.execute("SELECT title, content FROM enterprise_documentation")
+        else:
+            cursor.execute("SELECT content FROM enterprise_documentation")
+    except sqlite3.Error:
+        return []
+    flagged = []
+    for idx, row in enumerate(cursor.fetchall(), start=1):
+        if len(row) == 2:
+            title, content = row
+        else:
+            title, content = f"row{idx}", row[0]
         text = content or ""
         if any(token in text.upper() for token in ["TODO", "FIXME", "PLACEHOLDER"]):
             flagged += 1
     return flagged
+
+
+def audit_placeholders(db_path: Path) -> int:
+    """Return count of placeholder entries in ``db_path``."""
+    if not db_path.exists():
+        return 0
+    with sqlite3.connect(db_path) as conn:
+        return len(_audit_placeholders_conn(conn))
 
 
 def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[str, int]:
@@ -99,7 +111,7 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
 
     with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
-        placeholders = audit_placeholders(conn)
+        placeholders = _audit_placeholders_conn(conn)
         before = cur.execute(
             "SELECT COUNT(*) FROM enterprise_documentation"
         ).fetchone()[0]
@@ -172,12 +184,8 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
     return "N/A"
 
 
-def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
-    """Restore ``db_path`` from ``backup_path``.
-
-    The backup may be a JSON export or a raw SQLite copy. Return ``True`` on
-    success.
-    """
+def restore_entries(db_path: Path, backup_path: Path) -> None:
+    """Restore entries from ``backup_path`` into ``db_path``."""
     if not backup_path.exists() or not db_path.exists():
         return False
     try:

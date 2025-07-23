@@ -191,7 +191,8 @@ class TemplateAutoGenerator:
         self._last_objective = objective
         search_terms = " ".join(map(str, objective.values()))
         logger.info(f"Generating template for objective: {search_terms}")
-        start = time.time()
+        start_time = time.time()
+        candidates = self.templates + self.patterns
         found = ""
         total_candidates = len(self.templates + self.patterns)
         with tqdm(self.templates + self.patterns, desc="[PROGRESS] search", unit="tmpl") as bar:
@@ -206,7 +207,7 @@ class TemplateAutoGenerator:
                         raise ValueError("Invalid template syntax")
                     with sqlite3.connect(self.analytics_db) as conn:
                         conn.execute(
-                            "CREATE TABLE IF NOT EXISTS generation_events (ts TEXT, objective TEXT, template TEXT)",
+                            "CREATE TABLE IF NOT EXISTS generation_events (ts TEXT, objective TEXT, template TEXT)"
                         )
                         conn.execute(
                             "INSERT INTO generation_events (ts, objective, template) VALUES (?,?,?)",
