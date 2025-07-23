@@ -23,8 +23,6 @@ _log_mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(_log_mod)
 _log_event = _log_mod._log_event
 
-from template_engine.log_utils import _log_event, DEFAULT_ANALYTICS_DB
-
 logger = logging.getLogger(__name__)
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 
@@ -53,7 +51,11 @@ def _create_backup(db: Path) -> Optional[Path]:
 def rollback_db(db: Path, backup: Path) -> None:
     if backup.exists():
         shutil.copy(backup, db)
-        _log_event({"db": str(db), "rollback": str(backup)}, table="doc_analysis", db_path=ANALYTICS_DB)
+        _log_event(
+            {"db": str(db), "rollback": str(backup)},
+            table="doc_analysis",
+            db_path=ANALYTICS_DB,
+        )
 
 
 CLEANUP_SQL = (
@@ -89,7 +91,11 @@ def audit_placeholders(db_path: Path) -> int:
         return 0
     with sqlite3.connect(db_path) as conn:
         placeholders = _audit_placeholders_conn(conn)
-    _log_event({"db": str(db_path), "placeholders": len(placeholders)}, table="doc_analysis", db_path=ANALYTICS_DB)
+    _log_event(
+        {"db": str(db_path), "placeholders": len(placeholders)},
+        table="doc_analysis",
+        db_path=ANALYTICS_DB,
+    )
     return len(placeholders)
 
 
@@ -188,7 +194,11 @@ def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
         logger.error("Backup not found: %s", backup_path)
         return False
     shutil.copy2(backup_path, db_path)
-    _log_event({"db": str(db_path), "rollback": str(backup_path)}, table="doc_analysis", db_path=ANALYTICS_DB)
+    _log_event(
+        {"db": str(db_path), "rollback": str(backup_path)},
+        table="doc_analysis",
+        db_path=ANALYTICS_DB,
+    )
     logger.info("Database restored from backup: %s", backup_path)
     return True
 

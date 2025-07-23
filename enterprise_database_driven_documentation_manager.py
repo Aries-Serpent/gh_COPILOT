@@ -11,8 +11,6 @@ from dataclasses import dataclass
 import time
 from pathlib import Path
 from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
-from template_engine.log_utils import _log_event, DEFAULT_ANALYTICS_DB
-
 from tqdm import tqdm
 import importlib.util
 
@@ -74,7 +72,13 @@ class DocumentationManager:
             (RENDER_LOG_DIR / f"{title}.json").write_text(
                 json.dumps({"title": title, "content": final_content}, indent=2)
             )
-            _log_event({"action": "render", "title": title}, table="render_events", db_path=self.analytics_db)
+            _log_event(
+                {"event": "render", "title": title},
+                table="render_events",
+                db_path=self.analytics_db,
+            )
+            with open(LOG_FILE, "a", encoding="utf-8") as logf:
+                logf.write(f"{datetime.utcnow().isoformat()}|render|{title}\n")
             tqdm.write(f"ETC: {calculate_etc(start_ts, idx, len(rows))}")
             count += 1
         logger.info(
