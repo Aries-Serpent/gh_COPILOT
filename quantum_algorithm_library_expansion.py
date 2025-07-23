@@ -13,6 +13,8 @@ from datetime import datetime
 from pathlib import Path
 
 import numpy as np
+from sklearn.cluster import KMeans
+from tqdm import tqdm
 
 ANALYTICS_DB = Path("databases/analytics.db")
 
@@ -57,6 +59,8 @@ __all__ = [
     "demo_quantum_teleportation",
     "quantum_cluster_stub",
     "quantum_score_stub",
+    "demo_quantum_neural_network",
+    "quantum_cluster_score",
     "quantum_pattern_match_stub",
 ]
 
@@ -143,11 +147,33 @@ def demo_quantum_phase_estimation(theta: float = 0.25, precision: int = 3) -> fl
 
 def quantum_cluster_stub(data: Iterable[float]) -> List[int]:
     """Return cluster labels using a placeholder algorithm."""
-    log_quantum_event("cluster_stub", f"len={len(list(data))}")
-    labels = []
-    for i, _ in enumerate(data):
+    seq = list(data)
+    log_quantum_event("cluster_stub", f"len={len(seq)}")
+    labels: List[int] = []
+    for i, _ in enumerate(tqdm(seq, desc="cluster", unit="item")):
         labels.append(i % 2)
     return labels
+
+
+def quantum_cluster_representatives(data: Iterable[str], n_clusters: int) -> List[str]:
+    """Return representative strings for each cluster (placeholder)."""
+    log_quantum_event("cluster_reps", f"n={n_clusters}")
+    items = list(data)
+    if not items:
+        return []
+    step = max(1, len(items) // n_clusters)
+    return [items[i] for i in range(0, len(items), step)][:n_clusters]
+
+
+def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
+    """Return simple normalized dot product as quantum-inspired score."""
+    arr_a = np.fromiter(a, dtype=float)
+    arr_b = np.fromiter(b, dtype=float)
+    if arr_a.size == 0 or arr_b.size == 0:
+        return 0.0
+    score = float(np.dot(arr_a, arr_b) / (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)))
+    log_quantum_event("similarity_score", str(score))
+    return score
 
 
 def quantum_score_stub(values: Iterable[float]) -> float:
@@ -156,6 +182,27 @@ def quantum_score_stub(values: Iterable[float]) -> float:
     score = float(np.sum(arr) / (len(arr) + 1))
     log_quantum_event("score_stub", str(score))
     return score
+
+
+def quantum_cluster_score(matrix: np.ndarray) -> float:
+    """Return a simple cluster-based score for ``matrix``."""
+    log_quantum_event("cluster_score", f"shape={matrix.shape}")
+    n_clusters = min(len(matrix), 2)
+    model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+    labels = model.fit_predict(matrix)
+    score = float(np.sum(labels) / (len(labels) or 1))
+    log_quantum_event("cluster_score", str(score))
+    return score
+
+
+def demo_quantum_neural_network(data: Iterable[float]) -> List[float]:
+    """Return output of a stub quantum neural network."""
+    seq = list(data)
+    log_quantum_event("qnn", f"len={len(seq)}")
+    result = []
+    for val in tqdm(seq, desc="qnn", unit="item"):
+        result.append(val * 0.5)
+    return result
 
 
 def quantum_pattern_match_stub(pattern: Iterable[int], data: Iterable[int]) -> bool:

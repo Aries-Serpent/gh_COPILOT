@@ -2,6 +2,7 @@
 import sqlite3
 from pathlib import Path
 
+import numpy as np
 import pytest
 from template_engine.auto_generator import TemplateAutoGenerator
 
@@ -97,3 +98,11 @@ def test_quantum_score(tmp_path):
     generator = TemplateAutoGenerator(analytics_db, completion_db)
     score = generator._quantum_score("dummy")
     assert 0.0 <= score <= 1.0
+
+
+def test_refresh_templates_updates_cluster(tmp_path):
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    generator = TemplateAutoGenerator(analytics_db, completion_db)
+    initial_centers = generator.cluster_model.cluster_centers_.copy()
+    generator._refresh_templates()
+    assert not np.array_equal(initial_centers, generator.cluster_model.cluster_centers_)

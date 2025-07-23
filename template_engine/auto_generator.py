@@ -102,6 +102,11 @@ class TemplateAutoGenerator:
         """Reload templates and patterns from their databases."""
         self.patterns = self._load_patterns()
         self.templates = self._load_templates()
+        self.cluster_model = self._cluster_patterns()
+        if self.cluster_model is not None:
+            self.cluster_model.cluster_centers_ += np.random.normal(
+                scale=0.01, size=self.cluster_model.cluster_centers_.shape
+            )
 
     def _load_templates(self) -> List[str]:
         logger.info("Loading templates from completion DB...")
@@ -132,13 +137,16 @@ class TemplateAutoGenerator:
         vectorizer = TfidfVectorizer()
         matrix = vectorizer.fit_transform(corpus)
         n_clusters = min(len(corpus), 2)
-        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=int(time.time()))
         start_ts = time.time()
         with tqdm(total=1, desc="clustering", unit="step") as pbar:
             model.fit(matrix)
             pbar.update(1)
+        model.cluster_centers_ += np.random.normal(scale=0.01, size=model.cluster_centers_.shape)
         duration = time.time() - start_ts
-        logger.info(f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s")
+        logger.info(
+            f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s"
+        )
         self._log_event("cluster", {"items": len(corpus), "clusters": n_clusters, "duration": duration})
         return model
 
@@ -191,15 +199,15 @@ class TemplateAutoGenerator:
         self._last_objective = objective
         search_terms = " ".join(map(str, objective.values()))
         logger.info(f"Generating template for objective: {search_terms}")
-        start_time = time.time()
-        candidates = self.templates + self.patterns
+        start_ts = time.time()
         found = ""
-        total_candidates = len(self.templates + self.patterns)
-        with tqdm(self.templates + self.patterns, desc="[PROGRESS] search", unit="tmpl") as bar:
+        all_candidates = self.templates + self.patterns
+        total_candidates = len(all_candidates)
+        with tqdm(all_candidates, desc="[PROGRESS] search", unit="tmpl") as bar:
             for idx, tmpl in enumerate(bar, start=1):
-                etc = calculate_etc(start, idx, total_candidates)
-                bar.set_postfix_str(f"ETC: {etc}")
-                if time.time() - start > timeout:
+                etc = calculate_etc(start_ts, idx, total_candidates)
+                bar.set_postfix(etc=etc)
+                if time.time() - start_ts > timeout:
                     logger.warning("Generation timeout reached")
                     break
                 if all(term.lower() in tmpl.lower() for term in search_terms.split()):
@@ -221,7 +229,7 @@ class TemplateAutoGenerator:
         if not found:
             self._log_event("generate", {"objective": search_terms, "status": "none"})
             logger.warning("No template found for objective")
-        duration = time.time() - start
+        duration = time.time() - start_ts
         self._log_event("generate_complete", {"objective": search_terms, "duration": duration})
         return found
 
@@ -233,6 +241,8 @@ class TemplateAutoGenerator:
 
     def get_cluster_representatives(self) -> List[str]:
         logger.info("Getting cluster representatives...")
+        if not self.cluster_model:
+            self.cluster_model = self._cluster_patterns()
         if not self.cluster_model:
             logger.warning("No cluster model available")
             return []

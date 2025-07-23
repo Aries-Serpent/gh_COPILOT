@@ -6,20 +6,16 @@ import json
 import logging
 import sqlite3
 import sys
-import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-
-from template_engine.auto_generator import calculate_etc
-
-from template_engine.auto_generator import TemplateAutoGenerator
+from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
 
 from tqdm import tqdm
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
 LOG_FILE = RENDER_LOG_DIR / "documentation_render.log"
-ANALYTICS_DB = Path("analytics.db")
+ANALYTICS_DB = Path("databases") / "analytics.db"
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +27,8 @@ class DocumentationManager:
     database: Path = Path("production.db")
     analytics_db: Path = ANALYTICS_DB
     completion_db: Path = Path("databases/template_completion.db")
+
+    generator: TemplateAutoGenerator | None = None
 
     def _refresh_rows(self) -> list[tuple[str, str, int]]:
         with sqlite3.connect(self.database) as conn:
@@ -49,12 +47,13 @@ class DocumentationManager:
             analytics_db=self.analytics_db, completion_db=self.completion_db
         )
         count = 0
+        generator = TemplateAutoGenerator(self.analytics_db, self.completion_db)
         for idx, (title, content, score) in enumerate(
-            tqdm(rows, desc="render", unit="doc", leave=False), start=1
+            tqdm(rows, desc="render", unit="doc", leave=False), 1
         ):
             if score < 60:
                 continue
-            template = generator.select_best_template(title)
+            template = self.generator.select_best_template(title)
             final_content = template or content
             (RENDER_LOG_DIR / f"{title}.md").write_text(final_content)
             (RENDER_LOG_DIR / f"{title}.html").write_text(
@@ -75,7 +74,7 @@ class DocumentationManager:
 
     def _log_event(self, action: str, title: str) -> None:
         try:
-            with sqlite3.connect(ANALYTICS_DB) as conn:
+            with sqlite3.connect(self.analytics_db) as conn:
                 conn.execute(
                     "CREATE TABLE IF NOT EXISTS render_events (timestamp TEXT, action TEXT, title TEXT)"
                 )
