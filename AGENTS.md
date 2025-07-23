@@ -137,4 +137,3 @@ By adhering strictly to the above guidelines and protocols, the AI agent will pr
 
 - Inspect the source of /usr/local/bin/clw and use it as indicated.
 - Pipe all commands that potentially might have a long output, or pipe everything that does not need a tty to stay on the safe side.
-
