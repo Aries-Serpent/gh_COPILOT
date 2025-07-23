@@ -85,11 +85,11 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
             CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
                 file_path TEXT,
                 line_number INTEGER,
-                placeholder_type TEXT,
+                item_type TEXT,
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-            """,
+            """
         )
         for row in results:
             values = (
@@ -105,9 +105,15 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
                 values,
             )
             conn.execute(
-                "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp)"
+                "INSERT INTO todo_fixme_tracking (file_path, line_number, item_type, context, timestamp)"
                 " VALUES (?, ?, ?, ?, ?)",
-                values,
+                (
+                    row["file"],
+                    row["line"],
+                    row["pattern"],
+                    row["context"],
+                    datetime.now().isoformat(),
+                ),
             )
         conn.commit()
 

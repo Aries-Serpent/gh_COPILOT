@@ -1,6 +1,8 @@
 import os
 import sqlite3
 
+os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
+
 from scripts.audit_codebase_placeholders import main
 
 
@@ -15,7 +17,9 @@ def test_audit_places(tmp_path):
         conn.execute(
             "CREATE TABLE template_placeholders (id INTEGER PRIMARY KEY, placeholder_name TEXT)"
         )
-        conn.execute("INSERT INTO template_placeholders (placeholder_name) VALUES ('legacy template logic')")
+        conn.execute(
+            "INSERT INTO template_placeholders (placeholder_name) VALUES ('legacy template logic')"
+        )
         conn.commit()
 
     analytics = tmp_path / "analytics.db"

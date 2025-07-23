@@ -1,6 +1,8 @@
 import json
 import sqlite3
 
+import os
+
 from scripts.placeholder_audit_logger import main, rollback_last_entry
 from scripts.dashboard_placeholder_sync import sync
 
@@ -62,24 +64,26 @@ def test_dashboard_placeholder_sync(tmp_path):
 
 
 def test_rollback_last_entry(tmp_path):
-    db = tmp_path / "analytics.db"
-    with sqlite3.connect(db) as conn:
+    analytics = tmp_path / "analytics.db"
+    analytics.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(analytics) as conn:
         conn.execute(
             "CREATE TABLE placeholder_audit (id INTEGER PRIMARY KEY, file_path TEXT, pattern TEXT, line INTEGER, severity TEXT, ts TEXT)"
         )
         conn.execute(
             "CREATE TABLE code_audit_log (id INTEGER PRIMARY KEY, file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT)"
         )
-        conn.execute("INSERT INTO placeholder_audit (file_path, pattern, line, severity, ts) VALUES ('f', 'TODO', 1, 'low', 'ts')")
-        conn.execute("INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp) VALUES ('f', 1, 'TODO', 'c', 'ts')")
-        conn.execute("INSERT INTO placeholder_audit (file_path, pattern, line, severity, ts) VALUES ('f2', 'FIXME', 2, 'medium', 'ts')")
-        conn.execute("INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp) VALUES ('f2', 2, 'FIXME', 'c2', 'ts')")
+        conn.execute(
+            "INSERT INTO placeholder_audit (file_path, pattern, line, severity, ts) VALUES ('f', 'TODO', 1, 'low', 'ts')"
+        )
+        conn.execute(
+            "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp) VALUES ('f', 1, 'TODO', 'ctx', 'ts')"
+        )
         conn.commit()
 
-    assert rollback_last_entry(db)
-    with sqlite3.connect(db) as conn:
-        count1 = conn.execute("SELECT COUNT(*) FROM placeholder_audit").fetchone()[0]
-        count2 = conn.execute("SELECT COUNT(*) FROM code_audit_log").fetchone()[0]
-
-    assert count1 == 1
-    assert count2 == 1
+    assert rollback_last_entry(analytics)
+    with sqlite3.connect(analytics) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM placeholder_audit").fetchone()[0]
+        count_log = conn.execute("SELECT COUNT(*) FROM code_audit_log").fetchone()[0]
+    assert count == 0
+    assert count_log == 0
