@@ -7,16 +7,16 @@ import logging
 import sqlite3
 import sys
 from dataclasses import dataclass
-from datetime import datetime
 import time
 from pathlib import Path
 from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
+from template_engine.log_utils import _log_event, DEFAULT_ANALYTICS_DB
 
 from tqdm import tqdm
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
 LOG_FILE = RENDER_LOG_DIR / "documentation_render.log"
-ANALYTICS_DB = Path("databases") / "analytics.db"
+ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class DocumentationManager:
             (RENDER_LOG_DIR / f"{title}.json").write_text(
                 json.dumps({"title": title, "content": final_content}, indent=2)
             )
-            self._log_event("render", title)
+            _log_event({"action": "render", "title": title}, table="render_events", db_path=self.analytics_db)
             tqdm.write(f"ETC: {calculate_etc(start_ts, idx, len(rows))}")
             count += 1
         logger.info(
@@ -76,20 +76,6 @@ class DocumentationManager:
         )
         return count
 
-    def _log_event(self, action: str, title: str) -> None:
-        try:
-            with sqlite3.connect(self.analytics_db) as conn:
-                conn.execute(
-                    "CREATE TABLE IF NOT EXISTS render_events (timestamp TEXT, action TEXT, title TEXT)"
-                )
-                conn.execute(
-                    "INSERT INTO render_events (timestamp, action, title) VALUES (?, ?, ?)",
-                    (datetime.utcnow().isoformat(), action, title),
-                )
-            with open(LOG_FILE, "a", encoding="utf-8") as logf:
-                logf.write(f"{datetime.utcnow().isoformat()}|{action}|{title}\n")
-        except sqlite3.Error as exc:
-            logger.error("Failed to log render event: %s", exc)
 
 
 def dual_validate() -> bool:

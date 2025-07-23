@@ -14,8 +14,10 @@ from pathlib import Path
 from typing import List, Tuple, Optional
 from tqdm import tqdm
 
+from template_engine.log_utils import _log_event, DEFAULT_ANALYTICS_DB
+
 logger = logging.getLogger(__name__)
-ANALYTICS_DB = Path("databases") / "analytics.db"
+ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 
 
 def _calculate_etc(start_ts: float, current: int, total: int) -> str:
@@ -40,7 +42,7 @@ def _create_backup(db: Path) -> Optional[Path]:
 def rollback_db(db: Path, backup: Path) -> None:
     if backup.exists():
         shutil.copy(backup, db)
-        _log_event(db, {"rollback": str(backup)})
+        _log_event({"db": str(db), "rollback": str(backup)}, table="doc_analysis", db_path=ANALYTICS_DB)
 
 
 CLEANUP_SQL = (
@@ -54,20 +56,6 @@ DEDUP_SQL = (
 )
 
 
-def _log_event(db: Path, data: dict) -> None:
-    """Log audit results to analytics.db."""
-    analytics = Path("analytics.db")
-    try:
-        with sqlite3.connect(analytics) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS doc_analysis (timestamp TEXT, db TEXT, details TEXT)"
-            )
-            conn.execute(
-                "INSERT INTO doc_analysis (timestamp, db, details) VALUES (?, ?, ?)",
-                (datetime.utcnow().isoformat(), str(db), json.dumps(data)),
-            )
-    except sqlite3.Error:
-        logger.error("Failed to log analysis results")
 
 
 def _audit_placeholders_conn(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
@@ -92,7 +80,7 @@ def audit_placeholders(db_path: Path) -> int:
         return 0
     with sqlite3.connect(db_path) as conn:
         placeholders = _audit_placeholders_conn(conn)
-    _log_event(db_path, {"placeholders": len(placeholders)})
+    _log_event({"db": str(db_path), "placeholders": len(placeholders)}, table="doc_analysis", db_path=ANALYTICS_DB)
     return len(placeholders)
 
 
@@ -115,13 +103,18 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
             0
         ]
         conn.commit()
-        _log_event(db_path, {
-            "before": before,
-            "after": after,
-            "removed_backups": removed_backups,
-            "removed_duplicates": removed_dupes,
-            "placeholders": len(placeholders),
-        })
+        _log_event(
+            {
+                "db": str(db_path),
+                "before": before,
+                "after": after,
+                "removed_backups": removed_backups,
+                "removed_duplicates": removed_dupes,
+                "placeholders": len(placeholders),
+            },
+            table="doc_analysis",
+            db_path=ANALYTICS_DB,
+        )
 
         if backup_path:
             backup_path.write_text(json.dumps(placeholders, indent=2), encoding="utf-8")
@@ -184,7 +177,7 @@ def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
         logger.error("Backup not found: %s", backup_path)
         return False
     shutil.copy2(backup_path, db_path)
-    _log_event(db_path, {"rollback": str(backup_path)})
+    _log_event({"db": str(db_path), "rollback": str(backup_path)}, table="doc_analysis", db_path=ANALYTICS_DB)
     logger.info("Database restored from backup: %s", backup_path)
     return True
 
@@ -203,7 +196,15 @@ def restore_entries(db_path: Path, backup_path: Path) -> None:
                 (title, content),
             )
         conn.commit()
-    _log_event(db_path, {"rollback_restored": len(items), "backup": str(backup_path)})
+    _log_event(
+        {
+            "db": str(db_path),
+            "rollback_restored": len(items),
+            "backup": str(backup_path),
+        },
+        table="doc_analysis",
+        db_path=ANALYTICS_DB,
+    )
 
 
 def main() -> None:
@@ -222,7 +223,11 @@ def main() -> None:
     _log_report(report)
     etc = calculate_etc(start_ts, 1, 1)
     logger.info("Cleanup complete: %s | ETC: %s", report_path, etc)
-    _log_event(db_path, {"report": str(report_path)})
+    _log_event(
+        {"db": str(db_path), "report": str(report_path)},
+        table="doc_analysis",
+        db_path=ANALYTICS_DB,
+    )
 
 
 if __name__ == "__main__":
