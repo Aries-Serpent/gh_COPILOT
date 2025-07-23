@@ -102,5 +102,17 @@ This document lists high-level tasks required to fully implement the database-fi
 - **Module:** `web_gui/scripts/flask_apps/enterprise_dashboard.py`
 - **Cross-Reference:** Real-time metrics pulled from `analytics.db` and correction logs.
 
+## 16. Quantum and Visual Processing Tracking
+- **ID:** `VIS-001`
+  - Add progress bars, ETA, and timeout status to all long-running tasks.
+  - **Module:** `template_engine/auto_generator.py`
+  - **Cross-Reference:** Visual indicators logged to `analytics.db` and displayed on the dashboard.
+
+## 17. Compliance Alerting Enhancements
+- **ID:** `CMP-001`
+  - Surface compliance score changes and rollback alerts in real time.
+  - **Module:** `web_gui/scripts/flask_apps/enterprise_dashboard.py`
+  - **Cross-Reference:** Pull latest audit events from `analytics.db` for dashboard notifications.
+
 ---
 These tasks derive from the provided enhancement prompt and are meant to guide ongoing work toward a robust database-first Copilot integration.

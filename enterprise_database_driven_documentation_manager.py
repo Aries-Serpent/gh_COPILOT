@@ -10,11 +10,14 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+import time
+
+from template_engine.auto_generator import calculate_etc
 
 from tqdm import tqdm
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
-ANALYTICS_DB = Path("analytics.db")
+ANALYTICS_DB = Path("databases") / "analytics.db"
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +53,8 @@ class DocumentationManager:
                 json.dumps({"title": title, "content": content}, indent=2)
             )
             self._log_event("render", title)
+            etc = calculate_etc(start_ts, idx, len(rows))
+            tqdm.write(f"ETC: {etc}")
             count += 1
         duration = time.time() - start
         self._log_event("render_complete", str(duration))

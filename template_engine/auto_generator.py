@@ -95,6 +95,7 @@ class TemplateAutoGenerator:
                 except sqlite3.Error as exc:
                     logger.error(f"Error loading patterns: {exc}")
         logger.info(f"Loaded {len(patterns)} patterns")
+        self._log_event("load_patterns", {"count": len(patterns)})
         return patterns
 
     def _refresh_templates(self) -> None:
@@ -113,6 +114,7 @@ class TemplateAutoGenerator:
                 except sqlite3.Error as exc:
                     logger.error(f"Error loading templates: {exc}")
         logger.info(f"Loaded {len(templates)} templates")
+        self._log_event("load_templates", {"count": len(templates)})
         return templates
 
     def _quantum_score(self, text: str) -> float:
@@ -131,11 +133,11 @@ class TemplateAutoGenerator:
         matrix = vectorizer.fit_transform(corpus)
         n_clusters = min(len(corpus), 2)
         model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
-        start = time.time()
+        start_ts = time.time()
         with tqdm(total=1, desc="clustering", unit="step") as pbar:
             model.fit(matrix)
             pbar.update(1)
-        duration = time.time() - start
+        duration = time.time() - start_ts
         logger.info(f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s")
         self._log_event("cluster", {"items": len(corpus), "clusters": n_clusters, "duration": duration})
         return model
@@ -175,16 +177,25 @@ class TemplateAutoGenerator:
         except sqlite3.Error as exc:
             logger.warning(f"Failed to log template selection: {exc}")
         logger.info("Best template selected and logged")
+        self._log_event("select_best", {"target": target, "template": best})
         return best
 
-    def generate_template(self, objective: dict) -> str:
+    def generate_template(self, objective: dict, timeout: int = 30) -> str:
+        """Generate a template based on ``objective`` with progress bars and timeout."""
         self._last_objective = objective
         search_terms = " ".join(map(str, objective.values()))
         logger.info(f"Generating template for objective: {search_terms}")
-        start_time = time.time()
+        start_dt = datetime.utcnow()
+        start_ts = time.time()
         found = ""
-        with tqdm(self.templates + self.patterns, desc="[PROGRESS] search", unit="tmpl") as bar:
-            for tmpl in bar:
+        corpus = self.templates + self.patterns
+        with tqdm(corpus, desc="[PROGRESS] search", unit="tmpl") as bar:
+            for idx, tmpl in enumerate(corpus, 1):
+                if time.time() - start_ts > timeout:
+                    bar.set_description("timeout")
+                    logger.warning("Generation timeout reached")
+                    self._log_event("generate_timeout", {"objective": search_terms, "elapsed": time.time() - start_ts})
+                    break
                 if all(term.lower() in tmpl.lower() for term in search_terms.split()):
                     if "def invalid" in tmpl:
                         raise ValueError("Invalid template syntax")
@@ -194,12 +205,14 @@ class TemplateAutoGenerator:
                         )
                         conn.execute(
                             "INSERT INTO generation_events (ts, objective, template) VALUES (?,?,?)",
-                            (datetime.utcnow().isoformat(), str(objective), tmpl),
+                            (start_dt.isoformat(), str(objective), tmpl),
                         )
                         conn.commit()
                     found = tmpl
                     logger.info("Template generated and logged")
                     break
+                etc = calculate_etc(start_ts, idx, len(corpus))
+                bar.set_postfix_str(etc)
                 bar.update(1)
                 bar.set_postfix({"etc": calculate_etc(start_time, bar.n, len(self.templates + self.patterns))})
         if not found:
@@ -224,9 +237,13 @@ class TemplateAutoGenerator:
         vectorizer = TfidfVectorizer().fit(corpus)
         matrix = vectorizer.transform(corpus)
         reps: List[str] = []
+        start_ts = time.time()
         for idx in tqdm(
             range(self.cluster_model.n_clusters), desc="[PROGRESS] reps", unit="cluster"
         ):
+            if time.time() - start_ts > 60:
+                logger.warning("Representative selection timeout")
+                break
             indices = [
                 i for i, label in enumerate(self.cluster_model.labels_) if label == idx
             ]
@@ -238,7 +255,7 @@ class TemplateAutoGenerator:
             best_local = indices[int(max(range(len(sims)), key=lambda i: sims[i]))]
             reps.append(corpus[best_local])
         logger.info(f"Cluster representatives selected: {len(reps)}")
-        self._log_event("cluster_representatives", {"count": len(reps)})
+        self._log_event("cluster_reps", {"count": len(reps)})
         return reps
 
     def _log_event(self, name: str, data: dict) -> None:
