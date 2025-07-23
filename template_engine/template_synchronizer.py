@@ -18,7 +18,6 @@ from tqdm import tqdm
 from .log_utils import _log_event, DEFAULT_ANALYTICS_DB
 
 
-
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 logger = logging.getLogger(__name__)
 
@@ -91,8 +90,6 @@ def _log_audit(db_name: str, details: str) -> None:
             )
     except sqlite3.Error as exc:
         logger.error("Failed to log audit event: %s", exc)
-
-
 
 
 def _compliance_check(conn: sqlite3.Connection) -> bool:

@@ -15,6 +15,7 @@ from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
+from .log_utils import _log_event
 
 from .log_utils import _log_event, DEFAULT_ANALYTICS_DB as LOG_DB
 
@@ -22,6 +23,7 @@ from .log_utils import _log_event, DEFAULT_ANALYTICS_DB as LOG_DB
 try:
     from quantum_algorithm_library_expansion import demo_quantum_fourier_transform
 except ImportError:
+
     def demo_quantum_fourier_transform():
         # Fallback: return a normalized vector
         return np.ones(8) / np.sqrt(8)
@@ -36,21 +38,20 @@ LOG_FILE = LOGS_DIR / f"auto_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
 
+
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 logger.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     elapsed = time.time() - start_time
@@ -59,6 +60,7 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
         remaining = total_estimated - elapsed
         return f"{remaining:.2f}s remaining"
     return "N/A"
+
 
 @dataclass
 class TemplateAutoGenerator:
@@ -139,12 +141,16 @@ class TemplateAutoGenerator:
         vectorizer = TfidfVectorizer()
         matrix = vectorizer.fit_transform(corpus)
         n_clusters = min(len(corpus), 2)
-        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=int(time.time()))
+        model = KMeans(
+            n_clusters=n_clusters, n_init="auto", random_state=int(time.time())
+        )
         start_ts = time.time()
         with tqdm(total=1, desc="clustering", unit="step") as pbar:
             model.fit(matrix)
             pbar.update(1)
-        model.cluster_centers_ += np.random.normal(scale=0.01, size=model.cluster_centers_.shape)
+        model.cluster_centers_ += np.random.normal(
+            scale=0.01, size=model.cluster_centers_.shape
+        )
         duration = time.time() - start_ts
         logger.info(
             f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s"
@@ -168,7 +174,9 @@ class TemplateAutoGenerator:
         start = time.time()
         with tqdm(total=len(candidates), desc="[PROGRESS] select", unit="tmpl") as bar:
             for idx, tmpl in enumerate(candidates, 1):
-                score = self.objective_similarity(target, tmpl) + self._quantum_score(tmpl)
+                score = self.objective_similarity(target, tmpl) + self._quantum_score(
+                    tmpl
+                )
                 if score > best_score:
                     best_score = score
                     best = tmpl

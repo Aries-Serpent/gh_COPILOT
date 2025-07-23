@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Database-driven documentation renderer with compliance checks."""
+
 from __future__ import annotations
 
 import json
@@ -13,6 +14,13 @@ from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
 from template_engine.log_utils import _log_event, DEFAULT_ANALYTICS_DB
 
 from tqdm import tqdm
+import importlib.util
+
+_LOG_UTILS_PATH = Path(__file__).resolve().parent / "template_engine" / "log_utils.py"
+spec = importlib.util.spec_from_file_location("log_utils", _LOG_UTILS_PATH)
+_log_mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(_log_mod)
+_log_event = _log_mod._log_event
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
 LOG_FILE = RENDER_LOG_DIR / "documentation_render.log"
@@ -77,7 +85,6 @@ class DocumentationManager:
         return count
 
 
-
 def dual_validate() -> bool:
     manager = DocumentationManager()
     processed = manager.render()
@@ -88,4 +95,3 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     success = dual_validate()
     sys.exit(0 if success else 1)
-
