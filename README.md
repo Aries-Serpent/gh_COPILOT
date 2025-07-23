@@ -269,6 +269,20 @@ TEXT_INDICATORS = {
 }
 ```
 
+### **Unified Logging Utility**
+The toolkit provides a shared `_log_event` helper in
+`template_engine/log_utils.py`. This function writes events to tables such as
+`sync_events_log`, `sync_status`, or `doc_analysis` within `analytics.db` while
+displaying a brief progress bar.
+
+```python
+from template_engine.log_utils import _log_event
+
+_log_event({"event": "sync_start"}, table="sync_events_log")
+```
+
+Tests verify this logging mechanism as part of the DUAL COPILOT pattern.
+
 ---
 
 ## ⚡ AUTONOMOUS SYSTEMS

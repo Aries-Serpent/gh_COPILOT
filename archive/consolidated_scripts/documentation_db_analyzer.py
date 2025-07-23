@@ -29,6 +29,7 @@ logging.basicConfig(
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
 
+
 class DocumentationDBAnalyzer:
     """
     Enterprise Documentation Database Analyzer
@@ -65,17 +66,20 @@ class DocumentationDBAnalyzer:
             "databases": {},
             "process_id": self.process_id,
             "start_time": self.start_time.isoformat(),
+            "total": 0,
         }
         total_steps = len(self.doc_dbs)
-        start_time = time.time()
-        with tqdm(total=total_steps, desc="Documentation DB Analysis", unit="db") as bar:
+        start_ts = time.time()
+        with tqdm(
+            total=total_steps, desc="Documentation DB Analysis", unit="db"
+        ) as bar:
             for idx, db in enumerate(self.doc_dbs, 1):
                 phase = f"Scanning {db.name}"
                 bar.set_description(phase)
-                elapsed = time.time() - start_time
+                elapsed = time.time() - start_ts
                 if elapsed > self.timeout_seconds:
                     raise TimeoutError(
-                        f"Process exceeded {self.timeout_seconds/60:.1f} minute timeout"
+                        f"Process exceeded {self.timeout_seconds / 60:.1f} minute timeout"
                     )
                 if not db.exists():
                     summary["databases"][str(db)] = {"error": "Database not found"}
@@ -89,7 +93,9 @@ class DocumentationDBAnalyzer:
                         rows = cur.fetchall()
                         doc_type_counts = {dt: cnt for dt, cnt in rows}
                         expected_types = self._get_expected_doc_types(conn)
-                        missing_types = [dt for dt in expected_types if dt not in doc_type_counts]
+                        missing_types = [
+                            dt for dt in expected_types if dt not in doc_type_counts
+                        ]
                         total_entries = sum(doc_type_counts.values())
                         summary["databases"][str(db)] = {
                             "doc_type_counts": doc_type_counts,
@@ -100,9 +106,15 @@ class DocumentationDBAnalyzer:
                     summary["databases"][str(db)] = {"error": str(exc)}
                 etc = self._calculate_etc(elapsed, idx, total_steps)
                 bar.set_postfix(ETC=etc)
+                summary["total"] += total_entries
                 bar.update(1)
-        elapsed = time.time() - start_time
-        logging.info(f"Documentation DB analysis completed in {elapsed:.2f}s | ETC: {etc}")
+        elapsed = time.time() - start_ts
+        etc = self._calculate_etc(elapsed, total_steps, total_steps)
+        logging.info(
+            "Documentation DB analysis completed in %.2fs | ETC: %s",
+            elapsed,
+            etc,
+        )
         self._log_summary(summary)
         self._record_summary(summary)
         self._dual_copilot_validate()
@@ -117,7 +129,9 @@ class DocumentationDBAnalyzer:
             columns = [row[1] for row in cur.fetchall()]
             if "doc_type" in columns:
                 try:
-                    cur2 = conn.execute("SELECT DISTINCT doc_type FROM enterprise_documentation")
+                    cur2 = conn.execute(
+                        "SELECT DISTINCT doc_type FROM enterprise_documentation"
+                    )
                     return [row[0] for row in cur2.fetchall()]
                 except Exception:
                     return []
@@ -155,23 +169,31 @@ class DocumentationDBAnalyzer:
             cur = conn.execute("SELECT COUNT(*) FROM documentation_gap_analysis")
             db_count = cur.fetchone()[0]
         if db_count > 0:
-            logging.info("DUAL COPILOT validation passed: Documentation gap analysis integrity confirmed.")
+            logging.info(
+                "DUAL COPILOT validation passed: Documentation gap analysis integrity confirmed."
+            )
         else:
-            logging.error("DUAL COPILOT validation failed: Documentation gap analysis missing.")
+            logging.error(
+                "DUAL COPILOT validation failed: Documentation gap analysis missing."
+            )
 
     def _validate_no_recursive_folders(self) -> None:
         """
         Anti-recursion validation before analysis.
         """
         workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-        forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+        forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
         for pattern in forbidden_patterns:
             for folder in workspace_root.rglob(pattern):
                 if folder.is_dir() and folder != workspace_root:
                     logging.error(f"Recursive folder detected: {folder}")
-                    raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+                    raise RuntimeError(
+                        f"CRITICAL: Recursive folder violation: {folder}"
+                    )
 
-    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
+    def _calculate_etc(
+        self, elapsed: float, current_progress: int, total_work: int
+    ) -> str:
         if current_progress > 0:
             total_estimated = elapsed / (current_progress / total_work)
             remaining = total_estimated - elapsed
@@ -194,6 +216,7 @@ class DocumentationDBAnalyzer:
             data = json.loads(row[0])
             return data.get("total", 0) >= expected_total
 
+
 def main() -> None:
     analyzer = DocumentationDBAnalyzer()
     summary = analyzer.analyze()
@@ -202,6 +225,7 @@ def main() -> None:
         logging.info("Documentation analysis validated successfully")
     else:
         logging.error("Documentation analysis validation failed")
+
 
 if __name__ == "__main__":
     main()

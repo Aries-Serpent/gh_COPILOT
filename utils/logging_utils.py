@@ -6,7 +6,9 @@ from datetime import datetime
 from pathlib import Path
 
 
-def setup_enterprise_logging(level: str = "INFO", log_file: str = None) -> logging.Logger:
+def setup_enterprise_logging(
+    level: str = "INFO", log_file: str = None
+) -> logging.Logger:
     """Setup enterprise-grade logging configuration"""
 
     if log_file is None:
@@ -17,11 +19,8 @@ def setup_enterprise_logging(level: str = "INFO", log_file: str = None) -> loggi
 
     logging.basicConfig(
         level=getattr(logging, level.upper()),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler()
-        ]
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
     )
 
     return logging.getLogger("gh_COPILOT")
@@ -39,3 +38,8 @@ def log_enterprise_operation(operation: str, status: str, details: str = "") -> 
         logger.error(f"❌ {operation}: {details}")
     else:
         logger.info(f"📊 {operation}: {details}")
+
+
+ANALYTICS_DB = Path("databases") / "analytics.db"
+
+
