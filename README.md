@@ -64,6 +64,9 @@ bash setup.sh
 # Always run this script before executing tests or automation tasks to ensure
 # dependencies and environment variables are correctly initialized.
 
+# 2b. Verify the line-wrapping utility is available
+ls -l /usr/local/bin/clw
+
 # 3. Initialize databases
 python scripts/database/database_initializer.py
 
