@@ -68,6 +68,9 @@ bash setup.sh
 # dependencies and environment variables are correctly initialized.
 
 # 2b. Verify the line-wrapping utility is available
+if [ ! -x /usr/local/bin/clw ]; then
+    bash tools/install_clw.sh
+fi
 ls -l /usr/local/bin/clw
 # If the file is missing, install it from `tools/clw.py`:
 sudo cp tools/clw.py /usr/local/bin/clw && sudo chmod +x /usr/local/bin/clw
