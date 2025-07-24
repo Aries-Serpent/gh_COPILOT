@@ -59,6 +59,9 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 git clone https://github.com/your-org/gh_COPILOT.git
 cd gh_COPILOT
 
+# 1b. Copy environment template
+cp .env.example .env
+
 # 2. Run setup script (creates `.venv` and installs requirements)
 bash setup.sh
 # Always run this script before executing tests or automation tasks to ensure
