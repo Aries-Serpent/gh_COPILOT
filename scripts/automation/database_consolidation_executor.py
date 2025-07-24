@@ -10,6 +10,7 @@ Safe execution of database consolidation plan with:
 ================================================================
 """
 
+import argparse
 import json
 import logging
 import shutil
@@ -160,8 +161,7 @@ class DatabaseConsolidationExecutor:
                                     column_names = ",".join([f"`{col}`" for col in columns])
                                     
                                     insert_sql = (
-                                        f"INSERT OR IGNORE INTO `{table}` ({column_names}) "
-                                        f"VALUES ({placeholders})"
+                                        f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"
                                     )
                                     
                                     # Insert data
@@ -169,10 +169,7 @@ class DatabaseConsolidationExecutor:
                                     inserted_count = target_cursor.rowcount
                                     
                                     self.logger.info(
-                                        "  📊 Merged %d rows from %s (%d new)",
-                                        len(rows),
-                                        table,
-                                        inserted_count,
+                                        f"  📊 Merged {len(rows)} rows from {table} ({inserted_count} new)"
                                     )
                                 
                         except Exception as e:
@@ -295,8 +292,7 @@ class DatabaseConsolidationExecutor:
                                         column_names = ",".join([f"`{col}`" for col in columns])
                                         
                                         insert_sql = (
-                                            f"INSERT OR IGNORE INTO `{table}` ({column_names}) "
-                                            f"VALUES ({placeholders})"
+                                            f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"
                                         )
                                         
                                         # Insert data
@@ -304,11 +300,7 @@ class DatabaseConsolidationExecutor:
                                         inserted_count = target_cursor.rowcount
                                         
                                         self.logger.info(
-                                            "    📊 Merged %d rows from %s.%s (%d new)",
-                                            len(rows),
-                                            source_path.name,
-                                            table,
-                                            inserted_count,
+                                            f"    📊 Merged {len(rows)} rows from {source_path.name}.{table} ({inserted_count} new)"
                                         )
                                 
                             except Exception as e:
@@ -461,10 +453,7 @@ class DatabaseConsolidationExecutor:
             else:
                 self.execution_results["status"] = "PARTIAL_SUCCESS"
                 self.logger.warning(
-                    "⚠️ Consolidation completed with %d failures. %d/%d actions succeeded",
-                    failed,
-                    completed,
-                    total,
+                    f"⚠️ Consolidation completed with {failed} failures. {completed}/{total} actions succeeded"
                 )
             
             return failed == 0
@@ -566,10 +555,8 @@ class DatabaseConsolidationExecutor:
         print(f"🛡️ Backup Available: {self.execution_results['rollback_available']}")
 
 
-def main() -> None:
+def main() -> int:
     """🚀 Main execution function"""
-    import argparse
-
     parser = argparse.ArgumentParser(description="Database consolidation executor")
     parser.add_argument("plan_file", help="Path to consolidation plan")
     parser.add_argument(
@@ -617,8 +604,8 @@ def main() -> None:
     print(f"\n📄 Full execution log: consolidation_execution_{executor.execution_timestamp}.log")
     print(f"📄 Execution report: {report_file}")
     
-    return success
+    return 0 if success else 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
