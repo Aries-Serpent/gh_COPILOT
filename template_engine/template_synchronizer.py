@@ -9,13 +9,14 @@ import logging
 import os
 import sqlite3
 import time
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 from typing import Iterable
 
 from tqdm import tqdm
-from .log_utils import _log_event
 
+from .log_utils import _log_event
+from .placeholder_utils import DEFAULT_ANALYTICS_DB
 
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 logger = logging.getLogger(__name__)
@@ -52,9 +53,19 @@ def _validate_template(name: str, content: str) -> bool:
 
 
 def _compliance_score(content: str) -> float:
-    """Return a simple compliance score for template content."""
-    # Example: flag TODOs or missing content as non-compliant
-    if "TODO" in content.upper() or not content.strip():
+    """Compute compliance score using analytics database."""
+    if not ANALYTICS_DB.exists():
+        return 100.0
+    unresolved = 0
+    try:
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=0"
+            )
+            unresolved = cur.fetchone()[0]
+    except sqlite3.Error:
+        return 100.0
+    if unresolved > 0:
         return 50.0
     return 100.0
 

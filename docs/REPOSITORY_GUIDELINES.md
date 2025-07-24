@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-This project uses a single `AGENTS.md` at the repository root as the authoritative guide for all contributors. A copy is kept at `.github/instructions/AGENTS.md` for reference. Any older guides are archived under `_MANUAL_DELETE_FOLDER/`.
+This project uses a single `AGENTS.md` at the repository root as the authoritative guide for all contributors. A copy is kept at `.github/instructions/AGENTS.md` for reference. Older guides are archived outside the repository.
 
 ## Environment Setup
 
@@ -30,7 +30,7 @@ source .venv/bin/activate
 ## Archival Policy
 
 Binary archives such as `*.zip` and `*.7z` should not remain in version control.
-If any appear in `archive*/` or `archives/`, move them to `_MANUAL_DELETE_FOLDER/`
-for manual removal. Once a HUMAN clears that folder, AGENTS should extend
-`.gitignore` to exclude these archive formats.
+If any appear in `archive*/` or `archives/`, move them out of the workspace for
+manual removal. Once cleared, update `.gitignore` to exclude these archive
+formats.
 

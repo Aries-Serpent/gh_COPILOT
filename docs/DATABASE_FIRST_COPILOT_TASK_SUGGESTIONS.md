@@ -137,7 +137,7 @@ These tasks derive from the provided enhancement prompt and are meant to guide o
 
 ## 18. Explicit Stub Tasks for Outstanding Work
 
-The following table lists every incomplete module referenced in the repository
+The following table lists remaining incomplete modules referenced in the repository
 audit. Each entry describes the missing functionality and the exact file or
 directory path that requires attention. Use these stubs to track future
 development and to ensure **database-first** patterns and compliance metrics are

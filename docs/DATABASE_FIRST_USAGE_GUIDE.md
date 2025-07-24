@@ -49,8 +49,12 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
   template version and a computed compliance score.
 - The `EnterpriseComplianceValidator` verifies that every generated script comes from an approved
   template and meets the minimum compliance threshold (usually 80%).
-- Compliance summaries are exported to `analytics.db` so auditors can trace which templates were
-   used and whether any corrective actions occurred.
+- Compliance summaries are exported to `analytics.db` so auditors can trace which
+  templates were used and whether any corrective actions occurred. When a
+  placeholder or correction is detected, an entry is added to
+  `todo_fixme_tracking`. Once resolved, a matching record in `correction_logs`
+  links the change to the updated compliance score. This ensures every placeholder
+  removal is measurable and auditable.
 
 The Flask dashboard exposes a `/dashboard/compliance` endpoint that reads these
 metrics and shows real-time placeholder removal progress.

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Continuous Operation Monitor - placeholder."""
+"""Continuous Operation Monitor."""
 import argparse
 import logging
 import time
 from pathlib import Path
 
 from tqdm import tqdm
+
+__all__ = ["ContinuousOperationMonitor", "main"]
 
 
 def parse_args() -> argparse.Namespace:
@@ -27,13 +29,29 @@ def setup_logger(workspace: Path) -> logging.Logger:
 
 
 def run_monitor(logger: logging.Logger, iterations: int) -> None:
+    """Run monitoring loop logging each cycle."""
     for _ in tqdm(range(iterations), desc="Operation Cycle"):
         logger.info("cycle check")
         time.sleep(0.1)
     logger.info("Continuous monitoring complete")
 
 
+class ContinuousOperationMonitor:
+    """Utility wrapper with :py:meth:`run` for tests."""
+
+    def __init__(self, workspace: Path | None = None, interval: int = 3) -> None:
+        self.workspace = workspace or Path.cwd()
+        self.iterations = interval
+        self.logger = setup_logger(self.workspace)
+
+    def run(self) -> bool:
+        """Execute monitor cycles."""
+        run_monitor(self.logger, self.iterations)
+        return True
+
+
 def main() -> int:
+    """CLI entry point."""
     args = parse_args()
     logger = setup_logger(args.workspace)
     run_monitor(logger, args.iterations)
