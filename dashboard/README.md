@@ -1,22 +1,179 @@
 # Dashboard
 
-Compliance metrics and summaries.
+## OVERVIEW
 
-The `compliance` directory contains generated metrics (`metrics.json`) and correction summaries (`correction_summary.json`).
+The Enterprise Dashboard module is the central observability and control interface for the gh_COPILOT toolkit. 
+It enables real-time monitoring of core system operations, session management, compliance reporting, and 
+database orchestration—all in a unified web GUI built with Flask and Jinja2.
 
-## Endpoints
+This module is designed to meet enterprise auditability and compliance standards, providing a single-pane-of-glass 
+for operational health, process compliance, backup management, and DUAL COPILOT validation. All dashboard 
+operations are tracked and validated for compliance, with full audit trails and rollback capabilities.
 
-The Flask dashboard exposes a compliance endpoint:
+---
 
-* **`/dashboard/compliance`** – returns JSON with:
-  * `metrics` – aggregated values from `analytics.db`.
-  * `rollbacks` – correction events found in `dashboard/compliance/correction_summary.json`.
+## FEATURES
 
-Example:
+| Feature                      | Description                                                                                  |
+|------------------------------|----------------------------------------------------------------------------------------------|
+| Real-Time Metrics            | Live system performance, usage, and health status                                            |
+| Session Management           | Track, control, and validate current and historical sessions                                |
+| Database Operations          | Manage, browse, and synchronize all enterprise databases (production, analytics, monitoring) |
+| Compliance Reporting         | Visualizes DUAL COPILOT validation, compliance status, audit/rollback history               |
+| Backup and Recovery          | Initiate enterprise backup jobs, view logs, run restores, manage backup retention           |
+| Visual Processing Indicators | Progress bars, phase indicators, detailed execution status                                   |
+| Quantum Monitoring           | Extensible hooks for quantum and advanced analytics                                         |
+
+---
+
+## ARCHITECTURE
+
+- **Backend:** Flask application (`dashboard/enterprise_dashboard.py`)
+- **Templates:** Jinja2 HTML (`dashboard/templates/`)
+- **Static Content:** CSS, JS, images (`dashboard/static/`)
+- **Data Sources:** `production.db`, `analytics.db`, `monitoring.db`
+- **Primary Endpoints:** `/`, `/database`, `/backup`, `/migration`, `/deployment`, `/api/scripts`, `/api/health`, `/dashboard/compliance`
+- **Session Logging:** All actions are recorded in `production.db` and mirrored in `analytics.db`
+- **Compliance Display:** DUAL COPILOT validation and compliance events visible in dashboard sidebar and `/dashboard/compliance`
+
+---
+
+## ENVIRONMENT VARIABLES
+
+| Variable                   | Used For                                                  |
+|----------------------------|----------------------------------------------------------|
+| `GH_COPILOT_WORKSPACE`     | Sets the workspace root for all dashboard operations     |
+| `GH_COPILOT_BACKUP_ROOT`   | Location for backup files and dashboard logs             |
+| `FLASK_ENV`                | Set to `development` for Flask debug mode                |
+
+---
+
+## MODULE DIRECTORY STRUCTURE
+
+```
+dashboard/
+├── enterprise_dashboard.py       # Flask app main entrypoint
+├── templates/
+│   ├── dashboard.html            # Main dashboard view
+│   ├── compliance.html           # Compliance and audit report pages
+│   └── ...                      # Additional Jinja2 templates
+├── static/
+│   ├── css/                     # Stylesheets
+│   ├── js/                      # JavaScript assets
+│   └── ...                      # Images, icons, etc.
+├── compliance/
+│   ├── metrics.json             # Generated aggregated metrics
+│   ├── correction_summary.json  # Summaries of compliance corrections and rollbacks
+└── README.md                    # This documentation
+```
+
+---
+
+## USAGE
+
+### Starting the Dashboard
+
+```bash
+python dashboard/enterprise_dashboard.py
+```
+
+Visit [http://localhost:5000](http://localhost:5000) in your browser. The dashboard will auto-discover and display 
+current session, database, and compliance data. All metrics update in real time.
+
+---
+
+## ENDPOINTS
+
+| Endpoint                  | Functionality                                                                    |
+|---------------------------|----------------------------------------------------------------------------------|
+| `/`                       | Executive dashboard: live metrics, session overview, compliance                  |
+| `/database`               | Database browser, management, and sync controls                                  |
+| `/backup`                 | Backup and restore tools, log viewer                                            |
+| `/migration`              | Database and session migration operations                                        |
+| `/deployment`             | Deployment status and controls                                                   |
+| `/api/scripts`            | Run and monitor scripts via API                                                  |
+| `/api/health`             | System health check API                                                          |
+| `/dashboard/compliance`   | Returns compliance metrics, rollback and audit trail as JSON                     |
+
+#### Example `/dashboard/compliance` Response
+
+The `/dashboard/compliance` endpoint returns compliance information as JSON, combining live metrics from `analytics.db` 
+and correction/rollback summaries from `dashboard/compliance/correction_summary.json`.
 
 ```json
 {
-  "metrics": {"placeholder_removal": 10, "compliance_score": 0.98},
-  "rollbacks": []
+  "metrics": {
+    "placeholder_removal": 14,
+    "compliance_score": 0.993
+  },
+  "rollbacks": [
+    {
+      "timestamp": "2025-07-23T11:32:10Z",
+      "event": "Template rollback",
+      "details": "Rolled back non-compliant script template"
+    }
+  ]
 }
 ```
+
+- `metrics` — Aggregated compliance metrics (e.g., placeholder removal count, compliance score)
+- `rollbacks` — List of correction and rollback events
+
+The endpoint is used by the dashboard UI and can be queried by external tools for compliance reporting and audit automation.
+
+---
+
+## COMPLIANCE INTEGRATION
+
+- All dashboard logic is validated and logged for enterprise compliance via DUAL COPILOT pattern
+- Visual indicators (progress, phase, validation) are displayed in real time
+- All audit events and rollbacks are timestamped and associated with active user sessions
+- Compliance metrics are written to `analytics.db`, correction summaries to `dashboard/compliance/correction_summary.json`
+
+---
+
+## VISUAL PROCESSING
+
+- Progress bars indicate the state of ongoing operations
+- Color-coded compliance status: green (compliant), red (violations), yellow (audit pending)
+- Phase indicators and timestamps for all long-running jobs
+- Completion summaries and audit trail available in sidebar and compliance pages
+
+---
+
+## EXTENSION AND CUSTOMIZATION
+
+- New endpoints can be added via Flask blueprints in `enterprise_dashboard.py`
+- Additional data sources can be integrated by updating dashboard context loaders and data connectors
+- To display new compliance/audit metrics, extend sidebar modules in `templates/dashboard.html`
+- All new features must implement anti-recursion validation and update the compliance audit trail
+
+---
+
+## TROUBLESHOOTING
+
+- If the dashboard does not display properly:
+  - Check that `production.db`, `analytics.db`, and `monitoring.db` exist in the workspace root
+  - Verify all required environment variables are set before launch
+  - For verbose debug output, run with `FLASK_ENV=development`
+- For compliance or audit errors, consult `dashboard/compliance/correction_summary.json` and `analytics.db`
+
+---
+
+## RELATED DOCUMENTATION
+
+- [Repository Guidelines](../docs/REPOSITORY_GUIDELINES.md)
+- [WLC Session Manager](../docs/WLC_SESSION_MANAGER.md)
+- [Enterprise Context Guide](../.github/instructions/ENTERPRISE_CONTEXT.instructions.md)
+- [DUAL COPILOT Pattern](../.github/instructions/DUAL_COPILOT_PATTERN.instructions.md)
+
+---
+
+## MAINTAINER NOTES
+
+- All dashboard code must run anti-recursion validation before file/database operations
+- New features require updates to this README and corresponding compliance tests
+- All dashboard-related PRs must pass validation via `scripts/validation/enterprise_dual_copilot_validator.py`
+- Keep `compliance/metrics.json` and `correction_summary.json` up to date with each release
+
+---

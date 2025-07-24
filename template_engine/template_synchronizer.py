@@ -9,16 +9,19 @@ import logging
 import os
 import sqlite3
 import time
-from pathlib import Path
 from datetime import datetime
-from typing import Iterable
+from pathlib import Path
+from typing import Iterable, List, Tuple
 
 from tqdm import tqdm
-from .log_utils import _log_event
-from .placeholder_utils import DEFAULT_ANALYTICS_DB
+from utils.log_utils import _log_event
 
+try:
+    from .auto_generator import DEFAULT_ANALYTICS_DB
+except ImportError:
+    DEFAULT_ANALYTICS_DB = Path("analytics.db")
 
-ANALYTICS_DB = DEFAULT_ANALYTICS_DB
+ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", DEFAULT_ANALYTICS_DB))
 logger = logging.getLogger(__name__)
 
 
@@ -31,17 +34,20 @@ def _calculate_etc(start_ts: float, current: int, total: int) -> str:
     return f"{remaining:.2f}s remaining"
 
 
-def _extract_templates(db: Path) -> list[tuple[str, str]]:
-    """Extract templates from a database."""
+def _extract_templates(db: Path) -> List[Tuple[str, str, float]]:
+    """Extract templates and compliance scores from ``db``."""
     if not db.exists():
         logger.warning("Database does not exist: %s", db)
         return []
     try:
         with sqlite3.connect(db) as conn:
             rows = conn.execute(
-                "SELECT name, template_content FROM templates"
+                "SELECT name, template_content, compliance_score FROM templates"
             ).fetchall()
-            return [(r[0], r[1]) for r in rows]
+            return [
+                (r[0], r[1], float(r[2]) if len(r) > 2 and r[2] is not None else 100.0)
+                for r in rows
+            ]
     except sqlite3.Error as exc:
         logger.warning("Failed to read templates from %s: %s", db, exc)
         return []
@@ -52,10 +58,12 @@ def _validate_template(name: str, content: str) -> bool:
     return bool(name and content and content.strip())
 
 
-def _compliance_score(content: str) -> float:
-    """Return a compliance score using analytics records."""
-    # Placeholder for DB-driven compliance lookups; defaults to full compliance
-    return 100.0
+def _compliance_score(score: float) -> float:
+    """Return compliance score recorded in the database."""
+    try:
+        return float(score)
+    except Exception:
+        return 0.0
 
 
 def _log_sync_event(source: str, target: str) -> None:
@@ -93,9 +101,9 @@ def _log_audit(db_name: str, details: str) -> None:
 def _compliance_check(conn: sqlite3.Connection) -> bool:
     """Check that all templates in DB are compliant (PEP8/flake8 placeholder)."""
     try:
-        rows = conn.execute("SELECT template_content FROM templates").fetchall()
-        for (content,) in rows:
-            if _compliance_score(content) < 60.0:
+        rows = conn.execute("SELECT compliance_score FROM templates").fetchall()
+        for (score,) in rows:
+            if _compliance_score(score) < 60.0:
                 return False
         return True
     except Exception as exc:
@@ -104,7 +112,7 @@ def _compliance_check(conn: sqlite3.Connection) -> bool:
 
 
 def synchronize_templates(
-    source_dbs: Iterable[Path] | None = None,
+    source_dbs: Iterable[Path] = None,
 ) -> int:
     """
     Synchronize templates across multiple databases with transactional integrity.
@@ -118,13 +126,13 @@ def synchronize_templates(
         db_path=ANALYTICS_DB,
     )
     databases = list(source_dbs) if source_dbs else []
-    all_templates: dict[str, str] = {}
+    all_templates: dict[str, Tuple[str, float]] = {}
 
     # Extract and validate templates from all databases
     for idx, db in enumerate(tqdm(databases, desc="Extracting", unit="db"), 1):
-        for name, content in _extract_templates(db):
+        for name, content, score in _extract_templates(db):
             if _validate_template(name, content):
-                all_templates[name] = content
+                all_templates[name] = (content, score)
             else:
                 logger.warning("Invalid template from %s: %s", db, name)
         etc = _calculate_etc(start_ts, idx, len(databases))
@@ -142,12 +150,16 @@ def synchronize_templates(
                 cur = conn.cursor()
                 try:
                     cur.execute("BEGIN")
-                    for name, content in all_templates.items():
-                        if _compliance_score(content) < 60.0:
+                    for name, (content, score) in all_templates.items():
+                        if _compliance_score(score) < 60.0:
                             raise ValueError(f"Compliance failure for {name}")
                         cur.execute(
-                            "INSERT OR REPLACE INTO templates (name, template_content) VALUES (?, ?)",
-                            (name, content),
+                            (
+                                "INSERT OR REPLACE INTO templates "
+                                "(name, template_content, compliance_score) "
+                                "VALUES (?, ?, ?)"
+                            ),
+                            (name, content, score),
                         )
                     conn.commit()
                     if not _compliance_check(conn):

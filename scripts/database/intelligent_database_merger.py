@@ -4,15 +4,16 @@
 Merge logs.db data into databases/logs.db with conflict resolution
 """
 
-import os
-import sys
-import sqlite3
-import shutil
-from pathlib import Path
-from datetime import datetime
-from tqdm import tqdm
-import json
 import hashlib
+import json
+import os
+import shutil
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+
+from tqdm import tqdm
+
 
 class IntelligentDatabaseMerger:
     """[INFO] Smart Database Merger with Conflict Resolution"""
@@ -203,11 +204,12 @@ class IntelligentDatabaseMerger:
         """[INFO] Clean up redundant source database"""
         try:
             if self.source_db.exists():
-                # Create backup
-                backup_name = f"logs_redundant_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+                backup_name = (
+                    f"logs_redundant_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+                )
                 backup_path = self.workspace_root / "_MANUAL_DELETE_FOLDER" / backup_name
                 backup_path.parent.mkdir(exist_ok=True)
-                
+
                 shutil.move(str(self.source_db), str(backup_path))
                 print(f"[INFO] Moved redundant database to backup: {backup_path}")
                 self.merge_report["backup_location"] = str(backup_path)
@@ -221,11 +223,12 @@ class IntelligentDatabaseMerger:
         """[INFO] Clean up source database after successful merge"""
         try:
             if self.source_db.exists():
-                # Create backup
-                backup_name = f"logs_merged_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+                backup_name = (
+                    f"logs_merged_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+                )
                 backup_path = self.workspace_root / "_MANUAL_DELETE_FOLDER" / backup_name
                 backup_path.parent.mkdir(exist_ok=True)
-                
+
                 shutil.move(str(self.source_db), str(backup_path))
                 print(f"[INFO] Moved merged database to backup: {backup_path}")
                 self.merge_report["backup_location"] = str(backup_path)
