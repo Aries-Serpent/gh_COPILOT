@@ -230,7 +230,7 @@ compliance logging:
   synchronizes representative templates using transactional auditing.
 * **TemplateWorkflowEnhancer** – mines patterns from existing templates,
   computes compliance scores and writes dashboard-ready reports.
-* **Log Utilities** – unified `_log_event` helper under `template_engine.log_utils`
+* **Log Utilities** – unified `_log_event` helper under `utils.log_utils`
   logs events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
 
@@ -240,7 +240,7 @@ real-time status. It accepts a dictionary payload, optional table name, and the
 database path. The default table is `sync_events_log`.
 
 ```python
-from template_engine.log_utils import _log_event
+from utils.log_utils import _log_event
 _log_event({"event": "sync_start"})
 _log_event({"event": "complete"}, table="sync_status")
 ```
@@ -335,14 +335,14 @@ TEXT_INDICATORS = {
 
 ### **Unified Logging Utility**
 The toolkit provides a shared `_log_event` helper in
-`template_engine/log_utils.py`. This function writes events to a chosen table
+`utils/log_utils.py`. This function writes events to a chosen table
 (`sync_events_log`, `sync_status`, or `doc_analysis`) within `analytics.db` and
 displays a brief progress bar. The helper returns ``True`` when the record is
 successfully inserted so callers can validate logging as part of the DUAL
 COPILOT workflow.
 
 ```python
-from template_engine.log_utils import _log_event
+from utils.log_utils import _log_event
 
 _log_event({"event": "sync_start"}, table="sync_events_log")
 ```
@@ -402,6 +402,7 @@ class SelfHealingSelfLearningSystem:
 - **`/deployment`** - Deployment management
 - **`/api/scripts`** - Scripts API endpoint
 - **`/api/health`** - System health check
+- **`/dashboard/compliance`** - JSON compliance metrics
 
 ### **Access Dashboard**
 ```bash

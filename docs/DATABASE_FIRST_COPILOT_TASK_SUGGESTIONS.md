@@ -2,6 +2,9 @@
 
 This document lists high-level tasks required to fully implement the database-first Codex/Copilot integration. Use it as a reference for planning and tracking future development.
 
+Recent updates:
+* Session management wrappers and monitoring utilities implemented.
+
 ## 1. Database-First Integration
 - Expand `DatabaseFirstCopilotEnhancer` with anti-recursion checks and query similarity scoring.
 - Ensure all operations query the databases (`production.db`, `documentation.db`, `template_documentation.db`) before interacting with the filesystem.

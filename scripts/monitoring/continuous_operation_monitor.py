@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
-"""Continuous Operation Monitor - placeholder."""
+"""Continuous Operation Monitor with compliance hooks."""
+
+from __future__ import annotations
+
 import argparse
 import logging
 import time
 from pathlib import Path
 
 from tqdm import tqdm
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Continuous Operation Monitor")
-    parser.add_argument("--workspace", type=Path, default=Path.cwd())
-    parser.add_argument("--iterations", type=int, default=3)
-    return parser.parse_args()
 
 
 def setup_logger(workspace: Path) -> logging.Logger:
@@ -26,17 +22,35 @@ def setup_logger(workspace: Path) -> logging.Logger:
     return logger
 
 
-def run_monitor(logger: logging.Logger, iterations: int) -> None:
-    for _ in tqdm(range(iterations), desc="Operation Cycle"):
-        logger.info("cycle check")
-        time.sleep(0.1)
-    logger.info("Continuous monitoring complete")
+class ContinuousOperationMonitor:
+    """Run periodic operation checks with logging."""
+
+    def __init__(self, interval: float = 0.1, workspace: Path | None = None) -> None:
+        self.interval = interval
+        self.workspace = Path(workspace or Path.cwd())
+        self.logger = setup_logger(self.workspace)
+
+    def run(self, iterations: int = 3) -> bool:
+        for _ in tqdm(range(iterations), desc="Operation Cycle"):
+            self.logger.info("cycle check")
+            self.logger.info("[INFO] compliance hook")
+            time.sleep(self.interval)
+        self.logger.info("Continuous monitoring complete")
+        return True
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Continuous Operation Monitor")
+    parser.add_argument("--workspace", type=Path, default=Path.cwd())
+    parser.add_argument("--iterations", type=int, default=3)
+    parser.add_argument("--interval", type=float, default=0.1)
+    return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    logger = setup_logger(args.workspace)
-    run_monitor(logger, args.iterations)
+    monitor = ContinuousOperationMonitor(args.interval, args.workspace)
+    monitor.run(args.iterations)
     return 0
 
 

@@ -1,6 +1,6 @@
 import sqlite3
 
-from template_engine.log_utils import _log_event
+from utils.log_utils import _log_event
 
 
 def test_log_event_multiple_tables(tmp_path):
