@@ -1,6 +1,8 @@
 # AGENTS Guide for ChatGPT Codex
 
 *This guide is intended for AI contributors (OpenAI Codex/ChatGPT agents) working on the **gh\_COPILOT** repository. It outlines the required environment setup, permitted actions, coding standards, testing procedures, and other protocols that the agent **must** follow to produce acceptable pull requests.*
+Additional instruction modules reside in `.github/instructions/`. These `.instructions.md` files provide focused guidance on specialized workflows and supplement this main guide.
+
 
 ## Environment Setup
 
@@ -25,7 +27,7 @@ When using the terminal or editing files, the agent must adhere to the following
 * **No External Network Calls**: The agent runs in a sandboxed environment with no internet access (except perhaps to fetch specified resources in setup). Do not attempt to download assets or call external APIs unless explicitly allowed by the task. Focus on local repository files and the tools available in the container.
 * **Sandbox Restrictions**: Do not start background services or long-running daemons. Avoid any operations that could stall or escape the sandbox. The environment is isolated; stick to file I/O, database access, and computations relevant to the repository.
 * **Browser Usage**: If end-to-end tests or automation require a browser (e.g. via Playwright), use **Chromium only** (Chromium is pre-installed; other browsers like Firefox/WebKit are unavailable).
-* **Single Source of Truth**: This `AGENTS.md` is the **sole** instructions file for agent behavior. There are no nested or secondary agent guides. Do not look for hidden instructions elsewhere in the repo; follow this guide and the user’s prompt only.
+* **Primary Instructions**: This `AGENTS.md` remains the main reference for agent behavior, but supplemental modules are available. See `.github/instructions/*.instructions.md` for topic-specific guidance. Refer to those files along with this document and the user's prompt.
 * **Stay On Task**: Follow the given prompt and these guidelines exactly. Do not make unrelated changes. Every command and edit should be purposeful and within scope. Avoid any explorations or modifications not relevant to the task at hand.
 * **Shell Output Limits (1600-Byte Rule)**: The Codex terminal has a hard limit of \~1600 bytes per line of output. If any command outputs a line longer than this, the session **will crash and reset**. To prevent this, you **must proactively manage command output**:
 
