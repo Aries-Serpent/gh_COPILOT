@@ -1,13 +1,25 @@
 #!/usr/bin/env python3
+# [Monitor]: Continuous Operation Monitor
+# > Generated: 2025-07-24 19:58:25 | Author: mbaetiong
+
 """Continuous Operation Monitor."""
+
 import argparse
 import logging
 import time
 from pathlib import Path
 
 from tqdm import tqdm
+from utils.log_utils import _log_event
 
-__all__ = ["ContinuousOperationMonitor", "main"]
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+
+TEXT_INDICATORS = {
+    "start": "[START]",
+    "info": "[INFO]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -24,34 +36,29 @@ def setup_logger(workspace: Path) -> logging.Logger:
     logger.setLevel(logging.INFO)
     handler = logging.FileHandler(log_dir / "continuous_operation_monitor.log")
     handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+    if logger.hasHandlers():
+        logger.handlers.clear()
     logger.addHandler(handler)
     return logger
 
 
 def run_monitor(logger: logging.Logger, iterations: int) -> None:
-    """Run monitoring loop logging each cycle."""
-    for _ in tqdm(range(iterations), desc="Operation Cycle"):
-        logger.info("cycle check")
+    # Enterprise validation at start
+    validate_enterprise_operation()
+    start_payload = {"event": "operation_monitor_start"}
+    _log_event(start_payload)
+    logger.info("%s Monitoring cycles: %d", TEXT_INDICATORS["start"], iterations)
+    for i in tqdm(range(iterations), desc="Operation Cycle"):
+        logger.info("%s cycle check %d", TEXT_INDICATORS["info"], i)
+        _log_event({"event": "cycle", "index": i})
         time.sleep(0.1)
-    logger.info("Continuous monitoring complete")
-
-
-class ContinuousOperationMonitor:
-    """Utility wrapper with :py:meth:`run` for tests."""
-
-    def __init__(self, workspace: Path | None = None, interval: int = 3) -> None:
-        self.workspace = workspace or Path.cwd()
-        self.iterations = interval
-        self.logger = setup_logger(self.workspace)
-
-    def run(self) -> bool:
-        """Execute monitor cycles."""
-        run_monitor(self.logger, self.iterations)
-        return True
+    logger.info("%s Continuous monitoring complete", TEXT_INDICATORS["success"])
+    result = _log_event({"event": "operation_monitor_complete"})
+    if not result:
+        logger.error("%s event logging failed", TEXT_INDICATORS["error"])
 
 
 def main() -> int:
-    """CLI entry point."""
     args = parse_args()
     logger = setup_logger(args.workspace)
     run_monitor(logger, args.iterations)

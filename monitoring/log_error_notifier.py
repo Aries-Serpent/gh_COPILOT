@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 from typing import Iterable, Optional
 
-from template_engine.log_utils import _log_event
+from utils.log_utils import _log_event
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "analytics.db"

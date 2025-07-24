@@ -1,5 +1,5 @@
 # [Script]: Template Synchronizer Engine
-# > Generated: 2025-07-21 20:39:23 | Author: mbaetiong
+# > Generated: 2025-07-24 21:18:17 | Author: mbaetiong
 # --- Enterprise Standards ---
 # - Flake8/PEP8 Compliant
 # - Explicit logging for validation and audit
@@ -11,14 +11,17 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, List, Tuple
 
 from tqdm import tqdm
+from utils.log_utils import _log_event
 
-from .log_utils import _log_event
-from .placeholder_utils import DEFAULT_ANALYTICS_DB
+try:
+    from .auto_generator import DEFAULT_ANALYTICS_DB
+except ImportError:
+    DEFAULT_ANALYTICS_DB = Path("analytics.db")
 
-ANALYTICS_DB = DEFAULT_ANALYTICS_DB
+ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", DEFAULT_ANALYTICS_DB))
 logger = logging.getLogger(__name__)
 
 
@@ -31,16 +34,14 @@ def _calculate_etc(start_ts: float, current: int, total: int) -> str:
     return f"{remaining:.2f}s remaining"
 
 
-def _extract_templates(db: Path) -> list[tuple[str, str]]:
+def _extract_templates(db: Path) -> List[Tuple[str, str]]:
     """Extract templates from a database."""
     if not db.exists():
         logger.warning("Database does not exist: %s", db)
         return []
     try:
         with sqlite3.connect(db) as conn:
-            rows = conn.execute(
-                "SELECT name, template_content FROM templates"
-            ).fetchall()
+            rows = conn.execute("SELECT name, template_content FROM templates").fetchall()
             return [(r[0], r[1]) for r in rows]
     except sqlite3.Error as exc:
         logger.warning("Failed to read templates from %s: %s", db, exc)
@@ -52,22 +53,25 @@ def _validate_template(name: str, content: str) -> bool:
     return bool(name and content and content.strip())
 
 
-def _compliance_score(content: str) -> float:
-    """Compute compliance score using analytics database."""
-    if not ANALYTICS_DB.exists():
-        return 100.0
-    unresolved = 0
+def _db_compliance_score(content: str) -> float:
+    """Compute compliance score using rules stored in ``analytics.db``."""
     try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            cur = conn.execute(
-                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=0"
-            )
-            unresolved = cur.fetchone()[0]
+            cur = conn.execute("SELECT pattern FROM compliance_rules")
+            rules = [row[0] for row in cur.fetchall()]
     except sqlite3.Error:
-        return 100.0
-    if unresolved > 0:
+        rules = []
+
+    if any(r.lower() in content.lower() for r in rules):
+        return 50.0
+    if not content.strip():
         return 50.0
     return 100.0
+
+
+def _compliance_score(content: str) -> float:
+    """Return compliance score based on analytics rules."""
+    return _db_compliance_score(content)
 
 
 def _log_sync_event(source: str, target: str) -> None:
@@ -75,9 +79,7 @@ def _log_sync_event(source: str, target: str) -> None:
     try:
         ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS sync_events (timestamp TEXT, source_db TEXT, target_db TEXT)"
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS sync_events (timestamp TEXT, source_db TEXT, target_db TEXT)")
             conn.execute(
                 "INSERT INTO sync_events (timestamp, source_db, target_db) VALUES (?, ?, ?)",
                 (datetime.utcnow().isoformat(), source, target),
@@ -91,9 +93,7 @@ def _log_audit(db_name: str, details: str) -> None:
     try:
         ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS audit_log (timestamp TEXT, db_name TEXT, details TEXT)"
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS audit_log (timestamp TEXT, db_name TEXT, details TEXT)")
             conn.execute(
                 "INSERT INTO audit_log (timestamp, db_name, details) VALUES (?, ?, ?)",
                 (datetime.utcnow().isoformat(), db_name, details),

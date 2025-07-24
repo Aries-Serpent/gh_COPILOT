@@ -402,6 +402,7 @@ class SelfHealingSelfLearningSystem:
 - **`/deployment`** - Deployment management
 - **`/api/scripts`** - Scripts API endpoint
 - **`/api/health`** - System health check
+- **`/dashboard/compliance`** - JSON compliance metrics
 
 ### **Access Dashboard**
 ```bash

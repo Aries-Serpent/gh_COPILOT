@@ -59,6 +59,11 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 The Flask dashboard exposes a `/dashboard/compliance` endpoint that reads these
 metrics and shows real-time placeholder removal progress.
 
+### Placeholder Correction Workflow
+1. Scan the repository using `scripts/placeholder_audit_logger.py`.
+2. Review entries in `analytics.db:code_audit_log` and fix placeholders.
+3. Record corrections with `scripts/correction_logger_and_rollback.py` for audit.
+
 ## 6. Database Maintenance
 
 Regularly monitor the size of each SQLite database under `databases/`. Databases
