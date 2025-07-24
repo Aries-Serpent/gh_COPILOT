@@ -11,4 +11,3 @@ def test_clw_wraps_long_lines(tmp_path):
     assert b"\xe2\x8f\x8e\n" in result.stdout
     wrapped_line = result.stdout.split(b"\xe2\x8f\x8e\n")[0]
     assert len(wrapped_line) <= 1200
-
