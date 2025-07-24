@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-The primary guidelines are in `AGENTS.md` at the repository root (also under `.github/instructions/AGENTS.md`). Any older guides are archived under `_MANUAL_DELETE_FOLDER/`.
+The authoritative agent guide is `AGENTS.md` at the repository root. A copy is also provided under `.github/instructions/AGENTS.md` for convenience. Any older guides are archived under `_MANUAL_DELETE_FOLDER/`.
 
 ## Environment Setup
 
