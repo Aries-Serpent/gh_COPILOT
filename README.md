@@ -78,6 +78,9 @@ ls -l /usr/local/bin/clw
 # 3. Initialize databases
 python scripts/database/database_initializer.py
 
+# Ensure analytics schema is up to date
+python scripts/database/add_code_audit_log.py
+
 # 3b. Synchronize databases
 python scripts/database/database_sync_scheduler.py \
     --workspace . \

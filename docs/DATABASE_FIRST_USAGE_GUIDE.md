@@ -45,6 +45,9 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - All generation actions must be logged for compliance review.
 - When corrections occur, update `analytics.db:correction_patterns` for future reference.
 - Placeholder detection results are written to `analytics.db:placeholder_audit` and mirrored in `code_audit_log` for dashboard reporting.
+- Run `python scripts/database/add_code_audit_log.py` or apply
+  `databases/migrations/add_code_audit_log.sql` to ensure this table exists on
+  older analytics databases.
 - Script generation events are recorded in `production.db:enhanced_script_tracking` with the
   template version and a computed compliance score.
 - The `EnterpriseComplianceValidator` verifies that every generated script comes from an approved
