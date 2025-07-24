@@ -587,7 +587,7 @@ The toolkit includes 16 specialized instruction modules for GitHub Copilot integ
 
 ## 📄 LICENSE
 
-Enterprise License - gh_COPILOT Toolkit v4.0  
+This project is licensed under the [MIT License](LICENSE).
 © 2025 - Enterprise Excellence Framework
 
 ---
