@@ -152,7 +152,13 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 python web_gui/scripts/flask_apps/enterprise_dashboard.py
 ```
 ### **Output Safety with `clw`**
-Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit:
+Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
+```bash
+cp tools/clw /usr/local/bin/clw
+chmod +x /usr/local/bin/clw
+```
+
+Once installed, wrap high-volume output like so:
 
 ```bash
 ls -R | /usr/local/bin/clw

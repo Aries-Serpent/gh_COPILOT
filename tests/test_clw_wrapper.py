@@ -1,14 +1,13 @@
+import os
 import subprocess
 
 
-def test_clw_inserts_line_breaks() -> None:
-    long_line = "x" * 1300
-    proc = subprocess.run(
-        ["/usr/local/bin/clw"],
-        input=(long_line + "\n").encode(),
-        env={"CLW_MAX_LINE_LENGTH": "1200"},
-        capture_output=True,
+def test_clw_wraps_long_lines(tmp_path):
+    line = b"a" * 1300 + b"\n"
+    env = dict(os.environ, CLW_MAX_LINE_LENGTH="1200")
+    result = subprocess.run([
+        "/usr/local/bin/clw"], input=line, stdout=subprocess.PIPE, env=env, check=True
     )
-    output = proc.stdout.decode()
-    assert "⏎" in output
-    assert len(output.splitlines()) == 2
+    assert b"\xe2\x8f\x8e\n" in result.stdout
+    wrapped_line = result.stdout.split(b"\xe2\x8f\x8e\n")[0]
+    assert len(wrapped_line) <= 1200
