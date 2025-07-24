@@ -13,6 +13,7 @@ Enterprise features:
 
 from __future__ import annotations
 
+import argparse
 import logging
 import os
 import sqlite3
@@ -24,21 +25,21 @@ from tqdm import tqdm
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
 
-DB_PATH = Path("databases/production.db")
+DB_PATH = Path(os.getenv("WLC_DB_PATH", "databases/production.db"))
 
 
 def get_connection() -> sqlite3.Connection:
     return sqlite3.connect(DB_PATH)
 
 
-def setup_logging() -> Path:
+def setup_logging(verbose: bool) -> Path:
     """Configure enterprise logging to external backup root."""
     backup_root = CrossPlatformPathManager.get_backup_root()
     log_dir = backup_root / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / f"wlc_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.log"
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG if verbose else logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
     )
@@ -84,13 +85,13 @@ def validate_environment() -> bool:
     return Path(workspace).exists() and Path(backup_root).parent.exists()
 
 
-def main() -> None:
+def main(steps: int = 3, verbose: bool = False) -> None:
     if not validate_environment():
         raise EnvironmentError(
             "Required environment variables are not set or paths invalid"
         )
 
-    setup_logging()
+    setup_logging(verbose)
     logging.info("WLC session starting")
 
     with get_connection() as conn:
@@ -99,10 +100,11 @@ def main() -> None:
             raise RuntimeError("Failed to create session entry in the database.")
         compliance_score = 1.0
         try:
-            for _ in tqdm(range(3), desc="WLC Session", unit="step"):
-                # Placeholder for real work
+            for _ in tqdm(range(steps), desc="WLC Session", unit="step"):
+                # Simulated workload
                 pass
         except Exception as exc:  # noqa: BLE001
+            logging.exception("WLC session failed")
             finalize_session_entry(conn, entry_id, 0.0, error=str(exc))
             raise
 
@@ -115,4 +117,17 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Run WLC session manager")
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=3,
+        help="Number of work steps to simulate",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Enable verbose debug logging",
+    )
+    args = parser.parse_args()
+    main(steps=args.steps, verbose=args.verbose)
