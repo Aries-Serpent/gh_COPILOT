@@ -1,10 +1,10 @@
 # Repository Guidelines
 
-This project uses a single `AGENTS.md` at the repository root as the authoritative guide for all contributors. Any older guides are archived under `_MANUAL_DELETE_FOLDER/`.
+This project uses a single `AGENTS.md` at the repository root as the authoritative guide for all contributors. A copy is kept at `.github/instructions/AGENTS.md` for reference. Any older guides are archived under `_MANUAL_DELETE_FOLDER/`.
 
 ## Environment Setup
 
-Run `bash setup.sh` after cloning to create a virtual environment and install dependencies. Activate it with `source .venv/bin/activate` and set `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` as described in `AGENTS.md`.
+Run `bash setup.sh` after cloning to create a virtual environment and install dependencies. Activate it with `source .venv/bin/activate` and set `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` as described in `AGENTS.md` (or the copy under `.github/instructions`).
 
 ## Log Maintenance
 
@@ -26,4 +26,11 @@ or `pytest`:
 bash setup.sh
 source .venv/bin/activate
 ```
+
+## Archival Policy
+
+Binary archives such as `*.zip` and `*.7z` should not remain in version control.
+If any appear in `archive*/` or `archives/`, move them to `_MANUAL_DELETE_FOLDER/`
+for manual removal. Once a HUMAN clears that folder, AGENTS should extend
+`.gitignore` to exclude these archive formats.
 

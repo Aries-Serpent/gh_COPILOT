@@ -161,7 +161,7 @@ class DatabaseConsolidationExecutor:
                                     column_names = ",".join([f"`{col}`" for col in columns])
                                     
                                     insert_sql = (
-                                        f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"  # noqa: E501
+                                        f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"
                                     )
                                     
                                     # Insert data
@@ -169,7 +169,7 @@ class DatabaseConsolidationExecutor:
                                     inserted_count = target_cursor.rowcount
                                     
                                     self.logger.info(
-                                        f"  📊 Merged {len(rows)} rows from {table} ({inserted_count} new)"  # noqa: E501
+                                        f"  📊 Merged {len(rows)} rows from {table} ({inserted_count} new)"
                                     )
                                 
                         except Exception as e:
@@ -292,7 +292,7 @@ class DatabaseConsolidationExecutor:
                                         column_names = ",".join([f"`{col}`" for col in columns])
                                         
                                         insert_sql = (
-                                            f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"  # noqa: E501
+                                            f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"
                                         )
                                         
                                         # Insert data
@@ -300,7 +300,7 @@ class DatabaseConsolidationExecutor:
                                         inserted_count = target_cursor.rowcount
                                         
                                         self.logger.info(
-                                            f"    📊 Merged {len(rows)} rows from {source_path.name}.{table} ({inserted_count} new)"  # noqa: E501
+                                            f"    📊 Merged {len(rows)} rows from {source_path.name}.{table} ({inserted_count} new)"
                                         )
                                 
                             except Exception as e:
@@ -453,7 +453,7 @@ class DatabaseConsolidationExecutor:
             else:
                 self.execution_results["status"] = "PARTIAL_SUCCESS"
                 self.logger.warning(
-                    f"⚠️ Consolidation completed with {failed} failures. {completed}/{total} actions succeeded"  # noqa: E501
+                    f"⚠️ Consolidation completed with {failed} failures. {completed}/{total} actions succeeded"
                 )
             
             return failed == 0
@@ -558,16 +558,21 @@ class DatabaseConsolidationExecutor:
 def main() -> int:
     """🚀 Main execution function"""
     parser = argparse.ArgumentParser(description="Database consolidation executor")
-    parser.add_argument("plan_file", help="Consolidation plan file")
+    parser.add_argument("plan_file", help="Path to consolidation plan")
     parser.add_argument(
-        "--rollback-on-fail",
+        "--non-interactive",
+        action="store_true",
+        help="Run without prompting for user input",
+    )
+    parser.add_argument(
+        "--auto-rollback",
         action="store_true",
         help="Automatically rollback if validation fails",
     )
-    args = parser.parse_args()
 
+    args = parser.parse_args()
     plan_file = args.plan_file
-    
+
     if not Path(plan_file).exists():
         print(f"❌ Plan file {plan_file} not found")
         sys.exit(1)
@@ -585,9 +590,9 @@ def main() -> int:
         validation_success = executor.validate_post_consolidation()
         if not validation_success:
             print("❌ Post-consolidation validation failed. Consider rollback.")
-            if args.rollback_on_fail:
+            if args.auto_rollback:
                 executor.rollback_consolidation()
-            elif sys.stdin.isatty():
+            elif not args.non_interactive:
                 response = input("🔄 Perform rollback? (y/N): ")
                 if response.lower() == "y":
                     executor.rollback_consolidation()
@@ -599,8 +604,8 @@ def main() -> int:
     print(f"\n📄 Full execution log: consolidation_execution_{executor.execution_timestamp}.log")
     print(f"📄 Execution report: {report_file}")
     
-    return success
+    return 0 if success else 1
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

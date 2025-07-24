@@ -3,6 +3,7 @@
 ## AGENTS.md Compliance
 
 Per AGENTS.md requirements, ALL backups must be stored outside the workspace directory.
+For a short summary of these rules, see `.github/instructions/AGENTS_QUICK_REFERENCE.md`.
 
 ### Configuration Options
 

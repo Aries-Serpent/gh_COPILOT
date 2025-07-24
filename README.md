@@ -59,13 +59,20 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 git clone https://github.com/your-org/gh_COPILOT.git
 cd gh_COPILOT
 
+# 1b. Copy environment template
+cp .env.example .env
+
 # 2. Run setup script (creates `.venv` and installs requirements)
 bash setup.sh
 # Always run this script before executing tests or automation tasks to ensure
 # dependencies and environment variables are correctly initialized.
 
 # 2b. Verify the line-wrapping utility is available
+if [ ! -x /usr/local/bin/clw ]; then
+    bash tools/install_clw.sh
+fi
 ls -l /usr/local/bin/clw
+bash tools/install_clw.sh  # recreate if missing
 
 # 3. Initialize databases
 python scripts/database/database_initializer.py
@@ -106,13 +113,22 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 python web_gui/scripts/flask_apps/enterprise_dashboard.py
 ```
 ### **Output Safety with `clw`**
-Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit:
+Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
+```bash
+cp tools/clw /usr/local/bin/clw
+chmod +x /usr/local/bin/clw
+```
+
+Once installed, wrap high-volume output like so:
 
 ```bash
 ls -R | /usr/local/bin/clw
 ```
 
+The script is bundled as `tools/clw.py` and can be copied to `/usr/local/bin/clw` if needed.
+
 If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
+You can adjust the wrap length by setting `CLW_MAX_LINE_LENGTH` before invoking the wrapper.
 
 
 
@@ -587,7 +603,7 @@ The toolkit includes 16 specialized instruction modules for GitHub Copilot integ
 
 ## 📄 LICENSE
 
-Enterprise License - gh_COPILOT Toolkit v4.0  
+This project is licensed under the [MIT License](LICENSE).
 © 2025 - Enterprise Excellence Framework
 
 ---

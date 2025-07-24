@@ -1,13 +1,15 @@
 # AGENTS Guide for ChatGPT Codex
 
 *This guide is intended for AI contributors (OpenAI Codex/ChatGPT agents) working on the **gh\_COPILOT** repository. It outlines the required environment setup, permitted actions, coding standards, testing procedures, and other protocols that the agent **must** follow to produce acceptable pull requests.*
+Additional instruction modules reside in `.github/instructions/`. These `.instructions.md` files provide focused guidance on specialized workflows and supplement this main guide.
+
 
 ## Environment Setup
 
 Ensure the development environment is correctly configured **before** making any changes or running code:
 
 * **Setup Script**: If a `setup.sh` script is present at the repository root, run it (e.g. `bash setup.sh`) to perform initial setup tasks (creating the virtual environment, installing dependencies, etc.). This project provides a `setup.sh` – use it to avoid missing any required steps.
-* **Verify `clw` Utility**: After setup, confirm `/usr/local/bin/clw` exists and is executable. Recreate it with the provided script if missing.
+* **Verify `clw` Utility**: After setup, confirm `/usr/local/bin/clw` exists and is executable. If missing, copy `tools/clw.py` to `/usr/local/bin/clw` and make it executable.
 * **Python & Tools**: Use **Python 3.8+** (already provided in Codex). The setup will install necessary system packages (development headers, build tools, SQLite, etc.) and Python packages as specified by the project. Do **not** install additional packages beyond those listed in `requirements.txt` (and optional `requirements-web.txt`, `requirements-ml.txt`, etc.). **Only use** the dependencies declared by the project. If you believe a new package is required, **do not install it yourself** – instead, mention the need in the PR description for maintainers.
 * **Virtual Environment**: Always activate the Python virtual environment after running setup. For example, use `source .venv/bin/activate` to ensure you’re using the project’s isolated environment and packages.
 * **Environment Variables**: Certain environment variables must be set for the toolkit to function correctly. In particular:
@@ -25,7 +27,7 @@ When using the terminal or editing files, the agent must adhere to the following
 * **No External Network Calls**: The agent runs in a sandboxed environment with no internet access (except perhaps to fetch specified resources in setup). Do not attempt to download assets or call external APIs unless explicitly allowed by the task. Focus on local repository files and the tools available in the container.
 * **Sandbox Restrictions**: Do not start background services or long-running daemons. Avoid any operations that could stall or escape the sandbox. The environment is isolated; stick to file I/O, database access, and computations relevant to the repository.
 * **Browser Usage**: If end-to-end tests or automation require a browser (e.g. via Playwright), use **Chromium only** (Chromium is pre-installed; other browsers like Firefox/WebKit are unavailable).
-* **Single Source of Truth**: This `AGENTS.md` is the **sole** instructions file for agent behavior. There are no nested or secondary agent guides. Do not look for hidden instructions elsewhere in the repo; follow this guide and the user’s prompt only.
+* **Primary Instructions**: This `AGENTS.md` remains the main reference for agent behavior, but supplemental modules are available. See `.github/instructions/*.instructions.md` for topic-specific guidance. Refer to those files along with this document and the user's prompt.
 * **Stay On Task**: Follow the given prompt and these guidelines exactly. Do not make unrelated changes. Every command and edit should be purposeful and within scope. Avoid any explorations or modifications not relevant to the task at hand.
 * **Shell Output Limits (1600-Byte Rule)**: The Codex terminal has a hard limit of \~1600 bytes per line of output. If any command outputs a line longer than this, the session **will crash and reset**. To prevent this, you **must proactively manage command output**:
 
@@ -33,6 +35,7 @@ When using the terminal or editing files, the agent must adhere to the following
 
     * **Strategy 2 – Log and Chunk**: Redirect the command’s output to a file (e.g. `>` to write to a log file). Then read that file in manageable chunks using tools like `head`, `tail`, or small `sed` slices. This way you can inspect contents piecewise without ever flooding the console.
     * **Strategy 3 – Use the Line Wrapper (`clw`)**: The environment includes a custom utility called **`clw`** (installed at `/usr/local/bin/clw`) specifically to mitigate long-line outputs. Pipe any potentially large output through `clw`. For example: `find / -type f | clw` or `cat largefile.txt | clw`. The `clw` tool will pass through lines under \~1550 bytes unchanged, but will **hard-wrap longer lines** at a safe length (inserting a visible “⏎” line-break marker). This ensures no single line exceeds the limit, preventing crashes.
+    * The wrap threshold can be changed by setting the `CLW_MAX_LINE_LENGTH` environment variable (default 1550 bytes).
     * Inspect the source of `/usr/local/bin/clw` and use it exactly as documented. If `clw` is missing, recreate it using the script provided in the repository instructions and mark it executable. Pipe all commands that potentially have long output—or everything that doesn’t need a TTY—through `clw` to stay on the safe side.
   * These output management strategies are **mandatory** for high-risk commands. Always anticipate if a command could produce very long lines or a flood of data. When in doubt, err on the side of caution and apply one of the above methods (or use filtering commands like `grep`, `cut`, or `awk` to reduce output size). **Never** allow an unbounded output stream to print directly to the terminal.
   * **Self-Healing Recovery**: If the terminal shows `Error: Output for session 'shell' contained a line exceeding the max of 1600 bytes`, immediately start a new session, run the standard setup steps again (reactivate the virtual environment and ensure `/usr/local/bin/clw` exists), then repeat the previous command with a safe output method such as piping through `clw` or logging and chunking.
