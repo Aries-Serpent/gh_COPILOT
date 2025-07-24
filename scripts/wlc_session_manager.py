@@ -1,3 +1,6 @@
+# [Script]: WLC Session Manager
+# > Generated: 2025-07-24 06:45 | Author: mbaetiong
+
 """WLC Session Manager
 
 Implements the Wrapping, Logging, and Compliance (WLC) methodology.
@@ -25,21 +28,21 @@ from tqdm import tqdm
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
 
-DB_PATH = Path("databases/production.db")
+DB_PATH = Path(os.getenv("WLC_DB_PATH", "databases/production.db"))
 
 
 def get_connection(db_path: Path) -> sqlite3.Connection:
     return sqlite3.connect(db_path)
 
 
-def setup_logging() -> Path:
+def setup_logging(verbose: bool) -> Path:
     """Configure enterprise logging to external backup root."""
     backup_root = CrossPlatformPathManager.get_backup_root()
     log_dir = backup_root / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / f"wlc_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.log"
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG if verbose else logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
     )
@@ -107,11 +110,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def run_session(steps: int, db_path: Path) -> None:
+def run_session(steps: int, db_path: Path, verbose: bool) -> None:
     if not validate_environment():
         raise EnvironmentError("Required environment variables are not set or paths invalid")
 
-    setup_logging()
+    setup_logging(verbose)
     logging.info("WLC session starting")
 
     with get_connection(db_path) as conn:
@@ -123,6 +126,7 @@ def run_session(steps: int, db_path: Path) -> None:
             for _ in tqdm(range(steps), desc="WLC Session", unit="step"):
                 pass  # placeholder for real work
         except Exception as exc:  # noqa: BLE001
+            logging.exception("WLC session failed")
             finalize_session_entry(conn, entry_id, 0.0, error=str(exc))
             raise
 
@@ -136,9 +140,7 @@ def run_session(steps: int, db_path: Path) -> None:
 
 def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-    run_session(args.steps, args.db_path)
+    run_session(args.steps, args.db_path, args.verbose)
 
 
 if __name__ == "__main__":
