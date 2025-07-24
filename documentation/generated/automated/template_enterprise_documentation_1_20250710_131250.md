@@ -1,6 +1,6 @@
 # 🤖🤖 gh_COPILOT Enterprise Deployment Package
 
-**Important:** This repository contains standard deployment and monitoring scripts. Physics optimization and other advanced capabilities rely on classical physics algorithms. Quantum algorithms remain draft pending validation. See [AGENTS.md lines {NUMBER}-{NUMBER}](.{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}//localhost:{NUMBER}` once the web GUI starts. Additional components run on ports `{NUMBER}` and `{NUMBER}`.
+**Important:** This repository contains standard deployment and monitoring scripts. Physics optimization and other advanced capabilities rely on classical physics algorithms. Quantum algorithms remain draft pending validation. See [AGENTS.md lines {NUMBER}-{NUMBER}](.{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}{UNIX_PATH}//localhost:{NUMBER}` once the web GUI starts. Additional components run on ports `{NUMBER}` and `{NUMBER}`. A quick reference is available at `.github/instructions/AGENTS_QUICK_REFERENCE.md`.
 {NUMBER}. Stop the stack with `docker-compose down`.
 
 

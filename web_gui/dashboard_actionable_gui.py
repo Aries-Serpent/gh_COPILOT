@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from datetime import datetime
 from pathlib import Path
-import sqlite3
-from datetime import datetime
-from tqdm import tqdm
+
 from flask import Flask, jsonify, request
-import sqlite3
-from datetime import datetime
+from tqdm import tqdm
 
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 
