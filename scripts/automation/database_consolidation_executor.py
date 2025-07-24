@@ -10,15 +10,14 @@ Safe execution of database consolidation plan with:
 ================================================================
 """
 
-import os
-import sqlite3
-import shutil
 import json
-import hashlib
+import logging
+import shutil
+import sqlite3
+import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
-import logging
+from typing import List
 
 
 class DatabaseConsolidationExecutor:
@@ -160,13 +159,21 @@ class DatabaseConsolidationExecutor:
                                     placeholders = ",".join(["?" for _ in columns])
                                     column_names = ",".join([f"`{col}`" for col in columns])
                                     
-                                    insert_sql = f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"
+                                    insert_sql = (
+                                        f"INSERT OR IGNORE INTO `{table}` ({column_names}) "
+                                        f"VALUES ({placeholders})"
+                                    )
                                     
                                     # Insert data
                                     target_cursor.executemany(insert_sql, rows)
                                     inserted_count = target_cursor.rowcount
                                     
-                                    self.logger.info(f"  📊 Merged {len(rows)} rows from {table} ({inserted_count} new)")
+                                    self.logger.info(
+                                        "  📊 Merged %d rows from %s (%d new)",
+                                        len(rows),
+                                        table,
+                                        inserted_count,
+                                    )
                                 
                         except Exception as e:
                             self.logger.warning(f"⚠️ Failed to merge table {table}: {e}")
@@ -180,7 +187,7 @@ class DatabaseConsolidationExecutor:
                 self.logger.info(f"✅ Successfully merged {source_path.name} into {target_path.name}")
                 return True
             else:
-                self.logger.error(f"❌ Target database integrity check failed after merge")
+                self.logger.error("❌ Target database integrity check failed after merge")
                 return False
                 
         except Exception as e:
@@ -287,13 +294,22 @@ class DatabaseConsolidationExecutor:
                                         placeholders = ",".join(["?" for _ in columns])
                                         column_names = ",".join([f"`{col}`" for col in columns])
                                         
-                                        insert_sql = f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"
+                                        insert_sql = (
+                                            f"INSERT OR IGNORE INTO `{table}` ({column_names}) "
+                                            f"VALUES ({placeholders})"
+                                        )
                                         
                                         # Insert data
                                         target_cursor.executemany(insert_sql, rows)
                                         inserted_count = target_cursor.rowcount
                                         
-                                        self.logger.info(f"    📊 Merged {len(rows)} rows from {source_path.name}.{table} ({inserted_count} new)")
+                                        self.logger.info(
+                                            "    📊 Merged %d rows from %s.%s (%d new)",
+                                            len(rows),
+                                            source_path.name,
+                                            table,
+                                            inserted_count,
+                                        )
                                 
                             except Exception as e:
                                 self.logger.warning(f"⚠️ Failed to merge table {table} from {source_path.name}: {e}")
@@ -444,7 +460,12 @@ class DatabaseConsolidationExecutor:
                 self.logger.info(f"🎊 Consolidation completed successfully! {completed}/{total} actions succeeded")
             else:
                 self.execution_results["status"] = "PARTIAL_SUCCESS"
-                self.logger.warning(f"⚠️ Consolidation completed with {failed} failures. {completed}/{total} actions succeeded")
+                self.logger.warning(
+                    "⚠️ Consolidation completed with %d failures. %d/%d actions succeeded",
+                    failed,
+                    completed,
+                    total,
+                )
             
             return failed == 0
             
@@ -545,16 +566,26 @@ class DatabaseConsolidationExecutor:
         print(f"🛡️ Backup Available: {self.execution_results['rollback_available']}")
 
 
-def main():
+def main() -> None:
     """🚀 Main execution function"""
-    import sys
-    
-    if len(sys.argv) < 2:
-        print("Usage: python database_consolidation_executor.py <plan_file>")
-        sys.exit(1)
-    
-    plan_file = sys.argv[1]
-    
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Database consolidation executor")
+    parser.add_argument("plan_file", help="Path to consolidation plan")
+    parser.add_argument(
+        "--non-interactive",
+        action="store_true",
+        help="Run without prompting for user input",
+    )
+    parser.add_argument(
+        "--auto-rollback",
+        action="store_true",
+        help="Automatically rollback if validation fails",
+    )
+
+    args = parser.parse_args()
+    plan_file = args.plan_file
+
     if not Path(plan_file).exists():
         print(f"❌ Plan file {plan_file} not found")
         sys.exit(1)
@@ -572,9 +603,12 @@ def main():
         validation_success = executor.validate_post_consolidation()
         if not validation_success:
             print("❌ Post-consolidation validation failed. Consider rollback.")
-            response = input("🔄 Perform rollback? (y/N): ")
-            if response.lower() == 'y':
+            if args.auto_rollback:
                 executor.rollback_consolidation()
+            elif not args.non_interactive:
+                response = input("🔄 Perform rollback? (y/N): ")
+                if response.lower() == "y":
+                    executor.rollback_consolidation()
     
     # Print summary and save report
     executor.print_summary()

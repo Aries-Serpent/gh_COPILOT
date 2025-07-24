@@ -66,6 +66,7 @@ bash setup.sh
 
 # 2b. Verify the line-wrapping utility is available
 ls -l /usr/local/bin/clw
+bash tools/install_clw.sh  # recreate if missing
 
 # 3. Initialize databases
 python scripts/database/database_initializer.py
