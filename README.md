@@ -402,6 +402,7 @@ class SelfHealingSelfLearningSystem:
 - **`/deployment`** - Deployment management
 - **`/api/scripts`** - Scripts API endpoint
 - **`/api/health`** - System health check
+- **`/dashboard/compliance`** - Compliance metrics and rollback history
 
 ### **Access Dashboard**
 ```bash
@@ -457,7 +458,7 @@ gh_COPILOT/
 - **`scripts/utilities/self_healing_self_learning_system.py`** - Autonomous operations
 - **`scripts/validation/enterprise_dual_copilot_validator.py`** - DUAL COPILOT validation
 - **`scripts/utilities/unified_script_generation_system.py`** - Database-first generation
-- **`dashboard/enterprise_dashboard.py`** - Enterprise dashboard wrapper
+ - **`dashboard/enterprise_dashboard.py`** - Enterprise dashboard
 - **`validation/compliance_report_generator.py`** - Summarize lint and test results
 - **`web_gui/dashboard_actionable_gui.py`** - Actionable compliance dashboard
 - **`scripts/monitoring/continuous_operation_monitor.py`** - Continuous operation utility

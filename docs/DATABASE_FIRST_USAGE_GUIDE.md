@@ -53,7 +53,7 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
    used and whether any corrective actions occurred.
 
 The Flask dashboard exposes a `/dashboard/compliance` endpoint that reads these
-metrics and shows real-time placeholder removal progress.
+metrics and shows real-time placeholder removal progress. When a placeholder is corrected, record the update in `analytics.db:correction_logs`. This ensures future audits can cross-reference removed placeholders with generated fixes.
 
 ### Placeholder Correction Workflow
 1. Run `scripts/audit_codebase_placeholders.py` to log all TODOs.

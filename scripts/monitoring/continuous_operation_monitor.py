@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Continuous Operation Monitor - placeholder."""
+"""Continuous Operation Monitor."""
+
 import argparse
 import logging
 import time
 from pathlib import Path
 
 from tqdm import tqdm
+from utils.log_utils import _log_event
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 
@@ -31,17 +33,26 @@ def setup_logger(workspace: Path) -> logging.Logger:
     logger.setLevel(logging.INFO)
     handler = logging.FileHandler(log_dir / "continuous_operation_monitor.log")
     handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+    if logger.hasHandlers():
+        logger.handlers.clear()
     logger.addHandler(handler)
     return logger
 
 
 def run_monitor(logger: logging.Logger, iterations: int) -> None:
-    logger.info(f"{TEXT_INDICATORS['start']} Monitoring cycles: %s", iterations)
+    # Enterprise validation at star
     validate_enterprise_operation()
-    for _ in tqdm(range(iterations), desc="Operation Cycle"):
-        logger.info(f"{TEXT_INDICATORS['info']} cycle check")
+    start_payload = {"event": "operation_monitor_start"}
+    _log_event(start_payload)
+    logger.info("%s Monitoring cycles: %d", TEXT_INDICATORS["start"], iterations)
+    for i in tqdm(range(iterations), desc="Operation Cycle"):
+        logger.info("%s cycle check %d", TEXT_INDICATORS["info"], i)
+        _log_event({"event": "cycle", "index": i})
         time.sleep(0.1)
-    logger.info(f"{TEXT_INDICATORS['success']} Continuous monitoring complete")
+    logger.info("%s Continuous monitoring complete", TEXT_INDICATORS["success"])
+    result = _log_event({"event": "operation_monitor_complete"})
+    if not result:
+        logger.error("%s event logging failed", TEXT_INDICATORS["error"])
 
 
 def main() -> int:

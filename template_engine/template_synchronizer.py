@@ -11,15 +11,17 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, List, Tuple
 
 from tqdm import tqdm
-
 from utils.log_utils import _log_event
 
-from .auto_generator import DEFAULT_ANALYTICS_DB
+try:
+    from .auto_generator import DEFAULT_ANALYTICS_DB
+except ImportError:
+    DEFAULT_ANALYTICS_DB = Path("analytics.db")
 
-ANALYTICS_DB = DEFAULT_ANALYTICS_DB
+ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", DEFAULT_ANALYTICS_DB))
 logger = logging.getLogger(__name__)
 
 
@@ -32,7 +34,7 @@ def _calculate_etc(start_ts: float, current: int, total: int) -> str:
     return f"{remaining:.2f}s remaining"
 
 
-def _extract_templates(db: Path) -> list[tuple[str, str, float]]:
+def _extract_templates(db: Path) -> List[Tuple[str, str, float]]:
     """Extract templates and compliance scores from ``db``."""
     if not db.exists():
         logger.warning("Database does not exist: %s", db)
@@ -58,7 +60,10 @@ def _validate_template(name: str, content: str) -> bool:
 
 def _compliance_score(score: float) -> float:
     """Return compliance score recorded in the database."""
-    return float(score)
+    try:
+        return float(score)
+    except Exception:
+        return 0.0
 
 
 def _log_sync_event(source: str, target: str) -> None:
@@ -107,7 +112,7 @@ def _compliance_check(conn: sqlite3.Connection) -> bool:
 
 
 def synchronize_templates(
-    source_dbs: Iterable[Path] | None = None,
+    source_dbs: Iterable[Path] = None,
 ) -> int:
     """
     Synchronize templates across multiple databases with transactional integrity.
@@ -121,7 +126,7 @@ def synchronize_templates(
         db_path=ANALYTICS_DB,
     )
     databases = list(source_dbs) if source_dbs else []
-    all_templates: dict[str, tuple[str, float]] = {}
+    all_templates: dict[str, Tuple[str, float]] = {}
 
     # Extract and validate templates from all databases
     for idx, db in enumerate(tqdm(databases, desc="Extracting", unit="db"), 1):
