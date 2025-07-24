@@ -15,11 +15,8 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-from scripts.continuous_operation_orchestrator import \
-    validate_enterprise_operation
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 from utils.logging_utils import setup_enterprise_logging
-
-from .unified_database_initializer import initialize_database
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +47,7 @@ def log_sync_operation(
     validate_enterprise_operation()
 
     if not db_path.exists():
+        from .unified_database_initializer import initialize_database
         initialize_database(db_path)
 
     start_dt = start_time or datetime.now(timezone.utc)
@@ -60,6 +58,7 @@ def log_sync_operation(
     with sqlite3.connect(db_path) as conn:
         if not _table_exists(conn, "cross_database_sync_operations"):
             conn.close()
+            from .unified_database_initializer import initialize_database
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
         with conn:
