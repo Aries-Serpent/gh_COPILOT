@@ -72,8 +72,7 @@ if [ ! -x /usr/local/bin/clw ]; then
     bash tools/install_clw.sh
 fi
 ls -l /usr/local/bin/clw
-# If the file is missing, install it from `tools/clw.py`:
-sudo cp tools/clw.py /usr/local/bin/clw && sudo chmod +x /usr/local/bin/clw
+bash tools/install_clw.sh  # recreate if missing
 
 # 3. Initialize databases
 python scripts/database/database_initializer.py
