@@ -1,19 +1,18 @@
 # AGENTS Quick Reference
 
-This file summarizes core guidelines. Refer to `AGENTS.md` at the project root for full details.
+This file summarizes the core rules from the full `AGENTS.md`.
 
-## Setup
-- Run `bash setup.sh` after cloning.
-- Activate the virtual environment with `source .venv/bin/activate`.
-- Set `GH_COPILOT_WORKSPACE` to the repo root and `GH_COPILOT_BACKUP_ROOT` outside the repo.
+## Environment Setup
+- Run `bash setup.sh` before making changes.
+- Activate the virtualenv: `source .venv/bin/activate`.
+- Set `GH_COPILOT_WORKSPACE` to the repo root and `GH_COPILOT_BACKUP_ROOT` to an external directory.
 
-## Allowed Commands
-- Use non-interactive tools such as `cat`, `grep`, `sed`, `jq`, or `apply_patch`.
-- Avoid interactive editors or background services.
-- Do not perform external network calls unless instructed.
+## `clw` Utility
+- Verify `/usr/local/bin/clw` exists and is executable after setup.
+- Pipe any potentially large output through `clw` to avoid terminal crashes.
 
-## clw Usage
-- Ensure `/usr/local/bin/clw` exists and is executable.
-- Pipe commands with potentially long output through `clw` to avoid 1600-byte line issues.
+## Command Usage
+- Use only non-interactive commands (`cat`, `grep`, `sed`, etc.).
+- Avoid interactive editors or commands that require user input.
 
-For full guidelines see `AGENTS.md` in the repository root.
+Refer to the full guide for complete details.

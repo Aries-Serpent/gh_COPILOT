@@ -1,10 +1,10 @@
 # Repository Guidelines
 
-The authoritative agent guide is `AGENTS.md` at the repository root. A copy is also provided under `.github/instructions/AGENTS.md` for convenience. Any older guides are archived under `_MANUAL_DELETE_FOLDER/`.
+This project uses a single `AGENTS.md` at the repository root as the authoritative guide for all contributors. A copy is kept at `.github/instructions/AGENTS.md` for reference. Any older guides are archived under `_MANUAL_DELETE_FOLDER/`.
 
 ## Environment Setup
 
-Run `bash setup.sh` after cloning to create a virtual environment and install dependencies. Activate it with `source .venv/bin/activate` and set `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` as described in `AGENTS.md` (see also `.github/instructions/AGENTS_CORE_RULES.instructions.md` for a short summary).
+Run `bash setup.sh` after cloning to create a virtual environment and install dependencies. Activate it with `source .venv/bin/activate` and set `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` as described in `AGENTS.md` (or the copy under `.github/instructions`).
 
 ## Log Maintenance
 
