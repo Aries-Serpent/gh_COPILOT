@@ -1,5 +1,11 @@
 # CHANGELOG - gh_COPILOT Enterprise Toolkit
 
+## [4.1.0] - 2025-07-23 - Analytics Schema Update
+
+### Added
+- `code_audit_log` table migration (`add_code_audit_log.sql`)
+- Helper script `add_code_audit_log.py` for existing databases
+
 ## [4.0.0] - 2025-07-14 - ENTERPRISE READINESS 100% ACHIEVEMENT
 
 ### 🏆 Major Achievements
@@ -183,6 +189,7 @@
 
 | Version | Date | Key Achievement | Readiness Score |
 |---------|------|----------------|-----------------|
+| 4.1.0 | 2025-07-23 | Analytics Schema Update | 100.0% |
 | 4.0.0 | 2025-07-14 | 100% Enterprise Readiness | 100.0% |
 | 3.5.0 | 2025-07-13 | Phase 4 Completion | 94.95% |
 | 3.0.0 | 2025-07-12 | Enterprise Foundation | 85.0% |

@@ -67,11 +67,7 @@ TABLES: dict[str, str] = {
         ")"
     ),
     "enterprise_metadata": (
-        "CREATE TABLE IF NOT EXISTS enterprise_metadata ("
-        "id INTEGER PRIMARY KEY,"
-        "key TEXT NOT NULL,"
-        "value TEXT NOT NULL"
-        ")"
+        "CREATE TABLE IF NOT EXISTS enterprise_metadata (id INTEGER PRIMARY KEY,key TEXT NOT NULL,value TEXT NOT NULL)"
     ),
     "integration_tracking": (
         "CREATE TABLE IF NOT EXISTS integration_tracking ("
@@ -91,7 +87,18 @@ TABLES: dict[str, str] = {
         "timestamp TEXT NOT NULL"
         ")"
     ),
+    "code_audit_log": (
+        "CREATE TABLE IF NOT EXISTS code_audit_log ("
+        "id INTEGER PRIMARY KEY,"
+        "file_path TEXT NOT NULL,"
+        "line_number INTEGER NOT NULL,"
+        "placeholder_type TEXT NOT NULL,"
+        "context TEXT,"
+        "timestamp TEXT NOT NULL"
+        ")"
+    ),
 }
+
 
 def load_schema_from_production(tables: dict[str, str]) -> dict[str, str]:
     """Load CREATE TABLE statements from production.db if available."""
@@ -111,16 +118,16 @@ def load_schema_from_production(tables: dict[str, str]) -> dict[str, str]:
     # merge production schema with defaults
     return {**tables, **schema}
 
+
 def _load_production_schema(prod_db: Path) -> None:
     """Log schema information from ``production.db`` if available."""
     if not prod_db.exists():
         logger.warning("production.db not found at %s", prod_db)
         return
     with sqlite3.connect(prod_db) as conn:
-        tables = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        ).fetchall()
+        tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
         logger.info("Existing production tables: %s", [t[0] for t in tables])
+
 
 def initialize_database(db_path: Path) -> None:
     """
@@ -209,6 +216,7 @@ def initialize_database(db_path: Path) -> None:
     else:
         logger.error("DUAL COPILOT VALIDATION: FAILED")
 
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     db_path = root / "databases" / "enterprise_assets.db"
@@ -216,6 +224,7 @@ def main() -> None:
         logger.info("%s already exists", db_path)
         return
     initialize_database(db_path)
+
 
 if __name__ == "__main__":
     setup_enterprise_logging()
