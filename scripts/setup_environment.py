@@ -22,7 +22,9 @@ def ensure_env() -> None:
         shutil.copy(example_file, env_file)
         print("Created .env from .env.example")
     else:
-        raise FileNotFoundError("Missing .env.example")
+        msg = ".env.example not found. Please create it from documentation."
+        logging.warning(msg)
+        raise FileNotFoundError(msg)
 
 
 def install_test_requirements() -> None:
