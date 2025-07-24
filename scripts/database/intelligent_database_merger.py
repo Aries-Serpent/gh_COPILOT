@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
-"""
-🔄 INTELLIGENT DATABASE MERGER
-Merge logs.db data into databases/logs.db with conflict resolution
-"""
+"""INTELLIGENT DATABASE MERGER
+Merge ``logs.db`` data into ``databases/logs.db`` with conflict resolution."""
 
-import os
-import sys
-import sqlite3
-import shutil
-from pathlib import Path
-from datetime import datetime
-from tqdm import tqdm
-import json
 import hashlib
+import json
+import os
+import shutil
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+
+from tqdm import tqdm
+
 
 class IntelligentDatabaseMerger:
-    """🧠 Smart Database Merger with Conflict Resolution"""
+    """Smart Database Merger with conflict resolution."""
     
     def __init__(self):
         # MANDATORY: Start time logging
         self.start_time = datetime.now()
-        print(f"🚀 INTELLIGENT DATABASE MERGER STARTED")
+        print("[START] INTELLIGENT DATABASE MERGER STARTED")
         print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"Process ID: {os.getpid()}")
         print("="*60)
@@ -47,12 +46,12 @@ class IntelligentDatabaseMerger:
     
     def validate_environment_compliance(self):
         """CRITICAL: Environment validation"""
-        print("✅ ENVIRONMENT COMPLIANCE VALIDATED")
+        print("[INFO] ENVIRONMENT COMPLIANCE VALIDATED")
     
     def analyze_enterprise_logs_conflict(self):
-        """📊 Analyze the enterprise_logs table conflict"""
+        """Analyze the ``enterprise_logs`` table conflict."""
         
-        print("🔍 ANALYZING ENTERPRISE_LOGS CONFLICT")
+        print("[INFO] ANALYZING ENTERPRISE_LOGS CONFLICT")
         print("="*50)
         
         conflict_analysis = {
@@ -104,7 +103,7 @@ class IntelligentDatabaseMerger:
             print(f"📊 Source Records: {conflict_analysis['source_records']}")
             print(f"🎯 Target Records: {conflict_analysis['target_records']}")
             print(f"🆕 Unique Source: {conflict_analysis['unique_source']}")
-            print(f"🔄 Duplicates: {conflict_analysis['duplicates']}")
+            print(f"[INFO] Duplicates: {conflict_analysis['duplicates']}")
             
             source_conn.close()
             target_conn.close()
@@ -114,7 +113,7 @@ class IntelligentDatabaseMerger:
             
         except Exception as e:
             error_msg = f"Conflict analysis error: {str(e)}"
-            print(f"❌ {error_msg}")
+            print(f"[ERROR] {error_msg}")
             self.merge_report["errors"].append(error_msg)
             return conflict_analysis
     
@@ -128,7 +127,7 @@ class IntelligentDatabaseMerger:
         conflict_analysis = self.analyze_enterprise_logs_conflict()
         
         if conflict_analysis["unique_source"] == 0:
-            print("✅ No unique records to merge - databases are already synchronized")
+            print("[INFO] No unique records to merge - databases are already synchronized")
             self.cleanup_redundant_source()
             return
         
@@ -179,8 +178,8 @@ class IntelligentDatabaseMerger:
                 # Commit changes
                 target_conn.commit()
                 
-                print(f"✅ Records Merged: {records_merged}")
-                print(f"⏭️ Duplicates Skipped: {duplicates_skipped}")
+                print(f"[INFO] Records Merged: {records_merged}")
+                print(f"[INFO] Duplicates Skipped: {duplicates_skipped}")
                 
                 self.merge_report["records_merged"] = records_merged
                 self.merge_report["duplicates_skipped"] = duplicates_skipped
@@ -195,43 +194,45 @@ class IntelligentDatabaseMerger:
                 
             except Exception as e:
                 error_msg = f"Smart merge error: {str(e)}"
-                print(f"❌ {error_msg}")
+                print(f"[ERROR] {error_msg}")
                 self.merge_report["errors"].append(error_msg)
                 self.merge_report["merge_status"] = "ERROR"
     
     def cleanup_redundant_source(self):
-        """🗑️ Clean up redundant source database"""
+        """Clean up redundant source database."""
         try:
             if self.source_db.exists():
-                # Create backup
-                backup_name = f"logs_redundant_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+                backup_name = (
+                    f"logs_redundant_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+                )
                 backup_path = self.workspace_root / "_MANUAL_DELETE_FOLDER" / backup_name
                 backup_path.parent.mkdir(exist_ok=True)
-                
+
                 shutil.move(str(self.source_db), str(backup_path))
-                print(f"📦 Moved redundant database to backup: {backup_path}")
+                print(f"[INFO] Moved redundant database to backup: {backup_path}")
                 self.merge_report["backup_location"] = str(backup_path)
                 self.merge_report["merge_status"] = "REDUNDANT_REMOVED"
         except Exception as e:
             error_msg = f"Cleanup error: {str(e)}"
-            print(f"❌ {error_msg}")
+            print(f"[ERROR] {error_msg}")
             self.merge_report["errors"].append(error_msg)
     
     def cleanup_source_after_merge(self):
-        """🗑️ Clean up source database after successful merge"""
+        """Clean up source database after successful merge."""
         try:
             if self.source_db.exists():
-                # Create backup
-                backup_name = f"logs_merged_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+                backup_name = (
+                    f"logs_merged_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+                )
                 backup_path = self.workspace_root / "_MANUAL_DELETE_FOLDER" / backup_name
                 backup_path.parent.mkdir(exist_ok=True)
-                
+
                 shutil.move(str(self.source_db), str(backup_path))
-                print(f"📦 Moved merged database to backup: {backup_path}")
+                print(f"[INFO] Moved merged database to backup: {backup_path}")
                 self.merge_report["backup_location"] = str(backup_path)
         except Exception as e:
             error_msg = f"Cleanup error: {str(e)}"
-            print(f"❌ {error_msg}")
+            print(f"[ERROR] {error_msg}")
             self.merge_report["errors"].append(error_msg)
     
     def update_tool_references(self):
@@ -272,17 +273,17 @@ class IntelligentDatabaseMerger:
                         
                         if content != original_content:
                             tool_path.write_text(content, encoding='utf-8')
-                            print(f"✅ Updated database references in {tool_file}")
+                            print(f"[INFO] Updated database references in {tool_file}")
                             updated_tools.append(tool_file)
                         else:
-                            print(f"ℹ️ No updates needed for {tool_file}")
+                            print(f"[INFO] No updates needed for {tool_file}")
                     
                     except Exception as e:
                         error_msg = f"Tool update error in {tool_file}: {str(e)}"
-                        print(f"❌ {error_msg}")
+                        print(f"[ERROR] {error_msg}")
                         self.merge_report["errors"].append(error_msg)
                 else:
-                    print(f"⚠️ Tool file not found: {tool_file}")
+                    print(f"[WARNING] Tool file not found: {tool_file}")
                 
                 pbar.update(1)
             
@@ -304,7 +305,7 @@ class IntelligentDatabaseMerger:
             json.dump(self.merge_report, f, indent=2)
         
         print("="*60)
-        print("✅ INTELLIGENT DATABASE MERGE COMPLETED")
+        print("[SUCCESS] INTELLIGENT DATABASE MERGE COMPLETED")
         print("="*60)
         print(f"Merge Status: {self.merge_report['merge_status']}")
         print(f"Records Merged: {self.merge_report.get('records_merged', 0)}")
@@ -313,7 +314,7 @@ class IntelligentDatabaseMerger:
         print(f"Report Generated: {report_path}")
         
         if self.merge_report["errors"]:
-            print(f"⚠️ Errors Encountered: {len(self.merge_report['errors'])}")
+            print(f"[WARNING] Errors Encountered: {len(self.merge_report['errors'])}")
             for error in self.merge_report["errors"]:
                 print(f"   - {error}")
         

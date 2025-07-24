@@ -1,14 +1,15 @@
 import json
 import logging
 import sqlite3
-from datetime import datetime, timezone
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 from tqdm import tqdm
 
 ANALYTICS_DB = Path("databases") / "analytics.db"
 logger = logging.getLogger(__name__)
+__all__ = ["_log_event"]
 
 
 def _log_event(

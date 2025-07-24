@@ -7,6 +7,15 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+
+TEXT_INDICATORS = {
+    "start": "[START]",
+    "info": "[INFO]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Continuous Operation Monitor")
@@ -27,10 +36,12 @@ def setup_logger(workspace: Path) -> logging.Logger:
 
 
 def run_monitor(logger: logging.Logger, iterations: int) -> None:
+    logger.info(f"{TEXT_INDICATORS['start']} Monitoring cycles: %s", iterations)
+    validate_enterprise_operation()
     for _ in tqdm(range(iterations), desc="Operation Cycle"):
-        logger.info("cycle check")
+        logger.info(f"{TEXT_INDICATORS['info']} cycle check")
         time.sleep(0.1)
-    logger.info("Continuous monitoring complete")
+    logger.info(f"{TEXT_INDICATORS['success']} Continuous monitoring complete")
 
 
 def main() -> int:

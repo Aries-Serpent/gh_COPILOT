@@ -1,0 +1,6 @@
+"""Wrapper for :class:`scripts.utilities.unified_session_management_system.UnifiedSessionManagementSystem`."""
+
+from unified_session_management_system import UnifiedSessionManagementSystem
+
+__all__ = ["UnifiedSessionManagementSystem"]
+
