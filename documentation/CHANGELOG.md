@@ -1,5 +1,9 @@
 # CHANGELOG - gh_COPILOT Enterprise Toolkit
 
+## [4.1.0] - 2025-07-16 - Analytics Enhancements
+- Added `code_audit_log` table to `analytics.db` with migration script.
+- Updated initialization scripts to ensure table creation.
+
 ## [4.0.0] - 2025-07-14 - ENTERPRISE READINESS 100% ACHIEVEMENT
 
 ### 🏆 Major Achievements

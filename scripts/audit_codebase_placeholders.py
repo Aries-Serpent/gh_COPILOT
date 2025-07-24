@@ -21,13 +21,12 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import (
-    validate_enterprise_operation,
-)
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from scripts.database.add_code_audit_log import ensure_code_audit_log
 
 # Visual processing indicator constants
 TEXT = {
@@ -67,7 +66,7 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
 # Insert findings into analytics.db.code_audit_log
 def log_findings(results: List[Dict], analytics_db: Path) -> None:
     """Insert findings into analytics.db todo_fixme_tracking and code_audit_log."""
-    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    ensure_code_audit_log(analytics_db)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             """

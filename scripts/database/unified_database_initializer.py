@@ -19,14 +19,17 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from utils.validation_utils import detect_zero_byte_files, validate_path
-from utils.cross_platform_paths import CrossPlatformPathManager
 from secondary_copilot_validator import SecondaryCopilotValidator
+from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.logging_utils import setup_enterprise_logging
+from utils.validation_utils import detect_zero_byte_files, validate_path
+
+from .add_code_audit_log import ensure_code_audit_log
 from .cross_database_sync_logger import log_sync_operation
 
 # Database paths
 PRODUCTION_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
+ANALYTICS_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "analytics.db"
 
 logger = logging.getLogger(__name__)
 
@@ -214,8 +217,10 @@ def main() -> None:
     db_path = root / "databases" / "enterprise_assets.db"
     if db_path.exists():
         logger.info("%s already exists", db_path)
+        ensure_code_audit_log(ANALYTICS_DB)
         return
     initialize_database(db_path)
+    ensure_code_audit_log(ANALYTICS_DB)
 
 if __name__ == "__main__":
     setup_enterprise_logging()

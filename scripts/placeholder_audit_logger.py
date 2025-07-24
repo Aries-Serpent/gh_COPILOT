@@ -25,6 +25,7 @@ from typing import Iterable, List
 
 from tqdm import tqdm
 
+from scripts.database.add_code_audit_log import ensure_code_audit_log
 
 TEXT = {
     "start": "[START]",
@@ -88,7 +89,7 @@ def scan_files(workspace: Path, patterns: Iterable[str]) -> List[dict]:
 def log_results(results: List[dict], db_path: Path) -> None:
     """Insert placeholder findings into ``analytics.db`` with progress bars."""
 
-    db_path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_code_audit_log(db_path)
     with sqlite3.connect(db_path) as conn, tqdm(
         total=len(results), desc=f"{TEXT['progress']} logging", unit="item"
     ) as bar:
@@ -157,7 +158,8 @@ def rollback_last_entry(db_path: Path) -> bool:
             if row:
                 conn.execute("DELETE FROM placeholder_audit WHERE rowid = ?", (row[0],))
                 conn.execute(
-                    "DELETE FROM code_audit_log WHERE rowid = (SELECT rowid FROM code_audit_log ORDER BY rowid DESC LIMIT 1)"
+                    "DELETE FROM code_audit_log WHERE rowid = ("
+                    "SELECT rowid FROM code_audit_log ORDER BY rowid DESC LIMIT 1)"
                 )
                 conn.commit()
                 removed = True
