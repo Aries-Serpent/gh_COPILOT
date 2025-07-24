@@ -14,16 +14,8 @@ from template_engine.placeholder_utils import DEFAULT_ANALYTICS_DB
 from pathlib import Path
 from typing import List, Tuple, Optional
 from tqdm import tqdm
-import importlib.util
 from template_engine.auto_generator import DEFAULT_ANALYTICS_DB
-
-_LOG_UTILS_PATH = (
-    Path(__file__).resolve().parents[2] / "template_engine" / "log_utils.py"
-)
-spec = importlib.util.spec_from_file_location("log_utils", _LOG_UTILS_PATH)
-_log_mod = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(_log_mod)
-_log_event = _log_mod._log_event
+from utils.log_utils import _log_event
 
 logger = logging.getLogger(__name__)
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB

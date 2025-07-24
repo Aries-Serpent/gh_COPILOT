@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Continuous Operation Monitor - placeholder."""
+"""Continuous Operation Monitor."""
 import argparse
 import logging
 import time
 from pathlib import Path
 
 from tqdm import tqdm
+from utils.log_utils import _log_event
 
 
 def parse_args() -> argparse.Namespace:
@@ -27,10 +28,16 @@ def setup_logger(workspace: Path) -> logging.Logger:
 
 
 def run_monitor(logger: logging.Logger, iterations: int) -> None:
-    for _ in tqdm(range(iterations), desc="Operation Cycle"):
-        logger.info("cycle check")
+    start_payload = {"event": "operation_monitor_start"}
+    _log_event(start_payload)
+    for i in tqdm(range(iterations), desc="Operation Cycle"):
+        logger.info("cycle check %d", i)
+        _log_event({"event": "cycle", "index": i})
         time.sleep(0.1)
     logger.info("Continuous monitoring complete")
+    result = _log_event({"event": "operation_monitor_complete"})
+    if not result:
+        logger.error("[ERROR] event logging failed")
 
 
 def main() -> int:

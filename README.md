@@ -111,7 +111,7 @@ python scripts/database/complete_consolidation_orchestrator.py \
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 
 # 5. Start enterprise dashboard
-python web_gui/scripts/flask_apps/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py
 ```
 ### **Output Safety with `clw`**
 Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
@@ -230,7 +230,7 @@ compliance logging:
   synchronizes representative templates using transactional auditing.
 * **TemplateWorkflowEnhancer** – mines patterns from existing templates,
   computes compliance scores and writes dashboard-ready reports.
-* **Log Utilities** – unified `_log_event` helper under `template_engine.log_utils`
+* **Log Utilities** – unified `_log_event` helper under `utils.log_utils`
   logs events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
 
@@ -240,7 +240,7 @@ real-time status. It accepts a dictionary payload, optional table name, and the
 database path. The default table is `sync_events_log`.
 
 ```python
-from template_engine.log_utils import _log_event
+from utils.log_utils import _log_event
 _log_event({"event": "sync_start"})
 _log_event({"event": "complete"}, table="sync_status")
 ```
@@ -335,14 +335,14 @@ TEXT_INDICATORS = {
 
 ### **Unified Logging Utility**
 The toolkit provides a shared `_log_event` helper in
-`template_engine/log_utils.py`. This function writes events to a chosen table
+`utils/log_utils.py`. This function writes events to a chosen table
 (`sync_events_log`, `sync_status`, or `doc_analysis`) within `analytics.db` and
 displays a brief progress bar. The helper returns ``True`` when the record is
 successfully inserted so callers can validate logging as part of the DUAL
 COPILOT workflow.
 
 ```python
-from template_engine.log_utils import _log_event
+from utils.log_utils import _log_event
 
 _log_event({"event": "sync_start"}, table="sync_events_log")
 ```
@@ -402,11 +402,12 @@ class SelfHealingSelfLearningSystem:
 - **`/deployment`** - Deployment management
 - **`/api/scripts`** - Scripts API endpoint
 - **`/api/health`** - System health check
+- **`/dashboard/compliance`** - Compliance metrics and rollback history
 
 ### **Access Dashboard**
 ```bash
 # Start enterprise dashboard
-python web_gui/scripts/flask_apps/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py
 
 # Access at: http://localhost:5000
 # Features: Real-time metrics, database visualization, system monitoring
@@ -457,7 +458,7 @@ gh_COPILOT/
 - **`scripts/utilities/self_healing_self_learning_system.py`** - Autonomous operations
 - **`scripts/validation/enterprise_dual_copilot_validator.py`** - DUAL COPILOT validation
 - **`scripts/utilities/unified_script_generation_system.py`** - Database-first generation
-- **`web_gui/scripts/flask_apps/enterprise_dashboard.py`** - Enterprise dashboard
+ - **`dashboard/enterprise_dashboard.py`** - Enterprise dashboard
 - **`validation/compliance_report_generator.py`** - Summarize lint and test results
 - **`web_gui/dashboard_actionable_gui.py`** - Actionable compliance dashboard
 - **`scripts/monitoring/continuous_operation_monitor.py`** - Continuous operation utility
@@ -623,7 +624,7 @@ python scripts/utilities/self_healing_self_learning_system.py --continuous
 python scripts/validation/lessons_learned_integration_validator.py
 
 # Enterprise dashboard
-python web_gui/scripts/flask_apps/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py
 
 # DUAL COPILOT validation
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
