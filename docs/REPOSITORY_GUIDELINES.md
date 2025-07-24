@@ -27,3 +27,10 @@ bash setup.sh
 source .venv/bin/activate
 ```
 
+## Archival Policy
+
+Binary archives such as `*.zip` and `*.7z` should not remain in version control.
+If any appear in `archive*/` or `archives/`, move them to `_MANUAL_DELETE_FOLDER/`
+for manual removal. Once a HUMAN clears that folder, AGENTS should extend
+`.gitignore` to exclude these archive formats.
+
