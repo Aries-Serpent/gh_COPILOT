@@ -13,6 +13,7 @@ Enterprise features:
 
 from __future__ import annotations
 
+import logging
 import os
 import sqlite3
 from datetime import datetime
@@ -20,11 +21,28 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+from utils.cross_platform_paths import CrossPlatformPathManager
+
 DB_PATH = Path("databases/production.db")
 
 
 def get_connection() -> sqlite3.Connection:
     return sqlite3.connect(DB_PATH)
+
+
+def setup_logging() -> Path:
+    """Configure enterprise logging to external backup root."""
+    backup_root = CrossPlatformPathManager.get_backup_root()
+    log_dir = backup_root / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / f"wlc_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.log"
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
+    )
+    return log_file
 
 
 def start_session_entry(conn: sqlite3.Connection) -> int | None:
@@ -61,12 +79,19 @@ def finalize_session_entry(
 def validate_environment() -> bool:
     workspace = os.getenv("GH_COPILOT_WORKSPACE")
     backup_root = os.getenv("GH_COPILOT_BACKUP_ROOT")
-    return bool(workspace and backup_root and Path(workspace).exists())
+    if not (workspace and backup_root):
+        return False
+    return Path(workspace).exists() and Path(backup_root).parent.exists()
 
 
 def main() -> None:
     if not validate_environment():
-        raise EnvironmentError("Required environment variables are not set or paths invalid")
+        raise EnvironmentError(
+            "Required environment variables are not set or paths invalid"
+        )
+
+    setup_logging()
+    logging.info("WLC session starting")
 
     with get_connection() as conn:
         entry_id = start_session_entry(conn)
@@ -80,7 +105,13 @@ def main() -> None:
         except Exception as exc:  # noqa: BLE001
             finalize_session_entry(conn, entry_id, 0.0, error=str(exc))
             raise
+
         finalize_session_entry(conn, entry_id, compliance_score)
+
+        validator = SecondaryCopilotValidator()
+        validator.validate_corrections([__file__])
+
+    logging.info("WLC session completed")
 
 
 if __name__ == "__main__":
