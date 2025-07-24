@@ -35,6 +35,9 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Script Validation**: automated checks available
 - **Self-Healing Systems:** experimental correction scripts
 - **Continuous Operation Mode:** optional monitoring utilities
+- **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
+  `scripts/monitoring/enterprise_compliance_monitor.py`, and
+  `scripts/monitoring/unified_monitoring_optimization_system.py`
 
 ### **Learning Pattern Integration**
 - **Database-First Logic:** Production.db is consulted before generating output
@@ -67,12 +70,10 @@ bash setup.sh
 # Always run this script before executing tests or automation tasks to ensure
 # dependencies and environment variables are correctly initialized.
 
-# 2b. Verify the line-wrapping utility is available
-if [ ! -x /usr/local/bin/clw ]; then
-    bash tools/install_clw.sh
-fi
+# 2b. Install the line-wrapping utility
+bash tools/install_clw.sh
+# Verify clw exists
 ls -l /usr/local/bin/clw
-bash tools/install_clw.sh  # recreate if missing
 
 # 3. Initialize databases
 python scripts/database/database_initializer.py
@@ -459,6 +460,9 @@ gh_COPILOT/
 - **`web_gui/scripts/flask_apps/enterprise_dashboard.py`** - Enterprise dashboard
 - **`validation/compliance_report_generator.py`** - Summarize lint and test results
 - **`web_gui/dashboard_actionable_gui.py`** - Actionable compliance dashboard
+- **`scripts/monitoring/continuous_operation_monitor.py`** - Continuous operation utility
+- **`scripts/monitoring/enterprise_compliance_monitor.py`** - Compliance monitoring utility
+- **`scripts/monitoring/unified_monitoring_optimization_system.py`** - Aggregates performance metrics
 
 ---
 

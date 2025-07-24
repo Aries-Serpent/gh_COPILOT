@@ -19,12 +19,7 @@ from datetime import datetime
 from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 # Weight applied to memory usage when computing performance delta
 MEMORY_WEIGHT = 0.5
@@ -35,13 +30,23 @@ class EnterpriseUtility:
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
+        log_dir = Path(os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path)) / "logs"
+        log_dir.mkdir(exist_ok=True)
+        if not logging.getLogger(__name__).handlers:
+            logging.basicConfig(
+                level=logging.INFO,
+                format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                handlers=[
+                    logging.FileHandler(log_dir / "unified_monitoring_optimization_system.log"),
+                    logging.StreamHandler(sys.stdout),
+                ],
+            )
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
         """Execute utility function"""
         start_time = datetime.now()
-        self.logger.info(
-            f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
             # Utility implementation
@@ -49,8 +54,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -68,15 +72,12 @@ class EnterpriseUtility:
         location can be overridden via the ``GH_COPILOT_WORKSPACE`` environment
         variable.
         """
-        workspace = Path(
-            os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path))
+        workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path))
         perf_db = workspace / "databases" / "performance_monitoring.db"
         opt_db = workspace / "databases" / "optimization_metrics.db"
 
         if not perf_db.exists() or not opt_db.exists():
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Missing databases"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Missing databases")
             return False
 
         try:
@@ -92,9 +93,7 @@ class EnterpriseUtility:
                 )
                 row = cur.fetchone()
                 if row is None:
-                    self.logger.error(
-                        f"{TEXT_INDICATORS['error']} No performance data"
-                    )
+                    self.logger.error(f"{TEXT_INDICATORS['error']} No performance data")
                     return False
 
             avg_cpu, avg_mem, avg_disk, avg_net = [float(v or 0) for v in row]
@@ -135,14 +134,10 @@ class EnterpriseUtility:
 
             return True
         except sqlite3.Error as db_exc:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Database error: {db_exc}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {db_exc}")
             return False
         except Exception as exc:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Unexpected error: {exc}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Unexpected error: {exc}")
             raise
 
 
