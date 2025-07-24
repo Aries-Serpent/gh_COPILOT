@@ -158,6 +158,9 @@ Commands that generate large output should be piped through `/usr/local/bin/clw`
 ls -R | /usr/local/bin/clw
 ```
 
+`clw` wraps lines longer than 1550 bytes. Set the `CLW_MAX_LINE_LENGTH` environment
+variable to lower the threshold if you need earlier wrapping.
+
 If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
 You can adjust the wrap length by setting `CLW_MAX_LINE_LENGTH` before invoking the wrapper.
 
