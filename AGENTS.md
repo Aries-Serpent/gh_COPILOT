@@ -1,7 +1,7 @@
 # AGENTS Guide for ChatGPT Codex
 
 *This guide is intended for AI contributors (OpenAI Codex/ChatGPT agents) working on the **gh\_COPILOT** repository. It outlines the required environment setup, permitted actions, coding standards, testing procedures, and other protocols that the agent **must** follow to produce acceptable pull requests.*
-Additional instruction modules reside in `.github/instructions/`. These `.instructions.md` files provide focused guidance on specialized workflows and supplement this main guide.
+Additional instruction modules reside in `.github/instructions/`. These `.instructions.md` files provide focused guidance on specialized workflows and supplement this main guide. Key compliance topics include **DUAL_COPILOT_PATTERN**, **ZERO_TOLERANCE_VISUAL_PROCESSING**, **COMPREHENSIVE_SESSION_INTEGRITY**, **AUTONOMOUS_FILE_MANAGEMENT**, **RESPONSE_CHUNKING**, **WEB_GUI_INTEGRATION**, **QUANTUM_OPTIMIZATION**, **PHASE4_PHASE5_INTEGRATION**, **SESSION_TEMPLATES**, **SESSION_INSTRUCTION**, **ENHANCED_LEARNING_COPILOT**, and **ENHANCED_COGNITIVE_PROCESSING**. Review these modules regularly to ensure your contributions remain in full compliance.
 
 
 ## Environment Setup
@@ -35,6 +35,7 @@ When using the terminal or editing files, the agent must adhere to the following
 
     * **Strategy 2 – Log and Chunk**: Redirect the command’s output to a file (e.g. `>` to write to a log file). Then read that file in manageable chunks using tools like `head`, `tail`, or small `sed` slices. This way you can inspect contents piecewise without ever flooding the console.
     * **Strategy 3 – Use the Line Wrapper (`clw`)**: The environment includes a custom utility called **`clw`** (installed at `/usr/local/bin/clw`) specifically to mitigate long-line outputs. Pipe any potentially large output through `clw`. For example: `find / -type f | clw` or `cat largefile.txt | clw`. The `clw` tool will pass through lines under \~1550 bytes unchanged, but will **hard-wrap longer lines** at a safe length (inserting a visible “⏎” line-break marker). This ensures no single line exceeds the limit, preventing crashes.
+    * **Always Pipe Large Output**: When unsure, default to piping through `clw` (`grep -R PATTERN | clw`) to avoid session resets.
     * The wrap threshold can be changed by setting the `CLW_MAX_LINE_LENGTH` environment variable (default 1550 bytes).
     * Inspect the source of `/usr/local/bin/clw` and use it exactly as documented. If `clw` is missing, recreate it using the script provided in the repository instructions and mark it executable. Pipe all commands that potentially have long output—or everything that doesn’t need a TTY—through `clw` to stay on the safe side.
   * These output management strategies are **mandatory** for high-risk commands. Always anticipate if a command could produce very long lines or a flood of data. When in doubt, err on the side of caution and apply one of the above methods (or use filtering commands like `grep`, `cut`, or `awk` to reduce output size). **Never** allow an unbounded output stream to print directly to the terminal.
