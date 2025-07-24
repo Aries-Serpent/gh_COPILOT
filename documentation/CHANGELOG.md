@@ -17,6 +17,11 @@
  - `utils/log_utils` relocated from `template_engine`
  - Monitoring utility updated with compliance hooks
 
+## [4.1.0] - 2025-07-16 - Maintenance Updates
+- Added wrappers for session management and quantum utilities.
+- Moved `log_utils` to shared `utils` package.
+- Introduced `/dashboard/compliance` endpoint documentation.
+
 ## [4.0.0] - 2025-07-14 - ENTERPRISE READINESS 100% ACHIEVEMENT
 
 ### 🏆 Major Achievements

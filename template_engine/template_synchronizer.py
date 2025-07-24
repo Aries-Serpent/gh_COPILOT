@@ -1,203 +1,255 @@
-# [Script]: Template Synchronizer Engine
-# > Generated: 2025-07-24 21:18:17 | Author: mbaetiong
-# --- Enterprise Standards ---
-# - Flake8/PEP8 Compliant
-# - Explicit logging for validation and audit
-# - Environment/workspace compliance (ANALYTICS_DB may be patched by test harnesses)
+#!/usr/bin/env python3
+# [Session]: Session Protocol Validator
+# > Generated: 2025-07-24 20:20:40 | Author: mbaetiong
 
-import logging
-import os
+"""
+Session Protocol Validator
+
+- Validates the integrity, compliance, and schema of session databases for the gh_COPILOT enterprise suite.
+- Ensures all session records follow the current enterprise protocol specification.
+- Audits key metadata, field completeness, state transitions, and compliance with rollback/merge requirements.
+- Prints and logs validation steps, results, and errors for compliance audit trails.
+"""
+
+import argparse
+import json
 import sqlite3
-import time
+import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, List, Tuple
+from typing import List, Dict, Any, Optional
 
-from tqdm import tqdm
 from utils.log_utils import _log_event
 
-try:
-    from .auto_generator import DEFAULT_ANALYTICS_DB
-except ImportError:
-    DEFAULT_ANALYTICS_DB = Path("analytics.db")
-
-ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", DEFAULT_ANALYTICS_DB))
-logger = logging.getLogger(__name__)
-
-
-def _calculate_etc(start_ts: float, current: int, total: int) -> str:
-    if current == 0:
-        return "N/A"
-    elapsed = time.time() - start_ts
-    est_total = elapsed / (current / total)
-    remaining = est_total - elapsed
-    return f"{remaining:.2f}s remaining"
+TEXT_INDICATORS = {
+    "start": "[START]",
+    "info": "[INFO]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "validation": "[VALIDATION]",
+    "fail": "[FAIL]",
+    "pass": "[PASS]",
+}
 
 
-def _extract_templates(db: Path) -> List[Tuple[str, str]]:
-    """Extract templates from a database."""
-    if not db.exists():
-        logger.warning("Database does not exist: %s", db)
-        return []
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Enterprise Session Protocol Validator"
+    )
+    parser.add_argument(
+        "--session-db", type=Path, required=True, help="Session database file"
+    )
+    parser.add_argument(
+        "--strict", action="store_true", help="Fail validation on first error"
+    )
+    parser.add_argument(
+        "--report", type=Path, default=None, help="Optional path to write validation report (JSON)"
+    )
+    return parser.parse_args()
+
+
+def get_existing_tables(conn: sqlite3.Connection) -> List[str]:
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    return [row[0] for row in cur.fetchall()]
+
+
+def validate_schema(conn: sqlite3.Connection) -> Dict[str, Any]:
+    """
+    Validates that the 'sessions' table exists and has all required fields.
+    Returns a dictionary with validation results.
+    """
+    expected_columns = {
+        "session_id", "user_id", "state", "created_at", "last_updated", "metadata"
+    }
+    result = {
+        "schema_ok": False,
+        "missing_columns": [],
+        "found_columns": [],
+        "table_exists": False
+    }
+    tables = get_existing_tables(conn)
+    if 'sessions' not in tables:
+        result["missing_columns"] = list(expected_columns)
+        result["found_columns"] = []
+        result["table_exists"] = False
+        return result
+    result["table_exists"] = True
+
+    cur = conn.cursor()
+    cur.execute("PRAGMA table_info(sessions);")
+    cols = {row[1] for row in cur.fetchall()}
+    result["found_columns"] = list(cols)
+    missing = expected_columns - cols
+    result["missing_columns"] = list(missing)
+    result["schema_ok"] = len(missing) == 0
+    return result
+
+
+def validate_metadata(metadata: str) -> Optional[str]:
+    """
+    Example: Validate that metadata is a valid JSON string and contains required keys.
+    Returns None if OK, or error string if invalid.
+    """
     try:
-        with sqlite3.connect(db) as conn:
-            rows = conn.execute("SELECT name, template_content FROM templates").fetchall()
-            return [(r[0], r[1]) for r in rows]
-    except sqlite3.Error as exc:
-        logger.warning("Failed to read templates from %s: %s", db, exc)
-        return []
+        data = json.loads(metadata)
+        required_keys = ["origin", "ip", "device"]
+        for rk in required_keys:
+            if rk not in data:
+                return f"Missing metadata key: {rk}"
+        return None
+    except Exception as e:
+        return f"Invalid metadata JSON: {e}"
 
 
-def _validate_template(name: str, content: str) -> bool:
-    """Validate that template has a name and non-empty content."""
-    return bool(name and content and content.strip())
-
-
-def _db_compliance_score(content: str) -> float:
-    """Compute compliance score using rules stored in ``analytics.db``."""
+def validate_records(conn: sqlite3.Connection, strict: bool = False) -> List[Dict[str, Any]]:
+    """
+    Validates all records in 'sessions' for completeness, state, and date formats.
+    Returns a list of record validation dictionaries.
+    If strict is True, stops on first error.
+    """
+    cur = conn.cursor()
     try:
-        with sqlite3.connect(ANALYTICS_DB) as conn:
-            cur = conn.execute("SELECT pattern FROM compliance_rules")
-            rules = [row[0] for row in cur.fetchall()]
-    except sqlite3.Error:
-        rules = []
+        cur.execute("SELECT session_id, user_id, state, created_at, last_updated, metadata FROM sessions;")
+    except sqlite3.OperationalError as e:
+        return [{
+            "row_index": None,
+            "valid": False,
+            "errors": [f"Table error: {e}"]
+        }]
+    results = []
+    for idx, row in enumerate(cur.fetchall()):
+        session_id, user_id, state, created_at, last_updated, metadata = row
+        record_report = {
+            "row_index": idx,
+            "session_id": session_id,
+            "user_id": user_id,
+            "state": state,
+            "created_at": created_at,
+            "last_updated": last_updated,
+            "metadata": metadata,
+            "valid": True,
+            "errors": [],
+        }
+        # Check required fields
+        for field_name, value in [
+            ("session_id", session_id),
+            ("user_id", user_id),
+            ("state", state),
+            ("created_at", created_at)
+        ]:
+            if value is None or (isinstance(value, str) and value.strip() == ""):
+                record_report["errors"].append(f"Missing value for required field: {field_name}")
+                record_report["valid"] = False
 
-    if any(r.lower() in content.lower() for r in rules):
-        return 50.0
-    if not content.strip():
-        return 50.0
-    return 100.0
+        # Example: state must be in allowed set
+        allowed_states = {"active", "closed", "pending", "archived"}
+        if state not in allowed_states:
+            record_report["errors"].append(f"Invalid state: {state}")
+            record_report["valid"] = False
+
+        # Date checks
+        try:
+            # Allow either ISO8601 or ISO8601 Zulu time
+            datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+        except Exception:
+            record_report["errors"].append(f"Invalid created_at format: {created_at}")
+            record_report["valid"] = False
+        try:
+            datetime.fromisoformat(last_updated.replace("Z", "+00:00"))
+        except Exception:
+            record_report["errors"].append(f"Invalid last_updated format: {last_updated}")
+            record_report["valid"] = False
+
+        # Metadata checks
+        metaerr = validate_metadata(metadata)
+        if metaerr:
+            record_report["errors"].append(metaerr)
+            record_report["valid"] = False
+
+        results.append(record_report)
+        if strict and not record_report["valid"]:
+            break
+    return results
 
 
-def _compliance_score(content: str) -> float:
-    """Return compliance score based on analytics rules."""
-    return _db_compliance_score(content)
-
-
-def _log_sync_event(source: str, target: str) -> None:
-    """Record a synchronization event in analytics DB."""
+def validate_consolidation_protocol(session_db: Path) -> bool:
+    """
+    API for external tools (returns True if validation passes, else False).
+    Performs schema and record checks, prints errors, and logs events.
+    """
     try:
-        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
-        with sqlite3.connect(ANALYTICS_DB) as conn:
-            conn.execute("CREATE TABLE IF NOT EXISTS sync_events (timestamp TEXT, source_db TEXT, target_db TEXT)")
-            conn.execute(
-                "INSERT INTO sync_events (timestamp, source_db, target_db) VALUES (?, ?, ?)",
-                (datetime.utcnow().isoformat(), source, target),
-            )
-    except sqlite3.Error as exc:
-        logger.error("Failed to log sync event: %s", exc)
-
-
-def _log_audit(db_name: str, details: str) -> None:
-    """Log synchronization failures or audit events."""
-    try:
-        ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
-        with sqlite3.connect(ANALYTICS_DB) as conn:
-            conn.execute("CREATE TABLE IF NOT EXISTS audit_log (timestamp TEXT, db_name TEXT, details TEXT)")
-            conn.execute(
-                "INSERT INTO audit_log (timestamp, db_name, details) VALUES (?, ?, ?)",
-                (datetime.utcnow().isoformat(), db_name, details),
-            )
-    except sqlite3.Error as exc:
-        logger.error("Failed to log audit event: %s", exc)
-
-
-def _compliance_check(conn: sqlite3.Connection) -> bool:
-    """Check that all templates in DB are compliant (PEP8/flake8 placeholder)."""
-    try:
-        rows = conn.execute("SELECT template_content FROM templates").fetchall()
-        for (content,) in rows:
-            if _compliance_score(content) < 60.0:
+        with sqlite3.connect(str(session_db)) as conn:
+            schema_result = validate_schema(conn)
+            if not schema_result["schema_ok"]:
+                print(f"{TEXT_INDICATORS['fail']} Schema validation failed: missing columns {schema_result['missing_columns']}")
+                _log_event({"event": "session_protocol_validation_failed", "details": schema_result})
                 return False
+            record_results = validate_records(conn, strict=True)
+            for rec in record_results:
+                if not rec.get("valid", True):
+                    print(f"{TEXT_INDICATORS['fail']} Invalid record: {rec}")
+                    _log_event({"event": "session_protocol_validation_failed", "details": rec})
+                    return False
+        print(f"{TEXT_INDICATORS['pass']} Protocol validation passed.")
+        _log_event({"event": "session_protocol_validation_passed"})
         return True
-    except Exception as exc:
-        logger.error("Compliance check failed: %s", exc)
+    except Exception as e:
+        print(f"{TEXT_INDICATORS['error']} Protocol validation error: {e}")
+        _log_event({"event": "session_protocol_validation_error", "error": str(e)})
         return False
 
 
-def synchronize_templates(
-    source_dbs: Iterable[Path] | None = None,
-) -> int:
-    """
-    Synchronize templates across multiple databases with transactional integrity.
-    Each synchronized template is logged to analytics DB with a timestamp and source.
-    """
-    start_dt = datetime.utcnow()
-    start_ts = time.time()
-    _log_event(
-        {"event": "sync_start", "sources": ",".join(str(p) for p in source_dbs or [])},
-        table="sync_events_log",
-        db_path=ANALYTICS_DB,
-    )
-    databases = list(source_dbs) if source_dbs else []
-    all_templates: dict[str, str] = {}
+def main() -> int:
+    args = parse_args()
+    report = {
+        "schema": None,
+        "records": [],
+        "validation_passed": False,
+        "errors": [],
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
-    # Extract and validate templates from all databases
-    for idx, db in enumerate(tqdm(databases, desc="Extracting", unit="db"), 1):
-        for name, content in _extract_templates(db):
-            if _validate_template(name, content):
-                all_templates[name] = content
-            else:
-                logger.warning("Invalid template from %s: %s", db, name)
-        etc = _calculate_etc(start_ts, idx, len(databases))
-        tqdm.write(f"ETC: {etc}")
+    print(f"{TEXT_INDICATORS['start']} Validating session protocol for {args.session_db}")
+    _log_event({"event": "session_protocol_validation_start", "session_db": str(args.session_db)})
 
-    source_names = ",".join(str(d) for d in databases)
-    synced = 0
+    try:
+        with sqlite3.connect(str(args.session_db)) as conn:
+            schema_result = validate_schema(conn)
+            report["schema"] = schema_result
+            if not schema_result["schema_ok"]:
+                print(f"{TEXT_INDICATORS['fail']} Schema validation failed: missing columns {schema_result['missing_columns']}")
+                report["errors"].append(f"Missing columns: {schema_result['missing_columns']}")
+                _log_event({"event": "session_protocol_validation_failed", "details": schema_result})
+                if args.report:
+                    args.report.write_text(json.dumps(report, indent=2))
+                return 1
+            record_results = validate_records(conn, strict=args.strict)
+            report["records"] = record_results
+            failed = [r for r in record_results if not r.get("valid", True)]
+            if failed:
+                print(f"{TEXT_INDICATORS['fail']} {len(failed)} invalid records found.")
+                report["errors"].extend([f"Invalid record: {rec}" for rec in failed])
+                _log_event({"event": "session_protocol_validation_failed", "details": failed})
+                if args.report:
+                    args.report.write_text(json.dumps(report, indent=2))
+                return 1
+            print(f"{TEXT_INDICATORS['success']} All session records valid.")
+            report["validation_passed"] = True
+            _log_event({"event": "session_protocol_validation_passed"})
+    except Exception as e:
+        print(f"{TEXT_INDICATORS['error']} Protocol validation error: {e}")
+        report["errors"].append(str(e))
+        _log_event({"event": "session_protocol_validation_error", "error": str(e)})
+        if args.report:
+            args.report.write_text(json.dumps(report, indent=2))
+        return 2
 
-    for idx, db in enumerate(tqdm(databases, desc="Synchronizing", unit="db"), 1):
-        if not db.exists():
-            logger.warning("Skipping missing DB: %s", db)
-            continue
-        try:
-            with sqlite3.connect(db) as conn:
-                cur = conn.cursor()
-                try:
-                    cur.execute("BEGIN")
-                    for name, content in all_templates.items():
-                        if _compliance_score(content) < 60.0:
-                            raise ValueError(f"Compliance failure for {name}")
-                        cur.execute(
-                            "INSERT OR REPLACE INTO templates (name, template_content) VALUES (?, ?)",
-                            (name, content),
-                        )
-                    conn.commit()
-                    if not _compliance_check(conn):
-                        raise ValueError("Post-sync compliance validation failed")
-                    synced += 1
-                    _log_sync_event(source_names, str(db))
-                    _log_event(
-                        {"event": "sync_success", "db": str(db)},
-                        table="sync_events_log",
-                        db_path=ANALYTICS_DB,
-                    )
-                except Exception as exc:
-                    conn.rollback()
-                    _log_audit(str(db), f"Sync failure: {exc}")
-                    _log_event(
-                        {"event": "sync_failure", "error": str(exc)},
-                        table="sync_events_log",
-                        db_path=ANALYTICS_DB,
-                    )
-                    logger.error("Failed to synchronize %s: %s", db, exc)
-        except sqlite3.Error as exc:
-            _log_audit(str(db), f"DB connection error: {exc}")
-            logger.error("Database error %s: %s", db, exc)
-        etc = _calculate_etc(start_ts, idx + len(databases), len(databases) * 2)
-        tqdm.write(f"ETC: {etc}")
-
-    duration = (datetime.utcnow() - start_dt).total_seconds()
-    logger.info("Synchronization completed for %s databases in %.2fs", synced, duration)
-    _log_event(
-        {"event": "sync_complete", "details": f"{synced} databases in {duration:.2f}s"},
-        table="sync_events_log",
-        db_path=ANALYTICS_DB,
-    )
-    return synced
+    if args.report:
+        args.report.write_text(json.dumps(report, indent=2))
+    print(f"{TEXT_INDICATORS['success']} Session protocol validation complete.")
+    return 0
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    dbs_env = os.getenv("TEMPLATE_SYNC_DBS", "").split(os.pathsep)
-    source_dbs = [Path(p) for p in dbs_env if p]
-    synchronize_templates(source_dbs)
+    raise SystemExit(main())

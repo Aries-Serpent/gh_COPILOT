@@ -8,14 +8,15 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
-from .log_utils import _log_event
+
+from utils.log_utils import _log_event
 
 # Quantum demo import (placeholder for quantum-inspired scoring)
 try:

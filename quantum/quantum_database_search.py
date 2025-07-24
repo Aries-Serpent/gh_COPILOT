@@ -149,7 +149,11 @@ def quantum_search_hybrid(
     if search_type == "sql":
         return quantum_search_sql(query, db_path, extra, limit)
     elif search_type == "nosql":
-        return quantum_search_nosql(extra.get("collection"), query, db_path, limit)
+        if not extra or "collection" not in extra or not isinstance(extra["collection"], str):
+            logger.error("Quantum hybrid search error: 'collection' must be provided as a string in 'extra'")
+            _log_search_event(str(query), db_path, 0, extra, "'collection' missing or invalid for NoSQL search")
+            return []
+        return quantum_search_nosql(extra["collection"], query, db_path, limit)
     else:
         logger.error("Unknown hybrid quantum search type: %s", search_type)
         _log_search_event(str(query), db_path, 0, extra, f"Unknown type: {search_type}")
