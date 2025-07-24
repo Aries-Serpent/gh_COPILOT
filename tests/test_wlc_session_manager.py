@@ -26,14 +26,12 @@ def test_main_inserts_session(tmp_path, monkeypatch):
         cur = conn.cursor()
         cur.execute("SELECT COUNT(*) FROM unified_wrapup_sessions")
         before = cur.fetchone()[0]
-    wsm.main()
+    wsm.main([])
     with sqlite3.connect(temp_db) as conn:
         cur = conn.cursor()
         cur.execute("SELECT COUNT(*) FROM unified_wrapup_sessions")
         after = cur.fetchone()[0]
-        cur.execute(
-            "SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1"
-        )
+        cur.execute("SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
         score = cur.fetchone()[0]
     assert after == before + 1
     assert abs(score - 1.0) < 1e-6

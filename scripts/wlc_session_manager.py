@@ -13,10 +13,11 @@ Enterprise features:
 
 from __future__ import annotations
 
+import argparse
 import logging
 import os
 import sqlite3
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 from tqdm import tqdm
@@ -27,8 +28,8 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 DB_PATH = Path("databases/production.db")
 
 
-def get_connection() -> sqlite3.Connection:
-    return sqlite3.connect(DB_PATH)
+def get_connection(db_path: Path) -> sqlite3.Connection:
+    return sqlite3.connect(db_path)
 
 
 def setup_logging() -> Path:
@@ -36,7 +37,7 @@ def setup_logging() -> Path:
     backup_root = CrossPlatformPathManager.get_backup_root()
     log_dir = backup_root / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / f"wlc_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.log"
+    log_file = log_dir / f"wlc_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.log"
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
@@ -47,7 +48,7 @@ def setup_logging() -> Path:
 
 def start_session_entry(conn: sqlite3.Connection) -> int | None:
     cur = conn.cursor()
-    start_time = datetime.utcnow().isoformat()
+    start_time = datetime.now(UTC).isoformat()
     cur.execute(
         """
         INSERT INTO unified_wrapup_sessions (
@@ -64,7 +65,7 @@ def finalize_session_entry(
     conn: sqlite3.Connection, entry_id: int, compliance_score: float, error: str | None = None
 ) -> None:
     cur = conn.cursor()
-    end_time = datetime.utcnow().isoformat()
+    end_time = datetime.now(UTC).isoformat()
     cur.execute(
         """
         UPDATE unified_wrapup_sessions
@@ -84,24 +85,43 @@ def validate_environment() -> bool:
     return Path(workspace).exists() and Path(backup_root).parent.exists()
 
 
-def main() -> None:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run WLC session manager")
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=3,
+        help="Number of steps to execute during the session",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Enable verbose (DEBUG) logging",
+    )
+    parser.add_argument(
+        "--db-path",
+        type=Path,
+        default=DB_PATH,
+        help="Path to production database",
+    )
+    return parser.parse_args(argv)
+
+
+def run_session(steps: int, db_path: Path) -> None:
     if not validate_environment():
-        raise EnvironmentError(
-            "Required environment variables are not set or paths invalid"
-        )
+        raise EnvironmentError("Required environment variables are not set or paths invalid")
 
     setup_logging()
     logging.info("WLC session starting")
 
-    with get_connection() as conn:
+    with get_connection(db_path) as conn:
         entry_id = start_session_entry(conn)
         if entry_id is None:
             raise RuntimeError("Failed to create session entry in the database.")
         compliance_score = 1.0
         try:
-            for _ in tqdm(range(3), desc="WLC Session", unit="step"):
-                # Placeholder for real work
-                pass
+            for _ in tqdm(range(steps), desc="WLC Session", unit="step"):
+                pass  # placeholder for real work
         except Exception as exc:  # noqa: BLE001
             finalize_session_entry(conn, entry_id, 0.0, error=str(exc))
             raise
@@ -112,6 +132,13 @@ def main() -> None:
         validator.validate_corrections([__file__])
 
     logging.info("WLC session completed")
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+    run_session(args.steps, args.db_path)
 
 
 if __name__ == "__main__":
