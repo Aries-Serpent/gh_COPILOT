@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Continuous Operation Monitor with compliance hooks."""
+# [Monitor]: Continuous Operation Monitor
+# > Generated: 2025-07-24 19:58:25 | Author: mbaetiong
 
-from __future__ import annotations
+"""Continuous Operation Monitor."""
 
 import argparse
 import logging
@@ -9,6 +10,23 @@ import time
 from pathlib import Path
 
 from tqdm import tqdm
+from utils.log_utils import _log_event
+
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+
+TEXT_INDICATORS = {
+    "start": "[START]",
+    "info": "[INFO]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+}
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Continuous Operation Monitor")
+    parser.add_argument("--workspace", type=Path, default=Path.cwd())
+    parser.add_argument("--iterations", type=int, default=3)
+    return parser.parse_args()
 
 
 def setup_logger(workspace: Path) -> logging.Logger:
@@ -18,39 +36,32 @@ def setup_logger(workspace: Path) -> logging.Logger:
     logger.setLevel(logging.INFO)
     handler = logging.FileHandler(log_dir / "continuous_operation_monitor.log")
     handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+    if logger.hasHandlers():
+        logger.handlers.clear()
     logger.addHandler(handler)
     return logger
 
 
-class ContinuousOperationMonitor:
-    """Run periodic operation checks with logging."""
-
-    def __init__(self, interval: float = 0.1, workspace: Path | None = None) -> None:
-        self.interval = interval
-        self.workspace = Path(workspace or Path.cwd())
-        self.logger = setup_logger(self.workspace)
-
-    def run(self, iterations: int = 3) -> bool:
-        for _ in tqdm(range(iterations), desc="Operation Cycle"):
-            self.logger.info("cycle check")
-            self.logger.info("[INFO] compliance hook")
-            time.sleep(self.interval)
-        self.logger.info("Continuous monitoring complete")
-        return True
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Continuous Operation Monitor")
-    parser.add_argument("--workspace", type=Path, default=Path.cwd())
-    parser.add_argument("--iterations", type=int, default=3)
-    parser.add_argument("--interval", type=float, default=0.1)
-    return parser.parse_args()
+def run_monitor(logger: logging.Logger, iterations: int) -> None:
+    # Enterprise validation at start
+    validate_enterprise_operation()
+    start_payload = {"event": "operation_monitor_start"}
+    _log_event(start_payload)
+    logger.info("%s Monitoring cycles: %d", TEXT_INDICATORS["start"], iterations)
+    for i in tqdm(range(iterations), desc="Operation Cycle"):
+        logger.info("%s cycle check %d", TEXT_INDICATORS["info"], i)
+        _log_event({"event": "cycle", "index": i})
+        time.sleep(0.1)
+    logger.info("%s Continuous monitoring complete", TEXT_INDICATORS["success"])
+    result = _log_event({"event": "operation_monitor_complete"})
+    if not result:
+        logger.error("%s event logging failed", TEXT_INDICATORS["error"])
 
 
 def main() -> int:
     args = parse_args()
-    monitor = ContinuousOperationMonitor(args.interval, args.workspace)
-    monitor.run(args.iterations)
+    logger = setup_logger(args.workspace)
+    run_monitor(logger, args.iterations)
     return 0
 
 

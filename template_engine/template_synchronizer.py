@@ -1,5 +1,5 @@
 # [Script]: Template Synchronizer Engine
-# > Generated: 2025-07-21 20:39:23 | Author: mbaetiong
+# > Generated: 2025-07-24 21:18:17 | Author: mbaetiong
 # --- Enterprise Standards ---
 # - Flake8/PEP8 Compliant
 # - Explicit logging for validation and audit
@@ -11,14 +11,17 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, List, Tuple
 
 from tqdm import tqdm
+from utils.log_utils import _log_event
 
-from .log_utils import _log_event
-from .placeholder_utils import DEFAULT_ANALYTICS_DB
+try:
+    from .auto_generator import DEFAULT_ANALYTICS_DB
+except ImportError:
+    DEFAULT_ANALYTICS_DB = Path("analytics.db")
 
-ANALYTICS_DB = DEFAULT_ANALYTICS_DB
+ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", DEFAULT_ANALYTICS_DB))
 logger = logging.getLogger(__name__)
 
 
@@ -31,7 +34,7 @@ def _calculate_etc(start_ts: float, current: int, total: int) -> str:
     return f"{remaining:.2f}s remaining"
 
 
-def _extract_templates(db: Path) -> list[tuple[str, str]]:
+def _extract_templates(db: Path) -> List[Tuple[str, str]]:
     """Extract templates from a database."""
     if not db.exists():
         logger.warning("Database does not exist: %s", db)
