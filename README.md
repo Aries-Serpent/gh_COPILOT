@@ -65,6 +65,9 @@ bash setup.sh
 # dependencies and environment variables are correctly initialized.
 
 # 2b. Verify the line-wrapping utility is available
+if [ ! -x /usr/local/bin/clw ]; then
+    bash tools/install_clw.sh
+fi
 ls -l /usr/local/bin/clw
 
 # 3. Initialize databases
