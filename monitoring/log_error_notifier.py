@@ -3,7 +3,7 @@
 
 This module scans log files for error messages and records notifications in
 ``analytics.db``. It demonstrates the DUAL COPILOT pattern by monitoring log
-content, logging each error via :func:`template_engine.log_utils._log_event`, and
+content, logging each error via :func:`utils.log_utils._log_event`, and
 issuing a summary notification when errors are detected.
 
 Functions are intentionally small to keep logic testable. ``monitor_logs``
