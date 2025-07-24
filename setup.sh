@@ -12,9 +12,8 @@ source "$WORKSPACE/.venv/bin/activate"
 pip install --upgrade pip >/tmp/setup_install.log
 
 pip install -r "$WORKSPACE/requirements.txt" >>/tmp/setup_install.log
-if [ -f "$WORKSPACE/requirements-test.txt" ]; then
-    pip install -r "$WORKSPACE/requirements-test.txt" >>/tmp/setup_install.log
-fi
+
+python "$WORKSPACE/scripts/setup_environment.py" >>/tmp/setup_install.log
 
 # install clw line wrapper if missing
 if [ ! -x /usr/local/bin/clw ]; then
