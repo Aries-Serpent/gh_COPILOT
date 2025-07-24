@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-[INFO] INTELLIGENT DATABASE MERGER
+INTELLIGENT DATABASE MERGER
 Merge logs.db data into databases/logs.db with conflict resolution
 """
 
@@ -309,11 +309,11 @@ class IntelligentDatabaseMerger:
         print("="*60)
         print("[SUCCESS] INTELLIGENT DATABASE MERGE COMPLETED")
         print("="*60)
-        print(f"Merge Status: {self.merge_report['merge_status']}")
-        print(f"Records Merged: {self.merge_report.get('records_merged', 0)}")
-        print(f"Duplicates Skipped: {self.merge_report.get('duplicates_skipped', 0)}")
-        print(f"Duration: {duration:.2f} seconds")
-        print(f"Report Generated: {report_path}")
+        print(f"[INFO] Merge Status: {self.merge_report['merge_status']}")
+        print(f"[INFO] Records Merged: {self.merge_report.get('records_merged', 0)}")
+        print(f"[INFO] Duplicates Skipped: {self.merge_report.get('duplicates_skipped', 0)}")
+        print(f"[INFO] Duration: {duration:.2f} seconds")
+        print(f"[INFO] Report Generated: {report_path}")
         
         if self.merge_report["errors"]:
             print(f"[WARN] Errors Encountered: {len(self.merge_report['errors'])}")

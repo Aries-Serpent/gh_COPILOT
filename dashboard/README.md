@@ -1,14 +1,11 @@
-# Dashboard
+# DASHBOARD MODULE: ENTERPRISE MONITORING AND COMPLIANCE  
+> Generated: 2025-07-24 19:18:55 | Author: mbaetiong
 
 ## OVERVIEW
 
-The Enterprise Dashboard module is the central observability and control interface for the gh_COPILOT toolkit. 
-It enables real-time monitoring of core system operations, session management, compliance reporting, and 
-database orchestration—all in a unified web GUI built with Flask and Jinja2.
+The Enterprise Dashboard module is the central observability and control interface for the gh_COPILOT toolkit. It enables real-time monitoring of core system operations, session management, compliance reporting, and database orchestration—all in a unified web GUI built with Flask and Jinja2.
 
-This module is designed to meet enterprise auditability and compliance standards, providing a single-pane-of-glass 
-for operational health, process compliance, backup management, and DUAL COPILOT validation. All dashboard 
-operations are tracked and validated for compliance, with full audit trails and rollback capabilities.
+This module is designed to meet enterprise auditability and compliance standards, providing a single-pane-of-glass for operational health, process compliance, backup management, and DUAL COPILOT validation. All dashboard operations are tracked and validated for compliance, with full audit trails and rollback capabilities.
 
 ---
 
@@ -77,8 +74,7 @@ dashboard/
 python dashboard/enterprise_dashboard.py
 ```
 
-Visit [http://localhost:5000](http://localhost:5000) in your browser. The dashboard will auto-discover and display 
-current session, database, and compliance data. All metrics update in real time.
+Visit [http://localhost:5000](http://localhost:5000) in your browser. The dashboard will auto-discover and display current session, database, and compliance data. All metrics update in real time.
 
 ---
 
@@ -97,8 +93,7 @@ current session, database, and compliance data. All metrics update in real time.
 
 #### Example `/dashboard/compliance` Response
 
-The `/dashboard/compliance` endpoint returns compliance information as JSON, combining live metrics from `analytics.db` 
-and correction/rollback summaries from `dashboard/compliance/correction_summary.json`.
+The `/dashboard/compliance` endpoint returns compliance information as JSON, combining live metrics from `analytics.db` and correction/rollback summaries from `dashboard/compliance/correction_summary.json`.
 
 ```json
 {
