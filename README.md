@@ -70,6 +70,11 @@ ls -l /usr/local/bin/clw
 # 3. Initialize databases
 python scripts/database/database_initializer.py
 
+# Add analytics tables and run migrations
+python scripts/database/add_code_audit_log.py
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+python scripts/database/size_compliance_checker.py
+
 # 3b. Synchronize databases
 python scripts/database/database_sync_scheduler.py \
     --workspace . \

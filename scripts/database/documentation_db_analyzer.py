@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import logging
 import os
@@ -10,11 +11,11 @@ import shutil
 import sqlite3
 import time
 from datetime import datetime, timezone
-from template_engine.placeholder_utils import DEFAULT_ANALYTICS_DB
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
+
 from tqdm import tqdm
-import importlib.util
+
 from template_engine.auto_generator import DEFAULT_ANALYTICS_DB
 
 _LOG_UTILS_PATH = (
@@ -142,15 +143,50 @@ def analyze_and_cleanup(
         ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
         with sqlite3.connect(ANALYTICS_DB) as conn:
             conn.execute(
-                "CREATE TABLE IF NOT EXISTS doc_audit (ts TEXT, db TEXT, removed_backups INTEGER, removed_dupes INTEGER)"
+                (
+                    "CREATE TABLE IF NOT EXISTS doc_audit ("
+                    "ts TEXT, db TEXT, removed_backups INTEGER, removed_dupes INTEGER)"
+                )
             )
             conn.execute(
-                "INSERT INTO doc_audit (ts, db, removed_backups, removed_dupes) VALUES (?,?,?,?)",
+                (
+                    "INSERT INTO doc_audit (ts, db, removed_backups, removed_dupes) "
+                    "VALUES (?,?,?,?)"
+                ),
                 (
                     datetime.utcnow().isoformat(),
                     str(db_path),
                     removed_backups,
                     removed_dupes,
+                ),
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS correction_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT NOT NULL,
+                    file_path TEXT NOT NULL,
+                    violations_count INTEGER,
+                    fixes_applied INTEGER,
+                    fix_rate REAL,
+                    timestamp TEXT NOT NULL,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+            conn.execute(
+                (
+                    "INSERT INTO correction_history (session_id, file_path, "
+                    "violations_count, fixes_applied, fix_rate, timestamp) "
+                    "VALUES (?,?,?,?,?,?)"
+                ),
+                (
+                    "doc_cleanup",
+                    str(db_path),
+                    len(placeholders),
+                    removed_backups + removed_dupes,
+                    0.0,
+                    datetime.utcnow().isoformat(),
                 ),
             )
     except sqlite3.Error as exc:

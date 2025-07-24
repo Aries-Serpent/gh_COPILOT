@@ -1,5 +1,11 @@
 # CHANGELOG - gh_COPILOT Enterprise Toolkit
 
+## [4.1.0] - 2025-07-22 - Analytics Updates
+
+### Schema Changes
+- Added `code_audit_log` table with migration script.
+- Logging of documentation cleanup now records entries in `correction_history`.
+
 ## [4.0.0] - 2025-07-14 - ENTERPRISE READINESS 100% ACHIEVEMENT
 
 ### 🏆 Major Achievements

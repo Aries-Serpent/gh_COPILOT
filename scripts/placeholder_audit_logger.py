@@ -25,7 +25,6 @@ from typing import Iterable, List
 
 from tqdm import tqdm
 
-
 TEXT = {
     "start": "[START]",
     "success": "[SUCCESS]",
@@ -108,14 +107,16 @@ def log_results(results: List[dict], db_path: Path) -> None:
             """
             CREATE TABLE IF NOT EXISTS code_audit_log (
                 id INTEGER PRIMARY KEY,
-                file_path TEXT,
+                file_path TEXT NOT NULL,
                 line_number INTEGER,
                 placeholder_type TEXT,
                 context TEXT,
-                timestamp TEXT
+                timestamp TEXT NOT NULL
             )
             """,
         )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_code_audit_log_file_path ON code_audit_log(file_path)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_code_audit_log_timestamp ON code_audit_log(timestamp)")
         for row in results:
             conn.execute(
                 "INSERT INTO placeholder_audit (file_path, pattern, line, severity, ts)"
@@ -157,7 +158,10 @@ def rollback_last_entry(db_path: Path) -> bool:
             if row:
                 conn.execute("DELETE FROM placeholder_audit WHERE rowid = ?", (row[0],))
                 conn.execute(
-                    "DELETE FROM code_audit_log WHERE rowid = (SELECT rowid FROM code_audit_log ORDER BY rowid DESC LIMIT 1)"
+                    (
+                        "DELETE FROM code_audit_log WHERE rowid = ("
+                        "SELECT rowid FROM code_audit_log ORDER BY rowid DESC LIMIT 1)"
+                    )
                 )
                 conn.commit()
                 removed = True

@@ -55,3 +55,11 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 The Flask dashboard exposes a `/dashboard/compliance` endpoint that reads these
 metrics and shows real-time placeholder removal progress.
 
+## 6. Database Initialization & Migration
+- Initialize all databases with `scripts/database/unified_database_initializer.py`.
+- To add new analytics tables run `scripts/database/add_code_audit_log.py` then
+  execute any SQL files in `databases/migrations/` such as
+  `add_code_audit_log.sql` using `sqlite3` or your preferred migration tool.
+- After every migration, run `scripts/database/size_compliance_checker.py` to
+  verify the 99.9 MB limit is maintained.
+
