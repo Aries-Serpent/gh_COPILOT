@@ -152,6 +152,17 @@ follow the steps in [docs/enterprise_backup_guide.md](docs/enterprise_backup_gui
 to create and manage backups. This variable ensures backups never reside in the
 workspace, maintaining anti-recursion compliance.
 
+### Wrapping, Logging, and Compliance (WLC)
+Run the session manager after setting the workspace and backup paths:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
+python scripts/wlc_session_manager.py
+```
+
+For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+
 ### Workspace Detection
 Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment variable. If the variable is not set, the current working directory is used by default.
 
