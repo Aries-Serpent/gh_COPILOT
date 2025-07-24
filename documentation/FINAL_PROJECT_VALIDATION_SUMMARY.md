@@ -272,7 +272,7 @@ The system is **enterprise-ready** and validated for production deployment with 
 - **Complete Technical Specifications**: `COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md`
 - **Deployment Guide**: `UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATION_GUIDE.md`
 - **System Architecture**: `ENTERPRISE_SCRIPT_CONSOLIDATION_STRATEGY.md`
-- **Agent Definitions**: `AGENTS.md`
+ - **Agent Definitions**: `AGENTS.md` (see `.github/instructions/AGENTS_QUICK_REFERENCE.md` for a summary)
 - **Navigation Map**: `COPILOT_NAVIGATION_MAP.json`
 
 ---

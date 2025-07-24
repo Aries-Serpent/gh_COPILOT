@@ -12,13 +12,7 @@ import time
 from pathlib import Path
 from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
 from tqdm import tqdm
-import importlib.util
-
-_LOG_UTILS_PATH = Path(__file__).resolve().parent / "template_engine" / "log_utils.py"
-spec = importlib.util.spec_from_file_location("log_utils", _LOG_UTILS_PATH)
-_log_mod = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(_log_mod)
-_log_event = _log_mod._log_event
+from utils.log_utils import _log_event
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
 LOG_FILE = RENDER_LOG_DIR / "documentation_render.log"

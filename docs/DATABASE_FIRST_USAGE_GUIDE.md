@@ -52,9 +52,36 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
   template version and a computed compliance score.
 - The `EnterpriseComplianceValidator` verifies that every generated script comes from an approved
   template and meets the minimum compliance threshold (usually 80%).
-- Compliance summaries are exported to `analytics.db` so auditors can trace which templates were
-   used and whether any corrective actions occurred.
+- Compliance summaries are exported to `analytics.db` so auditors can trace which
+  templates were used and whether any corrective actions occurred. When a
+  placeholder or correction is detected, an entry is added to
+  `todo_fixme_tracking`. Once resolved, a matching record in `correction_logs`
+  links the change to the updated compliance score. This ensures every placeholder
+  removal is measurable and auditable.
 
 The Flask dashboard exposes a `/dashboard/compliance` endpoint that reads these
-metrics and shows real-time placeholder removal progress.
+metrics and shows real-time placeholder removal progress. When a placeholder is corrected, record the update in `analytics.db:correction_logs`. This ensures future audits can cross-reference removed placeholders with generated fixes.
+
+### Placeholder Correction Workflow
+1. Run `scripts/audit_codebase_placeholders.py` to log all TODOs.
+2. Review entries in `analytics.db:placeholder_audit` and fix the code.
+3. Record completed fixes with `scripts/placeholder_audit_logger.py`.
+4. Monitor `/dashboard/compliance` to verify the compliance score improves.
+
+### Placeholder Correction Workflow
+1. Scan the repository using `scripts/placeholder_audit_logger.py`.
+2. Review entries in `analytics.db:code_audit_log` and fix placeholders.
+3. Record corrections with `scripts/correction_logger_and_rollback.py` for audit.
+
+## 6. Database Maintenance
+
+Regularly monitor the size of each SQLite database under `databases/`. Databases
+should remain below **99.9 MB** to maintain optimal performance. The
+`scripts/automation/autonomous_database_health_optimizer.py` module can be used
+to check sizes and integrity metrics. When a database grows too large,
+purification or archival scripts (for example,
+`scripts/database/database_purification_engine.py`) should be run to compress
+tables and move historical records to the `archives/` directory. This periodic
+cleanup keeps active databases lean while preserving old data for future
+reference.
 

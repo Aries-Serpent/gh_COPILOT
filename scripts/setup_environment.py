@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-import logging
+from typing import Iterable
 
 
 def ensure_env() -> None:
@@ -22,7 +22,17 @@ def ensure_env() -> None:
         shutil.copy(example_file, env_file)
         print("Created .env from .env.example")
     else:
-        raise FileNotFoundError("Missing .env.example")
+        msg = ".env.example not found. Please create it from documentation."
+        logging.warning(msg)
+        raise FileNotFoundError(msg)
+
+
+def _parse_requirements(path: Path) -> Iterable[str]:
+    """Return a list of requirement strings from ``requirements-test.txt``."""
+    for line in path.read_text().splitlines():
+        stripped = line.strip()
+        if stripped and not stripped.startswith("#"):
+            yield stripped
 
 
 def install_test_requirements() -> None:
@@ -34,10 +44,18 @@ def install_test_requirements() -> None:
         print("requirements-test.txt not found; skipping test dependency installation")
         return
 
+    packages = list(_parse_requirements(requirements))
+
     subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "-r", str(requirements)]
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            *packages,
+        ]
     )
-    print("Installed test dependencies")
+    print("Installed test dependencies: " + ", ".join(packages))
 
 
 def main() -> None:
