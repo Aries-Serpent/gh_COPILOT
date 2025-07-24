@@ -460,6 +460,9 @@ gh_COPILOT/
 - **`web_gui/scripts/flask_apps/enterprise_dashboard.py`** - Enterprise dashboard
 - **`validation/compliance_report_generator.py`** - Summarize lint and test results
 - **`web_gui/dashboard_actionable_gui.py`** - Actionable compliance dashboard
+- **`scripts/monitoring/continuous_operation_monitor.py`** - Continuous operation utility
+- **`scripts/monitoring/enterprise_compliance_monitor.py`** - Compliance monitoring utility
+- **`scripts/monitoring/unified_monitoring_optimization_system.py`** - Aggregates performance metrics
 
 ---
 

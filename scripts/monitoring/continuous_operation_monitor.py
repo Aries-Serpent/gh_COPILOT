@@ -1,45 +1,44 @@
 #!/usr/bin/env python3
-"""Simple continuous operation monitor with logging."""
-
+"""Continuous Operation Monitor - placeholder."""
+import argparse
 import logging
 import time
 from pathlib import Path
 
-LOG_FILE = Path("logs/continuous_operation_monitor.log")
+from tqdm import tqdm
 
 
-def setup_logging() -> None:
-    LOG_FILE.parent.mkdir(exist_ok=True)
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.FileHandler(LOG_FILE),
-            logging.StreamHandler(),
-        ],
-    )
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Continuous Operation Monitor")
+    parser.add_argument("--workspace", type=Path, default=Path.cwd())
+    parser.add_argument("--iterations", type=int, default=3)
+    return parser.parse_args()
 
 
-class ContinuousOperationMonitor:
-    """Placeholder monitor for continuous operation."""
+def setup_logger(workspace: Path) -> logging.Logger:
+    log_dir = workspace / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    logger = logging.getLogger("continuous_operation_monitor")
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(log_dir / "continuous_operation_monitor.log")
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+    logger.addHandler(handler)
+    return logger
 
-    def __init__(self, interval: int = 60) -> None:
-        self.interval = interval
-        self.logger = logging.getLogger(__name__)
 
-    def run(self) -> bool:
-        self.logger.info("Continuous operation monitor started")
-        # Placeholder for monitoring logic
+def run_monitor(logger: logging.Logger, iterations: int) -> None:
+    for _ in tqdm(range(iterations), desc="Operation Cycle"):
+        logger.info("cycle check")
         time.sleep(0.1)
-        self.logger.info("Continuous operation monitor finished")
-        return True
+    logger.info("Continuous monitoring complete")
 
 
-def main() -> None:
-    setup_logging()
-    monitor = ContinuousOperationMonitor()
-    monitor.run()
+def main() -> int:
+    args = parse_args()
+    logger = setup_logger(args.workspace)
+    run_monitor(logger, args.iterations)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
