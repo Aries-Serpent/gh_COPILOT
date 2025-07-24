@@ -10,15 +10,15 @@ Safe execution of database consolidation plan with:
 ================================================================
 """
 
-import os
-import sqlite3
-import shutil
+import argparse
 import json
-import hashlib
+import logging
+import shutil
+import sqlite3
+import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
-import logging
+from typing import List
 
 
 class DatabaseConsolidationExecutor:
@@ -160,13 +160,17 @@ class DatabaseConsolidationExecutor:
                                     placeholders = ",".join(["?" for _ in columns])
                                     column_names = ",".join([f"`{col}`" for col in columns])
                                     
-                                    insert_sql = f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"
+                                    insert_sql = (
+                                        f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"  # noqa: E501
+                                    )
                                     
                                     # Insert data
                                     target_cursor.executemany(insert_sql, rows)
                                     inserted_count = target_cursor.rowcount
                                     
-                                    self.logger.info(f"  📊 Merged {len(rows)} rows from {table} ({inserted_count} new)")
+                                    self.logger.info(
+                                        f"  📊 Merged {len(rows)} rows from {table} ({inserted_count} new)"  # noqa: E501
+                                    )
                                 
                         except Exception as e:
                             self.logger.warning(f"⚠️ Failed to merge table {table}: {e}")
@@ -180,7 +184,7 @@ class DatabaseConsolidationExecutor:
                 self.logger.info(f"✅ Successfully merged {source_path.name} into {target_path.name}")
                 return True
             else:
-                self.logger.error(f"❌ Target database integrity check failed after merge")
+                self.logger.error("❌ Target database integrity check failed after merge")
                 return False
                 
         except Exception as e:
@@ -287,13 +291,17 @@ class DatabaseConsolidationExecutor:
                                         placeholders = ",".join(["?" for _ in columns])
                                         column_names = ",".join([f"`{col}`" for col in columns])
                                         
-                                        insert_sql = f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"
+                                        insert_sql = (
+                                            f"INSERT OR IGNORE INTO `{table}` ({column_names}) VALUES ({placeholders})"  # noqa: E501
+                                        )
                                         
                                         # Insert data
                                         target_cursor.executemany(insert_sql, rows)
                                         inserted_count = target_cursor.rowcount
                                         
-                                        self.logger.info(f"    📊 Merged {len(rows)} rows from {source_path.name}.{table} ({inserted_count} new)")
+                                        self.logger.info(
+                                            f"    📊 Merged {len(rows)} rows from {source_path.name}.{table} ({inserted_count} new)"  # noqa: E501
+                                        )
                                 
                             except Exception as e:
                                 self.logger.warning(f"⚠️ Failed to merge table {table} from {source_path.name}: {e}")
@@ -444,7 +452,9 @@ class DatabaseConsolidationExecutor:
                 self.logger.info(f"🎊 Consolidation completed successfully! {completed}/{total} actions succeeded")
             else:
                 self.execution_results["status"] = "PARTIAL_SUCCESS"
-                self.logger.warning(f"⚠️ Consolidation completed with {failed} failures. {completed}/{total} actions succeeded")
+                self.logger.warning(
+                    f"⚠️ Consolidation completed with {failed} failures. {completed}/{total} actions succeeded"  # noqa: E501
+                )
             
             return failed == 0
             
@@ -545,15 +555,18 @@ class DatabaseConsolidationExecutor:
         print(f"🛡️ Backup Available: {self.execution_results['rollback_available']}")
 
 
-def main():
+def main() -> int:
     """🚀 Main execution function"""
-    import sys
-    
-    if len(sys.argv) < 2:
-        print("Usage: python database_consolidation_executor.py <plan_file>")
-        sys.exit(1)
-    
-    plan_file = sys.argv[1]
+    parser = argparse.ArgumentParser(description="Database consolidation executor")
+    parser.add_argument("plan_file", help="Consolidation plan file")
+    parser.add_argument(
+        "--rollback-on-fail",
+        action="store_true",
+        help="Automatically rollback if validation fails",
+    )
+    args = parser.parse_args()
+
+    plan_file = args.plan_file
     
     if not Path(plan_file).exists():
         print(f"❌ Plan file {plan_file} not found")
@@ -572,9 +585,12 @@ def main():
         validation_success = executor.validate_post_consolidation()
         if not validation_success:
             print("❌ Post-consolidation validation failed. Consider rollback.")
-            response = input("🔄 Perform rollback? (y/N): ")
-            if response.lower() == 'y':
+            if args.rollback_on_fail:
                 executor.rollback_consolidation()
+            elif sys.stdin.isatty():
+                response = input("🔄 Perform rollback? (y/N): ")
+                if response.lower() == "y":
+                    executor.rollback_consolidation()
     
     # Print summary and save report
     executor.print_summary()
@@ -587,4 +603,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())
