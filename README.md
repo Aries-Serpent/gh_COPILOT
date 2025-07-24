@@ -166,6 +166,13 @@ For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.
 ### Workspace Detection
 Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment variable. If the variable is not set, the current working directory is used by default.
 
+### WLC Session Manager
+The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
+```bash
+python scripts/wlc_session_manager.py --steps 2 --verbose
+```
+It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
+
 ---
 
 ## 🗄️ DATABASE-FIRST ARCHITECTURE
