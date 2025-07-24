@@ -55,3 +55,15 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 The Flask dashboard exposes a `/dashboard/compliance` endpoint that reads these
 metrics and shows real-time placeholder removal progress.
 
+## 6. Database Maintenance
+
+Regularly monitor the size of each SQLite database under `databases/`. Databases
+should remain below **99.9 MB** to maintain optimal performance. The
+`scripts/automation/autonomous_database_health_optimizer.py` module can be used
+to check sizes and integrity metrics. When a database grows too large,
+purification or archival scripts (for example,
+`scripts/database/database_purification_engine.py`) should be run to compress
+tables and move historical records to the `archives/` directory. This periodic
+cleanup keeps active databases lean while preserving old data for future
+reference.
+
