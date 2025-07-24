@@ -2,6 +2,9 @@
 
 This document lists high-level tasks required to fully implement the database-first Codex/Copilot integration. Use it as a reference for planning and tracking future development.
 
+Recent updates:
+* Session management wrappers and monitoring utilities implemented.
+
 ## 1. Database-First Integration
 - Expand `DatabaseFirstCopilotEnhancer` with anti-recursion checks and query similarity scoring.
 - Ensure all operations query the databases (`production.db`, `documentation.db`, `template_documentation.db`) before interacting with the filesystem.
@@ -97,7 +100,7 @@ This document lists high-level tasks required to fully implement the database-fi
 
 ### DASH-001 Dashboard and Compliance Cross-Linking
 - Extend the Flask dashboard with cross-links to compliance reports and audit logs.
-- **Module:** `web_gui/scripts/flask_apps/enterprise_dashboard.py`
+- **Module:** `dashboard/enterprise_dashboard.py`
 - **Cross-Reference:** Real-time metrics pulled from `analytics.db` and correction logs.
 
 ## 16. Enterprise Audit and Quantum Processing Enhancements
@@ -109,7 +112,7 @@ This document lists high-level tasks required to fully implement the database-fi
 | `CLUS-002` | Pattern clustering via KMeans with `get_cluster_representatives()` retrieval | `template_engine/auto_generator.py` | clustering stats dashboard |
 | `ROLL-002` | Transactional correction logging and rollback handling | `template_engine/template_synchronizer.py` | rollback alerts widget |
 | `QAI-002` | Quantum/AI scoring hooks for patterns and templates | `quantum_algorithm_library_expansion.py` | quantum analytics panel |
-| `DASH-002` | Dashboard compliance links and visual monitoring for all audit events | `web_gui/scripts/flask_apps/enterprise_dashboard.py` | compliance dashboard section |
+| `DASH-002` | Dashboard compliance links and visual monitoring for all audit events | `dashboard/enterprise_dashboard.py` | compliance dashboard section |
 | `AUD-003` | Visual placeholder scanning with progress bars | `scripts/validation/placeholder_audit_logger.py` | dashboard audit timeline |
 | `GEN-003` | DB-first template clustering with quantum scoring | `template_engine/auto_generator.py` | generation metrics table |
 | `ROLL-003` | Correction rollback history cross-linked to dashboard | `template_engine/template_synchronizer.py` | rollback alerts widget |
@@ -123,7 +126,7 @@ This document lists high-level tasks required to fully implement the database-fi
 | `CLUS-003` | Retrieve cluster representatives via `get_cluster_representatives()` | `template_engine/auto_generator.py` | clustering page, `analytics.db` |
 | `ROLL-003` | Correction logging with automatic rollback utilities | `template_engine/template_synchronizer.py` | rollback alerts, `analytics.db` |
 | `QAI-003` | Visual processing for quantum/AI pattern matching | `quantum_algorithm_library_expansion.py` | quantum analytics panel |
-| `DASH-003` | Cross-link compliance metrics with audit logs and rollbacks | `web_gui/scripts/flask_apps/enterprise_dashboard.py` | compliance dashboard |
+| `DASH-003` | Cross-link compliance metrics with audit logs and rollbacks | `dashboard/enterprise_dashboard.py` | compliance dashboard |
 
 ---
 These tasks derive from the provided enhancement prompt and are meant to guide ongoing work toward a robust database-first Copilot integration.
@@ -137,7 +140,7 @@ These tasks derive from the provided enhancement prompt and are meant to guide o
 
 ## 18. Explicit Stub Tasks for Outstanding Work
 
-The following table lists every incomplete module referenced in the repository
+The following table lists remaining incomplete modules referenced in the repository
 audit. Each entry describes the missing functionality and the exact file or
 directory path that requires attention. Use these stubs to track future
 development and to ensure **database-first** patterns and compliance metrics are
