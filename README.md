@@ -66,6 +66,52 @@ bash setup.sh
 
 # 2b. Verify the line-wrapping utility is available
 ls -l /usr/local/bin/clw
+# If the file does not exist, create it with this Python wrapper and make it executable:
+```bash
+cat <<'EOF' | sudo tee /usr/local/bin/clw > /dev/null
+#!/usr/bin/env python3
+import os, sys, binascii, re
+
+DEFAULT_MAX_LINE_LENGTH = 1550
+DEFAULT_WRAP_MARK = "⏎"
+
+def split_into_chunks(s: bytes, chunk_size: int):
+    rx_word_wrap = re.compile(rb"^.*(\b).+", re.DOTALL)
+    start = 0
+    while True:
+        end = start + chunk_size
+        chunk = s[start:end]
+        if len(chunk) < chunk_size:
+            yield False, chunk
+            return
+        m = rx_word_wrap.match(chunk)
+        if m and m.start(1):
+            chunk = chunk[: m.start(1)]
+        yield True, chunk
+        start += len(chunk)
+
+def main():
+    max_len = int(os.environ.get("CLW_MAX_LINE_LENGTH", DEFAULT_MAX_LINE_LENGTH))
+    wrap_mark = os.environ.get("CLW_WRAP_MARK")
+    if wrap_mark:
+        wrap = binascii.unhexlify(wrap_mark)
+    else:
+        wrap = DEFAULT_WRAP_MARK.encode("utf-8")
+    wrap += b"\n"
+    chunk_size = max_len - len(wrap)
+    assert chunk_size > 0
+    for line in sys.stdin.buffer:
+        for wrapped, chunk in split_into_chunks(line, chunk_size):
+            sys.stdout.buffer.write(chunk)
+            if wrapped:
+                sys.stdout.buffer.write(wrap)
+            sys.stdout.buffer.flush()
+
+if __name__ == "__main__":
+    main()
+EOF
+sudo chmod +x /usr/local/bin/clw
+```
 
 # 3. Initialize databases
 python scripts/database/database_initializer.py
@@ -113,6 +159,7 @@ ls -R | /usr/local/bin/clw
 ```
 
 If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
+You can adjust the wrap length by setting `CLW_MAX_LINE_LENGTH` before invoking the wrapper.
 
 
 
