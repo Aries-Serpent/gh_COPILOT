@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from pathlib import Path
 import sqlite3
+from pathlib import Path
 
 import pytest
 
@@ -72,3 +72,23 @@ def test_environment_adaptation(tmp_path: Path) -> None:
     enhancer = DatabaseFirstCopilotEnhancer(workspace_path=str(tmp_path))
     result = enhancer.query_before_filesystem("hello")
     assert str(tmp_path) in result["template_code"]
+
+
+def test_template_engine_db_and_fs(tmp_path: Path) -> None:
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    db_path = db_dir / "production.db"
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("CREATE TABLE templates (name TEXT PRIMARY KEY, template_content TEXT)")
+        conn.execute(
+            "INSERT INTO templates (name, template_content) VALUES (?, ?)",
+            ("greet", "print('hello from db')"),
+        )
+        conn.commit()
+    tpl_dir = tmp_path / "templates"
+    tpl_dir.mkdir()
+    (tpl_dir / "fallback.tmpl").write_text("print('fallback')")
+
+    enhancer = DatabaseFirstCopilotEnhancer(workspace_path=str(tmp_path))
+    assert "hello from db" in enhancer.template_engine("greet")
+    assert "fallback" in enhancer.template_engine("missing")

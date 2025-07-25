@@ -10,13 +10,12 @@ from template_engine import template_synchronizer
 
 def create_db(path: Path, templates: dict[str, str]) -> None:
     with sqlite3.connect(path) as conn:
-        conn.execute(
-            "CREATE TABLE templates (name TEXT PRIMARY KEY, template_content TEXT)"
-        )
+        conn.execute("CREATE TABLE templates (name TEXT PRIMARY KEY, template_content TEXT)")
         conn.executemany(
             "INSERT INTO templates (name, template_content) VALUES (?, ?)",
             list(templates.items()),
         )
+
 
 def test_synchronize_templates(tmp_path: Path, monkeypatch) -> None:
     os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
@@ -26,7 +25,7 @@ def test_synchronize_templates(tmp_path: Path, monkeypatch) -> None:
     create_db(db_a, {"t1": "foo"})
     create_db(db_b, {"t2": "bar"})
     monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
-    template_synchronizer.synchronize_templates([db_a, db_b])
+    template_synchronizer.synchronize_templates_real([db_a, db_b])
 
     with sqlite3.connect(db_a) as conn:
         rows = conn.execute("SELECT name, template_content FROM templates ORDER BY name").fetchall()
@@ -44,7 +43,7 @@ def test_invalid_templates_ignored(tmp_path: Path, monkeypatch) -> None:
     create_db(db_a, {"t1": "foo", "empty": ""})
     create_db(db_b, {})
     monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
-    template_synchronizer.synchronize_templates([db_a, db_b])
+    template_synchronizer.synchronize_templates_real([db_a, db_b])
 
     with sqlite3.connect(db_b) as conn:
         rows = conn.execute("SELECT name FROM templates ORDER BY name").fetchall()
@@ -62,13 +61,11 @@ def test_audit_logging_and_rollback(tmp_path: Path, monkeypatch) -> None:
         conn.execute("CREATE TABLE other(id INTEGER)")
     analytics = tmp_path / "analytics.db"
     monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
-    template_synchronizer.synchronize_templates([db_a, db_b])
+    template_synchronizer.synchronize_templates_real([db_a, db_b])
 
     # db_b should remain unchanged because sync rolled back
     with sqlite3.connect(db_b) as conn:
-        tables = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        ).fetchall()
+        tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
         assert tables == [("other",)]
 
     assert not analytics.exists()
