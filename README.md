@@ -218,14 +218,14 @@ Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment
 The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
 
 ```bash
-python scripts/wlc_session_manager.py --steps 2 --verbose
+python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
 ```
 Before running, set the required environment variables so session data is logged correctly:
 
 ```bash
 export GH_COPILOT_WORKSPACE=$(pwd)
 export GH_COPILOT_BACKUP_ROOT=/path/to/backups
-python scripts/wlc_session_manager.py --steps 2 --verbose
+python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
 ```
 
 The manager validates required environment variables, executes the
