@@ -2,6 +2,7 @@
 ## [4.1.2] - 2025-07-26
 ### Added
 - `databases/migrations/README.md` with migration instructions.
+- Added `add_code_audit_history.sql` migration documenting `code_audit_history` table.
 ### Changed
 - `add_correction_history.sql` now idempotent.
 - README migration section references manual command for `analytics.db`.

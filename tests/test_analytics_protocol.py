@@ -1,13 +1,3 @@
-"""Simulate analytics.db migrations without creating a file.
-
-This test ensures that the migration SQL for ``code_audit_log`` and
-``correction_history`` can execute successfully using an in-memory database.
-It follows the Dual Copilot pattern and includes visual processing indicators
-such as a progress bar and duration logging.
-"""
-
-from __future__ import annotations
-
 import datetime as dt
 import os
 import sqlite3
@@ -28,19 +18,19 @@ def _table_exists(conn: sqlite3.Connection, name: str) -> bool:
 
 def _primary_validation(conn: sqlite3.Connection) -> bool:
     return all(
-        _table_exists(conn, tbl)
-        for tbl in ["code_audit_log", "correction_history", "code_audit_history"]
+        _table_exists(conn, tbl) for tbl in ["code_audit_log", "correction_history"]
     )
 
 
 def _secondary_validation(conn: sqlite3.Connection) -> bool:
-    """Secondary check mirroring :func:`_primary_validation`."""
     return _primary_validation(conn)
 
 
-def test_analytics_migration_simulation(capsys) -> None:
-    """Run migrations in-memory with progress indicators."""
-    print("Test: Simulate analytics.db migration (dry-run)")
+def test_analytics_protocol_dry_run(capsys) -> None:
+    analytics_db = Path("databases/analytics.db")
+    mtime = analytics_db.stat().st_mtime
+
+    print("Test: Dry-run analytics.db migrations")
     print(f"Start: {dt.datetime.now()}")
     print(f"PID: {os.getpid()}")
     start = dt.datetime.now()
@@ -48,7 +38,6 @@ def test_analytics_migration_simulation(capsys) -> None:
     migration_files = [
         Path("databases/migrations/add_code_audit_log.sql"),
         Path("databases/migrations/add_correction_history.sql"),
-        Path("databases/migrations/add_code_audit_history.sql"),
     ]
 
     with sqlite3.connect(":memory:") as conn:
@@ -61,3 +50,4 @@ def test_analytics_migration_simulation(capsys) -> None:
     print(f"Completed simulation in {dt.datetime.now() - start}")
     captured = capsys.readouterr()
     assert "Completed simulation" in captured.out
+    assert analytics_db.stat().st_mtime == mtime

@@ -84,8 +84,8 @@ reference.
 - Initialize all databases with `scripts/database/unified_database_initializer.py`.
 - To add new analytics tables run `scripts/database/add_code_audit_log.py` then
   execute any SQL files in `databases/migrations/` such as
-  `add_code_audit_log.sql` and `add_correction_history.sql` using `sqlite3` or your preferred migration tool.
-  The `correction_history` table stores cleanup events with `user_id`, session ID, file path, action, timestamp, and optional details. Run the migration if this table is missing.
+  `add_code_audit_log.sql`, `add_correction_history.sql`, and `add_code_audit_history.sql` using `sqlite3` or your preferred migration tool.
+  The `correction_history` table stores cleanup events with `user_id`, session ID, file path, action, timestamp, and optional details. The `code_audit_history` table records audit entries with the responsible user and timestamp. Run the migrations if these tables are missing.
 - After every migration, run `scripts/database/size_compliance_checker.py` to
   verify the 99.9 MB limit is maintained.
 
@@ -95,5 +95,11 @@ entry records the `user_id`, session ID, file path, action taken, and timestamp
 for code fixes. Verify creation with:
 ```bash
 sqlite3 databases/analytics.db ".schema correction_history"
+```
+
+### Code Audit History Table
+Use `add_code_audit_history.sql` to create the `code_audit_history` table. This table logs each audit entry along with the user who made the change and the timestamp. Verify creation with:
+```bash
+sqlite3 databases/analytics.db ".schema code_audit_history"
 ```
 

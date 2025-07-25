@@ -9,9 +9,10 @@ Run the following commands manually if `analytics.db` needs the new tables:
 ```bash
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 ```
 
-The database file is not generated automatically. A human operator must execute these commands to create the `code_audit_log` and `correction_history` tables.
+The database file is not generated automatically. A human operator must execute these commands to create the `code_audit_log`, `correction_history`, and `code_audit_history` tables.
 
 ## Testing Guidance
 
@@ -27,6 +28,7 @@ with sqlite3.connect(":memory:") as conn:
     for sql in tqdm([
         Path("databases/migrations/add_code_audit_log.sql"),
         Path("databases/migrations/add_correction_history.sql"),
+        Path("databases/migrations/add_code_audit_history.sql"),
     ], desc="Simulating migration steps", unit="step"):
         conn.executescript(sql.read_text())
 ```

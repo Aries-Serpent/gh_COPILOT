@@ -22,7 +22,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
-- **Analytics Migrations:** run `add_code_audit_log.sql` and `add_correction_history.sql` (use `sqlite3` manually if `analytics.db` shipped without the table) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details.
+- **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, and `add_code_audit_history.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 - **Quantum features:** planned, not yet implemented
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
   optimizer and search helpers.
@@ -90,8 +90,10 @@ python scripts/database/add_code_audit_log.py
 # If `analytics.db` lacks the table, run the SQL migration manually
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 # Verify creation
 sqlite3 databases/analytics.db ".schema code_audit_log"
+sqlite3 databases/analytics.db ".schema code_audit_history"
 python scripts/database/size_compliance_checker.py
 
 # 3b. Synchronize databases
@@ -210,11 +212,17 @@ Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment
 
 ### WLC Session Manager
 The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
+
 ```bash
 python scripts/wlc_session_manager.py --steps 2 --verbose
 ```
-It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
-Set `WLC_RUN_ORCHESTRATOR=1` to run the UnifiedWrapUpOrchestrator after the session.
+
+The manager validates required environment variables, executes the
+`UnifiedWrapUpOrchestrator` for comprehensive cleanup, and performs dual
+validation through the `SecondaryCopilotValidator`. It records each session in
+`production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
+Each run inserts a row into the `unified_wrapup_sessions` table with a compliance score for audit purposes.
+The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
 
 ---
 
@@ -234,6 +242,18 @@ analytics.db                    # Performance and usage analytics
 monitoring.db                   # Real-time system monitoring
 optimization_metrics.db         # Continuous optimization data
 ```
+
+### Analytics Database Test Protocol
+The `analytics.db` file should never be created or modified automatically.
+To create or migrate the file manually, run:
+
+```bash
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+```
+
+Automated tests perform these migrations in-memory with progress bars and DUAL
+COPILOT validation, leaving the on-disk database untouched.
 
 ### **Database-First Workflow**
 1. **Query First:** Check production.db for existing solutions
@@ -706,8 +726,10 @@ The **Wrapping, Logging, and Compliance (WLC)** system ensures that long-running
 operations are recorded and validated for enterprise review. The session manager
 in [`scripts/wlc_session_manager.py`](scripts/wlc_session_manager.py) starts a
 session entry in `production.db`, logs progress to an external backup location,
-and finalizes the run with a compliance score. Detailed usage instructions are
-available in [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+and finalizes the run with a compliance score. Each run inserts a record into the
+`unified_wrapup_sessions` table with `session_id`, timestamps, status, compliance
+score, and optional error details. Detailed usage instructions are available in
+[docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
 
 ---
 
