@@ -30,6 +30,10 @@ This documentation suite provides comprehensive information about the quantum op
    - Regulatory compliance
    - Security features
    - Audit requirements
+6. **[Advanced Quantum Optimization Guide](ADVANCED_QUANTUM_OPTIMIZATION_GUIDE.md)**
+   - Step-by-step module creation
+   - CLI integration instructions
+   - Testing and validation checklist
 
 ### Quick Start
 For immediate implementation, start with the Integration Guide and follow the deployment checklist.
@@ -42,10 +46,10 @@ For immediate implementation, start with the Integration Guide and follow the de
 - [x] Security assessment completed
 
 -### Generated Information
--**Documentation Version**: 1.1
--**Generated**: 2025-07-10T10:28:01.243876
-- **Total Documents**: 5
-- **Status**: Enterprise Review Ready
+**Documentation Version**: 1.2
+**Generated**: 2025-07-10T10:28:01.243876
+ **Total Documents**: 6
+ **Status**: Enterprise Review Ready
 
 ### Newly Added Algorithms (v1.1)
 The library now includes reference implementations for:

@@ -21,6 +21,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
+- **Analytics Migrations:** run `add_code_audit_log.sql` or the initializer to add the table
 - **Quantum features:** planned, not yet implemented
 
 ---
@@ -35,6 +36,9 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Script Validation**: automated checks available
 - **Self-Healing Systems:** experimental correction scripts
 - **Continuous Operation Mode:** optional monitoring utilities
+- **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
+  `scripts/monitoring/enterprise_compliance_monitor.py`, and
+  `scripts/monitoring/unified_monitoring_optimization_system.py`
 
 ### **Learning Pattern Integration**
 - **Database-First Logic:** Production.db is consulted before generating output
@@ -59,12 +63,17 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 git clone https://github.com/your-org/gh_COPILOT.git
 cd gh_COPILOT
 
+# 1b. Copy environment template
+cp .env.example .env
+
 # 2. Run setup script (creates `.venv` and installs requirements)
 bash setup.sh
 # Always run this script before executing tests or automation tasks to ensure
 # dependencies and environment variables are correctly initialized.
 
-# 2b. Verify the line-wrapping utility is available
+# 2b. Install the line-wrapping utility
+bash tools/install_clw.sh
+# Verify clw exists
 ls -l /usr/local/bin/clw
 
 # 3. Initialize databases
@@ -108,16 +117,25 @@ python scripts/database/complete_consolidation_orchestrator.py \
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 
 # 5. Start enterprise dashboard
-python web_gui/scripts/flask_apps/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py
 ```
 ### **Output Safety with `clw`**
-Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit:
+Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
+```bash
+cp tools/clw /usr/local/bin/clw
+chmod +x /usr/local/bin/clw
+```
+
+Once installed, wrap high-volume output like so:
 
 ```bash
 ls -R | /usr/local/bin/clw
 ```
 
+The script is bundled as `tools/clw.py` and can be copied to `/usr/local/bin/clw` if needed.
+
 If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
+You can adjust the wrap length by setting `CLW_MAX_LINE_LENGTH` before invoking the wrapper.
 
 
 
@@ -157,8 +175,26 @@ follow the steps in [docs/enterprise_backup_guide.md](docs/enterprise_backup_gui
 to create and manage backups. This variable ensures backups never reside in the
 workspace, maintaining anti-recursion compliance.
 
+### Wrapping, Logging, and Compliance (WLC)
+Run the session manager after setting the workspace and backup paths:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
+python scripts/wlc_session_manager.py
+```
+
+For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+
 ### Workspace Detection
 Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment variable. If the variable is not set, the current working directory is used by default.
+
+### WLC Session Manager
+The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
+```bash
+python scripts/wlc_session_manager.py --steps 2 --verbose
+```
+It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
 
 ---
 
@@ -200,7 +236,8 @@ compliance logging:
   synchronizes representative templates using transactional auditing.
 * **TemplateWorkflowEnhancer** – mines patterns from existing templates,
   computes compliance scores and writes dashboard-ready reports.
-* **Log Utilities** – unified `_log_event` helper under `template_engine.log_utils`
+* **Log Utilities** – unified `_log_event` helper under `utils.log_utils`
+* **Log Utilities** – unified `_log_event` helper under `utils.log_utils`
   logs events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
 
@@ -210,7 +247,8 @@ real-time status. It accepts a dictionary payload, optional table name, and the
 database path. The default table is `sync_events_log`.
 
 ```python
-from template_engine.log_utils import _log_event
+from utils.log_utils import _log_event
+from utils.log_utils import _log_event
 _log_event({"event": "sync_start"})
 _log_event({"event": "complete"}, table="sync_status")
 ```
@@ -305,14 +343,16 @@ TEXT_INDICATORS = {
 
 ### **Unified Logging Utility**
 The toolkit provides a shared `_log_event` helper in
-`template_engine/log_utils.py`. This function writes events to a chosen table
+`utils/log_utils.py`. This function writes events to a chosen table
+`utils/log_utils.py`. This function writes events to a chosen table
 (`sync_events_log`, `sync_status`, or `doc_analysis`) within `analytics.db` and
 displays a brief progress bar. The helper returns ``True`` when the record is
 successfully inserted so callers can validate logging as part of the DUAL
 COPILOT workflow.
 
 ```python
-from template_engine.log_utils import _log_event
+from utils.log_utils import _log_event
+from utils.log_utils import _log_event
 
 _log_event({"event": "sync_start"}, table="sync_events_log")
 ```
@@ -372,11 +412,12 @@ class SelfHealingSelfLearningSystem:
 - **`/deployment`** - Deployment management
 - **`/api/scripts`** - Scripts API endpoint
 - **`/api/health`** - System health check
+- **`/dashboard/compliance`** - Compliance metrics and rollback history
 
 ### **Access Dashboard**
 ```bash
 # Start enterprise dashboard
-python web_gui/scripts/flask_apps/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py
 
 # Access at: http://localhost:5000
 # Features: Real-time metrics, database visualization, system monitoring
@@ -427,9 +468,12 @@ gh_COPILOT/
 - **`scripts/utilities/self_healing_self_learning_system.py`** - Autonomous operations
 - **`scripts/validation/enterprise_dual_copilot_validator.py`** - DUAL COPILOT validation
 - **`scripts/utilities/unified_script_generation_system.py`** - Database-first generation
-- **`web_gui/scripts/flask_apps/enterprise_dashboard.py`** - Enterprise dashboard
+ - **`dashboard/enterprise_dashboard.py`** - Enterprise dashboard
 - **`validation/compliance_report_generator.py`** - Summarize lint and test results
 - **`web_gui/dashboard_actionable_gui.py`** - Actionable compliance dashboard
+- **`scripts/monitoring/continuous_operation_monitor.py`** - Continuous operation utility
+- **`scripts/monitoring/enterprise_compliance_monitor.py`** - Compliance monitoring utility
+- **`scripts/monitoring/unified_monitoring_optimization_system.py`** - Aggregates performance metrics
 
 ---
 
@@ -574,7 +618,7 @@ The toolkit includes 16 specialized instruction modules for GitHub Copilot integ
 
 ## 📄 LICENSE
 
-Enterprise License - gh_COPILOT Toolkit v4.0  
+This project is licensed under the [MIT License](LICENSE).
 © 2025 - Enterprise Excellence Framework
 
 ---
@@ -590,7 +634,7 @@ python scripts/utilities/self_healing_self_learning_system.py --continuous
 python scripts/validation/lessons_learned_integration_validator.py
 
 # Enterprise dashboard
-python web_gui/scripts/flask_apps/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py
 
 # DUAL COPILOT validation
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
@@ -607,6 +651,7 @@ python scripts/audit_codebase_placeholders.py \
 
 # The audit automatically populates `code_audit_log` in analytics.db for
 # compliance reporting.
+# Run `scripts/database/add_code_audit_log.py` if the table is missing.
 
 # Simple wrapper script
 python scripts/placeholder_audit_logger.py \
@@ -625,6 +670,14 @@ metrics.
 - **Root Maintenance Validator:** `docs/ROOT_MAINTENANCE_VALIDATOR.md`
 - **Enterprise Support:** GitHub Issues with enterprise tag
 - **Learning Pattern Updates:** Automatic integration via autonomous systems
+
+### **WLC Methodology**
+The **Wrapping, Logging, and Compliance (WLC)** system ensures that long-running
+operations are recorded and validated for enterprise review. The session manager
+in [`scripts/wlc_session_manager.py`](scripts/wlc_session_manager.py) starts a
+session entry in `production.db`, logs progress to an external backup location,
+and finalizes the run with a compliance score. Detailed usage instructions are
+available in [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
 
 ---
 

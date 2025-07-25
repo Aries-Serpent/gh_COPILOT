@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import logging
 import os
-import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
@@ -23,10 +22,10 @@ from typing import Any, Dict, List
 
 from tqdm import tqdm
 
+from quantum.quantum_compliance_engine import QuantumComplianceEngine
+from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from template_engine.db_first_code_generator import DBFirstCodeGenerator
 from template_engine.pattern_clustering_sync import PatternClusteringSync
-from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
-from quantum.quantum_compliance_engine import QuantumComplianceEngine
 
 # Visual processing indicator setup
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "compliance_tests"
@@ -60,7 +59,7 @@ def run_compliance_tests(tmp_path: Path) -> Dict[str, Any]:
     process_id = os.getpid()
     timeout_seconds = 1800  # 30 minutes
     status = "INITIALIZED"
-    logging.info(f"PROCESS STARTED: COMPLIANCE TEST SUITE")
+    logging.info("PROCESS STARTED: COMPLIANCE TEST SUITE")
     logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
 
@@ -120,12 +119,21 @@ def dual_copilot_validate(test_results: List[Dict[str, Any]]) -> bool:
     return passed and coverage
 
 def test_db_first_code_generator(tmp_path: Path) -> None:
-    gen = DBFirstCodeGenerator(tmp_path / "production.db", tmp_path / "documentation.db", tmp_path / "template_documentation.db", tmp_path / "analytics.db")
+    gen = DBFirstCodeGenerator(
+        tmp_path / "production.db",
+        tmp_path / "documentation.db",
+        tmp_path / "template_documentation.db",
+        tmp_path / "analytics.db",
+    )
     result = gen.generate("test_objective")
     assert isinstance(result, str) and len(result) > 0
 
 def test_pattern_clustering_sync(tmp_path: Path) -> None:
-    sync = PatternClusteringSync(tmp_path / "production.db", tmp_path / "template_documentation.db", tmp_path / "sync_audit.db")
+    sync = PatternClusteringSync(
+        tmp_path / "production.db",
+        tmp_path / "template_documentation.db",
+        tmp_path / "sync_audit.db",
+    )
     success = sync.synchronize_templates(timeout_minutes=1)
     assert success is True
 

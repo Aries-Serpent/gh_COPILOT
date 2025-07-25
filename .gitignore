@@ -11,3 +11,10 @@ __pycache__/
 *.pyc
 target/
 Cargo.lock
+
+# Ignore runtime logs
+logs/**/*.log
+logs/**/\*.log
+logs/**/\*.txt
+logs/**/\*.json
+

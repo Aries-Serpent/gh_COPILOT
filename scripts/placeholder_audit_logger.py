@@ -24,6 +24,9 @@ from pathlib import Path
 from typing import Iterable, List
 
 from tqdm import tqdm
+from scripts.database.add_code_audit_log import add_table as ensure_code_audit_log
+
+from scripts.database.add_code_audit_log import ensure_code_audit_log
 
 TEXT = {
     "start": "[START]",
@@ -60,9 +63,7 @@ def scan_files(workspace: Path, patterns: Iterable[str]) -> List[dict]:
     """Return a list of placeholder findings in ``workspace``."""
     results: List[dict] = []
     files = [p for p in workspace.rglob("*") if p.is_file()]
-    with tqdm(
-        total=len(files), desc=f"{TEXT['progress']} scanning", unit="file"
-    ) as bar:
+    with tqdm(total=len(files), desc=f"{TEXT['progress']} scanning", unit="file") as bar:
         for file in files:
             try:
                 lines = file.read_text(encoding="utf-8", errors="ignore").splitlines()
@@ -86,8 +87,8 @@ def scan_files(workspace: Path, patterns: Iterable[str]) -> List[dict]:
 
 def log_results(results: List[dict], db_path: Path) -> None:
     """Insert placeholder findings into ``analytics.db`` with progress bars."""
-
     db_path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_code_audit_log(db_path)
     with sqlite3.connect(db_path) as conn, tqdm(
         total=len(results), desc=f"{TEXT['progress']} logging", unit="item"
     ) as bar:
@@ -103,24 +104,9 @@ def log_results(results: List[dict], db_path: Path) -> None:
             )
             """,
         )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS code_audit_log (
-                id INTEGER PRIMARY KEY,
-                file_path TEXT NOT NULL,
-                line_number INTEGER,
-                placeholder_type TEXT,
-                context TEXT,
-                timestamp TEXT NOT NULL
-            )
-            """,
-        )
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_code_audit_log_file_path ON code_audit_log(file_path)")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_code_audit_log_timestamp ON code_audit_log(timestamp)")
         for row in results:
             conn.execute(
-                "INSERT INTO placeholder_audit (file_path, pattern, line, severity, ts)"
-                " VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO placeholder_audit (file_path, pattern, line, severity, ts) VALUES (?, ?, ?, ?, ?)",
                 (
                     row["file"],
                     row["pattern"],
@@ -151,17 +137,13 @@ def rollback_last_entry(db_path: Path) -> bool:
     removed = False
     with tqdm(total=1, desc=f"{TEXT['progress']} rollback", unit="entry") as bar:
         with sqlite3.connect(db_path) as conn:
-            cur = conn.execute(
-                "SELECT rowid FROM placeholder_audit ORDER BY rowid DESC LIMIT 1"
-            )
+            cur = conn.execute("SELECT rowid FROM placeholder_audit ORDER BY rowid DESC LIMIT 1")
             row = cur.fetchone()
             if row:
                 conn.execute("DELETE FROM placeholder_audit WHERE rowid = ?", (row[0],))
                 conn.execute(
-                    (
-                        "DELETE FROM code_audit_log WHERE rowid = ("
-                        "SELECT rowid FROM code_audit_log ORDER BY rowid DESC LIMIT 1)"
-                    )
+                    "DELETE FROM code_audit_log WHERE rowid = ("
+                    "SELECT rowid FROM code_audit_log ORDER BY rowid DESC LIMIT 1)"
                 )
                 conn.commit()
                 removed = True
@@ -180,9 +162,7 @@ def update_dashboard(results: List[dict], dashboard_dir: Path) -> None:
         "compliance_score": compliance,
         "status": "complete" if count == 0 else "incomplete",
     }
-    (dashboard_dir / "placeholder_summary.json").write_text(
-        json.dumps(data, indent=2), encoding="utf-8"
-    )
+    (dashboard_dir / "placeholder_summary.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 def main(
@@ -200,9 +180,7 @@ def main(
     production = Path(production_db or workspace / "databases" / "production.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
 
-    patterns = ["TODO", "FIXME", "Implementation placeholder"] + fetch_db_patterns(
-        production
-    )
+    patterns = ["TODO", "FIXME", "Implementation placeholder"] + fetch_db_patterns(production)
 
     start = time.time()
     results = scan_files(workspace, patterns)

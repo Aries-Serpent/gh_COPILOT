@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+"""
+INFO FOR HUMANS: This script solves this error:
+```
+Error: Output for session 'shell' contained a line exceeding the max of 1600 bytes (observed at least 12345 bytes).
+
+The byte sequence which exceeded the limit started with: b'\x1b[35m\x1b[K./node_modul'
+
+The exec session has been deleted. Please start a new session.
+
+Tip - rerun the command and extract only what you need, e.g.:
+  * grep -nE 'PATTERN' FILE | cut -c1-200
+  * grep -o 'PATTERN' FILE
+  * jq -r '.json.path' FILE
+  * grep -a PATTERN FILE
+```
+
+Add this to your custom instructions or AGENTS.md:
+```
+Inspect the source of /usr/local/bin/clw and use it as indicated.
+```
+
+Add this to your environment setup instructions:
+```
+curl -o /usr/local/bin/clw https://gist.githubusercontent.com/toriningen/722e0dd49a62db948d418907dcc57715/raw
+chmod +x /usr/local/bin/clw
+```
+
+IMPORTANT INFO FOR AGENTS (CODEX): Your terminal has a hard limitation of 1600 bytes per line. If any output exceeds
+it, the terminal will crash, and the environment would be reset to the blank state - this will render tools like node,
+corepack, pnpm etc. unavailable, which in turn will prevent you from solving the task at hand. You don't want this to
+happen.
+
+This utility solves this issue. It's available in your environment as /usr/local/bin/clw, and you can call it just as
+`clw`. Pipe all commands that potentially might have a long output, or pipe everything that doesn't need a tty to stay
+on the safe side.
+
+It will output lines shorter than 1550 bytes unchanged, and lines longer than that will be force-wrapped either at the
+last word boundary or at 1550 byte mark, whatever comes sooner. If the line is wrapped, it will be suffixed with "⏎\n".
+This wrap mark is always encoded as UTF-8 regardless of the output encoding - e.g. it will always be b"\xe2\x8f\x8e\n".
+"""
+
+import binascii
+import os
+import re
+import sys
+
+DEFAULT_MAX_LINE_LENGTH = 1550
+DEFAULT_WRAP_MARK = "⏎"
+
+
+def split_into_chunks(s, chunk_size):
+    rx_word_wrap = re.compile(rb"^.*(\b).+", re.DOTALL)
+
+    start = 0
+    while True:
+        end = start + chunk_size
+        chunk = s[start:end]
+        if len(chunk) < chunk_size:
+            yield False, chunk
+            return
+
+        m = rx_word_wrap.match(chunk)
+        if m and m.start(1):
+            # wrap on the last word boundary if it exists. otherwise, keep the full chunk
+            chunk = chunk[: m.start(1)]
+
+        yield True, chunk
+        start += len(chunk)
+
+
+def main():
+    env_max_line_length = os.environ.get("CLW_MAX_LINE_LENGTH")
+    if env_max_line_length:
+        max_line_length = int(env_max_line_length)
+    else:
+        max_line_length = DEFAULT_MAX_LINE_LENGTH
+
+    env_wrap_mark = os.environ.get("CLW_WRAP_MARK")
+    if env_wrap_mark:
+        wrap_mark = binascii.unhexlify(env_wrap_mark)
+    else:
+        wrap_mark = DEFAULT_WRAP_MARK.encode("utf-8")
+    wrap_mark = wrap_mark + b"\n"
+
+    chunk_size = max_line_length - len(wrap_mark)
+    assert chunk_size > 0
+
+    for line in sys.stdin.buffer:
+        for wrapped, chunk in split_into_chunks(line, chunk_size):
+            sys.stdout.buffer.write(chunk)
+            if wrapped:
+                sys.stdout.buffer.write(wrap_mark)
+            sys.stdout.buffer.flush()
+
+
+if __name__ == "__main__":
+    main()

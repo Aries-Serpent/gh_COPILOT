@@ -1,4 +1,36 @@
 # CHANGELOG - gh_COPILOT Enterprise Toolkit
+## [4.1.0] - 2025-07-24
+### Added
+- wrappers for session and quantum modules
+- `continuous_operation_monitor` utility class
+- dashboard import stub
+### Changed
+- moved `_log_event` to `utils.log_utils`
+- updated `intelligent_database_merger` logging
+
+## [4.1.0] - 2025-07-22 - WRAPPER AND MONITORING UPDATES
+
+### Added
+ - Session wrapper modules under `scripts/session/`
+ - Quantum optimizer and database search wrappers
+ - `dashboard/enterprise_dashboard.py` for Flask app import
+ - `utils/log_utils` relocated from `template_engine`
+ - Monitoring utility updated with compliance hooks
+
+## [4.1.0] - 2025-07-16 - Maintenance Updates
+- Added wrappers for session management and quantum utilities.
+- Moved `log_utils` to shared `utils` package.
+- Introduced `/dashboard/compliance` endpoint documentation.
+
+## [4.1.0] - 2025-07-23 - Analytics Schema Update
+
+### Added
+- `code_audit_log` table migration (`add_code_audit_log.sql`)
+- Helper script `add_code_audit_log.py` for existing databases
+
+## [4.1.0] - 2025-07-16 - Analytics Enhancements
+- Added `code_audit_log` table to `analytics.db` with migration script.
+- Updated initialization scripts to ensure table creation.
 
 ## [4.1.0] - 2025-07-22 - Analytics Updates
 
@@ -189,6 +221,7 @@
 
 | Version | Date | Key Achievement | Readiness Score |
 |---------|------|----------------|-----------------|
+| 4.1.0 | 2025-07-23 | Analytics Schema Update | 100.0% |
 | 4.0.0 | 2025-07-14 | 100% Enterprise Readiness | 100.0% |
 | 3.5.0 | 2025-07-13 | Phase 4 Completion | 94.95% |
 | 3.0.0 | 2025-07-12 | Enterprise Foundation | 85.0% |

@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS code_audit_log (
     id INTEGER PRIMARY KEY,
     file_path TEXT NOT NULL,
-    line_number INTEGER,
-    placeholder_type TEXT,
+    line_number INTEGER NOT NULL,
+    placeholder_type TEXT NOT NULL,
     context TEXT,
     timestamp TEXT NOT NULL
 );

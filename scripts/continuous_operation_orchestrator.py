@@ -29,24 +29,19 @@ License: Enterprise License
 Created: July 17, 2025
 """
 
-import asyncio
-import json
+import argparse
 import logging
 import os
 import shutil
-import sqlite3
 import sys
-import threading
 import time
 import traceback
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 import numpy as np
-import schedule
 from tqdm import tqdm
 
 from utils.cross_platform_paths import CrossPlatformPathManager
@@ -57,7 +52,6 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 def validate_enterprise_operation():
     """🚨 CRITICAL: Validate workspace before any operations"""
     workspace_root = Path(os.getcwd())
-    proper_root = CrossPlatformPathManager.get_workspace_path()
 
     # Prevent recursive backup violations
     forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
@@ -322,7 +316,9 @@ class ContinuousOperationOrchestrator:
         self.metrics.optimization_cycles += 1
 
         logging.info(
-            f"✅ Performance optimization complete: {optimization_results['optimization_effectiveness']:.1f}% effectiveness")
+            "✅ Performance optimization complete: %.1f%% effectiveness",
+            optimization_results["optimization_effectiveness"],
+        )
 
         return optimization_results
 
@@ -397,7 +393,7 @@ class ContinuousOperationOrchestrator:
 
                 try:
                     # Execute continuous operation cycle
-                    cycle_results = self.execute_continuous_operation_cycle()
+                    _ = self.execute_continuous_operation_cycle()
 
                     operation_results["total_cycles"] += 1
                     operation_results["successful_cycles"] += 1
@@ -494,8 +490,12 @@ class ContinuousOperationOrchestrator:
         logging.info(f"Duration: {duration:.1f} seconds ({duration/3600:.1f} hours)")
         logging.info(f"Total Cycles: {operation_results['total_cycles']}")
         logging.info(f"Successful Cycles: {operation_results['successful_cycles']}")
-        logging.info(
-            f"Success Rate: {(operation_results['successful_cycles']/max(operation_results['total_cycles'], 1)*100):.1f}%")
+        success_rate = (
+            operation_results["successful_cycles"]
+            / max(operation_results["total_cycles"], 1)
+            * 100
+        )
+        logging.info("Success Rate: %.1f%%", success_rate)
         logging.info(f"System Health Score: {self.metrics.system_health_score:.1f}%")
         logging.info(f"Performance Improvement: {self.metrics.performance_improvement:.1f}%")
         logging.info(f"AI Decisions Made: {self.metrics.ai_decisions_made}")
@@ -596,8 +596,11 @@ class EnterpriseSystemMonitor:
         logging.info("🏢 Enterprise System Monitor initialized")
 
 
-def main():
+def main() -> int:
     """🚀 Main execution function"""
+    parser = argparse.ArgumentParser(description="Continuous operation orchestrator")
+    parser.add_argument("--start-continuous", action="store_true", help="Start continuous operation automatically")
+    args = parser.parse_args()
 
     print("🔄 CONTINUOUS OPERATION ORCHESTRATOR - PHASE 6")
     print("="*60)
@@ -613,7 +616,7 @@ def main():
         print("\n🚀 Executing continuous operation cycle...")
         cycle_results = orchestrator.execute_continuous_operation_cycle()
 
-        print(f"\n✅ CYCLE COMPLETED")
+        print("\n✅ CYCLE COMPLETED")
         print(
             f"System Health: {cycle_results.get('system_health', {}).get('overall_health_score', 0):.1f}%")
         print(
@@ -625,8 +628,13 @@ def main():
         print(f"Continuous Excellence: {orchestrator.metrics.continuous_excellence:.1f}%")
 
         # Option to start continuous operation
-        response = input("\n🔄 Start continuous operation mode? (y/N): ")
-        if response.lower() == 'y':
+        if args.start_continuous:
+            response = "y"
+        elif sys.stdin.isatty():
+            response = input("\n🔄 Start continuous operation mode? (y/N): ")
+        else:
+            response = "n"
+        if response.lower() == "y":
             print("🚀 Starting 1-hour continuous operation demonstration...")
             operation_results = orchestrator.start_continuous_operation(duration_hours=1)
             print(
