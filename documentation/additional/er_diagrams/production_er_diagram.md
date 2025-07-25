@@ -930,7 +930,7 @@ CREATE TABLE shared_templates (
                         sync_status TEXT DEFAULT 'active'
                     )
 ```
-```
+
 
 ## Relationships
 

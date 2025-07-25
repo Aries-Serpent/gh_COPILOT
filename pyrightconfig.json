@@ -1,4 +1,5 @@
 {
-    "typeCheckingMode": "basic",
-    "reportMissingModuleSource": false
+  "typeCheckingMode": "basic",
+  "reportMissingModuleSource": false,
+  "stubPath": "typings"
 }

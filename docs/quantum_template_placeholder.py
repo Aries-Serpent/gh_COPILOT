@@ -8,6 +8,7 @@ automated template creation.
 """
 
 from pathlib import Path
+from typing import Any, List, Tuple
 
 from template_engine.auto_generator import TemplateAutoGenerator
 
@@ -52,4 +53,5 @@ def generate_default_templates(db_path: Path = Path("databases/production.db")) 
 
 
 if __name__ == "__main__":  # pragma: no cover
-    generate_default_templates()
+    for tmpl in generate_default_templates():
+        print(tmpl)

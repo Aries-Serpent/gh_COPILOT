@@ -80,6 +80,7 @@ class ComplianceMetricsUpdater:
             "compliance_score": 0.0,
             "violation_count": 0,
             "rollback_count": 0,
+            "progress_status": "unknown",
             "last_update": datetime.now().isoformat(),
         }
         if not ANALYTICS_DB.exists():
@@ -108,6 +109,10 @@ class ComplianceMetricsUpdater:
                 metrics["rollback_count"] = cur.fetchone()[0]
             except Exception as e:
                 logging.error(f"Error fetching metrics: {e}")
+        if metrics["violation_count"] or metrics["rollback_count"]:
+            metrics["progress_status"] = "issues_pending"
+        else:
+            metrics["progress_status"] = "complete"
         metrics["last_update"] = datetime.now().isoformat()
         return metrics
 
@@ -119,7 +124,7 @@ class ComplianceMetricsUpdater:
 
         dashboard_content = {
             "metrics": metrics,
-            "status": "updated",
+            "status": metrics.get("progress_status", "updated"),
             "timestamp": datetime.now().isoformat(),
         }
         dashboard_file.write_text(json.dumps(dashboard_content, indent=2), encoding="utf-8")

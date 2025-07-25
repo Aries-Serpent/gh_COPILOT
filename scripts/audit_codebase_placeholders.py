@@ -1,5 +1,5 @@
 """
-Enterprise Database-First Placeholder Audit Script
+Enterprise Database-First Code Audit Script
 
 MANDATORY REQUIREMENTS:
 1. Query production.db for tracked file patterns and audit templates.
@@ -130,11 +130,12 @@ def update_dashboard(count: int, dashboard_dir: Path) -> None:
     """Write summary JSON to dashboard/compliance directory."""
     dashboard_dir.mkdir(parents=True, exist_ok=True)
     compliance = max(0, 100 - count)
+    status = "complete" if count == 0 else "issues_pending"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": count,
         "compliance_score": compliance,
-        "status": "complete" if count == 0 else "incomplete",
+        "progress_status": status,
     }
     summary_file = dashboard_dir / "placeholder_summary.json"
     summary_file.write_text(json.dumps(data, indent=2), encoding="utf-8")

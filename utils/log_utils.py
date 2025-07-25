@@ -77,16 +77,12 @@ def _log_event(
         bar.update(1)
     duration = time.time() - start_ts
     logger = logging.getLogger(__name__)
-    payload_json = json.dumps(payload)
     logger.info(
-        "Simulated analytics.db log event: %s | %.2fs | allowed: %s",
-        payload_json,
-        duration,
-        test_result,
+        "Simulated analytics.db log event: %s | %.2fs | allowed: %s", json.dumps(payload), duration, test_result
     )
     if echo:
         print(
-            f"[LOG][{payload['timestamp']}][{table}][SIMULATED] {payload_json}",
+            f"[LOG][{payload['timestamp']}][{table}][SIMULATED] {json.dumps(payload)}",
             file=sys.stderr if level >= logging.ERROR else sys.stdout,
         )
     return test_result

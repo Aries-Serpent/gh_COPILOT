@@ -714,7 +714,6 @@ python scripts/audit_codebase_placeholders.py \
 # compliance reporting.
 # Run `scripts/database/add_code_audit_log.py` if the table is missing.
 
-
 # Generate scored documentation templates
 python docs/quantum_template_placeholder.py
 
