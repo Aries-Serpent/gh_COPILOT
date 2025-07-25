@@ -36,14 +36,36 @@ class DatabaseFirstCopilotEnhancer:
                 pass
 
     def _initialize_template_engine(self) -> Any:
-        """Return a simple template engine placeholder.
+        """Load templates from database or filesystem with fallbacks."""
 
-        The template includes the workspace placeholder so that
-        :meth:`_adapt_to_current_environment` can inject environment
-        specific values.
-        """
+        def engine(name: str) -> str:
+            template = None
+            if self.production_db.exists():
+                try:
+                    with sqlite3.connect(self.production_db) as conn:
+                        cur = conn.execute(
+                            "SELECT template_content FROM templates WHERE name=?",
+                            (name,),
+                        )
+                        row = cur.fetchone()
+                        if row and row[0]:
+                            template = row[0]
+                except sqlite3.Error as exc:  # pragma: no cover
+                    self.logger.warning("Template lookup failed: %s", exc)
 
-        return lambda name: f"# Template for {name} in {{workspace}}"
+            if template is None:
+                file_path = self.workspace / "templates" / f"{name}.tpl"
+                if file_path.exists():
+                    try:
+                        template = file_path.read_text()
+                    except OSError as exc:  # pragma: no cover
+                        self.logger.error("Failed to read %s: %s", file_path, exc)
+
+            if template is None:
+                template = f"# Template for {name} in {{workspace}}"
+            return template
+
+        return engine
 
     def _query_database_solutions(self, objective: str) -> List[str]:
         """Return code snippets matching ``objective`` from ``production.db``."""
