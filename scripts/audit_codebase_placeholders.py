@@ -72,14 +72,17 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS code_audit_log (
-                file_path TEXT,
+                id INTEGER PRIMARY KEY,
+                file_path TEXT NOT NULL,
                 line_number INTEGER,
                 placeholder_type TEXT,
                 context TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                timestamp TEXT NOT NULL
             )
-            """,
+            """
         )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_code_audit_log_file_path ON code_audit_log(file_path)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_code_audit_log_timestamp ON code_audit_log(timestamp)")
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS todo_fixme_tracking (

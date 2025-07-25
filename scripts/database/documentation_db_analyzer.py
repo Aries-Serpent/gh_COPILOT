@@ -212,12 +212,44 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
                 "ts TEXT, db TEXT, removed_backups INTEGER, removed_dupes INTEGER)"
             )
             conn.execute(
-                "INSERT INTO doc_audit (ts, db, removed_backups, removed_dupes) VALUES (?,?,?,?)",
+                (
+                    "INSERT INTO doc_audit (ts, db, removed_backups, removed_dupes) "
+                    "VALUES (?,?,?,?)"
+                ),
                 (
                     datetime.utcnow().isoformat(),
                     str(db_path),
                     removed_backups,
                     removed_dupes,
+                ),
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS correction_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT NOT NULL,
+                    file_path TEXT NOT NULL,
+                    violations_count INTEGER,
+                    fixes_applied INTEGER,
+                    fix_rate REAL,
+                    timestamp TEXT NOT NULL,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+            conn.execute(
+                (
+                    "INSERT INTO correction_history (session_id, file_path, "
+                    "violations_count, fixes_applied, fix_rate, timestamp) "
+                    "VALUES (?,?,?,?,?,?)"
+                ),
+                (
+                    "doc_cleanup",
+                    str(db_path),
+                    len(placeholders),
+                    removed_backups + removed_dupes,
+                    0.0,
+                    datetime.utcnow().isoformat(),
                 ),
             )
     except sqlite3.Error as exc:

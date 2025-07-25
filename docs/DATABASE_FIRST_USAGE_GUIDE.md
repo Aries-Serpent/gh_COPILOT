@@ -85,3 +85,11 @@ tables and move historical records to the `archives/` directory. This periodic
 cleanup keeps active databases lean while preserving old data for future
 reference.
 
+## 6. Database Initialization & Migration
+- Initialize all databases with `scripts/database/unified_database_initializer.py`.
+- To add new analytics tables run `scripts/database/add_code_audit_log.py` then
+  execute any SQL files in `databases/migrations/` such as
+  `add_code_audit_log.sql` using `sqlite3` or your preferred migration tool.
+- After every migration, run `scripts/database/size_compliance_checker.py` to
+  verify the 99.9 MB limit is maintained.
+
