@@ -13,5 +13,5 @@ sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 
 ## Notes
 - All migrations are idempotent and safe to re-run.
-- For compliance details see `scripts/database/add_code_audit_log.py`.
-- Audit logging is integrated via `scripts/placeholder_audit_logger.py`.
+- For compliance, see `scripts/database/add_code_audit_log.py`.
+- For audit logging, see `scripts/placeholder_audit_logger.py`.
