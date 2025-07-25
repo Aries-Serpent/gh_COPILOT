@@ -123,6 +123,10 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 # 5. Start enterprise dashboard
 python dashboard/enterprise_dashboard.py
 ```
+Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
+are thin CLI wrappers. They delegate to the core implementations under
+``validation.protocols.session`` and ``session_management_consolidation_executor``.
+Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
 Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
 ```bash
