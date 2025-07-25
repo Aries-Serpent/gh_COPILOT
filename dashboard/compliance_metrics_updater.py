@@ -132,8 +132,14 @@ class ComplianceMetricsUpdater:
             logf.write(log_entry)
         logging.info("Update event logged.")
 
-    def update(self) -> None:
-        """Update compliance metrics for the web dashboard with full compliance and validation."""
+    def update(self, simulate: bool = False) -> None:
+        """Update compliance metrics for the web dashboard with full compliance and validation.
+
+        Parameters
+        ----------
+        simulate: bool, optional
+            If ``True``, skip writing to the dashboard and log files.
+        """
         self.status = "UPDATING"
         start_time = time.time()
         with tqdm(total=3, desc="Updating Compliance Metrics", unit="step") as pbar:
@@ -141,13 +147,17 @@ class ComplianceMetricsUpdater:
             metrics = self._fetch_compliance_metrics()
             pbar.update(1)
 
-            pbar.set_description("Updating Dashboard")
-            self._update_dashboard(metrics)
-            pbar.update(1)
+            if not simulate:
+                pbar.set_description("Updating Dashboard")
+                self._update_dashboard(metrics)
+                pbar.update(1)
 
-            pbar.set_description("Logging Update Event")
-            self._log_update_event(metrics)
-            pbar.update(1)
+                pbar.set_description("Logging Update Event")
+                self._log_update_event(metrics)
+                pbar.update(1)
+            else:
+                pbar.set_description("Simulation Mode")
+                pbar.update(2)
 
         elapsed = time.time() - start_time
         etc = self._calculate_etc(elapsed, 3, 3)
@@ -172,19 +182,22 @@ class ComplianceMetricsUpdater:
         return valid
 
 
-def main() -> None:
+def main(simulate: bool = False) -> None:
+    """Command-line entry point."""
     dashboard_dir = DASHBOARD_DIR
     updater = ComplianceMetricsUpdater(dashboard_dir)
-    updater.update()
+    updater.update(simulate=simulate)
     updater.validate_update()
 
 
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Update compliance metrics and dashboard")
-    parser.add_argument("--dashboard-dir", type=str, help="Directory for compliance dashboard")
+    parser = argparse.ArgumentParser(description="Update compliance metrics")
+    parser.add_argument(
+        "--simulate",
+        action="store_true",
+        help="Run in test mode without writing to disk",
+    )
     args = parser.parse_args()
-    if args.dashboard_dir:
-        DASHBOARD_DIR = Path(args.dashboard_dir)
-    main()
+    main(simulate=args.simulate)
