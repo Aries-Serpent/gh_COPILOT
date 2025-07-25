@@ -132,6 +132,8 @@ python dashboard/enterprise_dashboard.py  # imports app from web_gui package
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
 are thin CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor``.
+- ``unified_session_management_system.py`` starts new sessions via enterprise compliance checks.
+- ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
 Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
