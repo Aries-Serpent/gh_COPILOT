@@ -37,9 +37,11 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - Rendered output is also saved to `logs/template_rendering/` with timestamped filenames for auditing.
 
 ## 4. Synchronization
-- Run `template_engine.template_synchronizer.synchronize_templates(real=True)` to
-   synchronize templates across development, staging, and production databases.
-   Without `real=True`, the call performs a simulation only.
+- Run `template_engine.template_synchronizer.synchronize_templates()` to preview
+   synchronization across development, staging, and production databases. To
+   apply updates and record audit logs, use
+   `template_engine.template_synchronizer.synchronize_templates_real()` or run
+   the CLI with the `--real` flag.
 
 ## 5. Compliance & Correction
 - All generation actions must be logged for compliance review.
@@ -102,4 +104,3 @@ Use `add_code_audit_history.sql` to create the `code_audit_history` table. This 
 ```bash
 sqlite3 databases/analytics.db ".schema code_audit_history"
 ```
-

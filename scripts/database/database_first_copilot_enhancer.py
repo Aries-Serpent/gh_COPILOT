@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Database-First Copilot Enhancer."""
+
 from __future__ import annotations
 
 import logging
@@ -36,29 +37,46 @@ class DatabaseFirstCopilotEnhancer:
                 pass
 
     def _initialize_template_engine(self) -> Any:
-        """Load templates from database or filesystem with graceful fallback."""
-        templates: Dict[str, str] = {}
+        """Load templates from database or filesystem with fallback."""
 
-        db_path = self.workspace / "databases" / "template_documentation.db"
-        if db_path.exists():
-            try:
-                with sqlite3.connect(db_path) as conn:
-                    cur = conn.execute("SELECT name, template_content FROM templates")
-                    for name, content in cur.fetchall():
-                        templates[name] = content
-            except sqlite3.Error as exc:  # pragma: no cover - log-only branch
-                self.logger.warning("Failed to load templates from %s: %s", db_path, exc)
-
-        templates_dir = self.workspace / "templates"
-        if templates_dir.exists():
-            for tpl in templates_dir.glob("*.tpl"):
+        def load_db_templates() -> dict[str, str]:
+            templates: dict[str, str] = {}
+            if self.production_db.exists():
                 try:
-                    templates[tpl.stem] = tpl.read_text(encoding="utf-8")
-                except Exception as exc:  # pragma: no cover - log-only branch
-                    self.logger.warning("Failed to read template %s: %s", tpl, exc)
+                    with sqlite3.connect(self.production_db) as conn:
+                        conn.execute(
+                            "CREATE TABLE IF NOT EXISTS templates (name TEXT PRIMARY KEY, template_content TEXT)"
+                        )
+                        cur = conn.execute("SELECT name, template_content FROM templates")
+                        templates = {row[0]: row[1] for row in cur.fetchall()}
+                except sqlite3.Error as exc:
+                    self.logger.warning("Error loading templates from %s: %s", self.production_db, exc)
+            return templates
+
+        def load_fs_templates() -> dict[str, str]:
+            templates: dict[str, str] = {}
+            tpl_dir = self.workspace / "templates"
+            if tpl_dir.exists():
+                for path in tpl_dir.glob("*.tmpl"):
+                    try:
+                        templates[path.stem] = path.read_text(encoding="utf-8")
+                    except OSError as exc:
+                        self.logger.warning("Could not read %s: %s", path, exc)
+            return templates
+
+        templates = load_db_templates()
+        if templates:
+            templates.update(load_fs_templates())
+        else:
+            templates = load_fs_templates()
+
+        default_template = templates.get("default")
 
         def engine(name: str) -> str:
-            return templates.get(name, f"# Template for {name} in {{workspace}}")
+            tmpl = templates.get(name)
+            if tmpl is None:
+                tmpl = default_template or templates.get("fallback") or f"# Template for {name} in {{workspace}}"
+            return tmpl
 
         return engine
 
@@ -68,9 +86,7 @@ class DatabaseFirstCopilotEnhancer:
             return []
         with sqlite3.connect(self.production_db) as conn:
             cur = conn.cursor()
-            cur.execute(
-                "CREATE TABLE IF NOT EXISTS solutions (objective TEXT, code TEXT)"
-            )
+            cur.execute("CREATE TABLE IF NOT EXISTS solutions (objective TEXT, code TEXT)")
             cur.execute("SELECT objective, code FROM solutions")
             matches: List[tuple[float, str]] = []
             for obj, code in cur.fetchall():
