@@ -50,22 +50,11 @@ def add_table(db_path: Path) -> None:
 
 
 def ensure_code_audit_log(db_path: Path) -> None:
-    """Ensure ``code_audit_log`` table exists with visual indicators."""
-    start_time = datetime.now()
-    logger.info("PROCESS STARTED: ensure_code_audit_log")
-    logger.info("Start Time: %s", start_time.strftime("%Y-%m-%d %H:%M:%S"))
-    logger.info("Process ID: %d", os.getpid())
-    with tqdm(total=1, desc="Ensuring table", unit="step") as bar:
-        add_table(db_path)
-        bar.update(1)
-    duration = (datetime.now() - start_time).total_seconds()
-    logger.info("ensure_code_audit_log completed in %.2fs", duration)
+    """Ensure ``code_audit_log`` table exists."""
+    add_table(db_path)
 
-    validator = SecondaryCopilotValidator(logger)
-    if validator.validate_corrections([__file__]):
-        logger.info("DUAL COPILOT VALIDATION: PASSED")
-    else:
-        logger.error("DUAL COPILOT VALIDATION: FAILED")
+
+__all__ = ["add_table", "ensure_code_audit_log"]
 
 
 def main() -> None:

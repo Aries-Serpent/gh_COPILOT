@@ -65,9 +65,8 @@ metrics and shows real-time placeholder removal progress. When a placeholder is 
 ### Placeholder Correction Workflow
 1. Run `scripts/audit_codebase_placeholders.py` to log all TODOs.
 2. Review entries in `analytics.db:placeholder_audit` and fix the code.
-3. Record completed fixes with `scripts/placeholder_audit_logger.py`.
+3. Record corrections with `scripts/correction_logger_and_rollback.py` for audit.
 4. Monitor `/dashboard/compliance` to verify the compliance score improves.
-
 
 ## 6. Database Maintenance
 
