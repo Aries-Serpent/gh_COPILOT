@@ -18,7 +18,7 @@ from tqdm import tqdm
 
 from utils.log_utils import _log_event
 
-from utils.log_utils import _log_event
+ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "analytics.db"
 
 logger = logging.getLogger(__name__)
 
@@ -27,33 +27,23 @@ def _log_event(db_path: Path, success: bool, error: str | None = None) -> None:
     ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(ANALYTICS_DB) as conn:
         if success:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS sync_events(db TEXT)"
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS sync_events(db TEXT)")
             conn.execute(
                 "INSERT INTO sync_events(db) VALUES (?)",
                 (str(db_path),),
             )
             conn.commit()
         if error:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS audit_log(db TEXT, error TEXT)"
-            )
-            conn.execute(
-                "INSERT INTO audit_log(db, error) VALUES (?, ?)", (str(db_path), error)
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS audit_log(db TEXT, error TEXT)")
+            conn.execute("INSERT INTO audit_log(db, error) VALUES (?, ?)", (str(db_path), error))
             conn.commit()
 
 
 def _load_templates(conn: sqlite3.Connection) -> dict[str, str]:
-    has_table = conn.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='templates'"
-    ).fetchone()
+    has_table = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='templates'").fetchone()
     if not has_table:
         raise sqlite3.OperationalError("missing templates table")
-    rows = conn.execute(
-        "SELECT name, template_content FROM templates"
-    ).fetchall()
+    rows = conn.execute("SELECT name, template_content FROM templates").fetchall()
     return {name: content for name, content in rows if content}
 
 
@@ -73,12 +63,13 @@ def synchronize_templates_real(databases: Iterable[Path]) -> None:
                 continue
     # apply templates only to valid databases
     for db in valid_dbs:
-        with sqlite3.connect(db) as conn:
-            rows = conn.execute("SELECT name, template_content FROM templates").fetchall()
-            return [(r[0], r[1]) for r in rows]
-    except sqlite3.Error as exc:
-        logger.warning("Failed to read templates from %s: %s", db, exc)
-        return []
+        try:
+            with sqlite3.connect(db) as conn:
+                rows = conn.execute("SELECT name, template_content FROM templates").fetchall()
+                return [(r[0], r[1]) for r in rows]
+        except sqlite3.Error as exc:
+            logger.warning("Failed to read templates from %s: %s", db, exc)
+            return []
 
 
 def _validate_template(name: str, content: str) -> bool:

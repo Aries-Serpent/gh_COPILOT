@@ -28,6 +28,11 @@ jobs:
       - name: Setup project
         run: bash setup.sh
 
+      - name: Ruff lint
+        run: |
+          ruff check .
+          ruff format --check .
+
       - name: Import template_engine modules
         run: |
           python - <<'PY'
