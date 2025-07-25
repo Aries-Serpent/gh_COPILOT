@@ -197,6 +197,9 @@ python scripts/wlc_session_manager.py
 
 For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
 
+Additional module overviews are available in [quantum/README.md](quantum/README.md)
+and [monitoring/README.md](monitoring/README.md).
+
 ### Workspace Detection
 Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment variable. If the variable is not set, the current working directory is used by default.
 

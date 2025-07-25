@@ -11,13 +11,12 @@ Unified Session Management System
 - Enables external tools to interact with session data via API functions.
 """
 
-import os
-import json
 import csv
+import json
 import sqlite3
-from typing import List, Dict, Any, Optional, Union
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
 from utils.log_utils import _log_event
 
@@ -44,7 +43,10 @@ def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
         try:
             with sqlite3.connect(str(db_file)) as conn:
                 cur = conn.cursor()
-                cur.execute("SELECT session_id, user_id, state, created_at, last_updated, metadata FROM sessions WHERE state='active';")
+                cur.execute(
+                    "SELECT session_id, user_id, state, created_at, "
+                    "last_updated, metadata FROM sessions WHERE state='active';"
+                )
                 for row in cur.fetchall():
                     session_id, user_id, state, created_at, last_updated, metadata = row
                     try:
@@ -152,10 +154,24 @@ def consolidate_sessions_atomic(
                     json.dumps(session.get("metadata", {})),
                 ))
             except Exception as e:
-                _log_event({"event": "session_consolidation_insert_failed", "error": str(e), "session_id": session.get("session_id")})
-                print(f"{TEXT_INDICATORS['error']} Failed to consolidate session {session.get('session_id')}: {e}")
+                _log_event(
+                    {
+                        "event": "session_consolidation_insert_failed",
+                        "error": str(e),
+                        "session_id": session.get("session_id"),
+                    }
+                )
+                print(
+                    f"{TEXT_INDICATORS['error']} Failed to consolidate session {session.get('session_id')}: {e}"
+                )
         conn.commit()
-    _log_event({"event": "session_consolidation_atomic_complete", "output_db": str(output_db), "count": len(session_list)})
+    _log_event(
+        {
+            "event": "session_consolidation_atomic_complete",
+            "output_db": str(output_db),
+            "count": len(session_list),
+        }
+    )
     print(f"{TEXT_INDICATORS['success']} Atomically wrote {len(session_list)} consolidated sessions to {output_db}")
 
 
@@ -169,7 +185,11 @@ def get_session_by_id(db_file: Union[str, Path], session_id: str) -> Optional[Di
         try:
             with sqlite3.connect(str(db_file)) as conn:
                 cur = conn.cursor()
-                cur.execute("SELECT session_id, user_id, state, created_at, last_updated, metadata FROM sessions WHERE session_id=?;", (session_id,))
+                cur.execute(
+                    "SELECT session_id, user_id, state, created_at, last_updated, "
+                    "metadata FROM sessions WHERE session_id=?;",
+                    (session_id,),
+                )
                 row = cur.fetchone()
                 if row:
                     session_id, user_id, state, created_at, last_updated, metadata = row
