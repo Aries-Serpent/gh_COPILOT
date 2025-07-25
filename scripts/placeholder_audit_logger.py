@@ -191,6 +191,9 @@ def main(
 
     start = time.time()
     results = scan_files(workspace, patterns)
+    # Support test-mode via environment variable for automated runs
+    simulate = simulate or os.getenv("GH_COPILOT_TEST_MODE") == "1"
+
     if not simulate:
         log_results(results, analytics)
         update_dashboard(results, dashboard)

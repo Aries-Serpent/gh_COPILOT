@@ -153,7 +153,7 @@ implemented consistently.
 
 | ID | Description | Module/Path | Related Sections |
 |----|-------------|-------------|-----------------|
-| `STUB-001` | Finalize placeholder scanning logic with full traversal and progress logging. Record every finding to `analytics.db` (supports test-mode simulation) | `scripts/placeholder_audit_logger.py`, `scripts/audit_codebase_placeholders.py` | Audit and Compliance |
+| `STUB-001` | Finalize placeholder scanning logic with full traversal and progress logging. Record every finding to `analytics.db` (supports test-mode simulation via `GH_COPILOT_TEST_MODE=1`) | `scripts/placeholder_audit_logger.py`, `scripts/audit_codebase_placeholders.py` | Audit and Compliance |
 | `STUB-002` | Expand database-first code generation with similarity scoring and template retrieval | `template_engine/auto_generator.py`, `template_engine/db_first_code_generator.py`, `pattern_mining_engine.py`, `objective_similarity_scorer.py` | Code Generation |
 | `STUB-003` | Implement KMeans clustering for template selection and transactional synchronization | `template_engine/template_synchronizer.py`, `copilot/copilot-instructions.md` | Pattern Clustering |
 | `STUB-004` | Log all correction history with rollback design and compliance metrics | `documentation_db_analyzer.py`, `compliance_metrics_updater.py`, `databases/analytics.db` | Correction Logging |
@@ -165,4 +165,3 @@ implemented consistently.
 | `STUB-010` | Update task suggestion file and logs with cross-references | `docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md`, `logs/`, `validation/` | Cross-Referencing |
 | `STUB-011` | Ensure all modules record outputs to `analytics.db` and link to compliance reports | various modules | Final Validation |
 | `STUB-012` | Display placeholder removal progress status on dashboard metrics | `dashboard/compliance_metrics_updater.py` | Compliance Dashboard |
-
