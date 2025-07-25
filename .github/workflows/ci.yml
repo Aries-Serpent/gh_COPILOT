@@ -40,6 +40,9 @@ jobs:
       - name: Run tests
         run: make test
 
+      - name: Verify template_engine import
+        run: python -c "import template_engine"
+
   docker-build:
     needs: lint-test
     runs-on: ubuntu-latest
