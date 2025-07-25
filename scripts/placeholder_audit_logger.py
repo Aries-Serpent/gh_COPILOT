@@ -155,11 +155,12 @@ def update_dashboard(results: List[dict], dashboard_dir: Path) -> None:
     dashboard_dir.mkdir(parents=True, exist_ok=True)
     count = len(results)
     compliance = max(0, 100 - count)
+    status = "complete" if count == 0 else "issues_pending"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": count,
         "compliance_score": compliance,
-        "status": "complete" if count == 0 else "incomplete",
+        "progress_status": status,
     }
     (dashboard_dir / "placeholder_summary.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
 
@@ -190,6 +191,9 @@ def main(
 
     start = time.time()
     results = scan_files(workspace, patterns)
+    # Support test-mode via environment variable for automated runs
+    simulate = simulate or os.getenv("GH_COPILOT_TEST_MODE") == "1"
+
     if not simulate:
         log_results(results, analytics)
         update_dashboard(results, dashboard)

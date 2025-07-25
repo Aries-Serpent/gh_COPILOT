@@ -1,3 +1,4 @@
+import json
 import os
 import sqlite3
 
@@ -14,12 +15,8 @@ def test_audit_places(tmp_path):
 
     prod_db = tmp_path / "production.db"
     with sqlite3.connect(prod_db) as conn:
-        conn.execute(
-            "CREATE TABLE template_placeholders (id INTEGER PRIMARY KEY, placeholder_name TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO template_placeholders (placeholder_name) VALUES ('legacy template logic')"
-        )
+        conn.execute("CREATE TABLE template_placeholders (id INTEGER PRIMARY KEY, placeholder_name TEXT)")
+        conn.execute("INSERT INTO template_placeholders (placeholder_name) VALUES ('legacy template logic')")
         conn.commit()
 
     analytics = tmp_path / "analytics.db"
@@ -38,4 +35,7 @@ def test_audit_places(tmp_path):
         rows2 = conn.execute("SELECT placeholder_type FROM code_audit_log").fetchall()
     assert len(rows) >= 2
     assert len(rows2) >= 2
-    assert dash_dir.joinpath("placeholder_summary.json").exists()
+    summary_file = dash_dir.joinpath("placeholder_summary.json")
+    assert summary_file.exists()
+    data = json.loads(summary_file.read_text())
+    assert data["progress_status"] == "issues_pending"
