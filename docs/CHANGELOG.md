@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.1.4] - 2025-07-28
+- Documented test-only protocol for `analytics.db` migrations.
+- Added `ANALYTICS_DB_TEST_PROTOCOL.md` with manual commands and testing notes.
+
 ## [4.1.3] - 2025-07-27
 - Verified presence of new session and monitoring modules.
 - Refreshed documentation for wrappers and utilities.
