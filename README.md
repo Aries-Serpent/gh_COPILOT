@@ -235,6 +235,8 @@ validation through the `SecondaryCopilotValidator`. It records each session in
 Each run inserts a row into the `unified_wrapup_sessions` table with a
 compliance score for audit purposes. Ensure all command output is piped through
 `/usr/local/bin/clw` to avoid exceeding the line length limit.
+The table stores `session_id`, timestamps, status, compliance score, and
+optional error details so administrators can audit every session.
 The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
 
 ---

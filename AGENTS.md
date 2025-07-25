@@ -10,7 +10,8 @@ Ensure the development environment is correctly configured **before** making any
 
 * **Setup Script**: If a `setup.sh` script is present at the repository root, run it (e.g. `bash setup.sh`) to perform initial setup tasks (creating the virtual environment, installing dependencies, etc.). This project provides a `setup.sh` – use it to avoid missing any required steps.
 * **Verify `clw` Utility**: After setup, confirm `/usr/local/bin/clw` exists and is executable. If missing, copy `tools/clw.py` to `/usr/local/bin/clw` and make it executable. Run `clw --help` to verify it works.
-* **Hard Output Limit**: The Codex terminal enforces a **1600-byte** maximum per line. Always pipe potentially long output through `clw` (e.g., `command | clw`) or redirect to a log file and read it in chunks. Adjust the limit with `CLW_MAX_LINE_LENGTH` if needed.
+* **Hard Output Limit**: The Codex terminal enforces a **1600-byte** maximum per line. Always pipe potentially long output through `clw` (e.g., `command | clw`) or redirect to a log file and read it in chunks.
+* **Recommended `CLW_MAX_LINE_LENGTH`**: Set the environment variable `CLW_MAX_LINE_LENGTH=1550` to keep wrapped output safely below the 1600-byte limit.
 * **Sample Usage of `clw`**: When inspecting large files or performing recursive searches, pipe the output through `clw`:
   ```bash
   grep -R "pattern" . | /usr/local/bin/clw
