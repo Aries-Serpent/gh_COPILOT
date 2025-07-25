@@ -22,7 +22,6 @@ from typing import List
 from db_tools.core.connection import DatabaseConnection
 from db_tools.core.models import DatabaseConfig
 from utils.log_utils import _log_event
-from utils.log_utils import _log_event
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
