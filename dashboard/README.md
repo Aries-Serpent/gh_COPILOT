@@ -96,7 +96,7 @@ Visit [http://localhost:5000](http://localhost:5000) in your browser. The dashbo
 
 The `/dashboard/compliance` endpoint returns compliance information as JSON, combining live metrics from `analytics.db` and correction/rollback summaries from `dashboard/compliance/correction_summary.json`.
 
-`metrics.json` uses the following schema:
+`metrics.json` uses the following schema (applies to both `dashboard/metrics.json` and `dashboard/compliance/metrics.json`):
 
 ```json
 {
@@ -130,6 +130,7 @@ The `/dashboard/compliance` endpoint returns compliance information as JSON, com
 
 - `metrics` — Aggregated compliance metrics (e.g., placeholder removal count, compliance score)
 - `rollbacks` — List of correction and rollback events
+- `notes` — Array of status messages using text tags like `[SUCCESS]`
 
 The endpoint is used by the dashboard UI and can be queried by external tools for compliance reporting and audit automation.
 

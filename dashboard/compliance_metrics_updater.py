@@ -18,7 +18,7 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 from tqdm import tqdm
 
@@ -100,15 +100,30 @@ class ComplianceMetricsUpdater:
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.cursor()
             try:
-                cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
+                # Placeholder removals recorded in todo_fixme_tracking or correction_history
+                if cur.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='correction_history'"
+                ).fetchone():
+                    cur.execute(
+                        "SELECT COUNT(*) FROM correction_history WHERE fix_applied='REMOVED_PLACEHOLDER'"
+                    )
+                else:
+                    cur.execute(
+                        "SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1"
+                    )
                 metrics["placeholder_removal"] = cur.fetchone()[0]
-                cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
+
+                cur.execute(
+                    "SELECT AVG(compliance_score) FROM correction_logs"
+                )
                 avg_score = cur.fetchone()[0]
                 metrics["compliance_score"] = (
                     float(avg_score) if avg_score is not None else 0.0
                 )
+
                 cur.execute("SELECT COUNT(*) FROM violation_logs")
                 metrics["violation_count"] = cur.fetchone()[0]
+
                 cur.execute("SELECT COUNT(*) FROM rollback_logs")
                 metrics["rollback_count"] = cur.fetchone()[0]
             except Exception as e:
