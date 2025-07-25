@@ -1,3 +1,5 @@
+"""Validate analytics migrations on a temporary database (in-memory during tests)."""
+
 import sqlite3
 from pathlib import Path
 

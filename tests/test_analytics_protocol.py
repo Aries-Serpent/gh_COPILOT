@@ -1,3 +1,5 @@
+"""Dry-run analytics migrations using an in-memory SQLite database."""
+
 import datetime as dt
 import os
 import sqlite3
@@ -17,9 +19,7 @@ def _table_exists(conn: sqlite3.Connection, name: str) -> bool:
 
 
 def _primary_validation(conn: sqlite3.Connection) -> bool:
-    return all(
-        _table_exists(conn, tbl) for tbl in ["code_audit_log", "correction_history"]
-    )
+    return all(_table_exists(conn, tbl) for tbl in ["code_audit_log", "correction_history"])
 
 
 def _secondary_validation(conn: sqlite3.Connection) -> bool:
