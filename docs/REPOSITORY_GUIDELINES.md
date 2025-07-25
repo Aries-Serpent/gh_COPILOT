@@ -42,7 +42,8 @@ source .venv/bin/activate
 ### 4. Workspace and Backup Variables
 Set the following environment variables in your shell configuration (or load them dynamically using `.env` files):
 - **`GH_COPILOT_WORKSPACE`:** Specifies the repository workspace.
-- **`GH_COPILOT_BACKUP_ROOT`:** Ensures backups and logs are stored outside the workspace to prevent recursive violations.
+- **`GH_COPILOT_BACKUP_ROOT`:** Ensures backups and logs are stored outside the workspace to prevent recursive violations. If unset, the system defaults to `/tmp/<user>/gh_COPILOT_Backups` on Linux.
+- **`CLW_MAX_LINE_LENGTH`:** Optional terminal output wrap length. Set to `1550` to avoid exceeding the 1600-byte console limit when using `clw`.
 
 Example:
 

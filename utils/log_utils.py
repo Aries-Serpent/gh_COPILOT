@@ -179,4 +179,6 @@ def _clear_log(
 #   sqlite3 databases/analytics.db ".schema code_audit_log"
 #   sqlite3 databases/analytics.db ".schema correction_history"
 #
+# See ``docs/ANALYTICS_DB_TEST_PROTOCOL.md`` for full instructions on manual database creation.
+#
 # ---------------------------------------------------------------

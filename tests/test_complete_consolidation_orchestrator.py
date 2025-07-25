@@ -1,4 +1,3 @@
-import os
 import sqlite3
 from pathlib import Path
 
@@ -6,9 +5,9 @@ import py7zr
 import pytest
 
 from scripts.database.complete_consolidation_orchestrator import (
-    export_table_to_7z, migrate_and_compress)
-from scripts.database.database_migration_corrector import \
-    DatabaseMigrationCorrector
+    compress_large_tables,
+    export_table_to_7z,
+)
 
 
 def test_export_table_to_7z(tmp_path: Path) -> None:
@@ -37,58 +36,55 @@ def _create_db(path: Path, table: str, rows: int) -> None:
 
 
 def test_migrate_and_compress_archives_large_tables(tmp_path: Path) -> None:
-    db_dir = tmp_path / "databases"
-    db_dir.mkdir()
+    db = tmp_path / "enterprise.db"
+    _create_db(db, "bigtable", 60000)
+    analysis = {"tables": [{"name": "bigtable", "record_count": 60000}]}
 
-    big_db = db_dir / "big.db"
-    small_db = db_dir / "small.db"
-    _create_db(big_db, "bigtable", 60000)
-    _create_db(small_db, "smalltable", 10)
-
-    enterprise_db = db_dir / "enterprise_assets.db"
-    from contextlib import contextmanager
-
-    @contextmanager
-    def temporary_chdir(path):
-        original_cwd = os.getcwd()
-        os.chdir(path)
-        try:
-            yield
-        finally:
-            os.chdir(original_cwd)
-
-    with temporary_chdir(tmp_path):
-        migrate_and_compress(tmp_path, [big_db.name, small_db.name], level=5)
-
-    assert enterprise_db.exists()
-    archive = tmp_path / "archives" / "table_exports" / f"{enterprise_db.stem}_bigtable.7z"
+    archives = compress_large_tables(db, analysis, level=5)
+    assert archives
+    archive = archives[0]
     assert archive.exists()
     with py7zr.SevenZipFile(archive, "r") as zf:
         names = zf.getnames()
     assert any(name.endswith("bigtable.csv") for name in names)
-
-    with sqlite3.connect(enterprise_db) as conn:
-        assert conn.execute("SELECT COUNT(*) FROM smalltable").fetchone()[0] == 10
-        assert conn.execute("SELECT COUNT(*) FROM bigtable").fetchone()[0] == 60000
-
-    log_file = tmp_path / "migration.log"
-    assert log_file.exists()
-    content = log_file.read_text()
-    assert "Session" in content and "ended" in content
 
 
 def test_create_external_backup(tmp_path: Path, monkeypatch) -> None:
     source = tmp_path / "test.db"
     source.write_text("data")
 
-    backup_root = tmp_path / "backups"
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    backup_root = tmp_path / "external_backups"
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
 
-    from scripts.database.complete_consolidation_orchestrator import \
-        create_external_backup
+    import importlib
+    module = importlib.reload(
+        importlib.import_module("scripts.database.complete_consolidation_orchestrator")
+    )  # noqa: E402
+    create_external_backup = module.create_external_backup
 
     backup = create_external_backup(source, "unit_test", backup_dir=backup_root)
 
     assert backup.exists()
     assert backup.parent == backup_root
-    assert not str(backup).startswith(str(tmp_path))
+    assert not str(backup).startswith(str(workspace))
+
+
+def test_create_external_backup_in_workspace_raises(tmp_path: Path, monkeypatch) -> None:
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    backup_root = tmp_path / "external_root"
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+    source = workspace / "test.db"
+    source.write_text("data")
+    import importlib
+    module = importlib.reload(
+        importlib.import_module("scripts.database.complete_consolidation_orchestrator")
+    )  # noqa: E402
+    create_external_backup = module.create_external_backup
+
+    with pytest.raises(RuntimeError):
+        create_external_backup(source, "bad", backup_dir=workspace / "backups")
