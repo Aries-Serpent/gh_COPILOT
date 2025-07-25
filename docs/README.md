@@ -48,3 +48,10 @@ placeholder functionality. The underlying `TemplateAutoGenerator` now clusters
 templates using `sklearn.cluster.KMeans` and exposes a
 `get_cluster_representatives()` method for retrieving the best pattern from each
 cluster.
+
+### Error Handling
+
+All public APIs under ``template_engine`` raise standard Python exceptions on
+invalid input. Database operations log errors to ``analytics.db`` and emit
+warnings via ``logging``. Consumers should wrap calls in ``try``/``except``
+blocks and consult the logs for detailed context.

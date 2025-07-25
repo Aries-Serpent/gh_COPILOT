@@ -304,9 +304,16 @@ compliance logging. The main modules are:
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
 
-All public APIs surface `RuntimeError` for validation issues and propagate
-`sqlite3.Error` for database operations. Consumers should wrap calls in `try` /
-`except` blocks to handle these errors gracefully.
+
+```python
+from pathlib import Path
+from template_engine import auto_generator, template_synchronizer
+
+gen = auto_generator.TemplateAutoGenerator()
+template = gen.generate_template({"action": "print"})
+
+sync_count = template_synchronizer.synchronize_templates([Path("databases/production.db")])
+```
 
 #### Unified Logging Helper
 The `_log_event` function records structured events with progress bars and

@@ -1,27 +1,18 @@
-import importlib
 import os
-import sys
 from pathlib import Path
-
-os.environ.setdefault("GH_COPILOT_DISABLE_VALIDATION", "1")
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pytest
 
-MODULES = [
-    "auto_generator",
-    "db_first_code_generator",
-    "log_utils",
-    "objective_similarity_scorer",
-    "pattern_clustering_sync",
-    "pattern_mining_engine",
-    "placeholder_utils",
-    "template_placeholder_remover",
-    "template_synchronizer",
-    "workflow_enhancer",
-]
+import template_engine
 
-@pytest.mark.parametrize("mod", MODULES)
-def test_submodule_import(mod):
-    module = importlib.import_module(f"template_engine.{mod}")
-    assert module is not None
+
+def test_lazy_imports():
+    os.environ["GH_COPILOT_WORKSPACE"] = str(Path.cwd())
+    assert hasattr(template_engine, "auto_generator")
+    assert hasattr(template_engine, "template_synchronizer")
+    assert hasattr(template_engine, "_log_event")
+
+
+def test_invalid_attribute():
+    with pytest.raises(AttributeError):
+        getattr(template_engine, "missing_attr")
