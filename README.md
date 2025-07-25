@@ -203,6 +203,7 @@ python scripts/wlc_session_manager.py
 ```
 
 For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+See [docs/WLC_QUICKSTART.md](docs/WLC_QUICKSTART.md) for a quickstart guide.
 
 Additional module overviews are available in [quantum/README.md](quantum/README.md)
 and [monitoring/README.md](monitoring/README.md).

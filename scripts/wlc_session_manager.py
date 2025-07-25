@@ -159,7 +159,15 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         finalize_session_entry(conn, entry_id, compliance_score)
 
         if run_orchestrator:
-            orchestrator = UnifiedWrapUpOrchestrator(workspace_path=os.getenv("GH_COPILOT_WORKSPACE"))
+            orchestrator_cls = UnifiedWrapUpOrchestrator
+            if orchestrator_cls is None:
+                from scripts.orchestrators.unified_wrapup_orchestrator import (
+                    UnifiedWrapUpOrchestrator as orchestrator_cls,
+                )
+
+            orchestrator = orchestrator_cls(
+                workspace_path=os.getenv("GH_COPILOT_WORKSPACE")
+            )
             orchestrator.execute_unified_wrapup()
 
         validator = SecondaryCopilotValidator()
