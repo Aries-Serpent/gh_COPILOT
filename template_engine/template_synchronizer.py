@@ -11,38 +11,31 @@ import argparse
 import logging
 import os
 import sqlite3
+import time
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
 from tqdm import tqdm
 
-from utils.log_utils import _log_event
+from utils.log_utils import _log_event as log_event_simulation
 
-from utils.log_utils import _log_event
+ANALYTICS_DB = Path("databases/analytics.db")
 
 logger = logging.getLogger(__name__)
 
 
-def _log_event(db_path: Path, success: bool, error: str | None = None) -> None:
-    ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(ANALYTICS_DB) as conn:
-        if success:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS sync_events(db TEXT)"
-            )
-            conn.execute(
-                "INSERT INTO sync_events(db) VALUES (?)",
-                (str(db_path),),
-            )
-            conn.commit()
-        if error:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS audit_log(db TEXT, error TEXT)"
-            )
-            conn.execute(
-                "INSERT INTO audit_log(db, error) VALUES (?, ?)", (str(db_path), error)
-            )
-            conn.commit()
+def _can_write_analytics() -> bool:
+    workspace = os.getenv("GH_COPILOT_WORKSPACE")
+    if not workspace:
+        return True
+    try:
+        Path(ANALYTICS_DB).resolve().relative_to(Path(workspace).resolve())
+        return False
+    except ValueError:
+        return True
+
+
 
 
 def _load_templates(conn: sqlite3.Connection) -> dict[str, str]:
@@ -57,28 +50,28 @@ def _load_templates(conn: sqlite3.Connection) -> dict[str, str]:
     return {name: content for name, content in rows if content}
 
 
-def synchronize_templates_real(databases: Iterable[Path]) -> None:
-    """Synchronize templates across ``databases`` transactionally."""
-    templates: dict[str, str] = {}
-    valid_dbs: list[Path] = []
-    # gather templates
-    for db in databases:
-        with sqlite3.connect(db) as conn:
-            try:
-                templates.update(_load_templates(conn))
-                valid_dbs.append(db)
-            except sqlite3.Error as exc:  # pragma: no cover - should not happen in tests
-                logger.exception("Failed reading templates from %s", db)
-                _log_event(db, False, str(exc))
-                continue
-    # apply templates only to valid databases
-    for db in valid_dbs:
-        with sqlite3.connect(db) as conn:
-            rows = conn.execute("SELECT name, template_content FROM templates").fetchall()
-            return [(r[0], r[1]) for r in rows]
-    except sqlite3.Error as exc:
-        logger.warning("Failed to read templates from %s: %s", db, exc)
+def _extract_templates(db_path: Path) -> list[tuple[str, str]]:
+    """Return templates from ``db_path`` or empty list on error."""
+    if not db_path.exists():
         return []
+    try:
+        with sqlite3.connect(db_path) as conn:
+            return list(_load_templates(conn).items())
+    except sqlite3.Error as exc:  # pragma: no cover - logging only
+        logger.warning("Failed to read templates from %s: %s", db_path, exc)
+        return []
+
+
+def _calculate_etc(start_ts: float, current_progress: int, total_work: int) -> str:
+    """Estimate remaining time for progress reporting."""
+    if current_progress <= 0:
+        return "N/A"
+    elapsed = time.time() - start_ts
+    total_est = elapsed / (current_progress / total_work)
+    remaining = max(0.0, total_est - elapsed)
+    return f"{remaining:.2f}s"
+
+
 
 
 def _validate_template(name: str, content: str) -> bool:
@@ -153,10 +146,12 @@ def _log_audit(db_name: str, details: str) -> None:
 
 def _log_sync_event_real(source: str, target: str) -> None:
     """Record a real synchronization event in analytics.db."""
+    if not _can_write_analytics():
+        return
     ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(ANALYTICS_DB) as conn:
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS sync_events (
+            """CREATE TABLE IF NOT EXISTS sync_events_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 source TEXT,
                 target TEXT,
@@ -164,7 +159,7 @@ def _log_sync_event_real(source: str, target: str) -> None:
             )"""
         )
         conn.execute(
-            "INSERT INTO sync_events (source, target, ts) VALUES (?, ?, ?)",
+            "INSERT INTO sync_events_log (source, target, ts) VALUES (?, ?, ?)",
             (source, target, datetime.utcnow().isoformat()),
         )
         conn.commit()
@@ -172,6 +167,8 @@ def _log_sync_event_real(source: str, target: str) -> None:
 
 def _log_audit_real(db_name: str, details: str) -> None:
     """Record an audit event in analytics.db."""
+    if not _can_write_analytics():
+        return
     ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(ANALYTICS_DB) as conn:
         conn.execute(
@@ -214,7 +211,7 @@ def _synchronize_templates_simulation(
     start_dt = datetime.now()
     start_ts = time.time()
     logger.info("[SYNC-START] PID=%s | Start time: %s", proc_id, start_dt.isoformat())
-    _log_event(
+    log_event_simulation(
         {
             "event": "sync_start_simulation",
             "sources": ",".join(str(p) for p in source_dbs or []),
@@ -272,7 +269,7 @@ def _synchronize_templates_simulation(
 
     duration = (datetime.now() - start_dt).total_seconds()
     logger.info("[SYNC-END][SIM] PID=%s | Duration: %.2fs | DBs: %s", proc_id, duration, synced)
-    _log_event(
+    log_event_simulation(
         {
             "event": "sync_complete_simulation",
             "details": f"{synced} databases in {duration:.2f}s",
@@ -289,6 +286,11 @@ def _synchronize_templates_simulation(
         "    python template_engine/template_synchronizer.py --real\n"
     )
     return synced
+
+
+def synchronize_templates(source_dbs: Iterable[Path] | None = None) -> int:
+    """Run template synchronization in simulation mode."""
+    return _synchronize_templates_simulation(source_dbs)
 
 
 def synchronize_templates_real(
@@ -314,9 +316,13 @@ def synchronize_templates_real(
     source_names = ",".join(str(d) for d in databases)
     synced = 0
 
+    write_enabled = _can_write_analytics()
     for idx, db in enumerate(tqdm(databases, desc=f"Sync [PID {proc_id}]", unit="db"), 1):
         if not db.exists():
             logger.warning("Skipping missing DB: %s", db)
+            continue
+        if not write_enabled:
+            logger.info("[DRY-RUN] Would synchronize %s", db)
             continue
         try:
             with sqlite3.connect(db) as conn:
