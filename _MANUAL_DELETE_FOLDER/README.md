@@ -1,1 +1,0 @@
-DO NOT DELETE ANY FILES ONLY MOVE FILES TO THIS FOLDER. Files in this folder will be MANUAL DELETED by human. 
