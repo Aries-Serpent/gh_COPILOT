@@ -4,6 +4,13 @@
 - `add_correction_history.sql` made idempotent to preserve data.
 - `README.md` now references `unified_database_initializer.py`.
 
+## [4.1.2] - 2025-07-26
+### Added
+- Migration guide in `databases/migrations/README.md` with usage notes.
+### Changed
+- Wrapper `ensure_code_audit_log` exported from `add_code_audit_log.py`.
+- Migration `add_correction_history.sql` updated for idempotency.
+
 ## [4.1.0] - 2025-07-24
 ### Added
 - wrappers for session and quantum modules

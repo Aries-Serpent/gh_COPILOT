@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Add the ``code_audit_log`` table to analytics.db.
+"""Ensure the ``code_audit_log`` table exists in ``analytics.db``.
 
-This utility creates the ``code_audit_log`` table if it does not
-already exist and verifies database size compliance after the
-operation. It follows the database-first pattern and can safely be
-run multiple times.
+This module follows the database-first pattern. It creates the table if
+missing and verifies size compliance after the operation. The migration
+is idempotent and safe to run multiple times.
 """
 
 from __future__ import annotations
@@ -58,30 +57,8 @@ def add_table(db_path: Path) -> None:
 
 
 def ensure_code_audit_log(db_path: Path) -> None:
-    """Ensure ``code_audit_log`` table exists."""
+    """Ensure ``code_audit_log`` table exists (wrapper for :func:`add_table`)."""
     add_table(db_path)
-
-
-__all__ = ["add_table", "ensure_code_audit_log"]
-
-
-def ensure_code_audit_log(db_path: Path) -> None:
-    """Ensure ``code_audit_log`` table exists with visual indicators."""
-    start_time = datetime.now()
-    logger.info("PROCESS STARTED: ensure_code_audit_log")
-    logger.info("Start Time: %s", start_time.strftime("%Y-%m-%d %H:%M:%S"))
-    logger.info("Process ID: %d", os.getpid())
-    with tqdm(total=1, desc="Ensuring table", unit="step") as bar:
-        add_table(db_path)
-        bar.update(1)
-    duration = (datetime.now() - start_time).total_seconds()
-    logger.info("ensure_code_audit_log completed in %.2fs", duration)
-
-    validator = SecondaryCopilotValidator(logger)
-    if validator.validate_corrections([__file__]):
-        logger.info("DUAL COPILOT VALIDATION: PASSED")
-    else:
-        logger.error("DUAL COPILOT VALIDATION: FAILED")
 
 
 def main() -> None:
