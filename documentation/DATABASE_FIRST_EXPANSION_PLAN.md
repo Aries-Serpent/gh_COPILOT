@@ -169,7 +169,7 @@ CREATE TABLE quantum_algorithms_registry (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     algorithm_name TEXT UNIQUE NOT NULL,
     algorithm_type TEXT NOT NULL, -- search, optimization, machine_learning, cryptography
-    implementation_status TEXT DEFAULT 'PLACEHOLDER', -- PLACEHOLDER, SIMULATED, IMPLEMENTED
+    implementation_status TEXT DEFAULT 'IMPLEMENTED', -- SIMULATED or IMPLEMENTED
     complexity_class TEXT, -- BQP, QMA, etc.
     qubit_requirements INTEGER,
     gate_requirements INTEGER,

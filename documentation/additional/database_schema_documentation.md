@@ -670,7 +670,7 @@ The Template Intelligence Platform employs a multi-database architecture with th
 | pattern_type | TEXT | NOT NULL | - |
 | pattern_content | TEXT | NOT NULL | - |
 | confidence_score | REAL | DEFAULT 0.0 | - |
-| placeholder_suggestions | TEXT |  | - |
+| pattern_suggestions | TEXT |  | - |
 | frequency_count | INTEGER | DEFAULT 1 | - |
 | analysis_timestamp | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | - |
 | environment_context | TEXT |  | - |
