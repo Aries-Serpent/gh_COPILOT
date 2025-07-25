@@ -15,7 +15,8 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 from tqdm import tqdm
-from template_engine.auto_generator import DEFAULT_ANALYTICS_DB
+
+from template_engine.placeholder_utils import DEFAULT_ANALYTICS_DB
 
 _LOG_UTILS_PATH = Path(__file__).resolve().parents[2] / "template_engine" / "log_utils.py"
 spec = importlib.util.spec_from_file_location("log_utils", _LOG_UTILS_PATH)
@@ -42,6 +43,37 @@ def ensure_correction_history(db_path: Path) -> None:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(db_path) as conn:
         conn.executescript(CORRECTION_SQL)
+        conn.commit()
+
+
+def _log_corrections(items: list[tuple[str, str]]) -> None:
+    """Record cleanup actions to ``correction_history``."""
+    if not items:
+        return
+    session_id = f"DOC_ANALYZER_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+    ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS correction_history (
+                session_id TEXT,
+                file_path TEXT,
+                violation_code TEXT,
+                fix_applied TEXT,
+                timestamp TEXT
+            )"""
+        )
+        for title, _ in items:
+            conn.execute(
+                "INSERT INTO correction_history (session_id, file_path, violation_code, fix_applied, timestamp)"
+                " VALUES (?, ?, ?, ?, ?)",
+                (
+                    session_id,
+                    title,
+                    "DOC_CLEANUP",
+                    "REMOVED_PLACEHOLDER",
+                    datetime.utcnow().isoformat(),
+                ),
+            )
         conn.commit()
 
 
