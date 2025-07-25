@@ -65,12 +65,19 @@ export GH_COPILOT_BACKUP_ROOT=/path/to/backups
 python scripts/wlc_session_manager.py --steps 2 --verbose
 ```
 
+Use `/usr/local/bin/clw` when reviewing output to avoid long terminal lines.
+Set `CLW_MAX_LINE_LENGTH=1550` if required.
+
 The test `tests/test_wlc_session_manager.py` verifies that a new session record
 is inserted and logs are written under `$GH_COPILOT_BACKUP_ROOT/logs/`.
 
 Each entry in `production.db`'s `unified_wrapup_sessions` table captures the
 session ID, timestamps, completion status, compliance score, and any error
 details, providing an auditable history of WLC runs.
+The table includes columns `session_id`, `start_time`, `end_time`, `status`,
+`files_organized`, `configs_validated`, `scripts_modularized`,
+`root_files_remaining`, `compliance_score`, `validation_results`, and
+`error_details`.
 
 ---
 
