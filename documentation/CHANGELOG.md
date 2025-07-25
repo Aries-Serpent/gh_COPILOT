@@ -1,4 +1,9 @@
 # CHANGELOG - gh_COPILOT Enterprise Toolkit
+## [4.1.1] - 2025-07-25
+### Changed
+- `add_correction_history.sql` made idempotent to preserve data.
+- Updated docs referencing `unified_database_initializer.py`.
+
 ## [4.1.0] - 2025-07-24
 ### Added
 - wrappers for session and quantum modules
@@ -7,6 +12,11 @@
 ### Changed
 - moved `_log_event` to `utils.log_utils`
 - updated `intelligent_database_merger` logging
+
+## [4.1.1] - 2025-07-25
+### Changed
+- `add_correction_history.sql` made idempotent
+- `README.md` now references `unified_database_initializer.py`
 
 ## [4.1.0] - 2025-07-22 - WRAPPER AND MONITORING UPDATES
 

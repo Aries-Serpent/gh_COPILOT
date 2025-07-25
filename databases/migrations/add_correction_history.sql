@@ -1,5 +1,4 @@
-DROP TABLE IF EXISTS correction_history;
-CREATE TABLE correction_history (
+CREATE TABLE IF NOT EXISTS correction_history (
     session_id TEXT NOT NULL,
     file_path TEXT NOT NULL,
     violation_code TEXT NOT NULL,

@@ -1,12 +1,13 @@
 # QUANTUM OPTIMIZER MODULE: ENTERPRISE-GRADE QUANTUM-INSPIRED OPTIMIZATION ENGINE
 # > Generated: 2025-07-24 19:36:07 | Author: mbaetiong
 
-import numpy as np
-from typing import Callable, Optional, Any, Dict, List, Tuple, Union
 from datetime import datetime
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+import numpy as np
 
 try:
-    from qiskit import QuantumCircuit, Aer, execute
+    from qiskit import Aer, QuantumCircuit, execute
     QISKIT_AVAILABLE = True
 except ImportError:
     QISKIT_AVAILABLE = False
@@ -62,7 +63,13 @@ class QuantumOptimizer:
     - Logs optimization metrics for compliance and reproducibility
     """
 
-    def __init__(self, objective_function: Callable, variable_bounds: List[Tuple[float, float]], method: str = "simulated_annealing", options: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        objective_function: Callable,
+        variable_bounds: List[Tuple[float, float]],
+        method: str = "simulated_annealing",
+        options: Optional[Dict[str, Any]] = None,
+    ):
         """
         Initialize optimizer.
 
@@ -83,8 +90,15 @@ class QuantumOptimizer:
     def _validate_init(self):
         if not callable(self.objective_function):
             raise ValueError("objective_function must be callable")
-        if not isinstance(self.variable_bounds, list) or not all(isinstance(t, tuple) and len(t) == 2 for t in self.variable_bounds):
-            raise ValueError("variable_bounds must be a list of (min, max) tuples")
+        if (
+            not isinstance(self.variable_bounds, list)
+            or not all(
+                isinstance(t, tuple) and len(t) == 2 for t in self.variable_bounds
+            )
+        ):
+            raise ValueError(
+                "variable_bounds must be a list of (min, max) tuples"
+            )
         if self.method.lower() not in {"simulated_annealing", "basin_hopping", "qaoa", "vqe"}:
             raise ValueError(f"Unsupported optimizer method: {self.method}")
 
@@ -130,7 +144,13 @@ class QuantumOptimizer:
 
         elapsed = (datetime.utcnow() - start_time).total_seconds()
         self.metrics["elapsed_seconds"] = elapsed
-        self.log_event("optimization_complete", {"elapsed_seconds": elapsed, "best_result": result.get("best_result") if result else None})
+        self.log_event(
+            "optimization_complete",
+            {
+                "elapsed_seconds": elapsed,
+                "best_result": result.get("best_result") if result else None,
+            },
+        )
         summary = {
             "result": result,
             "metrics": self.metrics,
@@ -138,7 +158,13 @@ class QuantumOptimizer:
         }
         return summary
 
-    def _run_simulated_annealing(self, x0: Optional[np.ndarray], max_iter: int = 500, temp: float = 1.0, cooling: float = 0.95) -> Dict[str, Any]:
+    def _run_simulated_annealing(
+        self,
+        x0: Optional[np.ndarray],
+        max_iter: int = 500,
+        temp: float = 1.0,
+        cooling: float = 0.95,
+    ) -> Dict[str, Any]:
         """Simple simulated annealing optimizer (classical, for demonstration)."""
         dim = len(self.variable_bounds)
         if x0 is None:
@@ -158,14 +184,20 @@ class QuantumOptimizer:
                 best_x = x.copy()
             current_temp *= cooling
             if i % max(1, max_iter // 10) == 0:
-                self.log_event("annealing_progress", {"iteration": i, "temperature": current_temp, "current_best": best_val})
+                self.log_event(
+                    "annealing_progress",
+                    {
+                        "iteration": i,
+                        "temperature": current_temp,
+                        "current_best": best_val,
+                    },
+                )
         return {"best_result": best_x.tolist(), "best_value": float(best_val)}
 
     def _run_basin_hopping(self, x0: Optional[np.ndarray], niter: int = 100) -> Dict[str, Any]:
         """Basin-hopping optimizer using scipy (if available), else fallback to random restarts."""
         try:
             from scipy.optimize import basinhopping
-            dim = len(self.variable_bounds)
             if x0 is None:
                 x0 = np.array([(a + b) / 2 for a, b in self.variable_bounds])
             minimizer_kwargs = {
@@ -177,7 +209,6 @@ class QuantumOptimizer:
             return {"best_result": result.x.tolist(), "best_value": float(result.fun)}
         except ImportError:
             # Fallback: random restarts
-            dim = len(self.variable_bounds)
             best_x = None
             best_val = float("inf")
             for i in range(niter):
