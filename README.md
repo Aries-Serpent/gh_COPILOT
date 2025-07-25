@@ -203,6 +203,7 @@ python scripts/wlc_session_manager.py
 ```
 
 For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+See [docs/WLC_QUICKSTART.md](docs/WLC_QUICKSTART.md) for a quickstart guide.
 
 Additional module overviews are available in [quantum/README.md](quantum/README.md)
 and [monitoring/README.md](monitoring/README.md).
@@ -222,6 +223,9 @@ The manager validates required environment variables, executes the
 validation through the `SecondaryCopilotValidator`. It records each session in
 `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
 Each run inserts a row into the `unified_wrapup_sessions` table with a compliance score for audit purposes.
+Additional flags include `--db-path` to specify a custom database and
+`--orchestrate` to trigger wrap-up operations inline without relying on the
+`WLC_RUN_ORCHESTRATOR` environment variable.
 The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
 
 ---

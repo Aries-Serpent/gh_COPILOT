@@ -33,15 +33,16 @@ def test_main_inserts_session(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
     dummy = DummyValidator()
     monkeypatch.setattr(wsm, "SecondaryCopilotValidator", lambda: dummy)
-    monkeypatch.setattr(
-        wsm,
-        "UnifiedWrapUpOrchestrator",
-        lambda workspace_path=None: type(
-            "R",
-            (),
-            {"execute_unified_wrapup": lambda self: type("X", (), {"compliance_score": 100.0})()},
-        )(),
-    )
+    class DummyOrch:
+        def __init__(self) -> None:
+            self.called = False
+
+        def execute_unified_wrapup(self):
+            self.called = True
+            return type("X", (), {"compliance_score": 100.0})()
+
+    orch = DummyOrch()
+    monkeypatch.setattr(wsm, "UnifiedWrapUpOrchestrator", lambda workspace_path=None: orch)
     with sqlite3.connect(temp_db) as conn:
         cur = conn.cursor()
         cur.execute("SELECT COUNT(*) FROM unified_wrapup_sessions")

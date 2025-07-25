@@ -20,6 +20,9 @@ Both paths must exist or the tool will raise an `EnvironmentError`.
 Set `WLC_RUN_ORCHESTRATOR=1` to execute the `UnifiedWrapUpOrchestrator` after the
 session completes.
 
+The script accepts an optional `--db-path` argument to specify an alternate
+database, and `--orchestrate` to run the orchestrator inline.
+
 ## Example Usage
 
 Run the session manager directly to start a WLC session:

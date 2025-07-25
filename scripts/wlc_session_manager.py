@@ -26,12 +26,13 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from scripts.orchestrators.unified_wrapup_orchestrator import (
-    UnifiedWrapUpOrchestrator,
-)
-
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
+
+try:
+    from scripts.orchestrators.unified_wrapup_orchestrator import UnifiedWrapUpOrchestrator
+except Exception:  # pragma: no cover - orchestrator may import this module
+    UnifiedWrapUpOrchestrator = None  # type: ignore[misc]
 
 DB_PATH = Path(os.getenv("WLC_DB_PATH", "databases/production.db"))
 
@@ -136,7 +137,13 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             for _ in tqdm(range(steps), desc="WLC Session", unit="step"):
                 pass  # placeholder for real work
 
-            orchestrator = UnifiedWrapUpOrchestrator(
+            orchestrator_cls = UnifiedWrapUpOrchestrator
+            if orchestrator_cls is None:
+                from scripts.orchestrators.unified_wrapup_orchestrator import (
+                    UnifiedWrapUpOrchestrator as orchestrator_cls,
+                )
+
+            orchestrator = orchestrator_cls(
                 workspace_path=os.getenv("GH_COPILOT_WORKSPACE")
             )
             result = orchestrator.execute_unified_wrapup()
@@ -150,14 +157,28 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         finalize_session_entry(conn, entry_id, compliance_score)
 
         if run_orchestrator:
-            orchestrator = UnifiedWrapUpOrchestrator(workspace_path=os.getenv("GH_COPILOT_WORKSPACE"))
+            orchestrator_cls = UnifiedWrapUpOrchestrator
+            if orchestrator_cls is None:
+                from scripts.orchestrators.unified_wrapup_orchestrator import (
+                    UnifiedWrapUpOrchestrator as orchestrator_cls,
+                )
+
+            orchestrator = orchestrator_cls(
+                workspace_path=os.getenv("GH_COPILOT_WORKSPACE")
+            )
             orchestrator.execute_unified_wrapup()
 
         validator = SecondaryCopilotValidator()
         validator.validate_corrections([__file__])
 
     if os.getenv("WLC_RUN_ORCHESTRATOR") == "1":
-        orchestrator = UnifiedWrapUpOrchestrator(
+        orchestrator_cls = UnifiedWrapUpOrchestrator
+        if orchestrator_cls is None:
+            from scripts.orchestrators.unified_wrapup_orchestrator import (
+                UnifiedWrapUpOrchestrator as orchestrator_cls,
+            )
+
+        orchestrator = orchestrator_cls(
             workspace_path=os.getenv("GH_COPILOT_WORKSPACE")
         )
         orchestrator.execute_unified_wrapup()
