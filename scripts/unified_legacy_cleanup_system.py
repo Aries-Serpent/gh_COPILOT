@@ -3,7 +3,8 @@
 ================================
 
 Provides enterprise-compliant cleanup and archival of legacy scripts.
-Implements database-first validation for safe file operations.
+Implements database-first validation for safe file operations and logs
+key events to ``analytics.db`` via :func:`utils.log_utils._log_event`.
 """
 from __future__ import annotations
 
@@ -16,6 +17,7 @@ from typing import List
 
 from db_tools.core.connection import DatabaseConnection
 from db_tools.core.models import DatabaseConfig
+from utils.log_utils import _log_event
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -62,9 +64,12 @@ class UnifiedLegacyCleanupSystem:
         try:
             rows = self.file_conn.execute_query(query)
             scripts = [self.config.workspace_path / r["script_path"] for r in rows]
-            return [s for s in scripts if s.exists()]
+            scripts = [s for s in scripts if s.exists()]
+            _log_event({"event": "discover_legacy_scripts", "count": len(scripts)})
+            return scripts
         except Exception as exc:  # pragma: no cover - database might not exist
             logger.warning(f"Database query failed: {exc}")
+            _log_event({"event": "discover_legacy_scripts_failed", "error": str(exc)})
             return []
 
     # ------------------------------------------------------------------
@@ -77,20 +82,26 @@ class UnifiedLegacyCleanupSystem:
         target = archive_dir / script.name
         logger.info(f"Archiving {script} -> {target}")
         if dry_run:
+            _log_event({"event": "archive_script_dry_run", "path": str(script)})
             return True
         try:
             script.rename(target)
+            _log_event({"event": "archive_script", "path": str(script)})
             return True
         except Exception as exc:  # pragma: no cover - file system errors
             logger.error(f"Archive failed: {exc}")
+            _log_event({"event": "archive_script_failed", "error": str(exc), "path": str(script)})
             return False
 
     def optimize_workspace(self, dry_run: bool = False) -> None:
         """Placeholder workspace optimization step."""
         logger.info("Optimizing workspace layout")
+        _log_event({"event": "optimize_workspace_start"})
         if dry_run:
+            _log_event({"event": "optimize_workspace_dry_run"})
             return
         # Currently a no-op; real implementation would reorganize files
+        _log_event({"event": "optimize_workspace_complete"})
         return
 
     def run_cleanup(self, dry_run: bool = False) -> None:

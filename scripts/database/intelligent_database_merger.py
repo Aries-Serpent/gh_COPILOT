@@ -21,7 +21,7 @@ class IntelligentDatabaseMerger:
     def __init__(self):
         # MANDATORY: Start time logging
         self.start_time = datetime.now()
-        print(f"[START] INTELLIGENT DATABASE MERGER STARTED")
+        print("[START] INTELLIGENT DATABASE MERGER STARTED")
         print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"Process ID: {os.getpid()}")
         print("="*60)
@@ -104,7 +104,7 @@ class IntelligentDatabaseMerger:
             
             print(f"[INFO] Source Records: {conflict_analysis['source_records']}")
             print(f"[INFO] Target Records: {conflict_analysis['target_records']}")
-            print(f"[NEW] Unique Source: {conflict_analysis['unique_source']}")
+            print(f"[INFO] Unique Source: {conflict_analysis['unique_source']}")
             print(f"[INFO] Duplicates: {conflict_analysis['duplicates']}")
             
             source_conn.close()
@@ -207,7 +207,7 @@ class IntelligentDatabaseMerger:
                 backup_name = (
                     f"logs_redundant_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
                 )
-                backup_path = self.workspace_root / "_MANUAL_DELETE_FOLDER" / backup_name
+                backup_path = self.workspace_root / "backups" / backup_name
                 backup_path.parent.mkdir(exist_ok=True)
 
                 shutil.move(str(self.source_db), str(backup_path))
@@ -226,7 +226,7 @@ class IntelligentDatabaseMerger:
                 backup_name = (
                     f"logs_merged_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
                 )
-                backup_path = self.workspace_root / "_MANUAL_DELETE_FOLDER" / backup_name
+                backup_path = self.workspace_root / "backups" / backup_name
                 backup_path.parent.mkdir(exist_ok=True)
 
                 shutil.move(str(self.source_db), str(backup_path))

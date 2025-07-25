@@ -186,6 +186,9 @@ python scripts/wlc_session_manager.py
 
 For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
 
+Additional module overviews are available in [quantum/README.md](quantum/README.md)
+and [monitoring/README.md](monitoring/README.md).
+
 ### Workspace Detection
 Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment variable. If the variable is not set, the current working directory is used by default.
 
@@ -421,6 +424,18 @@ python dashboard/enterprise_dashboard.py
 
 # Access at: http://localhost:5000
 # Features: Real-time metrics, database visualization, system monitoring
+```
+
+Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
+This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.
+Correction history is summarized via `scripts/correction_logger_and_rollback.py`,
+producing `dashboard/compliance/correction_summary.json`.
+Set `GH_COPILOT_WORKSPACE` before running these utilities:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+python dashboard/compliance_metrics_updater.py
+python scripts/correction_logger_and_rollback.py
 ```
 
 ---
