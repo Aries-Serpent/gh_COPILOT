@@ -19,7 +19,7 @@ from tqdm import tqdm
 
 from database_driven_flake8_corrector_functional import \
     DatabaseDrivenFlake8CorrectorFunctional
-from quantum_algorithms_functional import (
+from scripts.utilities.quantum_algorithms_functional import (
     run_grover_search,
     run_kmeans_clustering,
     run_simple_qnn,
