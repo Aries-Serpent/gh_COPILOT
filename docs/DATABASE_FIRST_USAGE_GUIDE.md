@@ -104,4 +104,3 @@ Use `add_code_audit_history.sql` to create the `code_audit_history` table. This 
 ```bash
 sqlite3 databases/analytics.db ".schema code_audit_history"
 ```
-
