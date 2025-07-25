@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-from scripts.database.add_code_audit_log import add_table
+from scripts.database.add_code_audit_log import add_table, ensure_code_audit_log
 
 
 def test_add_code_audit_log(tmp_path: Path) -> None:
@@ -10,7 +10,7 @@ def test_add_code_audit_log(tmp_path: Path) -> None:
         conn.execute("CREATE TABLE placeholder_audit (id INTEGER)")
     # run migration twice to ensure idempotence
     add_table(db)
-    add_table(db)
+    ensure_code_audit_log(db)
     with sqlite3.connect(db) as conn:
         conn.execute(
             "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"

@@ -68,10 +68,6 @@ metrics and shows real-time placeholder removal progress. When a placeholder is 
 3. Record completed fixes with `scripts/placeholder_audit_logger.py`.
 4. Monitor `/dashboard/compliance` to verify the compliance score improves.
 
-### Placeholder Correction Workflow
-1. Scan the repository using `scripts/placeholder_audit_logger.py`.
-2. Review entries in `analytics.db:code_audit_log` and fix placeholders.
-3. Record corrections with `scripts/correction_logger_and_rollback.py` for audit.
 
 ## 6. Database Maintenance
 

@@ -21,7 +21,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
-- **Analytics Migrations:** run `add_code_audit_log.sql` or the initializer to add the table
+- **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
+- **Analytics Migrations:** run `add_code_audit_log.sql` and `add_correction_history.sql` or use the initializer to add the tables
 - **Quantum features:** planned, not yet implemented
 
 ---
@@ -77,11 +78,12 @@ bash tools/install_clw.sh
 ls -l /usr/local/bin/clw
 
 # 3. Initialize databases
-python scripts/database/database_initializer.py
+python scripts/database/unified_database_initializer.py
 
 # Add analytics tables and run migrations
 python scripts/database/add_code_audit_log.py
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 python scripts/database/size_compliance_checker.py
 
 # 3b. Synchronize databases
