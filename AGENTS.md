@@ -124,7 +124,7 @@ In the **gh\_COPILOT** toolkit, multiple conceptual “agent” components work 
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | **DualCopilotOrchestrator**             | Primary executor with a secondary validator (dual-agent pattern for critical tasks).                                         |
 | **UnifiedMonitoringOptimizationSystem** | Continuous health monitoring of the system (ensures uptime, performance metrics).                                            |
-| **QuantumOptimizationEngine**           | *Aspirational:* placeholder for quantum optimization features (not fully implemented, do not rely on actual quantum output). |
+| **QuantumOptimizationEngine**           | Simulated quantum optimization engine providing scoring hooks. Use `QuantumExecutor` for experiments; falls back to classical scoring when unavailable. |
 | **UnifiedScriptGenerationSystem**       | Generates scripts based on patterns from `production.db` (automating common tasks using database-driven templates).          |
 | **UnifiedSessionManagementSystem**      | Manages session integrity (zero-byte file checks, anti-recursion enforcement, ensures each session starts/ends cleanly).     |
 | **UnifiedDisasterRecoverySystem**       | Handles backup and restore processes (enterprise backup compliance and recovery protocols).                                  |
@@ -145,7 +145,7 @@ The gh\_COPILOT project adheres to several core protocols and standards that the
 4. **Anti-Recursion & Backup Rules** – Absolutely no recursive copying of the workspace. Backups must be stored in the external backup directory (never inside the workspace). Always validate paths and use provided safety checks (e.g., `validate_enterprise_operation()` if available) before file operations to enforce this.
 5. **Session Integrity & Continuous Operation** – Each session or run should begin and end with integrity checks (e.g., ensure no zero-byte files introduced, all expected processes completed). The system is expected to run continuously 24/7, so any automation should be robust to long uptimes and not degrade over time.
 6. **Response Chunking** – (For AI responses in multi-turn scenarios) Keep responses under \~2000 tokens (aim for 1500–1800 for readability). Break down large outputs into logically separate chunks or phases. Each chunk of output or code should end with a clear validation or summary, and possibly a hand-off to the next chunk. This ensures manageability and clarity in review.
-7. **Quantum & AI Protocols** – Quantum computing features and certain advanced AI functions are currently **aspirational**. They should be treated as placeholders or experimental. Do not rely on them for critical logic. If you integrate with these parts, clearly mark outputs as simulated or placeholder. Ensure that the presence of these features doesn’t break core functionality if they are inactive.
+7. **Quantum & AI Protocols** – Quantum features are provided via simulation. Use the classical fallbacks in `quantum_optimizer.py` and mark results as simulated. Ensure these components never block core functionality.
 
 By adhering strictly to the above guidelines and protocols, the AI agent will produce contributions that are consistent with the project’s standards and less likely to be rejected. **Always double-check your work against these rules before considering the task complete.**
 

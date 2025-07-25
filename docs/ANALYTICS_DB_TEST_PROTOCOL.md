@@ -2,6 +2,18 @@
 
 This document describes the procedure for validating the `analytics.db` migrations without automatically creating or modifying the database file. All automation must operate in **test mode** only.
 
+### Quick Manual Creation
+
+If you need to create `analytics.db` yourself, run the following commands from the repository root:
+
+```bash
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
+```
+
+This must be performed manually; automated scripts never generate the file.
+
 ## Manual Migration
 
 Run the following commands manually if `analytics.db` needs the new tables:
@@ -13,6 +25,18 @@ sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 ```
 
 The database file is not generated automatically. A human operator must execute these commands to create the `code_audit_log`, `correction_history`, and `code_audit_history` tables.
+
+### Quick Reference: Create `analytics.db`
+
+Run the following commands whenever a real `analytics.db` is required:
+
+```bash
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
+```
+
+All automated tests run migrations against an in-memory SQLite instance only.
 
 ## Testing Guidance
 

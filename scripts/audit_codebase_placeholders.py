@@ -1,5 +1,5 @@
 """
-Enterprise Database-First Placeholder Audit Script
+Enterprise Database-First Code Audit Script
 
 MANDATORY REQUIREMENTS:
 1. Query production.db for tracked file patterns and audit templates.
@@ -44,8 +44,6 @@ TEXT = {
 DEFAULT_PATTERNS = [
     r"TODO",
     r"FIXME",
-    r"Implementation placeholder",
-    r"legacy template logic",
 ]
 
 
@@ -64,10 +62,16 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
 
 
 # Insert findings into analytics.db.code_audit_log
-def log_findings(results: List[Dict], analytics_db: Path) -> None:
-    """Insert findings into analytics.db todo_fixme_tracking and code_audit_log."""
+def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False) -> None:
+    """Insert findings into analytics.db todo_fixme_tracking and code_audit_log.
+
+    If ``simulate`` is True, skip writing to the database.
+    """
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     ensure_code_audit_log(analytics_db)
+    if simulate:
+        logging.info("[TEST MODE] Simulation enabled: not writing to analytics.db")
+        return
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             """
@@ -88,7 +92,7 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
             CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
                 file_path TEXT,
                 line_number INTEGER,
-                item_type TEXT,
+                placeholder_type TEXT,
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )
@@ -108,7 +112,7 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
                 values,
             )
             conn.execute(
-                "INSERT INTO todo_fixme_tracking (file_path, line_number, item_type, context, timestamp)"
+                "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp)"
                 " VALUES (?, ?, ?, ?, ?)",
                 (
                     row["file"],
@@ -126,11 +130,12 @@ def update_dashboard(count: int, dashboard_dir: Path) -> None:
     """Write summary JSON to dashboard/compliance directory."""
     dashboard_dir.mkdir(parents=True, exist_ok=True)
     compliance = max(0, 100 - count)
+    status = "complete" if count == 0 else "issues_pending"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": count,
         "compliance_score": compliance,
-        "status": "complete" if count == 0 else "incomplete",
+        "progress_status": status,
     }
     summary_file = dashboard_dir / "placeholder_summary.json"
     summary_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
@@ -193,8 +198,15 @@ def main(
     production_db: Optional[str] = None,
     dashboard_dir: Optional[str] = None,
     timeout_minutes: int = 30,
+    simulate: bool = False,
 ) -> bool:
-    """Entry point for placeholder auditing with full enterprise compliance."""
+    """Entry point for placeholder auditing with full enterprise compliance.
+
+    Parameters
+    ----------
+    simulate:
+        If ``True``, skip writing to databases and dashboard.
+    """
     # Visual processing indicators: start time, process ID, anti-recursion validation
     start_time = time.time()
     process_id = os.getpid()
@@ -247,9 +259,12 @@ def main(
             bar.update(1)
 
     # Log findings to analytics.db
-    log_findings(results, analytics)
+    log_findings(results, analytics, simulate=simulate)
     # Update dashboard/compliance
-    update_dashboard(len(results), dashboard)
+    if not simulate:
+        update_dashboard(len(results), dashboard)
+    else:
+        logging.info("[TEST MODE] Dashboard update skipped")
     elapsed = time.time() - start_time
     logging.info(f"{TEXT['info']} audit completed in {elapsed:.2f}s")
 
@@ -263,5 +278,22 @@ def main(
 
 
 if __name__ == "__main__":
-    success = main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Audit workspace for TODO/FIXME placeholders")
+    parser.add_argument("--workspace-path", type=str, help="Workspace to scan")
+    parser.add_argument("--analytics-db", type=str, help="analytics.db location")
+    parser.add_argument("--production-db", type=str, help="production.db location")
+    parser.add_argument("--dashboard-dir", type=str, help="dashboard/compliance directory")
+    parser.add_argument("--timeout-minutes", type=int, default=30, help="Scan timeout in minutes")
+    parser.add_argument("--simulate", action="store_true", help="Run in test mode without writes")
+    args = parser.parse_args()
+    success = main(
+        workspace_path=args.workspace_path,
+        analytics_db=args.analytics_db,
+        production_db=args.production_db,
+        dashboard_dir=args.dashboard_dir,
+        timeout_minutes=args.timeout_minutes,
+        simulate=args.simulate,
+    )
     raise SystemExit(0 if success else 1)

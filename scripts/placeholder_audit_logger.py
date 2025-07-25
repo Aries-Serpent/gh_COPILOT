@@ -155,11 +155,12 @@ def update_dashboard(results: List[dict], dashboard_dir: Path) -> None:
     dashboard_dir.mkdir(parents=True, exist_ok=True)
     count = len(results)
     compliance = max(0, 100 - count)
+    status = "complete" if count == 0 else "issues_pending"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": count,
         "compliance_score": compliance,
-        "status": "complete" if count == 0 else "incomplete",
+        "progress_status": status,
     }
     (dashboard_dir / "placeholder_summary.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
 
@@ -169,8 +170,15 @@ def main(
     analytics_db: str | None = None,
     production_db: str | None = None,
     dashboard_dir: str | None = None,
+    simulate: bool = False,
 ) -> bool:
-    """Run the placeholder audit logger."""
+    """Run the placeholder audit logger.
+
+    Parameters
+    ----------
+    simulate:
+        If ``True``, skip writing to the database and dashboard.
+    """
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.info(f"{TEXT['start']} placeholder audit")
 
@@ -183,8 +191,14 @@ def main(
 
     start = time.time()
     results = scan_files(workspace, patterns)
-    log_results(results, analytics)
-    update_dashboard(results, dashboard)
+    # Support test-mode via environment variable for automated runs
+    simulate = simulate or os.getenv("GH_COPILOT_TEST_MODE") == "1"
+
+    if not simulate:
+        log_results(results, analytics)
+        update_dashboard(results, dashboard)
+    else:
+        logging.info("[TEST MODE] Simulation enabled: no database writes")
     elapsed = time.time() - start
     logging.info(f"{TEXT['success']} audit completed in {elapsed:.2f}s")
 
@@ -192,5 +206,20 @@ def main(
 
 
 if __name__ == "__main__":  # pragma: no cover - CLI execution
-    success = main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Log placeholder audit results")
+    parser.add_argument("--workspace-path", type=str, help="Workspace to scan")
+    parser.add_argument("--analytics-db", type=str, help="Path to analytics.db")
+    parser.add_argument("--production-db", type=str, help="Path to production.db")
+    parser.add_argument("--dashboard-dir", type=str, help="Compliance dashboard directory")
+    parser.add_argument("--simulate", action="store_true", help="Test mode")
+    args = parser.parse_args()
+    success = main(
+        workspace_path=args.workspace_path,
+        analytics_db=args.analytics_db,
+        production_db=args.production_db,
+        dashboard_dir=args.dashboard_dir,
+        simulate=args.simulate,
+    )
     raise SystemExit(0 if success else 1)
