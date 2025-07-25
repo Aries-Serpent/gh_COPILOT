@@ -26,6 +26,7 @@ from typing import Iterable, List
 from tqdm import tqdm
 from scripts.database.add_code_audit_log import add_table as ensure_code_audit_log
 
+from scripts.database.add_code_audit_log import ensure_code_audit_log
 
 TEXT = {
     "start": "[START]",
@@ -141,7 +142,8 @@ def rollback_last_entry(db_path: Path) -> bool:
             if row:
                 conn.execute("DELETE FROM placeholder_audit WHERE rowid = ?", (row[0],))
                 conn.execute(
-                    "DELETE FROM code_audit_log WHERE rowid = (SELECT rowid FROM code_audit_log ORDER BY rowid DESC LIMIT 1)"
+                    "DELETE FROM code_audit_log WHERE rowid = ("
+                    "SELECT rowid FROM code_audit_log ORDER BY rowid DESC LIMIT 1)"
                 )
                 conn.commit()
                 removed = True
