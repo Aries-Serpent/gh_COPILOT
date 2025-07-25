@@ -44,6 +44,14 @@ def add_table(db_path: Path) -> None:
     check_database_sizes(db_path.parent)
 
 
+def ensure_code_audit_log(db_path: Path) -> None:
+    """Ensure ``code_audit_log`` table exists."""
+    add_table(db_path)
+
+
+__all__ = ["add_table", "ensure_code_audit_log"]
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     db_path = root / "databases" / "analytics.db"
