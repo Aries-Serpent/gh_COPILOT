@@ -295,6 +295,19 @@ compliance logging:
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
 
+#### Usage Example
+
+```python
+from pathlib import Path
+from template_engine import auto_generator, template_synchronizer
+
+gen = auto_generator.TemplateAutoGenerator()
+template = gen.generate_template({"action": "print"})
+
+sync_count = template_synchronizer.synchronize_templates([Path("databases/production.db")])
+```
+```
+
 #### Unified Logging Helper
 The `_log_event` function records structured events with progress bars and
 real-time status. It accepts a dictionary payload, optional table name, and the

@@ -11,6 +11,7 @@ from template_engine.auto_generator import TemplateAutoGenerator
 
 
 def create_test_dbs(tmp_path: Path):
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     analytics_db = tmp_path / "analytics.db"
     completion_db = tmp_path / "template_completion.db"
     with sqlite3.connect(analytics_db) as conn:
