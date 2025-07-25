@@ -17,7 +17,9 @@ from typing import Iterable, List, Optional, Union
 import py7zr
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from scripts.continuous_operation_orchestrator import (
+    validate_enterprise_operation,
+)
 
 from .database_migration_corrector import DatabaseMigrationCorrector
 from .size_compliance_checker import check_database_sizes
@@ -88,11 +90,7 @@ def export_table_to_7z(db_path: Path, table: str, dest_dir: Path, level: int = 5
         writer.writerow([d[0] for d in cur.description])
         writer.writerows(cur.fetchall())
         tmp_path = Path(tmp.name)
-    with py7zr.SevenZipFile(
-        archive_path,
-        mode="w",
-        filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}],
-    ) as zf:
+    with py7zr.SevenZipFile(archive_path, mode="w", compression_level=level) as zf:
         zf.write(tmp_path, arcname=tmp_path.name)
     tmp_path.unlink()
     logger.info("Compressed %s.%s to %s", db_path.name, table, archive_path)

@@ -153,7 +153,7 @@ ls -R | /usr/local/bin/clw
 The script is bundled as `tools/clw.py` and can be copied to `/usr/local/bin/clw` if needed.
 
 If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
-You can adjust the wrap length by setting `CLW_MAX_LINE_LENGTH` before invoking the wrapper.
+Set `CLW_MAX_LINE_LENGTH=1550` in your environment (e.g. in `.env`) before invoking the wrapper to keep output safe.
 > **Note**: The Codex terminal enforces a strict 1600-byte *per-line* limit. Wrapping output with
 `clw` prevents session resets by ensuring no line exceeds this limit. When in doubt, redirect long
 output to a file and view it with `clw` in small chunks.

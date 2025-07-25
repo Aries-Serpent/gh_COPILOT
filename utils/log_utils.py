@@ -5,6 +5,7 @@
 # - Visual Processing Indicators, Dual Copilot Pattern
 # - NO actual analytics.db writes unless triggered by human (see command below)
 # - All operations simulate/validate that analytics.db COULD be created, but do NOT create/modify it
+# - Manual creation steps are documented in ``docs/ANALYTICS_DB_TEST_PROTOCOL.md``
 # - Full database-first and anti-recursion compliance
 
 import json
@@ -76,12 +77,16 @@ def _log_event(
         bar.update(1)
     duration = time.time() - start_ts
     logger = logging.getLogger(__name__)
+    payload_json = json.dumps(payload)
     logger.info(
-        "Simulated analytics.db log event: %s | %.2fs | allowed: %s", json.dumps(payload), duration, test_result
+        "Simulated analytics.db log event: %s | %.2fs | allowed: %s",
+        payload_json,
+        duration,
+        test_result,
     )
     if echo:
         print(
-            f"[LOG][{payload['timestamp']}][{table}][SIMULATED] {json.dumps(payload)}",
+            f"[LOG][{payload['timestamp']}][{table}][SIMULATED] {payload_json}",
             file=sys.stderr if level >= logging.ERROR else sys.stdout,
         )
     return test_result
