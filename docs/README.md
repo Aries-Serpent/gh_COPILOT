@@ -55,3 +55,11 @@ All public APIs under ``template_engine`` raise standard Python exceptions on
 invalid input. Database operations log errors to ``analytics.db`` and emit
 warnings via ``logging``. Consumers should wrap calls in ``try``/``except``
 blocks and consult the logs for detailed context.
+
+### Template Workflow Enhancer
+
+The module ``template_engine.workflow_enhancer`` provides the
+``TemplateWorkflowEnhancer`` class for advanced template workflow
+optimisation. It clusters stored templates, mines common patterns and writes
+a compliance report to ``dashboard/compliance``. Use
+``enhance()`` to process a database of templates and generate metrics.
