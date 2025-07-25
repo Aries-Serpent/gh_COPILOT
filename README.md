@@ -23,6 +23,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Analytics Migrations:** run `add_code_audit_log.sql` or the initializer to add the table
 - **Quantum features:** planned, not yet implemented
+  See `quantum/README.md` for available utilities.
 
 ---
 
@@ -39,6 +40,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
   `scripts/monitoring/enterprise_compliance_monitor.py`, and
   `scripts/monitoring/unified_monitoring_optimization_system.py`
+  See `monitoring/README.md` for usage details.
 
 ### **Learning Pattern Integration**
 - **Database-First Logic:** Production.db is consulted before generating output
@@ -421,6 +423,18 @@ python dashboard/enterprise_dashboard.py
 
 # Access at: http://localhost:5000
 # Features: Real-time metrics, database visualization, system monitoring
+```
+
+Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
+This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.
+Correction history is summarized via `scripts/correction_logger_and_rollback.py`,
+producing `dashboard/compliance/correction_summary.json`.
+Set `GH_COPILOT_WORKSPACE` before running these utilities:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+python dashboard/compliance_metrics_updater.py
+python scripts/correction_logger_and_rollback.py
 ```
 
 ---
