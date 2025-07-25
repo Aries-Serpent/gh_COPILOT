@@ -7,8 +7,6 @@ import sqlite3
 import subprocess
 from pathlib import Path
 
-import pytest
-
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "wlc_session_manager.py"
 DEFAULT_DB = Path("databases/production.db")
 

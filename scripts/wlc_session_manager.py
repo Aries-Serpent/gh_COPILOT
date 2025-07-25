@@ -16,6 +16,7 @@ Enterprise features:
 
 from __future__ import annotations
 
+# pyright: reportMissingModuleSource=false
 import argparse
 import logging
 import os
@@ -25,6 +26,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+from scripts.orchestrators.unified_wrapup_orchestrator import UnifiedWrapUpOrchestrator
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
 
@@ -134,6 +136,12 @@ def run_session(steps: int, db_path: Path, verbose: bool) -> None:
 
         validator = SecondaryCopilotValidator()
         validator.validate_corrections([__file__])
+
+    if os.getenv("WLC_RUN_ORCHESTRATOR") == "1":
+        orchestrator = UnifiedWrapUpOrchestrator(
+            workspace_path=os.getenv("GH_COPILOT_WORKSPACE")
+        )
+        orchestrator.execute_unified_wrapup()
 
     logging.info("WLC session completed")
 
