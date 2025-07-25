@@ -22,3 +22,12 @@ source .env
 ```
 
 All unit tests (`make test`) and scripts rely on these variables for path validation and anti-recursion compliance.
+
+## Line-Wrapping Utility
+
+Install the `clw` line wrapper to prevent terminal overflow during long command output. Run the bundled installer and verify the binary exists:
+
+```bash
+bash tools/install_clw.sh
+ls -l /usr/local/bin/clw
+```

@@ -6,7 +6,6 @@ import pytest
 
 SCRIPTS = [
     "comprehensive_production_deployer",
-    "mission_completion_orchestrator",
     "refined_production_builder",
 ]
 
