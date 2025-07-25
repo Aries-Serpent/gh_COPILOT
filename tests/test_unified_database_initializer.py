@@ -4,9 +4,8 @@ from pathlib import Path
 import pytest
 import logging
 
+# Import the initializer for testing
 from scripts.database.unified_database_initializer import initialize_database
-
-# STUB TASK PROMPT: Write unit tests for unified_database_initializer.py.
 # Test: All required tables are created.
 # Test: Schema matches expected columns and types.
 # Test: Initialization aborts if file exceeds 99.9 MB.
