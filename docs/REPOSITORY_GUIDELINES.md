@@ -55,6 +55,21 @@ Configurations should follow the standards outlined in `AGENTS.md`.
 
 ---
 
+## WLC Session Logging
+
+Use `scripts/wlc_session_manager.py` to execute tasks under the Wrapping, Logging,
+and Compliance methodology. Each run writes a row to the
+`production.db` table `unified_wrapup_sessions` capturing the session ID,
+start and end times, completion status, compliance score, and any errors.
+
+```bash
+python scripts/wlc_session_manager.py --steps 2 --verbose
+```
+
+Log files are stored under `$GH_COPILOT_BACKUP_ROOT/logs/`.
+
+---
+
 ## LOG MAINTENANCE
 
 To avoid unnecessary CI failures or clutter in Pull Requests, ensure that:
