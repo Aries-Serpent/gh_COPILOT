@@ -4,6 +4,8 @@ This document lists high-level tasks required to fully implement the database-fi
 
 Recent updates:
 * Session management wrappers and monitoring utilities implemented.
+* Template synchronizer uses database-driven logic with analytics logging.
+* Compliance metrics updater generates real metrics for the dashboard.
 
 ## 1. Database-First Integration
 - Expand `DatabaseFirstCopilotEnhancer` with anti-recursion checks and query similarity scoring.
