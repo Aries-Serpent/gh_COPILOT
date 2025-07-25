@@ -1,10 +1,8 @@
-"""CLI wrapper for :mod:`session_protocol_validator`."""
+#!/usr/bin/env python3
+"""CLI wrapper for :class:`validation.protocols.session.SessionProtocolValidator`."""
+from validation.protocols.session import SessionProtocolValidator
 
-from session_protocol_validator import SessionProtocolValidator, main
+__all__ = ["SessionProtocolValidator"]
 
-__all__ = ["SessionProtocolValidator", "main"]
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
-
+if __name__ == "__main__":  # pragma: no cover
+    raise SystemExit(SessionProtocolValidator.main())
