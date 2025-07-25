@@ -105,6 +105,79 @@ def _compliance_check(conn: sqlite3.Connection) -> bool:
         return False
 
 
+def synchronize_templates_real(source_dbs: Iterable[Path] | None) -> int:
+    """Synchronize templates across databases with real writes."""
+    proc_id = os.getpid()
+    start_dt = datetime.now()
+    start_ts = time.time()
+    logger.info("[SYNC-START][REAL] PID=%s | Start time: %s", proc_id, start_dt.isoformat())
+
+    databases = list(source_dbs) if source_dbs else []
+    all_templates: dict[str, str] = {}
+
+    for idx, db in enumerate(tqdm(databases, desc=f"Extracting [PID {proc_id}]", unit="db"), 1):
+        for name, content in _extract_templates(db):
+            if _validate_template(name, content):
+                all_templates[name] = content
+            else:
+                logger.warning("Invalid template from %s: %s", db, name)
+        etc = _calculate_etc(start_ts, idx, len(databases) * 2)
+        tqdm.write(f"(PID {proc_id}) ETC: {etc}")
+
+    synced = 0
+    analytics_conn = sqlite3.connect(ANALYTICS_DB)
+    analytics_conn.execute(
+        "CREATE TABLE IF NOT EXISTS sync_events_log (id INTEGER PRIMARY KEY, event TEXT, details TEXT, ts TEXT)"
+    )
+
+    for idx, db in enumerate(tqdm(databases, desc=f"Applying Sync [PID {proc_id}]", unit="db"), 1):
+        if not db.exists():
+            logger.warning("Skipping missing DB: %s", db)
+            continue
+        success = False
+        err_msg = None
+        try:
+            with sqlite3.connect(db) as conn:
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS templates (name TEXT PRIMARY KEY, template_content TEXT)"
+                )
+                if not _compliance_check(conn):
+                    raise ValueError(f"Compliance validation failed for {db}")
+                existing = {row[0] for row in conn.execute("SELECT name FROM templates").fetchall()}
+                for name, content in all_templates.items():
+                    if name not in existing:
+                        conn.execute(
+                            "INSERT INTO templates (name, template_content) VALUES (?, ?)",
+                            (name, content),
+                        )
+                conn.commit()
+                success = True
+        except Exception as exc:
+            err_msg = str(exc)
+            logger.error("Sync failed for %s: %s", db, err_msg)
+        event = "sync_success" if success else "sync_failed"
+        details = str(db) if success else f"{db}:{err_msg}"
+        analytics_conn.execute(
+            "INSERT INTO sync_events_log (event, details, ts) VALUES (?, ?, ?)",
+            (event, details, datetime.utcnow().isoformat()),
+        )
+        analytics_conn.commit()
+        if success:
+            synced += 1
+        etc = _calculate_etc(start_ts, idx + len(databases), len(databases) * 2)
+        tqdm.write(f"(PID {proc_id}) ETC: {etc}")
+
+    duration = (datetime.now() - start_dt).total_seconds()
+    analytics_conn.execute(
+        "INSERT INTO sync_events_log (event, details, ts) VALUES (?, ?, ?)",
+        ("sync_complete", f"{synced} databases synchronized in {duration:.2f}s", datetime.utcnow().isoformat()),
+    )
+    analytics_conn.commit()
+    analytics_conn.close()
+    logger.info("[SYNC-END][REAL] PID=%s | Duration: %.2fs | DBs: %s", proc_id, duration, synced)
+    return synced
+
+
 def synchronize_templates(
     source_dbs: Iterable[Path] | None = None,
 ) -> int:

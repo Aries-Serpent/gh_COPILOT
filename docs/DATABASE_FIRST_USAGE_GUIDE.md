@@ -37,9 +37,10 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - Rendered output is also saved to `logs/template_rendering/` with timestamped filenames for auditing.
 
 ## 4. Synchronization
-- Run `template_engine.template_synchronizer.synchronize_templates()` to ensure
-  templates are consistent across development, staging, and production
-  databases.
+- Run `python template_engine/template_synchronizer.py --real` (or call
+  `template_engine.template_synchronizer.synchronize_templates_real()` from
+  Python) to ensure templates are consistent across development, staging, and
+  production databases.
 
 ## 5. Compliance & Correction
 - All generation actions must be logged for compliance review.
