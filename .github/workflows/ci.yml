@@ -28,6 +28,26 @@ jobs:
       - name: Setup project
         run: bash setup.sh
 
+      - name: Import template_engine modules
+        run: |
+          python - <<'PY'
+          import importlib
+          modules = [
+              "template_engine.auto_generator",
+              "template_engine.db_first_code_generator",
+              "template_engine.log_utils",
+              "template_engine.objective_similarity_scorer",
+              "template_engine.pattern_clustering_sync",
+              "template_engine.pattern_mining_engine",
+              "template_engine.placeholder_utils",
+              "template_engine.template_placeholder_remover",
+              "template_engine.template_synchronizer",
+              "template_engine.workflow_enhancer",
+          ]
+          for m in modules:
+              importlib.import_module(m)
+          PY
+
       - name: Lint src
         run: |
           pip install flake8 bandit
