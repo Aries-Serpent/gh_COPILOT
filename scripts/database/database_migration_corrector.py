@@ -8,7 +8,6 @@ import json
 import os
 import shutil
 import sqlite3
-import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -21,7 +20,7 @@ class DatabaseMigrationCorrector:
     def __init__(self):
         # MANDATORY: Start time logging with enterprise formatting
         self.start_time = datetime.now()
-        print(f"🚀 DATABASE MIGRATION CORRECTOR STARTED")
+        print("🚀 DATABASE MIGRATION CORRECTOR STARTED")
         print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"Process ID: {os.getpid()}")
         print("="*60)
@@ -236,7 +235,8 @@ class DatabaseMigrationCorrector:
             if self.source_db.exists():
                 # Create backup name with timestamp
                 backup_name = f"logs_migrated_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
-                backup_path = self.workspace_root / "_MANUAL_DELETE_FOLDER" / backup_name
+                backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
+                backup_path = backup_root / backup_name
 
                 # Ensure backup directory exists
                 backup_path.parent.mkdir(exist_ok=True)

@@ -4,18 +4,19 @@
 Verify successful database migration and generate completion report
 """
 
+import json
 import os
 import sqlite3
-from pathlib import Path
 from datetime import datetime
-import json
+from pathlib import Path
+
 
 class DatabaseMigrationVerifier:
     """✅ Verify Database Migration Completion"""
     
     def __init__(self):
         self.start_time = datetime.now()
-        print(f"🚀 DATABASE MIGRATION VERIFICATION STARTED")
+        print("🚀 DATABASE MIGRATION VERIFICATION STARTED")
         print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         print("="*60)
         
@@ -68,7 +69,10 @@ class DatabaseMigrationVerifier:
                             print(f"   - {table}: {count} records")
                     
                     # Check original tables
-                    original_tables = [t for t in tables if not t.startswith('archive_') and not t.startswith('sqlite_')]
+                    original_tables = [
+                        t for t in tables
+                        if not t.startswith('archive_') and not t.startswith('sqlite_')
+                    ]
                     print(f"📊 Original tables: {len(original_tables)}")
                     for table in original_tables:
                         cursor.execute(f"SELECT COUNT(*) FROM {table}")
@@ -147,7 +151,7 @@ class DatabaseMigrationVerifier:
         print("📦 CHECKING BACKUP FOLDER")
         print("="*50)
         
-        backup_folder = self.workspace_root / "_MANUAL_DELETE_FOLDER"
+        backup_folder = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
         if backup_folder.exists():
             backup_files = list(backup_folder.glob("logs_*backup*.db"))
             print(f"📦 Backup files found: {len(backup_files)}")
@@ -193,7 +197,8 @@ class DatabaseMigrationVerifier:
         self.verification_report["duration_seconds"] = duration
         
         # Save verification report
-        report_path = self.workspace_root / f"migration_verification_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        report_path = self.workspace_root / f"migration_verification_report_{timestamp}.json"
         with open(report_path, 'w', encoding='utf-8') as f:
             json.dump(self.verification_report, f, indent=2)
         
