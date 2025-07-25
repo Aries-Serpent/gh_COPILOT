@@ -9,6 +9,7 @@ such as a progress bar and duration logging.
 from __future__ import annotations
 
 import datetime as dt
+import os
 import sqlite3
 from pathlib import Path
 
@@ -26,9 +27,7 @@ def _table_exists(conn: sqlite3.Connection, name: str) -> bool:
 
 
 def _primary_validation(conn: sqlite3.Connection) -> bool:
-    return all(
-        _table_exists(conn, tbl) for tbl in ["code_audit_log", "correction_history"]
-    )
+    return all(_table_exists(conn, tbl) for tbl in ["code_audit_log", "correction_history"])
 
 
 def _secondary_validation(conn: sqlite3.Connection) -> bool:
@@ -39,6 +38,8 @@ def _secondary_validation(conn: sqlite3.Connection) -> bool:
 def test_analytics_migration_simulation(capsys) -> None:
     """Run migrations in-memory with progress indicators."""
     print("Test: Simulate analytics.db migration (dry-run)")
+    print(f"Start: {dt.datetime.now()}")
+    print(f"PID: {os.getpid()}")
     start = dt.datetime.now()
 
     migration_files = [
@@ -56,4 +57,3 @@ def test_analytics_migration_simulation(capsys) -> None:
     print(f"Completed simulation in {dt.datetime.now() - start}")
     captured = capsys.readouterr()
     assert "Completed simulation" in captured.out
-
