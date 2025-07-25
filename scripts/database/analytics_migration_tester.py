@@ -25,6 +25,7 @@ PRODUCTION_DB = WORKSPACE / "databases" / "production.db"
 MIGRATIONS = [
     WORKSPACE / "databases" / "migrations" / "add_code_audit_log.sql",
     WORKSPACE / "databases" / "migrations" / "add_correction_history.sql",
+    WORKSPACE / "databases" / "migrations" / "add_code_audit_history.sql",
 ]
 
 
@@ -46,7 +47,10 @@ def _table_exists(conn: sqlite3.Connection, name: str) -> bool:
 
 
 def _primary_validation(conn: sqlite3.Connection) -> bool:
-    return all(_table_exists(conn, t) for t in ("code_audit_log", "correction_history"))
+    return all(
+        _table_exists(conn, t)
+        for t in ("code_audit_log", "correction_history", "code_audit_history")
+    )
 
 
 def _secondary_validation(conn: sqlite3.Connection) -> bool:

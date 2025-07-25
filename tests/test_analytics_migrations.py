@@ -48,9 +48,13 @@ def test_analytics_migrations_simulation(tmp_path: Path) -> None:
     db = tmp_path / "analytics.db"
     sql1 = Path("databases/migrations/add_code_audit_log.sql").read_text()
     sql2 = Path("databases/migrations/add_correction_history.sql").read_text()
+    sql3 = Path("databases/migrations/add_code_audit_history.sql").read_text()
 
     res1 = _run_migration(db, sql1)
     assert _validate(res1, "code_audit_log")
 
     res2 = _run_migration(db, sql2)
     assert _validate(res2, "correction_history")
+
+    res3 = _run_migration(db, sql3)
+    assert _validate(res3, "code_audit_history")

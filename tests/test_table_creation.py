@@ -20,7 +20,10 @@ def _table_exists(conn: sqlite3.Connection, name: str) -> bool:
 
 
 def _primary_check(conn: sqlite3.Connection) -> bool:
-    return all(_table_exists(conn, tbl) for tbl in ["code_audit_log", "correction_history"])
+    return all(
+        _table_exists(conn, tbl)
+        for tbl in ["code_audit_log", "correction_history", "code_audit_history"]
+    )
 
 
 def _secondary_check(conn: sqlite3.Connection) -> bool:
