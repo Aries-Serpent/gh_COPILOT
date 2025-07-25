@@ -222,10 +222,9 @@ The manager validates required environment variables, executes the
 `UnifiedWrapUpOrchestrator` for comprehensive cleanup, and performs dual
 validation through the `SecondaryCopilotValidator`. It records each session in
 `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
-Each run inserts a row into the `unified_wrapup_sessions` table with a compliance score for audit purposes.
-Additional flags include `--db-path` to specify a custom database and
-`--orchestrate` to trigger wrap-up operations inline without relying on the
-`WLC_RUN_ORCHESTRATOR` environment variable.
+Each run inserts a row into the `unified_wrapup_sessions` table with a
+compliance score for audit purposes. Ensure all command output is piped through
+`/usr/local/bin/clw` to avoid exceeding the line length limit.
 The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
 
 ---

@@ -37,7 +37,10 @@ The WLC session manager is also invoked automatically by the
 `UnifiedWrapUpOrchestrator` to record wrap-up operations. When the orchestrator
 finishes its workflow, it triggers a lightweight WLC session using the same
 database for compliance tracking.
-All output from subprocess calls should be piped through `/usr/local/bin/clw` 
+Each session creates an entry in the `unified_wrapup_sessions` table with
+`session_id`, timestamps, status, and a compliance score. Errors are recorded in
+the `error_details` column for audit purposes.
+All output from subprocess calls should be piped through `/usr/local/bin/clw`
 when viewing or storing to ensure no terminal overflow occurs.
 
 ## Related Tests
