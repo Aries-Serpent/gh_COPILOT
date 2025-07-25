@@ -22,7 +22,7 @@ from tqdm import tqdm
 
 
 def validate_workspace_integrity() -> bool:
-    """🛡️ CRITICAL: Validate workspace integrity before operations"""
+    """CRITICAL: Validate workspace integrity before operations."""
     workspace_root = Path(os.getcwd())
 
     # Check for recursive patterns

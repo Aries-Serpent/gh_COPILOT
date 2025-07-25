@@ -138,6 +138,29 @@ def audit_placeholders(db_path: Path) -> int:
     return len(placeholders)
 
 
+def analyze_documentation_gaps(
+    db_paths: list[Path], analytics: Path, log_dir: Path
+) -> list[dict[str, int]]:
+    """Return placeholder gap counts for each database."""
+    log_dir.mkdir(parents=True, exist_ok=True)
+    results = []
+    for db in db_paths:
+        gaps = audit_placeholders(db)
+        (log_dir / f"{db.stem}.log").write_text(str(gaps))
+        results.append({"db": str(db), "gaps": gaps})
+    return results
+
+
+def validate_analysis(analytics_db: Path, expected: int) -> bool:
+    """Check that at least ``expected`` records exist in ``doc_audit``."""
+    if not analytics_db.exists():
+        return False
+    with sqlite3.connect(analytics_db) as conn:
+        cur = conn.execute("SELECT COUNT(*) FROM doc_audit")
+        count = cur.fetchone()[0]
+    return count >= expected
+
+
 def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[str, int]:
     """Remove backups and duplicates from ``db_path`` and return a report.
     Optionally record removed entries for rollback.
