@@ -3,9 +3,9 @@
 
 import sqlite3
 from pathlib import Path
-import pytest
 
 from template_engine import template_synchronizer
+
 
 def create_db(path: Path, templates: dict[str, str]) -> None:
     with sqlite3.connect(path) as conn:

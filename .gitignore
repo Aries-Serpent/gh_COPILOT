@@ -1,8 +1,5 @@
 /logs/human_logs
 databases/enterprise_assets.db
-/_MANUAL_DELETE_FOLDER/
-/_MANUAL_DELETE_FOLDER/**/*.pyc
-/_MANUAL_DELETE_FOLDER/**/*.log
 /databases/*.db-shm
 /databases/*.db-wal
 .venv/

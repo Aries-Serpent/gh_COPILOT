@@ -34,4 +34,14 @@ class EnterpriseUtility:
         return success
 
 
-__all__ = ["EnterpriseUtility"]
+__all__ = ["EnterpriseUtility", "main"]
+
+
+def main() -> int:
+    """Run :class:`EnterpriseUtility` from the command line."""
+    util = EnterpriseUtility()
+    return 0 if util.execute_utility() else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

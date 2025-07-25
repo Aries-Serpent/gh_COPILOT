@@ -24,6 +24,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Analytics Migrations:** run `add_code_audit_log.sql` or the initializer to add the table
 - **Correction History:** migration `add_correction_history.sql` adds audit trail table
 - **Quantum features:** planned, not yet implemented
+- **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
+  optimizer and search helpers.
 
 ---
 
@@ -39,7 +41,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Continuous Operation Mode:** optional monitoring utilities
 - **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
   `scripts/monitoring/enterprise_compliance_monitor.py`, and
-  `scripts/monitoring/unified_monitoring_optimization_system.py`
+  `scripts/monitoring/unified_monitoring_optimization_system.py`.
+  See [monitoring/README.md](monitoring/README.md) for details.
 
 ### **Learning Pattern Integration**
 - **Database-First Logic:** Production.db is consulted before generating output
@@ -121,8 +124,12 @@ python scripts/database/complete_consolidation_orchestrator.py \
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 
 # 5. Start enterprise dashboard
-python dashboard/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py  # imports app from web_gui package
 ```
+Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
+are thin CLI wrappers. They delegate to the core implementations under
+``validation.protocols.session`` and ``session_management_consolidation_executor``.
+Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
 Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
 ```bash
@@ -189,6 +196,9 @@ python scripts/wlc_session_manager.py
 ```
 
 For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+
+Additional module overviews are available in [quantum/README.md](quantum/README.md)
+and [monitoring/README.md](monitoring/README.md).
 
 ### Workspace Detection
 Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment variable. If the variable is not set, the current working directory is used by default.
@@ -421,10 +431,22 @@ class SelfHealingSelfLearningSystem:
 ### **Access Dashboard**
 ```bash
 # Start enterprise dashboard
-python dashboard/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 
 # Access at: http://localhost:5000
 # Features: Real-time metrics, database visualization, system monitoring
+```
+
+Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
+This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.
+Correction history is summarized via `scripts/correction_logger_and_rollback.py`,
+producing `dashboard/compliance/correction_summary.json`.
+Set `GH_COPILOT_WORKSPACE` before running these utilities:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+python dashboard/compliance_metrics_updater.py
+python scripts/correction_logger_and_rollback.py
 ```
 
 ---
@@ -472,7 +494,7 @@ gh_COPILOT/
 - **`scripts/utilities/self_healing_self_learning_system.py`** - Autonomous operations
 - **`scripts/validation/enterprise_dual_copilot_validator.py`** - DUAL COPILOT validation
 - **`scripts/utilities/unified_script_generation_system.py`** - Database-first generation
- - **`dashboard/enterprise_dashboard.py`** - Enterprise dashboard
+ - **`dashboard/enterprise_dashboard.py`** - Wrapper for Flask dashboard app
 - **`validation/compliance_report_generator.py`** - Summarize lint and test results
 - **`web_gui/dashboard_actionable_gui.py`** - Actionable compliance dashboard
 - **`scripts/monitoring/continuous_operation_monitor.py`** - Continuous operation utility
@@ -638,7 +660,7 @@ python scripts/utilities/self_healing_self_learning_system.py --continuous
 python scripts/validation/lessons_learned_integration_validator.py
 
 # Enterprise dashboard
-python dashboard/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 
 # DUAL COPILOT validation
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
