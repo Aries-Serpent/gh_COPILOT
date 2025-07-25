@@ -15,6 +15,15 @@ class DummyValidator:
         return True
 
 
+class DummyOrchestrator:
+    def __init__(self):
+        self.called = False
+
+    def execute_unified_wrapup(self):
+        self.called = True
+        return None
+
+
 def test_main_inserts_session(tmp_path, monkeypatch):
     temp_db = tmp_path / "production.db"
     shutil.copy(wsm.DB_PATH, temp_db)
@@ -47,6 +56,7 @@ def test_main_inserts_session(tmp_path, monkeypatch):
     assert after == before + 1
     assert abs(score - 1.0) < 1e-6
     assert dummy.called
+    assert orch.called
     log_files = list((backup_root / "logs").glob("wlc_*.log"))
     assert log_files
 

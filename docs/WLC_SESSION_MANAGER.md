@@ -17,6 +17,9 @@ Ensure the following environment variables are configured before running the ses
 
 Both paths must exist or the tool will raise an `EnvironmentError`.
 
+Set `WLC_RUN_ORCHESTRATOR=1` to execute the `UnifiedWrapUpOrchestrator` after the
+session completes.
+
 ## Example Usage
 
 Run the session manager directly to start a WLC session:
