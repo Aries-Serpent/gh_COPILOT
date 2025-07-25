@@ -239,6 +239,18 @@ monitoring.db                   # Real-time system monitoring
 optimization_metrics.db         # Continuous optimization data
 ```
 
+### Analytics Database Test Protocol
+The `analytics.db` file should never be created or modified automatically.
+To create or migrate the file manually, run:
+
+```bash
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+```
+
+Automated tests perform these migrations in-memory with progress bars and DUAL
+COPILOT validation, leaving the on-disk database untouched.
+
 ### **Database-First Workflow**
 1. **Query First:** Check production.db for existing solutions
 2. **Pattern Match:** Identify reusable templates and components
