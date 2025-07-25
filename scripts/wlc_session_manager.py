@@ -21,6 +21,7 @@ import argparse
 import logging
 import os
 import sqlite3
+import time
 from datetime import UTC, datetime
 import time
 from pathlib import Path
@@ -145,10 +146,12 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             raise RuntimeError("Failed to create session entry in the database.")
         compliance_score = 1.0
         try:
-            sleep_time = 0.01 if os.getenv("TEST") else 0.1
             for i in tqdm(range(steps), desc="WLC Session", unit="step"):
                 logging.info("Step %d/%d completed", i + 1, steps)
-                time.sleep(sleep_time)
+                if os.getenv("TEST"):
+                    time.sleep(0.01)
+                else:
+                    time.sleep(0.1)
 
             orchestrator = UnifiedWrapUpOrchestrator(workspace_path=os.getenv("GH_COPILOT_WORKSPACE"))
             result = orchestrator.execute_unified_wrapup()

@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import logging
-import sqlite3
-from pathlib import Path
 import os
+import sqlite3
 from difflib import SequenceMatcher
+from pathlib import Path
 from typing import Any, Dict, List
 
 from tqdm import tqdm
@@ -36,34 +36,29 @@ class DatabaseFirstCopilotEnhancer:
                 pass
 
     def _initialize_template_engine(self) -> Any:
-        """Load templates from database or filesystem with fallbacks."""
+        """Load templates from database or filesystem with graceful fallback."""
+        templates: Dict[str, str] = {}
+
+        db_path = self.workspace / "databases" / "template_documentation.db"
+        if db_path.exists():
+            try:
+                with sqlite3.connect(db_path) as conn:
+                    cur = conn.execute("SELECT name, template_content FROM templates")
+                    for name, content in cur.fetchall():
+                        templates[name] = content
+            except sqlite3.Error as exc:  # pragma: no cover - log-only branch
+                self.logger.warning("Failed to load templates from %s: %s", db_path, exc)
+
+        templates_dir = self.workspace / "templates"
+        if templates_dir.exists():
+            for tpl in templates_dir.glob("*.tpl"):
+                try:
+                    templates[tpl.stem] = tpl.read_text(encoding="utf-8")
+                except Exception as exc:  # pragma: no cover - log-only branch
+                    self.logger.warning("Failed to read template %s: %s", tpl, exc)
 
         def engine(name: str) -> str:
-            template = None
-            if self.production_db.exists():
-                try:
-                    with sqlite3.connect(self.production_db) as conn:
-                        cur = conn.execute(
-                            "SELECT template_content FROM templates WHERE name=?",
-                            (name,),
-                        )
-                        row = cur.fetchone()
-                        if row and row[0]:
-                            template = row[0]
-                except sqlite3.Error as exc:  # pragma: no cover
-                    self.logger.warning("Template lookup failed: %s", exc)
-
-            if template is None:
-                file_path = self.workspace / "templates" / f"{name}.tpl"
-                if file_path.exists():
-                    try:
-                        template = file_path.read_text()
-                    except OSError as exc:  # pragma: no cover
-                        self.logger.error("Failed to read %s: %s", file_path, exc)
-
-            if template is None:
-                template = f"# Template for {name} in {{workspace}}"
-            return template
+            return templates.get(name, f"# Template for {name} in {{workspace}}")
 
         return engine
 

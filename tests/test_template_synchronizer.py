@@ -24,7 +24,7 @@ def test_synchronize_templates(tmp_path: Path, monkeypatch) -> None:
     create_db(db_a, {"t1": "foo"})
     create_db(db_b, {"t2": "bar"})
     monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
-    template_synchronizer.synchronize_templates([db_a, db_b])
+    template_synchronizer.synchronize_templates([db_a, db_b], real=True)
 
     for db in [db_a, db_b]:
         with sqlite3.connect(db) as conn:
@@ -43,7 +43,7 @@ def test_invalid_templates_ignored(tmp_path: Path, monkeypatch) -> None:
     create_db(db_a, {"t1": "foo", "empty": ""})
     create_db(db_b, {})
     monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
-    template_synchronizer.synchronize_templates([db_a, db_b])
+    template_synchronizer.synchronize_templates([db_a, db_b], real=True)
 
     with sqlite3.connect(db_b) as conn:
         rows = conn.execute("SELECT name FROM templates ORDER BY name").fetchall()
@@ -62,7 +62,7 @@ def test_audit_logging_and_rollback(tmp_path: Path, monkeypatch) -> None:
         conn.execute("CREATE TABLE other(id INTEGER)")
     analytics = tmp_path / "analytics.db"
     monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
-    template_synchronizer.synchronize_templates([db_a, db_b])
+    template_synchronizer.synchronize_templates([db_a, db_b], real=True)
 
     # db_b should remain unchanged because sync rolled back
     with sqlite3.connect(db_b) as conn:
