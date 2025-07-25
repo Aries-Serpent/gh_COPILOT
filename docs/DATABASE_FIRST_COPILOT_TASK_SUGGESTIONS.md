@@ -80,7 +80,7 @@ Recent updates:
 
 ### AUD-001 Placeholder and TODO Audit Logging
 - Scan all modules for TODO/FIXME comments and log findings to `analytics.db` in the `placeholder_audit` table.
-- **Module:** `scripts/validation/placeholder_audit_logger.py`
+- **Module:** `scripts/placeholder_audit_logger.py`
 - **Cross-Reference:** Dashboard `/audit` endpoint and analytics reports.
 
 ### GEN-001 DB-First Code Generation
@@ -164,5 +164,4 @@ implemented consistently.
 | `STUB-009` | Remove hardcoded placeholders and enable analytics hooks | `workflow_enhancer.py`, `archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py` | Workflow Enhancements |
 | `STUB-010` | Update task suggestion file and logs with cross-references | `docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md`, `logs/`, `validation/` | Cross-Referencing |
 | `STUB-011` | Ensure all modules record outputs to `analytics.db` and link to compliance reports | various modules | Final Validation |
-| `STUB-012` | Display placeholder removal progress on dashboard metrics | `dashboard/compliance_metrics_updater.py` | Compliance Dashboard |
-
+| `STUB-012` | Display placeholder removal progress status on dashboard metrics | `dashboard/compliance_metrics_updater.py` | Compliance Dashboard |

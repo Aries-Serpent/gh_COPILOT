@@ -26,11 +26,12 @@ def sync(dashboard_dir: Path, analytics_db: Path) -> None:
             count = cur.fetchone()[0]
 
     compliance = max(0, 100 - count)
+    status = "complete" if count == 0 else "issues_pending"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": count,
         "compliance_score": compliance,
-        "status": "complete" if count == 0 else "incomplete",
+        "progress_status": status,
     }
 
     summary_file = dashboard_dir / "placeholder_summary.json"
@@ -51,4 +52,3 @@ def main(
 
 if __name__ == "__main__":  # pragma: no cover - CLI execution
     main()
-

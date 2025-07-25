@@ -155,11 +155,12 @@ def update_dashboard(results: List[dict], dashboard_dir: Path) -> None:
     dashboard_dir.mkdir(parents=True, exist_ok=True)
     count = len(results)
     compliance = max(0, 100 - count)
+    status = "complete" if count == 0 else "issues_pending"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": count,
         "compliance_score": compliance,
-        "status": "complete" if count == 0 else "incomplete",
+        "progress_status": status,
     }
     (dashboard_dir / "placeholder_summary.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
 
