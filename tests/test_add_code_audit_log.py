@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-from scripts.database.add_code_audit_log import add_table
+from scripts.database.add_code_audit_log import add_table, ensure_code_audit_log
 
 
 def test_add_code_audit_log(tmp_path: Path) -> None:
@@ -18,3 +18,14 @@ def test_add_code_audit_log(tmp_path: Path) -> None:
         )
         rows = conn.execute("SELECT file_path FROM code_audit_log").fetchall()
     assert rows
+
+
+def test_ensure_code_audit_log_wrapper(tmp_path: Path) -> None:
+    """Ensure wrapper delegates to ``add_table``."""
+    db = tmp_path / "analytics.db"
+    ensure_code_audit_log(db)
+    with sqlite3.connect(db) as conn:
+        tables = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' and name='code_audit_log'"
+        ).fetchall()
+    assert tables

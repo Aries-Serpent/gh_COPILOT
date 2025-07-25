@@ -65,13 +65,8 @@ metrics and shows real-time placeholder removal progress. When a placeholder is 
 ### Placeholder Correction Workflow
 1. Run `scripts/audit_codebase_placeholders.py` to log all TODOs.
 2. Review entries in `analytics.db:placeholder_audit` and fix the code.
-3. Record completed fixes with `scripts/placeholder_audit_logger.py`.
-4. Monitor `/dashboard/compliance` to verify the compliance score improves.
-
-### Placeholder Correction Workflow
-1. Scan the repository using `scripts/placeholder_audit_logger.py`.
-2. Review entries in `analytics.db:code_audit_log` and fix placeholders.
 3. Record corrections with `scripts/correction_logger_and_rollback.py` for audit.
+4. Monitor `/dashboard/compliance` to verify the compliance score improves.
 
 ## 6. Database Maintenance
 
@@ -89,7 +84,7 @@ reference.
 - Initialize all databases with `scripts/database/unified_database_initializer.py`.
 - To add new analytics tables run `scripts/database/add_code_audit_log.py` then
   execute any SQL files in `databases/migrations/` such as
-  `add_code_audit_log.sql` using `sqlite3` or your preferred migration tool.
+  `add_code_audit_log.sql` and `add_correction_history.sql` using `sqlite3` or your preferred migration tool.
 - After every migration, run `scripts/database/size_compliance_checker.py` to
   verify the 99.9 MB limit is maintained.
 
