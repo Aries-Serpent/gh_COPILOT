@@ -5,4 +5,6 @@
 - Updated `add_code_audit_log.py` wrapper export.
 - Made `add_correction_history.sql` idempotent.
 - Documentation now references `unified_database_initializer.py`.
+- Added instructions for manually applying `add_code_audit_log.sql` if shipped
+  analytics.db lacks the table.
 
