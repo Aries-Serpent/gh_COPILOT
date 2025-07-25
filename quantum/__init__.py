@@ -7,7 +7,6 @@ and orchestration capabilities while maintaining backward compatibility.
 """
 
 from . import benchmarking, quantum_optimization
-from .quantum_database_search import QuantumDatabaseSearch
 from .optimizers.quantum_optimizer import QuantumOptimizer
 
 # Import new modular components
@@ -33,6 +32,5 @@ __all__ = [
     "QuantumAlgorithmRegistry",
     "get_global_registry",
     "QuantumExecutor",
-    "QuantumDatabaseSearch",
     "QuantumOptimizer",
 ]

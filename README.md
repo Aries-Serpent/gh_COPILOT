@@ -24,6 +24,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Analytics Migrations:** run `add_code_audit_log.sql` and `add_correction_history.sql` or use the initializer to add the tables
 - **Quantum features:** planned, not yet implemented
+  See `quantum/README.md` for available utilities.
 
 ---
 
@@ -40,6 +41,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
   `scripts/monitoring/enterprise_compliance_monitor.py`, and
   `scripts/monitoring/unified_monitoring_optimization_system.py`
+  See `monitoring/README.md` for usage details.
 
 ### **Learning Pattern Integration**
 - **Database-First Logic:** Production.db is consulted before generating output
