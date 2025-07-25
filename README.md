@@ -119,6 +119,10 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 # 5. Start enterprise dashboard
 python dashboard/enterprise_dashboard.py
 ```
+Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
+are thin CLI wrappers. They delegate to the core implementations under
+``validation.protocols.session`` and ``session_management_consolidation_executor``.
+Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
 Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
 ```bash
@@ -421,6 +425,18 @@ python dashboard/enterprise_dashboard.py
 
 # Access at: http://localhost:5000
 # Features: Real-time metrics, database visualization, system monitoring
+```
+
+Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
+This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.
+Correction history is summarized via `scripts/correction_logger_and_rollback.py`,
+producing `dashboard/compliance/correction_summary.json`.
+Set `GH_COPILOT_WORKSPACE` before running these utilities:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+python dashboard/compliance_metrics_updater.py
+python scripts/correction_logger_and_rollback.py
 ```
 
 ---
