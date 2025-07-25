@@ -12,13 +12,12 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from time import perf_counter
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional, Union
 
 import py7zr
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import \
-    validate_enterprise_operation
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 
 from .database_migration_corrector import DatabaseMigrationCorrector
 from .size_compliance_checker import check_database_sizes
@@ -93,7 +92,9 @@ def export_table_to_7z(
         writer.writerows(cur.fetchall())
         tmp_path = Path(tmp.name)
     with py7zr.SevenZipFile(
-        archive_path, mode="w", compression_level=level
+        archive_path,
+        mode="w",
+        filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}],
     ) as zf:
         zf.write(tmp_path, arcname=tmp_path.name)
     tmp_path.unlink()
@@ -105,6 +106,9 @@ def create_external_backup(source_path: Path, backup_name: str, *, backup_dir: P
     """Create a timestamped backup in the external backup directory."""
 
     target_dir = backup_dir or BACKUP_DIR
+    ExternalBackupConfiguration.validate_external_backup_location(
+        target_dir, WORKSPACE_PATH
+    )
     target_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     dest = target_dir / f"{backup_name}_{timestamp}.backup"
@@ -163,6 +167,8 @@ def compress_large_tables(
 def migrate_and_compress(
     workspace: Path,
     sources: Iterable[str],
+    *,
+    level: int = 5,
     log_file: Union[Path, str] = "migration.log",
 ) -> None:
     """Migrate ``sources`` into ``enterprise_assets.db`` with compression."""
@@ -200,7 +206,7 @@ def migrate_and_compress(
                 migrator.migration_report = {"errors": []}
                 migrator.migrate_database_content()
                 analysis = migrator.analyze_database_structure(enterprise_db)
-                compress_large_tables(enterprise_db, analysis)
+                compress_large_tables(enterprise_db, analysis, level=level)
                 elapsed = perf_counter() - start
                 remaining = (total - idx) * (elapsed / idx)
                 bar.set_postfix(ETC=f"{remaining:.1f}s")
@@ -252,5 +258,6 @@ if __name__ == "__main__":
     migrate_and_compress(
         workspace,
         ["analytics.db", "documentation.db", "template_completion.db"],
+        level=5,
         log_file=args.log_file,
     )
