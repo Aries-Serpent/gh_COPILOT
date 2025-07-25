@@ -213,7 +213,10 @@ The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping
 ```bash
 python scripts/wlc_session_manager.py --steps 2 --verbose
 ```
-It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
+The manager validates required environment variables, executes the
+`UnifiedWrapUpOrchestrator` for comprehensive cleanup, and performs dual
+validation through the `SecondaryCopilotValidator`. It records each session in
+`production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
 
 ---
 

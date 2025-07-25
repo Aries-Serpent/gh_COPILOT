@@ -25,6 +25,9 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+from scripts.orchestrators.unified_wrapup_orchestrator import (
+    UnifiedWrapUpOrchestrator,
+)
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
 
@@ -125,6 +128,13 @@ def run_session(steps: int, db_path: Path, verbose: bool) -> None:
         try:
             for _ in tqdm(range(steps), desc="WLC Session", unit="step"):
                 pass  # placeholder for real work
+
+            orchestrator = UnifiedWrapUpOrchestrator(
+                workspace_path=os.getenv("GH_COPILOT_WORKSPACE")
+            )
+            result = orchestrator.execute_unified_wrapup()
+            compliance_score = result.compliance_score / 100.0
+
         except Exception as exc:  # noqa: BLE001
             logging.exception("WLC session failed")
             finalize_session_entry(conn, entry_id, 0.0, error=str(exc))

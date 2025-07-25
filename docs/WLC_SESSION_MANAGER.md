@@ -27,6 +27,11 @@ python scripts/wlc_session_manager.py
 
 Log files will be written under `$GH_COPILOT_BACKUP_ROOT/logs/` and a new row is inserted into the `unified_wrapup_sessions` table of `production.db`.
 
+The session manager internally invokes the `UnifiedWrapUpOrchestrator` to
+perform database-driven cleanup. All output from subprocess calls should be
+piped through `/usr/local/bin/clw` when viewing or storing to ensure no terminal
+overflow occurs.
+
 ## Related Tests
 
 The behavior is validated by `tests/test_wlc_session_manager.py`, which verifies session logging and compliance score tracking.
