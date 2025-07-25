@@ -25,4 +25,3 @@ MODULES = [
 def test_submodule_import(mod):
     module = importlib.import_module(f"template_engine.{mod}")
     assert module is not None
-
