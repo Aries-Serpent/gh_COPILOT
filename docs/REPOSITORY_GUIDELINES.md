@@ -68,6 +68,10 @@ python scripts/wlc_session_manager.py --steps 2 --verbose
 The test `tests/test_wlc_session_manager.py` verifies that a new session record
 is inserted and logs are written under `$GH_COPILOT_BACKUP_ROOT/logs/`.
 
+Each entry in `production.db`'s `unified_wrapup_sessions` table captures the
+session ID, timestamps, completion status, compliance score, and any error
+details, providing an auditable history of WLC runs.
+
 ---
 
 ## WLC Session Logging
@@ -82,6 +86,17 @@ python scripts/wlc_session_manager.py --steps 2 --verbose
 ```
 
 Log files are stored under `$GH_COPILOT_BACKUP_ROOT/logs/`.
+
+### Output Safety with `clw`
+Pipe any command that could produce large output through `/usr/local/bin/clw`
+to avoid exceeding the 1600-byte line limit. Example:
+
+```bash
+grep -R "pattern" | /usr/local/bin/clw
+```
+
+If a limit error occurs, restart the session, rerun `setup.sh`, and repeat the
+command with `clw` or redirect the output to a file for chunked review.
 
 ---
 
