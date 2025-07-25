@@ -13,19 +13,22 @@ Author: GitHub Copilot with Enterprise Intelligence
 Created: July 16, 2025
 """
 
-import os
-import sys
-import json
-import sqlite3
-import shutil
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, field
 import importlib.util
-from tqdm import tqdm
-import time
+import json
 import logging
+import os
+import shutil
+import sqlite3
+import sys
+import time
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from tqdm import tqdm
+
+from scripts.wlc_session_manager import run_session
 
 # Configure enterprise logging
 logging.basicConfig(
@@ -642,7 +645,20 @@ class UnifiedWrapUpOrchestrator:
         elif "#!" in first_line:
             if "python" in first_line:
                 detected = "python"
-            elif any(sh in first_line for sh in ["sh", "bash", "zsh", "ksh", "csh", "tcsh", "dash", "pwsh", "powershell"]):
+            elif any(
+                sh in first_line
+                for sh in [
+                    "sh",
+                    "bash",
+                    "zsh",
+                    "ksh",
+                    "csh",
+                    "tcsh",
+                    "dash",
+                    "pwsh",
+                    "powershell",
+                ]
+            ):
                 detected = "shell"
             elif "node" in first_line or "javascript" in first_line:
                 detected = "javascript"
@@ -1196,6 +1212,12 @@ def main():
                 print("Error Details:")
                 for error in result.error_details:
                     print(f"  - {error}")
+
+        # Trigger WLC session logging for compliance tracking
+        try:
+            run_session(steps=1, db_path=orchestrator.production_db, verbose=False)
+        except Exception as exc:  # noqa: BLE001
+            print(f"WLC session failed: {exc}")
 
         return 0 if result.status == "COMPLETED" else 1
 
