@@ -282,24 +282,31 @@ COPILOT validation, leaving the on-disk database untouched.
 ### Template Engine Modules
 Several helper scripts under `template_engine` implement the database-first
 workflow. They provide progress indicators, DUAL COPILOT validation and
-compliance logging:
+compliance logging. The main modules are:
 
-* **TemplateAutoGenerator** – clusters stored patterns with KMeans and
-  generates code templates. It provides helper APIs such as
-  `get_cluster_representatives()` and robust error handling for invalid
-  templates.
+* **TemplateAutoGenerator** – clusters stored patterns with KMeans and produces
+  representative templates.
 * **DBFirstCodeGenerator** – generates code or documentation by querying
   `production.db`, `documentation.db` and `template_documentation.db`. It logs
   all generation events to `analytics.db`.
 * **PatternClusteringSync** – clusters stored patterns with KMeans and
   synchronizes representative templates using transactional auditing.
+* **PatternMiningEngine** – mines frequently used patterns from template
+  archives.
+* **PlaceholderUtils** – helper functions for finding and replacing
+  placeholders using database mappings.
+* **TemplatePlaceholderRemover** – strips unused placeholders from templates.
 * **TemplateWorkflowEnhancer** – mines patterns from existing templates,
   computes compliance scores and writes dashboard-ready reports.
-* **PlaceholderUtils** – utilities to find and replace placeholders in
-  templates using values from multiple databases.
+* **TemplateSynchronizer** – keeps generated templates synchronized across
+  environments.
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
+
+All public APIs surface `RuntimeError` for validation issues and propagate
+`sqlite3.Error` for database operations. Consumers should wrap calls in `try` /
+`except` blocks to handle these errors gracefully.
 
 #### Unified Logging Helper
 The `_log_event` function records structured events with progress bars and
