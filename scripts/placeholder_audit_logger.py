@@ -169,8 +169,15 @@ def main(
     analytics_db: str | None = None,
     production_db: str | None = None,
     dashboard_dir: str | None = None,
+    simulate: bool = False,
 ) -> bool:
-    """Run the placeholder audit logger."""
+    """Run the placeholder audit logger.
+
+    Parameters
+    ----------
+    simulate:
+        If ``True``, skip writing to the database and dashboard.
+    """
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.info(f"{TEXT['start']} placeholder audit")
 
@@ -183,8 +190,11 @@ def main(
 
     start = time.time()
     results = scan_files(workspace, patterns)
-    log_results(results, analytics)
-    update_dashboard(results, dashboard)
+    if not simulate:
+        log_results(results, analytics)
+        update_dashboard(results, dashboard)
+    else:
+        logging.info("[TEST MODE] Simulation enabled: no database writes")
     elapsed = time.time() - start
     logging.info(f"{TEXT['success']} audit completed in {elapsed:.2f}s")
 

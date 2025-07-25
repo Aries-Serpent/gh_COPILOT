@@ -39,7 +39,8 @@ class ExternalBackupConfiguration:
             return Path(env_path)
         if os.name == "nt":
             return Path("E:/temp/gh_COPILOT_Backups")
-        return Path("/temp/gh_COPILOT_Backups")
+        user = os.getenv("USER", "user")
+        return Path(f"/tmp/{user}/gh_COPILOT_Backups")
 
     @staticmethod
     def validate_external_backup_location(backup_path: Path, workspace_path: Path) -> None:
@@ -57,17 +58,13 @@ def archive_database(db_path: Path, dest_dir: Path, level: int = 9) -> Path:
     """Archive ``db_path`` to ``dest_dir`` using 7z with maximum compression."""
     dest_dir.mkdir(parents=True, exist_ok=True)
     archive_path = dest_dir / f"{db_path.name}.7z"
-    with py7zr.SevenZipFile(
-        archive_path, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}]
-    ) as zf:
+    with py7zr.SevenZipFile(archive_path, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}]) as zf:
         zf.write(db_path, arcname=db_path.name)
     logger.info("Archived %s to %s", db_path.name, archive_path)
     return archive_path
 
 
-def export_table_to_7z(
-    db_path: Path, table: str, dest_dir: Path, level: int = 5
-) -> Path:
+def export_table_to_7z(db_path: Path, table: str, dest_dir: Path, level: int = 5) -> Path:
     """Export ``table`` from ``db_path`` to ``dest_dir`` as a 7z archive.
 
     Parameters
@@ -134,9 +131,7 @@ def create_external_backup(source_path: Path, backup_name: str, *, backup_dir: P
     return dest
 
 
-def compress_large_tables(
-    db_path: Path, analysis: dict, threshold: int = 50000, *, level: int = 5
-) -> List[Path]:
+def compress_large_tables(db_path: Path, analysis: dict, threshold: int = 50000, *, level: int = 5) -> List[Path]:
     """Compress tables with a row count greater than ``threshold``.
 
     Parameters
@@ -197,7 +192,7 @@ def migrate_and_compress(
                 if not src.exists():
                     bar.update(1)
                     continue
-                create_external_backup(src, name.replace('.db', ''), backup_dir=session_backup_dir)
+                create_external_backup(src, name.replace(".db", ""), backup_dir=session_backup_dir)
                 migrator = DatabaseMigrationCorrector()
                 migrator.workspace_root = workspace
                 migrator.source_db = src

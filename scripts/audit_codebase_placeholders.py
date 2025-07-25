@@ -64,10 +64,16 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
 
 
 # Insert findings into analytics.db.code_audit_log
-def log_findings(results: List[Dict], analytics_db: Path) -> None:
-    """Insert findings into analytics.db todo_fixme_tracking and code_audit_log."""
+def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False) -> None:
+    """Insert findings into analytics.db todo_fixme_tracking and code_audit_log.
+
+    If ``simulate`` is True, skip writing to the database.
+    """
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     ensure_code_audit_log(analytics_db)
+    if simulate:
+        logging.info("[TEST MODE] Simulation enabled: not writing to analytics.db")
+        return
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             """
@@ -88,7 +94,7 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
             CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
                 file_path TEXT,
                 line_number INTEGER,
-                item_type TEXT,
+                placeholder_type TEXT,
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )
@@ -108,7 +114,7 @@ def log_findings(results: List[Dict], analytics_db: Path) -> None:
                 values,
             )
             conn.execute(
-                "INSERT INTO todo_fixme_tracking (file_path, line_number, item_type, context, timestamp)"
+                "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp)"
                 " VALUES (?, ?, ?, ?, ?)",
                 (
                     row["file"],
@@ -193,8 +199,15 @@ def main(
     production_db: Optional[str] = None,
     dashboard_dir: Optional[str] = None,
     timeout_minutes: int = 30,
+    simulate: bool = False,
 ) -> bool:
-    """Entry point for placeholder auditing with full enterprise compliance."""
+    """Entry point for placeholder auditing with full enterprise compliance.
+
+    Parameters
+    ----------
+    simulate:
+        If ``True``, skip writing to databases and dashboard.
+    """
     # Visual processing indicators: start time, process ID, anti-recursion validation
     start_time = time.time()
     process_id = os.getpid()
@@ -247,9 +260,12 @@ def main(
             bar.update(1)
 
     # Log findings to analytics.db
-    log_findings(results, analytics)
+    log_findings(results, analytics, simulate=simulate)
     # Update dashboard/compliance
-    update_dashboard(len(results), dashboard)
+    if not simulate:
+        update_dashboard(len(results), dashboard)
+    else:
+        logging.info("[TEST MODE] Dashboard update skipped")
     elapsed = time.time() - start_time
     logging.info(f"{TEXT['info']} audit completed in {elapsed:.2f}s")
 

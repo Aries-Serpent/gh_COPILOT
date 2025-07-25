@@ -6,6 +6,7 @@ Recent updates:
 * Session management wrappers and monitoring utilities implemented.
 * Template synchronizer uses database-driven logic with analytics logging.
 * Compliance metrics updater generates real metrics for the dashboard.
+* Placeholder audit logger supports test-mode simulations for compliance checks.
 
 ## 1. Database-First Integration
 - Expand `DatabaseFirstCopilotEnhancer` with anti-recursion checks and query similarity scoring.
