@@ -81,12 +81,10 @@ ls -l /usr/local/bin/clw
 
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
-python scripts/database/unified_database_initializer.py
 
 # Add analytics tables and run migrations
 python scripts/database/add_code_audit_log.py
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
-sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 python scripts/database/size_compliance_checker.py
 
