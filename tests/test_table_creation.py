@@ -1,4 +1,4 @@
-"""Test migration SQL for table creation with dual validation."""
+"""Test migration SQL for table creation with dual validation using an in-memory database."""
 
 from __future__ import annotations
 

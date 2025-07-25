@@ -10,6 +10,7 @@ import shutil
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 from tqdm import tqdm
 
@@ -34,6 +35,7 @@ class DatabaseMigrationCorrector:
         )
         self.source_db = self.workspace_root / "logs.db"
         self.target_db = self.workspace_root / "databases" / "logs.db"
+        self.target_conn: Optional[sqlite3.Connection] = None
 
         # Migration tracking
         self.migration_report = {
@@ -147,11 +149,12 @@ class DatabaseMigrationCorrector:
                 source_conn = sqlite3.connect(str(self.source_db))
                 target_conn = self.target_conn
                 close_target = False
-                if self.target_conn is None:
+                if target_conn is None:
                     target_conn = sqlite3.connect(str(self.target_db))
                     close_target = True
 
                 source_cursor = source_conn.cursor()
+                assert target_conn is not None
                 target_cursor = target_conn.cursor()
 
                 # Migrate each table
@@ -192,6 +195,7 @@ class DatabaseMigrationCorrector:
 
                 # Commit changes if we opened the connection here
                 if close_target:
+                    assert target_conn is not None
                     target_conn.commit()
 
                 # Close connections
@@ -211,6 +215,7 @@ class DatabaseMigrationCorrector:
                 error_msg = f"Migration error: {str(e)}"
                 print(f"❌ {error_msg}")
                 try:
+                    assert target_conn is not None
                     target_conn.rollback()
                 except Exception:
                     pass

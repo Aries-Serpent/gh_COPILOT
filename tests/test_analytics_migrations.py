@@ -1,3 +1,5 @@
+"""Run analytics migrations against an in-memory database."""
+
 import datetime
 import sqlite3
 import time

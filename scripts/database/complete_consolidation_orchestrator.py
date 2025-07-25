@@ -12,17 +12,18 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from time import perf_counter
-from typing import Iterable, List, Optional
+from typing import Any, List, Optional, Sequence, Union, cast
 
 import py7zr
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import \
-    validate_enterprise_operation
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 
 from .database_migration_corrector import DatabaseMigrationCorrector
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
+
+py7zr = cast(Any, py7zr)
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,8 @@ class ExternalBackupConfiguration:
             return Path(env_path)
         if os.name == "nt":
             return Path("E:/temp/gh_COPILOT_Backups")
-        return Path("/temp/gh_COPILOT_Backups")
+        user = os.getenv("USER", "user")
+        return Path(f"/tmp/{user}/gh_COPILOT_Backups")
 
     @staticmethod
     def validate_external_backup_location(backup_path: Path, workspace_path: Path) -> None:
@@ -58,17 +60,13 @@ def archive_database(db_path: Path, dest_dir: Path, level: int = 9) -> Path:
     """Archive ``db_path`` to ``dest_dir`` using 7z with maximum compression."""
     dest_dir.mkdir(parents=True, exist_ok=True)
     archive_path = dest_dir / f"{db_path.name}.7z"
-    with py7zr.SevenZipFile(
-        archive_path, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}]
-    ) as zf:
+    with py7zr.SevenZipFile(archive_path, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}]) as zf:  # type: ignore[attr-defined]
         zf.write(db_path, arcname=db_path.name)
     logger.info("Archived %s to %s", db_path.name, archive_path)
     return archive_path
 
 
-def export_table_to_7z(
-    db_path: Path, table: str, dest_dir: Path, level: int = 5
-) -> Path:
+def export_table_to_7z(db_path: Path, table: str, dest_dir: Path, level: int = 5) -> Path:
     """Export ``table`` from ``db_path`` to ``dest_dir`` as a 7z archive.
 
     Parameters
@@ -92,9 +90,7 @@ def export_table_to_7z(
         writer.writerow([d[0] for d in cur.description])
         writer.writerows(cur.fetchall())
         tmp_path = Path(tmp.name)
-    with py7zr.SevenZipFile(
-        archive_path, mode="w", compression_level=level
-    ) as zf:
+    with py7zr.SevenZipFile(archive_path, mode="w", compression_level=level) as zf:  # type: ignore[attr-defined]
         zf.write(tmp_path, arcname=tmp_path.name)
     tmp_path.unlink()
     logger.info("Compressed %s.%s to %s", db_path.name, table, archive_path)
@@ -130,9 +126,7 @@ def create_external_backup(source_path: Path, backup_name: str, *, backup_dir: P
     return dest
 
 
-def compress_large_tables(
-    db_path: Path, analysis: dict, threshold: int = 50000, *, level: int = 5
-) -> List[Path]:
+def compress_large_tables(db_path: Path, analysis: dict, threshold: int = 50000, *, level: int = 5) -> List[Path]:
     """Compress tables with a row count greater than ``threshold``.
 
     Parameters
@@ -162,7 +156,7 @@ def compress_large_tables(
 
 def migrate_and_compress(
     workspace: Path,
-    sources: Iterable[str],
+    sources: Sequence[str],
     log_file: Union[Path, str] = "migration.log",
 ) -> None:
     """Migrate ``sources`` into ``enterprise_assets.db`` with compression."""
@@ -191,7 +185,7 @@ def migrate_and_compress(
                 if not src.exists():
                     bar.update(1)
                     continue
-                create_external_backup(src, name.replace('.db', ''), backup_dir=session_backup_dir)
+                create_external_backup(src, name.replace(".db", ""), backup_dir=session_backup_dir)
                 migrator = DatabaseMigrationCorrector()
                 migrator.workspace_root = workspace
                 migrator.source_db = src
