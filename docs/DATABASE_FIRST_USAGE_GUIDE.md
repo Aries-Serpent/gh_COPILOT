@@ -68,6 +68,7 @@ metrics and shows real-time placeholder removal progress. When a placeholder is 
 3. Record corrections with `scripts/correction_logger_and_rollback.py` for audit.
 4. Monitor `/dashboard/compliance` to verify the compliance score improves.
 
+
 ## 6. Database Maintenance
 
 Regularly monitor the size of each SQLite database under `databases/`. Databases
