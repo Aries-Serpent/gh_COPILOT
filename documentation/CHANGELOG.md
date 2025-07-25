@@ -1,4 +1,11 @@
 # CHANGELOG - gh_COPILOT Enterprise Toolkit
+## [4.1.2] - 2025-07-26
+### Added
+- `databases/migrations/README.md` with migration instructions.
+### Changed
+- `add_correction_history.sql` now idempotent.
+- README migration section references manual command for `analytics.db`.
+
 ## [4.1.1] - 2025-07-25
 ### Changed
 - `add_correction_history.sql` made idempotent to preserve data.

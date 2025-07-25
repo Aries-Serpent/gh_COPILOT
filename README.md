@@ -22,7 +22,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
-- **Analytics Migrations:** run `add_code_audit_log.sql` and `add_correction_history.sql` or use the initializer to add the tables
+- **Analytics Migrations:** run `add_code_audit_log.sql` and `add_correction_history.sql` (use `sqlite3` manually if `analytics.db` shipped without the table) or use the initializer. The `correction_history` table tracks file corrections with session ID, action, timestamp, and optional details.
 - **Quantum features:** planned, not yet implemented
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
   optimizer and search helpers.
@@ -87,6 +87,7 @@ python scripts/database/unified_database_initializer.py
 
 # Add analytics tables and run migrations
 python scripts/database/add_code_audit_log.py
+# If `analytics.db` lacks the table, run the SQL migration manually
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 python scripts/database/size_compliance_checker.py
