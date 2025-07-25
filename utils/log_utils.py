@@ -10,7 +10,6 @@
 import json
 import logging
 import os
-import sqlite3
 import sys
 import threading
 import time
@@ -24,6 +23,7 @@ from tqdm import tqdm
 DEFAULT_ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", "databases/analytics.db"))
 DEFAULT_LOG_TABLE = "event_log"
 _log_lock = threading.Lock()
+
 
 def _can_create_analytics_db(db_path: Path = DEFAULT_ANALYTICS_DB) -> bool:
     """
@@ -39,6 +39,7 @@ def _can_create_analytics_db(db_path: Path = DEFAULT_ANALYTICS_DB) -> bool:
         else:
             return os.access(parent, os.W_OK)
     return False
+
 
 def _log_event(
     event: Dict[str, Any],
@@ -75,15 +76,19 @@ def _log_event(
         bar.update(1)
     duration = time.time() - start_ts
     logger = logging.getLogger(__name__)
-    logger.info("Simulated analytics.db log event: %s | %.2fs | allowed: %s", json.dumps(payload), duration, test_result)
+    logger.info(
+        "Simulated analytics.db log event: %s | %.2fs | allowed: %s", json.dumps(payload), duration, test_result
+    )
     if echo:
-        print(f"[LOG][{payload['timestamp']}][{table}][SIMULATED] {json.dumps(payload)}", file=sys.stderr if level >= logging.ERROR else sys.stdout)
+        print(
+            f"[LOG][{payload['timestamp']}][{table}][SIMULATED] {json.dumps(payload)}",
+            file=sys.stderr if level >= logging.ERROR else sys.stdout,
+        )
     return test_result
 
+
 def _setup_file_logger(
-    log_file: Path,
-    level: int = logging.INFO,
-    fmt: str = "%(asctime)s %(levelname)s %(message)s"
+    log_file: Path, level: int = logging.INFO, fmt: str = "%(asctime)s %(levelname)s %(message)s"
 ) -> logging.Logger:
     """
     Set up a file logger.
@@ -97,6 +102,7 @@ def _setup_file_logger(
         handler.setFormatter(formatter)
         logger.addHandler(handler)
     return logger
+
 
 def _log_audit_event(
     description: str,
@@ -118,6 +124,7 @@ def _log_audit_event(
     }
     return _log_event(event, table=table, db_path=db_path, echo=echo, level=level, test_mode=test_mode)
 
+
 def _log_plain(
     msg: str,
     level: int = logging.INFO,
@@ -134,17 +141,16 @@ def _log_plain(
     if echo:
         print(line, file=sys.stderr if level >= logging.ERROR else sys.stdout)
 
+
 def _list_events(
-    table: str = DEFAULT_LOG_TABLE,
-    db_path: Path = DEFAULT_ANALYTICS_DB,
-    limit: int = 100,
-    order: str = "DESC"
+    table: str = DEFAULT_LOG_TABLE, db_path: Path = DEFAULT_ANALYTICS_DB, limit: int = 100, order: str = "DESC"
 ) -> list:
     """
     Simulate listing the most recent events from the log table (no DB access).
     """
     tqdm.write(f"[TEST] Listing would query {table} in {db_path} (simulated, no DB access)")
     return []
+
 
 def _clear_log(
     table: str = DEFAULT_LOG_TABLE,
@@ -156,6 +162,7 @@ def _clear_log(
     tqdm.write(f"[TEST] Clearing would delete all from {table} in {db_path} (simulated, no DB access)")
     return True
 
+
 # --------- HUMAN TRIGGER REQUIRED TO CREATE analytics.db ----------
 #
 # To actually create the analytics.db and required tables, run:
@@ -166,5 +173,7 @@ def _clear_log(
 #   # To verify:
 #   sqlite3 databases/analytics.db ".schema code_audit_log"
 #   sqlite3 databases/analytics.db ".schema correction_history"
+#
+# See ``docs/ANALYTICS_DB_TEST_PROTOCOL.md`` for full instructions on manual database creation.
 #
 # ---------------------------------------------------------------

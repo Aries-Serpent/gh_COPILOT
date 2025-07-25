@@ -1,3 +1,5 @@
+"""Validate analytics migrations using a temporary file (no persistent DB)."""
+
 import sqlite3
 from pathlib import Path
 

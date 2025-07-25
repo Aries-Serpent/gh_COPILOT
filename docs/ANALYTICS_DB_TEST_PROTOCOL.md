@@ -14,6 +14,18 @@ sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 
 The database file is not generated automatically. A human operator must execute these commands to create the `code_audit_log`, `correction_history`, and `code_audit_history` tables.
 
+### Quick Reference: Create `analytics.db`
+
+Run the following commands whenever a real `analytics.db` is required:
+
+```bash
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
+```
+
+All automated tests run migrations against an in-memory SQLite instance only.
+
 ## Testing Guidance
 
 Tests run the migration SQL against an in-memory SQLite instance to confirm the schema applies cleanly. Progress indicators and dual validation ensure compliance.

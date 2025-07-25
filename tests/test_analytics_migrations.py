@@ -1,3 +1,5 @@
+"""Simulate analytics migrations in-memory only."""
+
 import datetime
 import sqlite3
 import time
