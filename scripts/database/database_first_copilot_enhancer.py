@@ -37,32 +37,46 @@ class DatabaseFirstCopilotEnhancer:
                 pass
 
     def _initialize_template_engine(self) -> Any:
-        """Initialize template engine that loads templates from the database.
+        """Load templates from database or filesystem with fallback."""
 
-        Falls back to a basic placeholder if no template is found.
-        """
-
-        def engine(name: str) -> str:
+        def load_db_templates() -> dict[str, str]:
+            templates: dict[str, str] = {}
             if self.production_db.exists():
                 try:
                     with sqlite3.connect(self.production_db) as conn:
                         conn.execute(
                             "CREATE TABLE IF NOT EXISTS templates (name TEXT PRIMARY KEY, template_content TEXT)"
                         )
-                        row = conn.execute(
-                            "SELECT template_content FROM templates WHERE name=?",
-                            (name,),
-                        ).fetchone()
-                        if row and row[0]:
-                            return row[0]
-                except sqlite3.Error as exc:  # pragma: no cover - ignore lookup failures
-                    self.logger.warning("Template lookup failed: %s", exc)
+                        cur = conn.execute("SELECT name, template_content FROM templates")
+                        templates = {row[0]: row[1] for row in cur.fetchall()}
+                except sqlite3.Error as exc:
+                    self.logger.warning("Error loading templates from %s: %s", self.production_db, exc)
+            return templates
 
-            file_path = self.workspace / "templates" / f"{name}.tpl"
-            if file_path.exists():
-                return file_path.read_text()
+        def load_fs_templates() -> dict[str, str]:
+            templates: dict[str, str] = {}
+            tpl_dir = self.workspace / "templates"
+            if tpl_dir.exists():
+                for path in tpl_dir.glob("*.tmpl"):
+                    try:
+                        templates[path.stem] = path.read_text(encoding="utf-8")
+                    except OSError as exc:
+                        self.logger.warning("Could not read %s: %s", path, exc)
+            return templates
 
-            return f"# Template for {name} in {{workspace}}"
+        templates = load_db_templates()
+        if templates:
+            templates.update(load_fs_templates())
+        else:
+            templates = load_fs_templates()
+
+        default_template = templates.get("default")
+
+        def engine(name: str) -> str:
+            tmpl = templates.get(name)
+            if tmpl is None:
+                tmpl = default_template or templates.get("fallback") or f"# Template for {name} in {{workspace}}"
+            return tmpl
 
         return engine
 

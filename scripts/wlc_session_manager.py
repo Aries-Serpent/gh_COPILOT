@@ -23,6 +23,7 @@ import os
 import sqlite3
 import time
 from datetime import UTC, datetime
+import time
 from pathlib import Path
 
 from tqdm import tqdm
@@ -146,8 +147,11 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         compliance_score = 1.0
         try:
             for i in tqdm(range(steps), desc="WLC Session", unit="step"):
-                logging.info("Step %s/%s completed", i + 1, steps)
-                time.sleep(0.1)
+                logging.info("Step %d/%d completed", i + 1, steps)
+                sleep_time = 0.1
+                if os.getenv("TEST"):
+                    sleep_time = 0.01
+                time.sleep(sleep_time)
 
             orchestrator = UnifiedWrapUpOrchestrator(workspace_path=os.getenv("GH_COPILOT_WORKSPACE"))
             result = orchestrator.execute_unified_wrapup()
