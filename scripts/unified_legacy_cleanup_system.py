@@ -5,7 +5,10 @@
 Provides enterprise-compliant cleanup and archival of legacy scripts.
 Implements database-first validation for safe file operations and logs key events
 to ``analytics.db`` for compliance auditing.
+Implements database-first validation for safe file operations and logs key events
+to ``analytics.db`` for compliance auditing.
 """
+
 
 from __future__ import annotations
 
@@ -18,6 +21,7 @@ from typing import List
 
 from db_tools.core.connection import DatabaseConnection
 from db_tools.core.models import DatabaseConfig
+from utils.log_utils import _log_event
 from utils.log_utils import _log_event
 
 logger = logging.getLogger(__name__)
@@ -43,7 +47,12 @@ class UnifiedLegacyCleanupSystem:
             legacy_db=Path(workspace_path) / "databases" / "legacy_cleanup.db",
             file_mgmt_db=Path(workspace_path) / "databases" / "file_management.db",
             class_db=Path(workspace_path) / "databases" / "file_classification.db",
+            file_mgmt_db=Path(workspace_path) / "databases" / "file_management.db",
+            class_db=Path(workspace_path) / "databases" / "file_classification.db",
         )
+        self.legacy_conn = DatabaseConnection(DatabaseConfig(database_path=self.config.legacy_db))
+        self.file_conn = DatabaseConnection(DatabaseConfig(database_path=self.config.file_mgmt_db))
+        self.analytics_db = self.config.workspace_path / "databases" / "analytics.db"
         self.legacy_conn = DatabaseConnection(DatabaseConfig(database_path=self.config.legacy_db))
         self.file_conn = DatabaseConnection(DatabaseConfig(database_path=self.config.file_mgmt_db))
         self.analytics_db = self.config.workspace_path / "databases" / "analytics.db"
@@ -53,6 +62,7 @@ class UnifiedLegacyCleanupSystem:
     def discover_legacy_scripts(self) -> List[Path]:
         """Discover legacy scripts via database."""
         query = "SELECT script_path FROM legacy_scripts WHERE active = 1"
+        query = "SELECT script_path FROM legacy_scripts WHERE active = 1"
         try:
             rows = self.file_conn.execute_query(query)
             scripts = [self.config.workspace_path / r["script_path"] for r in rows]
@@ -61,6 +71,7 @@ class UnifiedLegacyCleanupSystem:
             return valid_scripts
         except Exception as exc:  # pragma: no cover - database might not exist
             logger.warning(f"Database query failed: {exc}")
+            _log_event({"event": "discover_legacy_scripts_failed", "error": str(exc)}, db_path=self.analytics_db)
             _log_event({"event": "discover_legacy_scripts_failed", "error": str(exc)}, db_path=self.analytics_db)
             return []
 
@@ -73,6 +84,7 @@ class UnifiedLegacyCleanupSystem:
         archive_dir.mkdir(parents=True, exist_ok=True)
         target = archive_dir / script.name
         logger.info(f"Archiving {script} -> {target}")
+        _log_event({"event": "archive_script", "script": str(script)}, db_path=self.analytics_db)
         _log_event({"event": "archive_script", "script": str(script)}, db_path=self.analytics_db)
         if dry_run:
             return True
@@ -89,6 +101,7 @@ class UnifiedLegacyCleanupSystem:
         """Placeholder workspace optimization step."""
         logger.info("Optimizing workspace layout")
         _log_event({"event": "optimize_workspace_start"}, db_path=self.analytics_db)
+        _log_event({"event": "optimize_workspace_start"}, db_path=self.analytics_db)
         if dry_run:
             return
         _log_event({"event": "optimize_workspace_start"})
@@ -99,11 +112,13 @@ class UnifiedLegacyCleanupSystem:
     def run_cleanup(self, dry_run: bool = False) -> None:
         """Run archival and optimization."""
         _log_event({"event": "legacy_cleanup_start"}, db_path=self.analytics_db)
+        _log_event({"event": "legacy_cleanup_start"}, db_path=self.analytics_db)
         scripts = self.discover_legacy_scripts()
         logger.info(f"Discovered {len(scripts)} legacy scripts")
         for script in scripts:
             self.archive_script(script, dry_run=dry_run)
         self.optimize_workspace(dry_run=dry_run)
+        _log_event({"event": "legacy_cleanup_complete", "count": len(scripts)}, db_path=self.analytics_db)
         _log_event({"event": "legacy_cleanup_complete", "count": len(scripts)}, db_path=self.analytics_db)
 
 
