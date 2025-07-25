@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import logging
 import os
@@ -10,16 +11,14 @@ import shutil
 import sqlite3
 import time
 from datetime import datetime, timezone
-from template_engine.placeholder_utils import DEFAULT_ANALYTICS_DB
 from pathlib import Path
-from typing import List, Tuple, Optional
-from tqdm import tqdm
-import importlib.util
-from template_engine.auto_generator import DEFAULT_ANALYTICS_DB
+from typing import List, Optional, Tuple
 
-_LOG_UTILS_PATH = (
-    Path(__file__).resolve().parents[2] / "template_engine" / "log_utils.py"
-)
+from tqdm import tqdm
+
+from template_engine.placeholder_utils import DEFAULT_ANALYTICS_DB
+
+_LOG_UTILS_PATH = Path(__file__).resolve().parents[2] / "template_engine" / "log_utils.py"
 spec = importlib.util.spec_from_file_location("log_utils", _LOG_UTILS_PATH)
 _log_mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(_log_mod)
@@ -27,6 +26,55 @@ _log_event = _log_mod._log_event
 
 logger = logging.getLogger(__name__)
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
+
+CORRECTION_SQL = """
+CREATE TABLE IF NOT EXISTS correction_history (
+    session_id TEXT NOT NULL,
+    file_path TEXT NOT NULL,
+    violation_code TEXT NOT NULL,
+    fix_applied TEXT NOT NULL,
+    timestamp TEXT NOT NULL
+);
+"""
+
+
+def ensure_correction_history(db_path: Path) -> None:
+    """Create ``correction_history`` table if needed."""
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(db_path) as conn:
+        conn.executescript(CORRECTION_SQL)
+        conn.commit()
+
+
+def _log_corrections(items: list[tuple[str, str]]) -> None:
+    """Record cleanup actions to ``correction_history``."""
+    if not items:
+        return
+    session_id = f"DOC_ANALYZER_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+    ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS correction_history (
+                session_id TEXT,
+                file_path TEXT,
+                violation_code TEXT,
+                fix_applied TEXT,
+                timestamp TEXT
+            )"""
+        )
+        for title, _ in items:
+            conn.execute(
+                "INSERT INTO correction_history (session_id, file_path, violation_code, fix_applied, timestamp)"
+                " VALUES (?, ?, ?, ?, ?)",
+                (
+                    session_id,
+                    title,
+                    "DOC_CLEANUP",
+                    "REMOVED_PLACEHOLDER",
+                    datetime.utcnow().isoformat(),
+                ),
+            )
+        conn.commit()
 
 
 def _calculate_etc(start_ts: float, current: int, total: int) -> str:
@@ -43,9 +91,7 @@ def _create_backup(db: Path) -> Optional[Path]:
     backup_root.mkdir(parents=True, exist_ok=True)
     if not db.exists():
         return None
-    backup = (
-        backup_root / f"{db.name}.{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.bak"
-    )
+    backup = backup_root / f"{db.name}.{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.bak"
     shutil.copy(db, backup)
     return backup
 
@@ -60,10 +106,7 @@ def rollback_db(db: Path, backup: Path) -> None:
         )
 
 
-CLEANUP_SQL = (
-    "DELETE FROM enterprise_documentation "
-    "WHERE doc_type='BACKUP_LOG' OR source_path LIKE '%backup%'"
-)
+CLEANUP_SQL = "DELETE FROM enterprise_documentation WHERE doc_type='BACKUP_LOG' OR source_path LIKE '%backup%'"
 
 DEDUP_SQL = (
     "DELETE FROM enterprise_documentation WHERE rowid NOT IN ("
@@ -101,9 +144,7 @@ def audit_placeholders(db_path: Path) -> int:
     return len(placeholders)
 
 
-def analyze_and_cleanup(
-    db_path: Path, backup_path: Path | None = None
-) -> dict[str, int]:
+def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[str, int]:
     """Remove backups and duplicates from ``db_path`` and return a report.
     Optionally record removed entries for rollback.
     """
@@ -113,14 +154,10 @@ def analyze_and_cleanup(
     with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         placeholders = _audit_placeholders_conn(conn)
-        before = cur.execute(
-            "SELECT COUNT(*) FROM enterprise_documentation"
-        ).fetchone()[0]
+        before = cur.execute("SELECT COUNT(*) FROM enterprise_documentation").fetchone()[0]
         removed_backups = cur.execute(CLEANUP_SQL).rowcount
         removed_dupes = cur.execute(DEDUP_SQL).rowcount
-        after = cur.execute("SELECT COUNT(*) FROM enterprise_documentation").fetchone()[
-            0
-        ]
+        after = cur.execute("SELECT COUNT(*) FROM enterprise_documentation").fetchone()[0]
         conn.commit()
         _log_event(
             {
@@ -135,22 +172,84 @@ def analyze_and_cleanup(
             db_path=ANALYTICS_DB,
         )
 
+        ensure_correction_history(ANALYTICS_DB)
+        with sqlite3.connect(ANALYTICS_DB) as log_conn:
+            session = f"doc_cleanup_{datetime.utcnow().isoformat()}"
+            if removed_backups:
+                log_conn.execute(
+                    "INSERT INTO correction_history (session_id, file_path, violation_code, fix_applied, timestamp)"
+                    " VALUES (?, ?, 'DOC_BACKUP', ?, ?)",
+                    (
+                        session,
+                        str(db_path),
+                        f"{removed_backups}_removed",
+                        datetime.utcnow().isoformat(),
+                    ),
+                )
+            if removed_dupes:
+                log_conn.execute(
+                    "INSERT INTO correction_history (session_id, file_path, violation_code, fix_applied, timestamp)"
+                    " VALUES (?, ?, 'DOC_DUPLICATE', ?, ?)",
+                    (
+                        session,
+                        str(db_path),
+                        f"{removed_dupes}_removed",
+                        datetime.utcnow().isoformat(),
+                    ),
+                )
+            log_conn.commit()
+
         if backup_path:
             backup_path.write_text(json.dumps(placeholders, indent=2), encoding="utf-8")
+
+    _log_corrections(placeholders)
 
     try:
         ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
         with sqlite3.connect(ANALYTICS_DB) as conn:
             conn.execute(
-                "CREATE TABLE IF NOT EXISTS doc_audit (ts TEXT, db TEXT, removed_backups INTEGER, removed_dupes INTEGER)"
+                "CREATE TABLE IF NOT EXISTS doc_audit ("
+                "ts TEXT, db TEXT, removed_backups INTEGER, removed_dupes INTEGER)"
             )
             conn.execute(
-                "INSERT INTO doc_audit (ts, db, removed_backups, removed_dupes) VALUES (?,?,?,?)",
+                (
+                    "INSERT INTO doc_audit (ts, db, removed_backups, removed_dupes) "
+                    "VALUES (?,?,?,?)"
+                ),
                 (
                     datetime.utcnow().isoformat(),
                     str(db_path),
                     removed_backups,
                     removed_dupes,
+                ),
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS correction_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT NOT NULL,
+                    file_path TEXT NOT NULL,
+                    violations_count INTEGER,
+                    fixes_applied INTEGER,
+                    fix_rate REAL,
+                    timestamp TEXT NOT NULL,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+            conn.execute(
+                (
+                    "INSERT INTO correction_history (session_id, file_path, "
+                    "violations_count, fixes_applied, fix_rate, timestamp) "
+                    "VALUES (?,?,?,?,?,?)"
+                ),
+                (
+                    "doc_cleanup",
+                    str(db_path),
+                    len(placeholders),
+                    removed_backups + removed_dupes,
+                    0.0,
+                    datetime.utcnow().isoformat(),
                 ),
             )
     except sqlite3.Error as exc:
@@ -170,9 +269,7 @@ def _log_report(report: dict) -> None:
     try:
         ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS doc_audit (timestamp TEXT, details TEXT)"
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS doc_audit (timestamp TEXT, details TEXT)")
             conn.execute(
                 "INSERT INTO doc_audit (timestamp, details) VALUES (?, ?)",
                 (datetime.utcnow().isoformat(), json.dumps(report)),
@@ -238,9 +335,7 @@ def main() -> None:
     for step in tqdm(["cleanup"], desc="[PROGRESS]", unit="step"):
         report = analyze_and_cleanup(db_path, backup)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    report_path = (
-        repo_root / "reports" / f"documentation_cleanup_report_{timestamp}.json"
-    )
+    report_path = repo_root / "reports" / f"documentation_cleanup_report_{timestamp}.json"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2))
     _log_report(report)

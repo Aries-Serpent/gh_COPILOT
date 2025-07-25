@@ -21,13 +21,14 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import (
     validate_enterprise_operation,
 )
+from scripts.database.add_code_audit_log import add_table as ensure_code_audit_log
 
 # Visual processing indicator constants
 TEXT = {
@@ -58,9 +59,7 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
             cur = conn.execute("SELECT placeholder_name FROM template_placeholders")
             return [row[0] for row in cur.fetchall()]
         except Exception as e:
-            logging.error(
-                f"{TEXT['error']} Failed to fetch placeholders from production.db: {e}"
-            )
+            logging.error(f"{TEXT['error']} Failed to fetch placeholders from production.db: {e}")
             return []
 
 
@@ -68,18 +67,22 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
 def log_findings(results: List[Dict], analytics_db: Path) -> None:
     """Insert findings into analytics.db todo_fixme_tracking and code_audit_log."""
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    ensure_code_audit_log(analytics_db)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS code_audit_log (
-                file_path TEXT,
+                id INTEGER PRIMARY KEY,
+                file_path TEXT NOT NULL,
                 line_number INTEGER,
                 placeholder_type TEXT,
                 context TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                timestamp TEXT NOT NULL
             )
-            """,
+            """
         )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_code_audit_log_file_path ON code_audit_log(file_path)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_code_audit_log_timestamp ON code_audit_log(timestamp)")
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
@@ -134,16 +137,12 @@ def update_dashboard(count: int, dashboard_dir: Path) -> None:
 
 
 # Scan files for patterns with timeout and visual indicators
-def scan_files(
-    workspace: Path, patterns: List[str], timeout: Optional[float] = None
-) -> List[Dict]:
+def scan_files(workspace: Path, patterns: List[str], timeout: Optional[float] = None) -> List[Dict]:
     """Scan files for given patterns with optional timeout and progress bar."""
     results: List[Dict] = []
     files = [f for f in workspace.rglob("*") if f.is_file()]
     start = time.time()
-    with tqdm(
-        total=len(files), desc=f"{TEXT['progress']} scanning", unit="file"
-    ) as bar:
+    with tqdm(total=len(files), desc=f"{TEXT['progress']} scanning", unit="file") as bar:
         for file in files:
             if timeout and time.time() - start > timeout:
                 bar.write(f"{TEXT['error']} timeout reached")
@@ -220,9 +219,7 @@ def main(
     # Scan files with progress bar and ETC calculation
     files = [f for f in workspace.rglob("*") if f.is_file()]
     results: List[Dict] = []
-    with tqdm(
-        total=len(files), desc=f"{TEXT['progress']} scanning", unit="file"
-    ) as bar:
+    with tqdm(total=len(files), desc=f"{TEXT['progress']} scanning", unit="file") as bar:
         for idx, file in enumerate(files, 1):
             if timeout and time.time() - start_time > timeout:
                 bar.write(f"{TEXT['error']} timeout reached")
