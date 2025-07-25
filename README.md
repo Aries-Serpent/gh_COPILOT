@@ -92,6 +92,9 @@ sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 # Verify creation
 sqlite3 databases/analytics.db ".schema code_audit_log"
+# Manual creation is required; see `docs/ANALYTICS_DB_TEST_PROTOCOL.md`
+# for the test-only procedure ensuring migrations succeed without
+# automatically generating `analytics.db`.
 python scripts/database/size_compliance_checker.py
 
 # 3b. Synchronize databases
