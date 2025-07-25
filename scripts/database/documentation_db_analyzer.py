@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import logging
 import os
@@ -10,9 +11,9 @@ import shutil
 import sqlite3
 import time
 from datetime import datetime, timezone
-from template_engine.placeholder_utils import DEFAULT_ANALYTICS_DB
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
+
 from tqdm import tqdm
 from template_engine.auto_generator import DEFAULT_ANALYTICS_DB
 
@@ -169,11 +170,14 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
         if backup_path:
             backup_path.write_text(json.dumps(placeholders, indent=2), encoding="utf-8")
 
+    _log_corrections(placeholders)
+
     try:
         ANALYTICS_DB.parent.mkdir(exist_ok=True, parents=True)
         with sqlite3.connect(ANALYTICS_DB) as conn:
             conn.execute(
-                "CREATE TABLE IF NOT EXISTS doc_audit (ts TEXT, db TEXT, removed_backups INTEGER, removed_dupes INTEGER)"
+                "CREATE TABLE IF NOT EXISTS doc_audit ("
+                "ts TEXT, db TEXT, removed_backups INTEGER, removed_dupes INTEGER)"
             )
             conn.execute(
                 "INSERT INTO doc_audit (ts, db, removed_backups, removed_dupes) VALUES (?,?,?,?)",

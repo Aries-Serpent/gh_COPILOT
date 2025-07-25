@@ -21,6 +21,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
+- **Analytics Migrations:** run `add_code_audit_log.sql` or the initializer to add the table
 - **Quantum features:** planned, not yet implemented
 
 ---
@@ -648,6 +649,7 @@ python scripts/audit_codebase_placeholders.py \
 
 # The audit automatically populates `code_audit_log` in analytics.db for
 # compliance reporting.
+# Run `scripts/database/add_code_audit_log.py` if the table is missing.
 
 # Simple wrapper script
 python scripts/placeholder_audit_logger.py \
