@@ -90,6 +90,7 @@ python scripts/database/add_code_audit_log.py
 # If `analytics.db` lacks the table, run the SQL migration manually
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+sqlite3 databases/analytics.db ".schema code_audit_log"
 python scripts/database/size_compliance_checker.py
 
 # 3b. Synchronize databases

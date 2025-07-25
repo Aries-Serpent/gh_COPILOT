@@ -5,24 +5,25 @@ Enterprise-grade continuous monitoring for 12,635+ violations
 Real-time tracking, alerting, and automated correction monitoring
 """
 
-import sqlite3
+import json
+import logging
 import os
+import sqlite3
 import sys
-import time
 import threading
+import time
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
-from dataclasses import dataclass, asdict
-import logging
-import json
+from typing import Any, Dict, List, Tuple
+
 from tqdm import tqdm
 
 # MANDATORY: Anti-recursion validation
 
 
 def validate_workspace_integrity() -> bool:
-    """🛡️ CRITICAL: Validate workspace integrity before operations"""
+    """CRITICAL: Validate workspace integrity before operations."""
     workspace_root = Path(os.getcwd())
 
     # Check for recursive patterns

@@ -2,7 +2,6 @@
 
 import logging
 import os
-import sqlite3
 from datetime import datetime
 from pathlib import Path
 
@@ -31,14 +30,20 @@ def log_enterprise_operation(operation: str, status: str, details: str = "") -> 
     """Log enterprise operation with standard format"""
     logger = logging.getLogger("gh_COPILOT")
 
-    if status.upper() == "SUCCESS":
-        logger.info(f"✅ {operation}: {details}")
+    tag_map = {
+        "SUCCESS": "[SUCCESS]",
+        "WARNING": "[WARNING]",
+        "ERROR": "[ERROR]",
+        "INFO": "[INFO]",
+    }
+    prefix = tag_map.get(status.upper(), "[INFO]")
+
+    if status.upper() == "ERROR":
+        logger.error(f"{prefix} {operation}: {details}")
     elif status.upper() == "WARNING":
-        logger.warning(f"⚠️ {operation}: {details}")
-    elif status.upper() == "ERROR":
-        logger.error(f"❌ {operation}: {details}")
+        logger.warning(f"{prefix} {operation}: {details}")
     else:
-        logger.info(f"📊 {operation}: {details}")
+        logger.info(f"{prefix} {operation}: {details}")
 
 
 ANALYTICS_DB = Path("databases") / "analytics.db"

@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import importlib.util
 import json
 import logging
 import os
@@ -17,12 +16,7 @@ from typing import List, Optional, Tuple
 from tqdm import tqdm
 
 from template_engine.placeholder_utils import DEFAULT_ANALYTICS_DB
-
-_LOG_UTILS_PATH = Path(__file__).resolve().parents[2] / "template_engine" / "log_utils.py"
-spec = importlib.util.spec_from_file_location("log_utils", _LOG_UTILS_PATH)
-_log_mod = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(_log_mod)
-_log_event = _log_mod._log_event
+from utils.log_utils import _log_event
 
 logger = logging.getLogger(__name__)
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
@@ -142,6 +136,29 @@ def audit_placeholders(db_path: Path) -> int:
         db_path=ANALYTICS_DB,
     )
     return len(placeholders)
+
+
+def analyze_documentation_gaps(
+    db_paths: list[Path], analytics: Path, log_dir: Path
+) -> list[dict[str, int]]:
+    """Return placeholder gap counts for each database."""
+    log_dir.mkdir(parents=True, exist_ok=True)
+    results = []
+    for db in db_paths:
+        gaps = audit_placeholders(db)
+        (log_dir / f"{db.stem}.log").write_text(str(gaps))
+        results.append({"db": str(db), "gaps": gaps})
+    return results
+
+
+def validate_analysis(analytics_db: Path, expected: int) -> bool:
+    """Check that at least ``expected`` records exist in ``doc_audit``."""
+    if not analytics_db.exists():
+        return False
+    with sqlite3.connect(analytics_db) as conn:
+        cur = conn.execute("SELECT COUNT(*) FROM doc_audit")
+        count = cur.fetchone()[0]
+    return count >= expected
 
 
 def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[str, int]:
