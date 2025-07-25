@@ -4,6 +4,7 @@ from pathlib import Path
 MIGRATIONS = [
     Path("databases/migrations/add_code_audit_log.sql"),
     Path("databases/migrations/add_correction_history.sql"),
+    Path("databases/migrations/add_code_audit_history.sql"),
 ]
 
 
@@ -29,3 +30,4 @@ def test_analytics_db_creation(tmp_path: Path) -> None:
     with sqlite3.connect(db_file) as conn:
         assert table_exists(conn, "code_audit_log")
         assert table_exists(conn, "correction_history")
+        assert table_exists(conn, "code_audit_history")

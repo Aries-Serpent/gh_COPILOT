@@ -3,6 +3,7 @@
 ## [4.1.4] - 2025-07-28
 - Documented test-only protocol for `analytics.db` migrations.
 - Added `ANALYTICS_DB_TEST_PROTOCOL.md` with manual commands and testing notes.
+- Added `add_code_audit_history.sql` migration for `code_audit_history` table.
 
 ## [4.1.3] - 2025-07-27
 - Verified presence of new session and monitoring modules.
