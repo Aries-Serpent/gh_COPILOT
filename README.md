@@ -217,10 +217,8 @@ The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping
 python scripts/wlc_session_manager.py --steps 2 --verbose
 ```
 It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
-Entries are stored in the `unified_wrapup_sessions` table so that compliance summaries can be queried later.
-Set both `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` before running the script.
-If the session output is large, pipe commands through `/usr/local/bin/clw` to keep lines under the 1600-byte limit.
-Unit tests covering this behavior live in `tests/test_wlc_session_manager.py` and `tests/test_wlc_session_manager_cli.py`.
+Each run inserts a row into the `unified_wrapup_sessions` table with a compliance score for audit purposes.
+The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
 
 ---
 
