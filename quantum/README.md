@@ -1,8 +1,16 @@
 # Quantum Utilities
 
-This package contains quantum-inspired tools used by the gh_COPILOT suite.
+This package provides experimental quantum-inspired utilities used across the
+gh_COPILOT toolkit.
 
-- **optimizers/quantum_optimizer.py** – Provides simulated annealing and other placeholder algorithms.
-- **algorithms/database_search.py** – Demonstrates Grover-style searches against SQLite tables.
+## Optimizers
+- `optimizers.quantum_optimizer.QuantumOptimizer` – classical/quantum hybrid
+  optimizer with progress logging. Events are recorded using
+  `utils.log_utils._log_event` when executed via higher-level workflows.
 
-These utilities log progress via `utils.log_utils._log_event` when integrated in larger workflows.
+## Database Search
+- `quantum.quantum_database_search` – lightweight helpers for SQL, NoSQL and
+  hybrid search. All queries are logged to `analytics.db` for compliance.
+
+These modules are simulation-focused and designed to run without actual quantum
+hardware. They can be imported via the `quantum` package.

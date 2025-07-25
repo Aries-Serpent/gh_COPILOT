@@ -154,7 +154,7 @@ def prevent_c_temp_violations():
 #### **Root Directory Organization**
 - **Critical Files**: Keep only essential files in root
 - **Project Structure**: Maintain gh_COPILOT Toolkit organization
-- **Manual Deletion**: Move unneeded files to `_MANUAL_DELETE_FOLDER`
+- **Archive Staging**: Move unneeded files to a review folder before removal
 - **Index Maintenance**: Update file system index continuously
 
 ### 📊 **ENHANCED COPILOT INTEGRATION PATTERNS**
@@ -207,7 +207,7 @@ SELECT COUNT(*) FROM recovery_history WHERE success = 1;
 #### **Root Directory Management**
 - **Keep**: Core system files, main scripts, essential docs
 - **Move to Subdirectories**: Category-specific files
-- **Archive**: `_MANUAL_DELETE_FOLDER` for deletion candidates
+- **Archive**: temporary review folder for deletion candidates
 - **Index**: Update comprehensive file index
 
 #### **Automated Organization Rules**

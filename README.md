@@ -24,7 +24,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Analytics Migrations:** run `add_code_audit_log.sql` or the initializer to add the table
 - **Correction History:** migration `add_correction_history.sql` adds audit trail table
 - **Quantum features:** planned, not yet implemented
-  See `quantum/README.md` for available utilities.
+- **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
+  optimizer and search helpers.
 
 ---
 
@@ -40,8 +41,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Continuous Operation Mode:** optional monitoring utilities
 - **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
   `scripts/monitoring/enterprise_compliance_monitor.py`, and
-  `scripts/monitoring/unified_monitoring_optimization_system.py`
-  See `monitoring/README.md` for usage details.
+  `scripts/monitoring/unified_monitoring_optimization_system.py`.
+  See [monitoring/README.md](monitoring/README.md) for details.
 
 ### **Learning Pattern Integration**
 - **Database-First Logic:** Production.db is consulted before generating output
@@ -123,7 +124,7 @@ python scripts/database/complete_consolidation_orchestrator.py \
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 
 # 5. Start enterprise dashboard
-python dashboard/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py  # imports app from web_gui package
 ```
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
 are thin CLI wrappers. They delegate to the core implementations under
@@ -427,7 +428,7 @@ class SelfHealingSelfLearningSystem:
 ### **Access Dashboard**
 ```bash
 # Start enterprise dashboard
-python dashboard/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 
 # Access at: http://localhost:5000
 # Features: Real-time metrics, database visualization, system monitoring
@@ -490,7 +491,7 @@ gh_COPILOT/
 - **`scripts/utilities/self_healing_self_learning_system.py`** - Autonomous operations
 - **`scripts/validation/enterprise_dual_copilot_validator.py`** - DUAL COPILOT validation
 - **`scripts/utilities/unified_script_generation_system.py`** - Database-first generation
- - **`dashboard/enterprise_dashboard.py`** - Enterprise dashboard
+ - **`dashboard/enterprise_dashboard.py`** - Wrapper for Flask dashboard app
 - **`validation/compliance_report_generator.py`** - Summarize lint and test results
 - **`web_gui/dashboard_actionable_gui.py`** - Actionable compliance dashboard
 - **`scripts/monitoring/continuous_operation_monitor.py`** - Continuous operation utility
@@ -656,7 +657,7 @@ python scripts/utilities/self_healing_self_learning_system.py --continuous
 python scripts/validation/lessons_learned_integration_validator.py
 
 # Enterprise dashboard
-python dashboard/enterprise_dashboard.py
+python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 
 # DUAL COPILOT validation
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all

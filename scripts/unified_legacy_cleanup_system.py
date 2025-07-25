@@ -56,9 +56,9 @@ class UnifiedLegacyCleanupSystem:
         try:
             rows = self.file_conn.execute_query(query)
             scripts = [self.config.workspace_path / r["script_path"] for r in rows]
-            scripts = [s for s in scripts if s.exists()]
-            _log_event({"event": "discover_legacy_scripts", "count": len(scripts)}, db_path=self.analytics_db)
-            return scripts
+            valid_scripts = [s for s in scripts if s.exists()]
+            _log_event({"event": "discover_legacy_scripts", "count": len(valid_scripts)})
+            return valid_scripts
         except Exception as exc:  # pragma: no cover - database might not exist
             logger.warning(f"Database query failed: {exc}")
             _log_event({"event": "discover_legacy_scripts_failed", "error": str(exc)}, db_path=self.analytics_db)
@@ -78,11 +78,11 @@ class UnifiedLegacyCleanupSystem:
             return True
         try:
             script.rename(target)
-            _log_event({"event": "archive_success", "script": str(script)}, db_path=self.analytics_db)
+            _log_event({"event": "archive_script", "script": str(script)})
             return True
         except Exception as exc:  # pragma: no cover - file system errors
             logger.error(f"Archive failed: {exc}")
-            _log_event({"event": "archive_failed", "script": str(script), "error": str(exc)}, db_path=self.analytics_db)
+            _log_event({"event": "archive_failed", "script": str(script), "error": str(exc)})
             return False
 
     def optimize_workspace(self, dry_run: bool = False) -> None:
@@ -91,8 +91,9 @@ class UnifiedLegacyCleanupSystem:
         _log_event({"event": "optimize_workspace_start"}, db_path=self.analytics_db)
         if dry_run:
             return
+        _log_event({"event": "optimize_workspace_start"})
         # Currently a no-op; real implementation would reorganize files
-        _log_event({"event": "optimize_workspace_complete"}, db_path=self.analytics_db)
+        _log_event({"event": "optimize_workspace_complete"})
         return
 
     def run_cleanup(self, dry_run: bool = False) -> None:
