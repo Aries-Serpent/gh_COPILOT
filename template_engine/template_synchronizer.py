@@ -2,7 +2,8 @@
 # > Generated: 2025-07-25 14:40:23 | Author: mbaetiong
 # --- Enterprise Standards ---
 # - Flake8/PEP8 Compliant
-# - Visual Processing Indicators: start time, progress bar, ETC, real-time status, process ID, error handling, dual validation
+# - Visual Processing Indicators: start time, progress bar, ETC, real-time status
+#   process ID, error handling, dual validation
 # - NO creation or mutation of `databases/analytics.db` – only simulate/test for existence and readiness
 # - All database/file operations must be validated for anti-recursion and compliance
 
@@ -15,6 +16,7 @@ from pathlib import Path
 from typing import Iterable, List, Tuple
 
 from tqdm import tqdm
+
 from utils.log_utils import _log_event
 
 try:
@@ -115,7 +117,12 @@ def synchronize_templates(
     start_ts = time.time()
     logger.info("[SYNC-START] PID=%s | Start time: %s", proc_id, start_dt.isoformat())
     _log_event(
-        {"event": "sync_start_simulation", "sources": ",".join(str(p) for p in source_dbs or []), "proc_id": proc_id, "mode": "test-only"},
+        {
+            "event": "sync_start_simulation",
+            "sources": ",".join(str(p) for p in source_dbs or []),
+            "proc_id": proc_id,
+            "mode": "test-only",
+        },
         table="sync_events_log",
         db_path=ANALYTICS_DB,
         echo=True,
@@ -168,13 +175,22 @@ def synchronize_templates(
     duration = (datetime.now() - start_dt).total_seconds()
     logger.info("[SYNC-END][SIM] PID=%s | Duration: %.2fs | DBs: %s", proc_id, duration, synced)
     _log_event(
-        {"event": "sync_complete_simulation", "details": f"{synced} databases in {duration:.2f}s", "proc_id": proc_id, "mode": "test-only"},
+        {
+            "event": "sync_complete_simulation",
+            "details": f"{synced} databases in {duration:.2f}s",
+            "proc_id": proc_id,
+            "mode": "test-only",
+        },
         table="sync_events_log",
         db_path=ANALYTICS_DB,
         echo=True,
     )
     logger.info(
-        "\n[SIMULATION COMPLETE] No database was created or modified. To actually create databases/analytics.db and apply real synchronization, run:\n\n    python template_engine/template_synchronizer.py --real\n"
+        (
+            "\n[SIMULATION COMPLETE] No database was created or modified. "
+            "To apply real synchronization, run:\n\n    "
+            "python template_engine/template_synchronizer.py --real\n"
+        )
     )
     return synced
 

@@ -20,7 +20,7 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from tqdm import tqdm
 
@@ -33,10 +33,7 @@ LOG_FILE = LOGS_DIR / f"db_first_codegen_{datetime.now().strftime('%Y%m%d_%H%M%S
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
 PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "production.db"
@@ -44,14 +41,20 @@ DOCUMENTATION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "d
 TEMPLATE_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "template_documentation.db"
 ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "analytics.db"
 
+
 class DBFirstCodeGenerator:
     """
     Database-first code and documentation generation engine.
     Selects or generates templates using database intelligence, logs all actions, and validates compliance.
     """
 
-    def __init__(self, production_db: Path = PRODUCTION_DB, documentation_db: Path = DOCUMENTATION_DB,
-                 template_db: Path = TEMPLATE_DB, analytics_db: Path = ANALYTICS_DB) -> None:
+    def __init__(
+        self,
+        production_db: Path = PRODUCTION_DB,
+        documentation_db: Path = DOCUMENTATION_DB,
+        template_db: Path = TEMPLATE_DB,
+        analytics_db: Path = ANALYTICS_DB,
+    ) -> None:
         self.production_db = production_db
         self.documentation_db = documentation_db
         self.template_db = template_db
@@ -61,7 +64,7 @@ class DBFirstCodeGenerator:
         self.timeout_seconds = 1800  # 30 minutes
         self.status = "INITIALIZED"
         validate_enterprise_operation(str(production_db))
-        logging.info(f"PROCESS STARTED: DB-First Code Generation")
+        logging.info("PROCESS STARTED: DB-First Code Generation")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
 
@@ -75,16 +78,21 @@ class DBFirstCodeGenerator:
             with sqlite3.connect(db_path) as conn:
                 try:
                     cur = conn.execute(
-                        "SELECT template_name, template_content, compliance_score FROM templates WHERE template_name LIKE ?",
-                        (f"%{objective}%",)
+                        (
+                            "SELECT template_name, template_content, compliance_score "
+                            "FROM templates WHERE template_name LIKE ?"
+                        ),
+                        (f"%{objective}%",),
                     )
                     for row in cur.fetchall():
-                        templates.append({
-                            "name": row[0],
-                            "content": row[1],
-                            "score": row[2] if len(row) > 2 else 0.0,
-                            "db": str(db_path)
-                        })
+                        templates.append(
+                            {
+                                "name": row[0],
+                                "content": row[1],
+                                "score": row[2] if len(row) > 2 else 0.0,
+                                "db": str(db_path),
+                            }
+                        )
                 except Exception as e:
                     logging.error(f"Error querying {db_path}: {e}")
         return templates
@@ -102,10 +110,7 @@ class DBFirstCodeGenerator:
         """Select the most compliant template based on similarity scoring."""
         if not templates:
             return None
-        scored_templates = [
-            (self._similarity_score(tmpl, objective), tmpl)
-            for tmpl in templates
-        ]
+        scored_templates = [(self._similarity_score(tmpl, objective), tmpl) for tmpl in templates]
         scored_templates.sort(reverse=True, key=lambda x: x[0])
         return scored_templates[0][1] if scored_templates else None
 
@@ -128,17 +133,16 @@ class DBFirstCodeGenerator:
                 )"""
             )
             conn.execute(
-                "INSERT OR REPLACE INTO templates (template_name, template_content, compliance_score, version, created_at) VALUES (?, ?, ?, ?, ?)",
-                (template_name, content, compliance_score, version, timestamp)
+                (
+                    "INSERT OR REPLACE INTO templates "
+                    "(template_name, template_content, compliance_score, "
+                    "version, created_at) VALUES (?, ?, ?, ?, ?)"
+                ),
+                (template_name, content, compliance_score, version, timestamp),
             )
             conn.commit()
         logging.info(f"Auto-generated template recorded: {template_name}")
-        return {
-            "name": template_name,
-            "content": content,
-            "score": compliance_score,
-            "db": str(self.template_db)
-        }
+        return {"name": template_name, "content": content, "score": compliance_score, "db": str(self.template_db)}
 
     def _log_generation_event(self, objective: str, template: Dict[str, Any], status: str = "generated") -> None:
         """Log generation event to analytics.db."""
@@ -156,7 +160,11 @@ class DBFirstCodeGenerator:
                 )"""
             )
             conn.execute(
-                "INSERT INTO code_generation_events (objective, template_name, compliance_score, db_source, status, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    "INSERT INTO code_generation_events "
+                    "(objective, template_name, compliance_score, db_source, "
+                    "status, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
+                ),
                 (
                     objective,
                     template["name"],
@@ -227,6 +235,7 @@ class DBFirstCodeGenerator:
             db_count = cur.fetchone()[0]
         return db_count > 0
 
+
 def main(
     objective: Optional[str] = None,
     timeout_minutes: int = 30,
@@ -236,7 +245,7 @@ def main(
     """
     start_time = time.time()
     process_id = os.getpid()
-    logging.info(f"PROCESS STARTED: DB-First Code Generation")
+    logging.info("PROCESS STARTED: DB-First Code Generation")
     logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
 
@@ -250,9 +259,11 @@ def main(
 
     generator = DBFirstCodeGenerator(production_db, documentation_db, template_db, analytics_db)
     objective = objective or "README"
-    content = generator.generate(objective, timeout_minutes=timeout_minutes)
+    generated_content = generator.generate(objective, timeout_minutes=timeout_minutes)
     elapsed = time.time() - start_time
     logging.info(f"DB-First code generation session completed in {elapsed:.2f}s")
+    logging.debug("Generated content length: %s", len(generated_content))
+
 
 if __name__ == "__main__":
     main()
