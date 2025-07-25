@@ -304,6 +304,10 @@ compliance logging. The main modules are:
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
 
+All public APIs surface `RuntimeError` for validation issues and propagate
+`sqlite3.Error` for database operations. Consumers should wrap calls in `try` /
+`except` blocks to handle these errors gracefully.
+
 #### Unified Logging Helper
 The `_log_event` function records structured events with progress bars and
 real-time status. It accepts a dictionary payload, optional table name, and the
