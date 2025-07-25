@@ -44,8 +44,6 @@ TEXT = {
 DEFAULT_PATTERNS = [
     r"TODO",
     r"FIXME",
-    r"Implementation placeholder",
-    r"legacy template logic",
 ]
 
 

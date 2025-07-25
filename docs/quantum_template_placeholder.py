@@ -1,8 +1,10 @@
-"""Quantum-Integrated Documentation Template Generator (Placeholder).
+"""Quantum-enabled documentation template generator.
 
-This module will generate default documentation templates using database-first
-logic with quantum-inspired scoring. It currently serves as a placeholder and
-illustrates the intended API for future implementation.
+This module loads templates from ``production.db`` and ranks them using
+quantum-inspired scoring. If the optional :class:`~quantum.orchestration.executor.QuantumExecutor`
+is present, its algorithms are used for ranking. Otherwise a classical fallback
+score is applied. The API exposes :func:`generate_default_templates` for
+automated template creation.
 """
 
 from pathlib import Path
@@ -15,8 +17,8 @@ except Exception:  # pragma: no cover - optional quantum deps
     QuantumExecutor = None
 
 
-def generate_default_templates(db_path: Path = Path("production.db")) -> None:
-    """Generate basic documentation templates using quantum assistance.
+def generate_default_templates(db_path: Path = Path("databases/production.db")) -> None:
+    """Generate documentation templates using quantum-inspired scoring.
 
     Parameters
     ----------
@@ -28,12 +30,25 @@ def generate_default_templates(db_path: Path = Path("production.db")) -> None:
     """
     generator = TemplateAutoGenerator(db_path, db_path)
     representatives = generator.get_cluster_representatives()
+    if not representatives:
+        print("No templates found")
+        return
+
+    scored = []
     if QuantumExecutor:
         executor = QuantumExecutor()
-        # Placeholder: quantum-assisted ranking of templates
-        _ = executor
-    for rep in representatives:
-        print(rep)
+        for rep in representatives:
+            try:
+                result = executor.execute_algorithm("quantum_similarity_score", text=rep)
+                score = float(result.get("stats", {}).get("score", 0))
+            except Exception:
+                score = generator._quantum_score(rep)
+            scored.append((rep, score))
+    else:
+        scored = [(rep, generator._quantum_score(rep)) for rep in representatives]
+
+    for rep, score in sorted(scored, key=lambda s: s[1], reverse=True):
+        print(f"{score:.4f}: {rep}")
 
 
 if __name__ == "__main__":  # pragma: no cover

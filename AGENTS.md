@@ -124,7 +124,7 @@ In the **gh\_COPILOT** toolkit, multiple conceptual “agent” components work 
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | **DualCopilotOrchestrator**             | Primary executor with a secondary validator (dual-agent pattern for critical tasks).                                         |
 | **UnifiedMonitoringOptimizationSystem** | Continuous health monitoring of the system (ensures uptime, performance metrics).                                            |
-| **QuantumOptimizationEngine**           | *Aspirational:* placeholder for quantum optimization features (not fully implemented, do not rely on actual quantum output). |
+| **QuantumOptimizationEngine**           | Simulated quantum optimization engine providing scoring hooks. Use `QuantumExecutor` for experiments; falls back to classical scoring when unavailable. |
 | **UnifiedScriptGenerationSystem**       | Generates scripts based on patterns from `production.db` (automating common tasks using database-driven templates).          |
 | **UnifiedSessionManagementSystem**      | Manages session integrity (zero-byte file checks, anti-recursion enforcement, ensures each session starts/ends cleanly).     |
 | **UnifiedDisasterRecoverySystem**       | Handles backup and restore processes (enterprise backup compliance and recovery protocols).                                  |
