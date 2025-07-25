@@ -11,15 +11,16 @@ Anti-Recursion: VALIDATED
 Enterprise Standards: FULL COMPLIANCE
 """
 
-import os
-import sys
-import subprocess
+import argparse
 import logging
+import os
 import shutil
-from pathlib import Path
+import subprocess
+import sys
 from datetime import datetime
+from pathlib import Path
+
 from tqdm import tqdm
-import sqlite3
 
 # Configure enterprise logging
 logging.basicConfig(
@@ -205,7 +206,10 @@ class NuclearGitCorruptionFix:
             self.logger.info("✅ All files staged")
             
             # Create initial commit
-            commit_message = f"Nuclear fix: Complete repository rebuild - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            commit_message = (
+                f"Nuclear fix: Complete repository rebuild - {timestamp}"
+            )
             subprocess.run(
                 ["git", "commit", "-m", commit_message], 
                 cwd=self.workspace_path, 
@@ -350,22 +354,30 @@ class NuclearGitCorruptionFix:
         else:
             print("⚠️ NUCLEAR FIX INCOMPLETE")
     
-    def cleanup_backup(self):
+    def cleanup_backup(self, delete_backup: bool = False):
         """🧹 Clean up backup after successful fix"""
         try:
             if self.backup_path.exists():
-                response = input(f"\n🗑️ Delete backup at {self.backup_path}? (y/N): ")
-                if response.lower() == 'y':
+                if delete_backup:
                     shutil.rmtree(self.backup_path)
                     print("✅ Backup cleaned up")
-                else:
-                    print(f"💾 Backup preserved at: {self.backup_path}")
+                elif sys.stdin.isatty():
+                    response = input(f"\n🗑️ Delete backup at {self.backup_path}? (y/N): ")
+                    if response.lower() == "y":
+                        shutil.rmtree(self.backup_path)
+                        print("✅ Backup cleaned up")
+                    else:
+                        print(f"💾 Backup preserved at: {self.backup_path}")
         except Exception as e:
             print(f"⚠️ Could not clean backup: {e}")
 
 
-def main():
+def main() -> int:
     """🎯 Main execution function"""
+    parser = argparse.ArgumentParser(description="Nuclear Git corruption fix")
+    parser.add_argument("--force", action="store_true", help="Run without confirmation")
+    parser.add_argument("--delete-backup", action="store_true", help="Delete backup automatically")
+    args = parser.parse_args()
     
     try:
         print("💥 NUCLEAR GIT CORRUPTION FIX")
@@ -375,10 +387,11 @@ def main():
         print()
         
         # Confirm nuclear option
-        response = input("🔥 Proceed with nuclear Git fix? (y/N): ")
-        if response.lower() != 'y':
-            print("❌ Nuclear fix cancelled")
-            sys.exit(0)
+        if not args.force and sys.stdin.isatty():
+            response = input("🔥 Proceed with nuclear Git fix? (y/N): ")
+            if response.lower() != "y":
+                print("❌ Nuclear fix cancelled")
+                return 0
         
         # Initialize nuclear fix system
         nuclear_fix = NuclearGitCorruptionFix()
@@ -401,16 +414,16 @@ def main():
         
         if success:
             print("\n🎉 NUCLEAR GIT FIX COMPLETE!")
-            nuclear_fix.cleanup_backup()
-            sys.exit(0)
+            nuclear_fix.cleanup_backup(delete_backup=args.delete_backup)
+            return 0
         else:
             print("\n⚠️ NUCLEAR FIX INCOMPLETE!")
-            sys.exit(1)
+            return 1
             
     except Exception as e:
         print(f"\n💥 CRITICAL ERROR: {e}")
-        sys.exit(1)
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())
