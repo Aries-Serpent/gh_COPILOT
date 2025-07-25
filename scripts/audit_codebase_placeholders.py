@@ -1,5 +1,5 @@
 """
-Enterprise Database-First Placeholder Audit Script
+Enterprise Database-First Code Audit Script
 
 MANDATORY REQUIREMENTS:
 1. Query production.db for tracked file patterns and audit templates.

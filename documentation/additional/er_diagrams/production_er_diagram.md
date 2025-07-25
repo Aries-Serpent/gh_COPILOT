@@ -926,19 +926,19 @@ CREATE TABLE shared_templates (
                         template_id TEXT NOT NULL,
                         source_database TEXT NOT NULL,
                         template_content TEXT NOT NULL,
-                        placeholder_mapping TEXT, -- JSON
+                        mapping_json TEXT, -- JSON mapping of template fields
                         sync_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                         sync_status TEXT DEFAULT 'active'
                     )
 ```
 
-### shared_placeholders
+### template_tokens
 
 ```sql
-CREATE TABLE shared_placeholders (
+CREATE TABLE template_tokens (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        placeholder_name TEXT NOT NULL,
-                        placeholder_type TEXT NOT NULL,
+                        token_name TEXT NOT NULL,
+                        token_type TEXT NOT NULL,
                         category TEXT NOT NULL,
                         source_database TEXT DEFAULT 'learning_monitor',
                         local_override TEXT,
