@@ -2,10 +2,12 @@
 # > Generated: 2025-07-25 14:40:23 | Author: mbaetiong
 # --- Enterprise Standards ---
 # - Flake8/PEP8 Compliant
-# - Visual Processing Indicators: start time, progress bar, ETC, real-time status, process ID, error handling, dual validation
+# - Visual Processing Indicators: start time, progress bar,
+#   ETC, real-time status, process ID, error handling, dual validation
 # - NO creation or mutation of `databases/analytics.db` – only simulate/test for existence and readiness
 # - All database/file operations must be validated for anti-recursion and compliance
 
+import argparse
 import logging
 import os
 import sqlite3
@@ -15,6 +17,7 @@ from pathlib import Path
 from typing import Iterable, List, Tuple
 
 from tqdm import tqdm
+
 from utils.log_utils import _log_event
 
 try:
@@ -78,15 +81,45 @@ def _compliance_score(content: str) -> float:
 
 
 def _log_sync_event(source: str, target: str) -> None:
-    """Simulate logging a synchronization event. NEVER create analytics.db."""
-    logger.info("[TEST] Would log sync event: %s -> %s [No DB mutation]", source, target)
-    # This function does not write to analytics.db – compliance with enterprise test/readonly mandate
+    """Log a synchronization event to analytics db."""
+    try:
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.execute(
+                """CREATE TABLE IF NOT EXISTS sync_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    source TEXT,
+                    target TEXT,
+                    timestamp TEXT
+                )"""
+            )
+            conn.execute(
+                "INSERT INTO sync_events (source, target, timestamp) VALUES (?, ?, ?)",
+                (source, target, datetime.utcnow().isoformat()),
+            )
+            conn.commit()
+    except Exception as exc:  # pragma: no cover - logging should not fail tests
+        logger.error("Failed to log sync event: %s", exc)
 
 
 def _log_audit(db_name: str, details: str) -> None:
-    """Simulate logging audit events. NEVER create analytics.db."""
-    logger.info("[TEST] Would log audit: %s : %s [No DB mutation]", db_name, details)
-    # This function does not write to analytics.db – compliance with enterprise test/readonly mandate
+    """Log audit events to analytics db."""
+    try:
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.execute(
+                """CREATE TABLE IF NOT EXISTS audit_log (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    db_name TEXT,
+                    details TEXT,
+                    timestamp TEXT
+                )"""
+            )
+            conn.execute(
+                "INSERT INTO audit_log (db_name, details, timestamp) VALUES (?, ?, ?)",
+                (db_name, details, datetime.utcnow().isoformat()),
+            )
+            conn.commit()
+    except Exception as exc:  # pragma: no cover
+        logger.error("Failed to log audit event: %s", exc)
 
 
 def _compliance_check(conn: sqlite3.Connection) -> bool:
@@ -102,12 +135,12 @@ def _compliance_check(conn: sqlite3.Connection) -> bool:
         return False
 
 
-def synchronize_templates(
+def _synchronize_templates_simulation(
     source_dbs: Iterable[Path] | None = None,
 ) -> int:
     """
     Simulate synchronization of templates across multiple databases.
-    NO mutation or creation of analytics.db or other DBs.
+    No mutation or creation of analytics.db or other DBs.
     Progress bars, ETC, process ID, and status updates included.
     """
     proc_id = os.getpid()
@@ -115,7 +148,12 @@ def synchronize_templates(
     start_ts = time.time()
     logger.info("[SYNC-START] PID=%s | Start time: %s", proc_id, start_dt.isoformat())
     _log_event(
-        {"event": "sync_start_simulation", "sources": ",".join(str(p) for p in source_dbs or []), "proc_id": proc_id, "mode": "test-only"},
+        {
+            "event": "sync_start_simulation",
+            "sources": ",".join(str(p) for p in source_dbs or []),
+            "proc_id": proc_id,
+            "mode": "test-only",
+        },
         table="sync_events_log",
         db_path=ANALYTICS_DB,
         echo=True,
@@ -168,21 +206,104 @@ def synchronize_templates(
     duration = (datetime.now() - start_dt).total_seconds()
     logger.info("[SYNC-END][SIM] PID=%s | Duration: %.2fs | DBs: %s", proc_id, duration, synced)
     _log_event(
-        {"event": "sync_complete_simulation", "details": f"{synced} databases in {duration:.2f}s", "proc_id": proc_id, "mode": "test-only"},
+        {
+            "event": "sync_complete_simulation",
+            "details": f"{synced} databases in {duration:.2f}s",
+            "proc_id": proc_id,
+            "mode": "test-only",
+        },
         table="sync_events_log",
         db_path=ANALYTICS_DB,
         echo=True,
     )
     logger.info(
-        "\n[SIMULATION COMPLETE] No database was created or modified. To actually create databases/analytics.db and apply real synchronization, run:\n\n    python template_engine/template_synchronizer.py --real\n"
+        "\n[SIMULATION COMPLETE] No database was created or modified."
+        " To create databases/analytics.db and apply real synchronization,"
+        " run:\n\n    python template_engine/template_synchronizer.py --real\n"
     )
     return synced
 
 
+def synchronize_templates_real(
+    source_dbs: Iterable[Path] | None = None,
+) -> int:
+    """Synchronize templates across multiple databases with real writes."""
+    proc_id = os.getpid()
+    start_dt = datetime.now()
+    start_ts = time.time()
+    logger.info("[SYNC-START][REAL] PID=%s | Start time: %s", proc_id, start_dt.isoformat())
+
+    databases = list(source_dbs) if source_dbs else []
+    all_templates: dict[str, str] = {}
+    for idx, db in enumerate(tqdm(databases, desc=f"Extracting [PID {proc_id}]", unit="db"), 1):
+        for name, content in _extract_templates(db):
+            if _validate_template(name, content):
+                all_templates[name] = content
+            else:
+                logger.warning("Invalid template from %s: %s", db, name)
+        etc = _calculate_etc(start_ts, idx, len(databases))
+        tqdm.write(f"(PID {proc_id}) ETC: {etc}")
+
+    synced = 0
+    source_names = ",".join(str(d) for d in databases)
+    for idx, db in enumerate(tqdm(databases, desc=f"Sync [PID {proc_id}]", unit="db"), 1):
+        if not db.exists():
+            logger.warning("Skipping missing DB: %s", db)
+            continue
+        try:
+            with sqlite3.connect(db) as conn:
+                conn.execute("BEGIN IMMEDIATE")
+                table_exists = conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='templates'"
+                ).fetchone()
+                if not table_exists:
+                    raise RuntimeError("missing templates table")
+                for name, content in all_templates.items():
+                    conn.execute(
+                        "INSERT OR REPLACE INTO templates (name, template_content) VALUES (?, ?)",
+                        (name, content),
+                    )
+                if not _compliance_check(conn):
+                    raise RuntimeError("compliance failure")
+                conn.commit()
+            synced += 1
+            _log_sync_event(source_names, str(db))
+        except Exception as exc:
+            logger.error("Sync failed for %s: %s", db, exc)
+            _log_audit(str(db), str(exc))
+        etc = _calculate_etc(start_ts, idx + len(databases), len(databases) * 2)
+        tqdm.write(f"(PID {proc_id}) ETC: {etc}")
+
+    duration = (datetime.now() - start_dt).total_seconds()
+    logger.info("[SYNC-END][REAL] PID=%s | Duration: %.2fs | DBs: %s", proc_id, duration, synced)
+    return synced
+
+
+def synchronize_templates(
+    source_dbs: Iterable[Path] | None = None,
+    *,
+    real: bool = False,
+) -> int:
+    """Wrapper to run synchronization in simulation or real mode."""
+    if real:
+        return synchronize_templates_real(source_dbs)
+    return _synchronize_templates_simulation(source_dbs)
+
+
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description="Synchronize templates")
+    parser.add_argument("dbs", nargs="*", type=Path, help="Source database paths")
+    parser.add_argument("--real", action="store_true", help="Apply real synchronization")
+    args = parser.parse_args(argv)
+
+    dbs = args.dbs
+    if not dbs:
+        dbs_env = os.getenv("TEMPLATE_SYNC_DBS", "").split(os.pathsep)
+        dbs = [Path(p) for p in dbs_env if p]
+
+    synchronize_templates(dbs, real=args.real)
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    dbs_env = os.getenv("TEMPLATE_SYNC_DBS", "").split(os.pathsep)
-    source_dbs = [Path(p) for p in dbs_env if p]
-    synchronize_templates(source_dbs)
-    print("\n[NOTICE] No database was created or modified. To create `databases/analytics.db`, run:\n")
-    print("    python template_engine/template_synchronizer.py --real\n")
+    main()

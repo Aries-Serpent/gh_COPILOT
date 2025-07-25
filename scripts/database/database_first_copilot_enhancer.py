@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import logging
-import sqlite3
-from pathlib import Path
 import os
+import sqlite3
 from difflib import SequenceMatcher
+from pathlib import Path
 from typing import Any, Dict, List
 
 from tqdm import tqdm
@@ -36,14 +36,31 @@ class DatabaseFirstCopilotEnhancer:
                 pass
 
     def _initialize_template_engine(self) -> Any:
-        """Return a simple template engine placeholder.
+        """Load templates from database or filesystem with graceful fallback."""
+        templates: Dict[str, str] = {}
 
-        The template includes the workspace placeholder so that
-        :meth:`_adapt_to_current_environment` can inject environment
-        specific values.
-        """
+        db_path = self.workspace / "databases" / "template_documentation.db"
+        if db_path.exists():
+            try:
+                with sqlite3.connect(db_path) as conn:
+                    cur = conn.execute("SELECT name, template_content FROM templates")
+                    for name, content in cur.fetchall():
+                        templates[name] = content
+            except sqlite3.Error as exc:  # pragma: no cover - log-only branch
+                self.logger.warning("Failed to load templates from %s: %s", db_path, exc)
 
-        return lambda name: f"# Template for {name} in {{workspace}}"
+        templates_dir = self.workspace / "templates"
+        if templates_dir.exists():
+            for tpl in templates_dir.glob("*.tpl"):
+                try:
+                    templates[tpl.stem] = tpl.read_text(encoding="utf-8")
+                except Exception as exc:  # pragma: no cover - log-only branch
+                    self.logger.warning("Failed to read template %s: %s", tpl, exc)
+
+        def engine(name: str) -> str:
+            return templates.get(name, f"# Template for {name} in {{workspace}}")
+
+        return engine
 
     def _query_database_solutions(self, objective: str) -> List[str]:
         """Return code snippets matching ``objective`` from ``production.db``."""
