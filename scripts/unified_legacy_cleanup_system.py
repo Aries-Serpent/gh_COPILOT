@@ -80,10 +80,7 @@ class UnifiedLegacyCleanupSystem:
         archive_dir.mkdir(parents=True, exist_ok=True)
         target = archive_dir / script.name
         logger.info(f"Archiving {script} -> {target}")
-        _log_event(
-            {"event": "archive_script", "script": str(script)},
-            db_path=self.analytics_db,
-        )
+        _log_event({"event": "archive_script", "script": str(script)}, db_path=self.analytics_db)
         if dry_run:
             _log_event(
                 {"event": "archive_script_dry_run", "path": str(script)},
@@ -92,7 +89,7 @@ class UnifiedLegacyCleanupSystem:
             return True
         try:
             script.rename(target)
-            _log_event({"event": "archive_success", "path": str(script)}, db_path=self.analytics_db)
+            _log_event({"event": "archive_success", "path": str(script)})
             return True
         except Exception as exc:  # pragma: no cover - file system errors
             logger.error(f"Archive failed: {exc}")
