@@ -213,7 +213,13 @@ The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping
 ```bash
 python scripts/wlc_session_manager.py --steps 2 --verbose
 ```
-It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
+Add `--orchestrate` to run the `UnifiedWrapUpOrchestrator` after the WLC steps:
+
+```bash
+python scripts/wlc_session_manager.py --steps 2 --orchestrate
+```
+
+Each run records a row in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
 
 ---
 
