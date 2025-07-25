@@ -37,6 +37,26 @@ jobs:
       - name: Check for zero-byte files
         run: bash scripts/check_zero_logs.sh .
 
+      - name: Verify template_engine imports
+        run: |
+          python - <<'PY'
+          import importlib
+          modules = [
+              "auto_generator",
+              "db_first_code_generator",
+              "log_utils",
+              "objective_similarity_scorer",
+              "pattern_clustering_sync",
+              "pattern_mining_engine",
+              "placeholder_utils",
+              "template_placeholder_remover",
+              "template_synchronizer",
+              "workflow_enhancer",
+          ]
+          for m in modules:
+              importlib.import_module(f"template_engine.{m}")
+          PY
+
       - name: Run tests
         run: make test
 
