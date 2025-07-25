@@ -22,7 +22,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
-- **Analytics Migrations:** run `add_code_audit_log.sql` and `add_correction_history.sql` or use the initializer to add the tables
+- **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, and `add_code_audit_history.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 - **Quantum features:** planned, not yet implemented
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
   optimizer and search helpers.
@@ -87,8 +87,13 @@ python scripts/database/unified_database_initializer.py
 
 # Add analytics tables and run migrations
 python scripts/database/add_code_audit_log.py
+# If `analytics.db` lacks the table, run the SQL migration manually
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
+# Verify creation
+sqlite3 databases/analytics.db ".schema code_audit_log"
+sqlite3 databases/analytics.db ".schema code_audit_history"
 python scripts/database/size_compliance_checker.py
 
 # 3b. Synchronize databases
@@ -129,6 +134,8 @@ python dashboard/enterprise_dashboard.py  # imports app from web_gui package
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
 are thin CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor``.
+- ``unified_session_management_system.py`` starts new sessions via enterprise compliance checks.
+- ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
 Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
@@ -147,6 +154,9 @@ The script is bundled as `tools/clw.py` and can be copied to `/usr/local/bin/clw
 
 If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
 You can adjust the wrap length by setting `CLW_MAX_LINE_LENGTH` before invoking the wrapper.
+> **Note**: The Codex terminal enforces a strict 1600-byte *per-line* limit. Wrapping output with
+`clw` prevents session resets by ensuring no line exceeds this limit. When in doubt, redirect long
+output to a file and view it with `clw` in small chunks.
 
 
 
@@ -196,6 +206,7 @@ python scripts/wlc_session_manager.py
 ```
 
 For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+See [docs/WLC_QUICKSTART.md](docs/WLC_QUICKSTART.md) for a quickstart guide.
 
 Additional module overviews are available in [quantum/README.md](quantum/README.md)
 and [monitoring/README.md](monitoring/README.md).
@@ -205,10 +216,28 @@ Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment
 
 ### WLC Session Manager
 The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
+
 ```bash
 python scripts/wlc_session_manager.py --steps 2 --verbose
 ```
-It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
+Before running, set the required environment variables so session data is logged correctly:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
+python scripts/wlc_session_manager.py --steps 2 --verbose
+```
+
+The manager validates required environment variables, executes the
+`UnifiedWrapUpOrchestrator` for comprehensive cleanup, and performs dual
+validation through the `SecondaryCopilotValidator`. It records each session in
+`production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
+Each run inserts a row into the `unified_wrapup_sessions` table with a
+compliance score for audit purposes. Ensure all command output is piped through
+`/usr/local/bin/clw` to avoid exceeding the line length limit.
+The table stores `session_id`, timestamps, status, compliance score, and
+optional error details so administrators can audit every session.
+The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
 
 ---
 
@@ -228,6 +257,18 @@ analytics.db                    # Performance and usage analytics
 monitoring.db                   # Real-time system monitoring
 optimization_metrics.db         # Continuous optimization data
 ```
+
+### Analytics Database Test Protocol
+The `analytics.db` file should never be created or modified automatically.
+To create or migrate the file manually, run:
+
+```bash
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+```
+
+Automated tests perform these migrations in-memory with progress bars and DUAL
+COPILOT validation, leaving the on-disk database untouched.
 
 ### **Database-First Workflow**
 1. **Query First:** Check production.db for existing solutions
@@ -250,9 +291,8 @@ compliance logging:
   synchronizes representative templates using transactional auditing.
 * **TemplateWorkflowEnhancer** – mines patterns from existing templates,
   computes compliance scores and writes dashboard-ready reports.
-* **Log Utilities** – unified `_log_event` helper under `utils.log_utils`
-* **Log Utilities** – unified `_log_event` helper under `utils.log_utils`
-  logs events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
+* **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
+  events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
 
 #### Unified Logging Helper
@@ -261,7 +301,6 @@ real-time status. It accepts a dictionary payload, optional table name, and the
 database path. The default table is `sync_events_log`.
 
 ```python
-from utils.log_utils import _log_event
 from utils.log_utils import _log_event
 _log_event({"event": "sync_start"})
 _log_event({"event": "complete"}, table="sync_status")
@@ -702,8 +741,10 @@ The **Wrapping, Logging, and Compliance (WLC)** system ensures that long-running
 operations are recorded and validated for enterprise review. The session manager
 in [`scripts/wlc_session_manager.py`](scripts/wlc_session_manager.py) starts a
 session entry in `production.db`, logs progress to an external backup location,
-and finalizes the run with a compliance score. Detailed usage instructions are
-available in [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+and finalizes the run with a compliance score. Each run inserts a record into the
+`unified_wrapup_sessions` table with `session_id`, timestamps, status, compliance
+score, and optional error details. Detailed usage instructions are available in
+[docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
 
 ---
 
@@ -726,6 +767,7 @@ Several small modules provide common helpers:
   optimizations and demonstrations.
 - `template_engine.pattern_clustering_sync.PatternClusteringSync` – cluster templates from `production.db` and synchronize them with compliance auditing.
 - `template_engine.workflow_enhancer.TemplateWorkflowEnhancer` – enhance template workflows using clustering, pattern mining and dashboard reports.
+- `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
 
 ## Future Roadmap
 

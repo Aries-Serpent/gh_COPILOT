@@ -4,11 +4,18 @@ Refactored from original quantum_algorithms_functional.py with enhanced modulari
 """
 
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import numpy as np
 from qiskit import QuantumCircuit
+from qiskit.circuit.library import QFT
+from qiskit.quantum_info import DensityMatrix, Statevector
 from qiskit_aer import AerSimulator
+
+try:
+    from qiskit.algorithms import Shor
+except Exception:  # pragma: no cover - stub fallback
+    from copilot_qiskit_stubs.algorithms import Shor  # type: ignore
 from sklearn.cluster import KMeans
 from sklearn.datasets import make_blobs
 from sklearn.model_selection import train_test_split
@@ -16,7 +23,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
-from .base import QuantumAlgorithmBase, TEXT_INDICATORS
+from .base import TEXT_INDICATORS, QuantumAlgorithmBase
 
 
 class QuantumFunctional(QuantumAlgorithmBase):
@@ -139,6 +146,54 @@ class QuantumFunctional(QuantumAlgorithmBase):
         accuracy = classifier.score(x_test, y_test)
         runtime = time.perf_counter() - start
         return {"accuracy": float(accuracy), "time": runtime}
+
+    def run_shor_factorization(self, n: int) -> List[int]:
+        """Factor ``n`` using Shor's algorithm (simulated)."""
+        backend = AerSimulator()
+        result = Shor(quantum_instance=backend).factor(n)
+        return result.factors[0]
+
+    def run_quantum_fourier_transform(self, data: List[float]) -> List[complex]:
+        """Apply QFT to ``data`` and return the resulting statevector."""
+        data_list = list(data)
+        num_qubits = int(np.log2(len(data_list)))
+        qc = QuantumCircuit(num_qubits)
+        qc.initialize(data_list, range(num_qubits), normalize=True)
+        qc.append(QFT(num_qubits, do_swaps=False), range(num_qubits))
+        state = Statevector.from_instruction(qc)
+        return state.data.tolist()
+
+    def run_variational_circuit(self, steps: int = 20, lr: float = 0.1) -> Dict[str, Any]:
+        """Optimize a simple variational circuit."""
+        theta = 0.0
+        backend = AerSimulator()
+        for _ in range(steps):
+            qc = QuantumCircuit(1, 1)
+            qc.ry(theta, 0)
+            qc.measure(0, 0)
+            counts = backend.run(qc, shots=1000).result().get_counts()
+            prob0 = counts.get("0", 0) / 1000
+            expectation = prob0 - (1 - prob0)
+            grad = -np.sin(theta)
+            theta -= lr * grad
+        return {"theta": float(theta), "expectation": float(expectation)}
+
+    def run_quantum_teleportation(self, state: List[complex]) -> List[List[complex]]:
+        """Teleport ``state`` and return final density matrix."""
+        alpha, beta = list(state)
+        qc = QuantumCircuit(3)
+        qc.initialize([alpha, beta], 0)
+        qc.h(1)
+        qc.cx(1, 2)
+        qc.cx(0, 1)
+        qc.h(0)
+        qc.cx(1, 2)
+        qc.cz(0, 2)
+        DensityMatrix.from_instruction(qc)
+        return [
+            [float(abs(alpha) ** 2), complex(alpha * beta.conjugate())],
+            [complex(beta * alpha.conjugate()), float(abs(beta) ** 2)],
+        ]
 
 
 def main():

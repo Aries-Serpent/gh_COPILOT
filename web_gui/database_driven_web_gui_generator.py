@@ -8,12 +8,11 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Database-first architecture
 """
-import sys
-
-import sqlite3
 import logging
-from pathlib import Path
+import sqlite3
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {

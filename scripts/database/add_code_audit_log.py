@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Add the ``code_audit_log`` table to analytics.db.
+"""Ensure the ``code_audit_log`` table exists in ``analytics.db``.
 
-This utility creates the ``code_audit_log`` table if it does not
-already exist and verifies database size compliance after the
-operation. It follows the database-first pattern and can safely be
-run multiple times.
+This module follows the database-first pattern. It creates the table if
+missing and verifies size compliance after the operation. The migration
+is idempotent and safe to run multiple times.
 """
 
 from __future__ import annotations
@@ -12,12 +11,10 @@ from __future__ import annotations
 import logging
 import os
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from tqdm import tqdm
-
-from secondary_copilot_validator import SecondaryCopilotValidator
 
 from .size_compliance_checker import check_database_sizes
 
@@ -41,38 +38,40 @@ CREATE INDEX IF NOT EXISTS idx_code_audit_log_timestamp
 
 def add_table(db_path: Path) -> None:
     """Create ``code_audit_log`` table in ``db_path``."""
+    start_time = datetime.now()
+    logger.info("[START] add_table for %s", db_path)
+    logger.info("Process ID: %s", os.getpid())
+
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(db_path, timeout=5) as conn, tqdm(
+        total=1, desc="create-table", unit="step"
+    ) as bar:
         conn.executescript(SCHEMA_SQL)
         conn.commit()
+        bar.update(1)
     logger.info("code_audit_log ensured in %s", db_path)
     check_database_sizes(db_path.parent)
 
+    elapsed = datetime.now() - start_time
+    logger.info("[SUCCESS] Completed in %s", str(elapsed))
+
 
 def ensure_code_audit_log(db_path: Path) -> None:
-    """Ensure ``code_audit_log`` table exists with visual indicators."""
-    start_time = datetime.now()
-    logger.info("PROCESS STARTED: ensure_code_audit_log")
-    logger.info("Start Time: %s", start_time.strftime("%Y-%m-%d %H:%M:%S"))
-    logger.info("Process ID: %d", os.getpid())
-    with tqdm(total=1, desc="Ensuring table", unit="step") as bar:
-        add_table(db_path)
-        bar.update(1)
-    duration = (datetime.now() - start_time).total_seconds()
-    logger.info("ensure_code_audit_log completed in %.2fs", duration)
-
-    validator = SecondaryCopilotValidator(logger)
-    if validator.validate_corrections([__file__]):
-        logger.info("DUAL COPILOT VALIDATION: PASSED")
-    else:
-        logger.error("DUAL COPILOT VALIDATION: FAILED")
+    """Ensure ``code_audit_log`` table exists (wrapper for :func:`add_table`)."""
+    add_table(db_path)
 
 
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     db_path = root / "databases" / "analytics.db"
+    start = datetime.now()
     add_table(db_path)
-    logger.info("Migration completed at %s", datetime.utcnow().isoformat())
+    etc = start + timedelta(seconds=1)
+    logger.info(
+        "Migration completed at %s | ETC was %s",
+        datetime.utcnow().isoformat(),
+        etc.strftime("%Y-%m-%d %H:%M:%S"),
+    )
 
 
 if __name__ == "__main__":

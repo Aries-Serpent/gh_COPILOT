@@ -53,6 +53,59 @@ export GH_COPILOT_BACKUP_ROOT=/external_path/backups/
 
 Configurations should follow the standards outlined in `AGENTS.md`.
 
+### WLC Session Manager and Database Tracking
+The script `scripts/wlc_session_manager.py` implements the Wrapping, Logging,
+and Compliance (WLC) methodology. When executed, it logs session metadata and a
+compliance score into the `unified_wrapup_sessions` table of `production.db`.
+Ensure `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` are set before running:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
+python scripts/wlc_session_manager.py --steps 2 --verbose
+```
+
+Use `/usr/local/bin/clw` when reviewing output to avoid long terminal lines.
+Set `CLW_MAX_LINE_LENGTH=1550` if required. The console enforces a strict 1600-byte
+limit per line, so piping through `clw` is mandatory for any large output.
+
+The test `tests/test_wlc_session_manager.py` verifies that a new session record
+is inserted and logs are written under `$GH_COPILOT_BACKUP_ROOT/logs/`.
+
+Each entry in `production.db`'s `unified_wrapup_sessions` table captures the
+session ID, timestamps, completion status, compliance score, and any error
+details, providing an auditable history of WLC runs.
+The table includes columns `session_id`, `start_time`, `end_time`, `status`,
+`files_organized`, `configs_validated`, `scripts_modularized`,
+`root_files_remaining`, `compliance_score`, `validation_results`, and
+`error_details`.
+
+---
+
+## WLC Session Logging
+
+Use `scripts/wlc_session_manager.py` to execute tasks under the Wrapping, Logging,
+and Compliance methodology. Each run writes a row to the
+`production.db` table `unified_wrapup_sessions` capturing the session ID,
+start and end times, completion status, compliance score, and any errors.
+
+```bash
+python scripts/wlc_session_manager.py --steps 2 --verbose
+```
+
+Log files are stored under `$GH_COPILOT_BACKUP_ROOT/logs/`.
+
+### Output Safety with `clw`
+Pipe any command that could produce large output through `/usr/local/bin/clw`
+to avoid exceeding the 1600-byte line limit. Example:
+
+```bash
+grep -R "pattern" | /usr/local/bin/clw
+```
+
+If a limit error occurs, restart the session, rerun `setup.sh`, and repeat the
+command with `clw` or redirect the output to a file for chunked review.
+
 ---
 
 ## LOG MAINTENANCE

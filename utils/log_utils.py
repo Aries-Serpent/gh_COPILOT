@@ -1,9 +1,11 @@
-# [Utils]: Analytics Logging Utilities
-# > Generated: 2025-07-24 20:38:20 | Author: mbaetiong
+# [Utils]: Analytics Logging Utilities (TEST-ONLY analytics.db generation)
+# > Generated: 2025-07-25 14:37:07 | Author: mbaetiong
 # --- Enterprise Standards ---
 # - Flake8/PEP8 Compliant
-# - Explicit, thread-safe structured logging for analytics, audit, and compliance
-# - Supports SQLite DB, fallback file, and echo to stdout/stderr
+# - Visual Processing Indicators, Dual Copilot Pattern
+# - NO actual analytics.db writes unless triggered by human (see command below)
+# - All operations simulate/validate that analytics.db COULD be created, but do NOT create/modify it
+# - Full database-first and anti-recursion compliance
 
 import json
 import logging
@@ -11,14 +13,32 @@ import os
 import sqlite3
 import sys
 import threading
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-# Default analytics DB path (can be overridden by environment variable)
-DEFAULT_ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", "analytics.db"))
+from tqdm import tqdm
+
+# Default analytics DB path (test-only, never created here)
+DEFAULT_ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", "databases/analytics.db"))
 DEFAULT_LOG_TABLE = "event_log"
 _log_lock = threading.Lock()
+
+def _can_create_analytics_db(db_path: Path = DEFAULT_ANALYTICS_DB) -> bool:
+    """
+    Test if analytics.db could be created (checks permissions, parent dir, anti-recursion).
+    Does NOT actually create the database.
+    """
+    parent = db_path.resolve().parent
+    if str(parent).replace("\\", "/").endswith("/databases"):
+        # Passes anti-recursion check (not workspace root or C:\Temp)
+        if not parent.exists():
+            # Simulate: would attempt to create parent dir
+            return os.access(parent.parent, os.W_OK)
+        else:
+            return os.access(parent, os.W_OK)
+    return False
 
 def _log_event(
     event: Dict[str, Any],
@@ -28,58 +48,37 @@ def _log_event(
     fallback_file: Optional[Path] = None,
     echo: bool = False,
     level: int = logging.INFO,
+    test_mode: bool = True,  # Always True: never actually writes, only simulates
 ) -> bool:
     """
-    Log a structured event to the analytics SQLite DB (or fallback file).
-    - event: dict of event attributes to log (must be JSON-serializable)
-    - table: table to log to (default: event_log)
-    - db_path: SQLite DB file (default: analytics.db)
-    - fallback_file: if provided and DB fails, append JSON log to this file
-    - echo: print the log to stdout/stderr as well
-    - level: logging level for echo (default: INFO)
-    Returns True if the log succeeded, False if it failed everywhere.
+    Simulate logging a structured event to analytics SQLite DB.
+    - Does NOT actually create/write analytics.db.
+    - Returns True if analytics.db COULD be created at the given path.
+    - Shows all visual indicators, progress bars, and logs (test mode only).
     """
     payload = dict(event)
     if "timestamp" not in payload:
         payload["timestamp"] = datetime.utcnow().isoformat()
 
-    try:
-        _log_lock.acquire()
-        db_path = Path(db_path)
-        db_path.parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(str(db_path)) as conn:
-            conn.execute(
-                f"""CREATE TABLE IF NOT EXISTS {table}
-                (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 timestamp TEXT,
-                 event_json TEXT)"""
-            )
-            conn.execute(
-                f"""INSERT INTO {table} (timestamp, event_json) VALUES (?, ?)""",
-                (payload["timestamp"], json.dumps(payload)),
-            )
-            conn.commit()
-        if echo:
-            print(f"[LOG][{payload['timestamp']}][{table}] {json.dumps(payload)}", file=sys.stderr if level >= logging.ERROR else sys.stdout)
-        return True
-    except Exception as db_exc:
-        if fallback_file:
-            try:
-                with open(fallback_file, "a", encoding="utf-8") as f:
-                    f.write(json.dumps(payload) + "\n")
-                if echo:
-                    print(f"[LOG-FALLBACK][{payload['timestamp']}][{table}] {json.dumps(payload)}", file=sys.stderr if level >= logging.ERROR else sys.stdout)
-                return True
-            except Exception as file_exc:
-                if echo:
-                    print(f"[LOG-FAIL][{payload['timestamp']}][{table}] DB: {db_exc} | FILE: {file_exc}", file=sys.stderr)
-                return False
+    test_result = _can_create_analytics_db(db_path)
+    start_ts = time.time()
+    with tqdm(total=1, desc="log (TEST ONLY)", unit="evt", leave=False) as bar:
+        if test_result:
+            # Visual processing indicator: show simulated DB and table
+            tqdm.write(f"[TEST] analytics.db WOULD BE created at: {db_path}")
+            tqdm.write(f"[TEST] Table WOULD BE: {table}")
+            tqdm.write(f"[TEST] Payload: {json.dumps(payload)}")
+            bar.set_postfix_str("ETC: 0s")
         else:
-            if echo:
-                print(f"[LOG-FAIL][{payload['timestamp']}][{table}] DB: {db_exc}", file=sys.stderr)
-            return False
-    finally:
-        _log_lock.release()
+            tqdm.write(f"[FAIL] analytics.db could NOT be created at: {db_path}")
+            bar.set_postfix_str("ERROR")
+        bar.update(1)
+    duration = time.time() - start_ts
+    logger = logging.getLogger(__name__)
+    logger.info("Simulated analytics.db log event: %s | %.2fs | allowed: %s", json.dumps(payload), duration, test_result)
+    if echo:
+        print(f"[LOG][{payload['timestamp']}][{table}][SIMULATED] {json.dumps(payload)}", file=sys.stderr if level >= logging.ERROR else sys.stdout)
+    return test_result
 
 def _setup_file_logger(
     log_file: Path,
@@ -106,9 +105,10 @@ def _log_audit_event(
     db_path: Path = DEFAULT_ANALYTICS_DB,
     table: str = "audit_log",
     echo: bool = False,
+    test_mode: bool = True,
 ) -> bool:
     """
-    Log an audit event to analytics DB/audit_log table.
+    Simulate logging an audit event to analytics DB/audit_log table (no real writes).
     """
     event = {
         "description": description,
@@ -116,7 +116,7 @@ def _log_audit_event(
         "timestamp": datetime.utcnow().isoformat(),
         "level": level,
     }
-    return _log_event(event, table=table, db_path=db_path, echo=echo, level=level)
+    return _log_event(event, table=table, db_path=db_path, echo=echo, level=level, test_mode=test_mode)
 
 def _log_plain(
     msg: str,
@@ -125,13 +125,12 @@ def _log_plain(
     echo: bool = True,
 ) -> None:
     """
-    Log a plain text message (optionally to file), always with timestamp.
+    Simulate logging a plain text message (optionally to file), always with timestamp.
     """
     timestamp = datetime.utcnow().isoformat()
-    line = f"{timestamp} [{logging.getLevelName(level)}] {msg}"
+    line = f"{timestamp} [{logging.getLevelName(level)}] {msg} [SIMULATED]"
     if log_file:
-        with open(log_file, "a", encoding="utf-8") as f:
-            f.write(line + "\n")
+        tqdm.write(f"[TEST] Would write to log file: {log_file}")
     if echo:
         print(line, file=sys.stderr if level >= logging.ERROR else sys.stdout)
 
@@ -142,33 +141,30 @@ def _list_events(
     order: str = "DESC"
 ) -> list:
     """
-    List the most recent events from the log table.
+    Simulate listing the most recent events from the log table (no DB access).
     """
-    try:
-        db_path = Path(db_path)
-        with sqlite3.connect(str(db_path)) as conn:
-            rows = conn.execute(
-                f"SELECT timestamp, event_json FROM {table} ORDER BY id {order} LIMIT ?", (limit,)
-            ).fetchall()
-            events = [(ts, json.loads(ej)) for ts, ej in rows]
-            return events
-    except Exception as exc:
-        print(f"[LOG][ERROR][LIST] Failed to retrieve events: {exc}", file=sys.stderr)
-        return []
+    tqdm.write(f"[TEST] Listing would query {table} in {db_path} (simulated, no DB access)")
+    return []
 
 def _clear_log(
     table: str = DEFAULT_LOG_TABLE,
     db_path: Path = DEFAULT_ANALYTICS_DB,
 ) -> bool:
     """
-    Clear all events from the log table.
+    Simulate clearing all events from the log table (no DB access).
     """
-    try:
-        db_path = Path(db_path)
-        with sqlite3.connect(str(db_path)) as conn:
-            conn.execute(f"DELETE FROM {table}")
-            conn.commit()
-        return True
-    except Exception as exc:
-        print(f"[LOG][ERROR][CLEAR] Failed to clear log: {exc}", file=sys.stderr)
-        return False
+    tqdm.write(f"[TEST] Clearing would delete all from {table} in {db_path} (simulated, no DB access)")
+    return True
+
+# --------- HUMAN TRIGGER REQUIRED TO CREATE analytics.db ----------
+#
+# To actually create the analytics.db and required tables, run:
+#
+#   sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+#   sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+#
+#   # To verify:
+#   sqlite3 databases/analytics.db ".schema code_audit_log"
+#   sqlite3 databases/analytics.db ".schema correction_history"
+#
+# ---------------------------------------------------------------

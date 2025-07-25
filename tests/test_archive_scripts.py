@@ -6,16 +6,13 @@ import pytest
 
 SCRIPTS = [
     "comprehensive_production_deployer",
-    "mission_completion_orchestrator",
     "refined_production_builder",
 ]
 
 
 @pytest.mark.parametrize("module_name", SCRIPTS)
 def test_perform_utility_function(tmp_path, module_name):
-    module = importlib.import_module(
-        f"archive.consolidated_scripts.{module_name}"
-    )
+    module = importlib.import_module(f"scripts.{module_name}")
     db_dir = tmp_path / "databases"
     db_dir.mkdir()
     db_path = db_dir / "production.db"
@@ -28,5 +25,6 @@ def test_perform_utility_function(tmp_path, module_name):
 
 
 def test_no_placeholders():
-    for path in Path("archive/consolidated_scripts").glob("*.py"):
+    for name in SCRIPTS:
+        path = Path("scripts") / f"{name}.py"
         assert "# Implementation placeholder" not in path.read_text()

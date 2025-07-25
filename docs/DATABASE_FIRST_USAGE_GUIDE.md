@@ -65,7 +65,7 @@ metrics and shows real-time placeholder removal progress. When a placeholder is 
 ### Placeholder Correction Workflow
 1. Run `scripts/audit_codebase_placeholders.py` to log all TODOs.
 2. Review entries in `analytics.db:placeholder_audit` and fix the code.
-3. Record completed fixes with `scripts/placeholder_audit_logger.py`.
+3. Record corrections with `scripts/correction_logger_and_rollback.py` for audit.
 4. Monitor `/dashboard/compliance` to verify the compliance score improves.
 
 ## 6. Database Maintenance
@@ -84,7 +84,22 @@ reference.
 - Initialize all databases with `scripts/database/unified_database_initializer.py`.
 - To add new analytics tables run `scripts/database/add_code_audit_log.py` then
   execute any SQL files in `databases/migrations/` such as
-  `add_code_audit_log.sql` and `add_correction_history.sql` using `sqlite3` or your preferred migration tool.
+  `add_code_audit_log.sql`, `add_correction_history.sql`, and `add_code_audit_history.sql` using `sqlite3` or your preferred migration tool.
+  The `correction_history` table stores cleanup events with `user_id`, session ID, file path, action, timestamp, and optional details. The `code_audit_history` table records audit entries with the responsible user and timestamp. Run the migrations if these tables are missing.
 - After every migration, run `scripts/database/size_compliance_checker.py` to
   verify the 99.9 MB limit is maintained.
+
+### Correction History Table
+Use `add_correction_history.sql` to create the `correction_history` table. Each
+entry records the `user_id`, session ID, file path, action taken, and timestamp
+for code fixes. Verify creation with:
+```bash
+sqlite3 databases/analytics.db ".schema correction_history"
+```
+
+### Code Audit History Table
+Use `add_code_audit_history.sql` to create the `code_audit_history` table. This table logs each audit entry along with the user who made the change and the timestamp. Verify creation with:
+```bash
+sqlite3 databases/analytics.db ".schema code_audit_history"
+```
 

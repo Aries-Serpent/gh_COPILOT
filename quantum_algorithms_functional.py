@@ -9,13 +9,16 @@ meant for demonstration and testing purposes only.
 
 from __future__ import annotations
 
+import time
 from typing import Iterable, List
 
 import numpy as np
 from qiskit.circuit import QuantumCircuit
-from qiskit.quantum_info import DensityMatrix, Statevector
 from qiskit.circuit.library import QFT
+from qiskit.quantum_info import DensityMatrix, Statevector
 from qiskit_aer import AerSimulator
+from sklearn.cluster import KMeans
+from sklearn.datasets import make_blobs
 
 try:
     from qiskit.algorithms import Shor
@@ -25,6 +28,7 @@ except Exception:  # pragma: no cover - fallback when algorithms module missing
 
 __all__ = [
     "run_grover_search",
+    "run_kmeans_clustering",
     "run_shor_factorization",
     "run_quantum_fourier_transform",
     "run_variational_circuit",
@@ -79,6 +83,16 @@ def run_grover_search(data: List[int], target: int) -> dict:
     counts = backend.run(qc, shots=1024).result().get_counts()
     measured = max(counts, key=counts.get)
     return {"index": int(measured, 2), "iterations": iterations}
+
+
+def run_kmeans_clustering(samples: int = 100, clusters: int = 2) -> dict:
+    """Run KMeans clustering and return inertia and runtime."""
+    features, _ = make_blobs(n_samples=samples, centers=clusters, random_state=42)
+    start = time.perf_counter()
+    model = KMeans(n_clusters=clusters, n_init="auto", random_state=42)
+    model.fit(features)
+    runtime = time.perf_counter() - start
+    return {"inertia": float(model.inertia_), "time": runtime}
 
 
 def run_shor_factorization(n: int) -> List[int]:

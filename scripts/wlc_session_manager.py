@@ -16,6 +16,7 @@ Enterprise features:
 
 from __future__ import annotations
 
+# pyright: reportMissingModuleSource=false
 import argparse
 import logging
 import os
@@ -27,6 +28,13 @@ from tqdm import tqdm
 
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
+
+try:
+    from scripts.orchestrators.unified_wrapup_orchestrator import (
+        UnifiedWrapUpOrchestrator,
+    )
+except Exception:  # pragma: no cover - allow lazy import
+    UnifiedWrapUpOrchestrator = None
 
 DB_PATH = Path(os.getenv("WLC_DB_PATH", "databases/production.db"))
 
@@ -107,15 +115,28 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=DB_PATH,
         help="Path to production database",
     )
+    parser.add_argument(
+        "--orchestrate",
+        action="store_true",
+        help="Run UnifiedWrapUpOrchestrator after session completion",
+    )
     return parser.parse_args(argv)
 
 
-def run_session(steps: int, db_path: Path, verbose: bool) -> None:
+def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: bool = False) -> None:
     if not validate_environment():
         raise EnvironmentError("Required environment variables are not set or paths invalid")
 
     setup_logging(verbose)
     logging.info("WLC session starting")
+
+    global UnifiedWrapUpOrchestrator
+    if UnifiedWrapUpOrchestrator is None:
+        from scripts.orchestrators.unified_wrapup_orchestrator import (
+            UnifiedWrapUpOrchestrator as _Orchestrator,
+        )
+
+        UnifiedWrapUpOrchestrator = _Orchestrator
 
     with get_connection(db_path) as conn:
         entry_id = start_session_entry(conn)
@@ -125,6 +146,11 @@ def run_session(steps: int, db_path: Path, verbose: bool) -> None:
         try:
             for _ in tqdm(range(steps), desc="WLC Session", unit="step"):
                 pass  # placeholder for real work
+
+            orchestrator = UnifiedWrapUpOrchestrator(workspace_path=os.getenv("GH_COPILOT_WORKSPACE"))
+            result = orchestrator.execute_unified_wrapup()
+            compliance_score = result.compliance_score / 100.0
+
         except Exception as exc:  # noqa: BLE001
             logging.exception("WLC session failed")
             finalize_session_entry(conn, entry_id, 0.0, error=str(exc))
@@ -132,15 +158,36 @@ def run_session(steps: int, db_path: Path, verbose: bool) -> None:
 
         finalize_session_entry(conn, entry_id, compliance_score)
 
+        if run_orchestrator:
+            orchestrator_cls = UnifiedWrapUpOrchestrator
+            if orchestrator_cls is None:
+                from scripts.orchestrators.unified_wrapup_orchestrator import (
+                    UnifiedWrapUpOrchestrator as orchestrator_cls,
+                )
+
+            orchestrator = orchestrator_cls(
+                workspace_path=os.getenv("GH_COPILOT_WORKSPACE")
+            )
+            orchestrator.execute_unified_wrapup()
+
         validator = SecondaryCopilotValidator()
         validator.validate_corrections([__file__])
+
+    if os.getenv("WLC_RUN_ORCHESTRATOR") == "1":
+        orchestrator = UnifiedWrapUpOrchestrator(workspace_path=os.getenv("GH_COPILOT_WORKSPACE"))
+        orchestrator.execute_unified_wrapup()
 
     logging.info("WLC session completed")
 
 
 def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
-    run_session(args.steps, args.db_path, args.verbose)
+    run_session(
+        args.steps,
+        args.db_path,
+        args.verbose,
+        run_orchestrator=args.orchestrate,
+    )
 
 
 if __name__ == "__main__":

@@ -10,6 +10,12 @@ Ensure the development environment is correctly configured **before** making any
 
 * **Setup Script**: If a `setup.sh` script is present at the repository root, run it (e.g. `bash setup.sh`) to perform initial setup tasks (creating the virtual environment, installing dependencies, etc.). This project provides a `setup.sh` – use it to avoid missing any required steps.
 * **Verify `clw` Utility**: After setup, confirm `/usr/local/bin/clw` exists and is executable. If missing, copy `tools/clw.py` to `/usr/local/bin/clw` and make it executable. Run `clw --help` to verify it works.
+* **Hard Output Limit**: The Codex terminal enforces a **1600-byte** maximum per line. Always pipe potentially long output through `clw` (e.g., `command | clw`) or redirect to a log file and read it in chunks.
+* **Recommended `CLW_MAX_LINE_LENGTH`**: Set the environment variable `CLW_MAX_LINE_LENGTH=1550` to keep wrapped output safely below the 1600-byte limit.
+* **Sample Usage of `clw`**: When inspecting large files or performing recursive searches, pipe the output through `clw`:
+  ```bash
+  grep -R "pattern" . | /usr/local/bin/clw
+  ```
 * **Python & Tools**: Use **Python 3.8+** (already provided in Codex). The setup will install necessary system packages (development headers, build tools, SQLite, etc.) and Python packages as specified by the project. Do **not** install additional packages beyond those listed in `requirements.txt` (and optional `requirements-web.txt`, `requirements-ml.txt`, etc.). **Only use** the dependencies declared by the project. If you believe a new package is required, **do not install it yourself** – instead, mention the need in the PR description for maintainers.
 * **Virtual Environment**: Always activate the Python virtual environment after running setup. For example, use `source .venv/bin/activate` to ensure you’re using the project’s isolated environment and packages.
 * **Environment Variables**: Certain environment variables must be set for the toolkit to function correctly. In particular:
@@ -18,6 +24,15 @@ Ensure the development environment is correctly configured **before** making any
   * **GH\_COPILOT\_BACKUP\_ROOT** – Path to an **external** backup directory (must be outside the workspace). This enforces anti-recursion: backups **must not** be stored under the project root. If not set, the toolkit defaults to a temp directory (e.g. `/tmp/<user>/gh_COPILOT_Backups` on Linux). It’s recommended to set this to a dedicated folder.
   * *Optional variables:* **WORKSPACE\_ROOT** (alias for `GH_COPILOT_WORKSPACE`), **FLASK\_SECRET\_KEY** (for the optional Flask web UI, default `'your_secret_key'` – replace in production), **FLASK\_RUN\_PORT** (Flask dev server port, default 5000), **CONFIG\_PATH** (path to a custom config file if not using the default `config/enterprise.json`), **WEB\_DASHBOARD\_ENABLED** (`"1"` or `"0"` to toggle logging of performance metrics with `[DASHBOARD]` tags). Configure these as needed if using those features.
 * After installing dependencies and setting variables, **run the test suite** (see [Testing and Validation](#testing-and-validation)) to verify the environment is correctly set up.
+
+## Output Safety and `clw`
+
+The terminal enforces a **1600-byte per-line limit**. Lines longer than this will reset the session. To stay safe:
+
+* Always pipe potentially large output through `/usr/local/bin/clw`. The tool hard-wraps lines longer than the configured threshold (default 1550 bytes).
+* When unsure, redirect command output to a log file and inspect it using `clw` or chunked reads (`head`, `tail`).
+* If `clw` is missing, recreate it from `tools/clw.py`, place it at `/usr/local/bin/clw`, and make it executable.
+* On any line-length error, start a new session, re-run setup, and retry the command using `clw` or log chunking.
 
 ## Allowed Tools and Commands (Agent Behavior)
 
@@ -39,6 +54,7 @@ When using the terminal or editing files, the agent must adhere to the following
     * The wrap threshold can be changed by setting the `CLW_MAX_LINE_LENGTH` environment variable (default 1550 bytes).
     * Inspect the source of `/usr/local/bin/clw` and use it exactly as documented. If `clw` is missing, recreate it using the script provided in the repository instructions and mark it executable. Pipe all commands that potentially have long output—or everything that doesn’t need a TTY—through `clw` to stay on the safe side.
     * **Example Usage:** `cat largefile.txt | clw` wraps long lines automatically. For logs, prefer `your_command > output.log` and review the log with `clw` to prevent terminal overflow.
+    * **Hard Limit Reminder:** A single terminal line may not exceed **1600 bytes**. Always pipe commands with unbounded output through `clw` or redirect to a log file first.
   * These output management strategies are **mandatory** for high-risk commands. Always anticipate if a command could produce very long lines or a flood of data. When in doubt, err on the side of caution and apply one of the above methods (or use filtering commands like `grep`, `cut`, or `awk` to reduce output size). **Never** allow an unbounded output stream to print directly to the terminal.
   * **Self-Healing Recovery**: If the terminal shows `Error: Output for session 'shell' contained a line exceeding the max of 1600 bytes`, immediately start a new session, run the standard setup steps again (reactivate the virtual environment and ensure `/usr/local/bin/clw` exists), then repeat the previous command with a safe output method such as piping through `clw` or logging and chunking.
 * **Anti-Recursion & Backups**: Never write backup files or any output to the repository workspace itself. All backup or log files (if any) should go to the designated external backup directory (see **GH\_COPILOT\_BACKUP\_ROOT** above). The agent should validate paths (using any provided `validate_enterprise_operation()` or similar, if available) before performing file writes, to ensure compliance with anti-recursion rules.
@@ -143,3 +159,5 @@ By adhering strictly to the above guidelines and protocols, the AI agent will pr
 
 - Inspect the source of /usr/local/bin/clw and use it as indicated.
 - Pipe all commands that potentially might have a long output, or pipe everything that does not need a tty to stay on the safe side.
+- Use `scripts/wlc_session_manager.py` to record wrap-up sessions. Ensure it
+  creates a row in `production.db` and logs under `$GH_COPILOT_BACKUP_ROOT/logs`.

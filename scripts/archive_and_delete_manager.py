@@ -3,7 +3,7 @@ Enterprise File Archival and Deletion Workflow – DUAL COPILOT, DATABASE-FIRST 
 
 MANDATORY REQUIREMENTS:
 1. Query production.db for archival and deletion workflow patterns.
-2. Move files intended for deletion to .7z ultra compressed archive in ARCHIVE(S)/ or _MANUAL_DELETE_FOLDER/.
+2. Move files intended for deletion to .7z archives stored under ``GH_COPILOT_BACKUP_ROOT``.
 3. Only delete files after successful archival.
 4. Use tqdm for progress, start time logging, timeout, ETC calculation, and real-time status updates.
 5. Validate anti-recursion and workspace integrity before archival/deletion.
@@ -20,16 +20,14 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import py7zr
 from tqdm import tqdm
 
 # Enterprise logging setup
 ARCHIVE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "ARCHIVE(S)"
-MANUAL_DELETE_FOLDER = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "_MANUAL_DELETE_FOLDER"
-)
+MANUAL_DELETE_FOLDER = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
 LOGS_DIR = (
     Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "archive_delete"
 )
@@ -82,7 +80,7 @@ class ArchiveAndDeleteManager:
         self.status = "INITIALIZED"
         validate_no_recursive_folders()
         validate_environment_root()
-        logging.info(f"PROCESS STARTED: File Archival and Deletion")
+        logging.info("PROCESS STARTED: File Archival and Deletion")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
 
@@ -101,10 +99,7 @@ class ArchiveAndDeleteManager:
         return patterns
 
     def archive(self, target: Path, compression_level: int = 9) -> Path:
-        """
-        Archive the target file to .7z in ARCHIVE(S)/ or _MANUAL_DELETE_FOLDER/.
-        Returns the archive path.
-        """
+        """Archive the target file to .7z under ``GH_COPILOT_BACKUP_ROOT``."""
         self.status = "ARCHIVING"
         start_time = time.time()
         archive_dir = self.archive_root
@@ -140,10 +135,7 @@ class ArchiveAndDeleteManager:
         return archive_path
 
     def move_to_manual_delete(self, archive_path: Path) -> Path:
-        """
-        Move the archive to _MANUAL_DELETE_FOLDER/ for manual review before deletion.
-        Returns the new path.
-        """
+        """Move the archive to ``GH_COPILOT_BACKUP_ROOT`` for manual review."""
         self.status = "MOVING_TO_MANUAL_DELETE"
         self.manual_delete_folder.mkdir(parents=True, exist_ok=True)
         dest_path = self.manual_delete_folder / archive_path.name
