@@ -20,6 +20,15 @@ Ensure the development environment is correctly configured **before** making any
   * *Optional variables:* **WORKSPACE\_ROOT** (alias for `GH_COPILOT_WORKSPACE`), **FLASK\_SECRET\_KEY** (for the optional Flask web UI, default `'your_secret_key'` – replace in production), **FLASK\_RUN\_PORT** (Flask dev server port, default 5000), **CONFIG\_PATH** (path to a custom config file if not using the default `config/enterprise.json`), **WEB\_DASHBOARD\_ENABLED** (`"1"` or `"0"` to toggle logging of performance metrics with `[DASHBOARD]` tags). Configure these as needed if using those features.
 * After installing dependencies and setting variables, **run the test suite** (see [Testing and Validation](#testing-and-validation)) to verify the environment is correctly set up.
 
+## Output Safety and `clw`
+
+The terminal enforces a **1600-byte per-line limit**. Lines longer than this will reset the session. To stay safe:
+
+* Always pipe potentially large output through `/usr/local/bin/clw`. The tool hard-wraps lines longer than the configured threshold (default 1550 bytes).
+* When unsure, redirect command output to a log file and inspect it using `clw` or chunked reads (`head`, `tail`).
+* If `clw` is missing, recreate it from `tools/clw.py`, place it at `/usr/local/bin/clw`, and make it executable.
+* On any line-length error, start a new session, re-run setup, and retry the command using `clw` or log chunking.
+
 ## Allowed Tools and Commands (Agent Behavior)
 
 When using the terminal or editing files, the agent must adhere to the following rules:
