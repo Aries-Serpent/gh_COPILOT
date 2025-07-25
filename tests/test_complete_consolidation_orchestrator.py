@@ -1,13 +1,13 @@
 import sqlite3
 from pathlib import Path
 
-import py7zr
+import py7zr  # pyright: ignore[reportMissingImports]
 import pytest
 
-from scripts.database.complete_consolidation_orchestrator import (
-    compress_large_tables,
-    export_table_to_7z,
-)
+# Disable validation at import time for test isolation
+os.environ.setdefault("GH_COPILOT_DISABLE_VALIDATION", "1")
+
+from scripts.database.complete_consolidation_orchestrator import export_table_to_7z, migrate_and_compress
 
 
 def test_export_table_to_7z(tmp_path: Path) -> None:
@@ -35,14 +35,40 @@ def _create_db(path: Path, table: str, rows: int) -> None:
         conn.commit()
 
 
-def test_migrate_and_compress_archives_large_tables(tmp_path: Path) -> None:
-    db = tmp_path / "enterprise.db"
-    _create_db(db, "bigtable", 60000)
-    analysis = {"tables": [{"name": "bigtable", "record_count": 60000}]}
+def test_migrate_and_compress_archives_large_tables(tmp_path: Path, monkeypatch) -> None:
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
 
-    archives = compress_large_tables(db, analysis, level=5)
-    assert archives
-    archive = archives[0]
+    big_db = db_dir / "big.db"
+    small_db = db_dir / "small.db"
+    _create_db(big_db, "bigtable", 60000)
+    _create_db(small_db, "smalltable", 10)
+
+    enterprise_db = db_dir / "enterprise_assets.db"
+    from contextlib import contextmanager
+
+    @contextmanager
+    def temporary_chdir(path):
+        original_cwd = os.getcwd()
+        os.chdir(path)
+        try:
+            yield
+        finally:
+            os.chdir(original_cwd)
+
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    import scripts.database.unified_database_initializer as udi
+    monkeypatch.setattr(
+        udi,
+        "SecondaryCopilotValidator",
+        lambda logger: type("Dummy", (), {"validate_corrections": lambda self, files: True})(),
+    )
+    with temporary_chdir(tmp_path):
+        migrate_and_compress(tmp_path, [big_db.name, small_db.name], level=5)
+
+    assert enterprise_db.exists()
+    archive = tmp_path / "archives" / "table_exports" / f"{enterprise_db.stem}_bigtable.7z"
     assert archive.exists()
     with py7zr.SevenZipFile(archive, "r") as zf:
         names = zf.getnames()
@@ -53,38 +79,20 @@ def test_create_external_backup(tmp_path: Path, monkeypatch) -> None:
     source = tmp_path / "test.db"
     source.write_text("data")
 
-    workspace = tmp_path / "workspace"
+    workspace = tmp_path / "ws"
     workspace.mkdir()
-    backup_root = tmp_path / "external_backups"
+    internal_backup = workspace / "backups"
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
-    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
 
-    import importlib
-    module = importlib.reload(
-        importlib.import_module("scripts.database.complete_consolidation_orchestrator")
-    )  # noqa: E402
-    create_external_backup = module.create_external_backup
+    from scripts.database import complete_consolidation_orchestrator as cco
 
-    backup = create_external_backup(source, "unit_test", backup_dir=backup_root)
+    cco.WORKSPACE_PATH = workspace
+    with pytest.raises(RuntimeError):
+        cco.create_external_backup(source, "unit_test", backup_dir=internal_backup)
+
+    external_root = tmp_path / "external_backups"
+    backup = cco.create_external_backup(source, "unit_test", backup_dir=external_root)
 
     assert backup.exists()
-    assert backup.parent == backup_root
+    assert backup.parent == external_root
     assert not str(backup).startswith(str(workspace))
-
-
-def test_create_external_backup_in_workspace_raises(tmp_path: Path, monkeypatch) -> None:
-    workspace = tmp_path / "workspace"
-    workspace.mkdir()
-    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
-    backup_root = tmp_path / "external_root"
-    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
-    source = workspace / "test.db"
-    source.write_text("data")
-    import importlib
-    module = importlib.reload(
-        importlib.import_module("scripts.database.complete_consolidation_orchestrator")
-    )  # noqa: E402
-    create_external_backup = module.create_external_backup
-
-    with pytest.raises(RuntimeError):
-        create_external_backup(source, "bad", backup_dir=workspace / "backups")

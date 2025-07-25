@@ -1,4 +1,4 @@
-"""Simulate analytics migrations in-memory only."""
+"""Run analytics migrations against an in-memory database."""
 
 import datetime
 import sqlite3
