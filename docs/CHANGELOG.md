@@ -1,0 +1,8 @@
+# Changelog
+
+## [4.1.2] - 2025-07-26
+- Added migration README describing how to apply SQL files.
+- Updated `add_code_audit_log.py` wrapper export.
+- Made `add_correction_history.sql` idempotent.
+- Documentation now references `unified_database_initializer.py`.
+
