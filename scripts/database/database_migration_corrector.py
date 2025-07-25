@@ -34,6 +34,7 @@ class DatabaseMigrationCorrector:
         )
         self.source_db = self.workspace_root / "logs.db"
         self.target_db = self.workspace_root / "databases" / "logs.db"
+        self.target_conn: sqlite3.Connection | None = None
 
         # Migration tracking
         self.migration_report = {
@@ -147,9 +148,10 @@ class DatabaseMigrationCorrector:
                 source_conn = sqlite3.connect(str(self.source_db))
                 target_conn = self.target_conn
                 close_target = False
-                if self.target_conn is None:
+                if target_conn is None:
                     target_conn = sqlite3.connect(str(self.target_db))
                     close_target = True
+                assert target_conn is not None
 
                 source_cursor = source_conn.cursor()
                 target_cursor = target_conn.cursor()
@@ -211,6 +213,7 @@ class DatabaseMigrationCorrector:
                 error_msg = f"Migration error: {str(e)}"
                 print(f"❌ {error_msg}")
                 try:
+                    assert target_conn is not None
                     target_conn.rollback()
                 except Exception:
                     pass

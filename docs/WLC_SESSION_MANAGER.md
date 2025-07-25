@@ -28,7 +28,7 @@ database, and `--orchestrate` to run the orchestrator inline.
 Run the session manager directly to start a WLC session:
 
 ```bash
-python scripts/wlc_session_manager.py
+python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
 ```
 
 Log files will be written under `$GH_COPILOT_BACKUP_ROOT/logs/` and a new row is inserted into the `unified_wrapup_sessions` table of `production.db`.
