@@ -7,12 +7,15 @@ import json
 import logging
 import sqlite3
 import sys
-from dataclasses import dataclass
 import time
+from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
-from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
+
 from tqdm import tqdm
-from utils.log_utils import _log_event
+
+from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
+from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
 
 RENDER_LOG_DIR = Path("logs/template_rendering")
 LOG_FILE = RENDER_LOG_DIR / "documentation_render.log"
