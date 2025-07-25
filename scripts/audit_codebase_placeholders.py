@@ -28,7 +28,7 @@ from tqdm import tqdm
 from scripts.continuous_operation_orchestrator import (
     validate_enterprise_operation,
 )
-from scripts.database.add_code_audit_log import add_table as ensure_code_audit_log
+from scripts.database.add_code_audit_log import ensure_code_audit_log
 
 # Visual processing indicator constants
 TEXT = {
