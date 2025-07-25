@@ -1,4 +1,4 @@
-"""Analytics migration tests (in-memory only)."""
+"""Dry-run analytics migrations using an in-memory SQLite database."""
 
 import datetime as dt
 import os
