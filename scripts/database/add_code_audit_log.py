@@ -40,7 +40,7 @@ CREATE INDEX IF NOT EXISTS idx_code_audit_log_timestamp
 def add_table(db_path: Path) -> None:
     """Create ``code_audit_log`` table in ``db_path``."""
     start_time = datetime.now()
-    logger.info("🚀 Starting add_table for %s", db_path)
+    logger.info("[START] add_table for %s", db_path)
     logger.info("Process ID: %s", os.getpid())
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -54,7 +54,7 @@ def add_table(db_path: Path) -> None:
     check_database_sizes(db_path.parent)
 
     elapsed = datetime.now() - start_time
-    logger.info("✅ Completed in %s", str(elapsed))
+    logger.info("[SUCCESS] Completed in %s", str(elapsed))
 
 
 def ensure_code_audit_log(db_path: Path) -> None:

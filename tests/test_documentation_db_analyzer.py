@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-from archive.consolidated_scripts.documentation_db_analyzer import (
+from scripts.database.documentation_db_analyzer import (
     analyze_documentation_gaps,
     validate_analysis,
 )
