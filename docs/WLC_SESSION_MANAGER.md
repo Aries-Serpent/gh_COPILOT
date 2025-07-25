@@ -27,6 +27,16 @@ python scripts/wlc_session_manager.py
 
 Log files will be written under `$GH_COPILOT_BACKUP_ROOT/logs/` and a new row is inserted into the `unified_wrapup_sessions` table of `production.db`.
 
+### Orchestrator Integration
+
+Pass `--orchestrate` to automatically run the `UnifiedWrapUpOrchestrator` after the WLC steps complete:
+
+```bash
+python scripts/wlc_session_manager.py --steps 2 --orchestrate
+```
+
+The orchestrator consolidates files and validates configuration. All actions are recorded in the same `unified_wrapup_sessions` table.
+
 ## Related Tests
 
 The behavior is validated by `tests/test_wlc_session_manager.py`, which verifies session logging and compliance score tracking.

@@ -92,6 +92,9 @@ sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 # Verify creation
 sqlite3 databases/analytics.db ".schema code_audit_log"
+# Manual creation is required; see `docs/ANALYTICS_DB_TEST_PROTOCOL.md`
+# for the test-only procedure ensuring migrations succeed without
+# automatically generating `analytics.db`.
 python scripts/database/size_compliance_checker.py
 
 # 3b. Synchronize databases
@@ -707,8 +710,10 @@ The **Wrapping, Logging, and Compliance (WLC)** system ensures that long-running
 operations are recorded and validated for enterprise review. The session manager
 in [`scripts/wlc_session_manager.py`](scripts/wlc_session_manager.py) starts a
 session entry in `production.db`, logs progress to an external backup location,
-and finalizes the run with a compliance score. Detailed usage instructions are
-available in [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+and finalizes the run with a compliance score. Each run inserts a record into the
+`unified_wrapup_sessions` table with `session_id`, timestamps, status, compliance
+score, and optional error details. Detailed usage instructions are available in
+[docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
 
 ---
 
