@@ -10,6 +10,11 @@ Ensure the development environment is correctly configured **before** making any
 * **Verify `clw` Utility**: After setup, confirm `/usr/local/bin/clw` exists and is executable. Recreate it with the provided script if missing.
 * **Always Pipe Large Output Through `clw`**: The terminal limits lines to roughly 1600 bytes. To prevent crashes, pipe any command that may emit long lines or large amounts of text through `clw` (`command | clw`). Use logging-and-chunking if output is still too large.
 * **Hard Output Limit Reminder**: The console rejects any line longer than **1600 bytes**. Adjust the wrap length via `CLW_MAX_LINE_LENGTH`. If an error occurs, restart the session, rerun `setup.sh`, and repeat the command with `clw` or by logging to a file.
+* **Example**: Redirect high-volume output and review it safely:
+  ```bash
+  some_command > big.log
+  clw < big.log
+  ```
 * **Python & Tools**: Use **Python 3.8+** (already provided in Codex). The setup will install necessary system packages (development headers, build tools, SQLite, etc.) and Python packages as specified by the project. Do **not** install additional packages beyond those listed in `requirements.txt` (and optional `requirements-web.txt`, `requirements-ml.txt`, etc.). **Only use** the dependencies declared by the project. If you believe a new package is required, **do not install it yourself** – instead, mention the need in the PR description for maintainers.
 * **Virtual Environment**: Always activate the Python virtual environment after running setup. For example, use `source .venv/bin/activate` to ensure you’re using the project’s isolated environment and packages.
 * **Environment Variables**: Certain environment variables must be set for the toolkit to function correctly. In particular:

@@ -154,6 +154,9 @@ The script is bundled as `tools/clw.py` and can be copied to `/usr/local/bin/clw
 
 If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
 You can adjust the wrap length by setting `CLW_MAX_LINE_LENGTH` before invoking the wrapper.
+> **Note**: The Codex terminal enforces a strict 1600-byte *per-line* limit. Wrapping output with
+`clw` prevents session resets by ensuring no line exceeds this limit. When in doubt, redirect long
+output to a file and view it with `clw` in small chunks.
 
 
 
@@ -214,6 +217,13 @@ Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment
 The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
 
 ```bash
+python scripts/wlc_session_manager.py --steps 2 --verbose
+```
+Before running, set the required environment variables so session data is logged correctly:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
 python scripts/wlc_session_manager.py --steps 2 --verbose
 ```
 
