@@ -12,15 +12,18 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from time import perf_counter
-from typing import Iterable, List, Optional, Union
+from typing import Any, List, Optional, Sequence, Union, cast
 
 import py7zr  # pyright: ignore[reportMissingImports]
 from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+
 from .database_migration_corrector import DatabaseMigrationCorrector
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
+
+py7zr = cast(Any, py7zr)
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +60,7 @@ def archive_database(db_path: Path, dest_dir: Path, level: int = 9) -> Path:
     """Archive ``db_path`` to ``dest_dir`` using 7z with maximum compression."""
     dest_dir.mkdir(parents=True, exist_ok=True)
     archive_path = dest_dir / f"{db_path.name}.7z"
-    with py7zr.SevenZipFile(archive_path, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}]) as zf:
+    with py7zr.SevenZipFile(archive_path, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}]) as zf:  # type: ignore[attr-defined]
         zf.write(db_path, arcname=db_path.name)
     logger.info("Archived %s to %s", db_path.name, archive_path)
     return archive_path
@@ -87,11 +90,7 @@ def export_table_to_7z(db_path: Path, table: str, dest_dir: Path, level: int = 5
         writer.writerow([d[0] for d in cur.description])
         writer.writerows(cur.fetchall())
         tmp_path = Path(tmp.name)
-    with py7zr.SevenZipFile(
-        archive_path,
-        mode="w",
-        filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}],
-    ) as zf:
+    with py7zr.SevenZipFile(archive_path, mode="w", compression_level=level) as zf:  # type: ignore[attr-defined]
         zf.write(tmp_path, arcname=tmp_path.name)
     tmp_path.unlink()
     logger.info("Compressed %s.%s to %s", db_path.name, table, archive_path)
@@ -159,9 +158,7 @@ def compress_large_tables(db_path: Path, analysis: dict, threshold: int = 50000,
 
 def migrate_and_compress(
     workspace: Path,
-    sources: Iterable[str],
-    *,
-    level: int = 5,
+    sources: Sequence[str],
     log_file: Union[Path, str] = "migration.log",
     *,
     level: int = 5,
@@ -208,28 +205,15 @@ def migrate_and_compress(
                     bar.update(1)
                     continue
                 create_external_backup(src, name.replace(".db", ""), backup_dir=session_backup_dir)
-                with sqlite3.connect(src) as sc:
-                    tc = conn
-                    tables = sc.execute(
-                        "SELECT name FROM sqlite_master WHERE type='table'"
-                    ).fetchall()
-                    for (table_name,) in tables:
-                        schema = sc.execute(
-                            "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
-                            (table_name,),
-                        ).fetchone()
-                        if schema:
-                            tc.execute(schema[0])
-                            rows = sc.execute(f"SELECT * FROM {table_name}").fetchall()
-                            if rows:
-                                placeholders = ",".join(["?" for _ in rows[0]])
-                                tc.executemany(
-                                    f"INSERT OR REPLACE INTO {table_name} VALUES ({placeholders})",
-                                    rows,
-                                )
-                    tc.commit()
-                analysis = DatabaseMigrationCorrector().analyze_database_structure(enterprise_db)
-                compress_large_tables(enterprise_db, analysis, level=level)
+                migrator = DatabaseMigrationCorrector()
+                migrator.workspace_root = workspace
+                migrator.source_db = src
+                migrator.target_db = enterprise_db
+                migrator.target_conn = conn
+                migrator.migration_report = {"errors": []}
+                migrator.migrate_database_content()
+                analysis = migrator.analyze_database_structure(enterprise_db)
+                compress_large_tables(enterprise_db, analysis)
                 elapsed = perf_counter() - start
                 remaining = (total - idx) * (elapsed / idx)
                 bar.set_postfix(ETC=f"{remaining:.1f}s")
