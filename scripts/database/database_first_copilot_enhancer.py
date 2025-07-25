@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Database-First Copilot Enhancer."""
+
 from __future__ import annotations
 
 import logging
-import sqlite3
-from pathlib import Path
 import os
+import sqlite3
 from difflib import SequenceMatcher
+from pathlib import Path
 from typing import Any, Dict, List
 
 from tqdm import tqdm
@@ -36,14 +37,34 @@ class DatabaseFirstCopilotEnhancer:
                 pass
 
     def _initialize_template_engine(self) -> Any:
-        """Return a simple template engine placeholder.
+        """Initialize template engine that loads templates from the database.
 
-        The template includes the workspace placeholder so that
-        :meth:`_adapt_to_current_environment` can inject environment
-        specific values.
+        Falls back to a basic placeholder if no template is found.
         """
 
-        return lambda name: f"# Template for {name} in {{workspace}}"
+        def engine(name: str) -> str:
+            if self.production_db.exists():
+                try:
+                    with sqlite3.connect(self.production_db) as conn:
+                        conn.execute(
+                            "CREATE TABLE IF NOT EXISTS templates (name TEXT PRIMARY KEY, template_content TEXT)"
+                        )
+                        row = conn.execute(
+                            "SELECT template_content FROM templates WHERE name=?",
+                            (name,),
+                        ).fetchone()
+                        if row and row[0]:
+                            return row[0]
+                except sqlite3.Error as exc:  # pragma: no cover - ignore lookup failures
+                    self.logger.warning("Template lookup failed: %s", exc)
+
+            file_path = self.workspace / "templates" / f"{name}.tpl"
+            if file_path.exists():
+                return file_path.read_text()
+
+            return f"# Template for {name} in {{workspace}}"
+
+        return engine
 
     def _query_database_solutions(self, objective: str) -> List[str]:
         """Return code snippets matching ``objective`` from ``production.db``."""
@@ -51,9 +72,7 @@ class DatabaseFirstCopilotEnhancer:
             return []
         with sqlite3.connect(self.production_db) as conn:
             cur = conn.cursor()
-            cur.execute(
-                "CREATE TABLE IF NOT EXISTS solutions (objective TEXT, code TEXT)"
-            )
+            cur.execute("CREATE TABLE IF NOT EXISTS solutions (objective TEXT, code TEXT)")
             cur.execute("SELECT objective, code FROM solutions")
             matches: List[tuple[float, str]] = []
             for obj, code in cur.fetchall():
