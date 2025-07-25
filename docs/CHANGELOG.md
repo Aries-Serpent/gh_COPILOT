@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.1.3] - 2025-07-27
+- Verified presence of new session and monitoring modules.
+- Refreshed documentation for wrappers and utilities.
+
 ## [4.1.2] - 2025-07-26
 - Added migration README describing how to apply SQL files.
 - Updated `add_code_audit_log.py` wrapper export.
