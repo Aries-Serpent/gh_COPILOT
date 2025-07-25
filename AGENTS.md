@@ -10,6 +10,7 @@ Ensure the development environment is correctly configured **before** making any
 
 * **Setup Script**: If a `setup.sh` script is present at the repository root, run it (e.g. `bash setup.sh`) to perform initial setup tasks (creating the virtual environment, installing dependencies, etc.). This project provides a `setup.sh` – use it to avoid missing any required steps.
 * **Verify `clw` Utility**: After setup, confirm `/usr/local/bin/clw` exists and is executable. If missing, copy `tools/clw.py` to `/usr/local/bin/clw` and make it executable. Run `clw --help` to verify it works.
+* **Hard Output Limit**: The Codex terminal enforces a **1600-byte** maximum per line. Always pipe potentially long output through `clw` (e.g., `command | clw`) or redirect to a log file and read it in chunks. Adjust the limit with `CLW_MAX_LINE_LENGTH` if needed.
 * **Python & Tools**: Use **Python 3.8+** (already provided in Codex). The setup will install necessary system packages (development headers, build tools, SQLite, etc.) and Python packages as specified by the project. Do **not** install additional packages beyond those listed in `requirements.txt` (and optional `requirements-web.txt`, `requirements-ml.txt`, etc.). **Only use** the dependencies declared by the project. If you believe a new package is required, **do not install it yourself** – instead, mention the need in the PR description for maintainers.
 * **Virtual Environment**: Always activate the Python virtual environment after running setup. For example, use `source .venv/bin/activate` to ensure you’re using the project’s isolated environment and packages.
 * **Environment Variables**: Certain environment variables must be set for the toolkit to function correctly. In particular:
@@ -18,6 +19,15 @@ Ensure the development environment is correctly configured **before** making any
   * **GH\_COPILOT\_BACKUP\_ROOT** – Path to an **external** backup directory (must be outside the workspace). This enforces anti-recursion: backups **must not** be stored under the project root. If not set, the toolkit defaults to a temp directory (e.g. `/tmp/<user>/gh_COPILOT_Backups` on Linux). It’s recommended to set this to a dedicated folder.
   * *Optional variables:* **WORKSPACE\_ROOT** (alias for `GH_COPILOT_WORKSPACE`), **FLASK\_SECRET\_KEY** (for the optional Flask web UI, default `'your_secret_key'` – replace in production), **FLASK\_RUN\_PORT** (Flask dev server port, default 5000), **CONFIG\_PATH** (path to a custom config file if not using the default `config/enterprise.json`), **WEB\_DASHBOARD\_ENABLED** (`"1"` or `"0"` to toggle logging of performance metrics with `[DASHBOARD]` tags). Configure these as needed if using those features.
 * After installing dependencies and setting variables, **run the test suite** (see [Testing and Validation](#testing-and-validation)) to verify the environment is correctly set up.
+
+## Output Safety and `clw`
+
+The terminal enforces a **1600-byte per-line limit**. Lines longer than this will reset the session. To stay safe:
+
+* Always pipe potentially large output through `/usr/local/bin/clw`. The tool hard-wraps lines longer than the configured threshold (default 1550 bytes).
+* When unsure, redirect command output to a log file and inspect it using `clw` or chunked reads (`head`, `tail`).
+* If `clw` is missing, recreate it from `tools/clw.py`, place it at `/usr/local/bin/clw`, and make it executable.
+* On any line-length error, start a new session, re-run setup, and retry the command using `clw` or log chunking.
 
 ## Allowed Tools and Commands (Agent Behavior)
 
