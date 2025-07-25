@@ -18,7 +18,6 @@ import py7zr  # pyright: ignore[reportMissingImports]
 from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
-
 from .database_migration_corrector import DatabaseMigrationCorrector
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
@@ -39,7 +38,8 @@ class ExternalBackupConfiguration:
             return Path(env_path)
         if os.name == "nt":
             return Path("E:/temp/gh_COPILOT_Backups")
-        return Path("/temp/gh_COPILOT_Backups")
+        user = os.getenv("USER", "user")
+        return Path(f"/tmp/{user}/gh_COPILOT_Backups")
 
     @staticmethod
     def validate_external_backup_location(backup_path: Path, workspace_path: Path) -> None:
@@ -160,6 +160,8 @@ def compress_large_tables(db_path: Path, analysis: dict, threshold: int = 50000,
 def migrate_and_compress(
     workspace: Path,
     sources: Iterable[str],
+    *,
+    level: int = 5,
     log_file: Union[Path, str] = "migration.log",
     *,
     level: int = 5,
@@ -279,5 +281,6 @@ if __name__ == "__main__":
     migrate_and_compress(
         workspace,
         ["analytics.db", "documentation.db", "template_completion.db"],
+        level=5,
         log_file=args.log_file,
     )

@@ -6,6 +6,9 @@ Recent updates:
 * Session management wrappers and monitoring utilities implemented.
 * Template synchronizer uses database-driven logic with analytics logging.
 * Compliance metrics updater generates real metrics for the dashboard.
+* Placeholder audit logger supports test-mode simulations for compliance checks.
+* Placeholder audit script logs TODO/FIXME findings to `analytics.db` with optional simulation mode.
+* Compliance metrics updater now accepts a `--simulate` flag to skip dashboard writes during testing.
 
 ## 1. Database-First Integration
 - Expand `DatabaseFirstCopilotEnhancer` with anti-recursion checks and query similarity scoring.
@@ -152,7 +155,7 @@ implemented consistently.
 
 | ID | Description | Module/Path | Related Sections |
 |----|-------------|-------------|-----------------|
-| `STUB-001` | Finalize placeholder scanning logic with full traversal and progress logging. Record every finding to `analytics.db` | `scripts/placeholder_audit_logger.py`, `scripts/audit_codebase_placeholders.py` | Audit and Compliance |
+| `STUB-001` | **Completed**: placeholder scanning with progress logging records all findings to `analytics.db` | `scripts/placeholder_audit_logger.py`, `scripts/audit_codebase_placeholders.py` | Audit and Compliance |
 | `STUB-002` | Expand database-first code generation with similarity scoring and template retrieval | `template_engine/auto_generator.py`, `template_engine/db_first_code_generator.py`, `pattern_mining_engine.py`, `objective_similarity_scorer.py` | Code Generation |
 | `STUB-003` | Implement KMeans clustering for template selection and transactional synchronization | `template_engine/template_synchronizer.py`, `copilot/copilot-instructions.md` | Pattern Clustering |
 | `STUB-004` | Log all correction history with rollback design and compliance metrics | `documentation_db_analyzer.py`, `compliance_metrics_updater.py`, `databases/analytics.db` | Correction Logging |
