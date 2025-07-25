@@ -60,6 +60,7 @@ def test_migrate_and_compress_archives_large_tables(tmp_path: Path, monkeypatch)
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     import scripts.database.unified_database_initializer as udi
+
     monkeypatch.setattr(
         udi,
         "SecondaryCopilotValidator",

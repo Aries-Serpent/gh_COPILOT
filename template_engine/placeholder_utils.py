@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-import re
 from typing import Mapping
 
 from tqdm import tqdm
@@ -25,9 +25,7 @@ def _load_placeholder_map(production_db: Path, template_doc_db: Path) -> dict[st
     mapping: dict[str, str] = {}
     if production_db.exists():
         with sqlite3.connect(production_db) as conn:
-            for name, default in conn.execute(
-                "SELECT placeholder_name, default_value FROM template_placeholders"
-            ):
+            for name, default in conn.execute("SELECT placeholder_name, default_value FROM template_placeholders"):
                 clean = _PLACEHOLDER_RE.sub(r"\1", name) if _PLACEHOLDER_RE.search(name) else name.strip("{}")
                 mapping[clean] = default
     # template_doc_db currently provides no values but may define placeholder names
