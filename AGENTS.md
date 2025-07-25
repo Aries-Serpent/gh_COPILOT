@@ -11,6 +11,10 @@ Ensure the development environment is correctly configured **before** making any
 * **Setup Script**: If a `setup.sh` script is present at the repository root, run it (e.g. `bash setup.sh`) to perform initial setup tasks (creating the virtual environment, installing dependencies, etc.). This project provides a `setup.sh` – use it to avoid missing any required steps.
 * **Verify `clw` Utility**: After setup, confirm `/usr/local/bin/clw` exists and is executable. If missing, copy `tools/clw.py` to `/usr/local/bin/clw` and make it executable. Run `clw --help` to verify it works.
 * **Hard Output Limit**: The Codex terminal enforces a **1600-byte** maximum per line. Always pipe potentially long output through `clw` (e.g., `command | clw`) or redirect to a log file and read it in chunks. Adjust the limit with `CLW_MAX_LINE_LENGTH` if needed.
+* **Sample Usage of `clw`**: When inspecting large files or performing recursive searches, pipe the output through `clw`:
+  ```bash
+  grep -R "pattern" . | /usr/local/bin/clw
+  ```
 * **Python & Tools**: Use **Python 3.8+** (already provided in Codex). The setup will install necessary system packages (development headers, build tools, SQLite, etc.) and Python packages as specified by the project. Do **not** install additional packages beyond those listed in `requirements.txt` (and optional `requirements-web.txt`, `requirements-ml.txt`, etc.). **Only use** the dependencies declared by the project. If you believe a new package is required, **do not install it yourself** – instead, mention the need in the PR description for maintainers.
 * **Virtual Environment**: Always activate the Python virtual environment after running setup. For example, use `source .venv/bin/activate` to ensure you’re using the project’s isolated environment and packages.
 * **Environment Variables**: Certain environment variables must be set for the toolkit to function correctly. In particular:

@@ -17,3 +17,9 @@ unified-deployment-orchestrator = "copilot.orchestrators.unified_deployment_orch
 target-version = "py38"
 line-length = 120
 select = ["E", "F", "I"]
+extend-exclude = [
+    "deployment/deployment_package_*/*",
+    "scripts/enterprise/*",
+    "scripts/optimization/*",
+    "scripts/utilities/*",
+]
