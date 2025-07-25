@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+import os
 import sqlite3
 from pathlib import Path
 
 import numpy as np
 import pytest
+
+os.environ.setdefault("GH_COPILOT_DISABLE_VALIDATION", "1")
 from template_engine.auto_generator import TemplateAutoGenerator
 
 
@@ -20,9 +23,7 @@ def create_test_dbs(tmp_path: Path):
             [("SELECT {cols} FROM {table}",), ("print('hello world')",)],
         )
     with sqlite3.connect(completion_db) as conn:
-        conn.execute(
-            "CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)"
-        )
+        conn.execute("CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)")
         conn.executemany(
             "INSERT INTO templates (template_content) VALUES (?)",
             [("def foo():\n    pass",), ("class Bar:\n    pass",)],
@@ -57,13 +58,9 @@ def test_generate_template_invalid_syntax(tmp_path):
             "CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, \
                 replacement_template TEXT)"
         )
-        conn.execute(
-            "INSERT INTO ml_pattern_optimization (replacement_template) VALUES ('def invalid:')"
-        )
+        conn.execute("INSERT INTO ml_pattern_optimization (replacement_template) VALUES ('def invalid:')")
     with sqlite3.connect(completion_db) as conn:
-        conn.execute(
-            "CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)"
-        )
+        conn.execute("CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)")
     generator = TemplateAutoGenerator(analytics_db, completion_db)
     with pytest.raises(ValueError):
         generator.generate_template({"action": "invalid"})

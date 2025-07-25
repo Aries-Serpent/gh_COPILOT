@@ -28,22 +28,21 @@ LOG_FILE = LOGS_DIR / f"template_placeholder_remover_{datetime.now().strftime('%
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
 
 _PLACEHOLDER_RE = re.compile(r"{{\s*([A-Z0-9_]+)\s*}}")
 
+
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+
 
 def _load_valid_placeholders(db: Path) -> List[str]:
     """
@@ -54,11 +53,12 @@ def _load_valid_placeholders(db: Path) -> List[str]:
         with sqlite3.connect(db) as conn:
             try:
                 cur = conn.execute("SELECT placeholder_name FROM template_placeholders")
-                names = [row[0].strip('{}') for row in cur.fetchall()]
+                names = [row[0].strip("{}") for row in cur.fetchall()]
             except sqlite3.Error as exc:
                 logging.error(f"Error querying template_placeholders: {exc}")
                 names = []
     return names
+
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     elapsed = time.time() - start_time
@@ -68,15 +68,17 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
         return f"{remaining:.2f}s remaining"
     return "N/A"
 
+
 def _write_log(found: List[str], valid: set, result: str) -> None:
     log_entry = {
         "timestamp": datetime.utcnow().isoformat(),
         "found_placeholders": found,
         "valid_placeholders": list(valid),
-        "result": result
+        "result": result,
     }
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(str(log_entry) + "\n")
+
 
 def remove_unused_placeholders(
     template: str,
@@ -93,7 +95,7 @@ def remove_unused_placeholders(
     start_time = datetime.now()
     process_id = os.getpid()
     timeout_seconds = timeout_minutes * 60
-    logging.info(f"PROCESS STARTED: Template Placeholder Remover")
+    logging.info("PROCESS STARTED: Template Placeholder Remover")
     logging.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
     valid = set(_load_valid_placeholders(production_db))
@@ -132,6 +134,7 @@ def remove_unused_placeholders(
     _write_log(found, valid, result)
     return result
 
+
 def validate_removals(expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_DB) -> bool:
     """
     DUAL COPILOT validation for placeholder removals.
@@ -146,5 +149,6 @@ def validate_removals(expected_count: int, analytics_db: Path = DEFAULT_ANALYTIC
     else:
         logging.error("DUAL COPILOT validation failed: Placeholder removal mismatch.")
         return False
+
 
 __all__ = ["remove_unused_placeholders", "validate_removals"]

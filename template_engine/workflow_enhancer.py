@@ -18,11 +18,11 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
-from tqdm import tqdm
-from sklearn.cluster import KMeans
 import numpy as np
+from sklearn.cluster import KMeans
+from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 
@@ -33,19 +33,19 @@ LOG_FILE = LOGS_DIR / f"workflow_enhancer_{datetime.now().strftime('%Y%m%d_%H%M%
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
 PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "production.db"
 DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "dashboard" / "compliance"
 
+
 class TemplateWorkflowEnhancer:
-    """
-    Template/pattern workflow enhancement engine.
-    Removes hardcoded placeholders, applies database-driven templates, clustering, pattern mining, and compliance scoring.
+    """Template and pattern workflow enhancement engine.
+
+    This engine removes hardcoded placeholders and applies database-driven
+    templates. It also performs clustering, pattern mining and compliance
+    scoring.
     """
 
     def __init__(self, production_db: Path = PRODUCTION_DB, dashboard_dir: Path = DASHBOARD_DIR) -> None:
@@ -56,7 +56,7 @@ class TemplateWorkflowEnhancer:
         self.timeout_seconds = 1800  # 30 minutes
         self.status = "INITIALIZED"
         validate_enterprise_operation(str(production_db))
-        logging.info(f"PROCESS STARTED: Template Workflow Enhancement")
+        logging.info("PROCESS STARTED: Template Workflow Enhancement")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
 
@@ -67,19 +67,18 @@ class TemplateWorkflowEnhancer:
             logging.warning("production.db not found, using default templates.")
             return templates
         with sqlite3.connect(self.production_db) as conn:
-            cur = conn.execute("SELECT template_name, template_content, compliance_score, feature_vector FROM templates")
+            cur = conn.execute(
+                "SELECT template_name, template_content, compliance_score, feature_vector FROM templates"
+            )
             for row in cur.fetchall():
                 fv = [float(x) for x in row[3].split(",")] if row[3] else []
-                templates.append({
-                    "name": row[0],
-                    "content": row[1],
-                    "score": row[2],
-                    "features": fv
-                })
+                templates.append({"name": row[0], "content": row[1], "score": row[2], "features": fv})
         logging.info(f"Fetched {len(templates)} templates from database")
         return templates
 
-    def cluster_templates(self, templates: List[Dict[str, Any]], n_clusters: int = 5) -> Dict[int, List[Dict[str, Any]]]:
+    def cluster_templates(
+        self, templates: List[Dict[str, Any]], n_clusters: int = 5
+    ) -> Dict[int, List[Dict[str, Any]]]:
         """Cluster templates using KMeans for workflow optimization."""
         if not templates:
             return {}
@@ -115,7 +114,13 @@ class TemplateWorkflowEnhancer:
         logging.info(f"Average compliance score: {avg_score:.4f}")
         return avg_score
 
-    def generate_modular_report(self, templates: List[Dict[str, Any]], clusters: Dict[int, List[Dict[str, Any]]], patterns: List[str], compliance_score: float) -> None:
+    def generate_modular_report(
+        self,
+        templates: List[Dict[str, Any]],
+        clusters: Dict[int, List[Dict[str, Any]]],
+        patterns: List[str],
+        compliance_score: float,
+    ) -> None:
         """Generate modular report and dashboard-ready metrics."""
         self.dashboard_dir.mkdir(parents=True, exist_ok=True)
         report = {
@@ -124,17 +129,20 @@ class TemplateWorkflowEnhancer:
             "cluster_count": len(clusters),
             "patterns_mined": patterns,
             "average_compliance_score": compliance_score,
-            "status": "enhanced"
+            "status": "enhanced",
         }
         import json
+
         report_file = self.dashboard_dir / "workflow_enhancement_report.json"
         report_file.write_text(json.dumps(report, indent=2), encoding="utf-8")
         logging.info(f"Modular report written to {report_file}")
 
     def enhance(self, timeout_minutes: int = 30) -> bool:
-        """
-        Enhance workflow using database-driven templates, clustering, pattern mining, compliance scoring, and modular reporting.
-        Includes visual indicators, timeout, ETC, and DUAL COPILOT validation.
+        """Enhance workflow using stored templates and patterns.
+
+        The enhancement process runs clustering, pattern mining, compliance
+        scoring, and modular reporting. Visual indicators and dual validation
+        provide real-time feedback and fault tolerance.
         """
         self.status = "ENHANCING"
         start_time = time.time()
@@ -187,10 +195,12 @@ class TemplateWorkflowEnhancer:
         if not report_file.exists():
             return False
         import json
+
         with open(report_file, "r", encoding="utf-8") as f:
             data = json.load(f)
         actual_count = data.get("total_templates", 0)
         return actual_count >= expected_count
+
 
 def main(
     production_db_path: Optional[str] = None,
@@ -202,7 +212,7 @@ def main(
     """
     start_time = time.time()
     process_id = os.getpid()
-    logging.info(f"PROCESS STARTED: Template Workflow Enhancer")
+    logging.info("PROCESS STARTED: Template Workflow Enhancer")
     logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
 
@@ -217,6 +227,7 @@ def main(
     elapsed = time.time() - start_time
     logging.info(f"Template workflow enhancement session completed in {elapsed:.2f}s")
     return success
+
 
 if __name__ == "__main__":
     success = main()
