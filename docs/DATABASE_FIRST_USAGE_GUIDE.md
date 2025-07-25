@@ -85,14 +85,14 @@ reference.
 - To add new analytics tables run `scripts/database/add_code_audit_log.py` then
   execute any SQL files in `databases/migrations/` such as
   `add_code_audit_log.sql` and `add_correction_history.sql` using `sqlite3` or your preferred migration tool.
-  The `correction_history` table stores cleanup events with session ID, file path, action, timestamp, and optional details. Run the migration if this table is missing.
+  The `correction_history` table stores cleanup events with `user_id`, session ID, file path, action, timestamp, and optional details. Run the migration if this table is missing.
 - After every migration, run `scripts/database/size_compliance_checker.py` to
   verify the 99.9 MB limit is maintained.
 
 ### Correction History Table
 Use `add_correction_history.sql` to create the `correction_history` table. Each
-entry records the session ID, file path, action taken, and timestamp for code
-fixes. Verify creation with:
+entry records the `user_id`, session ID, file path, action taken, and timestamp
+for code fixes. Verify creation with:
 ```bash
 sqlite3 databases/analytics.db ".schema correction_history"
 ```
