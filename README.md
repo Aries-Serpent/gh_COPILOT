@@ -214,6 +214,9 @@ The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping
 python scripts/wlc_session_manager.py --steps 2 --verbose
 ```
 It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
+The sessions are tracked in the `unified_wrapup_sessions` table with start time,
+end time, status, and a compliance score. Ensure `GH_COPILOT_WORKSPACE` and
+`GH_COPILOT_BACKUP_ROOT` are set before running the manager.
 
 ---
 
