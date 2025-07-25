@@ -7,6 +7,8 @@ Recent updates:
 * Template synchronizer uses database-driven logic with analytics logging.
 * Compliance metrics updater generates real metrics for the dashboard.
 * Placeholder audit logger supports test-mode simulations for compliance checks.
+* Placeholder audit script logs TODO/FIXME findings to `analytics.db` with optional simulation mode.
+* Compliance metrics updater now accepts a `--simulate` flag to skip dashboard writes during testing.
 
 ## 1. Database-First Integration
 - Expand `DatabaseFirstCopilotEnhancer` with anti-recursion checks and query similarity scoring.
