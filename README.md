@@ -729,6 +729,7 @@ Several small modules provide common helpers:
   optimizations and demonstrations.
 - `template_engine.pattern_clustering_sync.PatternClusteringSync` – cluster templates from `production.db` and synchronize them with compliance auditing.
 - `template_engine.workflow_enhancer.TemplateWorkflowEnhancer` – enhance template workflows using clustering, pattern mining and dashboard reports.
+- `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
 
 ## Future Roadmap
 
