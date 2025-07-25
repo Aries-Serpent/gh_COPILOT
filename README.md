@@ -284,6 +284,10 @@ Several helper scripts under `template_engine` implement the database-first
 workflow. They provide progress indicators, DUAL COPILOT validation and
 compliance logging:
 
+* **TemplateAutoGenerator** – clusters stored patterns with KMeans and
+  generates code templates. It provides helper APIs such as
+  `get_cluster_representatives()` and robust error handling for invalid
+  templates.
 * **DBFirstCodeGenerator** – generates code or documentation by querying
   `production.db`, `documentation.db` and `template_documentation.db`. It logs
   all generation events to `analytics.db`.
@@ -291,6 +295,8 @@ compliance logging:
   synchronizes representative templates using transactional auditing.
 * **TemplateWorkflowEnhancer** – mines patterns from existing templates,
   computes compliance scores and writes dashboard-ready reports.
+* **PlaceholderUtils** – utilities to find and replace placeholders in
+  templates using values from multiple databases.
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
