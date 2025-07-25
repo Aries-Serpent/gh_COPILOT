@@ -22,7 +22,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
-- **Analytics Migrations:** run `add_code_audit_log.sql` and `add_correction_history.sql` (use `sqlite3` manually if `analytics.db` shipped without the table) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details.
+- **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, and `add_code_audit_history.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 - **Quantum features:** planned, not yet implemented
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
   optimizer and search helpers.
@@ -90,11 +90,10 @@ python scripts/database/add_code_audit_log.py
 # If `analytics.db` lacks the table, run the SQL migration manually
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 # Verify creation
 sqlite3 databases/analytics.db ".schema code_audit_log"
-# Manual creation is required; see `docs/ANALYTICS_DB_TEST_PROTOCOL.md`
-# for the test-only procedure ensuring migrations succeed without
-# automatically generating `analytics.db`.
+sqlite3 databases/analytics.db ".schema code_audit_history"
 python scripts/database/size_compliance_checker.py
 
 # 3b. Synchronize databases
