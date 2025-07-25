@@ -119,3 +119,10 @@ def test_session_error(tmp_path, monkeypatch):
 
     assert status == "FAILED"
     assert "boom" in error_details
+
+
+def test_missing_environment(monkeypatch):
+    monkeypatch.delenv("GH_COPILOT_WORKSPACE", raising=False)
+    monkeypatch.delenv("GH_COPILOT_BACKUP_ROOT", raising=False)
+    with pytest.raises(EnvironmentError):
+        wsm.run_session(1, wsm.DB_PATH, False)

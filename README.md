@@ -218,14 +218,14 @@ Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment
 The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
 
 ```bash
-python scripts/wlc_session_manager.py --steps 2 --verbose
+python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
 ```
 Before running, set the required environment variables so session data is logged correctly:
 
 ```bash
 export GH_COPILOT_WORKSPACE=$(pwd)
 export GH_COPILOT_BACKUP_ROOT=/path/to/backups
-python scripts/wlc_session_manager.py --steps 2 --verbose
+python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
 ```
 
 The manager validates required environment variables, executes the
@@ -650,7 +650,7 @@ python scripts/validation/dual_copilot_pattern_tester.py
 - **[DUAL COPILOT Pattern Guide](.github/instructions/DUAL_COPILOT_PATTERN.instructions.md)** - Implementation guide
 - **[Enterprise Context Guide](.github/instructions/ENTERPRISE_CONTEXT.instructions.md)** - System overview
 - **[Instruction Module Index](docs/INSTRUCTION_INDEX.md)** - Complete instruction listing
-- **Quantum Template Placeholder** `docs/quantum_template_placeholder.py` - future template generator
+- **Quantum Template Generator** `docs/quantum_template_placeholder.py` - generate scored documentation templates
 
 ### **GitHub Copilot Integration**
 The toolkit includes 16 specialized instruction modules for GitHub Copilot integration:
@@ -704,10 +704,6 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 # DUAL COPILOT validation
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 
-# Placeholder audit (with progress display)
-python scripts/intelligent_code_analysis_placeholder_detection.py \
-    --workspace $GH_COPILOT_WORKSPACE --db analytics.db
-
 # Repository-wide placeholder audit
 python scripts/audit_codebase_placeholders.py \
     --workspace $GH_COPILOT_WORKSPACE \
@@ -717,12 +713,6 @@ python scripts/audit_codebase_placeholders.py \
 # The audit automatically populates `code_audit_log` in analytics.db for
 # compliance reporting.
 # Run `scripts/database/add_code_audit_log.py` if the table is missing.
-
-# Simple wrapper script
-python scripts/placeholder_audit_logger.py \
-    --workspace $GH_COPILOT_WORKSPACE \
-    --analytics-db databases/analytics.db \
-    --production-db databases/production.db
 
 The audit results are used by the `/dashboard/compliance` endpoint to
 report ongoing placeholder removal progress and overall compliance

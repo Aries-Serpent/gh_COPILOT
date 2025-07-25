@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 import os
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from tqdm import tqdm
@@ -177,7 +177,7 @@ def initialize_database(db_path: Path) -> None:
     timeout_seconds = timeout_minutes * 60
     tables = load_schema_from_production(TABLES)
     total_tables = len(tables)
-    start_log = log_sync_operation(db_path, "init_start")
+    start_log = datetime.now(timezone.utc)
     with sqlite3.connect(db_path, timeout=5) as conn, tqdm(
         total=total_tables,
         desc="Creating tables",
@@ -202,6 +202,8 @@ def initialize_database(db_path: Path) -> None:
                 logger.error("Timeout exceeded during table creation")
                 raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
         conn.commit()
+
+    log_sync_operation(db_path, "init_start", start_time=start_log)
 
     # Post creation size check
     if db_path.stat().st_size > SIZE_LIMIT_MB * 1024 * 1024:

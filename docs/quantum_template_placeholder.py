@@ -1,11 +1,12 @@
-"""Quantum-Integrated Documentation Template Generator (Placeholder).
+"""Quantum-Integrated Documentation Template Generator.
 
-This module will generate default documentation templates using database-first
-logic with quantum-inspired scoring. It currently serves as a placeholder and
-illustrates the intended API for future implementation.
+Generate documentation templates using database-first logic and optional
+quantum-inspired scoring. Templates and patterns are loaded from
+``production.db`` and ranked before output.
 """
 
 from pathlib import Path
+from typing import Any, List, Tuple
 
 from template_engine.auto_generator import TemplateAutoGenerator
 
@@ -15,8 +16,18 @@ except Exception:  # pragma: no cover - optional quantum deps
     QuantumExecutor = None
 
 
-def generate_default_templates(db_path: Path = Path("production.db")) -> None:
-    """Generate basic documentation templates using quantum assistance.
+def _score(executor: Any | None, text: str) -> float:
+    """Return a quantum-inspired score for ``text``."""
+    if executor:
+        try:
+            return float(executor.score_text(text))
+        except Exception:
+            pass
+    return float(len(text))
+
+
+def generate_default_templates(db_path: Path = Path("databases/production.db")) -> List[str]:
+    """Generate scored documentation templates.
 
     Parameters
     ----------
@@ -27,14 +38,13 @@ def generate_default_templates(db_path: Path = Path("production.db")) -> None:
         quantum-inspired scoring will be applied to select templates.
     """
     generator = TemplateAutoGenerator(db_path, db_path)
-    representatives = generator.get_cluster_representatives()
-    if QuantumExecutor:
-        executor = QuantumExecutor()
-        # Placeholder: quantum-assisted ranking of templates
-        _ = executor
-    for rep in representatives:
-        print(rep)
+    reps = generator.get_cluster_representatives()
+    executor = QuantumExecutor() if QuantumExecutor else None
+    scored: List[Tuple[str, float]] = [(rep, _score(executor, rep)) for rep in reps]
+    scored.sort(key=lambda x: x[1], reverse=True)
+    return [template for template, _ in scored]
 
 
 if __name__ == "__main__":  # pragma: no cover
-    generate_default_templates()
+    for tmpl in generate_default_templates():
+        print(tmpl)

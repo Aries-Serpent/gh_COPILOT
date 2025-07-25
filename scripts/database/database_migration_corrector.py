@@ -152,6 +152,7 @@ class DatabaseMigrationCorrector:
                 if target_conn is None:
                     target_conn = sqlite3.connect(str(self.target_db))
                     close_target = True
+                assert target_conn is not None
 
                 source_cursor = source_conn.cursor()
                 assert target_conn is not None

@@ -42,7 +42,8 @@ source .venv/bin/activate
 ### 4. Workspace and Backup Variables
 Set the following environment variables in your shell configuration (or load them dynamically using `.env` files):
 - **`GH_COPILOT_WORKSPACE`:** Specifies the repository workspace.
-- **`GH_COPILOT_BACKUP_ROOT`:** Ensures backups and logs are stored outside the workspace to prevent recursive violations.
+- **`GH_COPILOT_BACKUP_ROOT`:** Ensures backups and logs are stored outside the workspace to prevent recursive violations. If unset, the system defaults to `/tmp/<user>/gh_COPILOT_Backups` on Linux.
+- **`CLW_MAX_LINE_LENGTH`:** Optional terminal output wrap length. Set to `1550` to avoid exceeding the 1600-byte console limit when using `clw`.
 
 Example:
 
@@ -62,7 +63,7 @@ Ensure `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` are set before runnin
 ```bash
 export GH_COPILOT_WORKSPACE=$(pwd)
 export GH_COPILOT_BACKUP_ROOT=/path/to/backups
-python scripts/wlc_session_manager.py --steps 2 --verbose
+python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
 ```
 
 Use `/usr/local/bin/clw` when reviewing output to avoid long terminal lines.
@@ -90,7 +91,7 @@ and Compliance methodology. Each run writes a row to the
 start and end times, completion status, compliance score, and any errors.
 
 ```bash
-python scripts/wlc_session_manager.py --steps 2 --verbose
+python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
 ```
 
 Log files are stored under `$GH_COPILOT_BACKUP_ROOT/logs/`.

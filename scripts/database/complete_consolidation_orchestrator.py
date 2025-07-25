@@ -14,7 +14,7 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, List, Optional, Sequence, Union, cast
 
-import py7zr
+import py7zr  # pyright: ignore[reportMissingImports]
 from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
@@ -101,6 +101,8 @@ def create_external_backup(source_path: Path, backup_name: str, *, backup_dir: P
     """Create a timestamped backup in the external backup directory."""
 
     target_dir = backup_dir or BACKUP_DIR
+    # validate backup path is outside the workspace
+    ExternalBackupConfiguration.validate_external_backup_location(target_dir, WORKSPACE_PATH)
     target_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     dest = target_dir / f"{backup_name}_{timestamp}.backup"
@@ -158,8 +160,22 @@ def migrate_and_compress(
     workspace: Path,
     sources: Sequence[str],
     log_file: Union[Path, str] = "migration.log",
+    *,
+    level: int = 5,
 ) -> None:
-    """Migrate ``sources`` into ``enterprise_assets.db`` with compression."""
+    """Migrate ``sources`` into ``enterprise_assets.db`` with compression.
+
+    Parameters
+    ----------
+    workspace:
+        Workspace root containing the database directory.
+    sources:
+        Iterable of database file names to consolidate.
+    log_file:
+        File path for migration logs.
+    level:
+        Compression level used when archiving large tables.
+    """
     validate_enterprise_operation()
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
@@ -168,19 +184,22 @@ def migrate_and_compress(
     session_backup_dir.mkdir(parents=True, exist_ok=True)
 
     handler = logging.FileHandler(log_file)
+    handler.setLevel(logging.INFO)
     logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
     session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     start_ts = datetime.now()
     logger.info("Session %s started at %s", session_id, start_ts.isoformat())
 
     conn: Optional[sqlite3.Connection] = None
+    sources_list = list(sources)
     try:
         conn = sqlite3.connect(enterprise_db)
         conn.execute("BEGIN IMMEDIATE")
-        total = len(sources)
+        total = len(sources_list)
         start = perf_counter()
         with tqdm(total=total, desc="Consolidating", unit="db") as bar:
-            for idx, name in enumerate(sources, 1):
+            for idx, name in enumerate(sources_list, 1):
                 src = db_dir / name
                 if not src.exists():
                     bar.update(1)
@@ -246,5 +265,6 @@ if __name__ == "__main__":
     migrate_and_compress(
         workspace,
         ["analytics.db", "documentation.db", "template_completion.db"],
+        level=5,
         log_file=args.log_file,
     )
