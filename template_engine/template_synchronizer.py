@@ -11,12 +11,14 @@ import argparse
 import logging
 import os
 import sqlite3
+import time
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
 from tqdm import tqdm
 
-from utils.log_utils import _log_event
+from utils.log_utils import _log_event as log_event_simulation
 
 ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "analytics.db"
 
@@ -70,6 +72,18 @@ def synchronize_templates_real(databases: Iterable[Path]) -> None:
         except sqlite3.Error as exc:
             logger.warning("Failed to read templates from %s: %s", db, exc)
             return []
+
+
+def _calculate_etc(start_ts: float, current_progress: int, total_work: int) -> str:
+    """Estimate remaining time for progress reporting."""
+    if current_progress <= 0:
+        return "N/A"
+    elapsed = time.time() - start_ts
+    total_est = elapsed / (current_progress / total_work)
+    remaining = max(0.0, total_est - elapsed)
+    return f"{remaining:.2f}s"
+
+
 
 
 def _validate_template(name: str, content: str) -> bool:
@@ -144,10 +158,12 @@ def _log_audit(db_name: str, details: str) -> None:
 
 def _log_sync_event_real(source: str, target: str) -> None:
     """Record a real synchronization event in analytics.db."""
+    if not _can_write_analytics():
+        return
     ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(ANALYTICS_DB) as conn:
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS sync_events (
+            """CREATE TABLE IF NOT EXISTS sync_events_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 source TEXT,
                 target TEXT,
@@ -155,7 +171,7 @@ def _log_sync_event_real(source: str, target: str) -> None:
             )"""
         )
         conn.execute(
-            "INSERT INTO sync_events (source, target, ts) VALUES (?, ?, ?)",
+            "INSERT INTO sync_events_log (source, target, ts) VALUES (?, ?, ?)",
             (source, target, datetime.utcnow().isoformat()),
         )
         conn.commit()
@@ -163,6 +179,8 @@ def _log_sync_event_real(source: str, target: str) -> None:
 
 def _log_audit_real(db_name: str, details: str) -> None:
     """Record an audit event in analytics.db."""
+    if not _can_write_analytics():
+        return
     ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(ANALYTICS_DB) as conn:
         conn.execute(
@@ -205,7 +223,7 @@ def _synchronize_templates_simulation(
     start_dt = datetime.now()
     start_ts = time.time()
     logger.info("[SYNC-START] PID=%s | Start time: %s", proc_id, start_dt.isoformat())
-    _log_event(
+    log_event_simulation(
         {
             "event": "sync_start_simulation",
             "sources": ",".join(str(p) for p in source_dbs or []),
@@ -263,7 +281,7 @@ def _synchronize_templates_simulation(
 
     duration = (datetime.now() - start_dt).total_seconds()
     logger.info("[SYNC-END][SIM] PID=%s | Duration: %.2fs | DBs: %s", proc_id, duration, synced)
-    _log_event(
+    log_event_simulation(
         {
             "event": "sync_complete_simulation",
             "details": f"{synced} databases in {duration:.2f}s",
@@ -280,6 +298,11 @@ def _synchronize_templates_simulation(
         "    python template_engine/template_synchronizer.py --real\n"
     )
     return synced
+
+
+def synchronize_templates(source_dbs: Iterable[Path] | None = None) -> int:
+    """Run template synchronization in simulation mode."""
+    return _synchronize_templates_simulation(source_dbs)
 
 
 def synchronize_templates_real(
@@ -305,9 +328,13 @@ def synchronize_templates_real(
     source_names = ",".join(str(d) for d in databases)
     synced = 0
 
+    write_enabled = _can_write_analytics()
     for idx, db in enumerate(tqdm(databases, desc=f"Sync [PID {proc_id}]", unit="db"), 1):
         if not db.exists():
             logger.warning("Skipping missing DB: %s", db)
+            continue
+        if not write_enabled:
+            logger.info("[DRY-RUN] Would synchronize %s", db)
             continue
         try:
             with sqlite3.connect(db) as conn:
