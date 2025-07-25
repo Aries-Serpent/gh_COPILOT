@@ -121,7 +121,7 @@ def test_session_error(tmp_path, monkeypatch):
     assert "boom" in error_details
 
 
-def test_environment_validation_fails(monkeypatch):
+def test_missing_environment(monkeypatch):
     monkeypatch.delenv("GH_COPILOT_WORKSPACE", raising=False)
     monkeypatch.delenv("GH_COPILOT_BACKUP_ROOT", raising=False)
     with pytest.raises(EnvironmentError):

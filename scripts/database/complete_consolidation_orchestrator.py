@@ -14,13 +14,10 @@ from pathlib import Path
 from time import perf_counter
 from typing import Iterable, List, Optional, Union
 
-import py7zr
+import py7zr  # pyright: ignore[reportMissingImports]
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import (
-    validate_enterprise_operation,
-)
-
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 from .database_migration_corrector import DatabaseMigrationCorrector
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
@@ -90,7 +87,11 @@ def export_table_to_7z(db_path: Path, table: str, dest_dir: Path, level: int = 5
         writer.writerow([d[0] for d in cur.description])
         writer.writerows(cur.fetchall())
         tmp_path = Path(tmp.name)
-    with py7zr.SevenZipFile(archive_path, mode="w", compression_level=level) as zf:
+    with py7zr.SevenZipFile(
+        archive_path,
+        mode="w",
+        filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}],
+    ) as zf:
         zf.write(tmp_path, arcname=tmp_path.name)
     tmp_path.unlink()
     logger.info("Compressed %s.%s to %s", db_path.name, table, archive_path)
@@ -101,9 +102,8 @@ def create_external_backup(source_path: Path, backup_name: str, *, backup_dir: P
     """Create a timestamped backup in the external backup directory."""
 
     target_dir = backup_dir or BACKUP_DIR
-    ExternalBackupConfiguration.validate_external_backup_location(
-        target_dir, WORKSPACE_PATH
-    )
+    # validate backup path is outside the workspace
+    ExternalBackupConfiguration.validate_external_backup_location(target_dir, WORKSPACE_PATH)
     target_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     dest = target_dir / f"{backup_name}_{timestamp}.backup"
@@ -163,8 +163,22 @@ def migrate_and_compress(
     *,
     level: int = 5,
     log_file: Union[Path, str] = "migration.log",
+    *,
+    level: int = 5,
 ) -> None:
-    """Migrate ``sources`` into ``enterprise_assets.db`` with compression."""
+    """Migrate ``sources`` into ``enterprise_assets.db`` with compression.
+
+    Parameters
+    ----------
+    workspace:
+        Workspace root containing the database directory.
+    sources:
+        Iterable of database file names to consolidate.
+    log_file:
+        File path for migration logs.
+    level:
+        Compression level used when archiving large tables.
+    """
     validate_enterprise_operation()
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
@@ -173,32 +187,48 @@ def migrate_and_compress(
     session_backup_dir.mkdir(parents=True, exist_ok=True)
 
     handler = logging.FileHandler(log_file)
+    handler.setLevel(logging.INFO)
     logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
     session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     start_ts = datetime.now()
     logger.info("Session %s started at %s", session_id, start_ts.isoformat())
 
     conn: Optional[sqlite3.Connection] = None
+    sources_list = list(sources)
     try:
         conn = sqlite3.connect(enterprise_db)
         conn.execute("BEGIN IMMEDIATE")
-        total = len(sources)
+        total = len(sources_list)
         start = perf_counter()
         with tqdm(total=total, desc="Consolidating", unit="db") as bar:
-            for idx, name in enumerate(sources, 1):
+            for idx, name in enumerate(sources_list, 1):
                 src = db_dir / name
                 if not src.exists():
                     bar.update(1)
                     continue
                 create_external_backup(src, name.replace(".db", ""), backup_dir=session_backup_dir)
-                migrator = DatabaseMigrationCorrector()
-                migrator.workspace_root = workspace
-                migrator.source_db = src
-                migrator.target_db = enterprise_db
-                migrator.target_conn = conn
-                migrator.migration_report = {"errors": []}
-                migrator.migrate_database_content()
-                analysis = migrator.analyze_database_structure(enterprise_db)
+                with sqlite3.connect(src) as sc:
+                    tc = conn
+                    tables = sc.execute(
+                        "SELECT name FROM sqlite_master WHERE type='table'"
+                    ).fetchall()
+                    for (table_name,) in tables:
+                        schema = sc.execute(
+                            "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
+                            (table_name,),
+                        ).fetchone()
+                        if schema:
+                            tc.execute(schema[0])
+                            rows = sc.execute(f"SELECT * FROM {table_name}").fetchall()
+                            if rows:
+                                placeholders = ",".join(["?" for _ in rows[0]])
+                                tc.executemany(
+                                    f"INSERT OR REPLACE INTO {table_name} VALUES ({placeholders})",
+                                    rows,
+                                )
+                    tc.commit()
+                analysis = DatabaseMigrationCorrector().analyze_database_structure(enterprise_db)
                 compress_large_tables(enterprise_db, analysis, level=level)
                 elapsed = perf_counter() - start
                 remaining = (total - idx) * (elapsed / idx)
