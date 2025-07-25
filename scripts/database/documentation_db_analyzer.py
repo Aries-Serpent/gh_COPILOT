@@ -90,7 +90,14 @@ def _create_backup(db: Path) -> Optional[Path]:
     return backup
 
 
-def rollback_db(db: Path, backup: Path) -> None:
+def rollback_db(db: Path, backup: Path | None = None) -> None:
+    """Restore ``db`` from ``backup``.
+
+    If ``backup`` is ``None``, look for ``<db.name>.bak`` under ``GH_COPILOT_BACKUP_ROOT``.
+    """
+    if backup is None:
+        backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
+        backup = backup_root / f"{db.name}.bak"
     if backup.exists():
         shutil.copy(backup, db)
         _log_event(

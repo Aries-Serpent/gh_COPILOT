@@ -15,16 +15,17 @@ Author: GitHub Copilot with Enterprise Intelligence
 Created: July 16, 2025
 """
 
-import os
-import sys
 import json
-import sqlite3
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Optional
-from dataclasses import dataclass, field
-from tqdm import tqdm
 import logging
+import os
+import sqlite3
+import sys
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional
+
+from tqdm import tqdm
 
 # Severity weights for compliance scoring
 SEVERITY_WEIGHTS = {
@@ -199,7 +200,7 @@ class CompleteRootMaintenanceValidator:
         # Scan subdirectories but skip certain folders
         skip_folders = {
             '__pycache__', '.git', '.venv', 'node_modules',
-            '_MANUAL_DELETE_FOLDER', '_ZERO_BYTE_QUARANTINE',
+            Path(os.getenv('GH_COPILOT_BACKUP_ROOT', '/tmp')).name, '_ZERO_BYTE_QUARANTINE',
             'archives', 'builds'
         }
         
@@ -413,7 +414,10 @@ class CompleteRootMaintenanceValidator:
             if compliance_score < 80:
                 violation_count = len([v for v in result.violations if v.expected_folder == folder])
                 recommendations.append(
-                    f"📁 {folder.upper()}: {violation_count} files need organization (compliance: {compliance_score:.1f}%)"
+                    (
+                        f"📁 {folder.upper()}: {violation_count} files need organization "
+                        f"(compliance: {compliance_score:.1f}%)"
+                    )
                 )
         
         # Auto-fix recommendations

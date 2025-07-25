@@ -4,13 +4,15 @@
 Migrate logs.db to databases/logs.db with table renaming for schema conflicts
 """
 
-import os
-import sqlite3
-import shutil
-from pathlib import Path
-from datetime import datetime
-from tqdm import tqdm
 import json
+import os
+import shutil
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+
+from tqdm import tqdm
+
 
 class SafeDatabaseMigrator:
     """🛡️ Safe Database Migration with Table Renaming"""
@@ -18,7 +20,7 @@ class SafeDatabaseMigrator:
     def __init__(self):
         # MANDATORY: Start time logging
         self.start_time = datetime.now()
-        print(f"🚀 SAFE DATABASE MIGRATOR STARTED")
+        print("🚀 SAFE DATABASE MIGRATOR STARTED")
         print(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"Process ID: {os.getpid()}")
         print("="*60)
@@ -172,7 +174,10 @@ class SafeDatabaseMigrator:
                     
                     if schema_result:
                         # Modify CREATE statement for new table name
-                        create_sql = schema_result[0].replace(f"CREATE TABLE {table_name}", f"CREATE TABLE {target_table_name}")
+                        create_sql = schema_result[0].replace(
+                            f"CREATE TABLE {table_name}",
+                            f"CREATE TABLE {target_table_name}",
+                        )
                         
                         # Create table in target
                         target_cursor.execute(create_sql)
@@ -211,7 +216,7 @@ class SafeDatabaseMigrator:
                 target_conn.close()
                 
                 self.migration_report["migration_status"] = "SUCCESS"
-                print(f"✅ Migration completed successfully")
+                print("✅ Migration completed successfully")
                 
             except Exception as e:
                 error_msg = f"Migration error: {str(e)}"
@@ -275,7 +280,8 @@ class SafeDatabaseMigrator:
             if self.source_db.exists():
                 # Create backup
                 backup_name = f"logs_migrated_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
-                backup_path = self.workspace_root / "_MANUAL_DELETE_FOLDER" / backup_name
+                backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
+                backup_path = backup_root / backup_name
                 backup_path.parent.mkdir(exist_ok=True)
                 
                 shutil.move(str(self.source_db), str(backup_path))
