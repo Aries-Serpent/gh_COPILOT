@@ -3,7 +3,6 @@
 **Generated:** 2025-07-03 02:57:07  
 **Version:** 1.0.0  
 **System:** Enterprise Template Intelligence Platform  
-
 ## Overview
 
 This document provides comprehensive documentation for the Template Intelligence Platform database schemas. The platform utilizes 8 specialized databases to manage template intelligence, environment adaptation, and cross-database aggregation.
@@ -640,7 +639,6 @@ The Template Intelligence Platform employs a multi-database architecture with th
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | id | INTEGER | PRIMARY KEY | - |
-| placeholder_name | TEXT | NOT NULL | - |
 | placeholder_type | TEXT | NOT NULL | - |
 | default_value | TEXT |  | - |
 | description | TEXT | NOT NULL | - |
@@ -654,7 +652,6 @@ The Template Intelligence Platform employs a multi-database architecture with th
 **Indexes:**
 
 - `idx_placeholders_type`
-- `idx_placeholder_name`
 - `sqlite_autoindex_template_placeholders_1`
 
 #### code_pattern_analysis
@@ -670,7 +667,6 @@ The Template Intelligence Platform employs a multi-database architecture with th
 | pattern_type | TEXT | NOT NULL | - |
 | pattern_content | TEXT | NOT NULL | - |
 | confidence_score | REAL | DEFAULT 0.0 | - |
-| pattern_suggestions | TEXT |  | - |
 | frequency_count | INTEGER | DEFAULT 1 | - |
 | analysis_timestamp | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | - |
 | environment_context | TEXT |  | - |
@@ -742,16 +738,15 @@ The Template Intelligence Platform employs a multi-database architecture with th
 - `idx_mapping_source`
 - `sqlite_autoindex_cross_database_template_mapping_1`
 
-#### placeholder_usage_analytics
+#### template_usage_analytics
 
-**Type:** Unknown  
-**Description:** Table description not available
+**Type:** Analytics
+**Description:** Records template usage metrics
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | id | INTEGER | PRIMARY KEY | - |
 | usage_id | TEXT | NOT NULL | - |
-| placeholder_name | TEXT | NOT NULL | - |
 | template_id | TEXT |  | - |
 | environment | TEXT |  | - |
 | usage_context | TEXT |  | - |
@@ -764,12 +759,11 @@ The Template Intelligence Platform employs a multi-database architecture with th
 **Foreign Keys:**
 
 - `template_id` → `enhanced_templates.id`
-- `placeholder_name` → `template_placeholders.placeholder_name`
 
 **Indexes:**
 
-- `idx_usage_placeholder`
-- `sqlite_autoindex_placeholder_usage_analytics_1`
+- `idx_usage_template`
+- `sqlite_autoindex_template_usage_analytics_1`
 
 #### environment_adaptation_intelligence
 
@@ -2277,13 +2271,11 @@ The Template Intelligence Platform employs a multi-database architecture with th
   - `template_id` → `id`
   - template_intelligence.template_id references enhanced_templates.id
 
-- **placeholder_usage_analytics** many-to-one **enhanced_templates**
+- **template_usage_analytics** many-to-one **enhanced_templates**
   - `template_id` → `id`
-  - placeholder_usage_analytics.template_id references enhanced_templates.id
+  - template_usage_analytics.template_id references enhanced_templates.id
 
-- **placeholder_usage_analytics** many-to-one **template_placeholders**
-  - `placeholder_name` → `placeholder_name`
-  - placeholder_usage_analytics.placeholder_name references template_placeholders.placeholder_name
+- **template_usage_analytics** many-to-one **template_placeholders**
 
 - **environment_variables** many-to-one **environment_profiles**
   - `profile_id` → `profile_id`

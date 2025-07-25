@@ -169,7 +169,7 @@ CREATE TABLE quantum_algorithms_registry (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     algorithm_name TEXT UNIQUE NOT NULL,
     algorithm_type TEXT NOT NULL, -- search, optimization, machine_learning, cryptography
-    implementation_status TEXT DEFAULT 'IMPLEMENTED', -- SIMULATED or IMPLEMENTED
+    implementation_status TEXT DEFAULT 'IMPLEMENTED', -- IMPLEMENTED or SIMULATED
     complexity_class TEXT, -- BQP, QMA, etc.
     qubit_requirements INTEGER,
     gate_requirements INTEGER,
@@ -181,6 +181,15 @@ CREATE TABLE quantum_algorithms_registry (
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     active BOOLEAN DEFAULT TRUE
 );
+```
+
+Run the following migration to update existing rows from the old
+`PLACEHOLDER` status:
+
+```sql
+UPDATE quantum_algorithms_registry
+SET implementation_status = 'IMPLEMENTED'
+WHERE implementation_status = 'PLACEHOLDER';
 ```
 
 #### **C. Web-GUI Integration Metrics**

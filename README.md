@@ -650,7 +650,7 @@ python scripts/validation/dual_copilot_pattern_tester.py
 - **[DUAL COPILOT Pattern Guide](.github/instructions/DUAL_COPILOT_PATTERN.instructions.md)** - Implementation guide
 - **[Enterprise Context Guide](.github/instructions/ENTERPRISE_CONTEXT.instructions.md)** - System overview
 - **[Instruction Module Index](docs/INSTRUCTION_INDEX.md)** - Complete instruction listing
-- **Quantum Template Generator** `docs/quantum_template_placeholder.py` - generate scored documentation templates
+- **Quantum Template Generator** `docs/quantum_template_placeholder.py` - database-first template engine with optional quantum ranking
 
 ### **GitHub Copilot Integration**
 The toolkit includes 16 specialized instruction modules for GitHub Copilot integration:
@@ -713,6 +713,9 @@ python scripts/audit_codebase_placeholders.py \
 # The audit automatically populates `code_audit_log` in analytics.db for
 # compliance reporting.
 # Run `scripts/database/add_code_audit_log.py` if the table is missing.
+
+# Generate scored documentation templates
+python docs/quantum_template_placeholder.py
 
 The audit results are used by the `/dashboard/compliance` endpoint to
 report ongoing placeholder removal progress and overall compliance

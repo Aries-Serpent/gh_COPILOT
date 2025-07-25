@@ -39,17 +39,16 @@ Recent updates:
 - Extend `enhanced_script_tracking` with new columns including `importance_score` and `template_version`.
 - Create `code_templates`, `template_usage_tracking` and `template_registry` tables. Write migration scripts for existing databases.
 - Ensure `documentation` table stores `compliance_score` for each document.
-- Add `code_audit_log` table in `analytics.db` for placeholder scanning results.
-- Provide migration `databases/migrations/add_code_audit_log.sql` and helper
-  script `scripts/database/add_code_audit_log.py` to create the table.
+- Add `code_audit_log` table in `analytics.db` for audit results.
+- Provide migration `databases/migrations/add_code_audit_log.sql` and helper script `scripts/database/add_code_audit_log.py` to create the table.
 
 ## 7. Template Engine Upgrades
 - Replace the placeholder clustering in `template_engine/auto_generator.py` with `sklearn.cluster.KMeans`.
 - Add a `get_cluster_representatives()` method and unit tests verifying cluster selection and retrieval.
 
 ## 8. TODO Audit Logging
-- Search the codebase for `TODO`, `FIXME`, or `placeholder` comments.
-- Log each occurrence in `analytics.db` with cross-links to the dashboard audit view.
+- Search the codebase for `TODO` and `FIXME` comments using `scripts/audit_codebase_placeholders.py`.
+- Log each occurrence in `analytics.db` and update `/dashboard/compliance`.
 - Provide rollback utilities for automated cleanup scripts.
 
 ## 9. DB-First Code Generation
@@ -66,8 +65,8 @@ Recent updates:
 - Integrate visual indicators for simulated quantum scoring and pattern matching.
 - Ensure all quantum modules log actions to `analytics.db` for compliance review.
 
-## 12. Implementation Cleanup
-- Search the repository for legacy placeholder comments and replace them with database-driven functionality.
+-## 12. Legacy Placeholder Cleanup
+- Search the repository for "Implementation placeholder" comments and replace them with database-driven functionality.
 - Update utilities like `documentation_db_analyzer.py` and `enterprise_database_driven_documentation_manager.py` to process database entries and log progress.
 
 ## 13. Documentation Updates
@@ -79,8 +78,8 @@ Recent updates:
 ## Enterprise Audit and Compliance Tasks
 
 ### AUD-001 TODO Audit Logging
-- Scan all modules for TODO/FIXME comments and log findings to `analytics.db` in the `placeholder_audit` table.
-- **Module:** `scripts/placeholder_audit_logger.py`
+- Scan all modules for TODO/FIXME comments and log findings using `scripts/audit_codebase_placeholders.py`.
+- **Module:** `scripts/audit_codebase_placeholders.py`
 - **Cross-Reference:** Dashboard `/audit` endpoint and analytics reports.
 
 ### GEN-001 DB-First Code Generation
@@ -112,13 +111,13 @@ Recent updates:
 
 | ID | Description | Module Path | Dashboard Cross-Reference |
 |----|-------------|-------------|---------------------------|
-| `AUD-002` | Placeholder/TODO/FIXME audit logging with rollback utilities | `scripts/placeholder_audit_logger.py` | `/audit` view, analytics logs |
+| `AUD-002` | TODO/FIXME audit logging with rollback utilities | `scripts/audit_codebase_placeholders.py` | `/dashboard/compliance` |
 | `GEN-002` | Strict DB-first code generation with quantum scoring and progress indicators | `template_engine/auto_generator.py` | generation metrics table |
 | `CLUS-002` | Pattern clustering via KMeans with `get_cluster_representatives()` retrieval | `template_engine/auto_generator.py` | clustering stats dashboard |
 | `ROLL-002` | Transactional correction logging and rollback handling | `template_engine/template_synchronizer.py` | rollback alerts widget |
 | `QAI-002` | Quantum/AI scoring hooks for patterns and templates | `quantum_algorithm_library_expansion.py` | quantum analytics panel |
 | `DASH-002` | Dashboard compliance links and visual monitoring for all audit events | `dashboard/enterprise_dashboard.py` | compliance dashboard section |
-| `AUD-003` | Visual placeholder scanning with progress bars | `scripts/placeholder_audit_logger.py` | dashboard audit timeline |
+| `AUD-003` | Visual TODO scanning with progress bars | `scripts/audit_codebase_placeholders.py` | dashboard audit timeline |
 | `GEN-003` | DB-first template clustering with quantum scoring | `template_engine/auto_generator.py` | generation metrics table |
 | `ROLL-003` | Correction rollback history cross-linked to dashboard | `template_engine/template_synchronizer.py` | rollback alerts widget |
 
@@ -126,7 +125,7 @@ Recent updates:
 
 | ID | Description | Module Path | Dashboard Cross-Reference |
 |----|-------------|-------------|---------------------------|
-| `AUD-003` | Enhanced placeholder/TODO/FIXME scanning with visual indicators | `scripts/placeholder_audit_logger.py` | `/audit` table, `analytics.db` |
+| `AUD-003` | Enhanced TODO/FIXME scanning with visual indicators | `scripts/audit_codebase_placeholders.py` | `/dashboard/compliance`, `analytics.db` |
 | `GEN-003` | DB-first code generation enforcing quantum-inspired scoring | `template_engine/auto_generator.py` | generation metrics, `analytics.db` |
 | `CLUS-003` | Retrieve cluster representatives via `get_cluster_representatives()` | `template_engine/auto_generator.py` | clustering page, `analytics.db` |
 | `ROLL-003` | Correction logging with automatic rollback utilities | `template_engine/template_synchronizer.py` | rollback alerts, `analytics.db` |
