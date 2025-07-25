@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+import os
 
 import py7zr  # pyright: ignore[reportMissingImports]
 import pytest

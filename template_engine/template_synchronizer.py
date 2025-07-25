@@ -11,39 +11,66 @@ import argparse
 import logging
 import os
 import sqlite3
-import time
-from datetime import datetime
 from pathlib import Path
-from typing import Iterable, List, Tuple
+from typing import Iterable
 
 from tqdm import tqdm
 
 from utils.log_utils import _log_event
 
-try:
-    from .auto_generator import DEFAULT_ANALYTICS_DB
-except ImportError:
-    DEFAULT_ANALYTICS_DB = Path("analytics.db")
-
-ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", DEFAULT_ANALYTICS_DB))
 logger = logging.getLogger(__name__)
 
 
-def _calculate_etc(start_ts: float, current: int, total: int) -> str:
-    if current == 0:
-        return "N/A"
-    elapsed = time.time() - start_ts
-    est_total = elapsed / (current / total)
-    remaining = est_total - elapsed
-    return f"{remaining:.2f}s remaining"
+def _log_event(db_path: Path, success: bool, error: str | None = None) -> None:
+    ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        if success:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS sync_events(db TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO sync_events(db) VALUES (?)",
+                (str(db_path),),
+            )
+            conn.commit()
+        if error:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS audit_log(db TEXT, error TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO audit_log(db, error) VALUES (?, ?)", (str(db_path), error)
+            )
+            conn.commit()
 
 
-def _extract_templates(db: Path) -> List[Tuple[str, str]]:
-    """Extract templates from a database. This operation does NOT create or modify any DB."""
-    if not db.exists():
-        logger.warning("Database does not exist: %s", db)
-        return []
-    try:
+def _load_templates(conn: sqlite3.Connection) -> dict[str, str]:
+    has_table = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='templates'"
+    ).fetchone()
+    if not has_table:
+        raise sqlite3.OperationalError("missing templates table")
+    rows = conn.execute(
+        "SELECT name, template_content FROM templates"
+    ).fetchall()
+    return {name: content for name, content in rows if content}
+
+
+def synchronize_templates_real(databases: Iterable[Path]) -> None:
+    """Synchronize templates across ``databases`` transactionally."""
+    templates: dict[str, str] = {}
+    valid_dbs: list[Path] = []
+    # gather templates
+    for db in databases:
+        with sqlite3.connect(db) as conn:
+            try:
+                templates.update(_load_templates(conn))
+                valid_dbs.append(db)
+            except sqlite3.Error as exc:  # pragma: no cover - should not happen in tests
+                logger.exception("Failed reading templates from %s", db)
+                _log_event(db, False, str(exc))
+                continue
+    # apply templates only to valid databases
+    for db in valid_dbs:
         with sqlite3.connect(db) as conn:
             rows = conn.execute("SELECT name, template_content FROM templates").fetchall()
             return [(r[0], r[1]) for r in rows]
