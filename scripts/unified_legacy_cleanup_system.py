@@ -44,12 +44,7 @@ class UnifiedLegacyCleanupSystem:
             legacy_db=Path(workspace_path) / "databases" / "legacy_cleanup.db",
             file_mgmt_db=Path(workspace_path) / "databases" / "file_management.db",
             class_db=Path(workspace_path) / "databases" / "file_classification.db",
-            file_mgmt_db=Path(workspace_path) / "databases" / "file_management.db",
-            class_db=Path(workspace_path) / "databases" / "file_classification.db",
         )
-        self.legacy_conn = DatabaseConnection(DatabaseConfig(database_path=self.config.legacy_db))
-        self.file_conn = DatabaseConnection(DatabaseConfig(database_path=self.config.file_mgmt_db))
-        self.analytics_db = self.config.workspace_path / "databases" / "analytics.db"
         self.legacy_conn = DatabaseConnection(DatabaseConfig(database_path=self.config.legacy_db))
         self.file_conn = DatabaseConnection(DatabaseConfig(database_path=self.config.file_mgmt_db))
         self.analytics_db = self.config.workspace_path / "databases" / "analytics.db"
@@ -58,7 +53,6 @@ class UnifiedLegacyCleanupSystem:
     # Discovery
     def discover_legacy_scripts(self) -> List[Path]:
         """Discover legacy scripts via database."""
-        query = "SELECT script_path FROM legacy_scripts WHERE active = 1"
         query = "SELECT script_path FROM legacy_scripts WHERE active = 1"
         try:
             rows = self.file_conn.execute_query(query)
@@ -81,13 +75,12 @@ class UnifiedLegacyCleanupSystem:
         target = archive_dir / script.name
         logger.info(f"Archiving {script} -> {target}")
         _log_event({"event": "archive_script", "script": str(script)}, db_path=self.analytics_db)
-        _log_event({"event": "archive_script", "script": str(script)}, db_path=self.analytics_db)
         if dry_run:
             _log_event({"event": "archive_script_dry_run", "path": str(script)})
             return True
         try:
             script.rename(target)
-            _log_event({"event": "archive_script", "path": str(script)})
+            _log_event({"event": "archive_success", "path": str(script)})
             return True
         except Exception as exc:  # pragma: no cover - file system errors
             logger.error(f"Archive failed: {exc}")
@@ -101,7 +94,6 @@ class UnifiedLegacyCleanupSystem:
         if dry_run:
             _log_event({"event": "optimize_workspace_dry_run"})
             return
-        _log_event({"event": "optimize_workspace_start"})
         # Currently a no-op; real implementation would reorganize files
         _log_event({"event": "optimize_workspace_complete"})
         return
@@ -109,13 +101,11 @@ class UnifiedLegacyCleanupSystem:
     def run_cleanup(self, dry_run: bool = False) -> None:
         """Run archival and optimization."""
         _log_event({"event": "legacy_cleanup_start"}, db_path=self.analytics_db)
-        _log_event({"event": "legacy_cleanup_start"}, db_path=self.analytics_db)
         scripts = self.discover_legacy_scripts()
         logger.info(f"Discovered {len(scripts)} legacy scripts")
         for script in scripts:
             self.archive_script(script, dry_run=dry_run)
         self.optimize_workspace(dry_run=dry_run)
-        _log_event({"event": "legacy_cleanup_complete", "count": len(scripts)}, db_path=self.analytics_db)
         _log_event({"event": "legacy_cleanup_complete", "count": len(scripts)}, db_path=self.analytics_db)
 
 
