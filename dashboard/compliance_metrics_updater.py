@@ -23,13 +23,9 @@ from typing import Any, Dict
 from tqdm import tqdm
 
 # Enterprise logging setup
-LOGS_DIR = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "dashboard"
-)
+LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "dashboard"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = (
-    LOGS_DIR / f"compliance_update_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-)
+LOG_FILE = LOGS_DIR / f"compliance_update_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -38,16 +34,8 @@ logging.basicConfig(
 )
 
 # Database paths
-ANALYTICS_DB = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    / "databases"
-    / "analytics.db"
-)
-DASHBOARD_DIR = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    / "dashboard"
-    / "compliance"
-)
+ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "analytics.db"
+DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "dashboard" / "compliance"
 
 
 def validate_no_recursive_folders() -> None:
@@ -104,22 +92,14 @@ class ComplianceMetricsUpdater:
                 if cur.execute(
                     "SELECT name FROM sqlite_master WHERE type='table' AND name='correction_history'"
                 ).fetchone():
-                    cur.execute(
-                        "SELECT COUNT(*) FROM correction_history WHERE fix_applied='REMOVED_PLACEHOLDER'"
-                    )
+                    cur.execute("SELECT COUNT(*) FROM correction_history WHERE fix_applied='REMOVED_PLACEHOLDER'")
                 else:
-                    cur.execute(
-                        "SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1"
-                    )
+                    cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
                 metrics["placeholder_removal"] = cur.fetchone()[0]
 
-                cur.execute(
-                    "SELECT AVG(compliance_score) FROM correction_logs"
-                )
+                cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
                 avg_score = cur.fetchone()[0]
-                metrics["compliance_score"] = (
-                    float(avg_score) if avg_score is not None else 0.0
-                )
+                metrics["compliance_score"] = float(avg_score) if avg_score is not None else 0.0
 
                 cur.execute("SELECT COUNT(*) FROM violation_logs")
                 metrics["violation_count"] = cur.fetchone()[0]
@@ -142,9 +122,7 @@ class ComplianceMetricsUpdater:
             "status": "updated",
             "timestamp": datetime.now().isoformat(),
         }
-        dashboard_file.write_text(
-            json.dumps(dashboard_content, indent=2), encoding="utf-8"
-        )
+        dashboard_file.write_text(json.dumps(dashboard_content, indent=2), encoding="utf-8")
         logging.info(f"Dashboard metrics updated: {dashboard_file}")
 
     def _log_update_event(self, metrics: Dict[str, Any]) -> None:
@@ -173,14 +151,10 @@ class ComplianceMetricsUpdater:
 
         elapsed = time.time() - start_time
         etc = self._calculate_etc(elapsed, 3, 3)
-        logging.info(
-            f"Compliance metrics update completed in {elapsed:.2f}s | ETC: {etc}"
-        )
+        logging.info(f"Compliance metrics update completed in {elapsed:.2f}s | ETC: {etc}")
         self.status = "COMPLETED"
 
-    def _calculate_etc(
-        self, elapsed: float, current_progress: int, total_work: int
-    ) -> str:
+    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
         if current_progress > 0:
             total_estimated = elapsed / (current_progress / total_work)
             remaining = total_estimated - elapsed
@@ -192,13 +166,9 @@ class ComplianceMetricsUpdater:
         dashboard_file = self.dashboard_dir / "metrics.json"
         valid = dashboard_file.exists() and dashboard_file.stat().st_size > 0
         if valid:
-            logging.info(
-                "DUAL COPILOT validation passed: Dashboard metrics file present and non-zero-byte."
-            )
+            logging.info("DUAL COPILOT validation passed: Dashboard metrics file present and non-zero-byte.")
         else:
-            logging.error(
-                "DUAL COPILOT validation failed: Dashboard metrics file missing or zero-byte."
-            )
+            logging.error("DUAL COPILOT validation failed: Dashboard metrics file missing or zero-byte.")
         return valid
 
 
@@ -210,4 +180,11 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Update compliance metrics and dashboard")
+    parser.add_argument("--dashboard-dir", type=str, help="Directory for compliance dashboard")
+    args = parser.parse_args()
+    if args.dashboard_dir:
+        DASHBOARD_DIR = Path(args.dashboard_dir)
     main()
