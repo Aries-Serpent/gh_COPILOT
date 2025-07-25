@@ -20,11 +20,11 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
-from tqdm import tqdm
-from sklearn.cluster import KMeans
 import numpy as np
+from sklearn.cluster import KMeans
+from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 
@@ -35,15 +35,13 @@ LOG_FILE = LOGS_DIR / f"pattern_clustering_sync_{datetime.now().strftime('%Y%m%d
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
 PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "production.db"
 TEMPLATE_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "template_documentation.db"
 SYNC_AUDIT_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "sync_audit.db"
+
 
 class PatternClusteringSync:
     """
@@ -51,7 +49,9 @@ class PatternClusteringSync:
     Implements KMeans clustering, transactional sync, audit logging, and DUAL COPILOT compliance validation.
     """
 
-    def __init__(self, production_db: Path = PRODUCTION_DB, template_db: Path = TEMPLATE_DB, audit_db: Path = SYNC_AUDIT_DB) -> None:
+    def __init__(
+        self, production_db: Path = PRODUCTION_DB, template_db: Path = TEMPLATE_DB, audit_db: Path = SYNC_AUDIT_DB
+    ) -> None:
         self.production_db = production_db
         self.template_db = template_db
         self.audit_db = audit_db
@@ -60,7 +60,7 @@ class PatternClusteringSync:
         self.timeout_seconds = 1800  # 30 minutes
         self.status = "INITIALIZED"
         validate_enterprise_operation(str(production_db))
-        logging.info(f"PROCESS STARTED: Pattern Clustering and Synchronization")
+        logging.info("PROCESS STARTED: Pattern Clustering and Synchronization")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
 
@@ -75,11 +75,7 @@ class PatternClusteringSync:
             for row in cur.fetchall():
                 # feature_vector is expected to be a comma-separated string of floats
                 fv = [float(x) for x in row[2].split(",")] if row[2] else []
-                patterns.append({
-                    "pattern": row[0],
-                    "group": row[1],
-                    "features": fv
-                })
+                patterns.append({"pattern": row[0], "group": row[1], "features": fv})
         logging.info(f"Fetched {len(patterns)} clustering patterns")
         return patterns
 
@@ -117,9 +113,11 @@ class PatternClusteringSync:
         return representatives
 
     def synchronize_templates(self, timeout_minutes: int = 30) -> bool:
-        """
-        Synchronize templates using clustered patterns with transactional sync, rollback on error, audit logs, and compliance validation.
-        Includes visual indicators, timeout, ETC, and DUAL COPILOT validation.
+        """Synchronize templates using clustered patterns.
+
+        The operation performs transactional sync with rollback on error,
+        audit logging, and compliance validation. Visual indicators and dual
+        validation are included.
         """
         self.status = "SYNCHRONIZING"
         start_time = time.time()
@@ -153,25 +151,33 @@ class PatternClusteringSync:
                         bar.set_description(f"Syncing Cluster {cluster_id}")
                         # Example sync: insert/update representative template
                         template_conn.execute(
-                            """INSERT OR REPLACE INTO templates (template_name, template_content, compliance_score, version, created_at)
-                               VALUES (?, ?, ?, ?, ?)""",
+                            (
+                                "INSERT OR REPLACE INTO templates "
+                                "(template_name, template_content, "
+                                "compliance_score, version, created_at) "
+                                "VALUES (?, ?, ?, ?, ?)"
+                            ),
                             (
                                 f"Cluster_{cluster_id}_{rep['pattern']}",
                                 f"Auto-synced template for {rep['pattern']} in group {rep['group']}",
                                 0.95,
                                 "v1.0",
-                                datetime.now().isoformat()
-                            )
+                                datetime.now().isoformat(),
+                            ),
                         )
                         audit_conn.execute(
-                            "INSERT INTO sync_audit_log (cluster_id, pattern, group_name, sync_status, timestamp) VALUES (?, ?, ?, ?, ?)",
+                            (
+                                "INSERT INTO sync_audit_log "
+                                "(cluster_id, pattern, group_name, "
+                                "sync_status, timestamp) VALUES (?, ?, ?, ?, ?)"
+                            ),
                             (
                                 cluster_id,
-                                rep['pattern'],
-                                rep['group'],
+                                rep["pattern"],
+                                rep["group"],
                                 "synced",
-                                datetime.now().isoformat()
-                            )
+                                datetime.now().isoformat(),
+                            ),
                         )
                         bar.update(1)
                         elapsed = time.time() - start_time
@@ -217,6 +223,7 @@ class PatternClusteringSync:
             db_count = cur.fetchone()[0]
         return db_count >= expected_count
 
+
 def main(
     production_db_path: Optional[str] = None,
     template_db_path: Optional[str] = None,
@@ -228,7 +235,7 @@ def main(
     """
     start_time = time.time()
     process_id = os.getpid()
-    logging.info(f"PROCESS STARTED: Pattern Clustering Sync")
+    logging.info("PROCESS STARTED: Pattern Clustering Sync")
     logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
 
@@ -244,6 +251,7 @@ def main(
     elapsed = time.time() - start_time
     logging.info(f"Pattern clustering sync session completed in {elapsed:.2f}s")
     return success
+
 
 if __name__ == "__main__":
     success = main()
