@@ -216,6 +216,8 @@ The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping
 python scripts/wlc_session_manager.py --steps 2 --verbose
 ```
 It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
+Each run inserts a row into the `unified_wrapup_sessions` table with a compliance score for audit purposes.
+The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
 
 ---
 
@@ -235,6 +237,18 @@ analytics.db                    # Performance and usage analytics
 monitoring.db                   # Real-time system monitoring
 optimization_metrics.db         # Continuous optimization data
 ```
+
+### Analytics Database Test Protocol
+The `analytics.db` file should never be created or modified automatically.
+To create or migrate the file manually, run:
+
+```bash
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+```
+
+Automated tests perform these migrations in-memory with progress bars and DUAL
+COPILOT validation, leaving the on-disk database untouched.
 
 ### **Database-First Workflow**
 1. **Query First:** Check production.db for existing solutions
@@ -707,8 +721,10 @@ The **Wrapping, Logging, and Compliance (WLC)** system ensures that long-running
 operations are recorded and validated for enterprise review. The session manager
 in [`scripts/wlc_session_manager.py`](scripts/wlc_session_manager.py) starts a
 session entry in `production.db`, logs progress to an external backup location,
-and finalizes the run with a compliance score. Detailed usage instructions are
-available in [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+and finalizes the run with a compliance score. Each run inserts a record into the
+`unified_wrapup_sessions` table with `session_id`, timestamps, status, compliance
+score, and optional error details. Detailed usage instructions are available in
+[docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
 
 ---
 

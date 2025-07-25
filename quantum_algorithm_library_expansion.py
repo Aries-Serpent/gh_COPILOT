@@ -7,10 +7,10 @@ only and are simplified versions of their quantum counterparts.
 
 from __future__ import annotations
 
-from typing import Iterable, List
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+from typing import Iterable, List
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -19,9 +19,12 @@ from tqdm import tqdm
 ANALYTICS_DB = Path("databases/analytics.db")
 
 def log_quantum_event(name: str, details: str) -> None:
-    """Log quantum algorithm usage."""
+    """Log quantum algorithm usage if ``analytics.db`` exists."""
+    if not ANALYTICS_DB.exists():
+        # Manual creation required; skip logging if database is absent
+        return
+
     try:
-        ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(ANALYTICS_DB) as conn:
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS quantum_events (timestamp TEXT, name TEXT, details TEXT)"
@@ -32,6 +35,7 @@ def log_quantum_event(name: str, details: str) -> None:
             )
             conn.commit()
     except sqlite3.Error:
+        # Logging should not raise during optional analytics collection
         pass
 
 
