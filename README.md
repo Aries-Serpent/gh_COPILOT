@@ -212,10 +212,15 @@ Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment
 
 ### WLC Session Manager
 The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
+
 ```bash
 python scripts/wlc_session_manager.py --steps 2 --verbose
 ```
-It records each session in `production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
+
+The manager validates required environment variables, executes the
+`UnifiedWrapUpOrchestrator` for comprehensive cleanup, and performs dual
+validation through the `SecondaryCopilotValidator`. It records each session in
+`production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
 Each run inserts a row into the `unified_wrapup_sessions` table with a compliance score for audit purposes.
 The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
 
