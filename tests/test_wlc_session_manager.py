@@ -21,7 +21,7 @@ class DummyOrchestrator:
 
     def execute_unified_wrapup(self):
         self.called = True
-        return None
+        return type("R", (), {"compliance_score": 100.0})()
 
 
 def test_main_inserts_session(tmp_path, monkeypatch):
@@ -33,14 +33,11 @@ def test_main_inserts_session(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
     dummy = DummyValidator()
     monkeypatch.setattr(wsm, "SecondaryCopilotValidator", lambda: dummy)
+    orch = DummyOrchestrator()
     monkeypatch.setattr(
         wsm,
         "UnifiedWrapUpOrchestrator",
-        lambda workspace_path=None: type(
-            "R",
-            (),
-            {"execute_unified_wrapup": lambda self: type("X", (), {"compliance_score": 100.0})()},
-        )(),
+        lambda workspace_path=None: orch,
     )
     with sqlite3.connect(temp_db) as conn:
         cur = conn.cursor()
@@ -91,9 +88,7 @@ def test_orchestrator_called(tmp_path, monkeypatch):
     assert orch.called
     with sqlite3.connect(temp_db) as conn:
         cur = conn.cursor()
-        cur.execute(
-            "SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1"
-        )
+        cur.execute("SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
         score = cur.fetchone()[0]
     assert abs(score - 0.42) < 1e-6
 
@@ -112,18 +107,14 @@ def test_session_error(tmp_path, monkeypatch):
         def execute_unified_wrapup(self):
             raise RuntimeError("boom")
 
-    monkeypatch.setattr(
-        wsm, "UnifiedWrapUpOrchestrator", lambda workspace_path=None: FailingOrchestrator()
-    )
+    monkeypatch.setattr(wsm, "UnifiedWrapUpOrchestrator", lambda workspace_path=None: FailingOrchestrator())
 
     with pytest.raises(RuntimeError):
         wsm.main([])
 
     with sqlite3.connect(temp_db) as conn:
         cur = conn.cursor()
-        cur.execute(
-            "SELECT status, error_details FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1"
-        )
+        cur.execute("SELECT status, error_details FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
         status, error_details = cur.fetchone()
 
     assert status == "FAILED"
