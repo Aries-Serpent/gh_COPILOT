@@ -325,6 +325,7 @@ def synchronize_templates_real(
         if not write_enabled:
             logger.info("[DRY-RUN] Would synchronize %s", db)
             continue
+        conn = None
         try:
             conn = sqlite3.connect(db)
             cur = conn.execute(
