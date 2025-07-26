@@ -69,3 +69,21 @@ def test_audit_logging_and_rollback(tmp_path: Path, monkeypatch) -> None:
         assert tables == [("other",)]
 
     assert not analytics.exists()
+
+
+def test_extract_templates(tmp_path: Path) -> None:
+    db = tmp_path / "temp.db"
+    create_db(db, {"n1": "c1"})
+    results = template_synchronizer._extract_templates(db)
+    assert results == [("n1", "c1")]
+
+
+def test_can_write_analytics(tmp_path: Path, monkeypatch) -> None:
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
+    outside = tmp_path.parent / "analytics.db"
+    monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", outside)
+    assert template_synchronizer._can_write_analytics()
+
+    inside = tmp_path / "analytics.db"
+    monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", inside)
+    assert not template_synchronizer._can_write_analytics()

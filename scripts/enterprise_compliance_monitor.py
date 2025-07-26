@@ -51,24 +51,24 @@ with comprehensive validation, automated correction, and performance tracking.
 6. Performance (15%): Response times, throughput, resource efficiency
 """
 
-import os
-import sys
-import json
-import time
-import sqlite3
-import logging
 import argparse
+import json
+import logging
+import os
+import sqlite3
+import sys
 import threading
+import time
 import traceback
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple, Union
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+from datetime import datetime
 from enum import Enum
-from tqdm import tqdm
-import hashlib
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import psutil
-import subprocess
+from tqdm import tqdm
+
 
 # Enterprise Imports
 # Fallback implementation for DualCopilotValidator if import fails
@@ -369,8 +369,8 @@ class EnterpriseComplianceMonitor:
         self.logger.info("✅ ENTERPRISE COMPLIANCE MONITORING STARTED")
         self.logger.info(f"Monitor ID: {self.monitor_id}")
         self.logger.info(f"Setup Duration: {duration:.2f} seconds")
-        self.logger.info(f"Monitoring Status: ACTIVE")
-        self.logger.info(f"Background Thread: RUNNING")
+        self.logger.info("Monitoring Status: ACTIVE")
+        self.logger.info("Background Thread: RUNNING")
         self.logger.info("="*80)
         
         return {
@@ -1025,8 +1025,8 @@ class EnterpriseComplianceMonitor:
             if backup_folders:
                 self.logger.error(f"🚨 RECURSIVE FOLDERS DETECTED: {len(backup_folders)} folders")
                 return True
-        except Exception:
-            pass
+        except Exception as exc:
+            self.logger.error("Recursive folder check failed: %s", exc)
         return False
     
     def _check_database_corruption(self) -> bool:
@@ -1053,8 +1053,8 @@ class EnterpriseComplianceMonitor:
             if cpu_percent > 95 or memory.percent > 98:
                 self.logger.error(f"🚨 CRITICAL RESOURCE USAGE: CPU {cpu_percent:.1f}%, Memory {memory.percent:.1f}%")
                 return True
-        except Exception:
-            pass
+        except Exception as exc:
+            self.logger.error("Resource usage check failed: %s", exc)
         return False
     
     def _check_security_breach(self) -> bool:

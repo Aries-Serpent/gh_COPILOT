@@ -315,6 +315,14 @@ template = gen.generate_template({"action": "print"})
 sync_count = template_synchronizer.synchronize_templates([Path("databases/production.db")])
 ```
 
+To perform a real synchronization with analytics logging, run:
+
+```bash
+python template_engine/template_synchronizer.py --real
+```
+
+Analytics events are stored in `analytics.db` when it resides outside the workspace.
+
 #### Unified Logging Helper
 The `_log_event` function records structured events with progress bars and
 real-time status. It accepts a dictionary payload, optional table name, and the
