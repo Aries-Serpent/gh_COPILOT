@@ -104,3 +104,6 @@ Use `add_code_audit_history.sql` to create the `code_audit_history` table. This 
 ```bash
 sqlite3 databases/analytics.db ".schema code_audit_history"
 ```
+
+## Database-First Enforcement
+The helper `database_first.ensure_db_reference()` verifies a target file path exists in `production.db` before it can be modified. Validation scripts such as `enterprise_dual_copilot_validator.py` flag modules that change files without calling this helper. Always call `ensure_db_reference()` prior to any filesystem write operations.

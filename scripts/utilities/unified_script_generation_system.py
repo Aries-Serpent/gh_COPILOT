@@ -19,6 +19,8 @@ from pathlib import Path
 
 from dataclasses import dataclass
 from tqdm import tqdm
+from secondary_copilot_validator import SecondaryCopilotValidator
+from utils.visual_progress import start_indicator, progress_bar, end_indicator
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -54,8 +56,7 @@ class EnterpriseUtility:
 
     def execute_utility(self) -> bool:
         """Execute utility function"""
-        start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+        start_time = start_indicator("Script Generation Utility")
 
         try:
             # Utility implementation
@@ -65,13 +66,16 @@ class EnterpriseUtility:
                 duration = (datetime.now() - start_time).total_seconds()
                 self.logger.info(
                     f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                end_indicator("Script Generation Utility", start_time)
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
+                end_indicator("Script Generation Utility", start_time)
                 return False
 
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
+            end_indicator("Script Generation Utility", start_time)
             return False
 
     def perform_utility_function(self) -> bool:
@@ -94,7 +98,7 @@ class EnterpriseUtility:
 
             placeholder_counter: Counter[str] = Counter()
 
-            with tqdm(total=100, desc="Script Generation", unit="%") as pbar:
+            with progress_bar(total=100, desc="Script Generation", unit="%") as pbar:
                 with sqlite3.connect(db_path) as conn:
                     cursor = conn.execute(
                         "SELECT template_id, content FROM template_metadata"
@@ -132,15 +136,20 @@ class EnterpriseUtility:
             valid = validator.validate(
                 ValidationResult(output_file=output_file, progress_complete=pbar.n == 100)
             )
-            if not valid:
+            secondary = SecondaryCopilotValidator(self.logger)
+            sec_ok = secondary.validate_corrections([str(output_file)])
+            if not (valid and sec_ok):
                 self.logger.error(f"{TEXT_INDICATORS['error']} Validation failed")
+                end_indicator("Script Generation Utility", start_time)
                 return False
 
+            end_indicator("Script Generation Utility", start_time)
             return True
         except Exception as exc:  # pragma: no cover - log and propagate failure
             self.logger.error(
                 f"{TEXT_INDICATORS['error']} Generation failed: {exc}"
             )
+            end_indicator("Script Generation Utility", start_time)
             return False
 
 

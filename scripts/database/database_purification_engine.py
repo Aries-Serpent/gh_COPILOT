@@ -25,6 +25,9 @@ from typing import Any, Dict, List, Optional
 
 from tqdm import tqdm
 
+from db_tools.database_first_utils import ensure_db_reference
+from enterprise_modules.compliance import validate_enterprise_operation
+
 
 class DatabasePurificationEngine:
     """
@@ -398,8 +401,12 @@ class DatabasePurificationEngine:
             f"database_purification_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         )
 
-        with open(report_file, 'w') as f:
-            json.dump(report, f, indent=2)
+        if ensure_db_reference(str(report_file)) and validate_enterprise_operation(str(report_file)):
+            with open(report_file, 'w') as f:
+                json.dump(report, f, indent=2)
+        else:
+            self.logger.error("[ERROR] Database reference validation failed")
+            return report
 
         self.logger.info(f"[SUCCESS] Purification report saved: {report_file}")
 
@@ -445,4 +452,5 @@ def main():
 
 
 if __name__ == "__main__":
+    validate_enterprise_operation()
     sys.exit(main())
