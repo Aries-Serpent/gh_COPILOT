@@ -20,6 +20,31 @@ from tqdm import tqdm
 
 from utils.log_utils import _log_event as log_event_simulation
 
+# Internal helpers
+
+def _can_write_analytics() -> bool:
+    """Return True if ``ANALYTICS_DB`` is outside the workspace."""
+    workspace = os.getenv("GH_COPILOT_WORKSPACE")
+    if not workspace:
+        return True
+    try:
+        Path(ANALYTICS_DB).resolve().relative_to(Path(workspace).resolve())
+        return False
+    except ValueError:
+        return True
+
+
+def _extract_templates(db: Path) -> list[tuple[str, str]]:
+    """Return templates from ``db`` or ``[]`` on error."""
+    if not db.exists():
+        return []
+    try:
+        with sqlite3.connect(db) as conn:
+            return list(_load_templates(conn).items())
+    except sqlite3.Error as exc:  # pragma: no cover - logging only
+        logger.warning("Failed to read templates from %s: %s", db, exc)
+        return []
+
 ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "analytics.db"
 
 logger = logging.getLogger(__name__)
@@ -49,29 +74,6 @@ def _load_templates(conn: sqlite3.Connection) -> dict[str, str]:
     return {name: content for name, content in rows if content}
 
 
-def synchronize_templates_real(databases: Iterable[Path]) -> None:
-    """Synchronize templates across ``databases`` transactionally."""
-    templates: dict[str, str] = {}
-    valid_dbs: list[Path] = []
-    # gather templates
-    for db in databases:
-        with sqlite3.connect(db) as conn:
-            try:
-                templates.update(_load_templates(conn))
-                valid_dbs.append(db)
-            except sqlite3.Error as exc:  # pragma: no cover - should not happen in tests
-                logger.exception("Failed reading templates from %s", db)
-                _log_event(db, False, str(exc))
-                continue
-    # apply templates only to valid databases
-    for db in valid_dbs:
-        try:
-            with sqlite3.connect(db) as conn:
-                rows = conn.execute("SELECT name, template_content FROM templates").fetchall()
-                return [(r[0], r[1]) for r in rows]
-        except sqlite3.Error as exc:
-            logger.warning("Failed to read templates from %s: %s", db, exc)
-            return []
 
 
 def _calculate_etc(start_ts: float, current_progress: int, total_work: int) -> str:
