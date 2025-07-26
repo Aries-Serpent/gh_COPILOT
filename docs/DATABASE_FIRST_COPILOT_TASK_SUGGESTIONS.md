@@ -19,8 +19,8 @@ Recent updates:
 
 ## 2a. Compliance Dashboard
 - Add `/dashboard/compliance` endpoint to the Flask dashboard.
-- Pull placeholder and code audit metrics from `analytics.db` for
-  real-time compliance reporting.
+- Read audit metrics directly from `analytics.db.todo_fixme_tracking` and
+  `code_audit_log` to provide real-time placeholder removal status.
 
 ## 3. Documentation Generation System
 - Update `EnterpriseDocumentationManager` to select the best template based on compliance scores and log generation events.
@@ -65,9 +65,12 @@ Recent updates:
 - Integrate visual indicators for simulated quantum scoring and pattern matching.
 - Ensure all quantum modules log actions to `analytics.db` for compliance review.
 
--## 12. Legacy Placeholder Cleanup
-- Search the repository for "Implementation placeholder" comments and replace them with database-driven functionality.
-- Update utilities like `documentation_db_analyzer.py` and `enterprise_database_driven_documentation_manager.py` to process database entries and log progress.
+## 12. Legacy Placeholder Cleanup
+- Use `scripts/audit_codebase_placeholders.py` to locate legacy placeholder comments.
+- Replace each finding with database-driven logic and log updates to `analytics.db`.
+- Update utilities like `documentation_db_analyzer.py` and
+  `enterprise_database_driven_documentation_manager.py` to process database entries and
+  track progress through `/dashboard/compliance`.
 
 ## 13. Documentation Updates
 - Extend `docs/README.md` with references to the new database-first utilities.
@@ -152,7 +155,7 @@ implemented consistently.
 
 | ID | Description | Module/Path | Related Sections |
 |----|-------------|-------------|-----------------|
-| `STUB-001` | Finalize placeholder scanning logic with full traversal and progress logging. Record every finding to `analytics.db` (supports test-mode simulation via `GH_COPILOT_TEST_MODE=1`) | `scripts/placeholder_audit_logger.py`, `scripts/audit_codebase_placeholders.py` | Audit and Compliance |
+| `STUB-001` | Maintain full traversal scanning using `scripts/audit_codebase_placeholders.py`; ensure each finding is logged to `analytics.db` and surfaced on `/dashboard/compliance` (test-mode via `GH_COPILOT_TEST_MODE=1`) | `scripts/audit_codebase_placeholders.py` | Audit and Compliance |
 | `STUB-002` | Expand database-first code generation with similarity scoring and template retrieval | `template_engine/auto_generator.py`, `template_engine/db_first_code_generator.py`, `pattern_mining_engine.py`, `objective_similarity_scorer.py` | Code Generation |
 | `STUB-003` | Implement KMeans clustering for template selection and transactional synchronization | `template_engine/template_synchronizer.py`, `copilot/copilot-instructions.md` | Pattern Clustering |
 | `STUB-004` | Log all correction history with rollback design and compliance metrics | `documentation_db_analyzer.py`, `compliance_metrics_updater.py`, `databases/analytics.db` | Correction Logging |

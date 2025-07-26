@@ -8,7 +8,7 @@ automated template creation.
 """
 
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import List, Tuple
 
 from template_engine.auto_generator import TemplateAutoGenerator
 
@@ -18,8 +18,8 @@ except Exception:  # pragma: no cover - optional quantum deps
     QuantumExecutor = None
 
 
-def generate_default_templates(db_path: Path = Path("databases/production.db")) -> None:
-    """Generate documentation templates using quantum-inspired scoring.
+def generate_default_templates(db_path: Path = Path("databases/production.db")) -> List[Tuple[str, float]]:
+    """Return scored documentation templates using quantum-inspired ranking.
 
     Parameters
     ----------
@@ -30,15 +30,14 @@ def generate_default_templates(db_path: Path = Path("databases/production.db")) 
         quantum-inspired scoring will be applied to select templates.
     """
     generator = TemplateAutoGenerator(db_path, db_path)
-    representatives = generator.get_cluster_representatives()
-    if not representatives:
-        print("No templates found")
-        return
+    reps = generator.get_cluster_representatives()
+    if not reps:
+        return []
 
-    scored = []
+    scored: List[Tuple[str, float]] = []
     if QuantumExecutor:
         executor = QuantumExecutor()
-        for rep in representatives:
+        for rep in reps:
             try:
                 result = executor.execute_algorithm("quantum_similarity_score", text=rep)
                 score = float(result.get("stats", {}).get("score", 0))
@@ -46,12 +45,12 @@ def generate_default_templates(db_path: Path = Path("databases/production.db")) 
                 score = generator._quantum_score(rep)
             scored.append((rep, score))
     else:
-        scored = [(rep, generator._quantum_score(rep)) for rep in representatives]
+        scored = [(rep, generator._quantum_score(rep)) for rep in reps]
 
-    for rep, score in sorted(scored, key=lambda s: s[1], reverse=True):
-        print(f"{score:.4f}: {rep}")
+    scored.sort(key=lambda s: s[1], reverse=True)
+    return scored
 
 
 if __name__ == "__main__":  # pragma: no cover
-    for tmpl in generate_default_templates():
-        print(tmpl)
+    for text, score in generate_default_templates():
+        print(f"{score:.4f}: {text}")
