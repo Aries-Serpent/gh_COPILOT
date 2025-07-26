@@ -69,3 +69,34 @@ def test_audit_logging_and_rollback(tmp_path: Path, monkeypatch) -> None:
         assert tables == [("other",)]
 
     assert not analytics.exists()
+
+
+def test_extract_templates(tmp_path: Path) -> None:
+    db = tmp_path / "t.db"
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE templates (name TEXT PRIMARY KEY, template_content TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO templates (name, template_content) VALUES ('foo', 'bar')"
+        )
+
+    result = template_synchronizer._extract_templates(db)
+    assert result == [("foo", "bar")]
+
+    missing = template_synchronizer._extract_templates(tmp_path / "missing.db")
+    assert missing == []
+
+
+def test_can_write_analytics(tmp_path: Path, monkeypatch) -> None:
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
+    monkeypatch.setattr(
+        template_synchronizer,
+        "ANALYTICS_DB",
+        tmp_path / "analytics.db",
+    )
+    assert not template_synchronizer._can_write_analytics()
+
+    external = tmp_path.parent / "analytics.db"
+    monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", external)
+    assert template_synchronizer._can_write_analytics()

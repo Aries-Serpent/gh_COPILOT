@@ -4,7 +4,9 @@
 # - Flake8/PEP8 Compliant
 # - Visual Processing Indicators: start time, progress bar, ETC, real-time status
 #   process ID, error handling, dual validation
-# - NO creation or mutation of `databases/analytics.db` – only simulate/test for existence and readiness
+# - Simulation mode avoids creation or mutation of `databases/analytics.db`.
+#   Real mode (`--real`) records events to `analytics.db` when located outside
+#   the workspace.
 # - All database/file operations must be validated for anti-recursion and compliance
 
 import argparse
@@ -48,22 +50,6 @@ def _extract_templates(db: Path) -> list[tuple[str, str]]:
 ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "analytics.db"
 
 logger = logging.getLogger(__name__)
-
-
-def _log_event(db_path: Path, success: bool, error: str | None = None) -> None:
-    ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(ANALYTICS_DB) as conn:
-        if success:
-            conn.execute("CREATE TABLE IF NOT EXISTS sync_events(db TEXT)")
-            conn.execute(
-                "INSERT INTO sync_events(db) VALUES (?)",
-                (str(db_path),),
-            )
-            conn.commit()
-        if error:
-            conn.execute("CREATE TABLE IF NOT EXISTS audit_log(db TEXT, error TEXT)")
-            conn.execute("INSERT INTO audit_log(db, error) VALUES (?, ?)", (str(db_path), error))
-            conn.commit()
 
 
 def _load_templates(conn: sqlite3.Connection) -> dict[str, str]:
@@ -332,6 +318,7 @@ def synchronize_templates_real(
 
     write_enabled = _can_write_analytics()
     for idx, db in enumerate(tqdm(databases, desc=f"Sync [PID {proc_id}]", unit="db"), 1):
+        conn: sqlite3.Connection | None = None
         if not db.exists():
             logger.warning("Skipping missing DB: %s", db)
             continue
@@ -339,30 +326,38 @@ def synchronize_templates_real(
             logger.info("[DRY-RUN] Would synchronize %s", db)
             continue
         try:
-            with sqlite3.connect(db) as conn:
-                cur = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='templates'")
-                if not cur.fetchall():
-                    raise RuntimeError("missing templates table")
-                conn.execute("BEGIN")
-                conn.execute("CREATE TABLE IF NOT EXISTS templates (name TEXT PRIMARY KEY, template_content TEXT)")
-                for name, content in all_templates.items():
-                    conn.execute(
-                        "INSERT OR REPLACE INTO templates (name, template_content) VALUES (?, ?)",
-                        (name, content),
-                    )
-                if not _compliance_check(conn):
-                    raise RuntimeError("compliance validation failed")
-                conn.commit()
+            conn = sqlite3.connect(db)
+            cur = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='templates'"
+            )
+            if not cur.fetchall():
+                raise RuntimeError("missing templates table")
+            conn.execute("BEGIN")
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS templates (name TEXT PRIMARY KEY, template_content TEXT)"
+            )
+            for name, content in all_templates.items():
+                conn.execute(
+                    "INSERT OR REPLACE INTO templates (name, template_content) VALUES (?, ?)",
+                    (name, content),
+                )
+            if not _compliance_check(conn):
+                raise RuntimeError("compliance validation failed")
+            conn.commit()
             synced += 1
             _log_sync_event_real(source_names, str(db))
             logger.info("Synced templates to %s [PID %s]", db, proc_id)
         except Exception as exc:  # noqa: BLE001
             logger.error("Failed to sync %s: %s", db, exc)
-            try:
-                conn.rollback()
-            except Exception:  # pragma: no cover - rollback best effort
-                pass
+            if conn is not None:
+                try:
+                    conn.rollback()
+                except Exception:  # pragma: no cover - rollback best effort
+                    pass
             _log_audit_real(str(db), str(exc))
+        finally:
+            if conn is not None:
+                conn.close()
         etc = _calculate_etc(start_ts, idx + len(databases), len(databases) * 2)
         tqdm.write(f"(PID {proc_id}) ETC: {etc}")
 
@@ -373,8 +368,6 @@ def synchronize_templates_real(
 
 
 if __name__ == "__main__":
-    import argparse
-
     parser = argparse.ArgumentParser(description="Template synchronization tool")
     parser.add_argument("--real", action="store_true", help="Apply real synchronization")
     args = parser.parse_args()
