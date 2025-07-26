@@ -315,13 +315,14 @@ template = gen.generate_template({"action": "print"})
 sync_count = template_synchronizer.synchronize_templates([Path("databases/production.db")])
 ```
 
-To perform a real synchronization with analytics logging, run:
+To perform a real synchronization and log events to `analytics.db` (if the
+database resides outside the workspace), invoke the CLI:
 
 ```bash
 python template_engine/template_synchronizer.py --real
 ```
 
-Analytics events are stored in `analytics.db` when it resides outside the workspace.
+Ensure `analytics.db` lives outside `GH_COPILOT_WORKSPACE` to allow writes.
 
 #### Unified Logging Helper
 The `_log_event` function records structured events with progress bars and
