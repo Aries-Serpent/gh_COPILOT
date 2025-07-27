@@ -276,6 +276,7 @@ COPILOT validation, leaving the on-disk database untouched.
 3. **Adapt:** Customize patterns for current environment
 4. **Validate:** DUAL COPILOT validation with secondary review
 5. **Execute:** Deploy with visual processing indicators
+6. **Always Connect:** Use `get_validated_production_connection()` before any filesystem changes
 
 ---
 

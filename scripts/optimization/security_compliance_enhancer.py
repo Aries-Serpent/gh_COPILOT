@@ -23,11 +23,15 @@ import tempfile
 from pathlib import Path
 from typing import Dict, List, Any, Tuple, Optional
 
+from utils.database_utils import get_validated_production_connection
+
 class SecurityComplianceEnhancer:
     """Enterprise Security Compliance Validation and Enhancement System"""
     
     def __init__(self, workspace_path: str):
         self.workspace_path = Path(workspace_path)
+        with get_validated_production_connection():
+            pass
         self.security_dir = self.workspace_path / "security"
         self.reports_dir = self.workspace_path / "reports"
         self.config_dir = self.workspace_path / "config"

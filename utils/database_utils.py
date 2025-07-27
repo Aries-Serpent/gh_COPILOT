@@ -39,3 +39,16 @@ def check_table_exists(table_name: str, db_name: str = "production.db") -> bool:
     query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?"
     result = execute_safe_query(query, (table_name,), db_name)
     return bool(result)
+
+
+@contextmanager
+def get_validated_production_connection() -> Iterator[sqlite3.Connection]:
+    """Return a connection to production.db after basic validation."""
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    db_path = workspace / "databases" / "production.db"
+
+    if not db_path.exists() or db_path.stat().st_size == 0:
+        raise FileNotFoundError(f"production.db missing or empty at {db_path}")
+
+    with get_enterprise_database_connection("production.db") as conn:
+        yield conn
