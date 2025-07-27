@@ -1,5 +1,9 @@
-# Communication Style Guide
+# Communication Standards
 
-- Use concise language and avoid emojis in source code.
-- Prefix log messages with timestamp and severity using `log_utils.log_message`.
-- Document parameters and return values in docstrings for complex functions.
+This project values concise, direct language. Follow these guidelines when writing documentation, code comments, and commit messages:
+
+- Use active voice and present tense whenever possible.
+- Avoid ambiguous phrases such as "maybe" or "should"; provide explicit instructions.
+- Prefix log messages with the emitting module name using `log_message()` from `utils.log_utils`.
+- Keep sentences short and focused on a single idea.
+- Wrap lines at 120 characters to improve readability.

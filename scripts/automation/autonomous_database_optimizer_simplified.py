@@ -25,6 +25,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+)
+
 from tqdm import tqdm
 
 # Enhanced indicators for autonomous operation with visual processing
@@ -1531,6 +1535,7 @@ class AutonomousDatabaseOptimizer:
 
 async def main():
     """Main entry: initialize optimizer, run improvement, keep monitoring."""
+    EnterpriseUtility().execute_utility()
     print("=" * 80)
     print(f"{ENHANCED_INDICATORS['optimize']} AUTONOMOUS DB HEALTH OPTIMIZER START")
     print("=" * 80)
@@ -1559,4 +1564,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    EnterpriseUtility().execute_utility()
     asyncio.run(main())
