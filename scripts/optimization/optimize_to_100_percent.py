@@ -864,5 +864,6 @@ def main():
 
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    orchestrator = DualCopilotOrchestrator()
+    success, validated = orchestrator.run(main, files=[__file__])
+    sys.exit(0 if success and validated else 1)

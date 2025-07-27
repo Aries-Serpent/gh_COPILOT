@@ -4,6 +4,7 @@ Refactored from original validate_final_deployment.py with enhanced modular desi
 """
 
 import json
+import logging
 import sqlite3
 from pathlib import Path
 from datetime import datetime
@@ -11,9 +12,10 @@ from typing import Dict, Any, List, Optional
 
 from ..core.validators import BaseValidator, ValidationResult, ValidationStatus
 from ..core.rules import (
-    FileExistsRule, DatabaseIntegrityRule, JsonValidRule, 
+    FileExistsRule, DatabaseIntegrityRule, JsonValidRule,
     ThresholdRule, RuleBasedValidator
 )
+from utils.log_utils import _log_plain
 
 
 class DeploymentValidator(BaseValidator):
@@ -29,10 +31,10 @@ class DeploymentValidator(BaseValidator):
     
     def validate_final_deployment_status(self) -> ValidationResult:
         """Validate final enterprise deployment status"""
-        print("="*80)
-        print("ENTERPRISE DEPLOYMENT COMPLETION VALIDATION")
-        print("gh_COPILOT Toolkit v4.0 - Final Status Check")
-        print("="*80)
+        _log_plain("=" * 80)
+        _log_plain("ENTERPRISE DEPLOYMENT COMPLETION VALIDATION")
+        _log_plain("gh_COPILOT Toolkit v4.0 - Final Status Check")
+        _log_plain("=" * 80)
         
         validation_results = {
             "deployment_validation": "IN_PROGRESS",
@@ -86,14 +88,14 @@ class DeploymentValidator(BaseValidator):
         # Save validation results
         self._save_validation_results(validation_results)
         
-        print("\n" + "="*80)
-        print("ENTERPRISE DEPLOYMENT VALIDATION COMPLETED")
-        print("="*80)
-        print(f"Status: {validation_results['deployment_validation']}")
-        print(f"Components Passed: {passed_count}")
-        print(f"Components with Warnings: {warning_count}")
-        print(f"Components Failed: {failed_count}")
-        print("="*80)
+        _log_plain("\n" + "=" * 80)
+        _log_plain("ENTERPRISE DEPLOYMENT VALIDATION COMPLETED")
+        _log_plain("=" * 80)
+        _log_plain(f"Status: {validation_results['deployment_validation']}")
+        _log_plain(f"Components Passed: {passed_count}")
+        _log_plain(f"Components with Warnings: {warning_count}")
+        _log_plain(f"Components Failed: {failed_count}")
+        _log_plain("=" * 80)
         
         return ValidationResult(
             status=status,
@@ -111,11 +113,17 @@ class DeploymentValidator(BaseValidator):
         )
     
     def _validate_enterprise_certificate(self) -> ValidationResult:
-        """Validate Enterprise Certificate"""
+        """Validate enterprise certificate readiness.
+
+        Returns
+        -------
+        ValidationResult
+            Outcome indicating certificate validity and readiness level.
+        """
         certificate_path = self.workspace_path / "ENTERPRISE_READINESS_100_PERCENT_CERTIFICATE.json"
         
         if not certificate_path.exists():
-            print("✗ Enterprise Certificate: MISSING")
+            _log_plain("✗ Enterprise Certificate: MISSING", level=logging.ERROR)
             return ValidationResult(
                 status=ValidationStatus.FAILED,
                 message="Enterprise certificate missing",
@@ -130,7 +138,7 @@ class DeploymentValidator(BaseValidator):
             enterprise_readiness = certificate_data.get("ENTERPRISE_READINESS", {}).get("overall_readiness_percentage", 0)
             
             if enterprise_readiness >= 100.0:
-                print(f"✓ Enterprise Certificate: {enterprise_readiness}% Readiness")
+                _log_plain(f"✓ Enterprise Certificate: {enterprise_readiness}% Readiness")
                 return ValidationResult(
                     status=ValidationStatus.PASSED,
                     message=f"Enterprise certificate valid: {enterprise_readiness}% readiness",
@@ -140,7 +148,7 @@ class DeploymentValidator(BaseValidator):
                     }
                 )
             else:
-                print(f"⚠ Enterprise Certificate: {enterprise_readiness}% Readiness (Below 100%)")
+                _log_plain(f"⚠ Enterprise Certificate: {enterprise_readiness}% Readiness (Below 100%)", level=logging.WARNING)
                 return ValidationResult(
                     status=ValidationStatus.WARNING,
                     message=f"Enterprise certificate readiness below 100%: {enterprise_readiness}%",
@@ -152,7 +160,7 @@ class DeploymentValidator(BaseValidator):
                 )
                 
         except Exception as e:
-            print(f"✗ Enterprise Certificate Error: {e}")
+            _log_plain(f"✗ Enterprise Certificate Error: {e}", level=logging.ERROR)
             return ValidationResult(
                 status=ValidationStatus.ERROR,
                 message=f"Enterprise certificate validation error: {str(e)}",
@@ -160,11 +168,17 @@ class DeploymentValidator(BaseValidator):
             )
     
     def _validate_database_architecture(self) -> ValidationResult:
-        """Validate Database Architecture"""
+        """Check production database integrity and schema.
+
+        Returns
+        -------
+        ValidationResult
+            Outcome with integrity results and table count.
+        """
         production_db = self.workspace_path / "production.db"
         
         if not production_db.exists():
-            print("✗ Database Architecture: MISSING")
+            _log_plain("✗ Database Architecture: MISSING", level=logging.ERROR)
             return ValidationResult(
                 status=ValidationStatus.FAILED,
                 message="Production database missing",
@@ -183,7 +197,7 @@ class DeploymentValidator(BaseValidator):
                 cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'")
                 table_count = cursor.fetchone()[0]
                 
-            print(f"✓ Database Architecture: {table_count} tables, integrity: {integrity_result}")
+            _log_plain(f"✓ Database Architecture: {table_count} tables, integrity: {integrity_result}")
             
             if integrity_result == 'ok':
                 return ValidationResult(
@@ -208,7 +222,7 @@ class DeploymentValidator(BaseValidator):
                 )
                 
         except Exception as e:
-            print(f"✗ Database Architecture Error: {e}")
+            _log_plain(f"✗ Database Architecture Error: {e}", level=logging.ERROR)
             return ValidationResult(
                 status=ValidationStatus.ERROR,
                 message=f"Database architecture validation error: {str(e)}",
@@ -216,7 +230,13 @@ class DeploymentValidator(BaseValidator):
             )
     
     def _validate_autonomous_systems(self) -> ValidationResult:
-        """Validate Autonomous Systems"""
+        """Ensure required autonomous system scripts are present.
+
+        Returns
+        -------
+        ValidationResult
+            Status including lists of present and missing systems.
+        """
         autonomous_systems = [
             "autonomous_monitoring_system.py",
             "execute_enterprise_audit.py", 
@@ -230,10 +250,10 @@ class DeploymentValidator(BaseValidator):
             system_path = self.workspace_path / system_file
             if system_path.exists():
                 present_systems.append(system_file)
-                print(f"✓ Autonomous System: {system_file}")
+                _log_plain(f"✓ Autonomous System: {system_file}")
             else:
                 missing_systems.append(system_file)
-                print(f"✗ Autonomous System: {system_file} MISSING")
+                _log_plain(f"✗ Autonomous System: {system_file} MISSING", level=logging.WARNING)
         
         if missing_systems:
             return ValidationResult(
@@ -258,7 +278,13 @@ class DeploymentValidator(BaseValidator):
             )
     
     def _validate_compliance_framework(self) -> ValidationResult:
-        """Validate Compliance Framework"""
+        """Verify key compliance configuration files exist.
+
+        Returns
+        -------
+        ValidationResult
+            Indicates whether required compliance files are present.
+        """
         # Check for compliance-related files and configurations
         compliance_files = [
             ".flake8",
@@ -273,10 +299,10 @@ class DeploymentValidator(BaseValidator):
             compliance_path = self.workspace_path / compliance_file
             if compliance_path.exists():
                 present_compliance.append(compliance_file)
-                print(f"✓ Compliance: {compliance_file}")
+                _log_plain(f"✓ Compliance: {compliance_file}")
             else:
                 missing_compliance.append(compliance_file)
-                print(f"✗ Compliance: {compliance_file} MISSING")
+                _log_plain(f"✗ Compliance: {compliance_file} MISSING", level=logging.WARNING)
         
         if missing_compliance:
             return ValidationResult(
@@ -299,18 +325,24 @@ class DeploymentValidator(BaseValidator):
             )
     
     def _validate_readiness_status(self) -> ValidationResult:
-        """Validate Overall Readiness Status"""
+        """Check for readiness marker indicating full deployment readiness.
+
+        Returns
+        -------
+        ValidationResult
+            PASS if readiness marker exists, otherwise WARNING.
+        """
         readiness_marker = self.workspace_path / "ENTERPRISE_READINESS_100_PERCENT_ACHIEVED.marker"
         
         if readiness_marker.exists():
-            print("✓ Readiness Status: 100% ACHIEVED")
+            _log_plain("✓ Readiness Status: 100% ACHIEVED")
             return ValidationResult(
                 status=ValidationStatus.PASSED,
                 message="Enterprise readiness 100% achieved",
                 details={"readiness_marker": True}
             )
         else:
-            print("⚠ Readiness Status: MARKER MISSING")
+            _log_plain("⚠ Readiness Status: MARKER MISSING", level=logging.WARNING)
             return ValidationResult(
                 status=ValidationStatus.WARNING,
                 message="Enterprise readiness marker missing",
@@ -319,14 +351,14 @@ class DeploymentValidator(BaseValidator):
             )
     
     def _save_validation_results(self, results: Dict[str, Any]):
-        """Save validation results to file"""
+        """Persist validation summary to ``FINAL_DEPLOYMENT_VALIDATION.json``."""
         try:
             output_file = self.workspace_path / "FINAL_DEPLOYMENT_VALIDATION.json"
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(results, f, indent=2, ensure_ascii=False)
-            print(f"✓ Validation results saved to: {output_file}")
+            _log_plain(f"Validation results saved to: {output_file}")
         except Exception as e:
-            print(f"⚠ Could not save validation results: {e}")
+            _log_plain(f"Could not save validation results: {e}", level=logging.ERROR)
 
 
 def main():

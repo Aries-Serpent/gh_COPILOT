@@ -52,11 +52,30 @@ def _log_event(
     level: int = logging.INFO,
     test_mode: bool = True,  # Always True: never actually writes, only simulates
 ) -> bool:
-    """
-    Simulate logging a structured event to analytics SQLite DB.
-    - Does NOT actually create/write analytics.db.
-    - Returns True if analytics.db COULD be created at the given path.
-    - Shows all visual indicators, progress bars, and logs (test mode only).
+    """Log a structured event in a consistent format.
+
+    Parameters
+    ----------
+    event:
+        Dictionary describing the event to record.
+    table:
+        Destination table name within the analytics database.
+    db_path:
+        Path to the analytics database file (simulated).
+    fallback_file:
+        Optional path for writing events if the database is unavailable.
+    echo:
+        If ``True`` the formatted log line is echoed to the console.
+    level:
+        Logging level used for the echo output.
+    test_mode:
+        When ``True`` no database writes occur; the function only simulates the
+        operation.
+
+    Returns
+    -------
+    bool
+        ``True`` when the analytics database could be created at ``db_path``.
     """
     payload = dict(event)
     if "timestamp" not in payload:
@@ -114,8 +133,30 @@ def _log_audit_event(
     echo: bool = False,
     test_mode: bool = True,
 ) -> bool:
-    """
-    Simulate logging an audit event to analytics DB/audit_log table (no real writes).
+    """Record an audit event in the analytics log.
+
+    Parameters
+    ----------
+    description:
+        Brief text describing the audit entry.
+    details:
+        Optional dictionary containing extra information.
+    level:
+        Logging level for echo output.
+    db_path:
+        Path to the analytics database file (simulated).
+    table:
+        Table name within the analytics database.
+    echo:
+        If ``True`` the formatted log line is echoed to the console.
+    test_mode:
+        When ``True`` the function only simulates the operation and returns the
+        result of :func:`_log_event`.
+
+    Returns
+    -------
+    bool
+        ``True`` when the analytics database could be created at ``db_path``.
     """
     event = {
         "description": description,
@@ -141,6 +182,28 @@ def _log_plain(
         tqdm.write(f"[TEST] Would write to log file: {log_file}")
     if echo:
         print(line, file=sys.stderr if level >= logging.ERROR else sys.stdout)
+
+
+def log_message(module: str, message: str, *, level: int = logging.INFO) -> None:
+    """Emit a standardized log message.
+
+    Parameters
+    ----------
+    module:
+        Name of the calling module.
+    message:
+        Human readable log message.
+    level:
+        Logging severity level.
+
+    Expected Outcome
+    ----------------
+    A timestamped log line is printed using :func:`_log_plain` with the module
+    name prefixed to the message.
+    """
+
+    formatted = f"[{module}] {message}"
+    _log_plain(formatted, level=level)
 
 
 def _list_events(

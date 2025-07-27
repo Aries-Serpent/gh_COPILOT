@@ -20,17 +20,14 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from utils.log_utils import _log_event
 
-LOGS_DIR = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    / "logs"
-    / "cross_reference"
-)
+LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "cross_reference"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"cross_reference_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -40,19 +37,11 @@ logging.basicConfig(
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
-PRODUCTION_DB = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "production.db"
-)
+PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "production.db"
 ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "analytics.db"
-DASHBOARD_DIR = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    / "dashboard"
-    / "compliance"
-)
+DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "dashboard" / "compliance"
 TASK_SUGGESTIONS_FILE = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    / "docs"
-    / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
 )
 
 
@@ -97,9 +86,7 @@ class CrossReferenceValidator:
     def _scan_task_suggestions(self) -> List[str]:
         """Scan task suggestion file for actionable items."""
         if not self.task_suggestions_file.exists():
-            logging.warning(
-                f"Task suggestions file not found: {self.task_suggestions_file}"
-            )
+            logging.warning(f"Task suggestions file not found: {self.task_suggestions_file}")
             return []
         with open(self.task_suggestions_file, "r", encoding="utf-8") as f:
             lines = f.readlines()
@@ -149,14 +136,13 @@ class CrossReferenceValidator:
         Full cross-reference validation with progress, ETC, and DUAL COPILOT compliance.
         """
         self.status = "VALIDATING"
+        _log_event({"event": "cross_reference_start"}, db_path=self.analytics_db)
         start_time = time.time()
         self._query_cross_reference_patterns()
         self._scan_task_suggestions()
         actions = self._cross_link_actions()
         total_steps = 3
-        with tqdm(
-            total=total_steps, desc="Cross-Reference Validation", unit="step"
-        ) as bar:
+        with tqdm(total=total_steps, desc="Cross-Reference Validation", unit="step") as bar:
             bar.set_description("Querying Patterns")
             bar.update(1)
             bar.set_description("Scanning Task Suggestions")
@@ -165,22 +151,18 @@ class CrossReferenceValidator:
             bar.update(1)
         elapsed = time.time() - start_time
         etc = self._calculate_etc(elapsed, total_steps, total_steps)
-        logging.info(
-            f"Cross-reference validation completed in {elapsed:.2f}s | ETC: {etc}"
-        )
+        logging.info(f"Cross-reference validation completed in {elapsed:.2f}s | ETC: {etc}")
         self._update_dashboard(actions)
+        _log_event({"event": "cross_reference_actions", "count": len(actions)}, db_path=self.analytics_db)
         valid = self._dual_copilot_validate(len(actions))
         if valid:
-            logging.info(
-                "DUAL COPILOT validation passed: Cross-reference integrity confirmed."
-            )
+            logging.info("DUAL COPILOT validation passed: Cross-reference integrity confirmed.")
         else:
             logging.error("DUAL COPILOT validation failed: Cross-reference mismatch.")
+        _log_event({"event": "cross_reference_complete", "valid": valid}, db_path=self.analytics_db)
         return valid
 
-    def _calculate_etc(
-        self, elapsed: float, current_progress: int, total_work: int
-    ) -> str:
+    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
         if current_progress > 0:
             total_estimated = elapsed / (current_progress / total_work)
             remaining = total_estimated - elapsed
@@ -220,19 +202,12 @@ def main(
     validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
 
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    production_db = Path(
-        production_db_path or workspace / "databases" / "production.db"
-    )
+    production_db = Path(production_db_path or workspace / "databases" / "production.db")
     analytics_db = Path(analytics_db_path or workspace / "databases" / "analytics.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
-    task_suggestions = Path(
-        task_suggestions_file
-        or workspace / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
-    )
+    task_suggestions = Path(task_suggestions_file or workspace / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md")
 
-    validator = CrossReferenceValidator(
-        production_db, analytics_db, dashboard, task_suggestions
-    )
+    validator = CrossReferenceValidator(production_db, analytics_db, dashboard, task_suggestions)
     valid = validator.validate(timeout_minutes=timeout_minutes)
     elapsed = time.time() - start_time
     logging.info(f"Cross-reference validator completed in {elapsed:.2f}s")
