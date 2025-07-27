@@ -7,6 +7,9 @@ on:
 jobs:
   lint-test:
     runs-on: ubuntu-latest
+    env:
+      GH_COPILOT_WORKSPACE: ${{ github.workspace }}
+      GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
     strategy:
       matrix:
         python-version: ['3.10', '3.11']
@@ -27,6 +30,11 @@ jobs:
 
       - name: Setup project
         run: bash setup.sh
+
+      - name: Activate virtualenv
+        run: |
+          echo "VIRTUAL_ENV=${{ github.workspace }}/.venv" >> $GITHUB_ENV
+          echo "PATH=${{ github.workspace }}/.venv/bin:$PATH" >> $GITHUB_ENV
 
       - name: Ruff lint
         run: |
