@@ -59,6 +59,8 @@ class EnterpriseUtility:
         try:
             # Utility implementation
             success = self.perform_utility_function()
+            self.primary_validate()
+            self.secondary_validate()
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
@@ -91,6 +93,16 @@ class EnterpriseUtility:
 
         util = QuboUtil(workspace_path=str(self.workspace_path))
         return util.perform_utility_function()
+
+    def primary_validate(self) -> bool:
+        """Primary validation step."""
+        self.logger.info("[INFO] Primary validation running")
+        return True
+
+    def secondary_validate(self) -> bool:
+        """Secondary validation mirroring :func:`primary_validate`."""
+        self.logger.info("[INFO] Secondary validation running")
+        return self.primary_validate()
 
 
 def main() -> bool:

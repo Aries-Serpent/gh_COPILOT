@@ -21,6 +21,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+)
+
 # Progress bar with graceful fallback
 try:
     from tqdm import tqdm
@@ -1187,6 +1191,41 @@ class AutonomousDatabaseHealthOptimizer:
         except OSError as e:
             self.logger.error("%s Failed to save JSON results: %s", INDICATORS["warning"], str(e))
 
+    def _load_offline_results(self) -> Dict[str, Any]:
+        """Load cached optimization results for offline mode."""
+        results_file = (
+            self.workspace_path
+            / "results"
+            / "autonomous_optimization"
+            / "last_results.json"
+        )
+        if results_file.exists():
+            with open(results_file, "r", encoding="utf-8") as f:
+                cached = json.load(f)
+            self.logger.info(
+                "%s Loaded cached offline results from %s",
+                INDICATORS['info'],
+                results_file,
+            )
+            return cached
+
+        self.logger.warning(
+            "%s Offline mode enabled but no cached results found",
+            INDICATORS['warning'],
+        )
+        return {
+            "optimization_id": self.optimization_id,
+            "total_databases": 0,
+            "databases_analyzed": 0,
+            "databases_optimized": 0,
+            "total_improvement": 0.0,
+            "optimization_results": [],
+            "health_summary": {},
+            "execution_time": 0.0,
+            "success_rate": 0.0,
+            "offline": True,
+        }
+
 
 def main() -> Dict[str, Any]:
     """Execute autonomous database optimization.
@@ -1194,6 +1233,7 @@ def main() -> Dict[str, Any]:
     Returns:
         Dictionary containing optimization results
     """
+    EnterpriseUtility().execute_utility()
     print("=" * 80)
     print(f"{INDICATORS['optimize']} AUTONOMOUS DATABASE HEALTH OPTIMIZER")
     print("Self-Healing, Self-Learning Database Improvement System")
@@ -1201,7 +1241,9 @@ def main() -> Dict[str, Any]:
 
     try:
         # Initialize optimizer
-        optimizer = AutonomousDatabaseHealthOptimizer()
+        optimizer = AutonomousDatabaseHealthOptimizer(
+            offline_mode=os.getenv("OFFLINE_MODE") == "1"
+        )
 
         # Execute autonomous improvement
         results = optimizer.autonomous_database_improvement()

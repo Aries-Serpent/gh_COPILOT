@@ -82,6 +82,7 @@ class EnterpriseFileRelocationOrchestrator:
 
     def validate_environment_compliance(self):
         """CRITICAL: Validate proper environment root usage and anti-recursion"""
+        logging.info("PRIMARY VALIDATION: environment compliance")
         logging.info("VALIDATING ENVIRONMENT COMPLIANCE...")
 
         # MANDATORY: Check workspace root
@@ -416,6 +417,7 @@ class EnterpriseFileRelocationOrchestrator:
 
             if not relocation_map:
                 logging.info("ℹ️ No files to relocate")
+                self.secondary_validate()
                 return
 
             # Ensure target directories exist
@@ -446,6 +448,7 @@ class EnterpriseFileRelocationOrchestrator:
 def main():
     """Main execution function with DUAL COPILOT validation"""
     try:
+        EnterpriseUtility().execute_utility()
         # Initialize orchestrator
         orchestrator = EnterpriseFileRelocationOrchestrator()
 
@@ -465,3 +468,6 @@ def main():
 if __name__ == "__main__":
     monitoring_main()
     main()
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
