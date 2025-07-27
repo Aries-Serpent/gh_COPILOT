@@ -19,10 +19,8 @@ import json
 from pathlib import Path
 from typing import Any, Dict
 
-from utils.database_utils import get_validated_production_db_connection
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
-
-from utils.database_utils import get_validated_production_connection
 
 class SecurityComplianceEnhancer:
     """Enterprise Security Compliance Validation and Enhancement System"""
@@ -383,10 +381,6 @@ class SecurityComplianceEnhancer:
         print(f"📁 Workspace: {self.workspace_path}")
         print(f"🔒 Security Directory: {self.security_dir}")
 
-        # Validate production.db connectivity before changes
-        with get_validated_production_db_connection():
-            print("✅ production.db connection validated")
-
         enhancement_steps = [
             ("Creating Security Policy", self.create_security_policy),
             ("Creating Access Control Matrix", self.create_access_control_matrix),
@@ -460,7 +454,8 @@ def main():
     print("=" * 80)
 
     enhancer = SecurityComplianceEnhancer(workspace_path)
-    results = enhancer.run_security_enhancement()
+    orchestrator = DualCopilotOrchestrator()
+    results, validated = orchestrator.run(enhancer.run_security_enhancement, files=[__file__])
 
     if results.get("enterprise_ready", False):
         print("\n🎉 SUCCESS: Enterprise security compliance achieved!")
@@ -468,7 +463,8 @@ def main():
     else:
         print("\n⚠️  PARTIAL SUCCESS: Additional security measures may be needed")
 
-    return results
+    return results if validated else None
+
 
 
 if __name__ == "__main__":

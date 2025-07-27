@@ -9,8 +9,6 @@ Status: CRITICAL OPTIMIZATION
 """
 
 import json
-import sqlite3
-from utils.db_utils import get_validated_connection
 import logging
 import sqlite3
 import sys
@@ -18,10 +16,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
 
-from utils.database_utils import get_validated_production_db_connection
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
-
-from utils.database_utils import get_validated_production_connection
 
 def setup_logging():
     """Setup logging for optimization execution"""
@@ -40,10 +36,6 @@ def optimize_to_100_percent() -> Dict[str, Any]:
     with get_validated_production_connection():
         pass
     logger.info("[OPTIMIZE] Starting Enterprise Optimization to 100%")
-
-    # Ensure database is reachable before modifications
-    with get_validated_production_db_connection():
-        logger.info("[OPTIMIZE] production.db connection validated")
 
     optimization_results = {
         "database_optimization": 0.0,
@@ -105,7 +97,7 @@ def enhance_database_architecture() -> float:
     """Enhance database architecture to 100%"""
     try:
         # Create comprehensive database schema
-        with get_validated_production_db_connection() as conn:
+        with sqlite3.connect("production.db") as conn:
             cursor = conn.cursor()
 
             # Enhanced Script Tracking Table
@@ -267,7 +259,7 @@ def enhance_script_repository() -> float:
         # Get all Python scripts
         python_scripts = list(workspace_path.rglob("*.py"))
 
-        with get_validated_production_db_connection() as conn:
+        with sqlite3.connect("production.db") as conn:
             cursor = conn.cursor()
 
             # Enhanced script tracking
@@ -378,7 +370,7 @@ def enhance_copilot_integration() -> float:
         }
 
         # Store configuration in database
-        with get_validated_production_db_connection() as conn:
+        with sqlite3.connect("production.db") as conn:
             cursor = conn.cursor()
 
             # Enhanced Copilot integration records
@@ -459,7 +451,7 @@ def enhance_copilot_integration() -> float:
 def enhance_self_healing_system() -> float:
     """Enhance self-healing system to 100%"""
     try:
-        with get_validated_production_db_connection() as conn:
+        with sqlite3.connect("production.db") as conn:
             cursor = conn.cursor()
 
             # Enhanced self-healing procedures
@@ -582,7 +574,7 @@ def enhance_self_healing_system() -> float:
 def enhance_disaster_recovery() -> float:
     """Enhance disaster recovery to 100%"""
     try:
-        with get_validated_production_db_connection() as conn:
+        with sqlite3.connect("production.db") as conn:
             cursor = conn.cursor()
 
             # Comprehensive disaster recovery procedures
@@ -730,7 +722,7 @@ def finalize_100_percent_achievement():
     """Finalize 100% Enterprise Readiness achievement"""
     try:
         # Store final achievement record
-        with get_validated_production_db_connection() as conn:
+        with sqlite3.connect("production.db") as conn:
             cursor = conn.cursor()
 
             # Create achievement record table
@@ -860,5 +852,6 @@ def main():
 
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    orchestrator = DualCopilotOrchestrator()
+    success, validated = orchestrator.run(main, files=[__file__])
+    sys.exit(0 if success and validated else 1)
