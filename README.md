@@ -138,7 +138,7 @@ are thin CLI wrappers. They delegate to the core implementations under
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
-Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
+Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
 ```bash
 cp tools/clw /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
@@ -259,7 +259,7 @@ optimization_metrics.db         # Continuous optimization data
 ```
 
 ### Analytics Database Test Protocol
-The `analytics.db` file should never be created or modified automatically.
+You must never create or modify the `analytics.db` file automatically. Use the commands below for manual migrations.
 To create or migrate the file manually, run:
 
 ```bash
