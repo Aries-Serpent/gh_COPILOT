@@ -23,7 +23,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, and `add_code_audit_history.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
-- **Quantum features:** planned, not yet implemented
+- **Quantum features:** placeholders only; no quantum functionality is implemented
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
   optimizer and search helpers.
 
@@ -645,7 +645,7 @@ python scripts/validation/dual_copilot_pattern_tester.py
 - **Database Query Speed:** <10ms average
 - **Script Generation:** <30s for integration-ready output
 - **Template Matching:** >85% accuracy rate
-- **Autonomous Healing:** experimental scripts available
+- **Autonomous Healing:** scripts are experimental; avoid using them in production
 - **Visual Processing:** progress indicators implemented
 
 ### **Enterprise KPIs**
@@ -658,7 +658,7 @@ python scripts/validation/dual_copilot_pattern_tester.py
 
 ## 🚀 FUTURE ROADMAP
 
-### **Phase 6: Quantum Enhancement (Planned)**
+### **Phase 6: Quantum Enhancement (placeholder, not implemented)**
 - Advanced quantum algorithm integration
 - Quantum-enhanced database processing
 - Next-generation AI capabilities

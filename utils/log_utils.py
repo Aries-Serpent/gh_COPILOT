@@ -143,6 +143,11 @@ def _log_plain(
         print(line, file=sys.stderr if level >= logging.ERROR else sys.stdout)
 
 
+def log_message(message: str, level: int = logging.INFO) -> None:
+    """Log a standardized plain message."""
+    _log_plain(message, level=level, echo=True)
+
+
 def _list_events(
     table: str = DEFAULT_LOG_TABLE, db_path: Path = DEFAULT_ANALYTICS_DB, limit: int = 100, order: str = "DESC"
 ) -> list:
