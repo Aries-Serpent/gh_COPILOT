@@ -282,11 +282,13 @@ Automated tests perform these migrations in-memory with progress bars and DUAL
 COPILOT validation, leaving the on-disk database untouched.
 
 ### **Database-First Workflow**
-1. **Query First:** Check production.db for existing solutions
-2. **Pattern Match:** Identify reusable templates and components
-3. **Adapt:** Customize patterns for current environment
-4. **Validate:** DUAL COPILOT validation with secondary review
-5. **Execute:** Deploy with visual processing indicators
+1. **Connect Safely:** Use `get_validated_production_db_connection()` from
+   `utils.database_utils` before performing filesystem changes.
+2. **Query First:** Check production.db for existing solutions
+3. **Pattern Match:** Identify reusable templates and components
+4. **Adapt:** Customize patterns for current environment
+5. **Validate:** DUAL COPILOT validation with secondary review
+6. **Execute:** Deploy with visual processing indicators
 
 ---
 
