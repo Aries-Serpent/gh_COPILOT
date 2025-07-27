@@ -17,6 +17,14 @@ from datetime import datetime
 from tqdm import tqdm
 from typing import Dict, List, Tuple, Any
 import time
+import schedule
+
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+)
+from scripts.automation.autonomous_database_health_optimizer import (
+    AutonomousDatabaseHealthOptimizer,
+)
 
 # MANDATORY: Enterprise Configuration
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
@@ -317,6 +325,15 @@ class EnterpriseFileRelocationOrchestrator:
         logging.info(f"RELOCATION REPORT SAVED: {report_path}")
         
         return report_path
+
+    def schedule_autonomous_optimization(self) -> None:
+        """Schedule autonomous optimization routine daily."""
+        schedule.every().day.at("02:00").do(self._run_autonomous_optimization)
+
+    def _run_autonomous_optimization(self) -> None:
+        """Invoke autonomous database optimization."""
+        optimizer = AutonomousDatabaseHealthOptimizer()
+        optimizer.autonomous_database_improvement()
     
     def execute_relocation_orchestration(self):
         """🎯 Execute complete file relocation orchestration"""
@@ -352,8 +369,10 @@ class EnterpriseFileRelocationOrchestrator:
 def main():
     """Main execution function with DUAL COPILOT validation"""
     try:
+        EnterpriseUtility().execute_utility()
         # Initialize orchestrator
         orchestrator = EnterpriseFileRelocationOrchestrator()
+        orchestrator.schedule_autonomous_optimization()
         
         # Execute relocation
         report_path = orchestrator.execute_relocation_orchestration()
@@ -370,3 +389,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
