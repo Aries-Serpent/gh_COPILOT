@@ -357,6 +357,10 @@ Secondary Validator COPILOT (B)
 Enterprise-Grade Output
 ```
 
+> **New Requirement:** Optimization and security scripts must execute their
+> main operations through `DualCopilotOrchestrator`, which performs a
+> `SecondaryCopilotValidator` pass after execution.
+
 ### **Implementation Example**
 ```python
 class PrimaryExecutorCopilot:
