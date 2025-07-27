@@ -25,6 +25,8 @@ from tqdm import tqdm
 
 from utils.log_utils import _log_event
 
+from .pattern_templates import get_pattern_templates
+
 # Quantum demo import (placeholder for quantum-inspired scoring)
 try:
     from quantum_algorithm_library_expansion import demo_quantum_fourier_transform
@@ -90,7 +92,7 @@ class TemplateAutoGenerator:
         validate_no_recursive_folders()
         # DB-first loading of patterns and templates
         self.patterns = self._load_patterns()
-        self.templates = self._load_templates()
+        self.templates = self._load_templates() + get_pattern_templates()
         self.cluster_model = self._cluster_patterns()
         self._last_objective: Dict[str, Any] | None = None
         duration = (datetime.now() - start_time).total_seconds()
