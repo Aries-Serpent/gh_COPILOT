@@ -9,6 +9,8 @@ Status: CRITICAL OPTIMIZATION
 """
 
 import json
+import sqlite3
+from utils.db_utils import get_validated_connection
 import logging
 import sqlite3
 import sys

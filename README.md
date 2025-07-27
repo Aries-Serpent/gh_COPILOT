@@ -311,8 +311,8 @@ compliance logging. The main modules are:
 * **TemplatePlaceholderRemover** – strips unused placeholders from templates.
 * **TemplateWorkflowEnhancer** – mines patterns from existing templates,
   computes compliance scores and writes dashboard-ready reports.
-* **TemplateSynchronizer** – keeps generated templates synchronized across
-  environments.
+* **TemplateSynchronizer** – keeps generated templates synchronized across environments.
+* **DB Connection Helper** – use `utils.db_utils.get_validated_connection` before any filesystem changes.
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
