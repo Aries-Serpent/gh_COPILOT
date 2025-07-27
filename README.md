@@ -271,7 +271,7 @@ Automated tests perform these migrations in-memory with progress bars and DUAL
 COPILOT validation, leaving the on-disk database untouched.
 
 ### **Database-First Workflow**
-1. **Query First:** Check production.db for existing solutions
+1. **Query First:** Use `utils.db_utils.get_validated_connection()` to check `production.db` for existing solutions
 2. **Pattern Match:** Identify reusable templates and components
 3. **Adapt:** Customize patterns for current environment
 4. **Validate:** DUAL COPILOT validation with secondary review
@@ -298,8 +298,8 @@ compliance logging. The main modules are:
 * **TemplatePlaceholderRemover** – strips unused placeholders from templates.
 * **TemplateWorkflowEnhancer** – mines patterns from existing templates,
   computes compliance scores and writes dashboard-ready reports.
-* **TemplateSynchronizer** – keeps generated templates synchronized across
-  environments.
+* **TemplateSynchronizer** – keeps generated templates synchronized across environments.
+* **DB Connection Helper** – use `utils.db_utils.get_validated_connection` before any filesystem changes.
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.

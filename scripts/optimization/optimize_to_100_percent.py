@@ -12,6 +12,7 @@ import os
 import sys
 import json
 import sqlite3
+from utils.db_utils import get_validated_connection
 import logging
 from pathlib import Path
 from datetime import datetime
@@ -96,7 +97,7 @@ def enhance_database_architecture() -> float:
         workspace_path = Path(".")
         
         # Create comprehensive database schema
-        with sqlite3.connect('production.db') as conn:
+        with get_validated_connection() as conn:
             cursor = conn.cursor()
             
             # Enhanced Script Tracking Table
@@ -257,7 +258,7 @@ def enhance_script_repository() -> float:
         # Get all Python scripts
         python_scripts = list(workspace_path.rglob("*.py"))
         
-        with sqlite3.connect('production.db') as conn:
+        with get_validated_connection() as conn:
             cursor = conn.cursor()
             
             # Enhanced script tracking
@@ -364,7 +365,7 @@ def enhance_copilot_integration() -> float:
         }
         
         # Store configuration in database
-        with sqlite3.connect('production.db') as conn:
+        with get_validated_connection() as conn:
             cursor = conn.cursor()
             
             # Enhanced Copilot integration records
@@ -405,7 +406,7 @@ def enhance_copilot_integration() -> float:
 def enhance_self_healing_system() -> float:
     """Enhance self-healing system to 100%"""
     try:
-        with sqlite3.connect('production.db') as conn:
+        with get_validated_connection() as conn:
             cursor = conn.cursor()
             
             # Enhanced self-healing procedures
@@ -461,7 +462,7 @@ def enhance_self_healing_system() -> float:
 def enhance_disaster_recovery() -> float:
     """Enhance disaster recovery to 100%"""
     try:
-        with sqlite3.connect('production.db') as conn:
+        with get_validated_connection() as conn:
             cursor = conn.cursor()
             
             # Comprehensive disaster recovery procedures
@@ -536,7 +537,7 @@ def finalize_100_percent_achievement():
     """Finalize 100% Enterprise Readiness achievement"""
     try:
         # Store final achievement record
-        with sqlite3.connect('production.db') as conn:
+        with get_validated_connection() as conn:
             cursor = conn.cursor()
             
             # Create achievement record table

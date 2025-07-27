@@ -21,6 +21,7 @@ import datetime
 import subprocess
 import tempfile
 from pathlib import Path
+from utils.db_utils import get_validated_connection
 from typing import Dict, List, Any, Tuple, Optional
 
 class SecurityComplianceEnhancer:
@@ -34,6 +35,8 @@ class SecurityComplianceEnhancer:
         
         # Ensure security directory exists
         self.security_dir.mkdir(exist_ok=True)
+        with get_validated_connection():
+            pass
         
         self.security_results = {
             "timestamp": datetime.datetime.now().isoformat(),
