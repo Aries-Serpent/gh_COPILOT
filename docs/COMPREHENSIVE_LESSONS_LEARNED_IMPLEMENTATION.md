@@ -93,6 +93,17 @@ for template in DEFAULT_TEMPLATES:
     use_template(template)
 ```
 
+### **Pattern Template Implementations**
+
+Reusable templates encapsulating these patterns are available in
+`template_engine.pattern_templates` and are loaded automatically by the
+`TemplateAutoGenerator` and `DatabaseFirstCopilotEnhancer` modules.
+
+- `database_first_pattern` – Implements Database-First Intelligence Architecture.
+- `autonomous_error_prevention_pattern` – Prevents critical misclassification.
+- `visual_processing_pattern` – Adds progress indicators to operations.
+- `self_healing_pattern` – Provides autonomous error correction logic.
+
 ---
 
 ## 📊 **IMPLEMENTATION EVIDENCE BY CATEGORY**

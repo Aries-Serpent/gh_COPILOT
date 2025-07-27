@@ -16,16 +16,19 @@ from importlib import import_module
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
-    from . import auto_generator  # noqa: F401
-    from . import db_first_code_generator  # noqa: F401
-    from . import log_utils  # noqa: F401
-    from . import objective_similarity_scorer  # noqa: F401
-    from . import pattern_clustering_sync  # noqa: F401
-    from . import pattern_mining_engine  # noqa: F401
-    from . import placeholder_utils  # noqa: F401
-    from . import template_placeholder_remover  # noqa: F401
-    from . import template_synchronizer  # noqa: F401
-    from . import workflow_enhancer  # noqa: F401
+    from . import (
+        auto_generator,  # noqa: F401
+        db_first_code_generator,  # noqa: F401
+        log_utils,  # noqa: F401
+        objective_similarity_scorer,  # noqa: F401
+        pattern_clustering_sync,  # noqa: F401
+        pattern_mining_engine,  # noqa: F401
+        pattern_templates,  # noqa: F401
+        placeholder_utils,  # noqa: F401
+        template_placeholder_remover,  # noqa: F401
+        template_synchronizer,  # noqa: F401
+        workflow_enhancer,  # noqa: F401
+    )
 
 __all__ = [
     "auto_generator",

@@ -98,4 +98,3 @@ __all__ = [
     'DUAL_COPILOT_VALIDATION_TEMPLATE',
     'DEFAULT_TEMPLATES',
 ]
-
