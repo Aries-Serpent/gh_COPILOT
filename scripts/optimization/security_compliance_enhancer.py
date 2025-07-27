@@ -27,6 +27,8 @@ class SecurityComplianceEnhancer:
 
     def __init__(self, workspace_path: str):
         self.workspace_path = Path(workspace_path)
+        with get_validated_production_connection():
+            pass
         self.security_dir = self.workspace_path / "security"
         self.reports_dir = self.workspace_path / "reports"
         self.config_dir = self.workspace_path / "config"
@@ -462,6 +464,7 @@ def main():
         print("\n⚠️  PARTIAL SUCCESS: Additional security measures may be needed")
 
     return results if validated else None
+
 
 
 if __name__ == "__main__":

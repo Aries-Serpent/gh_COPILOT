@@ -33,6 +33,8 @@ def setup_logging():
 def optimize_to_100_percent() -> Dict[str, Any]:
     """Optimize all components to achieve 100% Enterprise Readiness"""
     logger = setup_logging()
+    with get_validated_production_connection():
+        pass
     logger.info("[OPTIMIZE] Starting Enterprise Optimization to 100%")
 
     optimization_results = {
