@@ -1,0 +1,31 @@
+name: Compliance Audit
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: bash setup.sh
+
+      - name: Run placeholder compliance audit
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: >-
+          python -m scripts.intelligent_code_analysis_placeholder_detection
+          --workspace-path "${{ github.workspace }}"
+          --analytics-db "${{ github.workspace }}/databases/analytics.db"
+          --production-db "${{ github.workspace }}/databases/production.db"
+          --dashboard-dir "${{ github.workspace }}/dashboard/compliance"
+          --simulate
