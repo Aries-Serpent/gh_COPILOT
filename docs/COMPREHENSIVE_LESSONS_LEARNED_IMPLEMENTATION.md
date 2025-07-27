@@ -84,6 +84,15 @@ class SelfHealingSystem:
 return self.apply_general_healing_strategy(error_type)
 ```
 
+### **Pattern 5: Reusable Template Library**
+```python
+# IMPLEMENTATION: Builtin templates encapsulate lessons learned
+from template_engine.pattern_templates import DEFAULT_TEMPLATES
+
+for template in DEFAULT_TEMPLATES:
+    use_template(template)
+```
+
 ### **Pattern Template Implementations**
 
 Reusable templates encapsulating these patterns are available in

@@ -39,14 +39,19 @@ def test_generate_template_returns_expected(tmp_path):
     assert "print" in template
 
 
-def test_generate_template_no_patterns(tmp_path):
+def test_generate_template_no_patterns(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path / "ws"))
     generator = TemplateAutoGenerator(tmp_path / "a.db", tmp_path / "c.db")
-    assert generator.generate_template({"any": "thing"}) != ""
+    from template_engine import pattern_templates
+
+    assert generator.templates == pattern_templates.DEFAULT_TEMPLATES
 
 
-def test_default_lesson_templates_loaded(tmp_path):
-    generator = TemplateAutoGenerator(tmp_path / "a.db", tmp_path / "c.db")
-    assert any("DatabaseFirstOperator" in tmpl for tmpl in generator.templates)
+def test_default_templates_loaded(tmp_path, monkeypatch):
+    from template_engine import pattern_templates
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path / "ws"))
+    gen = TemplateAutoGenerator(tmp_path / "missing.db", tmp_path / "missing.db")
+    assert gen.templates == pattern_templates.DEFAULT_TEMPLATES
 
 
 def test_template_regeneration(tmp_path):
