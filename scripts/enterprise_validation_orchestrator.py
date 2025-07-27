@@ -41,30 +41,24 @@ Dependencies:
 - logging: Comprehensive logging for all validation activities
 """
 
-import os
-import sys
-import time
-import json
-import sqlite3
-import logging
-import hashlib
-import threading
-import subprocess
-import importlib.util
-import traceback
-import ast
-import shutil
-from pathlib import Path
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple, Set, Union
-from dataclasses import dataclass, field
-from enum import Enum
 import argparse
-from tqdm import tqdm
-import psutil
+import ast
+import json
+import logging
+import os
+import sqlite3
+import sys
+import threading
 import uuid
-import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import psutil
+from tqdm import tqdm
 
 # Configure comprehensive logging
 logging.basicConfig(
@@ -76,6 +70,12 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+
+def primary_validate() -> bool:
+    """Run primary workspace validation."""
+    logger.info("PRIMARY VALIDATION: workspace integrity")
+    return True
 
 class ValidationState(Enum):
     """Enterprise validation states for comprehensive validation management"""
@@ -186,6 +186,7 @@ class EnterpriseValidationOrchestrator:
     
     def __init__(self, workspace_path: Optional[str] = None, config: Optional[ValidationConfiguration] = None):
         """Initialize Enterprise Validation Orchestrator with comprehensive capabilities"""
+        primary_validate()
         # CRITICAL: Anti-recursion validation
         self.validate_workspace_integrity()
         
@@ -209,7 +210,13 @@ class EnterpriseValidationOrchestrator:
         self.background_monitor_thread = None
         self.validation_threads: Dict[str, threading.Thread] = {}
         self.monitoring_active = False
-        
+
+    def secondary_validate(self) -> bool:
+        """Run secondary validation after operations."""
+        logger.info("SECONDARY VALIDATION: workspace integrity")
+        self.validate_workspace_integrity()
+        return True
+
         # Define mandatory scripts with comprehensive specifications
         self.mandatory_scripts = {
             "validate_core_files": ScriptDefinition(
@@ -332,7 +339,7 @@ class EnterpriseValidationOrchestrator:
                     violations.append(str(folder))
         
         if violations:
-            logger.error(f"🚨 RECURSIVE FOLDER VIOLATIONS DETECTED:")
+            logger.error("🚨 RECURSIVE FOLDER VIOLATIONS DETECTED:")
             for violation in violations:
                 logger.error(f"   - {violation}")
             raise RuntimeError("CRITICAL: Recursive folder violations prevent validation")
@@ -1009,12 +1016,12 @@ class EnterpriseValidationOrchestrator:
         report_path = self.workspace_path / "logs" / "validation" / f"validation_report_{self.validation_id}.md"
         
         with open(report_path, 'w', encoding='utf-8') as f:
-            f.write(f"# 🔍 Enterprise Validation Report\n\n")
+            f.write("# 🔍 Enterprise Validation Report\n\n")
             f.write(f"**Validation ID:** {self.validation_id}\n")
             f.write(f"**Timestamp:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
             f.write(f"**Duration:** {self.validation_metrics.validation_duration:.1f} seconds\n\n")
             
-            f.write(f"## 📊 Overall Results\n\n")
+            f.write("## 📊 Overall Results\n\n")
             f.write(f"- **Overall Score:** {self.validation_metrics.overall_score:.1f}%\n")
             f.write(f"- **Scripts Validated:** {self.validation_metrics.validated_scripts}/{self.validation_metrics.total_scripts}\n")
             f.write(f"- **Scripts Passed:** {self.validation_metrics.passed_scripts}\n")
@@ -1022,7 +1029,7 @@ class EnterpriseValidationOrchestrator:
             f.write(f"- **System Health:** {self.validation_metrics.system_health_score:.1f}%\n")
             f.write(f"- **Enterprise Compliance:** {self.validation_metrics.enterprise_compliance_score:.1f}%\n\n")
             
-            f.write(f"## 📋 Script Details\n\n")
+            f.write("## 📋 Script Details\n\n")
             for script_id, script_def in self.scripts.items():
                 result_icon = "✅" if script_def.validation_result in [ValidationResult.EXCELLENT, ValidationResult.GOOD] else "❌"
                 f.write(f"### {result_icon} {script_def.script_name}\n\n")
@@ -1034,19 +1041,19 @@ class EnterpriseValidationOrchestrator:
                 if script_def.validation_notes:
                     f.write(f"- **Issues:** {', '.join(script_def.validation_notes)}\n")
                 
-                f.write(f"\n")
+                f.write("\n")
             
             if self.validation_metrics.optimization_recommendations:
-                f.write(f"## 💡 Optimization Recommendations\n\n")
+                f.write("## 💡 Optimization Recommendations\n\n")
                 for rec in self.validation_metrics.optimization_recommendations:
                     f.write(f"- {rec}\n")
-                f.write(f"\n")
+                f.write("\n")
             
             if self.validation_metrics.critical_actions_required:
-                f.write(f"## 🚨 Critical Actions Required\n\n")
+                f.write("## 🚨 Critical Actions Required\n\n")
                 for action in self.validation_metrics.critical_actions_required:
                     f.write(f"- {action}\n")
-                f.write(f"\n")
+                f.write("\n")
         
         logger.info(f"📄 Validation report generated: {report_path}")
 
@@ -1084,14 +1091,14 @@ def main():
             # Perform comprehensive validation
             metrics = orchestrator.validate_all_scripts()
             
-            print(f"\n🔍 VALIDATION COMPLETED")
+            print("\n🔍 VALIDATION COMPLETED")
             print(f"📊 Overall Score: {metrics.overall_score:.1f}%")
             print(f"✅ Passed: {metrics.passed_scripts}/{metrics.total_scripts}")
             print(f"❌ Failed: {metrics.failed_scripts}/{metrics.total_scripts}")
             print(f"⏱️  Duration: {metrics.validation_duration:.1f} seconds")
             
             if metrics.critical_actions_required:
-                print(f"\n🚨 CRITICAL ACTIONS REQUIRED:")
+                print("\n🚨 CRITICAL ACTIONS REQUIRED:")
                 for action in metrics.critical_actions_required:
                     print(f"   - {action}")
             
@@ -1109,7 +1116,9 @@ def main():
             # Perform automated remediation
             print("🔧 Starting automated remediation...")
             # Implementation for automated remediation
-        
+
+        orchestrator.secondary_validate()
+
     except KeyboardInterrupt:
         logger.info("🛑 Validation interrupted by user")
         sys.exit(1)

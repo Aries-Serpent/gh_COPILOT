@@ -76,6 +76,12 @@ if os.getenv("GH_COPILOT_DISABLE_VALIDATION") != "1":
     validate_enterprise_operation()
 
 
+def primary_validate() -> bool:
+    """Run primary environment validation."""
+    logging.info("PRIMARY VALIDATION: continuous operation environment")
+    return validate_enterprise_operation()
+
+
 @dataclass
 class ContinuousOperationMetrics:
     """📊 Continuous Operation Performance Metrics"""
@@ -178,6 +184,11 @@ class ContinuousOperationOrchestrator:
         self.target_excellence = 0.995  # 99.5% Phase 6 target
 
         logging.info("✅ Continuous Operation Orchestrator initialization complete")
+
+    def secondary_validate(self) -> bool:
+        """Run secondary validation after continuous operation."""
+        logging.info("SECONDARY VALIDATION: continuous operation environment")
+        return validate_enterprise_operation()
 
     def execute_continuous_operation_cycle(self) -> Dict[str, Any]:
         """🔄 Execute comprehensive continuous operation cycle"""
@@ -378,6 +389,8 @@ class ContinuousOperationOrchestrator:
         logging.info(f"Duration: {duration_hours} hours")
         logging.info(f"Target Excellence: {self.target_excellence:.1%}")
 
+        primary_validate()
+
         end_time = self.start_time + timedelta(hours=duration_hours)
         operation_results = {
             "total_cycles": 0,
@@ -437,6 +450,8 @@ class ContinuousOperationOrchestrator:
         finally:
             # MANDATORY: Final completion summary
             self._log_continuous_operation_summary(operation_results)
+
+        self.secondary_validate()
 
         return operation_results
 
