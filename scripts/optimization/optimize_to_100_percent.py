@@ -19,6 +19,8 @@ from typing import Any, Dict
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+
 def setup_logging():
     """Setup logging for optimization execution"""
     log_format = "%(asctime)s - %(levelname)s - %(message)s"
@@ -800,52 +802,25 @@ def finalize_100_percent_achievement():
 
 
 def main():
-    """Main optimization execution"""
-    print("=" * 80)
+    """Main optimization execution via DualCopilotOrchestrator"""
+    print("="*80)
     print("ENTERPRISE OPTIMIZATION TO 100% READINESS")
     print("gh_COPILOT Toolkit v4.0 - Final Optimization Phase")
-    print("=" * 80)
+    print("="*80)
+    
+    orchestrator = DualCopilotOrchestrator()
+
+    def primary() -> bool:
+        results = optimize_to_100_percent()
+        return results.get("final_readiness", 0) >= 100.0
 
     try:
-        # Execute comprehensive optimization
-        optimization_results = optimize_to_100_percent()
-
-        if "error" not in optimization_results:
-            final_readiness = optimization_results["final_readiness"]
-
-            if final_readiness >= 100.0:
-                print("\n" + "=" * 80)
-                print("🎉 ENTERPRISE READINESS: 100% ACHIEVED!")
-                print("🎉 OPTIMIZATION: COMPLETED SUCCESSFULLY!")
-                print("🎉 gh_COPILOT Toolkit v4.0: ENTERPRISE CERTIFIED!")
-                print("=" * 80)
-
-                # Finalize achievement
-                if finalize_100_percent_achievement():
-                    print("\n✅ ACHIEVEMENT CERTIFIED AND RECORDED")
-                    print("✅ ENTERPRISE READINESS CERTIFICATE ISSUED")
-                    print("✅ CONTINUOUS MONITORING ACTIVATED")
-                    print("✅ AUTONOMOUS OPERATIONS ENABLED")
-
-                    # Store final optimization results
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    with open(f"enterprise_100_percent_achievement_{timestamp}.json", "w") as f:
-                        json.dump(optimization_results, f, indent=2, default=str)
-
-                    print(f"\n📋 Optimization results stored: enterprise_100_percent_achievement_{timestamp}.json")
-                    print("📋 Certificate stored: ENTERPRISE_READINESS_100_PERCENT_CERTIFICATE.json")
-
-                    return True
-                else:
-                    print("\n⚠️  Achievement recorded but certification had issues")
-                    return False
-            else:
-                print(f"\n⚠️  Final Enterprise Readiness: {final_readiness:.1f}% (Target: 100%)")
-                return False
+        success = orchestrator.run(primary, [os.getcwd()])
+        if success:
+            print("\n✅ Dual copilot validation passed")
         else:
-            print(f"\n❌ Optimization failed: {optimization_results.get('error', 'Unknown error')}")
-            return False
-
+            print("\n❌ Dual copilot validation failed")
+        return success
     except Exception as e:
         print(f"\n❌ Critical error during optimization: {e}")
         return False

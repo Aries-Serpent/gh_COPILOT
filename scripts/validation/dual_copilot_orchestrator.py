@@ -1,37 +1,26 @@
 #!/usr/bin/env python3
-"""Lightweight orchestrator implementing the dual copilot pattern."""
-
+"""Lightweight orchestrator for Dual Copilot validation."""
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, Iterable
+from typing import Callable, Iterable
 
-from .secondary_copilot_validator import SecondaryCopilotValidator
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 
 
 class DualCopilotOrchestrator:
-    """Execute a primary operation and run a secondary validation step."""
-
+    """Run a primary operation followed by secondary validation."""
     def __init__(self, logger: logging.Logger | None = None) -> None:
         self.logger = logger or logging.getLogger(__name__)
         self.validator = SecondaryCopilotValidator(self.logger)
 
-    def run(
-        self,
-        main_op: Callable[..., Any],
-        *args: Any,
-        files: Iterable[str] | None = None,
-        **kwargs: Any,
-    ) -> tuple[Any, bool]:
-        """Run ``main_op`` and validate the result with flake8."""
-
-        result = main_op(*args, **kwargs)
-        validated = self.validator.validate_corrections(list(files or []))
-        if validated:
-            self.logger.info("Dual validation succeeded")
+    def run(self, primary: Callable[[], bool], validation_targets: Iterable[str]) -> bool:
+        """Execute primary callable then validate the given targets."""
+        self.logger.info("[DUAL] Starting primary operation")
+        primary_success = primary()
+        if primary_success:
+            self.logger.info("[DUAL] Primary operation succeeded")
         else:
-            self.logger.error("Dual validation failed")
-        return result, validated
-
-
-__all__ = ["DualCopilotOrchestrator"]
+            self.logger.error("[DUAL] Primary operation failed")
+        validation_success = self.validator.validate_corrections(list(validation_targets))
+        return primary_success and validation_success

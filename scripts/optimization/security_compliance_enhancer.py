@@ -22,6 +22,8 @@ from typing import Any, Dict
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+
 class SecurityComplianceEnhancer:
     """Enterprise Security Compliance Validation and Enhancement System"""
 
@@ -443,7 +445,7 @@ class SecurityComplianceEnhancer:
 
 
 def main():
-    """Main execution function"""
+    """Main execution function using DualCopilotOrchestrator"""
     workspace_path = "e:/gh_COPILOT"
 
     print("=" * 80)
@@ -455,17 +457,21 @@ def main():
 
     enhancer = SecurityComplianceEnhancer(workspace_path)
     orchestrator = DualCopilotOrchestrator()
-    results, validated = orchestrator.run(enhancer.run_security_enhancement, files=[__file__])
 
-    if results.get("enterprise_ready", False):
+    holder: Dict[str, Any] = {}
+
+    def primary() -> bool:
+        holder["res"] = enhancer.run_security_enhancement()
+        return holder["res"].get("enterprise_ready", False)
+
+    success = orchestrator.run(primary, [workspace_path])
+
+    if success:
         print("\n🎉 SUCCESS: Enterprise security compliance achieved!")
-        print("🚀 Ready for 100% completion validation!")
     else:
-        print("\n⚠️  PARTIAL SUCCESS: Additional security measures may be needed")
+        print("\n⚠️  Security compliance needs attention")
 
-    return results if validated else None
-
-
+    return holder.get("res", {"enterprise_ready": success})
 
 if __name__ == "__main__":
     main()
