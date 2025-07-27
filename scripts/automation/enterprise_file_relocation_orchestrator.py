@@ -7,13 +7,15 @@ MANDATORY: Visual Processing Indicators, Anti-Recursion Protection, Database Int
 Compliance: Autonomous File Management, Session Integrity, Enterprise Context
 """
 
-import os
-import sqlite3
-import shutil
 import json
 import logging
-from pathlib import Path
+import os
+import shutil
+import sqlite3
 from datetime import datetime
+from pathlib import Path
+from typing import Dict
+
 from tqdm import tqdm
 from typing import Dict, List, Tuple, Any
 import time
@@ -78,6 +80,7 @@ class EnterpriseFileRelocationOrchestrator:
     
     def validate_environment_compliance(self):
         """CRITICAL: Validate proper environment root usage and anti-recursion"""
+        logging.info("PRIMARY VALIDATION: environment compliance")
         logging.info("VALIDATING ENVIRONMENT COMPLIANCE...")
         
         # MANDATORY: Check workspace root
@@ -102,6 +105,12 @@ class EnterpriseFileRelocationOrchestrator:
             raise RuntimeError(f"CRITICAL: Database not found at {DB_PATH}")
         
         logging.info("ENVIRONMENT COMPLIANCE VALIDATED")
+
+    def secondary_validate(self) -> bool:
+        """Run secondary environment compliance validation."""
+        logging.info("SECONDARY VALIDATION: environment compliance")
+        self.validate_environment_compliance()
+        return True
     
     def get_database_connection(self):
         """Get database connection with validation"""
@@ -296,7 +305,7 @@ class EnterpriseFileRelocationOrchestrator:
         
         if self.relocation_results["failed_moves"] == 0:
             self.relocation_results["compliance_status"] = "SUCCESS"
-            logging.info(f"Completion Status: SUCCESS")
+            logging.info("Completion Status: SUCCESS")
         else:
             self.relocation_results["compliance_status"] = "PARTIAL"
             logging.info(f"Completion Status: PARTIAL - {self.relocation_results['failed_moves']} failures")
@@ -321,9 +330,9 @@ class EnterpriseFileRelocationOrchestrator:
         
         with open(report_path, 'w') as f:
             json.dump(report_data, f, indent=2)
-        
+
         logging.info(f"RELOCATION REPORT SAVED: {report_path}")
-        
+
         return report_path
 
     def schedule_autonomous_optimization(self) -> None:
@@ -340,9 +349,10 @@ class EnterpriseFileRelocationOrchestrator:
         try:
             # Build relocation map
             relocation_map = self.build_file_relocation_map()
-            
+
             if not relocation_map:
                 logging.info("ℹ️ No files to relocate")
+                self.secondary_validate()
                 return
             
             # Ensure target directories exist
@@ -356,6 +366,8 @@ class EnterpriseFileRelocationOrchestrator:
             
             # Final validation
             self.validate_environment_compliance()
+            self.primary_validate()
+            self.secondary_validate()
             
             logging.info("FILE RELOCATION ORCHESTRATION COMPLETED SUCCESSFULLY")
             return report_path
@@ -377,7 +389,7 @@ def main():
         # Execute relocation
         report_path = orchestrator.execute_relocation_orchestration()
         
-        print(f"\nFILE RELOCATION COMPLETED SUCCESSFULLY")
+        print("\nFILE RELOCATION COMPLETED SUCCESSFULLY")
         print(f"Report saved to: {report_path}")
         print(f"Log saved to: {LOG_PATH}")
         
