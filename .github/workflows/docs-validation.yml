@@ -1,0 +1,32 @@
+name: Docs-Metrics-Check
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - 'documentation/**'
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  metrics-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run docs metrics generation
+        run: python scripts/generate_docs_metrics.py
+
+      - name: Validate docs metrics
+        run: python scripts/validate_docs_metrics.py
