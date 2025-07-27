@@ -41,7 +41,12 @@ def test_generate_template_returns_expected(tmp_path):
 
 def test_generate_template_no_patterns(tmp_path):
     generator = TemplateAutoGenerator(tmp_path / "a.db", tmp_path / "c.db")
-    assert generator.generate_template({"any": "thing"}) == ""
+    assert generator.generate_template({"any": "thing"}) != ""
+
+
+def test_default_lesson_templates_loaded(tmp_path):
+    generator = TemplateAutoGenerator(tmp_path / "a.db", tmp_path / "c.db")
+    assert any("DatabaseFirstOperator" in tmpl for tmpl in generator.templates)
 
 
 def test_template_regeneration(tmp_path):

@@ -84,6 +84,15 @@ class SelfHealingSystem:
         return self.apply_general_healing_strategy(error_type)
 ```
 
+### **Pattern 5: Reusable Template Library**
+```python
+# IMPLEMENTATION: Consolidated templates for core patterns
+from template_engine.learning_templates import get_lesson_templates
+
+templates = get_lesson_templates()
+database_template = templates["database_first"]
+```
+
 ---
 
 ## 📊 **IMPLEMENTATION EVIDENCE BY CATEGORY**

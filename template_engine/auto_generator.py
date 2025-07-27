@@ -25,6 +25,8 @@ from tqdm import tqdm
 
 from utils.log_utils import _log_event
 
+from .learning_templates import get_lesson_templates
+
 # Quantum demo import (placeholder for quantum-inspired scoring)
 try:
     from quantum_algorithm_library_expansion import demo_quantum_fourier_transform
@@ -139,7 +141,9 @@ class TemplateAutoGenerator:
                     templates = [row[0] for row in cur.fetchall()]
                 except sqlite3.Error as exc:
                     logger.error(f"Error loading templates: {exc}")
-        logger.info(f"Loaded {len(templates)} templates")
+        lesson_templates = list(get_lesson_templates().values())
+        templates.extend(lesson_templates)
+        logger.info(f"Loaded {len(templates)} templates including defaults")
         _log_event(
             {"event": "load_templates", "count": len(templates)},
             table="generator_events",
