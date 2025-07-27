@@ -21,6 +21,11 @@ location. The command exits with an error if any values are inconsistent.
 This workflow ensures that documentation statistics accurately reflect the
 contents of the production database.
 
+### Related Requirements
+- **Database Maintenance Scheduler:** see [SYSTEM_OVERVIEW.md](../documentation/SYSTEM_OVERVIEW.md#database-synchronization).
+- **Validation Helper:** see [DATABASE_FIRST_USAGE_GUIDE.md](DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement).
+- **Visual Indicator Standards:** see [GITHUB_COPILOT_INTEGRATION_NOTES.md](GITHUB_COPILOT_INTEGRATION_NOTES.md#visual-processing).
+
 ## Resetting Benchmark Baselines
 
 Benchmark results are stored in ``benchmark_metrics.db``. Remove this file to
