@@ -20,6 +20,10 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+)
+
 class AutonomousMonitoringSystem:
     """Simplified autonomous monitoring and self-healing system"""
     
@@ -605,6 +609,7 @@ class AutonomousMonitoringSystem:
 def main():
     """Main execution function"""
     print("="*80)
+    EnterpriseUtility().execute_utility()
     print("AUTONOMOUS MONITORING SYSTEM")
     print("gh_COPILOT Toolkit v4.0 - Continuous Operations")
     print("="*80)
@@ -623,4 +628,5 @@ def main():
         monitoring_system.stop_monitoring()
 
 if __name__ == "__main__":
+    EnterpriseUtility().execute_utility()
     main()

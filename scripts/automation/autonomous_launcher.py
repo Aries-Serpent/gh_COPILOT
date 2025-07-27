@@ -11,6 +11,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+)
+
 
 def show_banner():
     """Show launcher banner"""
@@ -71,6 +75,7 @@ def process_choice(choice: str, custom_command: str | None = None) -> None:
 
 def main() -> None:
     """Main launcher"""
+    EnterpriseUtility().execute_utility()
     parser = argparse.ArgumentParser(description="Autonomous launcher")
     parser.add_argument("--choice", help="Menu option (1-7)")
     parser.add_argument("--custom-command", help="Command string for option 6")
@@ -109,4 +114,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    EnterpriseUtility().execute_utility()
     main()

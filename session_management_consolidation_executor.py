@@ -7,30 +7,46 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from utils.log_utils import _log_event
+from validation.protocols.session import SessionProtocolValidator
+
 
 class EnterpriseUtility:
     """Simplified executor for session consolidation tests."""
 
     def __init__(self, workspace_path: str | Path | None = None) -> None:
-        self.workspace_path = Path(workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+        self.workspace_path = Path(
+            workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
+        )
+        validate_enterprise_operation()
         self.logger = logging.getLogger(__name__)
+        self.validator = SessionProtocolValidator(str(self.workspace_path))
+
+    def _validate_environment(self) -> bool:
+        return bool(os.getenv("GH_COPILOT_WORKSPACE")) and bool(os.getenv("GH_COPILOT_BACKUP_ROOT"))
 
     def perform_utility_function(self) -> bool:
         """Return ``False`` if any zero-byte files are present."""
         for file in self.workspace_path.iterdir():
             if file.is_file() and file.stat().st_size == 0:
                 self.logger.error("[ERROR] zero byte file detected: %s", file)
+                _log_event({"event": "zero_byte_detected", "file": str(file)}, db_path=self.analytics_db)
                 return False
         return True
 
     def execute_utility(self) -> bool:
-        """Execute consolidation routine with logging."""
+        """Execute consolidation routine with logging and validation."""
         self.logger.info("[START] Utility started: %s", datetime.now().isoformat())
-        success = self.perform_utility_function()
+        _log_event({"event": "utility_start"}, db_path=self.workspace_path / "analytics.db")
+        validation = self.validator.validate_startup()
+        success = validation.is_success and self.perform_utility_function()
         if success:
             self.logger.info("[SUCCESS] Utility completed")
+            _log_event({"event": "utility_success"}, db_path=self.workspace_path / "analytics.db")
         else:
             self.logger.error("[ERROR] Utility failed")
+            _log_event({"event": "utility_failed"}, db_path=self.workspace_path / "analytics.db")
         return success
 
 

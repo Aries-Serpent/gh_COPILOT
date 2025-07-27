@@ -1,9 +1,7 @@
-# Communication Standards
+This project values concise, direct language. Follow these guidelines when writing documentation, code comments, and commit messages:
 
-This project follows concise and consistent communication guidelines.
-
-- Use second-person imperative for setup and usage instructions.
-- Avoid ambiguous language. Specify exact commands and expected results.
-- Prefer inclusive terminology and active voice in documentation.
-- Keep sentences short for clarity.
-- Reference code paths or files when describing steps.
+- Use active voice and present tense whenever possible.
+- Avoid ambiguous phrases such as "maybe" or "should"; provide explicit instructions.
+- Prefix log messages with the emitting module name using `log_message()` from `utils.log_utils`.
+- Keep sentences short and focused on a single idea.
+- Wrap lines at 120 characters to improve readability.

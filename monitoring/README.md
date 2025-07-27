@@ -11,3 +11,11 @@ continuous operation.
 Enable continuous monitoring by running `python scripts/monitoring/continuous_operation_monitor.py`.
 Ensure the environment variable `GH_COPILOT_WORKSPACE` points to your workspace
 root so analytics databases can be located.
+
+Long-running scripts should import and trigger `UnifiedMonitoringOptimizationSystem`
+to record optimization metrics:
+
+```python
+from scripts.monitoring.unified_monitoring_optimization_system import main as monitoring_main
+monitoring_main()
+```
