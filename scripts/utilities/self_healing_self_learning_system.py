@@ -27,6 +27,10 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+)
+
 import shutil
 import time
 from sklearn.ensemble import IsolationForest
@@ -1473,5 +1477,6 @@ def main():
         return False
 
 if __name__ == "__main__":
+    EnterpriseUtility().execute_utility()
     success = main()
     sys.exit(0 if success else 1)
