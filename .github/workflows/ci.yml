@@ -53,10 +53,10 @@ jobs:
               importlib.import_module(m)
           PY
 
-      - name: Lint src
+      - name: Lint source
         run: |
           pip install flake8 bandit
-          flake8 src
+          flake8 --config=.flake8 . --count --show-source --statistics
           bandit -r src -ll
 
       - name: Check for zero-byte files
