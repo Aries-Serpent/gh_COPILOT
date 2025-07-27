@@ -19,10 +19,20 @@ import json
 from pathlib import Path
 from typing import Any, Dict
 
-from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+from tqdm import tqdm
 
+# Text-based indicators (cross-platform)
+TEXT_INDICATORS = {
+    "start": "[START]",
+    "progress": "[PROGRESS]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "warning": "[WARNING]",
+    "info": "[INFO]",
+    "validation": "[VALIDATION]",
+    "completion": "[COMPLETION]",
+}
 
-from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 class SecurityComplianceEnhancer:
     """Enterprise Security Compliance Validation and Enhancement System"""
@@ -48,69 +58,79 @@ class SecurityComplianceEnhancer:
 
     def create_security_policy(self) -> bool:
         """Create comprehensive security policy documentation"""
+        start_time = datetime.datetime.now()
+        timeout_seconds = 30
         try:
-            security_policy = {
-                "security_policy_version": "1.0.0",
-                "created_date": datetime.datetime.now().isoformat(),
-                "scope": "Enterprise Autonomous Framework Security Policy",
-                "compliance_frameworks": [
-                    "ISO 27001",
-                    "SOC 2 Type II",
-                    "GDPR Compliance",
-                    "Enterprise Security Standards",
-                ],
-                "security_controls": {
-                    "access_control": {
-                        "description": "File system access controls",
-                        "implementation": "Directory-based permissions",
-                        "status": "IMPLEMENTED",
-                    },
-                    "data_protection": {
-                        "description": "Database and configuration protection",
-                        "implementation": "Encrypted storage and access controls",
-                        "status": "IMPLEMENTED",
-                    },
-                    "code_integrity": {
-                        "description": "Python script validation and syntax checking",
-                        "implementation": "Automated syntax validation",
-                        "status": "IMPLEMENTED",
-                    },
-                    "audit_logging": {
-                        "description": "Comprehensive operation logging",
-                        "implementation": "JSON-based audit trails",
-                        "status": "IMPLEMENTED",
-                    },
-                    "anti_recursion": {
-                        "description": "Recursive operation protection",
-                        "implementation": "Built-in recursion detection",
-                        "status": "IMPLEMENTED",
-                    },
-                },
-                "risk_assessment": {
-                    "high_risk_operations": [
-                        "Database modifications",
-                        "Configuration changes",
-                        "File system operations",
+            with tqdm(total=3, desc=TEXT_INDICATORS["progress"], leave=False) as bar:
+                security_policy = {
+                    "security_policy_version": "1.0.0",
+                    "created_date": datetime.datetime.now().isoformat(),
+                    "scope": "Enterprise Autonomous Framework Security Policy",
+                    "compliance_frameworks": [
+                        "ISO 27001",
+                        "SOC 2 Type II",
+                        "GDPR Compliance",
+                        "Enterprise Security Standards",
                     ],
-                    "mitigation_strategies": [
-                        "Automated backup before operations",
-                        "Validation before execution",
-                        "Rollback capabilities",
-                    ],
-                },
-                "incident_response": {
-                    "escalation_procedures": "Automated validation and reporting",
-                    "recovery_procedures": "Backup restoration and validation",
-                },
-            }
+                    "security_controls": {
+                        "access_control": {
+                            "description": "File system access controls",
+                            "implementation": "Directory-based permissions",
+                            "status": "IMPLEMENTED",
+                        },
+                        "data_protection": {
+                            "description": "Database and configuration protection",
+                            "implementation": "Encrypted storage and access controls",
+                            "status": "IMPLEMENTED",
+                        },
+                        "code_integrity": {
+                            "description": "Python script validation and syntax checking",
+                            "implementation": "Automated syntax validation",
+                            "status": "IMPLEMENTED",
+                        },
+                        "audit_logging": {
+                            "description": "Comprehensive operation logging",
+                            "implementation": "JSON-based audit trails",
+                            "status": "IMPLEMENTED",
+                        },
+                        "anti_recursion": {
+                            "description": "Recursive operation protection",
+                            "implementation": "Built-in recursion detection",
+                            "status": "IMPLEMENTED",
+                        },
+                    },
+                    "risk_assessment": {
+                        "high_risk_operations": [
+                            "Database modifications",
+                            "Configuration changes",
+                            "File system operations",
+                        ],
+                        "mitigation_strategies": [
+                            "Automated backup before operations",
+                            "Validation before execution",
+                            "Rollback capabilities",
+                        ],
+                    },
+                    "incident_response": {
+                        "escalation_procedures": "Automated validation and reporting",
+                        "recovery_procedures": "Backup restoration and validation",
+                    },
+                }
+                bar.update(1)
 
-            policy_file = self.security_dir / "enterprise_security_policy.json"
-            with open(policy_file, "w", encoding="utf-8") as f:
-                json.dump(security_policy, f, indent=2, ensure_ascii=False)
+                policy_file = self.security_dir / "enterprise_security_policy.json"
+                with open(policy_file, "w", encoding="utf-8") as f:
+                    json.dump(security_policy, f, indent=2, ensure_ascii=False)
+                bar.update(1)
 
-            self.security_results["security_enhancements"].append(
-                {"enhancement": "Security Policy Created", "file": str(policy_file), "status": "SUCCESS"}
-            )
+                self.security_results["security_enhancements"].append(
+                    {"enhancement": "Security Policy Created", "file": str(policy_file), "status": "SUCCESS"}
+                )
+                bar.update(1)
+
+            duration = (datetime.datetime.now() - start_time).total_seconds()
+            if duration > timeout_seconds:
+                raise TimeoutError("Security policy creation timed out")
 
             return True
 
@@ -340,36 +360,48 @@ class SecurityComplianceEnhancer:
             "security_score": 0.0,
         }
 
+        start_time = datetime.datetime.now()
+        timeout_seconds = 20
+
         try:
-            # Count security files
-            security_files = list(self.security_dir.glob("*.json"))
-            validation_results["security_files_present"] = len(security_files)
+            with tqdm(total=4, desc=TEXT_INDICATORS["progress"], leave=False) as bar:
+                # Count security files
+                security_files = list(self.security_dir.glob("*.json"))
+                validation_results["security_files_present"] = len(security_files)
+                bar.update(1)
 
-            # Check implemented frameworks
-            expected_frameworks = [
-                "enterprise_security_policy.json",
-                "access_control_matrix.json",
-                "security_audit_framework.json",
-                "encryption_standards.json",
-            ]
+                # Check implemented frameworks
+                expected_frameworks = [
+                    "enterprise_security_policy.json",
+                    "access_control_matrix.json",
+                    "security_audit_framework.json",
+                    "encryption_standards.json",
+                ]
 
-            for framework in expected_frameworks:
-                framework_path = self.security_dir / framework
-                if framework_path.exists():
-                    validation_results["security_frameworks_implemented"].append(framework)
+                for framework in expected_frameworks:
+                    framework_path = self.security_dir / framework
+                    if framework_path.exists():
+                        validation_results["security_frameworks_implemented"].append(framework)
+                bar.update(1)
 
-            # Calculate compliance coverage
-            compliance_frameworks = ["ISO_27001", "SOC_2", "GDPR", "Enterprise_Standards"]
-            for framework in compliance_frameworks:
-                validation_results["compliance_coverage"][framework] = True
+                # Calculate compliance coverage
+                compliance_frameworks = ["ISO_27001", "SOC_2", "GDPR", "Enterprise_Standards"]
+                for framework in compliance_frameworks:
+                    validation_results["compliance_coverage"][framework] = True
+                bar.update(1)
 
-            # Calculate security score
-            framework_score = (
-                len(validation_results["security_frameworks_implemented"]) / len(expected_frameworks)
-            ) * 100
-            compliance_score = (len(validation_results["compliance_coverage"]) / len(compliance_frameworks)) * 100
+                # Calculate security score
+                framework_score = (
+                    len(validation_results["security_frameworks_implemented"]) / len(expected_frameworks)
+                ) * 100
+                compliance_score = (len(validation_results["compliance_coverage"]) / len(compliance_frameworks)) * 100
 
-            validation_results["security_score"] = (framework_score + compliance_score) / 2
+                validation_results["security_score"] = (framework_score + compliance_score) / 2
+                bar.update(1)
+
+            duration = (datetime.datetime.now() - start_time).total_seconds()
+            if duration > timeout_seconds:
+                raise TimeoutError("Security validation timed out")
 
             return validation_results
 
@@ -433,13 +465,14 @@ class SecurityComplianceEnhancer:
         with open(results_file, "w", encoding="utf-8") as f:
             json.dump(self.security_results, f, indent=2, ensure_ascii=False)
 
-        print("\n🎯 Security Enhancement Results:")
-        print(f"✅ Successful Steps: {successful_steps}/{total_steps}")
-        print(f"📊 Implementation Score: {implementation_score:.1f}%")
-        print(f"🔒 Security Score: {security_score:.1f}%")
-        print(f"🏆 Final Compliance Score: {final_score:.1f}%")
-        print(f"🚀 Enterprise Ready: {'YES' if self.security_results['enterprise_ready'] else 'NO'}")
-        print(f"📋 Results saved to: {results_file}")
+        print(f"\n{TEXT_INDICATORS['completion']} Security Enhancement Results:")
+        print(f"{TEXT_INDICATORS['success']} Successful Steps: {successful_steps}/{total_steps}")
+        print(f"{TEXT_INDICATORS['info']} Implementation Score: {implementation_score:.1f}%")
+        print(f"{TEXT_INDICATORS['info']} Security Score: {security_score:.1f}%")
+        print(f"{TEXT_INDICATORS['success']} Final Compliance Score: {final_score:.1f}%")
+        ready_msg = "YES" if self.security_results["enterprise_ready"] else "NO"
+        print(f"{TEXT_INDICATORS['info']} Enterprise Ready: {ready_msg}")
+        print(f"{TEXT_INDICATORS['info']} Results saved to: {results_file}")
 
         return self.security_results
 
@@ -456,22 +489,15 @@ def main():
     print("=" * 80)
 
     enhancer = SecurityComplianceEnhancer(workspace_path)
-    orchestrator = DualCopilotOrchestrator()
+    results = enhancer.run_security_enhancement()
 
-    holder: Dict[str, Any] = {}
-
-    def primary() -> bool:
-        holder["res"] = enhancer.run_security_enhancement()
-        return holder["res"].get("enterprise_ready", False)
-
-    success = orchestrator.run(primary, [workspace_path])
-
-    if success:
+    if results.get("enterprise_ready", False):
         print("\n🎉 SUCCESS: Enterprise security compliance achieved!")
     else:
-        print("\n⚠️  Security compliance needs attention")
+        print("\n⚠️  PARTIAL SUCCESS: Additional security measures may be needed")
 
-    return holder.get("res", {"enterprise_ready": success})
+    return results
+
 
 if __name__ == "__main__":
     main()

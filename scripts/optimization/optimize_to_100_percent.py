@@ -16,10 +16,20 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
 
-from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+from tqdm import tqdm
 
+# Text-based indicators (cross-platform)
+TEXT_INDICATORS = {
+    "start": "[START]",
+    "progress": "[PROGRESS]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "warning": "[WARNING]",
+    "info": "[INFO]",
+    "validation": "[VALIDATION]",
+    "completion": "[COMPLETION]",
+}
 
-from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 def setup_logging():
     """Setup logging for optimization execution"""
@@ -35,9 +45,8 @@ def setup_logging():
 def optimize_to_100_percent() -> Dict[str, Any]:
     """Optimize all components to achieve 100% Enterprise Readiness"""
     logger = setup_logging()
-    with get_validated_production_connection():
-        pass
-    logger.info("[OPTIMIZE] Starting Enterprise Optimization to 100%")
+    start_time = datetime.now()
+    logger.info(f"{TEXT_INDICATORS['start']} Enterprise Optimization started at {start_time.isoformat()}")
 
     optimization_results = {
         "database_optimization": 0.0,
@@ -49,30 +58,18 @@ def optimize_to_100_percent() -> Dict[str, Any]:
     }
 
     try:
-        # 1. Database Architecture Enhancement
-        logger.info("[OPTIMIZE] Enhancing Database Architecture to 100%")
-        optimization_results["database_optimization"] = enhance_database_architecture()
-        logger.info(f"[OPTIMIZE] Database: {optimization_results['database_optimization']:.1f}%")
+        steps = [
+            ("Database Architecture Enhancement", enhance_database_architecture, "database_optimization"),
+            ("Script Repository Enhancement", enhance_script_repository, "script_optimization"),
+            ("GitHub Copilot Integration Enhancement", enhance_copilot_integration, "copilot_optimization"),
+            ("Self-Healing System Enhancement", enhance_self_healing_system, "self_healing_optimization"),
+            ("Disaster Recovery Enhancement", enhance_disaster_recovery, "disaster_recovery_optimization"),
+        ]
 
-        # 2. Script Repository Enhancement
-        logger.info("[OPTIMIZE] Enhancing Script Repository to 100%")
-        optimization_results["script_optimization"] = enhance_script_repository()
-        logger.info(f"[OPTIMIZE] Scripts: {optimization_results['script_optimization']:.1f}%")
-
-        # 3. GitHub Copilot Integration Enhancement
-        logger.info("[OPTIMIZE] Enhancing GitHub Copilot Integration to 100%")
-        optimization_results["copilot_optimization"] = enhance_copilot_integration()
-        logger.info(f"[OPTIMIZE] Copilot: {optimization_results['copilot_optimization']:.1f}%")
-
-        # 4. Self-Healing System Enhancement
-        logger.info("[OPTIMIZE] Enhancing Self-Healing System to 100%")
-        optimization_results["self_healing_optimization"] = enhance_self_healing_system()
-        logger.info(f"[OPTIMIZE] Self-Healing: {optimization_results['self_healing_optimization']:.1f}%")
-
-        # 5. Disaster Recovery Enhancement
-        logger.info("[OPTIMIZE] Enhancing Disaster Recovery to 100%")
-        optimization_results["disaster_recovery_optimization"] = enhance_disaster_recovery()
-        logger.info(f"[OPTIMIZE] Disaster Recovery: {optimization_results['disaster_recovery_optimization']:.1f}%")
+        for desc, func, key in tqdm(steps, desc=TEXT_INDICATORS["progress"], unit="step"):
+            logger.info(f"{TEXT_INDICATORS['progress']} {desc}")
+            optimization_results[key] = func()
+            logger.info(f"{TEXT_INDICATORS['info']} {desc} {optimization_results[key]:.1f}%")
 
         # Calculate final Enterprise Readiness
         components = [
@@ -86,7 +83,9 @@ def optimize_to_100_percent() -> Dict[str, Any]:
         final_readiness = sum(components) / len(components)
         optimization_results["final_readiness"] = final_readiness
 
-        logger.info(f"[OPTIMIZE] FINAL ENTERPRISE READINESS: {final_readiness:.1f}%")
+        duration = (datetime.now() - start_time).total_seconds()
+        logger.info(f"{TEXT_INDICATORS['completion']} Enterprise Optimization completed in {duration:.1f}s")
+        logger.info(f"{TEXT_INDICATORS['success']} FINAL ENTERPRISE READINESS: {final_readiness:.1f}%")
 
         return optimization_results
 
@@ -802,27 +801,65 @@ def finalize_100_percent_achievement():
 
 
 def main():
-    """Main optimization execution via DualCopilotOrchestrator"""
-    print("="*80)
+    """Main optimization execution"""
+    print("=" * 80)
     print("ENTERPRISE OPTIMIZATION TO 100% READINESS")
     print("gh_COPILOT Toolkit v4.0 - Final Optimization Phase")
-    print("="*80)
-    
-    orchestrator = DualCopilotOrchestrator()
-
-    def primary() -> bool:
-        results = optimize_to_100_percent()
-        return results.get("final_readiness", 0) >= 100.0
+    print("=" * 80)
 
     try:
-        success = orchestrator.run(primary, [os.getcwd()])
-        if success:
-            print("\n✅ Dual copilot validation passed")
+        # Execute comprehensive optimization
+        optimization_results = optimize_to_100_percent()
+
+        if "error" not in optimization_results:
+            final_readiness = optimization_results["final_readiness"]
+
+            if final_readiness >= 100.0:
+                print("\n" + "=" * 80)
+                print(f"{TEXT_INDICATORS['success']} ENTERPRISE READINESS: 100% ACHIEVED!")
+                print(f"{TEXT_INDICATORS['success']} OPTIMIZATION: COMPLETED SUCCESSFULLY!")
+                print(f"{TEXT_INDICATORS['success']} gh_COPILOT Toolkit v4.0: ENTERPRISE CERTIFIED!")
+                print("=" * 80)
+
+                # Finalize achievement
+                if finalize_100_percent_achievement():
+                    print(f"\n{TEXT_INDICATORS['success']} ACHIEVEMENT CERTIFIED AND RECORDED")
+                    print(f"{TEXT_INDICATORS['success']} ENTERPRISE READINESS CERTIFICATE ISSUED")
+                    print(f"{TEXT_INDICATORS['success']} CONTINUOUS MONITORING ACTIVATED")
+                    print(f"{TEXT_INDICATORS['success']} AUTONOMOUS OPERATIONS ENABLED")
+
+                    # Store final optimization results
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    with open(f"enterprise_100_percent_achievement_{timestamp}.json", "w") as f:
+                        json.dump(optimization_results, f, indent=2, default=str)
+
+                    print(
+                        f"\n{TEXT_INDICATORS['info']} Optimization results stored: "
+                        f"enterprise_100_percent_achievement_{timestamp}.json"
+                    )
+                    print(
+                        f"{TEXT_INDICATORS['info']} Certificate stored: "
+                        "ENTERPRISE_READINESS_100_PERCENT_CERTIFICATE.json"
+                    )
+
+                    return True
+                else:
+                    print(f"\n{TEXT_INDICATORS['warning']} Achievement recorded but certification had issues")
+                    return False
+            else:
+                print(
+                    f"\n{TEXT_INDICATORS['warning']} Final Enterprise Readiness: {final_readiness:.1f}% (Target: 100%)"
+                )
+                return False
         else:
-            print("\n❌ Dual copilot validation failed")
-        return success
+            print(
+                f"\n{TEXT_INDICATORS['error']} Optimization failed: "
+                f"{optimization_results.get('error', 'Unknown error')}"
+            )
+            return False
+
     except Exception as e:
-        print(f"\n❌ Critical error during optimization: {e}")
+        print(f"\n{TEXT_INDICATORS['error']} Critical error during optimization: {e}")
         return False
 
 
