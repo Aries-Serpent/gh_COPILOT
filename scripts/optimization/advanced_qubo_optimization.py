@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# pyright: reportMissingImports=false
 """
 AdvancedQuboOptimization - Enterprise Utility Script
 Generated: 2025-07-10 18:09:18
@@ -11,12 +12,28 @@ Enterprise Standards Compliance:
 
 import logging
 import os
+import sqlite3
 import sys
 from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
 
 import numpy as np
+from tqdm import tqdm
+
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+
+
+def fetch_optimization_templates(db_path: Path) -> List[str]:
+    """Return optimization template names from production.db."""
+    if not db_path.exists():
+        return []
+    try:
+        with sqlite3.connect(db_path) as conn:
+            cur = conn.execute("SELECT name FROM code_templates WHERE category='optimization'")
+            return [row[0] for row in cur.fetchall()]
+    except sqlite3.Error:
+        return []
 
 
 def solve_qubo_bruteforce(matrix: List[List[float]]) -> Tuple[List[int], float]:
@@ -25,25 +42,20 @@ def solve_qubo_bruteforce(matrix: List[List[float]]) -> Tuple[List[int], float]:
     q = np.array(matrix)
     best_solution: List[int] | None = None
     best_energy = float("inf")
-    for bits in range(1 << n):
-        x = np.array([(bits >> i) & 1 for i in range(n)])
-        energy = float(x @ q @ x)
-        if energy < best_energy:
-            best_energy = energy
-            best_solution = x.tolist()
+    with tqdm(range(1 << n), desc="brute-force", unit="state", leave=False) as bar:
+        for bits in bar:
+            x = np.array([(bits >> i) & 1 for i in range(n)])
+            energy = float(x @ q @ x)
+            if energy < best_energy:
+                best_energy = energy
+                best_solution = x.tolist()
     return best_solution or [0] * n, best_energy
+
 
 # Text-based indicators (NO Unicode emojis)
 
 
-TEXT_INDICATORS = {
-
-
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -57,8 +69,7 @@ class EnterpriseUtility:
     def execute_utility(self) -> bool:
         """Execute utility function"""
         start_time = datetime.now()
-        self.logger.info(
-            f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
             # Utility implementation
@@ -66,9 +77,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in "
-                    f"{duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -80,33 +89,20 @@ class EnterpriseUtility:
 
     def log_execution(self, method_name: str) -> None:
         """Log execution of a method."""
-        self.logger.info(
-            f"{TEXT_INDICATORS['info']} Executing {method_name}")
+        self.logger.info(f"{TEXT_INDICATORS['info']} Executing {method_name}")
 
     def perform_utility_function(self) -> bool:
         """Solve a small QUBO problem using brute force."""
         self.log_execution("perform_utility_function")
 
-        import numpy as np
+        db_path = self.workspace_path / "databases" / "production.db"
+        templates = fetch_optimization_templates(db_path)
+        self.logger.info(f"{TEXT_INDICATORS['info']} Loaded {len(templates)} optimization templates")
 
-        q_matrix = np.array([[1, -2], [-2, 4]])
-        best_value = float("inf")
-        best_solution = None
-        for x0 in (0, 1):
-            for x1 in (0, 1):
-                x = np.array([x0, x1])
-                value = x @ q_matrix @ x
-                if value < best_value:
-                    best_value = value
-                    best_solution = x
+        q_matrix = [[1.0, -2.0], [-2.0, 4.0]]
+        solution, value = solve_qubo_bruteforce(q_matrix)
 
-        if best_solution is not None:
-            self.logger.info(
-                f"{TEXT_INDICATORS['info']} Best so \
-                    lution {best_solution.tolist()} value {best_value}")
-        else:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} No solution found")
+        self.logger.info(f"{TEXT_INDICATORS['info']} Best solution {solution} value {value}")
         return True
 
 
@@ -114,6 +110,9 @@ def main():
     """Main execution function"""
     utility = EnterpriseUtility()
     success = utility.execute_utility()
+
+    validator = SecondaryCopilotValidator(logging.getLogger(__name__))
+    validator.validate_corrections([__file__])
 
     if success:
         print(f"{TEXT_INDICATORS['success']} Utility completed")
