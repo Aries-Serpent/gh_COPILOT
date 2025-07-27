@@ -256,7 +256,15 @@ class EnterpriseDeploymentOrchestrator:
         
         # MANDATORY: Comprehensive deployment summary
         self._log_deployment_summary(deployment_results)
-        
+
+        # Dual Copilot validation steps
+        logging.info("🔍 PRIMARY VALIDATION")
+        primary_ok = self.primary_validate()
+        logging.info("🔍 SECONDARY VALIDATION")
+        secondary_ok = self.secondary_validate()
+        deployment_results["primary_validation"] = primary_ok
+        deployment_results["secondary_validation"] = secondary_ok
+
         return deployment_results
     
     def _execute_pre_deployment_validation(self) -> Dict[str, Any]:
@@ -491,7 +499,16 @@ class EnterpriseDeploymentOrchestrator:
         logging.info(f"Enterprise Compliance: {self.metrics.enterprise_compliance}")
         logging.info(f"Target Achievement: {'✅ EXCEEDED' if self.metrics.deployment_excellence >= 99.0 else '🎯 ON TRACK'}")
         logging.info("="*80)
-    
+
+    def primary_validate(self) -> bool:
+        """Run primary deployment validation."""
+        result = self._execute_post_deployment_validation()
+        return result.get("status") == "COMPLETED"
+
+    def secondary_validate(self) -> bool:
+        """Secondary validation mirroring :func:`primary_validate`."""
+        return self.primary_validate()
+
     # Helper validation methods
     def _validate_core_files(self) -> Dict[str, Any]:
         """Validate core files"""

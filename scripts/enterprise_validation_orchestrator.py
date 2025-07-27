@@ -630,7 +630,15 @@ class EnterpriseValidationOrchestrator:
         logger.info(f"❌ Failed: {failed_scripts}/{total_scripts}")
         logger.info(f"⏱️  Duration: {validation_duration:.1f} seconds")
         logger.info("="*80)
-        
+
+        # Dual Copilot validation
+        logger.info("🔍 PRIMARY VALIDATION")
+        primary_ok = self.primary_validate()
+        logger.info("🔍 SECONDARY VALIDATION")
+        secondary_ok = self.secondary_validate()
+        self.validation_metrics.primary_valid = primary_ok
+        self.validation_metrics.secondary_valid = secondary_ok
+
         return self.validation_metrics
 
     def _validate_single_script(self, script_id: str, script_def: ScriptDefinition) -> ScriptDefinition:
@@ -1049,6 +1057,14 @@ class EnterpriseValidationOrchestrator:
                 f.write(f"\n")
         
         logger.info(f"📄 Validation report generated: {report_path}")
+
+    def primary_validate(self) -> bool:
+        """Primary validation check for final metrics."""
+        return self.validation_metrics.overall_score >= 80.0
+
+    def secondary_validate(self) -> bool:
+        """Secondary validation mirroring :func:`primary_validate`."""
+        return self.primary_validate()
 
 def main():
     """Main execution function with comprehensive command line interface"""
