@@ -77,6 +77,7 @@ class TemplateAutoGenerator:
 
     analytics_db: Path = DEFAULT_ANALYTICS_DB
     completion_db: Path = DEFAULT_COMPLETION_DB
+    production_db: Path = DEFAULT_PRODUCTION_DB
 
     def __post_init__(self) -> None:
         self.logger = logging.getLogger(__name__)
@@ -157,9 +158,22 @@ class TemplateAutoGenerator:
         baseline = np.ones_like(vec) / np.sqrt(len(vec))
         return float(abs(np.dot(vec, baseline.conj())))
 
+    def _load_production_patterns(self) -> list[str]:
+        """Fetch template patterns from ``production.db`` if available."""
+        patterns: list[str] = []
+        if self.production_db.exists():
+            with sqlite3.connect(self.production_db) as conn:
+                try:
+                    cur = conn.execute("SELECT template_content FROM script_template_patterns")
+                    patterns = [row[0] for row in cur.fetchall()]
+                except sqlite3.Error as exc:
+                    logger.error(f"Error loading production patterns: {exc}")
+        return patterns
+
     def _cluster_patterns(self) -> KMeans | None:
         logger.info("Clustering patterns and templates...")
-        corpus = self.templates + self.patterns
+        prod_patterns = self._load_production_patterns()
+        corpus = self.templates + self.patterns + prod_patterns
         if not corpus:
             logger.warning("No corpus to cluster")
             return None
@@ -330,4 +344,5 @@ __all__ = [
     "TemplateAutoGenerator",
     "DEFAULT_ANALYTICS_DB",
     "DEFAULT_COMPLETION_DB",
+    "DEFAULT_PRODUCTION_DB",
 ]
