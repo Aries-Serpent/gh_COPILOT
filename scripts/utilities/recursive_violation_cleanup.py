@@ -7,14 +7,17 @@ Usage:
     python recursive_violation_cleanup.py --visual-indicators
     python recursive_violation_cleanup.py --dry-run --visual-indicators
 """
-import sys
+
+import argparse
+import logging
 import os
 import shutil
-import argparse
+import sys
+from datetime import datetime
 from pathlib import Path
-from datetime import datetime, timedelta
+from typing import Iterable, List, Tuple
+
 from tqdm import tqdm
-import logging
 
 FORBIDDEN_PATTERNS = ["*backup*", "*templates*", "*temp*", "*templatetags*"]
 SITE_PACKAGES_CANDIDATES = [
@@ -24,21 +27,22 @@ SITE_PACKAGES_CANDIDATES = [
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
 
 TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]',
-    'remove': '[REMOVE]',
-    'dryrun': '[DRY-RUN]',
-    'scan': '[SCAN]',
-    'complete': '[COMPLETE]'
+    "start": "[START]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "info": "[INFO]",
+    "remove": "[REMOVE]",
+    "dryrun": "[DRY-RUN]",
+    "scan": "[SCAN]",
+    "complete": "[COMPLETE]",
 }
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("recursive_cleanup")
 
-def scan_forbidden_folders(paths, patterns):
-    found = []
+
+def scan_forbidden_folders(paths: Iterable[Path], patterns: Iterable[str]) -> List[Path]:
+    found: List[Path] = []
     for base in paths:
         if not base.exists():
             continue
@@ -48,13 +52,15 @@ def scan_forbidden_folders(paths, patterns):
                     found.append(folder)
     return found
 
-def remove_folders(folders, dry_run=False):
-    removed = []
-    errors = []
+
+def remove_folders(folders: Iterable[Path], dry_run: bool = False) -> Tuple[List[str], List[str]]:
+    removed: List[str] = []
+    errors: List[str] = []
+    folder_list = list(folders)
     start_time = datetime.now()
-    total = len(folders)
+    total = len(folder_list)
     with tqdm(total=total, desc="Recursive Folder Cleanup", unit="folder") as pbar:
-        for folder in folders:
+        for folder in folder_list:
             try:
                 if dry_run:
                     logger.info(f"{TEXT_INDICATORS['dryrun']} Would remove: {folder}")
@@ -72,7 +78,8 @@ def remove_folders(folders, dry_run=False):
                 pbar.update(1)
     return removed, errors
 
-def main():
+
+def main() -> None:
     parser = argparse.ArgumentParser(description="Automated Recursive Folder Cleanup Script")
     parser.add_argument("--visual-indicators", action="store_true", help="Enable visual processing indicators")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be removed without deleting")
@@ -91,7 +98,9 @@ def main():
 
     if not folders:
         logger.info(f"{TEXT_INDICATORS['success']} No forbidden folders found. Anti-recursion compliance achieved.")
-        logger.info(f"{TEXT_INDICATORS['complete']} Cleanup complete. You may now re-run the database optimization CLI.")
+        logger.info(
+            f"{TEXT_INDICATORS['complete']} Cleanup complete. You may now re-run the database optimization CLI."
+        )
         sys.exit(0)
 
     removed, errors = remove_folders(folders, dry_run=args.dry_run)
@@ -104,8 +113,11 @@ def main():
         sys.exit(1)
     else:
         logger.info(f"{TEXT_INDICATORS['success']} All forbidden folders removed successfully.")
-        logger.info(f"{TEXT_INDICATORS['complete']} Cleanup complete. You may now re-run the database optimization CLI.")
+        logger.info(
+            f"{TEXT_INDICATORS['complete']} Cleanup complete. You may now re-run the database optimization CLI."
+        )
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
