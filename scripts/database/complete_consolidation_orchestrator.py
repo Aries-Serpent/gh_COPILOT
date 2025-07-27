@@ -25,6 +25,12 @@ from .unified_database_initializer import initialize_database
 
 py7zr = cast(Any, py7zr)
 
+
+def secondary_validate() -> bool:
+    """Run secondary validation mirroring :func:`validate_enterprise_operation`."""
+    logging.info("SECONDARY VALIDATION: enterprise operation")
+    return validate_enterprise_operation()
+
 logger = logging.getLogger(__name__)
 
 SIZE_THRESHOLD_MB = 99.9
@@ -188,6 +194,7 @@ def migrate_and_compress(
     level:
         Compression level used when archiving large tables.
     """
+    logging.info("PRIMARY VALIDATION: enterprise operation")
     validate_enterprise_operation()
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
@@ -260,6 +267,8 @@ def migrate_and_compress(
         )
         logger.removeHandler(handler)
         handler.close()
+
+    secondary_validate()
 
 
 if __name__ == "__main__":

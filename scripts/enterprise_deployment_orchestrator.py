@@ -33,20 +33,15 @@ License: Enterprise License
 Created: July 17, 2025
 """
 
-import os
-import sys
-import time
-import json
-import sqlite3
-import threading
 import logging
+import os
+import time
 import traceback
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import subprocess
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 
 # 🚨 CRITICAL: Anti-recursion validation
 def validate_enterprise_deployment():
@@ -77,6 +72,12 @@ def validate_enterprise_deployment():
 
 # Validate deployment environment
 validate_enterprise_deployment()
+
+
+def primary_validate() -> bool:
+    """Run primary environment validation."""
+    logging.info("PRIMARY VALIDATION: enterprise deployment environment")
+    return validate_enterprise_deployment()
 
 @dataclass
 class EnterpriseDeploymentMetrics:
@@ -145,7 +146,7 @@ class EnterpriseDeploymentOrchestrator:
         logging.info(f"Session ID: {self.session_id}")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {os.getpid()}")
-        logging.info(f"Target Excellence: 99.8%")
+        logging.info("Target Excellence: 99.8%")
         logging.info("="*80)
         
         # Initialize deployment environment
@@ -175,11 +176,18 @@ class EnterpriseDeploymentOrchestrator:
         self.target_availability = 0.9999  # 99.99%
         self.target_security_score = 100.0  # 100%
         self.target_deployment_excellence = 99.8  # 99.8%
-        
+
         logging.info("✅ Enterprise Deployment Orchestrator initialization complete")
+
+    def secondary_validate(self) -> bool:
+        """Run secondary validation after deployment."""
+        logging.info("SECONDARY VALIDATION: enterprise deployment environment")
+        return validate_enterprise_deployment()
     
     def execute_enterprise_deployment(self) -> Dict[str, Any]:
         """🚀 Execute comprehensive enterprise deployment"""
+
+        primary_validate()
         
         # 🚀 MANDATORY: Visual processing indicators
         logging.info(f"🚀 ENTERPRISE DEPLOYMENT STARTED: {self.session_id}")
@@ -574,12 +582,12 @@ def main():
         # Execute enterprise deployment
         deployment_results = orchestrator.execute_enterprise_deployment()
         
-        print(f"\n🏆 ENTERPRISE DEPLOYMENT COMPLETED")
+        print("\n🏆 ENTERPRISE DEPLOYMENT COMPLETED")
         print("="*50)
         print(f"Deployment Excellence: {orchestrator.metrics.deployment_excellence:.1f}%")
         print(f"Enterprise Compliance: {orchestrator.metrics.enterprise_compliance}")
         print(f"Systems Deployed: {orchestrator.metrics.systems_deployed}")
-        print(f"Status: PRODUCTION READY")
+        print("Status: PRODUCTION READY")
         print("="*50)
         
         # Phase progression summary
