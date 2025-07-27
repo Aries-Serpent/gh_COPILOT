@@ -147,3 +147,36 @@ def migrate_hard_coded_paths(file_path: Path) -> Dict[str, Any]:
         "changes_made": changes_made,
         "backup_created": str(backup_path) if changes_made else None,
     }
+
+
+def verify_environment_variables() -> None:
+    """Ensure ``GH_COPILOT_WORKSPACE`` and ``GH_COPILOT_BACKUP_ROOT`` are set.
+
+    Raises
+    ------
+    EnvironmentError
+        If required environment variables are missing or point to invalid paths.
+    """
+
+    workspace_env = os.getenv("GH_COPILOT_WORKSPACE")
+    backup_env = os.getenv("GH_COPILOT_BACKUP_ROOT")
+
+    if not workspace_env or not backup_env:
+        raise EnvironmentError(
+            "GH_COPILOT_WORKSPACE and GH_COPILOT_BACKUP_ROOT must be set"
+        )
+
+    workspace = CrossPlatformPathManager.get_workspace_path()
+    backup_root = CrossPlatformPathManager.get_backup_root()
+
+    if not workspace.exists():
+        raise EnvironmentError(f"Workspace does not exist: {workspace}")
+
+    if workspace == backup_root or workspace in backup_root.parents:
+        raise EnvironmentError("Backup root cannot reside within the workspace")
+
+    if not backup_root.parent.exists():
+        raise EnvironmentError(
+            f"Backup root parent does not exist: {backup_root.parent}"
+        )
+
