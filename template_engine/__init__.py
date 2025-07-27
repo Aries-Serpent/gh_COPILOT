@@ -19,11 +19,11 @@ if TYPE_CHECKING:  # pragma: no cover
     from . import (
         auto_generator,  # noqa: F401
         db_first_code_generator,  # noqa: F401
-        learning_templates,  # noqa: F401
         log_utils,  # noqa: F401
         objective_similarity_scorer,  # noqa: F401
         pattern_clustering_sync,  # noqa: F401
         pattern_mining_engine,  # noqa: F401
+        pattern_templates,  # noqa: F401
         placeholder_utils,  # noqa: F401
         template_placeholder_remover,  # noqa: F401
         template_synchronizer,  # noqa: F401
@@ -41,7 +41,7 @@ __all__ = [
     "template_placeholder_remover",
     "template_synchronizer",
     "workflow_enhancer",
-    "learning_templates",
+    "pattern_templates",
 ]
 
 

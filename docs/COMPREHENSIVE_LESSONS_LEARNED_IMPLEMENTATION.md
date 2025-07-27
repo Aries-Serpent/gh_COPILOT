@@ -81,17 +81,19 @@ class SelfHealingSystem:
         elif error_type == "validation_gap":
             return self.heal_validation_gaps()
         
-        return self.apply_general_healing_strategy(error_type)
+return self.apply_general_healing_strategy(error_type)
 ```
 
-### **Pattern 5: Reusable Template Library**
-```python
-# IMPLEMENTATION: Consolidated templates for core patterns
-from template_engine.learning_templates import get_lesson_templates
+### **Pattern Template Implementations**
 
-templates = get_lesson_templates()
-database_template = templates["database_first"]
-```
+Reusable templates encapsulating these patterns are available in
+`template_engine.pattern_templates` and are loaded automatically by the
+`TemplateAutoGenerator` and `DatabaseFirstCopilotEnhancer` modules.
+
+- `database_first_pattern` – Implements Database-First Intelligence Architecture.
+- `autonomous_error_prevention_pattern` – Prevents critical misclassification.
+- `visual_processing_pattern` – Adds progress indicators to operations.
+- `self_healing_pattern` – Provides autonomous error correction logic.
 
 ---
 
