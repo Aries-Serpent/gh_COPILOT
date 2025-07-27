@@ -1,0 +1,3 @@
+from pathlib import Path
+
+def generate_script_from_repository(workspace: Path, output_name: str) -> bool: ...
