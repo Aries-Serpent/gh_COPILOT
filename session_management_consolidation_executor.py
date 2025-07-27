@@ -7,22 +7,21 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 from utils.log_utils import _log_event
+from validation.protocols.session import SessionProtocolValidator
 
 
 class EnterpriseUtility:
     """Simplified executor for session consolidation tests."""
 
-    def __init__(
-        self,
-        workspace_path: str | Path | None = None,
-        analytics_db: str | Path | None = None,
-    ) -> None:
-        self.workspace_path = Path(workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
-        self.analytics_db = Path(
-            analytics_db or os.getenv("ANALYTICS_DB", self.workspace_path / "databases" / "analytics.db")
+    def __init__(self, workspace_path: str | Path | None = None) -> None:
+        self.workspace_path = Path(
+            workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
         )
+        validate_enterprise_operation()
         self.logger = logging.getLogger(__name__)
+        self.validator = SessionProtocolValidator(str(self.workspace_path))
 
     def _validate_environment(self) -> bool:
         return bool(os.getenv("GH_COPILOT_WORKSPACE")) and bool(os.getenv("GH_COPILOT_BACKUP_ROOT"))
@@ -37,20 +36,17 @@ class EnterpriseUtility:
         return True
 
     def execute_utility(self) -> bool:
-        """Execute consolidation routine with logging."""
+        """Execute consolidation routine with logging and validation."""
         self.logger.info("[START] Utility started: %s", datetime.now().isoformat())
-        if not self._validate_environment():
-            self.logger.error("[ERROR] Environment not configured")
-            _log_event({"event": "environment_invalid"}, db_path=self.analytics_db)
-            return False
-        _log_event({"event": "utility_start"}, db_path=self.analytics_db)
-        success = self.perform_utility_function()
+        _log_event({"event": "utility_start"}, db_path=self.workspace_path / "analytics.db")
+        validation = self.validator.validate_startup()
+        success = validation.is_success and self.perform_utility_function()
         if success:
             self.logger.info("[SUCCESS] Utility completed")
-            _log_event({"event": "utility_complete"}, db_path=self.analytics_db)
+            _log_event({"event": "utility_success"}, db_path=self.workspace_path / "analytics.db")
         else:
             self.logger.error("[ERROR] Utility failed")
-            _log_event({"event": "utility_failed"}, db_path=self.analytics_db)
+            _log_event({"event": "utility_failed"}, db_path=self.workspace_path / "analytics.db")
         return success
 
 
