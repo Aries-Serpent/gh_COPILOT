@@ -38,6 +38,7 @@ import uuid
 # Essential imports for API framework
 import numpy as np
 from tqdm import tqdm
+from utils.log_utils import log_message
 
 # Flask imports for web API
 try:
@@ -114,8 +115,8 @@ class EnterpriseAuthentication:
         self._create_default_users()
         
         # MANDATORY: Visual processing indicators
-        logging.info("🔐 ENTERPRISE AUTHENTICATION INITIALIZED")
-        logging.info(f"Default users created: {len(self.users)}")
+        log_message("🔐 ENTERPRISE AUTHENTICATION INITIALIZED")
+        log_message(f"Default users created: {len(self.users)}")
     
     def _create_default_users(self):
         """👤 Create default enterprise users"""
@@ -194,7 +195,7 @@ class APIDocumentationGenerator:
         self.endpoints = {}
         
         # MANDATORY: Visual processing indicators
-        logging.info("📚 API DOCUMENTATION GENERATOR INITIALIZED")
+        log_message("📚 API DOCUMENTATION GENERATOR INITIALIZED")
     
     def register_endpoint(self, endpoint: APIEndpoint):
         """📝 Register endpoint for documentation"""
@@ -349,9 +350,9 @@ class EnterpriseAPIServer:
             self.app = None
         
         # MANDATORY: Visual processing indicators
-        logging.info("🌐 ENTERPRISE API SERVER INITIALIZED")
-        logging.info(f"Flask Available: {FLASK_AVAILABLE}")
-        logging.info(f"JWT Available: {JWT_AVAILABLE}")
+        log_message("🌐 ENTERPRISE API SERVER INITIALIZED")
+        log_message(f"Flask Available: {FLASK_AVAILABLE}")
+        log_message(f"JWT Available: {JWT_AVAILABLE}")
     
     def _setup_flask_routes(self):
         """🔧 Setup Flask routes and middleware"""
@@ -590,9 +591,18 @@ class EnterpriseAPIServer:
             self.documentation.register_endpoint(endpoint)
     
     def start_server(self) -> Dict[str, Any]:
-        """🚀 Start the enterprise API server"""
+        """Start the enterprise API server.
+
+        Returns
+        -------
+        Dict[str, Any]
+            Dictionary describing server status and metadata.
+        """
         if not FLASK_AVAILABLE:
-            logging.warning("Flask not available - starting simulation mode")
+            log_message(
+                "Flask not available - starting simulation mode",
+                level=logging.WARNING,
+            )
             return self._start_simulation_mode()
         
         try:
@@ -603,9 +613,9 @@ class EnterpriseAPIServer:
             self.server_thread = threading.Thread(target=self.server.serve_forever, daemon=True)
             self.server_thread.start()
             
-            logging.info(f"🚀 Enterprise API Server started on http://{self.host}:{self.port}")
-            logging.info(f"📚 API Documentation: http://{self.host}:{self.port}/api/v1/docs")
-            logging.info(f"🔧 OpenAPI Spec: http://{self.host}:{self.port}/api/v1/openapi.json")
+            log_message(f"🚀 Enterprise API Server started on http://{self.host}:{self.port}")
+            log_message(f"📚 API Documentation: http://{self.host}:{self.port}/api/v1/docs")
+            log_message(f"🔧 OpenAPI Spec: http://{self.host}:{self.port}/api/v1/openapi.json")
             
             return {
                 "server_status": "RUNNING",
@@ -619,7 +629,10 @@ class EnterpriseAPIServer:
             }
             
         except Exception as e:
-            logging.error(f"Failed to start API server: {e}")
+            log_message(
+                f"Failed to start API server: {e}",
+                level=logging.ERROR,
+            )
             return {
                 "server_status": "FAILED",
                 "error": str(e)
@@ -627,7 +640,7 @@ class EnterpriseAPIServer:
     
     def _start_simulation_mode(self) -> Dict[str, Any]:
         """🎭 Start simulation mode when Flask unavailable"""
-        logging.info("🎭 API Server running in simulation mode")
+        log_message("🎭 API Server running in simulation mode")
         
         # Simulate API endpoints
         simulated_endpoints = [
@@ -652,7 +665,7 @@ class EnterpriseAPIServer:
             self.server.shutdown()
             if self.server_thread:
                 self.server_thread.join(timeout=5)
-            logging.info("🛑 Enterprise API Server stopped")
+            log_message("🛑 Enterprise API Server stopped")
     
     def get_server_metrics(self) -> Dict[str, Any]:
         """📊 Get comprehensive server metrics"""

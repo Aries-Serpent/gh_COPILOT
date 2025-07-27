@@ -27,6 +27,10 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional
 
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+)
+
 # Import our autonomous systems
 try:
     from windows_compatible_optimizer_async import WindowsCompatibleOptimizer
@@ -460,6 +464,7 @@ Examples:
 
 async def main():
     """Main CLI execution function"""
+    EnterpriseUtility().execute_utility()
     parser = create_parser()
     args = parser.parse_args()
     
@@ -500,6 +505,7 @@ async def main():
 
 
 if __name__ == "__main__":
+    EnterpriseUtility().execute_utility()
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
