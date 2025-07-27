@@ -35,8 +35,12 @@ def fetch_optimization_templates(db_path: Path) -> List[str]:
     except sqlite3.Error:
         return []
 
+from secondary_copilot_validator import SecondaryCopilotValidator
 
-def solve_qubo_bruteforce(matrix: List[List[float]]) -> Tuple[List[int], float]:
+
+def solve_qubo_bruteforce(
+    matrix: List[List[float]], use_tqdm: bool = True
+) -> Tuple[List[int], float]:
     """Brute-force solver for a Quadratic Unconstrained Binary Optimization problem."""
     n = len(matrix)
     q = np.array(matrix)
@@ -48,7 +52,6 @@ def solve_qubo_bruteforce(matrix: List[List[float]]) -> Tuple[List[int], float]:
             energy = float(x @ q @ x)
             if energy < best_energy:
                 best_energy = energy
-                best_solution = x.tolist()
     return best_solution or [0] * n, best_energy
 
 
@@ -74,6 +77,9 @@ class EnterpriseUtility:
         try:
             # Utility implementation
             success = self.perform_utility_function()
+            # Secondary validation step
+            validator = SecondaryCopilotValidator(self.logger)
+            validator.validate_corrections([__file__])
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
