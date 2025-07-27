@@ -109,7 +109,21 @@ class EnterpriseAuthentication:
         self.users = {}
         self.api_keys = {}
         self.session_tokens = {}
-        self.secret_key = "enterprise_api_secret_2024"  # In production, use environment variable
+        # Secret key used for token generation and validation
+        # Priority: environment variable -> config file -> default
+        self.secret_key = os.getenv("API_SECRET_KEY")
+        if not self.secret_key:
+            config_path = os.getenv("CONFIG_PATH", "config/enterprise_master_config.json")
+            try:
+                with open(config_path, "r") as cfg_file:
+                    cfg = json.load(cfg_file)
+                    self.secret_key = cfg.get("api_secret_key")
+            except FileNotFoundError:
+                self.secret_key = None
+            except json.JSONDecodeError:
+                self.secret_key = None
+        if not self.secret_key:
+            self.secret_key = "enterprise_api_secret_2024"
         
         # Initialize default admin user
         self._create_default_users()

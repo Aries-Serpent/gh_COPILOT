@@ -203,6 +203,7 @@ Run the session manager after setting the workspace and backup paths:
 ```bash
 export GH_COPILOT_WORKSPACE=$(pwd)
 export GH_COPILOT_BACKUP_ROOT=/path/to/backups
+export API_SECRET_KEY=your_api_secret
 python scripts/wlc_session_manager.py
 ```
 
