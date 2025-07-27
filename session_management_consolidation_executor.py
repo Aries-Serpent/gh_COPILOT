@@ -23,11 +23,15 @@ class EnterpriseUtility:
         self.logger = logging.getLogger(__name__)
         self.validator = SessionProtocolValidator(str(self.workspace_path))
 
+    def _validate_environment(self) -> bool:
+        return bool(os.getenv("GH_COPILOT_WORKSPACE")) and bool(os.getenv("GH_COPILOT_BACKUP_ROOT"))
+
     def perform_utility_function(self) -> bool:
         """Return ``False`` if any zero-byte files are present."""
         for file in self.workspace_path.iterdir():
             if file.is_file() and file.stat().st_size == 0:
                 self.logger.error("[ERROR] zero byte file detected: %s", file)
+                _log_event({"event": "zero_byte_detected", "file": str(file)}, db_path=self.analytics_db)
                 return False
         return True
 
