@@ -1,5 +1,3 @@
-# Communication Standards
-
 This project values concise, direct language. Follow these guidelines when writing documentation, code comments, and commit messages:
 
 - Use active voice and present tense whenever possible.
