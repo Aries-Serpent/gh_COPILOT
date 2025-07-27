@@ -1,7 +1,7 @@
 """Deprecated wrapper for :mod:`scripts.code_placeholder_audit`."""
 from __future__ import annotations
 
-from scripts.code_placeholder_audit import main
+from .code_placeholder_audit import main
 
 __all__ = ["main"]
 
