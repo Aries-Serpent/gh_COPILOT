@@ -23,6 +23,8 @@ import tempfile
 from pathlib import Path
 from typing import Dict, List, Any, Tuple, Optional
 
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+
 class SecurityComplianceEnhancer:
     """Enterprise Security Compliance Validation and Enhancement System"""
     
@@ -483,7 +485,7 @@ class SecurityComplianceEnhancer:
         return self.security_results
 
 def main():
-    """Main execution function"""
+    """Main execution function using DualCopilotOrchestrator"""
     workspace_path = "e:/gh_COPILOT"
     
     print("=" * 80)
@@ -494,15 +496,22 @@ def main():
     print("=" * 80)
     
     enhancer = SecurityComplianceEnhancer(workspace_path)
-    results = enhancer.run_security_enhancement()
-    
-    if results.get("enterprise_ready", False):
+    orchestrator = DualCopilotOrchestrator()
+
+    holder: Dict[str, Any] = {}
+
+    def primary() -> bool:
+        holder["res"] = enhancer.run_security_enhancement()
+        return holder["res"].get("enterprise_ready", False)
+
+    success = orchestrator.run(primary, [workspace_path])
+
+    if success:
         print("\n🎉 SUCCESS: Enterprise security compliance achieved!")
-        print("🚀 Ready for 100% completion validation!")
     else:
-        print("\n⚠️  PARTIAL SUCCESS: Additional security measures may be needed")
-    
-    return results
+        print("\n⚠️  Security compliance needs attention")
+
+    return holder.get("res", {"enterprise_ready": success})
 
 if __name__ == "__main__":
     main()

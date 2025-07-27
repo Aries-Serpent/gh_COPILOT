@@ -357,6 +357,10 @@ Secondary Validator COPILOT (B)
 Enterprise-Grade Output
 ```
 
+Optimization and security scripts must invoke their main logic via
+`DualCopilotOrchestrator` so that a `SecondaryCopilotValidator` review
+follows every primary execution.
+
 ### **Implementation Example**
 ```python
 class PrimaryExecutorCopilot:
