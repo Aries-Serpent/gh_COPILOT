@@ -38,6 +38,7 @@ __all__ = [
     "template_placeholder_remover",
     "template_synchronizer",
     "workflow_enhancer",
+    "pattern_templates",
 ]
 
 

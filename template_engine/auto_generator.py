@@ -139,7 +139,15 @@ class TemplateAutoGenerator:
                     templates = [row[0] for row in cur.fetchall()]
                 except sqlite3.Error as exc:
                     logger.error(f"Error loading templates: {exc}")
-        logger.info(f"Loaded {len(templates)} templates")
+        if not templates:
+            from . import pattern_templates
+            templates = list(pattern_templates.DEFAULT_TEMPLATES)
+            logger.info(
+                "Loaded %s default templates from pattern_templates",
+                len(templates),
+            )
+        else:
+            logger.info(f"Loaded {len(templates)} templates")
         _log_event(
             {"event": "load_templates", "count": len(templates)},
             table="generator_events",
