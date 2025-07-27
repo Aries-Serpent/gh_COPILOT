@@ -143,6 +143,11 @@ def _log_plain(
         print(line, file=sys.stderr if level >= logging.ERROR else sys.stdout)
 
 
+def log_message(msg: str, level: int = logging.INFO, log_file: Optional[Path] = None) -> None:
+    """Standard logging helper for modules."""
+    _log_plain(msg, level=level, log_file=log_file, echo=True)
+
+
 def _list_events(
     table: str = DEFAULT_LOG_TABLE, db_path: Path = DEFAULT_ANALYTICS_DB, limit: int = 100, order: str = "DESC"
 ) -> list:

@@ -28,6 +28,7 @@ from tqdm import tqdm
 from scripts.continuous_operation_orchestrator import (
     validate_enterprise_operation,
 )
+from utils.log_utils import log_message
 from scripts.database.add_code_audit_log import ensure_code_audit_log
 
 # Visual processing indicator constants
@@ -57,20 +58,35 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
             cur = conn.execute("SELECT placeholder_name FROM template_placeholders")
             return [row[0] for row in cur.fetchall()]
         except Exception as e:
-            logging.error(f"{TEXT['error']} Failed to fetch placeholders from production.db: {e}")
+            log_message(
+                f"{TEXT['error']} Failed to fetch placeholders from production.db: {e}",
+                level=logging.ERROR,
+            )
             return []
 
 
 # Insert findings into analytics.db.code_audit_log
 def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False) -> None:
-    """Insert findings into analytics.db todo_fixme_tracking and code_audit_log.
+    """Log audit results to analytics.db.
 
-    If ``simulate`` is True, skip writing to the database.
+    Parameters
+    ----------
+    results : List[Dict]
+        Findings collected from the codebase scan.
+    analytics_db : Path
+        Target analytics database path.
+    simulate : bool, optional
+        If True, no database writes occur.
+
+    Returns
+    -------
+    None
+        The function writes to the database when not in simulation mode.
     """
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     ensure_code_audit_log(analytics_db)
     if simulate:
-        logging.info("[TEST MODE] Simulation enabled: not writing to analytics.db")
+        log_message("[TEST MODE] Simulation enabled: not writing to analytics.db")
         return
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
@@ -155,7 +171,10 @@ def scan_files(workspace: Path, patterns: List[str], timeout: Optional[float] = 
             try:
                 lines = file.read_text(encoding="utf-8", errors="ignore").splitlines()
             except Exception as e:
-                logging.error(f"{TEXT['error']} Could not read {file}: {e}")
+                log_message(
+                    f"{TEXT['error']} Could not read {file}: {e}",
+                    level=logging.ERROR,
+                )
                 bar.update(1)
                 continue
             for idx, line in enumerate(lines, 1):
@@ -211,9 +230,9 @@ def main(
     start_time = time.time()
     process_id = os.getpid()
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    logging.info(f"{TEXT['start']} auditing workspace")
-    logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logging.info(f"Process ID: {process_id}")
+    log_message(f"{TEXT['start']} auditing workspace")
+    log_message(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    log_message(f"Process ID: {process_id}")
 
     # Anti-recursion validation
     if os.getenv("GH_COPILOT_DISABLE_VALIDATION") != "1":
@@ -239,7 +258,10 @@ def main(
             try:
                 lines = file.read_text(encoding="utf-8", errors="ignore").splitlines()
             except Exception as e:
-                logging.error(f"{TEXT['error']} Could not read {file}: {e}")
+                log_message(
+                    f"{TEXT['error']} Could not read {file}: {e}",
+                    level=logging.ERROR,
+                )
                 bar.update(1)
                 continue
             for line_num, line in enumerate(lines, 1):
@@ -264,16 +286,19 @@ def main(
     if not simulate:
         update_dashboard(len(results), dashboard)
     else:
-        logging.info("[TEST MODE] Dashboard update skipped")
+        log_message("[TEST MODE] Dashboard update skipped")
     elapsed = time.time() - start_time
-    logging.info(f"{TEXT['info']} audit completed in {elapsed:.2f}s")
+    log_message(f"{TEXT['info']} audit completed in {elapsed:.2f}s")
 
     # DUAL COPILOT validation
     valid = validate_results(len(results), analytics)
     if valid:
-        logging.info(f"{TEXT['success']} audit logged {len(results)} findings")
+        log_message(f"{TEXT['success']} audit logged {len(results)} findings")
     else:
-        logging.error(f"{TEXT['error']} validation mismatch")
+        log_message(
+            f"{TEXT['error']} validation mismatch",
+            level=logging.ERROR,
+        )
     return valid
 
 

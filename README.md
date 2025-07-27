@@ -74,8 +74,8 @@ cp .env.example .env
 bash setup.sh
 # Always run this script before executing tests or automation tasks to ensure
 # dependencies and environment variables are correctly initialized.
-# Some environments block network access. If package installs fail,
-# ensure required domains are allowed for setup.
+# If package installation fails due to network restrictions,
+# update the environment to permit outbound connections to PyPI.
 
 # 2b. Install the line-wrapping utility
 bash tools/install_clw.sh
@@ -87,7 +87,7 @@ python scripts/database/unified_database_initializer.py
 
 # Add analytics tables and run migrations
 python scripts/database/add_code_audit_log.py
-# If `analytics.db` lacks the table, run the SQL migration manually
+# If `analytics.db` is missing required tables, run the SQL migrations manually
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
