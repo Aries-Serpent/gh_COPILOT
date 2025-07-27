@@ -10,6 +10,9 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 
 from tqdm import tqdm
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+)
 
 # --- Anti-Recursion Validation (MANDATORY) ---
 
@@ -212,6 +215,7 @@ class ContinuousOperationMonitor:
 
 def main():
     import argparse
+    EnterpriseUtility().execute_utility()
     parser = argparse.ArgumentParser(description="Enterprise Continuous Operation Monitor for gh_COPILOT Toolkit")
     parser.add_argument("--interval", type=int, default=60, help="Monitor interval in seconds")
     parser.add_argument("--log-db", type=str, default=None, help="Path to analytics.db (default: workspace)")
@@ -225,4 +229,5 @@ def main():
     monitor.monitor_loop()
 
 if __name__ == "__main__":
+    EnterpriseUtility().execute_utility()
     main()
