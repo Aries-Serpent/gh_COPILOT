@@ -6,6 +6,9 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator, Optional
 
+from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.validation_utils import validate_path
+
 
 @contextmanager
 def get_enterprise_database_connection(db_name: str = "production.db") -> Iterator[sqlite3.Connection]:
@@ -42,13 +45,21 @@ def check_table_exists(table_name: str, db_name: str = "production.db") -> bool:
 
 
 @contextmanager
-def get_validated_production_connection() -> Iterator[sqlite3.Connection]:
-    """Return a connection to production.db after basic validation."""
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+def get_validated_production_db_connection() -> Iterator[sqlite3.Connection]:
+    """Return a connection to production.db after path validation."""
+    workspace = CrossPlatformPathManager.get_workspace_path()
     db_path = workspace / "databases" / "production.db"
 
-    if not db_path.exists() or db_path.stat().st_size == 0:
-        raise FileNotFoundError(f"production.db missing or empty at {db_path}")
+    if not validate_path(db_path):
+        raise ValueError(f"Invalid database path: {db_path}")
+    if db_path.exists() and db_path.stat().st_size > 99_900_000:
+        raise ValueError("production.db exceeds 99.9 MB limit")
 
-    with get_enterprise_database_connection("production.db") as conn:
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
         yield conn
+    finally:
+        if conn:
+            conn.close()

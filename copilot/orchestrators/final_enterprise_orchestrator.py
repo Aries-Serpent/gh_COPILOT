@@ -14,6 +14,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from utils.log_utils import log_message
+
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     'start': '[START]',
@@ -31,9 +33,15 @@ class EnterpriseUtility:
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
-        """Execute utility function"""
+        """Run the orchestration workflow.
+
+        Returns
+        -------
+        bool
+            ``True`` if operations succeed, otherwise ``False``.
+        """
         start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+        log_message(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
             # Utility implementation
@@ -41,32 +49,40 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
+                log_message(
                     f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
-                self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
+                log_message(f"{TEXT_INDICATORS['error']} Utility failed", level=logging.ERROR)
                 return False
 
         except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
+            log_message(f"{TEXT_INDICATORS['error']} Utility error: {e}", level=logging.ERROR)
             return False
 
     def perform_utility_function(self) -> bool:
-        """Validate the workspace and check for required documentation."""
+        """Validate workspace and ensure README exists.
+
+        Returns
+        -------
+        bool
+            ``True`` when README is present.
+        """
         if not self.workspace_path.exists():
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Workspace missing: {self.workspace_path}"
+            log_message(
+                f"{TEXT_INDICATORS['error']} Workspace missing: {self.workspace_path}",
+                level=logging.ERROR,
             )
             return False
 
         readme = self.workspace_path / "README.md"
         if readme.exists():
-            self.logger.info(f"{TEXT_INDICATORS['info']} README found")
+            log_message(f"{TEXT_INDICATORS['info']} README found")
             return True
 
-        self.logger.warning(
-            f"{TEXT_INDICATORS['error']} README not found in {self.workspace_path}"
+        log_message(
+            f"{TEXT_INDICATORS['error']} README not found in {self.workspace_path}",
+            level=logging.WARNING,
         )
         return False
 

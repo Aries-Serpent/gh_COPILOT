@@ -23,7 +23,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, and `add_code_audit_history.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
-- **Quantum features:** planned, not yet implemented
+- **Quantum features:** placeholders only; no quantum functionality is implemented
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
   optimizer and search helpers.
 
@@ -74,8 +74,8 @@ cp .env.example .env
 bash setup.sh
 # Always run this script before executing tests or automation tasks to ensure
 # dependencies and environment variables are correctly initialized.
-# Some environments block network access. If package installs fail,
-# ensure required domains are allowed for setup.
+# If package installation fails due to network restrictions,
+# update the environment to permit outbound connections to PyPI.
 
 # 2b. Install the line-wrapping utility
 bash tools/install_clw.sh
@@ -87,7 +87,7 @@ python scripts/database/unified_database_initializer.py
 
 # Add analytics tables and run migrations
 python scripts/database/add_code_audit_log.py
-# If `analytics.db` lacks the table, run the SQL migration manually
+# If `analytics.db` is missing required tables, run the SQL migrations manually
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
@@ -138,7 +138,7 @@ are thin CLI wrappers. They delegate to the core implementations under
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
-Commands that generate large output should be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
+Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
 ```bash
 cp tools/clw /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
@@ -195,6 +195,7 @@ The toolkit includes an enterprise-grade data backup feature. Set the
 follow the steps in [docs/enterprise_backup_guide.md](docs/enterprise_backup_guide.md)
 to create and manage backups. This variable ensures backups never reside in the
 workspace, maintaining anti-recursion compliance.
+The `validate_enterprise_environment` helper enforces these settings at script startup.
 
 ### Wrapping, Logging, and Compliance (WLC)
 Run the session manager after setting the workspace and backup paths:
@@ -204,6 +205,16 @@ export GH_COPILOT_WORKSPACE=$(pwd)
 export GH_COPILOT_BACKUP_ROOT=/path/to/backups
 python scripts/wlc_session_manager.py
 ```
+
+Major scripts should conclude by invoking the session manager to record
+final compliance results and generate a log file:
+
+```bash
+python <your_script>.py
+python scripts/wlc_session_manager.py --db-path databases/production.db
+```
+
+Each run writes a timestamped log to `$GH_COPILOT_BACKUP_ROOT/logs/`.
 
 For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
 See [docs/WLC_QUICKSTART.md](docs/WLC_QUICKSTART.md) for a quickstart guide.
@@ -259,7 +270,7 @@ optimization_metrics.db         # Continuous optimization data
 ```
 
 ### Analytics Database Test Protocol
-The `analytics.db` file should never be created or modified automatically.
+You must never create or modify the `analytics.db` file automatically. Use the commands below for manual migrations.
 To create or migrate the file manually, run:
 
 ```bash
@@ -271,12 +282,13 @@ Automated tests perform these migrations in-memory with progress bars and DUAL
 COPILOT validation, leaving the on-disk database untouched.
 
 ### **Database-First Workflow**
-1. **Query First:** Check production.db for existing solutions
-2. **Pattern Match:** Identify reusable templates and components
-3. **Adapt:** Customize patterns for current environment
-4. **Validate:** DUAL COPILOT validation with secondary review
-5. **Execute:** Deploy with visual processing indicators
-6. **Always Connect:** Use `get_validated_production_connection()` before any filesystem changes
+1. **Connect Safely:** Use `get_validated_production_db_connection()` from
+   `utils.database_utils` before performing filesystem changes.
+2. **Query First:** Check production.db for existing solutions
+3. **Pattern Match:** Identify reusable templates and components
+4. **Adapt:** Customize patterns for current environment
+5. **Validate:** DUAL COPILOT validation with secondary review
+6. **Execute:** Deploy with visual processing indicators
 
 ---
 
@@ -299,8 +311,8 @@ compliance logging. The main modules are:
 * **TemplatePlaceholderRemover** – strips unused placeholders from templates.
 * **TemplateWorkflowEnhancer** – mines patterns from existing templates,
   computes compliance scores and writes dashboard-ready reports.
-* **TemplateSynchronizer** – keeps generated templates synchronized across
-  environments.
+* **TemplateSynchronizer** – keeps generated templates synchronized across environments.
+* **DB Connection Helper** – use `utils.db_utils.get_validated_connection` before any filesystem changes.
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
@@ -578,16 +590,16 @@ gh_COPILOT/
 The project tracks several learning patterns. Current integration status:
 
 - **Database-First Architecture:** 98.5% implementation score
-- **DUAL COPILOT Pattern:** 96.8% implementation score  
-- **Visual Processing Indicators:** 94.7% implementation score
-- **Autonomous Systems:** 97.2% implementation score
-- **Enterprise Compliance:** 99.1% implementation score
+- **DUAL COPILOT Pattern:** 96.8% implementation score
+- **Visual Processing Indicators:** 94.7% implementation score [[docs](docs/GITHUB_COPILOT_INTEGRATION_NOTES.md#visual-processing)]
+- **Autonomous Systems:** 97.2% implementation score [[scheduler](documentation/SYSTEM_OVERVIEW.md#database-synchronization)]
+- **Enterprise Compliance:** 99.1% implementation score [[validation helper](docs/DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement)]
 
 **Overall Integration Score: 97.4%** ✅
 
 ### **Learning Pattern Categories**
 1. **Process Learning Patterns** (90% effectiveness)
-2. **Communication Excellence** (85% effectiveness) 
+2. **Communication Excellence** (85% effectiveness) – see [Communication Excellence Guide](docs/COMMUNICATION_EXCELLENCE_GUIDE.md)
 3. **Technical Implementation** (88% effectiveness)
 4. **Enterprise Standards** (95% effectiveness)
 5. **Autonomous Operations** (92% effectiveness)
@@ -646,7 +658,7 @@ python scripts/validation/dual_copilot_pattern_tester.py
 - **Database Query Speed:** <10ms average
 - **Script Generation:** <30s for integration-ready output
 - **Template Matching:** >85% accuracy rate
-- **Autonomous Healing:** experimental scripts available
+- **Autonomous Healing:** scripts are experimental; avoid using them in production
 - **Visual Processing:** progress indicators implemented
 
 ### **Enterprise KPIs**
@@ -659,7 +671,7 @@ python scripts/validation/dual_copilot_pattern_tester.py
 
 ## 🚀 FUTURE ROADMAP
 
-### **Phase 6: Quantum Enhancement (Planned)**
+### **Phase 6: Quantum Enhancement (placeholder, not implemented)**
 - Advanced quantum algorithm integration
 - Quantum-enhanced database processing
 - Next-generation AI capabilities

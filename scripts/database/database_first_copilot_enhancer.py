@@ -70,6 +70,13 @@ class DatabaseFirstCopilotEnhancer:
         else:
             templates = load_fs_templates()
 
+        try:
+            from template_engine.pattern_templates import get_named_templates
+
+            templates.update(get_named_templates())
+        except Exception as exc:  # pragma: no cover - log only
+            self.logger.warning("Failed to load pattern templates: %s", exc)
+
         default_template = templates.get("default")
 
         def engine(name: str) -> str:

@@ -29,6 +29,7 @@ from tqdm import tqdm
 
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.validation_utils import validate_enterprise_environment
 
 try:
     from scripts.orchestrators.unified_wrapup_orchestrator import (
@@ -90,11 +91,9 @@ def finalize_session_entry(
 
 
 def validate_environment() -> bool:
-    workspace = os.getenv("GH_COPILOT_WORKSPACE")
-    backup_root = os.getenv("GH_COPILOT_BACKUP_ROOT")
-    if not (workspace and backup_root):
-        return False
-    return Path(workspace).exists() and Path(backup_root).parent.exists()
+    """Validate enterprise workspace and backup paths."""
+    validate_enterprise_environment()
+    return True
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
