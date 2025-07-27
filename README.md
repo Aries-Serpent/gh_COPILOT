@@ -471,6 +471,9 @@ Tests verify this logging mechanism as part of the DUAL COPILOT pattern.
 - **Continuous Monitoring:** 24/7 system health tracking
 - **Data-Driven Metrics:** Health statistics are stored in `analytics.db` via
   `monitoring.health_monitor` for historical analysis
+- **Continuous Operation Scheduler:** Run `python scripts/automation/system_maintenance_scheduler.py` to
+  automate self-healing and monitoring cycles. Job history is recorded in
+  `analytics.db` and session entries in `production.db`.
 
 ### **Autonomous System Architecture**
 ```python
