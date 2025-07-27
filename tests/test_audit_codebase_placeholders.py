@@ -4,7 +4,7 @@ import sqlite3
 
 os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
 
-from scripts.audit_codebase_placeholders import main
+from scripts.code_placeholder_audit import main
 
 
 def test_audit_places(tmp_path):

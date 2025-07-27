@@ -24,6 +24,13 @@ def test_compliance_endpoint():
     assert isinstance(resp.get_json(), dict)
 
 
+def test_dashboard_compliance_endpoint():
+    client = app.test_client()
+    resp = client.get('/dashboard/compliance')
+    assert resp.status_code == 200
+    assert isinstance(resp.get_json(), dict)
+
+
 def test_rollback_alerts_endpoint():
     client = app.test_client()
     resp = client.get('/rollback_alerts')
