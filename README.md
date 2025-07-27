@@ -205,6 +205,16 @@ export GH_COPILOT_BACKUP_ROOT=/path/to/backups
 python scripts/wlc_session_manager.py
 ```
 
+Major scripts should conclude by invoking the session manager to record
+final compliance results and generate a log file:
+
+```bash
+python <your_script>.py
+python scripts/wlc_session_manager.py --db-path databases/production.db
+```
+
+Each run writes a timestamped log to `$GH_COPILOT_BACKUP_ROOT/logs/`.
+
 For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
 See [docs/WLC_QUICKSTART.md](docs/WLC_QUICKSTART.md) for a quickstart guide.
 
