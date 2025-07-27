@@ -10,7 +10,6 @@ from scripts.validation.secondary_copilot_validator import SecondaryCopilotValid
 
 class DualCopilotOrchestrator:
     """Run a primary operation followed by secondary validation."""
-
     def __init__(self, logger: logging.Logger | None = None) -> None:
         self.logger = logger or logging.getLogger(__name__)
         self.validator = SecondaryCopilotValidator(self.logger)

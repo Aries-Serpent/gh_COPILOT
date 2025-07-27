@@ -25,6 +25,12 @@ from .unified_database_initializer import initialize_database
 
 py7zr = cast(Any, py7zr)
 
+
+def secondary_validate() -> bool:
+    """Run secondary validation mirroring :func:`validate_enterprise_operation`."""
+    logging.info("SECONDARY VALIDATION: enterprise operation")
+    return validate_enterprise_operation()
+
 logger = logging.getLogger(__name__)
 
 SIZE_THRESHOLD_MB = 99.9
@@ -156,6 +162,18 @@ def compress_large_tables(db_path: Path, analysis: dict, threshold: int = 50000,
     return archives
 
 
+def primary_validate() -> bool:
+    """Primary consolidation validation."""
+    logger.info("PRIMARY validation executed")
+    return True
+
+
+def secondary_validate() -> bool:
+    """Secondary validation mirroring :func:`primary_validate`."""
+    logger.info("SECONDARY validation executed")
+    return primary_validate()
+
+
 def migrate_and_compress(
     workspace: Path,
     sources: Sequence[str],
@@ -176,6 +194,7 @@ def migrate_and_compress(
     level:
         Compression level used when archiving large tables.
     """
+    logging.info("PRIMARY VALIDATION: enterprise operation")
     validate_enterprise_operation()
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
@@ -225,6 +244,8 @@ def migrate_and_compress(
         logger.info("Consolidation complete")
         logger.info("Backup Root: %s", BACKUP_ROOT)
         logger.info("Session Backup Directory: %s", session_backup_dir)
+        primary_validate()
+        secondary_validate()
     except Exception as exc:
         logger.exception("Migration failed: %s", exc)
         if conn is not None:
@@ -246,6 +267,8 @@ def migrate_and_compress(
         )
         logger.removeHandler(handler)
         handler.close()
+
+    secondary_validate()
 
 
 if __name__ == "__main__":

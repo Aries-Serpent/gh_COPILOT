@@ -10,27 +10,25 @@ AUTHOR: GitHub Copilot Enterprise System
 VERSION: 1.0 (Script Population)
 """
 
-import sqlite3
 import hashlib
-
-from pathlib import Path
+import sqlite3
 from datetime import datetime
-import logging
+from pathlib import Path
 
 
-def populate_script_tracking():
+def populate_script_tracking() -> bool:
     """Populate script_tracking table with discovered Python scripts."""
     try:
         print("DISCOVERING AND POPULATING PYTHON SCRIPTS...")
 
         # Connect to production database
-        conn = sqlite3.connect('production.db')
+        conn = sqlite3.connect("production.db")
 
         # Clear existing entries
         conn.execute("DELETE FROM script_tracking")
 
         # Discover Python scripts
-        workspace_path = Path('.')
+        workspace_path = Path(".")
         scripts_found = 0
 
         for py_file in workspace_path.rglob("*.py"):
@@ -38,23 +36,26 @@ def populate_script_tracking():
                 file_path = str(py_file)
 
                 # Skip certain directories for performance
-                skip_patterns = ['__pycache__', '.git', 'venv', 'env', 'node_modules']
+                skip_patterns = ["__pycache__", ".git", "venv", "env", "node_modules"]
                 if any(pattern in file_path for pattern in skip_patterns):
                     continue
 
                 # Calculate file hash
-                with open(py_file, 'rb') as f:
+                with open(py_file, "rb") as f:
                     file_hash = hashlib.md5(f.read()).hexdigest()
 
                 # Get modification time
                 mod_time = datetime.fromtimestamp(py_file.stat().st_mtime).isoformat()
 
                 # Insert into script_tracking
-                conn.execute("""
+                conn.execute(
+                    """
                     INSERT INTO script_tracking
                     (file_path, file_hash, last_modified, compliance_status)
                     VALUES (?, ?, ?, 'UNKNOWN')
-                """, (file_path, file_hash, mod_time))
+                """,
+                    (file_path, file_hash, mod_time),
+                )
 
                 scripts_found += 1
                 if scripts_found % 10 == 0:
@@ -88,11 +89,11 @@ def populate_script_tracking():
         print(f"SCRIPT POPULATION FAILED: {e}")
         return False
     finally:
-        if 'conn' in locals():
+        if "conn" in locals():
             conn.close()
 
 
-def main():
+def main() -> int:
     """Main execution function."""
     print("PIS SCRIPT DISCOVERY & POPULATION UTILITY")
     print("=" * 60)
@@ -108,6 +109,6 @@ def main():
 
 
 if __name__ == "__main__":
-
     import sys
+
     sys.exit(main())

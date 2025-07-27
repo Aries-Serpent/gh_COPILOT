@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from utils.log_utils import _log_plain
 import os
 import sqlite3
 import sys
@@ -75,18 +76,33 @@ def generate_compliance_report(
     analytics_db: Path = DEFAULT_ANALYTICS_DB,
     timeout_minutes: int = 30,
 ) -> Dict[str, Any]:
-    """
-    Compile results from Ruff and Pytest runs into JSON and Markdown compliance reports.
-    Includes visual processing indicators, start time logging, timeout, ETC, and status updates.
-    Logs all metrics to analytics.db and /logs/template_rendering.
+    """Generate compliance report from Ruff and Pytest outputs.
+
+    Parameters
+    ----------
+    ruff_file : Path
+        Path to the Ruff output file.
+    pytest_file : Path
+        Path to the Pytest JSON report.
+    output_dir : Path
+        Directory where generated reports will be written.
+    analytics_db : Path, optional
+        Path to analytics database used for logging metrics.
+    timeout_minutes : int, optional
+        Maximum allowed runtime in minutes.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Summary dictionary with Ruff and Pytest metrics.
     """
     validate_no_recursive_folders()
     start_time_dt = datetime.now()
     process_id = os.getpid()
     timeout_seconds = timeout_minutes * 60
-    logging.info(f"PROCESS STARTED: Compliance Report Generation")
-    logging.info(f"Start Time: {start_time_dt.strftime('%Y-%m-%d %H:%M:%S')}")
-    logging.info(f"Process ID: {process_id}")
+    _log_plain("PROCESS STARTED: Compliance Report Generation")
+    _log_plain(f"Start Time: {start_time_dt.strftime('%Y-%m-%d %H:%M:%S')}")
+    _log_plain(f"Process ID: {process_id}")
     output_dir.mkdir(parents=True, exist_ok=True)
     total_steps = 4
     start_time = time.time()
@@ -168,7 +184,7 @@ def generate_compliance_report(
         bar.set_postfix(ETC=etc)
         if elapsed > timeout_seconds:
             raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
-    logging.info(f"Compliance report generation completed in {elapsed:.2f}s | ETC: {etc}")
+    _log_plain(f"Compliance report generation completed in {elapsed:.2f}s | ETC: {etc}")
     return summary
 
 def validate_report(output_dir: Path) -> bool:
@@ -201,8 +217,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    print("[START] Generating compliance report")
+    _log_plain("[START] Generating compliance report")
     result = generate_compliance_report(args.ruff, args.pytest, args.output, args.db, args.timeout)
-    print("[SUCCESS]", json.dumps(result, indent=2))
+    _log_plain("[SUCCESS] " + json.dumps(result, indent=2))
 
 __all__ = ["generate_compliance_report", "validate_report"]

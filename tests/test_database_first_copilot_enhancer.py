@@ -92,3 +92,9 @@ def test_template_engine_db_and_fs(tmp_path: Path) -> None:
     enhancer = DatabaseFirstCopilotEnhancer(workspace_path=str(tmp_path))
     assert "hello from db" in enhancer.template_engine("greet")
     assert "fallback" in enhancer.template_engine("missing")
+
+
+def test_pattern_template_engine(tmp_path: Path) -> None:
+    enhancer = DatabaseFirstCopilotEnhancer(workspace_path=str(tmp_path))
+    tpl = enhancer.template_engine("database_first_pattern")
+    assert "DatabaseFirstOperator" in tpl
