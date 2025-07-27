@@ -63,6 +63,12 @@ def compliance() -> Any:
     return jsonify(data)
 
 
+@app.get("/dashboard/compliance")
+def dashboard_compliance() -> Any:
+    """Alias route for compliance metrics."""
+    return compliance()
+
+
 @app.get("/")
 def index() -> str:
     return "Compliance Dashboard"

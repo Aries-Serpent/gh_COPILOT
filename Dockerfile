@@ -29,4 +29,4 @@ USER appuser
 # Port 8080: Web interface
 EXPOSE 5000 5001 5002 5003 5004 5005 5006 8080
 
-CMD ["python", "main.py"]
+CMD ["python", "dashboard/enterprise_dashboard.py"]

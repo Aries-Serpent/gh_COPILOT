@@ -754,7 +754,7 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 
 # Repository-wide placeholder audit
-python scripts/audit_codebase_placeholders.py \
+python scripts/code_placeholder_audit.py \
     --workspace $GH_COPILOT_WORKSPACE \
     --analytics-db databases/analytics.db \
     --production-db databases/production.db
