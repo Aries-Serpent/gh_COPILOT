@@ -195,6 +195,7 @@ The toolkit includes an enterprise-grade data backup feature. Set the
 follow the steps in [docs/enterprise_backup_guide.md](docs/enterprise_backup_guide.md)
 to create and manage backups. This variable ensures backups never reside in the
 workspace, maintaining anti-recursion compliance.
+The `validate_enterprise_environment` helper enforces these settings at script startup.
 
 ### Wrapping, Logging, and Compliance (WLC)
 Run the session manager after setting the workspace and backup paths:

@@ -11,6 +11,8 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+from utils.validation_utils import validate_enterprise_environment
+
 from .cross_database_sync_logger import log_sync_operation
 from .database_sync_scheduler import synchronize_databases
 from .size_compliance_checker import check_database_sizes
@@ -63,14 +65,20 @@ def run_cycle(workspace: Path, *, timeout: int | None = None) -> None:
                 log_db=log_db,
                 timeout=timeout,
             )
-            etc_time = start_dt + timedelta(seconds=bar.format_dict.get("elapsed", 0) + bar.format_dict.get("remaining", 0))
+            etc_delta = bar.format_dict.get("elapsed", 0) + bar.format_dict.get(
+                "remaining", 0
+            )
+            etc_time = start_dt + timedelta(seconds=etc_delta)
             bar.set_postfix_str(f"ETC {etc_time.strftime('%H:%M:%S')}")
             bar.update(1)
             if timeout and time.time() - start_ts > timeout:
                 status = "timeout"
                 raise TimeoutError("Maintenance cycle timed out")
             check_database_sizes(db_dir)
-            etc_time = start_dt + timedelta(seconds=bar.format_dict.get("elapsed", 0) + bar.format_dict.get("remaining", 0))
+            etc_delta = bar.format_dict.get("elapsed", 0) + bar.format_dict.get(
+                "remaining", 0
+            )
+            etc_time = start_dt + timedelta(seconds=etc_delta)
             bar.set_postfix_str(f"ETC {etc_time.strftime('%H:%M:%S')}")
             bar.update(1)
     except TimeoutError:
@@ -84,6 +92,7 @@ def run_cycle(workspace: Path, *, timeout: int | None = None) -> None:
 
 def main(workspace: Path, interval: int, once: bool = False, timeout: int | None = None) -> None:
     """Run maintenance cycles at a fixed interval."""
+    validate_enterprise_environment()
     def handle_signal(signum, frame):
         nonlocal running
         logger.info("Received termination signal. Shutting down...")
