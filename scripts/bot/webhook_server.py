@@ -14,7 +14,10 @@ from pathlib import Path
 from flask import Flask, jsonify, request
 from tqdm import tqdm
 
-from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.cross_platform_paths import (
+    CrossPlatformPathManager,
+    verify_environment_variables,
+)
 
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -26,6 +29,7 @@ TEXT_INDICATORS = {
 
 def create_app() -> Flask:
     """Create configured Flask app."""
+    verify_environment_variables()
     app = Flask(__name__)
     secret = os.environ.get("GITHUB_WEBHOOK_SECRET", "")
 
