@@ -3,6 +3,7 @@
 The classifier consults ``production.db`` to map file patterns to known
 categories. It logs classification confidence for auditing purposes.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -136,3 +137,8 @@ class IntelligentFileClassifier:
             "duplicate": duplicate,
             "version": version,
         }
+
+    def classify(self, file_path: Path) -> str:
+        """Return the classification category for the given file."""
+        result = self.classify_file_autonomously(file_path)
+        return result["category"]
