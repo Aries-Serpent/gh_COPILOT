@@ -1,4 +1,6 @@
 from pathlib import Path
+import os
+import shutil
 
 from scripts.session.COMPREHENSIVE_WORKSPACE_MANAGER import ComprehensiveWorkspaceManager
 from scripts.file_management.autonomous_file_manager import AutonomousFileManager
@@ -21,12 +23,20 @@ def test_placeholders_importable(tmp_path):
     workspace = tmp_path
     db = workspace / "databases"
     db.mkdir()
-    (db / "production.db").touch()
+    shutil.copy(Path("databases/production.db"), db / "production.db")
 
-    ComprehensiveWorkspaceManager()
+    env = {
+        "GH_COPILOT_WORKSPACE": str(workspace),
+        "GH_COPILOT_BACKUP_ROOT": str(workspace.parent / "backups"),
+    }
+    os.environ.update(env)
+    manager = ComprehensiveWorkspaceManager(db_path=db / "production.db")
+    manager.start_session()
+    manager.end_session()
     AutonomousFileManager(db / "production.db")
     IntelligentFileClassifier(db / "production.db")
-    AutonomousBackupManager().create_backup(workspace)
+    backup_dest = AutonomousBackupManager().create_backup(workspace)
+    assert workspace.resolve() not in Path(backup_dest).resolve().parents
     WorkspaceOptimizer().optimize(workspace)
     ContinuousMonitoringEngine().run_cycle([])
     AutomatedOptimizationEngine().optimize(workspace)
