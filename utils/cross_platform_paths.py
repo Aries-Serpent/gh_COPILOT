@@ -98,7 +98,11 @@ class CrossPlatformPathManager:
 
 
 def migrate_hard_coded_paths(file_path: Path) -> Dict[str, Any]:
-    """Migrate hard-coded paths to cross-platform equivalents."""
+    """Migrate hard-coded paths to cross-platform equivalents.
+
+    The original file is backed up under
+    ``CrossPlatformPathManager.get_backup_root() / 'migration_backups'``.
+    """
     if not file_path.exists():
         return {"error": f"File not found: {file_path}"}
 
@@ -121,7 +125,9 @@ def migrate_hard_coded_paths(file_path: Path) -> Dict[str, Any]:
             changes_made.append(f"{old} -> {new}")
 
     if changes_made:
-        backup_path = file_path.with_suffix(f"{file_path.suffix}.backup")
+        backup_root = CrossPlatformPathManager.get_backup_root() / "migration_backups"
+        backup_root.mkdir(parents=True, exist_ok=True)
+        backup_path = backup_root / f"{file_path.name}.backup"
         shutil.copy2(file_path, backup_path)
         file_path.write_text(updated_content, encoding="utf-8")
 
