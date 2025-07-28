@@ -222,6 +222,16 @@ python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --s
 python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --status
 python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --stop
 ```
+Set `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` before invoking to ensure logs and databases are found.
+
+### Workspace Optimizer CLI
+Archive rarely used files and log metrics:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
+python scripts/file_management/workspace_optimizer.py
+```
 
 ### Docker Usage
 Build and run the container with Docker:
@@ -738,7 +748,8 @@ python scripts/validation/dual_copilot_pattern_tester.py
 - **[DUAL COPILOT Pattern Guide](.github/instructions/DUAL_COPILOT_PATTERN.instructions.md)** - Implementation guide
 - **[Enterprise Context Guide](.github/instructions/ENTERPRISE_CONTEXT.instructions.md)** - System overview
 - **[Instruction Module Index](docs/INSTRUCTION_INDEX.md)** - Complete instruction listing
- - **Quantum Template Generator** `docs/quantum_template_generator.py` - database-first template engine with optional quantum ranking
+- **Quantum Template Generator** `docs/quantum_template_generator.py` - database-first template engine with optional quantum ranking
+- **[ChatGPT Bot Integration Guide](docs/chatgpt_bot_integration_guide.md)** - webhook and Copilot license setup
 
 ### **GitHub Copilot Integration**
 The toolkit includes 16 specialized instruction modules for GitHub Copilot integration:

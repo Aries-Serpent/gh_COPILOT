@@ -1,6 +1,12 @@
 from pathlib import Path
 
-from scripts.monitoring.continuous_monitoring_engine import ContinuousMonitoringEngine
+import logging
+import sqlite3
+
+from scripts.monitoring.continuous_monitoring_engine import (
+    ContinuousMonitoringEngine,
+    main,
+)
 
 
 def test_monitoring_cycle_triggers_auto_remediation(monkeypatch, tmp_path):
@@ -17,3 +23,58 @@ def test_monitoring_cycle_triggers_auto_remediation(monkeypatch, tmp_path):
 
     assert "optimize" in events
     assert "gather" in events
+
+
+def test_cli_runs_orchestrated_cycles(monkeypatch, tmp_path):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backups"))
+
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    (db_dir / "production.db").touch()
+
+    calls = []
+
+    class DummyOrchestrator:
+        def __init__(self, logger=None) -> None:
+            pass
+
+        def run(self, primary, targets):
+            calls.append("run")
+            primary()
+            return True, True
+
+    monkeypatch.setattr(
+        "scripts.monitoring.continuous_monitoring_engine.DualCopilotOrchestrator",
+        DummyOrchestrator,
+    )
+
+    monkeypatch.setattr(
+        "scripts.monitoring.continuous_monitoring_engine.ContinuousMonitoringEngine.run_cycle",
+        lambda self, actions=None: calls.append("cycle"),
+    )
+
+    assert main(["--cycles", "2", "--interval", "0"]) == 0
+    assert calls.count("cycle") == 2
+
+
+def test_run_cycle_handles_db_failure(monkeypatch, tmp_path, caplog):
+    db_file = tmp_path / "production.db"
+    db_file.touch()
+    engine = ContinuousMonitoringEngine(cycle_seconds=0, workspace=tmp_path, db_path=db_file)
+
+    monkeypatch.setattr(engine, "_health_check", lambda: {"anomaly": 1, "note": "x"})
+
+    def fail_optimize(workspace):
+        raise OSError("disk error")
+
+    def fail_gather():
+        raise sqlite3.Error("read error")
+
+    monkeypatch.setattr(engine.optimizer, "optimize", fail_optimize)
+    monkeypatch.setattr(engine.intel, "gather", fail_gather)
+
+    caplog.set_level(logging.ERROR)
+    engine.run_cycle([])
+
+    assert any("Auto-remediation failed" in r.message for r in caplog.records)
