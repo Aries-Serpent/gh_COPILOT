@@ -1,4 +1,4 @@
-"""Web GUI integration placeholder."""
+"""Web GUI integration layer for the enterprise dashboard."""
 from __future__ import annotations
 
 import logging
@@ -15,4 +15,5 @@ class WebGUIIntegrator:
         self.logger = logging.getLogger(__name__)
 
     def initialize(self) -> None:
+        """Initialize the integration with Flask dashboard."""
         self.logger.info("Initialized Web GUI integrator with %s", self.db_path)

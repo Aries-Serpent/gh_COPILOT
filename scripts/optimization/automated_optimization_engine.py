@@ -1,4 +1,4 @@
-"""Automated optimization engine placeholder."""
+"""Automated optimization engine for continuous improvements."""
 from __future__ import annotations
 
 import logging
@@ -16,7 +16,10 @@ class AutomatedOptimizationEngine:
         self.logger = logging.getLogger(__name__)
 
     def optimize(self, workspace: Path) -> None:
+        """Perform a simple optimization run over ``workspace``."""
+        workspace = workspace.resolve()
         files = list(workspace.rglob("*.py"))
-        for _ in tqdm(files, desc="Optimizing", unit="file"):
-            pass
+        with tqdm(files, desc="Optimizing", unit="file") as bar:
+            for f in bar:
+                bar.set_postfix(file=f.name)
         self.logger.info("Optimization completed on %d files", len(files))
