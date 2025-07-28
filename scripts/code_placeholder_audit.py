@@ -25,9 +25,10 @@ from typing import Dict, List, Optional
 
 try:
     from tqdm import tqdm
-except ModuleNotFoundError:  # pragma: no cover - fallback for ad-hoc use
+except ModuleNotFoundError:  # pragma: no cover - fallback
     import subprocess
     import sys
+
     subprocess.check_call([sys.executable, "-m", "pip", "install", "tqdm"])
     from tqdm import tqdm
 
@@ -307,6 +308,7 @@ def main(
                 lines = file.read_text(encoding="utf-8", errors="ignore").splitlines()
             except Exception as e:
                 log_message(
+                    __name__,
                     f"{TEXT['error']} Could not read {file}: {e}",
                     level=logging.ERROR,
                 )
