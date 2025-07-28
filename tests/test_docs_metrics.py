@@ -1,5 +1,11 @@
 import sqlite3
+import sys
+import runpy
 from pathlib import Path
+
+import pytest
+
+import types
 
 from scripts import generate_docs_metrics, validate_docs_metrics
 
@@ -36,3 +42,29 @@ def test_validate_get_db_metrics(tmp_path, monkeypatch):
     monkeypatch.setattr(validate_docs_metrics, "DATABASE_LIST", db_list)
     metrics = validate_docs_metrics.get_db_metrics(db_path)
     assert metrics == {"scripts": 2, "templates": 3, "databases": 1}
+
+def test_docs_metrics_validator_wrapper(tmp_path, monkeypatch):
+    db_path = _setup_db(tmp_path)
+    from scripts import docs_metrics_validator
+    monkeypatch.setattr(
+        docs_metrics_validator,
+        "validate",
+        lambda path: path == db_path,
+    )
+
+    result = docs_metrics_validator.main(["--db-path", str(db_path)])
+    assert result == 0
+
+
+def test_docs_metrics_validator_as_script(tmp_path, monkeypatch):
+    db_path = _setup_db(tmp_path)
+    module = types.ModuleType("validate_docs_metrics")
+    module.validate = lambda path: path == db_path
+    module.DB_PATH = Path("dummy")
+    monkeypatch.setitem(sys.modules, "validate_docs_metrics", module)
+    script = Path(__file__).resolve().parents[1] / "scripts" / "docs_metrics_validator.py"
+    argv = [str(script), "--db-path", str(db_path)]
+    monkeypatch.setattr(sys, "argv", argv)
+    with pytest.raises(SystemExit) as exc:
+        runpy.run_path(str(script), run_name="__main__")
+    assert exc.value.code == 0
