@@ -26,6 +26,7 @@ from tqdm import tqdm
 from utils.log_utils import _log_event
 
 from .pattern_templates import get_pattern_templates
+from .placeholder_utils import DEFAULT_PRODUCTION_DB
 
 # Quantum demo import (placeholder for quantum-inspired scoring)
 try:
@@ -144,6 +145,7 @@ class TemplateAutoGenerator:
                     logger.error(f"Error loading templates: {exc}")
         if not templates:
             from . import pattern_templates
+
             templates = list(pattern_templates.DEFAULT_TEMPLATES)
             logger.info(
                 "Loaded %s default templates from pattern_templates",

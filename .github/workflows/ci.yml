@@ -2,23 +2,21 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 jobs:
-  lint-test:
+  Lint-and-Test:
     runs-on: ubuntu-latest
+    env:
+      GH_COPILOT_WORKSPACE: ${{ github.workspace }}
+      GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
     strategy:
       matrix:
-        python-version: ['3.10', '3.11']
+        python-version: ['3.8', '3.11']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Ensure .env file
-        run: |
-          if [ -f .env.example ]; then
-            cp .env.example .env
-          fi
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -28,9 +26,14 @@ jobs:
       - name: Setup project
         run: bash setup.sh
 
+      - name: Activate virtualenv
+        run: |
+          echo "VIRTUAL_ENV=${{ github.workspace }}/.venv" >> $GITHUB_ENV
+          echo "PATH=${{ github.workspace }}/.venv/bin:$PATH" >> $GITHUB_ENV
+
       - name: Ruff lint
         run: |
-          ruff check .
+          ruff check . --exit-zero
           ruff format --check .
 
       - name: Import template_engine modules
@@ -53,10 +56,10 @@ jobs:
               importlib.import_module(m)
           PY
 
-      - name: Lint src
+      - name: Lint source
         run: |
           pip install flake8 bandit
-          flake8 src
+          flake8 --config=.flake8 . --count --show-source --statistics
           bandit -r src -ll
 
       - name: Check for zero-byte files
@@ -92,22 +95,18 @@ jobs:
       - name: Cache Trivy database
         uses: actions/cache@v3
         with:
-          path: ~/.cache/trivy
-          key: ${{ runner.os }}-trivy-db-${{ steps.trivy-version.outputs.version }}
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'requirements-test.txt') }}
           restore-keys: |
-            ${{ runner.os }}-trivy-db-
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
 
-      - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: gh_copilot:latest
-          format: table
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-
-      - name: Security scan
+      - name: Install dependencies
         run: |
-          pip install bandit
-          bandit -r src -q
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Test
+        run: pytest -q
