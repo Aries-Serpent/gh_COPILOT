@@ -17,6 +17,7 @@ import shutil
 import sqlite3
 import sys
 import time
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -101,6 +102,36 @@ except ImportError:
 
     IsolationForestType = IsolationForestFallback
     ML_AVAILABLE = False
+
+
+@dataclass
+class DatabaseHealthMetrics:
+    """Simplified health metrics used for quick monitoring."""
+
+    database_name: str
+    health_score: float
+    connection_count: int
+    query_performance: float
+    storage_efficiency: float
+    integrity_status: str
+    last_optimization: datetime
+    issues: List[str]
+    recommendations: List[str]
+
+
+@dataclass
+class OptimizationStrategy:
+    """Simple representation of an optimization strategy."""
+
+    strategy_id: str
+    strategy_name: str
+    sql_commands: List[str]
+    expected_improvement: float
+    risk_level: str
+    execution_time: float
+    success_rate: float
+
+
 INDICATORS = {
     "optimize": "[OPTIMIZE]",
     "heal": "[HEAL]",
@@ -281,14 +312,27 @@ class AutonomousDatabaseHealthOptimizer:
         self._initialize_ml_models()
 
         # Set health thresholds
-        self.health_thresholds = {"critical": HEALTH_CRITICAL, "warning": HEALTH_WARNING, "excellent": HEALTH_EXCELLENT}
+        self.health_thresholds = {
+            "connection_threshold": 100,
+            "query_time_threshold": 5.0,
+            "storage_threshold": 0.85,
+            "memory_threshold": 0.80,
+            "cpu_threshold": 0.75,
+        }
 
         # Load optimization strategies
-        self.optimization_strategies = self._load_optimization_strategies()
+        self.optimization_strategies = {
+            "vacuum_analyze": {"priority": 1, "frequency": "daily"},
+            "index_optimization": {"priority": 2, "frequency": "weekly"},
+            "connection_pooling": {"priority": 3, "frequency": "realtime"},
+            "query_optimization": {"priority": 1, "frequency": "continuous"},
+        }
 
         # Initialize learning components
         self.learning_patterns: Dict[str, Any] = {}
         self.optimization_history: Dict[str, Any] = {}
+        self._load_learning_patterns()
+        self._load_optimization_history()
 
         self.logger.info("%s Autonomous Database Health Optimizer Initialized", INDICATORS["optimize"])
         self.logger.info("Workspace: %s", self.workspace_path)
@@ -379,6 +423,37 @@ class AutonomousDatabaseHealthOptimizer:
 
         self.logger.info("%s ML models initialized for autonomous operation", INDICATORS["success"])
 
+    def _load_learning_patterns(self) -> None:
+        """Load learning patterns from database if available."""
+        db_path = self.workspace_path / "databases" / "learning_patterns.db"
+        if not db_path.exists():
+            return
+        try:
+            with sqlite3.connect(str(db_path)) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT pattern_type, pattern_data, success_rate FROM pattern_recognition")
+                for pattern_type, pattern_data, success_rate in cursor.fetchall():
+                    self.learning_patterns[pattern_type] = {
+                        "data": json.loads(pattern_data),
+                        "success_rate": success_rate,
+                    }
+        except sqlite3.Error as exc:
+            self.logger.warning("Failed to load learning patterns: %s", exc)
+
+    def _load_optimization_history(self) -> None:
+        """Load optimization history from database if available."""
+        db_path = self.workspace_path / "databases" / "learning_patterns.db"
+        if not db_path.exists():
+            return
+        try:
+            with sqlite3.connect(str(db_path)) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT strategy_id, success_rate FROM optimization_history")
+                for strategy_id, success_rate in cursor.fetchall():
+                    self.optimization_history[strategy_id] = {"success_rate": success_rate}
+        except sqlite3.Error as exc:
+            self.logger.warning("Failed to load optimization history: %s", exc)
+
     def _load_optimization_strategies(self) -> Dict[str, Dict[str, Any]]:
         """Load database optimization strategies.
 
@@ -432,6 +507,47 @@ class AutonomousDatabaseHealthOptimizer:
                 "expected_improvement": 15.0,
                 "risk_level": "NONE",
                 "execution_time_estimate": 15.0,
+            },
+        }
+
+    def _load_enhanced_strategies(self) -> Dict[str, Dict[str, Any]]:
+        """Load additional optimization strategies."""
+        return {
+            "vacuum_analyze": {
+                "sql_commands": ["VACUUM;", "ANALYZE;", "REINDEX;"],
+                "expected_improvement": 25.0,
+            },
+            "index_optimization": {
+                "sql_commands": [
+                    "SELECT name FROM sqlite_master WHERE type='index';",
+                    "DROP INDEX IF EXISTS old_inefficient_indexes;",
+                    "CREATE INDEX IF NOT EXISTS optimized_query_index ON table(column);",
+                ],
+                "expected_improvement": 40.0,
+            },
+            "connection_pooling": {
+                "sql_commands": [
+                    "PRAGMA cache_size = 10000;",
+                    "PRAGMA temp_store = memory;",
+                    "PRAGMA journal_mode = WAL;",
+                ],
+                "expected_improvement": 30.0,
+            },
+            "query_optimization": {
+                "sql_commands": [
+                    "PRAGMA optimize;",
+                    "PRAGMA analysis_limit = 1000;",
+                    "PRAGMA automatic_index = ON;",
+                ],
+                "expected_improvement": 20.0,
+            },
+            "self_healing_integrity_check": {
+                "sql_commands": [
+                    "PRAGMA integrity_check;",
+                    "PRAGMA foreign_key_check;",
+                    "PRAGMA quick_check;",
+                ],
+                "expected_improvement": 15.0,
             },
         }
 
@@ -649,6 +765,39 @@ class AutonomousDatabaseHealthOptimizer:
             timestamp=datetime.now(),
         )
 
+    def monitor_database_health(self, db_name: str) -> DatabaseHealthMetrics:
+        """Quick monitoring helper returning simplified metrics."""
+        db_path = self.database_registry.get(db_name)
+        if not db_path:
+            candidate = self.workspace_path / "databases" / db_name
+            if candidate.exists():
+                db_path = candidate
+        if not db_path or not db_path.exists():
+            return DatabaseHealthMetrics(
+                database_name=db_name,
+                health_score=0.0,
+                connection_count=0,
+                query_performance=0.0,
+                storage_efficiency=0.0,
+                integrity_status="UNKNOWN",
+                last_optimization=datetime.now(),
+                issues=["Database not found"],
+                recommendations=[],
+            )
+
+        health = self.analyze_database_health(db_name, db_path)
+        return DatabaseHealthMetrics(
+            database_name=db_name,
+            health_score=health.health_score / 100.0,
+            connection_count=health.table_count,
+            query_performance=health.query_performance_ms / 1000.0,
+            storage_efficiency=100.0 - health.fragmentation_ratio,
+            integrity_status="GOOD" if health.integrity_score == 100 else "ISSUES",
+            last_optimization=health.timestamp,
+            issues=health.issues,
+            recommendations=health.recommendations,
+        )
+
     def execute_database_optimization(
         self, db_name: str, db_path: Path, optimization_strategy: str
     ) -> OptimizationResult:
@@ -829,19 +978,35 @@ class AutonomousDatabaseHealthOptimizer:
             timestamp=datetime.now(),
         )
 
-    def _select_optimal_strategies(self, health_data: Dict[str, Any]) -> List[str]:
-        """Select optimal optimization strategies based on health analysis.
+    def execute_optimization_strategy(self, database_name: str, strategy_id: str) -> bool:
+        """Public wrapper for executing an optimization strategy."""
+        db_path = self.database_registry.get(database_name)
+        if not db_path:
+            self.logger.warning("Database %s not found", database_name)
+            return False
+        result = self.execute_database_optimization(database_name, db_path, strategy_id)
+        return result.success
+
+    def _select_optimal_strategies(self, db_name: str, health_data: Dict[str, Any]) -> List[str]:
+        """Select optimal optimization strategies using learning patterns.
 
         Args:
+            db_name: Name of the database being optimized
             health_data: Health analysis data
 
         Returns:
             List of recommended optimization strategies
         """
-        health_score = health_data["health_score"]
-        integrity_score = health_data.get("integrity_score", 100.0)
-        fragmentation_ratio = health_data.get("fragmentation_ratio", 0.0)
-        performance_score = health_data.get("performance_score", 100.0)
+        if isinstance(health_data, DatabaseHealthMetrics):
+            health_score = health_data.health_score * 100
+            integrity_score = 100.0 if health_data.integrity_status == "GOOD" else 50.0
+            fragmentation_ratio = 100.0 - health_data.storage_efficiency
+            performance_score = 100.0 - (health_data.query_performance * 10)
+        else:
+            health_score = health_data["health_score"]
+            integrity_score = health_data.get("integrity_score", 100.0)
+            fragmentation_ratio = health_data.get("fragmentation_ratio", 0.0)
+            performance_score = health_data.get("performance_score", 100.0)
 
         strategies = []
 
@@ -850,10 +1015,12 @@ class AutonomousDatabaseHealthOptimizer:
             strategies.append("self_healing_integrity_check")
 
         # Health-based strategy selection
-        if health_score < self.health_thresholds["critical"]:
+        critical = self.health_thresholds.get("critical", HEALTH_CRITICAL)
+        warning = self.health_thresholds.get("warning", HEALTH_WARNING)
+        if health_score < critical:
             # Critical health - comprehensive optimization
             strategies.extend(["vacuum_analyze", "index_optimization", "performance_tuning"])
-        elif health_score < self.health_thresholds["warning"]:
+        elif health_score < warning:
             # Warning level - moderate optimization
             strategies.extend(["vacuum_analyze", "performance_tuning"])
         else:
@@ -869,8 +1036,17 @@ class AutonomousDatabaseHealthOptimizer:
             if "index_optimization" not in strategies:
                 strategies.append("index_optimization")
 
+        # Filter using learning patterns if available
+        filtered: List[str] = []
+        for strat in strategies:
+            pattern = self.learning_patterns.get(strat)
+            if pattern and pattern.get("success_rate", 1.0) < 0.5:
+                self.logger.warning("%s Removed %s due to low success rate", INDICATORS["learn"], strat)
+                continue
+            filtered.append(strat)
+
         # Remove duplicates while preserving order
-        return list(dict.fromkeys(strategies))
+        return list(dict.fromkeys(filtered))
 
     def autonomous_database_improvement(self) -> Dict[str, Any]:
         """Execute autonomous database improvement across all databases.
@@ -1022,7 +1198,7 @@ class AutonomousDatabaseHealthOptimizer:
                 pbar.set_description(f"{INDICATORS['optimize']} Optimizing {db_name}")
 
                 db_path = self.database_registry[db_name]
-                strategies = self._select_optimal_strategies(health_data)
+                strategies = self._select_optimal_strategies(db_name, health_data)
 
                 db_improvement = 0.0
                 for strategy in strategies:
@@ -1193,25 +1369,20 @@ class AutonomousDatabaseHealthOptimizer:
 
     def _load_offline_results(self) -> Dict[str, Any]:
         """Load cached optimization results for offline mode."""
-        results_file = (
-            self.workspace_path
-            / "results"
-            / "autonomous_optimization"
-            / "last_results.json"
-        )
+        results_file = self.workspace_path / "results" / "autonomous_optimization" / "last_results.json"
         if results_file.exists():
             with open(results_file, "r", encoding="utf-8") as f:
                 cached = json.load(f)
             self.logger.info(
                 "%s Loaded cached offline results from %s",
-                INDICATORS['info'],
+                INDICATORS["info"],
                 results_file,
             )
             return cached
 
         self.logger.warning(
             "%s Offline mode enabled but no cached results found",
-            INDICATORS['warning'],
+            INDICATORS["warning"],
         )
         return {
             "optimization_id": self.optimization_id,
@@ -1225,6 +1396,18 @@ class AutonomousDatabaseHealthOptimizer:
             "success_rate": 0.0,
             "offline": True,
         }
+
+    def run_autonomous_optimization(self, progress_callback=tqdm) -> Dict[str, Any]:
+        """Run the optimization cycle with a progress callback."""
+        total = len(self.database_registry)
+        pbar = progress_callback(total, "Autonomous Optimization")
+        try:
+            results = self.autonomous_database_improvement()
+            pbar.update(total)
+        finally:
+            if hasattr(pbar, "close"):
+                pbar.close()
+        return results
 
 
 def main() -> Dict[str, Any]:
@@ -1241,9 +1424,7 @@ def main() -> Dict[str, Any]:
 
     try:
         # Initialize optimizer
-        optimizer = AutonomousDatabaseHealthOptimizer(
-            offline_mode=os.getenv("OFFLINE_MODE") == "1"
-        )
+        optimizer = AutonomousDatabaseHealthOptimizer(offline_mode=os.getenv("OFFLINE_MODE") == "1")
 
         # Execute autonomous improvement
         results = optimizer.autonomous_database_improvement()

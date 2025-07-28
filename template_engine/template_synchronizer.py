@@ -16,6 +16,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 from tqdm import tqdm
 
 from utils.log_utils import _log_event as log_event_simulation
@@ -74,6 +78,39 @@ def _calculate_etc(start_ts: float, current_progress: int, total_work: int) -> s
 def _validate_template(name: str, content: str) -> bool:
     """Validate that template has a name and non-empty content."""
     return bool(name and content and content.strip())
+
+
+def _cluster_templates(
+    templates: dict[str, str], n_clusters: int = 2
+) -> dict[str, str]:
+    """Return representative templates using KMeans clustering."""
+    if not templates:
+        return templates
+    try:
+        texts = list(templates.values())
+        names = list(templates.keys())
+        vectorizer = TfidfVectorizer()
+        matrix = vectorizer.fit_transform(texts).toarray()
+        n_clusters = min(n_clusters, len(texts))
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=42)
+        model.fit(matrix)
+        reps: dict[str, str] = {}
+        for label in range(n_clusters):
+            members = [i for i, lbl in enumerate(model.labels_) if lbl == label]
+            if not members:
+                continue
+            center = model.cluster_centers_[label]
+            best_idx = min(
+                members,
+                key=lambda idx: float(np.linalg.norm(matrix[idx] - center)),
+            )
+            name = names[best_idx]
+            reps[name] = templates[name]
+        return reps
+    except Exception:
+        # If clustering fails, fallback to original templates
+        logger.exception("Clustering failed; using all templates")
+        return templates
 
 
 def _db_compliance_score(content: str) -> float:
@@ -198,11 +235,13 @@ def _compliance_check(conn: sqlite3.Connection) -> bool:
 
 def _synchronize_templates_simulation(
     source_dbs: Iterable[Path] | None = None,
+    *,
+    cluster: bool = False,
 ) -> int:
-    """
-    Simulate synchronization of templates across multiple databases.
-    No mutation or creation of analytics.db or other DBs.
-    Progress bars, ETC, process ID, and status updates included.
+    """Simulate synchronization across databases.
+
+    When ``cluster`` is ``True`` only cluster centroids are used during the
+    simulated synchronization. No database is modified.
     """
     proc_id = os.getpid()
     start_dt = datetime.now()
@@ -231,6 +270,15 @@ def _synchronize_templates_simulation(
                 logger.warning("Invalid template from %s: %s", db, name)
         etc = _calculate_etc(start_ts, idx, len(databases))
         tqdm.write(f"(PID {proc_id}) ETC: {etc}")
+
+    if cluster:
+        all_templates = _cluster_templates(all_templates)
+
+    if cluster:
+        all_templates = _cluster_templates(all_templates)
+
+    if cluster:
+        all_templates = _cluster_templates(all_templates)
 
     source_names = ",".join(str(d) for d in databases)
     synced = 0
@@ -285,15 +333,25 @@ def _synchronize_templates_simulation(
     return synced
 
 
-def synchronize_templates(source_dbs: Iterable[Path] | None = None) -> int:
+def synchronize_templates(
+    source_dbs: Iterable[Path] | None = None,
+    *,
+    cluster: bool = False,
+) -> int:
     """Run template synchronization in simulation mode."""
-    return _synchronize_templates_simulation(source_dbs)
+    return _synchronize_templates_simulation(source_dbs, cluster=cluster)
 
 
 def synchronize_templates_real(
     source_dbs: Iterable[Path] | None = None,
+    *,
+    cluster: bool = False,
 ) -> int:
-    """Synchronize templates across databases with real writes."""
+    """Synchronize templates across databases with real writes.
+
+    When ``cluster`` is ``True`` templates are grouped using KMeans and only
+    cluster centroids are synchronized.
+    """
     proc_id = os.getpid()
     start_dt = datetime.now()
     start_ts = time.time()
@@ -366,14 +424,19 @@ def synchronize_templates_real(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Template synchronization tool")
     parser.add_argument("--real", action="store_true", help="Apply real synchronization")
+    parser.add_argument(
+        "--cluster",
+        action="store_true",
+        help="Cluster templates and use centroids for synchronization",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
     dbs_env = os.getenv("TEMPLATE_SYNC_DBS", "").split(os.pathsep)
     source_dbs = [Path(p) for p in dbs_env if p]
     if args.real:
-        synchronize_templates_real(source_dbs)
+        synchronize_templates_real(source_dbs, cluster=args.cluster)
     else:
-        synchronize_templates(source_dbs)
+        synchronize_templates(source_dbs, cluster=args.cluster)
         print("\n[NOTICE] No database was created or modified. To create `databases/analytics.db`, run:\n")
         print("    python template_engine/template_synchronizer.py --real\n")

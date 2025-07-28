@@ -1,7 +1,7 @@
+import importlib
 from pathlib import Path
-import os
-import shutil
-import sqlite3
+from unittest.mock import patch
+import pytest
 
 from scripts.session.COMPREHENSIVE_WORKSPACE_MANAGER import ComprehensiveWorkspaceManager
 from scripts.file_management.autonomous_file_manager import AutonomousFileManager

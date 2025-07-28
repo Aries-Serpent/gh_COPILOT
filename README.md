@@ -214,6 +214,15 @@ python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionStart -AutoFi
 python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionEnd
 ```
 
+### Unified Deployment Orchestrator CLI
+Manage orchestration tasks with start/stop controls:
+
+```bash
+python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --start
+python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --status
+python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --stop
+```
+
 ### Docker Usage
 Build and run the container with Docker:
 
@@ -342,7 +351,8 @@ compliance logging. The main modules are:
   computes compliance scores and writes dashboard-ready reports.
 * **TemplateSynchronizer** – keeps generated templates synchronized across
   environments. The analytics database is created only when running with the
-  `--real` flag.
+  `--real` flag. Templates may also be clustered via the `--cluster` flag to
+  synchronize only representative examples.
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
@@ -358,10 +368,11 @@ template = gen.generate_template({"action": "print"})
 sync_count = template_synchronizer.synchronize_templates([Path("databases/production.db")])
 ```
 
-Run in real mode to persist changes and log analytics:
+Run in real mode to persist changes and log analytics. Pass `--cluster` to
+enable KMeans grouping before synchronization:
 
 ```bash
-python template_engine/template_synchronizer.py --real
+python template_engine/template_synchronizer.py --real --cluster
 ```
 
 #### Unified Logging Helper

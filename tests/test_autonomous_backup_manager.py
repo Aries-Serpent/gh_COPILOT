@@ -53,3 +53,33 @@ def test_backup_rejects_recursive_path(tmp_path: Path, monkeypatch: pytest.Monke
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(workspace / "backups"))
     with pytest.raises(EnvironmentError):
         AutonomousBackupManager()
+
+
+def test_create_backup_rejects_target_inside_backup_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    backup_root = tmp_path / "backups"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+
+    manager = AutonomousBackupManager()
+    target = backup_root / "nested"
+    target.mkdir()
+
+    with pytest.raises(RuntimeError):
+        manager.create_backup(target)
+
+
+def test_validate_target_disallows_c_temp(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    backup_root = tmp_path / "backups"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+
+    manager = AutonomousBackupManager()
+
+    with pytest.raises(RuntimeError):
+        manager._validate_target(Path("C:/temp/data"))

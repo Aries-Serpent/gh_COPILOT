@@ -1,4 +1,5 @@
 """Deprecated wrapper for :mod:`scripts.code_placeholder_audit`."""
+
 from __future__ import annotations
 
 from .code_placeholder_audit import main
@@ -7,6 +8,7 @@ __all__ = ["main"]
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Audit workspace for TODO/FIXME placeholders")
     parser.add_argument("--workspace-path", type=str, help="Workspace to scan")
     parser.add_argument("--analytics-db", type=str, help="analytics.db location")
