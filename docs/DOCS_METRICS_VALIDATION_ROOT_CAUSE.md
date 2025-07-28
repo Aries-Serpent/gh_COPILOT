@@ -11,7 +11,8 @@ repository. The correct validation script was named
 An alias script named `scripts/docs_metrics_validator.py` has been added. It
 wraps `validate_docs_metrics.validate()` and preserves the existing command line
 interface. The CI workflow now invokes this wrapper to ensure compatibility.
-Documentation has been updated to reference the new script path.
+Documentation references running the validator as a module:
+`python -m scripts.docs_metrics_validator`.
 
 ## Preventive Steps
 
