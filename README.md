@@ -204,6 +204,16 @@ to create and manage backups. This variable ensures backups never reside in the
 workspace, maintaining anti-recursion compliance.
 The `validate_enterprise_environment` helper enforces these settings at script startup.
 
+### Docker Usage
+Build and run the container with Docker:
+
+```bash
+docker build -t gh_copilot .
+docker run -p 5000:5000 -e GH_COPILOT_BACKUP_ROOT=/path/to/backups gh_copilot
+```
+
+Inside the image `GH_COPILOT_BACKUP_ROOT` defaults to `/backup`. Map this path to a host directory to persist logs and backups.
+
 ### Wrapping, Logging, and Compliance (WLC)
 Run the session manager after setting the workspace and backup paths:
 
