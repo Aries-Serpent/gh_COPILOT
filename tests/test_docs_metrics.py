@@ -36,3 +36,13 @@ def test_validate_get_db_metrics(tmp_path, monkeypatch):
     monkeypatch.setattr(validate_docs_metrics, "DATABASE_LIST", db_list)
     metrics = validate_docs_metrics.get_db_metrics(db_path)
     assert metrics == {"scripts": 2, "templates": 3, "databases": 1}
+
+def test_docs_metrics_validator_wrapper(tmp_path, monkeypatch):
+    db_path = _setup_db(tmp_path)
+    monkeypatch.setattr(
+        validate_docs_metrics, "validate", lambda path: path == db_path
+    )
+    from scripts import docs_metrics_validator
+
+    result = docs_metrics_validator.main(["--db-path", str(db_path)])
+    assert result == 0
