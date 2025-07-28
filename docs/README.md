@@ -16,7 +16,9 @@ After updating documentation, execute
 `python -m scripts.docs_metrics_validator`. The validator compares the numbers in
 `README.md`, `documentation/generated/README.md`, and the technical whitepaper
 against the real database values. Pass `--db-path` to override the database
-location. The command exits with an error if any values are inconsistent.
+location. The command exits with an error if any values are inconsistent. The
+alias script `scripts/docs_metrics_validator.py` remains available for legacy
+calls.
 
 This workflow ensures that documentation statistics accurately reflect the
 contents of the production database.
