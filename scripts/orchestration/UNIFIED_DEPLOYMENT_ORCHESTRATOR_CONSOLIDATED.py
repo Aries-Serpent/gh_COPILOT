@@ -1,6 +1,7 @@
-"""Unified deployment orchestrator placeholder."""
+"""Unified deployment orchestrator integrating all systems."""
 from __future__ import annotations
 
+import argparse
 import logging
 import os
 from pathlib import Path
@@ -37,7 +38,16 @@ class UnifiedDeploymentOrchestrator:
         self.logger.info("Unified orchestration complete")
 
 
-def main() -> int:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Unified Deployment Orchestrator")
+    parser.add_argument("--run", action="store_true", help="Execute orchestrator")
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+    if not args.run:
+        return 0
     orchestrator = UnifiedDeploymentOrchestrator(Path(os.getenv("GH_COPILOT_WORKSPACE", ".")))
     orchestrator.run()
     return 0

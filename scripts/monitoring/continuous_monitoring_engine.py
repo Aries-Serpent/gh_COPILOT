@@ -1,4 +1,4 @@
-"""Continuous monitoring engine placeholder."""
+"""Continuous monitoring engine with periodic health checks."""
 from __future__ import annotations
 
 import logging
@@ -22,7 +22,9 @@ class ContinuousMonitoringEngine:
         """Run a single monitoring cycle."""
         self.logger.info("Cycle start %s", datetime.now().isoformat())
         actions = actions or []
-        for _ in tqdm(actions, desc="Monitoring actions", unit="action"):
-            pass
-        time.sleep(0 if actions else 0)
+        with tqdm(actions, desc="Monitoring actions", unit="action") as bar:
+            for callback in bar:
+                callback()
+        if self.cycle_seconds:
+            time.sleep(self.cycle_seconds)
         self.logger.info("Cycle complete")

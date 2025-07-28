@@ -21,6 +21,13 @@ from typing import Iterable, List
 
 from tqdm import tqdm
 
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+)
+from scripts.utilities.emergency_c_temp_violation_prevention import (
+    EmergencyAntiRecursionValidator,
+)
+
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 
@@ -142,14 +149,17 @@ class ComprehensiveWorkspaceManager:
         """Start a managed session."""
         self._setup_logging()
         self._validate_environment()
-        phases = ["Scanning", "Logging"]
+        phases = ["PreValidation", "Scanning", "Logging"]
         start_time = time.time()
         with tqdm(total=len(phases), desc="SessionStart", unit="step") as bar:
             for phase in phases:
                 if time.time() - start_time > 1800:  # 30 minutes
                     raise TimeoutError("Session start exceeded timeout")
                 bar.set_description(phase)
-                if phase == "Scanning":
+                if phase == "PreValidation":
+                    EmergencyAntiRecursionValidator().emergency_cleanup()
+                    EnterpriseUtility().execute_utility()
+                elif phase == "Scanning":
                     self._validate_workspace()
                 elif phase == "Logging":
                     row_id = self._insert_session()
@@ -165,7 +175,7 @@ class ComprehensiveWorkspaceManager:
             raise RuntimeError("No active session to finalize")
         row_id = int(SESSION_FILE.read_text())
 
-        phases = ["Scanning", "Finalize"]
+        phases = ["Scanning", "Finalize", "PostValidation"]
         start_time = time.time()
         with tqdm(total=len(phases), desc="SessionEnd", unit="step") as bar:
             for phase in phases:
@@ -177,6 +187,9 @@ class ComprehensiveWorkspaceManager:
                 elif phase == "Finalize":
                     self._finalize_session(row_id)
                     SESSION_FILE.unlink(missing_ok=True)
+                elif phase == "PostValidation":
+                    EmergencyAntiRecursionValidator().full_validation()
+                    EnterpriseUtility().execute_utility()
                 bar.update(1)
         return True
 

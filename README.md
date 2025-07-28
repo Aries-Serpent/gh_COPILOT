@@ -204,6 +204,15 @@ to create and manage backups. This variable ensures backups never reside in the
 workspace, maintaining anti-recursion compliance.
 The `validate_enterprise_environment` helper enforces these settings at script startup.
 
+### Session Management CLI
+Use ``COMPREHENSIVE_WORKSPACE_MANAGER.py`` to manage session start and end
+operations:
+
+```bash
+python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionStart -AutoFix
+python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionEnd
+```
+
 ### Docker Usage
 Build and run the container with Docker:
 
