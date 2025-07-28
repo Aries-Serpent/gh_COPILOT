@@ -5,7 +5,7 @@ import sqlite3
 os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
 
 from scripts.dashboard_placeholder_sync import sync
-from scripts.placeholder_audit_logger import main, rollback_last_entry
+from scripts.code_placeholder_audit import main, rollback_last_entry
 
 
 def test_placeholder_audit_logger(tmp_path):
@@ -30,7 +30,7 @@ def test_placeholder_audit_logger(tmp_path):
     )
 
     with sqlite3.connect(analytics) as conn:
-        rows = conn.execute("SELECT pattern FROM placeholder_audit").fetchall()
+        rows = conn.execute("SELECT placeholder_type FROM todo_fixme_tracking").fetchall()
         code_rows = conn.execute("SELECT placeholder_type FROM code_audit_log").fetchall()
     assert rows
     assert code_rows
@@ -47,28 +47,25 @@ def test_dashboard_placeholder_sync(tmp_path):
     with sqlite3.connect(analytics) as conn:
         conn.execute(
             (
-                "CREATE TABLE placeholder_audit (id INTEGER PRIMARY KEY, "
-                "file_path TEXT, pattern TEXT, line INTEGER, "
-                "severity TEXT, ts TEXT)"
+                "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT)"
             )
         )
         conn.execute(
             (
-                "INSERT INTO placeholder_audit (file_path, pattern, line, "
-                "severity, ts) VALUES ('f', 'TODO', 1, 'low', 'ts')"
+                "CREATE TABLE code_audit_log (id INTEGER PRIMARY KEY, file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT)"
             )
         )
+        conn.execute(("INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts')"))
         conn.execute(
             (
-                "INSERT INTO placeholder_audit (file_path, pattern, line, "
-                "severity, ts) VALUES ('f', 'FIXME', 2, 'medium', 'ts')"
+                "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp) VALUES ('f', 1, 'TODO', 'ctx', 'ts')"
             )
         )
         conn.commit()
 
     sync(dash, analytics)
     data = json.loads(dash.joinpath("placeholder_summary.json").read_text())
-    assert data["findings"] == 2
+    assert data["findings"] == 1
     assert data["progress_status"] == "issues_pending"
 
 
@@ -78,8 +75,7 @@ def test_rollback_last_entry(tmp_path):
     with sqlite3.connect(analytics) as conn:
         conn.execute(
             (
-                "CREATE TABLE placeholder_audit (id INTEGER PRIMARY KEY, "
-                "file_path TEXT, pattern TEXT, line INTEGER, severity TEXT, ts TEXT)"
+                "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT)"
             )
         )
         conn.execute(
@@ -89,12 +85,7 @@ def test_rollback_last_entry(tmp_path):
                 "context TEXT, timestamp TEXT)"
             )
         )
-        conn.execute(
-            (
-                "INSERT INTO placeholder_audit (file_path, pattern, line, "
-                "severity, ts) VALUES ('f', 'TODO', 1, 'low', 'ts')"
-            )
-        )
+        conn.execute(("INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts')"))
         conn.execute(
             (
                 "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, "
@@ -105,7 +96,7 @@ def test_rollback_last_entry(tmp_path):
 
     assert rollback_last_entry(analytics)
     with sqlite3.connect(analytics) as conn:
-        count = conn.execute("SELECT COUNT(*) FROM placeholder_audit").fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking").fetchone()[0]
         count_log = conn.execute("SELECT COUNT(*) FROM code_audit_log").fetchone()[0]
     assert count == 0
     assert count_log == 0
