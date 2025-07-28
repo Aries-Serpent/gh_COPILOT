@@ -15,6 +15,7 @@ RUN chown -R appuser:appgroup /app
 
 # Set default workspace environment variable
 ENV GH_COPILOT_WORKSPACE=/app
+ENV GH_COPILOT_BACKUP_ROOT=/backup
 
 # Switch to the non-root user
 USER appuser
@@ -29,4 +30,6 @@ USER appuser
 # Port 8080: Web interface
 EXPOSE 5000 5001 5002 5003 5004 5005 5006 8080
 
-CMD ["python", "dashboard/enterprise_dashboard.py"]
+HEALTHCHECK --interval=30s --timeout=5s CMD ["python", "scripts/docker_healthcheck.py"]
+
+CMD ["python", "scripts/docker_entrypoint.py"]
