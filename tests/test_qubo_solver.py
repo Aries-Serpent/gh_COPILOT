@@ -7,7 +7,7 @@ from scripts.optimization.advanced_qubo_optimization import (
 )
 
 
-class DummyTqdm:
+class SimpleDummyTqdm:
     """Minimal tqdm replacement for progress validation."""
 
     def __init__(self, iterable, *args, **kwargs):
@@ -33,7 +33,7 @@ def test_solve_qubo_bruteforce(monkeypatch):
     bars = []
 
     def dummy_tqdm(iterable, *args, **kwargs):
-        bar = DummyTqdm(iterable)
+        bar = RecordingDummyTqdm(iterable)
         bars.append(bar)
         return bar
 
@@ -47,7 +47,7 @@ def test_solve_qubo_bruteforce(monkeypatch):
     assert energy == -2.0
 
 
-class DummyTqdm:
+class RecordingDummyTqdm:
     """Minimal tqdm replacement for progress validation."""
 
     def __init__(self, iterable, *args, **kwargs):
@@ -80,7 +80,7 @@ def test_execute_utility_progress_and_db(tmp_path, monkeypatch, caplog):
     bars = []
 
     def dummy_tqdm(iterable, *args, **kwargs):
-        bar = DummyTqdm(iterable, *args, **kwargs)
+        bar = RecordingDummyTqdm(iterable, *args, **kwargs)
         bars.append(bar)
         return bar
 
