@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import shutil
 import sqlite3
 import time
 from datetime import UTC, datetime
@@ -31,7 +32,6 @@ from scripts.utilities.emergency_c_temp_violation_prevention import (
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 
-SESSION_FILE = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp")) / "current_session_id.txt"
 DB_PATH = Path("databases/production.db")
 
 
@@ -48,6 +48,10 @@ class ComprehensiveWorkspaceManager:
         self.verbose = verbose
         self.workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
         self.logger = logging.getLogger(self.__class__.__name__)
+        backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
+        backup_root.mkdir(parents=True, exist_ok=True)
+        # runtime path for session ID file ensures one session at a time
+        self.session_file = backup_root / "current_session_id.txt"
 
     # ------------------------------------------------------------------
     # Utility methods
@@ -77,12 +81,10 @@ class ComprehensiveWorkspaceManager:
         return folders
 
     def _remove_paths(self, paths: Iterable[Path]) -> None:
+        """Remove zero-byte files or recursive folders."""
         for p in paths:
             if p.is_dir():
-                for sub in p.rglob("*"):
-                    if sub.is_file():
-                        sub.unlink(missing_ok=True)
-                p.rmdir()
+                shutil.rmtree(p, ignore_errors=True)
             else:
                 p.unlink(missing_ok=True)
 
@@ -149,13 +151,15 @@ class ComprehensiveWorkspaceManager:
         """Start a managed session."""
         self._setup_logging()
         self._validate_environment()
-        phases = ["PreValidation", "Scanning", "Logging"]
+        phases = ["PreValidation", "Scanning", "Logging", "PostValidation"]
         start_time = time.time()
         with tqdm(total=len(phases), desc="SessionStart", unit="step") as bar:
             for phase in phases:
                 if time.time() - start_time > 1800:  # 30 minutes
                     raise TimeoutError("Session start exceeded timeout")
-                bar.set_description(phase)
+                remaining = len(phases) - bar.n
+                etc = start_time + remaining * 2
+                bar.set_description(f"{phase} ETA:{time.strftime('%H:%M:%S', time.localtime(etc))}")
                 if phase == "PreValidation":
                     EmergencyAntiRecursionValidator().emergency_cleanup()
                     EnterpriseUtility().execute_utility()
@@ -163,7 +167,9 @@ class ComprehensiveWorkspaceManager:
                     self._validate_workspace()
                 elif phase == "Logging":
                     row_id = self._insert_session()
-                    SESSION_FILE.write_text(str(row_id))
+                    self.session_file.write_text(str(row_id))
+                elif phase == "PostValidation":
+                    self._validate_workspace()
                 bar.update(1)
         return True
 
@@ -171,25 +177,29 @@ class ComprehensiveWorkspaceManager:
         """Finalize the managed session."""
         self._setup_logging()
         self._validate_environment()
-        if not SESSION_FILE.exists():
+        if not self.session_file.exists():
             raise RuntimeError("No active session to finalize")
-        row_id = int(SESSION_FILE.read_text())
+        row_id = int(self.session_file.read_text())
 
-        phases = ["Scanning", "Finalize", "PostValidation"]
+        phases = ["Scanning", "Finalize", "PostValidation", "FinalScan"]
         start_time = time.time()
         with tqdm(total=len(phases), desc="SessionEnd", unit="step") as bar:
             for phase in phases:
                 if time.time() - start_time > 1800:
                     raise TimeoutError("Session end exceeded timeout")
-                bar.set_description(phase)
+                remaining = len(phases) - bar.n
+                etc = start_time + remaining * 2
+                bar.set_description(f"{phase} ETA:{time.strftime('%H:%M:%S', time.localtime(etc))}")
                 if phase == "Scanning":
                     self._validate_workspace()
                 elif phase == "Finalize":
                     self._finalize_session(row_id)
-                    SESSION_FILE.unlink(missing_ok=True)
+                    self.session_file.unlink(missing_ok=True)
                 elif phase == "PostValidation":
                     EmergencyAntiRecursionValidator().full_validation()
                     EnterpriseUtility().execute_utility()
+                elif phase == "FinalScan":
+                    self._validate_workspace()
                 bar.update(1)
         return True
 

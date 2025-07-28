@@ -19,6 +19,7 @@ from scripts.orchestration.UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED import (
 )
 
 
+# See QUANTUM_OPTIMIZATION.instructions.md for algorithm expectations
 def test_placeholders_importable(tmp_path):
     workspace = tmp_path
     db = workspace / "databases"
@@ -35,13 +36,19 @@ def test_placeholders_importable(tmp_path):
     manager.end_session()
     AutonomousFileManager(db / "production.db")
     IntelligentFileClassifier(db / "production.db")
-    AutonomousBackupManager().create_backup(workspace)
+    backup_dest = AutonomousBackupManager().create_backup(workspace)
+    assert workspace.resolve() not in Path(backup_dest).resolve().parents
     WorkspaceOptimizer().optimize(workspace)
     ContinuousMonitoringEngine().run_cycle([])
     AutomatedOptimizationEngine().optimize(workspace)
     IntelligenceGatheringSystem(db / "production.db").gather()
-    QuantumDatabaseProcessor().quantum_enhanced_query("SELECT 1")
+    result = QuantumDatabaseProcessor().quantum_enhanced_query("SELECT 1")
+    assert result["algorithm"] == "grover"
     QuantumAlgorithmSuite().grover()
+    QuantumAlgorithmSuite().shor()
+    QuantumAlgorithmSuite().qft()
+    QuantumAlgorithmSuite().clustering()
+    QuantumAlgorithmSuite().quantum_neural_network()
     WebGUIIntegrator(db / "production.db").initialize()
     DocumentationValidator().validate(tmp_path)
     UnifiedDeploymentOrchestrator(workspace).run()
