@@ -68,3 +68,18 @@ def test_docs_metrics_validator_as_script(tmp_path, monkeypatch):
     with pytest.raises(SystemExit) as exc:
         runpy.run_path(str(script), run_name="__main__")
     assert exc.value.code == 0
+
+
+def test_docs_metrics_validator_module(tmp_path, monkeypatch):
+    db_path = _setup_db(tmp_path)
+    module = types.ModuleType("scripts.validate_docs_metrics")
+    module.validate = lambda path: path == db_path
+    module.DB_PATH = Path("dummy")
+    module.WHITEPAPER_PATH = tmp_path / "whitepaper.md"
+    module.WHITEPAPER_PATH.write_text("templates: 0")
+    monkeypatch.setitem(sys.modules, "scripts.validate_docs_metrics", module)
+    argv = ["docs_metrics_validator.py", "--db-path", str(db_path)]
+    monkeypatch.setattr(sys, "argv", argv)
+    with pytest.raises(SystemExit) as exc:
+        runpy.run_module("scripts.docs_metrics_validator", run_name="__main__")
+    assert exc.value.code == 0
