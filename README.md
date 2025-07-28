@@ -299,7 +299,8 @@ compliance logging. The main modules are:
 * **TemplateWorkflowEnhancer** – mines patterns from existing templates,
   computes compliance scores and writes dashboard-ready reports.
 * **TemplateSynchronizer** – keeps generated templates synchronized across
-  environments.
+  environments. The analytics database is created only when running with the
+  `--real` flag.
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
@@ -313,6 +314,12 @@ gen = auto_generator.TemplateAutoGenerator()
 template = gen.generate_template({"action": "print"})
 
 sync_count = template_synchronizer.synchronize_templates([Path("databases/production.db")])
+```
+
+Run in real mode to persist changes and log analytics:
+
+```bash
+python template_engine/template_synchronizer.py --real
 ```
 
 #### Unified Logging Helper

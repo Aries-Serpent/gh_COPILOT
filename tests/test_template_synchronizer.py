@@ -35,6 +35,7 @@ def test_synchronize_templates(tmp_path: Path, monkeypatch) -> None:
         assert rows == [("t2", "bar")]
     assert not analytics.exists()
 
+
 def test_invalid_templates_ignored(tmp_path: Path, monkeypatch) -> None:
     os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     db_a = tmp_path / "a.db"
@@ -50,6 +51,7 @@ def test_invalid_templates_ignored(tmp_path: Path, monkeypatch) -> None:
         assert rows == []
 
     assert not analytics.exists()
+
 
 def test_audit_logging_and_rollback(tmp_path: Path, monkeypatch) -> None:
     os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
@@ -69,3 +71,22 @@ def test_audit_logging_and_rollback(tmp_path: Path, monkeypatch) -> None:
         assert tables == [("other",)]
 
     assert not analytics.exists()
+
+
+def test_can_write_analytics(tmp_path: Path, monkeypatch) -> None:
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
+    analytics = tmp_path.parent / "analytics.db"
+    monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
+    assert template_synchronizer._can_write_analytics() is True
+
+    monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", tmp_path / "analytics.db")
+    assert template_synchronizer._can_write_analytics() is False
+
+
+def test_extract_templates(tmp_path: Path) -> None:
+    db = tmp_path / "test.db"
+    assert template_synchronizer._extract_templates(db) == []
+    with sqlite3.connect(db) as conn:
+        conn.execute("CREATE TABLE templates (name TEXT PRIMARY KEY, template_content TEXT)")
+        conn.execute("INSERT INTO templates VALUES ('a', 'b')")
+    assert template_synchronizer._extract_templates(db) == [("a", "b")]
