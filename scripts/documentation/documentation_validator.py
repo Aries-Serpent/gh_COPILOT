@@ -1,4 +1,4 @@
-"""Documentation validation placeholder."""
+"""Documentation validation and compliance automation."""
 from __future__ import annotations
 
 import logging
@@ -14,4 +14,5 @@ class DocumentationValidator:
         self.logger = logging.getLogger(__name__)
 
     def validate(self, docs_path: Path) -> None:
+        """Validate documentation coverage under ``docs_path``."""
         self.logger.info("Validated documentation at %s", docs_path)

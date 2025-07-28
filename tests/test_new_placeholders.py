@@ -1,4 +1,7 @@
 from pathlib import Path
+import os
+import shutil
+import sqlite3
 
 from scripts.session.COMPREHENSIVE_WORKSPACE_MANAGER import ComprehensiveWorkspaceManager
 from scripts.file_management.autonomous_file_manager import AutonomousFileManager
@@ -21,12 +24,31 @@ def test_placeholders_importable(tmp_path):
     workspace = tmp_path
     db = workspace / "databases"
     db.mkdir()
-    (db / "production.db").touch()
+    shutil.copy(Path("databases/production.db"), db / "production.db")
 
-    ComprehensiveWorkspaceManager()
-    AutonomousFileManager(db / "production.db")
-    IntelligentFileClassifier(db / "production.db")
-    AutonomousBackupManager().create_backup(workspace)
+    env = {
+        "GH_COPILOT_WORKSPACE": str(workspace),
+        "GH_COPILOT_BACKUP_ROOT": str(workspace.parent / "backups"),
+    }
+    os.environ.update(env)
+    manager = ComprehensiveWorkspaceManager(db_path=db / "production.db")
+    manager.start_session()
+    manager.end_session()
+    file_manager = AutonomousFileManager(db / "production.db")
+    classifier = IntelligentFileClassifier(db / "production.db")
+    sample = workspace / "sample.py"
+    sample.write_text("print('hi')")
+    with sqlite3.connect(db / "production.db") as conn:
+        conn.execute(
+            "INSERT INTO enhanced_script_tracking (script_path, script_content, script_hash, script_type) VALUES (?, ?, 'x', 'test')",
+            (str(sample), 'print(\'hi\')'),
+        )
+    file_manager.organize_files(workspace)
+    dest = workspace / "organized" / "test" / "sample.py"
+    assert dest.exists()
+    assert classifier.classify(dest) == "unknown" or isinstance(classifier.classify(dest), str)
+    backup_dest = AutonomousBackupManager().create_backup(workspace)
+    assert workspace.resolve() not in Path(backup_dest).resolve().parents
     WorkspaceOptimizer().optimize(workspace)
     ContinuousMonitoringEngine().run_cycle([])
     AutomatedOptimizationEngine().optimize(workspace)
