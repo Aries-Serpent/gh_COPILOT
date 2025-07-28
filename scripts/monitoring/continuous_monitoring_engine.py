@@ -14,7 +14,7 @@ __all__ = ["ContinuousMonitoringEngine"]
 class ContinuousMonitoringEngine:
     """Perform continuous health checks with a monitoring cycle."""
 
-    def __init__(self, cycle_seconds: int = 300) -> None:
+    def __init__(self, cycle_seconds: int = 0) -> None:
         self.cycle_seconds = cycle_seconds
         self.logger = logging.getLogger(__name__)
 
