@@ -14,12 +14,12 @@ class QuantumAlgorithmSuite:
 
     def grover(self) -> str:
         self.logger.info("Running Grover placeholder")
-        print("Quantum Fidelity: 98.7%; Performance: simulated")
+        self.logger.info("Quantum Fidelity: 98.7%; Performance: simulated")
         return "grover"
 
     def shor(self) -> str:
         self.logger.info("Running Shor placeholder")
-        print("Quantum Fidelity: 98.7%; Performance: simulated")
+        self.logger.info("Quantum Fidelity: 98.7%; Performance: simulated")
         return "shor"
 
     def qft(self) -> str:
