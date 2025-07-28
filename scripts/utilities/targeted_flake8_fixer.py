@@ -13,12 +13,15 @@ from datetime import datetime
 from pathlib import Path
 from tqdm import tqdm
 import sys
+import os
+import subprocess
 
 import logging
 from copilot.common.workspace_utils import (
     get_workspace_path,
     _within_workspace,
 )
+from .flake8_corrector_base import EnterpriseFlake8Corrector as BaseCorrector
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -30,69 +33,48 @@ TEXT_INDICATORS = {
 }
 
 
-class EnterpriseFlake8Corrector:
+class EnterpriseFlake8Corrector(BaseCorrector):
     """Enterprise-grade Flake8 correction system"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
-        self.logger = logging.getLogger(__name__)
-
-    def execute_correction(self) -> bool:
-        """Execute Flake8 correction with visual indicators"""
-        start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Correction started: {start_time}")
-
-        try:
-            with tqdm(total=100, desc="[PROGRESS] Flake8 Correction", unit="%") as pbar:
-
-                pbar.set_description("[PROGRESS] Scanning files")
-                files_to_correct = self.scan_python_files()
-                pbar.update(25)
-
-                pbar.set_description("[PROGRESS] Applying corrections")
-                corrected_files = self.apply_corrections(files_to_correct)
-                pbar.update(50)
-
-                pbar.set_description("[PROGRESS] Validating results")
-                validation_passed = self.validate_corrections(corrected_files)
-                pbar.update(25)
-
-            duration = (datetime.now() - start_time).total_seconds()
-            self.logger.info(
-                f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s")
-            return validation_passed
-
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Correction failed: {e}")
-            return False
-
-    def scan_python_files(self) -> list:
-        """Scan for Python files requiring correction"""
-        python_files = []
-        for py_file in self.workspace_path.rglob("*.py"):
-            python_files.append(str(py_file))
-        return python_files
-
-    def apply_corrections(self, files: list) -> list:
-        """Apply corrections to files"""
-        corrected = []
-        for file_path in files:
-            if self.correct_file(file_path):
-                corrected.append(file_path)
-        return corrected
+    def __init__(self, workspace_path: str | None = None):
+        if workspace_path is None:
+            workspace_path = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")
+        super().__init__(workspace_path)
 
     def correct_file(self, file_path: str) -> bool:
         """Correct a single file"""
         try:
-            # Implementation for file correction
-            return True
+            check = subprocess.run([
+                sys.executable,
+                "-m",
+                "flake8",
+                file_path,
+            ], capture_output=True, text=True)
+
+            if check.returncode == 0:
+                return False
+
+            original = Path(file_path).read_text(encoding="utf-8")
+
+            fix = subprocess.run([
+                sys.executable,
+                "-m",
+                "autopep8",
+                "--in-place",
+                file_path,
+            ], capture_output=True, text=True)
+
+            if fix.returncode != 0:
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} File correction failed: {fix.stderr.strip()}"
+                )
+                return False
+
+            updated = Path(file_path).read_text(encoding="utf-8")
+            return original != updated
         except Exception as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} File correction failed: {e}")
             return False
-
-    def validate_corrections(self, files: list) -> bool:
-        """Validate that corrections were successful"""
-        return len(files) > 0
 
 
 def main() -> bool:
