@@ -28,6 +28,7 @@ class DocumentationValidator:
         docs_path:
             Path to the documentation root.
 
+
         Returns
         -------
         bool

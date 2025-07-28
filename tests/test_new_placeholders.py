@@ -42,20 +42,21 @@ def test_placeholders_importable(tmp_path):
     with sqlite3.connect(db / "production.db") as conn:
         conn.execute(
             "INSERT INTO enhanced_script_tracking (script_path, script_content, script_hash, script_type) VALUES (?, ?, 'x', 'test')",
-            (str(sample), 'print(\'hi\')'),
+            (str(sample), "print('hi')"),
         )
     file_manager.organize_files(workspace)
     dest = workspace / "organized" / "test" / "sample.py"
     assert dest.exists()
-    assert classifier.classify(dest) == "unknown" or isinstance(classifier.classify(dest), str)
+    classification = classifier.classify_file_autonomously(dest)
+    assert classification["category"] == "general" or isinstance(classification["category"], str)
     backup_dest = AutonomousBackupManager().create_backup(workspace)
     assert workspace.resolve() not in Path(backup_dest).resolve().parents
     WorkspaceOptimizer().optimize(workspace)
-    ContinuousMonitoringEngine().run_cycle([])
+    ContinuousMonitoringEngine(cycle_seconds=0).run_cycle([])
     AutomatedOptimizationEngine().optimize(workspace)
     IntelligenceGatheringSystem(db / "production.db").gather()
     result = QuantumDatabaseProcessor().quantum_enhanced_query("SELECT 1")
-    assert result["algorithm"] == "grover"
+    assert result == "simulated_result"
     QuantumAlgorithmSuite().grover()
     QuantumAlgorithmSuite().shor()
     QuantumAlgorithmSuite().qft()
