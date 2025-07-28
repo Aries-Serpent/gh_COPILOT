@@ -25,6 +25,9 @@ from tqdm import tqdm
 
 from utils.log_utils import _log_event
 
+from .pattern_templates import get_pattern_templates
+from .placeholder_utils import DEFAULT_PRODUCTION_DB
+
 # Quantum demo import (placeholder for quantum-inspired scoring)
 try:
     from quantum_algorithm_library_expansion import demo_quantum_fourier_transform
@@ -75,6 +78,7 @@ class TemplateAutoGenerator:
 
     analytics_db: Path = DEFAULT_ANALYTICS_DB
     completion_db: Path = DEFAULT_COMPLETION_DB
+    production_db: Path = DEFAULT_PRODUCTION_DB
 
     def __post_init__(self) -> None:
         self.logger = logging.getLogger(__name__)
@@ -90,7 +94,7 @@ class TemplateAutoGenerator:
         validate_no_recursive_folders()
         # DB-first loading of patterns and templates
         self.patterns = self._load_patterns()
-        self.templates = self._load_templates()
+        self.templates = self._load_templates() + get_pattern_templates()
         self.cluster_model = self._cluster_patterns()
         self._last_objective: Dict[str, Any] | None = None
         duration = (datetime.now() - start_time).total_seconds()
@@ -139,7 +143,16 @@ class TemplateAutoGenerator:
                     templates = [row[0] for row in cur.fetchall()]
                 except sqlite3.Error as exc:
                     logger.error(f"Error loading templates: {exc}")
-        logger.info(f"Loaded {len(templates)} templates")
+        if not templates:
+            from . import pattern_templates
+
+            templates = list(pattern_templates.DEFAULT_TEMPLATES)
+            logger.info(
+                "Loaded %s default templates from pattern_templates",
+                len(templates),
+            )
+        else:
+            logger.info(f"Loaded {len(templates)} templates")
         _log_event(
             {"event": "load_templates", "count": len(templates)},
             table="generator_events",
@@ -153,9 +166,22 @@ class TemplateAutoGenerator:
         baseline = np.ones_like(vec) / np.sqrt(len(vec))
         return float(abs(np.dot(vec, baseline.conj())))
 
+    def _load_production_patterns(self) -> list[str]:
+        """Fetch template patterns from ``production.db`` if available."""
+        patterns: list[str] = []
+        if self.production_db.exists():
+            with sqlite3.connect(self.production_db) as conn:
+                try:
+                    cur = conn.execute("SELECT template_content FROM script_template_patterns")
+                    patterns = [row[0] for row in cur.fetchall()]
+                except sqlite3.Error as exc:
+                    logger.error(f"Error loading production patterns: {exc}")
+        return patterns
+
     def _cluster_patterns(self) -> KMeans | None:
         logger.info("Clustering patterns and templates...")
-        corpus = self.templates + self.patterns
+        prod_patterns = self._load_production_patterns()
+        corpus = self.templates + self.patterns + prod_patterns
         if not corpus:
             logger.warning("No corpus to cluster")
             return None
@@ -326,4 +352,5 @@ __all__ = [
     "TemplateAutoGenerator",
     "DEFAULT_ANALYTICS_DB",
     "DEFAULT_COMPLETION_DB",
+    "DEFAULT_PRODUCTION_DB",
 ]

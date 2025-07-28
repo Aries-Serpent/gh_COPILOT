@@ -19,6 +19,10 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+)
+
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     'monitor': '[MONITOR]',
@@ -289,6 +293,7 @@ class EnterpriseReadinessMonitor:
 def main():
     """Main monitoring function"""
     try:
+        EnterpriseUtility().execute_utility()
         print("="*80)
         print(f"{TEXT_INDICATORS['enterprise']} ENTERPRISE READINESS 100% MONITORING SYSTEM")
         print("="*80)
@@ -307,4 +312,5 @@ def main():
         return False
 
 if __name__ == "__main__":
+    EnterpriseUtility().execute_utility()
     main()

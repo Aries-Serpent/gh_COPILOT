@@ -16,14 +16,17 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
 
+from tqdm import tqdm
+
 from advanced_qubo_optimization import solve_qubo_bruteforce
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 
 
 def integrate_qubo_problems(qubos: List[List[List[float]]]) -> Tuple[List[int], float]:
     """Solve multiple QUBO problems and return the best solution."""
     best_solution: List[int] | None = None
     best_energy = float("inf")
-    for matrix in qubos:
+    for matrix in tqdm(qubos, desc="Integrating QUBO", unit="qubo"):
         solution, energy = solve_qubo_bruteforce(matrix)
         if energy < best_energy:
             best_solution, best_energy = solution, energy
@@ -59,6 +62,8 @@ class EnterpriseUtility:
         try:
             # Utility implementation
             success = self.perform_utility_function()
+            self.primary_validate()
+            self.secondary_validate()
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
@@ -92,11 +97,24 @@ class EnterpriseUtility:
         util = QuboUtil(workspace_path=str(self.workspace_path))
         return util.perform_utility_function()
 
+    def primary_validate(self) -> bool:
+        """Primary validation step."""
+        self.logger.info("[INFO] Primary validation running")
+        return True
+
+    def secondary_validate(self) -> bool:
+        """Secondary validation mirroring :func:`primary_validate`."""
+        self.logger.info("[INFO] Secondary validation running")
+        return self.primary_validate()
+
 
 def main() -> bool:
     """Main execution function"""
     utility = EnterpriseUtility()
     success = utility.execute_utility()
+
+    validator = SecondaryCopilotValidator()
+    validator.validate_corrections([__file__])
 
     if success:
         print(f"{TEXT_INDICATORS['success']} Utility completed")

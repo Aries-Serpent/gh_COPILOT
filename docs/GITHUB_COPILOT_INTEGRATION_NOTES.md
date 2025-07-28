@@ -25,19 +25,15 @@ When working with GitHub Copilot on this codebase, **ALWAYS** follow this patter
 Every GitHub Copilot response involving processing MUST include:
 
 ```python
-# REQUIRED: Visual processing indicators
 start_time = datetime.now()
-logger.info(f"[START] Operation: {operation_name}")
-logger.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-
-# REQUIRED: Progress monitoring with tqdm
-with tqdm(total=100, desc=f"[PROGRESS] {operation_name}", unit="%") as pbar:
-    # Implementation with progress updates
-    pbar.update(increment)
-    
-# REQUIRED: Completion summary
+logger.info("[START] Operation: %s", operation_name)
+tasks = list(load_tasks())
+with tqdm(total=len(tasks), desc=f"[PROGRESS] {operation_name}", unit="task") as bar:
+    for task in tasks:
+        execute(task)
+        bar.update(1)
 duration = (datetime.now() - start_time).total_seconds()
-logger.info(f"[SUCCESS] Completed in {duration:.2f}s")
+logger.info("[SUCCESS] Completed in %.2fs", duration)
 ```
 
 ### **3. DUAL COPILOT VALIDATION REQUIREMENT**

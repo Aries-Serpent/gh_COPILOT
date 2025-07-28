@@ -349,3 +349,4 @@ def deploy_with_safety_monitoring(target_path: str):
 *Ensures consistent, enterprise-grade process monitoring across all operations*
 
 All unified systems log these indicators via `unified_monitoring_optimization_system.py`.
+\nVisual indicator helpers: start_indicator(), progress_bar(), end_indicator() from utils.visual_progress.

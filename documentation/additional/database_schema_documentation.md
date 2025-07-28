@@ -636,6 +636,10 @@ The Template Intelligence Platform employs a multi-database architecture with th
 **Type:** Core  
 **Description:** Template placeholder definitions and configurations
 
+Entries in this table define allowed placeholders for all templates. Each
+placeholder type includes an optional validation pattern and default value.
+Usage statistics are aggregated in `template_usage_analytics`.
+
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | id | INTEGER | PRIMARY KEY | - |
@@ -2276,6 +2280,7 @@ The Template Intelligence Platform employs a multi-database architecture with th
   - template_usage_analytics.template_id references enhanced_templates.id
 
 - **template_usage_analytics** many-to-one **template_placeholders**
+  - tracks how often each placeholder is used during generation
 
 - **environment_variables** many-to-one **environment_profiles**
   - `profile_id` → `profile_id`

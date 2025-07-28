@@ -1,5 +1,6 @@
 """Thin wrapper for :mod:`session_management_consolidation_executor`."""
 from session_management_consolidation_executor import EnterpriseUtility
+from utils.log_utils import _log_plain
 
 __all__ = ["EnterpriseUtility", "hello_world"]
 
@@ -7,7 +8,7 @@ __all__ = ["EnterpriseUtility", "hello_world"]
 def hello_world() -> None:
     """Print a friendly greeting."""
 
-    print("Hello, world!")
+    _log_plain("Hello, world!")
 
 
 if __name__ == "__main__":

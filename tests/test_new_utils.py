@@ -1,4 +1,7 @@
 import json
+
+import pytest
+
 from utils.general_utils import operations_main
 from utils.reporting_utils import (
     generate_json_report,
@@ -7,8 +10,9 @@ from utils.reporting_utils import (
 )
 from utils.validation_utils import (
     detect_zero_byte_files,
-    validate_path,
     operations_validate_workspace,
+    validate_enterprise_environment,
+    validate_path,
 )
 
 
@@ -76,4 +80,25 @@ def test_operations_validate_workspace(tmp_path, monkeypatch, capsys):
     operations_validate_workspace()
     out = json.loads(capsys.readouterr().out)
     assert out["integrity"]["overall_status"] == "VALID"
+
+
+def test_validate_enterprise_environment_accepts_external_path(tmp_path, monkeypatch):
+    ws = tmp_path / "ws"
+    bk = tmp_path / "backups"
+    ws.mkdir()
+    bk.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(ws))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(bk))
+    assert validate_enterprise_environment()
+
+
+def test_validate_enterprise_environment_rejects_workspace_path(tmp_path, monkeypatch):
+    ws = tmp_path / "ws"
+    bk = ws / "backups"
+    ws.mkdir()
+    bk.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(ws))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(bk))
+    with pytest.raises(EnvironmentError):
+        validate_enterprise_environment()
 

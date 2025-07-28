@@ -1,167 +1,27 @@
-#!/usr/bin/env python3
-"""
-IntelligentCodeAnalysisPlaceholderDetection - Enterprise Utility Script
-Generated: 2025-07-10 18:11:28
+"""Deprecated wrapper for :mod:`scripts.code_placeholder_audit`."""
+from __future__ import annotations
 
-Enterprise Standards Compliance:
-- Flake8/PEP 8 Compliant
-- Emoji-free code (text-based indicators only)
-- Visual processing indicators
-"""
+from .code_placeholder_audit import main
 
-import sys
-
-import logging
-import sqlite3
-import re
-from pathlib import Path
-from datetime import datetime
-from typing import Iterable
-
-from tqdm import tqdm
-
-# Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    "start": "[START]",
-    "success": "[SUCCESS]",
-    "error": "[ERROR]",
-    "info": "[INFO]",
-}
-
-
-class EnterpriseUtility:
-    """Enterprise utility class"""
-
-    def __init__(
-        self, workspace_path: str = "e:/gh_COPILOT", db_path: str = "analytics.db"
-    ):
-        self.workspace_path = Path(workspace_path)
-        self.logger = logging.getLogger(__name__)
-        self.db_path = Path(db_path)
-
-    def execute_utility(self) -> bool:
-        """Execute utility function"""
-        start_time = datetime.now()
-        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
-
-        try:
-            # Utility implementation
-            success = self.perform_utility_function()
-
-            if success:
-                duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s"
-                )
-                return True
-            else:
-                self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
-                return False
-
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
-            return False
-
-    def perform_utility_function(self) -> bool:
-        """Scan all Python files in the workspace for placeholders."""
-        try:
-            if not self.workspace_path.exists():
-                self.logger.error(
-                    f"{TEXT_INDICATORS['error']} Workspace not found: {self.workspace_path}"
-                )
-                return False
-
-            patterns: Iterable[str] = [
-                r"TODO",
-                r"FIXME",
-                r"pass\b",
-                r"NotImplementedError",
-                r"placeholder",
-            ]
-            placeholder_found = False
-            py_files = list(self.workspace_path.rglob("*.py"))
-            with tqdm(
-                total=len(py_files),
-                desc=f"{TEXT_INDICATORS['info']} scanning",
-                unit="file",
-            ) as bar:
-                for py_file in py_files:
-                    try:
-                        text = py_file.read_text(encoding="utf-8")
-                    except OSError:
-                        bar.update(1)
-                        continue
-                    for pat in patterns:
-                        for match in re.finditer(pat, text):
-                            self._log_issue(str(py_file), pat, match.start())
-                            placeholder_found = True
-                    bar.update(1)
-
-            if placeholder_found:
-                self.logger.warning(
-                    f"{TEXT_INDICATORS['info']} Placeholders detected within {self.workspace_path}"
-                )
-                return False
-
-            self.logger.info(
-                f"{TEXT_INDICATORS['success']} No placeholders found in workspace"
-            )
-            return True
-        except Exception as exc:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Analysis failed: {exc}")
-            return False
-
-    # ------------------------------------------------------------------
-    def _log_issue(self, file_path: str, pattern: str, position: int) -> None:
-        """Record placeholder details to analytics.db."""
-        if not self.db_path.parent.exists():
-            return
-        try:
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute(
-                    "CREATE TABLE IF NOT EXISTS placeholder_audit ("
-                    "id INTEGER PRIMARY KEY, file_path TEXT, pattern TEXT, "
-                    "position INTEGER, severity TEXT, ts TEXT)"
-                )
-                conn.execute(
-                    "INSERT INTO placeholder_audit (file_path, pattern, position, severity, ts) "
-                    "VALUES (?, ?, ?, ?, ?)",
-                    (
-                        file_path,
-                        pattern,
-                        position,
-                        self._severity_for_pattern(pattern),
-                        datetime.now().isoformat(),
-                    ),
-                )
-                conn.commit()
-        except sqlite3.Error as exc:
-            self.logger.error(f"{TEXT_INDICATORS['error']} DB log failed: {exc}")
-
-
-    def _severity_for_pattern(self, pattern: str) -> str:
-        """Return a severity level for the given placeholder pattern."""
-        normalized = pattern.lower()
-        if normalized in {"todo", "pass"}:
-            return "low"
-        if normalized == "fixme":
-            return "medium"
-        return "high"
-
-
-def main():
-    """Main execution function"""
-    utility = EnterpriseUtility()
-    success = utility.execute_utility()
-
-    if success:
-        print(f"{TEXT_INDICATORS['success']} Utility completed")
-    else:
-        print(f"{TEXT_INDICATORS['error']} Utility failed")
-
-    return success
-
+__all__ = ["main"]
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    import argparse
+    parser = argparse.ArgumentParser(description="Audit workspace for TODO/FIXME placeholders")
+    parser.add_argument("--workspace-path", type=str, help="Workspace to scan")
+    parser.add_argument("--analytics-db", type=str, help="analytics.db location")
+    parser.add_argument("--production-db", type=str, help="production.db location")
+    parser.add_argument("--dashboard-dir", type=str, help="dashboard/compliance directory")
+    parser.add_argument("--timeout-minutes", type=int, default=30, help="Scan timeout in minutes")
+    parser.add_argument("--simulate", action="store_true", help="Run in test mode without writes")
+    args = parser.parse_args()
+
+    success = main(
+        workspace_path=args.workspace_path,
+        analytics_db=args.analytics_db,
+        production_db=args.production_db,
+        dashboard_dir=args.dashboard_dir,
+        timeout_minutes=args.timeout_minutes,
+        simulate=args.simulate,
+    )
+    raise SystemExit(0 if success else 1)

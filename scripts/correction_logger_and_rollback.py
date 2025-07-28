@@ -29,7 +29,7 @@ from scripts.continuous_operation_orchestrator import validate_enterprise_operat
 
 # Enterprise logging setup
 LOGS_DIR = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
     / "logs"
     / "correction_logger"
 )
@@ -45,7 +45,7 @@ logging.basicConfig(
 )
 
 DASHBOARD_DIR = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
     / "dashboard"
     / "compliance"
 )
@@ -237,9 +237,9 @@ def main(
     logging.info(f"Process ID: {process_id}")
 
     # Anti-recursion validation
-    validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
 
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
     analytics_db = Path(analytics_db_path or workspace / "databases" / "analytics.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
 

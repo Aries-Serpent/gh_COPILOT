@@ -314,6 +314,7 @@ def synchronize_templates_real(
 
     write_enabled = _can_write_analytics()
     for idx, db in enumerate(tqdm(databases, desc=f"Sync [PID {proc_id}]", unit="db"), 1):
+        conn: sqlite3.Connection | None = None
         if not db.exists():
             logger.warning("Skipping missing DB: %s", db)
             continue
@@ -349,6 +350,9 @@ def synchronize_templates_real(
                     pass
                 conn.close()
             _log_audit_real(str(db), str(exc))
+        finally:
+            if conn is not None:
+                conn.close()
         etc = _calculate_etc(start_ts, idx + len(databases), len(databases) * 2)
         tqdm.write(f"(PID {proc_id}) ETC: {etc}")
 

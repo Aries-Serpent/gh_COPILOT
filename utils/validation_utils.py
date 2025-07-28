@@ -1,7 +1,7 @@
 """Validation utilities for gh_COPILOT Enterprise Toolkit"""
 
-import os
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -93,6 +93,26 @@ def validate_path(path: Path) -> bool:
     except FileNotFoundError:
         return False
     return workspace in resolved.parents and backup_root not in resolved.parents
+
+
+def validate_enterprise_environment() -> bool:
+    """Ensure workspace and backup paths are set and non-recursive."""
+    workspace = CrossPlatformPathManager.get_workspace_path().resolve()
+    backup_root_env = os.getenv("GH_COPILOT_BACKUP_ROOT")
+    if not backup_root_env:
+        raise EnvironmentError("GH_COPILOT_BACKUP_ROOT is not set")
+    backup_root = Path(backup_root_env).resolve()
+
+    if not workspace.exists():
+        raise EnvironmentError("GH_COPILOT_WORKSPACE does not exist")
+
+    if backup_root.exists() and workspace in backup_root.parents:
+        raise EnvironmentError("Backup root must be outside the workspace")
+
+    if not backup_root.parent.exists():
+        raise EnvironmentError("Backup root parent directory is missing")
+
+    return True
 
 
 def operations_validate_workspace() -> None:

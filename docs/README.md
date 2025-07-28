@@ -21,6 +21,11 @@ location. The command exits with an error if any values are inconsistent.
 This workflow ensures that documentation statistics accurately reflect the
 contents of the production database.
 
+### Related Requirements
+- **Database Maintenance Scheduler:** see [SYSTEM_OVERVIEW.md](../documentation/SYSTEM_OVERVIEW.md#database-synchronization).
+- **Validation Helper:** see [DATABASE_FIRST_USAGE_GUIDE.md](DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement).
+- **Visual Indicator Standards:** see [GITHUB_COPILOT_INTEGRATION_NOTES.md](GITHUB_COPILOT_INTEGRATION_NOTES.md#visual-processing).
+
 ## Resetting Benchmark Baselines
 
 Benchmark results are stored in ``benchmark_metrics.db``. Remove this file to
@@ -38,14 +43,14 @@ For validation details see [validation/Database_First_Validation.md](validation/
 
 ## Quantum Template Generation
 
-The `docs/quantum_template_placeholder.py` script demonstrates how future
-documentation templates will be generated with help from the quantum modules.
-It currently queries `production.db` for representative templates using the
-`TemplateAutoGenerator` class and prints them. When quantum components are
-enabled, the script will rank candidate templates through a `QuantumExecutor`.
-Run the script with `python docs/quantum_template_placeholder.py` to preview the
-placeholder functionality. The underlying `TemplateAutoGenerator` now clusters
-templates using `sklearn.cluster.KMeans` and exposes a
+The `docs/quantum_template_generator.py` script demonstrates the production
+workflow for generating documentation templates using quantum-inspired scoring.
+It queries `production.db` for representative templates with
+`TemplateAutoGenerator`. When quantum components are available, the script ranks
+templates via `QuantumExecutor`; otherwise a classical fallback score is used.
+Run the script with `python docs/quantum_template_generator.py` to produce
+scored templates. The underlying `TemplateAutoGenerator` clusters templates
+using `sklearn.cluster.KMeans` and exposes a
 `get_cluster_representatives()` method for retrieving the best pattern from each
 cluster.
 

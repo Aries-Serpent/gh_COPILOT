@@ -68,10 +68,36 @@ class DBFirstCodeGenerator:
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
 
+    def fetch_existing_pattern(self, template_name: str) -> Optional[str]:
+        """Return pattern content from ``production.db`` if available."""
+        if not self.production_db.exists():
+            return None
+        with sqlite3.connect(self.production_db) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT template_content FROM script_template_patterns WHERE pattern_name = ?",
+                    (template_name,),
+                )
+                row = cur.fetchone()
+                return row[0] if row else None
+            except sqlite3.Error as exc:
+                logging.error(f"Error fetching pattern from production.db: {exc}")
+                return None
+
     def _query_templates(self, objective: str) -> List[Dict[str, Any]]:
         """Query all databases for matching templates."""
         templates = []
         dbs = [self.production_db, self.documentation_db, self.template_db]
+        existing = self.fetch_existing_pattern(objective)
+        if existing:
+            templates.append(
+                {
+                    "name": objective,
+                    "content": existing,
+                    "score": 1.0,
+                    "db": str(self.production_db),
+                }
+            )
         for db_path in dbs:
             if not db_path.exists():
                 continue
@@ -85,10 +111,11 @@ class DBFirstCodeGenerator:
                         (f"%{objective}%",),
                     )
                     for row in cur.fetchall():
+                        content = self.fetch_existing_pattern(row[0]) or row[1]
                         templates.append(
                             {
                                 "name": row[0],
-                                "content": row[1],
+                                "content": content,
                                 "score": row[2] if len(row) > 2 else 0.0,
                                 "db": str(db_path),
                             }
