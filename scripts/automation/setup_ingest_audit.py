@@ -10,7 +10,7 @@ from pathlib import Path
 from scripts.database.unified_database_initializer import initialize_database
 from scripts.database.documentation_ingestor import ingest_documentation
 from scripts.database.template_asset_ingestor import ingest_templates
-from scripts.intelligent_code_analysis_placeholder_detection import main as run_audit
+from scripts.code_placeholder_audit import main as run_audit
 
 
 LOG = logging.getLogger(__name__)
