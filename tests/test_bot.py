@@ -20,6 +20,20 @@ def test_webhook_signature(monkeypatch, tmp_path):
     assert res.status_code == 200
 
 
+def test_webhook_invalid_signature(monkeypatch, tmp_path):
+    monkeypatch.setenv("GITHUB_WEBHOOK_SECRET", "test")
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path))
+    app = create_app()
+    client = app.test_client()
+    payload = b"{}"
+    import hmac
+    import hashlib
+
+    sig = "sha256=" + hmac.new(b"wrong", payload, hashlib.sha256).hexdigest()
+    res = client.post("/webhook", data=payload, headers={"X-Hub-Signature-256": sig})
+    assert res.status_code == 400
+
+
 def test_assign_license(monkeypatch):
     workspace = Path("/tmp/gh_workspace")
     workspace.mkdir(exist_ok=True)
