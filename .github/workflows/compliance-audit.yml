@@ -1,24 +1,24 @@
-name: Placeholder-Audit
+name: Compliance Audit
 
 on:
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: bash setup.sh
 
       - name: Run placeholder audit
         env:
-          GH_COPILOT_WORKSPACE: '.'
-        run: python scripts/intelligent_code_analysis_placeholder_detection.py
+          GH_COPILOT_WORKSPACE: ${{ github.workspace }}
+        run: python -m scripts.intelligent_code_analysis_placeholder_detection
