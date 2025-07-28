@@ -206,6 +206,25 @@ def validate_results(expected_count: int, analytics_db: Path) -> bool:
     return db_count >= expected_count
 
 
+def rollback_last_entry(db_path: Path) -> bool:
+    """Remove the most recent placeholder audit entry from the databases."""
+    if not db_path.exists():
+        return False
+    removed = False
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.execute("SELECT rowid FROM todo_fixme_tracking ORDER BY rowid DESC LIMIT 1")
+        row = cur.fetchone()
+        if row:
+            conn.execute("DELETE FROM todo_fixme_tracking WHERE rowid = ?", (row[0],))
+            conn.execute(
+                "DELETE FROM code_audit_log WHERE rowid = ("
+                "SELECT rowid FROM code_audit_log ORDER BY rowid DESC LIMIT 1)"
+            )
+            conn.commit()
+            removed = True
+    return removed
+
+
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     """Calculate estimated time to completion."""
     elapsed = time.time() - start_time
