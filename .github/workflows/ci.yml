@@ -125,3 +125,23 @@ jobs:
         with:
           name: test-results
           path: .pytest_cache
+
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: python
+      - uses: github/codeql-action/analyze@v3
+        with:
+          output: codeql-results
+      - name: Upload CodeQL results
+        uses: actions/upload-artifact@v3
+        with:
+          name: codeql-results
+          path: codeql-results
