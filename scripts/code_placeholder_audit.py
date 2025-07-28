@@ -23,7 +23,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ModuleNotFoundError:  # pragma: no cover - fallback for ad-hoc use
+    import subprocess
+    import sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "tqdm"])
+    from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import (
     validate_enterprise_operation,
