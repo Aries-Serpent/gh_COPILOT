@@ -228,7 +228,7 @@ def _compliance_check(conn: sqlite3.Connection) -> bool:
             if _compliance_score(content) < 60.0:
                 return False
         return True
-    except Exception as exc:
+    except sqlite3.Error as exc:
         logger.error("Compliance check failed: %s", exc)
         return False
 
@@ -297,7 +297,7 @@ def _synchronize_templates_simulation(
             if not compliant:
                 sync_fail = True
                 logger.error("[SIMULATION] Compliance validation failed for %s", db)
-        except Exception as exc:
+        except sqlite3.Error as exc:
             sync_fail = True
             logger.error("[SIMULATION] Could not check compliance on %s: %s", db, exc)
         # Simulate dual Copilot validation
@@ -400,12 +400,12 @@ def synchronize_templates_real(
             synced += 1
             _log_sync_event_real(source_names, str(db))
             logger.info("Synced templates to %s [PID %s]", db, proc_id)
-        except Exception as exc:  # noqa: BLE001
+        except (sqlite3.Error, RuntimeError, OSError) as exc:  # noqa: BLE001
             logger.error("Failed to sync %s: %s", db, exc)
             if conn is not None:
                 try:
                     conn.rollback()
-                except Exception:  # pragma: no cover - rollback best effort
+                except sqlite3.Error:  # pragma: no cover - rollback best effort
                     pass
                 conn.close()
             _log_audit_real(str(db), str(exc))

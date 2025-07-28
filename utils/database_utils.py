@@ -2,12 +2,15 @@
 
 import os
 import sqlite3
+import logging
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator, Optional
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import validate_path
+
+logger = logging.getLogger(__name__)
 
 
 @contextmanager
@@ -33,7 +36,8 @@ def execute_safe_query(query: str, params: tuple = (), db_name: str = "productio
             cursor = conn.cursor()
             cursor.execute(query, params)
             return cursor.fetchall()
-    except Exception:
+    except sqlite3.Error as exc:
+        logger.error("Database query failed: %s", exc)
         return None
 
 
