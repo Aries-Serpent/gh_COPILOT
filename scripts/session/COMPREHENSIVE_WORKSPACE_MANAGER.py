@@ -1,85 +1,210 @@
 #!/usr/bin/env python3
-"""Comprehensive Workspace Manager with integrity checks."""
+"""Comprehensive Workspace Manager.
+
+This module implements start and end session management following
+COMPREHENSIVE_SESSION_INTEGRITY instructions. It performs workspace
+integrity validation, zero-byte file detection, anti-recursion checks and
+logs the session lifecycle into ``production.db``. Execution is wrapped by
+the DUAL COPILOT pattern for additional validation.
+"""
+
 from __future__ import annotations
 
 import argparse
 import logging
 import os
 import sqlite3
+import time
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Iterable, List
 
 from tqdm import tqdm
 
-from utils.cross_platform_paths import CrossPlatformPathManager
-from utils.validation_utils import (
-    detect_zero_byte_files,
-    validate_enterprise_environment,
-)
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
-__all__ = ["main", "ComprehensiveWorkspaceManager"]
+
+SESSION_FILE = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp")) / "current_session_id.txt"
+DB_PATH = Path("databases/production.db")
+
+
+def get_connection(db_path: Path) -> sqlite3.Connection:
+    return sqlite3.connect(db_path)
 
 
 class ComprehensiveWorkspaceManager:
-    """Manage workspace sessions with start and end protocols."""
+    """Manage session lifecycle with integrity checks."""
 
-    def __init__(self) -> None:
-        self.workspace = CrossPlatformPathManager.get_workspace_path()
-        self.db_path = self.workspace / "databases" / "production.db"
-        self.conn = sqlite3.connect(self.db_path)
+    def __init__(self, *, db_path: Path = DB_PATH, autofix: bool = False, verbose: bool = False) -> None:
+        self.db_path = db_path
+        self.autofix = autofix
+        self.verbose = verbose
+        self.workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
+        self.logger = logging.getLogger(self.__class__.__name__)
 
-    def _log(self, message: str) -> None:
-        logging.info(message)
+    # ------------------------------------------------------------------
+    # Utility methods
+    # ------------------------------------------------------------------
+    def _setup_logging(self) -> None:
+        level = logging.DEBUG if self.verbose else logging.INFO
+        logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
 
-    def _scan_zero_byte_files(self) -> list[Path]:
-        self._log("Scanning for zero-byte files")
-        files = list(detect_zero_byte_files(self.workspace))
-        for _ in tqdm(files, desc="Zero-byte files", unit="file"):
-            pass
+    def _validate_environment(self) -> None:
+        backup_root = os.getenv("GH_COPILOT_BACKUP_ROOT")
+        if not backup_root:
+            raise EnvironmentError("GH_COPILOT_BACKUP_ROOT is not set")
+        Path(backup_root).mkdir(parents=True, exist_ok=True)
+
+    def _scan_zero_byte_files(self) -> List[Path]:
+        files: List[Path] = []
+        for path in self.workspace.rglob("*"):
+            if path.is_file() and path.stat().st_size == 0:
+                files.append(path)
         return files
 
-    def _record_session(self, action: str) -> None:
-        self.conn.execute(
-            "INSERT INTO unified_wrapup_sessions (session_id, start_time, status) VALUES (?, ?, ?)",
-            (f"CWSM-{action}-{datetime.now(UTC).isoformat()}", datetime.now(UTC).isoformat(), action),
-        )
-        self.conn.commit()
+    def _scan_recursive_folders(self) -> List[Path]:
+        folders: List[Path] = []
+        for path in self.workspace.rglob("*"):
+            if path.is_dir() and "backup" in path.name.lower() and path != self.workspace:
+                folders.append(path)
+        return folders
 
-    def session_start(self, autofix: bool) -> None:
-        self._record_session("START")
-        validate_enterprise_environment()
-        files = self._scan_zero_byte_files()
-        if files and autofix:
-            for f in files:
-                f.unlink(missing_ok=True)
-                self._log(f"Removed zero-byte file: {f}")
-        self._log("Session start complete")
+    def _remove_paths(self, paths: Iterable[Path]) -> None:
+        for p in paths:
+            if p.is_dir():
+                for sub in p.rglob("*"):
+                    if sub.is_file():
+                        sub.unlink(missing_ok=True)
+                p.rmdir()
+            else:
+                p.unlink(missing_ok=True)
 
-    def session_end(self, autofix: bool) -> None:
-        self._record_session("END")
-        self.session_start(autofix)
-        self._log("Session end complete")
+    # ------------------------------------------------------------------
+    # Database helpers
+    # ------------------------------------------------------------------
+    def _insert_session(self) -> int:
+        with get_connection(self.db_path) as conn:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                INSERT INTO session_wrapups (
+                    process_id, start_time, status, errors_count, warnings_count, completed_tasks, metadata
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    f"CWM-{os.getpid()}-{int(time.time())}",
+                    datetime.now(UTC).isoformat(),
+                    "RUNNING",
+                    0,
+                    0,
+                    "",
+                    "session start",
+                ),
+            )
+            conn.commit()
+            row_id = cur.lastrowid
+            assert row_id is not None
+            return row_id
+
+    def _finalize_session(self, row_id: int) -> None:
+        with get_connection(self.db_path) as conn:
+            conn.execute(
+                """
+                UPDATE session_wrapups
+                   SET end_time = ?, status = ?
+                 WHERE id = ?
+                """,
+                (datetime.now(UTC).isoformat(), "COMPLETED", row_id),
+            )
+            conn.commit()
+
+    # ------------------------------------------------------------------
+    # Validation
+    # ------------------------------------------------------------------
+    def _validate_workspace(self) -> None:
+        zero_files = self._scan_zero_byte_files()
+        recursive_folders = self._scan_recursive_folders()
+
+        if zero_files:
+            self.logger.warning("Zero-byte files found: %s", zero_files)
+            if self.autofix:
+                self._remove_paths(zero_files)
+
+        if recursive_folders:
+            self.logger.error("Recursive backup folders found: %s", recursive_folders)
+            if self.autofix:
+                self._remove_paths(recursive_folders)
+
+    # ------------------------------------------------------------------
+    # Session operations
+    # ------------------------------------------------------------------
+    def start_session(self) -> bool:
+        """Start a managed session."""
+        self._setup_logging()
+        self._validate_environment()
+        phases = ["Scanning", "Logging"]
+        start_time = time.time()
+        with tqdm(total=len(phases), desc="SessionStart", unit="step") as bar:
+            for phase in phases:
+                if time.time() - start_time > 1800:  # 30 minutes
+                    raise TimeoutError("Session start exceeded timeout")
+                bar.set_description(phase)
+                if phase == "Scanning":
+                    self._validate_workspace()
+                elif phase == "Logging":
+                    row_id = self._insert_session()
+                    SESSION_FILE.write_text(str(row_id))
+                bar.update(1)
+        return True
+
+    def end_session(self) -> bool:
+        """Finalize the managed session."""
+        self._setup_logging()
+        self._validate_environment()
+        if not SESSION_FILE.exists():
+            raise RuntimeError("No active session to finalize")
+        row_id = int(SESSION_FILE.read_text())
+
+        phases = ["Scanning", "Finalize"]
+        start_time = time.time()
+        with tqdm(total=len(phases), desc="SessionEnd", unit="step") as bar:
+            for phase in phases:
+                if time.time() - start_time > 1800:
+                    raise TimeoutError("Session end exceeded timeout")
+                bar.set_description(phase)
+                if phase == "Scanning":
+                    self._validate_workspace()
+                elif phase == "Finalize":
+                    self._finalize_session(row_id)
+                    SESSION_FILE.unlink(missing_ok=True)
+                bar.update(1)
+        return True
 
 
-def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Comprehensive Workspace Manager")
     parser.add_argument("--SessionStart", action="store_true", help="Start session")
     parser.add_argument("--SessionEnd", action="store_true", help="End session")
-    parser.add_argument("-AutoFix", action="store_true", help="Fix zero-byte files")
+    parser.add_argument("-AutoFix", action="store_true", help="Automatically fix issues")
     parser.add_argument("-VerboseLogging", action="store_true", help="Enable verbose logging")
+    parser.add_argument("--db-path", type=Path, default=DB_PATH, help="Path to production database")
     return parser.parse_args(argv)
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: List[str] | None = None) -> None:
     args = parse_args(argv)
-    logging.basicConfig(level=logging.DEBUG if args.VerboseLogging else logging.INFO)
-    manager = ComprehensiveWorkspaceManager()
+    manager = ComprehensiveWorkspaceManager(db_path=args.db_path, autofix=args.AutoFix, verbose=args.VerboseLogging)
+
+    orchestrator = DualCopilotOrchestrator()
+
+    if args.SessionStart == args.SessionEnd:
+        raise SystemExit("Specify --SessionStart or --SessionEnd")
+
     if args.SessionStart:
-        manager.session_start(args.AutoFix)
-    if args.SessionEnd:
-        manager.session_end(args.AutoFix)
-    return 0
+        orchestrator.run(manager.start_session, [__file__])
+    else:
+        orchestrator.run(manager.end_session, [__file__])
 
 
 if __name__ == "__main__":  # pragma: no cover
-    raise SystemExit(main())
+    main()
