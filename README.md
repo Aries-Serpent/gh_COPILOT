@@ -38,6 +38,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
 - **Script Validation**: automated checks available
 - **Self-Healing Systems:** experimental correction scripts
+- **Autonomous File Management:** see [Using AutonomousFileManager](docs/USING_AUTONOMOUS_FILE_MANAGER.md)
 - **Continuous Operation Mode:** optional monitoring utilities
 - **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
   `scripts/monitoring/enterprise_compliance_monitor.py`, and
