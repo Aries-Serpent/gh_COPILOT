@@ -82,7 +82,8 @@ bash setup.sh
 # update the environment to permit outbound connections to PyPI.
 
 # 2b. Install the line-wrapping utility
-bash tools/install_clw.sh
+cp tools/clw.py /usr/local/bin/clw
+chmod +x /usr/local/bin/clw
 # Verify clw exists
 ls -l /usr/local/bin/clw
 
@@ -146,9 +147,9 @@ are thin CLI wrappers. They delegate to the core implementations under
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
-Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
+Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw.py` to `/usr/local/bin/clw` and make it executable:
 ```bash
-cp tools/clw /usr/local/bin/clw
+cp tools/clw.py /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
 ```
 
@@ -759,6 +760,9 @@ The toolkit includes 16 specialized instruction modules for GitHub Copilot integ
 - Autonomous System Integration
 - Dual Copilot validation logs recorded in `copilot_interactions` database
 - Continuous Operation Protocols
+
+### GitHub Bot Integration
+See [ChatGPT Bot Integration Guide](docs/chatgpt_bot_integration_guide.md) for environment variables and usage of the webhook server and license assignment script.
 
 ---
 
