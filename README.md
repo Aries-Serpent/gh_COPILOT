@@ -69,7 +69,8 @@ cd gh_COPILOT
 
 # 1b. Copy environment template
 cp .env.example .env
-# Edit `.env` to add `FLASK_SECRET_KEY` and `API_SECRET_KEY` values.
+# Edit `.env` to add `FLASK_SECRET_KEY`, `API_SECRET_KEY`, and `OPENAI_API_KEY` values.
+# The `OPENAI_API_KEY` variable enables modules in `github_integration/openai_connector.py`.
 # Generate strong secrets with `python -c "import secrets; print(secrets.token_hex(32))"`.
 
 # 2. Run setup script (creates `.venv` and installs requirements)
@@ -83,6 +84,10 @@ bash setup.sh
 bash tools/install_clw.sh
 # Verify clw exists
 ls -l /usr/local/bin/clw
+
+### OpenAI Connector
+The repository provides `github_integration/openai_connector.py` for OpenAI API calls.
+Set `OPENAI_API_KEY` in your `.env` to enable these helpers.
 
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
