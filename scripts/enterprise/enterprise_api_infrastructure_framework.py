@@ -132,14 +132,15 @@ class EnterpriseAuthentication:
             except json.JSONDecodeError:
                 self.secret_key = None
         if not self.secret_key:
-            self.secret_key = "enterprise_api_secret_2024"
+            log_message(__name__, "[ERROR] API_SECRET_KEY not set. Exiting.")
+            sys.exit(1)
         
         # Initialize default admin user
         self._create_default_users()
 
         # MANDATORY: Visual processing indicators
-        log_message("🔐 ENTERPRISE AUTHENTICATION INITIALIZED")
-        log_message(f"Default users created: {len(self.users)}")
+        log_message(__name__, f"🔐 ENTERPRISE AUTHENTICATION INITIALIZED PID:{os.getpid()} START:{datetime.now().isoformat()}")
+        log_message(__name__, f"Default users created: {len(self.users)}")
 
     def _create_default_users(self):
         """👤 Create default enterprise users"""
@@ -219,7 +220,7 @@ class APIDocumentationGenerator:
         self.endpoints = {}
 
         # MANDATORY: Visual processing indicators
-        log_message("📚 API DOCUMENTATION GENERATOR INITIALIZED")
+        log_message(__name__, "📚 API DOCUMENTATION GENERATOR INITIALIZED")
 
     def register_endpoint(self, endpoint: APIEndpoint):
         """📝 Register endpoint for documentation"""
@@ -369,9 +370,9 @@ class EnterpriseAPIServer:
             self.app = None
 
         # MANDATORY: Visual processing indicators
-        log_message("🌐 ENTERPRISE API SERVER INITIALIZED")
-        log_message(f"Flask Available: {FLASK_AVAILABLE}")
-        log_message(f"JWT Available: {JWT_AVAILABLE}")
+        log_message(__name__, "🌐 ENTERPRISE API SERVER INITIALIZED")
+        log_message(__name__, f"Flask Available: {FLASK_AVAILABLE}")
+        log_message(__name__, f"JWT Available: {JWT_AVAILABLE}")
 
     def _setup_flask_routes(self):
         """🔧 Setup Flask routes and middleware"""
@@ -611,10 +612,7 @@ class EnterpriseAPIServer:
             Dictionary describing server status and metadata.
         """
         if not FLASK_AVAILABLE:
-            log_message(
-                "Flask not available - starting simulation mode",
-                level=logging.WARNING,
-            )
+            log_message(__name__, "Flask not available - starting simulation mode", level=logging.WARNING)
             return self._start_simulation_mode()
 
         try:
@@ -625,9 +623,9 @@ class EnterpriseAPIServer:
             self.server_thread = threading.Thread(target=self.server.serve_forever, daemon=True)
             self.server_thread.start()
 
-            log_message(f"🚀 Enterprise API Server started on http://{self.host}:{self.port}")
-            log_message(f"📚 API Documentation: http://{self.host}:{self.port}/api/v1/docs")
-            log_message(f"🔧 OpenAPI Spec: http://{self.host}:{self.port}/api/v1/openapi.json")
+            log_message(__name__, f"🚀 Enterprise API Server started on http://{self.host}:{self.port}")
+            log_message(__name__, f"📚 API Documentation: http://{self.host}:{self.port}/api/v1/docs")
+            log_message(__name__, f"🔧 OpenAPI Spec: http://{self.host}:{self.port}/api/v1/openapi.json")
 
             return {
                 "server_status": "RUNNING",
@@ -649,7 +647,7 @@ class EnterpriseAPIServer:
 
     def _start_simulation_mode(self) -> Dict[str, Any]:
         """🎭 Start simulation mode when Flask unavailable"""
-        log_message("🎭 API Server running in simulation mode")
+        log_message(__name__, "🎭 API Server running in simulation mode")
 
         # Simulate API endpoints
         simulated_endpoints = [
@@ -674,7 +672,7 @@ class EnterpriseAPIServer:
             self.server.shutdown()
             if self.server_thread:
                 self.server_thread.join(timeout=5)
-            log_message("🛑 Enterprise API Server stopped")
+            log_message(__name__, "🛑 Enterprise API Server stopped")
 
     def get_server_metrics(self) -> Dict[str, Any]:
         """📊 Get comprehensive server metrics"""

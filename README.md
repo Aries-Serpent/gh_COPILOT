@@ -69,6 +69,8 @@ cd gh_COPILOT
 
 # 1b. Copy environment template
 cp .env.example .env
+# Edit `.env` to add `FLASK_SECRET_KEY` and `API_SECRET_KEY` values.
+# Generate strong secrets with `python -c "import secrets; print(secrets.token_hex(32))"`.
 
 # 2. Run setup script (creates `.venv` and installs requirements)
 bash setup.sh
@@ -203,7 +205,7 @@ Run the session manager after setting the workspace and backup paths:
 ```bash
 export GH_COPILOT_WORKSPACE=$(pwd)
 export GH_COPILOT_BACKUP_ROOT=/path/to/backups
-export API_SECRET_KEY=your_api_secret
+export API_SECRET_KEY=<generated_secret>
 python scripts/wlc_session_manager.py
 ```
 
@@ -237,6 +239,7 @@ Before running, set the required environment variables so session data is logged
 ```bash
 export GH_COPILOT_WORKSPACE=$(pwd)
 export GH_COPILOT_BACKUP_ROOT=/path/to/backups
+export API_SECRET_KEY=<generated_secret>
 python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
 ```
 

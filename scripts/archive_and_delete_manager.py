@@ -26,10 +26,10 @@ import py7zr
 from tqdm import tqdm
 
 # Enterprise logging setup
-ARCHIVE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "ARCHIVE(S)"
+ARCHIVE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app")) / "ARCHIVE(S)"
 MANUAL_DELETE_FOLDER = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
 LOGS_DIR = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "archive_delete"
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "/app")) / "logs" / "archive_delete"
 )
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"archive_delete_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
@@ -41,12 +41,12 @@ logging.basicConfig(
 )
 
 PRODUCTION_DB = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "production.db"
+    Path(os.getenv("GH_COPILOT_WORKSPACE", "/app")) / "production.db"
 )
 
 
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
     forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
@@ -56,7 +56,7 @@ def validate_no_recursive_folders() -> None:
 
 
 def validate_environment_root() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
     if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
         logging.warning(f"Non-standard workspace root: {workspace_root}")
 
@@ -200,7 +200,7 @@ def main() -> None:
     manager = ArchiveAndDeleteManager()
     # Replace 'target_file_path' with actual file path to archive and delete
     target_file_path = (
-        Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "example.txt"
+        Path(os.getenv("GH_COPILOT_WORKSPACE", "/app")) / "example.txt"
     )
     if target_file_path.exists():
         archive_path = manager.archive(target_file_path)
