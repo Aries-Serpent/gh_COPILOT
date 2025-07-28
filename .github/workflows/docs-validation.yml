@@ -12,6 +12,9 @@ on:
 jobs:
   metrics-validation:
     runs-on: ubuntu-latest
+    env:
+      GH_COPILOT_WORKSPACE: ${{ github.workspace }}
+      GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

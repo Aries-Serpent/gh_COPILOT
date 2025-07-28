@@ -21,4 +21,5 @@ jobs:
       - name: Run placeholder audit
         env:
           GH_COPILOT_WORKSPACE: ${{ github.workspace }}
+          GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
         run: python -m scripts.intelligent_code_analysis_placeholder_detection
