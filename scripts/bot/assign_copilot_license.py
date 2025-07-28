@@ -12,7 +12,10 @@ from typing import Any
 import requests
 from tqdm import tqdm
 
-from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.cross_platform_paths import (
+    CrossPlatformPathManager,
+    verify_environment_variables,
+)
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 
 TEXT_INDICATORS = {
@@ -67,6 +70,7 @@ def assign_license(username: str, enable: bool = True) -> bool:
 
 
 def main() -> None:
+    verify_environment_variables()
     logger = setup_logger()
     start = datetime.now()
     logger.info("%s License manager started", TEXT_INDICATORS["start"])
