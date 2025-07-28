@@ -26,6 +26,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'requirements-test.txt') }}
+
       - name: Setup project
         run: bash setup.sh
 
@@ -77,6 +83,12 @@ jobs:
 
       - name: Run tests
         run: make test
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-logs
+          path: tests/test_results
 
       - name: Verify template_engine import
         run: python -c "import template_engine"
