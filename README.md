@@ -816,6 +816,8 @@ python scripts/code_placeholder_audit.py \
 # The audit automatically populates `code_audit_log` in analytics.db for
 # compliance reporting.
 # Run `scripts/database/add_code_audit_log.py` if the table is missing.
+The `compliance-audit.yml` workflow now installs dependencies, including
+`tqdm`, using Python 3.11 before invoking this script.
 
 # Generate scored documentation templates
 python docs/quantum_template_generator.py
