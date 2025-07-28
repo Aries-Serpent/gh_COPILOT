@@ -10,10 +10,11 @@ Enterprise Standards Compliance:
 """
 import sys
 
-import sqlite3
 import logging
+import sqlite3
 from pathlib import Path
 from datetime import datetime
+from utils.log_utils import log_message
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -72,9 +73,17 @@ def main():
     success = processor.execute_processing()
 
     if success:
-        print(f"{TEXT_INDICATORS['success']} Database processing completed")
+        log_message(
+            "cross_database_aggregation_system",
+            "Database processing completed",
+            level=logging.INFO,
+        )
     else:
-        print(f"{TEXT_INDICATORS['error']} Database processing failed")
+        log_message(
+            "cross_database_aggregation_system",
+            "Database processing failed",
+            level=logging.ERROR,
+        )
 
     return success
 

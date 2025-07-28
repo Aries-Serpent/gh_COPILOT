@@ -1,0 +1,25 @@
+name: Compliance Audit
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      GH_COPILOT_WORKSPACE: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run placeholder audit
+        env:
+          GH_COPILOT_WORKSPACE: ${{ github.workspace }}
+          GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
+        run: python -m scripts.code_placeholder_audit
+
+      - name: Fail on pending placeholders
+        run: |
+          count=$(sqlite3 databases/analytics.db 'select count(*) from todo_fixme_tracking')
+          if [ "$count" -gt 0 ]; then
+            echo "Placeholders remaining: $count" >&2
+            exit 1
+          fi

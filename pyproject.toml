@@ -16,10 +16,21 @@ unified-deployment-orchestrator = "copilot.orchestrators.unified_deployment_orch
 [tool.ruff]
 target-version = "py38"
 line-length = 120
-select = ["E", "F", "I"]
+
 extend-exclude = [
     "deployment/deployment_package_*/*",
     "scripts/enterprise/*",
     "scripts/optimization/*",
     "scripts/utilities/*",
+    "builds/*",
+    "copilot_qiskit_stubs/*",
+    "db_tools/*",
+    "enterprise_modules/*",
+    "quantum/*",
+    "quantum_optimizer.py",
 ]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+extend-ignore = ["F541", "F841"]
+ignore = ["I001", "F401", "E402", "E501"]

@@ -1,3 +1,10 @@
+"""Database-first template auto-generation utilities.
+
+This module clusters templates using :class:`sklearn.cluster.KMeans` and
+provides APIs to generate boilerplate code from existing patterns. Errors are
+raised if invalid templates are encountered or if recursion safeguards fail.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -17,6 +24,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
 from utils.log_utils import _log_event
+
+from .pattern_templates import get_pattern_templates
+from .placeholder_utils import DEFAULT_PRODUCTION_DB
 
 # Quantum demo import (placeholder for quantum-inspired scoring)
 try:
@@ -68,6 +78,7 @@ class TemplateAutoGenerator:
 
     analytics_db: Path = DEFAULT_ANALYTICS_DB
     completion_db: Path = DEFAULT_COMPLETION_DB
+    production_db: Path = DEFAULT_PRODUCTION_DB
 
     def __post_init__(self) -> None:
         self.logger = logging.getLogger(__name__)
@@ -83,7 +94,7 @@ class TemplateAutoGenerator:
         validate_no_recursive_folders()
         # DB-first loading of patterns and templates
         self.patterns = self._load_patterns()
-        self.templates = self._load_templates()
+        self.templates = self._load_templates() + get_pattern_templates()
         self.cluster_model = self._cluster_patterns()
         self._last_objective: Dict[str, Any] | None = None
         duration = (datetime.now() - start_time).total_seconds()
@@ -100,9 +111,7 @@ class TemplateAutoGenerator:
         if self.analytics_db.exists():
             with sqlite3.connect(self.analytics_db) as conn:
                 try:
-                    cur = conn.execute(
-                        "SELECT replacement_template FROM ml_pattern_optimization"
-                    )
+                    cur = conn.execute("SELECT replacement_template FROM ml_pattern_optimization")
                     patterns = [row[0] for row in cur.fetchall()]
                 except sqlite3.Error as exc:
                     logger.error(f"Error loading patterns: {exc}")
@@ -134,7 +143,16 @@ class TemplateAutoGenerator:
                     templates = [row[0] for row in cur.fetchall()]
                 except sqlite3.Error as exc:
                     logger.error(f"Error loading templates: {exc}")
-        logger.info(f"Loaded {len(templates)} templates")
+        if not templates:
+            from . import pattern_templates
+
+            templates = list(pattern_templates.DEFAULT_TEMPLATES)
+            logger.info(
+                "Loaded %s default templates from pattern_templates",
+                len(templates),
+            )
+        else:
+            logger.info(f"Loaded {len(templates)} templates")
         _log_event(
             {"event": "load_templates", "count": len(templates)},
             table="generator_events",
@@ -148,29 +166,36 @@ class TemplateAutoGenerator:
         baseline = np.ones_like(vec) / np.sqrt(len(vec))
         return float(abs(np.dot(vec, baseline.conj())))
 
+    def _load_production_patterns(self) -> list[str]:
+        """Fetch template patterns from ``production.db`` if available."""
+        patterns: list[str] = []
+        if self.production_db.exists():
+            with sqlite3.connect(self.production_db) as conn:
+                try:
+                    cur = conn.execute("SELECT template_content FROM script_template_patterns")
+                    patterns = [row[0] for row in cur.fetchall()]
+                except sqlite3.Error as exc:
+                    logger.error(f"Error loading production patterns: {exc}")
+        return patterns
+
     def _cluster_patterns(self) -> KMeans | None:
         logger.info("Clustering patterns and templates...")
-        corpus = self.templates + self.patterns
+        prod_patterns = self._load_production_patterns()
+        corpus = self.templates + self.patterns + prod_patterns
         if not corpus:
             logger.warning("No corpus to cluster")
             return None
         vectorizer = TfidfVectorizer()
         matrix = vectorizer.fit_transform(corpus)
         n_clusters = min(len(corpus), 2)
-        model = KMeans(
-            n_clusters=n_clusters, n_init="auto", random_state=int(time.time())
-        )
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=int(time.time()))
         start_ts = time.time()
         with tqdm(total=1, desc="clustering", unit="step") as pbar:
             model.fit(matrix)
             pbar.update(1)
-        model.cluster_centers_ += np.random.normal(
-            scale=0.01, size=model.cluster_centers_.shape
-        )
+        model.cluster_centers_ += np.random.normal(scale=0.01, size=model.cluster_centers_.shape)
         duration = time.time() - start_ts
-        logger.info(
-            f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s"
-        )
+        logger.info(f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s")
         _log_event(
             {
                 "event": "cluster",
@@ -199,9 +224,7 @@ class TemplateAutoGenerator:
         start = time.time()
         with tqdm(total=len(candidates), desc="[PROGRESS] select", unit="tmpl") as bar:
             for idx, tmpl in enumerate(candidates, 1):
-                score = self.objective_similarity(target, tmpl) + self._quantum_score(
-                    tmpl
-                )
+                score = self.objective_similarity(target, tmpl) + self._quantum_score(tmpl)
                 if score > best_score:
                     best_score = score
                     best = tmpl
@@ -214,9 +237,7 @@ class TemplateAutoGenerator:
                 bar.update(1)
         try:
             with sqlite3.connect(self.analytics_db) as conn:
-                conn.execute(
-                    "CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)"
-                )
+                conn.execute("CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)")
                 conn.execute(
                     "INSERT INTO template_events (ts, target, template) VALUES (?,?,?)",
                     (datetime.utcnow().isoformat(), target, best),
@@ -306,15 +327,11 @@ class TemplateAutoGenerator:
         matrix = vectorizer.transform(corpus)
         reps: List[str] = []
         start_ts = time.time()
-        for idx in tqdm(
-            range(self.cluster_model.n_clusters), desc="[PROGRESS] reps", unit="cluster"
-        ):
+        for idx in tqdm(range(self.cluster_model.n_clusters), desc="[PROGRESS] reps", unit="cluster"):
             if time.time() - start_ts > 60:
                 logger.warning("Representative selection timeout")
                 break
-            indices = [
-                i for i, label in enumerate(self.cluster_model.labels_) if label == idx
-            ]
+            indices = [i for i, label in enumerate(self.cluster_model.labels_) if label == idx]
             if not indices:
                 continue
             sub_matrix = matrix[indices]
@@ -335,4 +352,5 @@ __all__ = [
     "TemplateAutoGenerator",
     "DEFAULT_ANALYTICS_DB",
     "DEFAULT_COMPLETION_DB",
+    "DEFAULT_PRODUCTION_DB",
 ]

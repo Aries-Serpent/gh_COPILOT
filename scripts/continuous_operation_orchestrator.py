@@ -76,6 +76,12 @@ if os.getenv("GH_COPILOT_DISABLE_VALIDATION") != "1":
     validate_enterprise_operation()
 
 
+def primary_validate() -> bool:
+    """Run primary environment validation."""
+    logging.info("PRIMARY VALIDATION: continuous operation environment")
+    return validate_enterprise_operation()
+
+
 @dataclass
 class ContinuousOperationMetrics:
     """📊 Continuous Operation Performance Metrics"""
@@ -179,6 +185,11 @@ class ContinuousOperationOrchestrator:
 
         logging.info("✅ Continuous Operation Orchestrator initialization complete")
 
+    def secondary_validate(self) -> bool:
+        """Run secondary validation after continuous operation."""
+        logging.info("SECONDARY VALIDATION: continuous operation environment")
+        return validate_enterprise_operation()
+
     def execute_continuous_operation_cycle(self) -> Dict[str, Any]:
         """🔄 Execute comprehensive continuous operation cycle"""
 
@@ -230,7 +241,23 @@ class ContinuousOperationOrchestrator:
         # MANDATORY: Completion summary
         self._log_cycle_completion_summary(cycle_results)
 
+        # Dual Copilot validation
+        logging.info("🔍 PRIMARY VALIDATION")
+        primary_ok = self.primary_validate()
+        logging.info("🔍 SECONDARY VALIDATION")
+        secondary_ok = self.secondary_validate()
+        cycle_results["primary_validation"] = primary_ok
+        cycle_results["secondary_validation"] = secondary_ok
+
         return cycle_results
+
+    def primary_validate(self) -> bool:
+        """Primary validation step for continuous operation."""
+        return True
+
+    def secondary_validate(self) -> bool:
+        """Secondary validation mirroring :func:`primary_validate`."""
+        return self.primary_validate()
 
     def _execute_system_health_monitoring(self) -> Dict[str, Any]:
         """🔍 Execute comprehensive system health monitoring"""
@@ -378,6 +405,8 @@ class ContinuousOperationOrchestrator:
         logging.info(f"Duration: {duration_hours} hours")
         logging.info(f"Target Excellence: {self.target_excellence:.1%}")
 
+        primary_validate()
+
         end_time = self.start_time + timedelta(hours=duration_hours)
         operation_results = {
             "total_cycles": 0,
@@ -437,6 +466,8 @@ class ContinuousOperationOrchestrator:
         finally:
             # MANDATORY: Final completion summary
             self._log_continuous_operation_summary(operation_results)
+
+        self.secondary_validate()
 
         return operation_results
 

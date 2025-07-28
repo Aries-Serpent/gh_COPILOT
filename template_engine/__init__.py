@@ -1,21 +1,58 @@
-"""Template engine package with lazy imports."""
+"""Top-level interface for :mod:`template_engine`.
+
+This package lazily exposes submodules used throughout the project. Public
+APIs include :mod:`auto_generator`, :mod:`db_first_code_generator`,
+:mod:`pattern_mining_engine`, and :mod:`template_synchronizer`. Accessing an
+attribute imports the underlying module on first use. The helper
+:func:`_log_event` is re-exported from :mod:`log_utils` for convenience.
+
+All unrecoverable states raise :class:`RuntimeError`. Malformed template data
+raise :class:`ValueError`.
+"""
+
+from __future__ import annotations
+
 from importlib import import_module
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
-    from utils import log_utils
+    from . import (
+        auto_generator,  # noqa: F401
+        db_first_code_generator,  # noqa: F401
+        log_utils,  # noqa: F401
+        objective_similarity_scorer,  # noqa: F401
+        pattern_clustering_sync,  # noqa: F401
+        pattern_mining_engine,  # noqa: F401
+        pattern_templates,  # noqa: F401
+        placeholder_utils,  # noqa: F401
+        template_placeholder_remover,  # noqa: F401
+        template_synchronizer,  # noqa: F401
+        workflow_enhancer,  # noqa: F401
+    )
 
-    from . import auto_generator, template_synchronizer
-
-__all__ = ["auto_generator", "template_synchronizer", "log_utils", "_log_event"]
+__all__ = [
+    "auto_generator",
+    "db_first_code_generator",
+    "log_utils",
+    "objective_similarity_scorer",
+    "pattern_clustering_sync",
+    "pattern_mining_engine",
+    "placeholder_utils",
+    "template_placeholder_remover",
+    "template_synchronizer",
+    "workflow_enhancer",
+    "pattern_templates",
+]
 
 
 def __getattr__(name: str):
-    if name in ("auto_generator", "template_synchronizer"):
-        return import_module(f".{name}", __name__)
-    if name == "log_utils":
-        return import_module("utils.log_utils")
+    if name in __all__:
+        module = import_module(f"{__name__}.{name}")
+        globals()[name] = module
+        return module
     if name == "_log_event":
-        module = import_module("utils.log_utils")
-        return getattr(module, "_log_event")
-    raise AttributeError(f"module {__name__} has no attribute {name}")
+        module = import_module(f"{__name__}.log_utils")
+        value = getattr(module, "_log_event")
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

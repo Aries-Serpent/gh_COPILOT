@@ -37,9 +37,12 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - Rendered output is also saved to `logs/template_rendering/` with timestamped filenames for auditing.
 
 ## 4. Synchronization
-- Run `template_engine.template_synchronizer.synchronize_templates()` to ensure
-  templates are consistent across development, staging, and production
-  databases.
+- Run `template_engine.template_synchronizer.synchronize_templates()` to preview
+   synchronization across development, staging, and production databases. To
+  apply updates and record audit logs, use
+  `template_engine.template_synchronizer.synchronize_templates_real()` or run
+  the CLI with the `--real` flag. Pass `--cluster` to enable KMeans-based
+  template grouping during synchronization.
 
 ## 5. Compliance & Correction
 - All generation actions must be logged for compliance review.
@@ -63,7 +66,7 @@ The Flask dashboard exposes a `/dashboard/compliance` endpoint that reads these
 metrics and shows real-time placeholder removal progress. When a placeholder is corrected, record the update in `analytics.db:correction_logs`. This ensures future audits can cross-reference removed placeholders with generated fixes.
 
 ### Placeholder Correction Workflow
-1. Run `scripts/audit_codebase_placeholders.py` to log all TODOs.
+1. Run `scripts/code_placeholder_audit.py` to log all TODOs.
 2. Review entries in `analytics.db:placeholder_audit` and fix the code.
 3. Record corrections with `scripts/correction_logger_and_rollback.py` for audit.
 4. Monitor `/dashboard/compliance` to verify the compliance score improves.
@@ -103,3 +106,5 @@ Use `add_code_audit_history.sql` to create the `code_audit_history` table. This 
 sqlite3 databases/analytics.db ".schema code_audit_history"
 ```
 
+## Database-First Enforcement
+The helper `database_first.ensure_db_reference()` verifies a target file path exists in `production.db` before it can be modified. Validation scripts such as `enterprise_dual_copilot_validator.py` flag modules that change files without calling this helper. Always call `ensure_db_reference()` prior to any filesystem write operations.

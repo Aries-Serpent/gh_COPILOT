@@ -1,17 +1,19 @@
 import os
 import sqlite3
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 from template_engine.template_placeholder_remover import (
     remove_unused_placeholders,
     validate_removals,
 )
 
+
 def test_remove_unused_placeholders(tmp_path: Path) -> None:
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     # Start time logging for visual processing indicator
     start_time = datetime.now()
-    print(f"PROCESS STARTED: test_remove_unused_placeholders")
+    print("PROCESS STARTED: test_remove_unused_placeholders")
     print(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Process ID: {os.getpid()}")
 

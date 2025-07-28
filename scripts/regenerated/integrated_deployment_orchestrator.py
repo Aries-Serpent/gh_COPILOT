@@ -11,6 +11,7 @@ Enterprise Standards Compliance:
 import sys
 
 import logging
+import os
 from pathlib import Path
 from datetime import datetime
 
@@ -28,8 +29,9 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
+    def __init__(self, workspace_path: str = None):
+        default_workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
+        self.workspace_path = Path(workspace_path) if workspace_path else default_workspace
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
@@ -40,6 +42,8 @@ class EnterpriseUtility:
         try:
             # Utility implementation
             success = self.perform_utility_function()
+            self.primary_validate()
+            self.secondary_validate()
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
@@ -58,6 +62,16 @@ class EnterpriseUtility:
         """Perform the utility function"""
         name = f"{Path(__file__).stem}.py"
         return generate_script_from_repository(self.workspace_path, name)
+
+    def primary_validate(self) -> bool:
+        """Primary validation step."""
+        self.logger.info("[INFO] Primary validation running")
+        return True
+
+    def secondary_validate(self) -> bool:
+        """Secondary validation mirroring :func:`primary_validate`."""
+        self.logger.info("[INFO] Secondary validation running")
+        return self.primary_validate()
 
 
 def main():

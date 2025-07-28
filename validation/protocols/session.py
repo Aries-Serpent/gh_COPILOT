@@ -5,6 +5,7 @@ Refactored from original session_protocol_validator.py with enhanced modular des
 
 import logging
 import os
+from utils.log_utils import _log_plain
 from typing import Optional
 
 from copilot.common.workspace_utils import get_workspace_path
@@ -282,12 +283,12 @@ def main():
     result = validator.validate_startup()
     
     if result.is_success:
-        print(f"{TEXT_INDICATORS['success']} Session protocol validation passed")
+        _log_plain(f"{TEXT_INDICATORS['success']} Session protocol validation passed")
         return True
     else:
-        print(f"{TEXT_INDICATORS['error']} Session protocol validation failed")
+        _log_plain(f"{TEXT_INDICATORS['error']} Session protocol validation failed", level=logging.ERROR)
         for error in result.errors:
-            print(f"  Error: {error}")
+            _log_plain(f"  Error: {error}", level=logging.ERROR)
         return False
 
 

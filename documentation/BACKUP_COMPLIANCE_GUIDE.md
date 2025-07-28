@@ -24,3 +24,12 @@ Usage
 from scripts.database.complete_consolidation_orchestrator import create_external_backup
 backup_path = create_external_backup(source_file, "my_backup")
 ```
+
+### Appendix: Using `validate_enterprise_operation()`
+Before any script performs file changes, call:
+```python
+from enterprise_modules.compliance import validate_enterprise_operation
+
+validate_enterprise_operation(path_to_modify)
+```
+This ensures no backup folders exist inside the workspace and blocks operations in `C:/temp`.

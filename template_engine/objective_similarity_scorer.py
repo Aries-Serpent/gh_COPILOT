@@ -9,19 +9,19 @@ and real-time status updates are enforced per enterprise standards and DUAL COPI
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import sqlite3
 import sys
 import time
-import json
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple
 
-from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from tqdm import tqdm
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -32,20 +32,19 @@ LOG_FILE = LOGS_DIR / f"objective_similarity_scorer_{datetime.now().strftime('%Y
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
+
 
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     elapsed = time.time() - start_time
@@ -55,14 +54,12 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
         return f"{remaining:.2f}s remaining"
     return "N/A"
 
+
 def _write_log(scores: List[Tuple[int, float]], objective: str) -> None:
-    log_entry = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "objective": objective,
-        "scores": scores
-    }
+    log_entry = {"timestamp": datetime.utcnow().isoformat(), "objective": objective, "scores": scores}
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(json.dumps(log_entry, indent=2) + "\n")
+
 
 def compute_similarity_scores(
     objective: str,
@@ -80,7 +77,7 @@ def compute_similarity_scores(
     start_time = datetime.now()
     process_id = os.getpid()
     timeout_seconds = timeout_minutes * 60
-    logging.info(f"PROCESS STARTED: Objective Similarity Scoring")
+    logging.info("PROCESS STARTED: Objective Similarity Scoring")
     logging.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
     validate_no_recursive_folders()
@@ -142,6 +139,7 @@ def compute_similarity_scores(
     _write_log(scores, objective)
     return scores
 
+
 def validate_scores(
     objective: str,
     expected_count: int,
@@ -163,6 +161,7 @@ def validate_scores(
     else:
         logging.error("DUAL COPILOT validation failed: Objective similarity scoring mismatch.")
         return False
+
 
 __all__ = [
     "compute_similarity_scores",

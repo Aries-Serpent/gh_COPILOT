@@ -8,6 +8,9 @@
 
 ## Table Definitions
 
+All legacy `placeholder_mapping` fields were removed during the 2025 upgrade.
+Production now stores mappings in a JSON `template_map` column where applicable.
+
 ### file_system_mapping
 
 ```sql

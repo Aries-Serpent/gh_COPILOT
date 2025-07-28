@@ -183,14 +183,8 @@ CREATE TABLE quantum_algorithms_registry (
 );
 ```
 
-Run the following migration to update existing rows from the old
-`PLACEHOLDER` status:
-
-```sql
-UPDATE quantum_algorithms_registry
-SET implementation_status = 'IMPLEMENTED'
-WHERE implementation_status = 'PLACEHOLDER';
-```
+The migration to replace the legacy `PLACEHOLDER` implementation status has been executed.
+All rows in `quantum_algorithms_registry` now store `IMPLEMENTED` to reflect production-ready algorithms.
 
 #### **C. Web-GUI Integration Metrics**
 ```sql

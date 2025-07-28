@@ -1,3 +1,15 @@
+
+"""Pattern mining utilities for extracting and logging templates.
+
+This module provides helper functions used by :mod:`template_engine` for
+mining patterns from stored templates. Functions log operations to
+``analytics.db`` and implement safety checks, including anti-recursion
+validation via :func:`validate_no_recursive_folders`.
+
+All public functions raise ``RuntimeError`` on validation failure and
+``sqlite3.Error`` for database issues so callers can react accordingly.
+"""
+
 from __future__ import annotations
 
 import logging

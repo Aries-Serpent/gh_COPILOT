@@ -1,5 +1,7 @@
+import os
 import sqlite3
 from pathlib import Path
+import os
 
 import py7zr  # pyright: ignore[reportMissingImports]
 import pytest
@@ -59,6 +61,7 @@ def test_migrate_and_compress_archives_large_tables(tmp_path: Path, monkeypatch)
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     import scripts.database.unified_database_initializer as udi
+
     monkeypatch.setattr(
         udi,
         "SecondaryCopilotValidator",

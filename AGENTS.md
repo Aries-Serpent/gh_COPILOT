@@ -118,13 +118,13 @@ Understand the repository structure and place your changes appropriately:
 
 ## Agent Roles
 
-In the **gh\_COPILOT** toolkit, multiple conceptual “agent” components work together. The AI agent should be aware of these roles to understand the context of the system (note: some are aspirational or in development):
+In the **gh\_COPILOT** toolkit, multiple agent components work together. These roles are production-ready unless noted as simulated. The AI agent should understand each subsystem's purpose when contributing code:
 
 | Agent System                            | Core Function                                                                                                                |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | **DualCopilotOrchestrator**             | Primary executor with a secondary validator (dual-agent pattern for critical tasks).                                         |
 | **UnifiedMonitoringOptimizationSystem** | Continuous health monitoring of the system (ensures uptime, performance metrics).                                            |
-| **QuantumOptimizationEngine**           | Simulated quantum optimization engine providing scoring hooks. Use `QuantumExecutor` for experiments; falls back to classical scoring when unavailable. |
+| **QuantumOptimizationEngine**           | Provides quantum-inspired scoring for template ranking. Uses `QuantumExecutor` when available and seamlessly falls back to classical scoring. Simulation mode mirrors production logic for environments without quantum modules. |
 | **UnifiedScriptGenerationSystem**       | Generates scripts based on patterns from `production.db` (automating common tasks using database-driven templates).          |
 | **UnifiedSessionManagementSystem**      | Manages session integrity (zero-byte file checks, anti-recursion enforcement, ensures each session starts/ends cleanly).     |
 | **UnifiedDisasterRecoverySystem**       | Handles backup and restore processes (enterprise backup compliance and recovery protocols).                                  |

@@ -41,9 +41,7 @@ def ensure_table(conn: sqlite3.Connection) -> None:
 def _compute_metrics(conn: sqlite3.Connection) -> Dict[str, float]:
     cur = conn.execute("SELECT AVG(response_time_ms) FROM query_performance WHERE is_error = 0")
     avg_response = cur.fetchone()[0] or 0.0
-    cur = conn.execute(
-        "SELECT SUM(is_error), COUNT(*) FROM query_performance"
-    )
+    cur = conn.execute("SELECT SUM(is_error), COUNT(*) FROM query_performance")
     errors, total = cur.fetchone()
     error_rate = (errors or 0) / total if total else 0.0
     return {
@@ -59,9 +57,7 @@ def _update_dashboard(metrics: Dict[str, float]) -> None:
         logger.info("[DASHBOARD] %s", metrics)
 
 
-def track_query_time(
-    query_name: str, duration_ms: float, db_path: Optional[Path] = None
-) -> Dict[str, float]:
+def track_query_time(query_name: str, duration_ms: float, db_path: Optional[Path] = None) -> Dict[str, float]:
     """Record a query's response time and return aggregate metrics."""
     path = db_path or DB_PATH
     with sqlite3.connect(path) as conn:
@@ -76,9 +72,7 @@ def track_query_time(
     return metrics
 
 
-def record_error(
-    query_name: str, db_path: Optional[Path] = None
-) -> Dict[str, float]:
+def record_error(query_name: str, db_path: Optional[Path] = None) -> Dict[str, float]:
     """Record an error occurrence for a query and return aggregate metrics."""
     path = db_path or DB_PATH
     with sqlite3.connect(path) as conn:
@@ -94,9 +88,7 @@ def record_error(
     return metrics
 
 
-def benchmark_queries(
-    queries: Iterable[str], db_path: Optional[Path] = None
-) -> Dict[str, float]:
+def benchmark_queries(queries: Iterable[str], db_path: Optional[Path] = None) -> Dict[str, float]:
     """Execute queries while tracking performance metrics."""
     metrics: Dict[str, float] = {}
     path = db_path or DB_PATH
@@ -105,7 +97,8 @@ def benchmark_queries(
         try:
             with sqlite3.connect(path) as conn:
                 conn.execute(query)
-        except Exception:
+        except sqlite3.Error as exc:
+            logger.error("Query failed: %s", exc)
             metrics = record_error(query, db_path=path)
         else:
             duration = (perf_counter() - start) * 1000

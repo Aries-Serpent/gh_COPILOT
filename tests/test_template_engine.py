@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
+import os
 import sqlite3
 from pathlib import Path
 
 import numpy as np
 import pytest
+
+os.environ.setdefault("GH_COPILOT_DISABLE_VALIDATION", "1")
 from template_engine.auto_generator import TemplateAutoGenerator
 
 
 def create_test_dbs(tmp_path: Path):
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     analytics_db = tmp_path / "analytics.db"
     completion_db = tmp_path / "template_completion.db"
     with sqlite3.connect(analytics_db) as conn:
@@ -20,9 +24,7 @@ def create_test_dbs(tmp_path: Path):
             [("SELECT {cols} FROM {table}",), ("print('hello world')",)],
         )
     with sqlite3.connect(completion_db) as conn:
-        conn.execute(
-            "CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)"
-        )
+        conn.execute("CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)")
         conn.executemany(
             "INSERT INTO templates (template_content) VALUES (?)",
             [("def foo():\n    pass",), ("class Bar:\n    pass",)],
@@ -37,9 +39,19 @@ def test_generate_template_returns_expected(tmp_path):
     assert "print" in template
 
 
-def test_generate_template_no_patterns(tmp_path):
+def test_generate_template_no_patterns(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path / "ws"))
     generator = TemplateAutoGenerator(tmp_path / "a.db", tmp_path / "c.db")
-    assert generator.generate_template({"any": "thing"}) == ""
+    from template_engine import pattern_templates
+
+    assert generator.templates == pattern_templates.DEFAULT_TEMPLATES
+
+
+def test_default_templates_loaded(tmp_path, monkeypatch):
+    from template_engine import pattern_templates
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path / "ws"))
+    gen = TemplateAutoGenerator(tmp_path / "missing.db", tmp_path / "missing.db")
+    assert gen.templates == pattern_templates.DEFAULT_TEMPLATES
 
 
 def test_template_regeneration(tmp_path):
@@ -57,13 +69,9 @@ def test_generate_template_invalid_syntax(tmp_path):
             "CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, \
                 replacement_template TEXT)"
         )
-        conn.execute(
-            "INSERT INTO ml_pattern_optimization (replacement_template) VALUES ('def invalid:')"
-        )
+        conn.execute("INSERT INTO ml_pattern_optimization (replacement_template) VALUES ('def invalid:')")
     with sqlite3.connect(completion_db) as conn:
-        conn.execute(
-            "CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)"
-        )
+        conn.execute("CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)")
     generator = TemplateAutoGenerator(analytics_db, completion_db)
     with pytest.raises(ValueError):
         generator.generate_template({"action": "invalid"})

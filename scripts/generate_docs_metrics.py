@@ -8,8 +8,15 @@ import re
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+# Extend sys.path so the script can import project utilities when executed
+# directly as ``python scripts/generate_docs_metrics.py``.
+sys.path.append(str(ROOT))
+
+from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
+
 DB_PATH = ROOT / "production.db"
 README_PATHS = [
     ROOT / "README.md",
@@ -29,11 +36,7 @@ def get_metrics(db_path: Path = DB_PATH) -> dict[str, int]:
     templates = cur.fetchone()[0]
     conn.close()
     with DATABASE_LIST.open() as f:
-        databases = sum(
-            1
-            for line in f
-            if line.strip().startswith("- ") and line.strip().endswith(".db")
-        )
+        databases = sum(1 for line in f if line.strip().startswith("- ") and line.strip().endswith(".db"))
     return {"scripts": scripts, "templates": templates, "databases": databases}
 
 
@@ -69,21 +72,27 @@ def update_file(path: Path, metrics: dict[str, int]) -> None:
 
 def main(argv: list[str] | None = None) -> None:
     """Entry point for command-line execution."""
-    parser = argparse.ArgumentParser(
-        description="Generate documentation metrics in README files."
-    )
+    parser = argparse.ArgumentParser(description="Generate documentation metrics in README files.")
     parser.add_argument(
         "--db-path",
         type=Path,
         default=DB_PATH,
         help="Path to the production database",
     )
+    parser.add_argument(
+        "--analytics-db",
+        type=Path,
+        default=DEFAULT_ANALYTICS_DB,
+        help="Path to analytics database",
+    )
     args = parser.parse_args(argv)
 
     metrics = get_metrics(args.db_path)
+    _log_event({"event": "generate_docs_metrics", "metrics": metrics}, db_path=args.analytics_db)
     for path in README_PATHS:
         if path.exists():
             update_file(path, metrics)
+    _log_event({"event": "generate_docs_metrics_complete"}, db_path=args.analytics_db)
 
 
 if __name__ == "__main__":

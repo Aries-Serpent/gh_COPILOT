@@ -15,6 +15,8 @@ from time import perf_counter
 from typing import Iterable
 
 from monitoring.performance_tracker import benchmark_queries
+from db_tools.database_first_utils import ensure_db_reference
+from enterprise_modules.compliance import validate_enterprise_operation
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +85,9 @@ def run() -> None:
     workspace = Path("databases")
     target = workspace / "analytics.db"
     sources = [workspace / name for name in ANALYTICS_SOURCES]
+    if not ensure_db_reference(str(target)) or not validate_enterprise_operation(str(target)):
+        logger.error("[ERROR] Database-first validation failed")
+        return
     benchmark_queries(["SELECT count(*) FROM sqlite_master"], db_path=target)
     start = perf_counter()
     consolidate_databases(target, sources)
@@ -93,4 +98,5 @@ def run() -> None:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
+    validate_enterprise_operation()
     run()

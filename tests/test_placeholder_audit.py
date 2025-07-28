@@ -1,23 +1,28 @@
+import os
 import sqlite3
 
-from scripts.intelligent_code_analysis_placeholder_detection import EnterpriseUtility
+os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
+
+from scripts.code_placeholder_audit import main
 
 
 def test_placeholder_logging(tmp_path):
-    scripts_dir = tmp_path / "scripts"
-    scripts_dir.mkdir()
-    target = scripts_dir / "comprehensive_production_deployer.py"
-    target.write_text("def demo():\n    pass  # TODO")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    target = workspace / "demo.py"
+    target.write_text("def demo():\n    pass  # TODO\n")
 
-    db_path = tmp_path / "analytics.db"
-    util = EnterpriseUtility(workspace_path=str(tmp_path), db_path=str(db_path))
-    assert not util.perform_utility_function()
+    analytics = tmp_path / "analytics.db"
+    dash_dir = tmp_path / "dashboard"
+    os.environ["GH_COPILOT_WORKSPACE"] = str(workspace)
 
-    with sqlite3.connect(db_path) as conn:
-        row = conn.execute(
-            "SELECT file_path, pattern, severity FROM placeholder_audit"
-        ).fetchone()
-    assert row[0].endswith("comprehensive_production_deployer.py")
-    assert row[1] == "TODO"
-    assert row[2] == "low"
+    assert main(
+        workspace_path=str(workspace),
+        analytics_db=str(analytics),
+        production_db=None,
+        dashboard_dir=str(dash_dir),
+    )
 
+    with sqlite3.connect(analytics) as conn:
+        row = conn.execute("SELECT placeholder_type FROM todo_fixme_tracking").fetchone()
+    assert row[0] == "TODO"

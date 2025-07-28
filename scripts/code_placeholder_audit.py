@@ -29,6 +29,7 @@ from scripts.continuous_operation_orchestrator import (
     validate_enterprise_operation,
 )
 from scripts.database.add_code_audit_log import ensure_code_audit_log
+from utils.log_utils import log_message
 
 # Visual processing indicator constants
 TEXT = {
@@ -44,6 +45,9 @@ TEXT = {
 DEFAULT_PATTERNS = [
     r"TODO",
     r"FIXME",
+    r"pass\b",
+    r"NotImplementedError",
+    r"placeholder",
 ]
 
 
@@ -57,20 +61,54 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
             cur = conn.execute("SELECT placeholder_name FROM template_placeholders")
             return [row[0] for row in cur.fetchall()]
         except Exception as e:
-            logging.error(f"{TEXT['error']} Failed to fetch placeholders from production.db: {e}")
+            log_message(
+                __name__,
+                f"{TEXT['error']} Failed to fetch placeholders from production.db: {e}",
+                level=logging.ERROR,
+            )
             return []
 
 
 # Insert findings into analytics.db.code_audit_log
 def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False) -> None:
-    """Insert findings into analytics.db todo_fixme_tracking and code_audit_log.
+    """Log audit results to analytics.db.
 
-    If ``simulate`` is True, skip writing to the database.
+    Parameters
+    ----------
+    results : List[Dict]
+        Findings collected from the codebase scan.
+    analytics_db : Path
+        Target analytics database path.
+    simulate : bool, optional
+        If True, no database writes occur.
+
+    Returns
+    -------
+    None
+        The function writes to the database when not in simulation mode.
     """
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     ensure_code_audit_log(analytics_db)
+    # Ensure the tracking table exists even when running in simulation mode so
+    # that downstream validation does not fail when querying it.
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
+                file_path TEXT,
+                line_number INTEGER,
+                placeholder_type TEXT,
+                context TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        conn.commit()
     if simulate:
-        logging.info("[TEST MODE] Simulation enabled: not writing to analytics.db")
+        log_message(
+            __name__,
+            "[TEST MODE] Simulation enabled: not writing to analytics.db",
+        )
         return
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
@@ -155,7 +193,11 @@ def scan_files(workspace: Path, patterns: List[str], timeout: Optional[float] = 
             try:
                 lines = file.read_text(encoding="utf-8", errors="ignore").splitlines()
             except Exception as e:
-                logging.error(f"{TEXT['error']} Could not read {file}: {e}")
+                log_message(
+                    __name__,
+                    f"{TEXT['error']} Could not read {file}: {e}",
+                    level=logging.ERROR,
+                )
                 bar.update(1)
                 continue
             for idx, line in enumerate(lines, 1):
@@ -180,6 +222,25 @@ def validate_results(expected_count: int, analytics_db: Path) -> bool:
         cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking")
         db_count = cur.fetchone()[0]
     return db_count >= expected_count
+
+
+def rollback_last_entry(db_path: Path) -> bool:
+    """Remove the most recent placeholder audit entry from the databases."""
+    if not db_path.exists():
+        return False
+    removed = False
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.execute("SELECT rowid FROM todo_fixme_tracking ORDER BY rowid DESC LIMIT 1")
+        row = cur.fetchone()
+        if row:
+            conn.execute("DELETE FROM todo_fixme_tracking WHERE rowid = ?", (row[0],))
+            conn.execute(
+                "DELETE FROM code_audit_log WHERE rowid = ("
+                "SELECT rowid FROM code_audit_log ORDER BY rowid DESC LIMIT 1)"
+            )
+            conn.commit()
+            removed = True
+    return removed
 
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
@@ -211,9 +272,9 @@ def main(
     start_time = time.time()
     process_id = os.getpid()
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    logging.info(f"{TEXT['start']} auditing workspace")
-    logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logging.info(f"Process ID: {process_id}")
+    log_message(__name__, f"{TEXT['start']} auditing workspace")
+    log_message(__name__, f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    log_message(__name__, f"Process ID: {process_id}")
 
     # Anti-recursion validation
     if os.getenv("GH_COPILOT_DISABLE_VALIDATION") != "1":
@@ -239,7 +300,10 @@ def main(
             try:
                 lines = file.read_text(encoding="utf-8", errors="ignore").splitlines()
             except Exception as e:
-                logging.error(f"{TEXT['error']} Could not read {file}: {e}")
+                log_message(
+                    f"{TEXT['error']} Could not read {file}: {e}",
+                    level=logging.ERROR,
+                )
                 bar.update(1)
                 continue
             for line_num, line in enumerate(lines, 1):
@@ -264,16 +328,20 @@ def main(
     if not simulate:
         update_dashboard(len(results), dashboard)
     else:
-        logging.info("[TEST MODE] Dashboard update skipped")
+        log_message(__name__, "[TEST MODE] Dashboard update skipped")
     elapsed = time.time() - start_time
-    logging.info(f"{TEXT['info']} audit completed in {elapsed:.2f}s")
+    log_message(__name__, f"{TEXT['info']} audit completed in {elapsed:.2f}s")
 
     # DUAL COPILOT validation
     valid = validate_results(len(results), analytics)
     if valid:
-        logging.info(f"{TEXT['success']} audit logged {len(results)} findings")
+        log_message(__name__, f"{TEXT['success']} audit logged {len(results)} findings")
     else:
-        logging.error(f"{TEXT['error']} validation mismatch")
+        log_message(
+            __name__,
+            f"{TEXT['error']} validation mismatch",
+            level=logging.ERROR,
+        )
     return valid
 
 

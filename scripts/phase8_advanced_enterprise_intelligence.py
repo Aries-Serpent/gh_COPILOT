@@ -152,7 +152,8 @@ class AdvancedEnterpriseIntelligenceSystem:
         self.validate_environment_compliance()
         
         # Initialize workspace
-        self.workspace_path = Path(workspace_path or os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+        default_workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
+        self.workspace_path = Path(workspace_path) if workspace_path else default_workspace
         self.production_db = self.workspace_path / "production.db"
         
         # Advanced Intelligence Components

@@ -23,22 +23,17 @@ from typing import List, Dict, Any, Optional
 from tqdm import tqdm
 
 try:
-    from qiskit import QuantumCircuit, execute, Aer
+    from qiskit import QuantumCircuit, execute, Aer  # type: ignore
 
     QISKIT_AVAILABLE = True
 except ImportError:
     QISKIT_AVAILABLE = False
 
 # Enterprise logging setup
-LOGS_DIR = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    / "logs"
-    / "quantum_compliance"
-)
+WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+LOGS_DIR = WORKSPACE_ROOT / "logs" / "quantum_compliance"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = (
-    LOGS_DIR / f"quantum_compliance_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-)
+LOG_FILE = LOGS_DIR / f"quantum_compliance_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -49,7 +44,7 @@ logging.basicConfig(
 
 # Anti-recursion validation
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = WORKSPACE_ROOT
     forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
@@ -59,7 +54,7 @@ def validate_no_recursive_folders() -> None:
 
 
 def validate_environment_root() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = WORKSPACE_ROOT
     if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
         logging.warning(f"Non-standard workspace root: {workspace_root}")
 
@@ -72,9 +67,7 @@ class QuantumComplianceEngine:
     """
 
     def __init__(self, workspace: Optional[Path] = None) -> None:
-        self.workspace = workspace or Path(
-            os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")
-        )
+        self.workspace = workspace or WORKSPACE_ROOT
         self.start_time = datetime.now()
         self.process_id = os.getpid()
         self.timeout_seconds = 1800  # 30 minutes
@@ -105,9 +98,7 @@ class QuantumComplianceEngine:
             pbar.update(30)
 
             pbar.set_description("Applying Modular Weighting")
-            weighted_score = self._apply_modular_weighting(
-                pattern_matches, modular_weights
-            )
+            weighted_score = self._apply_modular_weighting(pattern_matches, modular_weights)
             pbar.update(30)
 
             if QISKIT_AVAILABLE:
@@ -125,9 +116,7 @@ class QuantumComplianceEngine:
 
         elapsed = time.time() - start_time
         etc = self._calculate_etc(elapsed, 100, 100)
-        logging.info(
-            f"Quantum compliance scoring completed in {elapsed:.2f}s | ETC: {etc}"
-        )
+        logging.info(f"Quantum compliance scoring completed in {elapsed:.2f}s | ETC: {etc}")
         logging.info(f"Target: {target} | Score: {score:.4f}")
         self.status = "COMPLETED"
         return score
@@ -144,9 +133,7 @@ class QuantumComplianceEngine:
         logging.info(f"Pattern matches: {matches}")
         return matches
 
-    def _apply_modular_weighting(
-        self, matches: Dict[str, int], weights: Optional[List[float]]
-    ) -> float:
+    def _apply_modular_weighting(self, matches: Dict[str, int], weights: Optional[List[float]]) -> float:
         """Apply modular weighting to pattern matches."""
         if not matches:
             return 0.0
@@ -175,9 +162,7 @@ class QuantumComplianceEngine:
         logging.info(f"Quantum field redundancy score: {quantum_score:.4f}")
         return quantum_score
 
-    def _calculate_etc(
-        self, elapsed: float, current_progress: int, total_work: int
-    ) -> str:
+    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
         if current_progress > 0:
             total_estimated = elapsed / (current_progress / total_work)
             remaining = total_estimated - elapsed
@@ -188,18 +173,14 @@ class QuantumComplianceEngine:
         """DUAL COPILOT: Secondary validator for quantum logic integrity and compliance."""
         valid = score >= threshold
         if valid:
-            logging.info(
-                "DUAL COPILOT validation passed: Quantum compliance score meets threshold."
-            )
+            logging.info("DUAL COPILOT validation passed: Quantum compliance score meets threshold.")
         else:
-            logging.error(
-                "DUAL COPILOT validation failed: Quantum compliance score below threshold."
-            )
+            logging.error("DUAL COPILOT validation failed: Quantum compliance score below threshold.")
         return valid
 
 
 def main() -> None:
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace = WORKSPACE_ROOT
     engine = QuantumComplianceEngine(workspace)
     # Example usage: scoring a README.md file with sample patterns and weights
     target_file = workspace / "README.md"
