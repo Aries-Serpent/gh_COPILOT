@@ -46,7 +46,7 @@ COMPREHENSIVE_VISUAL_PROCESSING_TEMPLATE = """def enterprise_operation(operation
     from tqdm import tqdm
 
     with tqdm(total=total_items,
-              desc=f'\U0001F504 {operation_name}',
+              desc=f'\U0001f504 {operation_name}',
               unit='items',
               bar_format='{l_bar}{bar}| {n}/{total} [{elapsed}<{remaining}]') as pbar:
         for item in items:
@@ -91,10 +91,16 @@ DEFAULT_TEMPLATES = [
 ]
 
 __all__ = [
-    'DATABASE_FIRST_TEMPLATE',
-    'AUTONOMOUS_ERROR_PREVENTION_TEMPLATE',
-    'COMPREHENSIVE_VISUAL_PROCESSING_TEMPLATE',
-    'AUTONOMOUS_SELF_HEALING_TEMPLATE',
-    'DUAL_COPILOT_VALIDATION_TEMPLATE',
-    'DEFAULT_TEMPLATES',
+    "DATABASE_FIRST_TEMPLATE",
+    "AUTONOMOUS_ERROR_PREVENTION_TEMPLATE",
+    "COMPREHENSIVE_VISUAL_PROCESSING_TEMPLATE",
+    "AUTONOMOUS_SELF_HEALING_TEMPLATE",
+    "DUAL_COPILOT_VALIDATION_TEMPLATE",
+    "DEFAULT_TEMPLATES",
+    "get_pattern_templates",
 ]
+
+
+def get_pattern_templates() -> list[str]:
+    """Return built-in template strings."""
+    return DEFAULT_TEMPLATES.copy()
