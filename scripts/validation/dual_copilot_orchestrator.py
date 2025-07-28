@@ -6,6 +6,7 @@ import logging
 from typing import Callable, Iterable
 
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+from scripts.validation.primary_copilot_executor import PrimaryCopilotExecutor, ProcessPhase
 
 
 class DualCopilotOrchestrator:
@@ -14,13 +15,23 @@ class DualCopilotOrchestrator:
         self.logger = logger or logging.getLogger(__name__)
         self.validator = SecondaryCopilotValidator(self.logger)
 
-    def run(self, primary: Callable[[], bool], validation_targets: Iterable[str]) -> bool:
-        """Execute primary callable then validate the given targets."""
+    def run(
+        self,
+        primary: Callable[[], bool],
+        validation_targets: Iterable[str],
+        timeout_minutes: int = 30,
+    ) -> tuple[bool, bool]:
+        """Execute primary callable with visual monitoring then validate targets."""
         self.logger.info("[DUAL] Starting primary operation")
-        primary_success = primary()
+
+        executor = PrimaryCopilotExecutor("Primary Operation", timeout_minutes, self.logger)
+        phase = ProcessPhase("Primary", "Execute main task", "\U0001F680", 100)
+        _, primary_success = executor.execute_with_monitoring([phase], primary)
+
         if primary_success:
             self.logger.info("[DUAL] Primary operation succeeded")
         else:
             self.logger.error("[DUAL] Primary operation failed")
+
         validation_success = self.validator.validate_corrections(list(validation_targets))
-        return primary_success and validation_success
+        return primary_success, validation_success

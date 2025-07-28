@@ -25,9 +25,19 @@ class AutonomousFileManager:
     def __init__(self, db_path: Path) -> None:
         self.db_path = db_path
         self.conn = sqlite3.connect(self.db_path)
+        self.conn.row_factory = sqlite3.Row
         self.logger = logging.getLogger(__name__)
         self.workspace = CrossPlatformPathManager.get_workspace_path()
+        self.backup_root = CrossPlatformPathManager.get_backup_root().resolve()
         validate_enterprise_environment()
+
+    @staticmethod
+    def _is_within(path: Path, parent: Path) -> bool:
+        try:
+            path.resolve().relative_to(parent)
+            return True
+        except ValueError:
+            return False
 
     def organize_files(self, target_dir: Path) -> None:
         """Organize files based on database patterns.
