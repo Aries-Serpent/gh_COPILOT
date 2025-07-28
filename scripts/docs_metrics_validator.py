@@ -11,7 +11,13 @@ import argparse
 import sys
 from pathlib import Path
 
-from . import validate_docs_metrics
+if __package__ in {None, ""}:
+    # Allow running as a script directly without module context
+    SCRIPT_DIR = Path(__file__).resolve().parent
+    sys.path.insert(0, str(SCRIPT_DIR))
+    from validate_docs_metrics import validate, DB_PATH  # type: ignore
+else:  # pragma: no cover - executed when imported as package module
+    from .validate_docs_metrics import validate, DB_PATH
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -26,11 +32,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--db-path",
         type=Path,
-        default=validate_docs_metrics.DB_PATH,
+        default=DB_PATH,
         help="Path to the production database",
     )
     args = parser.parse_args(argv)
-    success = validate_docs_metrics.validate(args.db_path)
+    success = validate(args.db_path)
     return 0 if success else 1
 
 
