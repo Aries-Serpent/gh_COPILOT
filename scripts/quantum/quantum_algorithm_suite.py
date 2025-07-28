@@ -1,5 +1,4 @@
 """Simulated quantum algorithm suite with common stubs."""
-
 from __future__ import annotations
 
 import logging
@@ -25,15 +24,12 @@ class QuantumAlgorithmSuite:
 
     def qft(self) -> str:
         self.logger.info("Running QFT placeholder")
-        print("Quantum Fidelity: 98.7%; Performance: simulated")
         return "qft"
 
     def clustering(self) -> str:
         self.logger.info("Running Quantum Clustering placeholder")
-        print("Quantum Fidelity: 98.7%; Performance: simulated")
         return "clustering"
 
     def quantum_neural_network(self) -> str:
         self.logger.info("Running QNN placeholder")
-        print("Quantum Fidelity: 98.7%; Performance: simulated")
         return "qnn"

@@ -36,7 +36,8 @@ def test_placeholders_importable(tmp_path):
     manager.end_session()
     AutonomousFileManager(db / "production.db")
     IntelligentFileClassifier(db / "production.db")
-    AutonomousBackupManager().create_backup(workspace)
+    backup_dest = AutonomousBackupManager().create_backup(workspace)
+    assert workspace.resolve() not in Path(backup_dest).resolve().parents
     WorkspaceOptimizer().optimize(workspace)
     ContinuousMonitoringEngine().run_cycle([])
     AutomatedOptimizationEngine().optimize(workspace)

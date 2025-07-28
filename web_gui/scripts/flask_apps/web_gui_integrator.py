@@ -108,3 +108,6 @@ class WebGUIIntegrator:
 
         self.logger.info("Registered web GUI endpoints")
 
+    def initialize(self) -> None:
+        """Initialize the integration with Flask dashboard."""
+        self.logger.info("Initialized Web GUI integrator with %s", self.db_path)
