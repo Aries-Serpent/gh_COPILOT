@@ -95,11 +95,13 @@ python backup_scripts/restore_backup.py --backup latest
 
 ### Flask Configuration
 ```python
+import os
 # Production settings
 app.config['DEBUG'] = False
-app.config['SECRET_KEY'] = 'production_secret_key'
+app.config['SECRET_KEY'] = os.environ['FLASK_SECRET_KEY']
 app.config['DATABASE_URL'] = 'production_database_path'
 ```
+Secrets must be supplied via environment variables (e.g. `FLASK_SECRET_KEY`).
 
 ### Template Configuration
 ```python

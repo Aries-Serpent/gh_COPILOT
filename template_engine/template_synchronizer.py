@@ -47,7 +47,8 @@ def _extract_templates(db: Path) -> list[tuple[str, str]]:
         return []
 
 
-ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "analytics.db"
+WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+ANALYTICS_DB = WORKSPACE_ROOT / "databases" / "analytics.db"
 
 logger = logging.getLogger(__name__)
 

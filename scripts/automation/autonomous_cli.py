@@ -22,6 +22,7 @@ import argparse
 import asyncio
 import json
 import logging
+import os
 import time
 from datetime import datetime
 from pathlib import Path
@@ -49,7 +50,7 @@ class AutonomousCLI:
     """🤖 Autonomous Self-Healing & Self-Learning Command-Line Interface"""
 
     def __init__(self):
-        self.workspace_path = Path("e:/gh_COPILOT")
+        self.workspace_path = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
         self.results_dir = self.workspace_path / "results" / "autonomous_cli"
         self.results_dir.mkdir(parents=True, exist_ok=True)
 
