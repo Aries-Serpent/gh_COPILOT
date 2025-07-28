@@ -222,6 +222,16 @@ python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --s
 python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --status
 python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --stop
 ```
+Set `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` before invoking to ensure logs and databases are found.
+
+### Workspace Optimizer CLI
+Archive rarely used files and log metrics:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
+python scripts/file_management/workspace_optimizer.py
+```
 
 ### Docker Usage
 Build and run the container with Docker:
