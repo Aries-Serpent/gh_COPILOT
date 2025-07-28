@@ -21,5 +21,4 @@ jobs:
       - name: Run placeholder audit
         env:
           GH_COPILOT_WORKSPACE: '.'
-          PYTHONPATH: ${{ github.workspace }}
-        run: python -m scripts.intelligent_code_analysis_placeholder_detection
+        run: python scripts/intelligent_code_analysis_placeholder_detection.py
