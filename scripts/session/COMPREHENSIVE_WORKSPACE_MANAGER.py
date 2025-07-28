@@ -31,7 +31,6 @@ from scripts.utilities.emergency_c_temp_violation_prevention import (
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 
-SESSION_FILE = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp")) / "current_session_id.txt"
 DB_PATH = Path("databases/production.db")
 
 
@@ -48,6 +47,9 @@ class ComprehensiveWorkspaceManager:
         self.verbose = verbose
         self.workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
         self.logger = logging.getLogger(self.__class__.__name__)
+        backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
+        backup_root.mkdir(parents=True, exist_ok=True)
+        self.session_file = backup_root / "current_session_id.txt"
 
     # ------------------------------------------------------------------
     # Utility methods
@@ -163,7 +165,7 @@ class ComprehensiveWorkspaceManager:
                     self._validate_workspace()
                 elif phase == "Logging":
                     row_id = self._insert_session()
-                    SESSION_FILE.write_text(str(row_id))
+                    self.session_file.write_text(str(row_id))
                 bar.update(1)
         return True
 
@@ -171,9 +173,9 @@ class ComprehensiveWorkspaceManager:
         """Finalize the managed session."""
         self._setup_logging()
         self._validate_environment()
-        if not SESSION_FILE.exists():
+        if not self.session_file.exists():
             raise RuntimeError("No active session to finalize")
-        row_id = int(SESSION_FILE.read_text())
+        row_id = int(self.session_file.read_text())
 
         phases = ["Scanning", "Finalize", "PostValidation"]
         start_time = time.time()
@@ -186,7 +188,7 @@ class ComprehensiveWorkspaceManager:
                     self._validate_workspace()
                 elif phase == "Finalize":
                     self._finalize_session(row_id)
-                    SESSION_FILE.unlink(missing_ok=True)
+                    self.session_file.unlink(missing_ok=True)
                 elif phase == "PostValidation":
                     EmergencyAntiRecursionValidator().full_validation()
                     EnterpriseUtility().execute_utility()

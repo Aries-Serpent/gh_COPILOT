@@ -25,6 +25,6 @@ class ContinuousMonitoringEngine:
         with tqdm(actions, desc="Monitoring actions", unit="action") as bar:
             for callback in bar:
                 callback()
-        if self.cycle_seconds:
+        if actions:
             time.sleep(self.cycle_seconds)
         self.logger.info("Cycle complete")
