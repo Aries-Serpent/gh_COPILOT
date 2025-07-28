@@ -25,9 +25,13 @@ All unit tests (`make test`) and scripts rely on these variables for path valida
 
 ## Line-Wrapping Utility
 
-Install the `clw` line wrapper to prevent terminal overflow during long command output. Run the bundled installer and verify the binary exists:
+Install the `clw` line wrapper to prevent terminal overflow during long command output. Copy the script and verify it exists:
 
 ```bash
-bash tools/install_clw.sh
+cp tools/clw.py /usr/local/bin/clw
+chmod +x /usr/local/bin/clw
 ls -l /usr/local/bin/clw
 ```
+
+## Archival Databases
+`archive.db` and `staging.db` are no longer included by default. They have been moved to `archived_databases/` and are also available in the project's GitHub releases. Download them if legacy analysis is required and place them under the `archived_databases/` directory.

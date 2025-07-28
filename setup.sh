@@ -17,9 +17,9 @@ python "$WORKSPACE/scripts/setup_environment.py" >>/tmp/setup_install.log
 
 # install clw line wrapper if missing
 if [ ! -x /usr/local/bin/clw ]; then
-    if [ -f "$WORKSPACE/tools/clw" ]; then
-        ln -sf "$WORKSPACE/tools/clw" /usr/local/bin/clw 2>/dev/null || \
-            cp "$WORKSPACE/tools/clw" /usr/local/bin/clw
+    if [ -f "$WORKSPACE/tools/clw.py" ]; then
+        ln -sf "$WORKSPACE/tools/clw.py" /usr/local/bin/clw 2>/dev/null || \
+            cp "$WORKSPACE/tools/clw.py" /usr/local/bin/clw
         chmod +x /usr/local/bin/clw
         echo "Installed clw to /usr/local/bin/clw"
     else

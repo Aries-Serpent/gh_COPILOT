@@ -23,3 +23,4 @@ This document lists all instruction modules available in the repository. Each en
 
 ### Additional Utilities
 - **Complete Consolidation Orchestrator**: [scripts/database/complete_consolidation_orchestrator.py](../scripts/database/complete_consolidation_orchestrator.py) - compresses large tables before migrating them into `enterprise_assets.db`.
+- **ChatGPT Bot Integration Guide**: [docs/chatgpt_bot_integration_guide.md](chatgpt_bot_integration_guide.md) - configure webhook and license scripts.
