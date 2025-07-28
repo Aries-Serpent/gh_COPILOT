@@ -19,21 +19,27 @@ Set the following variables before starting the services:
 - `GH_COPILOT_WORKSPACE` – absolute path to the repository root.
 - `GH_COPILOT_BACKUP_ROOT` – directory outside the workspace for logs and backups.
 - `GITHUB_TOKEN` – token with access to your organization.
-- `WEBHOOK_SECRET` – shared secret for validating incoming GitHub webhooks.
+- `GITHUB_WEBHOOK_SECRET` – shared secret for validating incoming GitHub webhooks.
 
 Export them manually or place them in a `.env` file and `source` it.
 
 ## Example Commands
 ### Start the Webhook Server
 ```bash
-python github_integration/webhook_server.py --host 0.0.0.0 --port 9000
+python scripts/bot/webhook_server.py
 ```
 The server listens for GitHub events and triggers automation workflows.
 
 ### Assign Copilot Licenses
 ```bash
-python github_integration/assign_copilot_license.py --org my-org --user alice
+python scripts/bot/assign_copilot_license.py my-org chatgpt-bot
 ```
 Use this script to grant GitHub Copilot licenses to new team members.
 
 Both scripts log activity under `$GH_COPILOT_BACKUP_ROOT/logs` and record events in `production.db`.
+
+## Testing & Validation
+Run the integration checks after configuration to ensure both components work:
+```bash
+python scripts/bot/test_integration.py
+```

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Minimal GitHub webhook server with HMAC validation."""
+# pyright: reportMissingImports=false
 
 from __future__ import annotations
 
