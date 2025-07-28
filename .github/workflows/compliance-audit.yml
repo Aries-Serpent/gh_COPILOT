@@ -1,0 +1,25 @@
+name: Placeholder-Audit
+
+on:
+  pull_request:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run placeholder audit
+        env:
+          GH_COPILOT_WORKSPACE: '.'
+          PYTHONPATH: ${{ github.workspace }}
+        run: python -m scripts.intelligent_code_analysis_placeholder_detection
