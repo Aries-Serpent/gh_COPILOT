@@ -620,6 +620,7 @@ gh_COPILOT/
 - **`scripts/utilities/self_healing_self_learning_system.py`** - Autonomous operations
 - **`scripts/validation/enterprise_dual_copilot_validator.py`** - DUAL COPILOT validation
 - **`scripts/utilities/unified_script_generation_system.py`** - Database-first generation
+- **`scripts/utilities/init_and_audit.py`** - Initialize databases and run placeholder audit
  - **`dashboard/enterprise_dashboard.py`** - Wrapper for Flask dashboard app
 - **`validation/compliance_report_generator.py`** - Summarize lint and test results
 - **`web_gui/dashboard_actionable_gui.py`** - Actionable compliance dashboard
