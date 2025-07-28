@@ -748,7 +748,8 @@ python scripts/validation/dual_copilot_pattern_tester.py
 - **[DUAL COPILOT Pattern Guide](.github/instructions/DUAL_COPILOT_PATTERN.instructions.md)** - Implementation guide
 - **[Enterprise Context Guide](.github/instructions/ENTERPRISE_CONTEXT.instructions.md)** - System overview
 - **[Instruction Module Index](docs/INSTRUCTION_INDEX.md)** - Complete instruction listing
- - **Quantum Template Generator** `docs/quantum_template_generator.py` - database-first template engine with optional quantum ranking
+- **Quantum Template Generator** `docs/quantum_template_generator.py` - database-first template engine with optional quantum ranking
+- **[ChatGPT Bot Integration Guide](docs/chatgpt_bot_integration_guide.md)** - webhook and Copilot license setup
 
 ### **GitHub Copilot Integration**
 The toolkit includes 16 specialized instruction modules for GitHub Copilot integration:
