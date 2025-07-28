@@ -39,9 +39,10 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 ## 4. Synchronization
 - Run `template_engine.template_synchronizer.synchronize_templates()` to preview
    synchronization across development, staging, and production databases. To
-   apply updates and record audit logs, use
-   `template_engine.template_synchronizer.synchronize_templates_real()` or run
-   the CLI with the `--real` flag.
+  apply updates and record audit logs, use
+  `template_engine.template_synchronizer.synchronize_templates_real()` or run
+  the CLI with the `--real` flag. Pass `--cluster` to enable KMeans-based
+  template grouping during synchronization.
 
 ## 5. Compliance & Correction
 - All generation actions must be logged for compliance review.

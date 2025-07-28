@@ -90,3 +90,18 @@ def test_extract_templates(tmp_path: Path) -> None:
         conn.execute("CREATE TABLE templates (name TEXT PRIMARY KEY, template_content TEXT)")
         conn.execute("INSERT INTO templates VALUES ('a', 'b')")
     assert template_synchronizer._extract_templates(db) == [("a", "b")]
+
+
+def test_synchronize_with_clustering(tmp_path: Path, monkeypatch) -> None:
+    db_a = tmp_path / "a.db"
+    db_b = tmp_path / "b.db"
+    analytics = tmp_path / "analytics.db"
+    create_db(db_a, {"t1": "foo bar"})
+    create_db(db_b, {"t2": "bar baz"})
+    monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
+
+    synced = template_synchronizer.synchronize_templates_real([db_a, db_b], cluster=True)
+    assert synced == 2
+    with sqlite3.connect(analytics) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM sync_events_log").fetchone()[0]
+        assert count >= 3
