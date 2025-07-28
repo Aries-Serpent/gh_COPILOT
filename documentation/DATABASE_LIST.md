@@ -5,7 +5,7 @@ This repository includes the following SQLite databases located in the `database
 - advanced_analytics.db
 - analytics.db
 - analytics_collector.db
-- archive.db
+- archive.db *(archived; download from GitHub release)*
 - autonomous_decisions.db
 - capability_scaler.db
 - consolidation_tracking.db
@@ -29,7 +29,7 @@ This repository includes the following SQLite databases located in the `database
 - project_grading_database.db
 - scaling_innovation.db
 - script_generation.db
-- staging.db
+- staging.db *(archived; download from GitHub release)*
 - strategic_implementation.db
 - template_completion.db
 - testing.db
