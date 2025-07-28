@@ -7,6 +7,8 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Iterable
+import argparse
+import sqlite3
 
 import psutil
 from tqdm import tqdm
@@ -17,8 +19,9 @@ from scripts.optimization.automated_optimization_engine import (
 from scripts.optimization.intelligence_gathering_system import (
     IntelligenceGatheringSystem,
 )
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
-__all__ = ["ContinuousMonitoringEngine"]
+__all__ = ["ContinuousMonitoringEngine", "parse_args", "main"]
 
 
 class ContinuousMonitoringEngine:
@@ -64,9 +67,10 @@ class ContinuousMonitoringEngine:
             if metrics["cpu_percent"] > 90 or metrics["memory_percent"] > 90:
                 metrics["anomaly"] = 1
                 metrics["note"] = "High load"
-        except Exception as exc:  # pragma: no cover - psutil may not be present
+        except OSError as exc:  # pragma: no cover - psutil may not be present
             metrics["anomaly"] = 1
             metrics["note"] = str(exc)
+            self.logger.exception("Health check failed")
         return metrics
 
     def run_cycle(self, actions: Iterable[Callable] | None = None) -> None:
@@ -92,8 +96,11 @@ class ContinuousMonitoringEngine:
         self.logger.info("Health metrics: %s", metrics)
         if metrics.get("anomaly"):
             self.logger.warning("Anomaly detected: %s", metrics.get("note"))
-            self.optimizer.optimize(self.workspace)
-            self.intel.gather()
+            try:
+                self.optimizer.optimize(self.workspace)
+                self.intel.gather()
+            except (OSError, sqlite3.Error) as exc:  # pragma: no cover - log only
+                self.logger.exception("Auto-remediation failed: %s", exc)
 
         elapsed = time.time() - start_ts
         etc = self._calculate_etc(start_ts, total_steps, total_steps)
@@ -101,3 +108,33 @@ class ContinuousMonitoringEngine:
 
         if self.cycle_seconds:
             time.sleep(self.cycle_seconds)
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run continuous monitoring")
+    parser.add_argument(
+        "--cycles",
+        type=int,
+        default=1,
+        help="Number of monitoring cycles to execute",
+    )
+    parser.add_argument(
+        "--interval",
+        type=int,
+        default=300,
+        help="Seconds to wait between cycles",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    ns = parse_args(argv)
+    engine = ContinuousMonitoringEngine(cycle_seconds=ns.interval)
+    orchestrator = DualCopilotOrchestrator()
+    for _ in range(ns.cycles):
+        orchestrator.run(lambda: (engine.run_cycle([]) or True), [])
+    return 0
+
+
+if __name__ == "__main__":  # pragma: no cover
+    raise SystemExit(main())
