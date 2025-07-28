@@ -7,15 +7,31 @@ listens on ``FLASK_RUN_PORT`` when set, falling back to port ``5000``.
 
 from __future__ import annotations
 
+import logging
 import os
+from datetime import datetime
 
 from web_gui.scripts.flask_apps.enterprise_dashboard import app
 
 __all__ = ["app", "main"]
 
 
+def _validate_environment() -> None:
+    """Validate required environment variables and log them."""
+    required = ["GH_COPILOT_WORKSPACE"]
+    for var in required:
+        value = os.getenv(var)
+        if not value:
+            logging.warning("%s not set", var)
+        else:
+            logging.info("%s=%s", var, value)
+
+
 def main() -> None:
-    """Run the wrapped Flask app."""
+    """Run the wrapped Flask app with startup logging."""
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Dashboard starting at %s", datetime.utcnow().isoformat())
+    _validate_environment()
     port = int(os.getenv("FLASK_RUN_PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=bool(__name__ == "__main__"))
 

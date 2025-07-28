@@ -18,6 +18,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Validate docker-compose config
+        run: docker compose -f docker-compose.yml config
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
