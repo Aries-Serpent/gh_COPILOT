@@ -1,5 +1,4 @@
 name: Compliance Audit
-
 on:
   pull_request:
   workflow_dispatch:
@@ -7,21 +6,14 @@ on:
 jobs:
   audit:
     runs-on: ubuntu-latest
+    env:
+      GH_COPILOT_WORKSPACE: ${{ github.workspace }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install dependencies
-        run: bash setup.sh
-
+      - uses: actions/checkout@v3
       - name: Run placeholder audit
         env:
           GH_COPILOT_WORKSPACE: ${{ github.workspace }}
+          GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
         run: python -m scripts.intelligent_code_analysis_placeholder_detection
 
       - name: Fail on pending placeholders
