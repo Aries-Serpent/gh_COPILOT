@@ -11,4 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run placeholder audit
-        run: python scripts/code_placeholder_audit.py
+        env:
+          GH_COPILOT_WORKSPACE: ${{ github.workspace }}
+          GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
+        run: python -m scripts.intelligent_code_analysis_placeholder_detection
