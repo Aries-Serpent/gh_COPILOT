@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Database-first architecture
 """
+
 import logging
 import sqlite3
 import sys
@@ -16,11 +17,11 @@ from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'database': '[DATABASE]',
-    'info': '[INFO]'
+    "start": "[START]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "database": "[DATABASE]",
+    "info": "[INFO]",
 }
 
 
@@ -51,7 +52,7 @@ class EnterpriseDatabaseProcessor:
                     self.logger.error(f"{TEXT_INDICATORS['error']} Database processing failed")
                     return False
 
-        except Exception as e:
+        except sqlite3.Error as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {e}")
             return False
 
@@ -60,7 +61,7 @@ class EnterpriseDatabaseProcessor:
         try:
             # Implementation for database operations
             return True
-        except Exception as e:
+        except sqlite3.Error as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")
             return False
 
@@ -79,6 +80,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

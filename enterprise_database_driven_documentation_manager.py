@@ -42,10 +42,12 @@ class DocumentationManager:
             )
 
     def _refresh_rows(self) -> list[tuple[str, str, int]]:
-        with sqlite3.connect(self.database) as conn:
-            return conn.execute(
-                "SELECT title, content, compliance_score FROM documentation"
-            ).fetchall()
+        try:
+            with sqlite3.connect(self.database) as conn:
+                return conn.execute("SELECT title, content, compliance_score FROM documentation").fetchall()
+        except sqlite3.Error as exc:
+            logger.warning("Failed to read documentation table: %s", exc)
+            return []
 
     def render(self) -> int:
         start_ts = time.time()
@@ -55,17 +57,13 @@ class DocumentationManager:
         rows = self._refresh_rows()
         RENDER_LOG_DIR.mkdir(parents=True, exist_ok=True)
         count = 0
-        for idx, (title, content, score) in enumerate(
-            tqdm(rows, desc="render", unit="doc", leave=False), 1
-        ):
+        for idx, (title, content, score) in enumerate(tqdm(rows, desc="render", unit="doc", leave=False), 1):
             if score < 60:
                 continue
             template = self.generator.select_best_template(title)
             final_content = template or content
             (RENDER_LOG_DIR / f"{title}.md").write_text(final_content)
-            (RENDER_LOG_DIR / f"{title}.html").write_text(
-                f"<html><body><pre>{final_content}</pre></body></html>"
-            )
+            (RENDER_LOG_DIR / f"{title}.html").write_text(f"<html><body><pre>{final_content}</pre></body></html>")
             (RENDER_LOG_DIR / f"{title}.json").write_text(
                 json.dumps({"title": title, "content": final_content}, indent=2)
             )
