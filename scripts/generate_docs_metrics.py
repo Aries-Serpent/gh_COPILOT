@@ -8,10 +8,15 @@ import re
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+# Extend sys.path so the script can import project utilities when executed
+# directly as ``python scripts/generate_docs_metrics.py``.
+sys.path.append(str(ROOT))
 
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
 
-ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "production.db"
 README_PATHS = [
     ROOT / "README.md",
