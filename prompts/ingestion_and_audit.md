@@ -10,7 +10,7 @@ python scripts/automation/setup_ingest_audit.py
 
 ## Code Audit and Summary
 ```
-python scripts/intelligent_code_analysis_placeholder_detection --workspace-path "$GH_COPILOT_WORKSPACE" --analytics-db databases/analytics.db --production-db databases/production.db --dashboard-dir dashboard/compliance
+python scripts/code_placeholder_audit.py --workspace-path "$GH_COPILOT_WORKSPACE" --analytics-db databases/analytics.db --production-db databases/production.db --dashboard-dir dashboard/compliance
 ```
 
 ## Issue Creation Guidance

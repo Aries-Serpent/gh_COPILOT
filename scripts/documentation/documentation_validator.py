@@ -11,7 +11,13 @@ __all__ = ["DocumentationValidator"]
 
 
 class DocumentationValidator:
-    """Validate documentation coverage and link integrity."""
+    """Validate documentation coverage and link integrity.
+
+    The validator scans Markdown files for ``[text](link)`` patterns and
+    ensures referenced local files exist. It also logs a simple coverage
+    metric comparing the number of documents to tracked modules. The method
+    returns ``True`` when no broken links are found.
+    """
 
     LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 

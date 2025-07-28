@@ -214,6 +214,15 @@ python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionStart -AutoFi
 python scripts/session/COMPREHENSIVE_WORKSPACE_MANAGER.py --SessionEnd
 ```
 
+### Unified Deployment Orchestrator CLI
+Manage orchestration tasks with start/stop controls:
+
+```bash
+python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --start
+python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --status
+python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --stop
+```
+
 ### Docker Usage
 Build and run the container with Docker:
 
