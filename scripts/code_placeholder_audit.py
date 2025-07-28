@@ -89,8 +89,26 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
     """
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     ensure_code_audit_log(analytics_db)
+    # Ensure the tracking table exists even when running in simulation mode so
+    # that downstream validation does not fail when querying it.
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
+                file_path TEXT,
+                line_number INTEGER,
+                placeholder_type TEXT,
+                context TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        conn.commit()
     if simulate:
-        log_message(__name__, "[TEST MODE] Simulation enabled: not writing to analytics.db")
+        log_message(
+            __name__,
+            "[TEST MODE] Simulation enabled: not writing to analytics.db",
+        )
         return
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
