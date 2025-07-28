@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Integration test utilities for the bot scripts."""
+# pyright: reportMissingImports=false
 
 from __future__ import annotations
 

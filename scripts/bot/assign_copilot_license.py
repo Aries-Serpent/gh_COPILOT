@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Manage GitHub Copilot seat assignments via REST API."""
+# pyright: reportMissingImports=false
 
 from __future__ import annotations
 
