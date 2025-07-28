@@ -15,3 +15,11 @@ jobs:
           GH_COPILOT_WORKSPACE: ${{ github.workspace }}
           GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
         run: python -m scripts.intelligent_code_analysis_placeholder_detection
+
+      - name: Fail on pending placeholders
+        run: |
+          count=$(sqlite3 databases/analytics.db 'select count(*) from todo_fixme_tracking')
+          if [ "$count" -gt 0 ]; then
+            echo "Placeholders remaining: $count" >&2
+            exit 1
+          fi

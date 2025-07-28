@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [main]
 jobs:
-  build:
+  lint-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -104,17 +104,24 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt -r requirements-test.txt
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'requirements-test.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+
       - name: Lint
         run: ruff check .
       - name: Test
-        run: pytest -q --junitxml=.test-results/test-results-${{ matrix.python-version }}.xml
+        run: pytest -q
 
       - name: Upload test results
-        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-results-${{ matrix.python-version }}
-          path: .test-results/test-results-${{ matrix.python-version }}.xml
-          if-no-files-found: ignore
+          name: test-results
+          path: .pytest_cache
