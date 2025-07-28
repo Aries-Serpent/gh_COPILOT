@@ -13,7 +13,7 @@ database entries from `documentation/DATABASE_LIST.md`. Use the
 ## Validation
 
 After updating documentation, execute
-`python scripts/validate_docs_metrics.py`. The validator compares the numbers in
+`python scripts/docs_metrics_validator.py`. The validator compares the numbers in
 `README.md`, `documentation/generated/README.md`, and the technical whitepaper
 against the real database values. Pass `--db-path` to override the database
 location. The command exits with an error if any values are inconsistent.
