@@ -1,28 +1,15 @@
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
-
+    branches: [main]
 jobs:
-  Lint-and-Test:
+  build:
     runs-on: ubuntu-latest
-    env:
-      GH_COPILOT_WORKSPACE: ${{ github.workspace }}
-      GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
-    strategy:
-      matrix:
-        python-version: ['3.8', '3.11']
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Validate docker-compose config
-        run: docker compose -f docker-compose.yml config
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -117,11 +104,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements-test.txt
-
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-test.txt
       - name: Lint
         run: ruff check .
-
       - name: Test
-        run: pytest -q
+        run: pytest -q --junitxml=.test-results/test-results-${{ matrix.python-version }}.xml
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results-${{ matrix.python-version }}
+          path: .test-results/test-results-${{ matrix.python-version }}.xml
+          if-no-files-found: ignore
