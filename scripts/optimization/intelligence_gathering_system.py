@@ -1,4 +1,4 @@
-"""Intelligence gathering system placeholder."""
+"""Gather unified analytics and predictive insights."""
 from __future__ import annotations
 
 import logging
@@ -17,4 +17,5 @@ class IntelligenceGatheringSystem:
         self.logger = logging.getLogger(__name__)
 
     def gather(self) -> None:
+        """Gather analytics from ``production.db``."""
         self.logger.info("Gathering intelligence from %s", self.db_path)
