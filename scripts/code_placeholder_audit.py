@@ -23,7 +23,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ModuleNotFoundError:  # pragma: no cover - fallback
+    import subprocess
+    import sys
+
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "tqdm"])
+    from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import (
     validate_enterprise_operation,
@@ -301,6 +308,7 @@ def main(
                 lines = file.read_text(encoding="utf-8", errors="ignore").splitlines()
             except Exception as e:
                 log_message(
+                    __name__,
                     f"{TEXT['error']} Could not read {file}: {e}",
                     level=logging.ERROR,
                 )

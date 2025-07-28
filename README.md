@@ -812,6 +812,8 @@ python scripts/code_placeholder_audit.py \
     --workspace $GH_COPILOT_WORKSPACE \
     --analytics-db databases/analytics.db \
     --production-db databases/production.db
+# CI runs the audit via GitHub Actions using `actions/setup-python` and
+# `pip install -r requirements.txt` to ensure dependencies are present.
 
 # The audit automatically populates `code_audit_log` in analytics.db for
 # compliance reporting.
