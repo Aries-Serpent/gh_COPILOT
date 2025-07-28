@@ -274,12 +274,6 @@ def _synchronize_templates_simulation(
     if cluster:
         all_templates = _cluster_templates(all_templates)
 
-    if cluster:
-        all_templates = _cluster_templates(all_templates)
-
-    if cluster:
-        all_templates = _cluster_templates(all_templates)
-
     source_names = ",".join(str(d) for d in databases)
     synced = 0
 

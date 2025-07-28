@@ -81,13 +81,38 @@ class AutonomousFileManager:
             self.logger.debug("file_system_mappings table missing")
 
     def _get_destination(self, path: Path) -> Path:
-        """Determine destination path using database-driven classification."""
+        """Determine destination path using database-driven classification.
+
+        The method first looks up ``enhanced_script_tracking`` for the given
+        ``script_path`` to retrieve ``script_type`` and ``functionality_category``.
+        If the path is not tracked, it falls back to ``functional_components``
+        using the filename stem as ``component_name``. When no data exists,
+        ``script_type`` defaults to ``"misc"``.
+        """
+
+        script_type = "misc"
+        category: str | None = None
         with self.conn:
             cur = self.conn.execute(
-                "SELECT script_type FROM enhanced_script_tracking WHERE script_path=?",
+                "SELECT script_type, functionality_category FROM enhanced_script_tracking WHERE script_path=?",
                 (str(path),),
             )
             row = cur.fetchone()
-            script_type = row[0] if row else "misc"
-        dest_dir = self.workspace / "organized" / script_type
+            if row:
+                script_type = row[0]
+                category = row[1]
+            else:
+                cur = self.conn.execute(
+                    "SELECT component_type FROM functional_components WHERE component_name=?",
+                    (path.stem,),
+                )
+                comp = cur.fetchone()
+                if comp:
+                    script_type = comp[0]
+
+        parts = [self.workspace, "organized"]
+        if category:
+            parts.append(category)
+        parts.append(script_type)
+        dest_dir = Path(*parts)
         return dest_dir / path.name
