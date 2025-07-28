@@ -2,7 +2,7 @@ version: '3.8'
 services:
   app:
     build: .
-    command: python main.py
+    command: python dashboard/enterprise_dashboard.py
     environment:
       - GH_COPILOT_WORKSPACE=/app
     volumes:
