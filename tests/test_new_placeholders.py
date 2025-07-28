@@ -1,4 +1,7 @@
 import importlib
+import os
+import shutil
+import sqlite3
 from pathlib import Path
 from unittest.mock import patch
 import pytest
@@ -6,7 +9,6 @@ import pytest
 from scripts.session.COMPREHENSIVE_WORKSPACE_MANAGER import ComprehensiveWorkspaceManager
 from scripts.file_management.autonomous_file_manager import AutonomousFileManager
 from scripts.file_management.intelligent_file_classifier import IntelligentFileClassifier
-import pytest
 try:
     from scripts.file_management.autonomous_backup_manager import AutonomousBackupManager
 except Exception:  # pragma: no cover - module may have syntax errors
@@ -62,7 +64,7 @@ def test_placeholders_importable(tmp_path, caplog):
     backup_dest = AutonomousBackupManager().create_backup(workspace)
     assert workspace.resolve() not in Path(backup_dest).resolve().parents
     WorkspaceOptimizer().optimize(workspace)
-    ContinuousMonitoringEngine().run_cycle([])
+    ContinuousMonitoringEngine(cycle_seconds=0).run_cycle([])
     AutomatedOptimizationEngine().optimize(workspace)
     IntelligenceGatheringSystem(db / "production.db").gather()
     result = QuantumDatabaseProcessor().quantum_enhanced_query("SELECT 1")
