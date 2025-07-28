@@ -20,4 +20,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run docs metrics
-        run: python scripts/docs_metrics_validator.py
+        run: |
+          if [ -f scripts/docs_metrics_validator.py ]; then
+            python scripts/docs_metrics_validator.py
+          else
+            python -m scripts.docs_metrics_validator
+          fi
