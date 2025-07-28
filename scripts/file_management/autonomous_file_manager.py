@@ -49,48 +49,45 @@ class AutonomousFileManager:
             workspace and outside the backup root.
         """
 
+        backup_root = CrossPlatformPathManager.get_backup_root().resolve()
         target_dir = Path(target_dir).resolve()
-        if self._is_within(target_dir, self.backup_root):
+        if backup_root in target_dir.parents:
             raise RuntimeError("Refusing to organize files inside backup root")
-        if not self._is_within(target_dir, self.workspace) and target_dir != self.workspace:
+        if self.workspace not in target_dir.parents and target_dir != self.workspace:
             raise RuntimeError("Target directory must be within workspace")
 
-        files = [p for p in target_dir.iterdir() if p.is_file()]
-        with tqdm(files, desc="Organizing", unit="file") as bar:
+        paths = [p for p in target_dir.iterdir() if p.is_file()]
+        with tqdm(paths, desc="Organizing", unit="file") as bar:
             for f in bar:
                 bar.set_postfix(file=f.name)
-                self._record_file(f)
-        self.logger.info("Organized %d files", len(files))
+                dest = self._get_destination(f)
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    f.rename(dest)
+                except Exception as exc:  # noqa: BLE001
+                    self.logger.error("Failed moving %s: %s", f, exc)
+                self._record_file(dest)
+        self.logger.info("Organized %d files", len(paths))
 
     def _record_file(self, path: Path) -> None:
-        """Move file to organized folder and update database."""
-        cur = self.conn.execute(
-            "SELECT functionality_category, script_type FROM enhanced_script_tracking WHERE script_path=?",
-            (str(path),),
-        )
-        row = cur.fetchone()
-        category = row["functionality_category"] if row else "misc"
-        script_type = row["script_type"] if row else "general"
+        """Record file location in ``production.db`` if table exists."""
+        try:
+            with self.conn:
+                self.conn.execute(
+                    "INSERT OR IGNORE INTO file_system_mappings (path) VALUES (?)",
+                    (str(path),),
+                )
+        except sqlite3.OperationalError:
+            self.logger.debug("file_system_mappings table missing")
 
-        dest = self.workspace / "organized" / category / script_type / path.name
-        if self._is_within(dest, self.backup_root):
-            raise RuntimeError("Destination inside backup root")
-
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        if path.resolve() != dest.resolve():
-            path.rename(dest)
-            self.logger.info("Moved %s to %s", path, dest)
-
+    def _get_destination(self, path: Path) -> Path:
+        """Determine destination path using database-driven classification."""
         with self.conn:
-            self.conn.execute(
-                "UPDATE enhanced_script_tracking SET script_path=?, last_updated=CURRENT_TIMESTAMP WHERE script_path=?",
-                (str(dest), str(path)),
+            cur = self.conn.execute(
+                "SELECT script_type FROM enhanced_script_tracking WHERE script_path=?",
+                (str(path),),
             )
-            self.conn.execute(
-                "INSERT OR IGNORE INTO functional_components (component_name, component_type) VALUES (?, ?)",
-                (dest.name, script_type),
-            )
-            self.conn.execute(
-                "INSERT OR IGNORE INTO file_system_mapping (file_path) VALUES (?)",
-                (str(dest),),
-            )
+            row = cur.fetchone()
+            script_type = row[0] if row else "misc"
+        dest_dir = self.workspace / "organized" / script_type
+        return dest_dir / path.name

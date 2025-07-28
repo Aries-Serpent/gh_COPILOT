@@ -3,7 +3,6 @@
 The classifier consults ``production.db`` to map file patterns to known
 categories. It logs classification confidence for auditing purposes.
 """
-
 from __future__ import annotations
 
 import hashlib

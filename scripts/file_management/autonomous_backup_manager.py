@@ -56,6 +56,16 @@ class AutonomousBackupManager:
         if str(target).startswith("C:/temp"):
             raise RuntimeError("Forbidden backup location")
 
+    def _validate_target(self, target: Path) -> None:
+        workspace = CrossPlatformPathManager.get_workspace_path().resolve()
+        backup_root = CrossPlatformPathManager.get_backup_root().resolve()
+        if backup_root in target.parents:
+            raise RuntimeError("Refusing to back up inside backup root")
+        if workspace in target.parents:
+            self.logger.debug("Backup of workspace subdir %s", target)
+        if str(target).startswith("C:/temp"):
+            raise RuntimeError("Forbidden backup location")
+
     def create_backup(self, target: Path) -> Path:
         """Backup ``target`` to the backup root with validation."""
         target = Path(target).resolve()
