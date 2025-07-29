@@ -25,3 +25,10 @@ python scripts/code_placeholder_audit.py --workspace $GH_COPILOT_WORKSPACE \
     --dashboard-dir dashboard/compliance
 ```
 Audit summaries can be copied to new GitHub issues referencing affected modules.
+
+## Mark Corrections and Verify
+```bash
+python scripts/code_placeholder_audit.py --update-resolutions
+python scripts/correction_logger_and_rollback.py
+```
+Open `/dashboard/compliance` in your browser to confirm all placeholders have been resolved.

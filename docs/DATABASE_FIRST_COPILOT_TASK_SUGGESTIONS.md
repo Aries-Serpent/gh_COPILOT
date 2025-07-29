@@ -47,9 +47,9 @@ Recent updates:
 - Add a `get_cluster_representatives()` method and unit tests verifying cluster selection and retrieval.
 
 ## 8. TODO Audit Logging
-- Search the codebase for `TODO` and `FIXME` comments using `scripts/code_placeholder_audit.py`.
-- Log each occurrence in `analytics.db` and update `/dashboard/compliance`.
-- Provide rollback utilities for automated cleanup scripts.
+ - Search the codebase for `TODO` and `FIXME` comments using `scripts/code_placeholder_audit.py`.
+ - After corrections, run `scripts/code_placeholder_audit.py --update-resolutions` and update `/dashboard/compliance`.
+ - Provide rollback utilities for automated cleanup scripts.
 
 ## 9. DB-First Code Generation
 - Enforce that all code generation modules read templates from the database before falling back to filesystem copies.
@@ -58,8 +58,9 @@ Recent updates:
 
 ## 10. Pattern Clustering and Correction Rollback
 - Use clustering to group similar templates and patterns for easier review.
-- Track correction history and provide rollback for any cluster-wide changes.
-- Surface these events on the compliance dashboard.
+ - Track correction history and provide rollback for any cluster-wide changes.
+ - Surface these events on the compliance dashboard.
+ - Use the dashboard to confirm resolved placeholders after running the audit with resolution tracking.
 
 ## 11. Quantum/AI Integration
 - Integrate visual indicators for simulated quantum scoring and pattern matching.
