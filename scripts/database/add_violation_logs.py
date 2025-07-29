@@ -12,6 +12,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 from .size_compliance_checker import check_database_sizes
+from utils.log_utils import _log_event
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,7 @@ def add_table(db_path: Path) -> None:
         bar.update(1)
     logger.info("violation_logs ensured in %s", db_path)
     check_database_sizes(db_path.parent)
+    _log_event({"event": "violation_logs_ready", "db": str(db_path)})
 
     elapsed = datetime.now() - start_time
     logger.info("[SUCCESS] Completed in %s", str(elapsed))
