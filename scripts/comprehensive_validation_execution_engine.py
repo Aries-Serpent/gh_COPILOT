@@ -517,11 +517,16 @@ class ComprehensiveValidationExecutor:
     
     def _get_validation_status(self, score: float) -> str:
         """Get validation status based on score"""
-        if score >= 95: return "EXCELLENT"
-        elif score >= 85: return "GOOD"
-        elif score >= 75: return "ACCEPTABLE"
-        elif score >= 60: return "NEEDS_IMPROVEMENT"
-        else: return "CRITICAL"
+        if score >= 95:
+            return "EXCELLENT"
+        elif score >= 85:
+            return "GOOD"
+        elif score >= 75:
+            return "ACCEPTABLE"
+        elif score >= 60:
+            return "NEEDS_IMPROVEMENT"
+        else:
+            return "CRITICAL"
     
     def _validate_database_integration(self) -> Dict[str, Any]:
         """Validate database integration across all systems"""

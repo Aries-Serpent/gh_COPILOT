@@ -11,6 +11,7 @@ Enterprise Standards Compliance:
 import sys
 
 import logging
+import shutil
 from pathlib import Path
 from datetime import datetime
 

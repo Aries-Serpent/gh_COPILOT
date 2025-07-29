@@ -381,7 +381,7 @@ class LessonsLearnedGapAnalyzer:
                 if 'tqdm' in content and 'progress' in content.lower():
                     visual_indicators_found = True
                     break
-            except:
+            except Exception:
                 continue
         
         if not visual_indicators_found:

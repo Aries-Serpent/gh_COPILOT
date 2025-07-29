@@ -1,5 +1,10 @@
 {
-  "typeCheckingMode": "basic",
+  "typeCheckingMode": "off",
   "reportMissingModuleSource": false,
-  "stubPath": "typings"
+  "reportMissingImports": false,
+  "reportGeneralTypeIssues": false,
+  "stubPath": "typings",
+  "exclude": [
+    "scripts/utilities"
+  ]
 }

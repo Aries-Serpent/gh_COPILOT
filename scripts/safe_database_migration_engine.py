@@ -66,7 +66,7 @@ def get_database_info_safe(db_path):
                 'file_size': os.path.getsize(db_path),
                 'modified': datetime.fromtimestamp(os.path.getmtime(db_path))
             }
-        except:
+        except Exception:
             return None
 
 def calculate_file_hash(file_path):
