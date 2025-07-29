@@ -91,9 +91,7 @@ def main() -> None:
 
     duration = (datetime.now() - start).total_seconds()
     if primary_success and validation_success:
-        logger.info(
-            "%s Completed in %.2fs", TEXT_INDICATORS["success"], duration
-        )
+        logger.info("%s Completed in %.2fs", TEXT_INDICATORS["success"], duration)
     else:
         logger.error("%s Failed in %.2fs", TEXT_INDICATORS["error"], duration)
 

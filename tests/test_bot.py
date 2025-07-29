@@ -61,9 +61,7 @@ def test_main_uses_dual_orchestrator(monkeypatch):
         called["ran"] = True
         return True, True
 
-    monkeypatch.setattr(
-        "scripts.bot.assign_copilot_license.DualCopilotOrchestrator.run", fake_run
-    )
+    monkeypatch.setattr("scripts.bot.assign_copilot_license.DualCopilotOrchestrator.run", fake_run)
 
     with mock.patch("sys.argv", ["assign_copilot_license.py", "user"]):
         from scripts.bot import assign_copilot_license as mod

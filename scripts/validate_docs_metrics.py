@@ -32,11 +32,7 @@ def get_db_metrics(db_path: Path) -> dict[str, int]:
     templates = cur.fetchone()[0]
     conn.close()
     with DATABASE_LIST.open() as f:
-        databases = sum(
-            1
-            for line in f
-            if line.strip().startswith("- ") and line.strip().endswith(".db")
-        )
+        databases = sum(1 for line in f if line.strip().startswith("- ") and line.strip().endswith(".db"))
     return {"scripts": scripts, "templates": templates, "databases": databases}
 
 
@@ -104,9 +100,7 @@ def validate(db_path: Path = DB_PATH) -> bool:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Validate documentation metrics against the database."
-    )
+    parser = argparse.ArgumentParser(description="Validate documentation metrics against the database.")
     parser.add_argument(
         "--db-path",
         type=Path,

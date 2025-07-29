@@ -53,14 +53,20 @@ def validate_enterprise_operation():
     """🚨 CRITICAL: Validate workspace before any operations"""
     workspace_root = Path(os.getcwd())
 
-    # Prevent recursive backup violations
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
-    violations = []
+    # Prevent recursive backup or temporary folder violations
+    violations: List[str] = []
 
-    for pattern in forbidden_patterns:
-        for folder in workspace_root.rglob(pattern):
-            if folder.is_dir() and folder != workspace_root:
-                violations.append(str(folder))
+    for folder in workspace_root.rglob("*"):
+        if not folder.is_dir() or folder == workspace_root:
+            continue
+        name = folder.name.lower()
+        if (
+            name in {"backup", "backups", "temp"}
+            or name.startswith("backup_")
+            or name.startswith("temp_")
+            or name.endswith("_temp")
+        ):
+            violations.append(str(folder))
 
     if violations:
         for violation in violations:
@@ -185,10 +191,15 @@ class ContinuousOperationOrchestrator:
 
         logging.info("✅ Continuous Operation Orchestrator initialization complete")
 
+    def primary_validate(self) -> bool:
+        """Primary validation step for continuous operation."""
+        logging.info("PRIMARY VALIDATION: continuous operation environment")
+        return validate_enterprise_operation()
+
     def secondary_validate(self) -> bool:
         """Run secondary validation after continuous operation."""
         logging.info("SECONDARY VALIDATION: continuous operation environment")
-        return validate_enterprise_operation()
+        return self.primary_validate()
 
     def execute_continuous_operation_cycle(self) -> Dict[str, Any]:
         """🔄 Execute comprehensive continuous operation cycle"""
@@ -251,13 +262,6 @@ class ContinuousOperationOrchestrator:
 
         return cycle_results
 
-    def primary_validate(self) -> bool:
-        """Primary validation step for continuous operation."""
-        return True
-
-    def secondary_validate(self) -> bool:
-        """Secondary validation mirroring :func:`primary_validate`."""
-        return self.primary_validate()
 
     def _execute_system_health_monitoring(self) -> Dict[str, Any]:
         """🔍 Execute comprehensive system health monitoring"""
