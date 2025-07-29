@@ -24,9 +24,99 @@ def init_database(db_path: Path) -> None:
 
 
 def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
-    """Placeholder ingestion of docs and templates."""
+    """Load markdown documentation and template assets into ``db_path``.
+
+    This replicates the behavior of :mod:`documentation_ingestor` and
+    :mod:`template_asset_ingestor` but targets ``production.db`` instead of
+    ``enterprise_assets.db``.
+    """
     LOGGER.info("Ingesting assets from %s and %s", doc_path, template_path)
-    # TODO: implement ingestion logic
+
+    import hashlib
+    from datetime import datetime, timezone
+
+    from scripts.database.cross_database_sync_logger import log_sync_operation
+
+    # Gather files
+    doc_files = [p for p in doc_path.rglob("*.md") if p.is_file()] if doc_path.exists() else []
+    tmpl_files = [p for p in template_path.rglob("*.md") if p.is_file()] if template_path.exists() else []
+
+    conn = sqlite3.connect(db_path)
+    try:
+        # Ensure required tables exist
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS documentation_assets ("
+            "id INTEGER PRIMARY KEY,"
+            "doc_path TEXT NOT NULL,"
+            "content_hash TEXT NOT NULL,"
+            "created_at TEXT NOT NULL,"
+            "modified_at TEXT NOT NULL"
+            ")"
+        )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS template_assets ("
+            "id INTEGER PRIMARY KEY,"
+            "template_path TEXT NOT NULL,"
+            "content_hash TEXT NOT NULL,"
+            "created_at TEXT NOT NULL"
+            ")"
+        )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS pattern_assets ("
+            "id INTEGER PRIMARY KEY,"
+            "pattern TEXT NOT NULL,"
+            "usage_count INTEGER DEFAULT 0,"
+            "created_at TEXT NOT NULL"
+            ")"
+        )
+
+        start_docs = datetime.now(timezone.utc)
+        with tqdm(total=len(doc_files), desc="Docs", unit="file") as bar:
+            for path in doc_files:
+                if path.stat().st_size == 0:
+                    bar.update(1)
+                    continue
+                content = path.read_text(encoding="utf-8")
+                digest = hashlib.sha256(content.encode()).hexdigest()
+                modified_at = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
+                conn.execute(
+                    "INSERT INTO documentation_assets (doc_path, content_hash, created_at, modified_at)"
+                    " VALUES (?, ?, ?, ?)",
+                    (
+                        str(path.relative_to(doc_path.parent)),
+                        digest,
+                        datetime.now(timezone.utc).isoformat(),
+                        modified_at,
+                    ),
+                )
+                bar.update(1)
+        conn.commit()
+        log_sync_operation(db_path, "documentation_ingestion", start_time=start_docs)
+
+        start_tmpl = datetime.now(timezone.utc)
+        with tqdm(total=len(tmpl_files), desc="Templates", unit="file") as bar:
+            for path in tmpl_files:
+                content = path.read_text(encoding="utf-8")
+                digest = hashlib.sha256(content.encode()).hexdigest()
+                conn.execute(
+                    "INSERT INTO template_assets (template_path, content_hash, created_at)"
+                    " VALUES (?, ?, ?)",
+                    (
+                        str(path.relative_to(template_path.parent)),
+                        digest,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
+                conn.execute(
+                    "INSERT INTO pattern_assets (pattern, usage_count, created_at)"
+                    " VALUES (?, 0, ?)",
+                    (content[:1000], datetime.now(timezone.utc).isoformat()),
+                )
+                bar.update(1)
+        conn.commit()
+        log_sync_operation(db_path, "template_ingestion", start_time=start_tmpl)
+    finally:
+        conn.close()
 
 
 def run_audit(workspace: Path, analytics_db: Path, production_db: Optional[Path], dashboard_dir: Path) -> None:
