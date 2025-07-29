@@ -48,6 +48,7 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - All generation actions must be logged for compliance review.
 - When corrections occur, update `analytics.db:correction_patterns` for future reference.
 - Placeholder detection results are written to `analytics.db:placeholder_audit` and mirrored in `code_audit_log` for dashboard reporting.
+- Resolution tracking is enabled via `todo_fixme_tracking.resolved_date` and `status` fields.
 - Run `python scripts/database/add_code_audit_log.py` or apply
   `databases/migrations/add_code_audit_log.sql` to ensure this table exists on
   older analytics databases.
@@ -66,10 +67,11 @@ The Flask dashboard exposes a `/dashboard/compliance` endpoint that reads these
 metrics and shows real-time placeholder removal progress. When a placeholder is corrected, record the update in `analytics.db:correction_logs`. This ensures future audits can cross-reference removed placeholders with generated fixes.
 
 ### Placeholder Correction Workflow
-1. Run `scripts/code_placeholder_audit.py` to log all TODOs.
-2. Review entries in `analytics.db:placeholder_audit` and fix the code.
-3. Record corrections with `scripts/correction_logger_and_rollback.py` for audit.
-4. Monitor `/dashboard/compliance` to verify the compliance score improves.
+1. Run `scripts/code_placeholder_audit.py` to log all TODOs and FIXMEs.
+2. Review entries in `analytics.db:placeholder_audit` and correct the code.
+3. Re-run `scripts/code_placeholder_audit.py --update-resolutions` to mark resolved items in `todo_fixme_tracking`.
+4. Record finalized corrections with `scripts/correction_logger_and_rollback.py`.
+5. Monitor `/dashboard/compliance` to verify the compliance score improves.
 
 ## 6. Database Maintenance
 
