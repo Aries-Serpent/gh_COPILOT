@@ -17,7 +17,10 @@ sys.path.append(str(ROOT))
 
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
 
-DB_PATH = ROOT / "production.db"
+# The production database resides under ``databases/``. Using this path avoids
+# accidental creation of an empty database when ``production.db`` does not exist
+# at the repository root.
+DB_PATH = ROOT / "databases" / "production.db"
 README_PATHS = [
     ROOT / "README.md",
     ROOT / "documentation" / "generated" / "README.md",
