@@ -30,4 +30,7 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch):
     assert metrics_file.exists()
     data = json.loads(metrics_file.read_text())
     assert data["metrics"]["placeholder_removal"] == 1
+    assert data["metrics"]["compliance_score"] == 0.9
+    assert data["metrics"]["violation_count"] == 1
+    assert data["metrics"]["rollback_count"] == 1
     assert data["metrics"]["progress_status"] == "issues_pending"
