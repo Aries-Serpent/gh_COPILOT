@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import json
 
 os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
 
@@ -29,9 +30,12 @@ def test_placeholder_resolution(tmp_path):
         dashboard_dir=str(tmp_path / "dashboard"),
     )
 
+    dash_file = tmp_path / "dashboard" / "placeholder_summary.json"
     with sqlite3.connect(analytics) as conn:
         row = conn.execute(
-            "SELECT resolved FROM todo_fixme_tracking WHERE file_path=?",
+            "SELECT resolved, resolved_timestamp FROM todo_fixme_tracking WHERE file_path=?",
             (str(target),),
         ).fetchone()
-    assert row and row[0] == 1
+    assert row and row[0] == 1 and row[1] is not None
+    data = json.loads(dash_file.read_text())
+    assert data["resolved_count"] >= 1

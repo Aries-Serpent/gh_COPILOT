@@ -39,3 +39,4 @@ def test_audit_places(tmp_path):
     assert summary_file.exists()
     data = json.loads(summary_file.read_text())
     assert data["progress_status"] == "issues_pending"
+    assert data["resolved_count"] == 0

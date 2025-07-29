@@ -38,6 +38,7 @@ def test_placeholder_audit_logger(tmp_path):
     assert summary_file.exists()
     data = json.loads(summary_file.read_text())
     assert data["progress_status"] == "issues_pending"
+    assert data["resolved_count"] == 0
 
 
 def test_dashboard_placeholder_sync(tmp_path):
@@ -55,11 +56,7 @@ def test_dashboard_placeholder_sync(tmp_path):
                 "CREATE TABLE code_audit_log (id INTEGER PRIMARY KEY, file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT)"
             )
         )
-        conn.execute(
-            (
-                "INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts', 0, NULL)"
-            )
-        )
+        conn.execute(("INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts', 0, NULL)"))
         conn.execute(
             (
                 "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp) VALUES ('f', 1, 'TODO', 'ctx', 'ts')"
@@ -71,6 +68,7 @@ def test_dashboard_placeholder_sync(tmp_path):
     data = json.loads(dash.joinpath("placeholder_summary.json").read_text())
     assert data["findings"] == 1
     assert data["progress_status"] == "issues_pending"
+    assert data["resolved_count"] == 0
 
 
 def test_rollback_last_entry(tmp_path):
@@ -89,11 +87,7 @@ def test_rollback_last_entry(tmp_path):
                 "context TEXT, timestamp TEXT)"
             )
         )
-        conn.execute(
-            (
-                "INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts', 0, NULL)"
-            )
-        )
+        conn.execute(("INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts', 0, NULL)"))
         conn.execute(
             (
                 "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, "
