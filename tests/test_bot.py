@@ -45,3 +45,29 @@ def test_assign_license(monkeypatch):
         mock_post.return_value.status_code = 200
         mock_post.return_value.text = "ok"
         assert assign_license("user")
+
+
+def test_main_uses_dual_orchestrator(monkeypatch):
+    workspace = Path("/tmp/gh_workspace2")
+    workspace.mkdir(exist_ok=True)
+    monkeypatch.setenv("GITHUB_TOKEN", "t")
+    monkeypatch.setenv("GITHUB_ORG", "o")
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_backups")
+
+    called = {"ran": False}
+
+    def fake_run(self, primary, targets, timeout_minutes=30):
+        called["ran"] = True
+        return True, True
+
+    monkeypatch.setattr(
+        "scripts.bot.assign_copilot_license.DualCopilotOrchestrator.run", fake_run
+    )
+
+    with mock.patch("sys.argv", ["assign_copilot_license.py", "user"]):
+        from scripts.bot import assign_copilot_license as mod
+
+        mod.main()
+
+    assert called["ran"]
