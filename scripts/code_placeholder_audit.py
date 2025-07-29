@@ -147,9 +147,7 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
             )
             """
         )
-        result_keys = {
-            (r["file"], r["line"], r["pattern"], r["context"]) for r in results
-        }
+        result_keys = {(r["file"], r["line"], r["pattern"], r["context"]) for r in results}
         cur = conn.execute(
             "SELECT rowid, file_path, line_number, placeholder_type, context FROM todo_fixme_tracking WHERE resolved=0"
         )
@@ -187,14 +185,20 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
 
 
 # Update dashboard/compliance with summary JSON
-def update_dashboard(count: int, dashboard_dir: Path) -> None:
+def update_dashboard(count: int, dashboard_dir: Path, analytics_db: Path) -> None:
     """Write summary JSON to dashboard/compliance directory."""
     dashboard_dir.mkdir(parents=True, exist_ok=True)
+    resolved = 0
+    if analytics_db.exists():
+        with sqlite3.connect(analytics_db) as conn:
+            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
+            resolved = cur.fetchone()[0]
     compliance = max(0, 100 - count)
     status = "complete" if count == 0 else "issues_pending"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": count,
+        "resolved_count": resolved,
         "compliance_score": compliance,
         "progress_status": status,
     }
@@ -350,7 +354,7 @@ def main(
     log_findings(results, analytics, simulate=simulate)
     # Update dashboard/compliance
     if not simulate:
-        update_dashboard(len(results), dashboard)
+        update_dashboard(len(results), dashboard, analytics)
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
     elapsed = time.time() - start_time
