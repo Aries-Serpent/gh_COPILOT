@@ -13,6 +13,8 @@ from tqdm import tqdm
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 from scripts.code_placeholder_audit import main as placeholder_audit
+from template_engine.template_synchronizer import _compliance_score
+from utils.log_utils import _log_event
 
 
 LOGGER = logging.getLogger(__name__)
@@ -43,6 +45,8 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
     # Gather files
     doc_files = [p for p in doc_path.rglob("*.md") if p.is_file()] if doc_path.exists() else []
     tmpl_files = [p for p in template_path.rglob("*.md") if p.is_file()] if template_path.exists() else []
+
+    analytics_db = Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
 
     conn = sqlite3.connect(db_path)
     try:
@@ -75,6 +79,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
 
         start_docs = datetime.now(timezone.utc)
         with tqdm(total=len(doc_files), desc="Docs", unit="file") as bar:
+            conn.execute("BEGIN")
             for path in doc_files:
                 if path.stat().st_size == 0:
                     bar.update(1)
@@ -92,12 +97,25 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                         modified_at,
                     ),
                 )
+                score = _compliance_score(content)
+                _log_event(
+                    {
+                        "event": "asset_ingested",
+                        "asset_type": "documentation",
+                        "path": str(path.relative_to(doc_path.parent)),
+                        "compliance_score": score,
+                    },
+                    table="correction_logs",
+                    db_path=analytics_db,
+                    test_mode=False,
+                )
                 bar.update(1)
-        conn.commit()
+            conn.commit()
         log_sync_operation(db_path, "documentation_ingestion", start_time=start_docs)
 
         start_tmpl = datetime.now(timezone.utc)
         with tqdm(total=len(tmpl_files), desc="Templates", unit="file") as bar:
+            conn.execute("BEGIN")
             for path in tmpl_files:
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
@@ -113,9 +131,24 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                     "INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)",
                     (content[:1000], datetime.now(timezone.utc).isoformat()),
                 )
+                score = _compliance_score(content)
+                _log_event(
+                    {
+                        "event": "asset_ingested",
+                        "asset_type": "template",
+                        "path": str(path.relative_to(template_path.parent)),
+                        "compliance_score": score,
+                    },
+                    table="correction_logs",
+                    db_path=analytics_db,
+                    test_mode=False,
+                )
                 bar.update(1)
-        conn.commit()
+            conn.commit()
         log_sync_operation(db_path, "template_ingestion", start_time=start_tmpl)
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         conn.close()
 

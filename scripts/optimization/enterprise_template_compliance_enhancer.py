@@ -17,14 +17,17 @@ from datetime import datetime
 from tqdm import tqdm
 import os
 import subprocess
+import sqlite3
+from template_engine.template_synchronizer import _compliance_score
+from utils.log_utils import _log_event
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'progress': '[PROGRESS]',
-    'info': '[INFO]'
+    "start": "[START]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "progress": "[PROGRESS]",
+    "info": "[INFO]",
 }
 
 
@@ -38,6 +41,8 @@ class EnterpriseFlake8Corrector(BaseCorrector):
 
     def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
         super().__init__(workspace_path)
+        self.analytics_db = Path(workspace_path) / "databases" / "analytics.db"
+        self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
 
     def execute_correction(self) -> bool:
         """Execute Flake8 correction with visual indicators"""
@@ -46,7 +51,6 @@ class EnterpriseFlake8Corrector(BaseCorrector):
 
         try:
             with tqdm(total=100, desc="[PROGRESS] Flake8 Correction", unit="%") as pbar:
-
                 pbar.set_description("[PROGRESS] Scanning files")
                 files_to_correct = self.scan_python_files()
                 pbar.update(25)
@@ -60,8 +64,7 @@ class EnterpriseFlake8Corrector(BaseCorrector):
                 pbar.update(25)
 
             duration = (datetime.now() - start_time).total_seconds()
-            self.logger.info(
-                f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s")
+            self.logger.info(f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s")
             return validation_passed
 
         except Exception as e:
@@ -89,40 +92,89 @@ class EnterpriseFlake8Corrector(BaseCorrector):
             path = Path(file_path)
             original = path.read_text(encoding="utf-8")
 
-            subprocess.run([
-                "ruff",
-                "--fix",
-                file_path,
-            ], capture_output=True, text=True, check=False)
+            subprocess.run(
+                [
+                    "ruff",
+                    "--fix",
+                    file_path,
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
 
-            subprocess.run([
-                sys.executable,
-                "-m",
-                "isort",
-                file_path,
-            ], capture_output=True, text=True, check=False)
+            subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "isort",
+                    file_path,
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
 
-            subprocess.run([
-                sys.executable,
-                "-m",
-                "autopep8",
-                "--in-place",
-                file_path,
-            ], capture_output=True, text=True, check=False)
+            subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "autopep8",
+                    "--in-place",
+                    file_path,
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
 
             updated = path.read_text(encoding="utf-8")
             changed = original != updated
             if changed:
+                score = _compliance_score(updated)
                 self.logger.info(
                     "%s Corrected %s",
                     TEXT_INDICATORS["success"],
                     file_path,
                 )
+                with sqlite3.connect(self.analytics_db) as conn:
+                    conn.execute(
+                        """CREATE TABLE IF NOT EXISTS correction_logs (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            file_path TEXT,
+                            compliance_score REAL,
+                            ts TEXT
+                        )"""
+                    )
+                    conn.execute(
+                        """CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
+                            file_path TEXT,
+                            resolved INTEGER,
+                            resolved_timestamp TEXT
+                        )"""
+                    )
+                    conn.execute(
+                        "INSERT INTO correction_logs (file_path, compliance_score, ts) VALUES (?, ?, ?)",
+                        (file_path, score, datetime.utcnow().isoformat()),
+                    )
+                    conn.execute(
+                        "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=? WHERE file_path=? AND resolved=0",
+                        (datetime.utcnow().isoformat(), file_path),
+                    )
+                    conn.commit()
+                _log_event(
+                    {
+                        "event": "file_corrected",
+                        "file": file_path,
+                        "compliance_score": score,
+                    },
+                    table="correction_logs",
+                    db_path=self.analytics_db,
+                    test_mode=False,
+                )
             return changed
         except Exception as e:  # pragma: no cover - unexpected
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} File correction failed: {e}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} File correction failed: {e}")
             return False
 
     def validate_corrections(self, files: list) -> bool:

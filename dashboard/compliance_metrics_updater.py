@@ -83,6 +83,8 @@ class ComplianceMetricsUpdater:
         """Fetch compliance metrics from analytics.db."""
         metrics = {
             "placeholder_removal": 0,
+            "open_placeholders": 0,
+            "resolved_placeholders": 0,
             "compliance_score": 0.0,
             "violation_count": 0,
             "rollback_count": 0,
@@ -100,9 +102,14 @@ class ComplianceMetricsUpdater:
                     "SELECT name FROM sqlite_master WHERE type='table' AND name='correction_history'"
                 ).fetchone():
                     cur.execute("SELECT COUNT(*) FROM correction_history WHERE fix_applied='REMOVED_PLACEHOLDER'")
+                    metrics["resolved_placeholders"] = cur.fetchone()[0]
+                    metrics["open_placeholders"] = 0
                 else:
                     cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
-                metrics["placeholder_removal"] = cur.fetchone()[0]
+                    metrics["resolved_placeholders"] = cur.fetchone()[0]
+                    cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=0")
+                    metrics["open_placeholders"] = cur.fetchone()[0]
+                metrics["placeholder_removal"] = metrics["resolved_placeholders"]
 
                 cur.execute("SELECT AVG(compliance_score) FROM corrections")
                 avg_score = cur.fetchone()[0]

@@ -112,6 +112,17 @@ def remove_unused_placeholders(
                 ts TEXT
             )"""
         )
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
+                file_path TEXT,
+                line_number INTEGER,
+                placeholder_type TEXT,
+                context TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                resolved BOOLEAN DEFAULT 0,
+                resolved_timestamp DATETIME
+            )"""
+        )
         with tqdm(total=total_steps, desc="Removing Placeholders", unit="ph") as bar:
             for idx, ph in enumerate(found, 1):
                 phase = f"Removing placeholder {ph}"
@@ -122,6 +133,11 @@ def remove_unused_placeholders(
                     conn.execute(
                         "INSERT INTO placeholder_removals (placeholder, ts) VALUES (?, ?)",
                         (ph, datetime.utcnow().isoformat()),
+                    )
+                    conn.execute(
+                        "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?"
+                        " WHERE placeholder_type=? AND resolved=0",
+                        (datetime.utcnow().isoformat(), ph),
                     )
                 elapsed = time.time() - start_time.timestamp()
                 etc = calculate_etc(start_time.timestamp(), idx, total_steps)

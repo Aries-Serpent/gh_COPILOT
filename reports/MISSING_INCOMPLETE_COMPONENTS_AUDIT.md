@@ -11,6 +11,7 @@ See `docs/STUB_MODULE_STATUS.md` for a checklist of stub modules and whether the
 | **Flake8 Corrector Base Class** | `EnterpriseFlake8Corrector.correct_file` raises `NotImplementedError` – subclasses must implement logic. | 2025-07-10 |
 | **Placeholder Resolution Tracking** | The `todo_fixme_tracking` table now records resolution via `resolved` (boolean) and `resolved_timestamp` columns. Placeholder entries update to `resolved=1` when fixed. | 2025-07-30 |
 | **Compliance Dashboard Gaps** | Logging for `violation_logs`, `rollback_logs` and consistent use of `correction_logs` is missing. | N/A |
+| **Open vs. Resolved Metrics** | Dashboard now shows counts of open and resolved placeholders from `todo_fixme_tracking`. | 2025-07-31 |
 | **Template Sync Cluster Option** | Implemented in commit `99ba7f9` – real synchronizer now honors `--cluster`. | 2025-07-29 |
 | **Dual Copilot Full Integration** | Some flows implement the dual-copilot pattern while others rely on basic logging only. | 2025-07-17 |
 | **Documentation vs. Code Parity** | Documentation lists features not fully reflected in code. | 2025-07-03 |
