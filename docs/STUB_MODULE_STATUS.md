@@ -3,6 +3,9 @@
 This document catalogs unfinished modules and missing components referenced in the repository.
 Generated: 2025-07-24
 
+The `ingest_assets` function referenced in early drafts is now fully
+implemented (see `scripts/autonomous_setup_and_audit.py` lines 26-119).
+
 ## STUB Overview
 
 The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked with `STUB-*` identifiers. The following table consolidates those references and notes whether each module currently exists.
