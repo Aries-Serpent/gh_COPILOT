@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from sklearn.cluster import KMeans
 from tqdm import tqdm
+from utils.log_utils import _log_event
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 
@@ -136,6 +137,9 @@ class TemplateWorkflowEnhancer:
         report_file = self.dashboard_dir / "workflow_enhancement_report.json"
         report_file.write_text(json.dumps(report, indent=2), encoding="utf-8")
         logging.info(f"Modular report written to {report_file}")
+        _log_event(
+            {"event": "workflow_report", "file": str(report_file)}, db_path=PRODUCTION_DB.parent / "analytics.db"
+        )
 
     def enhance(self, timeout_minutes: int = 30) -> bool:
         """Enhance workflow using stored templates and patterns.
@@ -171,6 +175,9 @@ class TemplateWorkflowEnhancer:
             bar.set_postfix(ETC=etc)
         elapsed = time.time() - start_time
         logging.info(f"Template workflow enhancement completed in {elapsed:.2f}s | ETC: {etc}")
+        _log_event(
+            {"event": "enhancement_complete", "duration": elapsed}, db_path=PRODUCTION_DB.parent / "analytics.db"
+        )
         self.status = "COMPLETED"
         valid = self.validate_enhancement(len(templates))
         if valid:
