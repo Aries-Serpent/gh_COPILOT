@@ -10,6 +10,12 @@ If you need to create `analytics.db` yourself, run the following commands from t
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
 ```
 
 This must be performed manually; automated scripts never generate the file.
@@ -53,6 +59,8 @@ with sqlite3.connect(":memory:") as conn:
         Path("databases/migrations/add_code_audit_log.sql"),
         Path("databases/migrations/add_correction_history.sql"),
         Path("databases/migrations/add_code_audit_history.sql"),
+        Path("databases/migrations/add_violation_logs.sql"),
+        Path("databases/migrations/add_rollback_logs.sql"),
     ], desc="Simulating migration steps", unit="step"):
         conn.executescript(sql.read_text())
 ```

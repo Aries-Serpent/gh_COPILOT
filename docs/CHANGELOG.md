@@ -9,6 +9,10 @@
 - `log_quantum_event` no longer auto-creates `analytics.db`; added test to
   verify this behavior.
 
+## [4.1.6] - 2025-07-30
+- Added `violation_logs` and `rollback_logs` migrations with helper scripts.
+- Documentation updated to reference new tables.
+
 ## [4.1.3] - 2025-07-27
 - Verified presence of new session and monitoring modules.
 - Refreshed documentation for wrappers and utilities.
