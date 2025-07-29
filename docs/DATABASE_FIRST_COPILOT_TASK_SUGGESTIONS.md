@@ -154,17 +154,17 @@ directory path that requires attention. Use these stubs to track future
 development and to ensure **database-first** patterns and compliance metrics are
 implemented consistently.
 
-| ID | Description | Module/Path | Related Sections |
-|----|-------------|-------------|-----------------|
-| `STUB-001` | Maintain full traversal scanning using `scripts/code_placeholder_audit.py`; ensure each finding is logged to `analytics.db` and surfaced on `/dashboard/compliance` (test-mode via `GH_COPILOT_TEST_MODE=1`) | `scripts/code_placeholder_audit.py` | Audit and Compliance |
-| `STUB-002` | Expand database-first code generation with similarity scoring and template retrieval | `template_engine/auto_generator.py`, `template_engine/db_first_code_generator.py`, `pattern_mining_engine.py`, `objective_similarity_scorer.py` | Code Generation |
-| `STUB-003` | Implement KMeans clustering for template selection and transactional synchronization | `template_engine/template_synchronizer.py`, `copilot/copilot-instructions.md` | Pattern Clustering |
-| `STUB-004` | Log all correction history with rollback design and compliance metrics | `documentation_db_analyzer.py`, `compliance_metrics_updater.py`, `databases/analytics.db` | Correction Logging |
-| `STUB-005` | Enhance documentation manager with DB-first templates and multi-format rendering | `archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py`, `README.md`, `DATABASE_FIRST_USAGE_GUIDE.md` | Documentation Framework |
-| `STUB-006` | Integrate quantum-inspired scoring and clustering hooks | `quantum/quantum_algorithm_library_expansion.py`, `template_engine/auto_generator.py` | Quantum Enhancements |
-| `STUB-007` | Extend dashboard to surface real-time metrics and rollback alerts | `enterprise_dashboard.py`, `web_gui/templates/html/` | Dashboard Integration |
-| `STUB-008` | Add tests and validation scripts for new modules | `tests/`, `validation/` | Testing |
-| `STUB-009` | Remove hardcoded placeholders and enable analytics hooks | `workflow_enhancer.py`, `archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py` | Workflow Enhancements |
-| `STUB-010` | Update task suggestion file and logs with cross-references | `docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md`, `logs/`, `validation/` | Cross-Referencing |
-| `STUB-011` | Ensure all modules record outputs to `analytics.db` and link to compliance reports | various modules | Final Validation |
-| `STUB-012` | Display placeholder removal progress status on dashboard metrics | `dashboard/compliance_metrics_updater.py` | Compliance Dashboard |
+| ID | Description | Module/Path | Related Sections | Status |
+|----|-------------|-------------|-----------------|--------|
+| `STUB-001` | Maintain full traversal scanning using `scripts/code_placeholder_audit.py`; ensure each finding is logged to `analytics.db` and surfaced on `/dashboard/compliance` (test-mode via `GH_COPILOT_TEST_MODE=1`) | `scripts/code_placeholder_audit.py` | Audit and Compliance | Exists |
+| `STUB-002` | Expand database-first code generation with similarity scoring and template retrieval | `template_engine/auto_generator.py`, `template_engine/db_first_code_generator.py`, `pattern_mining_engine.py`, `objective_similarity_scorer.py` | Code Generation | Partially Implemented |
+| `STUB-003` | Implement KMeans clustering for template selection and transactional synchronization | `template_engine/template_synchronizer.py`, `copilot/copilot-instructions.md` | Pattern Clustering | Exists |
+| `STUB-004` | Log all correction history with rollback design and compliance metrics | `documentation_db_analyzer.py`, `compliance_metrics_updater.py`, `databases/analytics.db` | Correction Logging | Partially Implemented |
+| `STUB-005` | Enhance documentation manager with DB-first templates and multi-format rendering | `archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py`, `README.md`, `DATABASE_FIRST_USAGE_GUIDE.md` | Documentation Framework | Partially Implemented |
+| `STUB-006` | Integrate quantum-inspired scoring and clustering hooks | `quantum/quantum_algorithm_library_expansion.py`, `template_engine/auto_generator.py` | Quantum Enhancements | Partially Implemented |
+| `STUB-007` | Extend dashboard to surface real-time metrics and rollback alerts | `enterprise_dashboard.py`, `web_gui/templates/html/` | Dashboard Integration | Missing |
+| `STUB-008` | Add tests and validation scripts for new modules | `tests/`, `validation/` | Testing | Exists |
+| `STUB-009` | Remove hardcoded placeholders and enable analytics hooks | `workflow_enhancer.py`, `archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py` | Workflow Enhancements | Missing |
+| `STUB-010` | Update task suggestion file and logs with cross-references | `docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md`, `logs/`, `validation/` | Cross-Referencing | Exists |
+| `STUB-011` | Ensure all modules record outputs to `analytics.db` and link to compliance reports | various modules | Final Validation | - |
+| `STUB-012` | Display placeholder removal progress status on dashboard metrics | `dashboard/compliance_metrics_updater.py` | Compliance Dashboard | Exists |
