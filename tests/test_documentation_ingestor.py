@@ -4,7 +4,8 @@ from pathlib import Path
 from scripts.database.documentation_ingestor import ingest_documentation
 
 
-def test_ingest_documentation(tmp_path: Path) -> None:
+def test_ingest_documentation(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     workspace = tmp_path
     db_dir = workspace / "databases"
     db_dir.mkdir()
@@ -26,7 +27,8 @@ def test_ingest_documentation(tmp_path: Path) -> None:
     assert ops == 1
 
 
-def test_zero_byte_file_skipped(tmp_path: Path) -> None:
+def test_zero_byte_file_skipped(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     workspace = tmp_path
     db_dir = workspace / "databases"
     db_dir.mkdir()
@@ -44,7 +46,8 @@ def test_zero_byte_file_skipped(tmp_path: Path) -> None:
     assert ops == 1
 
 
-def test_missing_directory(tmp_path: Path) -> None:
+def test_missing_directory(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     workspace = tmp_path
     db_dir = workspace / "databases"
     db_dir.mkdir()
