@@ -110,7 +110,7 @@
 
 ### **Template Architecture**
 ```
-web_gui/templates/html/
+web_gui/templates/
 ├── base_enterprise.html (✅ Bootstrap 5 framework)
 ├── dashboard.html (✅ Real-time metrics)
 ├── analytics.html (✅ Data visualization)
