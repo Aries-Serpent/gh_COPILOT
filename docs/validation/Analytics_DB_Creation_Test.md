@@ -13,6 +13,8 @@ that a fresh analytics database can be initialized:
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
 sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
 ```
 
 For a fully compliant dry‑run, execute the in‑memory test which logs the start

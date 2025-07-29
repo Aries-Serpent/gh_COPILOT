@@ -22,6 +22,9 @@ from typing import Any, Dict
 
 from tqdm import tqdm
 
+from scripts.database.add_violation_logs import ensure_violation_logs
+from scripts.database.add_rollback_logs import ensure_rollback_logs
+
 # Enterprise logging setup
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "dashboard"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
@@ -72,6 +75,8 @@ class ComplianceMetricsUpdater:
         logging.info("PROCESS STARTED: Compliance Metrics Update")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
+        ensure_violation_logs(ANALYTICS_DB)
+        ensure_rollback_logs(ANALYTICS_DB)
 
     def _fetch_compliance_metrics(self) -> Dict[str, Any]:
         """Fetch compliance metrics from analytics.db."""

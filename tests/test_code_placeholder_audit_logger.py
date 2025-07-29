@@ -47,7 +47,7 @@ def test_dashboard_placeholder_sync(tmp_path):
     with sqlite3.connect(analytics) as conn:
         conn.execute(
             (
-                "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT)"
+                "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT, resolved BOOLEAN DEFAULT 0, resolved_timestamp TEXT)"
             )
         )
         conn.execute(
@@ -55,7 +55,11 @@ def test_dashboard_placeholder_sync(tmp_path):
                 "CREATE TABLE code_audit_log (id INTEGER PRIMARY KEY, file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT)"
             )
         )
-        conn.execute(("INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts')"))
+        conn.execute(
+            (
+                "INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts', 0, NULL)"
+            )
+        )
         conn.execute(
             (
                 "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp) VALUES ('f', 1, 'TODO', 'ctx', 'ts')"
@@ -75,7 +79,7 @@ def test_rollback_last_entry(tmp_path):
     with sqlite3.connect(analytics) as conn:
         conn.execute(
             (
-                "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT)"
+                "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT, resolved BOOLEAN DEFAULT 0, resolved_timestamp TEXT)"
             )
         )
         conn.execute(
@@ -85,7 +89,11 @@ def test_rollback_last_entry(tmp_path):
                 "context TEXT, timestamp TEXT)"
             )
         )
-        conn.execute(("INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts')"))
+        conn.execute(
+            (
+                "INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts', 0, NULL)"
+            )
+        )
         conn.execute(
             (
                 "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, "
