@@ -30,6 +30,7 @@ import time
 from scripts.monitoring.unified_monitoring_optimization_system import (
     main as monitoring_main,
 )
+from utils.log_utils import _log_event, DEFAULT_ANALYTICS_DB
 
 # MANDATORY: Enterprise Configuration
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
@@ -62,6 +63,14 @@ class EnterpriseFileRelocationOrchestrator:
             "failed_moves": 0,
             "compliance_status": "PENDING",
         }
+
+        _log_event(
+            {
+                "event": "relocation_start",
+                "session": self.session_id,
+            },
+            db_path=DEFAULT_ANALYTICS_DB,
+        )
 
         # MANDATORY: Initialize visual monitoring
         self.setup_visual_monitoring()
@@ -420,6 +429,13 @@ class EnterpriseFileRelocationOrchestrator:
             if not relocation_map:
                 logging.info("ℹ️ No files to relocate")
                 self.secondary_validate()
+                _log_event(
+                    {
+                        "event": "relocation_complete",
+                        "session": self.session_id,
+                    },
+                    db_path=DEFAULT_ANALYTICS_DB,
+                )
                 return
 
             # Ensure target directories exist
@@ -439,6 +455,13 @@ class EnterpriseFileRelocationOrchestrator:
                 schedule.run_pending()
 
             logging.info("FILE RELOCATION ORCHESTRATION COMPLETED SUCCESSFULLY")
+            _log_event(
+                {
+                    "event": "relocation_complete",
+                    "session": self.session_id,
+                },
+                db_path=DEFAULT_ANALYTICS_DB,
+            )
             return report_path
 
         except Exception as e:

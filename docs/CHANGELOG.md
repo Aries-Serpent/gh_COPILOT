@@ -13,6 +13,11 @@
 - Documented placeholder resolution tracking workflow.
 - Updated usage guides with commands to mark corrections and verify via dashboard.
 
+## [4.1.7] - 2025-07-30
+- Added analytics logging hooks in `EnterpriseFileRelocationOrchestrator`.
+- Fixed timezone import in `tools/automation_setup.py`.
+- Updated README statistics and stub status documentation.
+
 ## [4.1.3] - 2025-07-27
 - Verified presence of new session and monitoring modules.
 - Refreshed documentation for wrappers and utilities.
