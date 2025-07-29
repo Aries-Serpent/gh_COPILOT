@@ -106,7 +106,9 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
                 line_number INTEGER,
                 placeholder_type TEXT,
                 context TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                resolved BOOLEAN DEFAULT 0,
+                resolved_timestamp DATETIME
             )
             """
         )
@@ -139,34 +141,48 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
                 line_number INTEGER,
                 placeholder_type TEXT,
                 context TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                resolved BOOLEAN DEFAULT 0,
+                resolved_timestamp DATETIME
             )
             """
         )
+        result_keys = {
+            (r["file"], r["line"], r["pattern"], r["context"]) for r in results
+        }
+        cur = conn.execute(
+            "SELECT rowid, file_path, line_number, placeholder_type, context FROM todo_fixme_tracking WHERE resolved=0"
+        )
+        for rowid, fpath, line, ptype, ctx in cur.fetchall():
+            if (fpath, line, ptype, ctx) not in result_keys:
+                conn.execute(
+                    "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=? WHERE rowid=?",
+                    (datetime.now().isoformat(), rowid),
+                )
         for row in results:
-            values = (
-                row["file"],
-                row["line"],
-                row["pattern"],
-                row["context"],
-                datetime.now().isoformat(),
+            key = (row["file"], row["line"], row["pattern"], row["context"])
+            cur = conn.execute(
+                "SELECT 1 FROM todo_fixme_tracking WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=? AND resolved=0",
+                key,
             )
-            conn.execute(
-                "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
-                " VALUES (?, ?, ?, ?, ?)",
-                values,
-            )
-            conn.execute(
-                "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp)"
-                " VALUES (?, ?, ?, ?, ?)",
-                (
+            if not cur.fetchone():
+                values = (
                     row["file"],
                     row["line"],
                     row["pattern"],
                     row["context"],
                     datetime.now().isoformat(),
-                ),
-            )
+                )
+                conn.execute(
+                    "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
+                    " VALUES (?, ?, ?, ?, ?)",
+                    values,
+                )
+                conn.execute(
+                    "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp)"
+                    " VALUES (?, ?, ?, ?, ?)",
+                    values,
+                )
         conn.commit()
 
 
