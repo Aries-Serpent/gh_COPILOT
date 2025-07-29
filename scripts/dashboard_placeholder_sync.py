@@ -22,7 +22,9 @@ def sync(dashboard_dir: Path, analytics_db: Path) -> None:
     count = 0
     if analytics_db.exists():
         with sqlite3.connect(analytics_db) as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking")
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=0"
+            )
             count = cur.fetchone()[0]
 
     compliance = max(0, 100 - count)
