@@ -8,6 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Iterable
+import logging
 
 
 def ensure_env() -> None:

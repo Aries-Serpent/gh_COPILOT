@@ -295,7 +295,7 @@ class WorkspaceIntegrityValidator:
                         content = f.read()
                         if 'eval(' in content or 'exec(' in content:
                             violations.append(f"Potential security risk in {file_path.relative_to(self.workspace_root)}: eval/exec usage")
-                except:
+                except Exception:
                     continue
         
         status = "PASS" if not violations else "WARN"

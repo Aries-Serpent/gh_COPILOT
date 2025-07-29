@@ -62,7 +62,7 @@ def main():
                             if count > 0:
                                 scripts_in_databases += count
                                 sample_db_scripts[f"{db_file.name}.{table}"] = count
-                    except:
+                    except Exception:
                         continue
         except Exception as e:
             print(f"{TEXT['error']} Failed to analyze {db_file.name}: {e}")

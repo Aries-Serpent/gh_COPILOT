@@ -513,9 +513,6 @@ class EnterpriseDeploymentOrchestrator:
         result = self._execute_post_deployment_validation()
         return result.get("status") == "COMPLETED"
 
-    def secondary_validate(self) -> bool:
-        """Secondary validation mirroring :func:`primary_validate`."""
-        return self.primary_validate()
 
     # Helper validation methods
     def _validate_core_files(self) -> Dict[str, Any]:

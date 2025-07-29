@@ -1069,9 +1069,6 @@ class EnterpriseValidationOrchestrator:
         """Primary validation check for final metrics."""
         return self.validation_metrics.overall_score >= 80.0
 
-    def secondary_validate(self) -> bool:
-        """Secondary validation mirroring :func:`primary_validate`."""
-        return self.primary_validate()
 
 def main():
     """Main execution function with comprehensive command line interface"""

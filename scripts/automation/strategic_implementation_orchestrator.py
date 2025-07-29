@@ -168,10 +168,6 @@ class StrategicImplementationOrchestrator:
         logger.info(f"🏢 Enterprise Compliance: {'✅ PASSED' if enterprise_compliant else '❌ FAILED'}")
         return enterprise_compliant
 
-    def secondary_validate(self) -> bool:
-        """Run secondary compliance validation."""
-        logger.info("SECONDARY VALIDATION: enterprise compliance")
-        return self.validate_enterprise_compliance()
 
     def execute_option1_enterprise_optimization(self) -> Dict[str, Any]:
         """🚀 Option 1: Step 5 Enterprise Optimization Implementation"""
@@ -788,8 +784,8 @@ def main():
         print(f"Report Location: {report_path}")
         print("="*80)
 
-        self.primary_validate()
-        self.secondary_validate()
+        orchestrator.primary_validate()
+        orchestrator.secondary_validate()
 
         return implementation_results
         

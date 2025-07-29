@@ -98,7 +98,7 @@ def process_recommendations():
                 try:
                     temp_file.unlink()
                     cleaned_files.append(str(temp_file))
-                except:
+                except Exception:
                     pass
     
     if cleaned_files:

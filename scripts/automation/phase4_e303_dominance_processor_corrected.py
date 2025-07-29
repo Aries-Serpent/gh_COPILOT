@@ -604,8 +604,9 @@ class Phase4E303DominanceProcessor:
         if quality['dominance_achieved']:
             logger.info("🏆 E303 DOMINANCE ACHIEVED!")
         else:
-            logger.info(f"# # 🎯 Progress: {quality['actual_suc \
-                cess_rate']:.1f}% / {quality['target_success_rate']:.1f}%")
+            logger.info(
+                f"# # 🎯 Progress: {quality['actual_success_rate']:.1f}% / {quality['target_success_rate']:.1f}%"
+            )
 
         logger.info("="*80)
 

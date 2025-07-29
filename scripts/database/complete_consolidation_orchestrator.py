@@ -168,10 +168,6 @@ def primary_validate() -> bool:
     return True
 
 
-def secondary_validate() -> bool:
-    """Secondary validation mirroring :func:`primary_validate`."""
-    logger.info("SECONDARY validation executed")
-    return primary_validate()
 
 
 def migrate_and_compress(

@@ -162,6 +162,7 @@ class EnterpriseScriptDatabaseSynchronizer:
 
     def _perform_synchronization(self, validation_results: Dict) -> Dict:
         """Perform actual synchronization based on validation results"""
+        start_dt = log_sync_operation(self.enterprise_db, "sync_operation_start")
         sync_results = {
             'scripts_updated': 0,
             'scripts_added': 0,

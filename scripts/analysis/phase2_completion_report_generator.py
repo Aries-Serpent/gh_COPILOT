@@ -160,8 +160,7 @@ class Phase2CompletionReportGenerator:
 {'='*80}
 
 CURRENT FLAKE8 F821/F401 STATUS:
-{current_status['f821_f401_violations'] if current_status['f82 \
-    1_f401_violations'] else '# # ✅ NO F821/F401 VIOLATIONS DETECTED'}
+{current_status['f821_f401_violations'] if current_status['f821_f401_violations'] else '# # ✅ NO F821/F401 VIOLATIONS DETECTED'}
 
 WORKSPACE HEALTH SUMMARY:
 Phase 1 (E999 Syntax Errors): # # ✅ COMPLETE (0 violations)
