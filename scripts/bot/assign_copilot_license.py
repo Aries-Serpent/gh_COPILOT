@@ -16,7 +16,7 @@ from utils.cross_platform_paths import (
     CrossPlatformPathManager,
     verify_environment_variables,
 )
-from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -82,14 +82,18 @@ def main() -> None:
     parser.add_argument("--revoke", action="store_true", help="Revoke seat")
     args = parser.parse_args()
 
-    result = assign_license(args.username, not args.revoke)
+    orchestrator = DualCopilotOrchestrator(logger)
 
-    validator = SecondaryCopilotValidator(logger)
-    validator.validate_corrections([__file__])
+    def _primary() -> bool:
+        return assign_license(args.username, not args.revoke)
+
+    primary_success, validation_success = orchestrator.run(_primary, [__file__])
 
     duration = (datetime.now() - start).total_seconds()
-    if result:
-        logger.info("%s Completed in %.2fs", TEXT_INDICATORS["success"], duration)
+    if primary_success and validation_success:
+        logger.info(
+            "%s Completed in %.2fs", TEXT_INDICATORS["success"], duration
+        )
     else:
         logger.error("%s Failed in %.2fs", TEXT_INDICATORS["error"], duration)
 
