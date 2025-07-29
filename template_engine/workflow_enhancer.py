@@ -25,6 +25,7 @@ from sklearn.cluster import KMeans
 from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
 
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "workflow_enhancer"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
@@ -136,6 +137,16 @@ class TemplateWorkflowEnhancer:
         report_file = self.dashboard_dir / "workflow_enhancement_report.json"
         report_file.write_text(json.dumps(report, indent=2), encoding="utf-8")
         logging.info(f"Modular report written to {report_file}")
+        _log_event(
+            {
+                "event": "workflow_enhancement_report_generated",
+                "template_count": len(templates),
+                "cluster_count": len(clusters),
+                "avg_score": compliance_score,
+            },
+            table="workflow_events",
+            db_path=DEFAULT_ANALYTICS_DB,
+        )
 
     def enhance(self, timeout_minutes: int = 30) -> bool:
         """Enhance workflow using stored templates and patterns.
@@ -145,6 +156,7 @@ class TemplateWorkflowEnhancer:
         provide real-time feedback and fault tolerance.
         """
         self.status = "ENHANCING"
+        _log_event({"event": "workflow_enhancement_start"}, table="workflow_events", db_path=DEFAULT_ANALYTICS_DB)
         start_time = time.time()
         timeout_seconds = timeout_minutes * 60
         templates = self.fetch_templates()
@@ -171,6 +183,11 @@ class TemplateWorkflowEnhancer:
             bar.set_postfix(ETC=etc)
         elapsed = time.time() - start_time
         logging.info(f"Template workflow enhancement completed in {elapsed:.2f}s | ETC: {etc}")
+        _log_event(
+            {"event": "workflow_enhancement_complete", "duration": elapsed},
+            table="workflow_events",
+            db_path=DEFAULT_ANALYTICS_DB,
+        )
         self.status = "COMPLETED"
         valid = self.validate_enhancement(len(templates))
         if valid:
