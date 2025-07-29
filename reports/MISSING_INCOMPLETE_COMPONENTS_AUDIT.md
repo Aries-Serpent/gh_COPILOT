@@ -2,6 +2,8 @@
 
 This report identifies placeholder implementations and incomplete features in the `gh_COPILOT` codebase (pre-release **Aries-Serpent**) and proposes next steps.
 
+See `docs/STUB_MODULE_STATUS.md` for a checklist of stub modules and whether the referenced paths currently exist.
+
 ## Analysis / Discovery Report
 | Item/Name | Details/Notes | Last Updated |
 |-----------|---------------|--------------|
