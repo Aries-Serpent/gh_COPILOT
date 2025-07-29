@@ -58,8 +58,35 @@ class EnterpriseFlake8Corrector:
         return corrected
 
     def correct_file(self, file_path: str) -> bool:  # pragma: no cover - overridden
-        """Correct a single file. Implemented in subclasses."""
-        raise NotImplementedError
+        """Correct a single file using basic formatting tools.
+
+        Subclasses **should** override this method to implement specialized
+        correction behaviour. The default implementation simply runs ``isort``
+        and ``autopep8`` over the provided file. It returns ``True`` if the file
+        contents changed.
+        """
+
+        try:
+            original = Path(file_path).read_text(encoding="utf-8")
+
+            subprocess.run(
+                [sys.executable, "-m", "isort", file_path],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            subprocess.run(
+                [sys.executable, "-m", "autopep8", "--in-place", file_path],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            updated = Path(file_path).read_text(encoding="utf-8")
+            return original != updated
+        except Exception as exc:  # pragma: no cover - rare failure
+            self.logger.error("[ERROR] File correction failed: %s", exc)
+            return False
 
     def validate_corrections(self, files: list[str]) -> bool:
         """Basic validation that something changed."""

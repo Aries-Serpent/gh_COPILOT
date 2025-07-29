@@ -32,7 +32,7 @@ def _fetch_metrics() -> Dict[str, Any]:
             try:
                 cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
                 metrics["placeholder_removal"] = cur.fetchone()[0]
-                cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
+                cur.execute("SELECT AVG(compliance_score) FROM corrections")
                 val = cur.fetchone()[0]
                 metrics["compliance_score"] = float(val) if val is not None else 0.0
             except sqlite3.Error as exc:

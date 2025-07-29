@@ -1,4 +1,5 @@
 """Enterprise automation script skeleton for setup and auditing."""
+
 from __future__ import annotations
 
 import logging
@@ -8,6 +9,8 @@ from pathlib import Path
 from typing import Optional
 
 from tqdm import tqdm
+
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 from scripts.code_placeholder_audit import main as placeholder_audit
 
@@ -99,8 +102,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
                 conn.execute(
-                    "INSERT INTO template_assets (template_path, content_hash, created_at)"
-                    " VALUES (?, ?, ?)",
+                    "INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)",
                     (
                         str(path.relative_to(template_path.parent)),
                         digest,
@@ -108,8 +110,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                     ),
                 )
                 conn.execute(
-                    "INSERT INTO pattern_assets (pattern, usage_count, created_at)"
-                    " VALUES (?, 0, ?)",
+                    "INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)",
                     (content[:1000], datetime.now(timezone.utc).isoformat()),
                 )
                 bar.update(1)
@@ -143,6 +144,9 @@ def main() -> None:
     ingest_assets(workspace / "documentation", workspace / "template_engine", production_db)
 
     run_audit(workspace, analytics_db, production_db, dashboard_dir)
+
+    validator = SecondaryCopilotValidator()
+    validator.validate_corrections([__file__])
 
     LOGGER.info("Automation complete")
 

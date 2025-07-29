@@ -28,6 +28,7 @@ from tqdm import tqdm
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
+from utils.log_utils import _log_event
 
 # Enterprise logging setup
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app")) / "logs" / "correction_logger"
@@ -55,7 +56,7 @@ class CorrectionLoggerRollback:
         self.process_id = os.getpid()
         self.timeout_seconds = 1800  # 30 minutes
         self.status = "INITIALIZED"
-        validate_enterprise_operation(str(analytics_db))
+        validate_enterprise_operation()
         logging.info(f"PROCESS STARTED: Correction Logging and Rollback")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
@@ -111,6 +112,11 @@ class CorrectionLoggerRollback:
                 (datetime.now().isoformat(), details),
             )
             conn.commit()
+        _log_event(
+            {"event": "violation", "details": details},
+            table="violation_logs",
+            db_path=self.analytics_db,
+        )
 
     def auto_rollback(self, target: Path, backup_path: Optional[Path] = None) -> bool:
         """
@@ -118,7 +124,7 @@ class CorrectionLoggerRollback:
         """
         self.status = "ROLLBACK"
         start_time = time.time()
-        validate_enterprise_operation(str(target))
+        validate_enterprise_operation()
         with tqdm(total=100, desc=f"Rolling Back {target.name}", unit="%") as pbar:
             pbar.set_description("Validating Target")
             if not target.exists() and not backup_path:
@@ -155,9 +161,19 @@ class CorrectionLoggerRollback:
                         ),
                     )
                     conn.commit()
+                _log_event(
+                    {"event": "rollback", "target": str(target)},
+                    table="rollback_logs",
+                    db_path=self.analytics_db,
+                )
                 return True
             else:
                 logging.error(f"Rollback failed for {target}")
+                _log_event(
+                    {"event": "rollback_failed", "target": str(target)},
+                    table="rollback_logs",
+                    db_path=self.analytics_db,
+                )
                 pbar.update(25)
                 return False
 
@@ -240,7 +256,7 @@ def main(
     logging.info(f"Process ID: {process_id}")
 
     # Anti-recursion validation
-    validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
+    validate_enterprise_operation()
 
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
     analytics_db = Path(analytics_db_path or workspace / "databases" / "analytics.db")

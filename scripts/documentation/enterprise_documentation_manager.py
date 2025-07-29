@@ -13,7 +13,9 @@ from template_engine.auto_generator import (
     DEFAULT_COMPLETION_DB,
     TemplateAutoGenerator,
 )
+from template_engine.template_synchronizer import _compliance_score
 from utils.database_utils import get_validated_production_db_connection
+from utils.log_utils import _log_event
 
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -66,6 +68,13 @@ class EnterpriseDocumentationManager:
         return template
 
     # ------------------------------------------------------------------
+    def calculate_compliance(self, content: str) -> float:
+        """Return compliance score using analytics rules."""
+        score = _compliance_score(content)
+        self.logger.info(f"{TEXT_INDICATORS['info']} Compliance score {score:.2f}")
+        return score
+
+    # ------------------------------------------------------------------
     def generate_files(self, doc_type: str) -> List[Path]:
         """Generate documentation files for ``doc_type``."""
         docs = self.query_documentation(doc_type)
@@ -89,6 +98,22 @@ class EnterpriseDocumentationManager:
             with tqdm(total=len(docs), desc=f"{TEXT_INDICATORS['progress']} docs", unit="doc") as bar:
                 for doc_id, content in docs:
                     text = template.replace("{content}", content) if template else content
+                    score = self.calculate_compliance(text)
+                    _log_event(
+                        {
+                            "event": "doc_generated",
+                            "doc_id": doc_id,
+                            "compliance_score": score,
+                        },
+                        table="correction_logs",
+                        db_path=self.generator.analytics_db,
+                    )
+                    if score < 60.0:
+                        self.logger.info(
+                            f"{TEXT_INDICATORS['info']} Skipping {doc_id} due to low score {score:.2f}"
+                        )
+                        bar.update(1)
+                        continue
                     path = self.output_dir / f"{doc_id}.md"
                     path.write_text(text)
                     generated.append(path)

@@ -16,6 +16,7 @@ from pathlib import Path
 from datetime import datetime
 from tqdm import tqdm
 import os
+import subprocess
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -27,12 +28,16 @@ TEXT_INDICATORS = {
 }
 
 
-class EnterpriseFlake8Corrector:
+from scripts.utilities.flake8_corrector_base import (
+    EnterpriseFlake8Corrector as BaseCorrector,
+)
+
+
+class EnterpriseFlake8Corrector(BaseCorrector):
     """Enterprise-grade Flake8 correction system"""
 
     def __init__(self, workspace_path: str = os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")):
-        self.workspace_path = Path(workspace_path)
-        self.logger = logging.getLogger(__name__)
+        super().__init__(workspace_path)
 
     def execute_correction(self) -> bool:
         """Execute Flake8 correction with visual indicators"""
@@ -79,12 +84,45 @@ class EnterpriseFlake8Corrector:
         return corrected
 
     def correct_file(self, file_path: str) -> bool:
-        """Correct a single file"""
+        """Correct a single file using ruff, isort and autopep8."""
         try:
-            # Implementation for file correction
-            return True
-        except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} File correction failed: {e}")
+            path = Path(file_path)
+            original = path.read_text(encoding="utf-8")
+
+            subprocess.run([
+                "ruff",
+                "--fix",
+                file_path,
+            ], capture_output=True, text=True, check=False)
+
+            subprocess.run([
+                sys.executable,
+                "-m",
+                "isort",
+                file_path,
+            ], capture_output=True, text=True, check=False)
+
+            subprocess.run([
+                sys.executable,
+                "-m",
+                "autopep8",
+                "--in-place",
+                file_path,
+            ], capture_output=True, text=True, check=False)
+
+            updated = path.read_text(encoding="utf-8")
+            changed = original != updated
+            if changed:
+                self.logger.info(
+                    "%s Corrected %s",
+                    TEXT_INDICATORS["success"],
+                    file_path,
+                )
+            return changed
+        except Exception as e:  # pragma: no cover - unexpected
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} File correction failed: {e}"
+            )
             return False
 
     def validate_corrections(self, files: list) -> bool:

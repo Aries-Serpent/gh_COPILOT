@@ -104,7 +104,7 @@ class ComplianceMetricsUpdater:
                     cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
                 metrics["placeholder_removal"] = cur.fetchone()[0]
 
-                cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
+                cur.execute("SELECT AVG(compliance_score) FROM corrections")
                 avg_score = cur.fetchone()[0]
                 metrics["compliance_score"] = float(avg_score) if avg_score is not None else 0.0
 
@@ -119,6 +119,18 @@ class ComplianceMetricsUpdater:
             metrics["progress_status"] = "issues_pending"
         else:
             metrics["progress_status"] = "complete"
+        if metrics["violation_count"]:
+            _log_event(
+                {"event": "violation_detected", "count": metrics["violation_count"]},
+                table="violation_logs",
+                db_path=ANALYTICS_DB,
+            )
+        if metrics["rollback_count"]:
+            _log_event(
+                {"event": "rollback_detected", "count": metrics["rollback_count"]},
+                table="rollback_logs",
+                db_path=ANALYTICS_DB,
+            )
         metrics["last_update"] = datetime.now().isoformat()
         return metrics
 
