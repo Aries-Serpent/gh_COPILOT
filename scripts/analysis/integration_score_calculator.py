@@ -443,7 +443,7 @@ class IntegrationScoreCalculator:
                     patterns_found = sum(1 for pattern in patterns if pattern in content)
                     if patterns_found >= len(patterns) // 2:  # At least half the patterns
                         files_with_patterns.append(str(py_file))
-                except:
+                except Exception:
                     continue
         
         # Calculate score based on pattern coverage

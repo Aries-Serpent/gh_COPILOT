@@ -738,7 +738,7 @@ class EnterpriseComplianceMonitor:
             try:
                 network_io = psutil.net_io_counters()
                 network_available = True
-            except:
+            except Exception:
                 network_available = False
             
             # Performance thresholds

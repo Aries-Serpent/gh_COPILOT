@@ -215,7 +215,7 @@ class DatabaseIntegrationEnhancer:
                                 try:
                                     cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
                                     record_count += cursor.fetchone()[0]
-                                except:
+                                except Exception:
                                     pass  # Skip problematic tables
                         
                         db_info = DatabaseInfo(
@@ -903,7 +903,7 @@ class DatabaseIntegrationEnhancer:
             for conn in self.connection_pool.values():
                 try:
                     conn.close()
-                except:
+                except Exception:
                     pass
 
 def main():

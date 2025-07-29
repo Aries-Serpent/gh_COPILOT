@@ -172,7 +172,7 @@ class BatchConsolidationProcessor:
                     primary_lines = len(f.readlines())
                 if primary_lines > 1000:
                     risk_factors.append("large_primary_script")
-            except:
+            except Exception:
                 risk_factors.append("unreadable_primary_script")
         
         # Many similar scripts (medium risk)

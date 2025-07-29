@@ -511,7 +511,7 @@ class ModelTrainingEngine:
         try:
             joblib.dump(model, model_path) if 'joblib' in globals() else pickle.dump(model, open(model_path, 'wb'))
             ml_model.model_size = model_path.stat().st_size
-        except:
+        except Exception:
             logging.warning(f"Could not save model {model_id}")
         
         return ml_model

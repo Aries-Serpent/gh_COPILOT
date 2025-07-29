@@ -21,6 +21,10 @@ from pathlib import Path
 from typing import Any, Dict
 
 from tqdm import tqdm
+from utils.log_utils import _log_event
+
+from scripts.database.add_violation_logs import ensure_violation_logs
+from scripts.database.add_rollback_logs import ensure_rollback_logs
 
 # Enterprise logging setup
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "dashboard"
@@ -72,6 +76,8 @@ class ComplianceMetricsUpdater:
         logging.info("PROCESS STARTED: Compliance Metrics Update")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
+        ensure_violation_logs(ANALYTICS_DB)
+        ensure_rollback_logs(ANALYTICS_DB)
 
     def _fetch_compliance_metrics(self) -> Dict[str, Any]:
         """Fetch compliance metrics from analytics.db."""
@@ -98,7 +104,7 @@ class ComplianceMetricsUpdater:
                     cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
                 metrics["placeholder_removal"] = cur.fetchone()[0]
 
-                cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
+                cur.execute("SELECT AVG(compliance_score) FROM corrections")
                 avg_score = cur.fetchone()[0]
                 metrics["compliance_score"] = float(avg_score) if avg_score is not None else 0.0
 
@@ -113,6 +119,18 @@ class ComplianceMetricsUpdater:
             metrics["progress_status"] = "issues_pending"
         else:
             metrics["progress_status"] = "complete"
+        if metrics["violation_count"]:
+            _log_event(
+                {"event": "violation_detected", "count": metrics["violation_count"]},
+                table="violation_logs",
+                db_path=ANALYTICS_DB,
+            )
+        if metrics["rollback_count"]:
+            _log_event(
+                {"event": "rollback_detected", "count": metrics["rollback_count"]},
+                table="rollback_logs",
+                db_path=ANALYTICS_DB,
+            )
         metrics["last_update"] = datetime.now().isoformat()
         return metrics
 
@@ -136,6 +154,7 @@ class ComplianceMetricsUpdater:
         with open(LOG_FILE, "a", encoding="utf-8") as logf:
             logf.write(log_entry)
         logging.info("Update event logged.")
+        _log_event({"event": "dashboard_update", "metrics": metrics}, db_path=ANALYTICS_DB)
 
     def update(self, simulate: bool = False) -> None:
         """Update compliance metrics for the web dashboard with full compliance and validation.
@@ -167,6 +186,7 @@ class ComplianceMetricsUpdater:
         elapsed = time.time() - start_time
         etc = self._calculate_etc(elapsed, 3, 3)
         logging.info(f"Compliance metrics update completed in {elapsed:.2f}s | ETC: {etc}")
+        _log_event({"event": "update_complete", "duration": elapsed}, db_path=ANALYTICS_DB)
         self.status = "COMPLETED"
 
     def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:

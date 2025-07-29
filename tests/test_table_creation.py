@@ -37,6 +37,8 @@ def test_table_creation_dual(capsys) -> None:
         Path("databases/migrations/add_code_audit_log.sql"),
         Path("databases/migrations/add_correction_history.sql"),
         Path("databases/migrations/add_code_audit_history.sql"),
+        Path("databases/migrations/add_violation_logs.sql"),
+        Path("databases/migrations/add_rollback_logs.sql"),
     ]
 
     with sqlite3.connect(":memory:") as conn:

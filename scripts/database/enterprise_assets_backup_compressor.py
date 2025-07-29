@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import os
 import zipfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path, PureWindowsPath
 
 from scripts.continuous_operation_orchestrator import \

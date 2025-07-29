@@ -20,16 +20,20 @@ def sync(dashboard_dir: Path, analytics_db: Path) -> None:
     dashboard_dir.mkdir(parents=True, exist_ok=True)
 
     count = 0
+    resolved = 0
     if analytics_db.exists():
         with sqlite3.connect(analytics_db) as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking")
+            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=0")
             count = cur.fetchone()[0]
+            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
+            resolved = cur.fetchone()[0]
 
     compliance = max(0, 100 - count)
     status = "complete" if count == 0 else "issues_pending"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": count,
+        "resolved_count": resolved,
         "compliance_score": compliance,
         "progress_status": status,
     }

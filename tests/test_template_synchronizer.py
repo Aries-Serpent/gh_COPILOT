@@ -100,8 +100,38 @@ def test_synchronize_with_clustering(tmp_path: Path, monkeypatch) -> None:
     create_db(db_b, {"t2": "bar baz"})
     monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
 
+    called: dict[str, bool] = {"flag": False}
+
+    def dummy_cluster(templates: dict[str, str]) -> dict[str, str]:
+        called["flag"] = True
+        return templates
+
+    monkeypatch.setattr(template_synchronizer, "_cluster_templates", dummy_cluster)
+
     synced = template_synchronizer.synchronize_templates_real([db_a, db_b], cluster=True)
     assert synced == 2
     with sqlite3.connect(analytics) as conn:
         count = conn.execute("SELECT COUNT(*) FROM sync_events_log").fetchone()[0]
         assert count >= 3
+    assert called["flag"] is True
+
+
+def test_simulation_with_clustering(tmp_path: Path, monkeypatch) -> None:
+    db_a = tmp_path / "a.db"
+    db_b = tmp_path / "b.db"
+    analytics = tmp_path / "analytics.db"
+    create_db(db_a, {"t1": "foo bar"})
+    create_db(db_b, {"t2": "bar baz"})
+    monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
+
+    called: dict[str, bool] = {"flag": False}
+
+    def dummy_cluster(templates: dict[str, str]) -> dict[str, str]:
+        called["flag"] = True
+        return templates
+
+    monkeypatch.setattr(template_synchronizer, "_cluster_templates", dummy_cluster)
+
+    synced = template_synchronizer.synchronize_templates([db_a, db_b], cluster=True)
+    assert synced == 2
+    assert called["flag"] is True

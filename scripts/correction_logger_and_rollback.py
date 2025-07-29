@@ -26,17 +26,14 @@ from typing import Dict, Any, List, Optional
 from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from scripts.database.add_violation_logs import ensure_violation_logs
+from scripts.database.add_rollback_logs import ensure_rollback_logs
+from utils.log_utils import _log_event
 
 # Enterprise logging setup
-LOGS_DIR = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
-    / "logs"
-    / "correction_logger"
-)
+LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app")) / "logs" / "correction_logger"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = (
-    LOGS_DIR / f"correction_logger_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-)
+LOG_FILE = LOGS_DIR / f"correction_logger_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -44,11 +41,7 @@ logging.basicConfig(
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
-DASHBOARD_DIR = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
-    / "dashboard"
-    / "compliance"
-)
+DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app")) / "dashboard" / "compliance"
 
 
 class CorrectionLoggerRollback:
@@ -63,11 +56,13 @@ class CorrectionLoggerRollback:
         self.process_id = os.getpid()
         self.timeout_seconds = 1800  # 30 minutes
         self.status = "INITIALIZED"
-        validate_enterprise_operation(str(analytics_db))
+        validate_enterprise_operation()
         logging.info(f"PROCESS STARTED: Correction Logging and Rollback")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
         self._ensure_table_exists()
+        ensure_violation_logs(self.analytics_db)
+        ensure_rollback_logs(self.analytics_db)
 
     def _ensure_table_exists(self) -> None:
         self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
@@ -107,8 +102,20 @@ class CorrectionLoggerRollback:
                 ),
             )
             conn.commit()
-        logging.info(
-            f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score}"
+        logging.info(f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score}")
+
+    def log_violation(self, details: str) -> None:
+        """Record a compliance violation in ``violation_logs``."""
+        with sqlite3.connect(self.analytics_db) as conn:
+            conn.execute(
+                "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
+                (datetime.now().isoformat(), details),
+            )
+            conn.commit()
+        _log_event(
+            {"event": "violation", "details": details},
+            table="violation_logs",
+            db_path=self.analytics_db,
         )
 
     def auto_rollback(self, target: Path, backup_path: Optional[Path] = None) -> bool:
@@ -117,13 +124,11 @@ class CorrectionLoggerRollback:
         """
         self.status = "ROLLBACK"
         start_time = time.time()
-        validate_enterprise_operation(str(target))
+        validate_enterprise_operation()
         with tqdm(total=100, desc=f"Rolling Back {target.name}", unit="%") as pbar:
             pbar.set_description("Validating Target")
             if not target.exists() and not backup_path:
-                logging.error(
-                    f"Target file does not exist and no backup provided: {target}"
-                )
+                logging.error(f"Target file does not exist and no backup provided: {target}")
                 pbar.update(100)
                 return False
             pbar.update(25)
@@ -146,9 +151,29 @@ class CorrectionLoggerRollback:
                     compliance_score=0.0,
                     rollback_reference=str(backup_path),
                 )
+                with sqlite3.connect(self.analytics_db) as conn:
+                    conn.execute(
+                        "INSERT INTO rollback_logs (target, backup, timestamp) VALUES (?, ?, ?)",
+                        (
+                            str(target),
+                            str(backup_path) if backup_path else None,
+                            datetime.now().isoformat(),
+                        ),
+                    )
+                    conn.commit()
+                _log_event(
+                    {"event": "rollback", "target": str(target)},
+                    table="rollback_logs",
+                    db_path=self.analytics_db,
+                )
                 return True
             else:
                 logging.error(f"Rollback failed for {target}")
+                _log_event(
+                    {"event": "rollback_failed", "target": str(target)},
+                    table="rollback_logs",
+                    db_path=self.analytics_db,
+                )
                 pbar.update(25)
                 return False
 
@@ -158,9 +183,7 @@ class CorrectionLoggerRollback:
         """
         self.status = "SUMMARIZING"
         with sqlite3.connect(self.analytics_db) as conn:
-            cur = conn.execute(
-                "SELECT file_path, rationale, compliance_score, rollback_reference, ts FROM corrections"
-            )
+            cur = conn.execute("SELECT file_path, rationale, compliance_score, rollback_reference, ts FROM corrections")
             corrections = cur.fetchall()
         summary = {
             "timestamp": datetime.now().isoformat(),
@@ -196,9 +219,7 @@ class CorrectionLoggerRollback:
         logging.info(f"Correction summary written to {json_path} and {md_path}")
         return summary
 
-    def _calculate_etc(
-        self, elapsed: float, current_progress: int, total_work: int
-    ) -> str:
+    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
         if current_progress > 0:
             total_estimated = elapsed / (current_progress / total_work)
             remaining = total_estimated - elapsed
@@ -214,9 +235,7 @@ class CorrectionLoggerRollback:
             db_count = cur.fetchone()[0]
         valid = db_count >= expected_count
         if valid:
-            logging.info(
-                "DUAL COPILOT validation passed: Correction log integrity confirmed."
-            )
+            logging.info("DUAL COPILOT validation passed: Correction log integrity confirmed.")
         else:
             logging.error("DUAL COPILOT validation failed: Correction log mismatch.")
         return valid
@@ -237,7 +256,7 @@ def main(
     logging.info(f"Process ID: {process_id}")
 
     # Anti-recursion validation
-    validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
+    validate_enterprise_operation()
 
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
     analytics_db = Path(analytics_db_path or workspace / "databases" / "analytics.db")
@@ -262,9 +281,7 @@ def main(
     # DUAL COPILOT validation
     valid = logger.validate_corrections(summary["total_corrections"])
     if valid:
-        logging.info(
-            f"Correction logger session logged {summary['total_corrections']} corrections"
-        )
+        logging.info(f"Correction logger session logged {summary['total_corrections']} corrections")
     else:
         logging.error("Correction logger session validation mismatch")
     return valid

@@ -10,6 +10,13 @@ jobs:
       GH_COPILOT_WORKSPACE: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
       - name: Run placeholder audit
         env:
           GH_COPILOT_WORKSPACE: ${{ github.workspace }}

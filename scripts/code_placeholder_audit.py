@@ -23,7 +23,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ModuleNotFoundError:  # pragma: no cover - fallback
+    import subprocess
+    import sys
+
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "tqdm"])
+    from tqdm import tqdm
 
 from scripts.continuous_operation_orchestrator import (
     validate_enterprise_operation,
@@ -99,7 +106,9 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
                 line_number INTEGER,
                 placeholder_type TEXT,
                 context TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                resolved BOOLEAN DEFAULT 0,
+                resolved_timestamp DATETIME
             )
             """
         )
@@ -132,46 +141,64 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
                 line_number INTEGER,
                 placeholder_type TEXT,
                 context TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                resolved BOOLEAN DEFAULT 0,
+                resolved_timestamp DATETIME
             )
             """
         )
+        result_keys = {(r["file"], r["line"], r["pattern"], r["context"]) for r in results}
+        cur = conn.execute(
+            "SELECT rowid, file_path, line_number, placeholder_type, context FROM todo_fixme_tracking WHERE resolved=0"
+        )
+        for rowid, fpath, line, ptype, ctx in cur.fetchall():
+            if (fpath, line, ptype, ctx) not in result_keys:
+                conn.execute(
+                    "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=? WHERE rowid=?",
+                    (datetime.now().isoformat(), rowid),
+                )
         for row in results:
-            values = (
-                row["file"],
-                row["line"],
-                row["pattern"],
-                row["context"],
-                datetime.now().isoformat(),
+            key = (row["file"], row["line"], row["pattern"], row["context"])
+            cur = conn.execute(
+                "SELECT 1 FROM todo_fixme_tracking WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=? AND resolved=0",
+                key,
             )
-            conn.execute(
-                "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
-                " VALUES (?, ?, ?, ?, ?)",
-                values,
-            )
-            conn.execute(
-                "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp)"
-                " VALUES (?, ?, ?, ?, ?)",
-                (
+            if not cur.fetchone():
+                values = (
                     row["file"],
                     row["line"],
                     row["pattern"],
                     row["context"],
                     datetime.now().isoformat(),
-                ),
-            )
+                )
+                conn.execute(
+                    "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
+                    " VALUES (?, ?, ?, ?, ?)",
+                    values,
+                )
+                conn.execute(
+                    "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp)"
+                    " VALUES (?, ?, ?, ?, ?)",
+                    values,
+                )
         conn.commit()
 
 
 # Update dashboard/compliance with summary JSON
-def update_dashboard(count: int, dashboard_dir: Path) -> None:
+def update_dashboard(count: int, dashboard_dir: Path, analytics_db: Path) -> None:
     """Write summary JSON to dashboard/compliance directory."""
     dashboard_dir.mkdir(parents=True, exist_ok=True)
+    resolved = 0
+    if analytics_db.exists():
+        with sqlite3.connect(analytics_db) as conn:
+            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
+            resolved = cur.fetchone()[0]
     compliance = max(0, 100 - count)
     status = "complete" if count == 0 else "issues_pending"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": count,
+        "resolved_count": resolved,
         "compliance_score": compliance,
         "progress_status": status,
     }
@@ -301,6 +328,7 @@ def main(
                 lines = file.read_text(encoding="utf-8", errors="ignore").splitlines()
             except Exception as e:
                 log_message(
+                    __name__,
                     f"{TEXT['error']} Could not read {file}: {e}",
                     level=logging.ERROR,
                 )
@@ -326,7 +354,7 @@ def main(
     log_findings(results, analytics, simulate=simulate)
     # Update dashboard/compliance
     if not simulate:
-        update_dashboard(len(results), dashboard)
+        update_dashboard(len(results), dashboard, analytics)
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
     elapsed = time.time() - start_time

@@ -172,7 +172,7 @@ class ArchiveMigrationExecutor:
                     priority += 30
                 elif days_old > 7:
                     priority += 10
-            except:
+            except Exception:
                 pass
         
         # Larger files have higher priority
