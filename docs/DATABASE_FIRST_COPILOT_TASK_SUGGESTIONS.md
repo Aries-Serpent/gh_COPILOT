@@ -19,8 +19,9 @@ Recent updates:
 
 ## 2a. Compliance Dashboard
 - Add `/dashboard/compliance` endpoint to the Flask dashboard.
-- Read audit metrics directly from `analytics.db.todo_fixme_tracking` and
-  `code_audit_log` to provide real-time placeholder removal status.
+ - Read audit metrics directly from `analytics.db.todo_fixme_tracking` and
+  `code_audit_log` to provide real-time placeholder removal status. Use the
+  `resolved` and `resolved_timestamp` columns to display completion metrics.
 
 ## 3. Documentation Generation System
 - Update `EnterpriseDocumentationManager` to select the best template based on compliance scores and log generation events.
