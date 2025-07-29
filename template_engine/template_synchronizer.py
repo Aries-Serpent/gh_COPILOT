@@ -22,6 +22,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from tqdm import tqdm
 
+from secondary_copilot_validator import SecondaryCopilotValidator
+
 from utils.log_utils import _log_event as log_event_simulation
 
 # Internal helpers
@@ -80,9 +82,7 @@ def _validate_template(name: str, content: str) -> bool:
     return bool(name and content and content.strip())
 
 
-def _cluster_templates(
-    templates: dict[str, str], n_clusters: int = 2
-) -> dict[str, str]:
+def _cluster_templates(templates: dict[str, str], n_clusters: int = 2) -> dict[str, str]:
     """Return representative templates using KMeans clustering."""
     if not templates:
         return templates
@@ -415,6 +415,7 @@ def synchronize_templates_real(
     duration = (datetime.now() - start_dt).total_seconds()
     logger.info("[SYNC-END][REAL] PID=%s | Duration: %.2fs | DBs: %s", proc_id, duration, synced)
     _log_sync_event_real(source_names, f"complete:{synced}")
+    SecondaryCopilotValidator().validate_corrections([__file__])
     return synced
 
 

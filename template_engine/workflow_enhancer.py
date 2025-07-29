@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from sklearn.cluster import KMeans
 from tqdm import tqdm
+from utils.log_utils import _log_event
 
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event

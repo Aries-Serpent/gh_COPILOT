@@ -8,7 +8,10 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import sys
+
+from secondary_copilot_validator import SecondaryCopilotValidator
 import os
 
 import logging
@@ -16,12 +19,7 @@ from pathlib import Path
 from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -53,8 +51,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -71,15 +68,11 @@ class EnterpriseUtility:
         output_dir = workspace / "documentation" / "generated" / "templates"
         try:
             if not db_path.exists():
-                self.logger.error(
-                    f"{TEXT_INDICATORS['error']} Database not found: {db_path}"
-                )
+                self.logger.error(f"{TEXT_INDICATORS['error']} Database not found: {db_path}")
                 return False
 
             output_dir.mkdir(parents=True, exist_ok=True)
-            self.logger.info(
-                f"{TEXT_INDICATORS['info']} Writing documentation to {output_dir}"
-            )
+            self.logger.info(f"{TEXT_INDICATORS['info']} Writing documentation to {output_dir}")
 
             import sqlite3
             from tqdm import tqdm
@@ -99,18 +92,12 @@ class EnterpriseUtility:
             ):
                 file_path = output_dir / f"{name}.md"
                 file_path.write_text(content)
-                self.logger.info(
-                    f"{TEXT_INDICATORS['info']} Generated {file_path.name}"
-                )
+                self.logger.info(f"{TEXT_INDICATORS['info']} Generated {file_path.name}")
 
-            self.logger.info(
-                f"{TEXT_INDICATORS['success']} Generated {len(rows)} templates"
-            )
+            self.logger.info(f"{TEXT_INDICATORS['success']} Generated {len(rows)} templates")
             return True
         except Exception as exc:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Generation failed: {exc}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Generation failed: {exc}")
             return False
 
 
@@ -118,6 +105,9 @@ def main():
     """Main execution function"""
     utility = EnterpriseUtility()
     success = utility.execute_utility()
+
+    validator = SecondaryCopilotValidator()
+    validator.validate_corrections([__file__])
 
     if success:
         print(f"{TEXT_INDICATORS['success']} Utility completed")
@@ -128,6 +118,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

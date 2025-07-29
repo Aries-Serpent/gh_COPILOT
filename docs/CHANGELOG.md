@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.1.7] - 2025-07-29
+- Added `_log_event` hooks to `documentation_ingestor` and `automation_setup` scripts.
+- Updated tests to reflect simulated analytics logging.
+- Clarified quantum integration docs are simulation-only.
+- Updated `STUB_MODULE_STATUS.md` to note all modules log to analytics.
+
 ## [4.1.4] - 2025-07-28
 - Documented test-only protocol for `analytics.db` migrations.
 - Added `ANALYTICS_DB_TEST_PROTOCOL.md` with manual commands and testing notes.
@@ -12,6 +18,11 @@
 ## [4.1.6] - 2025-07-29
 - Documented placeholder resolution tracking workflow.
 - Updated usage guides with commands to mark corrections and verify via dashboard.
+
+## [4.1.7] - 2025-07-30
+- Added analytics logging hooks in `EnterpriseFileRelocationOrchestrator`.
+- Fixed timezone import in `tools/automation_setup.py`.
+- Updated README statistics and stub status documentation.
 
 ## [4.1.3] - 2025-07-27
 - Verified presence of new session and monitoring modules.

@@ -1,7 +1,10 @@
 # Incomplete Module Summary
 
 This document catalogs unfinished modules and missing components referenced in the repository.
-Generated: 2025-07-24
+Generated: 2025-07-29
+
+The `ingest_assets` function referenced in early drafts is now fully
+implemented (see `scripts/autonomous_setup_and_audit.py` lines 26-119).
 
 ## STUB Overview
 
@@ -21,6 +24,9 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 | STUB-010 | Update task suggestion files with cross-references | docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md<br>logs/<br>validation/ | file and directories exist |
 | STUB-011 | Record outputs to analytics.db across modules | various modules | workflow enhancer now logs events |
 | STUB-012 | Display placeholder removal progress on dashboard | dashboard/compliance_metrics_updater.py | exists |
+
+Implementation note: the `ingest_assets` workflow is fully implemented in
+`scripts/autonomous_setup_and_audit.py` lines 26-119.
 
 ## Lint and Type Check Summary
 
