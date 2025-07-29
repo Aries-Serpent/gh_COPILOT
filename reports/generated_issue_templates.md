@@ -34,3 +34,8 @@
 - **Labels**: bug, devops
 - **Assignee**: devops-team
 - **Description**: Ensure the Dockerfile uses an explicit entrypoint script that sets required environment variables before starting `dashboard/enterprise_dashboard.py`.
+
+## 8. Catalog missing and incomplete modules in gh_COPILOT
+- **Labels**: documentation, analysis, help wanted, triage
+- **Assignee**: maintainer
+- **Description**: Collect and document all `STUB-*` references listed in `docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md`. Summarize the missing modules and features so maintainers can prioritize implementation work.
