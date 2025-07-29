@@ -19,10 +19,10 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 | STUB-005 | Enhance documentation manager with DB-first templates | archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py<br>README.md<br>DATABASE_FIRST_USAGE_GUIDE.md | manager script and guides present |
 | STUB-006 | Integrate quantum-inspired scoring hooks | quantum/quantum_algorithm_library_expansion.py<br>template_engine/auto_generator.py | both modules present |
 | STUB-007 | Extend dashboard for real-time metrics and alerts | enterprise_dashboard.py<br>web_gui/templates/html/ | both paths present |
-| STUB-008 | Add tests and validation scripts for new modules | tests/<br>validation/ | coverage improved with workflow and dashboard tests |
+| STUB-008 | Add tests and validation scripts for new modules | tests/<br>validation/ | workflow enhancer logging tests added |
 | STUB-009 | Remove placeholders and enable analytics hooks | workflow_enhancer.py<br>archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py | both modules present |
 | STUB-010 | Update task suggestion files with cross-references | docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md<br>logs/<br>validation/ | file and directories exist |
-| STUB-011 | Record outputs to analytics.db across modules | various modules | all modules now log via `_log_event` |
+| STUB-011 | Record outputs to analytics.db across modules | various modules | workflow enhancer now logs events |
 | STUB-012 | Display placeholder removal progress on dashboard | dashboard/compliance_metrics_updater.py | exists |
 
 Implementation note: the `ingest_assets` workflow is fully implemented in
