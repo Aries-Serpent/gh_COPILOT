@@ -1,4 +1,4 @@
-"""Tests for :mod:`enterprise_database_driven_documentation_manager`."""
+"""Tests for :mod:`archive.consolidated_scripts.enterprise_database_driven_documentation_manager`."""
 
 import logging
 import os
@@ -6,7 +6,7 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
-from enterprise_database_driven_documentation_manager import (
+from archive.consolidated_scripts.enterprise_database_driven_documentation_manager import (
     DocumentationManager,
     dual_validate,
 )
@@ -50,7 +50,7 @@ def test_dual_copilot_validation(tmp_path: Path, monkeypatch, caplog) -> None:
         completion_db=completion_db,
     )
     monkeypatch.setattr(
-        "enterprise_database_driven_documentation_manager.DocumentationManager",
+        "archive.consolidated_scripts.enterprise_database_driven_documentation_manager.DocumentationManager",
         lambda: manager,
     )
 
