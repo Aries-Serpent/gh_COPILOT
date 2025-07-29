@@ -70,7 +70,7 @@ Recent updates:
 - Use `scripts/code_placeholder_audit.py` to locate legacy placeholder comments.
 - Replace each finding with database-driven logic and log updates to `analytics.db`.
 - Update utilities like `documentation_db_analyzer.py` and
-  `enterprise_database_driven_documentation_manager.py` to process database entries and
+  `archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py` to process database entries and
   track progress through `/dashboard/compliance`.
 
 ## 13. Documentation Updates
