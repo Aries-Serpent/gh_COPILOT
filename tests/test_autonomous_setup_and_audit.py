@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
+import pytest
 
 from scripts.autonomous_setup_and_audit import ingest_assets
+from utils import log_utils
 from scripts.database.unified_database_initializer import initialize_database
 
 
@@ -28,6 +30,11 @@ def test_ingest_assets_populates_db(tmp_path: Path, monkeypatch) -> None:
     db_path = tmp_path / "production.db"
     initialize_database(db_path)
 
+    events = []
+    monkeypatch.setattr(
+        "scripts.autonomous_setup_and_audit._log_event",
+        lambda evt, **kw: events.append(evt),
+    )
     ingest_assets(docs_dir, templates_dir, db_path)
 
     with sqlite3.connect(db_path) as conn:
@@ -38,3 +45,38 @@ def test_ingest_assets_populates_db(tmp_path: Path, monkeypatch) -> None:
     assert doc_count == 1
     assert template_count == 1
     assert pattern_count == 1
+    assert any("compliance_score" in e for e in events)
+
+
+def test_ingest_assets_transaction_rollback(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backups"))
+    monkeypatch.chdir(tmp_path)
+
+    docs_dir = tmp_path / "documentation"
+    docs_dir.mkdir()
+    (docs_dir / "doc.md").write_text("# doc")
+
+    templates_dir = tmp_path / "templates"
+    templates_dir.mkdir()
+    (templates_dir / "template.md").write_text("template body")
+
+    db_path = tmp_path / "production.db"
+    initialize_database(db_path)
+
+    monkeypatch.setattr(
+        "scripts.autonomous_setup_and_audit._compliance_score",
+        lambda *_: (_ for _ in ()).throw(RuntimeError("fail")),
+    )
+    with pytest.raises(RuntimeError):
+        ingest_assets(docs_dir, templates_dir, db_path)
+
+    with sqlite3.connect(db_path) as conn:
+        counts = [
+            conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0],
+            conn.execute("SELECT COUNT(*) FROM template_assets").fetchone()[0],
+            conn.execute("SELECT COUNT(*) FROM pattern_assets").fetchone()[0],
+        ]
+
+    assert counts == [0, 0, 0]

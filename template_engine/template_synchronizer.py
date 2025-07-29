@@ -402,10 +402,20 @@ def synchronize_templates_real(
             if conn is not None:
                 try:
                     conn.rollback()
+                    log_event_simulation(
+                        {"event": "rollback", "db": str(db)},
+                        table="rollback_logs",
+                        db_path=ANALYTICS_DB,
+                    )
                 except sqlite3.Error:  # pragma: no cover - rollback best effort
                     pass
                 conn.close()
             _log_audit_real(str(db), str(exc))
+            log_event_simulation(
+                {"event": "sync_violation", "db": str(db), "error": str(exc)},
+                table="violation_logs",
+                db_path=ANALYTICS_DB,
+            )
         finally:
             if conn is not None:
                 conn.close()
