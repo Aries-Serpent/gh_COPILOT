@@ -22,6 +22,9 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 | STUB-011 | Record outputs to analytics.db across modules | various modules | logging integrated |
 | STUB-012 | Display placeholder removal progress on dashboard | dashboard/compliance_metrics_updater.py | exists |
 
+Implementation note: the `ingest_assets` workflow is fully implemented in
+`scripts/autonomous_setup_and_audit.py` lines 26-119.
+
 ## Lint and Type Check Summary
 
 - `ruff check` reports numerous issues; example: E722 warnings in `scripts/analysis/*.py`.
