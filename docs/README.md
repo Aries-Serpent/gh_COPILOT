@@ -6,7 +6,7 @@ This folder contains helper documentation for keeping repository metrics in sync
 
 Run `python scripts/generate_docs_metrics.py` to refresh metrics in the main
 `README.md` and under `documentation/generated/`. The script queries
-`production.db` for the current number of tracked scripts and templates and counts
+`databases/production.db` for the current number of tracked scripts and templates and counts
 database entries from `documentation/DATABASE_LIST.md`. Use the
 `--db-path` option to specify an alternate database file if needed.
 
@@ -50,7 +50,7 @@ For validation details see [validation/Database_First_Validation.md](validation/
 
 The `docs/quantum_template_generator.py` script demonstrates the production
 workflow for generating documentation templates using quantum-inspired scoring.
-It queries `production.db` for representative templates with
+It queries `databases/production.db` for representative templates with
 `TemplateAutoGenerator`. When quantum components are available, the script ranks
 templates via `QuantumExecutor`; otherwise a classical fallback score is used.
 Run the script with `python docs/quantum_template_generator.py` to produce

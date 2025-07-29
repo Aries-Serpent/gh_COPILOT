@@ -10,10 +10,15 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DB_PATH = ROOT / "production.db"
+# Default to the production database stored under the ``databases`` directory.
+# A previous path pointed to ``ROOT / 'production.db'``, which created an empty
+# database file if the root-level path was missing. The validator expects the
+# populated database used by the rest of the toolkit.
+DB_PATH = ROOT / "databases" / "production.db"
 README_PATH = ROOT / "README.md"
 GENERATED_README = ROOT / "documentation" / "generated" / "README.md"
-WHITEPAPER_PATH = ROOT / "COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md"
+# The technical whitepaper resides under ``documentation/``.
+WHITEPAPER_PATH = ROOT / "documentation" / "COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md"
 DATABASE_LIST = ROOT / "documentation" / "DATABASE_LIST.md"
 
 
@@ -27,11 +32,7 @@ def get_db_metrics(db_path: Path) -> dict[str, int]:
     templates = cur.fetchone()[0]
     conn.close()
     with DATABASE_LIST.open() as f:
-        databases = sum(
-            1
-            for line in f
-            if line.strip().startswith("- ") and line.strip().endswith(".db")
-        )
+        databases = sum(1 for line in f if line.strip().startswith("- ") and line.strip().endswith(".db"))
     return {"scripts": scripts, "templates": templates, "databases": databases}
 
 
@@ -99,9 +100,7 @@ def validate(db_path: Path = DB_PATH) -> bool:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Validate documentation metrics against the database."
-    )
+    parser = argparse.ArgumentParser(description="Validate documentation metrics against the database.")
     parser.add_argument(
         "--db-path",
         type=Path,
