@@ -15,9 +15,9 @@ PIS Framework
 ```
 
 ### Database Integration
-The quantum features are fully integrated with the database-first architecture.
-The newly added **Quantum Database Search** module provides Grover-based
-lookup capabilities for any database column:
+The quantum utilities operate in simulation mode and are designed to work with
+the database-first architecture. The included **Quantum Database Search** module
+simulates Grover-based lookup capabilities for any database column:
 
 ```sql
 -- Quantum optimization metrics table

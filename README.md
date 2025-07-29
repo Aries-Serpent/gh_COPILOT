@@ -871,9 +871,7 @@ Several small modules provide common helpers:
 - `utils.validation_utils.detect_zero_byte_files` – find empty files for cleanup.
 - `utils.validation_utils.validate_path` – verify a path is inside the workspace and outside the backup root.
 - `scripts.optimization.physics_optimization_engine.PhysicsOptimizationEngine` –
-  provides lightweight quantum-assisted utilities such as Grover search,
-  Shor factorization and Fourier transforms used for physics-oriented
-  optimizations and demonstrations.
+  provides simulated quantum-inspired helpers such as Grover search or Shor factorization for physics-oriented optimizations.
 - `template_engine.pattern_clustering_sync.PatternClusteringSync` – cluster templates from `production.db` and synchronize them with compliance auditing.
 - - `template_engine.workflow_enhancer.TemplateWorkflowEnhancer` – enhance template workflows using clustering, pattern mining and dashboard reports.
   Example:

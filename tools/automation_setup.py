@@ -3,8 +3,7 @@ from __future__ import annotations
 import hashlib
 import os
 import sqlite3
-import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from tqdm import tqdm
@@ -50,6 +49,7 @@ def init_databases() -> None:
 
 
 def ingest_assets() -> None:
+    _log_event({"event": "ingestion_started"}, db_path=ANALYTICS_DB)
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
@@ -109,6 +109,7 @@ def ingest_assets() -> None:
     conn.commit()
     conn.close()
     _log_event({"event": "templates_ingested", "count": len(tmpl_files)}, db_path=ANALYTICS_DB)
+    _log_event({"event": "ingestion_completed", "docs": len(doc_files), "templates": len(tmpl_files)}, db_path=ANALYTICS_DB)
 
 
 def run_audit() -> None:
@@ -116,8 +117,11 @@ def run_audit() -> None:
 
 
 if __name__ == '__main__':
-    start = datetime.now()
+    start = datetime.now(timezone.utc)
+    _log_event({"event": "automation_setup_start"}, db_path=ANALYTICS_DB)
     init_databases()
     ingest_assets()
     run_audit()
-    print(f"Automation finished in {(datetime.now()-start).total_seconds()}s")
+    duration = (datetime.now(timezone.utc) - start).total_seconds()
+    _log_event({"event": "automation_setup_end", "duration": duration}, db_path=ANALYTICS_DB)
+    print(f"Automation finished in {duration}s")
