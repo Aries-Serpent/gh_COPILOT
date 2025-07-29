@@ -10,14 +10,14 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 | ID | Description (short) | Module/Path | Exists? |
 |----|--------------------|-------------|---------|
 | STUB-001 | Maintain full traversal scanning using `scripts/code_placeholder_audit.py` | scripts/code_placeholder_audit.py | yes |
-| STUB-002 | Expand DB-first code generation with similarity scoring | template_engine/auto_generator.py<br>template_engine/db_first_code_generator.py<br>pattern_mining_engine.py<br>objective_similarity_scorer.py | auto_generator.py, db_first_code_generator.py exist; other files missing |
+| STUB-002 | Expand DB-first code generation with similarity scoring | template_engine/auto_generator.py<br>template_engine/db_first_code_generator.py<br>pattern_mining_engine.py<br>objective_similarity_scorer.py | all files present |
 | STUB-003 | Implement KMeans clustering for template selection | template_engine/template_synchronizer.py<br>copilot/copilot-instructions.md | template_synchronizer.py and doc exist |
-| STUB-004 | Log correction history with rollback metrics | documentation_db_analyzer.py<br>compliance_metrics_updater.py<br>databases/analytics.db | analytics.db exists; other modules missing |
-| STUB-005 | Enhance documentation manager with DB-first templates | archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py<br>README.md<br>DATABASE_FIRST_USAGE_GUIDE.md | manager script and guide missing |
-| STUB-006 | Integrate quantum-inspired scoring hooks | quantum/quantum_algorithm_library_expansion.py<br>template_engine/auto_generator.py | quantum_algorithm_library_expansion.py missing; auto_generator.py present |
-| STUB-007 | Extend dashboard for real-time metrics and alerts | enterprise_dashboard.py<br>web_gui/templates/html/ | both paths missing |
+| STUB-004 | Log correction history with rollback metrics | documentation_db_analyzer.py<br>compliance_metrics_updater.py<br>databases/analytics.db | all modules and database present |
+| STUB-005 | Enhance documentation manager with DB-first templates | archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py<br>README.md<br>DATABASE_FIRST_USAGE_GUIDE.md | all paths exist |
+| STUB-006 | Integrate quantum-inspired scoring hooks | quantum/quantum_algorithm_library_expansion.py<br>template_engine/auto_generator.py | both modules present |
+| STUB-007 | Extend dashboard for real-time metrics and alerts | enterprise_dashboard.py<br>web_gui/templates/html/ | dashboard module exists; html directory missing |
 | STUB-008 | Add tests and validation scripts for new modules | tests/<br>validation/ | directories exist but coverage incomplete |
-| STUB-009 | Remove placeholders and enable analytics hooks | workflow_enhancer.py<br>archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py | enhancer missing; manager script missing |
+| STUB-009 | Remove placeholders and enable analytics hooks | workflow_enhancer.py<br>archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py | enhancer and manager script present |
 | STUB-010 | Update task suggestion files with cross-references | docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md<br>logs/<br>validation/ | file and directories exist |
 | STUB-011 | Record outputs to analytics.db across modules | various modules | ongoing |
 | STUB-012 | Display placeholder removal progress on dashboard | dashboard/compliance_metrics_updater.py | exists |
