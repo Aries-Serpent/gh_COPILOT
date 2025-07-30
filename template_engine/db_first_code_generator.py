@@ -12,10 +12,9 @@ import os
 import sqlite3
 import sys
 import time
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Iterable
+from typing import List, Iterable
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -23,9 +22,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
-from utils.log_utils import _log_event
-
-from .pattern_templates import get_pattern_templates
+from utils.log_utils import _log_event, log_event
+from enterprise_modules.compliance import validate_enterprise_operation
 from .placeholder_utils import DEFAULT_PRODUCTION_DB
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
@@ -246,3 +244,114 @@ class TemplateAutoGenerator:
         except Exception as exc:
             logger.error(f"Logging error in select_best_template: {exc}")
         return best
+
+
+class DBFirstCodeGenerator:
+    """Generate code snippets using database-backed templates."""
+
+    def __init__(
+        self,
+        production_db: Path,
+        documentation_db: Path,
+        template_db: Path,
+        analytics_db: Path,
+    ) -> None:
+        self.production_db = Path(production_db)
+        self.documentation_db = Path(documentation_db)
+        self.template_db = Path(template_db)
+        self.analytics_db = Path(analytics_db)
+
+        validate_enterprise_operation(str(self.production_db))
+        validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", ""))
+        self._ensure_events_table()
+
+    def _ensure_events_table(self) -> None:
+        with sqlite3.connect(self.analytics_db) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS code_generation_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    objective TEXT,
+                    template TEXT,
+                    status TEXT,
+                    timestamp TEXT
+                )
+                """
+            )
+            conn.commit()
+
+    def fetch_existing_pattern(self, name: str) -> str | None:
+        if not self.production_db.exists():
+            return None
+        with sqlite3.connect(self.production_db) as conn:
+            cur = conn.execute(
+                "SELECT template_content FROM script_template_patterns WHERE pattern_name=?",
+                (name,),
+            )
+            row = cur.fetchone()
+            return row[0] if row else None
+
+    def _best_match_template(self, objective: str) -> str:
+        scores = compute_similarity_scores(
+            objective,
+            production_db=self.production_db,
+            analytics_db=self.analytics_db,
+            timeout_minutes=1,
+        )
+        if not scores:
+            return ""
+        best_id = max(scores, key=lambda x: x[1])[0]
+        with sqlite3.connect(self.production_db) as conn:
+            cur = conn.execute(
+                "SELECT template_code FROM code_templates WHERE id=?",
+                (best_id,),
+            )
+            row = cur.fetchone()
+            return row[0] if row else ""
+
+    def _log_generation(self, objective: str, template: str, status: str) -> None:
+        log_event(
+            {
+                "objective": objective,
+                "template": template,
+                "status": status,
+            },
+            table="code_generation_events",
+            db_path=self.analytics_db,
+        )
+
+    def generate(self, objective: str) -> str:
+        """Return template text best matching ``objective``."""
+        tmpl = self.fetch_existing_pattern(objective)
+        if tmpl is None:
+            tmpl = self._best_match_template(objective)
+        if not tmpl:
+            tmpl = "Auto-generated template"
+        self._log_generation(objective, tmpl, "generated")
+        return tmpl
+
+    def generate_integration_ready_code(self, objective: str) -> Path:
+        """Write generated code to a file and log the event."""
+        code = self.generate(objective)
+        workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
+        output = workspace / f"{objective}.py"
+        validate_no_recursive_folders()
+        try:
+            with open(output, "w", encoding="utf-8") as f:
+                f.write(code)
+        except Exception:
+            if output.exists():
+                output.unlink()
+            self._log_generation(objective, str(output), "error")
+            raise
+        self._log_generation(objective, str(output), "integration-ready")
+        return output
+
+
+__all__ = [
+    "TemplateAutoGenerator",
+    "DBFirstCodeGenerator",
+    "DEFAULT_ANALYTICS_DB",
+    "DEFAULT_COMPLETION_DB",
+    "DEFAULT_PRODUCTION_DB",
+]

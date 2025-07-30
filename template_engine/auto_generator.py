@@ -39,7 +39,7 @@ try:
 except ImportError:  # pragma: no cover - optional dependency
 
     def quantum_text_score(text: str) -> float:
-       """Fallback quantum text scoring implementation."""
+        """Fallback quantum text scoring implementation."""
         arr = np.fromiter((ord(c) for c in text), dtype=float)
         return float(np.linalg.norm(arr) / ((arr.size or 1) * 255))
 
@@ -51,7 +51,6 @@ except ImportError:  # pragma: no cover - optional dependency
             return 0.0
         denom = (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)) or 1.0
         return float(np.dot(arr_a, arr_b) / denom)
-
 
     def quantum_cluster_score(matrix: np.ndarray) -> float:
         n_clusters = min(len(matrix), 2)
