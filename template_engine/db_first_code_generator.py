@@ -1,15 +1,8 @@
-"""
-Enterprise Database-First Code and Documentation Generation Engine
+"""Database-first template auto-generation utilities.
 
-MANDATORY REQUIREMENTS:
-1. Query production.db, documentation.db, template_documentation.db for matching templates.
-2. Apply objective similarity scoring to select compliant template.
-3. If none found, auto-generate template, record in DB with timestamp, version, compliance score.
-4. Log all generation events to analytics.db.
-5. Visual indicators: tqdm, start time, timeout, ETC, status updates.
-6. Anti-recursion validation before file generation.
-7. DUAL COPILOT: Secondary validator ensures compliance and quality.
-8. Integrate cognitive learning from deep web research for code generation best practices.
+This module clusters templates using :class:`sklearn.cluster.KMeans` and
+provides APIs to generate boilerplate code from existing patterns. Errors are
+raised if invalid templates are encountered or if recursion safeguards fail.
 """
 
 from __future__ import annotations
@@ -17,346 +10,239 @@ from __future__ import annotations
 import logging
 import os
 import sqlite3
+import sys
 import time
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Iterable
 
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
+from utils.log_utils import _log_event
+
+from .pattern_templates import get_pattern_templates
+from .placeholder_utils import DEFAULT_PRODUCTION_DB
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
 
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+# Quantum scoring helper
+try:
+    from quantum_algorithm_library_expansion import (
+        quantum_text_score,
+        quantum_similarity_score,
+    )
+except ImportError:  # pragma: no cover - optional dependency
 
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "db_first_code_generator"
+    def quantum_text_score(text: str) -> float:
+        """Fallback quantum text scoring implementation."""
+        arr = np.fromiter((ord(c) for c in text), dtype=float)
+        return float(np.linalg.norm(arr) / ((arr.size or 1) * 255))
+
+    def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
+        """Fallback normalized dot-product similarity."""
+        arr_a = np.fromiter(a, dtype=float)
+        arr_b = np.fromiter(b, dtype=float)
+        if arr_a.size == 0 or arr_b.size == 0:
+            return 0.0
+        denom = (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)) or 1.0
+        return float(np.dot(arr_a, arr_b) / denom)
+
+
+DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
+DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
+
+LOGS_DIR = Path("logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = LOGS_DIR / f"db_first_codegen_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+LOG_FILE = LOGS_DIR / f"auto_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
-
-PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "production.db"
-DOCUMENTATION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "documentation.db"
-TEMPLATE_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "template_documentation.db"
-ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "analytics.db"
+logger = logging.getLogger(__name__)
 
 
-class DBFirstCodeGenerator:
-    """
-    Database-first code and documentation generation engine.
-    Selects or generates templates using database intelligence, logs all actions, and validates compliance.
-    """
+def validate_no_recursive_folders() -> None:
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
+    for pattern in forbidden_patterns:
+        for folder in workspace_root.rglob(pattern):
+            if folder.is_dir() and folder != workspace_root:
+                logger.error(f"Recursive folder detected: {folder}")
+                raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
 
+
+class TemplateAutoGenerator:
     def __init__(
         self,
-        production_db: Path = PRODUCTION_DB,
-        documentation_db: Path = DOCUMENTATION_DB,
-        template_db: Path = TEMPLATE_DB,
-        analytics_db: Path = ANALYTICS_DB,
+        analytics_db: Path = DEFAULT_ANALYTICS_DB,
+        completion_db: Path = DEFAULT_COMPLETION_DB,
+        production_db: Path = DEFAULT_PRODUCTION_DB,
     ) -> None:
-        self.production_db = production_db
-        self.documentation_db = documentation_db
-        self.template_db = template_db
         self.analytics_db = analytics_db
-        self.start_time = datetime.now()
-        self.process_id = os.getpid()
-        self.timeout_seconds = 1800  # 30 minutes
-        self.status = "INITIALIZED"
-        validate_enterprise_operation(str(production_db))
-        logging.info("PROCESS STARTED: DB-First Code Generation")
-        logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        logging.info(f"Process ID: {self.process_id}")
+        self.completion_db = completion_db
+        self.production_db = production_db
+        self.templates = self._load_templates()
+        self.patterns = []
+        self.cluster_vectorizer = None
 
-    def fetch_existing_pattern(self, template_name: str) -> Optional[str]:
-        """Return pattern content from ``production.db`` if available."""
-        if not self.production_db.exists():
-            return None
-        with sqlite3.connect(self.production_db) as conn:
-            try:
-                cur = conn.execute(
-                    "SELECT template_content FROM script_template_patterns WHERE pattern_name = ?",
-                    (template_name,),
-                )
-                row = cur.fetchone()
-                return row[0] if row else None
-            except sqlite3.Error as exc:
-                logging.error(f"Error fetching pattern from production.db: {exc}")
-                return None
-
-    def _query_templates(self, objective: str) -> List[Dict[str, Any]]:
-        """Query all databases for matching templates."""
-        templates = []
-        dbs = [self.production_db, self.documentation_db, self.template_db]
-        existing = self.fetch_existing_pattern(objective)
-        if existing:
-            templates.append(
-                {
-                    "name": objective,
-                    "content": existing,
-                    "score": 1.0,
-                    "db": str(self.production_db),
-                }
-            )
-        for db_path in dbs:
-            if not db_path.exists():
-                continue
-            with sqlite3.connect(db_path) as conn:
+    def _load_templates(self) -> List[str]:
+        templates: List[str] = []
+        if self.completion_db.exists():
+            with sqlite3.connect(self.completion_db) as conn:
                 try:
-                    cur = conn.execute(
-                        (
-                            "SELECT id, template_name, template_content, compliance_score "
-                            "FROM templates WHERE template_name LIKE ?"
-                        ),
-                        (f"%{objective}%",),
-                    )
-                    for row in cur.fetchall():
-                        content = self.fetch_existing_pattern(row[1]) or row[2]
-                        templates.append(
-                            {
-                                "id": row[0],
-                                "name": row[1],
-                                "content": content,
-                                "score": row[3] if len(row) > 3 else 0.0,
-                                "db": str(db_path),
-                            }
-                        )
-                except Exception as e:
-                    logging.error(f"Error querying {db_path}: {e}")
+                    cur = conn.execute("SELECT template_content FROM templates")
+                    templates = [row[0] for row in cur.fetchall()]
+                except sqlite3.Error as exc:
+                    logger.error(f"Error loading templates: {exc}")
+        if not templates:
+            from . import pattern_templates
+
+            templates = list(pattern_templates.DEFAULT_TEMPLATES)
+            logger.info(
+                "Loaded %s default templates from pattern_templates",
+                len(templates),
+            )
+        else:
+            logger.info(f"Loaded {len(templates)} templates")
+        _log_event(
+            {"event": "load_templates", "count": len(templates)},
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         return templates
 
-    def _similarity_score(self, template: Dict[str, Any], objective: str) -> float:
-        """Compute similarity score between template and objective."""
-        score = float(template.get("score", 0.0))
-        if objective.lower() in template.get("name", "").lower():
-            score += 0.5
-        if objective.lower() in template.get("content", "").lower():
-            score += 0.5
-        return score
+    def _quantum_score(self, text: str) -> float:
+        """Return a quantum-inspired score for ``text`` using helper module."""
+        return quantum_text_score(text)
 
-    def _select_compliant_template(self, templates: List[Dict[str, Any]], objective: str) -> Optional[Dict[str, Any]]:
-        """Select the most compliant template based on similarity scoring."""
-        if not templates:
+    def _quantum_similarity(self, a: str, b: str) -> float:
+        """Return similarity between two texts using quantum scoring."""
+        vec_a = [ord(c) for c in a]
+        vec_b = [ord(c) for c in b]
+        return quantum_similarity_score(vec_a, vec_b)
+
+    def _load_production_patterns(self) -> list[str]:
+        """Fetch template patterns from ``production.db`` if available."""
+        patterns: list[str] = []
+        if self.production_db.exists():
+            with sqlite3.connect(self.production_db) as conn:
+                try:
+                    cur = conn.execute("SELECT template_content FROM script_template_patterns")
+                    patterns = [row[0] for row in cur.fetchall()]
+                except sqlite3.Error as exc:
+                    logger.error(f"Error loading production patterns: {exc}")
+        return patterns
+
+    def _cluster_patterns(self) -> KMeans | None:
+        logger.info("Clustering patterns and templates...")
+        prod_patterns = self._load_production_patterns()
+        corpus = self.templates + self.patterns + prod_patterns
+        if not corpus:
+            logger.warning("No corpus to cluster")
             return None
-        prod_scores: Dict[int, float] = {}
+        self.cluster_vectorizer = TfidfVectorizer()
+        matrix = self.cluster_vectorizer.fit_transform(corpus)
+        n_clusters = min(len(corpus), 2)
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=int(time.time()))
+        start_ts = time.time()
+        with tqdm(total=1, desc="Clustering", unit="cluster") as pbar:
+            model.fit(matrix)
+            pbar.update(1)
+        model.cluster_centers_ += np.random.normal(scale=0.01, size=model.cluster_centers_.shape)
+        duration = time.time() - start_ts
+        logger.info(f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s")
+        _log_event(
+            {
+                "event": "cluster",
+                "items": len(corpus),
+                "clusters": n_clusters,
+                "duration": duration,
+            },
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
+        return model
+
+    def objective_similarity(self, a: str, b: str) -> float:
+        vectorizer = TfidfVectorizer().fit([a, b])
+        vecs = vectorizer.transform([a, b])
+        return float(cosine_similarity(vecs[0], vecs[1])[0][0])
+
+    def rank_templates(self, target: str) -> List[str]:
+        """Return templates ranked by similarity to ``target``."""
+        ranked: List[tuple[str, float]] = []
         if self.production_db.exists():
             scores = compute_similarity_scores(
-                objective,
+                target,
                 production_db=self.production_db,
                 analytics_db=self.analytics_db,
                 timeout_minutes=1,
             )
-            prod_scores = {tid: score for tid, score in scores}
-        best = None
-        best_score = -1.0
-        for tmpl in templates:
-            score = self._similarity_score(tmpl, objective)
-            tid = tmpl.get("id")
-            if isinstance(tid, int) and tid in prod_scores:
-                score += prod_scores[tid]
-            patterns = extract_patterns([tmpl["content"]])
-            if any(p in objective for p in patterns):
-                score += 0.1
-            if score > best_score:
-                best_score = score
-                best = tmpl
+            id_to_score = {tid: score for tid, score in scores}
+            with sqlite3.connect(self.production_db) as conn:
+                cur = conn.execute("SELECT id, template_code FROM code_templates")
+                for tid, text in cur.fetchall():
+                    if tid not in id_to_score:
+                        continue
+                    bonus = 0.0
+                    pats = extract_patterns([text])
+                    if any(p in target for p in pats):
+                        bonus = 0.1
+                    q_sim = self._quantum_similarity(target, text)
+                    tfidf = self.objective_similarity(target, text)
+                    score = id_to_score[tid] + tfidf + q_sim + bonus
+                    ranked.append((text, score))
+                    _log_event(
+                        {
+                            "event": "rank_eval",
+                            "target": target,
+                            "template_id": tid,
+                            "score": score,
+                        },
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+        if not ranked:
+            candidates = self.templates or self.patterns
+            for tmpl in candidates:
+                tfidf = self.objective_similarity(target, tmpl)
+                q_sim = self._quantum_similarity(target, tmpl)
+                score = tfidf + q_sim
+                ranked.append((tmpl, score))
+                _log_event(
+                    {
+                        "event": "rank_eval",
+                        "target": target,
+                        "template_id": -1,
+                        "score": score,
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+        ranked.sort(key=lambda x: x[1], reverse=True)
+        return [t for t, _ in ranked]
+
+    def select_best_template(self, target: str, timeout: float = 30.0) -> str:
+        logger.info(f"Selecting best template for target: {target}")
+        ranked = self.rank_templates(target)
+        if not ranked:
+            logger.warning("No candidates available for selection")
+            return ""
+        best = ranked[0]
+        try:
+            with sqlite3.connect(self.analytics_db) as conn:
+                conn.execute(
+                    "INSERT INTO generator_events (event, target, best_template, timestamp) VALUES (?, ?, ?, ?)",
+                    ("select_best_template", target, best, datetime.now().isoformat()),
+                )
+                conn.commit()
+        except Exception as exc:
+            logger.error(f"Logging error in select_best_template: {exc}")
         return best
-
-    def _auto_generate_template(self, objective: str) -> Dict[str, Any]:
-        """Auto-generate a new template and record in DB."""
-        content = f"# {objective}\n\nAuto-generated template for {objective} at {datetime.now().isoformat()}."
-        compliance_score = 0.75  # Default for auto-generated
-        version = "v1.0"
-        timestamp = datetime.now().isoformat()
-        template_name = f"AutoGen_{objective}_{timestamp}"
-        # Record in template_documentation.db
-        with sqlite3.connect(self.template_db) as conn:
-            conn.execute(
-                """CREATE TABLE IF NOT EXISTS templates (
-                    template_name TEXT PRIMARY KEY,
-                    template_content TEXT,
-                    compliance_score REAL,
-                    version TEXT,
-                    created_at TEXT
-                )"""
-            )
-            conn.execute(
-                (
-                    "INSERT OR REPLACE INTO templates "
-                    "(template_name, template_content, compliance_score, "
-                    "version, created_at) VALUES (?, ?, ?, ?, ?)"
-                ),
-                (template_name, content, compliance_score, version, timestamp),
-            )
-            conn.commit()
-        logging.info(f"Auto-generated template recorded: {template_name}")
-        return {"name": template_name, "content": content, "score": compliance_score, "db": str(self.template_db)}
-
-    def _log_generation_event(self, objective: str, template: Dict[str, Any], status: str = "generated") -> None:
-        """Log generation event to analytics.db."""
-        self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(self.analytics_db) as conn:
-            conn.execute(
-                """CREATE TABLE IF NOT EXISTS code_generation_events (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    objective TEXT,
-                    template_name TEXT,
-                    compliance_score REAL,
-                    db_source TEXT,
-                    status TEXT,
-                    timestamp TEXT
-                )"""
-            )
-            conn.execute(
-                (
-                    "INSERT INTO code_generation_events "
-                    "(objective, template_name, compliance_score, db_source, "
-                    "status, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
-                ),
-                (
-                    objective,
-                    template["name"],
-                    template["score"],
-                    template["db"],
-                    status,
-                    datetime.now().isoformat(),
-                ),
-            )
-            conn.commit()
-        logging.info(f"Generation event logged for {objective} | Template: {template['name']} | Status: {status}")
-
-    def generate(self, objective: str, timeout_minutes: int = 30) -> str:
-        """
-        Generate code or documentation for the given objective using database-first logic.
-        Includes visual indicators, timeout, ETC, and DUAL COPILOT validation.
-        """
-        self.status = "GENERATING"
-        start_time = time.time()
-        timeout_seconds = timeout_minutes * 60
-        templates = []
-        # Query production.db first using similarity scoring
-        if self.production_db.exists():
-            prod_scores = compute_similarity_scores(
-                objective,
-                production_db=self.production_db,
-                analytics_db=self.analytics_db,
-                timeout_minutes=1,
-            )
-            if prod_scores:
-                best_id, _ = max(prod_scores, key=lambda x: x[1])
-                with sqlite3.connect(self.production_db) as conn:
-                    row = conn.execute(
-                        "SELECT template_code FROM code_templates WHERE id=?",
-                        (best_id,),
-                    ).fetchone()
-                    if row:
-                        templates.append(
-                            {
-                                "id": best_id,
-                                "name": f"production_{best_id}",
-                                "content": row[0],
-                                "score": 1.0,
-                                "db": str(self.production_db),
-                            }
-                        )
-        templates += self._query_templates(objective)
-        selected = self._select_compliant_template(templates, objective)
-        total_steps = 3
-        with tqdm(total=total_steps, desc="DB-First Code Generation", unit="step") as pbar:
-            pbar.set_description("Querying Templates")
-            pbar.update(1)
-            elapsed = time.time() - start_time
-            if elapsed > timeout_seconds:
-                raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
-            if selected:
-                pbar.set_description("Selecting Compliant Template")
-                pbar.update(1)
-                content = selected["content"]
-                self._log_generation_event(objective, selected, status="selected")
-            else:
-                pbar.set_description("Auto-Generating Template")
-                pbar.update(1)
-                auto_template = self._auto_generate_template(objective)
-                content = auto_template["content"]
-                self._log_generation_event(objective, auto_template, status="auto-generated")
-            etc = self._calculate_etc(elapsed, total_steps, total_steps)
-            pbar.set_postfix(ETC=etc)
-        elapsed = time.time() - start_time
-        logging.info(f"DB-First code generation completed in {elapsed:.2f}s | ETC: {etc}")
-        self.status = "COMPLETED"
-        # DUAL COPILOT validation
-        valid = self.validate_generation(objective)
-        if valid:
-            logging.info("DUAL COPILOT validation passed: Code generation integrity confirmed.")
-        else:
-            logging.error("DUAL COPILOT validation failed: Code generation mismatch.")
-        return content
-
-    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
-        if current_progress > 0:
-            total_estimated = elapsed / (current_progress / total_work)
-            remaining = total_estimated - elapsed
-            return f"{remaining:.2f}s remaining"
-        return "N/A"
-
-    def validate_generation(self, objective: str) -> bool:
-        """
-        DUAL COPILOT: Secondary validator for code generation integrity and compliance.
-        Checks analytics.db for matching generation event.
-        """
-        with sqlite3.connect(self.analytics_db) as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM code_generation_events WHERE objective = ?", (objective,))
-            db_count = cur.fetchone()[0]
-        return db_count > 0
-
-    def generate_integration_ready_code(
-        self, objective: str, output_dir: Path | None = None, timeout_minutes: int = 30
-    ) -> Path:
-        """Generate code and write to ``output_dir`` returning the file path."""
-        content = self.generate(objective, timeout_minutes=timeout_minutes)
-        output_dir = output_dir or Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "generated"
-        output_dir.mkdir(parents=True, exist_ok=True)
-        path = output_dir / f"{objective.replace(' ', '_')}.py"
-        path.write_text(content)
-        self._log_generation_event(
-            objective,
-            {"name": path.name, "content": content, "score": 1.0, "db": "fs"},
-            status="integration-ready",
-        )
-        return path
-
-
-def main(
-    objective: Optional[str] = None,
-    timeout_minutes: int = 30,
-) -> None:
-    """
-    Entry point for database-first code and documentation generation.
-    """
-    start_time = time.time()
-    process_id = os.getpid()
-    logging.info("PROCESS STARTED: DB-First Code Generation")
-    logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logging.info(f"Process ID: {process_id}")
-
-    validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    production_db = workspace / "databases" / "production.db"
-    documentation_db = workspace / "databases" / "documentation.db"
-    template_db = workspace / "databases" / "template_documentation.db"
-    analytics_db = workspace / "databases" / "analytics.db"
-
-    generator = DBFirstCodeGenerator(production_db, documentation_db, template_db, analytics_db)
-    objective = objective or "README"
-    generated_content = generator.generate(objective, timeout_minutes=timeout_minutes)
-    elapsed = time.time() - start_time
-    logging.info(f"DB-First code generation session completed in {elapsed:.2f}s")
-    logging.debug("Generated content length: %s", len(generated_content))
-
-
-if __name__ == "__main__":
-    main()
