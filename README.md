@@ -346,6 +346,7 @@ compliance score for audit purposes. Ensure all command output is piped through
 The table stores `session_id`, timestamps, status, compliance score, and
 optional error details so administrators can audit every session.
 The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
+See [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md) for a full example showing environment variable setup, CLI options, log file location, and database updates.
 
 ---
 

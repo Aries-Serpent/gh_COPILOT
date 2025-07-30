@@ -31,6 +31,20 @@ Run the session manager directly to start a WLC session with explicit CLI parame
 python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
 ```
 
+### Full Example
+
+Configure your environment and run the session manager in one sequence:
+
+```bash
+export GH_COPILOT_WORKSPACE=$(pwd)
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
+export API_SECRET_KEY=<generated_secret>
+python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --orchestrate --verbose
+```
+
+This command writes a log file to `$GH_COPILOT_BACKUP_ROOT/logs/` with a timestamped name such as `wlc_20250101_120000.log`.
+It also inserts a new row into the `unified_wrapup_sessions` table of `production.db` capturing the session ID, start and end times, status, and compliance score.
+
 For any major workflow, end with the session manager to capture compliance data:
 
 ```bash

@@ -334,9 +334,7 @@ def rollback_last_entry(db_path: Path, entry_id: int | None = None) -> bool:
     removed = False
     with sqlite3.connect(db_path) as conn:
         if entry_id is None:
-            cur = conn.execute(
-                "SELECT rowid FROM todo_fixme_tracking ORDER BY rowid DESC LIMIT 1"
-            )
+            cur = conn.execute("SELECT rowid FROM todo_fixme_tracking ORDER BY rowid DESC LIMIT 1")
             row = cur.fetchone()
             entry_id = row[0] if row else None
         if entry_id is not None:
@@ -625,8 +623,7 @@ if __name__ == "__main__":
         exclude_dirs=args.exclude_dirs,
         update_resolutions=args.update_resolutions,
         apply_fixes=args.apply_fixes,
-        dataset_path=args.dataset_path,
-        export_results=args.export_results,
+        export=args.export,
     )
     if args.export:
         pass
