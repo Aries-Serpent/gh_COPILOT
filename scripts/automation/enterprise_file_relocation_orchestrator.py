@@ -123,6 +123,7 @@ class EnterpriseFileRelocationOrchestrator:
 
     def secondary_validate(self) -> bool:
         """Run secondary flake8 validation."""
+        logging.info("SECONDARY VALIDATION: environment compliance")
         validator = SecondaryCopilotValidator(logging.getLogger(__name__))
         return validator.validate_corrections([__file__])
 
