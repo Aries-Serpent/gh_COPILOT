@@ -41,8 +41,11 @@ Comprehensive analysis of the 69-file codebase and extensive semantic search con
 def perform_utility_function(self) -> bool:
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path))
     perf_db = workspace / "databases" / "performance_monitoring.db"
-    opt_db = workspace / "databases" / "optimization_metrics.db"
+    opt_db = workspace / "databases" / "optimization_metrics.db"  # deprecated
 ```
+
+The `optimization_metrics.db` file was removed during consolidation. Optimization
+metrics are now stored within `analytics.db`.
 
 **Validation Score:** 98.5% - Comprehensive database-first implementation across entire toolkit
 

@@ -59,8 +59,8 @@ class UnifiedMonitoringOptimizationSystem:
 
 #### **Database Integration**
 - **Primary Database**: production.db for operational metrics
-- **Analytics Database**: analytics.db for performance data
-- **Optimization Database**: optimization_metrics.db for optimization tracking
+- **Analytics Database**: analytics.db for performance data (also used for optimization metrics)
+- **Optimization Database**: *deprecated* `optimization_metrics.db`
 - **Cross-Database Intelligence**: Aggregation across available development databases
 
 ### **2. Unified Script Generation System**

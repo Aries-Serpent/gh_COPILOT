@@ -4,7 +4,7 @@ Validation report formatting utilities.
 
 import json
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from pathlib import Path
 
 from ..core.validators import ValidationResult, ValidationStatus
