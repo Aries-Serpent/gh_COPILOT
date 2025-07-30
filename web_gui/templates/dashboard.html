@@ -1,12 +1,14 @@
 <!doctype html>
 <title>Compliance Dashboard</title>
 <h1>Compliance Dashboard</h1>
+<div id="progress">Loading...</div>
 <h2>Metrics</h2>
 <ul>
 {% for entry in metrics %}
 <li>{{ entry }}</li>
 {% endfor %}
 </ul>
+<p><a href="/dashboard/compliance">Compliance Metrics</a></p>
 <h2>Compliance</h2>
 <ul>
 {% for key, value in compliance.items() %}

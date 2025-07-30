@@ -55,3 +55,19 @@ def test_reports_endpoint():
     client = app.test_client()
     resp = client.get('/reports')
     assert resp.status_code == 200
+
+
+def test_realtime_metrics_endpoint():
+    client = app.test_client()
+    resp = client.get('/realtime_metrics')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert 'metrics' in data
+    assert 'corrections' in data
+
+
+def test_correction_history_endpoint():
+    client = app.test_client()
+    resp = client.get('/correction_history')
+    assert resp.status_code == 200
+    assert isinstance(resp.get_json(), list)
