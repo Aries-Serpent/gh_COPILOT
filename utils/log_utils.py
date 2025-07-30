@@ -122,6 +122,7 @@ TABLE_SCHEMAS: Dict[str, str] = {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             actions INTEGER,
             links INTEGER,
+            summary_path TEXT,
             timestamp TEXT NOT NULL
         );
     """,
