@@ -68,7 +68,7 @@ jobs:
           import template_engine.template_synchronizer
           PY
 
-      - name: Run tests
+      - name: Run full test suite
         run: make test
 
       - name: Upload test reports
@@ -117,8 +117,8 @@ jobs:
 
       - name: Lint
         run: ruff check .
-      - name: Test
-        run: pytest -q
+      - name: Test (full suite)
+        run: pytest -q tests
 
       - name: Upload coverage
         if: always()
