@@ -33,7 +33,9 @@ TABLE_SCHEMAS: Dict[str, str] = {
         CREATE TABLE IF NOT EXISTS violation_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp TEXT NOT NULL,
-            details TEXT NOT NULL
+            event TEXT,
+            details TEXT NOT NULL,
+            count INTEGER
         );
         CREATE INDEX IF NOT EXISTS idx_violation_logs_timestamp
             ON violation_logs(timestamp);
@@ -47,6 +49,19 @@ TABLE_SCHEMAS: Dict[str, str] = {
         );
         CREATE INDEX IF NOT EXISTS idx_rollback_logs_timestamp
             ON rollback_logs(timestamp);
+    """,
+    "correction_logs": """
+        CREATE TABLE IF NOT EXISTS correction_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event TEXT,
+            doc_id TEXT,
+            path TEXT,
+            asset_type TEXT,
+            compliance_score REAL,
+            timestamp TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_correction_logs_timestamp
+            ON correction_logs(timestamp);
     """,
     "sync_events_log": """
         CREATE TABLE IF NOT EXISTS sync_events_log (
@@ -123,7 +138,9 @@ def ensure_tables(db_path: Path, tables: Iterable[str], *, test_mode: bool = Tru
         if not schema:
             continue
         if test_mode:
-            _log_event({"ensure_table": table}, table=table, db_path=db_path, test_mode=True)
+            logging.getLogger(__name__).info(
+                "Simulating table creation: %s in %s", table, db_path
+            )
             continue
         db_path.parent.mkdir(parents=True, exist_ok=True)
         with _log_lock, sqlite3.connect(db_path) as conn:
@@ -141,7 +158,9 @@ def insert_event(
     """Insert ``event`` into the specified table and return the new row id."""
     ensure_tables(db_path, [table], test_mode=test_mode)
     if test_mode:
-        _log_event(event, table=table, db_path=db_path, test_mode=True)
+        logging.getLogger(__name__).debug(
+            "Simulated insert into %s: %s", table, event
+        )
         return -1
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with _log_lock, sqlite3.connect(db_path) as conn:
