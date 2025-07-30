@@ -15,6 +15,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable
+import re
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -55,6 +56,37 @@ def _extract_templates(db: Path) -> list[tuple[str, str]]:
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 ANALYTICS_DB = WORKSPACE_ROOT / "databases" / "analytics.db"
+
+DOC_SCHEMA_FILE = Path(
+    "documentation/additional/schemas/analytics_schema.md"
+)
+
+_EXPECTED_TABLES: set[str] | None = None
+
+
+def _load_expected_tables() -> set[str]:
+    """Return table names defined in the documentation."""
+    global _EXPECTED_TABLES
+    if _EXPECTED_TABLES is None:
+        tables: set[str] = set()
+        if DOC_SCHEMA_FILE.exists():
+            text = DOC_SCHEMA_FILE.read_text()
+            for match in re.finditer(r"CREATE TABLE (\w+)", text):
+                tables.add(match.group(1))
+        _EXPECTED_TABLES = tables
+    return _EXPECTED_TABLES
+
+
+def _schema_matches_doc(conn: sqlite3.Connection) -> bool:
+    """Return True if all documented tables exist in ``conn``."""
+    expected = _load_expected_tables()
+    existing = {
+        row[0]
+        for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        ).fetchall()
+    }
+    return expected.issubset(existing)
 
 logger = logging.getLogger(__name__)
 
@@ -202,7 +234,7 @@ def _log_audit_real(db_name: str, details: str) -> None:
     )
 
 
-def run_migrations(db: Path) -> None:
+def run_migrations(db: Path, *, dry_run: bool = False) -> None:
     """Apply SQL migrations to ``db`` transactionally."""
     migrations = sorted(Path("databases/migrations").glob("*.sql"))
     if not migrations:
@@ -210,16 +242,24 @@ def run_migrations(db: Path) -> None:
     if not db.exists():
         logger.warning("Database %s does not exist for migrations", db)
         return
+    if dry_run:
+        for script in migrations:
+            print(f"[DRY-RUN] Would run {script.name} on {db}")
+        return
     with sqlite3.connect(db) as conn:
         conn.execute("BEGIN")
         try:
             for script in migrations:
                 conn.executescript(script.read_text())
+            if not _schema_matches_doc(conn):
+                raise RuntimeError("schema mismatch")
             conn.commit()
             logger.info("Migrations applied to %s", db)
-        except sqlite3.Error as exc:
+            _log_audit_real(str(db), "migrations")
+        except Exception as exc:  # noqa: BLE001
             conn.rollback()
             logger.error("Migration failed for %s: %s", db, exc)
+            _log_audit_real(str(db), f"migration_failed:{exc}")
 
 
 def _compliance_check(conn: sqlite3.Connection) -> bool:
@@ -233,6 +273,54 @@ def _compliance_check(conn: sqlite3.Connection) -> bool:
     except sqlite3.Error as exc:
         logger.error("Compliance check failed: %s", exc)
         return False
+
+
+def copy_template_file(src: Path, dst: Path, *, dry_run: bool = False) -> None:
+    """Copy ``src`` to ``dst`` within a transaction and log the action."""
+    if dry_run:
+        print(f"[DRY-RUN] copy {src} -> {dst}")
+        return
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.execute("BEGIN")
+        try:
+            dst.write_text(src.read_text())
+            conn.commit()
+            _log_audit_real("file_copy", f"{src}->{dst}")
+        except Exception as exc:  # noqa: BLE001
+            conn.rollback()
+            logger.error("Copy failed: %s", exc)
+            _log_audit_real("file_copy", f"failed:{exc}")
+            if dst.exists():
+                dst.unlink()
+            raise
+
+
+def update_template_content(
+    dbs: Iterable[Path],
+    name: str,
+    file_path: Path,
+    *,
+    dry_run: bool = False,
+) -> None:
+    """Update template ``name`` in ``dbs`` transactionally and log the action."""
+    content = file_path.read_text()
+    for db in dbs:
+        if dry_run:
+            print(f"[DRY-RUN] update {name} in {db}")
+            continue
+        with sqlite3.connect(db) as conn:
+            conn.execute("BEGIN")
+            try:
+                conn.execute(
+                    "INSERT OR REPLACE INTO templates (name, template_content) VALUES (?, ?)",
+                    (name, content),
+                )
+                conn.commit()
+                _log_audit_real(str(db), f"update:{name}")
+            except Exception as exc:  # noqa: BLE001
+                conn.rollback()
+                logger.error("Update failed for %s: %s", db, exc)
+                _log_audit_real(str(db), f"update_failed:{exc}")
 
 
 def _synchronize_templates_simulation(
@@ -456,6 +544,11 @@ if __name__ == "__main__":
     parser.add_argument("--migrate", action="store_true", help="Run migrations before sync")
     parser.add_argument("--copy", nargs=2, metavar=("SRC", "DST"), help="Copy template")
     parser.add_argument("--update", nargs=2, metavar=("NAME", "FILE"), help="Update template content")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview operations without modifying files or databases",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
@@ -463,19 +556,13 @@ if __name__ == "__main__":
     source_dbs = [Path(p) for p in dbs_env if p]
     if args.migrate:
         for db in source_dbs:
-            run_migrations(db)
+            run_migrations(db, dry_run=args.dry_run)
     if args.copy:
         src, dst = [Path(p) for p in args.copy]
-        dst.write_text(Path(src).read_text())
+        copy_template_file(src, dst, dry_run=args.dry_run)
     if args.update:
         name, file_path = args.update
-        for db in source_dbs:
-            with sqlite3.connect(db) as conn:
-                conn.execute(
-                    "INSERT OR REPLACE INTO templates (name, template_content) VALUES (?, ?)",
-                    (name, Path(file_path).read_text()),
-                )
-                conn.commit()
+        update_template_content(source_dbs, name, Path(file_path), dry_run=args.dry_run)
     if args.real:
         synchronize_templates_real(source_dbs, cluster=args.cluster)
     else:
