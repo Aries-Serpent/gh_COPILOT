@@ -19,9 +19,9 @@ import os
 import shutil
 import sqlite3
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 
 from tqdm import tqdm
 
@@ -63,6 +63,24 @@ class CorrectionLoggerRollback:
         self._ensure_table_exists()
         ensure_violation_logs(self.analytics_db)
         ensure_rollback_logs(self.analytics_db)
+        self.history_cache: Dict[str, int] = {}
+
+    def _derive_root_cause(self, rationale: str) -> str:
+        """Very simple root-cause analysis based on rationale text."""
+        if "syntax" in rationale.lower():
+            return "coding standards"
+        if "dependency" in rationale.lower():
+            return "dependency issue"
+        return "unspecified"
+
+    def suggest_rollback_strategy(self, target: Path) -> str:
+        """Return a simple rollback recommendation based on history."""
+        count = self.history_cache.get(str(target), 0)
+        if count > 3:
+            return "Consider immutable backup storage or audit investigation."
+        if count > 1:
+            return "Automate regression tests for this file."
+        return "Standard rollback" 
 
     def _ensure_table_exists(self) -> None:
         self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
@@ -103,6 +121,8 @@ class CorrectionLoggerRollback:
             )
             conn.commit()
         logging.info(f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score}")
+        key = str(file_path)
+        self.history_cache[key] = self.history_cache.get(key, 0) + 1
 
     def log_violation(self, details: str) -> None:
         """Record a compliance violation in ``violation_logs``."""
@@ -151,6 +171,8 @@ class CorrectionLoggerRollback:
                     compliance_score=0.0,
                     rollback_reference=str(backup_path),
                 )
+                strategy = self.suggest_rollback_strategy(target)
+                logging.info(f"Suggested strategy: {strategy}")
                 with sqlite3.connect(self.analytics_db) as conn:
                     conn.execute(
                         "INSERT INTO rollback_logs (target, backup, timestamp) VALUES (?, ?, ?)",
@@ -195,6 +217,7 @@ class CorrectionLoggerRollback:
                     "compliance_score": row[2],
                     "rollback_reference": row[3],
                     "timestamp": row[4],
+                    "root_cause": self._derive_root_cause(row[1]),
                 }
                 for row in corrections
             ],
