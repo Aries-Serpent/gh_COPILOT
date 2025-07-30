@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Enterprise Compliance Monitor - placeholder."""
+
 import argparse
 import logging
 import time
@@ -38,6 +39,11 @@ def main() -> int:
     logger = setup_logger(args.workspace)
     run_monitor(logger, args.cycles)
     return 0
+
+
+def enterprise_main() -> int:
+    """Entry point used by tests."""
+    return main()
 
 
 if __name__ == "__main__":

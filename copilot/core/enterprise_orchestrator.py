@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import logging
 import os
 import sys
@@ -17,12 +18,7 @@ from pathlib import Path
 from utils.log_utils import log_message
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -41,7 +37,7 @@ class EnterpriseUtility:
             ``True`` if all checks succeed, otherwise ``False``.
         """
         start_time = datetime.now()
-        log_message(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+        log_message(__name__, f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
             # Utility implementation
@@ -50,14 +46,16 @@ class EnterpriseUtility:
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
                 log_message(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                    __name__,
+                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s",
+                )
                 return True
             else:
-                log_message(f"{TEXT_INDICATORS['error']} Utility failed", level=logging.ERROR)
+                log_message(__name__, f"{TEXT_INDICATORS['error']} Utility failed", level=logging.ERROR)
                 return False
 
         except Exception as e:
-            log_message(f"{TEXT_INDICATORS['error']} Utility error: {e}", level=logging.ERROR)
+            log_message(__name__, f"{TEXT_INDICATORS['error']} Utility error: {e}", level=logging.ERROR)
             return False
 
     def perform_utility_function(self) -> bool:
@@ -70,6 +68,7 @@ class EnterpriseUtility:
         """
         if not self.workspace_path.exists():
             log_message(
+                __name__,
                 f"{TEXT_INDICATORS['error']} Workspace missing: {self.workspace_path}",
                 level=logging.ERROR,
             )
@@ -77,10 +76,11 @@ class EnterpriseUtility:
 
         readme = self.workspace_path / "README.md"
         if readme.exists():
-            log_message(f"{TEXT_INDICATORS['info']} README found")
+            log_message(__name__, f"{TEXT_INDICATORS['info']} README found")
             return True
 
         log_message(
+            __name__,
             f"{TEXT_INDICATORS['error']} README not found in {self.workspace_path}",
             level=logging.WARNING,
         )
@@ -101,6 +101,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)
