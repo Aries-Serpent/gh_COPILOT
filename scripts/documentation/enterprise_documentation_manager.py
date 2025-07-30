@@ -50,12 +50,12 @@ class EnterpriseDocumentationManager:
         self.generator = TemplateAutoGenerator(analytics_db, completion_db)
 
     # ------------------------------------------------------------------
-    def query_documentation(self, doc_type: str) -> list[tuple[str, str]]:
-        """Return ``doc_id`` and ``content`` for the given ``doc_type``."""
+    def query_documentation(self, doc_type: str) -> list[tuple[str, str, str | None]]:
+        """Return ``doc_id``, ``content`` and ``source_path`` for the given ``doc_type``."""
         if not self.db_path.exists():
             self.logger.error(f"{TEXT_INDICATORS['error']} Missing database {self.db_path}")
             return []
-        query = "SELECT doc_id, content FROM enterprise_documentation WHERE doc_type=?"
+        query = "SELECT doc_id, content, source_path FROM enterprise_documentation WHERE doc_type=?"
         with sqlite3.connect(self.db_path) as conn:
             return conn.execute(query, (doc_type,)).fetchall()
 
@@ -97,7 +97,8 @@ class EnterpriseDocumentationManager:
                 """
             )
             with tqdm(total=len(docs), desc=f"{TEXT_INDICATORS['progress']} docs", unit="doc") as bar:
-                for doc_id, content in docs:
+                cross_links = 0
+                for doc_id, content, source in docs:
                     base_text = template.replace("{content}", content) if template else content
                     score = self.calculate_compliance(base_text)
                     _log_event(
@@ -111,20 +112,42 @@ class EnterpriseDocumentationManager:
                         test_mode=False,
                     )
                     if score < 60.0:
-                        self.logger.info(
-                            f"{TEXT_INDICATORS['info']} Skipping {doc_id} due to low score {score:.2f}"
-                        )
+                        self.logger.info(f"{TEXT_INDICATORS['info']} Skipping {doc_id} due to low score {score:.2f}")
                         bar.update(1)
                         continue
                     main_path = None
                     for fmt in formats:
                         path = self.output_dir / f"{doc_id}.{fmt}"
-                        links = " | ".join(f"{doc_id}.{f}" for f in formats if f != fmt)
-                        text = f"Linked: {links}\n\n{base_text}"
-                        path.write_text(text)
+                        links = [self.output_dir / f"{doc_id}.{f}" for f in formats if f != fmt]
+                        links_text = " | ".join(p.name for p in links)
+                        comp_link = f"analytics://correction_logs/{doc_id}"
+                        audit_link = f"analytics://audit_log/{doc_id}"
+                        code_link = f"code://{source}" if source else "code://"
+                        audit_record_link = f"logs://audit_logs/{doc_id}"
+                        body = (
+                            f"Code Path: {code_link}\n"
+                            f"Compliance Log: {comp_link}\n"
+                            f"Audit Record: {audit_link}\n"
+                            f"Audit Log: {audit_record_link}\n"
+                            f"Linked: {links_text}\n\n{base_text}"
+                        )
+                        if fmt == "html":
+                            html_body = body.replace("\n", "<br>")
+                            text = f"<html><body>{html_body}</body></html>"
+                        else:
+                            text = body
+                        path.write_text(text, encoding="utf-8")
                         generated.append(path)
                         if main_path is None:
                             main_path = path
+                        for link in links:
+                            _log_event(
+                                {"file_path": str(path), "linked_path": str(link)},
+                                table="cross_link_events",
+                                db_path=self.generator.analytics_db,
+                                test_mode=False,
+                            )
+                            cross_links += 1
                     cur.execute(
                         """
                         INSERT INTO documentation_status (doc_id, path, generated_at)
@@ -136,6 +159,12 @@ class EnterpriseDocumentationManager:
                         (doc_id, str(main_path)),
                     )
                     bar.update(1)
+                _log_event(
+                    {"actions": len(docs), "links": cross_links},
+                    table="cross_link_summary",
+                    db_path=self.generator.analytics_db,
+                    test_mode=False,
+                )
             conn.commit()
         self.logger.info(f"{TEXT_INDICATORS['success']} Generated {len(generated)} {doc_type} files")
         return generated

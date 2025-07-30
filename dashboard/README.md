@@ -149,6 +149,33 @@ The `/dashboard/compliance` endpoint returns compliance information as JSON, com
 
 The endpoint is used by the dashboard UI and can be queried by external tools for compliance reporting and audit automation.
 
+### `placeholder_summary.json` Schema
+
+`dashboard/compliance/placeholder_summary.json` contains the latest placeholder audit status:
+
+```json
+{
+  "timestamp": "ISO8601 timestamp",
+  "findings": 0,
+  "resolved_count": 0,
+  "compliance_score": 0,
+  "progress_status": "issues_pending"
+}
+```
+
+### `correction_summary.json` Schema
+
+`dashboard/compliance/correction_summary.json` lists recent corrections:
+
+```json
+{
+  "timestamp": "ISO8601 timestamp",
+  "total_corrections": 0,
+  "corrections": [],
+  "status": "complete"
+}
+```
+
 ---
 
 ## COMPLIANCE INTEGRATION

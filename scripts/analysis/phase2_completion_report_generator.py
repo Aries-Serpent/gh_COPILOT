@@ -20,7 +20,6 @@ import sys
 import subprocess
 from datetime import datetime
 from pathlib import Path
-import logging
 
 
 class Phase2CompletionReportGenerator:
@@ -40,40 +39,40 @@ class Phase2CompletionReportGenerator:
 
         try:
             # Check F821/F401 specifically
-            result = subprocess.run([
-                'python', '-m', 'flake8',
-                '--select=F821,F401',
-                '--statistics', '--count',
-                str(self.workspace_root)
-            ], capture_output=True, text=True, cwd=self.workspace_root)
+            result = subprocess.run(
+                ["python", "-m", "flake8", "--select=F821,F401", "--statistics", "--count", str(self.workspace_root)],
+                capture_output=True,
+                text=True,
+                cwd=self.workspace_root,
+            )
 
             f821_f401_violations = result.stdout.strip()
-            f821_f401_count = len([line for line in result.stdout.split('\n')
-                                  if 'F821' in line or 'F401' in line])
+            f821_f401_count = len([line for line in result.stdout.split("\n") if "F821" in line or "F401" in line])
 
             # Check all violations
-            result_all = subprocess.run([
-                'python', '-m', 'flake8',
-                '--statistics', '--count',
-                str(self.workspace_root)
-            ], capture_output=True, text=True, cwd=self.workspace_root)
+            result_all = subprocess.run(
+                ["python", "-m", "flake8", "--statistics", "--count", str(self.workspace_root)],
+                capture_output=True,
+                text=True,
+                cwd=self.workspace_root,
+            )
 
             all_violations = result_all.stdout.strip()
 
             return {
-                'f821_f401_violations': f821_f401_violations,
-                'f821_f401_count': f821_f401_count,
-                'all_violations': all_violations,
-                'scan_success': True
+                "f821_f401_violations": f821_f401_violations,
+                "f821_f401_count": f821_f401_count,
+                "all_violations": all_violations,
+                "scan_success": True,
             }
 
         except Exception as e:
             print(f"Error scanning violations: {e}")
             return {
-                'f821_f401_violations': 'Scan failed',
-                'f821_f401_count': -1,
-                'all_violations': 'Scan failed',
-                'scan_success': False
+                "f821_f401_violations": "Scan failed",
+                "f821_f401_count": -1,
+                "all_violations": "Scan failed",
+                "scan_success": False,
             }
 
     def generate_completion_report(self):
@@ -88,19 +87,22 @@ class Phase2CompletionReportGenerator:
         original_f401 = 76
         original_total = original_f821 + original_f401
 
-        current_f821_f401 = current_status['f821_f401_count']
+        current_f821_f401 = current_status["f821_f401_count"]
 
         # Calculate improvements
         if current_f821_f401 >= 0:
             violations_eliminated = original_total - current_f821_f401
-            improvement_percentage = (
-    violations_eliminated /
-    original_total *
-     100) if original_total > 0 else 0
-            f821_reduction = ((original_f821 - min(current_f821_f401, original_f821)
-                              ) / original_f821 * 100) if original_f821 > 0 else 0
-            f401_reduction = ((original_f401 - max(0, current_f821_f401 - original_f821)
-                              ) / original_f401 * 100) if original_f401 > 0 else 0
+            improvement_percentage = (violations_eliminated / original_total * 100) if original_total > 0 else 0
+            f821_reduction = (
+                ((original_f821 - min(current_f821_f401, original_f821)) / original_f821 * 100)
+                if original_f821 > 0
+                else 0
+            )
+            f401_reduction = (
+                ((original_f401 - max(0, current_f821_f401 - original_f821)) / original_f401 * 100)
+                if original_f401 > 0
+                else 0
+            )
         else:
             violations_eliminated = "Unable to calculate"
             improvement_percentage = "Unable to calculate"
@@ -109,12 +111,12 @@ class Phase2CompletionReportGenerator:
 
         # Generate report
         report = f"""
-{'='*80}
+{"=" * 80}
 # # 🎯 PHASE 2 COMPLETION REPORT - F821/F401 SYSTEMATIC PROCESSING
-{'='*80}
+{"=" * 80}
 
 📅 REPORT DETAILS:
-   • Generation Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
+   • Generation Time: {self.start_time.strftime("%Y-%m-%d %H:%M:%S")}
    • Workspace: {self.workspace_root}
    • Phase: 2 (F821 Undefined Names + F401 Unused Imports)
    • Status: COMPLETED
@@ -155,22 +157,22 @@ class Phase2CompletionReportGenerator:
    • Processing Tools: VALIDATED
    • Enterprise Compliance: MAINTAINED
 
-{'='*80}
+{"=" * 80}
 🏅 PHASE 2 STATUS: ENTERPRISE CERTIFIED COMPLETE
-{'='*80}
+{"=" * 80}
 
 CURRENT FLAKE8 F821/F401 STATUS:
-{current_status['f821_f401_violations'] if current_status['f821_f401_violations'] else '# # ✅ NO F821/F401 VIOLATIONS DETECTED'}
+{current_status["f821_f401_violations"] if current_status["f821_f401_violations"] else "# # ✅ NO F821/F401 VIOLATIONS DETECTED"}
 
 WORKSPACE HEALTH SUMMARY:
 Phase 1 (E999 Syntax Errors): # # ✅ COMPLETE (0 violations)
 Phase 2 (F821/F401): # # ✅ COMPLETE ({current_f821_f401} violations)
 Overall Enterprise Health Score: EXCELLENT
 
-{'='*80}
+{"=" * 80}
 Report Generated by Enterprise Compliance System v2.0.0
 gh_COPILOT Toolkit - Phase 2 Systematic Processing Complete
-{'='*80}
+{"=" * 80}
 """
 
         return report
@@ -185,9 +187,10 @@ gh_COPILOT Toolkit - Phase 2 Systematic Processing Complete
             print(report)
 
             # Save report to file
-            report_file = self.workspace_root / \
-                f"phase2_completion_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-            with open(report_file, 'w', encoding='utf-8') as f:
+            report_file = (
+                self.workspace_root / f"phase2_completion_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+            )
+            with open(report_file, "w", encoding="utf-8") as f:
                 f.write(report)
 
             print(f"\n📄 REPORT SAVED: {report_file}")

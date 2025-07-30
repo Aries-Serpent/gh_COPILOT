@@ -6,13 +6,14 @@ Fixed import-time logging configuration issue
 
 import os
 import sys
+import sqlite3
 from pathlib import Path
 from typing import Dict
 
 from tqdm import tqdm
 
 from utils.enterprise_logging import EnterpriseLoggingManager
-from utils.log_utils import log_event
+from utils.log_utils import log_event, send_dashboard_alert, stream_events
 
 ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", "databases/analytics.db"))
 
@@ -34,7 +35,7 @@ def setup_logging() -> None:
 
 
 def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dict[str, float]:
-    """📏 Check database sizes with enterprise logging"""
+    """📏 Check database and table sizes with enterprise logging"""
     setup_logging()
 
     logger.info("=" * 60)
@@ -57,13 +58,49 @@ def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dic
                 size_bytes = db_file.stat().st_size
                 size_mb = size_bytes / (1024 * 1024)
                 size_results[db_file.name] = size_mb
+                with sqlite3.connect(db_file) as conn:
+                    cur = conn.cursor()
+                    cur.execute("PRAGMA page_size")
+                    page_size = cur.fetchone()[0]
+                    tables = [row[0] for row in cur.execute(
+                        "SELECT name FROM sqlite_master WHERE type='table'"
+                    ).fetchall()]
+                    for table in tables:
+                        try:
+                            cur.execute("SELECT sum(pgsize) FROM dbstat WHERE name=?", (table,))
+                            res = cur.fetchone()[0]
+                            if res is None:
+                                cur.execute(f"PRAGMA page_count('{table}')")
+                                pc = cur.fetchone()[0]
+                                res = pc * page_size
+                        except sqlite3.Error:
+                            cur.execute(f"PRAGMA page_count('{table}')")
+                            pc = cur.fetchone()[0]
+                            res = pc * page_size
+                        table_mb = (res or 0) / (1024 * 1024)
+                        if table_mb > threshold_mb:
+                            logger.warning(
+                                f"⚠️ {db_file.name}:{table}: {table_mb:.2f} MB > {threshold_mb} MB"
+                            )
+                            event = {
+                                "db": db_file.name,
+                                "table_name": table,
+                                "size_mb": table_mb,
+                                "threshold": threshold_mb,
+                            }
+                            log_event(event, table="size_violations", db_path=ANALYTICS_DB)
+                            send_dashboard_alert(event, db_path=ANALYTICS_DB)
+                            for line in stream_events("size_violations", db_path=ANALYTICS_DB):
+                                if f'"db": "{db_file.name}"' in line and f'"table_name": "{table}"' in line:
+                                    print(line.strip())
+                                    break
                 if size_mb > threshold_mb:
-                    logger.warning(f"⚠️ {db_file.name}: {size_mb:.2f} MB > {threshold_mb} MB")
-                    log_event(
-                        {"db": db_file.name, "size_mb": size_mb, "threshold": threshold_mb},
-                        table="size_violations",
-                        db_path=ANALYTICS_DB,
+                    logger.warning(
+                        f"⚠️ {db_file.name}: {size_mb:.2f} MB > {threshold_mb} MB"
                     )
+                    event = {"db": db_file.name, "table_name": "__database__", "size_mb": size_mb, "threshold": threshold_mb}
+                    log_event(event, table="size_violations", db_path=ANALYTICS_DB)
+                    send_dashboard_alert(event, db_path=ANALYTICS_DB)
                 else:
                     logger.info(f"✅ {db_file.name}: {size_mb:.2f} MB")
             except Exception as e:

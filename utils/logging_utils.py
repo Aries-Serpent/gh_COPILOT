@@ -1,9 +1,10 @@
 """Logging utilities for gh_COPILOT Enterprise Toolkit"""
 
 import logging
-import os
 from datetime import datetime
 from pathlib import Path
+
+from utils.cross_platform_paths import CrossPlatformPathManager
 
 
 def setup_enterprise_logging(
@@ -12,8 +13,8 @@ def setup_enterprise_logging(
     """Setup enterprise-grade logging configuration"""
 
     if log_file is None:
-        workspace = os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
-        log_dir = Path(workspace) / "logs"
+        workspace = CrossPlatformPathManager.get_workspace_path()
+        log_dir = workspace / "logs"
         log_dir.mkdir(exist_ok=True)
         log_file = log_dir / f"enterprise_{datetime.now().strftime('%Y%m%d')}.log"
 

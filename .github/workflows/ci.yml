@@ -7,6 +7,9 @@ on:
 jobs:
   lint-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -68,14 +71,17 @@ jobs:
           import template_engine.template_synchronizer
           PY
 
-      - name: Run tests
-        run: make test
+      - name: Run tests with coverage
+        run: |
+          mkdir -p artifacts
+          coverage run -m pytest -q tests --junitxml=artifacts/test-results.xml
+          coverage xml -o artifacts/coverage.xml
 
-      - name: Upload test reports
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: test-logs
-          path: tests/test_results
+          name: artifacts
+          path: artifacts
 
       - name: Verify template_engine import
         run: python -c "import template_engine"
@@ -83,9 +89,16 @@ jobs:
   docker-build:
     needs: lint-test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Build Docker image
         run: docker build -t gh_copilot .
@@ -117,21 +130,18 @@ jobs:
 
       - name: Lint
         run: ruff check .
-      - name: Test
-        run: pytest -q
+      - name: Run tests with coverage
+        run: |
+          mkdir -p artifacts
+          coverage run -m pytest -q tests --junitxml=artifacts/test-results.xml
+          coverage xml -o artifacts/coverage.xml
 
-      - name: Upload coverage
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: coverage
-          path: coverage.xml
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: .pytest_cache
+          name: artifacts
+          path: artifacts
 
   codeql:
     runs-on: ubuntu-latest

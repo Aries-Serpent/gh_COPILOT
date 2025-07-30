@@ -14,6 +14,8 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, List, Optional, Sequence, Union, cast
 
+from utils.cross_platform_paths import CrossPlatformPathManager
+
 import py7zr  # pyright: ignore[reportMissingImports]
 from tqdm import tqdm
 
@@ -56,7 +58,7 @@ class ExternalBackupConfiguration:
             raise RuntimeError(f"CRITICAL: Backup location inside workspace: {backup_path}")
 
 
-WORKSPACE_PATH = Path(os.getenv("GH_COPILOT_WORKSPACE", os.getcwd()))
+WORKSPACE_PATH = CrossPlatformPathManager.get_workspace_path()
 BACKUP_ROOT = ExternalBackupConfiguration.get_backup_root()
 BACKUP_DIR = BACKUP_ROOT / "database_consolidation"
 ExternalBackupConfiguration.validate_external_backup_location(BACKUP_DIR, WORKSPACE_PATH)
@@ -280,7 +282,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    workspace = CrossPlatformPathManager.get_workspace_path()
     migrate_and_compress(
         workspace,
         ["analytics.db", "documentation.db", "template_completion.db"],

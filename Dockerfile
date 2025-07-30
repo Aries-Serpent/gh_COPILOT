@@ -9,13 +9,20 @@ COPY requirements.txt requirements.txt
 RUN chown -R appuser:appgroup /app
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Initialize databases during build
+RUN python scripts/database/unified_database_initializer.py
+
 # Copy application source
 COPY . /app
 RUN chown -R appuser:appgroup /app
 
+# Configure environment file
+RUN cp .env.example .env
+
 # Set default workspace environment variable
 ENV GH_COPILOT_WORKSPACE=/app
 ENV GH_COPILOT_BACKUP_ROOT=/backup
+ENV FLASK_SECRET_KEY=changeme
 
 # Switch to the non-root user
 USER appuser
@@ -32,6 +39,6 @@ EXPOSE 5000 5001 5002 5003 5004 5005 5006 8080
 
 HEALTHCHECK --interval=30s --timeout=5s CMD ["python", "scripts/docker_healthcheck.py"]
 
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-CMD ["/app/entrypoint.sh"]
+COPY docker_wrapper.sh /app/docker_wrapper.sh
+RUN chmod +x /app/docker_wrapper.sh
+CMD ["bash", "/app/docker_wrapper.sh"]

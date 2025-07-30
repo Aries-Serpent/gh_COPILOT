@@ -7,6 +7,7 @@ import json
 import logging
 import sqlite3
 import time
+import os
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
@@ -15,15 +16,16 @@ from flask import (
     Response,
     jsonify,
     render_template,
-    render_template_string,
     request,
 )
 from tqdm import tqdm
 
 from config.secret_manager import get_secret
+from utils.cross_platform_paths import CrossPlatformPathManager
 
-ANALYTICS_DB = Path("databases/analytics.db")
-COMPLIANCE_DIR = Path("dashboard/compliance")
+workspace_root = CrossPlatformPathManager.get_workspace_path()
+ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", workspace_root / "databases" / "analytics.db"))
+COMPLIANCE_DIR = Path(os.getenv("COMPLIANCE_DIR", workspace_root / "dashboard" / "compliance"))
 
 TEMPLATES = Path(__file__).resolve().parents[2] / "templates"
 app = Flask(__name__, template_folder=str(TEMPLATES))
@@ -172,6 +174,25 @@ def metrics_stream() -> Response:
     return Response(generate(), mimetype="text/event-stream")
 
 
+@app.get("/alerts_stream")
+def alerts_stream() -> Response:
+    """Stream alerts as server-sent events for live updates."""
+
+    once = request.args.get("once") == "1"
+
+    def generate() -> Iterable[str]:
+        alerts = _fetch_alerts()
+        yield f"data: {json.dumps(alerts)}\n\n"
+        if once:
+            return
+        while True:
+            time.sleep(5)
+            alerts = _fetch_alerts()
+            yield f"data: {json.dumps(alerts)}\n\n"
+
+    return Response(generate(), mimetype="text/event-stream")
+
+
 @app.get("/rollback_alerts")
 def rollback_alerts() -> Any:
     data = _fetch_rollbacks()
@@ -213,14 +234,7 @@ def dashboard_info() -> Any:
 @app.get("/metrics_table")
 def metrics_table() -> Any:
     metrics = _fetch_metrics()
-    table_html = """
-    <table border='1'>
-        <tr><th>Metric</th><th>Value</th></tr>
-    """
-    for key, value in metrics.items():
-        table_html += f"<tr><td>{key}</td><td>{value}</td></tr>"
-    table_html += "</table>"
-    return render_template_string(table_html)
+    return render_template("metrics_table.html", metrics=metrics)
 
 
 @app.get("/health")

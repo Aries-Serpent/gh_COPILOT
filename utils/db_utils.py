@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import os
 import sqlite3
 from contextlib import contextmanager
-from pathlib import Path
 from typing import Iterator
+
+from utils.cross_platform_paths import CrossPlatformPathManager
 
 
 @contextmanager
@@ -16,7 +16,7 @@ def get_validated_connection(db_name: str = "production.db") -> Iterator[sqlite3
     The helper ensures the database exists and is within the size limit
     before yielding an SQLite connection.
     """
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    workspace = CrossPlatformPathManager.get_workspace_path()
     db_path = workspace / "databases" / db_name
 
     if not db_path.exists():

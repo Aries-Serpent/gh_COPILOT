@@ -5,6 +5,9 @@ import numpy as np
 from typing import Callable, Optional, Any, Dict, List, Tuple, Union
 from datetime import datetime
 
+from utils.cross_platform_paths import CrossPlatformPathManager
+import os
+
 try:
     from qiskit import QuantumCircuit, Aer, execute
     QISKIT_AVAILABLE = True
@@ -23,11 +26,10 @@ def chunk_anti_recursion_validation():
 
 def validate_no_recursive_folders():
     # Placeholder: Implement workspace root and backup root recursion checks
-    import os
-    workspace = os.environ.get("GH_COPILOT_WORKSPACE", os.getcwd())
-    backup_root = os.environ.get("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_backup")
-    real_workspace = os.path.realpath(workspace)
-    real_backup = os.path.realpath(backup_root)
+    workspace = CrossPlatformPathManager.get_workspace_path()
+    backup_root = CrossPlatformPathManager.get_backup_root()
+    real_workspace = workspace.resolve()
+    real_backup = backup_root.resolve()
     if real_workspace == real_backup:
         return False
     for root, dirs, files in os.walk(workspace):
@@ -38,10 +40,9 @@ def validate_no_recursive_folders():
     return True
 
 def detect_c_temp_violations():
-    import os
     forbidden = ["E:/temp/", "E:\\temp\\"]
-    workspace = os.environ.get("GH_COPILOT_WORKSPACE", os.getcwd())
-    backup_root = os.environ.get("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_backup")
+    workspace = str(CrossPlatformPathManager.get_workspace_path())
+    backup_root = str(CrossPlatformPathManager.get_backup_root())
     for forbidden_path in forbidden:
         if workspace.startswith(forbidden_path) or backup_root.startswith(forbidden_path):
             return True

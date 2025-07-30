@@ -29,7 +29,7 @@ class DualCopilot_WebGUIIntegrator:
 ⚛️ QUANTUM-ENHANCED ENTERPRISE FUNCTION
 """
     
-    def 🎬___init__(self, workspace_path="e:/gh_COPILOT"):
+    def 🎬___init__(self, workspace_path="/workspace/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.dashboard = dashboard
         self.flask_app = app
@@ -83,7 +83,7 @@ class DualCopilot_TemplateIntelligenceEngine:
 
 ⚛️ QUANTUM-ENHANCED ENTERPRISE FUNCTION
 """
-        template_path = f"e:/gh_COPILOT/templates/html/{template_name}"
+        template_path = f"/workspace/gh_COPILOT/templates/html/{template_name}"
         
         # Enhance context with database intelligence
         enhanced_context = self.enhance_template_context(context)

@@ -1,6 +1,7 @@
 import importlib
 import json
 import sqlite3
+from pathlib import Path
 
 
 def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
@@ -56,6 +57,67 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
 
     with sqlite3.connect(analytics_db) as conn:
         count = conn.execute("SELECT COUNT(*) FROM cross_link_events").fetchone()[0]
-        summary = conn.execute("SELECT actions, links FROM cross_link_summary").fetchone()
+        summary = conn.execute(
+            "SELECT actions, links, summary_path FROM cross_link_summary"
+        ).fetchone()
     assert count == 2
-    assert summary == (1, count)
+    assert summary[0] == 1
+    assert summary[1] == count
+    assert Path(summary[2]) == summary_file
+
+
+def test_deep_cross_link_excludes_backup(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    backup_root = tmp_path / "backups"
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+
+    crv = importlib.import_module("scripts.cross_reference_validator")
+    importlib.reload(crv)
+    monkeypatch.setattr(crv, "validate_enterprise_operation", lambda *a, **k: True)
+
+    production_db = tmp_path / "production.db"
+    with sqlite3.connect(production_db) as conn:
+        conn.execute("CREATE TABLE cross_reference_patterns (pattern_name TEXT)")
+
+    analytics_db = tmp_path / "databases" / "analytics.db"
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE todo_fixme_tracking (
+                file_path TEXT,
+                item_type TEXT,
+                status TEXT,
+                last_updated TEXT
+            )
+            """
+        )
+        conn.execute(
+            "INSERT INTO todo_fixme_tracking VALUES ('target.py', 'code', 'open', '2024-01-01')"
+        )
+
+    dashboard_dir = tmp_path / "dashboard"
+    task_file = tmp_path / "tasks.md"
+    task_file.write_text("- [ ] Example task\n", encoding="utf-8")
+
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir()
+    (docs_dir / "target.py").write_text("docs")
+    code_dir = tmp_path / "copilot"
+    code_dir.mkdir()
+    (code_dir / "target.py").write_text("code")
+    backup_root.mkdir()
+    (backup_root / "target.py").write_text("backup")
+
+    validator = crv.CrossReferenceValidator(
+        production_db, analytics_db, dashboard_dir, task_file
+    )
+    assert validator.validate(timeout_minutes=1)
+
+    with sqlite3.connect(analytics_db) as conn:
+        paths = {Path(row[0]) for row in conn.execute("SELECT linked_path FROM cross_link_events")}
+
+    assert (docs_dir / "target.py") in paths
+    assert (code_dir / "target.py") in paths
+    assert (backup_root / "target.py") not in paths

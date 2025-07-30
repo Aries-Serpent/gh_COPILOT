@@ -8,7 +8,7 @@
 
 **Status:** Active development with incremental improvements
 
-> **Limitations:** The project is under heavy development. Some tests fail and several modules are only partially implemented.
+> **Limitations:** The project is under heavy development. Some modules remain incomplete (see `docs/STUB_MODULE_STATUS.md`), including `DBFirstCodeGenerator`, `documentation_db_analyzer`, and `workflow_enhancer`. These gaps cause a portion of the test suite to fail.
 
 ---
 
@@ -17,7 +17,7 @@
 The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. **Many features remain experimental or stubbed; quantum functionality is simulated only and several modules are still incomplete.**
 
 > **Note**
-> Quantum functions remain in **simulation mode** until hardware integration is complete. Install `qiskit-ibm-provider` and set `QISKIT_IBM_TOKEN` to enable real IBM Quantum backends when available.
+> Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends.
 
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** initial implementation in progress
@@ -32,7 +32,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
-  optimizer and search helpers.
+  optimizer and search helpers. These modules are **experimental** and default to simulation mode unless `QISKIT_IBM_TOKEN` is configured.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1679 scripts synchronized
@@ -101,8 +101,10 @@ chmod +x /usr/local/bin/clw
 ls -l /usr/local/bin/clw
 
 ### OpenAI Connector
-The repository provides `github_integration/openai_connector.py` for OpenAI API calls.
-Set `OPENAI_API_KEY` in your `.env` to enable these helpers.
+The repository provides `github_integration/openai_connector.py` for OpenAI API
+calls using the `OpenAIClient` helper in
+`third_party/openai_client.py`. Set `OPENAI_API_KEY` in your `.env` to enable
+these helpers.
 
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
@@ -234,8 +236,7 @@ By default the orchestrator uses the simulator. To execute algorithms on IBM Qua
 python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
-If the provider cannot be initialized the orchestrator automatically falls back
-to simulation.
+Set `QISKIT_IBM_TOKEN` to your IBM Quantum API token for hardware execution. If the provider cannot be initialized the orchestrator automatically falls back to simulation.
 
 ### Run Template Matcher
 ```bash
@@ -283,12 +284,14 @@ Build and run the container with Docker:
 
 ```bash
 docker build -t gh_copilot .
-docker run -p 5000:5000 -e GH_COPILOT_BACKUP_ROOT=/path/to/backups gh_copilot
+docker run -p 5000:5000 \
+  -e GH_COPILOT_BACKUP_ROOT=/path/to/backups \
+  gh_copilot
 ```
 
-Inside the image `GH_COPILOT_BACKUP_ROOT` defaults to `/backup`. Map this path to a host directory to persist logs and backups.
+`entrypoint.sh` sets `GH_COPILOT_WORKSPACE` to `/app` and `GH_COPILOT_BACKUP_ROOT` to `/backup` when unspecified. It then executes `unified_database_initializer.py` to bootstrap `production.db` and `analytics.db` before launching the dashboard. Map `/backup` to a host directory so logs persist.
 
-When launching with Docker Compose, the provided `docker-compose.yml` mounts `${GH_COPILOT_BACKUP_ROOT:-/backup}` at `/backup`. Set `GH_COPILOT_BACKUP_ROOT` on the host before running `docker-compose up` so backups survive container restarts.
+When launching with Docker Compose, the provided `docker-compose.yml` mounts `${GH_COPILOT_BACKUP_ROOT:-/backup}` at `/backup` and passes environment variables from `.env`. Ensure `GH_COPILOT_BACKUP_ROOT` is configured on the host so backups survive container restarts.
 
 ### Wrapping, Logging, and Compliance (WLC)
 Run the session manager after setting the workspace and backup paths:
@@ -344,6 +347,7 @@ compliance score for audit purposes. Ensure all command output is piped through
 The table stores `session_id`, timestamps, status, compliance score, and
 optional error details so administrators can audit every session.
 The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
+See [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md) for a full example showing environment variable setup, CLI options, log file location, and database updates.
 
 ---
 
@@ -664,6 +668,13 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 # Features: Real-time metrics, database visualization, system monitoring
 ```
 
+### Enable Streaming
+
+Set the environment variable `LOG_WEBSOCKET_ENABLED=1` to allow real-time
+log broadcasting over WebSockets. The dashboard's `/metrics_stream` endpoint
+uses Server-Sent Events by default and works with Flask's ``Response`` when
+`sse_event_stream` is provided from ``utils.log_utils``.
+
 Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
 This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.
 The compliance score is averaged from records in the `correction_logs` table.
@@ -785,7 +796,7 @@ source .venv/bin/activate
 pip install -r requirements-test.txt
 
 # Run comprehensive test suite
-make test
+make test  # runs `pytest tests`
 
 # Run linter
 ruff format .

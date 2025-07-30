@@ -26,8 +26,10 @@ from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import _log_event
+from utils.cross_platform_paths import CrossPlatformPathManager
 
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "cross_reference"
+workspace_root = CrossPlatformPathManager.get_workspace_path()
+LOGS_DIR = workspace_root / "logs" / "cross_reference"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"cross_reference_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -37,12 +39,10 @@ logging.basicConfig(
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
-PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "production.db"
-ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "analytics.db"
-DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "dashboard" / "compliance"
-TASK_SUGGESTIONS_FILE = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
-)
+PRODUCTION_DB = workspace_root / "production.db"
+ANALYTICS_DB = workspace_root / "analytics.db"
+DASHBOARD_DIR = workspace_root / "dashboard" / "compliance"
+TASK_SUGGESTIONS_FILE = workspace_root / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
 
 
 class CrossReferenceValidator:
@@ -121,26 +121,24 @@ class CrossReferenceValidator:
 
     def _deep_cross_link(self, actions: List[Dict]) -> None:
         """Perform additional cross-linking between docs and code."""
-        workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
+        workspace = CrossPlatformPathManager.get_workspace_path()
         docs_dirs = [workspace / "docs", workspace / "documentation"]
-        code_dir = workspace
-        for d in docs_dirs + [code_dir]:
+        code_dirs = [workspace]
+        for d in docs_dirs + code_dirs:
             validate_enterprise_operation(str(d))
         for act in actions:
             file_name = Path(act["file_path"]).name
             related_paths: Set[Path] = set()
-            for d in docs_dirs:
-                related_paths.update(d.rglob(file_name))
-            related_paths.update(code_dir.rglob(file_name))
+            for d in docs_dirs + code_dirs:
+                for path in d.rglob(file_name):
+                    try:
+                        path.relative_to(backup_root)
+                    except ValueError:
+                        related_paths.add(path)
             for path in sorted(related_paths):
                 entry = {"file_path": act["file_path"], "linked_path": str(path)}
                 self.cross_link_log.append(entry)
-                _log_event(
-                    entry,
-                    table="cross_link_events",
-                    db_path=self.analytics_db,
-                    test_mode=False,
-                )
+                log_event(entry, table="cross_link_events", db_path=self.analytics_db)
 
     def _update_dashboard(self, actions: List[Dict]) -> None:
         """Update dashboard/compliance with cross-reference summary."""
@@ -156,14 +154,14 @@ class CrossReferenceValidator:
         summary_file = self.dashboard_dir / "cross_reference_summary.json"
         summary_file.write_text(json.dumps(summary, indent=2), encoding="utf-8")
         logging.info(f"Dashboard cross-reference summary updated: {summary_file}")
-        _log_event(
+        log_event(
             {
                 "actions": len(actions),
                 "links": len(self.cross_link_log),
+                "summary_path": str(summary_file),
             },
             table="cross_link_summary",
             db_path=self.analytics_db,
-            test_mode=False,
         )
 
     def validate(self, timeout_minutes: int = 30) -> bool:
@@ -235,9 +233,9 @@ def main(
     logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
 
-    validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    validate_enterprise_operation(str(workspace_root))
 
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace = workspace_root
     production_db = Path(production_db_path or workspace / "databases" / "production.db")
     analytics_db = Path(analytics_db_path or workspace / "databases" / "analytics.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")

@@ -10,8 +10,12 @@ Enterprise Standards Compliance:
 """
 
 import logging
+import shutil
+import sys
 from pathlib import Path
 from datetime import datetime
+
+from utils.cross_platform_paths import CrossPlatformPathManager
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -25,8 +29,10 @@ TEXT_INDICATORS = {
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
+    def __init__(self, workspace_path: str | None = None):
+        self.workspace_path = (
+            Path(workspace_path) if workspace_path else CrossPlatformPathManager.get_workspace_path()
+        )
         self.logger = logging.getLogger(__name__)
 
     def execute_utility(self) -> bool:
@@ -54,7 +60,7 @@ class EnterpriseUtility:
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
         try:
-            backup_dir = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
+            backup_dir = CrossPlatformPathManager.get_backup_root()
             source = backup_dir / "production_backup"
             restore = self.workspace_path / "restored"
             restore.mkdir(parents=True, exist_ok=True)

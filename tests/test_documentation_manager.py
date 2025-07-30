@@ -18,7 +18,25 @@ def create_template_dbs(tmp_path: Path):
         conn.execute("CREATE TABLE compliance_rules (pattern TEXT)")
         conn.execute("INSERT INTO compliance_rules VALUES ('bad')")
         conn.execute(
-            "CREATE TABLE correction_logs (event TEXT, doc_id TEXT, compliance_score REAL, timestamp TEXT)"
+            """
+            CREATE TABLE correction_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event TEXT,
+                doc_id TEXT,
+                compliance_score REAL,
+                timestamp TEXT,
+                module TEXT,
+                level TEXT,
+                path TEXT,
+                asset_type TEXT
+            )
+            """
+        )
+        conn.execute(
+            "CREATE TABLE cross_link_events (id INTEGER PRIMARY KEY AUTOINCREMENT, file_path TEXT NOT NULL, linked_path TEXT NOT NULL, timestamp TEXT NOT NULL, module TEXT, level TEXT)"
+        )
+        conn.execute(
+            "CREATE TABLE cross_link_summary (id INTEGER PRIMARY KEY AUTOINCREMENT, actions INTEGER, links INTEGER, timestamp TEXT NOT NULL, module TEXT, level TEXT)"
         )
     with sqlite3.connect(completion_db) as conn:
         conn.execute("CREATE TABLE templates (template_content TEXT)")
@@ -34,14 +52,18 @@ def test_generate_files(tmp_path, monkeypatch):
     doc_dir.mkdir()
     db_path = db_dir / "documentation.db"
     with sqlite3.connect(db_path) as conn:
-        conn.execute("CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, content TEXT)")
+        conn.execute(
+            "CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, content TEXT, source_path TEXT)"
+        )
         conn.executemany(
-            "INSERT INTO enterprise_documentation VALUES (?,?,?)",
-            [("1", "README", "alpha"), ("2", "README", "beta")],
+            "INSERT INTO enterprise_documentation VALUES (?,?,?,?)",
+            [("1", "README", "alpha", "src/1.py"), ("2", "README", "beta", "src/2.py")],
         )
     analytics_db, completion_db = create_template_dbs(tmp_path)
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     monkeypatch.setenv("DOCUMENTATION_DB_PATH", str(db_path))
+    monkeypatch.setattr(TemplateAutoGenerator, "select_best_template", lambda *a, **k: "{content}")
+    monkeypatch.setattr(EnterpriseDocumentationManager, "calculate_compliance", lambda *a, **k: 100.0)
     manager = EnterpriseDocumentationManager(
         workspace=workspace,
         db_path=db_path,
@@ -64,15 +86,19 @@ def test_generate_files_records_status(tmp_path, monkeypatch):
     prod_db = db_dir / "production.db"
     prod_db.touch()
     with sqlite3.connect(doc_db) as conn:
-        conn.execute("CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, content TEXT)")
+        conn.execute(
+            "CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, content TEXT, source_path TEXT)"
+        )
         conn.executemany(
-            "INSERT INTO enterprise_documentation VALUES (?,?,?)",
-            [("1", "README", "alpha"), ("2", "README", "beta")],
+            "INSERT INTO enterprise_documentation VALUES (?,?,?,?)",
+            [("1", "README", "alpha", "src/1.py"), ("2", "README", "beta", "src/2.py")],
         )
 
     analytics_db, completion_db = create_template_dbs(tmp_path)
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     monkeypatch.setenv("DOCUMENTATION_DB_PATH", str(doc_db))
+    monkeypatch.setattr(TemplateAutoGenerator, "select_best_template", lambda *a, **k: "{content}")
+    monkeypatch.setattr(EnterpriseDocumentationManager, "calculate_compliance", lambda *a, **k: 100.0)
     manager = EnterpriseDocumentationManager(
         workspace=workspace,
         db_path=doc_db,
@@ -101,17 +127,20 @@ def test_compliance_scores_logged_and_non_compliant_skipped(tmp_path, monkeypatc
     prod_db = db_dir / "production.db"
     prod_db.touch()
     with sqlite3.connect(doc_db) as conn:
-        conn.execute("CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, content TEXT)")
+        conn.execute(
+            "CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, content TEXT, source_path TEXT)"
+        )
         conn.executemany(
-            "INSERT INTO enterprise_documentation VALUES (?,?,?)",
+            "INSERT INTO enterprise_documentation VALUES (?,?,?,?)",
             [
-                ("1", "README", "good"),
-                ("2", "README", "bad sample"),
+                ("1", "README", "good", "src/1.py"),
+                ("2", "README", "bad sample", "src/2.py"),
             ],
         )
 
     analytics_db, completion_db = create_template_dbs(tmp_path)
     events: list[dict] = []
+
     def fake_log(evt, **_):
         events.append(evt)
 
@@ -127,6 +156,8 @@ def test_compliance_scores_logged_and_non_compliant_skipped(tmp_path, monkeypatc
     )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     monkeypatch.setenv("DOCUMENTATION_DB_PATH", str(doc_db))
+    monkeypatch.setattr(TemplateAutoGenerator, "select_best_template", lambda *a, **k: "{content}")
+    monkeypatch.setattr(EnterpriseDocumentationManager, "calculate_compliance", lambda *a, **k: 100.0)
     manager = EnterpriseDocumentationManager(
         workspace=workspace,
         db_path=doc_db,
@@ -147,28 +178,16 @@ def test_generate_files_logs_event(tmp_path, monkeypatch):
     doc_dir.mkdir()
     doc_db = db_dir / "documentation.db"
     with sqlite3.connect(doc_db) as conn:
-        conn.execute("CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, content TEXT)")
-        conn.execute("INSERT INTO enterprise_documentation VALUES ('1','README','alpha')")
+        conn.execute(
+            "CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, content TEXT, source_path TEXT)"
+        )
+        conn.execute("INSERT INTO enterprise_documentation VALUES ('1','README','alpha','src/1.py')")
 
     analytics_db, completion_db = create_template_dbs(tmp_path)
-
-    def real_log(event, *, table="event_log", db_path=analytics_db, **_):
-        with sqlite3.connect(db_path) as conn:
-            conn.execute(
-                f"CREATE TABLE IF NOT EXISTS {table} (event TEXT, doc_id TEXT, compliance_score REAL)"
-            )
-            conn.execute(
-                f"INSERT INTO {table} (event, doc_id, compliance_score) VALUES (?,?,?)",
-                (event.get("event"), event.get("doc_id"), event.get("compliance_score")),
-            )
-            conn.commit()
-
-    monkeypatch.setattr(
-        "scripts.documentation.enterprise_documentation_manager._log_event",
-        real_log,
-    )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     monkeypatch.setenv("DOCUMENTATION_DB_PATH", str(doc_db))
+    monkeypatch.setattr(TemplateAutoGenerator, "select_best_template", lambda *a, **k: "{content}")
+    monkeypatch.setattr(EnterpriseDocumentationManager, "calculate_compliance", lambda *a, **k: 100.0)
     manager = EnterpriseDocumentationManager(
         workspace=workspace,
         db_path=doc_db,
@@ -179,3 +198,42 @@ def test_generate_files_logs_event(tmp_path, monkeypatch):
     with sqlite3.connect(analytics_db) as conn:
         count = conn.execute("SELECT COUNT(*) FROM correction_logs").fetchone()[0]
     assert count == 1
+
+
+def test_cross_links_recorded_and_embedded(tmp_path, monkeypatch):
+    workspace = tmp_path
+    db_dir = workspace / "databases"
+    doc_dir = workspace / "documentation"
+    db_dir.mkdir()
+    doc_dir.mkdir()
+    doc_db = db_dir / "documentation.db"
+    with sqlite3.connect(doc_db) as conn:
+        conn.execute(
+            "CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, content TEXT, source_path TEXT)"
+        )
+        conn.executemany(
+            "INSERT INTO enterprise_documentation VALUES (?,?,?,?)",
+            [("1", "README", "alpha", "src/1.py")],
+        )
+
+    analytics_db, completion_db = create_template_dbs(tmp_path)
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("DOCUMENTATION_DB_PATH", str(doc_db))
+    monkeypatch.setattr(TemplateAutoGenerator, "select_best_template", lambda *a, **k: "{content}")
+    monkeypatch.setattr(EnterpriseDocumentationManager, "calculate_compliance", lambda *a, **k: 100.0)
+    manager = EnterpriseDocumentationManager(
+        workspace=workspace,
+        db_path=doc_db,
+        analytics_db=analytics_db,
+        completion_db=completion_db,
+    )
+
+    manager.generate_files("README", output_formats=("md", "html", "pdf"))
+
+    with sqlite3.connect(analytics_db) as conn:
+        links = conn.execute("SELECT COUNT(*) FROM cross_link_events").fetchone()[0]
+    assert links == 6
+    md_file = workspace / "documentation" / "generated" / "enterprise_docs" / "1.md"
+    text = md_file.read_text()
+    assert "analytics://correction_logs/1" in text
+    assert "analytics://audit_log/1" in text

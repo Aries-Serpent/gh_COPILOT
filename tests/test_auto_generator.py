@@ -11,6 +11,9 @@ def create_test_dbs(tmp_path: Path):
     completion_db = tmp_path / "template_completion.db"
     with sqlite3.connect(analytics_db) as conn:
         conn.execute("CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, replacement_template TEXT)")
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS generator_events (event TEXT, template_id INTEGER, score REAL, target TEXT)"
+        )
         conn.executemany(
             "INSERT INTO ml_pattern_optimization (replacement_template) VALUES (?)",
             [("SELECT {cols} FROM {table}",), ("print('hello world')",)],
@@ -114,7 +117,21 @@ def test_rank_templates_uses_quantum(tmp_path: Path, monkeypatch) -> None:
 
 def test_quantum_text_score_influences_ranking(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    analytics_db, completion_db = create_test_dbs(tmp_path)
+    analytics_db = tmp_path / "databases" / "analytics.db"
+    completion_db = tmp_path / "template_completion.db"
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute("CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, replacement_template TEXT)")
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS generator_events (event TEXT, template_id INTEGER, score REAL, target TEXT)"
+        )
+        conn.execute("INSERT INTO ml_pattern_optimization (replacement_template) VALUES ('foo')")
+    with sqlite3.connect(completion_db) as conn:
+        conn.execute("CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)")
+        conn.executemany(
+            "INSERT INTO templates (template_content) VALUES (?)",
+            [("foo",), ("bar",)],
+        )
     gen = TemplateAutoGenerator(analytics_db, completion_db)
     gen.templates = ["foo", "bar"]
     gen.patterns = []
@@ -129,3 +146,36 @@ def test_quantum_text_score_influences_ranking(tmp_path: Path, monkeypatch) -> N
 
     ranked = gen.rank_templates("target")
     assert ranked[0] == "foo"
+
+
+def test_rank_templates_combines_quantum_scores(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    monkeypatch.setenv("GH_COPILOT_TEST_MODE", "1")
+    analytics_db = tmp_path / "databases" / "analytics.db"
+    completion_db = tmp_path / "template_completion.db"
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute("CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, replacement_template TEXT)")
+    with sqlite3.connect(completion_db) as conn:
+        conn.execute("CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)")
+        conn.executemany(
+            "INSERT INTO templates (template_content) VALUES (?)",
+            [("foo",), ("bar",)],
+        )
+    events: list[dict] = []
+    monkeypatch.setattr(auto_generator, "_log_event", lambda e, **k: events.append(e))
+    gen = TemplateAutoGenerator(analytics_db, completion_db)
+    gen.templates = ["foo", "bar"]
+    gen.patterns = []
+
+    monkeypatch.setattr(auto_generator, "compute_similarity_scores", lambda *a, **k: [])
+    monkeypatch.setattr(gen, "_quantum_similarity", lambda *a, **k: 0.5)
+    monkeypatch.setattr(auto_generator, "quantum_similarity_score", lambda *a, **k: 0.5)
+    monkeypatch.setattr(auto_generator, "quantum_cluster_score", lambda *a, **k: 0.5)
+
+    scores = {"foo": 0.9, "bar": 0.2, "target": 0.8}
+    monkeypatch.setattr(gen, "_quantum_score", lambda text: scores.get(text, 0.0))
+
+    ranked = gen.rank_templates("target")
+    assert ranked[0] == "foo"
+    assert any(ev.get("event") == "quantum_total" for ev in events)

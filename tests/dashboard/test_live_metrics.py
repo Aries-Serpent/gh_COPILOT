@@ -1,9 +1,12 @@
 import json
 import sqlite3
 from pathlib import Path
+import os
+import sys
 
 import pytest
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from web_gui.scripts.flask_apps import enterprise_dashboard as ed
 
 
@@ -41,3 +44,23 @@ def test_alerts_endpoint(test_app):
     data = resp.get_json()
     assert len(data["violations"]) == 1
     assert len(data["rollbacks"]) == 1
+
+
+def test_alerts_stream_once(test_app):
+    client = test_app.test_client()
+    resp = client.get("/alerts_stream?once=1")
+    assert resp.status_code == 200
+    line = resp.data.decode().split("\n")[0]
+    assert line.startswith("data:")
+    alerts = json.loads(line.split("data: ")[1])
+    assert len(alerts["violations"]) == 1
+    assert len(alerts["rollbacks"]) == 1
+
+
+def test_metrics_table(test_app):
+    client = test_app.test_client()
+    resp = client.get("/metrics_table")
+    assert resp.status_code == 200
+    html = resp.data.decode()
+    assert "<table" in html
+    assert "placeholder_removal" in html

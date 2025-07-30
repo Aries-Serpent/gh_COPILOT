@@ -10,3 +10,32 @@ python scripts/orchestration/UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py --s
 ```
 This command starts a managed session with `ComprehensiveWorkspaceManager` and
 executes the deployment workflow.
+
+## Docker Deployment
+
+The orchestrator can run inside the provided Docker image. Build and tag the
+image from the repository root:
+
+```bash
+docker build -t gh_copilot:latest .
+```
+
+Run the container while mapping the backup directory on the host. Two
+environment variables are required at startup:
+
+* **`GH_COPILOT_WORKSPACE`** – workspace path inside the container. Defaults to
+  the value returned by `CrossPlatformPathManager.get_workspace_path()`.
+* **`GH_COPILOT_BACKUP_ROOT`** – external path for logs and backups. Must map to
+  a host directory.
+
+Example run command:
+
+```bash
+docker run \
+  -e GH_COPILOT_BACKUP_ROOT=/path/to/backups \
+  -e GH_COPILOT_WORKSPACE=$(pwd) \
+  gh_copilot:latest
+```
+
+The CI workflow `.github/workflows/ci.yml` builds this image as part of the
+automated tests.

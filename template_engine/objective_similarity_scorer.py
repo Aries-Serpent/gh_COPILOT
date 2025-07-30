@@ -21,6 +21,7 @@ from typing import List, Tuple
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import CountVectorizer
 from tqdm import tqdm
 from quantum_algorithm_library_expansion import quantum_text_score
 
@@ -101,13 +102,24 @@ def compute_similarity_scores(
 
     if methods is None:
         methods = ["tfidf"]
+
     if weights is None:
         weights = [1.0 for _ in methods]
+    elif isinstance(weights, dict):
+        if not all(m in weights for m in methods):
+            missing = [m for m in methods if m not in weights]
+            raise ValueError(f"Missing weights for methods: {missing}")
+        weights = [weights[m] for m in methods]
+
+    if len(weights) != len(methods):
+        raise ValueError("methods and weights must have the same length")
     # Prepare corpus and vectorizer
     corpus = [objective] + [t[1] for t in templates]
     vectorizer = TfidfVectorizer().fit(corpus)
     obj_vec = vectorizer.transform([objective])
     obj_q = quantum_text_score(objective) if "quantum" in methods else 0.0
+    jaccard_vectorizer = CountVectorizer(binary=True).fit(corpus) if "jaccard" in methods else None
+    obj_bin = jaccard_vectorizer.transform([objective]) if jaccard_vectorizer else None
 
     # Visual processing indicators: progress bar, ETC, timeout, status updates
     scores: List[Tuple[int, float]] = []
@@ -126,6 +138,14 @@ def compute_similarity_scores(
                 cand_q = quantum_text_score(text)
                 qsim = 1.0 - abs(cand_q - obj_q)
                 score += weights[methods.index("quantum")] * qsim
+            if "jaccard" in methods and jaccard_vectorizer is not None and obj_bin is not None:
+                cand_bin = jaccard_vectorizer.transform([text])
+                obj_arr = obj_bin.toarray()[0]
+                cand_arr = cand_bin.toarray()[0]
+                intersect = (obj_arr & cand_arr).sum()
+                union = (obj_arr | cand_arr).sum()
+                jscore = float(intersect) / float(union) if union else 0.0
+                score += weights[methods.index("jaccard")] * jscore
             scores.append((tid, score))
             with sqlite3.connect(analytics_db) as conn:
                 conn.execute(

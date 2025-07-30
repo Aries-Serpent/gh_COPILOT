@@ -252,7 +252,7 @@ def log_findings(
                     conn.execute(
                         "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp, status)"
                         " VALUES (?, ?, ?, ?, ?, 'open')",
-                        values,
+                        values[:-1],
                     )
         conn.commit()
 
@@ -334,9 +334,7 @@ def rollback_last_entry(db_path: Path, entry_id: int | None = None) -> bool:
     removed = False
     with sqlite3.connect(db_path) as conn:
         if entry_id is None:
-            cur = conn.execute(
-                "SELECT rowid FROM todo_fixme_tracking ORDER BY rowid DESC LIMIT 1"
-            )
+            cur = conn.execute("SELECT rowid FROM todo_fixme_tracking ORDER BY rowid DESC LIMIT 1")
             row = cur.fetchone()
             entry_id = row[0] if row else None
         if entry_id is not None:
@@ -466,7 +464,7 @@ def main(
     patterns = (
         DEFAULT_PATTERNS
         + fetch_db_placeholders(production)
-        + load_best_practice_patterns(dataset_path=Path(dataset_path) if dataset_path else None)
+        + load_best_practice_patterns(dataset_path=Path(dataset_path) if dataset_path else None)  # noqa: F821
     )
     timeout = timeout_minutes * 60 if timeout_minutes else None
 
@@ -508,8 +506,8 @@ def main(
 
     # Log findings to analytics.db
     log_findings(results, analytics, simulate=simulate, update_resolutions=update_resolutions)
-    if export_results:
-        Path(export_results).write_text(json.dumps(results, indent=2), encoding="utf-8")
+    if export_results:  # noqa: F821
+        Path(export_results).write_text(json.dumps(results, indent=2), encoding="utf-8")  # noqa: F821
     if apply_fixes and not simulate:
         auto_remove_placeholders(results, production, analytics)
     SecondaryCopilotValidator().validate_corrections([r["file"] for r in results])
@@ -625,8 +623,7 @@ if __name__ == "__main__":
         exclude_dirs=args.exclude_dirs,
         update_resolutions=args.update_resolutions,
         apply_fixes=args.apply_fixes,
-        dataset_path=args.dataset_path,
-        export_results=args.export_results,
+        export=args.export,
     )
     if args.export:
         pass

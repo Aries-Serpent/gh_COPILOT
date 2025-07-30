@@ -1,10 +1,8 @@
 """Database utilities for gh_COPILOT Enterprise Toolkit"""
 
-import os
 import sqlite3
 import logging
 from contextlib import contextmanager
-from pathlib import Path
 from typing import Iterator, Optional
 
 from utils.cross_platform_paths import CrossPlatformPathManager
@@ -16,8 +14,8 @@ logger = logging.getLogger(__name__)
 @contextmanager
 def get_enterprise_database_connection(db_name: str = "production.db") -> Iterator[sqlite3.Connection]:
     """Get enterprise database connection with proper handling"""
-    workspace = os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
-    db_path = Path(workspace) / "databases" / db_name
+    workspace = CrossPlatformPathManager.get_workspace_path()
+    db_path = workspace / "databases" / db_name
 
     conn = None
     try:

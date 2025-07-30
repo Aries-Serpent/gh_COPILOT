@@ -58,6 +58,14 @@ def test_validate_path(tmp_path, monkeypatch):
     bk = tmp_path / "bk"
     ws.mkdir()
     bk.mkdir()
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_workspace_path",
+        lambda: ws,
+    )
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_backup_root",
+        lambda: bk,
+    )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(ws))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(bk))
     inside = ws / "a.txt"
@@ -75,6 +83,14 @@ def test_operations_validate_workspace(tmp_path, monkeypatch, capsys):
     bk.mkdir()
     for name in ["databases", "scripts", "utils", "documentation"]:
         (ws / name).mkdir()
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_workspace_path",
+        lambda: ws,
+    )
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_backup_root",
+        lambda: bk,
+    )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(ws))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(bk))
     operations_validate_workspace()
@@ -87,6 +103,14 @@ def test_validate_enterprise_environment_accepts_external_path(tmp_path, monkeyp
     bk = tmp_path / "backups"
     ws.mkdir()
     bk.mkdir()
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_workspace_path",
+        lambda: ws,
+    )
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_backup_root",
+        lambda: bk,
+    )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(ws))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(bk))
     assert validate_enterprise_environment()
@@ -97,6 +121,14 @@ def test_validate_enterprise_environment_rejects_workspace_path(tmp_path, monkey
     bk = ws / "backups"
     ws.mkdir()
     bk.mkdir()
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_workspace_path",
+        lambda: ws,
+    )
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_backup_root",
+        lambda: bk,
+    )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(ws))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(bk))
     with pytest.raises(EnvironmentError):

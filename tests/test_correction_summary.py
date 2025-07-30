@@ -24,3 +24,4 @@ def test_correction_summary_generation(tmp_path: Path, monkeypatch) -> None:
     assert summary["total_corrections"] == 1
     data = json.loads((tmp_path / "correction_summary.json").read_text())
     assert data["status"] == "complete"
+    assert isinstance(data.get("corrections"), list)
