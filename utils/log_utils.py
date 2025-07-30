@@ -198,7 +198,7 @@ def _log_event(
     fallback_file: Optional[Path] = None,
     echo: bool = False,
     level: int = logging.INFO,
-    test_mode: bool = True,  # Always True: never actually writes, only simulates
+    test_mode: Optional[bool] = None,
 ) -> bool:
     """Log a structured event in a consistent format.
 
@@ -217,36 +217,44 @@ def _log_event(
     level:
         Logging level used for the echo output.
     test_mode:
-        When ``True`` no database writes occur; the function only simulates the
-        operation.
+        Override for enabling/disabling database writes. When ``None`` the value
+        is read from ``GH_COPILOT_TEST_MODE`` (default ``"1"``).
 
     Returns
     -------
     bool
         ``True`` when the analytics database could be created at ``db_path``.
     """
+    if test_mode is None:
+        test_mode = os.environ.get("GH_COPILOT_TEST_MODE", "1") == "1"
+
     payload = dict(event)
-    if "timestamp" not in payload:
-        payload["timestamp"] = datetime.utcnow().isoformat()
+    payload.setdefault("timestamp", datetime.utcnow().isoformat())
+    payload.setdefault("module", payload.get("module", __name__))
+    payload.setdefault("level", logging.getLevelName(level))
 
     test_result = _can_create_analytics_db(db_path)
     start_ts = time.time()
     with tqdm(total=1, desc="log", unit="evt", leave=False) as bar:
         if test_result:
+            ensure_tables(db_path, [table], test_mode=test_mode)
             insert_event(payload, table, db_path=db_path, test_mode=test_mode)
             bar.set_postfix_str("written" if not test_mode else "simulated")
         else:
             tqdm.write(f"[FAIL] analytics.db could NOT be created at: {db_path}")
+            if fallback_file:
+                _setup_file_logger(fallback_file, level=level).info(json.dumps(payload))
             bar.set_postfix_str("ERROR")
         bar.update(1)
     duration = time.time() - start_ts
     logger = logging.getLogger(__name__)
+    status = "SIMULATED" if test_mode else "LOGGED"
     logger.info(
-        "Simulated analytics.db log event: %s | %.2fs | allowed: %s", json.dumps(payload), duration, test_result
+        "analytics.db log event: %s | %.2fs | allowed: %s", json.dumps(payload), duration, test_result
     )
     if echo:
         print(
-            f"[LOG][{payload['timestamp']}][{table}][SIMULATED] {json.dumps(payload)}",
+            f"[LOG][{payload['timestamp']}][{table}][{status}] {json.dumps(payload)}",
             file=sys.stderr if level >= logging.ERROR else sys.stdout,
         )
     return test_result
@@ -369,6 +377,29 @@ def stream_events(table: str = DEFAULT_LOG_TABLE, *, db_path: Path = DEFAULT_ANA
             yield f"data: {json.dumps(dict(row))}\n\n"
 
 
+def log_stream(
+    table: str = DEFAULT_LOG_TABLE,
+    *,
+    db_path: Path = DEFAULT_ANALYTICS_DB,
+    poll_interval: float = 1.0,
+) -> Iterable[str]:
+    """Continuously yield events as Server-Sent Event strings."""
+    last_id = 0
+    while True:
+        if not db_path.exists():
+            time.sleep(poll_interval)
+            continue
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                f"SELECT * FROM {table} WHERE id > ? ORDER BY id ASC", (last_id,)
+            )
+            for row in rows:
+                last_id = row["id"]
+                yield f"data: {json.dumps(dict(row))}\n\n"
+        time.sleep(poll_interval)
+
+
 def _list_events(
     table: str = DEFAULT_LOG_TABLE, db_path: Path = DEFAULT_ANALYTICS_DB, limit: int = 100, order: str = "DESC"
 ) -> list:
@@ -411,6 +442,7 @@ __all__ = [
     "log_message",
     "log_event",
     "stream_events",
+    "log_stream",
     "_log_event",
     "_log_audit_event",
 ]

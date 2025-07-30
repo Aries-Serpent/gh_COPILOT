@@ -1,9 +1,11 @@
+import os
 import sqlite3
 
 from utils.log_utils import _log_event
 
 
-def test_log_event_multiple_tables(tmp_path):
+def test_log_event_multiple_tables(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_TEST_MODE", "1")
     db_dir = tmp_path / "databases"
     db_dir.mkdir()
     db = db_dir / "analytics.db"
