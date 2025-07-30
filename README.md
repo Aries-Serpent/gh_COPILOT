@@ -699,7 +699,7 @@ validate_enterprise_standards(final_result)
 bash setup.sh
 source .venv/bin/activate
 
-# Install test dependencies
+# Install test dependencies (includes ruff for linting)
 pip install -r requirements-test.txt
 
 # Run comprehensive test suite

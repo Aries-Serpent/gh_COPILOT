@@ -139,23 +139,11 @@ class EnterpriseFlake8Corrector(BaseCorrector):
                 )
                 with sqlite3.connect(self.analytics_db) as conn:
                     conn.execute(
-                        """CREATE TABLE IF NOT EXISTS correction_logs (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            file_path TEXT,
-                            compliance_score REAL,
-                            ts TEXT
-                        )"""
-                    )
-                    conn.execute(
                         """CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
                             file_path TEXT,
                             resolved INTEGER,
                             resolved_timestamp TEXT
                         )"""
-                    )
-                    conn.execute(
-                        "INSERT INTO correction_logs (file_path, compliance_score, ts) VALUES (?, ?, ?)",
-                        (file_path, score, datetime.utcnow().isoformat()),
                     )
                     conn.execute(
                         "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=? WHERE file_path=? AND resolved=0",

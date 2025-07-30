@@ -13,11 +13,10 @@ def test_correction_summary_generation(tmp_path: Path, monkeypatch) -> None:
     with sqlite3.connect(analytics) as conn:
         conn.execute(
             (
-                "CREATE TABLE corrections (file_path TEXT, rationale TEXT, "
-                "compliance_score REAL, rollback_reference TEXT, ts TEXT)"
+                "CREATE TABLE correction_logs (file_path TEXT, compliance_score REAL, ts TEXT)"
             )
         )
-        conn.execute("INSERT INTO corrections VALUES ('f.py','fix',1.0,'b.bak','2025-01-01')")
+        conn.execute("INSERT INTO correction_logs VALUES ('f.py',1.0,'2025-01-01')")
     monkeypatch.setattr("scripts.correction_logger_and_rollback.DASHBOARD_DIR", tmp_path)
     monkeypatch.setattr(clr, "validate_enterprise_operation", lambda *a, **k: None)
     log = CorrectionLoggerRollback(analytics)

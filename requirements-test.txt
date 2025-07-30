@@ -11,3 +11,4 @@ qiskit-machine-learning>=0.6.0
 dill>=0.3.7
 py7zr
 schedule
+ruff

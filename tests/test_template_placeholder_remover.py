@@ -49,4 +49,17 @@ def test_remove_unused_placeholders(tmp_path: Path) -> None:
     end_time = datetime.now()
     duration = (end_time - start_time).total_seconds()
     print(f"TEST COMPLETED: test_remove_unused_placeholders in {duration:.2f}s")
+
+
+def test_no_placeholders_returns_same(tmp_path: Path) -> None:
+    prod = tmp_path / "production.db"
+    analytics = tmp_path / "analytics.db"
+    with sqlite3.connect(prod) as conn:
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("INSERT INTO code_templates VALUES (1, 'def foo(): pass')")
+        conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT)")
+    code = "def foo(): pass"
+    result = remove_unused_placeholders(code, prod, analytics, timeout_minutes=1)
+    assert result == code
+    assert validate_removals(0, analytics)
     
