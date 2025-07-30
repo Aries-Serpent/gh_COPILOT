@@ -20,7 +20,7 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 from tqdm import tqdm
 
@@ -121,13 +121,26 @@ class CrossReferenceValidator:
 
     def _deep_cross_link(self, actions: List[Dict]) -> None:
         """Perform additional cross-linking between docs and code."""
-        docs_dir = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app")) / "docs"
+        workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
+        docs_dirs = [workspace / "docs", workspace / "documentation"]
+        code_dir = workspace
+        for d in docs_dirs + [code_dir]:
+            validate_enterprise_operation(str(d))
         for act in actions:
-            related = docs_dir.rglob(Path(act["file_path"]).name)
-            for doc in related:
-                entry = {"file": act["file_path"], "doc": str(doc)}
+            file_name = Path(act["file_path"]).name
+            related_paths: Set[Path] = set()
+            for d in docs_dirs:
+                related_paths.update(d.rglob(file_name))
+            related_paths.update(code_dir.rglob(file_name))
+            for path in sorted(related_paths):
+                entry = {"file_path": act["file_path"], "linked_path": str(path)}
                 self.cross_link_log.append(entry)
-                _log_event({"event": "cross_link", **entry}, db_path=self.analytics_db)
+                _log_event(
+                    entry,
+                    table="cross_link_events",
+                    db_path=self.analytics_db,
+                    test_mode=False,
+                )
 
     def _update_dashboard(self, actions: List[Dict]) -> None:
         """Update dashboard/compliance with cross-reference summary."""
@@ -143,6 +156,15 @@ class CrossReferenceValidator:
         summary_file = self.dashboard_dir / "cross_reference_summary.json"
         summary_file.write_text(json.dumps(summary, indent=2), encoding="utf-8")
         logging.info(f"Dashboard cross-reference summary updated: {summary_file}")
+        _log_event(
+            {
+                "actions": len(actions),
+                "links": len(self.cross_link_log),
+            },
+            table="cross_link_summary",
+            db_path=self.analytics_db,
+            test_mode=False,
+        )
 
     def validate(self, timeout_minutes: int = 30) -> bool:
         """
