@@ -5,6 +5,14 @@ from tools import automation_setup
 
 
 def test_ingest_assets(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_workspace_path",
+        lambda: tmp_path,
+    )
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_backup_root",
+        lambda: tmp_path.parent / "backups",
+    )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path.parent / "backups"))
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")

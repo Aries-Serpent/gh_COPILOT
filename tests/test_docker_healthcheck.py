@@ -1,12 +1,15 @@
-import os
-import subprocess
-import sys
-from pathlib import Path
-
 import scripts.docker_healthcheck as dhc
 
 
 def test_healthcheck_success(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_workspace_path",
+        lambda: tmp_path,
+    )
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_backup_root",
+        lambda: tmp_path / "backup",
+    )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backup"))
 
