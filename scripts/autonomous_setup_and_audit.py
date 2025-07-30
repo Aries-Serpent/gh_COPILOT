@@ -161,6 +161,10 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                 bar.update(1)
             conn.commit()
         log_sync_operation(db_path, "template_ingestion", start_time=start_tmpl)
+        from scripts.database.ingestion_validator import IngestionValidator
+        validator = IngestionValidator(doc_path.parent, db_path, analytics_db)
+        if not validator.validate():
+            raise RuntimeError("Asset ingestion validation failed")
     except Exception:
         conn.rollback()
         raise
