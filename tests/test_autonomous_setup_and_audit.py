@@ -48,6 +48,37 @@ def test_ingest_assets_populates_db(tmp_path: Path, monkeypatch) -> None:
     assert any("compliance_score" in e for e in events)
 
 
+def test_ingest_assets_collects_multiple_types(tmp_path: Path, monkeypatch) -> None:
+    """Verify ingestion of .md, .txt, .json, and .sql files."""
+
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backups"))
+    monkeypatch.chdir(tmp_path)
+
+    docs_dir = tmp_path / "documentation"
+    docs_dir.mkdir()
+    templates_dir = tmp_path / "templates"
+    templates_dir.mkdir()
+
+    extensions = [".md", ".txt", ".json", ".sql"]
+    for ext in extensions:
+        (docs_dir / f"doc{ext}").write_text("content")
+        (templates_dir / f"template{ext}").write_text("content")
+
+    db_path = tmp_path / "production.db"
+    initialize_database(db_path)
+
+    ingest_assets(docs_dir, templates_dir, db_path)
+
+    with sqlite3.connect(db_path) as conn:
+        doc_count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
+        tmpl_count = conn.execute("SELECT COUNT(*) FROM template_assets").fetchone()[0]
+
+    assert doc_count == len(extensions)
+    assert tmpl_count == len(extensions)
+
+
 def test_ingest_assets_transaction_rollback(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
