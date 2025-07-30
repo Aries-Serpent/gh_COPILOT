@@ -158,6 +158,24 @@ class EnterpriseFlake8Corrector(BaseCorrector):
                         file_path,
                     )
                     return False
+                # secondary validation with ruff linting
+                lint_res = subprocess.run([
+                    "ruff",
+                    str(tmp_path),
+                ], capture_output=True, text=True)
+                if lint_res.returncode != 0:
+                    _log_event(
+                        {
+                            "event": "discrepancy",
+                            "file": file_path,
+                            "details": lint_res.stdout.strip(),
+                        },
+                        table="correction_logs",
+                        db_path=self.analytics_db,
+                        test_mode=False,
+                    )
+                    tmp_path.unlink(missing_ok=True)
+                    return False
 
                 score = _compliance_score(updated)
                 self.logger.info(
