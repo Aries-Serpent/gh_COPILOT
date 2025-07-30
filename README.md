@@ -17,7 +17,7 @@
 The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. **Many features remain experimental or stubbed; quantum functionality is simulated only and several modules are still incomplete.**
 
 > **Note**
-> Quantum functions remain in **simulation mode** until hardware integration is complete. Install `qiskit-ibm-provider` and set `QISKIT_IBM_TOKEN` to enable real IBM Quantum backends when available.
+> Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends.
 
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** initial implementation in progress
@@ -32,7 +32,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
-  optimizer and search helpers.
+  optimizer and search helpers. These modules are **experimental** and default to simulation mode unless `QISKIT_IBM_TOKEN` is configured.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1679 scripts synchronized
@@ -234,8 +234,7 @@ By default the orchestrator uses the simulator. To execute algorithms on IBM Qua
 python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
-If the provider cannot be initialized the orchestrator automatically falls back
-to simulation.
+Set `QISKIT_IBM_TOKEN` to your IBM Quantum API token for hardware execution. If the provider cannot be initialized the orchestrator automatically falls back to simulation.
 
 ### Run Template Matcher
 ```bash
