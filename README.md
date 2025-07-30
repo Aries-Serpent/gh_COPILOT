@@ -52,9 +52,10 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Autonomous File Management:** see [Using AutonomousFileManager](docs/USING_AUTONOMOUS_FILE_MANAGER.md)
 - **Continuous Operation Mode:** optional monitoring utilities
 - **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
-  `scripts/monitoring/enterprise_compliance_monitor.py`, and
-  `scripts/monitoring/unified_monitoring_optimization_system.py`.
-  See [monitoring/README.md](monitoring/README.md) for details.
+    `scripts/monitoring/enterprise_compliance_monitor.py`, and
+    `scripts/monitoring/unified_monitoring_optimization_system.py`.
+    *(Experimental – not fully implemented)*
+    See [monitoring/README.md](monitoring/README.md) for details.
 
 ### **Learning Pattern Integration**
 - **Database-First Logic:** Production.db is consulted before generating output
@@ -956,6 +957,32 @@ and finalizes the run with a compliance score. Each run inserts a record into th
 `unified_wrapup_sessions` table with `session_id`, timestamps, status, compliance
 score, and optional error details. Detailed usage instructions are available in
 [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
+
+---
+
+## 🔧 Environment Variables
+
+Set these variables in your `.env` file or shell before running scripts:
+
+- `GH_COPILOT_WORKSPACE` – path to the repository root.
+- `GH_COPILOT_BACKUP_ROOT` – external backup directory.
+- `API_SECRET_KEY` – secret key for API endpoints.
+- `OPENAI_API_KEY` – enables optional OpenAI features.
+- `FLASK_SECRET_KEY` – Flask dashboard secret.
+- `FLASK_RUN_PORT` – dashboard port (default `5000`).
+- `QISKIT_IBM_TOKEN` – optional IBM Quantum token.
+- `LOG_WEBSOCKET_ENABLED` – set to `1` to stream logs.
+
+## 🛠️ Troubleshooting
+
+- **Setup script fails** – ensure network access and rerun `bash setup.sh`.
+- **`clw` not found** – copy `tools/clw.py` to `/usr/local/bin/clw` and make it executable.
+- **Database errors** – verify `GH_COPILOT_WORKSPACE` is configured correctly.
+
+## ❗ Known Issues
+
+- Quantum monitoring scripts are experimental.
+- `DBFirstCodeGenerator`, `documentation_db_analyzer`, and `workflow_enhancer` remain under development.
 
 ---
 
