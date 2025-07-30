@@ -7,8 +7,7 @@ import zipfile
 from datetime import datetime, timezone
 from pathlib import Path, PureWindowsPath
 
-from enterprise_modules.compliance import \
-    validate_enterprise_operation
+from enterprise_modules.compliance import validate_enterprise_operation
 
 logger = logging.getLogger(__name__)
 

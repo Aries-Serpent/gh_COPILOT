@@ -47,7 +47,7 @@ from tqdm import tqdm
 from utils.cross_platform_paths import CrossPlatformPathManager
 from enterprise_modules.compliance import validate_enterprise_operation
 
-# 🚨 CRITICAL: Anti-recursion validation now handled in enterprise_modules.compliance
+# 🚨 CRITICAL: Anti-recursion validation
 
 
 # Validate environment compliance before proceeding
