@@ -63,7 +63,7 @@ logger = logging.getLogger(__name__)
 
 
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
     forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
