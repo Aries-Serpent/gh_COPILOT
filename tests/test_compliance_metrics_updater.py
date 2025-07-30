@@ -44,4 +44,4 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch):
     assert data["metrics"]["violation_count"] == 1
     assert data["metrics"]["rollback_count"] == 1
     assert data["metrics"]["progress_status"] == "issues_pending"
-
+    assert 0.0 <= data["metrics"]["progress"] <= 1.0

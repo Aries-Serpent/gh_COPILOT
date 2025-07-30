@@ -132,7 +132,12 @@ class ComplianceMetricsUpdater:
                     metrics["rollback_count"] = 0
             except Exception as e:
                 logging.error(f"Error fetching metrics: {e}")
-        if metrics["violation_count"] or metrics["rollback_count"]:
+        total_ph = metrics["resolved_placeholders"] + metrics["open_placeholders"]
+        if total_ph:
+            metrics["progress"] = metrics["resolved_placeholders"] / float(total_ph)
+        else:
+            metrics["progress"] = 1.0
+        if metrics["violation_count"] or metrics["rollback_count"] or metrics["open_placeholders"]:
             metrics["progress_status"] = "issues_pending"
         else:
             metrics["progress_status"] = "complete"
