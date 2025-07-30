@@ -143,8 +143,94 @@ class ImportOrderCorrector(EnterpriseFlake8Corrector):
             return False
 
 
+class LineLengthCorrector(EnterpriseFlake8Corrector):
+    """Fix E501 line length violations."""
+
+    def correct_file(self, file_path: str) -> bool:
+        try:
+            path = Path(file_path)
+            lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+            updated_lines = []
+            changed = False
+            for line in lines:
+                stripped = line.rstrip("\n")
+                if len(stripped) > 79:
+                    updated_lines.append(stripped[:79] + "\n" + stripped[79:] + "\n")
+                    changed = True
+                else:
+                    updated_lines.append(line)
+            if changed:
+                path.write_text("".join(updated_lines), encoding="utf-8")
+                self.logger.info("Fixed line length in %s", file_path)
+            return changed
+        except Exception as exc:  # pragma: no cover - unexpected
+            self.logger.error("Line length correction failed: %s", exc)
+            return False
+
+
+class IndentationCorrector(EnterpriseFlake8Corrector):
+    """Correct indentation issues (E11x/E12x)."""
+
+    def correct_file(self, file_path: str) -> bool:
+        try:
+            path = Path(file_path)
+            lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+            updated_lines = []
+            changed = False
+            for i, line in enumerate(lines):
+                if i > 0 and line.strip() and not line.startswith(" "):
+                    updated_lines.append("    " + line)
+                    changed = True
+                else:
+                    updated_lines.append(line)
+            if changed:
+                path.write_text("".join(updated_lines), encoding="utf-8")
+                self.logger.info("Fixed indentation in %s", file_path)
+            return changed
+        except Exception as exc:  # pragma: no cover - unexpected
+            self.logger.error("Indentation correction failed: %s", exc)
+            return False
+
+
+class ComplexityCorrector(EnterpriseFlake8Corrector):
+    """Mark files that exceed complexity limits (C901)."""
+
+    def correct_file(self, file_path: str) -> bool:
+        try:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "flake8",
+                    "--select",
+                    "C90",
+                    "--max-complexity",
+                    "10",
+                    file_path,
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if not result.stdout:
+                return False
+
+            original = Path(file_path).read_text(encoding="utf-8")
+            Path(file_path).write_text(
+                "# TODO: reduce complexity\n" + original,
+                encoding="utf-8",
+            )
+            self.logger.info("Marked complexity in %s", file_path)
+            return True
+        except Exception as exc:  # pragma: no cover - unexpected
+            self.logger.error("Complexity correction failed: %s", exc)
+            return False
+
 __all__ = [
     "EnterpriseFlake8Corrector",
     "WhitespaceCorrector",
     "ImportOrderCorrector",
+    "LineLengthCorrector",
+    "IndentationCorrector",
+    "ComplexityCorrector",
 ]
