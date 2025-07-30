@@ -31,11 +31,18 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
         conn.execute("INSERT INTO rollback_logs (target, backup, timestamp) VALUES ('t','b','ts')")
 
     dashboard_dir = tmp_path / "dashboard"
-    updater = module.ComplianceMetricsUpdater(dashboard_dir, test_mode=test_mode)
-    monkeypatch.setattr(updater, "_check_forbidden_operations", lambda: None)
-    updater.update(simulate=simulate)
-    if not simulate:
-        assert updater.validate_update()
+    updater = module.ComplianceMetricsUpdater(dashboard_dir)
+    updater.update()
+    assert updater.validate_update()
+
+    log_dir = tmp_path / "logs" / "dashboard"
+    log_files = list(log_dir.glob("compliance_update_*.log"))
+    assert log_files and log_files[0].stat().st_size > 0
+
+    assert "violation_logs" in events
+    assert "rollback_logs" in events
+    assert "correction_logs" in events
+
     metrics_file = dashboard_dir / "metrics.json"
     if simulate:
         assert not metrics_file.exists()
