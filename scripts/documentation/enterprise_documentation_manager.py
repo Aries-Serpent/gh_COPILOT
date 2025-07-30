@@ -50,12 +50,12 @@ class EnterpriseDocumentationManager:
         self.generator = TemplateAutoGenerator(analytics_db, completion_db)
 
     # ------------------------------------------------------------------
-    def query_documentation(self, doc_type: str) -> list[tuple[str, str]]:
-        """Return ``doc_id`` and ``content`` for the given ``doc_type``."""
+    def query_documentation(self, doc_type: str) -> list[tuple[str, str, str | None]]:
+        """Return ``doc_id``, ``content`` and ``source_path`` for the given ``doc_type``."""
         if not self.db_path.exists():
             self.logger.error(f"{TEXT_INDICATORS['error']} Missing database {self.db_path}")
             return []
-        query = "SELECT doc_id, content FROM enterprise_documentation WHERE doc_type=?"
+        query = "SELECT doc_id, content, source_path FROM enterprise_documentation WHERE doc_type=?"
         with sqlite3.connect(self.db_path) as conn:
             return conn.execute(query, (doc_type,)).fetchall()
 
@@ -98,7 +98,7 @@ class EnterpriseDocumentationManager:
             )
             with tqdm(total=len(docs), desc=f"{TEXT_INDICATORS['progress']} docs", unit="doc") as bar:
                 cross_links = 0
-                for doc_id, content in docs:
+                for doc_id, content, source in docs:
                     base_text = template.replace("{content}", content) if template else content
                     score = self.calculate_compliance(base_text)
                     _log_event(
@@ -122,7 +122,15 @@ class EnterpriseDocumentationManager:
                         links_text = " | ".join(p.name for p in links)
                         comp_link = f"analytics://correction_logs/{doc_id}"
                         audit_link = f"analytics://audit_log/{doc_id}"
-                        body = f"Compliance Log: {comp_link}\nAudit Record: {audit_link}\nLinked: {links_text}\n\n{base_text}"
+                        code_link = f"code://{source}" if source else "code://"
+                        audit_record_link = f"logs://audit_logs/{doc_id}"
+                        body = (
+                            f"Code Path: {code_link}\n"
+                            f"Compliance Log: {comp_link}\n"
+                            f"Audit Record: {audit_link}\n"
+                            f"Audit Log: {audit_record_link}\n"
+                            f"Linked: {links_text}\n\n{base_text}"
+                        )
                         if fmt == "html":
                             html_body = body.replace("\n", "<br>")
                             text = f"<html><body>{html_body}</body></html>"
