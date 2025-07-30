@@ -1,6 +1,4 @@
-import os
 import sqlite3
-from pathlib import Path
 
 import scripts.placeholder_cleanup as pc
 
@@ -18,7 +16,7 @@ def test_placeholder_cleanup_workflow(tmp_path, monkeypatch):
     with sqlite3.connect(prod) as conn:
         conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT)")
         conn.execute("INSERT INTO template_placeholders VALUES ('VALID')")
-    pc.main(workspace, analytics, prod, dash)
+    pc.run(workspace, analytics, prod, dash, cleanup=True)
 
     cleaned = target.read_text()
     assert "TODO" not in cleaned

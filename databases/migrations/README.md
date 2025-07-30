@@ -9,6 +9,8 @@
 - `add_violation_logs.sql`: Adds `violation_logs` table for compliance issues.
 - `add_rollback_logs.sql`: Adds `rollback_logs` table recording restorations.
 - `add_corrections.sql`: Adds `corrections` table used for compliance metrics.
+- `add_unified_wrapup_sessions.sql`: Adds `unified_wrapup_sessions` table used
+  by wrap-up orchestrators.
 - `extend_todo_fixme_tracking.sql`: Adds `status` and `removal_id` columns linking to `placeholder_removals`.
 
 ## Applying Migrations
@@ -20,6 +22,7 @@ sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_corrections.sql
+sqlite3 databases/analytics.db < databases/migrations/add_unified_wrapup_sessions.sql
 sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
 sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
 ```
