@@ -27,11 +27,24 @@ def test_auto_generator_cluster_representatives(tmp_path: Path, monkeypatch) -> 
     analytics_db, completion_db = create_test_dbs(tmp_path)
     generator = TemplateAutoGenerator(analytics_db, completion_db)
     reps = generator.get_cluster_representatives()
+    allowed = set(generator.templates + generator.patterns + generator._load_production_patterns())
     assert len(reps) == generator.cluster_model.n_clusters
-    assert all(r in generator.templates or r in generator.patterns for r in reps)
+    assert all(r in allowed for r in reps)
 
 
 def test_pattern_templates_loaded(tmp_path: Path) -> None:
     analytics_db, completion_db = create_test_dbs(tmp_path)
     generator = TemplateAutoGenerator(analytics_db, completion_db)
     assert any("DatabaseFirstOperator" in t for t in generator.templates)
+
+
+def test_cluster_rep_no_dimension_error(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    prod_db = tmp_path / "production.db"
+    with sqlite3.connect(prod_db) as conn:
+        conn.execute("CREATE TABLE script_template_patterns (template_content TEXT)")
+        conn.execute("INSERT INTO script_template_patterns VALUES ('extra pattern')")
+    gen = TemplateAutoGenerator(analytics_db, completion_db, production_db=prod_db)
+    reps = gen.get_cluster_representatives()
+    assert len(reps) == gen.cluster_model.n_clusters

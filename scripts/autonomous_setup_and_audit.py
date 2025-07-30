@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import sqlite3
+import hashlib
 from pathlib import Path
 from typing import Optional
 
@@ -41,7 +42,6 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
     """
     LOGGER.info("Ingesting assets from %s and %s", doc_path, template_path)
 
-    import hashlib
     from datetime import datetime, timezone
 
     from scripts.database.cross_database_sync_logger import log_sync_operation
