@@ -284,14 +284,19 @@ Build and run the container with Docker:
 
 ```bash
 docker build -t gh_copilot .
-docker run -p 5000:5000 -e GH_COPILOT_BACKUP_ROOT=/path/to/backups gh_copilot
+docker run -p 5000:5000 \
+  -e GH_COPILOT_BACKUP_ROOT=/path/to/backups \
+  -e FLASK_SECRET_KEY=supersecret \
+  gh_copilot
 ```
 
 Inside the image `GH_COPILOT_BACKUP_ROOT` defaults to `/backup`. Map this path to a host directory to persist logs and backups.
 
 When launching with Docker Compose, the provided `docker-compose.yml` mounts `${GH_COPILOT_BACKUP_ROOT:-/backup}` at `/backup`. Set `GH_COPILOT_BACKUP_ROOT` on the host before running `docker-compose up` so backups survive container restarts.
 
-The container's `entrypoint.sh` now initializes `analytics.db` automatically before starting the dashboard service, so no manual step is required.
+The image copies `.env.example` to `.env` during build. Override `FLASK_SECRET_KEY` and `GH_COPILOT_BACKUP_ROOT` at runtime as shown above.
+
+The container launches via `docker_wrapper.sh` which validates environment variables and starts the dashboard, metrics updater, and placeholder audits in the background. Databases are initialized during the build step, so no manual setup is required.
 
 ### Wrapping, Logging, and Compliance (WLC)
 Run the session manager after setting the workspace and backup paths:
