@@ -17,29 +17,25 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch):
     db_dir.mkdir()
     analytics_db = db_dir / "analytics.db"
     with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)"
-        )
+        conn.execute("CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)")
         conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved', 1)")
         conn.execute("CREATE TABLE correction_logs (compliance_score REAL)")
         conn.execute("INSERT INTO correction_logs VALUES (0.9)")
-        conn.execute(
-            "CREATE TABLE violation_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, details TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO violation_logs (timestamp, details) VALUES ('ts', 'd')"
-        )
+        conn.execute("CREATE TABLE violation_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, details TEXT)")
+        conn.execute("INSERT INTO violation_logs (timestamp, details) VALUES ('ts', 'd')")
         conn.execute(
             "CREATE TABLE rollback_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, target TEXT, backup TEXT, timestamp TEXT)"
         )
-        conn.execute(
-            "INSERT INTO rollback_logs (target, backup, timestamp) VALUES ('t','b','ts')"
-        )
+        conn.execute("INSERT INTO rollback_logs (target, backup, timestamp) VALUES ('t','b','ts')")
 
     dashboard_dir = tmp_path / "dashboard"
     updater = module.ComplianceMetricsUpdater(dashboard_dir)
     updater.update()
     assert updater.validate_update()
+
+    log_dir = tmp_path / "logs" / "dashboard"
+    log_files = list(log_dir.glob("compliance_update_*.log"))
+    assert log_files and log_files[0].stat().st_size > 0
 
     assert "violation_logs" in events
     assert "rollback_logs" in events
