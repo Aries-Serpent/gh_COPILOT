@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.1.10] - 2025-08-01
+- Updated `STUB_MODULE_STATUS.md` to mark `DBFirstCodeGenerator`,
+  `documentation_db_analyzer`, and `workflow_enhancer` as incomplete.
+- Clarified failing tests in README with explicit module references.
+- Documented full test suite execution in CI configuration.
+
 ## [4.1.8] - 2025-07-30
 - Added documentation update workflow instructions
 - Clarified that quantum modules operate in simulation mode only

@@ -8,7 +8,7 @@
 
 **Status:** Active development with incremental improvements
 
-> **Limitations:** The project is under heavy development. Some tests fail and several modules are only partially implemented.
+> **Limitations:** The project is under heavy development. Some modules remain incomplete (see `docs/STUB_MODULE_STATUS.md`), including `DBFirstCodeGenerator`, `documentation_db_analyzer`, and `workflow_enhancer`. These gaps cause a portion of the test suite to fail.
 
 ---
 
@@ -787,7 +787,7 @@ source .venv/bin/activate
 pip install -r requirements-test.txt
 
 # Run comprehensive test suite
-make test
+make test  # runs `pytest tests`
 
 # Run linter
 ruff format .
