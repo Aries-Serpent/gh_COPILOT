@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import sys
 
 import logging
@@ -23,12 +24,7 @@ from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.visual_progress import start_indicator, progress_bar, end_indicator
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 @dataclass
@@ -64,8 +60,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 end_indicator("Script Generation Utility", start_time)
                 return True
             else:
@@ -91,6 +86,8 @@ class EnterpriseUtility:
             ``True`` if a template was generated successfully.
         """
         try:
+            start_time = start_indicator("Script Generation Utility")
+
             databases_dir = self.workspace_path / "databases"
             db_path = databases_dir / "template_documentation.db"
             generated_dir = self.workspace_path / "generated_templates"
@@ -100,9 +97,7 @@ class EnterpriseUtility:
 
             with progress_bar(total=100, desc="Script Generation", unit="%") as pbar:
                 with sqlite3.connect(db_path) as conn:
-                    cursor = conn.execute(
-                        "SELECT template_id, content FROM template_metadata"
-                    )
+                    cursor = conn.execute("SELECT template_id, content FROM template_metadata")
                     rows = cursor.fetchall()
                 pbar.update(20)
 
@@ -112,9 +107,7 @@ class EnterpriseUtility:
                 pbar.update(60)
 
                 if not rows:
-                    self.logger.error(
-                        f"{TEXT_INDICATORS['error']} No templates found in database"
-                    )
+                    self.logger.error(f"{TEXT_INDICATORS['error']} No templates found in database")
                     return False
 
                 top_placeholders = [p for p, _ in placeholder_counter.most_common(5)]
@@ -128,14 +121,10 @@ class EnterpriseUtility:
                     handle.write(synthesized_template)
                 pbar.update(20)
 
-            self.logger.info(
-                f"{TEXT_INDICATORS['success']} Generated template stored at {output_file}"
-            )
+            self.logger.info(f"{TEXT_INDICATORS['success']} Generated template stored at {output_file}")
 
             validator = DualCopilotValidator()
-            valid = validator.validate(
-                ValidationResult(output_file=output_file, progress_complete=pbar.n == 100)
-            )
+            valid = validator.validate(ValidationResult(output_file=output_file, progress_complete=pbar.n == 100))
             secondary = SecondaryCopilotValidator(self.logger)
             sec_ok = secondary.validate_corrections([str(output_file)])
             if not (valid and sec_ok):
@@ -146,9 +135,7 @@ class EnterpriseUtility:
             end_indicator("Script Generation Utility", start_time)
             return True
         except Exception as exc:  # pragma: no cover - log and propagate failure
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Generation failed: {exc}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Generation failed: {exc}")
             end_indicator("Script Generation Utility", start_time)
             return False
 
@@ -167,6 +154,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)
