@@ -122,15 +122,10 @@ class ComplianceMetricsUpdater:
                 cur.execute("SELECT COUNT(*) FROM violation_logs")
                 metrics["violation_count"] = cur.fetchone()[0]
 
-                if cur.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name='rollback_logs'"
-                ).fetchone():
-                    cur.execute(
-                        "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT 5"
-                    )
+                if cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='rollback_logs'").fetchone():
+                    cur.execute("SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT 5")
                     metrics["recent_rollbacks"] = [
-                        {"target": r[0], "backup": r[1], "timestamp": r[2]}
-                        for r in cur.fetchall()
+                        {"target": r[0], "backup": r[1], "timestamp": r[2]} for r in cur.fetchall()
                     ]
                     cur.execute("SELECT COUNT(*) FROM rollback_logs")
                     metrics["rollback_count"] = cur.fetchone()[0]
@@ -178,9 +173,7 @@ class ComplianceMetricsUpdater:
             try:
                 with sqlite3.connect(ANALYTICS_DB) as conn:
                     cur = conn.cursor()
-                    cur.execute(
-                        "SELECT details FROM violation_logs ORDER BY timestamp DESC LIMIT 5"
-                    )
+                    cur.execute("SELECT details FROM violation_logs ORDER BY timestamp DESC LIMIT 5")
                     violations = [row[0].lower() for row in cur.fetchall()]
                     if any("placeholder" in v for v in violations):
                         suggestions.append("Clean unresolved placeholders.")
@@ -214,6 +207,13 @@ class ComplianceMetricsUpdater:
     def stream_metrics(self, interval: int = 5) -> Iterable[Dict[str, Any]]:
         """Yield metrics in real-time for streaming interfaces."""
         while True:
+            try:
+                validate_no_recursive_folders()
+                self._check_forbidden_operations()
+            except Exception as exc:  # DualCopilotOrchestrator validation
+                logging.exception("Streaming validation failed: %s", exc)
+                raise
+
             metrics = self._fetch_compliance_metrics()
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
             yield metrics
