@@ -344,19 +344,39 @@ The test suite includes `tests/test_wlc_session_manager.py` to verify this behav
 ## 🗄️ DATABASE-FIRST ARCHITECTURE
 
 ### **Primary Databases**
-```python
-# Production database (16,500+ patterns)
-production.db
-├── enhanced_script_tracking     # Script patterns and templates
-├── functional_components        # System components mapping  
-├── code_templates              # Reusable code patterns
-└── solution_patterns           # Proven solution architectures
 
-# Analytics and monitoring
-analytics.db                    # Performance and usage analytics
-monitoring.db                   # Real-time system monitoring
-optimization_metrics.db         # Continuous optimization data
+The repository currently maintains **24** active SQLite databases under
+`databases/`:
+
+```text
+analytics.db
+analytics_collector.db
+autonomous_decisions.db
+capability_scaler.db
+consolidation_analysis.db
+continuous_innovation.db
+deployment_logs.db
+development.db
+documentation.db
+documentation_templates.db
+enhanced_deployment_tracking.db
+enhanced_intelligence.db
+enterprise_ml_engine.db
+flake8_violations.db
+learning_monitor.db
+logs.db
+ml_deployment_engine.db
+monitoring.db
+performance_analysis.db
+production.db
+scaling_innovation.db
+template_documentation.db
+testing.db
+v3_self_learning_engine.db
 ```
+
+The previously referenced `optimization_metrics.db` is deprecated and no longer
+included in the repository.
 
 ### Analytics Database Test Protocol
 You must never create or modify the `analytics.db` file automatically. Use the commands below for manual migrations.
