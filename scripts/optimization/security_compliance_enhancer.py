@@ -16,10 +16,16 @@ Strategy: Create enterprise-grade security compliance validation system
 
 import datetime
 import json
+import sys
+import logging
 from pathlib import Path
 from typing import Any, Dict
 
 from tqdm import tqdm
+
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+from importlib import import_module
 
 # Text-based indicators (cross-platform)
 TEXT_INDICATORS = {
@@ -32,6 +38,7 @@ TEXT_INDICATORS = {
     "validation": "[VALIDATION]",
     "completion": "[COMPLETION]",
 }
+
 
 
 class SecurityComplianceEnhancer:
@@ -474,6 +481,7 @@ class SecurityComplianceEnhancer:
         print(f"{TEXT_INDICATORS['info']} Enterprise Ready: {ready_msg}")
         print(f"{TEXT_INDICATORS['info']} Results saved to: {results_file}")
 
+        DualCopilotOrchestrator(logging.getLogger(__name__)).validator.validate_corrections([__file__])
         return self.security_results
 
 
@@ -496,8 +504,13 @@ def main():
     else:
         print("\n⚠️  PARTIAL SUCCESS: Additional security measures may be needed")
 
+    DualCopilotOrchestrator(logging.getLogger(__name__)).validator.validate_corrections([__file__])
+
     return results
 
 
 if __name__ == "__main__":
-    main()
+    pkg = import_module("scripts.optimization.security_compliance_enhancer")
+    orchestrator = DualCopilotOrchestrator()
+    success, validated = orchestrator.run(pkg.main, [pkg.__file__])
+    sys.exit(0 if success and validated else 1)

@@ -2,6 +2,9 @@
 
 This guide outlines how to extend the existing quantum module with an advanced optimization algorithm. It assumes familiarity with the repository's quantum package and the base `QuantumAlgorithmBase` class.
 
+> **Note**
+> All quantum functionality runs in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+
 ## 1. Create the Module
 1. Navigate to `quantum/algorithms/`.
 2. Create a new file named `advanced_optimization.py` that defines `AdvancedQuantumOptimizer` inheriting from `QuantumAlgorithmBase`.

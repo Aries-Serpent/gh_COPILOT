@@ -16,6 +16,9 @@
 
 The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. **Many features remain experimental or stubbed; quantum functionality is simulated only and several modules are still incomplete.**
 
+> **Note**
+> All quantum utilities operate in simulation unless `qiskit-ibm-provider` is installed and configured with `QISKIT_IBM_TOKEN`.
+
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** initial implementation in progress
 - **Database-First Architecture:** `databases/production.db` used as primary reference
@@ -33,7 +36,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1679 scripts synchronized
- - **30 Synchronized Databases**: Enterprise data management
+ - **24 Synchronized Databases**: Enterprise data management
 
 ---
 
@@ -219,8 +222,7 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 python simplified_quantum_integration_orchestrator.py
 ```
 
-To execute algorithms on IBM Quantum hardware install `qiskit-ibm-provider` and
-run:
+By default the orchestrator uses the simulator. To execute algorithms on IBM Quantum hardware install `qiskit-ibm-provider` and run:
 
 ```bash
 python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
@@ -279,6 +281,8 @@ docker run -p 5000:5000 -e GH_COPILOT_BACKUP_ROOT=/path/to/backups gh_copilot
 ```
 
 Inside the image `GH_COPILOT_BACKUP_ROOT` defaults to `/backup`. Map this path to a host directory to persist logs and backups.
+
+When launching with Docker Compose, the provided `docker-compose.yml` mounts `${GH_COPILOT_BACKUP_ROOT:-/backup}` at `/backup`. Set `GH_COPILOT_BACKUP_ROOT` on the host before running `docker-compose up` so backups survive container restarts.
 
 ### Wrapping, Logging, and Compliance (WLC)
 Run the session manager after setting the workspace and backup paths:
@@ -340,19 +344,39 @@ The test suite includes `tests/test_wlc_session_manager.py` to verify this behav
 ## 🗄️ DATABASE-FIRST ARCHITECTURE
 
 ### **Primary Databases**
-```python
-# Production database (16,500+ patterns)
-production.db
-├── enhanced_script_tracking     # Script patterns and templates
-├── functional_components        # System components mapping  
-├── code_templates              # Reusable code patterns
-└── solution_patterns           # Proven solution architectures
 
-# Analytics and monitoring
-analytics.db                    # Performance and usage analytics
-monitoring.db                   # Real-time system monitoring
-optimization_metrics.db         # Continuous optimization data
+The repository currently maintains **24** active SQLite databases under
+`databases/`:
+
+```text
+analytics.db
+analytics_collector.db
+autonomous_decisions.db
+capability_scaler.db
+consolidation_analysis.db
+continuous_innovation.db
+deployment_logs.db
+development.db
+documentation.db
+documentation_templates.db
+enhanced_deployment_tracking.db
+enhanced_intelligence.db
+enterprise_ml_engine.db
+flake8_violations.db
+learning_monitor.db
+logs.db
+ml_deployment_engine.db
+monitoring.db
+performance_analysis.db
+production.db
+scaling_innovation.db
+template_documentation.db
+testing.db
+v3_self_learning_engine.db
 ```
+
+The previously referenced `optimization_metrics.db` is deprecated and no longer
+included in the repository.
 
 ### Analytics Database Test Protocol
 You must never create or modify the `analytics.db` file automatically. Use the commands below for manual migrations.
@@ -681,7 +705,7 @@ gh_COPILOT/
 │   ├── validation/          # Enterprise validation framework
 │   ├── database/            # Database management
 │   └── automation/          # Autonomous operations
-├── databases/               # 30 synchronized databases
+├── databases/               # 24 synchronized databases
 ├── web_gui/                 # Flask enterprise dashboard
 ├── documentation/           # Comprehensive documentation
 ├── .github/instructions/    # GitHub Copilot instruction modules
@@ -760,6 +784,8 @@ make test
 # Run linter
 ruff format .
 ruff check .
+# `.flake8` is the canonical lint configuration. Update it first and mirror any
+# changes in `pyproject.toml` to keep `ruff` and `flake8` consistent.
 
 # Enterprise validation
 python -m pytest tests/enterprise/ -v

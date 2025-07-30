@@ -1,6 +1,9 @@
 # QUANTUM OPTIMIZATION OVERVIEW
 ## Enterprise-Grade PIS Framework Quantum Integration
 
+> **Note**
+> All quantum features operate in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+
 ### Executive Summary
 The PIS (Plan Issued Statement) Framework integrates quantum optimization algorithms to achieve unprecedented performance improvements in code analysis, error detection, and compliance validation. The latest update introduces the **Quantum Database Search** module for Grover-based queries.
 

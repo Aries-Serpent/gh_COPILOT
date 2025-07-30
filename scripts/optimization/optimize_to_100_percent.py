@@ -18,6 +18,10 @@ from typing import Any, Dict
 
 from tqdm import tqdm
 
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+from importlib import import_module
+
 # Text-based indicators (cross-platform)
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -29,6 +33,7 @@ TEXT_INDICATORS = {
     "validation": "[VALIDATION]",
     "completion": "[COMPLETION]",
 }
+
 
 
 def setup_logging():
@@ -842,20 +847,24 @@ def main():
                         "ENTERPRISE_READINESS_100_PERCENT_CERTIFICATE.json"
                     )
 
+                    DualCopilotOrchestrator(logging.getLogger(__name__)).validator.validate_corrections([__file__])
                     return True
                 else:
                     print(f"\n{TEXT_INDICATORS['warning']} Achievement recorded but certification had issues")
+                    DualCopilotOrchestrator(logging.getLogger(__name__)).validator.validate_corrections([__file__])
                     return False
             else:
                 print(
                     f"\n{TEXT_INDICATORS['warning']} Final Enterprise Readiness: {final_readiness:.1f}% (Target: 100%)"
                 )
+                DualCopilotOrchestrator(logging.getLogger(__name__)).validator.validate_corrections([__file__])
                 return False
         else:
             print(
                 f"\n{TEXT_INDICATORS['error']} Optimization failed: "
                 f"{optimization_results.get('error', 'Unknown error')}"
             )
+            DualCopilotOrchestrator(logging.getLogger(__name__)).validator.validate_corrections([__file__])
             return False
 
     except Exception as e:
@@ -864,6 +873,7 @@ def main():
 
 
 if __name__ == "__main__":
+    pkg = import_module("scripts.optimization.optimize_to_100_percent")
     orchestrator = DualCopilotOrchestrator()
-    success, validated = orchestrator.run(main, files=[__file__])
+    success, validated = orchestrator.run(pkg.main, [pkg.__file__])
     sys.exit(0 if success and validated else 1)

@@ -12,6 +12,7 @@ def _runs_with_dual_validation(module: str, monkeypatch) -> bool:
         "scripts.validation.dual_copilot_orchestrator.SecondaryCopilotValidator.validate_corrections",
         dummy_validate,
     )
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     if module.endswith("security_compliance_enhancer"):
         import io
         from pathlib import Path

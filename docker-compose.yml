@@ -7,6 +7,7 @@ services:
       - GH_COPILOT_WORKSPACE=/app
     volumes:
       - .:/app
+      - ${GH_COPILOT_BACKUP_ROOT:-/backup}:/backup
   web_gui:
     build: .
     command: python web_gui/app.py
@@ -14,6 +15,7 @@ services:
       - GH_COPILOT_WORKSPACE=/app
     volumes:
       - .:/app
+      - ${GH_COPILOT_BACKUP_ROOT:-/backup}:/backup
     ports:
       - "5000:5000"
       - "5001:5001"
@@ -27,5 +29,6 @@ services:
       - GH_COPILOT_WORKSPACE=/app
     volumes:
       - .:/app
+      - ${GH_COPILOT_BACKUP_ROOT:-/backup}:/backup
     depends_on:
       - app

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import logging
 # Copilot Package Initialization
 """
 gh_COPILOT Toolkit v4.0 Enterprise Architecture

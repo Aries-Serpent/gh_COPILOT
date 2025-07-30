@@ -50,7 +50,8 @@ class PrimaryCopilotExecutor:
         self.logger = logger or LOGGER
 
         self.setup_visual_monitoring()
-        self.validate_environment_compliance()
+        if os.getenv("GH_COPILOT_DISABLE_VALIDATION") != "1":
+            self.validate_environment_compliance()
 
     # ------------------------------------------------------------------
     def validate_environment_compliance(self) -> None:

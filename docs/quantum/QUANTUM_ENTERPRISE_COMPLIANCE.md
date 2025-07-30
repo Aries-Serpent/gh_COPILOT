@@ -1,6 +1,9 @@
 # QUANTUM ENTERPRISE COMPLIANCE
 ## Regulatory and Security Compliance
 
+> **Note**
+> All quantum capabilities operate in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+
 ### Compliance Framework
 The quantum-enhanced PIS Framework meets all enterprise compliance requirements:
 

@@ -55,6 +55,7 @@ def monitor_logs(log_files: Iterable[Path], db_path: Optional[Path] = None) -> i
                             {"file": str(log_file), "error": line.strip()},
                             table="log_errors",
                             db_path=path,
+                            test_mode=False,
                         )
                         error_count += 1
         except FileNotFoundError:
@@ -70,7 +71,12 @@ def notify(error_count: int, db_path: Optional[Path] = None) -> None:
     """Record a notification event for ``error_count`` errors."""
 
     path = db_path or DB_PATH
-    _log_event({"errors_found": error_count}, table="log_notifications", db_path=path)
+    _log_event(
+        {"errors_found": error_count},
+        table="log_notifications",
+        db_path=path,
+        test_mode=False,
+    )
 
 
 if __name__ == "__main__":  # pragma: no cover - manual invocation

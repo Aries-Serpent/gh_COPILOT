@@ -1,6 +1,9 @@
 # QUANTUM ALGORITHMS SPECIFICATION
 ## Technical Implementation Details
 
+> **Note**
+> All quantum algorithms are executed in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+
 ### Algorithm Architecture
 
 #### 1. Quantum Annealing Optimization
