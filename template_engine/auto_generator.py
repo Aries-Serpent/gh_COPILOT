@@ -35,21 +35,23 @@ try:
     from quantum_algorithm_library_expansion import (
         quantum_text_score,
         quantum_similarity_score,
-        quantum_cluster_score,
     )
-except ImportError:
+except ImportError:  # pragma: no cover - optional dependency
 
     def quantum_text_score(text: str) -> float:
-        # Fallback implementation mirrors classical path
+       """Fallback quantum text scoring implementation."""
         arr = np.fromiter((ord(c) for c in text), dtype=float)
         return float(np.linalg.norm(arr) / ((arr.size or 1) * 255))
 
     def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
+        """Fallback normalized dot-product similarity."""
         arr_a = np.fromiter(a, dtype=float)
         arr_b = np.fromiter(b, dtype=float)
         if arr_a.size == 0 or arr_b.size == 0:
             return 0.0
-        return float(np.dot(arr_a, arr_b) / (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)))
+        denom = (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)) or 1.0
+        return float(np.dot(arr_a, arr_b) / denom)
+
 
     def quantum_cluster_score(matrix: np.ndarray) -> float:
         n_clusters = min(len(matrix), 2)
@@ -201,9 +203,9 @@ class TemplateAutoGenerator:
 
     def _quantum_similarity(self, a: str, b: str) -> float:
         """Return similarity between two texts using quantum scoring."""
-        score_a = self._quantum_score(a)
-        score_b = self._quantum_score(b)
-        return 1.0 - abs(score_a - score_b)
+        vec_a = [ord(c) for c in a]
+        vec_b = [ord(c) for c in b]
+        return quantum_similarity_score(vec_a, vec_b)
 
     def _load_production_patterns(self) -> list[str]:
         """Fetch template patterns from ``production.db`` if available."""
@@ -255,7 +257,6 @@ class TemplateAutoGenerator:
     def rank_templates(self, target: str) -> List[str]:
         """Return templates ranked by similarity to ``target``."""
         ranked: List[tuple[str, float]] = []
-        target_q = self._quantum_score(target)
         vectorizer = TfidfVectorizer()
         if self.production_db.exists():
             scores = compute_similarity_scores(
@@ -276,7 +277,7 @@ class TemplateAutoGenerator:
                         bonus = 0.1
                     vecs = vectorizer.fit_transform([target, text]).toarray()
                     tfidf = float(cosine_similarity([vecs[0]], [vecs[1]])[0][0])
-                    q_sim = 1.0 - abs(self._quantum_score(text) - target_q)
+                    q_sim = self._quantum_similarity(target, text)
                     q_vec = quantum_similarity_score(vecs[0], vecs[1])
                     c_score = quantum_cluster_score(np.vstack([vecs[0], vecs[1]]))
                     score = id_to_score[tid] + tfidf + q_sim + q_vec + c_score + bonus
@@ -314,7 +315,7 @@ class TemplateAutoGenerator:
             for tmpl in candidates:
                 vecs = vectorizer.fit_transform([target, tmpl]).toarray()
                 tfidf = float(cosine_similarity([vecs[0]], [vecs[1]])[0][0])
-                q_sim = 1.0 - abs(self._quantum_score(tmpl) - target_q)
+                q_sim = self._quantum_similarity(target, tmpl)
                 q_vec = quantum_similarity_score(vecs[0], vecs[1])
                 c_score = quantum_cluster_score(np.vstack([vecs[0], vecs[1]]))
                 score = tfidf + q_sim + q_vec + c_score
