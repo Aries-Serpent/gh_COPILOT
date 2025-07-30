@@ -199,9 +199,20 @@ class CorrectionLoggerRollback:
         with tqdm(total=100, desc=f"Rolling Back {target.name}", unit="%") as pbar:
             pbar.set_description("Validating Target")
             if not target.exists() and not backup_path:
-                logging.error(f"Target file does not exist and no backup provided: {target}")
+                logging.error(
+                    f"Target file does not exist and no backup provided: {target}"
+                )
                 strategy = self.suggest_rollback_strategy(target)
                 self._record_strategy_history(target, strategy, "failure")
+                _log_event(
+                    {
+                        "event": "rollback_failure",
+                        "target": str(target),
+                        "details": "missing target and backup",
+                    },
+                    table="rollback_failures",
+                    db_path=self.analytics_db,
+                )
                 pbar.update(100)
                 return False
             pbar.update(25)
@@ -250,6 +261,15 @@ class CorrectionLoggerRollback:
                 _log_event(
                     {"event": "rollback_failed", "target": str(target)},
                     table="rollback_logs",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {
+                        "event": "rollback_failure",
+                        "target": str(target),
+                        "details": "restore verification failed",
+                    },
+                    table="rollback_failures",
                     db_path=self.analytics_db,
                 )
                 pbar.update(25)
