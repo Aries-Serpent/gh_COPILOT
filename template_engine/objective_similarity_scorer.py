@@ -22,6 +22,7 @@ from typing import List, Tuple
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
+from quantum_algorithm_library_expansion import quantum_text_score
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -66,6 +67,8 @@ def compute_similarity_scores(
     production_db: Path = DEFAULT_PRODUCTION_DB,
     analytics_db: Path = DEFAULT_ANALYTICS_DB,
     timeout_minutes: int = 30,
+    methods: List[str] | None = None,
+    weights: List[float] | None = None,
 ) -> List[Tuple[int, float]]:
     """
     Compute similarity scores between the objective and all templates in the production database.
@@ -96,10 +99,15 @@ def compute_similarity_scores(
         logging.warning("No templates found in production.db")
         return []
 
+    if methods is None:
+        methods = ["tfidf"]
+    if weights is None:
+        weights = [1.0 for _ in methods]
     # Prepare corpus and vectorizer
     corpus = [objective] + [t[1] for t in templates]
     vectorizer = TfidfVectorizer().fit(corpus)
     obj_vec = vectorizer.transform([objective])
+    obj_q = quantum_text_score(objective) if "quantum" in methods else 0.0
 
     # Visual processing indicators: progress bar, ETC, timeout, status updates
     scores: List[Tuple[int, float]] = []
@@ -111,7 +119,13 @@ def compute_similarity_scores(
             phase = f"Scoring template {tid}"
             pbar.set_description(phase)
             vec = vectorizer.transform([text])
-            score = float(cosine_similarity(obj_vec, vec)[0][0])
+            score = 0.0
+            if "tfidf" in methods:
+                score += weights[methods.index("tfidf")] * float(cosine_similarity(obj_vec, vec)[0][0])
+            if "quantum" in methods:
+                cand_q = quantum_text_score(text)
+                qsim = 1.0 - abs(cand_q - obj_q)
+                score += weights[methods.index("quantum")] * qsim
             scores.append((tid, score))
             with sqlite3.connect(analytics_db) as conn:
                 conn.execute(

@@ -49,6 +49,21 @@ def test_mine_patterns(tmp_path: Path):
     assert count == len(patterns), "Pattern count mismatch in mined_patterns table"
     assert validate_mining(len(patterns), analytics), "DUAL COPILOT validation failed"
 
+
+def test_mine_patterns_clusters(tmp_path: Path) -> None:
+    from datetime import datetime
+    start_time = datetime.now()
+    prod = tmp_path / "production.db"
+    analytics = tmp_path / "analytics.db"
+    with sqlite3.connect(prod) as conn:
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("INSERT INTO code_templates (template_code) VALUES ('def x(): pass')")
+        conn.execute("INSERT INTO code_templates (template_code) VALUES ('def y(): pass')")
+    mine_patterns(prod, analytics)
+    with sqlite3.connect(analytics) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM pattern_clusters").fetchone()[0]
+    assert count > 0
+
     # Completion summary
     end_time = datetime.now()
     duration = (end_time - start_time).total_seconds()

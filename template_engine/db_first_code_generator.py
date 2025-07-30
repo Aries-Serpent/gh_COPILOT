@@ -312,6 +312,22 @@ class DBFirstCodeGenerator:
             db_count = cur.fetchone()[0]
         return db_count > 0
 
+    def generate_integration_ready_code(
+        self, objective: str, output_dir: Path | None = None, timeout_minutes: int = 30
+    ) -> Path:
+        """Generate code and write to ``output_dir`` returning the file path."""
+        content = self.generate(objective, timeout_minutes=timeout_minutes)
+        output_dir = output_dir or Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "generated"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        path = output_dir / f"{objective.replace(' ', '_')}.py"
+        path.write_text(content)
+        self._log_generation_event(
+            objective,
+            {"name": path.name, "content": content, "score": 1.0, "db": "fs"},
+            status="integration-ready",
+        )
+        return path
+
 
 def main(
     objective: Optional[str] = None,

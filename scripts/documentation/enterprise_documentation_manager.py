@@ -75,8 +75,9 @@ class EnterpriseDocumentationManager:
         return score
 
     # ------------------------------------------------------------------
-    def generate_files(self, doc_type: str) -> List[Path]:
-        """Generate documentation files for ``doc_type``."""
+    def generate_files(self, doc_type: str, output_formats: Iterable[str] | None = None) -> List[Path]:
+        """Generate documentation files for ``doc_type`` in multiple formats."""
+        formats = list(output_formats or ["md"])  # default markdown for backward compat
         docs = self.query_documentation(doc_type)
         if not docs:
             return []
@@ -97,8 +98,8 @@ class EnterpriseDocumentationManager:
             )
             with tqdm(total=len(docs), desc=f"{TEXT_INDICATORS['progress']} docs", unit="doc") as bar:
                 for doc_id, content in docs:
-                    text = template.replace("{content}", content) if template else content
-                    score = self.calculate_compliance(text)
+                    base_text = template.replace("{content}", content) if template else content
+                    score = self.calculate_compliance(base_text)
                     _log_event(
                         {
                             "event": "doc_generated",
@@ -115,9 +116,15 @@ class EnterpriseDocumentationManager:
                         )
                         bar.update(1)
                         continue
-                    path = self.output_dir / f"{doc_id}.md"
-                    path.write_text(text)
-                    generated.append(path)
+                    main_path = None
+                    for fmt in formats:
+                        path = self.output_dir / f"{doc_id}.{fmt}"
+                        links = " | ".join(f"{doc_id}.{f}" for f in formats if f != fmt)
+                        text = f"Linked: {links}\n\n{base_text}"
+                        path.write_text(text)
+                        generated.append(path)
+                        if main_path is None:
+                            main_path = path
                     cur.execute(
                         """
                         INSERT INTO documentation_status (doc_id, path, generated_at)
@@ -126,7 +133,7 @@ class EnterpriseDocumentationManager:
                             path=excluded.path,
                             generated_at=excluded.generated_at
                         """,
-                        (doc_id, str(path)),
+                        (doc_id, str(main_path)),
                     )
                     bar.update(1)
             conn.commit()

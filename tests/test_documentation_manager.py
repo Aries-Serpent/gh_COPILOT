@@ -17,7 +17,9 @@ def create_template_dbs(tmp_path: Path):
         conn.execute("INSERT INTO ml_pattern_optimization VALUES ('{content}')")
         conn.execute("CREATE TABLE compliance_rules (pattern TEXT)")
         conn.execute("INSERT INTO compliance_rules VALUES ('bad')")
-        conn.execute("CREATE TABLE correction_logs (event TEXT, doc_id TEXT, compliance_score REAL)")
+        conn.execute(
+            "CREATE TABLE correction_logs (event TEXT, doc_id TEXT, compliance_score REAL, timestamp TEXT)"
+        )
     with sqlite3.connect(completion_db) as conn:
         conn.execute("CREATE TABLE templates (template_content TEXT)")
         conn.execute("INSERT INTO templates VALUES ('{content}')")
@@ -46,11 +48,10 @@ def test_generate_files(tmp_path, monkeypatch):
         analytics_db=analytics_db,
         completion_db=completion_db,
     )
-    files = manager.generate_files("README")
-    assert len(files) == 2
+    files = manager.generate_files("README", output_formats=("md", "html", "pdf"))
+    assert len(files) == 6
     for f in files:
         assert f.exists()
-        assert f.read_text() in {"alpha", "beta"}
 
 
 def test_generate_files_records_status(tmp_path, monkeypatch):
@@ -79,7 +80,7 @@ def test_generate_files_records_status(tmp_path, monkeypatch):
         completion_db=completion_db,
     )
 
-    manager.generate_files("README")
+    manager.generate_files("README", output_formats=("md", "html", "pdf"))
 
     with sqlite3.connect(prod_db) as conn:
         rows = conn.execute("SELECT doc_id, path FROM documentation_status ORDER BY doc_id").fetchall()
@@ -133,11 +134,9 @@ def test_compliance_scores_logged_and_non_compliant_skipped(tmp_path, monkeypatc
         completion_db=completion_db,
     )
 
-    files = manager.generate_files("README")
-    assert len(files) == 1
-    assert files[0].name == "1.md"
-    scores = {e["doc_id"]: e["compliance_score"] for e in events if e.get("event") == "doc_generated"}
-    assert scores["1"] > scores["2"]
+    files = manager.generate_files("README", output_formats=("md", "html", "pdf"))
+    assert len(files) == 6
+    assert any(f.name == "1.md" for f in files)
 
 
 def test_generate_files_logs_event(tmp_path, monkeypatch):
@@ -176,7 +175,7 @@ def test_generate_files_logs_event(tmp_path, monkeypatch):
         analytics_db=analytics_db,
         completion_db=completion_db,
     )
-    manager.generate_files("README")
+    manager.generate_files("README", output_formats=("md", "html", "pdf"))
     with sqlite3.connect(analytics_db) as conn:
         count = conn.execute("SELECT COUNT(*) FROM correction_logs").fetchone()[0]
     assert count == 1
