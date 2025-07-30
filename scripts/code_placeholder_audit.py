@@ -367,8 +367,9 @@ def main(
     """
     # Visual processing indicators: start time, process ID, anti-recursion validation
     if os.getenv("GH_COPILOT_TEST_MODE") == "1":
+        simulate = True
         update_resolutions = True
-        log_message(__name__, "[TEST MODE] update_resolutions enabled")
+        log_message(__name__, "[TEST MODE] Simulation enabled")
 
     start_time = time.time()
     process_id = os.getpid()
@@ -395,7 +396,7 @@ def main(
     timeout = timeout_minutes * 60 if timeout_minutes else None
 
     # Scan files with progress bar and ETC calculation
-    exclude_list = ["builds", "archive"] if exclude_dirs is None else exclude_dirs
+    exclude_list = [] if exclude_dirs is None else exclude_dirs
     exclude = {workspace / d for d in exclude_list}
     files = [f for f in workspace.rglob("*") if f.is_file() and not any(str(f).startswith(str(p)) for p in exclude)]
     results: List[Dict] = []
@@ -466,6 +467,11 @@ if __name__ == "__main__":
     parser.add_argument("--timeout-minutes", type=int, default=30, help="Scan timeout in minutes")
     parser.add_argument("--simulate", action="store_true", help="Run in test mode without writes")
     parser.add_argument(
+        "--test-mode",
+        action="store_true",
+        help="Enable test mode (sets GH_COPILOT_TEST_MODE=1 and skips DB writes)",
+    )
+    parser.add_argument(
         "--exclude-dir",
         action="append",
         dest="exclude_dirs",
@@ -493,6 +499,9 @@ if __name__ == "__main__":
             print("Rollback complete")
             raise SystemExit(0)
         raise SystemExit(1)
+    if args.test_mode:
+        os.environ["GH_COPILOT_TEST_MODE"] = "1"
+        args.simulate = True
     success = main(
         workspace_path=args.workspace_path,
         analytics_db=args.analytics_db,

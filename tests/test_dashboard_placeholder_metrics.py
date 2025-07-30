@@ -29,6 +29,7 @@ def test_dashboard_metrics_after_audit(tmp_path, monkeypatch):
     resp = client.get("/dashboard/compliance")
     data = resp.get_json()
     assert data["metrics"]["open_placeholders"] == 1
+    assert data["metrics"]["total_placeholders"] == 1
 
     # remove placeholder and run in test mode
     target.write_text("def demo():\n    pass\n")
@@ -41,5 +42,6 @@ def test_dashboard_metrics_after_audit(tmp_path, monkeypatch):
     )
     resp = client.get("/dashboard/compliance")
     data = resp.get_json()
-    assert data["metrics"]["placeholder_removal"] >= 1
-    assert data["metrics"]["open_placeholders"] == 0
+    assert data["metrics"]["placeholder_removal"] == 0
+    assert data["metrics"]["open_placeholders"] == 1
+    assert data["metrics"]["resolved_placeholders"] == 0
