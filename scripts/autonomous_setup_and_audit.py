@@ -63,6 +63,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
     _log_event({"event": "ingestion_start"}, table="correction_logs", db_path=analytics_db)
     user = os.getenv("USER", "system")
 
+    user = os.getenv("USER", "system")
     conn = sqlite3.connect(db_path)
     audit_conn = sqlite3.connect(analytics_db)
     audit_conn.executescript(
@@ -98,10 +99,38 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
             "created_at TEXT NOT NULL"
             ")"
         )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS corrections ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "file_path TEXT,"
+            "rationale TEXT,"
+            "compliance_score REAL,"
+            "rollback_reference TEXT,"
+            "ts TEXT"
+            ")"
+        )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS code_audit_history ("
+            "id INTEGER PRIMARY KEY,"
+            "audit_entry TEXT NOT NULL,"
+            "user TEXT NOT NULL,"
+            "timestamp TEXT NOT NULL"
+            ")"
+        )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS violation_logs ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "timestamp TEXT NOT NULL,"
+            "event TEXT,"
+            "details TEXT NOT NULL,"
+            "count INTEGER"
+            ")"
+        )
 
         start_docs = datetime.now(timezone.utc)
         with tqdm(total=len(doc_files), desc="Docs", unit="file") as bar:
             conn.execute("BEGIN")
+            session_id = f"INGEST_DOCS_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
             for path in doc_files:
                 if path.stat().st_size == 0:
                     bar.update(1)
@@ -121,6 +150,34 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                     ),
                 )
                 score = _compliance_score(content)
+                conn.execute(
+                    "INSERT INTO corrections (file_path, rationale, compliance_score, rollback_reference, ts)"
+                    " VALUES (?, ?, ?, NULL, ?)",
+                    (
+                        str(path.relative_to(doc_path.parent)),
+                        "Asset ingested",
+                        score,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
+                conn.execute(
+                    "INSERT INTO code_audit_history (audit_entry, user, timestamp) VALUES (?, ?, ?)",
+                    (
+                        f"ingested:{path.name}",
+                        user,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
+                conn.execute(
+                    "INSERT INTO correction_history (user_id, session_id, file_path, action, timestamp)"
+                    " VALUES (?, ?, ?, 'ingested', ?)",
+                    (
+                        0,
+                        session_id,
+                        str(path.relative_to(doc_path.parent)),
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
                 _log_event(
                     {
                         "event": "asset_ingested",
@@ -159,6 +216,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
         start_tmpl = datetime.now(timezone.utc)
         with tqdm(total=len(tmpl_files), desc="Templates", unit="file") as bar:
             conn.execute("BEGIN")
+            session_id_t = f"INGEST_TMPL_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
             for path in tmpl_files:
                 raw = path.read_text(encoding="utf-8")
                 content = "\n".join(line.rstrip() for line in raw.splitlines())
@@ -176,6 +234,34 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                     (content[:1000], datetime.now(timezone.utc).isoformat()),
                 )
                 score = _compliance_score(content)
+                conn.execute(
+                    "INSERT INTO corrections (file_path, rationale, compliance_score, rollback_reference, ts)"
+                    " VALUES (?, ?, ?, NULL, ?)",
+                    (
+                        str(path.relative_to(template_path.parent)),
+                        "Asset ingested",
+                        score,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
+                conn.execute(
+                    "INSERT INTO code_audit_history (audit_entry, user, timestamp) VALUES (?, ?, ?)",
+                    (
+                        f"ingested:{path.name}",
+                        user,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
+                conn.execute(
+                    "INSERT INTO correction_history (user_id, session_id, file_path, action, timestamp)"
+                    " VALUES (?, ?, ?, 'ingested', ?)",
+                    (
+                        0,
+                        session_id_t,
+                        str(path.relative_to(template_path.parent)),
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
                 _log_event(
                     {
                         "event": "asset_ingested",
@@ -221,6 +307,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
             (datetime.now(timezone.utc).isoformat(), str(exc)),
         )
         _log_event({"event": "ingestion_rollback"}, table="rollback_logs", db_path=analytics_db)
+        _log_event({"event": "ingestion_failed", "details": str(exc)}, table="violation_logs", db_path=analytics_db)
         raise
     finally:
         conn.close()

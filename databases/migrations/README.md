@@ -18,6 +18,8 @@
 - `add_size_violations.sql`: Adds `size_violations` table used by size
   monitoring utilities.
 - `extend_todo_fixme_tracking.sql`: Adds `status` and `removal_id` columns linking to `placeholder_removals`.
+- `add_placeholder_removals.sql`: Creates `placeholder_removals` table for cleanup tracking.
+- `add_size_violations.sql`: Creates `size_violations` table for database size checks.
 
 ## Applying Migrations
 Run each migration using:
@@ -35,6 +37,8 @@ sqlite3 databases/analytics.db < databases/migrations/add_placeholder_removals.s
 sqlite3 databases/analytics.db < databases/migrations/add_size_violations.sql
 sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
 sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
+sqlite3 databases/analytics.db < databases/migrations/add_placeholder_removals.sql
+sqlite3 databases/analytics.db < databases/migrations/add_size_violations.sql
 ```
 
 ## Notes

@@ -20,7 +20,14 @@ def _table_exists(conn: sqlite3.Connection, name: str) -> bool:
 
 
 def _primary_check(conn: sqlite3.Connection) -> bool:
-    return all(_table_exists(conn, tbl) for tbl in ["code_audit_log", "correction_history", "code_audit_history"])
+    tables = [
+        "code_audit_log",
+        "correction_history",
+        "code_audit_history",
+        "placeholder_removals",
+        "size_violations",
+    ]
+    return all(_table_exists(conn, tbl) for tbl in tables)
 
 
 def _secondary_check(conn: sqlite3.Connection) -> bool:
@@ -39,7 +46,9 @@ def test_table_creation_dual(capsys) -> None:
         Path("databases/migrations/add_code_audit_history.sql"),
         Path("databases/migrations/add_violation_logs.sql"),
         Path("databases/migrations/add_rollback_logs.sql"),
-        Path("databases/migrations/extend_todo_fixme_tracking.sql"),
+        Path("databases/migrations/create_todo_fixme_tracking.sql"),
+        Path("databases/migrations/add_placeholder_removals.sql"),
+        Path("databases/migrations/add_size_violations.sql"),
     ]
 
     with sqlite3.connect(":memory:") as conn:
