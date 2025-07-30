@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import _log_event
 from validation.protocols.session import SessionProtocolValidator
 
