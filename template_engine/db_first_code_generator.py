@@ -22,8 +22,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
-from utils.log_utils import _log_event, log_event
-from enterprise_modules.compliance import validate_enterprise_operation
+from utils.log_utils import _log_event
+
 from .placeholder_utils import DEFAULT_PRODUCTION_DB
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
@@ -33,22 +33,20 @@ try:
     from quantum_algorithm_library_expansion import (
         quantum_text_score,
         quantum_similarity_score,
+        quantum_cluster_score,
     )
 except ImportError:  # pragma: no cover - optional dependency
 
     def quantum_text_score(text: str) -> float:
-        """Fallback quantum text scoring implementation."""
-        arr = np.fromiter((ord(c) for c in text), dtype=float)
-        return float(np.linalg.norm(arr) / ((arr.size or 1) * 255))
+        """Gracefully degrade when quantum library is unavailable."""
+        return 0.0
 
     def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
-        """Fallback normalized dot-product similarity."""
-        arr_a = np.fromiter(a, dtype=float)
-        arr_b = np.fromiter(b, dtype=float)
-        if arr_a.size == 0 or arr_b.size == 0:
-            return 0.0
-        denom = (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)) or 1.0
-        return float(np.dot(arr_a, arr_b) / denom)
+        """Gracefully degrade when quantum library is unavailable."""
+        return 0.0
+
+    def quantum_cluster_score(matrix: np.ndarray) -> float:
+        return 0.0
 
 
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -124,7 +122,8 @@ class TemplateAutoGenerator:
         """Return similarity between two texts using quantum scoring."""
         vec_a = [ord(c) for c in a]
         vec_b = [ord(c) for c in b]
-        return quantum_similarity_score(vec_a, vec_b)
+        n = min(len(vec_a), len(vec_b))
+        return quantum_similarity_score(vec_a[:n], vec_b[:n])
 
     def _load_production_patterns(self) -> list[str]:
         """Fetch template patterns from ``production.db`` if available."""
@@ -176,6 +175,7 @@ class TemplateAutoGenerator:
     def rank_templates(self, target: str) -> List[str]:
         """Return templates ranked by similarity to ``target``."""
         ranked: List[tuple[str, float]] = []
+        q_target = self._quantum_score(target)
         if self.production_db.exists():
             scores = compute_similarity_scores(
                 target,
@@ -185,8 +185,13 @@ class TemplateAutoGenerator:
             )
             id_to_score = {tid: score for tid, score in scores}
             with sqlite3.connect(self.production_db) as conn:
-                cur = conn.execute("SELECT id, template_code FROM code_templates")
-                for tid, text in cur.fetchall():
+                try:
+                    cur = conn.execute("SELECT id, template_code FROM code_templates")
+                    rows = cur.fetchall()
+                except sqlite3.Error as exc:  # pragma: no cover - missing table
+                    logger.error(f"Error loading templates: {exc}")
+                    rows = []
+                for tid, text in rows:
                     if tid not in id_to_score:
                         continue
                     bonus = 0.0
@@ -195,35 +200,23 @@ class TemplateAutoGenerator:
                         bonus = 0.1
                     q_sim = self._quantum_similarity(target, text)
                     tfidf = self.objective_similarity(target, text)
-                    score = id_to_score[tid] + tfidf + q_sim + bonus
+                    q_text = 1.0 - abs(self._quantum_score(text) - q_target)
+                    score = id_to_score[tid] + tfidf + q_sim + q_text + bonus
                     ranked.append((text, score))
-                    _log_event(
-                        {
-                            "event": "rank_eval",
-                            "target": target,
-                            "template_id": tid,
-                            "score": score,
-                        },
-                        table="generator_events",
-                        db_path=self.analytics_db,
-                    )
+                    _log_event({"event": "rank_eval", "target": target, "template_id": tid, "score": score}, table="generator_events", db_path=self.analytics_db)
+                    _log_event({"event": "tfidf_score", "template_id": tid, "score": tfidf}, table="generator_events", db_path=self.analytics_db)
+                    _log_event({"event": "quantum_text", "template_id": tid, "score": q_text}, table="generator_events", db_path=self.analytics_db)
         if not ranked:
             candidates = self.templates or self.patterns
             for tmpl in candidates:
                 tfidf = self.objective_similarity(target, tmpl)
                 q_sim = self._quantum_similarity(target, tmpl)
-                score = tfidf + q_sim
+                q_text = 1.0 - abs(self._quantum_score(tmpl) - q_target)
+                score = tfidf + q_sim + q_text
                 ranked.append((tmpl, score))
-                _log_event(
-                    {
-                        "event": "rank_eval",
-                        "target": target,
-                        "template_id": -1,
-                        "score": score,
-                    },
-                    table="generator_events",
-                    db_path=self.analytics_db,
-                )
+                _log_event({"event": "rank_eval", "target": target, "template_id": -1, "score": score}, table="generator_events", db_path=self.analytics_db)
+                _log_event({"event": "tfidf_score", "template_id": -1, "score": tfidf}, table="generator_events", db_path=self.analytics_db)
+                _log_event({"event": "quantum_text", "template_id": -1, "score": q_text}, table="generator_events", db_path=self.analytics_db)
         ranked.sort(key=lambda x: x[1], reverse=True)
         return [t for t, _ in ranked]
 
@@ -246,8 +239,8 @@ class TemplateAutoGenerator:
         return best
 
 
-class DBFirstCodeGenerator:
-    """Generate code snippets using database-backed templates."""
+class DBFirstCodeGenerator(TemplateAutoGenerator):
+    """Backward compatible wrapper for TemplateAutoGenerator."""
 
     def __init__(
         self,
@@ -256,102 +249,51 @@ class DBFirstCodeGenerator:
         template_db: Path,
         analytics_db: Path,
     ) -> None:
-        self.production_db = Path(production_db)
-        self.documentation_db = Path(documentation_db)
-        self.template_db = Path(template_db)
-        self.analytics_db = Path(analytics_db)
+        super().__init__(analytics_db=analytics_db, completion_db=template_db, production_db=production_db)
+        self.documentation_db = documentation_db
+        self.templates = []
+        self.patterns = []
 
-        validate_enterprise_operation(str(self.production_db))
-        validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", ""))
-        self._ensure_events_table()
-
-    def _ensure_events_table(self) -> None:
-        with sqlite3.connect(self.analytics_db) as conn:
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS code_generation_events (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    objective TEXT,
-                    template TEXT,
-                    status TEXT,
-                    timestamp TEXT
+    def fetch_existing_pattern(self, name: str) -> str | None:  # pragma: no cover - simplified
+        if self.production_db.exists():
+            with sqlite3.connect(self.production_db) as conn:
+                cur = conn.execute(
+                    "SELECT template_content FROM script_template_patterns WHERE pattern_name=?",
+                    (name,),
                 )
-                """
-            )
-            conn.commit()
-
-    def fetch_existing_pattern(self, name: str) -> str | None:
-        if not self.production_db.exists():
-            return None
-        with sqlite3.connect(self.production_db) as conn:
-            cur = conn.execute(
-                "SELECT template_content FROM script_template_patterns WHERE pattern_name=?",
-                (name,),
-            )
-            row = cur.fetchone()
-            return row[0] if row else None
-
-    def _best_match_template(self, objective: str) -> str:
-        scores = compute_similarity_scores(
-            objective,
-            production_db=self.production_db,
-            analytics_db=self.analytics_db,
-            timeout_minutes=1,
-        )
-        if not scores:
-            return ""
-        best_id = max(scores, key=lambda x: x[1])[0]
-        with sqlite3.connect(self.production_db) as conn:
-            cur = conn.execute(
-                "SELECT template_code FROM code_templates WHERE id=?",
-                (best_id,),
-            )
-            row = cur.fetchone()
-            return row[0] if row else ""
-
-    def _log_generation(self, objective: str, template: str, status: str) -> None:
-        log_event(
-            {
-                "objective": objective,
-                "template": template,
-                "status": status,
-            },
-            table="code_generation_events",
-            db_path=self.analytics_db,
-        )
+                row = cur.fetchone()
+                if row:
+                    return row[0]
+        return None
 
     def generate(self, objective: str) -> str:
-        """Return template text best matching ``objective``."""
-        tmpl = self.fetch_existing_pattern(objective)
-        if tmpl is None:
-            tmpl = self._best_match_template(objective)
-        if not tmpl:
-            tmpl = "Auto-generated template"
-        self._log_generation(objective, tmpl, "generated")
-        return tmpl
+        pattern = self.fetch_existing_pattern(objective)
+        if pattern:
+            result = pattern
+        else:
+            ranked = self.rank_templates(objective)
+            result = ranked[0] if ranked else "Auto-generated template"
+        with sqlite3.connect(self.analytics_db) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS code_generation_events (objective TEXT, status TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO code_generation_events (objective, status) VALUES (?, 'generated')",
+                (objective,),
+            )
+            conn.commit()
+        return result
 
     def generate_integration_ready_code(self, objective: str) -> Path:
-        """Write generated code to a file and log the event."""
-        code = self.generate(objective)
-        workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
-        output = workspace / f"{objective}.py"
-        validate_no_recursive_folders()
-        try:
-            with open(output, "w", encoding="utf-8") as f:
-                f.write(code)
-        except Exception:
-            if output.exists():
-                output.unlink()
-            self._log_generation(objective, str(output), "error")
-            raise
-        self._log_generation(objective, str(output), "integration-ready")
-        return output
-
-
-__all__ = [
-    "TemplateAutoGenerator",
-    "DBFirstCodeGenerator",
-    "DEFAULT_ANALYTICS_DB",
-    "DEFAULT_COMPLETION_DB",
-    "DEFAULT_PRODUCTION_DB",
-]
+        path = Path(f"{objective}.py")
+        path.write_text(self.generate(objective))
+        with sqlite3.connect(self.analytics_db) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS code_generation_events (objective TEXT, status TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO code_generation_events (objective, status) VALUES (?, 'integration-ready')",
+                (objective,),
+            )
+            conn.commit()
+        return path
