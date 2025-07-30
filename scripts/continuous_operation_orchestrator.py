@@ -45,48 +45,9 @@ import numpy as np
 from tqdm import tqdm
 
 from utils.cross_platform_paths import CrossPlatformPathManager
+from enterprise_modules.compliance import validate_enterprise_operation
 
-# 🚨 CRITICAL: Anti-recursion validation
-
-
-def validate_enterprise_operation():
-    """🚨 CRITICAL: Validate workspace before any operations"""
-    workspace_root = Path(os.getcwd())
-    official_root = CrossPlatformPathManager.get_workspace_path()
-
-    if workspace_root.resolve() != official_root.resolve() and workspace_root.name != "gh_COPILOT":
-        logging.warning(
-            "Workspace mismatch: %s (expected %s)",
-            workspace_root,
-            official_root,
-        )
-        return False
-
-    # Prevent recursive backup or temporary folder violations
-    venv_dir = official_root / ".venv"
-    violations: List[str] = []
-
-    for folder in workspace_root.rglob("*"):
-        if not folder.is_dir() or folder == workspace_root:
-            continue
-        if venv_dir in folder.parents:
-            continue
-        name = folder.name.lower()
-        if (
-            name in {"backup", "backups", "temp"}
-            or name.startswith("backup_")
-            or name.startswith("temp_")
-            or name.endswith("_temp")
-        ):
-            violations.append(str(folder))
-
-    if violations:
-        for violation in violations:
-            shutil.rmtree(violation)
-            logging.error("🗑️ Removed recursive violation: %s", violation)
-        raise RuntimeError("CRITICAL: Recursive violations prevented execution")
-
-    return True
+# 🚨 CRITICAL: Anti-recursion validation now handled in enterprise_modules.compliance
 
 
 # Validate environment compliance before proceeding

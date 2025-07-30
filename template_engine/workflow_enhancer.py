@@ -23,7 +23,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from sklearn.cluster import KMeans
 from tqdm import tqdm
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
 
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "workflow_enhancer"

@@ -25,7 +25,7 @@ from typing import Dict, Any, Optional
 
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from enterprise_modules.compliance import validate_enterprise_operation
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
 from utils.log_utils import _log_event

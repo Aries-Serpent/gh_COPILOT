@@ -11,7 +11,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import \
+from enterprise_modules.compliance import \
     validate_enterprise_operation
 from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes

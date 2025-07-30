@@ -34,7 +34,7 @@ def test_backup_defaults_match(monkeypatch):
     monkeypatch.delenv("GH_COPILOT_BACKUP_ROOT", raising=False)
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     monkeypatch.setattr(
-        "scripts.continuous_operation_orchestrator.validate_enterprise_operation",
+        "enterprise_modules.compliance.validate_enterprise_operation",
         lambda: None,
     )
     from scripts.database.complete_consolidation_orchestrator import (
