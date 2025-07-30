@@ -33,10 +33,18 @@ class QuantumClustering(QuantumAlgorithmBase):
             workspace_path = os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
         super().__init__(workspace_path)
         self.n_clusters = n_clusters
-    
+        
+        self.backend = None
+        self.use_hardware = False
+
     def get_algorithm_name(self) -> str:
         """Get the algorithm name"""
         return "Quantum Clustering File Organization"
+
+    def set_backend(self, backend, use_hardware: bool = False):
+        """Set quantum backend for execution."""
+        self.backend = backend
+        self.use_hardware = use_hardware
     
     def execute_algorithm(self) -> bool:
         """Execute quantum clustering for file organization"""
@@ -94,7 +102,7 @@ class QuantumClustering(QuantumAlgorithmBase):
         if FidelityQuantumKernel is not None and BasicAer is not None:
             self.logger.info(f"{TEXT_INDICATORS['info']} Using quantum kernel")
             feature_map = ZZFeatureMap(feature_dimension=2, reps=1)
-            backend = BasicAer.get_backend("statevector_simulator")
+            backend = self.backend or BasicAer.get_backend("statevector_simulator")
             kernel = FidelityQuantumKernel(
                 feature_map=feature_map, quantum_instance=backend
             )

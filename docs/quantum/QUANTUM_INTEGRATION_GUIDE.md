@@ -69,6 +69,18 @@ result = quantum_engine.optimize_code_analysis(
 }
 ```
 
+### Hardware Backends
+To run on real quantum hardware, install `qiskit-ibm-provider` and set the
+environment variable `QISKIT_IBM_TOKEN` with your IBM Quantum API key. Then
+enable hardware mode via the orchestrator:
+
+```bash
+python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
+```
+
+If the backend or token is unavailable the toolkit automatically falls back to
+simulation.
+
 ### Deployment Checklist
 - [ ] Quantum simulation environment *(not started)*
 - [ ] Database schema updated *(not started)*

@@ -12,5 +12,8 @@ gh_COPILOT toolkit.
 - `quantum.quantum_database_search` – lightweight helpers for SQL, NoSQL and
   hybrid search. All queries are logged to `analytics.db` for compliance.
 
-These modules are simulation-focused and designed to run without actual quantum
-hardware. They can be imported via the `quantum` package.
+These modules default to simulation mode but can use real IBM Quantum hardware
+when `qiskit-ibm-provider` is installed and `QISKIT_IBM_TOKEN` is configured.
+Use the `--hardware` flag in `quantum_integration_orchestrator.py` to enable
+hardware execution. If hardware is unavailable, the modules automatically fall
+back to local simulation.
