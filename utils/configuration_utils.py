@@ -7,12 +7,14 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from utils.cross_platform_paths import CrossPlatformPathManager
+
 import yaml
 
 
 def load_enterprise_configuration(config_path: Optional[str] = None) -> Dict[str, Any]:
     """Load enterprise configuration from JSON or YAML with environment overrides."""
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    workspace_root = CrossPlatformPathManager.get_workspace_path()
 
     if config_path is None:
         config_path = workspace_root / "config" / "enterprise.json"
@@ -55,8 +57,8 @@ def load_enterprise_configuration(config_path: Optional[str] = None) -> Dict[str
 
 def validate_environment_compliance() -> bool:
     """Validate enterprise environment compliance"""
-    workspace = os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
-    return workspace.endswith("gh_COPILOT")
+    workspace = CrossPlatformPathManager.get_workspace_path()
+    return str(workspace).endswith("gh_COPILOT")
 
 
 def operations___init__(workspace_path: Optional[str] = None,

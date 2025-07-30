@@ -10,7 +10,7 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 
 def validate_workspace_integrity() -> Dict[str, Any]:
     """Validate workspace integrity and structure"""
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    workspace = CrossPlatformPathManager.get_workspace_path()
 
     validation_results = {
         "workspace_exists": workspace.exists(),
@@ -44,7 +44,7 @@ def validate_workspace_integrity() -> Dict[str, Any]:
 
 def validate_script_organization() -> Dict[str, Any]:
     """Validate script organization structure"""
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    workspace = CrossPlatformPathManager.get_workspace_path()
     scripts_dir = workspace / "scripts"
 
     organization_status = {

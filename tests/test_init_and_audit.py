@@ -1,8 +1,15 @@
-from pathlib import Path
 import sqlite3
 
 
 def test_init_and_audit(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_workspace_path",
+        lambda: tmp_path,
+    )
+    monkeypatch.setattr(
+        "utils.cross_platform_paths.CrossPlatformPathManager.get_backup_root",
+        lambda: tmp_path / "ext_backups",
+    )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "ext_backups"))
     from scripts.utilities import init_and_audit
