@@ -110,6 +110,10 @@ sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
+sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
+# Or run all migrations sequentially
+python scripts/run_migrations.py
 # Verify creation
 sqlite3 databases/analytics.db ".schema code_audit_log"
 sqlite3 databases/analytics.db ".schema code_audit_history"
@@ -348,6 +352,13 @@ sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
+sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
+```
+
+Alternatively, run all migrations sequentially:
+```bash
+python scripts/run_migrations.py
 ```
 
 Automated tests perform these migrations in-memory with progress bars and DUAL
@@ -849,12 +860,17 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 python scripts/code_placeholder_audit.py \
     --workspace $GH_COPILOT_WORKSPACE \
     --analytics-db databases/analytics.db \
-    --production-db databases/production.db
+    --production-db databases/production.db \
+    --exclude-dir builds --exclude-dir archive
 # CI runs the audit via GitHub Actions using `actions/setup-python` and
 # `pip install -r requirements.txt` to ensure dependencies are present.
 
 # The audit automatically populates `code_audit_log` in analytics.db for
-# compliance reporting.
+# compliance reporting. After fixing issues, run:
+python scripts/code_placeholder_audit.py --update-resolutions
+# to mark resolved entries in `todo_fixme_tracking`.
+# `scripts/correction_logger_and_rollback.py` records final corrections.
+# Check `/dashboard/compliance` to verify the placeholder count reaches zero.
 # Run `scripts/database/add_code_audit_log.py` if the table is missing.
 The `compliance-audit.yml` workflow now installs dependencies, including
 `tqdm`, using Python 3.11 before invoking this script.

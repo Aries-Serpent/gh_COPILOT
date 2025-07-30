@@ -91,11 +91,11 @@ The Flask dashboard exposes a `/dashboard/compliance` endpoint that reads these
 metrics and shows real-time placeholder removal progress. When a placeholder is corrected, record the update in `analytics.db:correction_logs`. This ensures future audits can cross-reference removed placeholders with generated fixes.
 
 ### Placeholder Correction Workflow
-1. Run `scripts/code_placeholder_audit.py` to log all TODOs and FIXMEs.
-2. Review entries in `analytics.db:placeholder_audit` and correct the code.
+1. Run `scripts/code_placeholder_audit.py` (use `--exclude-dir builds --exclude-dir archive` to skip generated artifacts).
+2. Fix or remove placeholders based on `analytics.db:placeholder_audit` entries.
 3. Re-run `scripts/code_placeholder_audit.py --update-resolutions` to mark resolved items in `todo_fixme_tracking`.
 4. Record finalized corrections with `scripts/correction_logger_and_rollback.py`.
-5. Monitor `/dashboard/compliance` to verify the compliance score improves.
+5. Monitor `/dashboard/compliance` to verify the compliance score improves and database sizes stay under **99.9 MB**.
 
 ## 6. Database Maintenance
 

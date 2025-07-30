@@ -77,7 +77,13 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
 
 
 # Insert findings into analytics.db.code_audit_log
-def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False) -> None:
+def log_findings(
+    results: List[Dict],
+    analytics_db: Path,
+    simulate: bool = False,
+    *,
+    update_resolutions: bool = False,
+) -> None:
     """Log audit results to analytics.db.
 
     Parameters
@@ -161,30 +167,31 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
                     "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, status='resolved' WHERE rowid=?",
                     (datetime.now().isoformat(), rowid),
                 )
-        for row in results:
-            key = (row["file"], row["line"], row["pattern"], row["context"])
-            cur = conn.execute(
-                "SELECT 1 FROM todo_fixme_tracking WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=? AND resolved=0",
-                key,
-            )
-            if not cur.fetchone():
-                values = (
-                    row["file"],
-                    row["line"],
-                    row["pattern"],
-                    row["context"],
-                    datetime.now().isoformat(),
+        if not update_resolutions:
+            for row in results:
+                key = (row["file"], row["line"], row["pattern"], row["context"])
+                cur = conn.execute(
+                    "SELECT 1 FROM todo_fixme_tracking WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=? AND resolved=0",
+                    key,
                 )
-                conn.execute(
-                    "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
-                    " VALUES (?, ?, ?, ?, ?)",
-                    values,
-                )
-                conn.execute(
-                    "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp, status)"
-                    " VALUES (?, ?, ?, ?, ?, 'open')",
-                    values,
-                )
+                if not cur.fetchone():
+                    values = (
+                        row["file"],
+                        row["line"],
+                        row["pattern"],
+                        row["context"],
+                        datetime.now().isoformat(),
+                    )
+                    conn.execute(
+                        "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
+                        " VALUES (?, ?, ?, ?, ?)",
+                        values,
+                    )
+                    conn.execute(
+                        "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp, status)"
+                        " VALUES (?, ?, ?, ?, ?, 'open')",
+                        values,
+                    )
         conn.commit()
 
 
@@ -291,6 +298,9 @@ def main(
     dashboard_dir: Optional[str] = None,
     timeout_minutes: int = 30,
     simulate: bool = False,
+    *,
+    exclude_dirs: Optional[List[str]] = None,
+    update_resolutions: bool = False,
 ) -> bool:
     """Entry point for placeholder auditing with full enterprise compliance.
 
@@ -321,7 +331,13 @@ def main(
     timeout = timeout_minutes * 60 if timeout_minutes else None
 
     # Scan files with progress bar and ETC calculation
-    files = [f for f in workspace.rglob("*") if f.is_file()]
+    exclude_list = ["builds", "archive"] if exclude_dirs is None else exclude_dirs
+    exclude = {workspace / d for d in exclude_list}
+    files = [
+        f
+        for f in workspace.rglob("*")
+        if f.is_file() and not any(str(f).startswith(str(p)) for p in exclude)
+    ]
     results: List[Dict] = []
     with tqdm(total=len(files), desc=f"{TEXT['progress']} scanning", unit="file") as bar:
         for idx, file in enumerate(files, 1):
@@ -355,7 +371,7 @@ def main(
             bar.update(1)
 
     # Log findings to analytics.db
-    log_findings(results, analytics, simulate=simulate)
+    log_findings(results, analytics, simulate=simulate, update_resolutions=update_resolutions)
     # Update dashboard/compliance
     if not simulate:
         update_dashboard(len(results), dashboard, analytics)
@@ -387,6 +403,18 @@ if __name__ == "__main__":
     parser.add_argument("--dashboard-dir", type=str, help="dashboard/compliance directory")
     parser.add_argument("--timeout-minutes", type=int, default=30, help="Scan timeout in minutes")
     parser.add_argument("--simulate", action="store_true", help="Run in test mode without writes")
+    parser.add_argument(
+        "--exclude-dir",
+        action="append",
+        dest="exclude_dirs",
+        default=None,
+        help="Directory to exclude from scanning (can be used multiple times)",
+    )
+    parser.add_argument(
+        "--update-resolutions",
+        action="store_true",
+        help="Only mark resolved entries; do not log new placeholders",
+    )
     args = parser.parse_args()
     success = main(
         workspace_path=args.workspace_path,
@@ -395,5 +423,7 @@ if __name__ == "__main__":
         dashboard_dir=args.dashboard_dir,
         timeout_minutes=args.timeout_minutes,
         simulate=args.simulate,
+        exclude_dirs=args.exclude_dirs,
+        update_resolutions=args.update_resolutions,
     )
     raise SystemExit(0 if success else 1)
