@@ -70,3 +70,39 @@ def test_validator_failure(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(template_synchronizer, "SecondaryCopilotValidator", lambda: dummy)
     template_synchronizer.synchronize_templates_real([db_a, db_b])
     assert dummy.called
+
+
+def test_clustered_sync_writes_representatives(tmp_path: Path, monkeypatch) -> None:
+    db_a = tmp_path / "a.db"
+    db_b = tmp_path / "b.db"
+    analytics = tmp_path / "analytics.db"
+    create_db(db_a, {"t1": "foo", "t2": "bar"})
+    create_db(db_b, {})
+    monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
+
+    def dummy_cluster(templates: dict[str, str]) -> dict[str, str]:
+        return {"t1": templates["t1"]}
+
+    monkeypatch.setattr(template_synchronizer, "_cluster_templates", dummy_cluster)
+
+    scores: list[str] = []
+
+    def fake_score(content: str) -> float:
+        scores.append(content)
+        return 100.0
+
+    monkeypatch.setattr(template_synchronizer, "_compliance_score", fake_score)
+
+    synced = template_synchronizer.synchronize_templates_real([db_a, db_b], cluster=True)
+    assert synced == 2
+
+    with sqlite3.connect(db_b) as conn:
+        rows = conn.execute("SELECT name, template_content FROM templates ORDER BY name").fetchall()
+        assert rows == [("t1", "foo")]
+
+    assert "foo" in scores and "bar" in scores
+
+    with sqlite3.connect(analytics) as conn:
+        rows = conn.execute("SELECT target FROM sync_events_log ORDER BY id").fetchall()
+        assert (str(db_b),) in rows
+        assert any(r[0].startswith("complete:") for r in rows)
