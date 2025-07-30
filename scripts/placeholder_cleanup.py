@@ -1,16 +1,15 @@
-"""Placeholder Cleanup CLI.
+"""Deprecated placeholder cleanup wrapper.
 
-This script orchestrates placeholder auditing, removal, logging, and dashboard
-updates. It uses :mod:`scripts.code_placeholder_audit` for detection and
-:mod:`template_engine.template_placeholder_remover` for cleanup.
+This thin wrapper forwards arguments to :mod:`scripts.code_placeholder_audit`.
+Use ``scripts/code_placeholder_audit.py`` directly for all operations.
 """
+
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
 import json
-from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 from scripts import code_placeholder_audit as audit
 
 
@@ -24,19 +23,16 @@ def run(
     cleanup: bool = False,
     dry_run: bool = False,
 ) -> bool:
-    patterns = (
-        audit.DEFAULT_PATTERNS
-        + audit.fetch_db_placeholders(production_db)
-        + audit.load_best_practice_patterns()
+    """Proxy to :func:`scripts.code_placeholder_audit.main`."""
+    return audit.main(
+        workspace_path=str(workspace),
+        analytics_db=str(analytics_db),
+        production_db=str(production_db),
+        dashboard_dir=str(dashboard_dir),
+        timeout_minutes=timeout_minutes,
+        simulate=dry_run,
+        apply_fixes=cleanup,
     )
-    results = audit.scan_files(workspace, patterns, timeout_minutes * 60)
-    audit.log_findings(results, analytics_db, simulate=dry_run)
-    if cleanup and not dry_run:
-        audit.auto_remove_placeholders(results, production_db, analytics_db)
-        audit.log_findings([], analytics_db, update_resolutions=True)
-    if not dry_run:
-        ComplianceMetricsUpdater(dashboard_dir).update()
-    return audit.validate_results(0 if cleanup else len(results), analytics_db)
 
 
 if __name__ == "__main__":
@@ -48,13 +44,18 @@ if __name__ == "__main__":
     parser.add_argument("--timeout", type=int, default=30)
     parser.add_argument("--cleanup", action="store_true", help="Remove placeholders")
     parser.add_argument("--dry-run", action="store_true", help="Run without DB writes")
+    parser.add_argument("--force", action="store_true", help="Force cleanup when not in dry-run mode")
     parser.add_argument("--rollback-last", action="store_true", help="Rollback last audit")
     args = parser.parse_args()
     if args.rollback_last:
-        if audit.rollback_last_entry(args.analytics_db):
-            print("Rollback complete")
-            raise SystemExit(0)
+        result = audit.rollback_last_entry(args.analytics_db)
+        print(json.dumps({"rollback": result}))
+        raise SystemExit(0 if result else 1)
+
+    if args.cleanup and not (args.dry_run or args.force):
+        print(json.dumps({"error": "--cleanup requires --force when not in dry-run"}))
         raise SystemExit(1)
+
     success = run(
         args.workspace,
         args.analytics_db,
@@ -68,7 +69,7 @@ if __name__ == "__main__":
         "workspace": str(args.workspace),
         "cleanup": args.cleanup,
         "dry_run": args.dry_run,
-        "result": success,
+        "success": success,
     }
     print(json.dumps(summary))
     raise SystemExit(0 if success else 1)
