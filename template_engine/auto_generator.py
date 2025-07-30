@@ -30,14 +30,15 @@ from .placeholder_utils import DEFAULT_PRODUCTION_DB
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
 
-# Quantum demo import (placeholder for quantum-inspired scoring)
+# Quantum scoring helper
 try:
-    from quantum_algorithm_library_expansion import demo_quantum_fourier_transform
+    from quantum_algorithm_library_expansion import quantum_text_score
 except ImportError:
 
-    def demo_quantum_fourier_transform():
-        # Fallback: return a normalized vector
-        return np.ones(8) / np.sqrt(8)
+    def quantum_text_score(text: str) -> float:
+        # Fallback implementation mirrors classical path
+        arr = np.fromiter((ord(c) for c in text), dtype=float)
+        return float(np.linalg.norm(arr) / ((arr.size or 1) * 255))
 
 
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -178,10 +179,8 @@ class TemplateAutoGenerator:
         return templates
 
     def _quantum_score(self, text: str) -> float:
-        """Return a quantum-inspired score for ``text``."""
-        vec = np.array(demo_quantum_fourier_transform())
-        baseline = np.ones_like(vec) / np.sqrt(len(vec))
-        return float(abs(np.dot(vec, baseline.conj())))
+        """Return a quantum-inspired score for ``text`` using helper module."""
+        return quantum_text_score(text)
 
     def _load_production_patterns(self) -> list[str]:
         """Fetch template patterns from ``production.db`` if available."""
