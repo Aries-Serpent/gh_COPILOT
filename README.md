@@ -280,6 +280,8 @@ docker run -p 5000:5000 -e GH_COPILOT_BACKUP_ROOT=/path/to/backups gh_copilot
 
 Inside the image `GH_COPILOT_BACKUP_ROOT` defaults to `/backup`. Map this path to a host directory to persist logs and backups.
 
+When launching with Docker Compose, the provided `docker-compose.yml` mounts `${GH_COPILOT_BACKUP_ROOT:-/backup}` at `/backup`. Set `GH_COPILOT_BACKUP_ROOT` on the host before running `docker-compose up` so backups survive container restarts.
+
 ### Wrapping, Logging, and Compliance (WLC)
 Run the session manager after setting the workspace and backup paths:
 
