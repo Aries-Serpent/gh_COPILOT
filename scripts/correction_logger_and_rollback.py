@@ -28,6 +28,9 @@ from tqdm import tqdm
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
+from scripts.database.add_rollback_strategy_history import (
+    ensure_rollback_strategy_history,
+)
 from utils.log_utils import _log_event
 
 # Enterprise logging setup
@@ -63,6 +66,7 @@ class CorrectionLoggerRollback:
         self._ensure_table_exists()
         ensure_violation_logs(self.analytics_db)
         ensure_rollback_logs(self.analytics_db)
+        ensure_rollback_strategy_history(self.analytics_db)
         self.history_cache: Dict[str, int] = {}
 
     def _derive_root_cause(self, rationale: str) -> str:
@@ -74,13 +78,20 @@ class CorrectionLoggerRollback:
         return "unspecified"
 
     def suggest_rollback_strategy(self, target: Path) -> str:
-        """Return a simple rollback recommendation based on history."""
-        count = self.history_cache.get(str(target), 0)
-        if count > 3:
+        """Return a rollback recommendation based on past outcomes."""
+        with sqlite3.connect(self.analytics_db) as conn:
+            cur = conn.execute(
+                "SELECT outcome FROM rollback_strategy_history WHERE target=?",
+                (str(target),),
+            )
+            outcomes = [row[0] for row in cur.fetchall()]
+        count = len(outcomes)
+        failures = outcomes.count("failure")
+        if count >= 4 and failures >= 2:
             return "Consider immutable backup storage or audit investigation."
         if count > 1:
             return "Automate regression tests for this file."
-        return "Standard rollback" 
+        return "Standard rollback"
 
     def _ensure_table_exists(self) -> None:
         self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
@@ -93,6 +104,15 @@ class CorrectionLoggerRollback:
                     compliance_score REAL,
                     rollback_reference TEXT,
                     ts TEXT
+                )"""
+            )
+            conn.execute(
+                """CREATE TABLE IF NOT EXISTS rollback_strategy_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    target TEXT NOT NULL,
+                    strategy TEXT NOT NULL,
+                    outcome TEXT NOT NULL,
+                    timestamp TEXT NOT NULL
                 )"""
             )
             conn.commit()
@@ -120,7 +140,19 @@ class CorrectionLoggerRollback:
                 ),
             )
             conn.commit()
-        logging.info(f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score}")
+        logging.info(
+            f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score}"
+        )
+        _log_event(
+            {
+                "event": "correction",
+                "file_path": str(file_path),
+                "rationale": rationale,
+                "score": compliance_score,
+            },
+            table="corrections",
+            db_path=self.analytics_db,
+        )
         key = str(file_path)
         self.history_cache[key] = self.history_cache.get(key, 0) + 1
 
@@ -138,6 +170,25 @@ class CorrectionLoggerRollback:
             db_path=self.analytics_db,
         )
 
+    def _record_strategy_history(self, target: Path, strategy: str, outcome: str) -> None:
+        """Log chosen rollback strategy and outcome."""
+        with sqlite3.connect(self.analytics_db) as conn:
+            conn.execute(
+                "INSERT INTO rollback_strategy_history (target, strategy, outcome, timestamp) VALUES (?, ?, ?, ?)",
+                (
+                    str(target),
+                    strategy,
+                    outcome,
+                    datetime.now().isoformat(),
+                ),
+            )
+            conn.commit()
+        _log_event(
+            {"event": "strategy", "target": str(target), "strategy": strategy, "outcome": outcome},
+            table="rollback_strategy_history",
+            db_path=self.analytics_db,
+        )
+
     def auto_rollback(self, target: Path, backup_path: Optional[Path] = None) -> bool:
         """
         Auto-rollback for failed syncs or corrections. Restores file from backup if available.
@@ -149,6 +200,8 @@ class CorrectionLoggerRollback:
             pbar.set_description("Validating Target")
             if not target.exists() and not backup_path:
                 logging.error(f"Target file does not exist and no backup provided: {target}")
+                strategy = self.suggest_rollback_strategy(target)
+                self._record_strategy_history(target, strategy, "failure")
                 pbar.update(100)
                 return False
             pbar.update(25)
@@ -173,6 +226,7 @@ class CorrectionLoggerRollback:
                 )
                 strategy = self.suggest_rollback_strategy(target)
                 logging.info(f"Suggested strategy: {strategy}")
+                self._record_strategy_history(target, strategy, "success")
                 with sqlite3.connect(self.analytics_db) as conn:
                     conn.execute(
                         "INSERT INTO rollback_logs (target, backup, timestamp) VALUES (?, ?, ?)",
@@ -191,6 +245,8 @@ class CorrectionLoggerRollback:
                 return True
             else:
                 logging.error(f"Rollback failed for {target}")
+                strategy = self.suggest_rollback_strategy(target)
+                self._record_strategy_history(target, strategy, "failure")
                 _log_event(
                     {"event": "rollback_failed", "target": str(target)},
                     table="rollback_logs",
