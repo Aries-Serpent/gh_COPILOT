@@ -87,20 +87,18 @@ def _log_patterns(patterns: List[str], analytics_db: Path) -> None:
 
 
 def _log_pattern(analytics_db: Path, pattern: str) -> None:
-    """
-    Log a single pattern to analytics.db for DUAL COPILOT validation.
-    """
+    """Log a single pattern to ``analytics_db``."""
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS pattern_mining_logs (
+            """CREATE TABLE IF NOT EXISTS pattern_mining_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 pattern TEXT,
-                timestamp TEXT
+                ts TEXT
             )"""
         )
         conn.execute(
-            "INSERT INTO pattern_mining_logs (pattern, timestamp) VALUES (?, ?)",
+            "INSERT INTO pattern_mining_log (pattern, ts) VALUES (?, ?)",
             (pattern, datetime.utcnow().isoformat()),
         )
         conn.commit()
@@ -187,7 +185,6 @@ def mine_patterns(
                 )
             conn.commit()
     _log_audit_real(str(analytics_db), f"clusters={cluster_count}")
-    _log_patterns(patterns, analytics_db)
     logging.info(
         "Pattern mining completed in %.2fs | ETC: %s",
         time.time() - start_ts,
