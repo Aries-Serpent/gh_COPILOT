@@ -20,7 +20,7 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Iterable
 
 from tqdm import tqdm
 
