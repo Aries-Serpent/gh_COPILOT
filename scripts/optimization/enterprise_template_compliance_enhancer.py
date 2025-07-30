@@ -11,7 +11,6 @@ Enterprise Standards Compliance:
 """
 
 import sys
-import logging
 from pathlib import Path
 from datetime import datetime
 from tqdm import tqdm
@@ -45,6 +44,26 @@ class EnterpriseFlake8Corrector(BaseCorrector):
         super().__init__(workspace_path)
         self.analytics_db = Path(workspace_path) / "databases" / "analytics.db"
         self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
+
+    def cross_validate_with_ruff(self, tmp_file: Path, original: str) -> bool:
+        """Run ruff lint on ``tmp_file`` and log discrepancies."""
+        result = subprocess.run([
+            "ruff",
+            str(tmp_file),
+        ], capture_output=True, text=True)
+        if result.returncode != 0:
+            _log_event(
+                {
+                    "event": "discrepancy",
+                    "file": original,
+                    "details": result.stdout.strip(),
+                },
+                table="correction_logs",
+                db_path=self.analytics_db,
+                test_mode=False,
+            )
+            return False
+        return True
 
     def execute_correction(self) -> bool:
         """Execute Flake8 correction with visual indicators"""
@@ -158,22 +177,7 @@ class EnterpriseFlake8Corrector(BaseCorrector):
                         file_path,
                     )
                     return False
-                # secondary validation with ruff linting
-                lint_res = subprocess.run([
-                    "ruff",
-                    str(tmp_path),
-                ], capture_output=True, text=True)
-                if lint_res.returncode != 0:
-                    _log_event(
-                        {
-                            "event": "discrepancy",
-                            "file": file_path,
-                            "details": lint_res.stdout.strip(),
-                        },
-                        table="correction_logs",
-                        db_path=self.analytics_db,
-                        test_mode=False,
-                    )
+                if not self.cross_validate_with_ruff(tmp_path, file_path):
                     tmp_path.unlink(missing_ok=True)
                     return False
 

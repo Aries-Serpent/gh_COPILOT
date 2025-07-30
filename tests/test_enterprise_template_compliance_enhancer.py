@@ -1,5 +1,6 @@
 import logging
 import sqlite3
+import subprocess
 from scripts.optimization.enterprise_template_compliance_enhancer import EnterpriseFlake8Corrector
 from secondary_copilot_validator import SecondaryCopilotValidator
 
@@ -13,6 +14,11 @@ def test_correct_file_logs_and_fixes(tmp_path, caplog, monkeypatch):
         SecondaryCopilotValidator,
         "validate_corrections",
         lambda self, files: called.append(files) or True,
+    )
+    monkeypatch.setattr(
+        EnterpriseFlake8Corrector,
+        "cross_validate_with_ruff",
+        lambda self, tmp, orig: True,
     )
     events = []
     monkeypatch.setattr(
@@ -47,6 +53,16 @@ def test_correct_file_updates_tracking(tmp_path, monkeypatch):
         "scripts.optimization.enterprise_template_compliance_enhancer._log_event",
         lambda evt, **kw: events.append(evt),
     )
+    monkeypatch.setattr(
+        SecondaryCopilotValidator,
+        "validate_corrections",
+        lambda self, files: True,
+    )
+    monkeypatch.setattr(
+        EnterpriseFlake8Corrector,
+        "cross_validate_with_ruff",
+        lambda self, tmp, orig: True,
+    )
     fixer = EnterpriseFlake8Corrector(workspace_path=str(tmp_path))
     fixer.analytics_db = analytics
     assert fixer.correct_file(str(bad))
@@ -70,9 +86,51 @@ def test_validation_failure_prevents_write(tmp_path, monkeypatch):
         "validate_corrections",
         lambda self, files: False,
     )
+    monkeypatch.setattr(
+        EnterpriseFlake8Corrector,
+        "cross_validate_with_ruff",
+        lambda self, tmp, orig: True,
+    )
 
     fixer = EnterpriseFlake8Corrector(workspace_path=str(tmp_path))
     changed = fixer.correct_file(str(bad))
 
     assert not changed
     assert bad.read_text(encoding="utf-8") == content
+
+
+def test_cross_validation_failure_logs_discrepancy(tmp_path, monkeypatch):
+    bad = tmp_path / "bad.py"
+    bad.write_text("print('hi')  \n", encoding="utf-8")
+
+    events = []
+    monkeypatch.setattr(
+        "scripts.optimization.enterprise_template_compliance_enhancer._log_event",
+        lambda evt, **kw: events.append(evt),
+    )
+
+    class Result:
+        def __init__(self, rc=0, out=""):
+            self.returncode = rc
+            self.stdout = out
+            self.stderr = ""
+
+    orig_run = subprocess.run
+
+    def fake_run(cmd, *args, **kwargs):
+        if cmd[0] == "ruff":
+            return Result(1, "lint error")
+        return orig_run(cmd, *args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    monkeypatch.setattr(
+        SecondaryCopilotValidator,
+        "validate_corrections",
+        lambda self, files: True,
+    )
+
+    fixer = EnterpriseFlake8Corrector(workspace_path=str(tmp_path))
+    changed = fixer.correct_file(str(bad))
+
+    assert not changed
+    assert any(e.get("event") == "discrepancy" for e in events)

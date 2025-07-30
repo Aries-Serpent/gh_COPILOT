@@ -1,6 +1,7 @@
 import os
 import sqlite3
 from pathlib import Path
+import pytest
 
 from datetime import datetime
 from template_engine.objective_similarity_scorer import (
@@ -65,3 +66,37 @@ def test_similarity_scores_with_quantum(tmp_path: Path) -> None:
     end_time = datetime.now()
     duration = (end_time - start_time).total_seconds()
     print(f"TEST COMPLETED: test_compute_similarity_scores in {duration:.2f}s")
+
+
+def test_similarity_scores_with_jaccard(tmp_path: Path) -> None:
+    prod = tmp_path / "production.db"
+    analytics = tmp_path / "analytics.db"
+    with sqlite3.connect(prod) as conn:
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("INSERT INTO code_templates (template_code) VALUES ('foo bar')")
+    scores = compute_similarity_scores(
+        "foo bar",
+        prod,
+        analytics,
+        timeout_minutes=1,
+        methods=["tfidf", "jaccard"],
+        weights=[0.7, 0.3],
+    )
+    assert scores
+
+
+def test_similarity_weights_mismatch(tmp_path: Path) -> None:
+    prod = tmp_path / "production.db"
+    analytics = tmp_path / "analytics.db"
+    with sqlite3.connect(prod) as conn:
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("INSERT INTO code_templates (template_code) VALUES ('foo')")
+    with pytest.raises(ValueError):
+        compute_similarity_scores(
+            "foo",
+            prod,
+            analytics,
+            timeout_minutes=1,
+            methods=["tfidf", "jaccard"],
+            weights=[1.0],
+        )
