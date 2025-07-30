@@ -1,6 +1,9 @@
 # QUANTUM INTEGRATION GUIDE
 ## Implementation and Deployment
 
+> **Note**
+> All quantum features run in simulation unless `qiskit-ibm-provider` is installed and configured with `QISKIT_IBM_TOKEN`.
+
 ### Integration Architecture
 ```
 PIS Framework

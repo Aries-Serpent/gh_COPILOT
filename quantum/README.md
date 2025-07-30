@@ -3,6 +3,9 @@
 This package provides experimental quantum-inspired utilities used across the
 gh_COPILOT toolkit.
 
+> **Note**
+> All quantum modules run in simulation unless `qiskit-ibm-provider` is installed and configured with `QISKIT_IBM_TOKEN`.
+
 ## Optimizers
 - `optimizers.quantum_optimizer.QuantumOptimizer` – classical/quantum hybrid
   optimizer with progress logging. Events are recorded using

@@ -16,6 +16,9 @@
 
 The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. **Many features remain experimental or stubbed; quantum functionality is simulated only and several modules are still incomplete.**
 
+> **Note**
+> All quantum utilities operate in simulation unless `qiskit-ibm-provider` is installed and configured with `QISKIT_IBM_TOKEN`.
+
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** initial implementation in progress
 - **Database-First Architecture:** `databases/production.db` used as primary reference
@@ -219,8 +222,7 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 python simplified_quantum_integration_orchestrator.py
 ```
 
-To execute algorithms on IBM Quantum hardware install `qiskit-ibm-provider` and
-run:
+By default the orchestrator uses the simulator. To execute algorithms on IBM Quantum hardware install `qiskit-ibm-provider` and run:
 
 ```bash
 python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
