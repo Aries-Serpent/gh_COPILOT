@@ -44,7 +44,9 @@ except ImportError:  # pragma: no cover - optional dependency
     def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
         """Gracefully degrade when quantum library is unavailable."""
         return 0.0
+
     def quantum_cluster_score(matrix: np.ndarray) -> float:
+        """Gracefully degrade when quantum library is unavailable."""
         return 0.0
 
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
