@@ -12,6 +12,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterable, List
 
+try:
+    from qiskit import QuantumCircuit
+    from qiskit_aer import AerSimulator
+    QISKIT_AVAILABLE = True
+except Exception:  # pragma: no cover - qiskit optional
+    QISKIT_AVAILABLE = False
+
 import numpy as np
 from sklearn.cluster import KMeans
 from tqdm import tqdm
@@ -66,6 +73,7 @@ __all__ = [
     "demo_quantum_neural_network",
     "quantum_cluster_score",
     "quantum_pattern_match_stub",
+    "quantum_text_score",
 ]
 
 
@@ -219,3 +227,28 @@ def quantum_pattern_match_stub(pattern: Iterable[int], data: Iterable[int]) -> b
             return True
     log_quantum_event("pattern_match", "not_found")
     return False
+
+
+def quantum_text_score(text: str) -> float:
+    """Return a quantum-inspired text score.
+
+    Uses ``qiskit`` when available, otherwise falls back to a
+    simple classical heuristic. In either case the execution path
+    is logged to ``analytics.db`` via :func:`log_quantum_event`.
+    """
+    if QISKIT_AVAILABLE:
+        circ = QuantumCircuit(1, 1)
+        theta = (sum(map(ord, text)) % 360) * np.pi / 180
+        circ.ry(theta, 0)
+        circ.measure(0, 0)
+        backend = AerSimulator()
+        result = backend.run(circ, shots=256).result()
+        counts = result.get_counts()
+        score = counts.get("1", 0) / 256
+        log_quantum_event("text_score", "qiskit")
+        return float(score)
+
+    arr = np.fromiter((ord(c) for c in text), dtype=float)
+    score = float(np.linalg.norm(arr) / ((arr.size or 1) * 255))
+    log_quantum_event("text_score", "simulated")
+    return score
