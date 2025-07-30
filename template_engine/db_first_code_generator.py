@@ -203,9 +203,21 @@ class TemplateAutoGenerator:
                     q_text = 1.0 - abs(self._quantum_score(text) - q_target)
                     score = id_to_score[tid] + tfidf + q_sim + q_text + bonus
                     ranked.append((text, score))
-                    _log_event({"event": "rank_eval", "target": target, "template_id": tid, "score": score}, table="generator_events", db_path=self.analytics_db)
-                    _log_event({"event": "tfidf_score", "template_id": tid, "score": tfidf}, table="generator_events", db_path=self.analytics_db)
-                    _log_event({"event": "quantum_text", "template_id": tid, "score": q_text}, table="generator_events", db_path=self.analytics_db)
+                    _log_event(
+                        {"event": "rank_eval", "target": target, "template_id": tid, "score": score},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {"event": "tfidf_score", "template_id": tid, "score": tfidf},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {"event": "quantum_text", "template_id": tid, "score": q_text},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
         if not ranked:
             candidates = self.templates or self.patterns
             for tmpl in candidates:
@@ -214,9 +226,21 @@ class TemplateAutoGenerator:
                 q_text = 1.0 - abs(self._quantum_score(tmpl) - q_target)
                 score = tfidf + q_sim + q_text
                 ranked.append((tmpl, score))
-                _log_event({"event": "rank_eval", "target": target, "template_id": -1, "score": score}, table="generator_events", db_path=self.analytics_db)
-                _log_event({"event": "tfidf_score", "template_id": -1, "score": tfidf}, table="generator_events", db_path=self.analytics_db)
-                _log_event({"event": "quantum_text", "template_id": -1, "score": q_text}, table="generator_events", db_path=self.analytics_db)
+                _log_event(
+                    {"event": "rank_eval", "target": target, "template_id": -1, "score": score},
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {"event": "tfidf_score", "template_id": -1, "score": tfidf},
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {"event": "quantum_text", "template_id": -1, "score": q_text},
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
         ranked.sort(key=lambda x: x[1], reverse=True)
         return [t for t, _ in ranked]
 
@@ -255,6 +279,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         self.patterns = []
 
     def fetch_existing_pattern(self, name: str) -> str | None:  # pragma: no cover - simplified
+        result: str | None = None
         if self.production_db.exists():
             with sqlite3.connect(self.production_db) as conn:
                 cur = conn.execute(
@@ -263,8 +288,14 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 )
                 row = cur.fetchone()
                 if row:
-                    return row[0]
-        return None
+                    result = row[0]
+        _log_event(
+            {"event": "pattern_lookup", "name": name, "found": bool(result)},
+            table="code_generation_events",
+            db_path=self.analytics_db,
+            test_mode=False,
+        )
+        return result
 
     def generate(self, objective: str) -> str:
         pattern = self.fetch_existing_pattern(objective)
@@ -274,26 +305,34 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
             ranked = self.rank_templates(objective)
             result = ranked[0] if ranked else "Auto-generated template"
         with sqlite3.connect(self.analytics_db) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS code_generation_events (objective TEXT, status TEXT)"
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS code_generation_events (objective TEXT, status TEXT)")
             conn.execute(
                 "INSERT INTO code_generation_events (objective, status) VALUES (?, 'generated')",
                 (objective,),
             )
             conn.commit()
+        _log_event(
+            {"objective": objective, "status": "generated"},
+            table="code_generation_events",
+            db_path=self.analytics_db,
+            test_mode=False,
+        )
         return result
 
     def generate_integration_ready_code(self, objective: str) -> Path:
         path = Path(f"{objective}.py")
         path.write_text(self.generate(objective))
         with sqlite3.connect(self.analytics_db) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS code_generation_events (objective TEXT, status TEXT)"
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS code_generation_events (objective TEXT, status TEXT)")
             conn.execute(
                 "INSERT INTO code_generation_events (objective, status) VALUES (?, 'integration-ready')",
                 (objective,),
             )
             conn.commit()
+        _log_event(
+            {"objective": objective, "status": "integration-ready"},
+            table="code_generation_events",
+            db_path=self.analytics_db,
+            test_mode=False,
+        )
         return path

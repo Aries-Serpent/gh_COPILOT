@@ -42,7 +42,7 @@ def test_generate_integration_ready_code(tmp_path: Path) -> None:
     path = gen.generate_integration_ready_code("Obj")
     assert path.exists()
     with sqlite3.connect(analytics) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM code_generation_events WHERE status='integration-ready'"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM code_generation_events WHERE status='integration-ready'").fetchone()[
+            0
+        ]
     assert count == 1
