@@ -38,16 +38,22 @@ try:
         quantum_cluster_score,
     )
 except ImportError:  # pragma: no cover - optional dependency
+    from importlib import import_module
+
+    _qal = import_module("quantum_algorithm_library_expansion")
+
     def quantum_text_score(text: str) -> float:
-        """Gracefully degrade when quantum library is unavailable."""
-        return 0.0
+        """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+        return _qal.quantum_text_score(text)
+
     def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
-        """Gracefully degrade when quantum library is unavailable."""
-        return 0.0
+        """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+        return _qal.quantum_similarity_score(a, b)
 
     def quantum_cluster_score(matrix: np.ndarray) -> float:
-        """Gracefully degrade when quantum library is unavailable."""
-        return 0.0
+        """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+        return _qal.quantum_cluster_score(matrix)
+
 
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
@@ -285,13 +291,39 @@ class TemplateAutoGenerator:
                     q_vec = quantum_similarity_score(vecs[0], vecs[1])
                     q_text = 1.0 - abs(self._quantum_score(text) - q_target)
                     c_score = quantum_cluster_score(np.vstack([vecs[0], vecs[1]]))
-                    score = id_to_score[tid] + tfidf + q_sim + q_vec + c_score + q_text + bonus
+                    q_total = float(np.mean([q_sim, q_vec, q_text, c_score]))
+                    score = id_to_score[tid] + tfidf * q_total + bonus
                     ranked.append((text, score))
-                    _log_event({"event": "rank_eval", "target": target, "template_id": tid, "score": score}, table="generator_events", db_path=self.analytics_db)
-                    _log_event({"event": "tfidf_score", "template_id": tid, "score": tfidf}, table="generator_events", db_path=self.analytics_db)
-                    _log_event({"event": "quantum_similarity", "template_id": tid, "score": q_vec}, table="generator_events", db_path=self.analytics_db)
-                    _log_event({"event": "quantum_text", "template_id": tid, "score": q_text}, table="generator_events", db_path=self.analytics_db)
-                    _log_event({"event": "cluster_score", "template_id": tid, "score": c_score}, table="generator_events", db_path=self.analytics_db)
+                    _log_event(
+                        {"event": "rank_eval", "target": target, "template_id": tid, "score": score},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {"event": "tfidf_score", "template_id": tid, "score": tfidf},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {"event": "quantum_similarity", "template_id": tid, "score": q_vec},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {"event": "quantum_text", "template_id": tid, "score": q_text},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {"event": "cluster_score", "template_id": tid, "score": c_score},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {"event": "quantum_total", "template_id": tid, "score": q_total},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
         if not ranked:
             candidates = self.templates or self.patterns
             for tmpl in candidates:
@@ -301,13 +333,39 @@ class TemplateAutoGenerator:
                 q_vec = quantum_similarity_score(vecs[0], vecs[1])
                 q_text = 1.0 - abs(self._quantum_score(tmpl) - q_target)
                 c_score = quantum_cluster_score(np.vstack([vecs[0], vecs[1]]))
-                score = tfidf + q_sim + q_vec + c_score + q_text
+                q_total = float(np.mean([q_sim, q_vec, q_text, c_score]))
+                score = tfidf * q_total
                 ranked.append((tmpl, score))
-                _log_event({"event": "rank_eval", "target": target, "template_id": -1, "score": score}, table="generator_events", db_path=self.analytics_db)
-                _log_event({"event": "tfidf_score", "template_id": -1, "score": tfidf}, table="generator_events", db_path=self.analytics_db)
-                _log_event({"event": "quantum_similarity", "template_id": -1, "score": q_vec}, table="generator_events", db_path=self.analytics_db)
-                _log_event({"event": "quantum_text", "template_id": -1, "score": q_text}, table="generator_events", db_path=self.analytics_db)
-                _log_event({"event": "cluster_score", "template_id": -1, "score": c_score}, table="generator_events", db_path=self.analytics_db)
+                _log_event(
+                    {"event": "rank_eval", "target": target, "template_id": -1, "score": score},
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {"event": "tfidf_score", "template_id": -1, "score": tfidf},
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {"event": "quantum_similarity", "template_id": -1, "score": q_vec},
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {"event": "quantum_text", "template_id": -1, "score": q_text},
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {"event": "cluster_score", "template_id": -1, "score": c_score},
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {"event": "quantum_total", "template_id": -1, "score": q_total},
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
         ranked.sort(key=lambda x: x[1], reverse=True)
         result = [t for t, _ in ranked]
         self.template_cache[target] = result
