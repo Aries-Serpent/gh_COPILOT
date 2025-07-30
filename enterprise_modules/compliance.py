@@ -8,6 +8,8 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
+from utils.cross_platform_paths import CrossPlatformPathManager
+
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
 
@@ -64,8 +66,8 @@ def validate_enterprise_operation(
     command: str | None = None,
 ) -> bool:
     """Ensure operations comply with backup, path, and command policies."""
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
-    backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
+    workspace = CrossPlatformPathManager.get_workspace_path()
+    backup_root = CrossPlatformPathManager.get_backup_root()
     path = Path(target_path or workspace)
 
     violations = []

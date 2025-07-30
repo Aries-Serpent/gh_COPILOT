@@ -32,9 +32,10 @@ from scripts.database.add_rollback_strategy_history import (
     ensure_rollback_strategy_history,
 )
 from utils.log_utils import _log_event
+from utils.cross_platform_paths import CrossPlatformPathManager
 
 # Enterprise logging setup
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app")) / "logs" / "correction_logger"
+LOGS_DIR = CrossPlatformPathManager.get_workspace_path() / "logs" / "correction_logger"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"correction_logger_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -44,7 +45,7 @@ logging.basicConfig(
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
-DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app")) / "dashboard" / "compliance"
+DASHBOARD_DIR = CrossPlatformPathManager.get_workspace_path() / "dashboard" / "compliance"
 
 
 class CorrectionLoggerRollback:
@@ -337,7 +338,7 @@ def main(
     # Anti-recursion validation
     validate_enterprise_operation()
 
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
+    workspace = CrossPlatformPathManager.get_workspace_path()
     analytics_db = Path(analytics_db_path or workspace / "databases" / "analytics.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
 
