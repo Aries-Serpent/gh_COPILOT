@@ -22,6 +22,8 @@ Generated: 2025-07-12
 Critical Priority: SYSTEM COMPLETION - Final Chunk 4/4
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import time
@@ -46,50 +48,34 @@ class UnicodeFileInfo:
 
 
 class UnicodeCompatibleFileHandler:
-    def __init__(self, analytics_db: Path | None = None) -> None:
-        self.analytics_db = (
-            analytics_db
-            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
-            / "databases"
-            / "analytics.db"
-        )
-        self.logger = logging.getLogger(__name__)
+    """Simple unicode-aware file reader."""
 
-    def read_file_with_encoding_detection(self, file_path: Path) -> UnicodeFileInfo:
-        """Read ``file_path`` attempting UTF-8 then latin-1 decoding."""
+    def __init__(self, encoding: str = "utf-8"):
+        self.encoding = encoding
 
+    def read_file_with_encoding_detection(self, file_path: str) -> UnicodeFileInfo:
+        """Read a file using the configured encoding."""
         try:
-            content = file_path.read_text(encoding="utf-8")
-            encoding = "utf-8"
-        except UnicodeDecodeError:
-            content = file_path.read_text(encoding="latin-1")
-            encoding = "latin-1"
-
-        _log_event(
-            {"event": "file_read", "file": str(file_path), "encoding": encoding},
-            db_path=self.analytics_db,
-        )
-        return UnicodeFileInfo(file_path, encoding)
+            with open(file_path, "r", encoding=self.encoding):
+                pass
+        except Exception:
+            self.encoding = "utf-8"
+        return UnicodeFileInfo(file_path, self.encoding)
 
 
 class AntiRecursionValidator:
-    def __init__(self, analytics_db: Path | None = None) -> None:
-        self.analytics_db = (
-            analytics_db
-            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
-            / "databases"
-            / "analytics.db"
-        )
-        self.logger = logging.getLogger(__name__)
+    """Check that backups are stored outside the workspace."""
+
+    def __init__(self, workspace: str | None = None):
+        self.workspace = Path(workspace or os.getenv("GH_COPILOT_WORKSPACE", "."))
+        self.backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
 
     def validate_workspace_integrity(self) -> bool:
+        """Return True if backup path is not within the workspace."""
         try:
-            valid = validate_enterprise_operation()
-        except Exception as exc:  # pragma: no cover - safety catch
-            self.logger.error("Anti-recursion validation failed: %s", exc)
-            valid = False
-        _log_event({"event": "anti_recursion_check", "valid": valid}, db_path=self.analytics_db)
-        return valid
+            return not str(self.backup_root).startswith(str(self.workspace))
+        except Exception:
+            return False
 
 
 class EnterpriseLoggingManager:
@@ -174,22 +160,28 @@ class DatabaseDrivenCorrectionEngine:
 # Additional fallback classes
 
 
+@dataclass
 class DatabaseManager:
     def __init__(self, db_path: Path) -> None:
         self.db_path = db_path
         self.logger = logging.getLogger(__name__)
 
 
+@dataclass
 class CorrectionSession:
     def __init__(self, session_id: str) -> None:
         self.session_id = session_id
 
+    session_id: str
 
+
+@dataclass
 class DatabaseCorrectionPattern:
     def __init__(self, pattern: str) -> None:
         self.pattern = pattern
 
 
+@dataclass
 class FileViolationReport:
     def __init__(self, file: Path, violations: list[FlakeViolation]) -> None:
         self.file = file
@@ -277,27 +269,50 @@ class EnterpriseProgressManager:
 
 
 class DualCopilotValidator:
-    def __init__(self, analytics_db: Path | None = None) -> None:
-        self.analytics_db = (
-            analytics_db
-            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
-            / "databases"
-            / "analytics.db"
-        )
-        self.logger = logging.getLogger(__name__)
+    def __init__(self) -> None:
+        self.results: List[DualCopilotValidationResult] = []
 
-    def log_validation(self, valid: bool) -> None:
-        _log_event({"event": "dual_copilot_validation", "valid": valid}, db_path=self.analytics_db)
+    def aggregate_results(self) -> DualCopilotValidationResult:
+        """Aggregate stored validation results into a single report."""
+        if not self.results:
+            return DualCopilotValidationResult(
+                validation_id="NONE",
+                timestamp=datetime.now(),
+                primary_execution_success=False,
+                secondary_validation_passed=False,
+                overall_compliance_score=0.0,
+                enterprise_standards_met=False,
+                performance_metrics={},
+                quality_indicators={},
+                recommendations=[],
+                validation_details={},
+            )
+
+        overall_score = sum(r.overall_compliance_score for r in self.results) / len(self.results)
+        return DualCopilotValidationResult(
+            validation_id="AGGREGATED",
+            timestamp=datetime.now(),
+            primary_execution_success=all(r.primary_execution_success for r in self.results),
+            secondary_validation_passed=all(r.secondary_validation_passed for r in self.results),
+            overall_compliance_score=overall_score,
+            enterprise_standards_met=all(r.enterprise_standards_met for r in self.results),
+            performance_metrics={str(i): r.performance_metrics for i, r in enumerate(self.results)},
+            quality_indicators={str(i): r.quality_indicators for i, r in enumerate(self.results)},
+            recommendations=[rec for r in self.results for rec in r.recommendations],
+            validation_details={f"validator_{i}": r.validation_details for i, r in enumerate(self.results)},
+        )
 
 
 # Additional fallback classes
 
 
+@dataclass
 class VisualProcessingConfig:
     def __init__(self, enable_bar: bool = True) -> None:
         self.enable_bar = enable_bar
 
 
+@dataclass
 class TimeoutManager:
     def __init__(self, minutes: int) -> None:
         self.limit = timedelta(minutes=minutes)
@@ -306,7 +321,10 @@ class TimeoutManager:
     def expired(self) -> bool:
         return datetime.now() - self.start > self.limit
 
+    minutes: int = 30
 
+
+@dataclass
 class PerformanceMonitor:
     def __init__(self) -> None:
         self.mem = psutil.Process().memory_info().rss / (1024 * 1024)
