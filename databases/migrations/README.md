@@ -1,45 +1,66 @@
 # Database Migrations Guide
 
+## Prerequisites
+Before applying migrations, ensure the following:
+
+- `GH_COPILOT_WORKSPACE` points to the repository root.
+- SQLite 3 is installed and available on your `PATH`.
+- Optional: set `GH_COPILOT_BACKUP_ROOT` to an external directory for backups.
+
+
 ## Migration Files & Order
-- `create_todo_fixme_tracking.sql`: Creates the `todo_fixme_tracking` table with
-  `status` and `removal_id` columns.
-- `add_code_audit_log.sql`: Adds `code_audit_log` table.
-- `add_correction_history.sql`: Adds `correction_history` table (idempotent).
-- `add_code_audit_history.sql`: Adds `code_audit_history` table for tracking audit events.
-- `add_violation_logs.sql`: Adds `violation_logs` table for compliance issues.
-- `add_rollback_logs.sql`: Adds `rollback_logs` table recording restorations.
-- `add_corrections.sql`: Adds `corrections` table used for compliance metrics.
-- `add_placeholder_removals.sql`: Adds `placeholder_removals` table for tracking removed placeholders.
-- `add_size_violations.sql`: Adds `size_violations` table tracking database size breaches.
-- `add_unified_wrapup_sessions.sql`: Adds `unified_wrapup_sessions` table used
-  by wrap-up orchestrators.
-- `add_placeholder_removals.sql`: Adds `placeholder_removals` table used when
-  tracking cleanup actions.
-- `add_size_violations.sql`: Adds `size_violations` table used by size
-  monitoring utilities.
-- `extend_todo_fixme_tracking.sql`: Adds `status` and `removal_id` columns linking to `placeholder_removals`.
-- `add_placeholder_removals.sql`: Creates `placeholder_removals` table for cleanup tracking.
-- `add_size_violations.sql`: Creates `size_violations` table for database size checks.
+Migrations are executed alphabetically by `scripts/run_migrations.py`. Apply them
+in the following order to satisfy foreign key constraints:
+
+1. `add_code_audit_history.sql`
+2. `add_code_audit_log.sql`
+3. `add_correction_history.sql`
+4. `add_corrections.sql`
+5. `add_placeholder_removals.sql`
+6. `add_rollback_logs.sql`
+7. `add_size_violations.sql`
+8. `add_unified_wrapup_sessions.sql`
+9. `add_violation_logs.sql`
+10. `create_todo_fixme_tracking.sql`
+11. `extend_todo_fixme_tracking.sql`
+
+`extend_todo_fixme_tracking.sql` depends on both `create_todo_fixme_tracking.sql`
+and `add_placeholder_removals.sql` because it references the `placeholder_removals`
+table.
+
+```
+add_placeholder_removals.sql
+        ↓
+create_todo_fixme_tracking.sql
+        ↓
+extend_todo_fixme_tracking.sql
+```
 
 ## Applying Migrations
-Run each migration using:
+Use the helper script to apply all migrations:
+
 ```bash
-sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
-sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
-sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
-sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
-sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
-sqlite3 databases/analytics.db < databases/migrations/add_corrections.sql
-sqlite3 databases/analytics.db < databases/migrations/add_placeholder_removals.sql
-sqlite3 databases/analytics.db < databases/migrations/add_size_violations.sql
-sqlite3 databases/analytics.db < databases/migrations/add_unified_wrapup_sessions.sql
-sqlite3 databases/analytics.db < databases/migrations/add_placeholder_removals.sql
-sqlite3 databases/analytics.db < databases/migrations/add_size_violations.sql
-sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
-sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
-sqlite3 databases/analytics.db < databases/migrations/add_placeholder_removals.sql
-sqlite3 databases/analytics.db < databases/migrations/add_size_violations.sql
+python scripts/run_migrations.py
 ```
+
+The script automatically discovers `*.sql` files in this directory and runs them
+alphabetically. To run a single migration manually, execute:
+
+```bash
+sqlite3 databases/analytics.db < databases/migrations/<migration>.sql
+```
+
+## Rollback
+If a migration introduces issues, restore the database from a backup and log the
+event in `rollback_logs`:
+
+```bash
+cp /path/to/backup/analytics.db databases/analytics.db
+sqlite3 databases/analytics.db "INSERT INTO rollback_logs (target, backup, timestamp) VALUES ('analytics.db', '/path/to/backup/analytics.db', datetime('now'));"
+```
+
+The `_log_rollback` helper in `enterprise_modules.compliance` performs this step
+automatically when called by recovery scripts.
 
 ## Notes
 - All migrations are idempotent and safe to re-run.
