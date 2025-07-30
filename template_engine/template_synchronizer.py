@@ -24,7 +24,7 @@ from tqdm import tqdm
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 
-from utils.log_utils import _log_event as log_event_simulation
+from utils.log_utils import insert_event, ensure_tables
 
 # Internal helpers
 
@@ -182,42 +182,24 @@ def _log_sync_event_real(source: str, target: str) -> None:
     """Record a real synchronization event in analytics.db."""
     if not _can_write_analytics():
         return
-    ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(ANALYTICS_DB) as conn:
-        conn.execute(
-            """CREATE TABLE IF NOT EXISTS sync_events_log (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                source TEXT,
-                target TEXT,
-                ts TEXT
-            )"""
-        )
-        conn.execute(
-            "INSERT INTO sync_events_log (source, target, ts) VALUES (?, ?, ?)",
-            (source, target, datetime.utcnow().isoformat()),
-        )
-        conn.commit()
+    insert_event(
+        {"source": source, "target": target, "ts": datetime.utcnow().isoformat()},
+        "sync_events_log",
+        db_path=ANALYTICS_DB,
+        test_mode=False,
+    )
 
 
 def _log_audit_real(db_name: str, details: str) -> None:
     """Record an audit event in analytics.db."""
     if not _can_write_analytics():
         return
-    ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(ANALYTICS_DB) as conn:
-        conn.execute(
-            """CREATE TABLE IF NOT EXISTS audit_log (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                db_name TEXT,
-                details TEXT,
-                ts TEXT
-            )"""
-        )
-        conn.execute(
-            "INSERT INTO audit_log (db_name, details, ts) VALUES (?, ?, ?)",
-            (db_name, details, datetime.utcnow().isoformat()),
-        )
-        conn.commit()
+    insert_event(
+        {"db_name": db_name, "details": details, "ts": datetime.utcnow().isoformat()},
+        "audit_log",
+        db_path=ANALYTICS_DB,
+        test_mode=False,
+    )
 
 
 def _compliance_check(conn: sqlite3.Connection) -> bool:
@@ -247,16 +229,16 @@ def _synchronize_templates_simulation(
     start_dt = datetime.now()
     start_ts = time.time()
     logger.info("[SYNC-START] PID=%s | Start time: %s", proc_id, start_dt.isoformat())
-    log_event_simulation(
+    insert_event(
         {
             "event": "sync_start_simulation",
             "sources": ",".join(str(p) for p in source_dbs or []),
             "proc_id": proc_id,
             "mode": "test-only",
         },
-        table="sync_events_log",
+        "sync_events_log",
         db_path=ANALYTICS_DB,
-        echo=True,
+        test_mode=True,
     )
     databases = list(source_dbs) if source_dbs else []
     all_templates: dict[str, str] = {}
@@ -301,23 +283,28 @@ def _synchronize_templates_simulation(
             logger.error("Simulated sync failed for %s [PID %s]", db, proc_id)
         else:
             synced += 1
-            _log_sync_event(source_names, str(db))
+            insert_event(
+                {"event": "sync_success", "source": source_names, "target": str(db)},
+                "sync_events_log",
+                db_path=ANALYTICS_DB,
+                test_mode=True,
+            )
             logger.info("[SIMULATION] Sync would succeed for %s [PID %s]", db, proc_id)
         etc = _calculate_etc(start_ts, idx + len(databases), len(databases) * 2)
         tqdm.write(f"(PID {proc_id}) ETC: {etc}")
 
     duration = (datetime.now() - start_dt).total_seconds()
     logger.info("[SYNC-END][SIM] PID=%s | Duration: %.2fs | DBs: %s", proc_id, duration, synced)
-    log_event_simulation(
+    insert_event(
         {
             "event": "sync_complete_simulation",
             "details": f"{synced} databases in {duration:.2f}s",
             "proc_id": proc_id,
             "mode": "test-only",
         },
-        table="sync_events_log",
+        "sync_events_log",
         db_path=ANALYTICS_DB,
-        echo=True,
+        test_mode=True,
     )
     logger.info(
         "\n[SIMULATION COMPLETE] No database was created or modified. To actually"
@@ -369,6 +356,8 @@ def synchronize_templates_real(
     synced = 0
 
     write_enabled = _can_write_analytics()
+    if write_enabled:
+        ensure_tables(ANALYTICS_DB, ["sync_events_log", "audit_log"], test_mode=False)
     for idx, db in enumerate(tqdm(databases, desc=f"Sync [PID {proc_id}]", unit="db"), 1):
         conn: sqlite3.Connection | None = None
         if not db.exists():
@@ -395,26 +384,33 @@ def synchronize_templates_real(
             conn.commit()
             conn.close()
             synced += 1
-            _log_sync_event_real(source_names, str(db))
+            insert_event(
+                {"source": source_names, "target": str(db), "ts": datetime.utcnow().isoformat()},
+                "sync_events_log",
+                db_path=ANALYTICS_DB,
+                test_mode=False,
+            )
             logger.info("Synced templates to %s [PID %s]", db, proc_id)
         except (sqlite3.Error, RuntimeError, OSError) as exc:  # noqa: BLE001
             logger.error("Failed to sync %s: %s", db, exc)
             if conn is not None:
                 try:
                     conn.rollback()
-                    log_event_simulation(
+                    insert_event(
                         {"event": "rollback", "db": str(db)},
-                        table="rollback_logs",
+                        "rollback_logs",
                         db_path=ANALYTICS_DB,
+                        test_mode=True,
                     )
                 except sqlite3.Error:  # pragma: no cover - rollback best effort
                     pass
                 conn.close()
             _log_audit_real(str(db), str(exc))
-            log_event_simulation(
+            insert_event(
                 {"event": "sync_violation", "db": str(db), "error": str(exc)},
-                table="violation_logs",
+                "violation_logs",
                 db_path=ANALYTICS_DB,
+                test_mode=True,
             )
         finally:
             if conn is not None:
