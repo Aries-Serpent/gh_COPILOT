@@ -2,14 +2,14 @@
 
 ## Missing Tests for Stubbed Modules
 
-- **WindowsCompatibleOptimizer** and its async version have stub definitions in `typings/windows_compatible_optimizer_async.pyi` but there are no dedicated tests covering `scripts/optimization/windows_compatible_optimizer.py` or `scripts/optimization/windows_compatible_optimizer_async.py`.
+Previously, the `WindowsCompatibleOptimizer` modules lacked tests. Unit tests have now been added under `tests/test_windows_compatible_optimizer.py`.
 
 ## Current Test Results
 
 The latest `pytest` execution resulted in multiple failures:
 
 ```
-43 failed, 200 passed, 2 skipped
+36 failed, 244 passed, 5 skipped
 ```
 
 Key failing suites include:
