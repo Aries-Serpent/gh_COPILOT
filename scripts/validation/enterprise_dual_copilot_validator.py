@@ -29,11 +29,14 @@ import os
 import time
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from tqdm import tqdm
+import psutil
+from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from utils.log_utils import _log_event
 
 # Unicode-compatible file handler (fallback implementation)
 
@@ -76,7 +79,13 @@ class AntiRecursionValidator:
 
 
 class EnterpriseLoggingManager:
-    def __init__(self):
+    def __init__(self, analytics_db: Path | None = None) -> None:
+        self.analytics_db = (
+            analytics_db
+            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
+            / "databases"
+            / "analytics.db"
+        )
         self.logger = logging.getLogger("enterprise")
         if not self.logger.handlers:
             handler = logging.StreamHandler()
@@ -84,17 +93,23 @@ class EnterpriseLoggingManager:
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
             self.logger.setLevel(logging.INFO)
+        _log_event({"event": "logger_initialized"}, db_path=self.analytics_db)
 
 
 # Additional fallback classes
 
 
 class FlakeViolation:
-    pass
+    def __init__(self, file: Path, line: int, code: str) -> None:
+        self.file = file
+        self.line = line
+        self.code = code
 
 
 class CorrectionResult:
-    pass
+    def __init__(self, file: Path, applied: bool) -> None:
+        self.file = file
+        self.applied = applied
 
 
 ENTERPRISE_INDICATORS = {
@@ -110,17 +125,36 @@ ENTERPRISE_INDICATORS = {
 
 
 class DatabaseDrivenCorrectionEngine:
-    def __init__(self):
-        self.session_id = None
+    def __init__(self, analytics_db: Path | None = None) -> None:
+        self.analytics_db = (
+            analytics_db
+            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
+            / "databases"
+            / "analytics.db"
+        )
+        self.session_id: str | None = None
 
-    def start_correction_session(self):
-        import uuid
-
+    def start_correction_session(self) -> str:
         self.session_id = f"session_{uuid.uuid4().hex[:8]}"
+        _log_event(
+            {"event": "correction_session_start", "session_id": self.session_id},
+            table="correction_sessions",
+            db_path=self.analytics_db,
+        )
         return self.session_id
 
-    def correct_violations_systematically(self):
-        return {"summary": {"total_files_processed": 0, "total_violations_found": 0, "total_corrections_applied": 0}}
+    def correct_violations_systematically(self) -> Dict[str, Any]:
+        summary = {
+            "total_files_processed": 0,
+            "total_violations_found": 0,
+            "total_corrections_applied": 0,
+        }
+        _log_event(
+            {"event": "correction_run", "session_id": self.session_id},
+            table="correction_sessions",
+            db_path=self.analytics_db,
+        )
+        return {"summary": summary}
 
 
 # Additional fallback classes
@@ -128,34 +162,30 @@ class DatabaseDrivenCorrectionEngine:
 
 @dataclass
 class DatabaseManager:
-    """Basic wrapper for a database path."""
-
-    path: Path
-
-    def exists(self) -> bool:
-        return self.path.exists()
+    def __init__(self, db_path: Path) -> None:
+        self.db_path = db_path
+        self.logger = logging.getLogger(__name__)
 
 
 @dataclass
 class CorrectionSession:
-    """Simple data holder for correction sessions."""
+    def __init__(self, session_id: str) -> None:
+        self.session_id = session_id
 
     session_id: str
 
 
 @dataclass
 class DatabaseCorrectionPattern:
-    """Represents a correction pattern entry."""
-
-    pattern: str
+    def __init__(self, pattern: str) -> None:
+        self.pattern = pattern
 
 
 @dataclass
 class FileViolationReport:
-    """Report of violations detected in a file."""
-
-    file_path: str
-    violations: List[str]
+    def __init__(self, file: Path, violations: list[FlakeViolation]) -> None:
+        self.file = file
+        self.violations = violations
 
 
 # Enterprise progress manager (fallback implementation)
@@ -186,10 +216,23 @@ class ExecutionMetrics:
 
 
 class EnterpriseProgressManager:
-    def __init__(self):
-        self.current_metrics = None
+    def __init__(self, analytics_db: Path | None = None) -> None:
+        self.analytics_db = (
+            analytics_db
+            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
+            / "databases"
+            / "analytics.db"
+        )
+        self.current_metrics: ExecutionMetrics | None = None
+        self._task_name = ""
+        self._start = datetime.now()
+        self._timeout = timedelta(minutes=0)
 
     def managed_execution(self, task_name, phases, timeout_minutes):
+        self._task_name = task_name
+        self._start = datetime.now()
+        self._timeout = timedelta(minutes=timeout_minutes)
+        _log_event({"event": "execution_start", "task": task_name}, db_path=self.analytics_db)
         return self
 
     def __enter__(self):
@@ -212,7 +255,11 @@ class EnterpriseProgressManager:
         return self.current_metrics
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.current_metrics = None
+        duration = (datetime.now() - self._start).total_seconds()
+        _log_event(
+            {"event": "execution_complete", "task": self._task_name, "duration": duration},
+            db_path=self.analytics_db,
+        )
 
     def execute_with_visual_indicators(self, phases, executor):
         results = {}
@@ -261,23 +308,32 @@ class DualCopilotValidator:
 
 @dataclass
 class VisualProcessingConfig:
-    """Configuration options for progress output."""
-
-    enabled: bool = True
+    def __init__(self, enable_bar: bool = True) -> None:
+        self.enable_bar = enable_bar
 
 
 @dataclass
 class TimeoutManager:
-    """Simple timeout configuration."""
+    def __init__(self, minutes: int) -> None:
+        self.limit = timedelta(minutes=minutes)
+        self.start = datetime.now()
+
+    def expired(self) -> bool:
+        return datetime.now() - self.start > self.limit
 
     minutes: int = 30
 
 
 @dataclass
 class PerformanceMonitor:
-    """Placeholder performance metrics container."""
+    def __init__(self) -> None:
+        self.mem = psutil.Process().memory_info().rss / (1024 * 1024)
+        self.cpu = psutil.cpu_percent(interval=None)
 
-    memory_limit: int = 2048
+    def snapshot(self) -> Dict[str, float]:
+        self.mem = psutil.Process().memory_info().rss / (1024 * 1024)
+        self.cpu = psutil.cpu_percent(interval=None)
+        return {"memory_mb": self.mem, "cpu_percent": self.cpu}
 
 
 def get_logger(name: str = "enterprise_dual_copilot") -> logging.Logger:

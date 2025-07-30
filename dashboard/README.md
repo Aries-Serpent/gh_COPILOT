@@ -30,7 +30,7 @@ This module is designed to meet enterprise auditability and compliance standards
 - **Templates:** Jinja2 HTML (`dashboard/templates/`)
 - **Static Content:** CSS, JS, images (`dashboard/static/`)
 - **Data Sources:** `production.db`, `analytics.db`, `monitoring.db`
-- **Primary Endpoints:** `/`, `/database`, `/backup`, `/migration`, `/deployment`, `/api/scripts`, `/api/health`, `/dashboard/compliance`
+- **Primary Endpoints:** `/`, `/database`, `/backup`, `/migration`, `/deployment`, `/api/scripts`, `/api/health`, `/metrics_stream`, `/dashboard/compliance`
 - **Session Logging:** All actions are recorded in `production.db` and mirrored in `analytics.db`
 - **Compliance Display:** DUAL COPILOT validation and compliance events visible in dashboard sidebar and `/dashboard/compliance`
 
@@ -76,6 +76,11 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 ```
 
 Visit [http://localhost:5000](http://localhost:5000) in your browser. The dashboard will auto-discover and display current session, database, and compliance data. All metrics update in real time.
+The dashboard HTML template lives in `dashboard/templates/dashboard.html` and automatically refreshes metrics via Server-Sent Events. If SSE is not supported, a JavaScript fallback polls `/metrics` and `/rollback_alerts` every five seconds.
+
+Example screenshot:
+
+![Dashboard Screenshot](static/dashboard_screenshot.png)
 
 ---
 
@@ -90,8 +95,9 @@ Visit [http://localhost:5000](http://localhost:5000) in your browser. The dashbo
 | `/deployment`             | Deployment status and controls                                                   |
 | `/api/scripts`            | Run and monitor scripts via API                                                  |
 | `/api/health`             | System health check API                                                          |
-| `/dashboard/compliance`   | Returns compliance metrics, rollback and audit trail as JSON                     |
 
+| `/metrics_stream`         | Server-Sent Events stream of live metrics             |
+| `/dashboard/compliance`   | Returns compliance metrics, rollback and audit trail as JSON                     |
 #### Example `/dashboard/compliance` Response
 
 The `/dashboard/compliance` endpoint returns compliance information as JSON, combining live metrics from `analytics.db` and correction/rollback summaries from `dashboard/compliance/correction_summary.json`.

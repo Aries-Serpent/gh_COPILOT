@@ -7,18 +7,48 @@ from typing import Dict, List, Any, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 
+try:
+    from qiskit import Aer
+    from qiskit_ibm_provider import IBMProvider
+    QISKIT_AVAILABLE = True
+except Exception:  # pragma: no cover - optional dependency
+    QISKIT_AVAILABLE = False
+
 from ..algorithms.base import QuantumAlgorithmBase
 from .registry import get_global_registry
 
 
 class QuantumExecutor:
-    """Manages execution of quantum algorithms with orchestration"""
+    """Manage execution of quantum algorithms with optional hardware backends."""
     
-    def __init__(self, max_workers: int = 4):
+    def __init__(self, max_workers: int = 4, use_hardware: bool = False,
+                 backend_name: str = "ibmq_qasm_simulator"):
         self.max_workers = max_workers
         self.logger = logging.getLogger(__name__)
         self.registry = get_global_registry()
         self.execution_history: List[Dict[str, Any]] = []
+        self.use_hardware = use_hardware and QISKIT_AVAILABLE
+        self.backend_name = backend_name
+        self.backend = None
+        if self.use_hardware:
+            self.backend = self._load_backend(backend_name)
+        elif QISKIT_AVAILABLE:
+            self.backend = Aer.get_backend("qasm_simulator")
+
+    def _load_backend(self, backend_name: str):
+        """Load a Qiskit backend, falling back to simulation."""
+        if not QISKIT_AVAILABLE:
+            return None
+        try:
+            provider = IBMProvider()
+            return provider.get_backend(backend_name)
+        except Exception as exc:  # pragma: no cover - provider may not be configured
+            self.logger.warning(
+                "Quantum hardware backend unavailable: %s; using simulator",
+                exc,
+            )
+            self.use_hardware = False
+            return Aer.get_backend("qasm_simulator")
     
     def execute_algorithm(self, algorithm_name: str, **kwargs) -> Dict[str, Any]:
         """Execute a single algorithm by name"""
@@ -37,6 +67,13 @@ class QuantumExecutor:
             self.execution_history.append(result)
             return result
         
+        # Provide backend if algorithm supports it
+        if hasattr(algorithm, "set_backend"):
+            try:
+                algorithm.set_backend(self.backend, use_hardware=self.use_hardware)
+            except Exception as exc:  # pragma: no cover - optional method
+                self.logger.warning("Failed to set backend: %s", exc)
+
         # Execute algorithm
         try:
             success = algorithm.execute_utility()

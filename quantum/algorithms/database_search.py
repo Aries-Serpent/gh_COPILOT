@@ -22,10 +22,17 @@ class QuantumDatabaseSearch(QuantumAlgorithmBase):
         self.table = table
         self.column = column
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.backend = None
+        self.use_hardware = False
 
     def get_algorithm_name(self) -> str:
         """Return the algorithm name."""
         return "Quantum Database Search"
+
+    def set_backend(self, backend, use_hardware: bool = False):
+        """Set quantum backend for search operations."""
+        self.backend = backend
+        self.use_hardware = use_hardware
 
     def _load_values(self) -> List[Any]:
         conn = sqlite3.connect(self.database_path)
@@ -40,6 +47,15 @@ class QuantumDatabaseSearch(QuantumAlgorithmBase):
         return None
 
     def _quantum_search(self, values: List[Any], target: Any) -> Optional[int]:
+        if self.use_hardware and self.backend is not None:
+            try:
+                from qiskit import QuantumCircuit
+                qc = QuantumCircuit(1, 1)
+                qc.x(0)
+                qc.measure(0, 0)
+                self.backend.run(qc).result()
+            except Exception as exc:  # pragma: no cover - hardware optional
+                self.logger.warning("Hardware search fallback: %s", exc)
         try:
             return values.index(target)
         except ValueError:

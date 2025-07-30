@@ -62,7 +62,7 @@ class QuantumOptimizer:
     - Logs optimization metrics for compliance and reproducibility
     """
 
-    def __init__(self, objective_function: Callable, variable_bounds: List[Tuple[float, float]], method: str = "simulated_annealing", options: Optional[Dict[str, Any]] = None):
+    def __init__(self, objective_function: Callable, variable_bounds: List[Tuple[float, float]], method: str = "simulated_annealing", options: Optional[Dict[str, Any]] = None, backend: Any = None, use_hardware: bool = False):
         """
         Initialize optimizer.
 
@@ -78,7 +78,14 @@ class QuantumOptimizer:
         self.options = options or {}
         self.history = []
         self.metrics = {}
+        self.backend = backend
+        self.use_hardware = use_hardware
         self._validate_init()
+
+    def set_backend(self, backend: Any, use_hardware: bool = False) -> None:
+        """Set quantum backend for optimizers."""
+        self.backend = backend
+        self.use_hardware = use_hardware
 
     def _validate_init(self):
         if not callable(self.objective_function):
@@ -201,7 +208,7 @@ class QuantumOptimizer:
         for d in range(depth):
             for q in range(n_qubits):
                 qc.rx(np.pi / (d + 1), q)
-        backend = Aer.get_backend("statevector_simulator")
+        backend = self.backend or Aer.get_backend("statevector_simulator")
         job = execute(qc, backend)
         result = job.result()
         statevector = result.get_statevector()
@@ -215,7 +222,7 @@ class QuantumOptimizer:
         qc = QuantumCircuit(n_qubits)
         for q in range(n_qubits):
             qc.h(q)
-        backend = Aer.get_backend("statevector_simulator")
+        backend = self.backend or Aer.get_backend("statevector_simulator")
         job = execute(qc, backend)
         result = job.result()
         statevector = result.get_statevector()
