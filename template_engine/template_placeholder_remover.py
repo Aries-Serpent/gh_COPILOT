@@ -119,6 +119,7 @@ def remove_unused_placeholders(
                         "INSERT INTO placeholder_removals (placeholder, ts) VALUES (?, ?)",
                         (ph, datetime.utcnow().isoformat()),
                     )
+                    removal_id = cur.lastrowid
                     conn.execute(
                         "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, status='resolved', removal_id=?"
                         " WHERE placeholder_type=? AND resolved=0",

@@ -32,6 +32,6 @@ def test_log_findings_and_update_dashboard(tmp_path: Path) -> None:
     with sqlite3.connect(analytics) as conn:
         cur = conn.execute("SELECT COUNT(*) FROM code_audit_log")
         assert cur.fetchone()[0] == len(results)
-    update_dashboard(len(results), dashboard)
+    update_dashboard(len(results), dashboard, analytics)
     summary = json.loads((dashboard / "placeholder_summary.json").read_text())
     assert summary["findings"] == len(results)
