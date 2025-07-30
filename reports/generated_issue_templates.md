@@ -13,7 +13,8 @@
 ## 3. Complete Template Synchronizer Transaction Logic
 - **Labels**: enhancement, database
 - **Assignee**: database-team
-- **Description**: `template_engine.template_synchronizer` lacks transaction management when updating template records. Implement SQLite transactions to ensure atomic updates.
+- **Description**: Transaction support has been implemented for copy and update operations.
+  The CLI now notes that these run in explicit transactions with audit logging.
 
 ## 4. Implement /dashboard/compliance in Flask UI
 - **Labels**: feature, ui
