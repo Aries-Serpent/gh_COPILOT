@@ -8,11 +8,13 @@
 
 **Status:** Active development with incremental improvements
 
+> **Limitations:** The project is under heavy development. Some tests fail and several modules are only partially implemented.
+
 ---
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities.
+The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. **Many features remain experimental or stubbed; quantum functionality is simulated only and several modules are still incomplete.**
 
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** initial implementation in progress
@@ -23,8 +25,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
-- **Analytics Logging Helper:** modules use `utils.log_utils.insert_event()` and `ensure_tables()` for consistent structured logging.
-- **Quantum features:** placeholders only; no quantum functionality is implemented
+
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
   optimizer and search helpers.
 
@@ -147,6 +148,16 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 # 5. Start enterprise dashboard
 python dashboard/enterprise_dashboard.py  # imports app from web_gui package
 ```
+
+### **Documentation Update Workflow**
+After modifying files in `docs/`, regenerate and validate metrics:
+
+```bash
+python scripts/generate_docs_metrics.py
+python -m scripts.docs_metrics_validator
+python scripts/wlc_session_manager.py --db-path databases/production.db
+```
+The session manager logs the documentation update to `production.db` and writes a log file under `$GH_COPILOT_BACKUP_ROOT/logs`.
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
 are thin CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor``.

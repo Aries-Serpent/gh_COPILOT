@@ -1,7 +1,7 @@
 # Incomplete Module Summary
 
 This document catalogs unfinished modules and missing components referenced in the repository.
-Generated: 2025-07-29
+Generated: 2025-07-30
 
 The `ingest_assets` function referenced in early drafts is now fully
 implemented (see `scripts/autonomous_setup_and_audit.py` lines 30-150).
@@ -36,6 +36,8 @@ Implementation note: the `ingest_assets` workflow is fully implemented in
 ## Test Coverage
 
 Running `pytest` currently results in multiple failures. Only a subset of tests executes successfully.
+
+Most quantum-oriented modules operate purely in simulation mode. Hardware execution is not supported and several helper scripts remain stubs.
 
 ---
 This list serves as a starting point for prioritizing future development and cleanup tasks.
