@@ -353,7 +353,9 @@ class EnterpriseAPIServer:
         # Server configuration
         self.host = "localhost"
         self.port = 5000
-        self.debug = True
+        self.debug = os.getenv("FLASK_ENV") != "production"
+        allowed_origins_str = os.getenv("API_ALLOWED_ORIGINS", "http://localhost")
+        self.allowed_origins = [o.strip() for o in allowed_origins_str.split(",") if o.strip()]
         self.server = None
         self.server_thread = None
 
@@ -364,7 +366,7 @@ class EnterpriseAPIServer:
         # Initialize Flask app if available
         if FLASK_AVAILABLE:
             self.app = Flask(__name__)
-            CORS(self.app)  # Enable CORS for all routes
+            CORS(self.app, resources={r"/api/*": {"origins": self.allowed_origins}})
             self._setup_flask_routes()
         else:
             self.app = None
