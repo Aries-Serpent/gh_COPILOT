@@ -80,7 +80,9 @@ TABLE_SCHEMAS: Dict[str, str] = {
             context TEXT,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
             resolved BOOLEAN DEFAULT 0,
-            resolved_timestamp DATETIME
+            resolved_timestamp DATETIME,
+            status TEXT DEFAULT 'open',
+            removal_id INTEGER REFERENCES placeholder_removals(id)
         );
     """,
 }
@@ -121,21 +123,28 @@ def ensure_tables(db_path: Path, tables: Iterable[str], *, test_mode: bool = Tru
             conn.commit()
 
 
-def insert_event(event: Dict[str, Any], table: str, *, db_path: Path = DEFAULT_ANALYTICS_DB, test_mode: bool = True) -> None:
-    """Insert ``event`` into the specified table, creating it if necessary."""
+def insert_event(
+    event: Dict[str, Any],
+    table: str,
+    *,
+    db_path: Path = DEFAULT_ANALYTICS_DB,
+    test_mode: bool = True,
+) -> int:
+    """Insert ``event`` into the specified table and return the new row id."""
     ensure_tables(db_path, [table], test_mode=test_mode)
     if test_mode:
         _log_event(event, table=table, db_path=db_path, test_mode=True)
-        return
+        return -1
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with _log_lock, sqlite3.connect(db_path) as conn:
         columns = ", ".join(event.keys())
         placeholders = ", ".join("?" for _ in event)
-        conn.execute(
+        cur = conn.execute(
             f"INSERT INTO {table} ({columns}) VALUES ({placeholders})",
             tuple(event.values()),
         )
         conn.commit()
+        return int(cur.lastrowid)
 
 
 def _log_event(
