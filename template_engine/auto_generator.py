@@ -95,6 +95,7 @@ class TemplateAutoGenerator:
         # DB-first loading of patterns and templates
         self.patterns = self._load_patterns()
         self.templates = self._load_templates() + get_pattern_templates()
+        self.cluster_vectorizer = None
         self.cluster_model = self._cluster_patterns()
         self._last_objective: Dict[str, Any] | None = None
         duration = (datetime.now() - start_time).total_seconds()
@@ -127,6 +128,7 @@ class TemplateAutoGenerator:
         """Reload templates and patterns from their databases."""
         self.patterns = self._load_patterns()
         self.templates = self._load_templates()
+        self.cluster_vectorizer = None
         self.cluster_model = self._cluster_patterns()
         if self.cluster_model is not None:
             self.cluster_model.cluster_centers_ += np.random.normal(
@@ -185,8 +187,8 @@ class TemplateAutoGenerator:
         if not corpus:
             logger.warning("No corpus to cluster")
             return None
-        vectorizer = TfidfVectorizer()
-        matrix = vectorizer.fit_transform(corpus)
+        self.cluster_vectorizer = TfidfVectorizer()
+        matrix = self.cluster_vectorizer.fit_transform(corpus)
         n_clusters = min(len(corpus), 2)
         model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=int(time.time()))
         start_ts = time.time()
@@ -322,9 +324,11 @@ class TemplateAutoGenerator:
         if not self.cluster_model:
             logger.warning("No cluster model available")
             return []
-        corpus = self.templates + self.patterns
-        vectorizer = TfidfVectorizer().fit(corpus)
-        matrix = vectorizer.transform(corpus)
+        prod_patterns = self._load_production_patterns()
+        corpus = self.templates + self.patterns + prod_patterns
+        if not self.cluster_vectorizer:
+            self.cluster_vectorizer = TfidfVectorizer().fit(corpus)
+        matrix = self.cluster_vectorizer.transform(corpus)
         reps: List[str] = []
         start_ts = time.time()
         for idx in tqdm(range(self.cluster_model.n_clusters), desc="[PROGRESS] reps", unit="cluster"):

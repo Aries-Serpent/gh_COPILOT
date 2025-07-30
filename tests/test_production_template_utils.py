@@ -9,8 +9,10 @@ def test_generate_script_from_repository(tmp_path: Path) -> None:
     db_dir.mkdir()
     db_path = db_dir / "production.db"
     with sqlite3.connect(db_path) as conn:
-        conn.execute("CREATE TABLE script_repository (script_content TEXT)")
-        conn.execute("INSERT INTO script_repository VALUES ('print(\"hi\")')")
+        conn.execute("CREATE TABLE script_repository (script_path TEXT)")
+        conn.execute("INSERT INTO script_repository VALUES ('demo.py')")
+
+    (tmp_path / "demo.py").write_text("print('hi')")
 
     result = generate_script_from_repository(tmp_path, "out.py")
     assert result is True

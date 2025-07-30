@@ -6,7 +6,7 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "check_zero_logs.sh"
 
 def run_script(workdir: Path) -> subprocess.CompletedProcess:
     return subprocess.run(
-        ["bash", str(SCRIPT)], cwd=workdir, capture_output=True, text=True
+        ["bash", str(SCRIPT), "logs"], cwd=workdir, capture_output=True, text=True
     )
 
 

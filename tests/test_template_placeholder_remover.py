@@ -33,6 +33,10 @@ def test_remove_unused_placeholders(tmp_path: Path) -> None:
         conn.execute(
             "INSERT INTO template_placeholders (placeholder_name) VALUES ('VALID_PLACEHOLDER')"
         )
+    with sqlite3.connect(analytics) as conn:
+        conn.execute(
+            "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT, resolved INTEGER, resolved_timestamp TEXT, status TEXT, removal_id INTEGER)"
+        )
 
     # Remove unused placeholders from template string
     with sqlite3.connect(prod) as conn:
@@ -58,6 +62,10 @@ def test_no_placeholders_returns_same(tmp_path: Path) -> None:
         conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
         conn.execute("INSERT INTO code_templates VALUES (1, 'def foo(): pass')")
         conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT)")
+    with sqlite3.connect(analytics) as conn:
+        conn.execute(
+            "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT, resolved INTEGER, resolved_timestamp TEXT, status TEXT, removal_id INTEGER)"
+        )
     code = "def foo(): pass"
     result = remove_unused_placeholders(code, prod, analytics, timeout_minutes=1)
     assert result == code

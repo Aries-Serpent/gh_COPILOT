@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TARGET="${1:-.}"
+TARGET="${1:-logs}"
 
 if [ ! -d "$TARGET" ]; then
-    echo "Directory '$TARGET' does not exist. Nothing to check."
+    echo "Directory '$TARGET' does not exist."
     exit 0
 fi
 
