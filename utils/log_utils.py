@@ -109,6 +109,16 @@ TABLE_SCHEMAS: Dict[str, str] = {
             timestamp TEXT
         );
     """,
+    "dashboard_alerts": """
+        CREATE TABLE IF NOT EXISTS dashboard_alerts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            db TEXT,
+            table_name TEXT,
+            size_mb REAL,
+            threshold REAL,
+            timestamp TEXT
+        );
+    """,
     "cross_link_events": """
         CREATE TABLE IF NOT EXISTS cross_link_events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -368,6 +378,13 @@ def log_event(event: Dict[str, Any], *, table: str = DEFAULT_LOG_TABLE, db_path:
     insert_event(event, table, db_path=db_path, test_mode=False)
 
 
+def send_dashboard_alert(event: Dict[str, Any], *, table: str = "dashboard_alerts", db_path: Path = DEFAULT_ANALYTICS_DB) -> None:
+    """Send an alert event to the web dashboard if enabled."""
+    if os.getenv("WEB_DASHBOARD_ENABLED") != "1":
+        return
+    log_event(event, table=table, db_path=db_path)
+
+
 def stream_events(table: str = DEFAULT_LOG_TABLE, *, db_path: Path = DEFAULT_ANALYTICS_DB):
     """Yield events formatted for Server-Sent Events."""
     if not db_path.exists():
@@ -442,6 +459,7 @@ __all__ = [
     "insert_event",
     "log_message",
     "log_event",
+    "send_dashboard_alert",
     "stream_events",
     "log_stream",
     "_log_event",

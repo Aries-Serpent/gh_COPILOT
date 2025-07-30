@@ -13,7 +13,7 @@ from typing import Dict
 from tqdm import tqdm
 
 from utils.enterprise_logging import EnterpriseLoggingManager
-from utils.log_utils import log_event, stream_events
+from utils.log_utils import log_event, send_dashboard_alert, stream_events
 
 ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", "databases/analytics.db"))
 
@@ -89,6 +89,7 @@ def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dic
                                 "threshold": threshold_mb,
                             }
                             log_event(event, table="size_violations", db_path=ANALYTICS_DB)
+                            send_dashboard_alert(event, db_path=ANALYTICS_DB)
                             for line in stream_events("size_violations", db_path=ANALYTICS_DB):
                                 if f'"db": "{db_file.name}"' in line and f'"table_name": "{table}"' in line:
                                     print(line.strip())
@@ -97,11 +98,9 @@ def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dic
                     logger.warning(
                         f"⚠️ {db_file.name}: {size_mb:.2f} MB > {threshold_mb} MB"
                     )
-                    log_event(
-                        {"db": db_file.name, "table_name": "__database__", "size_mb": size_mb, "threshold": threshold_mb},
-                        table="size_violations",
-                        db_path=ANALYTICS_DB,
-                    )
+                    event = {"db": db_file.name, "table_name": "__database__", "size_mb": size_mb, "threshold": threshold_mb}
+                    log_event(event, table="size_violations", db_path=ANALYTICS_DB)
+                    send_dashboard_alert(event, db_path=ANALYTICS_DB)
                 else:
                     logger.info(f"✅ {db_file.name}: {size_mb:.2f} MB")
             except Exception as e:
