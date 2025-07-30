@@ -32,4 +32,6 @@ EXPOSE 5000 5001 5002 5003 5004 5005 5006 8080
 
 HEALTHCHECK --interval=30s --timeout=5s CMD ["python", "scripts/docker_healthcheck.py"]
 
-CMD ["python", "scripts/docker_entrypoint.py"]
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+CMD ["/app/entrypoint.sh"]
