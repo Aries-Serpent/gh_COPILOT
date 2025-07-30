@@ -4,7 +4,7 @@ This document catalogs unfinished modules and missing components referenced in t
 Generated: 2025-07-29
 
 The `ingest_assets` function referenced in early drafts is now fully
-implemented (see `scripts/autonomous_setup_and_audit.py` lines 26-119).
+implemented (see `scripts/autonomous_setup_and_audit.py` lines 30-150).
 
 ## STUB Overview
 
@@ -26,7 +26,7 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 | STUB-012 | Display placeholder removal progress on dashboard | dashboard/compliance_metrics_updater.py | exists |
 
 Implementation note: the `ingest_assets` workflow is fully implemented in
-`scripts/autonomous_setup_and_audit.py` lines 26-119.
+`scripts/autonomous_setup_and_audit.py` lines 30-150.
 
 ## Lint and Type Check Summary
 

@@ -41,3 +41,10 @@ def test_correct_file_updates_tracking(tmp_path, monkeypatch):
         ).fetchone()[0]
     assert resolved == 1
     assert any(t == "correction_logs" for t, _ in events)
+    with sqlite3.connect(analytics) as conn:
+        count = conn.execute(
+            "SELECT COUNT(*) FROM correction_logs WHERE file_path=?",
+            (str(bad),),
+        ).fetchone()[0]
+    assert count == 1
+    analytics.unlink()
