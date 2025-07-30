@@ -36,3 +36,4 @@ def test_log_findings_and_update_dashboard(tmp_path: Path) -> None:
     summary = json.loads((dashboard / "placeholder_summary.json").read_text())
     assert summary["findings"] == len(results)
     assert summary["resolved_count"] == 0
+    assert summary["progress_status"] in {"issues_pending", "complete"}
