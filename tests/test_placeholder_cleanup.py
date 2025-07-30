@@ -1,6 +1,5 @@
 import sqlite3
-
-
+import json
 
 def test_placeholder_cleanup_workflow(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
@@ -15,6 +14,7 @@ def test_placeholder_cleanup_workflow(tmp_path, monkeypatch):
         lambda: None,
     )
     workspace = tmp_path / "ws"
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     workspace.mkdir()
     target = workspace / "demo.py"
     target.write_text("def demo():\n    pass  # TODO\n    print('{{OLD}}')\n")

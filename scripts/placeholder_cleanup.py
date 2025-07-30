@@ -8,4 +8,3 @@ from scripts import code_placeholder_audit
 
 if __name__ == "__main__":
     code_placeholder_audit.main(*sys.argv[1:])
-
