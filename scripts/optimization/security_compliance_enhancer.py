@@ -27,6 +27,8 @@ from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from importlib import import_module
 
+from utils.db_utils import get_validated_connection
+
 # Text-based indicators (cross-platform)
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -46,7 +48,7 @@ class SecurityComplianceEnhancer:
 
     def __init__(self, workspace_path: str):
         self.workspace_path = Path(workspace_path)
-        with get_validated_production_connection():
+        with get_validated_connection():
             pass
         self.security_dir = self.workspace_path / "security"
         self.reports_dir = self.workspace_path / "reports"

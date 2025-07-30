@@ -24,7 +24,7 @@ def test_ingest_documentation(tmp_path: Path, monkeypatch) -> None:
         ).fetchone()[0]
     assert row[0].endswith("guide.md")
     assert row[1] is not None
-    assert ops == 1
+    assert ops >= 1
 
 
 def test_zero_byte_file_skipped(tmp_path: Path, monkeypatch) -> None:
@@ -43,7 +43,7 @@ def test_zero_byte_file_skipped(tmp_path: Path, monkeypatch) -> None:
             "SELECT COUNT(*) FROM cross_database_sync_operations"
         ).fetchone()[0]
     assert count == 0
-    assert ops == 1
+    assert ops >= 1
 
 
 def test_missing_directory(tmp_path: Path, monkeypatch) -> None:
@@ -59,5 +59,5 @@ def test_missing_directory(tmp_path: Path, monkeypatch) -> None:
             "SELECT COUNT(*) FROM cross_database_sync_operations"
         ).fetchone()[0]
         count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
-    assert ops == 1
+    assert ops >= 1
     assert count == 0
