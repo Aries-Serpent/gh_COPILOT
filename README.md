@@ -913,6 +913,8 @@ python scripts/code_placeholder_audit.py \
 # compliance reporting. After fixing issues, run:
 python scripts/code_placeholder_audit.py --update-resolutions
 # to mark resolved entries in `todo_fixme_tracking`.
+# Run in test mode without database writes:
+python scripts/code_placeholder_audit.py --test-mode
 # `scripts/correction_logger_and_rollback.py` records final corrections.
 # Check `/dashboard/compliance` to verify the placeholder count reaches zero.
 # Run `scripts/database/add_code_audit_log.py` if the table is missing.

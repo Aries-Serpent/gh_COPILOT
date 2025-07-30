@@ -22,6 +22,7 @@ def test_exclude_directories(tmp_path):
         analytics_db=str(analytics),
         production_db=None,
         dashboard_dir=str(dash_dir),
+        exclude_dirs=["builds", "archive"],
     )
 
     with sqlite3.connect(analytics) as conn:
