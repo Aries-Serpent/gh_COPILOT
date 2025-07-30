@@ -260,7 +260,7 @@ All immediate actions for the PIS (Plan Issued Statement) Framework have been su
 
 ### ⚠️ PENDING ENHANCEMENTS:
 - Additional quantum optimization tables
-- Real quantum hardware integration
+- Real quantum hardware integration (planned; currently simulation only)
 - Extended monitoring duration
 - Enhanced ML analytics (requires scikit-learn)
 
