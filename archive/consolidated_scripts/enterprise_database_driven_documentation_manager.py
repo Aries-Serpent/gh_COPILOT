@@ -34,6 +34,23 @@ class DocumentationManager:
 
     generator: TemplateAutoGenerator | None = None
 
+    def _select_template_from_db(self, title: str) -> str:
+        """Return template from production.db matching ``title``."""
+        query = (
+            "SELECT template_content FROM template_repository "
+            "WHERE template_name = ? OR template_category = ? "
+            "ORDER BY success_rate DESC LIMIT 1"
+        )
+        try:
+            with sqlite3.connect(self.database) as conn:
+                cur = conn.execute(query, (title, title))
+                row = cur.fetchone()
+                if row:
+                    return row[0]
+        except sqlite3.Error as exc:
+            logger.warning("template lookup failed: %s", exc)
+        return ""
+
     def __post_init__(self) -> None:
         if self.generator is None:
             self.generator = TemplateAutoGenerator(
@@ -60,7 +77,9 @@ class DocumentationManager:
         for idx, (title, content, score) in enumerate(tqdm(rows, desc="render", unit="doc", leave=False), 1):
             if score < 60:
                 continue
-            template = self.generator.select_best_template(title)
+            template = self._select_template_from_db(title)
+            if not template:
+                template = self.generator.select_best_template(title)
             final_content = template or content
             (RENDER_LOG_DIR / f"{title}.md").write_text(final_content)
             (RENDER_LOG_DIR / f"{title}.html").write_text(f"<html><body><pre>{final_content}</pre></body></html>")

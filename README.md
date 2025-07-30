@@ -169,6 +169,12 @@ python -m scripts.docs_metrics_validator
 python scripts/wlc_session_manager.py --db-path databases/production.db
 ```
 The session manager logs the documentation update to `production.db` and writes a log file under `$GH_COPILOT_BACKUP_ROOT/logs`.
+To regenerate enterprise documentation directly from the production database use:
+
+```bash
+python archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py
+```
+This script pulls templates from `production.db` and outputs Markdown, HTML and JSON files under `logs/template_rendering/`.
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
 are thin CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor``.
