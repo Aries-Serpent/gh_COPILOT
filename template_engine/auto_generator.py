@@ -38,12 +38,13 @@ try:
         quantum_cluster_score,
     )
 except ImportError:  # pragma: no cover - optional dependency
-
     def quantum_text_score(text: str) -> float:
         """Gracefully degrade when quantum library is unavailable."""
         return 0.0
 
-    def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
+    def quantum_similarity_score(
+        a: Iterable[float], b: Iterable[float]
+    ) -> float:
         """Gracefully degrade when quantum library is unavailable."""
         return 0.0
 
