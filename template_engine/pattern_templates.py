@@ -98,9 +98,22 @@ __all__ = [
     "DUAL_COPILOT_VALIDATION_TEMPLATE",
     "DEFAULT_TEMPLATES",
     "get_pattern_templates",
+    "get_named_templates",
 ]
 
 
 def get_pattern_templates() -> list[str]:
     """Return built-in template strings."""
     return DEFAULT_TEMPLATES.copy()
+
+
+def get_named_templates() -> dict[str, str]:
+    """Return templates keyed by descriptive names."""
+
+    return {
+        "database_first_pattern": DATABASE_FIRST_TEMPLATE,
+        "autonomous_error_prevention": AUTONOMOUS_ERROR_PREVENTION_TEMPLATE,
+        "visual_processing": COMPREHENSIVE_VISUAL_PROCESSING_TEMPLATE,
+        "self_healing": AUTONOMOUS_SELF_HEALING_TEMPLATE,
+        "dual_copilot": DUAL_COPILOT_VALIDATION_TEMPLATE,
+    }

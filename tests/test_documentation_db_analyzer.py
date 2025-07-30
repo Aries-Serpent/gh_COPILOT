@@ -10,9 +10,9 @@ from scripts.database.documentation_db_analyzer import (
 def test_documentation_db_analyzer(tmp_path: Path) -> None:
     docdb = tmp_path / "documentation.db"
     with sqlite3.connect(docdb) as conn:
-        conn.execute("CREATE TABLE documentation (title TEXT, content TEXT)")
+        conn.execute("CREATE TABLE enterprise_documentation (title TEXT, content TEXT)")
         conn.executemany(
-            "INSERT INTO documentation (title, content) VALUES (?, ?)",
+            "INSERT INTO enterprise_documentation (title, content) VALUES (?, ?)",
             [("A", ""), ("B", "content")],
         )
     analytics = tmp_path / "analytics.db"

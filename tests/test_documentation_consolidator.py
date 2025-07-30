@@ -44,7 +44,7 @@ def test_documentation_consolidator(tmp_path, monkeypatch):
     doc_dir = workspace / "documentation"
     db_dir.mkdir()
     doc_dir.mkdir()
-    _prepare_db(repo_root / "archives" / "documentation.db", db_dir / "documentation.db")
+    _prepare_db(repo_root / "databases" / "documentation.db", db_dir / "documentation.db")
     shutil.copy(repo_root / "documentation" / "README.md", doc_dir / "README.md")
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
