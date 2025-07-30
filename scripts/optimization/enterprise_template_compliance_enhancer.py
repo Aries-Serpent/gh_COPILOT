@@ -18,8 +18,10 @@ from tqdm import tqdm
 import os
 import subprocess
 import sqlite3
+from tempfile import NamedTemporaryFile
 from template_engine.template_synchronizer import _compliance_score
 from utils.log_utils import _log_event
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -92,11 +94,16 @@ class EnterpriseFlake8Corrector(BaseCorrector):
             path = Path(file_path)
             original = path.read_text(encoding="utf-8")
 
+            with NamedTemporaryFile("w+", suffix=".py", delete=False) as tmp:
+                tmp_path = Path(tmp.name)
+                tmp.write(original)
+                tmp.flush()
+
             subprocess.run(
                 [
                     "ruff",
                     "--fix",
-                    file_path,
+                    str(tmp_path),
                 ],
                 capture_output=True,
                 text=True,
@@ -108,7 +115,7 @@ class EnterpriseFlake8Corrector(BaseCorrector):
                     sys.executable,
                     "-m",
                     "isort",
-                    file_path,
+                    str(tmp_path),
                 ],
                 capture_output=True,
                 text=True,
@@ -121,16 +128,37 @@ class EnterpriseFlake8Corrector(BaseCorrector):
                     "-m",
                     "autopep8",
                     "--in-place",
-                    file_path,
+                    str(tmp_path),
                 ],
                 capture_output=True,
                 text=True,
                 check=False,
             )
 
-            updated = path.read_text(encoding="utf-8")
+            updated = tmp_path.read_text(encoding="utf-8")
             changed = original != updated
             if changed:
+                validator = SecondaryCopilotValidator(self.logger)
+                passed = validator.validate_corrections([str(tmp_path)])
+                _log_event(
+                    {
+                        "event": "secondary_validation",
+                        "file": file_path,
+                        "passed": passed,
+                    },
+                    table="correction_logs",
+                    db_path=self.analytics_db,
+                    test_mode=False,
+                )
+                if not passed:
+                    tmp_path.unlink(missing_ok=True)
+                    self.logger.error(
+                        "%s Validation failed for %s",
+                        TEXT_INDICATORS["error"],
+                        file_path,
+                    )
+                    return False
+
                 score = _compliance_score(updated)
                 self.logger.info(
                     "%s Corrected %s",
@@ -142,14 +170,18 @@ class EnterpriseFlake8Corrector(BaseCorrector):
                         """CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
                             file_path TEXT,
                             resolved INTEGER,
-                            resolved_timestamp TEXT
+                            resolved_timestamp TEXT,
+                            status TEXT,
+                            removal_id INTEGER
                         )"""
                     )
                     conn.execute(
-                        "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=? WHERE file_path=? AND resolved=0",
+                        "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, status='resolved' WHERE file_path=? AND resolved=0",
                         (datetime.utcnow().isoformat(), file_path),
                     )
                     conn.commit()
+
+                path.write_text(updated, encoding="utf-8")
                 _log_event(
                     {
                         "event": "file_corrected",
@@ -160,6 +192,7 @@ class EnterpriseFlake8Corrector(BaseCorrector):
                     db_path=self.analytics_db,
                     test_mode=False,
                 )
+                tmp_path.unlink(missing_ok=True)
             return changed
         except Exception as e:  # pragma: no cover - unexpected
             self.logger.error(f"{TEXT_INDICATORS['error']} File correction failed: {e}")

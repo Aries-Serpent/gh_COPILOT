@@ -9,6 +9,7 @@ MIGRATIONS = [
     Path("databases/migrations/add_code_audit_history.sql"),
     Path("databases/migrations/add_violation_logs.sql"),
     Path("databases/migrations/add_rollback_logs.sql"),
+    Path("databases/migrations/extend_todo_fixme_tracking.sql"),
 ]
 
 

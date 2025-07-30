@@ -102,9 +102,9 @@ class ComplianceMetricsUpdater:
                     metrics["resolved_placeholders"] = cur.fetchone()[0]
                     metrics["open_placeholders"] = 0
                 else:
-                    cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
+                    cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
                     metrics["resolved_placeholders"] = cur.fetchone()[0]
-                    cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=0")
+                    cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
                     metrics["open_placeholders"] = cur.fetchone()[0]
                 metrics["placeholder_removal"] = metrics["resolved_placeholders"]
 

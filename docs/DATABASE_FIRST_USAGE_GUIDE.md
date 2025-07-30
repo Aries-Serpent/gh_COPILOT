@@ -48,7 +48,7 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - All generation actions must be logged for compliance review.
 - When corrections occur, update `analytics.db:correction_patterns` for future reference.
 - Placeholder detection results are written to `analytics.db:placeholder_audit`  and mirrored in `code_audit_log` for dashboard reporting.
-- Resolution tracking is enabled via `todo_fixme_tracking.resolved` and `resolved_timestamp` fields. The table structure is:
+- Resolution tracking is enabled via `todo_fixme_tracking.status` and `resolved_timestamp` fields. Each removal links via `removal_id`. The table structure is:
 
 | column | type |
 | ------ | ---- |
@@ -59,6 +59,8 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 | timestamp | DATETIME |
 | resolved | BOOLEAN |
 | resolved_timestamp | DATETIME |
+| status | TEXT |
+| removal_id | INTEGER |
 - Run `python scripts/database/add_code_audit_log.py` or apply
   `databases/migrations/add_code_audit_log.sql` to ensure this table exists on
   older analytics databases.

@@ -108,7 +108,9 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                 resolved BOOLEAN DEFAULT 0,
-                resolved_timestamp DATETIME
+                resolved_timestamp DATETIME,
+                status TEXT DEFAULT 'open',
+                removal_id INTEGER
             )
             """
         )
@@ -143,7 +145,9 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                 resolved BOOLEAN DEFAULT 0,
-                resolved_timestamp DATETIME
+                resolved_timestamp DATETIME,
+                status TEXT DEFAULT 'open',
+                removal_id INTEGER
             )
             """
         )
@@ -154,7 +158,7 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
         for rowid, fpath, line, ptype, ctx in cur.fetchall():
             if (fpath, line, ptype, ctx) not in result_keys:
                 conn.execute(
-                    "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=? WHERE rowid=?",
+                    "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, status='resolved' WHERE rowid=?",
                     (datetime.now().isoformat(), rowid),
                 )
         for row in results:
@@ -177,8 +181,8 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
                     values,
                 )
                 conn.execute(
-                    "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp)"
-                    " VALUES (?, ?, ?, ?, ?)",
+                    "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp, status)"
+                    " VALUES (?, ?, ?, ?, ?, 'open')",
                     values,
                 )
         conn.commit()
@@ -191,7 +195,7 @@ def update_dashboard(count: int, dashboard_dir: Path, analytics_db: Path) -> Non
     resolved = 0
     if analytics_db.exists():
         with sqlite3.connect(analytics_db) as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
+            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
             resolved = cur.fetchone()[0]
     compliance = max(0, 100 - count)
     status = "complete" if count == 0 else "issues_pending"

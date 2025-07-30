@@ -121,10 +121,11 @@ def remove_unused_placeholders(
                         db_path=analytics_db,
                         test_mode=False,
                     )
+                    removal_id = cur.lastrowid
                     conn.execute(
-                        "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?"
+                        "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, status='resolved', removal_id=?"
                         " WHERE placeholder_type=? AND resolved=0",
-                        (datetime.utcnow().isoformat(), ph),
+                        (datetime.utcnow().isoformat(), removal_id, ph),
                     )
                 elapsed = time.time() - start_time.timestamp()
                 etc = calculate_etc(start_time.timestamp(), idx, total_steps)
