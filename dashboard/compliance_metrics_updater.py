@@ -221,14 +221,14 @@ class ComplianceMetricsUpdater:
                 {"event": "violation", "count": metrics["violation_count"]},
                 "violation_logs",
                 db_path=ANALYTICS_DB,
-                test_mode=False,
+                test_mode=True,
             )
         if metrics.get("rollback_count"):
             insert_event(
                 {"event": "rollback", "count": metrics["rollback_count"]},
                 "rollback_logs",
                 db_path=ANALYTICS_DB,
-                test_mode=False,
+                test_mode=True,
             )
 
     def update(self, simulate: bool = False) -> None:
