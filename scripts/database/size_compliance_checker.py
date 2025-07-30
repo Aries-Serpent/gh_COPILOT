@@ -7,11 +7,14 @@ Fixed import-time logging configuration issue
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict
 
 from tqdm import tqdm
 
 from utils.enterprise_logging import EnterpriseLoggingManager
+from utils.log_utils import log_event
+
+ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", "databases/analytics.db"))
 
 # SOLUTION: Import enterprise logging system
 sys.path.append(str(Path(__file__).resolve().parents[2]))
@@ -56,6 +59,11 @@ def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dic
                 size_results[db_file.name] = size_mb
                 if size_mb > threshold_mb:
                     logger.warning(f"⚠️ {db_file.name}: {size_mb:.2f} MB > {threshold_mb} MB")
+                    log_event(
+                        {"db": db_file.name, "size_mb": size_mb, "threshold": threshold_mb},
+                        table="size_violations",
+                        db_path=ANALYTICS_DB,
+                    )
                 else:
                     logger.info(f"✅ {db_file.name}: {size_mb:.2f} MB")
             except Exception as e:

@@ -3,10 +3,9 @@
 # --- Enterprise Standards ---
 # - Flake8/PEP8 Compliant
 # - Visual Processing Indicators, Dual Copilot Pattern
-# - NO actual analytics.db writes unless triggered by human (see command below)
-# - All operations simulate/validate that analytics.db COULD be created, but do NOT create/modify it
-# - Manual creation steps are documented in ``docs/ANALYTICS_DB_TEST_PROTOCOL.md``
 # - Full database-first and anti-recursion compliance
+# - Production logging writes directly to analytics.db
+# - Streaming support for web dashboard via Server-Sent Events
 
 import json
 import logging
@@ -83,6 +82,15 @@ TABLE_SCHEMAS: Dict[str, str] = {
             resolved_timestamp DATETIME,
             status TEXT DEFAULT 'open',
             removal_id INTEGER REFERENCES placeholder_removals(id)
+        );
+    """,
+    "size_violations": """
+        CREATE TABLE IF NOT EXISTS size_violations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            db TEXT,
+            size_mb REAL,
+            threshold REAL,
+            timestamp TEXT
         );
     """,
 }
@@ -188,17 +196,10 @@ def _log_event(
 
     test_result = _can_create_analytics_db(db_path)
     start_ts = time.time()
-    with tqdm(total=1, desc="log (TEST ONLY)", unit="evt", leave=False) as bar:
+    with tqdm(total=1, desc="log", unit="evt", leave=False) as bar:
         if test_result:
-            if test_mode:
-                # Visual processing indicator: show simulated DB and table
-                tqdm.write(f"[TEST] analytics.db WOULD BE created at: {db_path}")
-                tqdm.write(f"[TEST] Table WOULD BE: {table}")
-                tqdm.write(f"[TEST] Payload: {json.dumps(payload)}")
-                bar.set_postfix_str("ETC: 0s")
-            else:
-                insert_event(payload, table, db_path=db_path, test_mode=False)
-                bar.set_postfix_str("written")
+            insert_event(payload, table, db_path=db_path, test_mode=test_mode)
+            bar.set_postfix_str("written" if not test_mode else "simulated")
         else:
             tqdm.write(f"[FAIL] analytics.db could NOT be created at: {db_path}")
             bar.set_postfix_str("ERROR")
@@ -315,6 +316,24 @@ def log_message(module: str, message: str, *, level: int = logging.INFO) -> None
     _log_plain(formatted, level=level)
 
 
+def log_event(event: Dict[str, Any], *, table: str = DEFAULT_LOG_TABLE, db_path: Path = DEFAULT_ANALYTICS_DB) -> None:
+    """Write an event directly to analytics.db."""
+    ensure_tables(db_path, [table], test_mode=False)
+    event = dict(event)
+    event.setdefault("timestamp", datetime.utcnow().isoformat())
+    insert_event(event, table, db_path=db_path, test_mode=False)
+
+
+def stream_events(table: str = DEFAULT_LOG_TABLE, *, db_path: Path = DEFAULT_ANALYTICS_DB):
+    """Yield events formatted for Server-Sent Events."""
+    if not db_path.exists():
+        return
+    with sqlite3.connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        for row in conn.execute(f"SELECT * FROM {table} ORDER BY id ASC"):
+            yield f"data: {json.dumps(dict(row))}\n\n"
+
+
 def _list_events(
     table: str = DEFAULT_LOG_TABLE, db_path: Path = DEFAULT_ANALYTICS_DB, limit: int = 100, order: str = "DESC"
 ) -> list:
@@ -355,6 +374,8 @@ __all__ = [
     "ensure_tables",
     "insert_event",
     "log_message",
+    "log_event",
+    "stream_events",
     "_log_event",
     "_log_audit_event",
 ]

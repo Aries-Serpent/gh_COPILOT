@@ -91,3 +91,60 @@ class EnterpriseFlake8Corrector:
     def validate_corrections(self, files: list[str]) -> bool:
         """Basic validation that something changed."""
         return bool(files)
+
+
+class WhitespaceCorrector(EnterpriseFlake8Corrector):
+    """Correct common whitespace issues (E1xx/E2xx)."""
+
+    def correct_file(self, file_path: str) -> bool:
+        try:
+            original = Path(file_path).read_text(encoding="utf-8")
+            subprocess.run(
+                [sys.executable, "-m", "autopep8", "--aggressive", "--in-place", file_path],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            updated = Path(file_path).read_text(encoding="utf-8")
+            changed = original != updated
+            if changed:
+                self.logger.info("Fixed whitespace in %s", file_path)
+            return changed
+        except Exception as exc:  # pragma: no cover - unexpected
+            self.logger.error("Whitespace correction failed: %s", exc)
+            return False
+
+
+class ImportOrderCorrector(EnterpriseFlake8Corrector):
+    """Correct import order and remove unused imports (F401/F403)."""
+
+    def correct_file(self, file_path: str) -> bool:
+        try:
+            original = Path(file_path).read_text(encoding="utf-8")
+            subprocess.run(
+                [sys.executable, "-m", "isort", file_path],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            subprocess.run(
+                [sys.executable, "-m", "autopep8", "--in-place", file_path],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            updated = Path(file_path).read_text(encoding="utf-8")
+            changed = original != updated
+            if changed:
+                self.logger.info("Fixed imports in %s", file_path)
+            return changed
+        except Exception as exc:  # pragma: no cover - unexpected
+            self.logger.error("Import correction failed: %s", exc)
+            return False
+
+
+__all__ = [
+    "EnterpriseFlake8Corrector",
+    "WhitespaceCorrector",
+    "ImportOrderCorrector",
+]
