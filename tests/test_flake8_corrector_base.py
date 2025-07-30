@@ -1,8 +1,10 @@
 from pathlib import Path
+import sqlite3
 from scripts.utilities.flake8_corrector_base import (
     WhitespaceCorrector,
     ImportOrderCorrector,
     LineLengthCorrector,
+    TrailingWhitespaceCorrector,
     IndentationCorrector,
     ComplexityCorrector,
 )
@@ -25,13 +27,39 @@ def test_import_order_corrector(tmp_path: Path) -> None:
     assert "import os" in text and "import sys" in text
 
 
-def test_line_length_corrector(tmp_path: Path) -> None:
+def test_line_length_corrector(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_TEST_MODE", "0")
     long_line = "print('" + "a" * 90 + "')\n"
     f = tmp_path / "bad.py"
     f.write_text(long_line)
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
     c = LineLengthCorrector(workspace_path=str(tmp_path))
+    c.analytics_db = db_dir / "analytics.db"
+    with sqlite3.connect(c.analytics_db) as conn:
+        conn.execute("CREATE TABLE correction_logs (event TEXT, path TEXT, module TEXT, level TEXT, timestamp TEXT)")
     assert c.execute_correction()
     assert len(f.read_text().splitlines()) > 1
+    with sqlite3.connect(c.analytics_db) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM correction_logs").fetchone()[0]
+    assert count >= 1
+
+
+def test_trailing_whitespace_corrector(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_TEST_MODE", "0")
+    f = tmp_path / "bad.py"
+    f.write_text("print('hi')    \n")
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    c = TrailingWhitespaceCorrector(workspace_path=str(tmp_path))
+    c.analytics_db = db_dir / "analytics.db"
+    with sqlite3.connect(c.analytics_db) as conn:
+        conn.execute("CREATE TABLE correction_logs (event TEXT, path TEXT, module TEXT, level TEXT, timestamp TEXT)")
+    assert c.execute_correction()
+    assert f.read_text() == "print('hi')\n"
+    with sqlite3.connect(c.analytics_db) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM correction_logs").fetchone()[0]
+    assert count >= 1
 
 
 def test_indentation_corrector(tmp_path: Path) -> None:

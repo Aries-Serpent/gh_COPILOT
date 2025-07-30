@@ -1,15 +1,17 @@
 import importlib
 import json
 import sqlite3
+import pytest
 
 
-def test_compliance_metrics_updater(tmp_path, monkeypatch):
+@pytest.mark.parametrize("simulate,test_mode", [(True, False), (False, True), (False, False)])
+def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     module = importlib.import_module("dashboard.compliance_metrics_updater")
     importlib.reload(module)
-    events = []
+    modes = []
     monkeypatch.setattr(module, "ensure_tables", lambda *a, **k: None)
-    monkeypatch.setattr(module, "insert_event", lambda e, table, **k: events.append(table))
+    monkeypatch.setattr(module, "insert_event", lambda e, table, **k: modes.append(k.get("test_mode")))
     monkeypatch.setattr(module, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(module, "validate_environment_root", lambda: None)
 
@@ -42,7 +44,9 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch):
     assert "correction_logs" in events
 
     metrics_file = dashboard_dir / "metrics.json"
-    assert metrics_file.exists()
+    if simulate:
+        assert not metrics_file.exists()
+        return
     data = json.loads(metrics_file.read_text())
     assert data["metrics"]["placeholder_removal"] == 1
     assert data["metrics"]["compliance_score"] == 0.9
@@ -51,3 +55,5 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch):
     assert data["metrics"]["progress_status"] == "issues_pending"
     assert 0.0 <= data["metrics"]["progress"] <= 1.0
     assert data["metrics"]["correction_count"] == 1
+    expected = test_mode or simulate
+    assert all(m == expected for m in modes)

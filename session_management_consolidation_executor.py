@@ -45,8 +45,9 @@ class EnterpriseUtility:
         """Execute consolidation routine with logging and validation."""
         self.logger.info("[START] Utility started: %s", datetime.now().isoformat())
         _log_event({"event": "utility_start"}, db_path=self.workspace_path / "analytics.db")
+        env_ok = self._validate_environment()
         validation = self.validator.validate_startup()
-        success = validation.is_success and self.perform_utility_function()
+        success = env_ok and validation.is_success and self.perform_utility_function()
         if success:
             self.logger.info("[SUCCESS] Utility completed")
             _log_event({"event": "utility_success"}, db_path=self.workspace_path / "analytics.db")
