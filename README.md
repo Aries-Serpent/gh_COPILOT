@@ -290,6 +290,8 @@ Inside the image `GH_COPILOT_BACKUP_ROOT` defaults to `/backup`. Map this path t
 
 When launching with Docker Compose, the provided `docker-compose.yml` mounts `${GH_COPILOT_BACKUP_ROOT:-/backup}` at `/backup`. Set `GH_COPILOT_BACKUP_ROOT` on the host before running `docker-compose up` so backups survive container restarts.
 
+The container's `entrypoint.sh` now initializes `analytics.db` automatically before starting the dashboard service, so no manual step is required.
+
 ### Wrapping, Logging, and Compliance (WLC)
 Run the session manager after setting the workspace and backup paths:
 
