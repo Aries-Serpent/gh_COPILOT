@@ -3,7 +3,11 @@
 This guide describes how to use the data backup feature in the gh_COPILOT toolkit.
 
 ## Prerequisites
-- Ensure the `GH_COPILOT_BACKUP_ROOT` environment variable points to an external directory outside the repository workspace. When running the Docker container, this variable defaults to `/backup` and should be mapped to a host directory.
+- Ensure the `GH_COPILOT_BACKUP_ROOT` environment variable points to an external directory outside the repository workspace. When running the Docker container, map a host folder to `/backup` so the volume persists:
+  ```bash
+  docker compose up -d -v /host/backups:/backup
+  ```
+  Backups will then be available on the host under `/host/backups`.
 - Run `bash setup.sh` to create the `.venv` and install dependencies.
 
 ## Performing a Backup

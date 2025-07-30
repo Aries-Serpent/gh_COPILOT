@@ -190,11 +190,15 @@ def _log_event(
     start_ts = time.time()
     with tqdm(total=1, desc="log (TEST ONLY)", unit="evt", leave=False) as bar:
         if test_result:
-            # Visual processing indicator: show simulated DB and table
-            tqdm.write(f"[TEST] analytics.db WOULD BE created at: {db_path}")
-            tqdm.write(f"[TEST] Table WOULD BE: {table}")
-            tqdm.write(f"[TEST] Payload: {json.dumps(payload)}")
-            bar.set_postfix_str("ETC: 0s")
+            if test_mode:
+                # Visual processing indicator: show simulated DB and table
+                tqdm.write(f"[TEST] analytics.db WOULD BE created at: {db_path}")
+                tqdm.write(f"[TEST] Table WOULD BE: {table}")
+                tqdm.write(f"[TEST] Payload: {json.dumps(payload)}")
+                bar.set_postfix_str("ETC: 0s")
+            else:
+                insert_event(payload, table, db_path=db_path, test_mode=False)
+                bar.set_postfix_str("written")
         else:
             tqdm.write(f"[FAIL] analytics.db could NOT be created at: {db_path}")
             bar.set_postfix_str("ERROR")

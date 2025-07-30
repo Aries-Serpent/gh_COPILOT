@@ -8,13 +8,15 @@ import monitoring.log_error_notifier as notifier
 
 
 def _prepare_db(tmp_path: Path) -> Path:
-    db = tmp_path / "analytics.db"
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    db = db_dir / "analytics.db"
     with sqlite3.connect(db) as conn:
         conn.execute(
-            "CREATE TABLE IF NOT EXISTS log_errors (timestamp TEXT, data TEXT)"
+            "CREATE TABLE IF NOT EXISTS log_errors (file TEXT, error TEXT, timestamp TEXT)"
         )
         conn.execute(
-            "CREATE TABLE IF NOT EXISTS log_notifications (timestamp TEXT, data TEXT)"
+            "CREATE TABLE IF NOT EXISTS log_notifications (errors_found INTEGER, timestamp TEXT)"
         )
     return db
 

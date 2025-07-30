@@ -26,11 +26,15 @@ class DummyTqdm:
     def update(self, n: int = 1) -> None:
         self.updates += n
 
+    @property
+    def format_dict(self) -> dict:
+        return {"elapsed": 0, "remaining": 0}
+
     def set_postfix_str(self, *args: str, **kwargs: str) -> None:
         pass
 
 
-def test_run_cycle(tmp_path: Path) -> None:
+def test_run_cycle(tmp_path: Path, monkeypatch) -> None:
     db_dir = tmp_path / "databases"
     docs_dir = tmp_path / "documentation"
     db_dir.mkdir()
@@ -39,6 +43,7 @@ def test_run_cycle(tmp_path: Path) -> None:
     master = db_dir / "enterprise_assets.db"
     replica = db_dir / "replica.db"
     log_db = master
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     initialize_database(log_db)
 
     with sqlite3.connect(master) as conn:
@@ -65,6 +70,7 @@ def test_run_cycle_logging_and_progress(tmp_path: Path, monkeypatch) -> None:
 
     master = db_dir / "enterprise_assets.db"
     log_db = master
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     initialize_database(log_db)
 
     with sqlite3.connect(master) as conn:
