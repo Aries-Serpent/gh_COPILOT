@@ -48,7 +48,7 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - All generation actions must be logged for compliance review.
 - When corrections occur, update `analytics.db:correction_patterns` for future reference.
 - Placeholder detection results are written to `analytics.db:placeholder_audit`  and mirrored in `code_audit_log` for dashboard reporting.
-- Resolution tracking is enabled via `todo_fixme_tracking.resolved` and `resolved_timestamp` fields. The table structure is:
+- Resolution tracking is enabled via `todo_fixme_tracking.status` and `resolved_timestamp` fields. Each removal links via `removal_id`. The table structure is:
 
 | column | type |
 | ------ | ---- |
@@ -59,6 +59,8 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 | timestamp | DATETIME |
 | resolved | BOOLEAN |
 | resolved_timestamp | DATETIME |
+| status | TEXT |
+| removal_id | INTEGER |
 - Run `python scripts/database/add_code_audit_log.py` or apply
   `databases/migrations/add_code_audit_log.sql` to ensure this table exists on
   older analytics databases.
@@ -113,6 +115,7 @@ reference.
   execute any SQL files in `databases/migrations/` such as
   `add_code_audit_log.sql`, `add_correction_history.sql`, and `add_code_audit_history.sql` using `sqlite3` or your preferred migration tool.
   The `correction_history` table stores cleanup events with `user_id`, session ID, file path, action, timestamp, and optional details. The `code_audit_history` table records audit entries with the responsible user and timestamp. Run the migrations if these tables are missing.
+  Use `utils.log_utils.ensure_tables()` to verify tables exist and `insert_event()` to write analytics entries.
 - After every migration, run `scripts/database/size_compliance_checker.py` to
   verify the 99.9 MB limit is maintained.
 
