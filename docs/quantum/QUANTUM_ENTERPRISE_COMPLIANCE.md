@@ -4,6 +4,13 @@
 > **Note**
 > All quantum capabilities operate in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
 
+### Simulation Mode
+The PIS Framework defaults to a high‑fidelity simulator. All quantum features
+mirror production logic but run classically unless a hardware backend is
+explicitly configured. This ensures deterministic results for testing and
+compliance audits. Hardware support can be enabled as described in the
+**Optional Hardware Setup** section below.
+
 ### Compliance Framework
 The quantum-enhanced PIS Framework meets all enterprise compliance requirements:
 
@@ -23,6 +30,19 @@ The quantum-enhanced PIS Framework meets all enterprise compliance requirements:
 2. **Quantum Key Distribution**: Ultra-secure communication channels
 3. **Quantum Random Number Generation**: True randomness for security
 4. **Quantum Error Correction**: Data integrity assurance
+
+### Implemented Quantum Routines
+- **Quantum Annealing Optimization**
+- **Quantum Superposition Search**
+- **Quantum Entanglement Correction**
+- **Quantum Phase Estimation**
+- **Grover's Search Optimization**
+- **Shor's Cryptographic Analyzer**
+- **Quantum Fourier Transform**
+
+### Planned Quantum Routines
+- **Variational Quantum Eigensolver** *(hardware integration pending)*
+- **Quantum Teleportation** *(research stage)*
 
 ### Audit Trail
 All quantum operations are fully logged and auditable:
@@ -51,6 +71,17 @@ CREATE TABLE quantum_audit_log (
 - **Production Grade**: ✅ Validated
 - **Quantum Secure**: ✅ Compliant
 - **Audit Ready**: ✅ Documentation Complete
+
+### Optional Hardware Setup
+To execute routines on IBM Quantum hardware:
+1. Install `qiskit-ibm-provider` in the project virtual environment.
+2. Set the environment variable `QISKIT_IBM_TOKEN` with your IBM Quantum API key.
+3. Launch the orchestrator with the desired backend:
+   ```bash
+   python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
+   ```
+If the backend or token is unavailable, the toolkit automatically falls back to
+simulation mode.
 
 ---
 *Compliance Report v1.0*
