@@ -1,0 +1,9 @@
+<!doctype html>
+<title>Metrics Table</title>
+<table border="1">
+    <tr><th>Metric</th><th>Value</th></tr>
+    {% for key, value in metrics.items() %}
+    <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+    {% endfor %}
+</table>
+

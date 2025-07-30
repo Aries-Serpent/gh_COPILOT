@@ -123,24 +123,22 @@ class CrossReferenceValidator:
         """Perform additional cross-linking between docs and code."""
         workspace = CrossPlatformPathManager.get_workspace_path()
         docs_dirs = [workspace / "docs", workspace / "documentation"]
-        code_dir = workspace
-        for d in docs_dirs + [code_dir]:
+        code_dirs = [workspace]
+        for d in docs_dirs + code_dirs:
             validate_enterprise_operation(str(d))
         for act in actions:
             file_name = Path(act["file_path"]).name
             related_paths: Set[Path] = set()
-            for d in docs_dirs:
-                related_paths.update(d.rglob(file_name))
-            related_paths.update(code_dir.rglob(file_name))
+            for d in docs_dirs + code_dirs:
+                for path in d.rglob(file_name):
+                    try:
+                        path.relative_to(backup_root)
+                    except ValueError:
+                        related_paths.add(path)
             for path in sorted(related_paths):
                 entry = {"file_path": act["file_path"], "linked_path": str(path)}
                 self.cross_link_log.append(entry)
-                _log_event(
-                    entry,
-                    table="cross_link_events",
-                    db_path=self.analytics_db,
-                    test_mode=False,
-                )
+                log_event(entry, table="cross_link_events", db_path=self.analytics_db)
 
     def _update_dashboard(self, actions: List[Dict]) -> None:
         """Update dashboard/compliance with cross-reference summary."""
@@ -156,14 +154,14 @@ class CrossReferenceValidator:
         summary_file = self.dashboard_dir / "cross_reference_summary.json"
         summary_file.write_text(json.dumps(summary, indent=2), encoding="utf-8")
         logging.info(f"Dashboard cross-reference summary updated: {summary_file}")
-        _log_event(
+        log_event(
             {
                 "actions": len(actions),
                 "links": len(self.cross_link_log),
+                "summary_path": str(summary_file),
             },
             table="cross_link_summary",
             db_path=self.analytics_db,
-            test_mode=False,
         )
 
     def validate(self, timeout_minutes: int = 30) -> bool:

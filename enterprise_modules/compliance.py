@@ -80,6 +80,7 @@ def validate_enterprise_operation(
                 break
 
     if _detect_recursion(workspace):
+        _log_violation("recursive_workspace")
         violations.append("recursive_workspace")
 
     # Disallow backup directories inside the workspace
@@ -100,6 +101,7 @@ def validate_enterprise_operation(
             violations.append(f"forbidden_subpath:{parent}")
 
     if _detect_recursion(path):
+        _log_violation("recursive_target")
         violations.append("recursive_target")
 
     # Cleanup forbidden backup folders within workspace
@@ -109,9 +111,11 @@ def validate_enterprise_operation(
             violations.append(f"removed_forbidden:{item}")
 
     for violation in violations:
+        if violation in {"recursive_workspace", "recursive_target"}:
+            continue
         _log_violation(violation)
 
     return not violations
 
 
-__all__ = ["validate_enterprise_operation"]
+__all__ = ["validate_enterprise_operation", "_log_rollback"]

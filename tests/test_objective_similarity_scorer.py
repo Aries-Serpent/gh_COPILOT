@@ -100,3 +100,21 @@ def test_similarity_weights_mismatch(tmp_path: Path) -> None:
             methods=["tfidf", "jaccard"],
             weights=[1.0],
         )
+
+
+def test_weights_dict_missing_key(tmp_path: Path) -> None:
+    prod = tmp_path / "production.db"
+    analytics = tmp_path / "analytics.db"
+    with sqlite3.connect(prod) as conn:
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("INSERT INTO code_templates (template_code) VALUES ('foo')")
+
+    with pytest.raises(ValueError):
+        compute_similarity_scores(
+            "foo",
+            prod,
+            analytics,
+            timeout_minutes=1,
+            methods=["tfidf", "jaccard"],
+            weights={"tfidf": 1.0},
+        )

@@ -1,25 +1,9 @@
-"""Enterprise operation validation helpers."""
+"""Deprecated validation helpers.
 
-from __future__ import annotations
+This module now re-exports :func:`enterprise_modules.compliance.validate_enterprise_operation`
+for backward compatibility.
+"""
 
-import os
-from pathlib import Path
+from enterprise_modules.compliance import validate_enterprise_operation
 
-
-def validate_enterprise_operation(path: str | None = None) -> bool:
-    """Validate operations to prevent internal backup access."""
-
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())).resolve()
-    target = Path(path or workspace).resolve()
-    backup_root = Path(
-        os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups")
-    ).resolve()
-
-    if backup_root == workspace or backup_root.is_relative_to(workspace):
-        raise RuntimeError("Backup root cannot be inside the workspace")
-
-    if target.is_relative_to(workspace) and "backup" in target.name.lower():
-        raise RuntimeError("Operations targeting internal backups are forbidden")
-
-    return True
-
+__all__ = ["validate_enterprise_operation"]

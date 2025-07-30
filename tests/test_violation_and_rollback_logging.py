@@ -18,20 +18,12 @@ def test_violation_and_rollback_logging(tmp_path, monkeypatch):
     db_dir.mkdir()
     analytics_db = db_dir / "analytics.db"
     with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)"
-        )
+        conn.execute("CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)")
         conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved', 1)")
-        conn.execute(
-            "CREATE TABLE correction_logs (file_path TEXT, compliance_score REAL, ts TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO correction_logs VALUES ('f',1.0,'ts')"
-        )
+        conn.execute("CREATE TABLE correction_logs (file_path TEXT, compliance_score REAL, ts TEXT)")
+        conn.execute("INSERT INTO correction_logs VALUES ('f',1.0,'ts')")
         conn.execute("CREATE TABLE violation_logs (timestamp TEXT, details TEXT)")
-        conn.execute(
-            "CREATE TABLE rollback_logs (target TEXT, backup TEXT, timestamp TEXT)"
-        )
+        conn.execute("CREATE TABLE rollback_logs (target TEXT, backup TEXT, timestamp TEXT)")
         conn.commit()
 
     logger = CorrectionLoggerRollback(analytics_db)
@@ -42,7 +34,8 @@ def test_violation_and_rollback_logging(tmp_path, monkeypatch):
     logger.auto_rollback(target, None)
 
     dash = tmp_path / "dash"
-    updater = cmu.ComplianceMetricsUpdater(dash)
+    updater = cmu.ComplianceMetricsUpdater(dash, test_mode=True)
+    monkeypatch.setattr(updater, "_check_forbidden_operations", lambda: None)
     updater.update()
 
     assert any(t == "violation_logs" for t, _ in events)

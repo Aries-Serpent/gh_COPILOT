@@ -25,7 +25,7 @@ from utils.log_utils import ensure_tables, insert_event
 
 
 # Enterprise logging setup
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "dashboard"
+LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT")) / "logs" / "dashboard"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"compliance_update_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -36,12 +36,12 @@ logging.basicConfig(
 )
 
 # Database paths
-ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "analytics.db"
-DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "dashboard" / "compliance"
+ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT")) / "databases" / "analytics.db"
+DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT")) / "dashboard" / "compliance"
 
 
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT"))
     forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
@@ -51,7 +51,7 @@ def validate_no_recursive_folders() -> None:
 
 
 def validate_environment_root() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT"))
     if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
         logging.warning(f"Non-standard workspace root: {workspace_root}")
 
@@ -63,8 +63,9 @@ class ComplianceMetricsUpdater:
     Validates all dashboard events are fed by analytics.db and correction logs.
     """
 
-    def __init__(self, dashboard_dir: Path) -> None:
+    def __init__(self, dashboard_dir: Path, *, test_mode: bool = False) -> None:
         self.dashboard_dir = dashboard_dir
+        self.test_mode = test_mode
         self.start_time = datetime.now()
         self.process_id = os.getpid()
         self.timeout_seconds = 1800  # 30 minutes
@@ -77,11 +78,11 @@ class ComplianceMetricsUpdater:
         ensure_tables(
             ANALYTICS_DB,
             ["violation_logs", "rollback_logs", "correction_logs"],
-            test_mode=False,
+            test_mode=self.test_mode,
         )
         self.forbidden_phrases = ["rm -rf", "sudo", "wget "]
 
-    def _fetch_compliance_metrics(self) -> Dict[str, Any]:
+    def _fetch_compliance_metrics(self, *, test_mode: bool = False) -> Dict[str, Any]:
         """Fetch compliance metrics from analytics.db."""
         metrics = {
             "placeholder_removal": 0,
@@ -122,15 +123,10 @@ class ComplianceMetricsUpdater:
                 cur.execute("SELECT COUNT(*) FROM violation_logs")
                 metrics["violation_count"] = cur.fetchone()[0]
 
-                if cur.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name='rollback_logs'"
-                ).fetchone():
-                    cur.execute(
-                        "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT 5"
-                    )
+                if cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='rollback_logs'").fetchone():
+                    cur.execute("SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT 5")
                     metrics["recent_rollbacks"] = [
-                        {"target": r[0], "backup": r[1], "timestamp": r[2]}
-                        for r in cur.fetchall()
+                        {"target": r[0], "backup": r[1], "timestamp": r[2]} for r in cur.fetchall()
                     ]
                     cur.execute("SELECT COUNT(*) FROM rollback_logs")
                     metrics["rollback_count"] = cur.fetchone()[0]
@@ -153,20 +149,20 @@ class ComplianceMetricsUpdater:
                 {"event": "violation_detected", "count": metrics["violation_count"]},
                 "violation_logs",
                 db_path=ANALYTICS_DB,
-                test_mode=False,
+                test_mode=test_mode,
             )
         if metrics["rollback_count"]:
             insert_event(
                 {"event": "rollback_detected", "count": metrics["rollback_count"]},
                 "rollback_logs",
                 db_path=ANALYTICS_DB,
-                test_mode=False,
+                test_mode=test_mode,
             )
         insert_event(
             {"event": "correction", "score": metrics.get("compliance_score", 0.0)},
             "correction_logs",
             db_path=ANALYTICS_DB,
-            test_mode=False,
+            test_mode=test_mode,
         )
         metrics["last_update"] = datetime.now().isoformat()
         return metrics
@@ -178,9 +174,7 @@ class ComplianceMetricsUpdater:
             try:
                 with sqlite3.connect(ANALYTICS_DB) as conn:
                     cur = conn.cursor()
-                    cur.execute(
-                        "SELECT details FROM violation_logs ORDER BY timestamp DESC LIMIT 5"
-                    )
+                    cur.execute("SELECT details FROM violation_logs ORDER BY timestamp DESC LIMIT 5")
                     violations = [row[0].lower() for row in cur.fetchall()]
                     if any("placeholder" in v for v in violations):
                         suggestions.append("Clean unresolved placeholders.")
@@ -214,6 +208,13 @@ class ComplianceMetricsUpdater:
     def stream_metrics(self, interval: int = 5) -> Iterable[Dict[str, Any]]:
         """Yield metrics in real-time for streaming interfaces."""
         while True:
+            try:
+                validate_no_recursive_folders()
+                self._check_forbidden_operations()
+            except Exception as exc:  # DualCopilotOrchestrator validation
+                logging.exception("Streaming validation failed: %s", exc)
+                raise
+
             metrics = self._fetch_compliance_metrics()
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
             yield metrics
@@ -238,7 +239,7 @@ class ComplianceMetricsUpdater:
         )
         logging.info(f"Dashboard metrics updated: {dashboard_file}")
 
-    def _log_update_event(self, metrics: Dict[str, Any]) -> None:
+    def _log_update_event(self, metrics: Dict[str, Any], *, test_mode: bool = False) -> None:
         timestamp = datetime.now().isoformat()
         log_entry = f"{timestamp} | Metrics Updated | {metrics}\n"
         with open(LOG_FILE, "a", encoding="utf-8") as logf:
@@ -248,27 +249,27 @@ class ComplianceMetricsUpdater:
             {"event": "dashboard_update", "metrics": metrics},
             "event_log",
             db_path=ANALYTICS_DB,
-            test_mode=False,
+            test_mode=test_mode,
         )
         if metrics.get("violation_count"):
             insert_event(
                 {"event": "violation", "count": metrics["violation_count"]},
                 "violation_logs",
                 db_path=ANALYTICS_DB,
-                test_mode=False,
+                test_mode=test_mode,
             )
         if metrics.get("rollback_count"):
             insert_event(
                 {"event": "rollback", "count": metrics["rollback_count"]},
                 "rollback_logs",
                 db_path=ANALYTICS_DB,
-                test_mode=False,
+                test_mode=test_mode,
             )
         insert_event(
             {"event": "update", "score": metrics.get("compliance_score", 0.0)},
             "correction_logs",
             db_path=ANALYTICS_DB,
-            test_mode=False,
+            test_mode=test_mode,
         )
 
     def update(self, simulate: bool = False) -> None:
@@ -283,7 +284,7 @@ class ComplianceMetricsUpdater:
         start_time = time.time()
         with tqdm(total=3, desc="Updating Compliance Metrics", unit="step") as pbar:
             pbar.set_description("Fetching Metrics")
-            metrics = self._fetch_compliance_metrics()
+            metrics = self._fetch_compliance_metrics(test_mode=self.test_mode or simulate)
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
             pbar.update(1)
 
@@ -297,7 +298,7 @@ class ComplianceMetricsUpdater:
                 pbar.update(1)
 
                 pbar.set_description("Logging Update Event")
-                self._log_update_event(metrics)
+                self._log_update_event(metrics, test_mode=self.test_mode)
                 pbar.update(1)
             else:
                 pbar.set_description("Simulation Mode")
@@ -310,7 +311,7 @@ class ComplianceMetricsUpdater:
             {"event": "update_complete", "duration": elapsed},
             "event_log",
             db_path=ANALYTICS_DB,
-            test_mode=False,
+            test_mode=self.test_mode or simulate,
         )
         self.status = "COMPLETED"
 
@@ -341,10 +342,10 @@ class ComplianceMetricsUpdater:
         return valid
 
 
-def main(simulate: bool = False, stream: bool = False) -> None:
+def main(simulate: bool = False, stream: bool = False, test_mode: bool = False) -> None:
     """Command-line entry point."""
     dashboard_dir = DASHBOARD_DIR
-    updater = ComplianceMetricsUpdater(dashboard_dir)
+    updater = ComplianceMetricsUpdater(dashboard_dir, test_mode=test_mode)
     if stream:
         for metrics in updater.stream_metrics():
             print(metrics)
@@ -367,5 +368,10 @@ if __name__ == "__main__":
         action="store_true",
         help="Continuously stream metrics to stdout",
     )
+    parser.add_argument(
+        "--test-mode",
+        action="store_true",
+        help="Enable test mode for analytics events",
+    )
     args = parser.parse_args()
-    main(simulate=args.simulate, stream=args.stream)
+    main(simulate=args.simulate, stream=args.stream, test_mode=args.test_mode)
