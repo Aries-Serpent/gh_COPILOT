@@ -15,6 +15,7 @@ from typing import Iterable, List
 try:
     from qiskit import QuantumCircuit
     from qiskit_aer import AerSimulator
+
     QISKIT_AVAILABLE = True
 except Exception:  # pragma: no cover - qiskit optional
     QISKIT_AVAILABLE = False
@@ -25,6 +26,7 @@ from tqdm import tqdm
 
 ANALYTICS_DB = Path("databases/analytics.db")
 
+
 def log_quantum_event(name: str, details: str) -> None:
     """Log quantum algorithm usage if ``analytics.db`` exists."""
     if not ANALYTICS_DB.exists():
@@ -33,9 +35,7 @@ def log_quantum_event(name: str, details: str) -> None:
 
     try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS quantum_events (timestamp TEXT, name TEXT, details TEXT)"
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS quantum_events (timestamp TEXT, name TEXT, details TEXT)")
             conn.execute(
                 "INSERT INTO quantum_events (timestamp, name, details) VALUES (?, ?, ?)",
                 (datetime.utcnow().isoformat(), name, details),
@@ -49,9 +49,7 @@ def log_quantum_event(name: str, details: str) -> None:
 class EnterpriseUtility:
     """Minimal enterprise utility wrapper used for testing."""
 
-    def __init__(
-        self, workspace_path: str | None = None
-    ) -> None:  # pragma: no cover - thin wrapper
+    def __init__(self, workspace_path: str | None = None) -> None:  # pragma: no cover - thin wrapper
         """Initialize utility; workspace path is optional."""
         self.workspace_path = workspace_path
 
@@ -72,6 +70,7 @@ __all__ = [
     "quantum_score_stub",
     "demo_quantum_neural_network",
     "quantum_cluster_score",
+    "quantum_similarity_score",
     "quantum_pattern_match_stub",
     "quantum_text_score",
 ]

@@ -15,7 +15,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Iterable
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -32,13 +32,30 @@ from .pattern_mining_engine import extract_patterns
 
 # Quantum scoring helper
 try:
-    from quantum_algorithm_library_expansion import quantum_text_score
+    from quantum_algorithm_library_expansion import (
+        quantum_text_score,
+        quantum_similarity_score,
+        quantum_cluster_score,
+    )
 except ImportError:
 
     def quantum_text_score(text: str) -> float:
         # Fallback implementation mirrors classical path
         arr = np.fromiter((ord(c) for c in text), dtype=float)
         return float(np.linalg.norm(arr) / ((arr.size or 1) * 255))
+
+    def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
+        arr_a = np.fromiter(a, dtype=float)
+        arr_b = np.fromiter(b, dtype=float)
+        if arr_a.size == 0 or arr_b.size == 0:
+            return 0.0
+        return float(np.dot(arr_a, arr_b) / (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)))
+
+    def quantum_cluster_score(matrix: np.ndarray) -> float:
+        n_clusters = min(len(matrix), 2)
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+        labels = model.fit_predict(matrix)
+        return float(np.sum(labels) / (len(labels) or 1))
 
 
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -239,6 +256,7 @@ class TemplateAutoGenerator:
         """Return templates ranked by similarity to ``target``."""
         ranked: List[tuple[str, float]] = []
         target_q = self._quantum_score(target)
+        vectorizer = TfidfVectorizer()
         if self.production_db.exists():
             scores = compute_similarity_scores(
                 target,
@@ -256,9 +274,12 @@ class TemplateAutoGenerator:
                     pats = extract_patterns([text])
                     if any(p in target for p in pats):
                         bonus = 0.1
+                    vecs = vectorizer.fit_transform([target, text]).toarray()
+                    tfidf = float(cosine_similarity([vecs[0]], [vecs[1]])[0][0])
                     q_sim = 1.0 - abs(self._quantum_score(text) - target_q)
-                    tfidf = self.objective_similarity(target, text)
-                    score = id_to_score[tid] + tfidf + q_sim + bonus
+                    q_vec = quantum_similarity_score(vecs[0], vecs[1])
+                    c_score = quantum_cluster_score(np.vstack([vecs[0], vecs[1]]))
+                    score = id_to_score[tid] + tfidf + q_sim + q_vec + c_score + bonus
                     ranked.append((text, score))
                     _log_event(
                         {
@@ -270,12 +291,33 @@ class TemplateAutoGenerator:
                         table="generator_events",
                         db_path=self.analytics_db,
                     )
+                    _log_event(
+                        {
+                            "event": "quantum_similarity",
+                            "template_id": tid,
+                            "score": q_vec,
+                        },
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {
+                            "event": "cluster_score",
+                            "template_id": tid,
+                            "score": c_score,
+                        },
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
         if not ranked:
             candidates = self.templates or self.patterns
             for tmpl in candidates:
-                tfidf = self.objective_similarity(target, tmpl)
+                vecs = vectorizer.fit_transform([target, tmpl]).toarray()
+                tfidf = float(cosine_similarity([vecs[0]], [vecs[1]])[0][0])
                 q_sim = 1.0 - abs(self._quantum_score(tmpl) - target_q)
-                score = tfidf + q_sim
+                q_vec = quantum_similarity_score(vecs[0], vecs[1])
+                c_score = quantum_cluster_score(np.vstack([vecs[0], vecs[1]]))
+                score = tfidf + q_sim + q_vec + c_score
                 ranked.append((tmpl, score))
                 _log_event(
                     {
@@ -283,6 +325,24 @@ class TemplateAutoGenerator:
                         "target": target,
                         "template_id": -1,
                         "score": score,
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {
+                        "event": "quantum_similarity",
+                        "template_id": -1,
+                        "score": q_vec,
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {
+                        "event": "cluster_score",
+                        "template_id": -1,
+                        "score": c_score,
                     },
                     table="generator_events",
                     db_path=self.analytics_db,
@@ -299,9 +359,7 @@ class TemplateAutoGenerator:
         best = ranked[0]
         try:
             with sqlite3.connect(self.analytics_db) as conn:
-                conn.execute(
-                    "CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)"
-                )
+                conn.execute("CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)")
                 conn.execute(
                     "INSERT INTO template_events (ts, target, template) VALUES (?,?,?)",
                     (datetime.utcnow().isoformat(), target, best),
