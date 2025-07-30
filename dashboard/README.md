@@ -82,6 +82,15 @@ Example screenshot:
 
 ![Dashboard Screenshot](static/dashboard_screenshot.png)
 
+### Live Metrics
+
+The dashboard templates consume `/metrics_stream` via Server-Sent Events (SSE).
+Metrics are retrieved from `analytics.db` and include placeholder removal totals,
+open placeholder counts, and the average compliance score. If SSE is
+unavailable, a JavaScript fallback polls `/metrics` and `/alerts` every five
+seconds. Alerts combine rollback and violation logs so operators can react to
+compliance issues immediately.
+
 ---
 
 ## ENDPOINTS
