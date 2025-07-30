@@ -24,7 +24,7 @@ from tqdm import tqdm
 
 from utils.log_utils import _log_event
 
-from .placeholder_utils import DEFAULT_PRODUCTION_DB
+from .placeholder_utils import DEFAULT_PRODUCTION_DB, replace_placeholders
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
 
@@ -320,19 +320,43 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         return result
 
     def generate_integration_ready_code(self, objective: str) -> Path:
+        """Generate production-ready code stub and log analytics."""
+        validate_no_recursive_folders()
+
+        # Use the best available template then replace placeholders
+        template = self.select_best_template(objective)
+        if not template:
+            template = self.generate(objective)
+
+        stub = replace_placeholders(
+            template,
+            {
+                "production": self.production_db,
+                "template_doc": self.documentation_db,
+                "analytics": self.analytics_db,
+            },
+        )
+
         path = Path(f"{objective}.py")
-        path.write_text(self.generate(objective))
-        with sqlite3.connect(self.analytics_db) as conn:
-            conn.execute("CREATE TABLE IF NOT EXISTS code_generation_events (objective TEXT, status TEXT)")
-            conn.execute(
-                "INSERT INTO code_generation_events (objective, status) VALUES (?, 'integration-ready')",
-                (objective,),
-            )
-            conn.commit()
+        path.write_text(stub)
+
         _log_event(
-            {"objective": objective, "status": "integration-ready"},
-            table="code_generation_events",
+            {"event": "integration_ready_generated", "objective": objective, "path": str(path)},
+            table="generator_events",
             db_path=self.analytics_db,
             test_mode=False,
         )
+        _log_event(
+            {
+                "event": "code_generated",
+                "doc_id": objective,
+                "path": str(path),
+                "asset_type": "code_stub",
+                "compliance_score": 1.0,
+            },
+            table="correction_logs",
+            db_path=self.analytics_db,
+            test_mode=False,
+        )
+
         return path
