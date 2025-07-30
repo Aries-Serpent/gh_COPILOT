@@ -76,8 +76,29 @@ def test_similarity_ranking_selects_best(tmp_path: Path, monkeypatch) -> None:
         tmp_path / "template_documentation.db",
         tmp_path / "analytics.db",
     )
+
     def fake_scores(*args, **kwargs):
         return [(1, 0.1), (2, 0.9)]
+
     monkeypatch.setattr(db_first_code_generator, "compute_similarity_scores", fake_scores)
     result = gen.generate("bar")
     assert "bar" in result
+
+
+def test_generate_logs_event(tmp_path: Path, monkeypatch) -> None:
+    prod_db = create_production_db(tmp_path)
+    db_first_code_generator.validate_enterprise_operation = lambda *a, **k: True
+    gen = DBFirstCodeGenerator(
+        prod_db,
+        tmp_path / "documentation.db",
+        tmp_path / "template_documentation.db",
+        tmp_path / "analytics.db",
+    )
+    calls = []
+
+    def fake_log(event: dict, **kwargs) -> None:
+        calls.append(event)
+
+    monkeypatch.setattr(db_first_code_generator, "_log_event", fake_log)
+    gen.generate("Objective1")
+    assert calls
