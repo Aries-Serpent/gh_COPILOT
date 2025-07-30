@@ -37,9 +37,10 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - Rendered output is also saved to `logs/template_rendering/` with timestamped filenames for auditing.
 - For production systems use
   `archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py`.
-  This manager pulls templates directly from `production.db` and writes Markdown,
-  HTML and JSON files for each compliant entry. All renders are logged to
-  `analytics.db:render_events` for compliance.
+  This manager now loads templates from both `documentation.db` and
+  `production.db`, writing Markdown, HTML and JSON files for each compliant
+  entry. Generation events are logged to `analytics.db:render_events` and
+  progress metrics are written to `dashboard/compliance/metrics.json`.
 
 ## 4. Synchronization
 - Run `template_engine.template_synchronizer.synchronize_templates()` to preview
