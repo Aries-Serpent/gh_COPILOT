@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import hashlib
 
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+
 class ArchiveMigrationExecutor:
     def __init__(self):
         self.workspace_root = Path("e:/gh_COPILOT")
@@ -393,6 +395,11 @@ class ArchiveMigrationExecutor:
         self.logger.info(f"📄 Migration report saved: {report_path}")
         return report
 
+    def secondary_validate(self) -> bool:
+        """Run flake8 secondary validation for this script."""
+        validator = SecondaryCopilotValidator(self.logger)
+        return validator.validate_corrections([__file__])
+
 def main():
     """Main execution function."""
     print("📦 ARCHIVE MIGRATION EXECUTOR")
@@ -438,11 +445,17 @@ def main():
         # For safety, we'll generate the report but NOT execute the actual migration
         # User would need to manually set dry_run=False to execute
         report = executor.generate_migration_report(dry_run_results)
-        
+
+        # Secondary validation ensures script compliance
+        if executor.secondary_validate():
+            print("✅ Secondary Copilot validation passed")
+        else:
+            print("❌ Secondary Copilot validation failed")
+
         print(f"\n✅ MIGRATION PREPARATION COMPLETE")
         print(f"📄 Report saved with migration plan")
         print(f"🔒 Actual migration requires manual confirmation (change dry_run=False)")
-        
+
         return True
         
     except Exception as e:
