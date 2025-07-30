@@ -23,7 +23,6 @@ def run(
     cleanup: bool = False,
     dry_run: bool = False,
 ) -> bool:
-    """Proxy to :func:`scripts.code_placeholder_audit.main`."""
     return audit.main(
         workspace_path=str(workspace),
         analytics_db=str(analytics_db),

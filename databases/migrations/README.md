@@ -13,6 +13,10 @@
 - `add_size_violations.sql`: Adds `size_violations` table tracking database size breaches.
 - `add_unified_wrapup_sessions.sql`: Adds `unified_wrapup_sessions` table used
   by wrap-up orchestrators.
+- `add_placeholder_removals.sql`: Adds `placeholder_removals` table used when
+  tracking cleanup actions.
+- `add_size_violations.sql`: Adds `size_violations` table used by size
+  monitoring utilities.
 - `extend_todo_fixme_tracking.sql`: Adds `status` and `removal_id` columns linking to `placeholder_removals`.
 
 ## Applying Migrations
@@ -27,6 +31,8 @@ sqlite3 databases/analytics.db < databases/migrations/add_corrections.sql
 sqlite3 databases/analytics.db < databases/migrations/add_placeholder_removals.sql
 sqlite3 databases/analytics.db < databases/migrations/add_size_violations.sql
 sqlite3 databases/analytics.db < databases/migrations/add_unified_wrapup_sessions.sql
+sqlite3 databases/analytics.db < databases/migrations/add_placeholder_removals.sql
+sqlite3 databases/analytics.db < databases/migrations/add_size_violations.sql
 sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
 sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
 ```

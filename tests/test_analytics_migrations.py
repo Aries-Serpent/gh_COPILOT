@@ -51,6 +51,8 @@ def test_analytics_migrations_simulation(tmp_path: Path) -> None:
     sql1 = Path("databases/migrations/add_code_audit_log.sql").read_text()
     sql2 = Path("databases/migrations/add_correction_history.sql").read_text()
     sql3 = Path("databases/migrations/add_code_audit_history.sql").read_text()
+    sql4 = Path("databases/migrations/add_placeholder_removals.sql").read_text()
+    sql5 = Path("databases/migrations/add_size_violations.sql").read_text()
 
     res1 = _run_migration(db, sql1)
     assert _validate(res1, "code_audit_log")
@@ -60,3 +62,9 @@ def test_analytics_migrations_simulation(tmp_path: Path) -> None:
 
     res3 = _run_migration(db, sql3)
     assert _validate(res3, "code_audit_history")
+
+    res4 = _run_migration(db, sql4)
+    assert _validate(res4, "placeholder_removals")
+
+    res5 = _run_migration(db, sql5)
+    assert _validate(res5, "size_violations")

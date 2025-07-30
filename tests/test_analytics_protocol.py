@@ -41,6 +41,8 @@ def test_analytics_protocol_dry_run(capsys) -> None:
         Path("databases/migrations/add_code_audit_history.sql"),
         Path("databases/migrations/add_violation_logs.sql"),
         Path("databases/migrations/add_rollback_logs.sql"),
+        Path("databases/migrations/add_placeholder_removals.sql"),
+        Path("databases/migrations/add_size_violations.sql"),
     ]
 
     with sqlite3.connect(":memory:") as conn:
