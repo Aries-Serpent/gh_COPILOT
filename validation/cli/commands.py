@@ -4,13 +4,19 @@ Provides unified access to all validation operations.
 """
 
 import argparse
+import json
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
 from ..protocols.session import SessionProtocolValidator
 from ..protocols.deployment import DeploymentValidator
-from ..core.validators import CompositeValidator, ValidationResult
+from ..core.validators import (
+    CompositeValidator,
+    ValidationResult,
+    ValidationStatus,
+)
 from ..reporting.formatters import ValidationReportFormatter
 
 
@@ -195,24 +201,41 @@ class ValidationCLI:
     def generate_report(self, args) -> bool:
         """Generate validation report from existing results"""
         try:
-            import json
-            
-            # Load validation results from file
-            with open(args.input_file, 'r') as f:
+            with open(args.input_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            
-            # Convert to ValidationResult objects (simplified)
-            results = []
-            if 'results' in data:
-                for result_data in data['results']:
-                    # This is a simplified conversion - in practice you'd want 
-                    # to properly reconstruct ValidationResult objects
-                    print(f"Result: {result_data.get('message', 'No message')}")
-                    print(f"Status: {result_data.get('status', 'unknown')}")
-            
-            print(f"Report generation would convert {args.input_file} to {args.format} format")
-            return True
-            
+
+            results: List[ValidationResult] = []
+            for item in data.get("results", []):
+                try:
+                    status_enum = ValidationStatus(item.get("status", "passed"))
+                except ValueError:
+                    status_enum = ValidationStatus.PASSED
+                timestamp = item.get("timestamp")
+                ts = datetime.fromisoformat(timestamp) if timestamp else datetime.now()
+                results.append(
+                    ValidationResult(
+                        status=status_enum,
+                        message=item.get("message", ""),
+                        details=item.get("details", {}),
+                        errors=item.get("errors", []),
+                        warnings=item.get("warnings", []),
+                        timestamp=ts,
+                    )
+                )
+
+            output_path = Path(args.output) if args.output else Path(args.input_file)
+            saved = self.formatter.save_report(
+                results,
+                output_path,
+                args.format,
+                data.get("title", "Validation Report"),
+            )
+            if saved:
+                print(f"Report saved to: {output_path.with_suffix('.' + args.format)}")
+            else:
+                print("Failed to save report")
+            return saved
+
         except Exception as e:
             print(f"Error generating report: {e}")
             return False
