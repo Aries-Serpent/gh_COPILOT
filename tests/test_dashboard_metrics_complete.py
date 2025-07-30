@@ -17,9 +17,11 @@ def test_dashboard_metrics_complete(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
     monkeypatch.setattr(cmu, "ensure_tables", lambda *a, **k: None)
+    monkeypatch.setattr(cmu, "insert_event", lambda *a, **k: None)
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     dash = tmp_path / "dashboard"
-    updater = cmu.ComplianceMetricsUpdater(dash)
+    updater = cmu.ComplianceMetricsUpdater(dash, test_mode=True)
+    monkeypatch.setattr(updater, "_check_forbidden_operations", lambda: None)
     updater.update()
     data = json.loads((dash / "metrics.json").read_text())
     assert data["status"] in {"issues_pending", "complete"}

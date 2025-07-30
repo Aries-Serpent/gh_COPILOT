@@ -1,4 +1,3 @@
-import json
 import sqlite3
 from pathlib import Path
 
@@ -29,8 +28,8 @@ def test_fetch_compliance_metrics(tmp_path: Path, temp_db: Path, monkeypatch):
     monkeypatch.setattr(cmu, "ensure_tables", lambda *a, **k: None)
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
-    updater = cmu.ComplianceMetricsUpdater(tmp_path)
-    metrics = updater._fetch_compliance_metrics()
+    updater = cmu.ComplianceMetricsUpdater(tmp_path, test_mode=True)
+    metrics = updater._fetch_compliance_metrics(test_mode=True)
     assert metrics["rollback_count"] == 1
     assert metrics["recent_rollbacks"]
 
@@ -44,4 +43,3 @@ def test_metrics_stream(tmp_path: Path, temp_db: Path, monkeypatch):
     resp = client.get("/metrics_stream?once=1")
     assert resp.status_code == 200
     assert resp.data.startswith(b"data:")
-
