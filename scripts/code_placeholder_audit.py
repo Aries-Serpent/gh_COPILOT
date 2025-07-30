@@ -489,6 +489,21 @@ if __name__ == "__main__":
         help="Automatically remove placeholders and log corrections",
     )
     parser.add_argument(
+        "--cleanup",
+        action="store_true",
+        help="Alias for --apply-fixes",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Alias for --simulate",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Ignore confirmation prompts when cleaning",
+    )
+    parser.add_argument(
         "--rollback-last",
         action="store_true",
         help="Rollback the most recent audit entry",
@@ -502,6 +517,10 @@ if __name__ == "__main__":
     if args.test_mode:
         os.environ["GH_COPILOT_TEST_MODE"] = "1"
         args.simulate = True
+    if args.cleanup:
+        args.apply_fixes = True
+    if args.dry_run:
+        args.simulate = True
     success = main(
         workspace_path=args.workspace_path,
         analytics_db=args.analytics_db,
@@ -513,4 +532,11 @@ if __name__ == "__main__":
         update_resolutions=args.update_resolutions,
         apply_fixes=args.apply_fixes,
     )
+    summary = {
+        "workspace": args.workspace_path or str(Path.cwd()),
+        "cleanup": args.apply_fixes,
+        "dry_run": args.simulate,
+        "result": success,
+    }
+    print(json.dumps(summary))
     raise SystemExit(0 if success else 1)

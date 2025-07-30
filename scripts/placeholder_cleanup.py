@@ -10,7 +10,6 @@ import argparse
 from pathlib import Path
 
 import json
-from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 from scripts import code_placeholder_audit as audit
 
 
@@ -24,19 +23,15 @@ def run(
     cleanup: bool = False,
     dry_run: bool = False,
 ) -> bool:
-    patterns = (
-        audit.DEFAULT_PATTERNS
-        + audit.fetch_db_placeholders(production_db)
-        + audit.load_best_practice_patterns()
+    return audit.main(
+        workspace_path=str(workspace),
+        analytics_db=str(analytics_db),
+        production_db=str(production_db),
+        dashboard_dir=str(dashboard_dir),
+        timeout_minutes=timeout_minutes,
+        simulate=dry_run,
+        apply_fixes=cleanup,
     )
-    results = audit.scan_files(workspace, patterns, timeout_minutes * 60)
-    audit.log_findings(results, analytics_db, simulate=dry_run)
-    if cleanup and not dry_run:
-        audit.auto_remove_placeholders(results, production_db, analytics_db)
-        audit.log_findings([], analytics_db, update_resolutions=True)
-    if not dry_run:
-        ComplianceMetricsUpdater(dashboard_dir).update()
-    return audit.validate_results(0 if cleanup else len(results), analytics_db)
 
 
 if __name__ == "__main__":

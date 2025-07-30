@@ -28,10 +28,13 @@ Audit summaries can be copied to new GitHub issues referencing affected modules.
 
 ## Automated Placeholder Cleanup
 ```bash
-python scripts/placeholder_cleanup.py $GH_COPILOT_WORKSPACE \
-    databases/analytics.db databases/production.db dashboard/compliance
+python scripts/code_placeholder_audit.py --cleanup \
+    --workspace-path $GH_COPILOT_WORKSPACE \
+    --analytics-db databases/analytics.db \
+    --production-db databases/production.db \
+    --dashboard-dir dashboard/compliance
 ```
-This command audits, cleans placeholders, logs corrections, and updates metrics.
+This command audits, cleans placeholders, logs corrections, and updates metrics using the unified audit CLI.
 
 ## Mark Corrections and Verify
 ```bash

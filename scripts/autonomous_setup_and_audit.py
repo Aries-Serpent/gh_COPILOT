@@ -15,7 +15,7 @@ from secondary_copilot_validator import SecondaryCopilotValidator
 from scripts.code_placeholder_audit import main as placeholder_audit
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from template_engine.template_synchronizer import _compliance_score
-from utils.log_utils import _log_event
+from utils.log_utils import _log_event, TABLE_SCHEMAS
 
 
 LOGGER = logging.getLogger(__name__)
@@ -61,8 +61,16 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
 
     analytics_db = Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
     _log_event({"event": "ingestion_start"}, table="correction_logs", db_path=analytics_db)
+    user = os.getenv("USER", "system")
 
     conn = sqlite3.connect(db_path)
+    audit_conn = sqlite3.connect(analytics_db)
+    audit_conn.executescript(
+        TABLE_SCHEMAS["corrections"]
+        + TABLE_SCHEMAS["correction_history"]
+        + TABLE_SCHEMAS["code_audit_history"]
+        + TABLE_SCHEMAS["violation_logs"]
+    )
     try:
         # Ensure required tables exist
         conn.execute(
@@ -124,6 +132,26 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                     db_path=analytics_db,
                     test_mode=False,
                 )
+                audit_conn.execute(
+                    "INSERT INTO corrections (file_path, rationale, compliance_score, ts) VALUES (?, 'ingest', ?, ?)",
+                    (
+                        str(path.relative_to(doc_path.parent)),
+                        score,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
+                audit_conn.execute(
+                    "INSERT INTO correction_history (user_id, session_id, file_path, action, timestamp) VALUES (1, 'ingest_assets', ?, 'ingest', ?, ?)",
+                    (
+                        str(path.relative_to(doc_path.parent)),
+                        datetime.now(timezone.utc).isoformat(),
+                        "",
+                    ),
+                )
+                audit_conn.execute(
+                    "INSERT INTO code_audit_history (audit_entry, user, timestamp) VALUES (?, ?, ?)",
+                    ("documentation_ingest", user, datetime.now(timezone.utc).isoformat()),
+                )
                 bar.update(1)
             conn.commit()
         log_sync_operation(db_path, "documentation_ingestion", start_time=start_docs)
@@ -159,6 +187,26 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                     db_path=analytics_db,
                     test_mode=False,
                 )
+                audit_conn.execute(
+                    "INSERT INTO corrections (file_path, rationale, compliance_score, ts) VALUES (?, 'ingest', ?, ?)",
+                    (
+                        str(path.relative_to(template_path.parent)),
+                        score,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
+                audit_conn.execute(
+                    "INSERT INTO correction_history (user_id, session_id, file_path, action, timestamp) VALUES (1, 'ingest_assets', ?, 'ingest', ?, ?)",
+                    (
+                        str(path.relative_to(template_path.parent)),
+                        datetime.now(timezone.utc).isoformat(),
+                        "",
+                    ),
+                )
+                audit_conn.execute(
+                    "INSERT INTO code_audit_history (audit_entry, user, timestamp) VALUES (?, ?, ?)",
+                    ("template_ingest", user, datetime.now(timezone.utc).isoformat()),
+                )
                 bar.update(1)
             conn.commit()
         log_sync_operation(db_path, "template_ingestion", start_time=start_tmpl)
@@ -166,12 +214,18 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
         validator = IngestionValidator(doc_path.parent, db_path, analytics_db)
         if not validator.validate():
             raise RuntimeError("Asset ingestion validation failed")
-    except Exception:
+    except Exception as exc:
         conn.rollback()
+        audit_conn.execute(
+            "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
+            (datetime.now(timezone.utc).isoformat(), str(exc)),
+        )
         _log_event({"event": "ingestion_rollback"}, table="rollback_logs", db_path=analytics_db)
         raise
     finally:
         conn.close()
+        audit_conn.commit()
+        audit_conn.close()
         _log_event({"event": "ingestion_complete"}, table="correction_logs", db_path=analytics_db)
 
 
