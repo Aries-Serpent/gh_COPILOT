@@ -23,8 +23,10 @@ def test_correct_file_updates_tracking(tmp_path, monkeypatch):
     analytics = tmp_path / "databases" / "analytics.db"
     analytics.parent.mkdir(parents=True)
     with sqlite3.connect(analytics) as conn:
-        conn.execute("CREATE TABLE todo_fixme_tracking (file_path TEXT, resolved INTEGER, resolved_timestamp TEXT)")
-        conn.execute("INSERT INTO todo_fixme_tracking VALUES (?,0,NULL)", (str(bad),))
+        conn.execute(
+            "CREATE TABLE todo_fixme_tracking (file_path TEXT, resolved INTEGER, resolved_timestamp TEXT, status TEXT, removal_id INTEGER)"
+        )
+        conn.execute("INSERT INTO todo_fixme_tracking VALUES (?,0,NULL,'open',NULL)", (str(bad),))
 
     events = []
     monkeypatch.setattr(
