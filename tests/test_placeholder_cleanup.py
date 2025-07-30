@@ -1,13 +1,13 @@
-import os
 import sqlite3
-from pathlib import Path
+import json
 
-import scripts.placeholder_cleanup as pc
+import scripts.code_placeholder_audit as audit
 
 
 def test_placeholder_cleanup_workflow(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     workspace = tmp_path / "ws"
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     workspace.mkdir()
     target = workspace / "demo.py"
     target.write_text("def demo():\n    pass  # TODO\n    print('{{OLD}}')\n")
@@ -18,7 +18,14 @@ def test_placeholder_cleanup_workflow(tmp_path, monkeypatch):
     with sqlite3.connect(prod) as conn:
         conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT)")
         conn.execute("INSERT INTO template_placeholders VALUES ('VALID')")
-    pc.main(workspace, analytics, prod, dash)
+    audit.main(
+        workspace_path=str(workspace),
+        analytics_db=str(analytics),
+        production_db=str(prod),
+        dashboard_dir=str(dash),
+        apply_fixes=True,
+        simulate=False,
+    )
 
     cleaned = target.read_text()
     assert "TODO" not in cleaned
@@ -26,5 +33,5 @@ def test_placeholder_cleanup_workflow(tmp_path, monkeypatch):
     with sqlite3.connect(analytics) as conn:
         count = conn.execute("SELECT COUNT(*) FROM corrections").fetchone()[0]
     assert count >= 1
-    metrics = (dash / "metrics.json").read_text()
-    assert metrics
+    summary = (dash / "placeholder_summary.json").read_text()
+    assert summary

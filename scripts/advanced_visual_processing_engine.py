@@ -51,8 +51,11 @@ import psutil
 # Advanced visualization imports
 try:
     import matplotlib.pyplot as plt
-    import matplotlib.animation as animation
-    from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+    # Optional: advanced animations
+    import matplotlib.animation as animation  # noqa: F401
+    from matplotlib.backends.backend_agg import FigureCanvasAgg  # noqa: F401
+
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
@@ -61,8 +64,9 @@ except ImportError:
 try:
     import plotly.graph_objects as go
     import plotly.express as px
-    from plotly.subplots import make_subplots
+    from plotly.subplots import make_subplots  # noqa: F401
     import plotly.offline as pyo
+
     PLOTLY_AVAILABLE = True
 except ImportError:
     PLOTLY_AVAILABLE = False
@@ -70,6 +74,7 @@ except ImportError:
 
 try:
     import cv2
+
     OPENCV_AVAILABLE = True
 except ImportError:
     OPENCV_AVAILABLE = False
@@ -77,6 +82,7 @@ except ImportError:
 
 try:
     from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
+
     PIL_AVAILABLE = True
 except ImportError:
     PIL_AVAILABLE = False
@@ -85,69 +91,81 @@ except ImportError:
 # Configure comprehensive logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler('logs/visual_processing/advanced_visual_processing_engine.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.FileHandler("logs/visual_processing/advanced_visual_processing_engine.log"),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
+
 class VisualProcessingState(Enum):
     """Visual processing states for comprehensive workflow management"""
-    INITIALIZING = "initializing"              # System startup and visual engine initialization
-    ACTIVE = "active"                          # Normal visual processing operations
-    RENDERING = "rendering"                    # Active visualization rendering
-    STREAMING = "streaming"                    # Real-time data streaming and live updates
-    ANALYZING = "analyzing"                    # Visual data analysis and pattern recognition
-    OPTIMIZING = "optimizing"                  # Performance optimization and GPU acceleration
-    DASHBOARD_ACTIVE = "dashboard_active"      # Interactive dashboard operations
+
+    INITIALIZING = "initializing"  # System startup and visual engine initialization
+    ACTIVE = "active"  # Normal visual processing operations
+    RENDERING = "rendering"  # Active visualization rendering
+    STREAMING = "streaming"  # Real-time data streaming and live updates
+    ANALYZING = "analyzing"  # Visual data analysis and pattern recognition
+    OPTIMIZING = "optimizing"  # Performance optimization and GPU acceleration
+    DASHBOARD_ACTIVE = "dashboard_active"  # Interactive dashboard operations
     QUANTUM_PROCESSING = "quantum_processing"  # Quantum-enhanced visual processing
-    AI_ANALYSIS = "ai_analysis"               # AI-powered visual analytics
-    EMERGENCY_HALT = "emergency_halt"          # Emergency shutdown due to critical issues
-    COMPLETED = "completed"                    # Normal processing completion
+    AI_ANALYSIS = "ai_analysis"  # AI-powered visual analytics
+    EMERGENCY_HALT = "emergency_halt"  # Emergency shutdown due to critical issues
+    COMPLETED = "completed"  # Normal processing completion
+
 
 class VisualizationType(Enum):
     """Visualization types for enterprise visual processing"""
-    REAL_TIME_DASHBOARD = "real_time_dashboard"        # Executive real-time dashboards
-    INTERACTIVE_CHARTS = "interactive_charts"          # Interactive data charts and graphs
-    DATA_ANALYTICS = "data_analytics"                  # Advanced data analytics visualization
-    PERFORMANCE_METRICS = "performance_metrics"        # System performance visualization
-    BUSINESS_INTELLIGENCE = "business_intelligence"    # Business intelligence dashboards
-    QUANTUM_VISUALIZATION = "quantum_visualization"    # Quantum data visualization
-    AI_PATTERN_DISPLAY = "ai_pattern_display"         # AI pattern recognition displays
-    EXECUTIVE_REPORTS = "executive_reports"            # Executive-level visual reports
-    MONITORING_DISPLAYS = "monitoring_displays"        # System monitoring visualizations
-    PREDICTIVE_ANALYTICS = "predictive_analytics"      # Predictive analytics visualization
+
+    REAL_TIME_DASHBOARD = "real_time_dashboard"  # Executive real-time dashboards
+    INTERACTIVE_CHARTS = "interactive_charts"  # Interactive data charts and graphs
+    DATA_ANALYTICS = "data_analytics"  # Advanced data analytics visualization
+    PERFORMANCE_METRICS = "performance_metrics"  # System performance visualization
+    BUSINESS_INTELLIGENCE = "business_intelligence"  # Business intelligence dashboards
+    QUANTUM_VISUALIZATION = "quantum_visualization"  # Quantum data visualization
+    AI_PATTERN_DISPLAY = "ai_pattern_display"  # AI pattern recognition displays
+    EXECUTIVE_REPORTS = "executive_reports"  # Executive-level visual reports
+    MONITORING_DISPLAYS = "monitoring_displays"  # System monitoring visualizations
+    PREDICTIVE_ANALYTICS = "predictive_analytics"  # Predictive analytics visualization
+
 
 class ProcessingPriority(Enum):
     """Processing priority levels for visual operations scheduling"""
-    CRITICAL = "critical"                      # Mission-critical visualizations requiring immediate processing
-    HIGH = "high"                             # High-priority visualizations with strict performance requirements
-    NORMAL = "normal"                         # Standard priority visualizations
-    LOW = "low"                               # Low-priority background visualizations
-    BATCH = "batch"                           # Batch processing operations
+
+    CRITICAL = "critical"  # Mission-critical visualizations requiring immediate processing
+    HIGH = "high"  # High-priority visualizations with strict performance requirements
+    NORMAL = "normal"  # Standard priority visualizations
+    LOW = "low"  # Low-priority background visualizations
+    BATCH = "batch"  # Batch processing operations
+
 
 class VisualQuality(Enum):
     """Visual quality levels for rendering optimization"""
-    ULTRA_HIGH = "ultra_high"                 # Maximum quality for executive presentations
-    HIGH = "high"                             # High quality for detailed analysis
-    STANDARD = "standard"                     # Standard quality for normal operations
-    OPTIMIZED = "optimized"                   # Optimized quality for real-time performance
-    LOW_BANDWIDTH = "low_bandwidth"           # Low bandwidth optimization for remote access
+
+    ULTRA_HIGH = "ultra_high"  # Maximum quality for executive presentations
+    HIGH = "high"  # High quality for detailed analysis
+    STANDARD = "standard"  # Standard quality for normal operations
+    OPTIMIZED = "optimized"  # Optimized quality for real-time performance
+    LOW_BANDWIDTH = "low_bandwidth"  # Low bandwidth optimization for remote access
+
 
 class AIAnalysisType(Enum):
     """AI analysis types for intelligent visual processing"""
-    PATTERN_RECOGNITION = "pattern_recognition"        # Visual pattern recognition and classification
-    ANOMALY_DETECTION = "anomaly_detection"           # Visual anomaly detection and alerting
-    PREDICTIVE_MODELING = "predictive_modeling"       # Predictive visual modeling and forecasting
-    TREND_ANALYSIS = "trend_analysis"                 # Visual trend analysis and identification
-    CORRELATION_ANALYSIS = "correlation_analysis"     # Multi-dimensional correlation visualization
-    OPTIMIZATION_ANALYSIS = "optimization_analysis"   # Visual optimization and recommendation analysis
+
+    PATTERN_RECOGNITION = "pattern_recognition"  # Visual pattern recognition and classification
+    ANOMALY_DETECTION = "anomaly_detection"  # Visual anomaly detection and alerting
+    PREDICTIVE_MODELING = "predictive_modeling"  # Predictive visual modeling and forecasting
+    TREND_ANALYSIS = "trend_analysis"  # Visual trend analysis and identification
+    CORRELATION_ANALYSIS = "correlation_analysis"  # Multi-dimensional correlation visualization
+    OPTIMIZATION_ANALYSIS = "optimization_analysis"  # Visual optimization and recommendation analysis
+
 
 @dataclass
 class VisualizationRequest:
     """Comprehensive visualization request definition for enterprise processing"""
+
     request_id: str
     request_name: str
     visualization_type: VisualizationType
@@ -167,9 +185,11 @@ class VisualizationRequest:
     status: str = "pending"
     progress: float = 0.0
 
+
 @dataclass
 class VisualProcessingResult:
     """Comprehensive visual processing result with analytics and metadata"""
+
     result_id: str
     request_id: str
     visualization_type: VisualizationType
@@ -185,9 +205,11 @@ class VisualProcessingResult:
     thumbnail_path: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+
 @dataclass
 class DashboardConfiguration:
     """Dashboard configuration for enterprise visual displays"""
+
     dashboard_id: str
     dashboard_name: str
     dashboard_type: str
@@ -203,9 +225,11 @@ class DashboardConfiguration:
     export_capabilities: List[str]
     user_permissions: Dict[str, Any]
 
+
 @dataclass
 class VisualProcessingMetrics:
     """Comprehensive metrics for visual processing performance tracking"""
+
     processing_id: str
     total_requests: int
     completed_requests: int
@@ -225,30 +249,33 @@ class VisualProcessingMetrics:
     user_satisfaction: float
     performance_optimization_score: float
 
+
 @dataclass
 class VisualProcessingConfiguration:
     """Configuration settings for advanced visual processing engine"""
-    processing_threads: int = 8                       # Number of parallel processing threads
-    gpu_acceleration: bool = True                     # Enable GPU acceleration for rendering
-    real_time_refresh_rate: int = 1000               # Real-time refresh rate (milliseconds)
-    dashboard_update_interval: int = 5               # Dashboard update interval (seconds)
-    ai_analysis_enabled: bool = True                 # Enable AI-powered visual analysis
-    quantum_enhancement: bool = True                 # Enable quantum-enhanced processing
-    max_concurrent_renders: int = 20                 # Maximum concurrent rendering operations
-    cache_size_mb: int = 1024                       # Visual cache size in megabytes
+
+    processing_threads: int = 8  # Number of parallel processing threads
+    gpu_acceleration: bool = True  # Enable GPU acceleration for rendering
+    real_time_refresh_rate: int = 1000  # Real-time refresh rate (milliseconds)
+    dashboard_update_interval: int = 5  # Dashboard update interval (seconds)
+    ai_analysis_enabled: bool = True  # Enable AI-powered visual analysis
+    quantum_enhancement: bool = True  # Enable quantum-enhanced processing
+    max_concurrent_renders: int = 20  # Maximum concurrent rendering operations
+    cache_size_mb: int = 1024  # Visual cache size in megabytes
     export_quality: VisualQuality = VisualQuality.HIGH  # Default export quality
-    mobile_optimization: bool = True                 # Enable mobile optimization
-    interactive_features: bool = True                # Enable interactive visualization features
-    predictive_caching: bool = True                  # Enable predictive visualization caching
-    auto_optimization: bool = True                   # Enable automatic performance optimization
-    emergency_halt_enabled: bool = True             # Enable emergency halt capabilities
-    database_path: str = "visual_processing.db"     # Visual processing database file path
-    max_processing_duration: int = 3600             # Maximum processing duration (1 hour)
+    mobile_optimization: bool = True  # Enable mobile optimization
+    interactive_features: bool = True  # Enable interactive visualization features
+    predictive_caching: bool = True  # Enable predictive visualization caching
+    auto_optimization: bool = True  # Enable automatic performance optimization
+    emergency_halt_enabled: bool = True  # Enable emergency halt capabilities
+    database_path: str = "visual_processing.db"  # Visual processing database file path
+    max_processing_duration: int = 3600  # Maximum processing duration (1 hour)
+
 
 class AdvancedVisualProcessingEngine:
     """
     🎨 Advanced Visual Processing Engine with Quantum-Enhanced Capabilities
-    
+
     Comprehensive enterprise visual processing system providing:
     - Real-time data visualization with interactive dashboards
     - AI-powered visual analytics and pattern recognition
@@ -257,22 +284,22 @@ class AdvancedVisualProcessingEngine:
     - Multi-platform visualization with mobile optimization
     - Advanced performance optimization with GPU acceleration
     """
-    
+
     def __init__(self, workspace_path: Optional[str] = None, config: Optional[VisualProcessingConfiguration] = None):
         """Initialize Advanced Visual Processing Engine with comprehensive capabilities"""
         # CRITICAL: Anti-recursion validation
         self.validate_workspace_integrity()
-        
+
         # Core configuration
         self.workspace_path = Path(workspace_path or os.getenv("GH_COPILOT_WORKSPACE", os.getcwd()))
         self.config = config or VisualProcessingConfiguration()
         self.processing_id = str(uuid.uuid4())
         self.start_time = datetime.now()
-        
+
         # Database connections
         self.production_db = self.workspace_path / "production.db"
         self.visual_processing_db = self.workspace_path / "databases" / self.config.database_path
-        
+
         # Processing state management
         self.processing_state = VisualProcessingState.INITIALIZING
         self.processing_active = False
@@ -280,27 +307,27 @@ class AdvancedVisualProcessingEngine:
         self.processing_results: Dict[str, VisualProcessingResult] = {}
         self.active_dashboards: Dict[str, DashboardConfiguration] = {}
         self.processing_metrics = None
-        
+
         # Threading and real-time processing
         self.processing_threads: List[threading.Thread] = []
         self.real_time_monitor_thread = None
         self.dashboard_server_thread = None
         self.monitoring_active = False
-        
+
         # Visual processing capabilities
         self.rendering_engine = None
         self.ai_analyzer = None
         self.quantum_processor = None
         self.dashboard_server = None
-        
+
         # Performance optimization
         self.gpu_available = self._check_gpu_availability()
         self.visual_cache = {}
         self.performance_optimizer = None
-        
+
         # Initialize comprehensive visual processing system
         self._initialize_visual_processing_system()
-        
+
         logger.info("🎨 Advanced Visual Processing Engine initialized successfully")
         logger.info(f"Processing ID: {self.processing_id}")
         logger.info(f"Workspace: {self.workspace_path}")
@@ -310,27 +337,27 @@ class AdvancedVisualProcessingEngine:
     def validate_workspace_integrity(self):
         """🚨 CRITICAL: Validate workspace integrity and prevent recursive violations"""
         workspace_root = Path(os.getcwd())
-        
+
         # MANDATORY: Check for recursive backup folders
-        forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+        forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
         violations = []
-        
+
         for pattern in forbidden_patterns:
             for folder in workspace_root.rglob(pattern):
                 if folder.is_dir() and folder != workspace_root:
                     violations.append(str(folder))
-        
+
         if violations:
             logger.error(f"🚨 RECURSIVE FOLDER VIOLATIONS DETECTED:")
             for violation in violations:
                 logger.error(f"   - {violation}")
             raise RuntimeError("CRITICAL: Recursive folder violations prevent visual processing")
-        
+
         # MANDATORY: Validate proper environment root
         proper_root = "gh_COPILOT"
         if not str(workspace_root).endswith(proper_root):
             logger.warning(f"⚠️  Non-standard workspace root: {workspace_root}")
-        
+
         logger.info("✅ WORKSPACE INTEGRITY VALIDATED")
 
     def _check_gpu_availability(self) -> bool:
@@ -342,20 +369,21 @@ class AdvancedVisualProcessingEngine:
                 if gpu_count > 0:
                     logger.info(f"✅ GPU acceleration available: {gpu_count} CUDA devices")
                     return True
-            
+
             # Check system GPU information
             try:
                 import GPUtil
+
                 gpus = GPUtil.getGPUs()
                 if gpus:
                     logger.info(f"✅ GPU hardware detected: {len(gpus)} GPU(s)")
                     return True
             except ImportError:
                 pass
-            
+
             logger.info("ℹ️  GPU acceleration not available - using CPU processing")
             return False
-            
+
         except Exception as e:
             logger.warning(f"⚠️  GPU availability check failed: {e}")
             return False
@@ -363,47 +391,46 @@ class AdvancedVisualProcessingEngine:
     def _initialize_visual_processing_system(self):
         """Initialize comprehensive visual processing system with all components"""
         with tqdm(total=100, desc="🎨 Initializing Visual Processing", unit="%") as pbar:
-            
             # Phase 1: Database and storage initialization (15%)
             pbar.set_description("🗄️ Database initialization")
             self._initialize_databases()
             pbar.update(15)
-            
+
             # Phase 2: Rendering engine setup (20%)
             pbar.set_description("🖼️ Rendering engine setup")
             self._initialize_rendering_engine()
             pbar.update(20)
-            
+
             # Phase 3: AI analyzer initialization (20%)
             pbar.set_description("🧠 AI analyzer initialization")
             self._initialize_ai_analyzer()
             pbar.update(20)
-            
+
             # Phase 4: Quantum processor setup (15%)
             pbar.set_description("⚛️ Quantum processor setup")
             self._initialize_quantum_processor()
             pbar.update(15)
-            
+
             # Phase 5: Dashboard server setup (15%)
             pbar.set_description("📊 Dashboard server setup")
             self._initialize_dashboard_server()
             pbar.update(15)
-            
+
             # Phase 6: Performance optimization (15%)
             pbar.set_description("⚡ Performance optimization")
             self._initialize_performance_optimization()
             pbar.update(15)
-        
+
         logger.info("✅ Visual processing system initialization completed")
 
     def _initialize_databases(self):
         """Initialize visual processing databases with comprehensive schema"""
         # Ensure databases directory exists
         self.visual_processing_db.parent.mkdir(parents=True, exist_ok=True)
-        
+
         with sqlite3.connect(self.visual_processing_db) as conn:
             cursor = conn.cursor()
-            
+
             # Visualization requests table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS visualization_requests (
@@ -430,7 +457,7 @@ class AdvancedVisualProcessingEngine:
                     timestamp TEXT NOT NULL
                 );
             """)
-            
+
             # Processing results table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS processing_results (
@@ -453,7 +480,7 @@ class AdvancedVisualProcessingEngine:
                     timestamp TEXT NOT NULL
                 );
             """)
-            
+
             # Dashboard configurations table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS dashboard_configurations (
@@ -476,7 +503,7 @@ class AdvancedVisualProcessingEngine:
                     timestamp TEXT NOT NULL
                 );
             """)
-            
+
             # Visual processing metrics table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS visual_processing_metrics (
@@ -502,25 +529,25 @@ class AdvancedVisualProcessingEngine:
                     timestamp TEXT NOT NULL
                 );
             """)
-            
+
             conn.commit()
-            
+
         logger.info("✅ Visual processing databases initialized successfully")
 
     def _initialize_rendering_engine(self):
         """Initialize advanced rendering engine with multiple backend support"""
         rendering_backends = []
-        
+
         # Initialize Matplotlib backend
         if MATPLOTLIB_AVAILABLE:
             try:
                 if plt is not None:
-                    plt.style.use('seaborn-v0_8')  # Modern styling
+                    plt.style.use("seaborn-v0_8")  # Modern styling
                 rendering_backends.append("matplotlib")
                 logger.info("✅ Matplotlib rendering backend initialized")
             except Exception as e:
                 logger.warning(f"⚠️  Matplotlib initialization warning: {e}")
-        
+
         # Initialize Plotly backend
         if PLOTLY_AVAILABLE and pyo is not None:
             try:
@@ -533,7 +560,7 @@ class AdvancedVisualProcessingEngine:
         elif PLOTLY_AVAILABLE:
             rendering_backends.append("plotly")
             logger.info("✅ Plotly rendering backend initialized (offline mode)")
-        
+
         # Initialize OpenCV backend
         if OPENCV_AVAILABLE:
             try:
@@ -541,15 +568,15 @@ class AdvancedVisualProcessingEngine:
                 logger.info("✅ OpenCV rendering backend initialized")
             except Exception as e:
                 logger.warning(f"⚠️  OpenCV initialization warning: {e}")
-        
+
         self.rendering_engine = {
             "backends": rendering_backends,
             "active_backend": rendering_backends[0] if rendering_backends else "fallback",
             "gpu_acceleration": self.gpu_available,
             "cache_enabled": True,
-            "performance_mode": "optimized"
+            "performance_mode": "optimized",
         }
-        
+
         if not rendering_backends:
             logger.warning("⚠️  No advanced rendering backends available - using fallback")
             self.rendering_engine["active_backend"] = "fallback"
@@ -573,9 +600,9 @@ class AdvancedVisualProcessingEngine:
                         "anomaly_detection": "2.8.3",
                         "trend_analysis": "3.1.5",
                         "correlation_analysis": "2.9.2",
-                        "optimization": "3.0.8"
+                        "optimization": "3.0.8",
                     },
-                    "status": "active"
+                    "status": "active",
                 }
                 logger.info("✅ AI visual analyzer initialized")
                 logger.info(f"🧠 AI models loaded: {len(self.ai_analyzer['model_versions'])}")
@@ -596,7 +623,7 @@ class AdvancedVisualProcessingEngine:
                         "quantum_image_enhancement",
                         "quantum_pattern_matching",
                         "quantum_noise_reduction",
-                        "quantum_color_optimization"
+                        "quantum_color_optimization",
                     ],
                     "quantum_fidelity": 0.987,
                     "performance_boost": "3.2x",  # Aspirational quantum speedup
@@ -604,7 +631,7 @@ class AdvancedVisualProcessingEngine:
                     "optimization_level": "maximum",
                     "coherence_time": "100ms",
                     "error_correction": "surface_code",
-                    "status": "active"
+                    "status": "active",
                 }
                 logger.info("✅ Quantum visual processor initialized")
                 logger.info(f"⚛️ Quantum algorithms available: {len(self.quantum_processor['algorithms'])}")
@@ -630,12 +657,12 @@ class AdvancedVisualProcessingEngine:
                     "/api/dashboards",
                     "/api/real-time-data",
                     "/api/export",
-                    "/api/analytics"
+                    "/api/analytics",
                 ],
                 "supported_formats": ["html", "json", "svg", "png", "pdf"],
                 "max_concurrent_sessions": 100,
                 "session_timeout": 3600,
-                "status": "configured"
+                "status": "configured",
             }
             logger.info("✅ Dashboard server configured")
             logger.info(f"📊 Dashboard endpoints: {len(self.dashboard_server['api_endpoints'])}")
@@ -661,9 +688,9 @@ class AdvancedVisualProcessingEngine:
                     "rendering_speed": "maximum",
                     "quality": "high",
                     "memory_usage": "optimized",
-                    "bandwidth": "efficient"
+                    "bandwidth": "efficient",
                 },
-                "status": "active"
+                "status": "active",
             }
             logger.info("✅ Performance optimizer initialized")
         except Exception as e:
@@ -672,91 +699,87 @@ class AdvancedVisualProcessingEngine:
 
     def start_visual_processing_engine(self) -> Dict[str, Any]:
         """🚀 Start comprehensive visual processing engine with advanced capabilities"""
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info("🎨 STARTING ADVANCED VISUAL PROCESSING ENGINE")
-        logger.info("="*80)
-        
+        logger.info("=" * 80)
+
         try:
             # MANDATORY: Timeout control
             start_time = datetime.now()
             timeout_seconds = self.config.max_processing_duration
-            
+
             # Phase 1: Pre-processing validation (20%)
             with tqdm(total=100, desc="🔍 Pre-processing validation", unit="%") as pbar:
-                
                 pbar.set_description("🏠 Workspace validation")
                 self.validate_workspace_integrity()
                 pbar.update(25)
-                
+
                 pbar.set_description("🗄️ Database connectivity")
                 self._validate_database_connectivity()
                 pbar.update(25)
-                
+
                 pbar.set_description("🎨 Rendering capabilities")
                 self._validate_rendering_capabilities()
                 pbar.update(25)
-                
+
                 pbar.set_description("⚛️ Advanced systems")
                 self._validate_advanced_systems()
                 pbar.update(25)
-            
+
             # Phase 2: Engine startup and initialization (25%)
             with tqdm(total=100, desc="🚀 Engine startup", unit="%") as pbar:
-                
                 pbar.set_description("🖼️ Rendering engine")
                 self._start_rendering_engine()
                 pbar.update(30)
-                
+
                 pbar.set_description("🧠 AI analyzer")
                 self._start_ai_analyzer()
                 pbar.update(25)
-                
+
                 pbar.set_description("⚛️ Quantum processor")
                 self._start_quantum_processor()
                 pbar.update(25)
-                
+
                 pbar.set_description("📊 Dashboard server")
                 self._start_dashboard_server()
                 pbar.update(20)
-            
+
             # Phase 3: Real-time processing activation (25%)
             with tqdm(total=100, desc="⚡ Real-time activation", unit="%") as pbar:
-                
                 pbar.set_description("📊 Real-time monitoring")
                 self._start_real_time_monitoring()
                 pbar.update(40)
-                
+
                 pbar.set_description("🔄 Background processing")
                 self._start_background_processing()
                 pbar.update(30)
-                
+
                 pbar.set_description("🎯 Performance optimization")
                 self._start_performance_optimization()
                 pbar.update(30)
-            
+
             # Phase 4: Enterprise features activation (30%)
             with tqdm(total=100, desc="🏢 Enterprise features", unit="%") as pbar:
-                
                 pbar.set_description("📈 Executive dashboards")
                 self._initialize_executive_dashboards()
                 pbar.update(35)
-                
+
                 pbar.set_description("📱 Mobile optimization")
                 self._initialize_mobile_optimization()
                 pbar.update(25)
-                
+
                 pbar.set_description("🔐 Security features")
                 self._initialize_security_features()
                 pbar.update(20)
-                
+
                 pbar.set_description("📊 Analytics integration")
                 self._initialize_analytics_integration()
                 pbar.update(20)
-            
+
             # Update processing state
             self.processing_state = VisualProcessingState.ACTIVE
             self.processing_active = True
-            
+
             # Initialize processing metrics
             self.processing_metrics = VisualProcessingMetrics(
                 processing_id=self.processing_id,
@@ -776,15 +799,15 @@ class AdvancedVisualProcessingEngine:
                 network_throughput=0.0,
                 quality_score=95.0,
                 user_satisfaction=92.0,
-                performance_optimization_score=94.0
+                performance_optimization_score=94.0,
             )
-            
+
             # Record processing start in database
             self._record_processing_metrics()
-            
+
             # MANDATORY: Completion logging
             duration = (datetime.now() - start_time).total_seconds()
-            logger.info("="*80)
+            logger.info("=" * 80)
             logger.info("✅ ADVANCED VISUAL PROCESSING ENGINE STARTED SUCCESSFULLY")
             logger.info(f"Processing ID: {self.processing_id}")
             logger.info(f"Rendering Backends: {self.rendering_engine['backends'] if self.rendering_engine else []}")
@@ -793,8 +816,8 @@ class AdvancedVisualProcessingEngine:
             logger.info(f"Dashboard Server: {bool(self.dashboard_server)}")
             logger.info(f"GPU Acceleration: {self.gpu_available}")
             logger.info(f"Startup Duration: {duration:.2f} seconds")
-            logger.info("="*80)
-            
+            logger.info("=" * 80)
+
             return {
                 "status": "success",
                 "processing_id": self.processing_id,
@@ -805,16 +828,12 @@ class AdvancedVisualProcessingEngine:
                 "gpu_acceleration": self.gpu_available,
                 "startup_duration": duration,
                 "monitoring_active": self.monitoring_active,
-                "initial_metrics": self.processing_metrics.__dict__
+                "initial_metrics": self.processing_metrics.__dict__,
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Visual processing engine startup failed: {e}")
-            return {
-                "status": "failed",
-                "error": str(e),
-                "processing_id": self.processing_id
-            }
+            return {"status": "failed", "error": str(e), "processing_id": self.processing_id}
 
     def _validate_database_connectivity(self):
         """Validate database connectivity and performance"""
@@ -825,14 +844,14 @@ class AdvancedVisualProcessingEngine:
                 cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'")
                 table_count = cursor.fetchone()[0]
                 logger.info(f"✅ Production database: {table_count} tables")
-            
+
             # Test visual processing database
             with sqlite3.connect(self.visual_processing_db) as conn:
                 cursor = conn.cursor()
                 cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'")
                 table_count = cursor.fetchone()[0]
                 logger.info(f"✅ Visual processing database: {table_count} tables")
-                
+
         except Exception as e:
             raise RuntimeError(f"Database connectivity validation failed: {e}")
 
@@ -840,10 +859,10 @@ class AdvancedVisualProcessingEngine:
         """Validate rendering capabilities and backend availability"""
         if not self.rendering_engine or not self.rendering_engine["backends"]:
             raise RuntimeError("No rendering backends available")
-        
+
         available_backends = self.rendering_engine["backends"]
         logger.info(f"✅ Rendering validation: {len(available_backends)} backends available")
-        
+
         # Test basic rendering capability
         if "matplotlib" in available_backends and plt is not None:
             try:
@@ -863,7 +882,7 @@ class AdvancedVisualProcessingEngine:
             logger.info(f"✅ AI systems: {ai_models} models ready")
         else:
             logger.info("ℹ️  AI systems: Not configured")
-        
+
         if self.quantum_processor:
             quantum_algorithms = len(self.quantum_processor.get("algorithms", []))
             logger.info(f"✅ Quantum systems: {quantum_algorithms} algorithms ready")
@@ -875,14 +894,14 @@ class AdvancedVisualProcessingEngine:
         if self.rendering_engine:
             active_backend = self.rendering_engine["active_backend"]
             logger.info(f"🖼️ Rendering engine started with {active_backend} backend")
-            
+
             # Initialize rendering cache
             self.visual_cache = {
                 "static_cache": {},
                 "dynamic_cache": {},
                 "max_size_mb": self.config.cache_size_mb,
                 "hit_rate": 0.0,
-                "cache_enabled": True
+                "cache_enabled": True,
             }
         else:
             logger.warning("⚠️  Rendering engine not available")
@@ -923,14 +942,10 @@ class AdvancedVisualProcessingEngine:
         """Start background processing threads"""
         if self.config.processing_threads > 0:
             for i in range(min(self.config.processing_threads, 8)):
-                thread = threading.Thread(
-                    target=self._background_processing_loop,
-                    args=(f"worker_{i}",),
-                    daemon=True
-                )
+                thread = threading.Thread(target=self._background_processing_loop, args=(f"worker_{i}",), daemon=True)
                 self.processing_threads.append(thread)
                 thread.start()
-            
+
             logger.info(f"🔄 Background processing started with {len(self.processing_threads)} threads")
 
     def _start_performance_optimization(self):
@@ -948,22 +963,22 @@ class AdvancedVisualProcessingEngine:
                 "dashboard_id": "executive_overview",
                 "dashboard_name": "Executive Overview Dashboard",
                 "dashboard_type": "executive",
-                "widgets": ["kpi_summary", "trend_analysis", "performance_metrics"]
+                "widgets": ["kpi_summary", "trend_analysis", "performance_metrics"],
             },
             {
                 "dashboard_id": "operational_metrics",
                 "dashboard_name": "Operational Metrics Dashboard",
                 "dashboard_type": "operational",
-                "widgets": ["system_health", "resource_utilization", "service_status"]
+                "widgets": ["system_health", "resource_utilization", "service_status"],
             },
             {
                 "dashboard_id": "business_intelligence",
                 "dashboard_name": "Business Intelligence Dashboard",
                 "dashboard_type": "business",
-                "widgets": ["revenue_analytics", "customer_insights", "market_trends"]
-            }
+                "widgets": ["revenue_analytics", "customer_insights", "market_trends"],
+            },
         ]
-        
+
         for dashboard_config in executive_dashboards:
             dashboard = DashboardConfiguration(
                 dashboard_id=dashboard_config["dashboard_id"],
@@ -979,10 +994,10 @@ class AdvancedVisualProcessingEngine:
                 ai_enhancement=bool(self.ai_analyzer),
                 quantum_processing=bool(self.quantum_processor),
                 export_capabilities=["pdf", "png", "svg", "html"],
-                user_permissions={"admin": "full", "user": "read"}
+                user_permissions={"admin": "full", "user": "read"},
             )
             self.active_dashboards[dashboard.dashboard_id] = dashboard
-        
+
         logger.info(f"📈 Executive dashboards initialized: {len(self.active_dashboards)}")
 
     def _initialize_mobile_optimization(self):
@@ -993,7 +1008,7 @@ class AdvancedVisualProcessingEngine:
                 "touch_interactions",
                 "compressed_assets",
                 "offline_caching",
-                "progressive_loading"
+                "progressive_loading",
             ]
             logger.info(f"📱 Mobile optimization initialized with {len(mobile_features)} features")
         else:
@@ -1006,7 +1021,7 @@ class AdvancedVisualProcessingEngine:
             "session_management",
             "data_encryption",
             "access_control",
-            "audit_logging"
+            "audit_logging",
         ]
         logger.info(f"🔐 Security features initialized: {len(security_features)}")
 
@@ -1017,40 +1032,37 @@ class AdvancedVisualProcessingEngine:
             "performance_analytics",
             "usage_statistics",
             "quality_metrics",
-            "business_intelligence"
+            "business_intelligence",
         ]
         logger.info(f"📊 Analytics integration initialized: {len(analytics_capabilities)}")
 
     def _background_processing_loop(self, worker_id: str):
         """Background processing loop for continuous visual operations"""
         logger.info(f"🔄 Background worker {worker_id} started")
-        
+
         while self.processing_active:
             try:
                 # Check for pending visualization requests
-                pending_requests = [
-                    req for req in self.visualization_requests.values()
-                    if req.status == "pending"
-                ]
-                
+                pending_requests = [req for req in self.visualization_requests.values() if req.status == "pending"]
+
                 if pending_requests:
                     # Process highest priority request
                     request = min(pending_requests, key=lambda r: r.priority.value)
                     self._process_visualization_request(request, worker_id)
-                
+
                 # Performance monitoring
                 self._monitor_processing_performance()
-                
+
                 # Cache management
                 self._manage_visual_cache()
-                
+
                 # Sleep for processing interval
                 time.sleep(1.0)
-                
+
             except Exception as e:
                 logger.error(f"❌ Background processing error in {worker_id}: {e}")
                 time.sleep(5.0)
-        
+
         logger.info(f"🔄 Background worker {worker_id} stopped")
 
     def _process_visualization_request(self, request: VisualizationRequest, worker_id: str):
@@ -1058,37 +1070,36 @@ class AdvancedVisualProcessingEngine:
         try:
             request.status = "processing"
             start_time = datetime.now()
-            
+
             logger.info(f"🎨 Processing visualization: {request.request_name} (Worker: {worker_id})")
-            
+
             # Simulate visualization processing with progress updates
             with tqdm(total=100, desc=f"🎨 {request.request_name}", unit="%") as pbar:
-                
                 # Data preparation (25%)
                 pbar.set_description("📊 Data preparation")
                 time.sleep(0.1)
                 request.progress = 25.0
                 pbar.update(25)
-                
+
                 # Rendering (40%)
                 pbar.set_description("🖼️ Rendering")
                 self._render_visualization(request)
                 request.progress = 65.0
                 pbar.update(40)
-                
+
                 # AI analysis (20%)
                 if request.ai_analysis_types and self.ai_analyzer:
                     pbar.set_description("🧠 AI analysis")
                     self._perform_ai_analysis(request)
                     request.progress = 85.0
                     pbar.update(20)
-                
+
                 # Finalization (15%)
                 pbar.set_description("✅ Finalization")
                 self._finalize_visualization(request)
                 request.progress = 100.0
                 pbar.update(15)
-            
+
             # Create processing result
             processing_time = (datetime.now() - start_time).total_seconds()
             result = VisualProcessingResult(
@@ -1103,14 +1114,14 @@ class AdvancedVisualProcessingEngine:
                 visual_assets={"primary": f"{request.request_id}.png", "thumbnail": f"{request.request_id}_thumb.png"},
                 interactive_elements=[{"type": "zoom", "enabled": True}, {"type": "filter", "enabled": True}],
                 dashboard_components=[{"widget_id": f"widget_{request.request_id}", "type": "chart"}],
-                export_files=[f"{request.request_id}.{fmt}" for fmt in request.export_formats]
+                export_files=[f"{request.request_id}.{fmt}" for fmt in request.export_formats],
             )
-            
+
             self.processing_results[result.result_id] = result
             request.status = "completed"
-            
+
             logger.info(f"✅ Visualization completed: {request.request_name} ({processing_time:.2f}s)")
-            
+
         except Exception as e:
             logger.error(f"❌ Visualization processing failed: {request.request_name}: {e}")
             request.status = "failed"
@@ -1119,9 +1130,9 @@ class AdvancedVisualProcessingEngine:
         """Render visualization using appropriate backend"""
         if not self.rendering_engine:
             raise RuntimeError("Rendering engine not available")
-        
+
         backend = self.rendering_engine["active_backend"]
-        
+
         if backend == "matplotlib" and MATPLOTLIB_AVAILABLE and plt is not None:
             self._render_with_matplotlib(request)
         elif backend == "plotly" and PLOTLY_AVAILABLE and go is not None and px is not None:
@@ -1138,25 +1149,25 @@ class AdvancedVisualProcessingEngine:
             return
         try:
             fig, ax = plt.subplots(figsize=(12, 8))
-            
+
             # Sample data generation
             x = np.linspace(0, 10, 100)
             y = np.sin(x) + np.random.normal(0, 0.1, 100)
-            
+
             ax.plot(x, y, linewidth=2, alpha=0.8)
             ax.set_title(f"Matplotlib Visualization: {request.request_name}")
             ax.set_xlabel("X Axis")
             ax.set_ylabel("Y Axis")
             ax.grid(True, alpha=0.3)
-            
+
             # Save visualization
             output_path = self.workspace_path / "results" / f"{request.request_id}_matplotlib.png"
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            fig.savefig(str(output_path), dpi=300, bbox_inches='tight')
+            fig.savefig(str(output_path), dpi=300, bbox_inches="tight")
             plt.close(fig)
-            
+
             logger.info(f"📊 Matplotlib rendering completed: {output_path}")
-            
+
         except Exception as e:
             logger.error(f"❌ Matplotlib rendering failed: {e}")
 
@@ -1169,24 +1180,24 @@ class AdvancedVisualProcessingEngine:
             # Sample data generation
             x = np.linspace(0, 10, 100)
             y = np.sin(x) + np.random.normal(0, 0.1, 100)
-            
+
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=x, y=y, mode='lines+markers', name='Data'))
-            
+            fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", name="Data"))
+
             fig.update_layout(
                 title=f"Plotly Visualization: {request.request_name}",
                 xaxis_title="X Axis",
                 yaxis_title="Y Axis",
-                showlegend=True
+                showlegend=True,
             )
-            
+
             # Save visualization
             output_path = self.workspace_path / "results" / f"{request.request_id}_plotly.html"
             output_path.parent.mkdir(parents=True, exist_ok=True)
             fig.write_html(str(output_path))
-            
+
             logger.info(f"📊 Plotly rendering completed: {output_path}")
-            
+
         except Exception as e:
             logger.error(f"❌ Plotly rendering failed: {e}")
 
@@ -1195,22 +1206,29 @@ class AdvancedVisualProcessingEngine:
         try:
             # Create sample image
             img = np.zeros((600, 800, 3), dtype=np.uint8)
-            
+
             # Add some visual elements
             if cv2 is not None:
                 cv2.rectangle(img, (50, 50), (750, 550), (255, 255, 255), 2)
-                cv2.putText(img, f"OpenCV: {request.request_name}", (100, 300), 
-                            getattr(cv2, "FONT_HERSHEY_SIMPLEX", 0), 1, (255, 255, 255), 2)
-            
+                cv2.putText(
+                    img,
+                    f"OpenCV: {request.request_name}",
+                    (100, 300),
+                    getattr(cv2, "FONT_HERSHEY_SIMPLEX", 0),
+                    1,
+                    (255, 255, 255),
+                    2,
+                )
+
                 # Save visualization
                 output_path = self.workspace_path / "results" / f"{request.request_id}_opencv.png"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 cv2.imwrite(str(output_path), img)
-            
+
                 logger.info(f"📊 OpenCV rendering completed: {output_path}")
             else:
                 logger.warning("⚠️  OpenCV is not available for rendering.")
-            
+
         except Exception as e:
             logger.error(f"❌ OpenCV rendering failed: {e}")
 
@@ -1223,7 +1241,7 @@ class AdvancedVisualProcessingEngine:
         """Perform AI-powered analysis on visualization data"""
         if not self.ai_analyzer:
             return
-        
+
         for analysis_type in request.ai_analysis_types:
             if analysis_type == AIAnalysisType.PATTERN_RECOGNITION:
                 logger.info(f"🧠 Pattern recognition analysis for {request.request_name}")
@@ -1237,11 +1255,11 @@ class AdvancedVisualProcessingEngine:
         # Export in requested formats
         for export_format in request.export_formats:
             logger.info(f"📤 Exporting {request.request_name} as {export_format}")
-        
+
         # Generate thumbnail if needed
         if request.dashboard_integration:
             logger.info(f"🖼️ Generating thumbnail for {request.request_name}")
-        
+
         # Apply mobile optimization if needed
         if request.mobile_optimization:
             logger.info(f"📱 Applying mobile optimization for {request.request_name}")
@@ -1252,7 +1270,7 @@ class AdvancedVisualProcessingEngine:
             # Update system metrics
             self.processing_metrics.cpu_utilization = psutil.cpu_percent()
             self.processing_metrics.memory_usage = psutil.virtual_memory().percent
-            
+
             # Update processing metrics
             completed_requests = len([r for r in self.visualization_requests.values() if r.status == "completed"])
             self.processing_metrics.completed_requests = completed_requests
@@ -1273,7 +1291,8 @@ class AdvancedVisualProcessingEngine:
             try:
                 with sqlite3.connect(self.visual_processing_db) as conn:
                     cursor = conn.cursor()
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         INSERT INTO visual_processing_metrics (
                             processing_id, total_requests, completed_requests, failed_requests,
                             active_visualizations, real_time_streams, dashboard_sessions,
@@ -1282,27 +1301,29 @@ class AdvancedVisualProcessingEngine:
                             memory_usage, cpu_utilization, network_throughput, quality_score,
                             user_satisfaction, performance_optimization_score, timestamp
                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, (
-                        self.processing_metrics.processing_id,
-                        self.processing_metrics.total_requests,
-                        self.processing_metrics.completed_requests,
-                        self.processing_metrics.failed_requests,
-                        self.processing_metrics.active_visualizations,
-                        self.processing_metrics.real_time_streams,
-                        self.processing_metrics.dashboard_sessions,
-                        self.processing_metrics.ai_analysis_operations,
-                        self.processing_metrics.quantum_processing_operations,
-                        self.processing_metrics.average_processing_time,
-                        self.processing_metrics.average_rendering_time,
-                        self.processing_metrics.gpu_utilization,
-                        self.processing_metrics.memory_usage,
-                        self.processing_metrics.cpu_utilization,
-                        self.processing_metrics.network_throughput,
-                        self.processing_metrics.quality_score,
-                        self.processing_metrics.user_satisfaction,
-                        self.processing_metrics.performance_optimization_score,
-                        datetime.now().isoformat()
-                    ))
+                    """,
+                        (
+                            self.processing_metrics.processing_id,
+                            self.processing_metrics.total_requests,
+                            self.processing_metrics.completed_requests,
+                            self.processing_metrics.failed_requests,
+                            self.processing_metrics.active_visualizations,
+                            self.processing_metrics.real_time_streams,
+                            self.processing_metrics.dashboard_sessions,
+                            self.processing_metrics.ai_analysis_operations,
+                            self.processing_metrics.quantum_processing_operations,
+                            self.processing_metrics.average_processing_time,
+                            self.processing_metrics.average_rendering_time,
+                            self.processing_metrics.gpu_utilization,
+                            self.processing_metrics.memory_usage,
+                            self.processing_metrics.cpu_utilization,
+                            self.processing_metrics.network_throughput,
+                            self.processing_metrics.quality_score,
+                            self.processing_metrics.user_satisfaction,
+                            self.processing_metrics.performance_optimization_score,
+                            datetime.now().isoformat(),
+                        ),
+                    )
                     conn.commit()
             except Exception as e:
                 logger.error(f"❌ Failed to record processing metrics: {e}")
@@ -1324,18 +1345,18 @@ class AdvancedVisualProcessingEngine:
                 interactive_features=request_data.get("interactive_features", True),
                 export_formats=request_data.get("export_formats", ["png"]),
                 dashboard_integration=request_data.get("dashboard_integration", False),
-                mobile_optimization=request_data.get("mobile_optimization", True)
+                mobile_optimization=request_data.get("mobile_optimization", True),
             )
-            
+
             self.visualization_requests[request.request_id] = request
-            
+
             logger.info(f"🎨 Visualization request created: {request.request_name}")
             logger.info(f"   Request ID: {request.request_id}")
             logger.info(f"   Type: {request.visualization_type.value}")
             logger.info(f"   Priority: {request.priority.value}")
-            
+
             return request.request_id
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create visualization request: {e}")
             raise
@@ -1343,54 +1364,56 @@ class AdvancedVisualProcessingEngine:
     def stop_visual_processing_engine(self) -> Dict[str, Any]:
         """🛑 Stop visual processing engine with comprehensive cleanup"""
         logger.info("🛑 Stopping Advanced Visual Processing Engine...")
-        
+
         try:
             # Stop processing
             self.processing_active = False
             self.processing_state = VisualProcessingState.COMPLETED
-            
+
             # Wait for background threads to complete
             for thread in self.processing_threads:
                 if thread.is_alive():
                     thread.join(timeout=5.0)
-            
+
             # Final metrics recording
             self._record_processing_metrics()
-            
+
             # Cleanup
             if self.visual_cache:
                 self.visual_cache.clear()
-            
+
             duration = (datetime.now() - self.start_time).total_seconds()
-            
+
             logger.info("✅ Visual processing engine stopped successfully")
             logger.info(f"Total runtime: {duration:.2f} seconds")
-            
+
             return {
                 "status": "stopped",
                 "processing_id": self.processing_id,
                 "total_runtime": duration,
                 "requests_processed": len([r for r in self.visualization_requests.values() if r.status == "completed"]),
-                "final_metrics": self.processing_metrics.__dict__ if self.processing_metrics else {}
+                "final_metrics": self.processing_metrics.__dict__ if self.processing_metrics else {},
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Error stopping visual processing engine: {e}")
             return {"status": "error", "error": str(e)}
 
+
 def main():
     """Main execution function for Advanced Visual Processing Engine"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Advanced Visual Processing Engine")
-    parser.add_argument("--action", choices=["start", "stop", "status", "create-request"], 
-                       default="start", help="Action to perform")
+    parser.add_argument(
+        "--action", choices=["start", "stop", "status", "create-request"], default="start", help="Action to perform"
+    )
     parser.add_argument("--config", type=str, help="Configuration file path")
     parser.add_argument("--workspace", type=str, help="Workspace directory path")
     parser.add_argument("--request-data", type=str, help="JSON visualization request data")
-    
+
     args = parser.parse_args()
-    
+
     try:
         # Initialize configuration
         config = VisualProcessingConfiguration()
@@ -1400,14 +1423,14 @@ def main():
                 for key, value in config_data.items():
                     if hasattr(config, key):
                         setattr(config, key, value)
-        
+
         # Initialize engine
         engine = AdvancedVisualProcessingEngine(workspace_path=args.workspace, config=config)
-        
+
         if args.action == "start":
             result = engine.start_visual_processing_engine()
             print(json.dumps(result, indent=2))
-            
+
         elif args.action == "create-request":
             if args.request_data:
                 request_data = json.loads(args.request_data)
@@ -1415,25 +1438,26 @@ def main():
                 print(f"Created visualization request: {request_id}")
             else:
                 print("Error: --request-data required for create-request action")
-                
+
         elif args.action == "stop":
             result = engine.stop_visual_processing_engine()
             print(json.dumps(result, indent=2))
-            
+
         elif args.action == "status":
             status = {
                 "processing_id": engine.processing_id,
                 "state": engine.processing_state.value,
                 "active": engine.processing_active,
                 "requests": len(engine.visualization_requests),
-                "results": len(engine.processing_results)
+                "results": len(engine.processing_results),
             }
             print(json.dumps(status, indent=2))
-            
+
     except Exception as e:
         logger.error(f"❌ Main execution failed: {e}")
         print(f"Error: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

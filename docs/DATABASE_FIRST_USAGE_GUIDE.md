@@ -35,6 +35,12 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - Documentation patterns are stored in `documentation.db`.
 - Use `scripts/documentation/enterprise_documentation_manager.py` to render Markdown files from these entries and record the generation event.
 - Rendered output is also saved to `logs/template_rendering/` with timestamped filenames for auditing.
+- For production systems use
+  `archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py`.
+  This manager now loads templates from both `documentation.db` and
+  `production.db`, writing Markdown, HTML and JSON files for each compliant
+  entry. Generation events are logged to `analytics.db:render_events` and
+  progress metrics are written to `dashboard/compliance/metrics.json`.
 
 ## 4. Synchronization
 - Run `template_engine.template_synchronizer.synchronize_templates()` to preview
@@ -91,7 +97,7 @@ The Flask dashboard exposes a `/dashboard/compliance` endpoint that reads these
 metrics and shows real-time placeholder removal progress. When a placeholder is corrected, record the update in `analytics.db:correction_logs`. This ensures future audits can cross-reference removed placeholders with generated fixes.
 
 ### Placeholder Correction Workflow
-1. Run `scripts/placeholder_cleanup.py` to audit and automatically remove flagged placeholders.
+1. Run `scripts/code_placeholder_audit.py --cleanup --force` to audit and automatically remove flagged placeholders.
 2. Review `dashboard/compliance` for updated metrics.
 3. If manual fixes were applied, re-run `scripts/code_placeholder_audit.py --update-resolutions`.
 4. Record finalized corrections with `scripts/correction_logger_and_rollback.py`.

@@ -71,6 +71,8 @@ class CrossReferenceValidator:
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
 
+        self.cross_link_log: List[Dict[str, str]] = []
+
     def _query_cross_reference_patterns(self) -> List[str]:
         """Query production.db for cross-referencing workflow patterns."""
         patterns = []
@@ -117,12 +119,23 @@ class CrossReferenceValidator:
         logging.info(f"Cross-linked actions found: {len(actions)}")
         return actions
 
+    def _deep_cross_link(self, actions: List[Dict]) -> None:
+        """Perform additional cross-linking between docs and code."""
+        docs_dir = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app")) / "docs"
+        for act in actions:
+            related = docs_dir.rglob(Path(act["file_path"]).name)
+            for doc in related:
+                entry = {"file": act["file_path"], "doc": str(doc)}
+                self.cross_link_log.append(entry)
+                _log_event({"event": "cross_link", **entry}, db_path=self.analytics_db)
+
     def _update_dashboard(self, actions: List[Dict]) -> None:
         """Update dashboard/compliance with cross-reference summary."""
         self.dashboard_dir.mkdir(parents=True, exist_ok=True)
         summary = {
             "timestamp": datetime.now().isoformat(),
             "cross_linked_actions": actions,
+            "cross_links": self.cross_link_log,
             "status": "complete" if actions else "none",
         }
         import json
@@ -141,6 +154,7 @@ class CrossReferenceValidator:
         self._query_cross_reference_patterns()
         self._scan_task_suggestions()
         actions = self._cross_link_actions()
+        self._deep_cross_link(actions)
         total_steps = 3
         with tqdm(total=total_steps, desc="Cross-Reference Validation", unit="step") as bar:
             bar.set_description("Querying Patterns")

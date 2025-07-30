@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import os
 import re
 import sqlite3
@@ -10,6 +11,8 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable, Tuple
+
+from utils.log_utils import DEFAULT_ANALYTICS_DB, insert_event
 
 CLEANUP_SQL = (
     "DELETE FROM enterprise_documentation "
@@ -133,6 +136,7 @@ def parse_features(readme: Path) -> Tuple[list[str], list[str]]:
 def write_matrix(
     path_csv: Path,
     path_md: Path,
+    path_json: Path,
     implemented: Iterable[str],
     planned: Iterable[str],
 ) -> None:
@@ -149,6 +153,8 @@ def write_matrix(
     md_lines += [f"| {feat} | {status} |" for feat, status in rows]
     path_md.write_text("\n".join(md_lines))
 
+    path_json.write_text(json.dumps(rows, indent=2))
+
 
 def generate_feature_matrix(workspace: Path) -> None:
     """Generate feature matrix from documentation README."""
@@ -157,8 +163,19 @@ def generate_feature_matrix(workspace: Path) -> None:
     generated_dir.mkdir(parents=True, exist_ok=True)
     csv_path = generated_dir / "feature_matrix.csv"
     md_path = generated_dir / "feature_matrix.md"
+    json_path = generated_dir / "feature_matrix.json"
     implemented, planned = parse_features(readme)
-    write_matrix(csv_path, md_path, implemented, planned)
+    write_matrix(csv_path, md_path, json_path, implemented, planned)
+    insert_event(
+        {
+            "db_name": str(csv_path),
+            "details": f"feature_matrix:{len(implemented)+len(planned)}",
+            "ts": datetime.utcnow().isoformat(),
+        },
+        table="audit_log",
+        db_path=DEFAULT_ANALYTICS_DB,
+        test_mode=False,
+    )
 
 
 def consolidate() -> None:
@@ -169,6 +186,16 @@ def consolidate() -> None:
     cleanup_database(db_path)
     populate_templates(db_path)
     generate_feature_matrix(workspace)
+    insert_event(
+        {
+            "db_name": str(db_path),
+            "details": "consolidate_complete",
+            "ts": datetime.utcnow().isoformat(),
+        },
+        table="audit_log",
+        db_path=DEFAULT_ANALYTICS_DB,
+        test_mode=False,
+    )
 
 
 if __name__ == "__main__":

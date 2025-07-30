@@ -12,11 +12,20 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterable, List
 
+try:
+    from qiskit import QuantumCircuit
+    from qiskit_aer import AerSimulator
+
+    QISKIT_AVAILABLE = True
+except Exception:  # pragma: no cover - qiskit optional
+    QISKIT_AVAILABLE = False
+
 import numpy as np
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 
 ANALYTICS_DB = Path("databases/analytics.db")
+
 
 def log_quantum_event(name: str, details: str) -> None:
     """Log quantum algorithm usage if ``analytics.db`` exists."""
@@ -26,9 +35,7 @@ def log_quantum_event(name: str, details: str) -> None:
 
     try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS quantum_events (timestamp TEXT, name TEXT, details TEXT)"
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS quantum_events (timestamp TEXT, name TEXT, details TEXT)")
             conn.execute(
                 "INSERT INTO quantum_events (timestamp, name, details) VALUES (?, ?, ?)",
                 (datetime.utcnow().isoformat(), name, details),
@@ -42,9 +49,7 @@ def log_quantum_event(name: str, details: str) -> None:
 class EnterpriseUtility:
     """Minimal enterprise utility wrapper used for testing."""
 
-    def __init__(
-        self, workspace_path: str | None = None
-    ) -> None:  # pragma: no cover - thin wrapper
+    def __init__(self, workspace_path: str | None = None) -> None:  # pragma: no cover - thin wrapper
         """Initialize utility; workspace path is optional."""
         self.workspace_path = workspace_path
 
@@ -65,7 +70,9 @@ __all__ = [
     "quantum_score_stub",
     "demo_quantum_neural_network",
     "quantum_cluster_score",
+    "quantum_similarity_score",
     "quantum_pattern_match_stub",
+    "quantum_text_score",
 ]
 
 
@@ -219,3 +226,28 @@ def quantum_pattern_match_stub(pattern: Iterable[int], data: Iterable[int]) -> b
             return True
     log_quantum_event("pattern_match", "not_found")
     return False
+
+
+def quantum_text_score(text: str) -> float:
+    """Return a quantum-inspired text score.
+
+    Uses ``qiskit`` when available, otherwise falls back to a
+    simple classical heuristic. In either case the execution path
+    is logged to ``analytics.db`` via :func:`log_quantum_event`.
+    """
+    if QISKIT_AVAILABLE:
+        circ = QuantumCircuit(1, 1)
+        theta = (sum(map(ord, text)) % 360) * np.pi / 180
+        circ.ry(theta, 0)
+        circ.measure(0, 0)
+        backend = AerSimulator()
+        result = backend.run(circ, shots=256).result()
+        counts = result.get_counts()
+        score = counts.get("1", 0) / 256
+        log_quantum_event("text_score", "qiskit")
+        return float(score)
+
+    arr = np.fromiter((ord(c) for c in text), dtype=float)
+    score = float(np.linalg.norm(arr) / ((arr.size or 1) * 255))
+    log_quantum_event("text_score", "simulated")
+    return score

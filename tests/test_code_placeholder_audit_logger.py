@@ -5,7 +5,8 @@ import sqlite3
 os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
 
 from scripts.dashboard_placeholder_sync import sync
-from scripts.code_placeholder_audit import main, rollback_last_entry
+from scripts.code_placeholder_audit import main
+import subprocess
 
 
 def test_placeholder_audit_logger(tmp_path):
@@ -76,27 +77,32 @@ def test_rollback_last_entry(tmp_path):
     analytics.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(analytics) as conn:
         conn.execute(
-            (
-                "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT, resolved BOOLEAN DEFAULT 0, resolved_timestamp TEXT, status TEXT, removal_id INTEGER)"
-            )
+            "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT, resolved BOOLEAN DEFAULT 0, resolved_timestamp TEXT, status TEXT, removal_id INTEGER)"
         )
         conn.execute(
-            (
-                "CREATE TABLE code_audit_log (id INTEGER PRIMARY KEY, "
-                "file_path TEXT, line_number INTEGER, placeholder_type TEXT, "
-                "context TEXT, timestamp TEXT)"
-            )
+            "CREATE TABLE code_audit_log (id INTEGER PRIMARY KEY, file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT)"
         )
-        conn.execute(("INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts', 0, NULL, 'open', NULL)"))
+        conn.execute("INSERT INTO todo_fixme_tracking VALUES ('f', 1, 'TODO', 'ctx', 'ts', 0, NULL, 'open', NULL)")
         conn.execute(
-            (
-                "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, "
-                "context, timestamp) VALUES ('f', 1, 'TODO', 'ctx', 'ts')"
-            )
+            "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp) VALUES ('f', 1, 'TODO', 'ctx', 'ts')"
         )
         conn.commit()
 
-    assert rollback_last_entry(analytics)
+    result = subprocess.run(
+        [
+            "python",
+            "-m",
+            "scripts.code_placeholder_audit",
+            "--analytics-db",
+            str(analytics),
+            "--rollback-last",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    data = json.loads(result.stdout.strip())
+    assert data.get("rollback") is True
     with sqlite3.connect(analytics) as conn:
         count = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking").fetchone()[0]
         count_log = conn.execute("SELECT COUNT(*) FROM code_audit_log").fetchone()[0]

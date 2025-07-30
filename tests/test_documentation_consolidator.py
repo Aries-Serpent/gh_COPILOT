@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import logging
 import os
 import shutil
 import sqlite3
 from pathlib import Path
 
-from scripts.documentation_consolidator import consolidate
+
 
 
 def _prepare_db(src: Path, dest: Path) -> None:
@@ -20,7 +19,7 @@ def _prepare_db(src: Path, dest: Path) -> None:
                 "BACKUP_LOG",
                 "Backup",
                 "data",
-                str(Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())) + "/backups/tmp.bak"),
+                str(Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())) / "backups" / "tmp.bak"),
             ),
         )
         conn.execute(
@@ -44,11 +43,15 @@ def test_documentation_consolidator(tmp_path, monkeypatch):
     doc_dir = workspace / "documentation"
     db_dir.mkdir()
     doc_dir.mkdir()
-    _prepare_db(repo_root / "archives" / "documentation.db", db_dir / "documentation.db")
+    _prepare_db(repo_root / "databases" / "documentation.db", db_dir / "documentation.db")
     shutil.copy(repo_root / "documentation" / "README.md", doc_dir / "README.md")
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     monkeypatch.setenv("DOCUMENTATION_DB_PATH", str(db_dir / "documentation.db"))
+    analytics_db = tmp_path / "analytics.db"
+    monkeypatch.setenv("ANALYTICS_DB", str(analytics_db))
+    import importlib
+    consolidate = importlib.import_module("scripts.documentation_consolidator").consolidate
     consolidate()
 
     with sqlite3.connect(db_dir / "documentation.db") as conn:
@@ -72,3 +75,8 @@ def test_documentation_consolidator(tmp_path, monkeypatch):
 
     assert (doc_dir / "generated" / "feature_matrix.csv").exists()
     assert (doc_dir / "generated" / "feature_matrix.md").exists()
+    assert (doc_dir / "generated" / "feature_matrix.json").exists()
+
+    with sqlite3.connect(analytics_db) as conn:
+        cur = conn.execute("SELECT COUNT(*) FROM audit_log")
+        assert cur.fetchone()[0] >= 2

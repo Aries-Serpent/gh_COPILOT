@@ -10,26 +10,40 @@ import time
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Response, jsonify, render_template_string, request
 from tqdm import tqdm
+
+from config.secret_manager import get_secret
 
 ANALYTICS_DB = Path("databases/analytics.db")
 COMPLIANCE_DIR = Path("dashboard/compliance")
 
 app = Flask(__name__)
+app.secret_key = get_secret("FLASK_SECRET_KEY", "dev_key")
 LOG_FILE = Path("logs/dashboard") / "dashboard.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
 
 
 def _fetch_metrics() -> Dict[str, Any]:
-    metrics = {"placeholder_removal": 0, "compliance_score": 0.0}
+    metrics = {
+        "placeholder_removal": 0,
+        "open_placeholders": 0,
+        "resolved_placeholders": 0,
+        "total_placeholders": 0,
+        "compliance_score": 0.0,
+    }
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.cursor()
             try:
+                cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking")
+                metrics["total_placeholders"] = cur.fetchone()[0]
                 cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
                 metrics["placeholder_removal"] = cur.fetchone()[0]
+                metrics["resolved_placeholders"] = metrics["placeholder_removal"]
+                cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=0")
+                metrics["open_placeholders"] = cur.fetchone()[0]
                 cur.execute("SELECT AVG(compliance_score) FROM corrections")
                 val = cur.fetchone()[0]
                 metrics["compliance_score"] = float(val) if val is not None else 0.0
@@ -48,6 +62,53 @@ def _fetch_rollbacks() -> List[Dict[str, Any]]:
         except json.JSONDecodeError:
             logging.warning("Invalid correction summary JSON")
     return records
+
+
+def _fetch_correction_history(limit: int = 5) -> List[Dict[str, Any]]:
+    history: List[Dict[str, Any]] = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT file_path, compliance_score, ts FROM correction_logs "
+                    "ORDER BY ts DESC LIMIT ?",
+                    (limit,),
+                )
+                history = [
+                    {
+                        "file_path": row[0],
+                        "compliance_score": row[1],
+                        "timestamp": row[2],
+                    }
+                    for row in cur.fetchall()
+                ]
+            except sqlite3.Error as exc:
+                logging.error("History fetch error: %s", exc)
+    return history
+
+
+def _fetch_alerts(limit: int = 5) -> Dict[str, Any]:
+    alerts = {"violations": [], "rollbacks": []}
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT details, timestamp FROM violation_logs ORDER BY timestamp DESC LIMIT ?",
+                    (limit,),
+                )
+                alerts["violations"] = [
+                    {"details": row[0], "timestamp": row[1]} for row in cur.fetchall()
+                ]
+                cur = conn.execute(
+                    "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT ?",
+                    (limit,),
+                )
+                alerts["rollbacks"] = [
+                    {"target": row[0], "backup": row[1], "timestamp": row[2]} for row in cur.fetchall()
+                ]
+            except sqlite3.Error as exc:
+                logging.error("Alert fetch error: %s", exc)
+    return alerts
 
 
 @app.get("/compliance")
@@ -109,6 +170,12 @@ def rollback_alerts() -> Any:
     return jsonify(data)
 
 
+@app.get("/alerts")
+def alerts() -> Any:
+    """Return recent violation and rollback alerts."""
+    return jsonify(_fetch_alerts())
+
+
 @app.get("/dashboard_info")
 def dashboard_info() -> Any:
     start = time.time()
@@ -123,6 +190,19 @@ def dashboard_info() -> Any:
     return jsonify(data)
 
 
+@app.get("/metrics_table")
+def metrics_table() -> Any:
+    metrics = _fetch_metrics()
+    table_html = """
+    <table border='1'>
+        <tr><th>Metric</th><th>Value</th></tr>
+    """
+    for key, value in metrics.items():
+        table_html += f"<tr><td>{key}</td><td>{value}</td></tr>"
+    table_html += "</table>"
+    return render_template_string(table_html)
+
+
 @app.get("/health")
 def health() -> Any:
     start = time.time()
@@ -131,6 +211,11 @@ def health() -> Any:
     etc = f"ETC: {calculate_etc(start, 1, 1)}"
     logging.info("Health check served | %s", etc)
     return jsonify({"status": "ok"})
+
+
+@app.get("/error")
+def error() -> Any:
+    raise RuntimeError("Test error endpoint")
 
 
 @app.get("/reports")
@@ -142,6 +227,20 @@ def reports() -> Any:
     etc = f"ETC: {calculate_etc(start, 1, 1)}"
     logging.info("Reports served | %s", etc)
     return jsonify(data)
+
+
+@app.get("/realtime_metrics")
+def realtime_metrics() -> Any:
+    data = {
+        "metrics": _fetch_metrics(),
+        "corrections": _fetch_correction_history(),
+    }
+    return jsonify(data)
+
+
+@app.get("/correction_history")
+def correction_history() -> Any:
+    return jsonify(_fetch_correction_history())
 
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:

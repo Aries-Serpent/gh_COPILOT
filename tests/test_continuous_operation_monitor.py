@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import subprocess
 import time
 from pathlib import Path
@@ -24,17 +25,23 @@ def test_monitor_run(monkeypatch):
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "monitoring" / "continuous_operation_monitor.py"
 
 
-def test_log_created(tmp_path: Path) -> None:
+def test_log_created(tmp_path: Path, monkeypatch) -> None:
     log_db = tmp_path / "analytics.db"
-    proc = subprocess.Popen([
-        "python",
-        str(SCRIPT),
-        "--interval",
-        "0",
-        "--log-db",
-        str(log_db),
-        "--quiet",
-    ])
+    env = os.environ.copy()
+    env["GH_COPILOT_DISABLE_VALIDATION"] = "1"
+    env["GH_COPILOT_WORKSPACE"] = str(Path(__file__).resolve().parents[1])
+    proc = subprocess.Popen(
+        [
+            "python",
+            str(SCRIPT),
+            "--interval",
+            "0",
+            "--log-db",
+            str(log_db),
+            "--quiet",
+        ],
+        env=env,
+    )
     time.sleep(0.5)
     proc.terminate()
     proc.wait(timeout=5)

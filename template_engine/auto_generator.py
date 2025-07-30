@@ -15,7 +15,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Iterable
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -27,15 +27,37 @@ from utils.log_utils import _log_event
 
 from .pattern_templates import get_pattern_templates
 from .placeholder_utils import DEFAULT_PRODUCTION_DB
+from .objective_similarity_scorer import compute_similarity_scores
+from .pattern_mining_engine import extract_patterns
 
-# Quantum demo import (placeholder for quantum-inspired scoring)
+# Quantum scoring helper
 try:
-    from quantum_algorithm_library_expansion import demo_quantum_fourier_transform
-except ImportError:
+    from quantum_algorithm_library_expansion import (
+        quantum_text_score,
+        quantum_similarity_score,
+    )
+except ImportError:  # pragma: no cover - optional dependency
 
-    def demo_quantum_fourier_transform():
-        # Fallback: return a normalized vector
-        return np.ones(8) / np.sqrt(8)
+    def quantum_text_score(text: str) -> float:
+       """Fallback quantum text scoring implementation."""
+        arr = np.fromiter((ord(c) for c in text), dtype=float)
+        return float(np.linalg.norm(arr) / ((arr.size or 1) * 255))
+
+    def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
+        """Fallback normalized dot-product similarity."""
+        arr_a = np.fromiter(a, dtype=float)
+        arr_b = np.fromiter(b, dtype=float)
+        if arr_a.size == 0 or arr_b.size == 0:
+            return 0.0
+        denom = (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)) or 1.0
+        return float(np.dot(arr_a, arr_b) / denom)
+
+
+    def quantum_cluster_score(matrix: np.ndarray) -> float:
+        n_clusters = min(len(matrix), 2)
+        model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+        labels = model.fit_predict(matrix)
+        return float(np.sum(labels) / (len(labels) or 1))
 
 
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -124,6 +146,18 @@ class TemplateAutoGenerator:
         )
         return patterns
 
+    def _load_production_templates(self) -> List[str]:
+        """Fetch templates from ``production.db`` if available."""
+        templates: List[str] = []
+        if self.production_db.exists():
+            with sqlite3.connect(self.production_db) as conn:
+                try:
+                    cur = conn.execute("SELECT template_code FROM code_templates")
+                    templates = [row[0] for row in cur.fetchall()]
+                except sqlite3.Error as exc:
+                    logger.error(f"Error loading production templates: {exc}")
+        return templates
+
     def _refresh_templates(self) -> None:
         """Reload templates and patterns from their databases."""
         self.patterns = self._load_patterns()
@@ -136,9 +170,10 @@ class TemplateAutoGenerator:
             )
 
     def _load_templates(self) -> List[str]:
-        logger.info("Loading templates from completion DB...")
-        templates = []
-        if self.completion_db.exists():
+        logger.info("Loading templates from production DB then completion DB...")
+        templates: List[str] = []
+        templates.extend(self._load_production_templates())
+        if not templates and self.completion_db.exists():
             with sqlite3.connect(self.completion_db) as conn:
                 try:
                     cur = conn.execute("SELECT template_content FROM templates")
@@ -163,10 +198,14 @@ class TemplateAutoGenerator:
         return templates
 
     def _quantum_score(self, text: str) -> float:
-        """Return a quantum-inspired score for ``text``."""
-        vec = np.array(demo_quantum_fourier_transform())
-        baseline = np.ones_like(vec) / np.sqrt(len(vec))
-        return float(abs(np.dot(vec, baseline.conj())))
+        """Return a quantum-inspired score for ``text`` using helper module."""
+        return quantum_text_score(text)
+
+    def _quantum_similarity(self, a: str, b: str) -> float:
+        """Return similarity between two texts using quantum scoring."""
+        vec_a = [ord(c) for c in a]
+        vec_b = [ord(c) for c in b]
+        return quantum_similarity_score(vec_a, vec_b)
 
     def _load_production_patterns(self) -> list[str]:
         """Fetch template patterns from ``production.db`` if available."""
@@ -215,28 +254,110 @@ class TemplateAutoGenerator:
         vecs = vectorizer.transform([a, b])
         return float(cosine_similarity(vecs[0], vecs[1])[0][0])
 
+    def rank_templates(self, target: str) -> List[str]:
+        """Return templates ranked by similarity to ``target``."""
+        ranked: List[tuple[str, float]] = []
+        vectorizer = TfidfVectorizer()
+        if self.production_db.exists():
+            scores = compute_similarity_scores(
+                target,
+                production_db=self.production_db,
+                analytics_db=self.analytics_db,
+                timeout_minutes=1,
+            )
+            id_to_score = {tid: score for tid, score in scores}
+            with sqlite3.connect(self.production_db) as conn:
+                cur = conn.execute("SELECT id, template_code FROM code_templates")
+                for tid, text in cur.fetchall():
+                    if tid not in id_to_score:
+                        continue
+                    bonus = 0.0
+                    pats = extract_patterns([text])
+                    if any(p in target for p in pats):
+                        bonus = 0.1
+                    vecs = vectorizer.fit_transform([target, text]).toarray()
+                    tfidf = float(cosine_similarity([vecs[0]], [vecs[1]])[0][0])
+                    q_sim = self._quantum_similarity(target, text)
+                    q_vec = quantum_similarity_score(vecs[0], vecs[1])
+                    c_score = quantum_cluster_score(np.vstack([vecs[0], vecs[1]]))
+                    score = id_to_score[tid] + tfidf + q_sim + q_vec + c_score + bonus
+                    ranked.append((text, score))
+                    _log_event(
+                        {
+                            "event": "rank_eval",
+                            "target": target,
+                            "template_id": tid,
+                            "score": score,
+                        },
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {
+                            "event": "quantum_similarity",
+                            "template_id": tid,
+                            "score": q_vec,
+                        },
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {
+                            "event": "cluster_score",
+                            "template_id": tid,
+                            "score": c_score,
+                        },
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+        if not ranked:
+            candidates = self.templates or self.patterns
+            for tmpl in candidates:
+                vecs = vectorizer.fit_transform([target, tmpl]).toarray()
+                tfidf = float(cosine_similarity([vecs[0]], [vecs[1]])[0][0])
+                q_sim = self._quantum_similarity(target, tmpl)
+                q_vec = quantum_similarity_score(vecs[0], vecs[1])
+                c_score = quantum_cluster_score(np.vstack([vecs[0], vecs[1]]))
+                score = tfidf + q_sim + q_vec + c_score
+                ranked.append((tmpl, score))
+                _log_event(
+                    {
+                        "event": "rank_eval",
+                        "target": target,
+                        "template_id": -1,
+                        "score": score,
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {
+                        "event": "quantum_similarity",
+                        "template_id": -1,
+                        "score": q_vec,
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+                _log_event(
+                    {
+                        "event": "cluster_score",
+                        "template_id": -1,
+                        "score": c_score,
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
+        ranked.sort(key=lambda x: x[1], reverse=True)
+        return [t for t, _ in ranked]
+
     def select_best_template(self, target: str, timeout: float = 30.0) -> str:
         logger.info(f"Selecting best template for target: {target}")
-        candidates = self.templates or self.patterns
-        if not candidates:
+        ranked = self.rank_templates(target)
+        if not ranked:
             logger.warning("No candidates available for selection")
             return ""
-        best = ""
-        best_score = -float("inf")
-        start = time.time()
-        with tqdm(total=len(candidates), desc="[PROGRESS] select", unit="tmpl") as bar:
-            for idx, tmpl in enumerate(candidates, 1):
-                score = self.objective_similarity(target, tmpl) + self._quantum_score(tmpl)
-                if score > best_score:
-                    best_score = score
-                    best = tmpl
-                if idx % 5 == 0:
-                    etc = calculate_etc(start, idx, len(candidates))
-                    bar.set_postfix_str(f"ETC: {etc}")
-                if time.time() - start > timeout:
-                    logger.warning("Selection timeout reached")
-                    break
-                bar.update(1)
+        best = ranked[0]
         try:
             with sqlite3.connect(self.analytics_db) as conn:
                 conn.execute("CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)")
@@ -266,10 +387,10 @@ class TemplateAutoGenerator:
         search_terms = " ".join(map(str, objective.values()))
         logger.info(f"Generating template for objective: {search_terms}")
         start_ts = time.time()
+        ranked = self.rank_templates(search_terms)
         found = ""
-        all_candidates = self.templates + self.patterns
-        total_candidates = len(all_candidates)
-        with tqdm(all_candidates, desc="[PROGRESS] search", unit="tmpl") as bar:
+        total_candidates = len(ranked)
+        with tqdm(ranked, desc="[PROGRESS] search", unit="tmpl") as bar:
             for idx, tmpl in enumerate(bar, start=1):
                 etc = calculate_etc(start_ts, idx, total_candidates)
                 bar.set_postfix(etc=etc)

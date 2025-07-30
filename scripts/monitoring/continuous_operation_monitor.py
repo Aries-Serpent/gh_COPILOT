@@ -9,6 +9,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 
+# Ensure repository root is on sys.path when executed directly
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 from tqdm import tqdm
 from scripts.monitoring.unified_monitoring_optimization_system import (
     EnterpriseUtility,

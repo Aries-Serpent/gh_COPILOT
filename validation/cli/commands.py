@@ -7,12 +7,12 @@ import argparse
 import json
 import sys
 from datetime import datetime
+from typing import List
 from pathlib import Path
 
 from ..protocols.session import SessionProtocolValidator
 from ..protocols.deployment import DeploymentValidator
 from ..core.validators import (
-    CompositeValidator,
     ValidationResult,
     ValidationStatus,
 )

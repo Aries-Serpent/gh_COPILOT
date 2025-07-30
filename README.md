@@ -17,7 +17,7 @@
 The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. **Many features remain experimental or stubbed; quantum functionality is simulated only and several modules are still incomplete.**
 
 > **Note**
-> All quantum utilities operate in simulation unless `qiskit-ibm-provider` is installed and configured with `QISKIT_IBM_TOKEN`.
+> Quantum functions remain in **simulation mode** until hardware integration is complete. Install `qiskit-ibm-provider` and set `QISKIT_IBM_TOKEN` to enable real IBM Quantum backends when available.
 
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** initial implementation in progress
@@ -169,6 +169,12 @@ python -m scripts.docs_metrics_validator
 python scripts/wlc_session_manager.py --db-path databases/production.db
 ```
 The session manager logs the documentation update to `production.db` and writes a log file under `$GH_COPILOT_BACKUP_ROOT/logs`.
+To regenerate enterprise documentation directly from the production database use:
+
+```bash
+python archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py
+```
+This script pulls templates from both `documentation.db` and `production.db` and outputs Markdown, HTML and JSON files under `logs/template_rendering/`. Each render is logged to `analytics.db` and progress appears under `dashboard/compliance`.
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
 are thin CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor``.
@@ -907,6 +913,8 @@ python scripts/code_placeholder_audit.py \
 # compliance reporting. After fixing issues, run:
 python scripts/code_placeholder_audit.py --update-resolutions
 # to mark resolved entries in `todo_fixme_tracking`.
+# Run in test mode without database writes:
+python scripts/code_placeholder_audit.py --test-mode
 # `scripts/correction_logger_and_rollback.py` records final corrections.
 # Check `/dashboard/compliance` to verify the placeholder count reaches zero.
 # Run `scripts/database/add_code_audit_log.py` if the table is missing.

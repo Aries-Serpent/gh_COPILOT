@@ -29,10 +29,50 @@ class DocumentationManager:
     """Render compliant documentation from the database."""
 
     database: Path = Path("databases") / "production.db"
+    documentation_db: Path = Path("databases") / "documentation.db"
     analytics_db: Path = ANALYTICS_DB
     completion_db: Path = Path("databases/template_completion.db")
+    dashboard_dir: Path = Path("dashboard/compliance")
 
     generator: TemplateAutoGenerator | None = None
+
+    def _select_template_from_documentation_db(self, title: str) -> str:
+        """Return template from documentation.db matching ``title``."""
+        query = (
+            "SELECT template_content FROM documentation_templates "
+            "WHERE template_name = ? OR template_type = ? "
+            "LIMIT 1"
+        )
+        try:
+            with sqlite3.connect(self.documentation_db) as conn:
+                cur = conn.execute(query, (title, title))
+                row = cur.fetchone()
+                if row:
+                    return row[0]
+        except sqlite3.Error as exc:
+            logger.warning("doc template lookup failed: %s", exc)
+        return ""
+
+    def _select_template_from_db(self, title: str) -> str:
+        """Return template from documentation or production databases."""
+        doc_template = self._select_template_from_documentation_db(title)
+        if doc_template:
+            return doc_template
+
+        query = (
+            "SELECT template_content FROM template_repository "
+            "WHERE template_name = ? OR template_category = ? "
+            "ORDER BY success_rate DESC LIMIT 1"
+        )
+        try:
+            with sqlite3.connect(self.database) as conn:
+                cur = conn.execute(query, (title, title))
+                row = cur.fetchone()
+                if row:
+                    return row[0]
+        except sqlite3.Error as exc:
+            logger.warning("template lookup failed: %s", exc)
+        return ""
 
     def __post_init__(self) -> None:
         if self.generator is None:
@@ -40,6 +80,29 @@ class DocumentationManager:
                 analytics_db=self.analytics_db,
                 completion_db=self.completion_db,
             )
+        self.dashboard_dir.mkdir(parents=True, exist_ok=True)
+
+    def _update_dashboard(self, rendered: int) -> None:
+        """Update dashboard/compliance metrics."""
+        dashboard_file = self.dashboard_dir / "metrics.json"
+        metrics = {
+            "documentation_generated": rendered,
+            "last_update": datetime.utcnow().isoformat(),
+        }
+        if dashboard_file.exists():
+            try:
+                data = json.loads(dashboard_file.read_text())
+                if "metrics" in data:
+                    metrics.update(data["metrics"])
+            except json.JSONDecodeError:
+                pass
+        metrics["documentation_generated"] = (
+            metrics.get("documentation_generated", 0) + rendered
+        )
+        dashboard_file.write_text(
+            json.dumps({"metrics": metrics, "status": "updated", "timestamp": metrics["last_update"]}, indent=2),
+            encoding="utf-8",
+        )
 
     def _refresh_rows(self) -> list[tuple[str, str, int]]:
         try:
@@ -60,7 +123,9 @@ class DocumentationManager:
         for idx, (title, content, score) in enumerate(tqdm(rows, desc="render", unit="doc", leave=False), 1):
             if score < 60:
                 continue
-            template = self.generator.select_best_template(title)
+            template = self._select_template_from_db(title)
+            if not template:
+                template = self.generator.select_best_template(title)
             final_content = template or content
             (RENDER_LOG_DIR / f"{title}.md").write_text(final_content)
             (RENDER_LOG_DIR / f"{title}.html").write_text(f"<html><body><pre>{final_content}</pre></body></html>")
@@ -71,6 +136,7 @@ class DocumentationManager:
                 {"event": "render", "title": title},
                 table="render_events",
                 db_path=self.analytics_db,
+                test_mode=False,
             )
             with open(LOG_FILE, "a", encoding="utf-8") as logf:
                 logf.write(f"{datetime.utcnow().isoformat()}|render|{title}\n")
@@ -81,6 +147,7 @@ class DocumentationManager:
             count,
             calculate_etc(start_ts, len(rows), len(rows)),
         )
+        self._update_dashboard(count)
         return count
 
 

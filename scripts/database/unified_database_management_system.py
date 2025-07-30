@@ -22,8 +22,13 @@ WORKSPACE_ENV_VAR = "GH_COPILOT_WORKSPACE"
 
 
 def parse_comment(text: str) -> str:
-    """Return ``text`` with any trailing ``#`` comment removed."""
-    return text.split("#", 1)[0].strip()
+    """Return ``text`` with trailing comment or annotation removed."""
+
+    text = text.split("#", 1)[0]
+    # remove markdown style parentheses notes e.g. "*(archived)*"
+    if "*(" in text:
+        text = text.split("*(", 1)[0]
+    return text.strip()
 
 
 class UnifiedDatabaseManager:

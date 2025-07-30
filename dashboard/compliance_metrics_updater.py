@@ -18,7 +18,7 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Iterable
 
 from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
@@ -75,6 +75,7 @@ class ComplianceMetricsUpdater:
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
         ensure_tables(ANALYTICS_DB, ["violation_logs", "rollback_logs"], test_mode=False)
+        self.forbidden_phrases = ["rm -rf", "sudo", "wget "]
 
     def _fetch_compliance_metrics(self) -> Dict[str, Any]:
         """Fetch compliance metrics from analytics.db."""
@@ -158,6 +159,32 @@ class ComplianceMetricsUpdater:
         metrics["last_update"] = datetime.now().isoformat()
         return metrics
 
+    def _cognitive_compliance_suggestion(self, metrics: Dict[str, Any]) -> str:
+        """Return a simple compliance suggestion based on metrics."""
+        if metrics.get("violation_count", 0) > 0:
+            return "Review recent violations and address root causes."
+        if metrics.get("open_placeholders", 0) > 0:
+            return "Resolve open placeholders to improve compliance."
+        return "System compliant."
+
+    def _check_forbidden_operations(self) -> None:
+        """Fail if forbidden operations appear in recent logs."""
+        try:
+            text = LOG_FILE.read_text(encoding="utf-8")
+        except OSError:
+            return
+        for phrase in self.forbidden_phrases:
+            if phrase in text:
+                raise RuntimeError(f"Forbidden operation detected: {phrase}")
+
+    def stream_metrics(self, interval: int = 5) -> Iterable[Dict[str, Any]]:
+        """Yield metrics in real-time for streaming interfaces."""
+        while True:
+            metrics = self._fetch_compliance_metrics()
+            metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
+            yield metrics
+            time.sleep(interval)
+
     def _update_dashboard(self, metrics: Dict[str, Any]) -> None:
         """Update dashboard/compliance with metrics."""
         self.dashboard_dir.mkdir(parents=True, exist_ok=True)
@@ -189,6 +216,20 @@ class ComplianceMetricsUpdater:
             db_path=ANALYTICS_DB,
             test_mode=True,
         )
+        if metrics.get("violation_count"):
+            insert_event(
+                {"event": "violation", "count": metrics["violation_count"]},
+                "violation_logs",
+                db_path=ANALYTICS_DB,
+                test_mode=True,
+            )
+        if metrics.get("rollback_count"):
+            insert_event(
+                {"event": "rollback", "count": metrics["rollback_count"]},
+                "rollback_logs",
+                db_path=ANALYTICS_DB,
+                test_mode=True,
+            )
 
     def update(self, simulate: bool = False) -> None:
         """Update compliance metrics for the web dashboard with full compliance and validation.
@@ -203,9 +244,14 @@ class ComplianceMetricsUpdater:
         with tqdm(total=3, desc="Updating Compliance Metrics", unit="step") as pbar:
             pbar.set_description("Fetching Metrics")
             metrics = self._fetch_compliance_metrics()
+            metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
             pbar.update(1)
 
             if not simulate:
+                pbar.set_description("Checking Operations")
+                self._check_forbidden_operations()
+                pbar.update(0)
+
                 pbar.set_description("Updating Dashboard")
                 self._update_dashboard(metrics)
                 pbar.update(1)
@@ -246,12 +292,16 @@ class ComplianceMetricsUpdater:
         return valid
 
 
-def main(simulate: bool = False) -> None:
+def main(simulate: bool = False, stream: bool = False) -> None:
     """Command-line entry point."""
     dashboard_dir = DASHBOARD_DIR
     updater = ComplianceMetricsUpdater(dashboard_dir)
-    updater.update(simulate=simulate)
-    updater.validate_update()
+    if stream:
+        for metrics in updater.stream_metrics():
+            print(metrics)
+    else:
+        updater.update(simulate=simulate)
+        updater.validate_update()
 
 
 if __name__ == "__main__":
@@ -263,5 +313,10 @@ if __name__ == "__main__":
         action="store_true",
         help="Run in test mode without writing to disk",
     )
+    parser.add_argument(
+        "--stream",
+        action="store_true",
+        help="Continuously stream metrics to stdout",
+    )
     args = parser.parse_args()
-    main(simulate=args.simulate)
+    main(simulate=args.simulate, stream=args.stream)

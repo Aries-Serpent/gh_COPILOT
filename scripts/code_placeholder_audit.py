@@ -20,6 +20,7 @@ import re
 import sqlite3
 import time
 from datetime import datetime
+import getpass
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -38,6 +39,7 @@ from scripts.continuous_operation_orchestrator import (
 from scripts.database.add_code_audit_log import ensure_code_audit_log
 from template_engine.template_placeholder_remover import remove_unused_placeholders
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.log_utils import log_message
 
 # Visual processing indicator constants
@@ -57,7 +59,36 @@ DEFAULT_PATTERNS = [
     r"pass\b",
     r"NotImplementedError",
     r"placeholder",
+    r"HACK",
+    r"BUG",
+    r"XXX",
 ]
+
+
+def load_best_practice_patterns(config_path: Path | None = None, dataset_path: Path | None = None) -> List[str]:
+    """Load patterns from config and optional dataset."""
+
+    patterns: List[str] = []
+    cfg = config_path or Path("config/audit_patterns.json")
+    if cfg.exists():
+        try:
+            data = json.loads(cfg.read_text(encoding="utf-8"))
+            patterns.extend(str(p) for p in data.get("patterns", []))
+        except Exception as exc:  # pragma: no cover - config errors
+            log_message(__name__, f"{TEXT['error']} pattern load failed: {exc}")
+
+    dataset = dataset_path or Path(os.getenv("GH_COPILOT_PATTERN_DATASET", ""))
+    if dataset and dataset.exists():
+        try:
+            data = json.loads(dataset.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                patterns.extend(str(p) for p in data.get("patterns", []))
+            elif isinstance(data, list):
+                patterns.extend(str(p) for p in data)
+        except Exception as exc:  # pragma: no cover - dataset errors
+            log_message(__name__, f"{TEXT['error']} dataset load failed: {exc}")
+
+    return patterns
 
 
 # Database-first: fetch placeholder patterns from production.db
@@ -115,8 +146,10 @@ def log_findings(
                 placeholder_type TEXT,
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                author TEXT,
                 resolved BOOLEAN DEFAULT 0,
                 resolved_timestamp DATETIME,
+                resolved_by TEXT,
                 status TEXT DEFAULT 'open',
                 removal_id INTEGER
             )
@@ -152,8 +185,10 @@ def log_findings(
                 placeholder_type TEXT,
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                author TEXT,
                 resolved BOOLEAN DEFAULT 0,
                 resolved_timestamp DATETIME,
+                resolved_by TEXT,
                 status TEXT DEFAULT 'open',
                 removal_id INTEGER
             )
@@ -163,11 +198,16 @@ def log_findings(
         cur = conn.execute(
             "SELECT rowid, file_path, line_number, placeholder_type, context FROM todo_fixme_tracking WHERE resolved=0"
         )
+        author = os.getenv("GH_COPILOT_USER", getpass.getuser())
         for rowid, fpath, line, ptype, ctx in cur.fetchall():
             if (fpath, line, ptype, ctx) not in result_keys:
                 conn.execute(
-                    "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, status='resolved' WHERE rowid=?",
-                    (datetime.now().isoformat(), rowid),
+                    "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, resolved_by=?, status='resolved' WHERE rowid=?",
+                    (
+                        datetime.now().isoformat(),
+                        author,
+                        rowid,
+                    ),
                 )
         if not update_resolutions:
             for row in results:
@@ -177,21 +217,23 @@ def log_findings(
                     key,
                 )
                 if not cur.fetchone():
+                    author = os.getenv("GH_COPILOT_USER", getpass.getuser())
                     values = (
                         row["file"],
                         row["line"],
                         row["pattern"],
                         row["context"],
                         datetime.now().isoformat(),
+                        author,
                     )
                     conn.execute(
                         "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
                         " VALUES (?, ?, ?, ?, ?)",
-                        values,
+                        values[:-1],
                     )
                     conn.execute(
-                        "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp, status)"
-                        " VALUES (?, ?, ?, ?, ?, 'open')",
+                        "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp, author, status)"
+                        " VALUES (?, ?, ?, ?, ?, ?, 'open')",
                         values,
                     )
         conn.commit()
@@ -201,16 +243,19 @@ def log_findings(
 def update_dashboard(count: int, dashboard_dir: Path, analytics_db: Path) -> None:
     """Write summary JSON to dashboard/compliance directory."""
     dashboard_dir.mkdir(parents=True, exist_ok=True)
+    open_count = count
     resolved = 0
     if analytics_db.exists():
         with sqlite3.connect(analytics_db) as conn:
+            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
+            open_count = cur.fetchone()[0]
             cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
             resolved = cur.fetchone()[0]
-    compliance = max(0, 100 - count)
-    status = "complete" if count == 0 else "issues_pending"
+    compliance = max(0, 100 - open_count)
+    status = "complete" if open_count == 0 else "issues_pending"
     data = {
         "timestamp": datetime.now().isoformat(),
-        "findings": count,
+        "findings": open_count,
         "resolved_count": resolved,
         "compliance_score": compliance,
         "progress_status": status,
@@ -283,6 +328,31 @@ def rollback_last_entry(db_path: Path) -> bool:
     return removed
 
 
+def rollback_audit_entry(db_path: Path, entry_id: int) -> bool:
+    """Rollback a specific audit entry by rowid."""
+    if not db_path.exists():
+        return False
+    removed = False
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.execute(
+            "SELECT rowid FROM todo_fixme_tracking WHERE rowid=?",
+            (entry_id,),
+        )
+        row = cur.fetchone()
+        if row:
+            conn.execute(
+                "DELETE FROM todo_fixme_tracking WHERE rowid=?",
+                (entry_id,),
+            )
+            conn.execute(
+                "DELETE FROM code_audit_log WHERE rowid=?",
+                (entry_id,),
+            )
+            conn.commit()
+            removed = True
+    return removed
+
+
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     """Calculate estimated time to completion."""
     elapsed = time.time() - start_time
@@ -315,9 +385,7 @@ def auto_remove_placeholders(
             if 0 <= idx < len(lines):
                 lines[idx] = re.sub(r"#\s*(TODO|FIXME).*", "", lines[idx])
         new_text = "\n".join(lines)
-        new_text = remove_unused_placeholders(
-            new_text, production_db, analytics_db, timeout_minutes=1
-        )
+        new_text = remove_unused_placeholders(new_text, production_db, analytics_db, timeout_minutes=1)
         if new_text != text:
             path.write_text(new_text, encoding="utf-8")
             logger.log_change(path, "Auto placeholder cleanup", 1.0)
@@ -338,6 +406,8 @@ def main(
     exclude_dirs: Optional[List[str]] = None,
     update_resolutions: bool = False,
     apply_fixes: bool = False,
+    dataset_path: Optional[str] = None,
+    export_results: Optional[str] = None,
 ) -> bool:
     """Entry point for placeholder auditing with full enterprise compliance.
 
@@ -350,6 +420,11 @@ def main(
         corrections.
     """
     # Visual processing indicators: start time, process ID, anti-recursion validation
+    if os.getenv("GH_COPILOT_TEST_MODE") == "1":
+        simulate = True
+        update_resolutions = True
+        log_message(__name__, "[TEST MODE] Simulation enabled")
+
     start_time = time.time()
     process_id = os.getpid()
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -366,18 +441,18 @@ def main(
     production = Path(production_db or workspace / "databases" / "production.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
 
-    # Database-first: fetch patterns from production.db
-    patterns = DEFAULT_PATTERNS + fetch_db_placeholders(production)
+    # Database-first: fetch patterns from production.db and config
+    patterns = (
+        DEFAULT_PATTERNS
+        + fetch_db_placeholders(production)
+        + load_best_practice_patterns(dataset_path=Path(dataset_path) if dataset_path else None)
+    )
     timeout = timeout_minutes * 60 if timeout_minutes else None
 
     # Scan files with progress bar and ETC calculation
-    exclude_list = ["builds", "archive"] if exclude_dirs is None else exclude_dirs
+    exclude_list = [] if exclude_dirs is None else exclude_dirs
     exclude = {workspace / d for d in exclude_list}
-    files = [
-        f
-        for f in workspace.rglob("*")
-        if f.is_file() and not any(str(f).startswith(str(p)) for p in exclude)
-    ]
+    files = [f for f in workspace.rglob("*") if f.is_file() and not any(str(f).startswith(str(p)) for p in exclude)]
     results: List[Dict] = []
     with tqdm(total=len(files), desc=f"{TEXT['progress']} scanning", unit="file") as bar:
         for idx, file in enumerate(files, 1):
@@ -412,8 +487,11 @@ def main(
 
     # Log findings to analytics.db
     log_findings(results, analytics, simulate=simulate, update_resolutions=update_resolutions)
+    if export_results:
+        Path(export_results).write_text(json.dumps(results, indent=2), encoding="utf-8")
     if apply_fixes and not simulate:
         auto_remove_placeholders(results, production, analytics)
+    SecondaryCopilotValidator().validate_corrections([r["file"] for r in results])
     # Update dashboard/compliance
     if not simulate:
         update_dashboard(len(results), dashboard, analytics)
@@ -446,6 +524,11 @@ if __name__ == "__main__":
     parser.add_argument("--timeout-minutes", type=int, default=30, help="Scan timeout in minutes")
     parser.add_argument("--simulate", action="store_true", help="Run in test mode without writes")
     parser.add_argument(
+        "--test-mode",
+        action="store_true",
+        help="Enable test mode (sets GH_COPILOT_TEST_MODE=1 and skips DB writes)",
+    )
+    parser.add_argument(
         "--exclude-dir",
         action="append",
         dest="exclude_dirs",
@@ -462,16 +545,61 @@ if __name__ == "__main__":
         action="store_true",
         help="Automatically remove placeholders and log corrections",
     )
+    parser.add_argument(
+        "--cleanup",
+        action="store_true",
+        help="Alias for --apply-fixes",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Alias for --simulate",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Ignore confirmation prompts when cleaning",
+    )
+    parser.add_argument(
+        "--rollback-last",
+        action="store_true",
+        help="Rollback the most recent audit entry",
+    )
     args = parser.parse_args()
+    if args.rollback_id is not None:
+        if rollback_audit_entry(Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db"), args.rollback_id):
+            print("Rollback complete")
+            raise SystemExit(0)
+        raise SystemExit(1)
+    if args.rollback_last:
+        result = rollback_last_entry(Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db"))
+        print(json.dumps({"rollback": result}))
+        raise SystemExit(0 if result else 1)
+    if args.test_mode:
+        os.environ["GH_COPILOT_TEST_MODE"] = "1"
+        args.simulate = True
+    if args.cleanup:
+        args.apply_fixes = True
+    if args.dry_run:
+        args.simulate = True
     success = main(
         workspace_path=args.workspace_path,
         analytics_db=args.analytics_db,
         production_db=args.production_db,
         dashboard_dir=args.dashboard_dir,
         timeout_minutes=args.timeout_minutes,
-        simulate=args.simulate,
+        simulate=args.simulate or args.dry_run,
         exclude_dirs=args.exclude_dirs,
         update_resolutions=args.update_resolutions,
         apply_fixes=args.apply_fixes,
+        dataset_path=args.dataset_path,
+        export_results=args.export_results,
     )
+    summary = {
+        "workspace": args.workspace_path or str(Path.cwd()),
+        "cleanup": args.apply_fixes,
+        "dry_run": args.simulate,
+        "result": success,
+    }
+    print(json.dumps(summary))
     raise SystemExit(0 if success else 1)
