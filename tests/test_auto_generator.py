@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from pathlib import Path
 
@@ -33,6 +34,7 @@ def test_auto_generator_cluster_representatives(tmp_path: Path, monkeypatch) -> 
 
 
 def test_pattern_templates_loaded(tmp_path: Path) -> None:
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     analytics_db, completion_db = create_test_dbs(tmp_path)
     generator = TemplateAutoGenerator(analytics_db, completion_db)
     assert any("DatabaseFirstOperator" in t for t in generator.templates)
