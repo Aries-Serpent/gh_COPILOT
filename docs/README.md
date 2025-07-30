@@ -20,7 +20,7 @@ The session manager records the update in `production.db` and writes a log file 
 
 After updating documentation, execute
 `python -m scripts.docs_metrics_validator`. The validator compares the numbers in
-`README.md`, `documentation/generated/README.md`, and the technical whitepaper
+`README.md`, `documentation/generated/README.md`, and the technical whitepaper (`docs/COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md`)
 against the real database values. Pass `--db-path` to override the database
 location. The command exits with an error if any values are inconsistent. The
 alias script `scripts/docs_metrics_validator.py` remains available for legacy
