@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Enterprise compliance dashboard with real-time metrics."""
+
 from __future__ import annotations
 
 import json
@@ -18,10 +19,7 @@ COMPLIANCE_DIR = Path("dashboard/compliance")
 app = Flask(__name__)
 LOG_FILE = Path("logs/dashboard") / "dashboard.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()]
-)
+logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
 
 
 def _fetch_metrics() -> Dict[str, Any]:
@@ -50,6 +48,7 @@ def _fetch_rollbacks() -> List[Dict[str, Any]]:
         except json.JSONDecodeError:
             logging.warning("Invalid correction summary JSON")
     return records
+
 
 @app.get("/compliance")
 def compliance() -> Any:
@@ -102,8 +101,6 @@ def metrics_stream() -> Response:
             yield f"data: {json.dumps(metrics)}\n\n"
 
     return Response(generate(), mimetype="text/event-stream")
-
-
 
 
 @app.get("/rollback_alerts")

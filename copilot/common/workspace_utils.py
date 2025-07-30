@@ -4,7 +4,6 @@
 import os
 from pathlib import Path
 from typing import Optional
-import logging
 
 DEFAULT_ENV_VAR = "GH_COPILOT_WORKSPACE"
 
