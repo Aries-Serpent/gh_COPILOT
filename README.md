@@ -101,8 +101,10 @@ chmod +x /usr/local/bin/clw
 ls -l /usr/local/bin/clw
 
 ### OpenAI Connector
-The repository provides `github_integration/openai_connector.py` for OpenAI API calls.
-Set `OPENAI_API_KEY` in your `.env` to enable these helpers.
+The repository provides `github_integration/openai_connector.py` for OpenAI API
+calls using the `OpenAIClient` helper in
+`third_party/openai_client.py`. Set `OPENAI_API_KEY` in your `.env` to enable
+these helpers.
 
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
