@@ -97,6 +97,7 @@ class EnterpriseDocumentationManager:
                 """
             )
             with tqdm(total=len(docs), desc=f"{TEXT_INDICATORS['progress']} docs", unit="doc") as bar:
+                cross_links = 0
                 for doc_id, content in docs:
                     base_text = template.replace("{content}", content) if template else content
                     score = self.calculate_compliance(base_text)
@@ -111,20 +112,34 @@ class EnterpriseDocumentationManager:
                         test_mode=False,
                     )
                     if score < 60.0:
-                        self.logger.info(
-                            f"{TEXT_INDICATORS['info']} Skipping {doc_id} due to low score {score:.2f}"
-                        )
+                        self.logger.info(f"{TEXT_INDICATORS['info']} Skipping {doc_id} due to low score {score:.2f}")
                         bar.update(1)
                         continue
                     main_path = None
                     for fmt in formats:
                         path = self.output_dir / f"{doc_id}.{fmt}"
-                        links = " | ".join(f"{doc_id}.{f}" for f in formats if f != fmt)
-                        text = f"Linked: {links}\n\n{base_text}"
-                        path.write_text(text)
+                        links = [self.output_dir / f"{doc_id}.{f}" for f in formats if f != fmt]
+                        links_text = " | ".join(p.name for p in links)
+                        comp_link = f"analytics://correction_logs/{doc_id}"
+                        audit_link = f"analytics://audit_log/{doc_id}"
+                        body = f"Compliance Log: {comp_link}\nAudit Record: {audit_link}\nLinked: {links_text}\n\n{base_text}"
+                        if fmt == "html":
+                            html_body = body.replace("\n", "<br>")
+                            text = f"<html><body>{html_body}</body></html>"
+                        else:
+                            text = body
+                        path.write_text(text, encoding="utf-8")
                         generated.append(path)
                         if main_path is None:
                             main_path = path
+                        for link in links:
+                            _log_event(
+                                {"file_path": str(path), "linked_path": str(link)},
+                                table="cross_link_events",
+                                db_path=self.generator.analytics_db,
+                                test_mode=False,
+                            )
+                            cross_links += 1
                     cur.execute(
                         """
                         INSERT INTO documentation_status (doc_id, path, generated_at)
@@ -136,6 +151,12 @@ class EnterpriseDocumentationManager:
                         (doc_id, str(main_path)),
                     )
                     bar.update(1)
+                _log_event(
+                    {"actions": len(docs), "links": cross_links},
+                    table="cross_link_summary",
+                    db_path=self.generator.analytics_db,
+                    test_mode=False,
+                )
             conn.commit()
         self.logger.info(f"{TEXT_INDICATORS['success']} Generated {len(generated)} {doc_type} files")
         return generated
