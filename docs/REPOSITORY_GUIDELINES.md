@@ -141,6 +141,11 @@ make test   # Preferred test aggregator, combines unit and integration tests
 pytest -v   # Alternative for verbose test output
 ```
 
+### Lint Configuration
+The `.flake8` file at the repository root is the single source of lint rules.
+`pyproject.toml` mirrors these settings for Ruff. When adjusting lint
+preferences, update `.flake8` first and sync `pyproject.toml` accordingly.
+
 ---
 
 ## ARCHIVAL POLICY

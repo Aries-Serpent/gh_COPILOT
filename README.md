@@ -784,6 +784,8 @@ make test
 # Run linter
 ruff format .
 ruff check .
+# `.flake8` is the canonical lint configuration. Update it first and mirror any
+# changes in `pyproject.toml` to keep `ruff` and `flake8` consistent.
 
 # Enterprise validation
 python -m pytest tests/enterprise/ -v
