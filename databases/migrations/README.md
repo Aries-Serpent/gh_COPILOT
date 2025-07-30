@@ -9,6 +9,8 @@
 - `add_violation_logs.sql`: Adds `violation_logs` table for compliance issues.
 - `add_rollback_logs.sql`: Adds `rollback_logs` table recording restorations.
 - `add_corrections.sql`: Adds `corrections` table used for compliance metrics.
+- `add_placeholder_removals.sql`: Adds `placeholder_removals` table for tracking removed placeholders.
+- `add_size_violations.sql`: Adds `size_violations` table tracking database size breaches.
 - `add_unified_wrapup_sessions.sql`: Adds `unified_wrapup_sessions` table used
   by wrap-up orchestrators.
 - `add_placeholder_removals.sql`: Adds `placeholder_removals` table used when
@@ -26,6 +28,8 @@ sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_corrections.sql
+sqlite3 databases/analytics.db < databases/migrations/add_placeholder_removals.sql
+sqlite3 databases/analytics.db < databases/migrations/add_size_violations.sql
 sqlite3 databases/analytics.db < databases/migrations/add_unified_wrapup_sessions.sql
 sqlite3 databases/analytics.db < databases/migrations/add_placeholder_removals.sql
 sqlite3 databases/analytics.db < databases/migrations/add_size_violations.sql

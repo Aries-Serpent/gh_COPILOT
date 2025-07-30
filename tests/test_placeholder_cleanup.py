@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 import scripts.code_placeholder_audit as audit
 
