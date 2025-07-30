@@ -1,6 +1,9 @@
 # QUANTUM PERFORMANCE METRICS
 ## Comprehensive Performance Analysis
 
+> **Note**
+> All benchmarks are generated using the simulator unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+
 ### Baseline Performance Comparison
 
 | Metric | Classical | Quantum | Improvement |

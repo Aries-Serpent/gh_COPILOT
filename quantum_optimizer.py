@@ -60,6 +60,9 @@ class QuantumOptimizer:
     - Provides QAOA and VQE stubs if Qiskit is available
     - Unified run interface with progress reporting
     - Logs optimization metrics for compliance and reproducibility
+    
+    Note:
+        All quantum routines execute in simulation unless `qiskit-ibm-provider` is installed and configured with `QISKIT_IBM_TOKEN`.
     """
 
     def __init__(self, objective_function: Callable, variable_bounds: List[Tuple[float, float]], method: str = "simulated_annealing", options: Optional[Dict[str, Any]] = None, backend: Any = None, use_hardware: bool = False):
