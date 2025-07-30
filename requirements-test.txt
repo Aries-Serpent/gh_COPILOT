@@ -4,7 +4,7 @@ psutil
 tqdm
 numpy
 scikit-learn
-Flask
+Flask==3.1.1
 qiskit>=1.4,<2.0
 qiskit-aer==0.17.1
 qiskit-machine-learning>=0.6.0
