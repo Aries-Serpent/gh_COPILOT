@@ -2,16 +2,51 @@
 <title>Compliance Dashboard</title>
 <h1>Compliance Dashboard</h1>
 <div id="progress">Loading...</div>
-<h2>Metrics</h2>
-<ul>
-{% for entry in metrics %}
-<li>{{ entry }}</li>
-{% endfor %}
-</ul>
+<div>
+    <strong>Placeholder Removals:</strong> <span id="placeholder_removal">0</span><br>
+    <strong>Open Placeholders:</strong> <span id="open_placeholders">0</span><br>
+    <strong>Compliance Score:</strong> <span id="compliance_score">0.000</span>
+</div>
+<h2>Violations</h2>
+<ul id="violations"></ul>
+<h2>Rollbacks</h2>
+<ul id="rollbacks"></ul>
 <p><a href="/dashboard/compliance">Compliance Metrics</a></p>
-<h2>Compliance</h2>
-<ul>
-{% for key, value in compliance.items() %}
-<li>{{ key }}: {{ value }}</li>
-{% endfor %}
-</ul>
+<script>
+function updateMetrics(data){
+    document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
+    document.getElementById('open_placeholders').textContent = data.open_placeholders;
+    document.getElementById('compliance_score').textContent = data.compliance_score.toFixed(3);
+}
+function updateAlerts(data){
+    const v = document.getElementById('violations');
+    v.innerHTML = '';
+    data.violations.forEach(a => {
+        const li = document.createElement('li');
+        li.textContent = a.timestamp + ' - ' + a.details;
+        v.appendChild(li);
+    });
+    const r = document.getElementById('rollbacks');
+    r.innerHTML = '';
+    data.rollbacks.forEach(a => {
+        const li = document.createElement('li');
+        li.textContent = a.timestamp + ' - ' + a.target + (a.backup ? '(' + a.backup + ')' : '');
+        r.appendChild(li);
+    });
+}
+window.onload = function(){
+    if(window.EventSource){
+        const es = new EventSource('/metrics_stream');
+        es.onmessage = function(evt){
+            const metrics = JSON.parse(evt.data);
+            updateMetrics(metrics);
+            fetch('/alerts').then(r => r.json()).then(updateAlerts);
+        };
+    } else {
+        setInterval(function(){
+            fetch('/metrics').then(r => r.json()).then(updateMetrics);
+            fetch('/alerts').then(r => r.json()).then(updateAlerts);
+        }, 5000);
+    }
+};
+</script>

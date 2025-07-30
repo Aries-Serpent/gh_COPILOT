@@ -16,6 +16,8 @@ from pathlib import Path
 from web_gui.scripts.flask_apps.enterprise_dashboard import (
     app,
     _fetch_metrics,
+    _fetch_alerts,
+    metrics_stream,
 )
 
 ANALYTICS_DB = Path("databases/analytics.db")
@@ -45,7 +47,7 @@ def _fetch_correction_history(limit: int = 5) -> list[dict[str, str | float]]:
                 logging.error("History fetch error: %s", exc)
     return history
 
-__all__ = ["app", "main"]
+__all__ = ["app", "main", "metrics_stream"]
 
 
 def _validate_environment() -> None:
@@ -65,6 +67,7 @@ def main() -> None:
     logging.info("Dashboard starting at %s", datetime.utcnow().isoformat())
     _validate_environment()
     logging.info("Startup metrics: %s", _fetch_metrics())
+    logging.info("Startup alerts: %s", _fetch_alerts())
     logging.info("Recent corrections: %s", _fetch_correction_history())
     port = int(os.getenv("FLASK_RUN_PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=bool(__name__ == "__main__"))
