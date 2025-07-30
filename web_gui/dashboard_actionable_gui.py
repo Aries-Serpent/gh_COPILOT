@@ -58,6 +58,20 @@ def get_corrections():
     return jsonify(data)
 
 
+@app.get("/compliance")
+def get_compliance():
+    """Return combined metrics and correction summary."""
+    metrics = fetch_db_metrics()
+    summary_file = CORRECTIONS_DIR / "correction_summary.json"
+    corrections = []
+    if summary_file.exists():
+        try:
+            corrections = json.loads(summary_file.read_text()).get("corrections", [])
+        except json.JSONDecodeError:
+            corrections = []
+    return jsonify({"metrics": metrics, "corrections": corrections})
+
+
 @app.get("/violations")
 def get_violations():
     logs = []

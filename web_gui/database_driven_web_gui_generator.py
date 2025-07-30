@@ -59,7 +59,46 @@ class EnterpriseDatabaseProcessor:
     def process_operations(self, cursor) -> bool:
         """Process database operations"""
         try:
-            # Implementation for database operations
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS web_gui_summary (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    db_name TEXT NOT NULL,
+                    table_name TEXT NOT NULL,
+                    row_count INTEGER NOT NULL,
+                    timestamp TEXT NOT NULL
+                )
+                """
+            )
+
+            db_dir = self.database_path.parent
+            for db_file in db_dir.glob("*.db"):
+                with sqlite3.connect(db_file) as src:
+                    src_cursor = src.cursor()
+                    tables = src_cursor.execute(
+                        "SELECT name FROM sqlite_master WHERE type='table'"
+                    ).fetchall()
+                    for (table_name,) in tables:
+                        try:
+                            count = src_cursor.execute(
+                                f"SELECT COUNT(*) FROM {table_name}"
+                            ).fetchone()[0]
+                        except Exception:
+                            count = 0
+                        cursor.execute(
+                            """
+                            INSERT INTO web_gui_summary (
+                                db_name, table_name, row_count, timestamp
+                            ) VALUES (?, ?, ?, ?)
+                            """,
+                            (
+                                db_file.name,
+                                table_name,
+                                count,
+                                datetime.now().isoformat(),
+                            ),
+                        )
+
             return True
         except sqlite3.Error as e:
             self.logger.error(f"{TEXT_INDICATORS['error']} Operation failed: {e}")
