@@ -14,10 +14,8 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch):
     with sqlite3.connect(analytics_db) as conn:
         conn.execute("CREATE TABLE todo_fixme_tracking (resolved INTEGER)")
         conn.execute("INSERT INTO todo_fixme_tracking VALUES (1)")
-        conn.execute(
-            "CREATE TABLE correction_logs (file_path TEXT, compliance_score REAL, ts TEXT)"
-        )
-        conn.execute("INSERT INTO correction_logs VALUES ('test.py', 0.9, 'ts')")
+        conn.execute("CREATE TABLE correction_logs (compliance_score REAL)")
+        conn.execute("INSERT INTO correction_logs VALUES (0.9)")
         conn.execute(
             "CREATE TABLE violation_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, details TEXT)"
         )

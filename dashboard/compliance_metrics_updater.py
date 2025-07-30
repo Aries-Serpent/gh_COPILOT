@@ -111,14 +111,8 @@ class ComplianceMetricsUpdater:
                     metrics["open_placeholders"] = cur.fetchone()[0]
                 metrics["placeholder_removal"] = metrics["resolved_placeholders"]
 
-                # compliance score is derived from correction_logs
-                if cur.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name='correction_logs'"
-                ).fetchone():
-                    cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
-                    avg_score = cur.fetchone()[0]
-                else:
-                    avg_score = None
+                cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
+                avg_score = cur.fetchone()[0]
                 metrics["compliance_score"] = float(avg_score) if avg_score is not None else 0.0
 
                 cur.execute("SELECT COUNT(*) FROM violation_logs")

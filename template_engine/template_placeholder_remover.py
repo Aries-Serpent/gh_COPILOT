@@ -123,6 +123,7 @@ def remove_unused_placeholders(
                 resolved_timestamp DATETIME
             )"""
         )
+        etc = "N/A"
         with tqdm(total=total_steps, desc="Removing Placeholders", unit="ph") as bar:
             for idx, ph in enumerate(found, 1):
                 phase = f"Removing placeholder {ph}"
