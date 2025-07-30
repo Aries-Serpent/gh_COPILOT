@@ -55,6 +55,29 @@ def _fetch_rollbacks() -> List[Dict[str, Any]]:
     return records
 
 
+def _fetch_correction_history(limit: int = 5) -> List[Dict[str, Any]]:
+    history: List[Dict[str, Any]] = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT file_path, compliance_score, ts FROM correction_logs "
+                    "ORDER BY ts DESC LIMIT ?",
+                    (limit,),
+                )
+                history = [
+                    {
+                        "file_path": row[0],
+                        "compliance_score": row[1],
+                        "timestamp": row[2],
+                    }
+                    for row in cur.fetchall()
+                ]
+            except sqlite3.Error as exc:
+                logging.error("History fetch error: %s", exc)
+    return history
+
+
 @app.get("/compliance")
 def compliance() -> Any:
     with tqdm(total=1, desc="compliance", unit="step") as pbar:
@@ -147,6 +170,20 @@ def reports() -> Any:
     etc = f"ETC: {calculate_etc(start, 1, 1)}"
     logging.info("Reports served | %s", etc)
     return jsonify(data)
+
+
+@app.get("/realtime_metrics")
+def realtime_metrics() -> Any:
+    data = {
+        "metrics": _fetch_metrics(),
+        "corrections": _fetch_correction_history(),
+    }
+    return jsonify(data)
+
+
+@app.get("/correction_history")
+def correction_history() -> Any:
+    return jsonify(_fetch_correction_history())
 
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
