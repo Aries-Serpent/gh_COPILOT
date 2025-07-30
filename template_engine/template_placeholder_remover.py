@@ -115,13 +115,12 @@ def remove_unused_placeholders(
                 if ph not in valid:
                     pattern = r"{{\s*%s\s*}}" % re.escape(ph)
                     result = re.sub(pattern, "", result)
-                    insert_event(
+                    removal_id = insert_event(
                         {"placeholder": ph, "ts": datetime.utcnow().isoformat()},
                         "placeholder_removals",
                         db_path=analytics_db,
                         test_mode=False,
                     )
-                    removal_id = cur.lastrowid
                     conn.execute(
                         "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, status='resolved', removal_id=?"
                         " WHERE placeholder_type=? AND resolved=0",
