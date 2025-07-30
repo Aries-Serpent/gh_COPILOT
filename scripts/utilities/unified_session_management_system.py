@@ -9,19 +9,12 @@ Enterprise Standards Compliance:
 - Visual processing indicators
 """
 
-
 from copilot.common.workspace_utils import get_workspace_path
 
 from session_protocol_validator import SessionProtocolValidator
-import logging
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class UnifiedSessionManagementSystem:
