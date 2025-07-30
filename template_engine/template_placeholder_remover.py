@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import List
 
 from tqdm import tqdm
-from utils.log_utils import ensure_tables, insert_event
+from utils.log_utils import ensure_tables
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -115,11 +115,9 @@ def remove_unused_placeholders(
                 if ph not in valid:
                     pattern = r"{{\s*%s\s*}}" % re.escape(ph)
                     result = re.sub(pattern, "", result)
-                    removal_id = insert_event(
-                        {"placeholder": ph, "ts": datetime.utcnow().isoformat()},
-                        "placeholder_removals",
-                        db_path=analytics_db,
-                        test_mode=False,
+                    cur = conn.execute(
+                        "INSERT INTO placeholder_removals (placeholder, ts) VALUES (?, ?)",
+                        (ph, datetime.utcnow().isoformat()),
                     )
                     conn.execute(
                         "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, status='resolved', removal_id=?"
