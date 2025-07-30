@@ -155,9 +155,7 @@ def ensure_tables(db_path: Path, tables: Iterable[str], *, test_mode: bool = Tru
         if not schema:
             continue
         if test_mode:
-            logging.getLogger(__name__).info(
-                "Simulating table creation: %s in %s", table, db_path
-            )
+            logging.getLogger(__name__).info("Simulating table creation: %s in %s", table, db_path)
             continue
         db_path.parent.mkdir(parents=True, exist_ok=True)
         with _log_lock, sqlite3.connect(db_path) as conn:
@@ -175,9 +173,7 @@ def insert_event(
     """Insert ``event`` into the specified table and return the new row id."""
     ensure_tables(db_path, [table], test_mode=test_mode)
     if test_mode:
-        logging.getLogger(__name__).debug(
-            "Simulated insert into %s: %s", table, event
-        )
+        logging.getLogger(__name__).debug("Simulated insert into %s: %s", table, event)
         return -1
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with _log_lock, sqlite3.connect(db_path) as conn:
@@ -250,9 +246,7 @@ def _log_event(
     duration = time.time() - start_ts
     logger = logging.getLogger(__name__)
     status = "SIMULATED" if test_mode else "LOGGED"
-    logger.info(
-        "analytics.db log event: %s | %.2fs | allowed: %s", json.dumps(payload), duration, test_result
-    )
+    logger.info("analytics.db log event: %s | %.2fs | allowed: %s", json.dumps(payload), duration, test_result)
     if echo:
         print(
             f"[LOG][{payload['timestamp']}][{table}][{status}] {json.dumps(payload)}",
@@ -392,13 +386,26 @@ def log_stream(
             continue
         with sqlite3.connect(db_path) as conn:
             conn.row_factory = sqlite3.Row
-            rows = conn.execute(
-                f"SELECT * FROM {table} WHERE id > ? ORDER BY id ASC", (last_id,)
-            )
+            rows = conn.execute(f"SELECT * FROM {table} WHERE id > ? ORDER BY id ASC", (last_id,))
             for row in rows:
                 last_id = row["id"]
                 yield f"data: {json.dumps(dict(row))}\n\n"
         time.sleep(poll_interval)
+
+
+def sse_event_stream(
+    table: str = DEFAULT_LOG_TABLE,
+    *,
+    db_path: Path = DEFAULT_ANALYTICS_DB,
+    poll_interval: float = 1.0,
+) -> Iterable[str]:
+    """Return a generator yielding Server-Sent Event strings.
+
+    This helper wraps :func:`log_stream` so the result can be passed
+    directly to :class:`flask.Response` for SSE endpoints.
+    """
+
+    return log_stream(table, db_path=db_path, poll_interval=poll_interval)
 
 
 def _list_events(
@@ -444,6 +451,56 @@ __all__ = [
     "log_event",
     "stream_events",
     "log_stream",
+    "sse_event_stream",
+    "start_websocket_broadcast",
     "_log_event",
     "_log_audit_event",
 ]
+
+
+def start_websocket_broadcast(
+    host: str = "localhost",
+    port: int = 8765,
+    *,
+    table: str = DEFAULT_LOG_TABLE,
+    db_path: Path = DEFAULT_ANALYTICS_DB,
+    poll_interval: float = 1.0,
+) -> None:
+    """Start a simple WebSocket server broadcasting log events.
+
+    The server runs only when ``LOG_WEBSOCKET_ENABLED`` is ``"1"``.
+    Clients receive the same payload as :func:`sse_event_stream`.
+    """
+
+    if os.environ.get("LOG_WEBSOCKET_ENABLED") != "1":
+        return
+
+    import asyncio
+    import websockets
+
+    clients: set = set()
+
+    async def _producer() -> None:
+        for event in log_stream(table, db_path=db_path, poll_interval=poll_interval):
+            for ws in list(clients):
+                try:
+                    await ws.send(event)
+                except websockets.ConnectionClosed:
+                    clients.discard(ws)
+
+    async def _handler(websocket: websockets.WebSocketServerProtocol) -> None:
+        clients.add(websocket)
+        try:
+            await websocket.wait_closed()
+        finally:
+            clients.discard(websocket)
+
+    async def _main() -> None:
+        server = await websockets.serve(_handler, host, port)
+        try:
+            await _producer()
+        finally:
+            server.close()
+            await server.wait_closed()
+
+    asyncio.run(_main())

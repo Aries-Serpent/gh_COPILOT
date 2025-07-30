@@ -666,6 +666,13 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 # Features: Real-time metrics, database visualization, system monitoring
 ```
 
+### Enable Streaming
+
+Set the environment variable `LOG_WEBSOCKET_ENABLED=1` to allow real-time
+log broadcasting over WebSockets. The dashboard's `/metrics_stream` endpoint
+uses Server-Sent Events by default and works with Flask's ``Response`` when
+`sse_event_stream` is provided from ``utils.log_utils``.
+
 Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
 This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.
 The compliance score is averaged from records in the `correction_logs` table.
