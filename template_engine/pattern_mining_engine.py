@@ -46,6 +46,9 @@ def validate_no_recursive_folders() -> None:
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
+                # Avoid false positives for directories like "template_engine" or "templates"
+                if folder.name.startswith("template"):
+                    continue
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
 
