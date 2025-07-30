@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 
 with patch.dict(os.environ, {"GH_COPILOT_DISABLE_VALIDATION": "1"}):
-    from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+    from enterprise_modules.compliance import validate_enterprise_operation
 
 
 def test_validate_enterprise_operation_disallowed_path(tmp_path: Path) -> None:

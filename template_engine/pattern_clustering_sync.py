@@ -26,7 +26,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from enterprise_modules.compliance import validate_enterprise_operation
 
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "pattern_clustering_sync"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)

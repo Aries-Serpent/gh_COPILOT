@@ -33,9 +33,7 @@ except ModuleNotFoundError:  # pragma: no cover - fallback
     subprocess.check_call([sys.executable, "-m", "pip", "install", "tqdm"])
     from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import (
-    validate_enterprise_operation,
-)
+from enterprise_modules.compliance import validate_enterprise_operation
 from scripts.database.add_code_audit_log import ensure_code_audit_log
 from template_engine.template_placeholder_remover import remove_unused_placeholders
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback

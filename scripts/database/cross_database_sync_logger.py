@@ -15,7 +15,7 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from enterprise_modules.compliance import validate_enterprise_operation
 from utils.logging_utils import setup_enterprise_logging
 
 logger = logging.getLogger(__name__)

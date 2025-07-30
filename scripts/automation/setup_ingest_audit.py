@@ -18,7 +18,7 @@ LOG = logging.getLogger(__name__)
 
 def chunk_anti_recursion_validation() -> None:
     """Validate workspace and backup paths before file operations."""
-    from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+    from enterprise_modules.compliance import validate_enterprise_operation
 
     validate_enterprise_operation()
 

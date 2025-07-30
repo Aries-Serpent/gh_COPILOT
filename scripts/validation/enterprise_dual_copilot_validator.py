@@ -35,7 +35,7 @@ from typing import Any, Dict, List, Optional
 
 from tqdm import tqdm
 import psutil
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import _log_event
 
 # Unicode-compatible file handler (fallback implementation)

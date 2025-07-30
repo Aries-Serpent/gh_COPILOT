@@ -4,12 +4,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from scripts.database.cross_database_sync_logger import log_sync_operation
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from enterprise_modules.compliance import validate_enterprise_operation
 
 
 def test_log_sync_operation(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(
-        "scripts.continuous_operation_orchestrator.validate_enterprise_operation",
+        "enterprise_modules.compliance.validate_enterprise_operation",
         lambda: None,
     )
     db_path = tmp_path / "enterprise_assets.db"

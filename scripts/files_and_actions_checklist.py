@@ -21,7 +21,7 @@ from typing import Dict, List
 
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from enterprise_modules.compliance import validate_enterprise_operation
 
 DEFAULT_FILES = [
     "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md",

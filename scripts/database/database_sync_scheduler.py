@@ -19,7 +19,7 @@ from typing import Iterable, List
 
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from enterprise_modules.compliance import validate_enterprise_operation
 
 from .cross_database_sync_logger import log_sync_operation
 from .unified_database_initializer import initialize_database
