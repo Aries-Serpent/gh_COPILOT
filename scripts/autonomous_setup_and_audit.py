@@ -12,8 +12,8 @@ from typing import Optional
 from tqdm import tqdm
 
 from secondary_copilot_validator import SecondaryCopilotValidator
-
 from scripts.code_placeholder_audit import main as placeholder_audit
+from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from template_engine.template_synchronizer import _compliance_score
 from utils.log_utils import _log_event
 
@@ -60,6 +60,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
     )
 
     analytics_db = Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
+    _log_event({"event": "ingestion_start"}, table="correction_logs", db_path=analytics_db)
 
     conn = sqlite3.connect(db_path)
     try:
@@ -167,20 +168,30 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
             raise RuntimeError("Asset ingestion validation failed")
     except Exception:
         conn.rollback()
+        _log_event({"event": "ingestion_rollback"}, table="rollback_logs", db_path=analytics_db)
         raise
     finally:
         conn.close()
+        _log_event({"event": "ingestion_complete"}, table="correction_logs", db_path=analytics_db)
 
 
 def run_audit(workspace: Path, analytics_db: Path, production_db: Optional[Path], dashboard_dir: Path) -> None:
     """Run placeholder audit with visual progress."""
     LOGGER.info("Starting placeholder audit")
-    placeholder_audit(
-        workspace_path=str(workspace),
-        analytics_db=str(analytics_db),
-        production_db=str(production_db) if production_db else None,
-        dashboard_dir=str(dashboard_dir),
-    )
+    _log_event({"event": "audit_start"}, table="correction_logs", db_path=analytics_db)
+    try:
+        placeholder_audit(
+            workspace_path=str(workspace),
+            analytics_db=str(analytics_db),
+            production_db=str(production_db) if production_db else None,
+            dashboard_dir=str(dashboard_dir),
+        )
+    except Exception:
+        CorrectionLoggerRollback(analytics_db).auto_rollback(dashboard_dir / "placeholder_summary.json", None)
+        _log_event({"event": "audit_failed"}, table="violation_logs", db_path=analytics_db)
+        raise
+    finally:
+        _log_event({"event": "audit_complete"}, table="correction_logs", db_path=analytics_db)
 
 
 def main() -> None:
@@ -198,7 +209,8 @@ def main() -> None:
     run_audit(workspace, analytics_db, production_db, dashboard_dir)
 
     validator = SecondaryCopilotValidator()
-    validator.validate_corrections([__file__])
+    valid = validator.validate_corrections([__file__])
+    _log_event({"event": "secondary_validation", "result": valid}, table="correction_logs", db_path=analytics_db)
 
     LOGGER.info("Automation complete")
 

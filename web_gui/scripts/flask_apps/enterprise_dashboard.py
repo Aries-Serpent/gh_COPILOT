@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Response, jsonify, render_template_string, request
 from tqdm import tqdm
 
 from config.secret_manager import get_secret
@@ -78,6 +78,30 @@ def _fetch_correction_history(limit: int = 5) -> List[Dict[str, Any]]:
     return history
 
 
+def _fetch_alerts(limit: int = 5) -> Dict[str, Any]:
+    alerts = {"violations": [], "rollbacks": []}
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT details, timestamp FROM violation_logs ORDER BY timestamp DESC LIMIT ?",
+                    (limit,),
+                )
+                alerts["violations"] = [
+                    {"details": row[0], "timestamp": row[1]} for row in cur.fetchall()
+                ]
+                cur = conn.execute(
+                    "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT ?",
+                    (limit,),
+                )
+                alerts["rollbacks"] = [
+                    {"target": row[0], "backup": row[1], "timestamp": row[2]} for row in cur.fetchall()
+                ]
+            except sqlite3.Error as exc:
+                logging.error("Alert fetch error: %s", exc)
+    return alerts
+
+
 @app.get("/compliance")
 def compliance() -> Any:
     with tqdm(total=1, desc="compliance", unit="step") as pbar:
@@ -137,6 +161,12 @@ def rollback_alerts() -> Any:
     return jsonify(data)
 
 
+@app.get("/alerts")
+def alerts() -> Any:
+    """Return recent violation and rollback alerts."""
+    return jsonify(_fetch_alerts())
+
+
 @app.get("/dashboard_info")
 def dashboard_info() -> Any:
     start = time.time()
@@ -151,6 +181,19 @@ def dashboard_info() -> Any:
     return jsonify(data)
 
 
+@app.get("/metrics_table")
+def metrics_table() -> Any:
+    metrics = _fetch_metrics()
+    table_html = """
+    <table border='1'>
+        <tr><th>Metric</th><th>Value</th></tr>
+    """
+    for key, value in metrics.items():
+        table_html += f"<tr><td>{key}</td><td>{value}</td></tr>"
+    table_html += "</table>"
+    return render_template_string(table_html)
+
+
 @app.get("/health")
 def health() -> Any:
     start = time.time()
@@ -159,6 +202,11 @@ def health() -> Any:
     etc = f"ETC: {calculate_etc(start, 1, 1)}"
     logging.info("Health check served | %s", etc)
     return jsonify({"status": "ok"})
+
+
+@app.get("/error")
+def error() -> Any:
+    raise RuntimeError("Test error endpoint")
 
 
 @app.get("/reports")

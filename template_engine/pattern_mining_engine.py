@@ -23,6 +23,10 @@ from pathlib import Path
 from typing import List
 
 from tqdm import tqdm
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+
+from .template_synchronizer import _log_audit_real
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -164,6 +168,25 @@ def mine_patterns(
                 if idx % 10 == 0 or idx == total_steps:
                     logging.info(f"Pattern {idx}/{total_steps} stored | ETC: {etc}")
             conn.commit()
+    if patterns:
+        vec = TfidfVectorizer().fit_transform(patterns)
+        model = KMeans(n_clusters=min(len(patterns), 2), n_init="auto", random_state=0)
+        labels = model.fit_predict(vec)
+        with sqlite3.connect(analytics_db) as conn:
+            conn.execute(
+                """CREATE TABLE IF NOT EXISTS pattern_clusters (
+                    pattern TEXT,
+                    cluster INTEGER,
+                    ts TEXT
+                )"""
+            )
+            for pat, label in zip(patterns, labels):
+                conn.execute(
+                    "INSERT INTO pattern_clusters (pattern, cluster, ts) VALUES (?,?,?)",
+                    (pat, int(label), datetime.utcnow().isoformat()),
+                )
+            conn.commit()
+        _log_audit_real(str(analytics_db), f"clusters={len(set(labels))}")
     _log_patterns(patterns, analytics_db)
     logging.info(
         "Pattern mining completed in %.2fs | ETC: %s",

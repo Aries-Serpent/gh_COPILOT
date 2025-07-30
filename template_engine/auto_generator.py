@@ -182,6 +182,12 @@ class TemplateAutoGenerator:
         """Return a quantum-inspired score for ``text`` using helper module."""
         return quantum_text_score(text)
 
+    def _quantum_similarity(self, a: str, b: str) -> float:
+        """Return similarity between two texts using quantum scoring."""
+        score_a = self._quantum_score(a)
+        score_b = self._quantum_score(b)
+        return 1.0 - abs(score_a - score_b)
+
     def _load_production_patterns(self) -> list[str]:
         """Fetch template patterns from ``production.db`` if available."""
         patterns: list[str] = []
@@ -232,6 +238,7 @@ class TemplateAutoGenerator:
     def rank_templates(self, target: str) -> List[str]:
         """Return templates ranked by similarity to ``target``."""
         ranked: List[tuple[str, float]] = []
+        target_q = self._quantum_score(target)
         if self.production_db.exists():
             scores = compute_similarity_scores(
                 target,
@@ -249,13 +256,37 @@ class TemplateAutoGenerator:
                     pats = extract_patterns([text])
                     if any(p in target for p in pats):
                         bonus = 0.1
-                    ranked.append((text, id_to_score[tid] + bonus))
+                    q_sim = 1.0 - abs(self._quantum_score(text) - target_q)
+                    tfidf = self.objective_similarity(target, text)
+                    score = id_to_score[tid] + tfidf + q_sim + bonus
+                    ranked.append((text, score))
+                    _log_event(
+                        {
+                            "event": "rank_eval",
+                            "target": target,
+                            "template_id": tid,
+                            "score": score,
+                        },
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
         if not ranked:
             candidates = self.templates or self.patterns
-            ranked = [
-                (tmpl, self.objective_similarity(target, tmpl) + self._quantum_score(tmpl))
-                for tmpl in candidates
-            ]
+            for tmpl in candidates:
+                tfidf = self.objective_similarity(target, tmpl)
+                q_sim = 1.0 - abs(self._quantum_score(tmpl) - target_q)
+                score = tfidf + q_sim
+                ranked.append((tmpl, score))
+                _log_event(
+                    {
+                        "event": "rank_eval",
+                        "target": target,
+                        "template_id": -1,
+                        "score": score,
+                    },
+                    table="generator_events",
+                    db_path=self.analytics_db,
+                )
         ranked.sort(key=lambda x: x[1], reverse=True)
         return [t for t, _ in ranked]
 

@@ -57,7 +57,22 @@ DEFAULT_PATTERNS = [
     r"pass\b",
     r"NotImplementedError",
     r"placeholder",
+    r"HACK",
+    r"BUG",
+    r"XXX",
 ]
+
+
+def load_best_practice_patterns(config_path: Path | None = None) -> List[str]:
+    """Load additional patterns from config/audit_patterns.json if present."""
+    cfg = config_path or Path("config/audit_patterns.json")
+    if cfg.exists():
+        try:
+            data = json.loads(cfg.read_text(encoding="utf-8"))
+            return [str(p) for p in data.get("patterns", [])]
+        except Exception as exc:  # pragma: no cover - config errors
+            log_message(__name__, f"{TEXT['error']} pattern load failed: {exc}")
+    return []
 
 
 # Database-first: fetch placeholder patterns from production.db
@@ -371,8 +386,12 @@ def main(
     production = Path(production_db or workspace / "databases" / "production.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
 
-    # Database-first: fetch patterns from production.db
-    patterns = DEFAULT_PATTERNS + fetch_db_placeholders(production)
+    # Database-first: fetch patterns from production.db and config
+    patterns = (
+        DEFAULT_PATTERNS
+        + fetch_db_placeholders(production)
+        + load_best_practice_patterns()
+    )
     timeout = timeout_minutes * 60 if timeout_minutes else None
 
     # Scan files with progress bar and ETC calculation
@@ -463,7 +482,17 @@ if __name__ == "__main__":
         action="store_true",
         help="Automatically remove placeholders and log corrections",
     )
+    parser.add_argument(
+        "--rollback-last",
+        action="store_true",
+        help="Rollback the most recent audit entry",
+    )
     args = parser.parse_args()
+    if args.rollback_last:
+        if rollback_last_entry(Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db")):
+            print("Rollback complete")
+            raise SystemExit(0)
+        raise SystemExit(1)
     success = main(
         workspace_path=args.workspace_path,
         analytics_db=args.analytics_db,

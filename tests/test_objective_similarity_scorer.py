@@ -43,6 +43,24 @@ def test_compute_similarity_scores(tmp_path: Path) -> None:
     # Validate DUAL COPILOT pattern: check analytics for score records
     assert validate_scores(objective, expected_count=len(scores), analytics_db=analytics), "DUAL COPILOT validation failed"
 
+
+def test_similarity_scores_with_quantum(tmp_path: Path) -> None:
+    start_time = datetime.now()
+    prod = tmp_path / "production.db"
+    analytics = tmp_path / "analytics.db"
+    with sqlite3.connect(prod) as conn:
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("INSERT INTO code_templates (template_code) VALUES ('foo')")
+    scores = compute_similarity_scores(
+        "foo",
+        prod,
+        analytics,
+        timeout_minutes=1,
+        methods=["tfidf", "quantum"],
+        weights=[0.5, 0.5],
+    )
+    assert scores
+
     # Completion summary
     end_time = datetime.now()
     duration = (end_time - start_time).total_seconds()

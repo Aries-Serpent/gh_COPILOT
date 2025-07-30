@@ -24,7 +24,7 @@ from tqdm import tqdm
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 
-from utils.log_utils import insert_event, ensure_tables
+from utils.log_utils import ensure_tables, insert_event
 
 # Internal helpers
 
@@ -200,6 +200,26 @@ def _log_audit_real(db_name: str, details: str) -> None:
         db_path=ANALYTICS_DB,
         test_mode=False,
     )
+
+
+def run_migrations(db: Path) -> None:
+    """Apply SQL migrations to ``db`` transactionally."""
+    migrations = sorted(Path("databases/migrations").glob("*.sql"))
+    if not migrations:
+        return
+    if not db.exists():
+        logger.warning("Database %s does not exist for migrations", db)
+        return
+    with sqlite3.connect(db) as conn:
+        conn.execute("BEGIN")
+        try:
+            for script in migrations:
+                conn.executescript(script.read_text())
+            conn.commit()
+            logger.info("Migrations applied to %s", db)
+        except sqlite3.Error as exc:
+            conn.rollback()
+            logger.error("Migration failed for %s: %s", db, exc)
 
 
 def _compliance_check(conn: sqlite3.Connection) -> bool:
@@ -433,11 +453,29 @@ if __name__ == "__main__":
         action="store_true",
         help="Cluster templates and use centroids for synchronization",
     )
+    parser.add_argument("--migrate", action="store_true", help="Run migrations before sync")
+    parser.add_argument("--copy", nargs=2, metavar=("SRC", "DST"), help="Copy template")
+    parser.add_argument("--update", nargs=2, metavar=("NAME", "FILE"), help="Update template content")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
     dbs_env = os.getenv("TEMPLATE_SYNC_DBS", "").split(os.pathsep)
     source_dbs = [Path(p) for p in dbs_env if p]
+    if args.migrate:
+        for db in source_dbs:
+            run_migrations(db)
+    if args.copy:
+        src, dst = [Path(p) for p in args.copy]
+        dst.write_text(Path(src).read_text())
+    if args.update:
+        name, file_path = args.update
+        for db in source_dbs:
+            with sqlite3.connect(db) as conn:
+                conn.execute(
+                    "INSERT OR REPLACE INTO templates (name, template_content) VALUES (?, ?)",
+                    (name, Path(file_path).read_text()),
+                )
+                conn.commit()
     if args.real:
         synchronize_templates_real(source_dbs, cluster=args.cluster)
     else:
