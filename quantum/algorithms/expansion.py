@@ -20,10 +20,17 @@ class QuantumLibraryExpansion(QuantumAlgorithmBase):
         if workspace_path is None:
             workspace_path = os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
         super().__init__(workspace_path)
+        self.backend = None
+        self.use_hardware = False
     
     def get_algorithm_name(self) -> str:
         """Get the algorithm name"""
         return "Quantum Library Expansion"
+
+    def set_backend(self, backend, use_hardware: bool = False):
+        """Set quantum backend for execution."""
+        self.backend = backend
+        self.use_hardware = use_hardware
     
     def execute_algorithm(self) -> bool:
         """Execute quantum library expansion demonstration"""
@@ -46,7 +53,7 @@ class QuantumLibraryExpansion(QuantumAlgorithmBase):
             circuit.h([0, 1])
             circuit.measure([0, 1], [0, 1])
 
-            backend = AerSimulator()
+            backend = self.backend or AerSimulator()
             result = backend.run(circuit, shots=200).result()
             counts = result.get_counts()
             self.logger.info(f"{TEXT_INDICATORS['info']} Counts: {counts}")
