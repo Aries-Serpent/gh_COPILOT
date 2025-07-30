@@ -174,7 +174,7 @@ To regenerate enterprise documentation directly from the production database use
 ```bash
 python archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py
 ```
-This script pulls templates from `production.db` and outputs Markdown, HTML and JSON files under `logs/template_rendering/`.
+This script pulls templates from both `documentation.db` and `production.db` and outputs Markdown, HTML and JSON files under `logs/template_rendering/`. Each render is logged to `analytics.db` and progress appears under `dashboard/compliance`.
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
 are thin CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor``.
