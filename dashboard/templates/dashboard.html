@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+    <title>Compliance Dashboard</title>
+    <script>
+        function updateMetrics(data){
+            document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
+            document.getElementById('compliance_score').textContent = data.compliance_score.toFixed(3);
+        }
+        function updateRollbacks(logs){
+            const list = document.getElementById('rollbacks');
+            list.innerHTML = '';
+            logs.forEach(r => {
+                const li = document.createElement('li');
+                li.textContent = r.timestamp + ' - ' + r.target + (r.backup ? ' ('+r.backup+')' : '');
+                list.appendChild(li);
+            });
+        }
+        window.onload = function(){
+            if(!!window.EventSource){
+                const es = new EventSource('/metrics_stream');
+                es.onmessage = function(evt){
+                    const metrics = JSON.parse(evt.data);
+                    fetch('/rollback_alerts').then(r=>r.json()).then(updateRollbacks);
+                    updateMetrics(metrics);
+                };
+            }else{
+                setInterval(function(){
+                    fetch('/metrics').then(r=>r.json()).then(updateMetrics);
+                    fetch('/rollback_alerts').then(r=>r.json()).then(updateRollbacks);
+                },5000);
+            }
+        };
+    </script>
+</head>
+<body>
+<h1>Compliance Dashboard</h1>
+<div>
+    <strong>Placeholder Removals:</strong> <span id="placeholder_removal">0</span><br>
+    <strong>Compliance Score:</strong> <span id="compliance_score">0</span>
+</div>
+<h2>Recent Rollbacks</h2>
+<ul id="rollbacks"></ul>
+</body>
+</html>

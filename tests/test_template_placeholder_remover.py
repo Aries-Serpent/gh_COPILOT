@@ -48,6 +48,11 @@ def test_remove_unused_placeholders(tmp_path: Path) -> None:
 
     # Validate DUAL COPILOT pattern: check analytics for removal records
     assert validate_removals(1, analytics), "DUAL COPILOT validation failed"
+    with sqlite3.connect(analytics) as conn:
+        count = conn.execute(
+            "SELECT COUNT(*) FROM placeholder_removals"
+        ).fetchone()[0]
+    assert count == 1
 
     # Completion summary
     end_time = datetime.now()

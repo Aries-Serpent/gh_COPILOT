@@ -217,6 +217,16 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 python simplified_quantum_integration_orchestrator.py
 ```
 
+To execute algorithms on IBM Quantum hardware install `qiskit-ibm-provider` and
+run:
+
+```bash
+python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
+```
+
+If the provider cannot be initialized the orchestrator automatically falls back
+to simulation.
+
 ### Run Template Matcher
 ```bash
 echo "def foo(): pass" | python scripts/template_matcher.py

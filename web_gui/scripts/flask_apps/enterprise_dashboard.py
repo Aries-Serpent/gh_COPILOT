@@ -7,9 +7,9 @@ import logging
 import sqlite3
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterable, List
 
-from flask import Flask, jsonify
+from flask import Flask, Response, jsonify, request
 from tqdm import tqdm
 
 ANALYTICS_DB = Path("databases/analytics.db")
@@ -83,6 +83,25 @@ def metrics() -> Any:
     etc = f"ETC: {calculate_etc(start, 1, 1)}"
     logging.info("Metrics served | %s", etc)
     return jsonify(data)
+
+
+@app.get("/metrics_stream")
+def metrics_stream() -> Response:
+    """Stream metrics as server-sent events for live updates."""
+
+    once = request.args.get("once") == "1"
+
+    def generate() -> Iterable[str]:
+        metrics = _fetch_metrics()
+        yield f"data: {json.dumps(metrics)}\n\n"
+        if once:
+            return
+        while True:
+            time.sleep(5)
+            metrics = _fetch_metrics()
+            yield f"data: {json.dumps(metrics)}\n\n"
+
+    return Response(generate(), mimetype="text/event-stream")
 
 
 

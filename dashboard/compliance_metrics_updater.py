@@ -115,8 +115,21 @@ class ComplianceMetricsUpdater:
                 cur.execute("SELECT COUNT(*) FROM violation_logs")
                 metrics["violation_count"] = cur.fetchone()[0]
 
-                cur.execute("SELECT COUNT(*) FROM rollback_logs")
-                metrics["rollback_count"] = cur.fetchone()[0]
+                if cur.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='rollback_logs'"
+                ).fetchone():
+                    cur.execute(
+                        "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT 5"
+                    )
+                    metrics["recent_rollbacks"] = [
+                        {"target": r[0], "backup": r[1], "timestamp": r[2]}
+                        for r in cur.fetchall()
+                    ]
+                    cur.execute("SELECT COUNT(*) FROM rollback_logs")
+                    metrics["rollback_count"] = cur.fetchone()[0]
+                else:
+                    metrics["recent_rollbacks"] = []
+                    metrics["rollback_count"] = 0
             except Exception as e:
                 logging.error(f"Error fetching metrics: {e}")
         total_ph = metrics["resolved_placeholders"] + metrics["open_placeholders"]
@@ -149,6 +162,7 @@ class ComplianceMetricsUpdater:
         """Update dashboard/compliance with metrics."""
         self.dashboard_dir.mkdir(parents=True, exist_ok=True)
         dashboard_file = self.dashboard_dir / "metrics.json"
+        rollback_file = self.dashboard_dir / "rollback_logs.json"
         import json
 
         dashboard_content = {
@@ -157,6 +171,10 @@ class ComplianceMetricsUpdater:
             "timestamp": datetime.now().isoformat(),
         }
         dashboard_file.write_text(json.dumps(dashboard_content, indent=2), encoding="utf-8")
+        rollback_file.write_text(
+            json.dumps(metrics.get("recent_rollbacks", []), indent=2),
+            encoding="utf-8",
+        )
         logging.info(f"Dashboard metrics updated: {dashboard_file}")
 
     def _log_update_event(self, metrics: Dict[str, Any]) -> None:
