@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import List
 
 from tqdm import tqdm
+from utils.log_utils import ensure_tables, insert_event
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -104,25 +105,8 @@ def remove_unused_placeholders(
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     total_steps = len(found)
     elapsed = 0.0
+    ensure_tables(analytics_db, ["placeholder_removals", "todo_fixme_tracking"], test_mode=False)
     with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            """CREATE TABLE IF NOT EXISTS placeholder_removals (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                placeholder TEXT,
-                ts TEXT
-            )"""
-        )
-        conn.execute(
-            """CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
-                file_path TEXT,
-                line_number INTEGER,
-                placeholder_type TEXT,
-                context TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                resolved BOOLEAN DEFAULT 0,
-                resolved_timestamp DATETIME
-            )"""
-        )
         etc = "N/A"
         with tqdm(total=total_steps, desc="Removing Placeholders", unit="ph") as bar:
             for idx, ph in enumerate(found, 1):
@@ -131,9 +115,11 @@ def remove_unused_placeholders(
                 if ph not in valid:
                     pattern = r"{{\s*%s\s*}}" % re.escape(ph)
                     result = re.sub(pattern, "", result)
-                    conn.execute(
-                        "INSERT INTO placeholder_removals (placeholder, ts) VALUES (?, ?)",
-                        (ph, datetime.utcnow().isoformat()),
+                    insert_event(
+                        {"placeholder": ph, "ts": datetime.utcnow().isoformat()},
+                        "placeholder_removals",
+                        db_path=analytics_db,
+                        test_mode=False,
                     )
                     conn.execute(
                         "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?"

@@ -1,6 +1,7 @@
 # Analytics DB Test-Only Protocol
 
 This document describes the procedure for validating the `analytics.db` migrations without automatically creating or modifying the database file. All automation must operate in **test mode** only.
+All modules use the helpers `ensure_tables()` and `insert_event()` from `utils.log_utils` to create tables and record events when manual writes are allowed.
 
 ### Quick Manual Creation
 

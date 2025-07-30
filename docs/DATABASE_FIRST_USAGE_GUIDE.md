@@ -113,6 +113,7 @@ reference.
   execute any SQL files in `databases/migrations/` such as
   `add_code_audit_log.sql`, `add_correction_history.sql`, and `add_code_audit_history.sql` using `sqlite3` or your preferred migration tool.
   The `correction_history` table stores cleanup events with `user_id`, session ID, file path, action, timestamp, and optional details. The `code_audit_history` table records audit entries with the responsible user and timestamp. Run the migrations if these tables are missing.
+  Use `utils.log_utils.ensure_tables()` to verify tables exist and `insert_event()` to write analytics entries.
 - After every migration, run `scripts/database/size_compliance_checker.py` to
   verify the 99.9 MB limit is maintained.
 

@@ -21,10 +21,8 @@ from pathlib import Path
 from typing import Any, Dict
 
 from tqdm import tqdm
-from utils.log_utils import _log_event
+from utils.log_utils import ensure_tables, insert_event
 
-from scripts.database.add_violation_logs import ensure_violation_logs
-from scripts.database.add_rollback_logs import ensure_rollback_logs
 
 # Enterprise logging setup
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "dashboard"
@@ -76,8 +74,7 @@ class ComplianceMetricsUpdater:
         logging.info("PROCESS STARTED: Compliance Metrics Update")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
-        ensure_violation_logs(ANALYTICS_DB)
-        ensure_rollback_logs(ANALYTICS_DB)
+        ensure_tables(ANALYTICS_DB, ["violation_logs", "rollback_logs"], test_mode=False)
 
     def _fetch_compliance_metrics(self) -> Dict[str, Any]:
         """Fetch compliance metrics from analytics.db."""
@@ -127,16 +124,18 @@ class ComplianceMetricsUpdater:
         else:
             metrics["progress_status"] = "complete"
         if metrics["violation_count"]:
-            _log_event(
+            insert_event(
                 {"event": "violation_detected", "count": metrics["violation_count"]},
-                table="violation_logs",
+                "violation_logs",
                 db_path=ANALYTICS_DB,
+                test_mode=True,
             )
         if metrics["rollback_count"]:
-            _log_event(
+            insert_event(
                 {"event": "rollback_detected", "count": metrics["rollback_count"]},
-                table="rollback_logs",
+                "rollback_logs",
                 db_path=ANALYTICS_DB,
+                test_mode=True,
             )
         metrics["last_update"] = datetime.now().isoformat()
         return metrics
@@ -161,7 +160,12 @@ class ComplianceMetricsUpdater:
         with open(LOG_FILE, "a", encoding="utf-8") as logf:
             logf.write(log_entry)
         logging.info("Update event logged.")
-        _log_event({"event": "dashboard_update", "metrics": metrics}, db_path=ANALYTICS_DB)
+        insert_event(
+            {"event": "dashboard_update", "metrics": metrics},
+            "event_log",
+            db_path=ANALYTICS_DB,
+            test_mode=True,
+        )
 
     def update(self, simulate: bool = False) -> None:
         """Update compliance metrics for the web dashboard with full compliance and validation.
@@ -193,7 +197,12 @@ class ComplianceMetricsUpdater:
         elapsed = time.time() - start_time
         etc = self._calculate_etc(elapsed, 3, 3)
         logging.info(f"Compliance metrics update completed in {elapsed:.2f}s | ETC: {etc}")
-        _log_event({"event": "update_complete", "duration": elapsed}, db_path=ANALYTICS_DB)
+        insert_event(
+            {"event": "update_complete", "duration": elapsed},
+            "event_log",
+            db_path=ANALYTICS_DB,
+            test_mode=True,
+        )
         self.status = "COMPLETED"
 
     def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
