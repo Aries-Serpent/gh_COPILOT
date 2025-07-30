@@ -35,6 +35,11 @@ export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 - Documentation patterns are stored in `documentation.db`.
 - Use `scripts/documentation/enterprise_documentation_manager.py` to render Markdown files from these entries and record the generation event.
 - Rendered output is also saved to `logs/template_rendering/` with timestamped filenames for auditing.
+- For production systems use
+  `archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py`.
+  This manager pulls templates directly from `production.db` and writes Markdown,
+  HTML and JSON files for each compliant entry. All renders are logged to
+  `analytics.db:render_events` for compliance.
 
 ## 4. Synchronization
 - Run `template_engine.template_synchronizer.synchronize_templates()` to preview
