@@ -24,6 +24,9 @@ from typing import Any, Dict, List, Optional
 
 from tqdm import tqdm
 
+from .objective_similarity_scorer import compute_similarity_scores
+from .pattern_mining_engine import extract_patterns
+
 from scripts.continuous_operation_orchestrator import validate_enterprise_operation
 
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "db_first_code_generator"
@@ -105,18 +108,19 @@ class DBFirstCodeGenerator:
                 try:
                     cur = conn.execute(
                         (
-                            "SELECT template_name, template_content, compliance_score "
+                            "SELECT id, template_name, template_content, compliance_score "
                             "FROM templates WHERE template_name LIKE ?"
                         ),
                         (f"%{objective}%",),
                     )
                     for row in cur.fetchall():
-                        content = self.fetch_existing_pattern(row[0]) or row[1]
+                        content = self.fetch_existing_pattern(row[1]) or row[2]
                         templates.append(
                             {
-                                "name": row[0],
+                                "id": row[0],
+                                "name": row[1],
                                 "content": content,
-                                "score": row[2] if len(row) > 2 else 0.0,
+                                "score": row[3] if len(row) > 3 else 0.0,
                                 "db": str(db_path),
                             }
                         )
@@ -137,9 +141,29 @@ class DBFirstCodeGenerator:
         """Select the most compliant template based on similarity scoring."""
         if not templates:
             return None
-        scored_templates = [(self._similarity_score(tmpl, objective), tmpl) for tmpl in templates]
-        scored_templates.sort(reverse=True, key=lambda x: x[0])
-        return scored_templates[0][1] if scored_templates else None
+        prod_scores: Dict[int, float] = {}
+        if self.production_db.exists():
+            scores = compute_similarity_scores(
+                objective,
+                production_db=self.production_db,
+                analytics_db=self.analytics_db,
+                timeout_minutes=1,
+            )
+            prod_scores = {tid: score for tid, score in scores}
+        best = None
+        best_score = -1.0
+        for tmpl in templates:
+            score = self._similarity_score(tmpl, objective)
+            tid = tmpl.get("id")
+            if isinstance(tid, int) and tid in prod_scores:
+                score += prod_scores[tid]
+            patterns = extract_patterns([tmpl["content"]])
+            if any(p in objective for p in patterns):
+                score += 0.1
+            if score > best_score:
+                best_score = score
+                best = tmpl
+        return best
 
     def _auto_generate_template(self, objective: str) -> Dict[str, Any]:
         """Auto-generate a new template and record in DB."""
@@ -212,7 +236,33 @@ class DBFirstCodeGenerator:
         self.status = "GENERATING"
         start_time = time.time()
         timeout_seconds = timeout_minutes * 60
-        templates = self._query_templates(objective)
+        templates = []
+        # Query production.db first using similarity scoring
+        if self.production_db.exists():
+            prod_scores = compute_similarity_scores(
+                objective,
+                production_db=self.production_db,
+                analytics_db=self.analytics_db,
+                timeout_minutes=1,
+            )
+            if prod_scores:
+                best_id, _ = max(prod_scores, key=lambda x: x[1])
+                with sqlite3.connect(self.production_db) as conn:
+                    row = conn.execute(
+                        "SELECT template_code FROM code_templates WHERE id=?",
+                        (best_id,),
+                    ).fetchone()
+                    if row:
+                        templates.append(
+                            {
+                                "id": best_id,
+                                "name": f"production_{best_id}",
+                                "content": row[0],
+                                "score": 1.0,
+                                "db": str(self.production_db),
+                            }
+                        )
+        templates += self._query_templates(objective)
         selected = self._select_compliant_template(templates, objective)
         total_steps = 3
         with tqdm(total=total_steps, desc="DB-First Code Generation", unit="step") as pbar:

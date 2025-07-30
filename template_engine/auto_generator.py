@@ -27,6 +27,8 @@ from utils.log_utils import _log_event
 
 from .pattern_templates import get_pattern_templates
 from .placeholder_utils import DEFAULT_PRODUCTION_DB
+from .objective_similarity_scorer import compute_similarity_scores
+from .pattern_mining_engine import extract_patterns
 
 # Quantum demo import (placeholder for quantum-inspired scoring)
 try:
@@ -124,6 +126,18 @@ class TemplateAutoGenerator:
         )
         return patterns
 
+    def _load_production_templates(self) -> List[str]:
+        """Fetch templates from ``production.db`` if available."""
+        templates: List[str] = []
+        if self.production_db.exists():
+            with sqlite3.connect(self.production_db) as conn:
+                try:
+                    cur = conn.execute("SELECT template_code FROM code_templates")
+                    templates = [row[0] for row in cur.fetchall()]
+                except sqlite3.Error as exc:
+                    logger.error(f"Error loading production templates: {exc}")
+        return templates
+
     def _refresh_templates(self) -> None:
         """Reload templates and patterns from their databases."""
         self.patterns = self._load_patterns()
@@ -136,9 +150,10 @@ class TemplateAutoGenerator:
             )
 
     def _load_templates(self) -> List[str]:
-        logger.info("Loading templates from completion DB...")
-        templates = []
-        if self.completion_db.exists():
+        logger.info("Loading templates from production DB then completion DB...")
+        templates: List[str] = []
+        templates.extend(self._load_production_templates())
+        if not templates and self.completion_db.exists():
             with sqlite3.connect(self.completion_db) as conn:
                 try:
                     cur = conn.execute("SELECT template_content FROM templates")
@@ -215,31 +230,48 @@ class TemplateAutoGenerator:
         vecs = vectorizer.transform([a, b])
         return float(cosine_similarity(vecs[0], vecs[1])[0][0])
 
+    def rank_templates(self, target: str) -> List[str]:
+        """Return templates ranked by similarity to ``target``."""
+        ranked: List[tuple[str, float]] = []
+        if self.production_db.exists():
+            scores = compute_similarity_scores(
+                target,
+                production_db=self.production_db,
+                analytics_db=self.analytics_db,
+                timeout_minutes=1,
+            )
+            id_to_score = {tid: score for tid, score in scores}
+            with sqlite3.connect(self.production_db) as conn:
+                cur = conn.execute("SELECT id, template_code FROM code_templates")
+                for tid, text in cur.fetchall():
+                    if tid not in id_to_score:
+                        continue
+                    bonus = 0.0
+                    pats = extract_patterns([text])
+                    if any(p in target for p in pats):
+                        bonus = 0.1
+                    ranked.append((text, id_to_score[tid] + bonus))
+        if not ranked:
+            candidates = self.templates or self.patterns
+            ranked = [
+                (tmpl, self.objective_similarity(target, tmpl) + self._quantum_score(tmpl))
+                for tmpl in candidates
+            ]
+        ranked.sort(key=lambda x: x[1], reverse=True)
+        return [t for t, _ in ranked]
+
     def select_best_template(self, target: str, timeout: float = 30.0) -> str:
         logger.info(f"Selecting best template for target: {target}")
-        candidates = self.templates or self.patterns
-        if not candidates:
+        ranked = self.rank_templates(target)
+        if not ranked:
             logger.warning("No candidates available for selection")
             return ""
-        best = ""
-        best_score = -float("inf")
-        start = time.time()
-        with tqdm(total=len(candidates), desc="[PROGRESS] select", unit="tmpl") as bar:
-            for idx, tmpl in enumerate(candidates, 1):
-                score = self.objective_similarity(target, tmpl) + self._quantum_score(tmpl)
-                if score > best_score:
-                    best_score = score
-                    best = tmpl
-                if idx % 5 == 0:
-                    etc = calculate_etc(start, idx, len(candidates))
-                    bar.set_postfix_str(f"ETC: {etc}")
-                if time.time() - start > timeout:
-                    logger.warning("Selection timeout reached")
-                    break
-                bar.update(1)
+        best = ranked[0]
         try:
             with sqlite3.connect(self.analytics_db) as conn:
-                conn.execute("CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)")
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS template_events (ts TEXT, target TEXT, template TEXT)"
+                )
                 conn.execute(
                     "INSERT INTO template_events (ts, target, template) VALUES (?,?,?)",
                     (datetime.utcnow().isoformat(), target, best),
@@ -266,10 +298,10 @@ class TemplateAutoGenerator:
         search_terms = " ".join(map(str, objective.values()))
         logger.info(f"Generating template for objective: {search_terms}")
         start_ts = time.time()
+        ranked = self.rank_templates(search_terms)
         found = ""
-        all_candidates = self.templates + self.patterns
-        total_candidates = len(all_candidates)
-        with tqdm(all_candidates, desc="[PROGRESS] search", unit="tmpl") as bar:
+        total_candidates = len(ranked)
+        with tqdm(ranked, desc="[PROGRESS] search", unit="tmpl") as bar:
             for idx, tmpl in enumerate(bar, start=1):
                 etc = calculate_etc(start_ts, idx, total_candidates)
                 bar.set_postfix(etc=etc)
