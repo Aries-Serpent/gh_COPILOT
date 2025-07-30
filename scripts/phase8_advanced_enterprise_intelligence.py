@@ -30,6 +30,8 @@ import threading
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
+
+from utils.cross_platform_paths import CrossPlatformPathManager
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
 import logging
@@ -152,7 +154,7 @@ class AdvancedEnterpriseIntelligenceSystem:
         self.validate_environment_compliance()
         
         # Initialize workspace
-        default_workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
+        default_workspace = CrossPlatformPathManager.get_workspace_path()
         self.workspace_path = Path(workspace_path) if workspace_path else default_workspace
         self.production_db = self.workspace_path / "production.db"
         

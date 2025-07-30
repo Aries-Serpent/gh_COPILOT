@@ -12,6 +12,8 @@ Enterprise Standards Compliance:
 from datetime import datetime
 from pathlib import Path
 import os
+
+from utils.cross_platform_paths import CrossPlatformPathManager
 from tqdm import tqdm
 import sys
 
@@ -31,7 +33,7 @@ class EnterpriseFlake8Corrector:
     """Enterprise-grade Flake8 correction system"""
 
     def __init__(self, workspace_path: str = None):
-        default_workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
+        default_workspace = CrossPlatformPathManager.get_workspace_path()
         self.workspace_path = Path(workspace_path) if workspace_path else default_workspace
         self.logger = logging.getLogger(__name__)
 

@@ -13,6 +13,8 @@ import sys
 import logging
 import os
 from pathlib import Path
+
+from utils.cross_platform_paths import CrossPlatformPathManager
 from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
@@ -28,7 +30,7 @@ class EnterpriseUtility:
     """Enterprise utility class"""
 
     def __init__(self, workspace_path: str = None):
-        default_workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "/app"))
+        default_workspace = CrossPlatformPathManager.get_workspace_path()
         self.workspace_path = Path(workspace_path) if workspace_path else default_workspace
         self.logger = logging.getLogger(__name__)
 
