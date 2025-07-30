@@ -12,10 +12,8 @@ def get_api_key() -> str:
     return api_key
 
 
-client = OpenAIClient(api_key=get_api_key())
-
-
 def send_prompt(prompt: str, model: str = "gpt-3.5-turbo", **kwargs: Any) -> Dict[str, Any]:
     """Send a prompt to the OpenAI API and return the JSON response."""
+    client = OpenAIClient(api_key=get_api_key())
     messages = [{"role": "user", "content": prompt}]
     return client.chat_completion(messages, model=model, **kwargs)

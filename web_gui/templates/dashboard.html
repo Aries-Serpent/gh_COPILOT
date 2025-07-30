@@ -36,11 +36,15 @@ function updateAlerts(data){
 }
 window.onload = function(){
     if(window.EventSource){
-        const es = new EventSource('/metrics_stream');
-        es.onmessage = function(evt){
+        const esMetrics = new EventSource('/metrics_stream');
+        esMetrics.onmessage = function(evt){
             const metrics = JSON.parse(evt.data);
             updateMetrics(metrics);
-            fetch('/alerts').then(r => r.json()).then(updateAlerts);
+        };
+        const esAlerts = new EventSource('/alerts_stream');
+        esAlerts.onmessage = function(evt){
+            const alerts = JSON.parse(evt.data);
+            updateAlerts(alerts);
         };
     } else {
         setInterval(function(){

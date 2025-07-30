@@ -17,6 +17,7 @@ import re
 import sqlite3
 import sys
 import time
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
@@ -26,6 +27,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 
 from .template_synchronizer import _log_audit_real
+from utils.log_utils import _log_event
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -41,13 +43,52 @@ logging.basicConfig(
 
 
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
     forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
+                # Avoid false positives for directories like "template_engine" or "templates"
+                if folder.name.startswith("template"):
+                    continue
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+
+
+def ingest_assets(
+    doc_dir: Path,
+    tmpl_dir: Path,
+    production_db: Path = DEFAULT_PRODUCTION_DB,
+    analytics_db: Path = DEFAULT_ANALYTICS_DB,
+) -> None:
+    """Ingest documentation and template assets into ``production_db``."""
+    production_db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(production_db) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS asset_inventory (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                path TEXT,
+                asset_type TEXT,
+                digest TEXT,
+                ts TEXT
+            )"""
+        )
+        for base, a_type in [(doc_dir, "doc"), (tmpl_dir, "template")]:
+            if not base or not base.exists():
+                continue
+            for path in base.rglob("*"):
+                if path.is_file():
+                    h = hashlib.sha256(path.read_bytes()).hexdigest()
+                    conn.execute(
+                        "INSERT INTO asset_inventory (path, asset_type, digest, ts) VALUES (?,?,?,?)",
+                        (str(path), a_type, h, datetime.utcnow().isoformat()),
+                    )
+                    _log_event(
+                        {"event": "asset_ingested", "path": str(path), "type": a_type},
+                        table="ingestion_events",
+                        db_path=analytics_db,
+                    )
+        conn.commit()
 
 
 def extract_patterns(templates: List[str]) -> List[str]:
@@ -84,20 +125,18 @@ def _log_patterns(patterns: List[str], analytics_db: Path) -> None:
 
 
 def _log_pattern(analytics_db: Path, pattern: str) -> None:
-    """
-    Log a single pattern to analytics.db for DUAL COPILOT validation.
-    """
+    """Log a single pattern to ``analytics_db``."""
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS pattern_mining_logs (
+            """CREATE TABLE IF NOT EXISTS pattern_mining_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 pattern TEXT,
-                timestamp TEXT
+                ts TEXT
             )"""
         )
         conn.execute(
-            "INSERT INTO pattern_mining_logs (pattern, timestamp) VALUES (?, ?)",
+            "INSERT INTO pattern_mining_log (pattern, ts) VALUES (?, ?)",
             (pattern, datetime.utcnow().isoformat()),
         )
         conn.commit()
@@ -184,7 +223,6 @@ def mine_patterns(
                 )
             conn.commit()
     _log_audit_real(str(analytics_db), f"clusters={cluster_count}")
-    _log_patterns(patterns, analytics_db)
     logging.info(
         "Pattern mining completed in %.2fs | ETC: %s",
         time.time() - start_ts,
@@ -216,6 +254,33 @@ def get_clusters(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> Dict[int, List[st
     return clusters
 
 
+def aggregate_cross_references(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> Dict[str, int]:
+    """Aggregate cross-link events from ``analytics_db`` by file path."""
+    if not analytics_db.exists():
+        return {}
+    counts: Dict[str, int] = {}
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS cross_reference_aggregate (
+                file_path TEXT,
+                links INTEGER,
+                ts TEXT
+            )"""
+        )
+        rows = conn.execute(
+            "SELECT file_path, COUNT(*) FROM cross_link_events GROUP BY file_path"
+        ).fetchall()
+        for path, num in rows:
+            counts[path] = int(num)
+            conn.execute(
+                "INSERT INTO cross_reference_aggregate (file_path, links, ts) VALUES (?,?,?)",
+                (path, int(num), datetime.utcnow().isoformat()),
+            )
+        conn.commit()
+    _log_audit_real(str(analytics_db), f"cross_refs={len(counts)}")
+    return counts
+
+
 def validate_mining(expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_DB) -> bool:
     """
     DUAL COPILOT validation for pattern logging.
@@ -236,5 +301,6 @@ __all__ = [
     "extract_patterns",
     "mine_patterns",
     "get_clusters",
+    "aggregate_cross_references",
     "validate_mining",
 ]

@@ -101,8 +101,10 @@ chmod +x /usr/local/bin/clw
 ls -l /usr/local/bin/clw
 
 ### OpenAI Connector
-The repository provides `github_integration/openai_connector.py` for OpenAI API calls.
-Set `OPENAI_API_KEY` in your `.env` to enable these helpers.
+The repository provides `github_integration/openai_connector.py` for OpenAI API
+calls using the `OpenAIClient` helper in
+`third_party/openai_client.py`. Set `OPENAI_API_KEY` in your `.env` to enable
+these helpers.
 
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
@@ -665,6 +667,13 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 # Access at: http://localhost:5000
 # Features: Real-time metrics, database visualization, system monitoring
 ```
+
+### Enable Streaming
+
+Set the environment variable `LOG_WEBSOCKET_ENABLED=1` to allow real-time
+log broadcasting over WebSockets. The dashboard's `/metrics_stream` endpoint
+uses Server-Sent Events by default and works with Flask's ``Response`` when
+`sse_event_stream` is provided from ``utils.log_utils``.
 
 Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
 This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.

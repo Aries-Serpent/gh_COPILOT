@@ -57,9 +57,7 @@ def _extract_templates(db: Path) -> list[tuple[str, str]]:
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 ANALYTICS_DB = WORKSPACE_ROOT / "databases" / "analytics.db"
 
-DOC_SCHEMA_FILE = Path(
-    "documentation/additional/schemas/analytics_schema.md"
-)
+DOC_SCHEMA_FILE = Path("documentation/additional/schemas/analytics_schema.md")
 
 _EXPECTED_TABLES: set[str] | None = None
 
@@ -80,13 +78,9 @@ def _load_expected_tables() -> set[str]:
 def _schema_matches_doc(conn: sqlite3.Connection) -> bool:
     """Return True if all documented tables exist in ``conn``."""
     expected = _load_expected_tables()
-    existing = {
-        row[0]
-        for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        ).fetchall()
-    }
+    existing = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
     return expected.issubset(existing)
+
 
 logger = logging.getLogger(__name__)
 
@@ -534,7 +528,9 @@ def synchronize_templates_real(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Template synchronization tool")
+    parser = argparse.ArgumentParser(
+        description=("Template synchronization tool. Copy and update operations run inside explicit transactions.")
+    )
     parser.add_argument("--real", action="store_true", help="Apply real synchronization")
     parser.add_argument(
         "--cluster",
@@ -542,8 +538,18 @@ if __name__ == "__main__":
         help="Cluster templates and use centroids for synchronization",
     )
     parser.add_argument("--migrate", action="store_true", help="Run migrations before sync")
-    parser.add_argument("--copy", nargs=2, metavar=("SRC", "DST"), help="Copy template")
-    parser.add_argument("--update", nargs=2, metavar=("NAME", "FILE"), help="Update template content")
+    parser.add_argument(
+        "--copy",
+        nargs=2,
+        metavar=("SRC", "DST"),
+        help="Copy template using BEGIN/ROLLBACK; logged to audit_log",
+    )
+    parser.add_argument(
+        "--update",
+        nargs=2,
+        metavar=("NAME", "FILE"),
+        help="Update template content transactionally and log the action",
+    )
     parser.add_argument(
         "--dry-run",
         action="store_true",
