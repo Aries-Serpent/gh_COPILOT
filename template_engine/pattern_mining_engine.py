@@ -1,4 +1,3 @@
-
 """Pattern mining utilities for extracting and logging templates.
 
 This module provides helper functions used by :mod:`template_engine` for
@@ -20,7 +19,7 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -32,9 +31,7 @@ DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 LOGS_DIR = Path("logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = (
-    LOGS_DIR / f"pattern_mining_engine_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-)
+LOG_FILE = LOGS_DIR / f"pattern_mining_engine_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -156,9 +153,7 @@ def mine_patterns(
                     mined_at TEXT
                 )"""
             )
-            for idx, pat in enumerate(
-                tqdm(patterns, desc="Storing Patterns", unit="pat"), 1
-            ):
+            for idx, pat in enumerate(tqdm(patterns, desc="Storing Patterns", unit="pat"), 1):
                 conn.execute(
                     "INSERT INTO mined_patterns (pattern, mined_at) VALUES (?, ?)",
                     (pat, datetime.utcnow().isoformat()),
@@ -168,10 +163,12 @@ def mine_patterns(
                 if idx % 10 == 0 or idx == total_steps:
                     logging.info(f"Pattern {idx}/{total_steps} stored | ETC: {etc}")
             conn.commit()
+    cluster_count = 0
     if patterns:
         vec = TfidfVectorizer().fit_transform(patterns)
         model = KMeans(n_clusters=min(len(patterns), 2), n_init="auto", random_state=0)
         labels = model.fit_predict(vec)
+        cluster_count = len(set(labels))
         with sqlite3.connect(analytics_db) as conn:
             conn.execute(
                 """CREATE TABLE IF NOT EXISTS pattern_clusters (
@@ -186,7 +183,7 @@ def mine_patterns(
                     (pat, int(label), datetime.utcnow().isoformat()),
                 )
             conn.commit()
-        _log_audit_real(str(analytics_db), f"clusters={len(set(labels))}")
+    _log_audit_real(str(analytics_db), f"clusters={cluster_count}")
     _log_patterns(patterns, analytics_db)
     logging.info(
         "Pattern mining completed in %.2fs | ETC: %s",
@@ -196,9 +193,30 @@ def mine_patterns(
     return patterns
 
 
-def validate_mining(
-    expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_DB
-) -> bool:
+def get_clusters(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> Dict[int, List[str]]:
+    """Return clustered patterns from ``analytics_db``.
+
+    The mapping is ``cluster_id -> [patterns]``. Returns an empty
+    dictionary when no clusters have been logged.
+    """
+    if not analytics_db.exists():
+        return {}
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS pattern_clusters (
+                pattern TEXT,
+                cluster INTEGER,
+                ts TEXT
+            )"""
+        )
+        rows = conn.execute("SELECT pattern, cluster FROM pattern_clusters").fetchall()
+    clusters: Dict[int, List[str]] = {}
+    for pattern, cluster_id in rows:
+        clusters.setdefault(int(cluster_id), []).append(pattern)
+    return clusters
+
+
+def validate_mining(expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_DB) -> bool:
     """
     DUAL COPILOT validation for pattern logging.
     Checks analytics.db for matching mining events.
@@ -207,9 +225,7 @@ def validate_mining(
         cur = conn.execute("SELECT COUNT(*) FROM pattern_mining_log")
         count = cur.fetchone()[0]
     if count >= expected_count:
-        logging.info(
-            "DUAL COPILOT validation passed: Pattern mining integrity confirmed."
-        )
+        logging.info("DUAL COPILOT validation passed: Pattern mining integrity confirmed.")
         return True
     else:
         logging.error("DUAL COPILOT validation failed: Pattern mining mismatch.")
@@ -219,5 +235,6 @@ def validate_mining(
 __all__ = [
     "extract_patterns",
     "mine_patterns",
+    "get_clusters",
     "validate_mining",
 ]

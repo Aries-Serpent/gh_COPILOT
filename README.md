@@ -8,7 +8,7 @@
 
 **Status:** Active development with incremental improvements
 
-> **Limitations:** The project is under heavy development. Some tests fail and several modules are only partially implemented.
+> **Limitations:** The project is under heavy development. Some modules remain incomplete (see `docs/STUB_MODULE_STATUS.md`), including `DBFirstCodeGenerator`, `documentation_db_analyzer`, and `workflow_enhancer`. These gaps cause a portion of the test suite to fail.
 
 ---
 
@@ -289,6 +289,8 @@ docker run -p 5000:5000 -e GH_COPILOT_BACKUP_ROOT=/path/to/backups gh_copilot
 Inside the image `GH_COPILOT_BACKUP_ROOT` defaults to `/backup`. Map this path to a host directory to persist logs and backups.
 
 When launching with Docker Compose, the provided `docker-compose.yml` mounts `${GH_COPILOT_BACKUP_ROOT:-/backup}` at `/backup`. Set `GH_COPILOT_BACKUP_ROOT` on the host before running `docker-compose up` so backups survive container restarts.
+
+The container's `entrypoint.sh` now initializes `analytics.db` automatically before starting the dashboard service, so no manual step is required.
 
 ### Wrapping, Logging, and Compliance (WLC)
 Run the session manager after setting the workspace and backup paths:
@@ -785,7 +787,7 @@ source .venv/bin/activate
 pip install -r requirements-test.txt
 
 # Run comprehensive test suite
-make test
+make test  # runs `pytest tests`
 
 # Run linter
 ruff format .
