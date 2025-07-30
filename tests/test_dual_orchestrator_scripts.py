@@ -16,6 +16,8 @@ def test_optimize_triggers_dual_validation(monkeypatch):
         "scripts.validation.dual_copilot_orchestrator.SecondaryCopilotValidator",
         DummyValidator,
     )
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
 
     def dummy_opt():
         return {"final_readiness": 100.0}
