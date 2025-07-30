@@ -17,40 +17,30 @@ Enterprise ML Features:
 """
 
 import os
-import sys
 import json
 import time
-import sqlite3
-import asyncio
 import logging
 import pickle
 import hashlib
-import threading
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Dict, List, Any, Optional, Tuple
 
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from dataclasses import dataclass, field
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from collections import defaultdict
 
 # Essential imports for ML pipeline
 import numpy as np
-import pandas as pd
 from tqdm import tqdm
 
 # ML imports for comprehensive pipeline
 try:
-    from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, train_test_split
+    from sklearn.model_selection import GridSearchCV, train_test_split
     from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
     from sklearn.neural_network import MLPClassifier
     from sklearn.svm import SVC
     from sklearn.linear_model import LogisticRegression
-    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-    from sklearn.preprocessing import StandardScaler, LabelEncoder
-    from sklearn.pipeline import Pipeline
-    from sklearn.feature_selection import SelectKBest, f_classif
+    from sklearn.preprocessing import StandardScaler
 
     ML_AVAILABLE = True
 except ImportError:
@@ -60,7 +50,6 @@ except ImportError:
 # Advanced ML imports (optional)
 try:
     import joblib
-    import optuna  # For advanced hyperparameter optimization
 
     ADVANCED_ML = True
 except ImportError:
