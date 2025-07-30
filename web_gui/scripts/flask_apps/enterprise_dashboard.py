@@ -13,10 +13,13 @@ from typing import Any, Dict, Iterable, List
 from flask import Flask, Response, jsonify, request
 from tqdm import tqdm
 
+from config.secret_manager import get_secret
+
 ANALYTICS_DB = Path("databases/analytics.db")
 COMPLIANCE_DIR = Path("dashboard/compliance")
 
 app = Flask(__name__)
+app.secret_key = get_secret("FLASK_SECRET_KEY", "dev_key")
 LOG_FILE = Path("logs/dashboard") / "dashboard.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
