@@ -16,6 +16,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict
 
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+
 try:
     import schedule  # type: ignore
 except ImportError:  # pragma: no cover - schedule optional
@@ -118,6 +120,11 @@ class EnterpriseFileRelocationOrchestrator:
             raise RuntimeError(f"CRITICAL: Database not found at {DB_PATH}")
 
         logging.info("ENVIRONMENT COMPLIANCE VALIDATED")
+
+    def secondary_validate(self) -> bool:
+        """Run secondary flake8 validation."""
+        validator = SecondaryCopilotValidator(logging.getLogger(__name__))
+        return validator.validate_corrections([__file__])
 
     def get_database_connection(self):
         """Get database connection with validation"""
@@ -479,6 +486,7 @@ def main():
 
         # Execute relocation
         report_path = orchestrator.execute_relocation_orchestration()
+        orchestrator.secondary_validate()
 
         print("\nFILE RELOCATION COMPLETED SUCCESSFULLY")
         print(f"Report saved to: {report_path}")

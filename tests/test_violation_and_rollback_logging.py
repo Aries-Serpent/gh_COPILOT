@@ -19,13 +19,15 @@ def test_violation_and_rollback_logging(tmp_path, monkeypatch):
     db_dir.mkdir()
     analytics_db = db_dir / "analytics.db"
     with sqlite3.connect(analytics_db) as conn:
-        conn.execute("CREATE TABLE todo_fixme_tracking (resolved INTEGER)")
-        conn.execute("INSERT INTO todo_fixme_tracking VALUES (1)")
         conn.execute(
-            "CREATE TABLE corrections (file_path TEXT, rationale TEXT, compliance_score REAL, rollback_reference TEXT, ts TEXT)"
+            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)"
+        )
+        conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved', 1)")
+        conn.execute(
+            "CREATE TABLE correction_logs (file_path TEXT, compliance_score REAL, ts TEXT)"
         )
         conn.execute(
-            "INSERT INTO corrections VALUES ('f','r',1.0,'b','ts')"
+            "INSERT INTO correction_logs VALUES ('f',1.0,'ts')"
         )
         conn.execute("CREATE TABLE violation_logs (timestamp TEXT, details TEXT)")
         conn.execute(

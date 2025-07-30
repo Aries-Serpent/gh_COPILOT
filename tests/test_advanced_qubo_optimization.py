@@ -23,6 +23,13 @@ class DummyTqdm:
     def close(self):
         pass
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        self.close()
+        return False
+
 
 class DummyValidator:
     def __init__(self, logger=None) -> None:
@@ -40,10 +47,10 @@ def test_execute_utility_queries_db(monkeypatch, tmp_path, caplog):
     db_path = db_dir / "production.db"
     with sqlite3.connect(db_path) as conn:
         conn.execute(
-            "CREATE TABLE template_repository (template_name TEXT, template_category TEXT, template_content TEXT)"
+            "CREATE TABLE code_templates (name TEXT, category TEXT, template TEXT)"
         )
         conn.execute(
-            "INSERT INTO template_repository VALUES ('temp', 'optimization', 'pass')"
+            "INSERT INTO code_templates VALUES ('temp', 'optimization', 'pass')"
         )
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))

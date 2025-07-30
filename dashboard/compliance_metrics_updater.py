@@ -21,10 +21,8 @@ from pathlib import Path
 from typing import Any, Dict
 
 from tqdm import tqdm
-from utils.log_utils import _log_event
+from utils.log_utils import ensure_tables, insert_event
 
-from scripts.database.add_violation_logs import ensure_violation_logs
-from scripts.database.add_rollback_logs import ensure_rollback_logs
 
 # Enterprise logging setup
 LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "dashboard"
@@ -76,13 +74,14 @@ class ComplianceMetricsUpdater:
         logging.info("PROCESS STARTED: Compliance Metrics Update")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
-        ensure_violation_logs(ANALYTICS_DB)
-        ensure_rollback_logs(ANALYTICS_DB)
+        ensure_tables(ANALYTICS_DB, ["violation_logs", "rollback_logs"], test_mode=False)
 
     def _fetch_compliance_metrics(self) -> Dict[str, Any]:
         """Fetch compliance metrics from analytics.db."""
         metrics = {
             "placeholder_removal": 0,
+            "open_placeholders": 0,
+            "resolved_placeholders": 0,
             "compliance_score": 0.0,
             "violation_count": 0,
             "rollback_count": 0,
@@ -100,36 +99,61 @@ class ComplianceMetricsUpdater:
                     "SELECT name FROM sqlite_master WHERE type='table' AND name='correction_history'"
                 ).fetchone():
                     cur.execute("SELECT COUNT(*) FROM correction_history WHERE fix_applied='REMOVED_PLACEHOLDER'")
+                    metrics["resolved_placeholders"] = cur.fetchone()[0]
+                    metrics["open_placeholders"] = 0
                 else:
-                    cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
-                metrics["placeholder_removal"] = cur.fetchone()[0]
+                    cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
+                    metrics["resolved_placeholders"] = cur.fetchone()[0]
+                    cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
+                    metrics["open_placeholders"] = cur.fetchone()[0]
+                metrics["placeholder_removal"] = metrics["resolved_placeholders"]
 
-                cur.execute("SELECT AVG(compliance_score) FROM corrections")
+                cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
                 avg_score = cur.fetchone()[0]
                 metrics["compliance_score"] = float(avg_score) if avg_score is not None else 0.0
 
                 cur.execute("SELECT COUNT(*) FROM violation_logs")
                 metrics["violation_count"] = cur.fetchone()[0]
 
-                cur.execute("SELECT COUNT(*) FROM rollback_logs")
-                metrics["rollback_count"] = cur.fetchone()[0]
+                if cur.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='rollback_logs'"
+                ).fetchone():
+                    cur.execute(
+                        "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT 5"
+                    )
+                    metrics["recent_rollbacks"] = [
+                        {"target": r[0], "backup": r[1], "timestamp": r[2]}
+                        for r in cur.fetchall()
+                    ]
+                    cur.execute("SELECT COUNT(*) FROM rollback_logs")
+                    metrics["rollback_count"] = cur.fetchone()[0]
+                else:
+                    metrics["recent_rollbacks"] = []
+                    metrics["rollback_count"] = 0
             except Exception as e:
                 logging.error(f"Error fetching metrics: {e}")
-        if metrics["violation_count"] or metrics["rollback_count"]:
+        total_ph = metrics["resolved_placeholders"] + metrics["open_placeholders"]
+        if total_ph:
+            metrics["progress"] = metrics["resolved_placeholders"] / float(total_ph)
+        else:
+            metrics["progress"] = 1.0
+        if metrics["violation_count"] or metrics["rollback_count"] or metrics["open_placeholders"]:
             metrics["progress_status"] = "issues_pending"
         else:
             metrics["progress_status"] = "complete"
         if metrics["violation_count"]:
-            _log_event(
+            insert_event(
                 {"event": "violation_detected", "count": metrics["violation_count"]},
-                table="violation_logs",
+                "violation_logs",
                 db_path=ANALYTICS_DB,
+                test_mode=True,
             )
         if metrics["rollback_count"]:
-            _log_event(
+            insert_event(
                 {"event": "rollback_detected", "count": metrics["rollback_count"]},
-                table="rollback_logs",
+                "rollback_logs",
                 db_path=ANALYTICS_DB,
+                test_mode=True,
             )
         metrics["last_update"] = datetime.now().isoformat()
         return metrics
@@ -138,6 +162,7 @@ class ComplianceMetricsUpdater:
         """Update dashboard/compliance with metrics."""
         self.dashboard_dir.mkdir(parents=True, exist_ok=True)
         dashboard_file = self.dashboard_dir / "metrics.json"
+        rollback_file = self.dashboard_dir / "rollback_logs.json"
         import json
 
         dashboard_content = {
@@ -146,6 +171,10 @@ class ComplianceMetricsUpdater:
             "timestamp": datetime.now().isoformat(),
         }
         dashboard_file.write_text(json.dumps(dashboard_content, indent=2), encoding="utf-8")
+        rollback_file.write_text(
+            json.dumps(metrics.get("recent_rollbacks", []), indent=2),
+            encoding="utf-8",
+        )
         logging.info(f"Dashboard metrics updated: {dashboard_file}")
 
     def _log_update_event(self, metrics: Dict[str, Any]) -> None:
@@ -154,7 +183,12 @@ class ComplianceMetricsUpdater:
         with open(LOG_FILE, "a", encoding="utf-8") as logf:
             logf.write(log_entry)
         logging.info("Update event logged.")
-        _log_event({"event": "dashboard_update", "metrics": metrics}, db_path=ANALYTICS_DB)
+        insert_event(
+            {"event": "dashboard_update", "metrics": metrics},
+            "event_log",
+            db_path=ANALYTICS_DB,
+            test_mode=True,
+        )
 
     def update(self, simulate: bool = False) -> None:
         """Update compliance metrics for the web dashboard with full compliance and validation.
@@ -186,7 +220,12 @@ class ComplianceMetricsUpdater:
         elapsed = time.time() - start_time
         etc = self._calculate_etc(elapsed, 3, 3)
         logging.info(f"Compliance metrics update completed in {elapsed:.2f}s | ETC: {etc}")
-        _log_event({"event": "update_complete", "duration": elapsed}, db_path=ANALYTICS_DB)
+        insert_event(
+            {"event": "update_complete", "duration": elapsed},
+            "event_log",
+            db_path=ANALYTICS_DB,
+            test_mode=True,
+        )
         self.status = "COMPLETED"
 
     def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:

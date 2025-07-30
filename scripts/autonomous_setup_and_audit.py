@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import sqlite3
+import hashlib
 from pathlib import Path
 from typing import Optional
 
@@ -13,6 +14,8 @@ from tqdm import tqdm
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 from scripts.code_placeholder_audit import main as placeholder_audit
+from template_engine.template_synchronizer import _compliance_score
+from utils.log_utils import _log_event
 
 
 LOGGER = logging.getLogger(__name__)
@@ -27,7 +30,11 @@ def init_database(db_path: Path) -> None:
 
 
 def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
-    """Load markdown documentation and template assets into ``db_path``.
+    """Load documentation and template assets into ``db_path``.
+
+    Files with ``.md``, ``.txt``, ``.json``, and ``.sql`` extensions are
+    collected. Line endings are normalized and trailing whitespace stripped
+    before hashing.
 
     This replicates the behavior of :mod:`documentation_ingestor` and
     :mod:`template_asset_ingestor` but targets ``production.db`` instead of
@@ -35,14 +42,24 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
     """
     LOGGER.info("Ingesting assets from %s and %s", doc_path, template_path)
 
-    import hashlib
     from datetime import datetime, timezone
 
     from scripts.database.cross_database_sync_logger import log_sync_operation
 
     # Gather files
-    doc_files = [p for p in doc_path.rglob("*.md") if p.is_file()] if doc_path.exists() else []
-    tmpl_files = [p for p in template_path.rglob("*.md") if p.is_file()] if template_path.exists() else []
+    extensions = [".md", ".txt", ".json", ".sql"]
+    doc_files = (
+        [p for p in doc_path.rglob("*") if p.is_file() and p.suffix in extensions]
+        if doc_path.exists()
+        else []
+    )
+    tmpl_files = (
+        [p for p in template_path.rglob("*") if p.is_file() and p.suffix in extensions]
+        if template_path.exists()
+        else []
+    )
+
+    analytics_db = Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
 
     conn = sqlite3.connect(db_path)
     try:
@@ -75,11 +92,13 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
 
         start_docs = datetime.now(timezone.utc)
         with tqdm(total=len(doc_files), desc="Docs", unit="file") as bar:
+            conn.execute("BEGIN")
             for path in doc_files:
                 if path.stat().st_size == 0:
                     bar.update(1)
                     continue
-                content = path.read_text(encoding="utf-8")
+                raw = path.read_text(encoding="utf-8")
+                content = "\n".join(line.rstrip() for line in raw.splitlines())
                 digest = hashlib.sha256(content.encode()).hexdigest()
                 modified_at = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
                 conn.execute(
@@ -92,14 +111,28 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                         modified_at,
                     ),
                 )
+                score = _compliance_score(content)
+                _log_event(
+                    {
+                        "event": "asset_ingested",
+                        "asset_type": "documentation",
+                        "path": str(path.relative_to(doc_path.parent)),
+                        "compliance_score": score,
+                    },
+                    table="correction_logs",
+                    db_path=analytics_db,
+                    test_mode=False,
+                )
                 bar.update(1)
-        conn.commit()
+            conn.commit()
         log_sync_operation(db_path, "documentation_ingestion", start_time=start_docs)
 
         start_tmpl = datetime.now(timezone.utc)
         with tqdm(total=len(tmpl_files), desc="Templates", unit="file") as bar:
+            conn.execute("BEGIN")
             for path in tmpl_files:
-                content = path.read_text(encoding="utf-8")
+                raw = path.read_text(encoding="utf-8")
+                content = "\n".join(line.rstrip() for line in raw.splitlines())
                 digest = hashlib.sha256(content.encode()).hexdigest()
                 conn.execute(
                     "INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)",
@@ -113,9 +146,28 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                     "INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)",
                     (content[:1000], datetime.now(timezone.utc).isoformat()),
                 )
+                score = _compliance_score(content)
+                _log_event(
+                    {
+                        "event": "asset_ingested",
+                        "asset_type": "template",
+                        "path": str(path.relative_to(template_path.parent)),
+                        "compliance_score": score,
+                    },
+                    table="correction_logs",
+                    db_path=analytics_db,
+                    test_mode=False,
+                )
                 bar.update(1)
-        conn.commit()
+            conn.commit()
         log_sync_operation(db_path, "template_ingestion", start_time=start_tmpl)
+        from scripts.database.ingestion_validator import IngestionValidator
+        validator = IngestionValidator(doc_path.parent, db_path, analytics_db)
+        if not validator.validate():
+            raise RuntimeError("Asset ingestion validation failed")
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         conn.close()
 

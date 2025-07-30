@@ -36,6 +36,8 @@ from scripts.continuous_operation_orchestrator import (
     validate_enterprise_operation,
 )
 from scripts.database.add_code_audit_log import ensure_code_audit_log
+from template_engine.template_placeholder_remover import remove_unused_placeholders
+from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from utils.log_utils import log_message
 
 # Visual processing indicator constants
@@ -77,7 +79,13 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
 
 
 # Insert findings into analytics.db.code_audit_log
-def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False) -> None:
+def log_findings(
+    results: List[Dict],
+    analytics_db: Path,
+    simulate: bool = False,
+    *,
+    update_resolutions: bool = False,
+) -> None:
     """Log audit results to analytics.db.
 
     Parameters
@@ -108,7 +116,9 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                 resolved BOOLEAN DEFAULT 0,
-                resolved_timestamp DATETIME
+                resolved_timestamp DATETIME,
+                status TEXT DEFAULT 'open',
+                removal_id INTEGER
             )
             """
         )
@@ -143,7 +153,9 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                 resolved BOOLEAN DEFAULT 0,
-                resolved_timestamp DATETIME
+                resolved_timestamp DATETIME,
+                status TEXT DEFAULT 'open',
+                removal_id INTEGER
             )
             """
         )
@@ -154,33 +166,34 @@ def log_findings(results: List[Dict], analytics_db: Path, simulate: bool = False
         for rowid, fpath, line, ptype, ctx in cur.fetchall():
             if (fpath, line, ptype, ctx) not in result_keys:
                 conn.execute(
-                    "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=? WHERE rowid=?",
+                    "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, status='resolved' WHERE rowid=?",
                     (datetime.now().isoformat(), rowid),
                 )
-        for row in results:
-            key = (row["file"], row["line"], row["pattern"], row["context"])
-            cur = conn.execute(
-                "SELECT 1 FROM todo_fixme_tracking WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=? AND resolved=0",
-                key,
-            )
-            if not cur.fetchone():
-                values = (
-                    row["file"],
-                    row["line"],
-                    row["pattern"],
-                    row["context"],
-                    datetime.now().isoformat(),
+        if not update_resolutions:
+            for row in results:
+                key = (row["file"], row["line"], row["pattern"], row["context"])
+                cur = conn.execute(
+                    "SELECT 1 FROM todo_fixme_tracking WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=? AND resolved=0",
+                    key,
                 )
-                conn.execute(
-                    "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
-                    " VALUES (?, ?, ?, ?, ?)",
-                    values,
-                )
-                conn.execute(
-                    "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp)"
-                    " VALUES (?, ?, ?, ?, ?)",
-                    values,
-                )
+                if not cur.fetchone():
+                    values = (
+                        row["file"],
+                        row["line"],
+                        row["pattern"],
+                        row["context"],
+                        datetime.now().isoformat(),
+                    )
+                    conn.execute(
+                        "INSERT INTO code_audit_log (file_path, line_number, placeholder_type, context, timestamp)"
+                        " VALUES (?, ?, ?, ?, ?)",
+                        values,
+                    )
+                    conn.execute(
+                        "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp, status)"
+                        " VALUES (?, ?, ?, ?, ?, 'open')",
+                        values,
+                    )
         conn.commit()
 
 
@@ -191,7 +204,7 @@ def update_dashboard(count: int, dashboard_dir: Path, analytics_db: Path) -> Non
     resolved = 0
     if analytics_db.exists():
         with sqlite3.connect(analytics_db) as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
+            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
             resolved = cur.fetchone()[0]
     compliance = max(0, 100 - count)
     status = "complete" if count == 0 else "issues_pending"
@@ -280,6 +293,40 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
     return "N/A"
 
 
+def auto_remove_placeholders(
+    results: List[Dict],
+    production_db: Path,
+    analytics_db: Path,
+) -> None:
+    """Remove detected placeholders and log corrections."""
+    by_file: Dict[str, List[Dict]] = {}
+    for res in results:
+        by_file.setdefault(res["file"], []).append(res)
+
+    logger = CorrectionLoggerRollback(analytics_db)
+    for file_path, file_results in by_file.items():
+        path = Path(file_path)
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        for res in file_results:
+            idx = res["line"] - 1
+            if 0 <= idx < len(lines):
+                lines[idx] = re.sub(r"#\s*(TODO|FIXME).*", "", lines[idx])
+        new_text = "\n".join(lines)
+        new_text = remove_unused_placeholders(
+            new_text, production_db, analytics_db, timeout_minutes=1
+        )
+        if new_text != text:
+            path.write_text(new_text, encoding="utf-8")
+            logger.log_change(path, "Auto placeholder cleanup", 1.0)
+
+    logger.summarize_corrections()
+    # Mark resolved placeholders
+    log_findings([], analytics_db, simulate=False, update_resolutions=True)
+
+
 def main(
     workspace_path: Optional[str] = None,
     analytics_db: Optional[str] = None,
@@ -287,6 +334,10 @@ def main(
     dashboard_dir: Optional[str] = None,
     timeout_minutes: int = 30,
     simulate: bool = False,
+    *,
+    exclude_dirs: Optional[List[str]] = None,
+    update_resolutions: bool = False,
+    apply_fixes: bool = False,
 ) -> bool:
     """Entry point for placeholder auditing with full enterprise compliance.
 
@@ -294,6 +345,9 @@ def main(
     ----------
     simulate:
         If ``True``, skip writing to databases and dashboard.
+    apply_fixes:
+        When ``True`` automatically remove flagged placeholders and log
+        corrections.
     """
     # Visual processing indicators: start time, process ID, anti-recursion validation
     start_time = time.time()
@@ -317,7 +371,13 @@ def main(
     timeout = timeout_minutes * 60 if timeout_minutes else None
 
     # Scan files with progress bar and ETC calculation
-    files = [f for f in workspace.rglob("*") if f.is_file()]
+    exclude_list = ["builds", "archive"] if exclude_dirs is None else exclude_dirs
+    exclude = {workspace / d for d in exclude_list}
+    files = [
+        f
+        for f in workspace.rglob("*")
+        if f.is_file() and not any(str(f).startswith(str(p)) for p in exclude)
+    ]
     results: List[Dict] = []
     with tqdm(total=len(files), desc=f"{TEXT['progress']} scanning", unit="file") as bar:
         for idx, file in enumerate(files, 1):
@@ -351,7 +411,9 @@ def main(
             bar.update(1)
 
     # Log findings to analytics.db
-    log_findings(results, analytics, simulate=simulate)
+    log_findings(results, analytics, simulate=simulate, update_resolutions=update_resolutions)
+    if apply_fixes and not simulate:
+        auto_remove_placeholders(results, production, analytics)
     # Update dashboard/compliance
     if not simulate:
         update_dashboard(len(results), dashboard, analytics)
@@ -383,6 +445,23 @@ if __name__ == "__main__":
     parser.add_argument("--dashboard-dir", type=str, help="dashboard/compliance directory")
     parser.add_argument("--timeout-minutes", type=int, default=30, help="Scan timeout in minutes")
     parser.add_argument("--simulate", action="store_true", help="Run in test mode without writes")
+    parser.add_argument(
+        "--exclude-dir",
+        action="append",
+        dest="exclude_dirs",
+        default=None,
+        help="Directory to exclude from scanning (can be used multiple times)",
+    )
+    parser.add_argument(
+        "--update-resolutions",
+        action="store_true",
+        help="Only mark resolved entries; do not log new placeholders",
+    )
+    parser.add_argument(
+        "--apply-fixes",
+        action="store_true",
+        help="Automatically remove placeholders and log corrections",
+    )
     args = parser.parse_args()
     success = main(
         workspace_path=args.workspace_path,
@@ -391,5 +470,8 @@ if __name__ == "__main__":
         dashboard_dir=args.dashboard_dir,
         timeout_minutes=args.timeout_minutes,
         simulate=args.simulate,
+        exclude_dirs=args.exclude_dirs,
+        update_resolutions=args.update_resolutions,
+        apply_fixes=args.apply_fixes,
     )
     raise SystemExit(0 if success else 1)

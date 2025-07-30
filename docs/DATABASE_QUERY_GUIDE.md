@@ -13,9 +13,10 @@ from pathlib import Path
 workspace = Path(os.environ.get("GH_COPILOT_WORKSPACE", "."))
 with sqlite3.connect(workspace / "databases" / "production.db") as conn:
     row = conn.execute(
-        "SELECT script_content FROM script_repository WHERE script_type='utility' LIMIT 1"
+        "SELECT script_path FROM script_repository WHERE script_type='utility' LIMIT 1"
     ).fetchone()
-    print(row[0])
+    script = Path(row[0]).read_text()
+    print(script)
 ```
 
 ## 2. template_documentation.db

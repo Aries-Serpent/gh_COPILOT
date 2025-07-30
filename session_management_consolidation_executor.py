@@ -22,9 +22,15 @@ class EnterpriseUtility:
         validate_enterprise_operation()
         self.logger = logging.getLogger(__name__)
         self.validator = SessionProtocolValidator(str(self.workspace_path))
+        self.analytics_db = self.workspace_path / "databases" / "analytics.db"
 
     def _validate_environment(self) -> bool:
-        return bool(os.getenv("GH_COPILOT_WORKSPACE")) and bool(os.getenv("GH_COPILOT_BACKUP_ROOT"))
+        valid = bool(os.getenv("GH_COPILOT_WORKSPACE")) and bool(os.getenv("GH_COPILOT_BACKUP_ROOT"))
+        _log_event(
+            {"event": "environment_check", "valid": valid},
+            db_path=self.analytics_db,
+        )
+        return valid
 
     def perform_utility_function(self) -> bool:
         """Return ``False`` if any zero-byte files are present."""

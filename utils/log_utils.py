@@ -11,12 +11,13 @@
 import json
 import logging
 import os
+import sqlite3
 import sys
 import threading
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Iterable, Optional
 
 from tqdm import tqdm
 
@@ -24,6 +25,67 @@ from tqdm import tqdm
 DEFAULT_ANALYTICS_DB = Path(os.environ.get("ANALYTICS_DB", "databases/analytics.db"))
 DEFAULT_LOG_TABLE = "event_log"
 _log_lock = threading.Lock()
+
+# Standard table schemas for analytics.db. These are used when real writes are
+# explicitly requested. The tables mirror the SQL migrations under
+# ``databases/migrations``.
+TABLE_SCHEMAS: Dict[str, str] = {
+    "violation_logs": """
+        CREATE TABLE IF NOT EXISTS violation_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            details TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_violation_logs_timestamp
+            ON violation_logs(timestamp);
+    """,
+    "rollback_logs": """
+        CREATE TABLE IF NOT EXISTS rollback_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            target TEXT NOT NULL,
+            backup TEXT,
+            timestamp TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_rollback_logs_timestamp
+            ON rollback_logs(timestamp);
+    """,
+    "sync_events_log": """
+        CREATE TABLE IF NOT EXISTS sync_events_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            source TEXT,
+            target TEXT,
+            ts TEXT
+        );
+    """,
+    "audit_log": """
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            db_name TEXT,
+            details TEXT,
+            ts TEXT
+        );
+    """,
+    "placeholder_removals": """
+        CREATE TABLE IF NOT EXISTS placeholder_removals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            placeholder TEXT,
+            ts TEXT
+        );
+    """,
+    "todo_fixme_tracking": """
+        CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
+            file_path TEXT,
+            line_number INTEGER,
+            placeholder_type TEXT,
+            context TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            resolved BOOLEAN DEFAULT 0,
+            resolved_timestamp DATETIME,
+            status TEXT DEFAULT 'open',
+            removal_id INTEGER REFERENCES placeholder_removals(id)
+        );
+    """,
+}
 
 
 def _can_create_analytics_db(db_path: Path = DEFAULT_ANALYTICS_DB) -> bool:
@@ -40,6 +102,49 @@ def _can_create_analytics_db(db_path: Path = DEFAULT_ANALYTICS_DB) -> bool:
         else:
             return os.access(parent, os.W_OK)
     return False
+
+
+def ensure_tables(db_path: Path, tables: Iterable[str], *, test_mode: bool = True) -> None:
+    """Ensure the specified tables exist in ``db_path``.
+
+    When ``test_mode`` is ``True`` the function simulates table creation using
+    :func:`_log_event` and performs no writes.
+    """
+    for table in tables:
+        schema = TABLE_SCHEMAS.get(table)
+        if not schema:
+            continue
+        if test_mode:
+            _log_event({"ensure_table": table}, table=table, db_path=db_path, test_mode=True)
+            continue
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        with _log_lock, sqlite3.connect(db_path) as conn:
+            conn.executescript(schema)
+            conn.commit()
+
+
+def insert_event(
+    event: Dict[str, Any],
+    table: str,
+    *,
+    db_path: Path = DEFAULT_ANALYTICS_DB,
+    test_mode: bool = True,
+) -> int:
+    """Insert ``event`` into the specified table and return the new row id."""
+    ensure_tables(db_path, [table], test_mode=test_mode)
+    if test_mode:
+        _log_event(event, table=table, db_path=db_path, test_mode=True)
+        return -1
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    with _log_lock, sqlite3.connect(db_path) as conn:
+        columns = ", ".join(event.keys())
+        placeholders = ", ".join("?" for _ in event)
+        cur = conn.execute(
+            f"INSERT INTO {table} ({columns}) VALUES ({placeholders})",
+            tuple(event.values()),
+        )
+        conn.commit()
+        return int(cur.lastrowid)
 
 
 def _log_event(
@@ -241,3 +346,11 @@ def _clear_log(
 # See ``docs/ANALYTICS_DB_TEST_PROTOCOL.md`` for full instructions on manual database creation.
 #
 # ---------------------------------------------------------------
+
+__all__ = [
+    "ensure_tables",
+    "insert_event",
+    "log_message",
+    "_log_event",
+    "_log_audit_event",
+]

@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.1.8] - 2025-07-30
+- Added documentation update workflow instructions
+- Clarified that quantum modules operate in simulation mode only
+- Noted incomplete modules and failing tests in README and stub summary
+
+## [4.1.9] - 2025-07-31
+- Enforced secondary validation across automation scripts.
+- Added aggregation logic to `enterprise_dual_copilot_validator`.
+- Documented dual-copilot enforcement in README.
+
 ## [4.1.7] - 2025-07-29
 - Added `_log_event` hooks to `documentation_ingestor` and `automation_setup` scripts.
 - Updated tests to reflect simulated analytics logging.

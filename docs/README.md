@@ -9,6 +9,12 @@ Run `python scripts/generate_docs_metrics.py` to refresh metrics in the main
 `databases/production.db` for the current number of tracked scripts and templates and counts
 database entries from `documentation/DATABASE_LIST.md`. Use the
 `--db-path` option to specify an alternate database file if needed.
+After regenerating metrics run:
+```bash
+python -m scripts.docs_metrics_validator
+python scripts/wlc_session_manager.py --db-path databases/production.db
+```
+The session manager records the update in `production.db` and writes a log file under `$GH_COPILOT_BACKUP_ROOT/logs`.
 
 ## Validation
 

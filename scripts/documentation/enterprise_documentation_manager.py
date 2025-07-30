@@ -107,6 +107,7 @@ class EnterpriseDocumentationManager:
                         },
                         table="correction_logs",
                         db_path=self.generator.analytics_db,
+                        test_mode=False,
                     )
                     if score < 60.0:
                         self.logger.info(

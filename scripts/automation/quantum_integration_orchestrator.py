@@ -32,32 +32,39 @@ def integrate_qubo_problems(qubos: List[List[List[float]]]) -> Tuple[List[int], 
             best_solution, best_energy = solution, energy
     return best_solution or [], best_energy
 
+
 # Text-based indicators (NO Unicode emojis)
 
 
-TEXT_INDICATORS = {
-
-
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str | None = None):
+    def __init__(self, workspace_path: str | None = None, *, use_hardware: bool = False, backend_name: str = "ibmq_qasm_simulator"):
         env_default = os.getenv("GH_COPILOT_WORKSPACE")
         self.workspace_path = Path(workspace_path or env_default or Path.cwd())
         self.logger = logging.getLogger(__name__)
+        self.use_hardware = use_hardware
+        self.backend_name = backend_name
+        self.backend = None
+        if self.use_hardware:
+            self._init_backend()
+
+    def _init_backend(self) -> None:
+        try:
+            from qiskit_ibm_provider import IBMProvider
+            provider = IBMProvider()
+            self.backend = provider.get_backend(self.backend_name)
+        except Exception as exc:  # pragma: no cover - optional dependency
+            self.logger.warning("Hardware backend unavailable: %s", exc)
+            self.use_hardware = False
 
     def execute_utility(self) -> bool:
         """Execute utility function"""
         start_time = datetime.now()
-        self.logger.info(
-            f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
             # Utility implementation
@@ -67,35 +74,41 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in "
-                    f"{duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
                 return False
 
         except Exception as e:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Utility error: {e}")
+            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
             return False
 
     def perform_utility_function(self) -> bool:
         """Run a demo optimization orchestrating QUBO solving."""
-        self.logger.info(
-            f"{TEXT_INDICATORS['info']} Running QUBO demo")
+        self.logger.info(f"{TEXT_INDICATORS['info']} Running QUBO demo")
 
         try:
             from advanced_qubo_optimization import (
                 EnterpriseUtility as QuboUtil,
             )
         except ImportError as exc:  # pragma: no cover - import guard
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} {exc}")
+            self.logger.error(f"{TEXT_INDICATORS['error']} {exc}")
             return False
 
         util = QuboUtil(workspace_path=str(self.workspace_path))
-        return util.perform_utility_function()
+        result = util.perform_utility_function()
+        if self.use_hardware and self.backend:
+            try:
+                from qiskit import QuantumCircuit
+                qc = QuantumCircuit(1, 1)
+                qc.h(0)
+                qc.measure(0, 0)
+                self.backend.run(qc).result()
+                self.logger.info("[INFO] Hardware backend executed test circuit")
+            except Exception as exc:  # pragma: no cover - optional
+                self.logger.warning("Hardware execution failed: %s", exc)
+        return result
 
     def primary_validate(self) -> bool:
         """Primary validation step."""
@@ -103,14 +116,21 @@ class EnterpriseUtility:
         return True
 
     def secondary_validate(self) -> bool:
-        """Secondary validation mirroring :func:`primary_validate`."""
+        """Secondary validation using :class:`SecondaryCopilotValidator`."""
         self.logger.info("[INFO] Secondary validation running")
-        return self.primary_validate()
+        validator = SecondaryCopilotValidator(self.logger)
+        return validator.validate_corrections([__file__])
 
 
 def main() -> bool:
     """Main execution function"""
-    utility = EnterpriseUtility()
+    import argparse
+    parser = argparse.ArgumentParser(description="Quantum Integration Orchestrator")
+    parser.add_argument("--hardware", action="store_true", help="Use quantum hardware backend")
+    parser.add_argument("--backend", default="ibmq_qasm_simulator", help="Backend name")
+    args = parser.parse_args()
+
+    utility = EnterpriseUtility(use_hardware=args.hardware, backend_name=args.backend)
     success = utility.execute_utility()
 
     validator = SecondaryCopilotValidator()

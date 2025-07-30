@@ -35,7 +35,7 @@ suggestions = platform.get_copilot_suggestions(
 ### Enhancing Scripts
 ```python
 enhanced_script = platform.enhance_with_copilot(
-    script_content=original_script,
+    script_path="scripts/original_script.py",
     enhancement_type="enterprise_compliance"
 )
 ```

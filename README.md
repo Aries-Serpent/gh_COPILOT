@@ -8,22 +8,26 @@
 
 **Status:** Active development with incremental improvements
 
+> **Limitations:** The project is under heavy development. Some tests fail and several modules are only partially implemented.
+
 ---
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities.
+The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. **Many features remain experimental or stubbed; quantum functionality is simulated only and several modules are still incomplete.**
 
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** initial implementation in progress
 - **Database-First Architecture:** `databases/production.db` used as primary reference
 - **DUAL COPILOT Pattern:** primary/secondary validation framework available
+- **Dual Copilot Enforcement:** automation scripts now trigger secondary
+  validation via `SecondaryCopilotValidator` with aggregated results.
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
-- **Quantum features:** placeholders only; no quantum functionality is implemented
+
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
   optimizer and search helpers.
 
@@ -80,8 +84,10 @@ cp .env.example .env
 
 # 2. Run setup script (creates `.venv` and installs requirements)
 bash setup.sh
-# Always run this script before executing tests or automation tasks to ensure
-# dependencies and environment variables are correctly initialized.
+# Always run this script before executing tests or automation tasks.
+# The setup process installs packages from all `requirements*.txt` files,
+# including core dependencies like **Flask** and **NumPy**, and prepares
+# environment variables.
 # If package installation fails due to network restrictions,
 # update the environment to permit outbound connections to PyPI.
 
@@ -106,6 +112,10 @@ sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
+sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
+# Or run all migrations sequentially
+python scripts/run_migrations.py
 # Verify creation
 sqlite3 databases/analytics.db ".schema code_audit_log"
 sqlite3 databases/analytics.db ".schema code_audit_history"
@@ -146,6 +156,16 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 # 5. Start enterprise dashboard
 python dashboard/enterprise_dashboard.py  # imports app from web_gui package
 ```
+
+### **Documentation Update Workflow**
+After modifying files in `docs/`, regenerate and validate metrics:
+
+```bash
+python scripts/generate_docs_metrics.py
+python -m scripts.docs_metrics_validator
+python scripts/wlc_session_manager.py --db-path databases/production.db
+```
+The session manager logs the documentation update to `production.db` and writes a log file under `$GH_COPILOT_BACKUP_ROOT/logs`.
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
 are thin CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor``.
@@ -198,6 +218,16 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 ```bash
 python simplified_quantum_integration_orchestrator.py
 ```
+
+To execute algorithms on IBM Quantum hardware install `qiskit-ibm-provider` and
+run:
+
+```bash
+python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
+```
+
+If the provider cannot be initialized the orchestrator automatically falls back
+to simulation.
 
 ### Run Template Matcher
 ```bash
@@ -334,6 +364,13 @@ sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
 sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
+sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
+```
+
+Alternatively, run all migrations sequentially:
+```bash
+python scripts/run_migrations.py
 ```
 
 Automated tests perform these migrations in-memory with progress bars and DUAL
@@ -514,6 +551,20 @@ from utils.log_utils import _log_event
 _log_event({"event": "sync_start"}, table="sync_events_log")
 ```
 
+`setup_enterprise_logging()` accepts an optional `log_file` parameter. When
+omitted, logs are saved under `logs/` relative to the workspace. Provide a path
+to store logs in a custom directory:
+
+```python
+from utils.logging_utils import setup_enterprise_logging
+
+# Default logs directory (logs/)
+logger = setup_enterprise_logging()
+
+# Custom directory
+logger = setup_enterprise_logging(log_file="/var/log/gh_copilot/custom.log")
+```
+
 Tests verify this logging mechanism as part of the DUAL COPILOT pattern.
 
 ---
@@ -585,6 +636,7 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 
 Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
 This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.
+The compliance score is averaged from records in the `correction_logs` table.
 Correction history is summarized via `scripts/correction_logger_and_rollback.py`,
 producing `dashboard/compliance/correction_summary.json`.
 Set `GH_COPILOT_WORKSPACE` before running these utilities:
@@ -699,7 +751,7 @@ validate_enterprise_standards(final_result)
 bash setup.sh
 source .venv/bin/activate
 
-# Install test dependencies
+# Install test dependencies (includes ruff for linting)
 pip install -r requirements-test.txt
 
 # Run comprehensive test suite
@@ -820,12 +872,17 @@ python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 python scripts/code_placeholder_audit.py \
     --workspace $GH_COPILOT_WORKSPACE \
     --analytics-db databases/analytics.db \
-    --production-db databases/production.db
+    --production-db databases/production.db \
+    --exclude-dir builds --exclude-dir archive
 # CI runs the audit via GitHub Actions using `actions/setup-python` and
 # `pip install -r requirements.txt` to ensure dependencies are present.
 
 # The audit automatically populates `code_audit_log` in analytics.db for
-# compliance reporting.
+# compliance reporting. After fixing issues, run:
+python scripts/code_placeholder_audit.py --update-resolutions
+# to mark resolved entries in `todo_fixme_tracking`.
+# `scripts/correction_logger_and_rollback.py` records final corrections.
+# Check `/dashboard/compliance` to verify the placeholder count reaches zero.
 # Run `scripts/database/add_code_audit_log.py` if the table is missing.
 The `compliance-audit.yml` workflow now installs dependencies, including
 `tqdm`, using Python 3.11 before invoking this script.

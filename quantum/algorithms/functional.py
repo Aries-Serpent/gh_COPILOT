@@ -4,7 +4,7 @@ Refactored from original quantum_algorithms_functional.py with enhanced modulari
 """
 
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -28,10 +28,20 @@ from .base import TEXT_INDICATORS, QuantumAlgorithmBase
 
 class QuantumFunctional(QuantumAlgorithmBase):
     """Collection of functional quantum algorithms with performance metrics"""
+
+    def __init__(self, workspace_path: Optional[str] = None):
+        super().__init__(workspace_path)
+        self.backend = None
+        self.use_hardware = False
     
     def get_algorithm_name(self) -> str:
         """Get the algorithm name"""
         return "Quantum Functional Algorithms"
+
+    def set_backend(self, backend, use_hardware: bool = False):
+        """Set quantum backend for algorithm execution."""
+        self.backend = backend
+        self.use_hardware = use_hardware
     
     def execute_algorithm(self) -> bool:
         """Execute all functional quantum algorithms"""
@@ -108,7 +118,7 @@ class QuantumFunctional(QuantumAlgorithmBase):
                 diffusion(qc)
                 
         qc.measure(range(num_qubits), range(num_qubits))
-        backend = AerSimulator()
+        backend = self.backend or AerSimulator()
         counts = backend.run(qc, shots=1024).result().get_counts()
         measured = max(counts, key=counts.get)
         runtime = time.perf_counter() - start_time
@@ -149,7 +159,7 @@ class QuantumFunctional(QuantumAlgorithmBase):
 
     def run_shor_factorization(self, n: int) -> List[int]:
         """Factor ``n`` using Shor's algorithm (simulated)."""
-        backend = AerSimulator()
+        backend = self.backend or AerSimulator()
         result = Shor(quantum_instance=backend).factor(n)
         return result.factors[0]
 
@@ -166,7 +176,7 @@ class QuantumFunctional(QuantumAlgorithmBase):
     def run_variational_circuit(self, steps: int = 20, lr: float = 0.1) -> Dict[str, Any]:
         """Optimize a simple variational circuit."""
         theta = 0.0
-        backend = AerSimulator()
+        backend = self.backend or AerSimulator()
         for _ in range(steps):
             qc = QuantumCircuit(1, 1)
             qc.ry(theta, 0)
