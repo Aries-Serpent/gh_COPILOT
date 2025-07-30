@@ -572,24 +572,32 @@ if __name__ == "__main__":
             raise SystemExit(0)
         raise SystemExit(1)
     if args.rollback_last:
-        if rollback_last_entry(Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db")):
-            print("Rollback complete")
-            raise SystemExit(0)
-        raise SystemExit(1)
+        result = rollback_last_entry(Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db"))
+        print(json.dumps({"rollback": result}))
+        raise SystemExit(0 if result else 1)
     if args.test_mode:
         os.environ["GH_COPILOT_TEST_MODE"] = "1"
         args.simulate = True
+    if args.cleanup and not (args.dry_run or args.force or args.apply_fixes):
+        print(json.dumps({"error": "--cleanup requires --force when not in dry-run"}))
+        raise SystemExit(1)
     success = main(
         workspace_path=args.workspace_path,
         analytics_db=args.analytics_db,
         production_db=args.production_db,
         dashboard_dir=args.dashboard_dir,
         timeout_minutes=args.timeout_minutes,
-        simulate=args.simulate,
+        simulate=args.simulate or args.dry_run,
         exclude_dirs=args.exclude_dirs,
         update_resolutions=args.update_resolutions,
         apply_fixes=args.apply_fixes,
         dataset_path=args.dataset_path,
         export_results=args.export_results,
     )
+    summary = {
+        "cleanup": bool(args.apply_fixes or args.cleanup),
+        "dry_run": bool(args.dry_run or args.simulate),
+        "success": success,
+    }
+    print(json.dumps(summary))
     raise SystemExit(0 if success else 1)
