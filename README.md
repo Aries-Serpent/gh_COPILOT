@@ -82,8 +82,10 @@ cp .env.example .env
 
 # 2. Run setup script (creates `.venv` and installs requirements)
 bash setup.sh
-# Always run this script before executing tests or automation tasks to ensure
-# dependencies and environment variables are correctly initialized.
+# Always run this script before executing tests or automation tasks.
+# The setup process installs packages from all `requirements*.txt` files,
+# including core dependencies like **Flask** and **NumPy**, and prepares
+# environment variables.
 # If package installation fails due to network restrictions,
 # update the environment to permit outbound connections to PyPI.
 
@@ -524,6 +526,20 @@ from utils.log_utils import _log_event
 from utils.log_utils import _log_event
 
 _log_event({"event": "sync_start"}, table="sync_events_log")
+```
+
+`setup_enterprise_logging()` accepts an optional `log_file` parameter. When
+omitted, logs are saved under `logs/` relative to the workspace. Provide a path
+to store logs in a custom directory:
+
+```python
+from utils.logging_utils import setup_enterprise_logging
+
+# Default logs directory (logs/)
+logger = setup_enterprise_logging()
+
+# Custom directory
+logger = setup_enterprise_logging(log_file="/var/log/gh_copilot/custom.log")
 ```
 
 Tests verify this logging mechanism as part of the DUAL COPILOT pattern.

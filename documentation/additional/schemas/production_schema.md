@@ -1266,7 +1266,7 @@ CREATE TABLE generation_sessions (
 | id | INTEGER | Yes | None | Yes |
 | session_id | TEXT | No | None | No |
 | script_name | TEXT | No | None | No |
-| script_content | TEXT | No | None | No |
+| script_path | TEXT | No | None | No |
 | content_hash | TEXT | Yes | None | No |
 | lines_of_code | INTEGER | Yes | None | No |
 | functions_count | INTEGER | Yes | None | No |
@@ -1282,7 +1282,7 @@ CREATE TABLE generated_scripts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT NOT NULL,
                 script_name TEXT NOT NULL,
-                script_content TEXT NOT NULL,
+                script_path TEXT NOT NULL,
                 content_hash TEXT UNIQUE,
                 lines_of_code INTEGER,
                 functions_count INTEGER,

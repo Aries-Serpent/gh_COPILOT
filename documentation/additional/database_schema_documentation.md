@@ -1790,7 +1790,7 @@ Usage statistics are aggregated in `template_usage_analytics`.
 | id | INTEGER | PRIMARY KEY | - |
 | session_id | TEXT | NOT NULL | - |
 | script_name | TEXT | NOT NULL | - |
-| script_content | TEXT | NOT NULL | - |
+| script_path | TEXT | NOT NULL | - |
 | content_hash | TEXT |  | - |
 | lines_of_code | INTEGER |  | - |
 | functions_count | INTEGER |  | - |
