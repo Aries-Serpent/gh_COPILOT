@@ -208,7 +208,14 @@ class ComplianceMetricsUpdater:
     def stream_metrics(self, interval: int = 5) -> Iterable[Dict[str, Any]]:
         """Yield metrics in real-time for streaming interfaces."""
         while True:
-            metrics = self._fetch_compliance_metrics(test_mode=self.test_mode)
+            try:
+                validate_no_recursive_folders()
+                self._check_forbidden_operations()
+            except Exception as exc:  # DualCopilotOrchestrator validation
+                logging.exception("Streaming validation failed: %s", exc)
+                raise
+
+            metrics = self._fetch_compliance_metrics()
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
             yield metrics
             time.sleep(interval)
