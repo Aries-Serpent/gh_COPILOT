@@ -7,6 +7,11 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     module = importlib.import_module("dashboard.compliance_metrics_updater")
     importlib.reload(module)
+    events = []
+    monkeypatch.setattr(module, "ensure_tables", lambda *a, **k: None)
+    monkeypatch.setattr(module, "insert_event", lambda e, table, **k: events.append(table))
+    monkeypatch.setattr(module, "validate_no_recursive_folders", lambda: None)
+    monkeypatch.setattr(module, "validate_environment_root", lambda: None)
 
     db_dir = tmp_path / "databases"
     db_dir.mkdir()
@@ -36,6 +41,10 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch):
     updater.update()
     assert updater.validate_update()
 
+    assert "violation_logs" in events
+    assert "rollback_logs" in events
+    assert "correction_logs" in events
+
     metrics_file = dashboard_dir / "metrics.json"
     assert metrics_file.exists()
     data = json.loads(metrics_file.read_text())
@@ -45,3 +54,4 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch):
     assert data["metrics"]["rollback_count"] == 1
     assert data["metrics"]["progress_status"] == "issues_pending"
     assert 0.0 <= data["metrics"]["progress"] <= 1.0
+    assert data["metrics"]["correction_count"] == 1

@@ -1,5 +1,4 @@
 import sqlite3
-from pathlib import Path
 
 from dashboard import compliance_metrics_updater as cmu
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
@@ -7,7 +6,7 @@ from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 
 def test_violation_and_rollback_logging(tmp_path, monkeypatch):
     events = []
-    monkeypatch.setattr(cmu, "_log_event", lambda evt, **kw: events.append((kw.get("table"), evt)))
+    monkeypatch.setattr(cmu, "insert_event", lambda evt, table, **kw: events.append((table, evt)))
     monkeypatch.setattr(
         "scripts.correction_logger_and_rollback._log_event",
         lambda evt, **kw: events.append((kw.get("table"), evt)),

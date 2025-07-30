@@ -74,7 +74,11 @@ class ComplianceMetricsUpdater:
         logging.info("PROCESS STARTED: Compliance Metrics Update")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
-        ensure_tables(ANALYTICS_DB, ["violation_logs", "rollback_logs"], test_mode=False)
+        ensure_tables(
+            ANALYTICS_DB,
+            ["violation_logs", "rollback_logs", "correction_logs"],
+            test_mode=False,
+        )
         self.forbidden_phrases = ["rm -rf", "sudo", "wget "]
 
     def _fetch_compliance_metrics(self) -> Dict[str, Any]:
@@ -112,6 +116,8 @@ class ComplianceMetricsUpdater:
                 cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
                 avg_score = cur.fetchone()[0]
                 metrics["compliance_score"] = float(avg_score) if avg_score is not None else 0.0
+                cur.execute("SELECT COUNT(*) FROM correction_logs")
+                metrics["correction_count"] = cur.fetchone()[0]
 
                 cur.execute("SELECT COUNT(*) FROM violation_logs")
                 metrics["violation_count"] = cur.fetchone()[0]
@@ -147,25 +153,53 @@ class ComplianceMetricsUpdater:
                 {"event": "violation_detected", "count": metrics["violation_count"]},
                 "violation_logs",
                 db_path=ANALYTICS_DB,
-                test_mode=True,
+                test_mode=False,
             )
         if metrics["rollback_count"]:
             insert_event(
                 {"event": "rollback_detected", "count": metrics["rollback_count"]},
                 "rollback_logs",
                 db_path=ANALYTICS_DB,
-                test_mode=True,
+                test_mode=False,
             )
+        insert_event(
+            {"event": "correction", "score": metrics.get("compliance_score", 0.0)},
+            "correction_logs",
+            db_path=ANALYTICS_DB,
+            test_mode=False,
+        )
         metrics["last_update"] = datetime.now().isoformat()
         return metrics
 
     def _cognitive_compliance_suggestion(self, metrics: Dict[str, Any]) -> str:
-        """Return a simple compliance suggestion based on metrics."""
-        if metrics.get("violation_count", 0) > 0:
-            return "Review recent violations and address root causes."
-        if metrics.get("open_placeholders", 0) > 0:
-            return "Resolve open placeholders to improve compliance."
-        return "System compliant."
+        """Return a compliance suggestion based on historical logs and metrics."""
+        suggestions: list[str] = []
+        if ANALYTICS_DB.exists():
+            try:
+                with sqlite3.connect(ANALYTICS_DB) as conn:
+                    cur = conn.cursor()
+                    cur.execute(
+                        "SELECT details FROM violation_logs ORDER BY timestamp DESC LIMIT 5"
+                    )
+                    violations = [row[0].lower() for row in cur.fetchall()]
+                    if any("placeholder" in v for v in violations):
+                        suggestions.append("Clean unresolved placeholders.")
+                    if len(violations) > 2:
+                        suggestions.append("Investigate recurring violations.")
+                    cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
+                    avg_score = cur.fetchone()[0]
+                    if avg_score is not None and avg_score < 0.9:
+                        suggestions.append("Increase average compliance score.")
+            except sqlite3.Error as exc:
+                logging.warning("Suggestion analysis failed: %s", exc)
+        if not suggestions:
+            if metrics.get("violation_count", 0) > 0:
+                suggestions.append("Review recent violations and address root causes.")
+            elif metrics.get("open_placeholders", 0) > 0:
+                suggestions.append("Resolve open placeholders to improve compliance.")
+            else:
+                suggestions.append("System compliant.")
+        return " ".join(suggestions)
 
     def _check_forbidden_operations(self) -> None:
         """Fail if forbidden operations appear in recent logs."""
@@ -214,22 +248,28 @@ class ComplianceMetricsUpdater:
             {"event": "dashboard_update", "metrics": metrics},
             "event_log",
             db_path=ANALYTICS_DB,
-            test_mode=True,
+            test_mode=False,
         )
         if metrics.get("violation_count"):
             insert_event(
                 {"event": "violation", "count": metrics["violation_count"]},
                 "violation_logs",
                 db_path=ANALYTICS_DB,
-                test_mode=True,
+                test_mode=False,
             )
         if metrics.get("rollback_count"):
             insert_event(
                 {"event": "rollback", "count": metrics["rollback_count"]},
                 "rollback_logs",
                 db_path=ANALYTICS_DB,
-                test_mode=True,
+                test_mode=False,
             )
+        insert_event(
+            {"event": "update", "score": metrics.get("compliance_score", 0.0)},
+            "correction_logs",
+            db_path=ANALYTICS_DB,
+            test_mode=False,
+        )
 
     def update(self, simulate: bool = False) -> None:
         """Update compliance metrics for the web dashboard with full compliance and validation.
@@ -270,7 +310,7 @@ class ComplianceMetricsUpdater:
             {"event": "update_complete", "duration": elapsed},
             "event_log",
             db_path=ANALYTICS_DB,
-            test_mode=True,
+            test_mode=False,
         )
         self.status = "COMPLETED"
 
@@ -280,6 +320,15 @@ class ComplianceMetricsUpdater:
             remaining = total_estimated - elapsed
             return f"{remaining:.2f}s remaining"
         return "N/A"
+
+    def run_scheduler(self, interval: int = 60, iterations: int = 1, simulate: bool = False) -> None:
+        """Periodically run :meth:`update` with safety checks."""
+        for _ in range(iterations):
+            validate_no_recursive_folders()
+            self._check_forbidden_operations()
+            self.update(simulate=simulate)
+            if iterations > 1:
+                time.sleep(interval)
 
     def validate_update(self) -> bool:
         """DUAL COPILOT: Secondary validator for dashboard integrity and compliance."""

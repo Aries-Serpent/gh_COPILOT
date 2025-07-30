@@ -108,6 +108,22 @@ TABLE_SCHEMAS: Dict[str, str] = {
             timestamp TEXT
         );
     """,
+    "cross_link_events": """
+        CREATE TABLE IF NOT EXISTS cross_link_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            file_path TEXT NOT NULL,
+            linked_path TEXT NOT NULL,
+            timestamp TEXT NOT NULL
+        );
+    """,
+    "cross_link_summary": """
+        CREATE TABLE IF NOT EXISTS cross_link_summary (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            actions INTEGER,
+            links INTEGER,
+            timestamp TEXT NOT NULL
+        );
+    """,
 }
 
 

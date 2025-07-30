@@ -16,7 +16,8 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
         conn.execute("CREATE TABLE cross_reference_patterns (pattern_name TEXT)")
         conn.execute("INSERT INTO cross_reference_patterns VALUES ('foo')")
 
-    analytics_db = tmp_path / "analytics.db"
+    analytics_db = tmp_path / "databases" / "analytics.db"
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             """
@@ -36,6 +37,13 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
     task_file = tmp_path / "tasks.md"
     task_file.write_text("- [ ] Example task\n", encoding="utf-8")
 
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir()
+    (docs_dir / "file.py").write_text("docs")
+    code_dir = tmp_path / "copilot"
+    code_dir.mkdir()
+    (code_dir / "file.py").write_text("code")
+
     validator = crv.CrossReferenceValidator(
         production_db, analytics_db, dashboard_dir, task_file
     )
@@ -45,3 +53,9 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
     assert summary_file.exists()
     data = json.loads(summary_file.read_text())
     assert len(data["cross_linked_actions"]) == 1
+
+    with sqlite3.connect(analytics_db) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM cross_link_events").fetchone()[0]
+        summary = conn.execute("SELECT actions, links FROM cross_link_summary").fetchone()
+    assert count == 2
+    assert summary == (1, count)

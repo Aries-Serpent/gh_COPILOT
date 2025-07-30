@@ -10,7 +10,14 @@ import time
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
-from flask import Flask, Response, jsonify, render_template_string, request
+from flask import (
+    Flask,
+    Response,
+    jsonify,
+    render_template,
+    render_template_string,
+    request,
+)
 from tqdm import tqdm
 
 from config.secret_manager import get_secret
@@ -18,7 +25,8 @@ from config.secret_manager import get_secret
 ANALYTICS_DB = Path("databases/analytics.db")
 COMPLIANCE_DIR = Path("dashboard/compliance")
 
-app = Flask(__name__)
+TEMPLATES = Path(__file__).resolve().parents[2] / "templates"
+app = Flask(__name__, template_folder=str(TEMPLATES))
 app.secret_key = get_secret("FLASK_SECRET_KEY", "dev_key")
 LOG_FILE = Path("logs/dashboard") / "dashboard.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -70,8 +78,7 @@ def _fetch_correction_history(limit: int = 5) -> List[Dict[str, Any]]:
         with sqlite3.connect(ANALYTICS_DB) as conn:
             try:
                 cur = conn.execute(
-                    "SELECT file_path, compliance_score, ts FROM correction_logs "
-                    "ORDER BY ts DESC LIMIT ?",
+                    "SELECT file_path, compliance_score, ts FROM correction_logs ORDER BY ts DESC LIMIT ?",
                     (limit,),
                 )
                 history = [
@@ -96,9 +103,7 @@ def _fetch_alerts(limit: int = 5) -> Dict[str, Any]:
                     "SELECT details, timestamp FROM violation_logs ORDER BY timestamp DESC LIMIT ?",
                     (limit,),
                 )
-                alerts["violations"] = [
-                    {"details": row[0], "timestamp": row[1]} for row in cur.fetchall()
-                ]
+                alerts["violations"] = [{"details": row[0], "timestamp": row[1]} for row in cur.fetchall()]
                 cur = conn.execute(
                     "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT ?",
                     (limit,),
@@ -130,8 +135,11 @@ def dashboard_compliance() -> Any:
 
 
 @app.get("/")
-def index() -> str:
-    return "Compliance Dashboard"
+def index() -> Any:
+    """Render the dashboard with live metrics via SSE."""
+    metrics = _fetch_metrics()
+    alerts = _fetch_alerts()
+    return render_template("dashboard.html", metrics=metrics, alerts=alerts)
 
 
 @app.get("/metrics")
@@ -170,10 +178,22 @@ def rollback_alerts() -> Any:
     return jsonify(data)
 
 
+@app.get("/rollback_history")
+def rollback_history() -> Any:
+    """Return full rollback history."""
+    return jsonify(_fetch_rollbacks())
+
+
 @app.get("/alerts")
 def alerts() -> Any:
     """Return recent violation and rollback alerts."""
     return jsonify(_fetch_alerts())
+
+
+@app.get("/violations")
+def violations() -> Any:
+    """Return recent violation summaries."""
+    return jsonify(_fetch_alerts().get("violations", []))
 
 
 @app.get("/dashboard_info")
@@ -215,7 +235,8 @@ def health() -> Any:
 
 @app.get("/error")
 def error() -> Any:
-    raise RuntimeError("Test error endpoint")
+    """Simulate an error for monitoring checks."""
+    return jsonify({"status": "error", "message": "simulated failure"}), 500
 
 
 @app.get("/reports")

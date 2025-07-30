@@ -11,6 +11,8 @@ MIGRATIONS = [
     Path("databases/migrations/add_violation_logs.sql"),
     Path("databases/migrations/add_rollback_logs.sql"),
     Path("databases/migrations/add_unified_wrapup_sessions.sql"),
+    Path("databases/migrations/add_placeholder_removals.sql"),
+    Path("databases/migrations/add_size_violations.sql"),
 ]
 
 
@@ -37,3 +39,5 @@ def test_analytics_db_creation(tmp_path: Path) -> None:
         assert table_exists(conn, "code_audit_log")
         assert table_exists(conn, "correction_history")
         assert table_exists(conn, "code_audit_history")
+        assert table_exists(conn, "placeholder_removals")
+        assert table_exists(conn, "size_violations")

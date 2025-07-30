@@ -33,13 +33,11 @@ except ModuleNotFoundError:  # pragma: no cover - fallback
     subprocess.check_call([sys.executable, "-m", "pip", "install", "tqdm"])
     from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import (
-    validate_enterprise_operation,
-)
+from enterprise_modules.compliance import validate_enterprise_operation
 from scripts.database.add_code_audit_log import ensure_code_audit_log
 from template_engine.template_placeholder_remover import remove_unused_placeholders
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
-from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.log_utils import log_message
 
 # Visual processing indicator constants
@@ -133,6 +131,7 @@ def log_findings(
     None
         The function writes to the database when not in simulation mode.
     """
+    user = os.getenv("USER", "system")
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     ensure_code_audit_log(analytics_db)
     # Ensure the tracking table exists even when running in simulation mode so
@@ -175,8 +174,19 @@ def log_findings(
             )
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS code_audit_history (
+                id INTEGER PRIMARY KEY,
+                audit_entry TEXT NOT NULL,
+                user TEXT NOT NULL,
+                timestamp TEXT NOT NULL
+            )
+            """
+        )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_code_audit_log_file_path ON code_audit_log(file_path)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_code_audit_log_timestamp ON code_audit_log(timestamp)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_code_audit_history_timestamp ON code_audit_history(timestamp)")
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
@@ -232,8 +242,16 @@ def log_findings(
                         values[:-1],
                     )
                     conn.execute(
-                        "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp, author, status)"
-                        " VALUES (?, ?, ?, ?, ?, ?, 'open')",
+                        "INSERT INTO code_audit_history (audit_entry, user, timestamp) VALUES (?, ?, ?)",
+                        (
+                            f"audit:{row['file']}:{row['line']}",
+                            user,
+                            datetime.now().isoformat(),
+                        ),
+                    )
+                    conn.execute(
+                        "INSERT INTO todo_fixme_tracking (file_path, line_number, placeholder_type, context, timestamp, status)"
+                        " VALUES (?, ?, ?, ?, ?, 'open')",
                         values,
                     )
         conn.commit()
@@ -309,19 +327,23 @@ def validate_results(expected_count: int, analytics_db: Path) -> bool:
     return db_count >= expected_count
 
 
-def rollback_last_entry(db_path: Path) -> bool:
-    """Remove the most recent placeholder audit entry from the databases."""
+def rollback_last_entry(db_path: Path, entry_id: int | None = None) -> bool:
+    """Remove a placeholder audit entry from the databases."""
     if not db_path.exists():
         return False
     removed = False
     with sqlite3.connect(db_path) as conn:
-        cur = conn.execute("SELECT rowid FROM todo_fixme_tracking ORDER BY rowid DESC LIMIT 1")
-        row = cur.fetchone()
-        if row:
-            conn.execute("DELETE FROM todo_fixme_tracking WHERE rowid = ?", (row[0],))
+        if entry_id is None:
+            cur = conn.execute(
+                "SELECT rowid FROM todo_fixme_tracking ORDER BY rowid DESC LIMIT 1"
+            )
+            row = cur.fetchone()
+            entry_id = row[0] if row else None
+        if entry_id is not None:
+            conn.execute("DELETE FROM todo_fixme_tracking WHERE rowid = ?", (entry_id,))
             conn.execute(
-                "DELETE FROM code_audit_log WHERE rowid = ("
-                "SELECT rowid FROM code_audit_log ORDER BY rowid DESC LIMIT 1)"
+                "DELETE FROM code_audit_log WHERE rowid = ?",
+                (entry_id,),
             )
             conn.commit()
             removed = True
@@ -406,8 +428,7 @@ def main(
     exclude_dirs: Optional[List[str]] = None,
     update_resolutions: bool = False,
     apply_fixes: bool = False,
-    dataset_path: Optional[str] = None,
-    export_results: Optional[str] = None,
+    export: Optional[Path] = None,
 ) -> bool:
     """Entry point for placeholder auditing with full enterprise compliance.
 
@@ -502,6 +523,8 @@ def main(
 
     # DUAL COPILOT validation
     valid = validate_results(len(results), analytics)
+    secondary = SecondaryCopilotValidator()
+    secondary.validate_corrections([r["file"] for r in results])
     if valid:
         log_message(__name__, f"{TEXT['success']} audit logged {len(results)} findings")
     else:
@@ -510,6 +533,8 @@ def main(
             f"{TEXT['error']} validation mismatch",
             level=logging.ERROR,
         )
+    if export:
+        export.write_text(json.dumps({"results": results, "valid": valid}))
     return valid
 
 
@@ -523,6 +548,7 @@ if __name__ == "__main__":
     parser.add_argument("--dashboard-dir", type=str, help="dashboard/compliance directory")
     parser.add_argument("--timeout-minutes", type=int, default=30, help="Scan timeout in minutes")
     parser.add_argument("--simulate", action="store_true", help="Run in test mode without writes")
+    parser.add_argument("--dry-run", action="store_true", help="Alias for --simulate")
     parser.add_argument(
         "--test-mode",
         action="store_true",
@@ -545,6 +571,7 @@ if __name__ == "__main__":
         action="store_true",
         help="Automatically remove placeholders and log corrections",
     )
+    parser.add_argument("--cleanup", action="store_true", help="Alias for --apply-fixes")
     parser.add_argument(
         "--cleanup",
         action="store_true",
@@ -565,9 +592,13 @@ if __name__ == "__main__":
         action="store_true",
         help="Rollback the most recent audit entry",
     )
+    parser.add_argument("--rollback-id", type=int, help="Rollback a specific entry id")
+    parser.add_argument("--force", action="store_true", help="Disable validation checks")
+    parser.add_argument("--export", type=Path, help="Export audit results to JSON")
     args = parser.parse_args()
-    if args.rollback_id is not None:
-        if rollback_audit_entry(Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db"), args.rollback_id):
+    if args.rollback_last or args.rollback_id is not None:
+        target_id = args.rollback_id
+        if rollback_last_entry(Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db"), target_id):
             print("Rollback complete")
             raise SystemExit(0)
         raise SystemExit(1)
@@ -578,10 +609,12 @@ if __name__ == "__main__":
     if args.test_mode:
         os.environ["GH_COPILOT_TEST_MODE"] = "1"
         args.simulate = True
-    if args.cleanup:
-        args.apply_fixes = True
     if args.dry_run:
         args.simulate = True
+    if args.cleanup:
+        args.apply_fixes = True
+    if args.force:
+        os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
     success = main(
         workspace_path=args.workspace_path,
         analytics_db=args.analytics_db,
@@ -595,11 +628,6 @@ if __name__ == "__main__":
         dataset_path=args.dataset_path,
         export_results=args.export_results,
     )
-    summary = {
-        "workspace": args.workspace_path or str(Path.cwd()),
-        "cleanup": args.apply_fixes,
-        "dry_run": args.simulate,
-        "result": success,
-    }
-    print(json.dumps(summary))
+    if args.export:
+        pass
     raise SystemExit(0 if success else 1)

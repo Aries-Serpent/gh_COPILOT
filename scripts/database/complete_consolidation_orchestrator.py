@@ -17,7 +17,7 @@ from typing import Any, List, Optional, Sequence, Union, cast
 import py7zr  # pyright: ignore[reportMissingImports]
 from tqdm import tqdm
 
-from scripts.continuous_operation_orchestrator import validate_enterprise_operation
+from enterprise_modules.compliance import validate_enterprise_operation
 
 from .database_migration_corrector import DatabaseMigrationCorrector
 from .size_compliance_checker import check_database_sizes
