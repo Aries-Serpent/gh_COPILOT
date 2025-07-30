@@ -94,6 +94,38 @@ def test_rank_templates_uses_quantum(tmp_path: Path, monkeypatch) -> None:
     def fake_qscore(text: str) -> float:
         return {"foo": 0.9, "bar": 0.1, "target": 0.85}.get(text, 0.0)
 
-    monkeypatch.setattr(gen, "_quantum_score", fake_qscore)
+    calls = []
+
+    def wrapped(text: str) -> float:
+        calls.append(text)
+        return fake_qscore(text)
+
+    monkeypatch.setattr(gen, "_quantum_score", wrapped)
+    gen.templates = ["foo", "bar"]
+    gen.patterns = []
+    monkeypatch.setattr(gen, "_quantum_similarity", lambda *a: 0.0)
+    monkeypatch.setattr(auto_generator, "quantum_similarity_score", lambda *a: 0.0)
+    monkeypatch.setattr(auto_generator, "quantum_cluster_score", lambda *a: 0.0)
+
+    ranked = gen.rank_templates("target")
+    assert "target" in calls and "foo" in calls and "bar" in calls
+    assert ranked[0] == "foo"
+
+
+def test_quantum_text_score_influences_ranking(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    gen = TemplateAutoGenerator(analytics_db, completion_db)
+    gen.templates = ["foo", "bar"]
+    gen.patterns = []
+
+    monkeypatch.setattr(auto_generator, "compute_similarity_scores", lambda *a, **k: [])
+    monkeypatch.setattr(auto_generator, "quantum_similarity_score", lambda *a: 0.0)
+    monkeypatch.setattr(auto_generator, "quantum_cluster_score", lambda *a: 0.0)
+    monkeypatch.setattr(gen, "_quantum_similarity", lambda *a: 0.0)
+
+    scores = {"foo": 0.95, "bar": 0.2, "target": 0.9}
+    monkeypatch.setattr(gen, "_quantum_score", lambda text: scores.get(text, 0.0))
+
     ranked = gen.rank_templates("target")
     assert ranked[0] == "foo"
