@@ -36,6 +36,8 @@ from scripts.continuous_operation_orchestrator import (
     validate_enterprise_operation,
 )
 from scripts.database.add_code_audit_log import ensure_code_audit_log
+from template_engine.template_placeholder_remover import remove_unused_placeholders
+from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from utils.log_utils import log_message
 
 # Visual processing indicator constants
@@ -291,6 +293,40 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
     return "N/A"
 
 
+def auto_remove_placeholders(
+    results: List[Dict],
+    production_db: Path,
+    analytics_db: Path,
+) -> None:
+    """Remove detected placeholders and log corrections."""
+    by_file: Dict[str, List[Dict]] = {}
+    for res in results:
+        by_file.setdefault(res["file"], []).append(res)
+
+    logger = CorrectionLoggerRollback(analytics_db)
+    for file_path, file_results in by_file.items():
+        path = Path(file_path)
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        for res in file_results:
+            idx = res["line"] - 1
+            if 0 <= idx < len(lines):
+                lines[idx] = re.sub(r"#\s*(TODO|FIXME).*", "", lines[idx])
+        new_text = "\n".join(lines)
+        new_text = remove_unused_placeholders(
+            new_text, production_db, analytics_db, timeout_minutes=1
+        )
+        if new_text != text:
+            path.write_text(new_text, encoding="utf-8")
+            logger.log_change(path, "Auto placeholder cleanup", 1.0)
+
+    logger.summarize_corrections()
+    # Mark resolved placeholders
+    log_findings([], analytics_db, simulate=False, update_resolutions=True)
+
+
 def main(
     workspace_path: Optional[str] = None,
     analytics_db: Optional[str] = None,
@@ -301,6 +337,7 @@ def main(
     *,
     exclude_dirs: Optional[List[str]] = None,
     update_resolutions: bool = False,
+    apply_fixes: bool = False,
 ) -> bool:
     """Entry point for placeholder auditing with full enterprise compliance.
 
@@ -308,6 +345,9 @@ def main(
     ----------
     simulate:
         If ``True``, skip writing to databases and dashboard.
+    apply_fixes:
+        When ``True`` automatically remove flagged placeholders and log
+        corrections.
     """
     # Visual processing indicators: start time, process ID, anti-recursion validation
     start_time = time.time()
@@ -372,6 +412,8 @@ def main(
 
     # Log findings to analytics.db
     log_findings(results, analytics, simulate=simulate, update_resolutions=update_resolutions)
+    if apply_fixes and not simulate:
+        auto_remove_placeholders(results, production, analytics)
     # Update dashboard/compliance
     if not simulate:
         update_dashboard(len(results), dashboard, analytics)
@@ -415,6 +457,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Only mark resolved entries; do not log new placeholders",
     )
+    parser.add_argument(
+        "--apply-fixes",
+        action="store_true",
+        help="Automatically remove placeholders and log corrections",
+    )
     args = parser.parse_args()
     success = main(
         workspace_path=args.workspace_path,
@@ -425,5 +472,6 @@ if __name__ == "__main__":
         simulate=args.simulate,
         exclude_dirs=args.exclude_dirs,
         update_resolutions=args.update_resolutions,
+        apply_fixes=args.apply_fixes,
     )
     raise SystemExit(0 if success else 1)
