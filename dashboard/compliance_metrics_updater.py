@@ -25,7 +25,7 @@ from utils.log_utils import ensure_tables, insert_event
 
 
 # Enterprise logging setup
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))) / "logs" / "dashboard"
+LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT")) / "logs" / "dashboard"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"compliance_update_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -36,12 +36,12 @@ logging.basicConfig(
 )
 
 # Database paths
-ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))) / "databases" / "analytics.db"
-DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))) / "dashboard" / "compliance"
+ANALYTICS_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT")) / "databases" / "analytics.db"
+DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT")) / "dashboard" / "compliance"
 
 
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT"))
     forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
@@ -51,7 +51,7 @@ def validate_no_recursive_folders() -> None:
 
 
 def validate_environment_root() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "/workspace/gh_COPILOT"))
     if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
         logging.warning(f"Non-standard workspace root: {workspace_root}")
 
