@@ -120,7 +120,9 @@ def remove_unused_placeholders(
                 context TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                 resolved BOOLEAN DEFAULT 0,
-                resolved_timestamp DATETIME
+                resolved_timestamp DATETIME,
+                status TEXT DEFAULT 'open',
+                removal_id INTEGER
             )"""
         )
         etc = "N/A"
@@ -131,14 +133,15 @@ def remove_unused_placeholders(
                 if ph not in valid:
                     pattern = r"{{\s*%s\s*}}" % re.escape(ph)
                     result = re.sub(pattern, "", result)
-                    conn.execute(
+                    cur = conn.execute(
                         "INSERT INTO placeholder_removals (placeholder, ts) VALUES (?, ?)",
                         (ph, datetime.utcnow().isoformat()),
                     )
+                    removal_id = cur.lastrowid
                     conn.execute(
-                        "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?"
+                        "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, status='resolved', removal_id=?"
                         " WHERE placeholder_type=? AND resolved=0",
-                        (datetime.utcnow().isoformat(), ph),
+                        (datetime.utcnow().isoformat(), removal_id, ph),
                     )
                 elapsed = time.time() - start_time.timestamp()
                 etc = calculate_etc(start_time.timestamp(), idx, total_steps)

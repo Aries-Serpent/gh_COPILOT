@@ -170,11 +170,13 @@ class EnterpriseFlake8Corrector(BaseCorrector):
                         """CREATE TABLE IF NOT EXISTS todo_fixme_tracking (
                             file_path TEXT,
                             resolved INTEGER,
-                            resolved_timestamp TEXT
+                            resolved_timestamp TEXT,
+                            status TEXT,
+                            removal_id INTEGER
                         )"""
                     )
                     conn.execute(
-                        "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=? WHERE file_path=? AND resolved=0",
+                        "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, status='resolved' WHERE file_path=? AND resolved=0",
                         (datetime.utcnow().isoformat(), file_path),
                     )
                     conn.commit()
