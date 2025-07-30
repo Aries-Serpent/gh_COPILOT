@@ -32,17 +32,11 @@ def integrate_qubo_problems(qubos: List[List[List[float]]]) -> Tuple[List[int], 
             best_solution, best_energy = solution, energy
     return best_solution or [], best_energy
 
+
 # Text-based indicators (NO Unicode emojis)
 
 
-TEXT_INDICATORS = {
-
-
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -56,8 +50,7 @@ class EnterpriseUtility:
     def execute_utility(self) -> bool:
         """Execute utility function"""
         start_time = datetime.now()
-        self.logger.info(
-            f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
+        self.logger.info(f"{TEXT_INDICATORS['start']} Utility started: {start_time}")
 
         try:
             # Utility implementation
@@ -67,31 +60,26 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in "
-                    f"{duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
                 return False
 
         except Exception as e:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Utility error: {e}")
+            self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
             return False
 
     def perform_utility_function(self) -> bool:
         """Run a demo optimization orchestrating QUBO solving."""
-        self.logger.info(
-            f"{TEXT_INDICATORS['info']} Running QUBO demo")
+        self.logger.info(f"{TEXT_INDICATORS['info']} Running QUBO demo")
 
         try:
             from advanced_qubo_optimization import (
                 EnterpriseUtility as QuboUtil,
             )
         except ImportError as exc:  # pragma: no cover - import guard
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} {exc}")
+            self.logger.error(f"{TEXT_INDICATORS['error']} {exc}")
             return False
 
         util = QuboUtil(workspace_path=str(self.workspace_path))
@@ -103,9 +91,10 @@ class EnterpriseUtility:
         return True
 
     def secondary_validate(self) -> bool:
-        """Secondary validation mirroring :func:`primary_validate`."""
+        """Secondary validation using :class:`SecondaryCopilotValidator`."""
         self.logger.info("[INFO] Secondary validation running")
-        return self.primary_validate()
+        validator = SecondaryCopilotValidator(self.logger)
+        return validator.validate_corrections([__file__])
 
 
 def main() -> bool:

@@ -22,6 +22,8 @@ Generated: 2025-07-12
 Critical Priority: SYSTEM COMPLETION - Final Chunk 4/4
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import time
@@ -43,19 +45,34 @@ class UnicodeFileInfo:
 
 
 class UnicodeCompatibleFileHandler:
-    def __init__(self):
-        pass
+    """Simple unicode-aware file reader."""
 
-    def read_file_with_encoding_detection(self, file_path):
-        return UnicodeFileInfo(file_path, "utf-8")
+    def __init__(self, encoding: str = "utf-8"):
+        self.encoding = encoding
+
+    def read_file_with_encoding_detection(self, file_path: str) -> UnicodeFileInfo:
+        """Read a file using the configured encoding."""
+        try:
+            with open(file_path, "r", encoding=self.encoding):
+                pass
+        except Exception:
+            self.encoding = "utf-8"
+        return UnicodeFileInfo(file_path, self.encoding)
 
 
 class AntiRecursionValidator:
-    def __init__(self):
-        pass
+    """Check that backups are stored outside the workspace."""
 
-    def validate_workspace_integrity(self):
-        return True
+    def __init__(self, workspace: str | None = None):
+        self.workspace = Path(workspace or os.getenv("GH_COPILOT_WORKSPACE", "."))
+        self.backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
+
+    def validate_workspace_integrity(self) -> bool:
+        """Return True if backup path is not within the workspace."""
+        try:
+            return not str(self.backup_root).startswith(str(self.workspace))
+        except Exception:
+            return False
 
 
 class EnterpriseLoggingManager:
@@ -109,20 +126,36 @@ class DatabaseDrivenCorrectionEngine:
 # Additional fallback classes
 
 
+@dataclass
 class DatabaseManager:
-    pass
+    """Basic wrapper for a database path."""
+
+    path: Path
+
+    def exists(self) -> bool:
+        return self.path.exists()
 
 
+@dataclass
 class CorrectionSession:
-    pass
+    """Simple data holder for correction sessions."""
+
+    session_id: str
 
 
+@dataclass
 class DatabaseCorrectionPattern:
-    pass
+    """Represents a correction pattern entry."""
+
+    pattern: str
 
 
+@dataclass
 class FileViolationReport:
-    pass
+    """Report of violations detected in a file."""
+
+    file_path: str
+    violations: List[str]
 
 
 # Enterprise progress manager (fallback implementation)
@@ -179,7 +212,7 @@ class EnterpriseProgressManager:
         return self.current_metrics
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+        self.current_metrics = None
 
     def execute_with_visual_indicators(self, phases, executor):
         results = {}
@@ -189,23 +222,62 @@ class EnterpriseProgressManager:
 
 
 class DualCopilotValidator:
-    def __init__(self):
-        pass
+    def __init__(self) -> None:
+        self.results: List[DualCopilotValidationResult] = []
+
+    def aggregate_results(self) -> DualCopilotValidationResult:
+        """Aggregate stored validation results into a single report."""
+        if not self.results:
+            return DualCopilotValidationResult(
+                validation_id="NONE",
+                timestamp=datetime.now(),
+                primary_execution_success=False,
+                secondary_validation_passed=False,
+                overall_compliance_score=0.0,
+                enterprise_standards_met=False,
+                performance_metrics={},
+                quality_indicators={},
+                recommendations=[],
+                validation_details={},
+            )
+
+        overall_score = sum(r.overall_compliance_score for r in self.results) / len(self.results)
+        return DualCopilotValidationResult(
+            validation_id="AGGREGATED",
+            timestamp=datetime.now(),
+            primary_execution_success=all(r.primary_execution_success for r in self.results),
+            secondary_validation_passed=all(r.secondary_validation_passed for r in self.results),
+            overall_compliance_score=overall_score,
+            enterprise_standards_met=all(r.enterprise_standards_met for r in self.results),
+            performance_metrics={str(i): r.performance_metrics for i, r in enumerate(self.results)},
+            quality_indicators={str(i): r.quality_indicators for i, r in enumerate(self.results)},
+            recommendations=[rec for r in self.results for rec in r.recommendations],
+            validation_details={f"validator_{i}": r.validation_details for i, r in enumerate(self.results)},
+        )
 
 
 # Additional fallback classes
 
 
+@dataclass
 class VisualProcessingConfig:
-    pass
+    """Configuration options for progress output."""
+
+    enabled: bool = True
 
 
+@dataclass
 class TimeoutManager:
-    pass
+    """Simple timeout configuration."""
+
+    minutes: int = 30
 
 
+@dataclass
 class PerformanceMonitor:
-    pass
+    """Placeholder performance metrics container."""
+
+    memory_limit: int = 2048
 
 
 def get_logger(name: str = "enterprise_dual_copilot") -> logging.Logger:
