@@ -10,7 +10,7 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 
 def validate_workspace_integrity() -> Dict[str, Any]:
     """Validate workspace integrity and structure"""
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    workspace = CrossPlatformPathManager.get_workspace_path()
 
     validation_results = {
         "workspace_exists": workspace.exists(),
@@ -44,7 +44,7 @@ def validate_workspace_integrity() -> Dict[str, Any]:
 
 def validate_script_organization() -> Dict[str, Any]:
     """Validate script organization structure"""
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    workspace = CrossPlatformPathManager.get_workspace_path()
     scripts_dir = workspace / "scripts"
 
     organization_status = {
@@ -98,10 +98,7 @@ def validate_path(path: Path) -> bool:
 def validate_enterprise_environment() -> bool:
     """Ensure workspace and backup paths are set and non-recursive."""
     workspace = CrossPlatformPathManager.get_workspace_path().resolve()
-    backup_root_env = os.getenv("GH_COPILOT_BACKUP_ROOT")
-    if not backup_root_env:
-        raise EnvironmentError("GH_COPILOT_BACKUP_ROOT is not set")
-    backup_root = Path(backup_root_env).resolve()
+    backup_root = CrossPlatformPathManager.get_backup_root().resolve()
 
     if not workspace.exists():
         raise EnvironmentError("GH_COPILOT_WORKSPACE does not exist")

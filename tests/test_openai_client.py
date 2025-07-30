@@ -1,4 +1,5 @@
 from unittest import mock
+import pytest
 
 from third_party.openai_client import OpenAIClient
 import third_party.openai_client as oc
@@ -56,3 +57,41 @@ def test_rate_limiting(monkeypatch):
 
     assert t2 - t1 >= 1.0
     assert sleeps == [1.0, 1.0]
+
+
+def test_transient_500_errors(monkeypatch):
+    """Ensure client retries on transient 500 errors."""
+    monkeypatch.setenv("OPENAI_API_KEY", "k")
+    client = OpenAIClient(base_url="http://api", max_retries=3, rate_limit=0)
+
+    # prevent real sleeps
+    sleeps: list[float] = []
+    monkeypatch.setattr(oc.time, "sleep", lambda d: sleeps.append(d))
+    monkeypatch.setattr(oc.time, "time", lambda: 0.0)
+
+    responses = [mock.Mock(status_code=500), mock.Mock(status_code=500), mock.Mock(status_code=200)]
+    responses[-1].json.return_value = {"ok": True}
+
+    with mock.patch("requests.Session.request", side_effect=responses) as req:
+        result = client.chat_completion([{"role": "user", "content": "hi"}])
+
+    assert req.call_count == 3
+    assert sleeps == [1, 2]
+    assert result == {"ok": True}
+
+
+def test_network_exception_after_retries(monkeypatch):
+    """Network errors should propagate after max retries."""
+    monkeypatch.setenv("OPENAI_API_KEY", "k")
+    client = OpenAIClient(base_url="http://api", max_retries=2, rate_limit=0)
+
+    monkeypatch.setattr(oc.time, "sleep", lambda d: None)
+    monkeypatch.setattr(oc.time, "time", lambda: 0.0)
+
+    exc = oc.requests.RequestException("boom")
+
+    with mock.patch("requests.Session.request", side_effect=exc) as req:
+        with pytest.raises(oc.requests.RequestException):
+            client.chat_completion([{"role": "user", "content": "hi"}])
+
+    assert req.call_count == 2

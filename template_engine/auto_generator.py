@@ -12,7 +12,7 @@ import os
 import sqlite3
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, List, Iterable
@@ -71,7 +71,7 @@ logger = logging.getLogger(__name__)
 
 
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
     forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
@@ -91,14 +91,20 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
 
 @dataclass
 class TemplateAutoGenerator:
-    """Generate and cluster templates loaded from SQLite databases with visual processing indicators."""
+    """Generate and cluster templates loaded from SQLite databases with visual processing indicators.
+
+    Templates are cached per target string to avoid redundant database lookups.
+    """
 
     analytics_db: Path = DEFAULT_ANALYTICS_DB
     completion_db: Path = DEFAULT_COMPLETION_DB
     production_db: Path = DEFAULT_PRODUCTION_DB
+    template_cache: dict[str, list[str]] = None
 
     def __post_init__(self) -> None:
         self.logger = logging.getLogger(__name__)
+        if self.template_cache is None:
+            self.template_cache = {}
         _log_event(
             {"event": "init_start", "timestamp": datetime.utcnow().isoformat()},
             table="generator_events",
@@ -251,6 +257,14 @@ class TemplateAutoGenerator:
 
     def rank_templates(self, target: str) -> List[str]:
         """Return templates ranked by similarity to ``target``."""
+        if target in self.template_cache:
+            _log_event(
+                {"event": "cache_hit", "target": target},
+                table="generator_events",
+                db_path=self.analytics_db,
+            )
+            return self.template_cache[target]
+
         ranked: List[tuple[str, float]] = []
         vectorizer = TfidfVectorizer()
         q_target = self._quantum_score(target)
@@ -353,7 +367,9 @@ class TemplateAutoGenerator:
                     db_path=self.analytics_db,
                 )
         ranked.sort(key=lambda x: x[1], reverse=True)
-        return [t for t, _ in ranked]
+        result = [t for t, _ in ranked]
+        self.template_cache[target] = result
+        return result
 
     def select_best_template(self, target: str, timeout: float = 30.0) -> str:
         logger.info(f"Selecting best template for target: {target}")

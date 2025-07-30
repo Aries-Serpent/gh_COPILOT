@@ -23,6 +23,17 @@ source .env
 
 All unit tests (`make test`) and scripts rely on these variables for path validation and anti-recursion compliance.
 
+### Docker and CI Variables
+
+The container entrypoint reads several additional variables:
+
+- `FLASK_SECRET_KEY` – secret key for the Flask dashboard. Required when running the Docker image or deploying in CI.
+- `FLASK_RUN_PORT` – port for the dashboard service (default `5000`).
+- `API_SECRET_KEY` – token used by automated scripts and CI jobs.
+- `CI` – set to `true` in CI environments to disable progress bars and interactive prompts.
+
+Define these in `.env` or pass them via your CI configuration so Docker containers and automated tests use consistent settings.
+
 ## Line-Wrapping Utility
 
 Install the `clw` line wrapper to prevent terminal overflow during long command output. Copy the script and verify it exists:

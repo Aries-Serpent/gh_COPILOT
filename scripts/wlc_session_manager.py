@@ -151,7 +151,9 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
                     sleep_time = 0.01
                 time.sleep(sleep_time)
 
-            orchestrator = UnifiedWrapUpOrchestrator(workspace_path=os.getenv("GH_COPILOT_WORKSPACE"))
+            orchestrator = UnifiedWrapUpOrchestrator(
+                workspace_path=str(CrossPlatformPathManager.get_workspace_path())
+            )
             result = orchestrator.execute_unified_wrapup()
             compliance_score = result.compliance_score / 100.0
 
@@ -169,14 +171,18 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
                     UnifiedWrapUpOrchestrator as orchestrator_cls,
                 )
 
-            orchestrator = orchestrator_cls(workspace_path=os.getenv("GH_COPILOT_WORKSPACE"))
+            orchestrator = orchestrator_cls(
+                workspace_path=str(CrossPlatformPathManager.get_workspace_path())
+            )
             orchestrator.execute_unified_wrapup()
 
         validator = SecondaryCopilotValidator()
         validator.validate_corrections([__file__])
 
     if os.getenv("WLC_RUN_ORCHESTRATOR") == "1":
-        orchestrator = UnifiedWrapUpOrchestrator(workspace_path=os.getenv("GH_COPILOT_WORKSPACE"))
+        orchestrator = UnifiedWrapUpOrchestrator(
+            workspace_path=str(CrossPlatformPathManager.get_workspace_path())
+        )
         orchestrator.execute_unified_wrapup()
 
     logging.info("WLC session completed")

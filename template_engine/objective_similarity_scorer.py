@@ -102,8 +102,15 @@ def compute_similarity_scores(
 
     if methods is None:
         methods = ["tfidf"]
+
     if weights is None:
         weights = [1.0 for _ in methods]
+    elif isinstance(weights, dict):
+        if not all(m in weights for m in methods):
+            missing = [m for m in methods if m not in weights]
+            raise ValueError(f"Missing weights for methods: {missing}")
+        weights = [weights[m] for m in methods]
+
     if len(weights) != len(methods):
         raise ValueError("methods and weights must have the same length")
     # Prepare corpus and vectorizer

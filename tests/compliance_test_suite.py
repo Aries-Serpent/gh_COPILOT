@@ -28,7 +28,7 @@ from template_engine.db_first_code_generator import DBFirstCodeGenerator
 from template_engine.pattern_clustering_sync import PatternClusteringSync
 
 # Visual processing indicator setup
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "compliance_tests"
+LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))) / "logs" / "compliance_tests"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"compliance_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -42,7 +42,7 @@ logging.basicConfig(
 )
 
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
     forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
@@ -145,8 +145,12 @@ def test_correction_logger_and_rollback(tmp_path: Path) -> None:
     rollback_success = log.auto_rollback(test_file, None)
     assert rollback_success is True
 
-def test_quantum_compliance_engine(tmp_path: Path) -> None:
-    engine = QuantumComplianceEngine(tmp_path)
+def test_quantum_compliance_engine(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    import importlib
+    import quantum.quantum_compliance_engine as qce
+    importlib.reload(qce)
+    engine = qce.QuantumComplianceEngine(tmp_path)
     score = engine.score(tmp_path / "README.md", ["compliance", "quantum"], [1.0, 2.0])
     assert isinstance(score, float) and score >= 0.0
 

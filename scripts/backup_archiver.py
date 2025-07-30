@@ -20,10 +20,8 @@ def archive_backups() -> Path:
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())).resolve()
     backup_root = CrossPlatformPathManager.get_backup_root().resolve()
 
-    if backup_root == workspace or backup_root.is_relative_to(workspace):
-        raise RuntimeError("Backup root cannot be inside the workspace")
-
-    validate_enterprise_operation(str(workspace))
+    if not validate_enterprise_operation(str(workspace)):
+        raise RuntimeError("Invalid workspace or backup configuration")
 
     archive_dir = workspace / "archive"
     archive_dir.mkdir(parents=True, exist_ok=True)

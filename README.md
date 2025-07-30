@@ -101,8 +101,10 @@ chmod +x /usr/local/bin/clw
 ls -l /usr/local/bin/clw
 
 ### OpenAI Connector
-The repository provides `github_integration/openai_connector.py` for OpenAI API calls.
-Set `OPENAI_API_KEY` in your `.env` to enable these helpers.
+The repository provides `github_integration/openai_connector.py` for OpenAI API
+calls using the `OpenAIClient` helper in
+`third_party/openai_client.py`. Set `OPENAI_API_KEY` in your `.env` to enable
+these helpers.
 
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
@@ -282,14 +284,14 @@ Build and run the container with Docker:
 
 ```bash
 docker build -t gh_copilot .
-docker run -p 5000:5000 -e GH_COPILOT_BACKUP_ROOT=/path/to/backups gh_copilot
+docker run -p 5000:5000 \
+  -e GH_COPILOT_BACKUP_ROOT=/path/to/backups \
+  gh_copilot
 ```
 
-Inside the image `GH_COPILOT_BACKUP_ROOT` defaults to `/backup`. Map this path to a host directory to persist logs and backups.
+`entrypoint.sh` sets `GH_COPILOT_WORKSPACE` to `/app` and `GH_COPILOT_BACKUP_ROOT` to `/backup` when unspecified. It then executes `unified_database_initializer.py` to bootstrap `production.db` and `analytics.db` before launching the dashboard. Map `/backup` to a host directory so logs persist.
 
-When launching with Docker Compose, the provided `docker-compose.yml` mounts `${GH_COPILOT_BACKUP_ROOT:-/backup}` at `/backup`. Set `GH_COPILOT_BACKUP_ROOT` on the host before running `docker-compose up` so backups survive container restarts.
-
-The container's `entrypoint.sh` now initializes `analytics.db` automatically before starting the dashboard service, so no manual step is required.
+When launching with Docker Compose, the provided `docker-compose.yml` mounts `${GH_COPILOT_BACKUP_ROOT:-/backup}` at `/backup` and passes environment variables from `.env`. Ensure `GH_COPILOT_BACKUP_ROOT` is configured on the host so backups survive container restarts.
 
 ### Wrapping, Logging, and Compliance (WLC)
 Run the session manager after setting the workspace and backup paths:
@@ -665,6 +667,13 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 # Access at: http://localhost:5000
 # Features: Real-time metrics, database visualization, system monitoring
 ```
+
+### Enable Streaming
+
+Set the environment variable `LOG_WEBSOCKET_ENABLED=1` to allow real-time
+log broadcasting over WebSockets. The dashboard's `/metrics_stream` endpoint
+uses Server-Sent Events by default and works with Flask's ``Response`` when
+`sse_event_stream` is provided from ``utils.log_utils``.
 
 Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
 This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.

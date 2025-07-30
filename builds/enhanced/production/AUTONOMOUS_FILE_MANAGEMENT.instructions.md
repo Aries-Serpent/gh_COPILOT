@@ -27,7 +27,7 @@ class DualCopilot_AutonomousFileManager:
 ⚛️ QUANTUM-ENHANCED ENTERPRISE FUNCTION
 """
     
-    def 🎬___init__(self, workspace_path="e:/gh_COPILOT"):
+    def 🎬___init__(self, workspace_path="/workspace/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.production_db = self.workspace_path / "production.db"
         
@@ -124,7 +124,7 @@ class DualCopilot_AutonomousBackupManager:
 """
     
     FORBIDDEN_BACKUP_LOCATIONS = [
-        "e:/gh_COPILOT",  # NEVER backup within workspace
+        "/workspace/gh_COPILOT",  # NEVER backup within workspace
         "C:/temp/",  # NEVER use C:/temp
         "./backup/",  # NEVER use relative backup paths
     ]
