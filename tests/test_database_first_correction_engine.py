@@ -8,6 +8,9 @@ def _setup_db(db_path: Path) -> None:
     sql = Path("databases/migrations/add_correction_history.sql").read_text()
     with sqlite3.connect(db_path) as conn:
         conn.executescript(sql)
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS event_log (event TEXT, fix_count INTEGER)"
+        )
 
 
 def _create_workspace(tmp_path):
@@ -33,6 +36,9 @@ def test_engine_applies_ruff_and_records_history(tmp_path, monkeypatch):
             returncode = 0
             stdout = ""
 
+        if cmd[:3] == ["ruff", "check", "--fix"]:
+            R.stdout = "Found 2 errors (2 fixed, 0 remaining)."
+
         return R()
 
     monkeypatch.setattr(subprocess, "run", fake_run)
@@ -41,7 +47,9 @@ def test_engine_applies_ruff_and_records_history(tmp_path, monkeypatch):
     assert any(cmd[:2] == ["ruff", "--fix"] for cmd in calls)
     with sqlite3.connect(analytics) as conn:
         rows = conn.execute("SELECT file_path FROM correction_history").fetchall()
+        events = conn.execute("SELECT event, fix_count FROM event_log").fetchall()
     assert rows and Path(rows[0][0]).name == "sample.py"
+    assert any(e[0] == "ruff_workspace_fix" and e[1] == 2 for e in events)
 
 
 def test_cross_validation_success(tmp_path, monkeypatch):
