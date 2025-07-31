@@ -279,6 +279,21 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         self.templates = []
         self.patterns = []
 
+    def _ensure_codegen_table(self) -> None:
+        """Ensure ``code_generation_events`` table has expected columns."""
+        with sqlite3.connect(self.analytics_db) as conn:
+            cur = conn.execute(
+                "PRAGMA table_info(code_generation_events)"
+            )
+            cols = [row[1] for row in cur.fetchall()]
+            if cols and {"objective", "status"}.issubset(cols):
+                return
+            conn.execute("DROP TABLE IF EXISTS code_generation_events")
+            conn.execute(
+                "CREATE TABLE code_generation_events (objective TEXT, status TEXT)"
+            )
+            conn.commit()
+
     def fetch_existing_pattern(self, name: str) -> str | None:  # pragma: no cover - simplified
         result: str | None = None
         if self.production_db.exists():
@@ -305,8 +320,8 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         else:
             ranked = self.rank_templates(objective)
             result = ranked[0] if ranked else "Auto-generated template"
+        self._ensure_codegen_table()
         with sqlite3.connect(self.analytics_db) as conn:
-            conn.execute("CREATE TABLE IF NOT EXISTS code_generation_events (objective TEXT, status TEXT)")
             conn.execute(
                 "INSERT INTO code_generation_events (objective, status) VALUES (?, 'generated')",
                 (objective,),
@@ -363,7 +378,6 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 )
                 tmp_path.replace(path)
                 conn.commit()
-            tmp_path.rename(path)
 
             _log_event(
                 {"event": "integration_ready_generated", "objective": objective, "path": str(path)},
