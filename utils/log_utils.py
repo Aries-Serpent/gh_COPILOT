@@ -38,6 +38,7 @@ TABLE_SCHEMAS: Dict[str, str] = {
             module TEXT,
             level TEXT,
             fix_count INTEGER,
+            valid INTEGER,
             db TEXT,
             timestamp TEXT
         );
