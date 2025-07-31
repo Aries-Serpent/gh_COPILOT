@@ -9,11 +9,12 @@ import sys
 import sqlite3
 from pathlib import Path
 from typing import Dict
+import json
 
 from tqdm import tqdm
 
 from utils.enterprise_logging import EnterpriseLoggingManager
-from utils.log_utils import log_event, send_dashboard_alert, stream_events
+from utils.log_utils import log_event, send_dashboard_alert
 
 ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", "databases/analytics.db"))
 
@@ -22,6 +23,23 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 # SOLUTION: Get module-specific logger without import-time configuration
 logger = None  # Will be initialized when setup_logging() is called
+
+
+def _latest_violation_sse(db_name: str, table_name: str) -> str | None:
+    """Return the most recent violation for ``db_name`` and ``table_name`` as an
+    SSE-formatted string."""
+    if not ANALYTICS_DB.exists():
+        return None
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            "SELECT * FROM size_violations WHERE db=? AND table_name=? ORDER BY id DESC LIMIT 1",
+            (db_name, table_name),
+        ).fetchone()
+        if row:
+            rec = dict(row)
+            return f"event: size_violations\ndata: {json.dumps(rec)}\n\n"
+    return None
 
 
 def setup_logging() -> None:
@@ -93,10 +111,9 @@ def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dic
                             }
                             log_event(event, table="size_violations", db_path=ANALYTICS_DB)
                             send_dashboard_alert(event, db_path=ANALYTICS_DB)
-                            for line in stream_events("size_violations", db_path=ANALYTICS_DB):
-                                if f'"db": "{db_file.name}"' in line and f'"table_name": "{table}"' in line:
-                                    print(line.strip())
-                                    break
+                            sse = _latest_violation_sse(db_file.name, table)
+                            if sse:
+                                print(sse.strip())
                 if size_mb > threshold_mb:
                     logger.warning(f"⚠️ {db_file.name}: {size_mb:.2f} MB > {threshold_mb} MB")
                     event = {
@@ -107,10 +124,9 @@ def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dic
                     }
                     log_event(event, table="size_violations", db_path=ANALYTICS_DB)
                     send_dashboard_alert(event, db_path=ANALYTICS_DB)
-                    for line in stream_events("size_violations", db_path=ANALYTICS_DB):
-                        if f'"db": "{db_file.name}"' in line and '"table_name": "__database__"' in line:
-                            print(line.strip())
-                            break
+                    sse = _latest_violation_sse(db_file.name, "__database__")
+                    if sse:
+                        print(sse.strip())
                 else:
                     logger.info(f"✅ {db_file.name}: {size_mb:.2f} MB")
             except Exception as e:
