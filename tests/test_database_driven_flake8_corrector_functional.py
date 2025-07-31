@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 import sqlite3
+import subprocess
 
-from scripts.database.database_driven_flake8_corrector_functional import DatabaseDrivenFlake8CorrectorFunctional
+from scripts.database.database_driven_ruff_corrector import (
+    DatabaseDrivenRuffCorrector,
+)
 
 
 def test_corrector_records_corrections(tmp_path):
@@ -21,14 +24,15 @@ def test_corrector_records_corrections(tmp_path):
     py_file = tmp_path / "bad.py"
     py_file.write_text("print('hi')  \n")
 
-    corrector = DatabaseDrivenFlake8CorrectorFunctional(workspace_path=str(tmp_path), db_path=str(db_path))
+    corrector = DatabaseDrivenRuffCorrector(workspace_path=str(tmp_path), db_path=str(db_path))
     success = corrector.execute_correction()
     assert success
     with sqlite3.connect(db_path) as conn:
         rows = conn.execute("SELECT original_line, corrected_line FROM correction_history").fetchall()
     assert rows
-    # trailing whitespace removed by autopep8
     assert rows[0][1] == "print('hi')"
+    out = subprocess.run(["ruff", "check", str(py_file)], capture_output=True, text=True)
+    assert out.stdout.strip() == ""
 
 
 def test_unicode_paths_and_progress(tmp_path):
@@ -51,7 +55,7 @@ def test_unicode_paths_and_progress(tmp_path):
     for i in range(2):
         (unicode_dir / f"file{i}.py").write_text("print('hi')  \n")
 
-    corrector = DatabaseDrivenFlake8CorrectorFunctional(workspace_path=str(unicode_dir), db_path=str(db_path))
+    corrector = DatabaseDrivenRuffCorrector(workspace_path=str(unicode_dir), db_path=str(db_path))
     assert corrector.execute_correction()
 
     with sqlite3.connect(db_path) as conn:
@@ -61,3 +65,14 @@ def test_unicode_paths_and_progress(tmp_path):
     assert len(recorded) >= 1
     assert all(r[1] == "print('hi')" for r in recorded)
     assert progress == (2, 2)
+    for file_path, _ in recorded:
+        out = subprocess.run(
+            [
+                "ruff",
+                "check",
+                file_path,
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert out.stdout.strip() == ""
