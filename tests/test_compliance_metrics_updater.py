@@ -10,8 +10,14 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     module = importlib.import_module("dashboard.compliance_metrics_updater")
     importlib.reload(module)
     modes = []
+    events = []
     monkeypatch.setattr(module, "ensure_tables", lambda *a, **k: None)
-    monkeypatch.setattr(module, "insert_event", lambda e, table, **k: modes.append(k.get("test_mode")))
+
+    def _capture_event(event, table, **k):
+        modes.append(k.get("test_mode"))
+        events.append(table)
+
+    monkeypatch.setattr(module, "insert_event", _capture_event)
     monkeypatch.setattr(module, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(module, "validate_environment_root", lambda: None)
 
