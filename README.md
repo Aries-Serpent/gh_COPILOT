@@ -941,6 +941,10 @@ python scripts/code_placeholder_audit.py \
     --analytics-db databases/analytics.db \
     --production-db databases/production.db \
     --exclude-dir builds --exclude-dir archive
+# Automatically clean placeholders:
+python scripts/code_placeholder_audit.py --cleanup
+# Specify a custom summary path:
+python scripts/code_placeholder_audit.py --summary-json results/placeholder_summary.json
 # CI runs the audit via GitHub Actions using `actions/setup-python` and
 # `pip install -r requirements.txt` to ensure dependencies are present.
 
