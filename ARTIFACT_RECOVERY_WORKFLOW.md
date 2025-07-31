@@ -20,7 +20,10 @@ The `.gitattributes` file explicitly lists patterns that Git LFS should manage. 
 ## Workflow
 
 1. **Initial Clone**: When cloning the repository, run `git lfs install` to ensure LFS support is active.
-2. **Packaging Artifacts**: Run `python artifact_manager.py` to detect new files in the temp directory and create a timestamped archive. If the archive meets LFS criteria, it is automatically tracked and committed.
+2. **Packaging Artifacts**: Run `python artifact_manager.py` to detect new files in the temp directory and create a time
+
+
+ed archive. If the archive meets LFS criteria, it is automatically tracked and committed.
 3. **Adding Files**: Files matching the configured extensions or exceeding the size threshold are automatically tracked via Git LFS. Check with `git lfs status` before committing.
 4. **Recovering Artifacts**: To unpack the most recent archive after a fresh clone or CI reset, run `python artifact_manager.py --recover`.
 5. **Committing**: The packaging step commits the archive for you. Ensure CI runs succeed by verifying `git lfs ls-files` lists the new archive.
@@ -40,9 +43,11 @@ Example usage:
 ```bash
 python artifact_manager.py --package
 ALLOW_AUTOLFS=1 python artifact_manager.py --package --commit "archive session"
-python artifact_manager.py --recover codex-session_20250101_120000.zip
+python artifact_manager.py --recover codex-session_<UTC-YYYYmmdd_HHMMSS>.zip
 ```
 
+Archives are stored in `codex_sessions/` and tracked with Git LFS when
+configured via `.codex_lfs_policy.yaml`.
 ## GitHub Actions Workflow
 
 The `ci.yml` workflow packages and commits session artifacts automatically after successful tests:

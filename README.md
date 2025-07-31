@@ -491,9 +491,11 @@ compliance logging. The main modules are:
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
-* **Artifact Manager** – `artifact_manager.create_session_archive()` bundles
-  files created in `tmp/` during the current session into a timestamped archive
-  under `codex_sessions/`. Paths can be configured via `.codex_lfs_policy.yaml`.
+* **Artifact Manager** – `artifact_manager.py` packages files created in `tmp/`
+  during the current session into `codex_sessions/` archives. Use
+  `--package` to create an archive and `--commit` with `--message` to save it
+  directly to Git. `--recover` restores the most recent archive back into
+  `tmp/`. Paths are configurable via `.codex_lfs_policy.yaml`.
 
 
 ```python
@@ -1090,21 +1092,7 @@ Several small modules provide common helpers:
   enhancer.enhance()
   ```
 - `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
-- `artifact_manager.py` – package modified files from `tmp/` into `codex_sessions/` for auditing.
-  Use `--package` to create an archive, `--commit` to add it to Git, and `--recover <zip>` to extract.
-
-### Artifact Manager CLI
-
-```bash
-python artifact_manager.py --package
-# package and immediately commit with Git LFS
-ALLOW_AUTOLFS=1 python artifact_manager.py --package --commit "Add session artifacts"
-# recover a prior archive
-python artifact_manager.py --recover codex-session_20250101_120000.zip
-```
-
-The `ci.yml` workflow packages artifacts after tests and commits them with `--commit`, ensuring session
-archives remain tracked via LFS.
+- `artifact_manager.py` – package modified files from `tmp/` into `codex_sessions/` or restore them. Run `python artifact_manager.py --package` to create an archive and `--recover` to extract the latest one.
 
 ## Future Roadmap
 
