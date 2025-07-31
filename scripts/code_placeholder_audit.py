@@ -21,6 +21,7 @@ import sqlite3
 import time
 from datetime import datetime
 import getpass
+import argparse
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -539,8 +540,8 @@ def main(
     return valid
 
 
-if __name__ == "__main__":
-    import argparse
+def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
+    """Return CLI arguments for the audit script."""
 
     parser = argparse.ArgumentParser(description="Audit workspace for TODO/FIXME placeholders")
     parser.add_argument("--workspace-path", type=str, help="Workspace to scan")
@@ -549,8 +550,9 @@ if __name__ == "__main__":
     parser.add_argument("--dashboard-dir", type=str, help="dashboard/compliance directory")
     parser.add_argument("--dataset-path", type=str, help="Optional JSON dataset with additional patterns")
     parser.add_argument("--timeout-minutes", type=int, default=30, help="Scan timeout in minutes")
-    parser.add_argument("--simulate", action="store_true", help="Run in test mode without writes")
-    parser.add_argument("--dry-run", action="store_true", help="Alias for --simulate")
+    parser.add_argument(
+        "--simulate", "--dry-run", action="store_true", dest="simulate", help="Run in test mode without writes"
+    )
     parser.add_argument(
         "--test-mode",
         action="store_true",
@@ -570,10 +572,11 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--apply-fixes",
+        "--cleanup",
         action="store_true",
+        dest="apply_fixes",
         help="Automatically remove placeholders and log corrections",
     )
-    parser.add_argument("--cleanup", action="store_true", help="Alias for --apply-fixes")
     parser.add_argument(
         "--rollback-last",
         action="store_true",
@@ -582,7 +585,11 @@ if __name__ == "__main__":
     parser.add_argument("--rollback-id", type=int, help="Rollback a specific entry id")
     parser.add_argument("--force", action="store_true", help="Disable validation checks")
     parser.add_argument("--export", type=Path, help="Export audit results to JSON")
-    args = parser.parse_args()
+    return parser.parse_args(argv)
+
+
+if __name__ == "__main__":
+    args = parse_args()
     if args.rollback_id is not None:
         target_id = args.rollback_id
         if rollback_last_entry(
@@ -600,10 +607,6 @@ if __name__ == "__main__":
     if args.test_mode:
         os.environ["GH_COPILOT_TEST_MODE"] = "1"
         args.simulate = True
-    if args.dry_run:
-        args.simulate = True
-    if args.cleanup:
-        args.apply_fixes = True
     if args.force:
         os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
     success = main(
@@ -613,7 +616,7 @@ if __name__ == "__main__":
         dashboard_dir=args.dashboard_dir,
         dataset_path=args.dataset_path,
         timeout_minutes=args.timeout_minutes,
-        simulate=args.simulate or args.dry_run,
+        simulate=args.simulate,
         exclude_dirs=args.exclude_dirs,
         update_resolutions=args.update_resolutions,
         apply_fixes=args.apply_fixes,

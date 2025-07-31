@@ -9,7 +9,7 @@ while maintaining backward compatibility.
 import sys
 
 # Import from new modular package
-from validation.protocols.session import SessionProtocolValidator as ModularSessionValidator, main
+from validation.protocols.session import main
 
 # This script now delegates to the modular implementation
 if __name__ == "__main__":

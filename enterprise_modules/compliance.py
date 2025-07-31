@@ -5,16 +5,38 @@ from __future__ import annotations
 import os
 import shutil
 import sqlite3
+import json
 from datetime import datetime
 from pathlib import Path
 
 from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.log_utils import send_dashboard_alert
 
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
 
 # Forbidden command patterns that must not appear in operations
 FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
+
+
+def _load_forbidden_paths() -> list[str]:
+    """Return policy-defined forbidden path patterns."""
+    workspace = CrossPlatformPathManager.get_workspace_path()
+    config_file = os.getenv("CONFIG_PATH")
+    if config_file is None:
+        config_file = workspace / "config" / "enterprise.json"
+    else:
+        config_file = Path(config_file)
+
+    try:
+        with open(config_file, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        patterns = data.get("forbidden_paths", [])
+        if isinstance(patterns, list):
+            return [str(p) for p in patterns]
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+    return []
 
 
 def _log_violation(details: str) -> None:
@@ -79,6 +101,7 @@ def validate_enterprise_operation(
 
     if _detect_recursion(workspace):
         _log_violation("recursive_workspace")
+        send_dashboard_alert({"event": "recursive_workspace", "path": str(workspace)})
         violations.append("recursive_workspace")
 
     # Disallow backup directories inside the workspace
@@ -104,13 +127,30 @@ def validate_enterprise_operation(
 
     if _detect_recursion(path):
         _log_violation("recursive_target")
+        send_dashboard_alert({"event": "recursive_target", "path": str(path)})
         violations.append("recursive_target")
 
     # Cleanup forbidden backup folders within workspace
+    venv_path = workspace / ".venv"
     for item in workspace.rglob("*backup*"):
-        if item.is_dir() and item != backup_root and workspace in item.parents:
+        if item.is_dir() and item != backup_root and workspace in item.parents and venv_path not in item.parents:
             shutil.rmtree(item, ignore_errors=True)
             violations.append(f"removed_forbidden:{item}")
+
+    # Apply configurable forbidden path patterns
+    for pat in _load_forbidden_paths():
+        for item in workspace.rglob(pat):
+            try:
+                item.resolve().relative_to(venv_path.resolve())
+                continue
+            except ValueError:
+                pass
+
+            if item.is_dir():
+                shutil.rmtree(item, ignore_errors=True)
+            else:
+                item.unlink(missing_ok=True)
+            violations.append(f"policy_forbidden:{item}")
 
     for violation in violations:
         if violation in {"recursive_workspace", "recursive_target"}:
