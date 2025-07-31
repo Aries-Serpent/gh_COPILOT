@@ -31,6 +31,17 @@ class UnifiedDisasterRecoverySystem:
         """Restore files from ``GH_COPILOT_BACKUP_ROOT``."""
         start_time = datetime.now()
         backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
+        workspace = self.workspace_path.resolve()
+        backup_root_resolved = backup_root.resolve()
+
+        if workspace == backup_root_resolved or workspace in backup_root_resolved.parents:
+            self.logger.error(
+                "%s Backup root %s cannot reside within workspace %s",
+                TEXT_INDICATORS["error"],
+                backup_root_resolved,
+                workspace,
+            )
+            return False
         source = backup_root / "production_backup"
         restore_dir = self.workspace_path / "restored"
         restore_dir.mkdir(parents=True, exist_ok=True)
