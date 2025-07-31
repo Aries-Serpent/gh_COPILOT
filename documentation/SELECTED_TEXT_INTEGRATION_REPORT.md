@@ -13,7 +13,7 @@
 
 ### **1. ✅ Database-First Script Regeneration System**
 
-**Source Feature:** Database-first script regeneration with Flake8/PEP 8 enforcement  
+**Source Feature:** Database-first script regeneration with Ruff enforcement. Every lint session logs to `analytics.db`.
 **Integration Point:** Phase 3 - Automated Correction & Regeneration  
 **Enhancement Added:**
 - `_query_database_tracked_scripts()` - Query production.db for tracked scripts
@@ -93,7 +93,7 @@
 
 ### **Database Operations:**
 1. **Script Regeneration:** Systematic database-driven script recovery
-2. **Compliance Enforcement:** Automatic Flake8/PEP 8 compliance on regeneration
+2. **Compliance Enforcement:** Automatic Ruff compliance on regeneration
 3. **Correction History:** Database-stored fix patterns for rapid application
 4. **Integrity Validation:** Hash-based deduplication and security
 
