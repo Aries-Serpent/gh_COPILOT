@@ -1,8 +1,6 @@
 import os
 import sqlite3
 from pathlib import Path
-import types
-import pytest
 
 import template_engine.pattern_mining_engine as pme
 from template_engine.pattern_mining_engine import (
@@ -142,3 +140,43 @@ def test_mine_patterns_metrics(tmp_path: Path, monkeypatch) -> None:
     assert inertia >= 0
     assert -1.0 <= silhouette <= 1.0
     assert n_clusters > 0
+
+
+def test_cluster_distribution_and_quality(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    monkeypatch.setattr(pme, "_log_audit_real", lambda *a, **k: None)
+    monkeypatch.setattr(pme, "_log_patterns", lambda *a, **k: None)
+
+    prod = tmp_path / "production.db"
+    analytics = tmp_path / "analytics.db"
+    with sqlite3.connect(prod) as conn:
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.executemany(
+            "INSERT INTO code_templates (template_code) VALUES (?)",
+            [
+                ("def foo(): return foo",),
+                ("def bar(): return bar",),
+                ("print foo bar",),
+                ("print bar baz",),
+            ],
+        )
+
+    mine_patterns(prod, analytics)
+    clusters = get_clusters(analytics)
+    assert len(clusters) == 2
+    for pats in clusters.values():
+        assert pats
+
+    found_print_cluster = [c for c in clusters.values() if "print foo bar" in c and "print bar baz" in c]
+    assert len(found_print_cluster) == 1
+
+    with sqlite3.connect(analytics) as conn:
+        row = conn.execute(
+            "SELECT inertia, silhouette, n_clusters FROM pattern_cluster_metrics"
+        ).fetchone()
+
+    assert row is not None
+    inertia, silhouette, n_clusters = row
+    assert inertia >= 0
+    assert silhouette > 0
+    assert n_clusters == 2
