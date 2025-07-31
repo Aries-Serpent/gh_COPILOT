@@ -88,4 +88,5 @@ def test_cli_invalid_env(tmp_path):
         text=True,
     )
     assert result.returncode != 0
-    assert "environment variables" in result.stderr.lower()
+    err = result.stderr.lower()
+    assert "environment variables" in err or "backup root" in err

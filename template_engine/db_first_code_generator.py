@@ -8,7 +8,7 @@ raised if invalid templates are encountered or if recursion safeguards fail.
 from __future__ import annotations
 
 import logging
-import os
+from utils.cross_platform_paths import CrossPlatformPathManager
 import sqlite3
 import sys
 import time
@@ -66,7 +66,7 @@ logger = logging.getLogger(__name__)
 
 
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = CrossPlatformPathManager.get_workspace_path()
     forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
@@ -361,6 +361,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                     "INSERT INTO enhanced_script_tracking (script_path, script_content, script_hash, script_type, functionality_category) VALUES (?, ?, ?, 'python', 'generated')",
                     (str(path), stub, file_hash),
                 )
+                tmp_path.replace(path)
                 conn.commit()
             tmp_path.rename(path)
 
@@ -383,7 +384,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 test_mode=False,
             )
         except Exception as exc:  # pragma: no cover - error handling
-            if 'conn' in locals():
+            if "conn" in locals():
                 conn.rollback()
             if tmp_path.exists():
                 tmp_path.unlink()

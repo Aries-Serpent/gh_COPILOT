@@ -14,8 +14,6 @@ ENHANCEMENTS:
 - Intelligent batch processing for optimal throughput
 """
 
-import os
-import re
 import sys
 import sqlite3
 import logging
@@ -28,11 +26,11 @@ from tqdm import tqdm
 # Configure enterprise logging with UTF-8 encoding
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler('refined_enterprise_processing.log', encoding='utf-8'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.FileHandler("refined_enterprise_processing.log", encoding="utf-8"),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -53,21 +51,21 @@ class RefinedEnterpriseProcessor:
 
         # High-impact violation types for refined processing
         self.priority_violations = [
-            'E999',  # SyntaxError
-            'E902',  # IOError
-            'F821',  # undefined name
-            'F822',  # duplicate argument
-            'F823',  # local variable referenced before assignment
+            "E999",  # SyntaxError
+            "E902",  # IOError
+            "F821",  # undefined name
+            "F822",  # duplicate argument
+            "F823",  # local variable referenced before assignment
         ]
 
         # Standard violations for batch processing
         self.standard_violations = [
-            'W291',  # trailing whitespace
-            'W293',  # blank line contains whitespace
-            'W292',  # no newline at end of file
-            'E501',  # line too long
-            'E302',  # expected 2 blank lines
-            'E303',  # too many blank lines
+            "W291",  # trailing whitespace
+            "W293",  # blank line contains whitespace
+            "W292",  # no newline at end of file
+            "E501",  # line too long
+            "E302",  # expected 2 blank lines
+            "E303",  # too many blank lines
         ]
 
         self.session_id = f"refined_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -105,31 +103,37 @@ class RefinedEnterpriseProcessor:
                 cursor = conn.cursor()
 
                 # Get priority violations first
-                priority_placeholders = ','.join(['?' for _ in self.priority_violations])
-                cursor.execute(f"""
+                priority_placeholders = ",".join(["?" for _ in self.priority_violations])
+                cursor.execute(
+                    f"""
                     SELECT file_path, line_number, error_code, line_content
                     FROM violations
                     WHERE error_code IN ({priority_placeholders})
                     AND status = 'PENDING'
                     ORDER BY error_code, file_path, line_number
                     LIMIT ?
-                """, tuple(self.priority_violations) + (max_batches * 10,))
+                """,
+                    tuple(self.priority_violations) + (max_batches * 10,),
+                )
 
                 priority_violations = cursor.fetchall()
 
                 # Get standard violations for remaining capacity
                 remaining_capacity = max(0, (max_batches * 20) - len(priority_violations))
-                standard_placeholders = ','.join(['?' for _ in self.standard_violations])
+                standard_placeholders = ",".join(["?" for _ in self.standard_violations])
 
                 if remaining_capacity > 0:
-                    cursor.execute(f"""
+                    cursor.execute(
+                        f"""
                         SELECT file_path, line_number, error_code, line_content
                         FROM violations
                         WHERE error_code IN ({standard_placeholders})
                         AND status = 'PENDING'
                         ORDER BY file_path, line_number
                         LIMIT ?
-                    """, tuple(self.standard_violations) + (remaining_capacity,))
+                    """,
+                        tuple(self.standard_violations) + (remaining_capacity,),
+                    )
 
                     standard_violations = cursor.fetchall()
                 else:
@@ -149,8 +153,7 @@ class RefinedEnterpriseProcessor:
             logger.error(f"❌ Failed to get continuation batches: {e}")
             return []
 
-    def _group_violations_into_batches(
-    self, violations: List[Tuple], max_batches: int) -> List[Dict]:
+    def _group_violations_into_batches(self, violations: List[Tuple], max_batches: int) -> List[Dict]:
         """📦 Group violations into processing batches"""
         batches = []
         current_batch = {}
@@ -163,26 +166,17 @@ class RefinedEnterpriseProcessor:
                     if len(batches) >= max_batches:
                         break
 
-                current_batch = {
-                    'file_path': file_path,
-                    'violations': [],
-                    'priority_count': 0,
-                    'standard_count': 0
-                }
+                current_batch = {"file_path": file_path, "violations": [], "priority_count": 0, "standard_count": 0}
                 current_file = file_path
 
-            violation_data = {
-                'line_number': line_number,
-                'error_code': error_code,
-                'line_content': line_content
-            }
+            violation_data = {"line_number": line_number, "error_code": error_code, "line_content": line_content}
 
-            current_batch['violations'].append(violation_data)
+            current_batch["violations"].append(violation_data)
 
             if error_code in self.priority_violations:
-                current_batch['priority_count'] += 1
+                current_batch["priority_count"] += 1
             else:
-                current_batch['standard_count'] += 1
+                current_batch["standard_count"] += 1
 
         if current_batch and len(batches) < max_batches:
             batches.append(current_batch)
@@ -191,51 +185,51 @@ class RefinedEnterpriseProcessor:
 
     def apply_refined_fixes(self, batch: Dict) -> Tuple[int, int, List[str]]:
         """🔧 Apply refined fixes with enhanced success patterns"""
-        file_path = batch['file_path']
-        violations = batch['violations']
+        file_path = batch["file_path"]
+        violations = batch["violations"]
 
         try:
             # Create backup
             backup_path = self.create_refined_backup(file_path)
 
             # Read file
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
 
             fixed_count = 0
             fixed_violations = []
 
             # Sort violations by line number (reverse order to maintain line numbers)
-            sorted_violations = sorted(violations, key=lambda x: x['line_number'], reverse=True)
+            sorted_violations = sorted(violations, key=lambda x: x["line_number"], reverse=True)
 
             # Apply fixes
             for violation in sorted_violations:
-                line_idx = violation['line_number'] - 1
+                line_idx = violation["line_number"] - 1
 
                 if 0 <= line_idx < len(lines):
                     original_line = lines[line_idx]
                     fixed_line = self.apply_refined_fix(
-                        original_line,
-                        violation['error_code'],
-                        violation.get('line_content', '')
+                        original_line, violation["error_code"], violation.get("line_content", "")
                     )
 
                     if fixed_line != original_line:
                         lines[line_idx] = fixed_line
                         fixed_count += 1
-                        fixed_violations.append({
-                            'file_path': file_path,
-                            'line_number': violation['line_number'],
-                            'error_code': violation['error_code'],
-                            'backup_path': backup_path
-                        })
+                        fixed_violations.append(
+                            {
+                                "file_path": file_path,
+                                "line_number": violation["line_number"],
+                                "error_code": violation["error_code"],
+                                "backup_path": backup_path,
+                            }
+                        )
 
             # Write fixed file
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.writelines(lines)
 
             # Update database
-            self.update_violation_status_refined(fixed_violations, 'FIXED')
+            self.update_violation_status_refined(fixed_violations, "FIXED")
 
             return fixed_count, len(violations), [str(backup_path)]
 
@@ -245,33 +239,32 @@ class RefinedEnterpriseProcessor:
 
     def apply_refined_fix(self, line: str, error_code: str, line_content: str = "") -> str:
         """🎯 Apply refined fixes for enhanced success"""
-        if error_code == 'W291':  # trailing whitespace
-            return line.rstrip() + '\n' if line.endswith('\n') else line.rstrip()
+        if error_code == "W291":  # trailing whitespace
+            return line.rstrip() + "\n" if line.endswith("\n") else line.rstrip()
 
-        elif error_code == 'W293':  # blank line contains whitespace
-            if line.strip() == '':
-                return '\n' if line.endswith('\n') else ''
+        elif error_code == "W293":  # blank line contains whitespace
+            if line.strip() == "":
+                return "\n" if line.endswith("\n") else ""
 
-        elif error_code == 'W292':  # no newline at end of file
-            if not line.endswith('\n'):
-                return line + '\n'
+        elif error_code == "W292":  # no newline at end of file
+            if not line.endswith("\n"):
+                return line + "\n"
 
-        elif error_code == 'E501':  # line too long
+        elif error_code == "E501":  # line too long
             if len(line) > 79:
                 # Simple line breaking for common patterns
-                if ',' in line and len(line) < 120:
+                if "," in line and len(line) < 120:
                     # Find good break point after comma
-                    break_point = line.rfind(',', 0, 75)
+                    break_point = line.rfind(",", 0, 75)
                     if break_point > 50:
-                        return line[:break_point + 1] + '\n' + '    ' + line[break_point + 1:].lstrip(
-    )
+                        return line[: break_point + 1] + "\n" + "    " + line[break_point + 1 :].lstrip()
 
-        elif error_code == 'E302':  # expected 2 blank lines
-            return '\n\n' + line
+        elif error_code == "E302":  # expected 2 blank lines
+            return "\n\n" + line
 
-        elif error_code == 'E303':  # too many blank lines
-            if line.strip() == '':
-                return ''
+        elif error_code == "E303":  # too many blank lines
+            if line.strip() == "":
+                return ""
 
         return line
 
@@ -282,12 +275,14 @@ class RefinedEnterpriseProcessor:
                 cursor = conn.cursor()
 
                 for fix in fixes_applied:
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         UPDATE violations
                         SET status = ?, fixed_date = ?
                         WHERE file_path = ? AND line_number = ? AND error_code = ?
-                    """, (status, datetime.now().isoformat(),
-                          fix['file_path'], fix['line_number'], fix['error_code']))
+                    """,
+                        (status, datetime.now().isoformat(), fix["file_path"], fix["line_number"], fix["error_code"]),
+                    )
 
                 conn.commit()
                 logger.info(f"📊 Updated {len(fixes_applied)} violation statuses to {status}")
@@ -298,7 +293,7 @@ class RefinedEnterpriseProcessor:
     def create_refined_backup(self, file_path: str) -> str:
         """💾 Create external backup with refined naming"""
         file_path_obj = Path(file_path)
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_filename = f"{file_path_obj.stem}_refined_{timestamp}{file_path_obj.suffix}"
         backup_path = self.backup_root / backup_filename
 
@@ -346,37 +341,38 @@ class RefinedEnterpriseProcessor:
                     all_backups.extend(backups)
 
                     # Track priority vs standard fixes
-                    if batch.get('priority_count', 0) > 0:
-                        priority_fixed += min(fixed_count, batch['priority_count'])
-                    if batch.get('standard_count', 0) > 0:
+                    if batch.get("priority_count", 0) > 0:
+                        priority_fixed += min(fixed_count, batch["priority_count"])
+                    if batch.get("standard_count", 0) > 0:
                         standard_fixed += min(
-    fixed_count - min(fixed_count, batch.get('priority_count', 0)),
-                                            batch['standard_count'])
+                            fixed_count - min(fixed_count, batch.get("priority_count", 0)), batch["standard_count"]
+                        )
 
                     # Update progress
                     pbar.update(1)
-                    success_rate = (
-    total_fixed / total_attempted * 100) if total_attempted > 0 else 0
+                    success_rate = (total_fixed / total_attempted * 100) if total_attempted > 0 else 0
                     pbar.set_postfix({"Success": f"{success_rate:.1f}%", "Fixed": total_fixed})
 
             # Calculate final results
             duration = (datetime.now() - start_time).total_seconds()
             success_rate = (total_fixed / total_attempted * 100) if total_attempted > 0 else 0
 
-            results.update({
-                'session_id': self.session_id,
-                'batches_processed': len(batches),
-                'violations_fixed': total_fixed,
-                'violations_attempted': total_attempted,
-                'priority_violations_fixed': priority_fixed,
-                'standard_violations_fixed': standard_fixed,
-                'success_rate': success_rate,
-                'processing_duration': duration,
-                'backups_created': len(all_backups),
-                'backup_paths': all_backups,
-                'processing_type': 'REFINED_CONTINUATION',
-                'status': 'COMPLETED_SUCCESS' if success_rate >= 80 else 'COMPLETED_PARTIAL'
-            })
+            results.update(
+                {
+                    "session_id": self.session_id,
+                    "batches_processed": len(batches),
+                    "violations_fixed": total_fixed,
+                    "violations_attempted": total_attempted,
+                    "priority_violations_fixed": priority_fixed,
+                    "standard_violations_fixed": standard_fixed,
+                    "success_rate": success_rate,
+                    "processing_duration": duration,
+                    "backups_created": len(all_backups),
+                    "backup_paths": all_backups,
+                    "processing_type": "REFINED_CONTINUATION",
+                    "status": "COMPLETED_SUCCESS" if success_rate >= 80 else "COMPLETED_PARTIAL",
+                }
+            )
 
             # Log final summary
             logger.info("✅ REFINED CONTINUATION PROCESSING COMPLETED")
@@ -390,25 +386,25 @@ class RefinedEnterpriseProcessor:
 
         except Exception as e:
             logger.error(f"❌ Refined processing failed: {e}")
-            results['status'] = 'FAILED'
-            results['error'] = str(e)
+            results["status"] = "FAILED"
+            results["error"] = str(e)
             return results
 
     def _create_empty_results(self) -> Dict[str, Any]:
         """📊 Create empty results structure"""
         return {
-            'session_id': self.session_id,
-            'batches_processed': 0,
-            'violations_fixed': 0,
-            'violations_attempted': 0,
-            'priority_violations_fixed': 0,
-            'standard_violations_fixed': 0,
-            'success_rate': 0.0,
-            'processing_duration': 0.0,
-            'backups_created': 0,
-            'backup_paths': [],
-            'processing_type': 'REFINED_CONTINUATION',
-            'status': 'INITIALIZED'
+            "session_id": self.session_id,
+            "batches_processed": 0,
+            "violations_fixed": 0,
+            "violations_attempted": 0,
+            "priority_violations_fixed": 0,
+            "standard_violations_fixed": 0,
+            "success_rate": 0.0,
+            "processing_duration": 0.0,
+            "backups_created": 0,
+            "backup_paths": [],
+            "processing_type": "REFINED_CONTINUATION",
+            "status": "INITIALIZED",
         }
 
 
@@ -432,7 +428,7 @@ def main():
         print(f"Backups Created: {results['backups_created']}")
         print("=" * 80)
 
-        return results['status'] == 'COMPLETED_SUCCESS'
+        return results["status"] == "COMPLETED_SUCCESS"
 
     except Exception as e:
         logger.error(f"❌ Main execution failed: {e}")

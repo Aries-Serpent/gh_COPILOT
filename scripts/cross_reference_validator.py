@@ -25,11 +25,10 @@ from typing import Dict, List, Optional, Set
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
-from utils.log_utils import _log_event, log_event
+from utils.log_utils import log_event, _log_event
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
-backup_root = CrossPlatformPathManager.get_backup_root()
 LOGS_DIR = workspace_root / "logs" / "cross_reference"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"cross_reference_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
@@ -44,6 +43,8 @@ PRODUCTION_DB = workspace_root / "production.db"
 ANALYTICS_DB = workspace_root / "analytics.db"
 DASHBOARD_DIR = workspace_root / "dashboard" / "compliance"
 TASK_SUGGESTIONS_FILE = workspace_root / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
+
+backup_root = CrossPlatformPathManager.get_backup_root()
 
 
 class CrossReferenceValidator:
@@ -214,16 +215,44 @@ class CrossReferenceValidator:
         )
 
     def validate(self, timeout_minutes: int = 30) -> bool:
-        """
-        Full cross-reference validation with progress, ETC, and DUAL COPILOT compliance.
-        """
+        """Full cross-reference validation with timeout handling."""
         self.status = "VALIDATING"
         _log_event({"event": "cross_reference_start"}, db_path=self.analytics_db)
         start_time = time.time()
+        timeout_seconds = timeout_minutes * 60
+
         self._query_cross_reference_patterns()
+        if time.time() - start_time > timeout_seconds:
+            _log_event(
+                {"event": "cross_reference_timeout", "step": "query"},
+                db_path=self.analytics_db,
+            )
+            return False
+
         self._scan_task_suggestions()
+        if time.time() - start_time > timeout_seconds:
+            _log_event(
+                {"event": "cross_reference_timeout", "step": "scan"},
+                db_path=self.analytics_db,
+            )
+            return False
+
         actions = self._cross_link_actions()
+        if time.time() - start_time > timeout_seconds:
+            _log_event(
+                {"event": "cross_reference_timeout", "step": "link"},
+                db_path=self.analytics_db,
+            )
+            return False
+
         self._deep_cross_link(actions)
+        if time.time() - start_time > timeout_seconds:
+            _log_event(
+                {"event": "cross_reference_timeout", "step": "deep_link"},
+                db_path=self.analytics_db,
+            )
+            return False
+
         total_steps = 3
         with tqdm(total=total_steps, desc="Cross-Reference Validation", unit="step") as bar:
             bar.set_description("Querying Patterns")

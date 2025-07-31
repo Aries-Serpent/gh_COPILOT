@@ -1,8 +1,6 @@
 import os
 import sqlite3
 from pathlib import Path
-import types
-import pytest
 
 import template_engine.pattern_mining_engine as pme
 from template_engine.pattern_mining_engine import (
@@ -34,9 +32,21 @@ def test_extract_patterns():
 
 def test_mine_patterns(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    monkeypatch.setattr(pme, "_log_audit_real", lambda *a, **k: None)
     calls = []
     orig_log_patterns = pme._log_patterns
+
+    def audit_log(db_name: str, details: str) -> None:
+        with sqlite3.connect(analytics) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS audit_log (id INTEGER PRIMARY KEY AUTOINCREMENT, db_name TEXT, details TEXT, ts TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO audit_log (db_name, details, ts) VALUES (?, ?, ?)",
+                (db_name, details, "test"),
+            )
+            conn.commit()
+
+    monkeypatch.setattr(pme, "_log_audit_real", audit_log)
 
     def fake_log_patterns(patterns: list[str], analytics_db: Path) -> None:
         calls.append((patterns, analytics_db))
@@ -63,6 +73,12 @@ def test_mine_patterns(tmp_path: Path, monkeypatch) -> None:
     assert count == len(patterns), "Pattern count mismatch in mined_patterns table"
     assert validate_mining(len(patterns), analytics), "DUAL COPILOT validation failed"
     assert calls == [(patterns, analytics)]
+    with sqlite3.connect(analytics) as conn:
+        pm_count = conn.execute("SELECT COUNT(*) FROM pattern_mining_log").fetchone()[0]
+        audit_count = conn.execute("SELECT COUNT(*) FROM audit_log").fetchone()[0]
+        comp_count = conn.execute("SELECT COUNT(*) FROM compliance_tracking").fetchone()[0]
+    assert pm_count == comp_count == len(patterns)
+    assert audit_count >= len(patterns)
 
 
 def test_mine_patterns_clusters(tmp_path: Path, monkeypatch) -> None:
@@ -142,3 +158,28 @@ def test_mine_patterns_metrics(tmp_path: Path, monkeypatch) -> None:
     assert inertia >= 0
     assert -1.0 <= silhouette <= 1.0
     assert n_clusters > 0
+
+
+def test_log_pattern_audit_and_compliance(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics = tmp_path / "analytics.db"
+
+    def audit_log(db_name: str, details: str) -> None:
+        with sqlite3.connect(analytics) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS audit_log (id INTEGER PRIMARY KEY AUTOINCREMENT, db_name TEXT, details TEXT, ts TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO audit_log (db_name, details, ts) VALUES (?, ?, ?)",
+                (db_name, details, "test"),
+            )
+            conn.commit()
+
+    monkeypatch.setattr(pme, "_log_audit_real", audit_log)
+
+    pme._log_pattern(analytics, "foo bar baz")
+    with sqlite3.connect(analytics) as conn:
+        pm = conn.execute("SELECT COUNT(*) FROM pattern_mining_log").fetchone()[0]
+        au = conn.execute("SELECT COUNT(*) FROM audit_log").fetchone()[0]
+        co = conn.execute("SELECT COUNT(*) FROM compliance_tracking").fetchone()[0]
+    assert pm == au == co == 1

@@ -140,6 +140,8 @@ def test_deep_cross_link_excludes_backup(tmp_path, monkeypatch):
     assert (code_dir / "target.py") in paths
     assert (backup_root / "target.py") not in paths
 
+    assert all(Path(entry["linked_path"]) != backup_root / "target.py" for entry in validator.cross_link_log)
+
 
 def test_suggest_links_logged(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
@@ -209,3 +211,40 @@ def test_suggest_links_logged(tmp_path, monkeypatch):
 
     assert "cross_link_suggestions" in tables
     assert count >= 1
+
+
+def test_cross_reference_validator_timeout(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+
+    crv = importlib.import_module("scripts.cross_reference_validator")
+    importlib.reload(crv)
+    monkeypatch.setattr(crv, "validate_enterprise_operation", lambda *a, **k: True)
+
+    production_db = tmp_path / "production.db"
+    with sqlite3.connect(production_db) as conn:
+        conn.execute("CREATE TABLE cross_reference_patterns (pattern_name TEXT)")
+        conn.execute("INSERT INTO cross_reference_patterns VALUES ('foo')")
+
+    analytics_db = tmp_path / "analytics.db"
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            "CREATE TABLE cross_link_events (file_path TEXT, linked_path TEXT, timestamp TEXT)"
+        )
+
+    dashboard_dir = tmp_path / "dashboard"
+    task_file = tmp_path / "tasks.md"
+    task_file.write_text("- [ ] Example task\n", encoding="utf-8")
+
+    logged: list[dict] = []
+    monkeypatch.setattr(crv, "_log_event", lambda event, **_: logged.append(event))
+
+    validator = crv.CrossReferenceValidator(
+        production_db, analytics_db, dashboard_dir, task_file
+    )
+
+    times = iter([0, 61])
+    monkeypatch.setattr(crv.time, "time", lambda: next(times))
+
+    assert not validator.validate(timeout_minutes=1)
+    assert logged and logged[-1]["event"] == "cross_reference_timeout"

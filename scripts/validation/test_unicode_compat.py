@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import logging
 # -*- coding: utf-8 -*-
 """Unicode compatibility test file"""
 
@@ -11,5 +10,4 @@ def test_unicode_handling():
 
 
 if __name__ == "__main__":
-
     print(test_unicode_handling())

@@ -15,6 +15,7 @@ import os
 import sqlite3
 import sys
 import time
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
@@ -76,6 +77,7 @@ def compute_similarity_scores(
     timeout_minutes: int = 30,
     methods: List[str] | None = None,
     weights: List[float] | None = None,
+    persist_json_dir: Path | None = None,
 ) -> List[Tuple[int, float]]:
     """
     Compute similarity scores between the objective and all templates in the production database.
@@ -177,6 +179,11 @@ def compute_similarity_scores(
                 raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
     logging.info(f"Objective similarity scoring completed in {elapsed:.2f}s | ETC: {etc}")
     _write_log(scores, objective)
+    if persist_json_dir is not None:
+        persist_json_dir.mkdir(parents=True, exist_ok=True)
+        fname = f"similarity_scores_{hashlib.sha256(objective.encode()).hexdigest()[:8]}.json"
+        with open(persist_json_dir / fname, "w", encoding="utf-8") as f:
+            json.dump({"objective": objective, "scores": scores}, f, indent=2)
     return scores
 
 

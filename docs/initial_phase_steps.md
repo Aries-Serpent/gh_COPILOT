@@ -1,7 +1,7 @@
 # Initial Phase Steps
 
 ## Environment Setup
-- Executed `bash setup.sh` which advised setting `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT`.
+- Executed `bash setup.sh` after defining `GH_COPILOT_BACKUP_ROOT` to an external directory.
 - Activated the project virtual environment.
 - Confirmed `/usr/local/bin/clw` availability for safe output handling.
 

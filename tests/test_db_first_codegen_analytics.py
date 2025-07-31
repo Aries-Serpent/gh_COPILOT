@@ -43,12 +43,8 @@ def test_generate_integration_ready_code(tmp_path: Path) -> None:
     os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
     with sqlite3.connect(prod_db) as conn:
-        conn.execute(
-            "CREATE TABLE template_placeholders (placeholder_name TEXT, default_value TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO template_placeholders VALUES ('{{NAME}}', 'World')"
-        )
+        conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT, default_value TEXT)")
+        conn.execute("INSERT INTO template_placeholders VALUES ('{{NAME}}', 'World')")
 
     def fake_log(event: dict, *, table: str, db_path: Path, **_: object) -> None:
         with sqlite3.connect(db_path) as conn:
@@ -70,9 +66,7 @@ def test_generate_integration_ready_code(tmp_path: Path) -> None:
         gen_count = conn.execute(
             "SELECT COUNT(*) FROM generator_events WHERE event='integration_ready_generated'"
         ).fetchone()[0]
-        corr_count = conn.execute(
-            "SELECT COUNT(*) FROM correction_logs WHERE event='code_generated'"
-        ).fetchone()[0]
+        corr_count = conn.execute("SELECT COUNT(*) FROM correction_logs WHERE event='code_generated'").fetchone()[0]
     assert gen_count == 1 and corr_count == 1
 
 
@@ -86,9 +80,7 @@ def test_integration_ready_updates_tracking(tmp_path: Path) -> None:
     os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
     with sqlite3.connect(prod_db) as conn:
-        conn.execute(
-            "CREATE TABLE template_placeholders (placeholder_name TEXT, default_value TEXT)"
-        )
+        conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT, default_value TEXT)")
         conn.execute("INSERT INTO template_placeholders VALUES ('{{NAME}}', 'World')")
 
     def fake_log(event: dict, *, table: str, db_path: Path, **_: object) -> None:
@@ -127,9 +119,7 @@ def test_integration_ready_rollback_on_failure(tmp_path: Path, monkeypatch) -> N
     os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
     with sqlite3.connect(prod_db) as conn:
-        conn.execute(
-            "CREATE TABLE template_placeholders (placeholder_name TEXT, default_value TEXT)"
-        )
+        conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT, default_value TEXT)")
         conn.execute("INSERT INTO template_placeholders VALUES ('{{NAME}}', 'World')")
 
     def fake_log(event: dict, *, table: str, db_path: Path, **_: object) -> None:

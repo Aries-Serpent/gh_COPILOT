@@ -37,15 +37,15 @@ function updateAlerts(data){
 window.onload = function(){
     if(window.EventSource){
         const esMetrics = new EventSource('/metrics_stream');
-        esMetrics.onmessage = function(evt){
+        esMetrics.addEventListener('message', (evt) => {
             const metrics = JSON.parse(evt.data);
             updateMetrics(metrics);
-        };
+        });
         const esAlerts = new EventSource('/alerts_stream');
-        esAlerts.onmessage = function(evt){
+        esAlerts.addEventListener('message', (evt) => {
             const alerts = JSON.parse(evt.data);
             updateAlerts(alerts);
-        };
+        });
     } else {
         setInterval(function(){
             fetch('/metrics').then(r => r.json()).then(updateMetrics);

@@ -1,6 +1,5 @@
 """File utilities for gh_COPILOT Enterprise Toolkit"""
 
-import os
 import shutil
 import logging
 from pathlib import Path

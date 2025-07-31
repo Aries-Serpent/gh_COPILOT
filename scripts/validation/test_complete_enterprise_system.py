@@ -14,14 +14,9 @@ This demonstrates the complete enterprise Flake8 correction system.
 
 import sys
 import time
-import logging
 
 # Enterprise visual indicators
-ENTERPRISE_INDICATORS = {
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+ENTERPRISE_INDICATORS = {"success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 def test_chunk_1_unicode_handler():
@@ -97,7 +92,7 @@ def main():
         "Chunk 1: Unicode Handler",
         "Chunk 2: Database Engine",
         "Chunk 3: Visual Processing",
-        "Chunk 4: DUAL COPILOT Framework"
+        "Chunk 4: DUAL COPILOT Framework",
     ]
 
     for i, (name, result) in enumerate(zip(chunk_names, results)):
@@ -115,7 +110,7 @@ def main():
         print("📈 4/4 chunks successfully integrated")
     else:
         failed_count = sum(1 for r in results if not r)
-        print(f"# # ⚠️  ENTERPRISE SYSTEM STATUS: 🟡 PARTIAL ({4-failed_count}/4 operational)")
+        print(f"# # ⚠️  ENTERPRISE SYSTEM STATUS: 🟡 PARTIAL ({4 - failed_count}/4 operational)")
         print("# # 🔧 Some components require attention")
 
     elapsed = time.time() - start_time
@@ -126,6 +121,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

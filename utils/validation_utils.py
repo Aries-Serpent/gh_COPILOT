@@ -1,7 +1,6 @@
 """Validation utilities for gh_COPILOT Enterprise Toolkit"""
 
 import json
-import os
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -16,7 +15,7 @@ def validate_workspace_integrity() -> Dict[str, Any]:
         "workspace_exists": workspace.exists(),
         "required_directories": {},
         "forbidden_patterns": [],
-        "overall_status": "UNKNOWN"
+        "overall_status": "UNKNOWN",
     }
 
     # Check required directories
@@ -32,9 +31,11 @@ def validate_workspace_integrity() -> Dict[str, Any]:
             validation_results["forbidden_patterns"].append(pattern)
 
     # Determine overall status
-    if (validation_results["workspace_exists"] and
-        all(validation_results["required_directories"].values()) and
-            not validation_results["forbidden_patterns"]):
+    if (
+        validation_results["workspace_exists"]
+        and all(validation_results["required_directories"].values())
+        and not validation_results["forbidden_patterns"]
+    ):
         validation_results["overall_status"] = "VALID"
     else:
         validation_results["overall_status"] = "INVALID"
@@ -52,7 +53,7 @@ def validate_script_organization() -> Dict[str, Any]:
         "categories": {},
         "root_python_files": 0,
         "organized_python_files": 0,
-        "organization_percentage": 0.0
+        "organization_percentage": 0.0,
     }
 
     if scripts_dir.exists():
@@ -68,8 +69,7 @@ def validate_script_organization() -> Dict[str, Any]:
     organization_status["root_python_files"] = len(root_py_files)
 
     # Calculate organization percentage
-    total_scripts = organization_status["organized_python_files"] + \
-        organization_status["root_python_files"]
+    total_scripts = organization_status["organized_python_files"] + organization_status["root_python_files"]
     if total_scripts > 0:
         organization_status["organization_percentage"] = (
             organization_status["organized_python_files"] / total_scripts * 100

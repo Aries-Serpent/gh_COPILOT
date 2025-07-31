@@ -3,6 +3,9 @@
 This module clusters templates using :class:`sklearn.cluster.KMeans` and
 provides APIs to generate boilerplate code from existing patterns. Errors are
 raised if invalid templates are encountered or if recursion safeguards fail.
+
+If the optional quantum scoring library cannot be imported, the quantum scoring
+functions fall back to returning ``0.0``.
 """
 
 from __future__ import annotations
@@ -12,7 +15,7 @@ import os
 import sqlite3
 import sys
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, List, Iterable
@@ -40,19 +43,35 @@ try:
 except ImportError:  # pragma: no cover - optional dependency
     from importlib import import_module
 
-    _qal = import_module("quantum_algorithm_library_expansion")
+    try:
+        _qal = import_module("quantum_algorithm_library_expansion")
+    except Exception:
+        _qal = None
 
-    def quantum_text_score(text: str) -> float:
-        """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
-        return _qal.quantum_text_score(text)
+    if _qal is not None:
+        def quantum_text_score(text: str) -> float:
+            """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+            return _qal.quantum_text_score(text)
 
-    def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
-        """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
-        return _qal.quantum_similarity_score(a, b)
+        def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
+            """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+            return _qal.quantum_similarity_score(a, b)
 
-    def quantum_cluster_score(matrix: np.ndarray) -> float:
-        """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
-        return _qal.quantum_cluster_score(matrix)
+        def quantum_cluster_score(matrix: np.ndarray) -> float:
+            """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+            return _qal.quantum_cluster_score(matrix)
+    else:
+        def quantum_text_score(text: str) -> float:
+            """Return a default score when quantum library is unavailable."""
+            return 0.0
+
+        def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
+            """Return a default score when quantum library is unavailable."""
+            return 0.0
+
+        def quantum_cluster_score(matrix: np.ndarray) -> float:
+            """Return a default score when quantum library is unavailable."""
+            return 0.0
 
 
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")

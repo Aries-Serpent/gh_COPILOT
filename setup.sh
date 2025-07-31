@@ -28,10 +28,10 @@ if [ ! -x /usr/local/bin/clw ]; then
 fi
 
 if [ -z "${GH_COPILOT_BACKUP_ROOT:-}" ]; then
-    echo "GH_COPILOT_BACKUP_ROOT not set. Please set it outside the workspace." >&2
-else
-    export GH_COPILOT_BACKUP_ROOT
+    echo "Error: GH_COPILOT_BACKUP_ROOT not set. Please set it to an external backup directory." >&2
+    exit 1
 fi
+export GH_COPILOT_BACKUP_ROOT
 
 echo "Environment initialized. Activate with 'source .venv/bin/activate'"
 echo "Set GH_COPILOT_WORKSPACE=$WORKSPACE and GH_COPILOT_BACKUP_ROOT to an external path before running tools."

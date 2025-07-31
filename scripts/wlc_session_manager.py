@@ -4,14 +4,19 @@
 """WLC Session Manager
 
 Implements the Wrapping, Logging, and Compliance (WLC) methodology.
-- Wraps session operations with environment validation
-- Logs progress to the production database
-- Records compliance scores for auditing
+ - Wraps session operations with environment validation
+ - Logs progress to the production database
+ - Records compliance scores for auditing
 
 Enterprise features:
-- Database-driven configuration
-- Progress indicators via tqdm
-- Designed for continuous operation and dual validation
+ - Database-driven configuration
+ - Progress indicators via tqdm
+ - Designed for continuous operation and dual validation
+
+When run as a standalone script, the repository root is automatically added to
+``sys.path`` so project modules resolve correctly. Ensure the
+``GH_COPILOT_WORKSPACE`` and ``GH_COPILOT_BACKUP_ROOT`` environment variables are
+set before execution.
 """
 
 from __future__ import annotations
@@ -21,9 +26,13 @@ import argparse
 import logging
 import os
 import sqlite3
+import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+
+if __package__ is None:
+    sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from tqdm import tqdm
 
@@ -38,7 +47,8 @@ try:
 except Exception:  # pragma: no cover - allow lazy import
     UnifiedWrapUpOrchestrator = None
 
-DB_PATH = Path(os.getenv("WLC_DB_PATH", "databases/production.db"))
+DEFAULT_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
+DB_PATH = Path(os.getenv("WLC_DB_PATH", str(DEFAULT_DB)))
 
 
 def get_connection(db_path: Path) -> sqlite3.Connection:
@@ -92,7 +102,12 @@ def finalize_session_entry(
 
 def validate_environment() -> bool:
     """Validate enterprise workspace and backup paths."""
-    validate_enterprise_environment()
+    try:
+        validate_enterprise_environment()
+    except EnvironmentError as exc:
+        raise EnvironmentError(
+            "Required environment variables are not set or paths invalid"
+        ) from exc
     return True
 
 
@@ -151,9 +166,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
                     sleep_time = 0.01
                 time.sleep(sleep_time)
 
-            orchestrator = UnifiedWrapUpOrchestrator(
-                workspace_path=str(CrossPlatformPathManager.get_workspace_path())
-            )
+            orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(CrossPlatformPathManager.get_workspace_path()))
             result = orchestrator.execute_unified_wrapup()
             compliance_score = result.compliance_score / 100.0
 
@@ -171,18 +184,14 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
                     UnifiedWrapUpOrchestrator as orchestrator_cls,
                 )
 
-            orchestrator = orchestrator_cls(
-                workspace_path=str(CrossPlatformPathManager.get_workspace_path())
-            )
+            orchestrator = orchestrator_cls(workspace_path=str(CrossPlatformPathManager.get_workspace_path()))
             orchestrator.execute_unified_wrapup()
 
         validator = SecondaryCopilotValidator()
         validator.validate_corrections([__file__])
 
     if os.getenv("WLC_RUN_ORCHESTRATOR") == "1":
-        orchestrator = UnifiedWrapUpOrchestrator(
-            workspace_path=str(CrossPlatformPathManager.get_workspace_path())
-        )
+        orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(CrossPlatformPathManager.get_workspace_path()))
         orchestrator.execute_unified_wrapup()
 
     logging.info("WLC session completed")
