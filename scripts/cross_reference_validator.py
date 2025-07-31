@@ -214,16 +214,44 @@ class CrossReferenceValidator:
         )
 
     def validate(self, timeout_minutes: int = 30) -> bool:
-        """
-        Full cross-reference validation with progress, ETC, and DUAL COPILOT compliance.
-        """
+        """Full cross-reference validation with timeout handling."""
         self.status = "VALIDATING"
         _log_event({"event": "cross_reference_start"}, db_path=self.analytics_db)
         start_time = time.time()
+        timeout_seconds = timeout_minutes * 60
+
         self._query_cross_reference_patterns()
+        if time.time() - start_time > timeout_seconds:
+            _log_event(
+                {"event": "cross_reference_timeout", "step": "query"},
+                db_path=self.analytics_db,
+            )
+            return False
+
         self._scan_task_suggestions()
+        if time.time() - start_time > timeout_seconds:
+            _log_event(
+                {"event": "cross_reference_timeout", "step": "scan"},
+                db_path=self.analytics_db,
+            )
+            return False
+
         actions = self._cross_link_actions()
+        if time.time() - start_time > timeout_seconds:
+            _log_event(
+                {"event": "cross_reference_timeout", "step": "link"},
+                db_path=self.analytics_db,
+            )
+            return False
+
         self._deep_cross_link(actions)
+        if time.time() - start_time > timeout_seconds:
+            _log_event(
+                {"event": "cross_reference_timeout", "step": "deep_link"},
+                db_path=self.analytics_db,
+            )
+            return False
+
         total_steps = 3
         with tqdm(total=total_steps, desc="Cross-Reference Validation", unit="step") as bar:
             bar.set_description("Querying Patterns")
