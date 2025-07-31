@@ -328,6 +328,7 @@ and [monitoring/README.md](monitoring/README.md).
 
 ### Workspace Detection
 Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment variable. If the variable is not set, the current working directory is used by default.
+The helper `CrossPlatformPathManager.get_workspace_path()` now prioritizes this environment variable and falls back to searching for a `gh_COPILOT` folder starting from the current directory. If no workspace is found, it defaults to `/workspace/gh_COPILOT` when available.
 
 ### WLC Session Manager
 The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
