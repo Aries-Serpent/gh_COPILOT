@@ -1,7 +1,11 @@
 import sqlite3
 from pathlib import Path
 
-from quantum.quantum_database_search import quantum_search_nosql, quantum_search_sql
+from quantum.quantum_database_search import (
+    quantum_search_hybrid,
+    quantum_search_nosql,
+    quantum_search_sql,
+)
 
 
 def setup_db(path: Path):
@@ -22,3 +26,10 @@ def test_nosql_search(tmp_path: Path):
     setup_db(db)
     res = quantum_search_nosql("items", {"name": "a"}, db)
     assert res[0]["name"] == "a"
+
+
+def test_hybrid_sql_search(tmp_path: Path):
+    db = tmp_path / "db.sqlite"
+    setup_db(db)
+    res = quantum_search_hybrid("sql", "SELECT name FROM items", db)
+    assert {"name": "a"} in res and {"name": "b"} in res
