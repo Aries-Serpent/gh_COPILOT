@@ -685,8 +685,11 @@ uses Server-Sent Events by default and works with Flask's ``Response`` when
 Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
 This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.
 The compliance score is averaged from records in the `correction_logs` table.
-Correction history is summarized via `scripts/correction_logger_and_rollback.py`,
-producing `dashboard/compliance/correction_summary.json`.
+Correction history is summarized via `scripts/correction_logger_and_rollback.py`.
+The `summarize_corrections()` routine now keeps only the most recent entries
+(configurable via the `max_entries` argument). Existing summary files are moved
+to `dashboard/compliance/archive/` before new summaries are written. The main
+report remains `dashboard/compliance/correction_summary.json`.
 Set `GH_COPILOT_WORKSPACE` before running these utilities:
 
 ```bash
