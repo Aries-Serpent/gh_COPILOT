@@ -9,11 +9,12 @@ COPY requirements.txt requirements.txt
 RUN chown -R appuser:appgroup /app
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy application source
+COPY . /app
+
 # Initialize databases during build
 RUN python scripts/database/unified_database_initializer.py
 
-# Copy application source
-COPY . /app
 RUN chown -R appuser:appgroup /app
 
 # Configure environment file
