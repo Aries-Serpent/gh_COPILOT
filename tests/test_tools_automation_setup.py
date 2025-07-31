@@ -17,6 +17,17 @@ def test_ingest_assets(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path.parent / "backups"))
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
 
+    called = {"v": False}
+
+    def dummy_validate(self, files):
+        called["v"] = True
+        return True
+
+    monkeypatch.setattr(
+        "secondary_copilot_validator.SecondaryCopilotValidator.validate_corrections",
+        dummy_validate,
+    )
+
     docs_dir = tmp_path / "documentation"
     docs_dir.mkdir()
     (docs_dir / "doc.md").write_text("# doc")
@@ -44,3 +55,4 @@ def test_ingest_assets(tmp_path: Path, monkeypatch) -> None:
     assert doc_count == 1
     assert template_count == 1
     assert pattern_count == 1
+    assert called["v"]

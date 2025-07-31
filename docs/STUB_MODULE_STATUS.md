@@ -3,8 +3,6 @@
 This document catalogs unfinished modules and missing components referenced in the repository.
 Generated: 2025-07-30
 
-The `ingest_assets` function referenced in early drafts is now fully
-implemented (see `scripts/autonomous_setup_and_audit.py` lines 30-150).
 
 ## STUB Overview
 
@@ -13,7 +11,7 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 | ID | Description (short) | Module/Path | Status | Owner |
 |----|--------------------|-------------|--------|-------|
 | STUB-001 | Maintain full traversal scanning using `scripts/code_placeholder_audit.py` | [scripts/code_placeholder_audit.py](../scripts/code_placeholder_audit.py) | complete | Compliance Team |
-| STUB-002 | Expand DB-first code generation with similarity scoring | [template_engine/auto_generator.py](../template_engine/auto_generator.py)<br>[template_engine/db_first_code_generator.py](../template_engine/db_first_code_generator.py)<br>[template_engine/pattern_mining_engine.py](../template_engine/pattern_mining_engine.py)<br>[template_engine/objective_similarity_scorer.py](../template_engine/objective_similarity_scorer.py) | in progress | CodeGen Team |
+| STUB-002 | Expand DB-first code generation with similarity scoring | [template_engine/auto_generator.py](../template_engine/auto_generator.py)<br>[template_engine/db_first_code_generator.py](../template_engine/db_first_code_generator.py)<br>[template_engine/pattern_mining_engine.py](../template_engine/pattern_mining_engine.py)<br>[template_engine/objective_similarity_scorer.py](../template_engine/objective_similarity_scorer.py) | complete | CodeGen Team |
 | STUB-003 | Implement KMeans clustering for template selection | [template_engine/template_synchronizer.py](../template_engine/template_synchronizer.py)<br>[copilot/copilot-instructions.md](../copilot/copilot-instructions.md) | complete | Template Engine Team |
 | STUB-004 | Log correction history with rollback metrics | [scripts/database/documentation_db_analyzer.py](../scripts/database/documentation_db_analyzer.py)<br>[dashboard/compliance_metrics_updater.py](../dashboard/compliance_metrics_updater.py)<br>databases/analytics.db | complete | Compliance Team |
 | STUB-005 | Enhance documentation manager with DB-first templates | [archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py](../archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py)<br>[README.md](../README.md)<br>[DATABASE_FIRST_USAGE_GUIDE.md](DATABASE_FIRST_USAGE_GUIDE.md) | complete | Documentation Team |
@@ -26,13 +24,11 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 | STUB-012 | Display placeholder removal progress on dashboard | [dashboard/compliance_metrics_updater.py](../dashboard/compliance_metrics_updater.py) | complete | Web Team |
 | STUB-013 | Implement legacy cleanup workflow | [unified_legacy_cleanup_system.py](../unified_legacy_cleanup_system.py) | complete | Compliance Team |
 
-Implementation note: the `ingest_assets` workflow is fully implemented in
-`scripts/autonomous_setup_and_audit.py` lines 30-150.
 
 ## Integration Status Summary
 
 - **STUB-001:** Covered by placeholder audit tests (`tests/placeholder_audit/*`).
-- **STUB-002:** Ongoing development – see commit [ea3df1a](../commit/ea3df1a); unit tests in `tests/test_db_first_code_generator.py` still fail due to template scoring mismatches.
+- **STUB-002:** Implementation complete. Related tests pass in `tests/test_db_first_code_generator.py`.
 - **STUB-003:** KMeans selection validated through `tests/test_template_synchronizer_*`.
 - **STUB-004:** Analyzer script now logs correction history with rollback metrics; tests pass.
 - **STUB-005:** Documentation manager validated via `tests/test_enterprise_database_driven_documentation_manager.py`.

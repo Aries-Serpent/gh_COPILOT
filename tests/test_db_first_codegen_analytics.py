@@ -155,3 +155,22 @@ def test_integration_ready_rollback_on_failure(tmp_path: Path, monkeypatch) -> N
         ).fetchone()[0]
 
     assert tracking == 0 and enhanced == 0 and fails == 1 and rollbacks == 1
+
+
+def test_integration_ready_runs_validator(tmp_path: Path, monkeypatch) -> None:
+    prod_db = tmp_path / "production.db"
+    doc_db = tmp_path / "documentation.db"
+    tpl_db = tmp_path / "template.db"
+    analytics = tmp_path / "analytics.db"
+
+    os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
+    with sqlite3.connect(prod_db) as conn:
+        conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT, default_value TEXT)")
+        conn.execute("INSERT INTO template_placeholders VALUES ('{{NAME}}', 'World')")
+
+    dummy = type("D", (), {"called": False, "validate_corrections": lambda self, files: setattr(self, "called", True) or True})()
+    monkeypatch.setattr(dbgen, "SecondaryCopilotValidator", lambda: dummy)
+    gen = DBFirstCodeGenerator(prod_db, doc_db, tpl_db, analytics)
+    gen.select_best_template = lambda *_: "print('{{NAME}}')"
+    gen.generate_integration_ready_code("Obj")
+    assert dummy.called
