@@ -140,6 +140,8 @@ def test_deep_cross_link_excludes_backup(tmp_path, monkeypatch):
     assert (code_dir / "target.py") in paths
     assert (backup_root / "target.py") not in paths
 
+    assert all(Path(entry["linked_path"]) != backup_root / "target.py" for entry in validator.cross_link_log)
+
 
 def test_suggest_links_logged(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
