@@ -188,7 +188,10 @@ audit the results and perform a rollback if necessary. Commands assume
    ```
 
    The output includes a summary such as `{"placeholders_removed": 3}` and the
-   dashboard reflects the new compliance score.
+   dashboard reflects the new compliance score. A summary file is also written to
+   `dashboard/compliance/placeholder_summary.json` containing the latest
+   finding counts, resolutions, and compliance score. See the schema in
+   [dashboard/README.md](../dashboard/README.md#placeholder_summaryjson-schema).
 
 5. **Rollback a Problematic Entry**
 
