@@ -45,3 +45,15 @@ def test_log_rollback(tmp_path: Path) -> None:
         with sqlite3.connect(db) as conn:
             row = conn.execute("SELECT target, backup FROM rollback_logs").fetchone()
         assert row == ("file.py", "file.py.bak")
+
+
+def test_detect_recursion_true(tmp_path: Path) -> None:
+    """``_detect_recursion`` should return True when a nested folder matches."""
+    nested = tmp_path / tmp_path.name
+    nested.mkdir()
+    assert _detect_recursion(tmp_path)
+
+
+def test_detect_recursion_false(tmp_path: Path) -> None:
+    """``_detect_recursion`` should return False without matching folders."""
+    assert not _detect_recursion(tmp_path)

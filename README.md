@@ -103,13 +103,12 @@ bash setup.sh
 # update the environment to permit outbound connections to PyPI.
 
 # 2b. Install the line-wrapping utility
-# The repository ships a `tools/clw` script. If `/usr/local/bin/clw` is not available,
-# copy this file and make it executable. This step must be completed **before** running
-# any commands that may emit long output.
-cp tools/clw /usr/local/bin/clw
+# The repository ships a `tools/clw.py` script. If `/usr/local/bin/clw` is not available,
+# copy this file and make it executable. Run a quick self-test to confirm installation.
+cp tools/clw.py /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
-# Verify clw exists
-ls -l /usr/local/bin/clw
+clw --help
+# Optional: export CLW_MAX_LINE_LENGTH=1550 to keep wrapped output below the console limit
 
 ### OpenAI Connector
 The repository provides `github_integration/openai_connector.py` for OpenAI API
@@ -197,10 +196,11 @@ are thin CLI wrappers. They delegate to the core implementations under
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
-Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
+Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw.py` to `/usr/local/bin/clw`, make it executable, and verify with `clw --help`:
 ```bash
-cp tools/clw /usr/local/bin/clw
+cp tools/clw.py /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
+clw --help
 ```
 
 Once installed, wrap high-volume output like so:
@@ -209,7 +209,7 @@ Once installed, wrap high-volume output like so:
 ls -R | /usr/local/bin/clw
 ```
 
-The script is bundled as `tools/clw` and can be copied to `/usr/local/bin/clw` if needed.
+The script is bundled as `tools/clw.py` and can be copied to `/usr/local/bin/clw` if needed.
 
 If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
 Set `CLW_MAX_LINE_LENGTH=1550` in your environment (e.g. in `.env`) before invoking the wrapper to keep output safe.
@@ -678,6 +678,7 @@ class SelfHealingSelfLearningSystem:
 - **`/api/scripts`** - Scripts API endpoint
 - **`/api/health`** - System health check
 - **`/dashboard/compliance`** - Compliance metrics and rollback history
+- **`/summary`** - JSON summary of metrics and alerts
 
 ### **Access Dashboard**
 ```bash
@@ -1002,11 +1003,12 @@ Set these variables in your `.env` file or shell before running scripts:
 - `FLASK_RUN_PORT` – dashboard port (default `5000`).
 - `QISKIT_IBM_TOKEN` – optional IBM Quantum token.
 - `LOG_WEBSOCKET_ENABLED` – set to `1` to stream logs.
+- `CLW_MAX_LINE_LENGTH` – max line length for the `clw` wrapper (default `1550`).
 
 ## 🛠️ Troubleshooting
 
 - **Setup script fails** – ensure network access and rerun `bash setup.sh`.
-- **`clw` not found** – copy `tools/clw` to `/usr/local/bin/clw` and make it executable.
+- **`clw` not found** – copy `tools/clw.py` to `/usr/local/bin/clw`, make it executable, and run `clw --help`.
 - **Database errors** – verify `GH_COPILOT_WORKSPACE` is configured correctly.
 
 ## ❗ Known Issues

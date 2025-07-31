@@ -11,6 +11,11 @@ def test_violation_and_rollback_logging(tmp_path, monkeypatch):
         "scripts.correction_logger_and_rollback._log_event",
         lambda evt, **kw: events.append((kw.get("table"), evt)),
     )
+    rollback_calls = []
+    monkeypatch.setattr(
+        "scripts.correction_logger_and_rollback._log_rollback",
+        lambda *a, **kw: rollback_calls.append(a),
+    )
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
@@ -40,3 +45,4 @@ def test_violation_and_rollback_logging(tmp_path, monkeypatch):
 
     assert any(t == "violation_logs" for t, _ in events)
     assert any(t == "rollback_logs" for t, _ in events)
+    assert len(rollback_calls) == 1

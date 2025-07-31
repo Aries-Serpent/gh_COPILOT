@@ -7,6 +7,8 @@ from scripts.utilities.flake8_corrector_base import (
     TrailingWhitespaceCorrector,
     IndentationCorrector,
     ComplexityCorrector,
+    UndefinedNameCorrector,
+    BlankLinesCorrector,
 )
 
 
@@ -78,3 +80,22 @@ def test_complexity_corrector(tmp_path: Path) -> None:
     c = ComplexityCorrector(workspace_path=str(tmp_path))
     assert c.execute_correction()
     assert f.read_text().startswith("# TODO: reduce complexity")
+
+
+def test_undefined_name_corrector(tmp_path: Path) -> None:
+    f = tmp_path / "bad.py"
+    f.write_text("print(x)\n")
+    c = UndefinedNameCorrector(workspace_path=str(tmp_path))
+    assert c.execute_correction()
+    assert f.read_text().startswith("# TODO: fix undefined names")
+
+
+def test_blank_lines_corrector(tmp_path: Path) -> None:
+    bad_code = "def a():\n    pass\ndef b():\n    pass\n"
+    f = tmp_path / "bad.py"
+    f.write_text(bad_code)
+    c = BlankLinesCorrector(workspace_path=str(tmp_path))
+    assert c.execute_correction()
+    lines = f.read_text().splitlines()
+    assert lines[0] == "" and lines[1] == ""
+    assert lines[4] == "" and lines[5] == ""

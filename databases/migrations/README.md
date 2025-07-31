@@ -12,17 +12,26 @@ Before applying migrations, ensure the following:
 Migrations are executed alphabetically by `scripts/run_migrations.py`. Apply them
 in the following order to satisfy foreign key constraints:
 
-1. `add_code_audit_history.sql`
-2. `add_code_audit_log.sql`
-3. `add_correction_history.sql`
-4. `add_corrections.sql`
-5. `add_placeholder_removals.sql`
-6. `add_rollback_logs.sql`
-7. `add_size_violations.sql`
-8. `add_unified_wrapup_sessions.sql`
-9. `add_violation_logs.sql`
-10. `create_todo_fixme_tracking.sql`
-11. `extend_todo_fixme_tracking.sql`
+1. `add_audit_log.sql`
+2. `add_code_audit_history.sql`
+3. `add_code_audit_log.sql`
+4. `add_correction_history.sql`
+5. `add_correction_logs.sql`
+6. `add_corrections.sql`
+7. `add_cross_link_events.sql`
+8. `add_cross_link_suggestions.sql`
+9. `add_cross_link_summary.sql`
+10. `add_dashboard_alerts.sql`
+11. `add_placeholder_removals.sql`
+12. `add_rollback_failures.sql`
+13. `add_rollback_logs.sql`
+14. `add_rollback_strategy_history.sql`
+15. `add_size_violations.sql`
+16. `add_sync_events_log.sql`
+17. `add_unified_wrapup_sessions.sql`
+18. `add_violation_logs.sql`
+19. `create_todo_fixme_tracking.sql`
+20. `extend_todo_fixme_tracking.sql`
 
 `extend_todo_fixme_tracking.sql` depends on both `create_todo_fixme_tracking.sql`
 and `add_placeholder_removals.sql` because it references the `placeholder_removals`

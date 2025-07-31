@@ -231,6 +231,21 @@ def dashboard_info() -> Any:
     return jsonify(data)
 
 
+@app.get("/summary")
+def summary() -> Any:
+    """Return metrics and alerts in a single payload."""
+    start = time.time()
+    with tqdm(total=1, desc="summary", unit="step") as pbar:
+        data = {
+            "metrics": _fetch_metrics(),
+            "alerts": _fetch_alerts(),
+        }
+        pbar.update(1)
+    etc = f"ETC: {calculate_etc(start, 1, 1)}"
+    logging.info("Summary data served | %s", etc)
+    return jsonify(data)
+
+
 @app.get("/metrics_table")
 def metrics_table() -> Any:
     metrics = _fetch_metrics()

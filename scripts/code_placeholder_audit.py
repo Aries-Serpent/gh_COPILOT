@@ -25,14 +25,7 @@ import argparse
 from pathlib import Path
 from typing import Dict, List, Optional
 
-try:
-    from tqdm import tqdm
-except ModuleNotFoundError:  # pragma: no cover - fallback
-    import subprocess
-    import sys
-
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "tqdm"])
-    from tqdm import tqdm
+from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from scripts.database.add_code_audit_log import ensure_code_audit_log
@@ -559,7 +552,10 @@ def main(
 def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
     """Return CLI arguments for the audit script."""
 
-    parser = argparse.ArgumentParser(description="Audit workspace for TODO/FIXME placeholders")
+    parser = argparse.ArgumentParser(
+        description="Audit workspace for TODO/FIXME placeholders",
+        epilog="For cleanup only, run scripts/placeholder_cleanup.py",
+    )
     parser.add_argument("--workspace-path", type=str, help="Workspace to scan")
     parser.add_argument("--analytics-db", type=str, help="analytics.db location")
     parser.add_argument("--production-db", type=str, help="production.db location")
@@ -567,7 +563,10 @@ def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
     parser.add_argument("--dataset-path", type=str, help="Optional JSON dataset with additional patterns")
     parser.add_argument("--timeout-minutes", type=int, default=30, help="Scan timeout in minutes")
     parser.add_argument(
-        "--simulate", "--dry-run", action="store_true", dest="simulate", help="Run in test mode without writes"
+        "--simulate",
+        action="store_true",
+        dest="simulate",
+        help="Run in test mode without writes",
     )
     parser.add_argument(
         "--test-mode",
@@ -588,7 +587,6 @@ def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--apply-fixes",
-        "--cleanup",
         action="store_true",
         dest="apply_fixes",
         help="Automatically remove placeholders and log corrections",
@@ -599,7 +597,6 @@ def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
         help="Rollback the most recent audit entry",
     )
     parser.add_argument("--rollback-id", type=int, help="Rollback a specific entry id")
-    parser.add_argument("--force", action="store_true", help="Disable validation checks")
     parser.add_argument("--export", type=Path, help="Export audit results to JSON")
     parser.add_argument(
         "--summary-json",
@@ -628,8 +625,6 @@ if __name__ == "__main__":
     if args.test_mode:
         os.environ["GH_COPILOT_TEST_MODE"] = "1"
         args.simulate = True
-    if args.force:
-        os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
     success = main(
         workspace_path=args.workspace_path,
         analytics_db=args.analytics_db,

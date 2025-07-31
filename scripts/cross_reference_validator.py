@@ -25,7 +25,7 @@ from typing import Dict, List, Optional, Set
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
-from utils.log_utils import log_event, _log_event
+from utils.log_utils import log_event, _log_event, ensure_tables
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
@@ -44,8 +44,6 @@ ANALYTICS_DB = workspace_root / "analytics.db"
 DASHBOARD_DIR = workspace_root / "dashboard" / "compliance"
 TASK_SUGGESTIONS_FILE = workspace_root / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
 
-backup_root = CrossPlatformPathManager.get_backup_root()
-
 
 class CrossReferenceValidator:
     """
@@ -59,6 +57,7 @@ class CrossReferenceValidator:
         analytics_db: Path = ANALYTICS_DB,
         dashboard_dir: Path = DASHBOARD_DIR,
         task_suggestions_file: Path = TASK_SUGGESTIONS_FILE,
+        backup_root: Path | None = None,
     ) -> None:
         self.production_db = production_db
         self.analytics_db = analytics_db
@@ -75,6 +74,7 @@ class CrossReferenceValidator:
 
         self.cross_link_log: List[Dict[str, str]] = []
         self.suggested_links: List[Dict[str, str]] = []
+        self.recommended_links: List[Dict[str, str]] = []
 
     def _query_cross_reference_patterns(self) -> List[str]:
         """Query production.db for cross-referencing workflow patterns."""
@@ -134,25 +134,21 @@ class CrossReferenceValidator:
         if self.analytics_db.exists():
             with sqlite3.connect(self.analytics_db) as conn:
                 conn.row_factory = sqlite3.Row
-                for row in conn.execute(
-                    "SELECT file_path, linked_path FROM cross_link_events"
-                ):
+                for row in conn.execute("SELECT file_path, linked_path FROM cross_link_events"):
                     past_links.append({"file_path": row[0], "linked_path": row[1]})
 
-        for d in docs_dirs + code_dirs:
-            validate_enterprise_operation(str(d))
+        backup_root = CrossPlatformPathManager.get_backup_root()
 
-        existing_pairs: Set[tuple[str, str]] = {
-            (pl["file_path"], pl["linked_path"]) for pl in past_links
-        }
+        existing_pairs: Set[tuple[str, str]] = {(pl["file_path"], pl["linked_path"]) for pl in past_links}
 
         for act in actions:
             file_name = Path(act["file_path"]).name
             related_paths: Set[Path] = set()
             for d in docs_dirs + code_dirs:
+                validate_enterprise_operation(str(d))
                 for path in d.rglob(file_name):
                     try:
-                        path.relative_to(backup_root)
+                        path.relative_to(self.backup_root)
                     except ValueError:
                         related_paths.add(path)
             for path in sorted(related_paths):
@@ -197,6 +193,7 @@ class CrossReferenceValidator:
             "cross_linked_actions": actions,
             "cross_links": self.cross_link_log,
             "suggested_links": self.suggested_links,
+            "recommended_links": self.recommended_links,
             "status": "complete" if actions else "none",
         }
         import json
@@ -213,6 +210,32 @@ class CrossReferenceValidator:
             table="cross_link_summary",
             db_path=self.analytics_db,
         )
+
+    def _compute_recommendations(self, actions: List[Dict], valid: bool) -> List[Dict]:
+        """Compute similarity-based cross-link recommendations."""
+        import template_engine.objective_similarity_scorer as scorer
+
+        recs: List[Dict[str, str | float]] = []
+        ensure_tables(self.analytics_db, ["cross_link_recommendations"], test_mode=False)
+        for act in actions:
+            scores = scorer.compute_similarity_scores(
+                act["file_path"],
+                production_db=self.production_db,
+                analytics_db=self.analytics_db,
+                timeout_minutes=1,
+            )
+            if not scores:
+                continue
+            top_id, top_score = max(scores, key=lambda s: s[1])
+            entry = {
+                "file_path": act["file_path"],
+                "template_id": top_id,
+                "score": float(top_score),
+                "valid": int(valid),
+            }
+            recs.append(entry)
+            log_event(entry, table="cross_link_recommendations", db_path=self.analytics_db)
+        return recs
 
     def validate(self, timeout_minutes: int = 30) -> bool:
         """Full cross-reference validation with timeout handling."""
@@ -265,12 +288,14 @@ class CrossReferenceValidator:
         etc = self._calculate_etc(elapsed, total_steps, total_steps)
         logging.info(f"Cross-reference validation completed in {elapsed:.2f}s | ETC: {etc}")
         self._update_dashboard(actions)
-        _log_event({"event": "cross_reference_actions", "count": len(actions)}, db_path=self.analytics_db)
         valid = self._dual_copilot_validate(len(actions))
         if valid:
             logging.info("DUAL COPILOT validation passed: Cross-reference integrity confirmed.")
         else:
             logging.error("DUAL COPILOT validation failed: Cross-reference mismatch.")
+        self.recommended_links = self._compute_recommendations(actions, valid)
+        self._update_dashboard(actions)
+        _log_event({"event": "cross_reference_actions", "count": len(actions)}, db_path=self.analytics_db)
         _log_event({"event": "cross_reference_complete", "valid": valid}, db_path=self.analytics_db)
         return valid
 

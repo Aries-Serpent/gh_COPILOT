@@ -267,6 +267,73 @@ class ComplexityCorrector(EnterpriseFlake8Corrector):
             return False
 
 
+class UndefinedNameCorrector(EnterpriseFlake8Corrector):
+    """Mark files containing undefined names (F821)."""
+
+    def correct_file(self, file_path: str) -> bool:
+        try:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "flake8",
+                    "--select",
+                    "F821",
+                    file_path,
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if not result.stdout:
+                return False
+
+            original = Path(file_path).read_text(encoding="utf-8")
+            Path(file_path).write_text(
+                "# TODO: fix undefined names\n" + original,
+                encoding="utf-8",
+            )
+            self.logger.info("Marked undefined names in %s", file_path)
+            return True
+        except Exception as exc:  # pragma: no cover - unexpected
+            self.logger.error("Undefined name correction failed: %s", exc)
+            return False
+
+
+class BlankLinesCorrector(EnterpriseFlake8Corrector):
+    """Ensure two blank lines before top-level definitions (E302)."""
+
+    def correct_file(self, file_path: str) -> bool:
+        try:
+            path = Path(file_path)
+            lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+            changed = False
+            i = 0
+            while i < len(lines):
+                line = lines[i]
+                stripped = line.lstrip()
+                if stripped.startswith("def ") or stripped.startswith("class "):
+                    blank_count = 0
+                    j = i - 1
+                    while j >= 0 and lines[j].strip() == "":
+                        blank_count += 1
+                        j -= 1
+                    needed = 2 - blank_count
+                    if needed > 0:
+                        for _ in range(needed):
+                            lines.insert(i, "\n")
+                            i += 1
+                        changed = True
+                i += 1
+            if changed:
+                path.write_text("".join(lines), encoding="utf-8")
+                self.logger.info("Added blank lines in %s", file_path)
+            return changed
+        except Exception as exc:  # pragma: no cover - unexpected
+            self.logger.error("Blank line correction failed: %s", exc)
+            return False
+
+
 __all__ = [
     "EnterpriseFlake8Corrector",
     "WhitespaceCorrector",
@@ -275,4 +342,6 @@ __all__ = [
     "TrailingWhitespaceCorrector",
     "IndentationCorrector",
     "ComplexityCorrector",
+    "UndefinedNameCorrector",
+    "BlankLinesCorrector",
 ]
