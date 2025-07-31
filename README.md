@@ -971,6 +971,11 @@ The `compliance-audit.yml` workflow now installs dependencies, including
 # Generate scored documentation templates
 python docs/quantum_template_generator.py
 
+# Safely commit staged changes with Git LFS auto-tracking
+ALLOW_AUTOLFS=1 tools/git_safe_add_commit.py "<commit message>"
+# Bash fallback:
+ALLOW_AUTOLFS=1 tools/git_safe_add_commit.sh "<commit message>"
+
 The audit results are used by the `/dashboard/compliance` endpoint to
 report ongoing placeholder removal progress and overall compliance
 metrics. A machine-readable summary is also written to
