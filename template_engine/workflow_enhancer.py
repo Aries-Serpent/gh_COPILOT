@@ -19,6 +19,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from utils.cross_platform_paths import CrossPlatformPathManager
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -26,7 +27,7 @@ from tqdm import tqdm
 from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
 
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "workflow_enhancer"
+LOGS_DIR = CrossPlatformPathManager.get_workspace_path() / "logs" / "workflow_enhancer"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"workflow_enhancer_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -36,8 +37,8 @@ logging.basicConfig(
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
-PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "production.db"
-DASHBOARD_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "dashboard" / "compliance"
+PRODUCTION_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
+DASHBOARD_DIR = CrossPlatformPathManager.get_workspace_path() / "dashboard" / "compliance"
 
 
 class TemplateWorkflowEnhancer:
@@ -232,9 +233,9 @@ def main(
     logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
 
-    validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace = CrossPlatformPathManager.get_workspace_path()
+    validate_enterprise_operation(str(workspace))
 
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
     production_db = Path(production_db_path or workspace / "databases" / "production.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
 
