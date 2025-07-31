@@ -308,7 +308,7 @@ docker run -p 5000:5000 \
   gh_copilot
 ```
 
-`entrypoint.sh` sets `GH_COPILOT_WORKSPACE` to `/app` and `GH_COPILOT_BACKUP_ROOT` to `/backup` when unspecified. It requires `FLASK_SECRET_KEY` for the dashboard. The script runs `unified_database_initializer.py` if databases are missing and then launches `compliance_metrics_updater`, `code_placeholder_audit`, and the dashboard. Map `/backup` to a host directory so logs persist.
+`entrypoint.sh` expects `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` to already be defined. The Docker image sets them to `/app` and `/backup`, but override these when running locally. The script initializes `enterprise_assets.db` only if missing, launches the background workers, and then `exec`s the dashboard command provided via `CMD`. Map `/backup` to a host directory so logs persist.
 
 When launching with Docker Compose, the provided `docker-compose.yml` mounts `${GH_COPILOT_BACKUP_ROOT:-/backup}` at `/backup` and passes environment variables from `.env`. Ensure `GH_COPILOT_BACKUP_ROOT` is configured on the host so backups survive container restarts.
 `FLASK_SECRET_KEY` must also be provided—either via `.env` or by setting the variable when invoking Docker commands.
