@@ -105,10 +105,16 @@ def extract_patterns(templates: List[str]) -> List[str]:
 
 
 def _log_patterns(patterns: List[str], analytics_db: Path) -> None:
-    """
-    Log mined patterns to analytics.db for compliance tracking.
-    """
+    """Log mined patterns and associated compliance records."""
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    for pat in tqdm(patterns, desc="Logging Patterns", unit="pat"):
+        _log_pattern(analytics_db, pat)
+
+
+def _log_pattern(analytics_db: Path, pattern: str) -> None:
+    """Log a single pattern to ``analytics_db`` with audit and compliance info."""
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.utcnow().isoformat()
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             """CREATE TABLE IF NOT EXISTS pattern_mining_log (
@@ -117,30 +123,25 @@ def _log_patterns(patterns: List[str], analytics_db: Path) -> None:
                 ts TEXT
             )"""
         )
-        for pat in tqdm(patterns, desc="Logging Patterns", unit="pat"):
-            conn.execute(
-                "INSERT INTO pattern_mining_log (pattern, ts) VALUES (?, ?)",
-                (pat, datetime.utcnow().isoformat()),
-            )
-        conn.commit()
-
-
-def _log_pattern(analytics_db: Path, pattern: str) -> None:
-    """Log a single pattern to ``analytics_db``."""
-    analytics_db.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(analytics_db) as conn:
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS pattern_mining_log (
+            """CREATE TABLE IF NOT EXISTS compliance_tracking (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                pattern TEXT,
-                ts TEXT
+                compliance_type TEXT,
+                status TEXT,
+                last_check TEXT,
+                next_check TEXT
             )"""
         )
         conn.execute(
             "INSERT INTO pattern_mining_log (pattern, ts) VALUES (?, ?)",
-            (pattern, datetime.utcnow().isoformat()),
+            (pattern, timestamp),
+        )
+        conn.execute(
+            "INSERT INTO compliance_tracking (compliance_type, status, last_check, next_check) VALUES (?, ?, ?, ?)",
+            (pattern, "logged", timestamp, timestamp),
         )
         conn.commit()
+    _log_audit_real(str(analytics_db), f"pattern_logged:{pattern}")
 
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:

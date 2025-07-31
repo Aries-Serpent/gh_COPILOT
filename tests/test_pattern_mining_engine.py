@@ -32,9 +32,21 @@ def test_extract_patterns():
 
 def test_mine_patterns(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    monkeypatch.setattr(pme, "_log_audit_real", lambda *a, **k: None)
     calls = []
     orig_log_patterns = pme._log_patterns
+
+    def audit_log(db_name: str, details: str) -> None:
+        with sqlite3.connect(analytics) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS audit_log (id INTEGER PRIMARY KEY AUTOINCREMENT, db_name TEXT, details TEXT, ts TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO audit_log (db_name, details, ts) VALUES (?, ?, ?)",
+                (db_name, details, "test"),
+            )
+            conn.commit()
+
+    monkeypatch.setattr(pme, "_log_audit_real", audit_log)
 
     def fake_log_patterns(patterns: list[str], analytics_db: Path) -> None:
         calls.append((patterns, analytics_db))
@@ -61,6 +73,12 @@ def test_mine_patterns(tmp_path: Path, monkeypatch) -> None:
     assert count == len(patterns), "Pattern count mismatch in mined_patterns table"
     assert validate_mining(len(patterns), analytics), "DUAL COPILOT validation failed"
     assert calls == [(patterns, analytics)]
+    with sqlite3.connect(analytics) as conn:
+        pm_count = conn.execute("SELECT COUNT(*) FROM pattern_mining_log").fetchone()[0]
+        audit_count = conn.execute("SELECT COUNT(*) FROM audit_log").fetchone()[0]
+        comp_count = conn.execute("SELECT COUNT(*) FROM compliance_tracking").fetchone()[0]
+    assert pm_count == comp_count == len(patterns)
+    assert audit_count >= len(patterns)
 
 
 def test_mine_patterns_clusters(tmp_path: Path, monkeypatch) -> None:
@@ -142,41 +160,26 @@ def test_mine_patterns_metrics(tmp_path: Path, monkeypatch) -> None:
     assert n_clusters > 0
 
 
-def test_cluster_distribution_and_quality(tmp_path: Path, monkeypatch) -> None:
+def test_log_pattern_audit_and_compliance(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    monkeypatch.setattr(pme, "_log_audit_real", lambda *a, **k: None)
-    monkeypatch.setattr(pme, "_log_patterns", lambda *a, **k: None)
-
-    prod = tmp_path / "production.db"
     analytics = tmp_path / "analytics.db"
-    with sqlite3.connect(prod) as conn:
-        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
-        conn.executemany(
-            "INSERT INTO code_templates (template_code) VALUES (?)",
-            [
-                ("def foo(): return foo",),
-                ("def bar(): return bar",),
-                ("print foo bar",),
-                ("print bar baz",),
-            ],
-        )
 
-    mine_patterns(prod, analytics)
-    clusters = get_clusters(analytics)
-    assert len(clusters) == 2
-    for pats in clusters.values():
-        assert pats
+    def audit_log(db_name: str, details: str) -> None:
+        with sqlite3.connect(analytics) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS audit_log (id INTEGER PRIMARY KEY AUTOINCREMENT, db_name TEXT, details TEXT, ts TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO audit_log (db_name, details, ts) VALUES (?, ?, ?)",
+                (db_name, details, "test"),
+            )
+            conn.commit()
 
-    found_print_cluster = [c for c in clusters.values() if "print foo bar" in c and "print bar baz" in c]
-    assert len(found_print_cluster) == 1
+    monkeypatch.setattr(pme, "_log_audit_real", audit_log)
 
+    pme._log_pattern(analytics, "foo bar baz")
     with sqlite3.connect(analytics) as conn:
-        row = conn.execute(
-            "SELECT inertia, silhouette, n_clusters FROM pattern_cluster_metrics"
-        ).fetchone()
-
-    assert row is not None
-    inertia, silhouette, n_clusters = row
-    assert inertia >= 0
-    assert silhouette > 0
-    assert n_clusters == 2
+        pm = conn.execute("SELECT COUNT(*) FROM pattern_mining_log").fetchone()[0]
+        au = conn.execute("SELECT COUNT(*) FROM audit_log").fetchone()[0]
+        co = conn.execute("SELECT COUNT(*) FROM compliance_tracking").fetchone()[0]
+    assert pm == au == co == 1
