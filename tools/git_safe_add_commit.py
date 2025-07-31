@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Safely commit staged files with optional Git LFS auto-tracking."""
-
+"""Safely commit staged files with Git LFS auto-tracking."""
 from __future__ import annotations
 
 import mimetypes
@@ -13,59 +12,70 @@ SIZE_LIMIT = 50 * 1024 * 1024  # 50MB
 ALLOW_AUTOLFS = os.getenv("ALLOW_AUTOLFS") == "1"
 
 
-def run(cmd: list[str], cwd: str | None = None) -> subprocess.CompletedProcess[str]:
-    """Run command and return completed process."""
-    return subprocess.run(cmd, cwd=cwd, text=True, capture_output=True, check=False)
+def run(cmd: str) -> subprocess.CompletedProcess[str]:
+    """Run shell command and return CompletedProcess."""
+    return subprocess.run(cmd, shell=True, text=True, capture_output=True, check=False)
+
+
+def staged_files() -> list[str]:
+    """Return list of staged files added or modified."""
+    res = run("git diff --cached --name-only --diff-filter=ACM")
+    return [f for f in res.stdout.splitlines() if f]
 
 
 def is_binary(path: Path) -> bool:
-    """Detect if a file is binary using git diff --numstat or mimetypes."""
-    result = run(["git", "diff", "--numstat", str(path)])
-    if result.stdout.startswith("-\t"):
-        return True
-    mime, _ = mimetypes.guess_type(path.name)
-    return mime is None or ("text" not in mime and "json" not in mime)
+    """Detect if file is binary using mimetypes and git diff."""
+    mime, _ = mimetypes.guess_type(path.as_posix())
+    if mime:
+        return not mime.startswith("text")
+    diff = run(f"git diff --numstat \"{path}\"")
+    return diff.stdout.startswith("-\t")
+
+
+def exceeds_size(path: Path) -> bool:
+    """Return True if file exceeds SIZE_LIMIT."""
+    try:
+        return path.stat().st_size > SIZE_LIMIT
+    except OSError:
+        return False
 
 
 def in_gitattributes(path: Path) -> bool:
-    result = run(["git", "check-attr", "filter", "--", str(path)])
-    return result.stdout.strip().endswith("lfs")
+    """Check if file is already tracked with Git LFS."""
+    res = run(f"git check-attr filter -- {path}")
+    return res.stdout.strip().endswith("lfs")
 
 
-def track_lfs(pattern: str) -> None:
-    run(["git", "lfs", "install"])
-    run(["git", "lfs", "track", pattern])
-    run(["git", "add", ".gitattributes"])
-    print(f"[LFS] Tracking {pattern}")
+def track_extension(ext: str) -> None:
+    """Install and track Git LFS for the given extension."""
+    run("git lfs install")
+    run(f'git lfs track "*{ext}"')
+    run("git add .gitattributes")
+    print(f"[LFS] Tracking *{ext}")
 
 
-def main() -> None:
-    message = sys.argv[1] if len(sys.argv) > 1 else "auto commit"
-    files = run(["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"]).stdout.splitlines()
-    for fname in files:
-        path = Path(fname)
-        if not path.exists():
-            continue
-        size = path.stat().st_size
-        if (is_binary(path) or size > SIZE_LIMIT) and not in_gitattributes(path):
-            if not ALLOW_AUTOLFS:
-                print(f"Binary or large file detected: {fname}. Set ALLOW_AUTOLFS=1 to auto-track with git lfs.")
-                sys.exit(1)
-            ext = path.suffix or os.path.splitext(fname)[1]
-            pattern = f"*{ext}"
-            track_lfs(pattern)
-            run(["git", "add", fname])
-    commit = run(["git", "commit", "-m", message])
-    if commit.returncode != 0:
-        sys.stdout.write(commit.stdout)
-        sys.stderr.write(commit.stderr)
-        sys.exit(commit.returncode)
+def process_file(path: Path) -> None:
+    """Handle a single staged file."""
+    if (is_binary(path) or exceeds_size(path)) and not in_gitattributes(path):
+        if ALLOW_AUTOLFS:
+            track_extension(path.suffix)
+            run(f'git add "{path}"')
+        else:
+            print(f"Binary or large file detected: {path}. Set ALLOW_AUTOLFS=1 to auto-fix.")
+            sys.exit(1)
+
+
+def main(args: list[str]) -> None:
+    for name in staged_files():
+        p = Path(name)
+        if p.exists():
+            process_file(p)
+    message = args[0] if args else "auto commit"
+    run(f'git commit -m "{message}"')
+    if len(args) > 1 and args[1] == "--push":
+        run("git push")
     print("✅ Commit successful.")
-    if "--push" in sys.argv:
-        push = run(["git", "push"])
-        sys.stdout.write(push.stdout)
-        sys.stderr.write(push.stderr)
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
