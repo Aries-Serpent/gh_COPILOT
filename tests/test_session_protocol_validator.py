@@ -37,3 +37,12 @@ def test_comprehensive_validation_fails(monkeypatch):
     validator = SessionProtocolValidator()
     result = validator.validate_comprehensive_session()
     assert result.is_failure
+
+
+def test_unified_session_end_detects_zero_byte(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    mgr = UnifiedSessionManagementSystem()
+    mgr.start_session()
+    zero_file = tmp_path / "end.py"
+    zero_file.write_text("")
+    assert not mgr.end_session()
