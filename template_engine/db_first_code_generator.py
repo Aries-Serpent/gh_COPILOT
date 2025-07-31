@@ -12,6 +12,7 @@ import os
 import sqlite3
 import sys
 import time
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import List, Iterable
@@ -338,25 +339,59 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         )
 
         path = Path(f"{objective}.py")
-        path.write_text(stub)
 
-        _log_event(
-            {"event": "integration_ready_generated", "objective": objective, "path": str(path)},
-            table="generator_events",
-            db_path=self.analytics_db,
-            test_mode=False,
-        )
-        _log_event(
-            {
-                "event": "code_generated",
-                "doc_id": objective,
-                "path": str(path),
-                "asset_type": "code_stub",
-                "compliance_score": 1.0,
-            },
-            table="correction_logs",
-            db_path=self.analytics_db,
-            test_mode=False,
-        )
+        try:
+            with sqlite3.connect(self.production_db) as conn:
+                conn.execute("BEGIN")
+                path.write_text(stub)
+                file_hash = hashlib.sha256(stub.encode()).hexdigest()
+                ts = datetime.utcnow().isoformat()
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS script_tracking (file_path TEXT, file_hash TEXT, last_modified TEXT)"
+                )
+                conn.execute(
+                    "INSERT INTO script_tracking (file_path, file_hash, last_modified) VALUES (?, ?, ?)",
+                    (str(path), file_hash, ts),
+                )
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS enhanced_script_tracking (script_path TEXT, script_content TEXT, script_hash TEXT, script_type TEXT, functionality_category TEXT)"
+                )
+                conn.execute(
+                    "INSERT INTO enhanced_script_tracking (script_path, script_content, script_hash, script_type, functionality_category) VALUES (?, ?, ?, 'python', 'generated')",
+                    (str(path), stub, file_hash),
+                )
+                conn.commit()
+
+            _log_event(
+                {"event": "integration_ready_generated", "objective": objective, "path": str(path)},
+                table="generator_events",
+                db_path=self.analytics_db,
+                test_mode=False,
+            )
+            _log_event(
+                {
+                    "event": "code_generated",
+                    "doc_id": objective,
+                    "path": str(path),
+                    "asset_type": "code_stub",
+                    "compliance_score": 1.0,
+                },
+                table="correction_logs",
+                db_path=self.analytics_db,
+                test_mode=False,
+            )
+        except Exception as exc:  # pragma: no cover - error handling
+            if 'conn' in locals():
+                conn.rollback()
+            if path.exists():
+                path.unlink()
+            _log_event(
+                {"event": "integration_ready_failed", "objective": objective, "error": str(exc)},
+                table="generator_events",
+                db_path=self.analytics_db,
+                level=logging.ERROR,
+                test_mode=False,
+            )
+            raise
 
         return path
