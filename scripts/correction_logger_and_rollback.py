@@ -79,20 +79,46 @@ class CorrectionLoggerRollback:
         return "unspecified"
 
     def suggest_rollback_strategy(self, target: Path) -> str:
-        """Return a rollback recommendation based on past outcomes."""
+        """Return a rollback recommendation based on historical performance."""
         with sqlite3.connect(self.analytics_db) as conn:
             cur = conn.execute(
-                "SELECT outcome FROM rollback_strategy_history WHERE target=?",
+                "SELECT strategy, outcome FROM rollback_strategy_history WHERE target=?",
                 (str(target),),
             )
-            outcomes = [row[0] for row in cur.fetchall()]
-        count = len(outcomes)
-        failures = outcomes.count("failure")
-        if count >= 4 and failures >= 2:
+            rows = cur.fetchall()
+            if not rows:
+                cur = conn.execute(
+                    "SELECT strategy, outcome FROM rollback_strategy_history"
+                )
+                rows = cur.fetchall()
+
+        stats: Dict[str, Dict[str, int]] = {}
+        total = 0
+        successes = 0
+        for strategy, outcome in rows:
+            total += 1
+            if outcome == "success":
+                successes += 1
+            data = stats.setdefault(strategy, {"success": 0, "total": 0})
+            data["total"] += 1
+            if outcome == "success":
+                data["success"] += 1
+
+        if not stats:
+            return "Standard rollback"
+
+        best_name, best_data = max(
+            stats.items(),
+            key=lambda item: (item[1]["success"] / item[1]["total"], item[1]["total"]),
+        )
+        best_rate = best_data["success"] / best_data["total"]
+
+        overall_rate = successes / total if total else 0.0
+        if total >= 4 and overall_rate <= 0.5:
             return "Consider immutable backup storage or audit investigation."
-        if count > 1:
+        if total > 1 and best_rate < 1.0:
             return "Automate regression tests for this file."
-        return "Standard rollback"
+        return f"Use '{best_name}' ({best_rate:.0%} success rate)."
 
     def _ensure_table_exists(self) -> None:
         self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
@@ -171,19 +197,22 @@ class CorrectionLoggerRollback:
 
     def _record_strategy_history(self, target: Path, strategy: str, outcome: str) -> None:
         """Log chosen rollback strategy and outcome."""
+        clean = strategy
+        if strategy.startswith("Use '") and "(" in strategy:
+            clean = strategy.split("(", 1)[0].replace("Use", "").strip().strip("'")
         with sqlite3.connect(self.analytics_db) as conn:
             conn.execute(
                 "INSERT INTO rollback_strategy_history (target, strategy, outcome, timestamp) VALUES (?, ?, ?, ?)",
                 (
                     str(target),
-                    strategy,
+                    clean,
                     outcome,
                     datetime.now().isoformat(),
                 ),
             )
             conn.commit()
         _log_event(
-            {"event": "strategy", "target": str(target), "strategy": strategy, "outcome": outcome},
+            {"event": "strategy", "target": str(target), "strategy": clean, "outcome": outcome},
             table="rollback_strategy_history",
             db_path=self.analytics_db,
         )
