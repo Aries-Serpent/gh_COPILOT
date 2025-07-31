@@ -198,7 +198,6 @@ def mine_patterns(
                     "INSERT INTO mined_patterns (pattern, mined_at) VALUES (?, ?)",
                     (pat, datetime.utcnow().isoformat()),
                 )
-                _log_pattern(analytics_db, pat)
                 etc = calculate_etc(start_ts, idx, total_steps)
                 if time.time() - start_ts > timeout_seconds:
                     raise TimeoutError(
@@ -207,6 +206,7 @@ def mine_patterns(
                 if idx % 10 == 0 or idx == total_steps:
                     logging.info(f"Pattern {idx}/{total_steps} stored | ETC: {etc}")
             conn.commit()
+        _log_patterns(patterns, analytics_db)
     cluster_count = 0
     if patterns:
         vec = TfidfVectorizer().fit_transform(patterns)

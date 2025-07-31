@@ -35,6 +35,14 @@ def test_extract_patterns():
 def test_mine_patterns(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setattr(pme, "_log_audit_real", lambda *a, **k: None)
+    calls = []
+    orig_log_patterns = pme._log_patterns
+
+    def fake_log_patterns(patterns: list[str], analytics_db: Path) -> None:
+        calls.append((patterns, analytics_db))
+        orig_log_patterns(patterns, analytics_db)
+
+    monkeypatch.setattr(pme, "_log_patterns", fake_log_patterns)
     # Start time logging for visual processing indicator
     from datetime import datetime
 
@@ -54,11 +62,13 @@ def test_mine_patterns(tmp_path: Path, monkeypatch) -> None:
         count = conn.execute("SELECT COUNT(*) FROM mined_patterns").fetchone()[0]
     assert count == len(patterns), "Pattern count mismatch in mined_patterns table"
     assert validate_mining(len(patterns), analytics), "DUAL COPILOT validation failed"
+    assert calls == [(patterns, analytics)]
 
 
 def test_mine_patterns_clusters(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setattr(pme, "_log_audit_real", lambda *a, **k: None)
+    monkeypatch.setattr(pme, "_log_patterns", lambda *a, **k: None)
     from datetime import datetime
 
     start_time = datetime.now()
@@ -81,6 +91,7 @@ def test_mine_patterns_clusters(tmp_path: Path, monkeypatch) -> None:
 
 def test_get_clusters_and_audit_logging(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    monkeypatch.setattr(pme, "_log_patterns", lambda *a, **k: None)
     prod = tmp_path / "production.db"
     analytics = tmp_path / "analytics.db"
     with sqlite3.connect(prod) as conn:
