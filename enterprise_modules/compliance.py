@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 
 from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.log_utils import send_dashboard_alert
 
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
@@ -79,6 +80,7 @@ def validate_enterprise_operation(
 
     if _detect_recursion(workspace):
         _log_violation("recursive_workspace")
+        send_dashboard_alert({"event": "recursive_workspace", "path": str(workspace)})
         violations.append("recursive_workspace")
 
     # Disallow backup directories inside the workspace
@@ -104,6 +106,7 @@ def validate_enterprise_operation(
 
     if _detect_recursion(path):
         _log_violation("recursive_target")
+        send_dashboard_alert({"event": "recursive_target", "path": str(path)})
         violations.append("recursive_target")
 
     # Cleanup forbidden backup folders within workspace
