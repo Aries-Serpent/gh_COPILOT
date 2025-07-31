@@ -420,6 +420,7 @@ def main(
     analytics_db: Optional[str] = None,
     production_db: Optional[str] = None,
     dashboard_dir: Optional[str] = None,
+    dataset_path: Optional[str] = None,
     timeout_minutes: int = 30,
     simulate: bool = False,
     *,
@@ -437,6 +438,8 @@ def main(
     apply_fixes:
         When ``True`` automatically remove flagged placeholders and log
         corrections.
+    dataset_path:
+        Optional path to a JSON file containing additional audit patterns.
     """
     # Visual processing indicators: start time, process ID, anti-recursion validation
     if os.getenv("GH_COPILOT_TEST_MODE") == "1":
@@ -464,7 +467,7 @@ def main(
     patterns = (
         DEFAULT_PATTERNS
         + fetch_db_placeholders(production)
-        + load_best_practice_patterns(dataset_path=Path(dataset_path) if dataset_path else None)  # noqa: F821
+        + load_best_practice_patterns(dataset_path=Path(dataset_path) if dataset_path else None)
     )
     timeout = timeout_minutes * 60 if timeout_minutes else None
 
@@ -506,8 +509,8 @@ def main(
 
     # Log findings to analytics.db
     log_findings(results, analytics, simulate=simulate, update_resolutions=update_resolutions)
-    if export_results:  # noqa: F821
-        Path(export_results).write_text(json.dumps(results, indent=2), encoding="utf-8")  # noqa: F821
+    if export:
+        export.write_text(json.dumps(results, indent=2), encoding="utf-8")
     if apply_fixes and not simulate:
         auto_remove_placeholders(results, production, analytics)
     SecondaryCopilotValidator().validate_corrections([r["file"] for r in results])
@@ -544,6 +547,7 @@ if __name__ == "__main__":
     parser.add_argument("--analytics-db", type=str, help="analytics.db location")
     parser.add_argument("--production-db", type=str, help="production.db location")
     parser.add_argument("--dashboard-dir", type=str, help="dashboard/compliance directory")
+    parser.add_argument("--dataset-path", type=str, help="Optional JSON dataset with additional patterns")
     parser.add_argument("--timeout-minutes", type=int, default=30, help="Scan timeout in minutes")
     parser.add_argument("--simulate", action="store_true", help="Run in test mode without writes")
     parser.add_argument("--dry-run", action="store_true", help="Alias for --simulate")
@@ -571,21 +575,6 @@ if __name__ == "__main__":
     )
     parser.add_argument("--cleanup", action="store_true", help="Alias for --apply-fixes")
     parser.add_argument(
-        "--cleanup",
-        action="store_true",
-        help="Alias for --apply-fixes",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Alias for --simulate",
-    )
-    parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Ignore confirmation prompts when cleaning",
-    )
-    parser.add_argument(
         "--rollback-last",
         action="store_true",
         help="Rollback the most recent audit entry",
@@ -594,11 +583,15 @@ if __name__ == "__main__":
     parser.add_argument("--force", action="store_true", help="Disable validation checks")
     parser.add_argument("--export", type=Path, help="Export audit results to JSON")
     args = parser.parse_args()
-    if args.rollback_last or args.rollback_id is not None:
+    if args.rollback_id is not None:
         target_id = args.rollback_id
-        if rollback_last_entry(Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db"), target_id):
-            print("Rollback complete")
+        if rollback_last_entry(
+            Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db"),
+            target_id,
+        ):
+            print(json.dumps({"rollback": True}))
             raise SystemExit(0)
+        print(json.dumps({"rollback": False}))
         raise SystemExit(1)
     if args.rollback_last:
         result = rollback_last_entry(Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db"))
@@ -618,6 +611,7 @@ if __name__ == "__main__":
         analytics_db=args.analytics_db,
         production_db=args.production_db,
         dashboard_dir=args.dashboard_dir,
+        dataset_path=args.dataset_path,
         timeout_minutes=args.timeout_minutes,
         simulate=args.simulate or args.dry_run,
         exclude_dirs=args.exclude_dirs,
@@ -625,6 +619,4 @@ if __name__ == "__main__":
         apply_fixes=args.apply_fixes,
         export=args.export,
     )
-    if args.export:
-        pass
     raise SystemExit(0 if success else 1)
