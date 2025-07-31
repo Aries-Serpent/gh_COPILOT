@@ -7,7 +7,6 @@ Implements database-first validation for safe file operations and logs
 key events to ``analytics.db`` via :func:`utils.log_utils._log_event`.
 """
 
-
 from __future__ import annotations
 
 import argparse
@@ -19,6 +18,7 @@ from typing import List
 
 from db_tools.core.connection import DatabaseConnection
 from db_tools.core.models import DatabaseConfig
+from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import _log_event
 
 logger = logging.getLogger(__name__)
@@ -39,6 +39,9 @@ class UnifiedLegacyCleanupSystem:
     def __init__(self, workspace_path: str | Path | None = None) -> None:
         if workspace_path is None:
             workspace_path = os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
+        os.environ["GH_COPILOT_WORKSPACE"] = str(workspace_path)
+        os.environ.setdefault("GH_COPILOT_TEST_MODE", "1")
+        validate_enterprise_operation(str(workspace_path))
         self.config = CleanupConfig(
             workspace_path=Path(workspace_path),
             legacy_db=Path(workspace_path) / "databases" / "legacy_cleanup.db",
@@ -88,6 +91,7 @@ class UnifiedLegacyCleanupSystem:
             )
             return True
         try:
+            validate_enterprise_operation(str(target))
             script.rename(target)
             _log_event({"event": "archive_success", "path": str(script)})
             return True
@@ -112,6 +116,7 @@ class UnifiedLegacyCleanupSystem:
 
     def run_cleanup(self, dry_run: bool = False) -> None:
         """Run archival and optimization."""
+        validate_enterprise_operation(str(self.config.workspace_path))
         _log_event({"event": "legacy_cleanup_start"}, db_path=self.analytics_db)
         scripts = self.discover_legacy_scripts()
         logger.info(f"Discovered {len(scripts)} legacy scripts")
