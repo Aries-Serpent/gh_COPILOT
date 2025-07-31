@@ -14,13 +14,7 @@ from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
 
 # Forbidden command patterns that must not appear in operations
-FORBIDDEN_COMMANDS = [
-    "rm -rf",
-    "mkfs",
-    "shutdown",
-    "reboot",
-    "dd if="
-]
+FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
 
 
 def _log_violation(details: str) -> None:
@@ -84,7 +78,11 @@ def validate_enterprise_operation(
         violations.append("recursive_workspace")
 
     # Disallow backup directories inside the workspace
-    if backup_root.resolve().as_posix().startswith(workspace.resolve().as_posix()):
+    # Ensure the backup root is truly outside the workspace. Using
+    # ``Path.is_relative_to`` avoids issues with naive string-prefix
+    # comparisons that can misclassify paths such as ``/opt/gh_COPILOT`` and
+    # ``/opt/gh_COPILOT_backup``.
+    if backup_root.resolve().is_relative_to(workspace.resolve()):
         violations.append("backup_root_inside_workspace")
 
     if path.resolve().as_posix().startswith(backup_root.resolve().as_posix()):
