@@ -14,9 +14,6 @@ from datetime import datetime
 from typing import Any, Dict, List
 from tqdm import tqdm
 import hashlib
-import re
-
-from utils.log_utils import _log_event
 
 from scripts.automation.template_auto_generation_complete import TemplateSynthesisEngine
 
@@ -385,17 +382,6 @@ class DatabaseFirstCorrectionEngine:
                 etc = (elapsed / (idx + 1)) * (len(python_files) - (idx + 1)) if idx + 1 > 0 else 0
                 pbar.set_description(f"🔧 Correcting | ETC: {etc:.1f}s")
 
-        # Run Ruff across the workspace to ensure compliance
-        ruff_proc = subprocess.run(
-            ["ruff", "check", "--fix", "."], capture_output=True, text=True
-        )
-        match = re.search(r"\((\d+) fixed", ruff_proc.stdout + ruff_proc.stderr)
-        fix_count = int(match.group(1)) if match else 0
-        _log_event(
-            {"event": "ruff_workspace_fix", "fix_count": fix_count},
-            db_path=self.analytics_db,
-        )
-
         # Log results to database
         self._log_correction_results(correction_results)
 
@@ -576,7 +562,7 @@ def main():
         # Final validation
         logger.info("🔍 Running final validation...")
         subprocess.run(["ruff", "check", "--fix", "."], capture_output=True, text=True)
-        subprocess.run(["ruff", "check", "."], capture_output=True, text=True)
+        subprocess.run(["flake8", "."], capture_output=True, text=True)
 
         logger.info("✅ DATABASE-FIRST CORRECTION ENGINE COMPLETED SUCCESSFULLY")
 
