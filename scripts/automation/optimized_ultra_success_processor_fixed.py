@@ -14,8 +14,6 @@ OPTIMIZATIONS:
 - Streamlined processing for maximum efficiency
 """
 
-import os
-import re
 import sys
 import sqlite3
 import logging
@@ -28,11 +26,11 @@ from tqdm import tqdm
 # Configure enterprise logging with UTF-8 encoding
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler('optimized_success_processing.log', encoding='utf-8'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.FileHandler("optimized_success_processing.log", encoding="utf-8"),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -53,14 +51,14 @@ class OptimizedSuccessProcessor:
 
         # Ultra-high success violation types (>95% success rate)
         self.ultra_high_success_types = [
-            'W291',  # trailing whitespace
-            'W293',  # blank line contains whitespace
+            "W291",  # trailing whitespace
+            "W293",  # blank line contains whitespace
         ]
 
         # High success violation types (>85% success rate)
         self.high_success_types = [
-            'W292',  # no newline at end of file
-            'W391',  # blank line at end of file
+            "W292",  # no newline at end of file
+            "W391",  # blank line at end of file
         ]
 
         self.session_id = f"optimized_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -89,16 +87,19 @@ class OptimizedSuccessProcessor:
                 cursor = conn.cursor()
 
                 # Query for ultra-high success violations only
-                placeholders = ','.join(['?' for _ in self.ultra_high_success_types])
+                placeholders = ",".join(["?" for _ in self.ultra_high_success_types])
 
-                cursor.execute(f"""
+                cursor.execute(
+                    f"""
                     SELECT file_path, line_number, error_code, line_content
                     FROM violations
                     WHERE error_code IN ({placeholders})
                     AND status = 'PENDING'
                     ORDER BY file_path, line_number
                     LIMIT ?
-                """, tuple(self.ultra_high_success_types) + (max_batches * 20,))
+                """,
+                    tuple(self.ultra_high_success_types) + (max_batches * 20,),
+                )
 
                 violations = cursor.fetchall()
 
@@ -112,17 +113,15 @@ class OptimizedSuccessProcessor:
                         if current_batch:
                             batches.append(current_batch)
                         current_batch = {
-                            'file_path': file_path,
-                            'violations': [],
-                            'expected_success_rate': 0.98  # 98% for ultra-high success
+                            "file_path": file_path,
+                            "violations": [],
+                            "expected_success_rate": 0.98,  # 98% for ultra-high success
                         }
                         current_file = file_path
 
-                    current_batch['violations'].append({
-                        'line_number': line_number,
-                        'error_code': error_code,
-                        'line_content': line_content
-                    })
+                    current_batch["violations"].append(
+                        {"line_number": line_number, "error_code": error_code, "line_content": line_content}
+                    )
 
                     if len(batches) >= max_batches:
                         break
@@ -132,8 +131,7 @@ class OptimizedSuccessProcessor:
 
                 logger.info(f"📊 Created {len(batches)} ultra-success batches")
                 if batches:
-                    avg_success_rate = sum(
-    b['expected_success_rate'] for b in batches) / len(batches)
+                    avg_success_rate = sum(b["expected_success_rate"] for b in batches) / len(batches)
                     logger.info(f"📈 Average expected success rate: {avg_success_rate:.1%}")
 
                 return batches
@@ -144,45 +142,46 @@ class OptimizedSuccessProcessor:
 
     def apply_optimized_fixes(self, batch: Dict) -> Tuple[int, int, List[str]]:
         """🔧 Apply optimized fixes with ultra-high success rate"""
-        file_path = batch['file_path']
-        violations = batch['violations']
+        file_path = batch["file_path"]
+        violations = batch["violations"]
 
         try:
             # Create backup
             backup_path = self.create_optimized_backup(file_path)
 
             # Read file
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
 
             fixed_count = 0
             fixed_violations = []
 
             # Apply fixes (process in reverse line order to maintain line numbers)
-            for violation in sorted(violations, key=lambda x: x['line_number'], reverse=True):
-                line_idx = violation['line_number'] - 1
+            for violation in sorted(violations, key=lambda x: x["line_number"], reverse=True):
+                line_idx = violation["line_number"] - 1
 
                 if 0 <= line_idx < len(lines):
                     original_line = lines[line_idx]
-                    fixed_line = self.apply_ultra_success_fix(
-    original_line, violation['error_code'])
+                    fixed_line = self.apply_ultra_success_fix(original_line, violation["error_code"])
 
                     if fixed_line != original_line:
                         lines[line_idx] = fixed_line
                         fixed_count += 1
-                        fixed_violations.append({
-                            'file_path': file_path,
-                            'line_number': violation['line_number'],
-                            'error_code': violation['error_code'],
-                            'backup_path': backup_path
-                        })
+                        fixed_violations.append(
+                            {
+                                "file_path": file_path,
+                                "line_number": violation["line_number"],
+                                "error_code": violation["error_code"],
+                                "backup_path": backup_path,
+                            }
+                        )
 
             # Write fixed file
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.writelines(lines)
 
             # Update database
-            self.update_violation_status_optimized(fixed_violations, 'FIXED')
+            self.update_violation_status_optimized(fixed_violations, "FIXED")
 
             return fixed_count, len(violations), [str(backup_path)]
 
@@ -192,19 +191,19 @@ class OptimizedSuccessProcessor:
 
     def apply_ultra_success_fix(self, line: str, error_code: str) -> str:
         """🎯 Apply ultra-reliable fixes for maximum success rate"""
-        if error_code == 'W291':  # trailing whitespace
-            return line.rstrip() + '\n' if line.endswith('\n') else line.rstrip()
+        if error_code == "W291":  # trailing whitespace
+            return line.rstrip() + "\n" if line.endswith("\n") else line.rstrip()
 
-        elif error_code == 'W293':  # blank line contains whitespace
-            if line.strip() == '':
-                return '\n' if line.endswith('\n') else ''
+        elif error_code == "W293":  # blank line contains whitespace
+            if line.strip() == "":
+                return "\n" if line.endswith("\n") else ""
 
-        elif error_code == 'W292':  # no newline at end of file
-            if not line.endswith('\n'):
-                return line + '\n'
+        elif error_code == "W292":  # no newline at end of file
+            if not line.endswith("\n"):
+                return line + "\n"
 
-        elif error_code == 'W391':  # blank line at end of file
-            return line.rstrip('\n')
+        elif error_code == "W391":  # blank line at end of file
+            return line.rstrip("\n")
 
         return line
 
@@ -215,12 +214,14 @@ class OptimizedSuccessProcessor:
                 cursor = conn.cursor()
 
                 for fix in fixes_applied:
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         UPDATE violations
                         SET status = ?, fixed_date = ?
                         WHERE file_path = ? AND line_number = ? AND error_code = ?
-                    """, (status, datetime.now().isoformat(),
-                          fix['file_path'], fix['line_number'], fix['error_code']))
+                    """,
+                        (status, datetime.now().isoformat(), fix["file_path"], fix["line_number"], fix["error_code"]),
+                    )
 
                 conn.commit()
                 logger.info(f"📊 Updated {len(fixes_applied)} violation statuses to {status}")
@@ -231,7 +232,7 @@ class OptimizedSuccessProcessor:
     def create_optimized_backup(self, file_path: str) -> str:
         """💾 Create external backup with optimized naming"""
         file_path_obj = Path(file_path)
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_filename = f"{file_path_obj.stem}_optimized_{timestamp}{file_path_obj.suffix}"
         backup_path = self.backup_root / backup_filename
 
@@ -278,26 +279,27 @@ class OptimizedSuccessProcessor:
 
                     # Update progress
                     pbar.update(1)
-                    success_rate = (
-    total_fixed / total_attempted * 100) if total_attempted > 0 else 0
+                    success_rate = (total_fixed / total_attempted * 100) if total_attempted > 0 else 0
                     pbar.set_postfix({"Success": f"{success_rate:.1f}%", "Fixed": total_fixed})
 
             # Calculate final results
             duration = (datetime.now() - start_time).total_seconds()
             success_rate = (total_fixed / total_attempted * 100) if total_attempted > 0 else 0
 
-            results.update({
-                'session_id': self.session_id,
-                'batches_processed': len(batches),
-                'violations_fixed': total_fixed,
-                'violations_attempted': total_attempted,
-                'success_rate': success_rate,
-                'processing_duration': duration,
-                'backups_created': len(all_backups),
-                'backup_paths': all_backups,
-                'optimization_level': 'ULTRA_SUCCESS',
-                'status': 'COMPLETED_SUCCESS' if success_rate >= 95 else 'COMPLETED_PARTIAL'
-            })
+            results.update(
+                {
+                    "session_id": self.session_id,
+                    "batches_processed": len(batches),
+                    "violations_fixed": total_fixed,
+                    "violations_attempted": total_attempted,
+                    "success_rate": success_rate,
+                    "processing_duration": duration,
+                    "backups_created": len(all_backups),
+                    "backup_paths": all_backups,
+                    "optimization_level": "ULTRA_SUCCESS",
+                    "status": "COMPLETED_SUCCESS" if success_rate >= 95 else "COMPLETED_PARTIAL",
+                }
+            )
 
             # Log final summary
             logger.info("✅ OPTIMIZED PROCESSING COMPLETED")
@@ -310,23 +312,23 @@ class OptimizedSuccessProcessor:
 
         except Exception as e:
             logger.error(f"❌ Optimized processing failed: {e}")
-            results['status'] = 'FAILED'
-            results['error'] = str(e)
+            results["status"] = "FAILED"
+            results["error"] = str(e)
             return results
 
     def _create_empty_results(self) -> Dict[str, Any]:
         """📊 Create empty results structure"""
         return {
-            'session_id': self.session_id,
-            'batches_processed': 0,
-            'violations_fixed': 0,
-            'violations_attempted': 0,
-            'success_rate': 0.0,
-            'processing_duration': 0.0,
-            'backups_created': 0,
-            'backup_paths': [],
-            'optimization_level': 'ULTRA_SUCCESS',
-            'status': 'INITIALIZED'
+            "session_id": self.session_id,
+            "batches_processed": 0,
+            "violations_fixed": 0,
+            "violations_attempted": 0,
+            "success_rate": 0.0,
+            "processing_duration": 0.0,
+            "backups_created": 0,
+            "backup_paths": [],
+            "optimization_level": "ULTRA_SUCCESS",
+            "status": "INITIALIZED",
         }
 
 
@@ -348,7 +350,7 @@ def main():
         print(f"Backups Created: {results['backups_created']}")
         print("=" * 80)
 
-        return results['status'] == 'COMPLETED_SUCCESS'
+        return results["status"] == "COMPLETED_SUCCESS"
 
     except Exception as e:
         logger.error(f"❌ Main execution failed: {e}")

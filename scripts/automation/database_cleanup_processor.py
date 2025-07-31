@@ -16,10 +16,7 @@ MODERNIZED: Now uses modular db_tools package for enhanced functionality
 while maintaining backward compatibility.
 """
 
-import sys
-
-# Import from new modular package  
-from db_tools.operations.cleanup import DatabaseCleanupProcessor, main
+from db_tools.operations.cleanup import main
 
 # This script now delegates to the modular implementation
 if __name__ == "__main__":
