@@ -155,6 +155,41 @@ TABLE_SCHEMAS: Dict[str, str] = {
             timestamp TEXT NOT NULL
         );
     """,
+    "doc_analysis": """
+        CREATE TABLE IF NOT EXISTS doc_analysis (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event TEXT,
+            db TEXT,
+            level TEXT,
+            module TEXT,
+            gaps INTEGER,
+            before INTEGER,
+            after INTEGER,
+            removed_backups INTEGER,
+            removed_duplicates INTEGER,
+            placeholders INTEGER,
+            row_count INTEGER,
+            table_name TEXT,
+            report TEXT,
+            rollback TEXT,
+            rollback_restored INTEGER,
+            ts TEXT,
+            timestamp TEXT
+        );
+    """,
+    "workflow_events": """
+        CREATE TABLE IF NOT EXISTS workflow_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event TEXT,
+            level TEXT,
+            module TEXT,
+            template_count INTEGER,
+            cluster_count INTEGER,
+            avg_score REAL,
+            duration REAL,
+            timestamp TEXT
+        );
+    """,
     "correction_summaries": """
         CREATE TABLE IF NOT EXISTS correction_summaries (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
