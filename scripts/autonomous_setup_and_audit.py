@@ -48,11 +48,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
 
     # Gather files
     extensions = [".md", ".txt", ".json", ".sql"]
-    doc_files = (
-        [p for p in doc_path.rglob("*") if p.is_file() and p.suffix in extensions]
-        if doc_path.exists()
-        else []
-    )
+    doc_files = [p for p in doc_path.rglob("*") if p.is_file() and p.suffix in extensions] if doc_path.exists() else []
     tmpl_files = (
         [p for p in template_path.rglob("*") if p.is_file() and p.suffix in extensions]
         if template_path.exists()
@@ -61,8 +57,6 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
 
     analytics_db = Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
     _log_event({"event": "ingestion_start"}, table="correction_logs", db_path=analytics_db)
-    user = os.getenv("USER", "system")
-
     user = os.getenv("USER", "system")
     conn = sqlite3.connect(db_path)
     audit_conn = sqlite3.connect(analytics_db)
@@ -297,6 +291,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
             conn.commit()
         log_sync_operation(db_path, "template_ingestion", start_time=start_tmpl)
         from scripts.database.ingestion_validator import IngestionValidator
+
         validator = IngestionValidator(doc_path.parent, db_path, analytics_db)
         if not validator.validate():
             raise RuntimeError("Asset ingestion validation failed")
