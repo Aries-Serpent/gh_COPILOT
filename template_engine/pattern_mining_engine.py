@@ -200,6 +200,7 @@ def mine_patterns(
                     "INSERT INTO mined_patterns (pattern, mined_at) VALUES (?, ?)",
                     (pat, datetime.utcnow().isoformat()),
                 )
+                _log_audit_real(str(analytics_db), f"pattern_mined:{pat}")
                 etc = calculate_etc(start_ts, idx, total_steps)
                 if time.time() - start_ts > timeout_seconds:
                     raise TimeoutError(
@@ -284,6 +285,32 @@ def get_clusters(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> Dict[int, List[st
     return clusters
 
 
+def get_cluster_metrics(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> dict | None:
+    """Return the most recent cluster metrics from ``analytics_db``."""
+    if not analytics_db.exists():
+        return None
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS pattern_cluster_metrics (
+                inertia REAL,
+                silhouette REAL,
+                n_clusters INTEGER,
+                ts TEXT
+            )"""
+        )
+        row = conn.execute(
+            "SELECT inertia, silhouette, n_clusters FROM pattern_cluster_metrics ORDER BY ts DESC LIMIT 1"
+        ).fetchone()
+    if row is None:
+        return None
+    inertia, silhouette, n_clusters = row
+    return {
+        "inertia": float(inertia),
+        "silhouette": float(silhouette),
+        "n_clusters": int(n_clusters),
+    }
+
+
 def aggregate_cross_references(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> Dict[str, int]:
     """Aggregate cross-link events from ``analytics_db`` by file path."""
     if not analytics_db.exists():
@@ -331,6 +358,7 @@ __all__ = [
     "extract_patterns",
     "mine_patterns",
     "get_clusters",
+    "get_cluster_metrics",
     "aggregate_cross_references",
     "validate_mining",
 ]
