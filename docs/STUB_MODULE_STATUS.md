@@ -20,7 +20,7 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 | STUB-006 | Integrate quantum-inspired scoring hooks | [quantum/quantum_algorithm_library_expansion.py](../quantum/quantum_algorithm_library_expansion.py)<br>[template_engine/auto_generator.py](../template_engine/auto_generator.py) | complete |
 | STUB-007 | Extend dashboard for real-time metrics and alerts | [dashboard/enterprise_dashboard.py](../dashboard/enterprise_dashboard.py)<br>web_gui/templates/ | complete |
 | STUB-008 | Add tests and validation scripts for new modules | [tests/](../tests/)<br>[validation/](../validation/) | complete |
-| STUB-009 | Remove placeholders and enable analytics hooks | workflow_enhancer.py (missing)<br>[archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py](../archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py) | not started |
+| STUB-009 | Remove placeholders and enable analytics hooks | [workflow_enhancer.py](../workflow_enhancer.py)<br>[archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py](../archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py) | complete |
 | STUB-010 | Update task suggestion files with cross-references | [docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md](DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md)<br>logs/<br>validation/ | complete |
 | STUB-011 | Record outputs to analytics.db across modules | various modules | complete |
 | STUB-012 | Display placeholder removal progress on dashboard | [dashboard/compliance_metrics_updater.py](../dashboard/compliance_metrics_updater.py) | complete |
@@ -38,7 +38,7 @@ Implementation note: the `ingest_assets` workflow is fully implemented in
 - **STUB-006:** Quantum scoring hooks exercised in `tests/quantum/test_scoring.py`.
 - **STUB-007:** Dashboard metrics tested with `tests/dashboard/` suite.
 - **STUB-008:** Basic validation scripts exist and pass.
-- **STUB-009:** No implementation yet; tests pending.
+- **STUB-009:** Implementation completed; analytics hooks enabled.
 - **STUB-010:** Cross-reference updates verified in integration tests.
 - **STUB-011:** Analytics logging hooks pass in `tests/test_add_violation_and_rollback_logs.py`.
 - **STUB-012:** Dashboard progress indicators validated in `tests/test_dashboard_placeholder_metrics.py`.
