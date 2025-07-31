@@ -1,4 +1,6 @@
 # QUANTUM ENTERPRISE COMPLIANCE
+> **Experimental Features**
+> Quantum routines are under active development and may change.
 ## Regulatory and Security Compliance
 
 > **Note**
@@ -32,13 +34,13 @@ The quantum-enhanced PIS Framework meets all enterprise compliance requirements:
 4. **Quantum Error Correction**: Data integrity assurance
 
 ### Implemented Quantum Routines
-- **Quantum Annealing Optimization**
-- **Quantum Superposition Search**
-- **Quantum Entanglement Correction**
-- **Quantum Phase Estimation**
-- **Grover's Search Optimization**
-- **Shor's Cryptographic Analyzer**
-- **Quantum Fourier Transform**
+- **Quantum Annealing Optimization** *(placeholder)*
+- **Quantum Superposition Search** *(placeholder)*
+- **Quantum Entanglement Correction** *(placeholder)*
+- **Quantum Phase Estimation** *(planned)*
+- **Grover's Search Optimization** *(simulation only)*
+- **Shor's Cryptographic Analyzer** *(simulation only)*
+- **Quantum Fourier Transform** *(simulation only)*
 
 ### Planned Quantum Routines
 - **Variational Quantum Eigensolver** *(hardware integration pending)*
