@@ -18,16 +18,24 @@ target-version = "py38"
 line-length = 120
 
 extend-exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "builds",
+    "archive",
+    "archives",
     "deployment/deployment_package_*/*",
+    "deployment_package_*",
     "scripts/enterprise/*",
     "scripts/optimization/*",
     "scripts/utilities/*",
-    "builds/*",
     "copilot_qiskit_stubs/*",
     "db_tools/*",
     "enterprise_modules/*",
     "quantum/*",
     "quantum_optimizer.py",
+    "databases/*.db",
+    "*.log",
 ]
 
 [tool.ruff.lint]

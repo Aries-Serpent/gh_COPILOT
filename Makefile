@@ -4,9 +4,13 @@ create-env:
 	python scripts/setup_environment.py
 
 setup: create-env
-	pip install -r requirements-test.txt
+        pip install -r requirements-test.txt
 
-test: setup
+lint:
+        ruff format .
+        ruff check .
+
+test: setup lint
         pytest tests
 
 clean-logs:
