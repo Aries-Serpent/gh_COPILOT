@@ -145,6 +145,16 @@ TABLE_SCHEMAS: Dict[str, str] = {
             timestamp TEXT NOT NULL
         );
     """,
+    "correction_summaries": """
+        CREATE TABLE IF NOT EXISTS correction_summaries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event TEXT,
+            count INTEGER,
+            timestamp TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_correction_summaries_timestamp
+            ON correction_summaries(timestamp);
+    """,
     "rollback_failures": """
         CREATE TABLE IF NOT EXISTS rollback_failures (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
