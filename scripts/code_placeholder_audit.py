@@ -252,8 +252,20 @@ def log_findings(
 
 
 # Update dashboard/compliance with summary JSON
-def update_dashboard(count: int, dashboard_dir: Path, analytics_db: Path) -> None:
-    """Write summary JSON to dashboard/compliance directory."""
+def update_dashboard(
+    count: int,
+    dashboard_dir: Path,
+    analytics_db: Path,
+    summary_json: Path | None = None,
+) -> None:
+    """Write summary JSON to dashboard/compliance directory.
+
+    Parameters
+    ----------
+    summary_json:
+        Optional explicit path for the summary JSON output. Defaults to
+        ``dashboard_dir/placeholder_summary.json``.
+    """
     dashboard_dir.mkdir(parents=True, exist_ok=True)
     open_count = count
     resolved = 0
@@ -272,8 +284,8 @@ def update_dashboard(count: int, dashboard_dir: Path, analytics_db: Path) -> Non
         "compliance_score": compliance,
         "progress_status": status,
     }
-    summary_file = dashboard_dir / "placeholder_summary.json"
-    summary_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    path = summary_json or dashboard_dir / "placeholder_summary.json"
+    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 # Scan files for patterns with timeout and visual indicators
@@ -422,6 +434,7 @@ def main(
     update_resolutions: bool = False,
     apply_fixes: bool = False,
     export: Optional[Path] = None,
+    summary_json: Optional[str] = None,
 ) -> bool:
     """Entry point for placeholder auditing with full enterprise compliance.
 
@@ -434,6 +447,8 @@ def main(
         corrections.
     dataset_path:
         Optional path to a JSON file containing additional audit patterns.
+    summary_json:
+        Optional path for ``placeholder_summary.json`` output.
     """
     # Visual processing indicators: start time, process ID, anti-recursion validation
     if os.getenv("GH_COPILOT_TEST_MODE") == "1":
@@ -456,6 +471,7 @@ def main(
     analytics = Path(analytics_db or workspace / "databases" / "analytics.db")
     production = Path(production_db or workspace / "databases" / "production.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
+    summary_path = Path(summary_json) if summary_json else None
 
     # Database-first: fetch patterns from production.db and config
     patterns = (
@@ -510,7 +526,7 @@ def main(
     SecondaryCopilotValidator().validate_corrections([r["file"] for r in results])
     # Update dashboard/compliance
     if not simulate:
-        update_dashboard(len(results), dashboard, analytics)
+        update_dashboard(len(results), dashboard, analytics, summary_path)
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
     elapsed = time.time() - start_time
@@ -582,6 +598,11 @@ def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--rollback-id", type=int, help="Rollback a specific entry id")
     parser.add_argument("--export", type=Path, help="Export audit results to JSON")
+    parser.add_argument(
+        "--summary-json",
+        type=str,
+        help="Explicit path for placeholder_summary.json output",
+    )
     return parser.parse_args(argv)
 
 
@@ -616,5 +637,6 @@ if __name__ == "__main__":
         update_resolutions=args.update_resolutions,
         apply_fixes=args.apply_fixes,
         export=args.export,
+        summary_json=args.summary_json,
     )
     raise SystemExit(0 if success else 1)

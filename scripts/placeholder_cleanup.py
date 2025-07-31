@@ -1,6 +1,8 @@
 """Deprecated wrapper for placeholder cleanup.
 
-Please run ``scripts/code_placeholder_audit.py --apply-fixes`` instead."""
+Use ``scripts/code_placeholder_audit.py --cleanup`` which now provides
+``--rollback-id`` and ``--summary-json`` options.
+"""
 
 from __future__ import annotations
 
