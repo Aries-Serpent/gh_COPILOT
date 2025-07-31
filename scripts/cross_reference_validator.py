@@ -29,7 +29,6 @@ from utils.log_utils import log_event, _log_event
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
-backup_root = CrossPlatformPathManager.get_backup_root()
 LOGS_DIR = workspace_root / "logs" / "cross_reference"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"cross_reference_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
@@ -44,6 +43,8 @@ PRODUCTION_DB = workspace_root / "production.db"
 ANALYTICS_DB = workspace_root / "analytics.db"
 DASHBOARD_DIR = workspace_root / "dashboard" / "compliance"
 TASK_SUGGESTIONS_FILE = workspace_root / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
+
+backup_root = CrossPlatformPathManager.get_backup_root()
 
 
 class CrossReferenceValidator:
