@@ -137,6 +137,7 @@ source .venv/bin/activate
 
 2. Run tests with appropriate tools:
 ```bash
+make lint   # Run Ruff formatting and lint checks
 make test   # Preferred test aggregator, combines unit and integration tests
 pytest -v   # Alternative for verbose test output
 ```
@@ -145,6 +146,28 @@ pytest -v   # Alternative for verbose test output
 The `.flake8` file at the repository root is the single source of lint rules.
 `pyproject.toml` mirrors these settings for Ruff. When adjusting lint
 preferences, update `.flake8` first and sync `pyproject.toml` accordingly.
+Both files **must** list the same exclusion directories:
+
+```
+.git
+__pycache__
+build
+builds
+archive
+archives
+deployment/deployment_package_*/*
+deployment_package_*
+scripts/enterprise/*
+scripts/optimization/*
+scripts/utilities/*
+copilot_qiskit_stubs/*
+db_tools/*
+enterprise_modules/*
+quantum/*
+quantum_optimizer.py
+databases/*.db
+*.log
+```
 
 ---
 
@@ -175,8 +198,8 @@ Follow these standards to keep the codebase consistent:
 
 All contributions must go through the following review workflow:
 
-1. Run `make test` (or `pytest -v`) to ensure the test suite passes.
-2. Run `ruff check .` to validate lint rules and formatting.
+1. Run `make lint` followed by `make test` (or `pytest -v`) to ensure the code passes lint checks and the test suite.
+2. `make lint` runs `ruff format .` and `ruff check .` to enforce formatting and lint rules.
 3. Run `pyright` for static type analysis.
 4. Execute `scripts/check_zero_logs.sh` to verify no zero-byte logs remain.
 5. Open a pull request that references the relevant issue and wait for at least one senior reviewer to approve.
