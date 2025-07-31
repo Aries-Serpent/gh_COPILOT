@@ -25,7 +25,10 @@ from typing import Dict, Any, Optional
 
 from tqdm import tqdm
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules.compliance import (
+    validate_enterprise_operation,
+    _log_rollback,
+)
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
 from scripts.database.add_rollback_strategy_history import (
@@ -210,6 +213,7 @@ class CorrectionLoggerRollback:
                     table="rollback_failures",
                     db_path=self.analytics_db,
                 )
+                _log_rollback(str(target), str(backup_path) if backup_path else None)
                 pbar.update(100)
                 return False
             pbar.update(25)
@@ -250,6 +254,7 @@ class CorrectionLoggerRollback:
                     table="rollback_logs",
                     db_path=self.analytics_db,
                 )
+                _log_rollback(str(target), str(backup_path) if backup_path else None)
                 return True
             else:
                 logging.error(f"Rollback failed for {target}")
@@ -269,6 +274,7 @@ class CorrectionLoggerRollback:
                     table="rollback_failures",
                     db_path=self.analytics_db,
                 )
+                _log_rollback(str(target), str(backup_path) if backup_path else None)
                 pbar.update(25)
                 return False
 
