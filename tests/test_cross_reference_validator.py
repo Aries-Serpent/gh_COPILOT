@@ -38,7 +38,21 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
             CREATE TABLE cross_link_events (
                 file_path TEXT NOT NULL,
                 linked_path TEXT NOT NULL,
-                timestamp TEXT
+                timestamp TEXT,
+                module TEXT,
+                level TEXT
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE cross_link_summary (
+                actions INTEGER,
+                links INTEGER,
+                summary_path TEXT,
+                timestamp TEXT,
+                module TEXT,
+                level TEXT
             )
             """
         )
@@ -65,14 +79,20 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
     assert len(data["cross_linked_actions"]) == 1
 
     with sqlite3.connect(analytics_db) as conn:
-        count = conn.execute("SELECT COUNT(*) FROM cross_link_events").fetchone()[0]
+        rows = conn.execute(
+            "SELECT file_path, linked_path FROM cross_link_events"
+        ).fetchall()
         summary = conn.execute(
             "SELECT actions, links, summary_path FROM cross_link_summary"
-        ).fetchone()
-    assert count == 2
-    assert summary[0] == 1
-    assert summary[1] == count
-    assert Path(summary[2]) == summary_file
+        ).fetchall()
+
+    assert len(rows) == 2
+    assert {Path(r[1]).name for r in rows} == {"file.py"}
+    assert len(summary) == 1
+    actions, links, path = summary[0]
+    assert actions == 1
+    assert links == len(rows)
+    assert Path(path) == summary_file
 
 
 def test_deep_cross_link_excludes_backup(tmp_path, monkeypatch):
@@ -110,7 +130,21 @@ def test_deep_cross_link_excludes_backup(tmp_path, monkeypatch):
             CREATE TABLE cross_link_events (
                 file_path TEXT NOT NULL,
                 linked_path TEXT NOT NULL,
-                timestamp TEXT
+                timestamp TEXT,
+                module TEXT,
+                level TEXT
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE cross_link_summary (
+                actions INTEGER,
+                links INTEGER,
+                summary_path TEXT,
+                timestamp TEXT,
+                module TEXT,
+                level TEXT
             )
             """
         )
@@ -176,12 +210,38 @@ def test_suggest_links_logged(tmp_path, monkeypatch):
             CREATE TABLE cross_link_events (
                 file_path TEXT NOT NULL,
                 linked_path TEXT NOT NULL,
-                timestamp TEXT
+                timestamp TEXT,
+                module TEXT,
+                level TEXT
             )
             """
         )
         conn.execute(
-            "INSERT INTO cross_link_events VALUES ('feature_old.py', 'docs/feature_old.md', '2024-01-01')"
+            "INSERT INTO cross_link_events VALUES ('feature_old.py', 'docs/feature_old.md', '2024-01-01', 'test', 'INFO')"
+        )
+        conn.execute(
+            """
+            CREATE TABLE cross_link_suggestions (
+                file_path TEXT NOT NULL,
+                suggested_link TEXT NOT NULL,
+                score REAL,
+                timestamp TEXT,
+                module TEXT,
+                level TEXT
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE cross_link_summary (
+                actions INTEGER,
+                links INTEGER,
+                summary_path TEXT,
+                timestamp TEXT,
+                module TEXT,
+                level TEXT
+            )
+            """
         )
 
     dashboard_dir = tmp_path / "dashboard"

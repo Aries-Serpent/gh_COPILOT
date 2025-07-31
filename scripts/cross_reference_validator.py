@@ -25,7 +25,7 @@ from typing import Dict, List, Optional, Set
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
-from utils.log_utils import log_event, _log_event
+from utils.log_utils import _log_event
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
@@ -160,7 +160,12 @@ class CrossReferenceValidator:
                 if pair not in existing_pairs:
                     entry = {"file_path": act["file_path"], "linked_path": str(path)}
                     self.cross_link_log.append(entry)
-                    log_event(entry, table="cross_link_events", db_path=self.analytics_db)
+                    _log_event(
+                        entry,
+                        table="cross_link_events",
+                        db_path=self.analytics_db,
+                        test_mode=False,
+                    )
                     existing_pairs.add(pair)
 
         # Suggest additional links using TF-IDF similarity against history
@@ -187,7 +192,12 @@ class CrossReferenceValidator:
                             "score": float(sims[best_idx]),
                         }
                         self.suggested_links.append(suggestion)
-                        log_event(suggestion, table="cross_link_suggestions", db_path=self.analytics_db)
+                        _log_event(
+                            suggestion,
+                            table="cross_link_suggestions",
+                            db_path=self.analytics_db,
+                            test_mode=False,
+                        )
 
     def _update_dashboard(self, actions: List[Dict]) -> None:
         """Update dashboard/compliance with cross-reference summary."""
@@ -204,7 +214,7 @@ class CrossReferenceValidator:
         summary_file = self.dashboard_dir / "cross_reference_summary.json"
         summary_file.write_text(json.dumps(summary, indent=2), encoding="utf-8")
         logging.info(f"Dashboard cross-reference summary updated: {summary_file}")
-        log_event(
+        _log_event(
             {
                 "actions": len(actions),
                 "links": len(self.cross_link_log),
@@ -212,6 +222,7 @@ class CrossReferenceValidator:
             },
             table="cross_link_summary",
             db_path=self.analytics_db,
+            test_mode=False,
         )
 
     def validate(self, timeout_minutes: int = 30) -> bool:
