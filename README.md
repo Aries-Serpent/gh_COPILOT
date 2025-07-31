@@ -1020,7 +1020,7 @@ Set these variables in your `.env` file or shell before running scripts:
 
 ## ✅ Project Status
 
-All modules pass the automated test suite. Dual-copilot validation now covers 100% of workflows. Quantum features continue to run in simulation mode.
+Some tests currently fail until optional dependencies are installed and database migrations have been executed. Dual-copilot validation now covers 100% of workflows, and quantum features continue to run in simulation mode.
 The repository uses GitHub Actions to automate linting, testing, and compliance checks.
 
 - **ci.yml** runs Ruff linting, executes the test suite on multiple Python versions, builds the Docker image, and performs a CodeQL scan.

@@ -9,7 +9,13 @@ from scripts.validation.performance_validation_complete import benchmark
 
 def test_benchmark_runs():
     results = benchmark()
-    assert set(results.keys()) >= {"grover_time", "kmeans_time", "qnn_time", "template_time", "flake8_time"}
+    assert set(results.keys()) >= {
+        "grover_time",
+        "kmeans_time",
+        "qnn_time",
+        "template_time",
+        "ruff_time",
+    }
     for value in results.values():
         assert value >= 0
 
@@ -34,8 +40,7 @@ def test_metrics_are_stored(tmp_path, monkeypatch):
         lambda self: None,
     )
     monkeypatch.setattr(
-        "scripts.validation.performance_validation_complete.DatabaseD \
-            rivenFlake8CorrectorFunctional.execute_correction",
+        "scripts.validation.performance_validation_complete.DatabaseDrivenRuffCorrector.execute_correction",
         lambda self: True,
     )
 
@@ -66,8 +71,7 @@ def test_regression_warning(tmp_path, monkeypatch, caplog):
         lambda self: None,
     )
     monkeypatch.setattr(
-        "scripts.validation.performance_validation_complete.DatabaseD \
-            rivenFlake8CorrectorFunctional.execute_correction",
+        "scripts.validation.performance_validation_complete.DatabaseDrivenRuffCorrector.execute_correction",
         lambda self: True,
     )
 

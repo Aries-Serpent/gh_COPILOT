@@ -121,6 +121,27 @@ def test_session_error(tmp_path, monkeypatch):
     assert "boom" in error_details
 
 
+def test_run_session_inserts(tmp_path, monkeypatch):
+    temp_db = tmp_path / "production.db"
+    shutil.copy(wsm.DB_PATH, temp_db)
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    backup_root = tmp_path / "backups"
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+    monkeypatch.setattr(wsm, "SecondaryCopilotValidator", lambda: DummyValidator())
+    monkeypatch.setattr(
+        wsm,
+        "UnifiedWrapUpOrchestrator",
+        lambda workspace_path=None: DummyOrchestrator(),
+    )
+    with sqlite3.connect(temp_db) as conn:
+        before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
+    wsm.run_session(1, temp_db, False)
+    with sqlite3.connect(temp_db) as conn:
+        after = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
+    assert after == before + 1
+    assert list((backup_root / "logs").glob("wlc_*.log"))
+
+
 def test_missing_environment(monkeypatch):
     monkeypatch.delenv("GH_COPILOT_WORKSPACE", raising=False)
     monkeypatch.delenv("GH_COPILOT_BACKUP_ROOT", raising=False)

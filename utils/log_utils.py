@@ -29,6 +29,22 @@ _log_lock = threading.Lock()
 # explicitly requested. The tables mirror the SQL migrations under
 # ``databases/migrations``.
 TABLE_SCHEMAS: Dict[str, str] = {
+    "event_log": """
+        CREATE TABLE IF NOT EXISTS event_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event TEXT,
+            details TEXT,
+            session TEXT,
+            module TEXT,
+            level TEXT,
+            fix_count INTEGER,
+            valid INTEGER,
+            db TEXT,
+            timestamp TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_event_log_timestamp
+            ON event_log(timestamp);
+    """,
     "violation_logs": """
         CREATE TABLE IF NOT EXISTS violation_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
