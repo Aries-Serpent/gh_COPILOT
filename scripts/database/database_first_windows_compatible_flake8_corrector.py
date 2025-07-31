@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-DATABASE-FIRST WINDOWS-COMPATIBLE RUFF CORRECTOR
-=================================================
+DATABASE-FIRST WINDOWS-COMPATIBLE FLAKE8 CORRECTOR
+===================================================
 
-Enterprise-grade Ruff/PEP 8 compliance enforcement system
+Enterprise-grade Flake8/PEP 8 compliance enforcement system
 using database-stored patterns without Unicode emoji characters.
 
 Features:
@@ -124,14 +124,14 @@ class WindowsCompatibleLogger:
 
 
 class DatabaseFirstFlake8Corrector:
-    """Database-first Ruff corrector with Windows compatibility"""
+    """Database-first Flake8 corrector with Windows compatibility"""
 
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.session_id = f"SESSION_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
         # Setup Windows-compatible logging
-        log_file = self.workspace_path / f"ruff_correction_{self.session_id}.log"
+        log_file = self.workspace_path / f"flake8_correction_{self.session_id}.log"
         self.logger = WindowsCompatibleLogger(str(log_file))
 
         # Database connections
@@ -169,7 +169,7 @@ class DatabaseFirstFlake8Corrector:
         """CRITICAL: Validate workspace for anti-recursion compliance"""
         self.logger.info("Validating workspace integrity", "validation")
 
-        # For ruff correction, we'll use a more permissive approach
+        # For Flake8 correction, we'll use a more permissive approach
         # Only block obvious recursive violations that could cause infinite loops
         critical_violations = []
 
@@ -258,13 +258,14 @@ class DatabaseFirstFlake8Corrector:
 
         self.logger.info(f"Loaded {patterns_loaded} correction patterns from databases", "success")
 
-    def run_ruff_scan(self) -> List[FlakeViolation]:
-        """Run ruff scan and parse violations"""
-        self.logger.info("Running ruff scan across workspace", "search")
+    def run_flake8_scan(self) -> List[FlakeViolation]:
+        """Run Flake8 scan and parse violations"""
+        self.logger.info("Running Flake8 scan across workspace", "search")
 
         violations = []
 
         try:
+            # Run flake8 with specific configuration
             cmd = [
                 sys.executable,
                 "-m",
@@ -291,7 +292,7 @@ class DatabaseFirstFlake8Corrector:
                 )
                 output = result.stdout
             except UnicodeError as u_err:
-                self.logger.error(f"Unicode error running ruff: {u_err}")
+                self.logger.error(f"Unicode error running Flake8: {u_err}")
                 raw = subprocess.run(
                     cmd,
                     capture_output=True,
@@ -300,7 +301,7 @@ class DatabaseFirstFlake8Corrector:
                 )
                 output = raw.stdout.decode("utf-8", "replace")
 
-            # Parse ruff output
+            # Parse flake8 output
             for line in output.splitlines():
                 line = line.strip()
                 if not line:
@@ -319,10 +320,10 @@ class DatabaseFirstFlake8Corrector:
                         )
                         violations.append(violation)
                     except (ValueError, IndexError):
-                        self.logger.warning(f"Could not parse ruff line: {line}")
+                        self.logger.warning(f"Could not parse Flake8 line: {line}")
 
         except subprocess.SubprocessError as e:
-            self.logger.error(f"Error running ruff: {e}")
+            self.logger.error(f"Error running Flake8: {e}")
 
         self.stats["violations_found"] = len(violations)
         self.logger.info(f"Found {len(violations)} Flake8 violations", "info")
@@ -391,27 +392,6 @@ class DatabaseFirstFlake8Corrector:
             if corrected_content != original_content:
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(corrected_content)
-
-                subprocess.run(
-                    ["ruff", "check", "--fix", self._sanitize_path(file_path)],
-                    check=False,
-                )
-
-                try:
-                    with sqlite3.connect(self.production_db) as conn:
-                        conn.execute(
-                            "INSERT INTO correction_history (file_path, violation_code, corrected_line, session_id) VALUES (?, ?, ?, ?)",
-                            (
-                                file_path,
-                                violation.error_code,
-                                corrected_content.splitlines()[violation.line_number - 1]
-                                if violation.line_number <= len(corrected_content.splitlines())
-                                else "",
-                                self.session_id,
-                            ),
-                        )
-                except Exception as e:
-                    self.logger.error(f"Error recording correction: {e}")
 
                 return CorrectionResult(
                     success=True,
@@ -550,7 +530,7 @@ class DatabaseFirstFlake8Corrector:
             self.logger.error(f"Error updating session status: {e}")
 
     def execute_comprehensive_correction(self):
-        """Execute comprehensive ruff correction with DUAL COPILOT validation"""
+        """Execute comprehensive Flake8 correction with DUAL COPILOT validation"""
 
         start_time = datetime.now()
         self.logger.info(f"Starting comprehensive Flake8 correction session: {self.session_id}", "start")
@@ -616,16 +596,6 @@ class DatabaseFirstFlake8Corrector:
                 self.logger.error("SECONDARY COPILOT VALIDATION FAILED")
                 self.update_compliance_session_status("FAILED")
 
-            self.logger.info("Running final ruff validation", "validation")
-            subprocess.run(
-                [
-                    "ruff",
-                    "check",
-                    self._sanitize_path(self.workspace_path),
-                ],
-                check=False,
-            )
-
         except Exception as e:
             self.logger.error(f"Critical error during correction: {e}")
             self.stats["errors_encountered"] += 1
@@ -635,7 +605,7 @@ class DatabaseFirstFlake8Corrector:
         duration = (datetime.now() - start_time).total_seconds()
 
         self.logger.info("=" * 60, "complete")
-        self.logger.info("DATABASE-FIRST RUFF CORRECTION COMPLETE", "complete")
+        self.logger.info("DATABASE-FIRST FLAKE8 CORRECTION COMPLETE", "complete")
         self.logger.info("=" * 60, "complete")
         self.logger.info(f"Session ID: {self.session_id}", "info")
         self.logger.info(f"Total Duration: {duration:.1f} seconds", "info")
@@ -655,7 +625,7 @@ class DatabaseFirstFlake8Corrector:
 
 
 def main():
-    print(f"{VISUAL_INDICATORS['start']} Database-First Windows-Compatible Ruff Corrector")
+    print(f"{VISUAL_INDICATORS['start']} Database-First Windows-Compatible Flake8 Corrector")
     start_msg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"{VISUAL_INDICATORS['info']} Session started at {start_msg}")
 

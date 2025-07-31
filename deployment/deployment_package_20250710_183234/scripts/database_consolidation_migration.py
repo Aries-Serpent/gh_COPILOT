@@ -11,17 +11,16 @@ Enterprise Standards Compliance:
 
 import sqlite3
 import logging
-import sys
 from pathlib import Path
 from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
-    "start": "[START]",
-    "success": "[SUCCESS]",
-    "error": "[ERROR]",
-    "database": "[DATABASE]",
-    "info": "[INFO]",
+    'start': '[START]',
+    'success': '[SUCCESS]',
+    'error': '[ERROR]',
+    'database': '[DATABASE]',
+    'info': '[INFO]'
 }
 
 
@@ -78,7 +77,8 @@ def main():
 
     return success
 
-
 if __name__ == "__main__":
+
+
     success = main()
     sys.exit(0 if success else 1)

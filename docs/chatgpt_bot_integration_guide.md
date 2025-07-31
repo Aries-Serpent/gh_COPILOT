@@ -38,8 +38,7 @@ python scripts/bot/assign_copilot_license.py chatgpt-bot
 Use this script to grant GitHub Copilot licenses to new team members. The target
 organization is read from `GITHUB_ORG`. The license operation runs through the
 `DualCopilotOrchestrator`, ensuring visual progress indicators and automatic
-Ruff validation after execution. Ruff results are logged to `analytics.db` for
-traceability.
+flake8 validation after execution.
 
 Both scripts log activity under `$GH_COPILOT_BACKUP_ROOT/logs` and record events in `production.db`.
 
