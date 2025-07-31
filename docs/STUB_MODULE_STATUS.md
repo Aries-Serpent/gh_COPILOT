@@ -54,5 +54,36 @@ Running `pytest` previously resulted in multiple failures due to incomplete modu
 
 Most quantum-oriented modules operate purely in simulation mode. Hardware execution is not supported and several helper scripts remain stubs.
 
+### Known Failing Test Modules
+
+The following table summarizes `pytest` failures observed in the latest test run. These failures reflect the modules referenced earlier where tests still fail (see line 34) and align with the lint issues outlined in line 48.
+
+| Test Module | Brief Description |
+|-------------|------------------|
+| `tests/documentation/test_documentation_manager_templates.py` | Template selection from documentation database |
+| `tests/template_engine/test_template_caching.py` | Template caching and ranking |
+| `tests/test_archive_scripts.py` | Archive utility function checks |
+| `tests/test_autonomous_setup_and_audit.py` | Asset ingestion validation |
+| `tests/test_complete_consolidation_orchestrator.py` | Consolidation export and compression routines |
+| `tests/test_complete_template_generator.py` | Template generation workflow |
+| `tests/test_compliance_metrics_updater.py` | Compliance metrics updater logic |
+| `tests/test_comprehensive_workspace_manager.py` | Session start/end recording |
+| `tests/test_comprehensive_workspace_manager_cli.py` | CLI environment requirements |
+| `tests/test_compress_database.py` | Database compression effect |
+| `tests/test_correction_history.py` | Correction history logging |
+| `tests/test_cross_database_sync_logger.py` | Cross-database sync logging |
+| `tests/test_cross_platform_paths.py` | Workspace path resolution |
+| `tests/test_database_list.py` | Database presence verification |
+| `tests/test_db_helper_usage.py` | DB helper invocation |
+| `tests/test_disallowed_paths.py` | Disallowed path validation |
+| `tests/test_documentation_consolidator.py` | Documentation consolidation |
+| `tests/test_documentation_db_analyzer.py` | Documentation DB analyzer |
+| `tests/test_documentation_manager_validator.py` | Documentation validator |
+| `tests/test_enterprise_database_driven_documentation_manager.py` | Dual copilot validation hooks |
+| `tests/test_enterprise_utility_logging.py` | Utility logging hooks |
+| `tests/test_entrypoint_env.py` | Environment variable enforcement |
+| `tests/test_log_error_notifier.py` | Log error detection |
+
+
 ---
 This list serves as a starting point for prioritizing future development and cleanup tasks.
