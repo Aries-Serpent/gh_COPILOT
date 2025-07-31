@@ -8,7 +8,6 @@ validated and prepared for migration to the archives/ folder.
 Enterprise-grade migration with safety checks and rollback capabilities.
 """
 
-import os
 import sys
 import json
 import sqlite3
@@ -16,7 +15,7 @@ import logging
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List
 import hashlib
 
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator

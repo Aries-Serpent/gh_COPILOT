@@ -40,12 +40,18 @@ logging.basicConfig(
 
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
-    for pattern in forbidden_patterns:
-        for folder in workspace_root.rglob(pattern):
-            if folder.is_dir() and folder != workspace_root:
-                logging.error(f"Recursive folder detected: {folder}")
-                raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+    venv_root = workspace_root / ".venv"
+    for folder in workspace_root.rglob("*"):
+        if (
+            folder == workspace_root
+            or not folder.is_dir()
+            or str(folder).startswith(str(venv_root))
+        ):
+            continue
+        name_tokens = folder.name.lower().split("_")
+        if any(tok in {"backup", "backups", "temp"} for tok in name_tokens):
+            logging.error(f"Recursive folder detected: {folder}")
+            raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
 
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:

@@ -1,8 +1,8 @@
 {
-    "timestamp": "2025-07-31T01:25:55",
-    "tests_executed": 344,
-    "tests_passed": 298,
-    "tests_failed": 41,
+    "timestamp": "2025-07-31T02:10:28",
+    "tests_executed": 178,
+    "tests_passed": 146,
+    "tests_failed": 29,
     "tests_errors": 0,
-    "tests_skipped": 5,
+    "tests_skipped": 3
 }
