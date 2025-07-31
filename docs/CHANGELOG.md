@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.1.12] - 2025-08-03
+- Audited wrapper modules and documented status in whitepaper.
+- Marked quantum performance claims as future goals.
+- Added change log section summarizing documentation updates.
+
 ## [4.1.11] - 2025-08-02
 - Added dual-copilot validation to `database_consolidation_migration.py`.
 - Documented analytics consolidation milestone in README.
