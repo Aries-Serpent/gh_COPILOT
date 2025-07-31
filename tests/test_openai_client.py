@@ -95,3 +95,33 @@ def test_network_exception_after_retries(monkeypatch):
             client.chat_completion([{"role": "user", "content": "hi"}])
 
     assert req.call_count == 2
+
+
+def test_env_configuration(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "k")
+    monkeypatch.setenv("OPENAI_MAX_RETRIES", "5")
+    monkeypatch.setenv("OPENAI_RATE_LIMIT", "2.5")
+
+    client = OpenAIClient(base_url="http://api")
+
+    assert client.max_retries == 5
+    assert client.rate_limit == 2.5
+
+
+def test_http_429_backoff(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "k")
+    client = OpenAIClient(base_url="http://api", max_retries=3, rate_limit=0)
+
+    sleeps: list[float] = []
+    monkeypatch.setattr(oc.time, "sleep", lambda d: sleeps.append(d))
+    monkeypatch.setattr(oc.time, "time", lambda: 0.0)
+
+    responses = [mock.Mock(status_code=429), mock.Mock(status_code=429), mock.Mock(status_code=200)]
+    responses[-1].json.return_value = {"ok": True}
+
+    with mock.patch("requests.Session.request", side_effect=responses) as req:
+        result = client.chat_completion([{"role": "user", "content": "hi"}])
+
+    assert req.call_count == 3
+    assert sleeps == [1, 2]
+    assert result == {"ok": True}

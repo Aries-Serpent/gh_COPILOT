@@ -111,7 +111,9 @@ ls -l /usr/local/bin/clw
 The repository provides `github_integration/openai_connector.py` for OpenAI API
 calls using the `OpenAIClient` helper in
 `third_party/openai_client.py`. Set `OPENAI_API_KEY` in your `.env` to enable
-these helpers.
+these helpers. Optional variables `OPENAI_RATE_LIMIT` (seconds between
+requests) and `OPENAI_MAX_RETRIES` (number of retries) control the client's
+rate limiting and retry behavior.
 
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
