@@ -1,11 +1,15 @@
 CREATE TABLE IF NOT EXISTS correction_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    session_id TEXT NOT NULL,
+    user_id INTEGER,
+    session_id TEXT,
     file_path TEXT NOT NULL,
-    action TEXT NOT NULL,
+    action TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    details TEXT
+    details TEXT,
+    violation_code TEXT,
+    original_line TEXT,
+    corrected_line TEXT,
+    correction_timestamp TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_correction_history_user_id ON correction_history(user_id);
 CREATE INDEX IF NOT EXISTS idx_correction_history_session_id ON correction_history(session_id);
