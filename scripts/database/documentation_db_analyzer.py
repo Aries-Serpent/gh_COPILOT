@@ -17,6 +17,7 @@ from tqdm import tqdm
 
 from template_engine.placeholder_utils import DEFAULT_ANALYTICS_DB
 from utils.log_utils import _log_event
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 logger = logging.getLogger(__name__)
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
@@ -138,11 +139,15 @@ def audit_placeholders(db_path: Path) -> int:
         return 0
     with sqlite3.connect(db_path) as conn:
         placeholders = _audit_placeholders_conn(conn)
-    _log_event(
-        {"db": str(db_path), "placeholders": len(placeholders)},
-        table="doc_analysis",
-        db_path=ANALYTICS_DB,
-    )
+    with sqlite3.connect(ANALYTICS_DB) as log:
+        log.execute(
+            "CREATE TABLE IF NOT EXISTS doc_analysis (db TEXT, gaps INTEGER, ts TEXT)"
+        )
+        log.execute(
+            "INSERT INTO doc_analysis (db, gaps, ts) VALUES (?, ?, ?)",
+            (str(db_path), len(placeholders), datetime.utcnow().isoformat()),
+        )
+        log.commit()
     return len(placeholders)
 
 
@@ -166,6 +171,33 @@ def analyze_documentation_gaps(
                 (str(db), gaps, datetime.utcnow().isoformat()),
             )
             conn.commit()
+    return results
+
+
+def analyze_documentation_tables(db_paths: list[Path], analytics: Path) -> list[dict[str, int]]:
+    """Analyze row counts for documentation tables and log analytics."""
+    results = []
+    analytics.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(analytics) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS doc_analysis (db TEXT, table_name TEXT, row_count INTEGER, ts TEXT)"
+        )
+        for db in db_paths:
+            count = 0
+            if db.exists():
+                with sqlite3.connect(db) as dconn:
+                    try:
+                        cur = dconn.execute("SELECT COUNT(*) FROM enterprise_documentation")
+                        count = cur.fetchone()[0]
+                    except sqlite3.Error:
+                        count = 0
+            conn.execute(
+                "INSERT INTO doc_analysis (db, table_name, row_count, ts) VALUES (?, 'enterprise_documentation', ?, ?)",
+                (str(db), count, datetime.utcnow().isoformat()),
+            )
+            results.append({"db": str(db), "rows": count})
+        conn.commit()
+    SecondaryCopilotValidator().validate_corrections([str(p) for p in db_paths])
     return results
 
 
@@ -194,18 +226,33 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
         removed_dupes = cur.execute(DEDUP_SQL).rowcount
         after = cur.execute("SELECT COUNT(*) FROM enterprise_documentation").fetchone()[0]
         conn.commit()
-        _log_event(
-            {
-                "db": str(db_path),
-                "before": before,
-                "after": after,
-                "removed_backups": removed_backups,
-                "removed_duplicates": removed_dupes,
-                "placeholders": len(placeholders),
-            },
-            table="doc_analysis",
-            db_path=ANALYTICS_DB,
-        )
+        with sqlite3.connect(ANALYTICS_DB) as log:
+            log.execute(
+                """
+                CREATE TABLE IF NOT EXISTS doc_analysis (
+                    db TEXT,
+                    before INTEGER,
+                    after INTEGER,
+                    removed_backups INTEGER,
+                    removed_duplicates INTEGER,
+                    placeholders INTEGER,
+                    ts TEXT
+                )
+                """
+            )
+            log.execute(
+                "INSERT INTO doc_analysis (db, before, after, removed_backups, removed_duplicates, placeholders, ts) VALUES (?,?,?,?,?,?,?)",
+                (
+                    str(db_path),
+                    before,
+                    after,
+                    removed_backups,
+                    removed_dupes,
+                    len(placeholders),
+                    datetime.utcnow().isoformat(),
+                ),
+            )
+            log.commit()
 
         ensure_correction_history(ANALYTICS_DB)
         with sqlite3.connect(ANALYTICS_DB) as log_conn:
@@ -296,6 +343,8 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
             )
     except sqlite3.Error as exc:
         logger.warning("Failed to log audit: %s", exc)
+
+    SecondaryCopilotValidator().validate_corrections([str(db_path)])
 
     return {
         "before": before,
@@ -400,11 +449,16 @@ def main() -> None:
     _log_report(report)
     etc = calculate_etc(start_ts, 1, 1)
     logger.info("Cleanup complete: %s | ETC: %s", report_path, etc)
-    _log_event(
-        {"db": str(db_path), "report": str(report_path)},
-        table="doc_analysis",
-        db_path=ANALYTICS_DB,
-    )
+    with sqlite3.connect(ANALYTICS_DB) as log:
+        log.execute(
+            "CREATE TABLE IF NOT EXISTS doc_analysis (db TEXT, report TEXT, ts TEXT)"
+        )
+        log.execute(
+            "INSERT INTO doc_analysis (db, report, ts) VALUES (?, ?, ?)",
+            (str(db_path), str(report_path), datetime.utcnow().isoformat()),
+        )
+        log.commit()
+    SecondaryCopilotValidator().validate_corrections([__file__])
 
 
 if __name__ == "__main__":
