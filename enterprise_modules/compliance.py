@@ -52,10 +52,14 @@ def _log_rollback(target: str, backup: str | None = None) -> None:
 
 
 def _detect_recursion(path: Path) -> bool:
-    """Return True if ``path`` contains recursive subfolders."""
-    root_name = path.name.lower()
-    for folder in path.rglob(root_name):
+    """Return True if ``path`` contains a nested folder matching itself."""
+    root = path.resolve()
+    for folder in path.rglob(path.name):
         if folder.is_dir() and folder != path:
+            try:
+                folder.resolve().relative_to(root)
+            except ValueError:
+                continue
             return True
     return False
 
