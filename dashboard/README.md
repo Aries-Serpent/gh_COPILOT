@@ -176,6 +176,21 @@ The endpoint is used by the dashboard UI and can be queried by external tools fo
 }
 ```
 
+### `cross_reference_summary.json` Schema
+
+`dashboard/compliance/cross_reference_summary.json` records cross-link actions and recommendations:
+
+```json
+{
+  "timestamp": "ISO8601 timestamp",
+  "cross_linked_actions": [],
+  "cross_links": [],
+  "suggested_links": [],
+  "recommended_links": [],
+  "status": "complete"
+}
+```
+
 ---
 
 ## COMPLIANCE INTEGRATION
