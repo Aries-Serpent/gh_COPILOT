@@ -45,6 +45,64 @@ create_todo_fixme_tracking.sql
 extend_todo_fixme_tracking.sql
 ```
 
+An accompanying Graphviz file at `docs/diagrams/migration_dependencies.dot` visualizes
+these relationships.
+
+## Migration Prerequisites
+
+The following table lists any prerequisites for each migration and the related
+rollback step. Most migrations simply create a new table and can be reverted by
+restoring a database backup.
+
+| Migration | Prerequisites | Rollback |
+|-----------|---------------|----------|
+| `add_audit_log.sql` | None | Restore backup or drop `audit_log` |
+| `add_code_audit_history.sql` | None | Drop `code_audit_history` |
+| `add_code_audit_log.sql` | None | Drop `code_audit_log` |
+| `add_correction_history.sql` | None | Drop `correction_history` |
+| `add_correction_logs.sql` | None | Drop `correction_logs` |
+| `add_corrections.sql` | None | Drop `corrections` |
+| `add_cross_link_events.sql` | None | Drop `cross_link_events` |
+| `add_cross_link_suggestions.sql` | None | Drop `cross_link_suggestions` |
+| `add_cross_link_summary.sql` | None | Drop `cross_link_summary` |
+| `add_dashboard_alerts.sql` | None | Drop `dashboard_alerts` |
+| `add_placeholder_removals.sql` | None | Drop `placeholder_removals` |
+| `add_rollback_failures.sql` | None | Drop `rollback_failures` |
+| `add_rollback_logs.sql` | None | Drop `rollback_logs` |
+| `add_rollback_strategy_history.sql` | None | Drop `rollback_strategy_history` |
+| `add_size_violations.sql` | None | Drop `size_violations` |
+| `add_sync_events_log.sql` | None | Drop `sync_events_log` |
+| `add_unified_wrapup_sessions.sql` | None | Drop `unified_wrapup_sessions` |
+| `add_violation_logs.sql` | None | Drop `violation_logs` |
+| `create_todo_fixme_tracking.sql` | `add_placeholder_removals.sql` | Drop `todo_fixme_tracking` |
+| `extend_todo_fixme_tracking.sql` | `create_todo_fixme_tracking.sql` | Remove added columns |
+
+## Sample Commands
+
+Run all migrations at once:
+
+```bash
+python scripts/run_migrations.py
+```
+
+Expected log snippet on success:
+
+```
+[INFO] applying add_audit_log.sql
+[INFO] applying add_code_audit_history.sql
+...
+[INFO] applying extend_todo_fixme_tracking.sql
+```
+
+If a migration fails you may see output like:
+
+```
+sqlite3.OperationalError: table violation_logs already exists
+```
+
+In that case restore the database from the last known good backup and rerun the
+migration script.
+
 ## Applying Migrations
 Use the helper script to apply all migrations:
 
