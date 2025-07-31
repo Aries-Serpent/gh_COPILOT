@@ -1,4 +1,3 @@
-import os
 import pytest
 from scripts.enterprise.enterprise_api_infrastructure_framework import EnterpriseAuthentication
 

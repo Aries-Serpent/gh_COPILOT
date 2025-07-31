@@ -1,5 +1,4 @@
 from pathlib import Path
-import os
 import shutil
 
 from scripts.optimization.automated_optimization_engine import main as opt_main

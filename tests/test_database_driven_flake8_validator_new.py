@@ -3,7 +3,6 @@ import pytest
 import scripts.database.database_driven_flake8_corrector_functional as mod
 from scripts.database.database_driven_flake8_corrector_functional import DatabaseDrivenFlake8CorrectorFunctional
 from pathlib import PureWindowsPath
-import logging
 
 
 def test_validate_workspace_detects_recursion(tmp_path):

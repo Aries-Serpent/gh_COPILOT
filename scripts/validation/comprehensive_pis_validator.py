@@ -5,14 +5,11 @@ import os
 import json
 import logging
 import sqlite3
-import time
-import hashlib
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from tqdm import tqdm
-import uuid
 import re
 
 # 🚨 CRITICAL: Anti-recursion workspace validation

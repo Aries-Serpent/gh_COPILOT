@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import logging
 
 from scripts.database.database_purification_engine import DatabasePurificationEngine
 

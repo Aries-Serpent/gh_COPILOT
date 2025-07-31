@@ -5,7 +5,6 @@ Quick Filesystem Check Script
 
 import os
 import sys
-import logging
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 print("FILESYSTEM ISOLATION CHECK")

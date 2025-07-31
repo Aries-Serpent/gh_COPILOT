@@ -14,7 +14,7 @@ while maintaining backward compatibility.
 import sys
 
 # Import from new modular package
-from validation.protocols.deployment import DeploymentValidator, main
+from validation.protocols.deployment import main
 
 # This script now delegates to the modular implementation
 if __name__ == "__main__":

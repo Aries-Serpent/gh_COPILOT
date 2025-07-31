@@ -18,16 +18,12 @@ with comprehensive template synchronization and intelligent categorization.
 """
 
 import os
-import sys
-import time
 import sqlite3
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 from tqdm import tqdm
-import hashlib
-import json
 
 # 🛡️ MANDATORY: Anti-recursion workspace validation
 def validate_workspace_integrity():

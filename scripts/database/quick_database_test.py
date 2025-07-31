@@ -13,9 +13,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any
 import logging
-import time
 
 
 def test_database_reproducibility():

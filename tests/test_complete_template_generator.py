@@ -3,7 +3,6 @@ import sqlite3
 from pathlib import Path
 
 from scripts.utilities.complete_template_generator import CompleteTemplateGenerator
-import logging
 
 
 def create_dbs(tmp_path: Path):

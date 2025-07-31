@@ -14,17 +14,12 @@ VERSION: 1.0 - Comprehensive Validation Execution
 """
 
 import os
-import sys
 import time
-import json
 import sqlite3
-import threading
-import subprocess
 from pathlib import Path
 from datetime import datetime
-from dataclasses import dataclass, asdict
-from typing import Dict, List, Optional, Tuple, Any
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Any
 from tqdm import tqdm
 import logging
 

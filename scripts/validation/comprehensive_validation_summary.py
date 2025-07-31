@@ -12,7 +12,6 @@ This includes:
 - Archive migration readiness ✅
 """
 
-import os
 import json
 from datetime import datetime
 from pathlib import Path
