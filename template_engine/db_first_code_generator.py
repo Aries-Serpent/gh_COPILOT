@@ -339,11 +339,12 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         )
 
         path = Path(f"{objective}.py")
+        tmp_path = path.with_suffix(path.suffix + ".tmp")
 
         try:
             with sqlite3.connect(self.production_db) as conn:
                 conn.execute("BEGIN")
-                path.write_text(stub)
+                tmp_path.write_text(stub)
                 file_hash = hashlib.sha256(stub.encode()).hexdigest()
                 ts = datetime.utcnow().isoformat()
                 conn.execute(
@@ -361,6 +362,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                     (str(path), stub, file_hash),
                 )
                 conn.commit()
+            tmp_path.rename(path)
 
             _log_event(
                 {"event": "integration_ready_generated", "objective": objective, "path": str(path)},
@@ -383,13 +385,19 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         except Exception as exc:  # pragma: no cover - error handling
             if 'conn' in locals():
                 conn.rollback()
-            if path.exists():
-                path.unlink()
+            if tmp_path.exists():
+                tmp_path.unlink()
             _log_event(
                 {"event": "integration_ready_failed", "objective": objective, "error": str(exc)},
                 table="generator_events",
                 db_path=self.analytics_db,
                 level=logging.ERROR,
+                test_mode=False,
+            )
+            _log_event(
+                {"event": "integration_ready_rollback", "target": str(path)},
+                table="rollback_logs",
+                db_path=self.analytics_db,
                 test_mode=False,
             )
             raise
