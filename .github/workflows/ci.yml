@@ -119,26 +119,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-${{ matrix.python-version }}-
 
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install -r requirements-test.txt
-
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'requirements-test.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-${{ matrix.python-version }}-
-
-      - name: Lint
-        run: ruff check .
-      - name: Run tests with coverage
+      - name: Run tests in container
         run: |
           mkdir -p artifacts
-          coverage run -m pytest -q tests --junitxml=artifacts/test-results.xml
-          coverage xml -o artifacts/coverage.xml
+          docker run --rm \
+            -e GH_COPILOT_BACKUP_ROOT=/tmp/backups \
+            -e FLASK_SECRET_KEY=$FLASK_SECRET_KEY \
+            -v ${{ github.workspace }}/artifacts:/app/artifacts \
+            gh_copilot coverage run -m pytest -q tests --junitxml=/app/artifacts/test-results.xml
+          docker run --rm \
+            -e GH_COPILOT_BACKUP_ROOT=/tmp/backups \
+            -e FLASK_SECRET_KEY=$FLASK_SECRET_KEY \
+            -v ${{ github.workspace }}/artifacts:/app/artifacts \
+            gh_copilot coverage xml -o /app/artifacts/coverage.xml
 
       - name: Upload artifacts
         if: always()

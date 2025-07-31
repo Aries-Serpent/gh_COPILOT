@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-terminate() {
+cleanup() {
     echo "Received termination signal. Stopping children..." >&2
     kill $(jobs -p) 2>/dev/null || true
 }
 
-trap terminate INT TERM
+trap cleanup INT TERM
 
 # Validate enterprise environment before starting services
 python - <<'PY'
@@ -14,14 +14,23 @@ from utils.validation_utils import validate_enterprise_environment
 validate_enterprise_environment()
 PY
 
-# Ensure workspace and backup environment variables are exported
-export GH_COPILOT_WORKSPACE="${GH_COPILOT_WORKSPACE:-/app}"
-export GH_COPILOT_BACKUP_ROOT="${GH_COPILOT_BACKUP_ROOT:-/backup}"
-# Verify Flask secret key is provided for dashboard security
+# Ensure required environment variables are present
+: "${GH_COPILOT_WORKSPACE:?GH_COPILOT_WORKSPACE is not set}"
+: "${GH_COPILOT_BACKUP_ROOT:?GH_COPILOT_BACKUP_ROOT is not set}"
 : "${FLASK_SECRET_KEY:?FLASK_SECRET_KEY not set}"
 
-# Initialize analytics database before launching services
-python scripts/database/unified_database_initializer.py
+export GH_COPILOT_WORKSPACE
+export GH_COPILOT_BACKUP_ROOT
+
+# Initialize the enterprise assets database if it doesn't exist
+initialize_database_if_missing() {
+    local db_path="$GH_COPILOT_WORKSPACE/databases/enterprise_assets.db"
+    if [ ! -f "$db_path" ]; then
+        python scripts/database/unified_database_initializer.py
+    fi
+}
+
+initialize_database_if_missing
 
 # Start background workers
 python dashboard/compliance_metrics_updater.py &
@@ -30,24 +39,4 @@ metrics_pid=$!
 python scripts/code_placeholder_audit.py &
 audit_pid=$!
 
-python scripts/docker_entrypoint.py &
-dashboard_pid=$!
-
-# Wait for child processes to exit and log errors
-wait $metrics_pid
-status=$?
-if [ $status -ne 0 ]; then
-    echo "compliance_metrics_updater exited with status $status" >&2
-fi
-
-wait $audit_pid
-status=$?
-if [ $status -ne 0 ]; then
-    echo "code_placeholder_audit exited with status $status" >&2
-fi
-
-wait $dashboard_pid
-status=$?
-if [ $status -ne 0 ]; then
-    echo "docker_entrypoint exited with status $status" >&2
-fi
+exec "$@"
