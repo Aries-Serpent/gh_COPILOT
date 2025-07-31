@@ -15,6 +15,8 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
     production_db = tmp_path / "production.db"
     with sqlite3.connect(production_db) as conn:
         conn.execute("CREATE TABLE cross_reference_patterns (pattern_name TEXT)")
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("INSERT INTO code_templates VALUES (1, 'foo template')")
         conn.execute("INSERT INTO cross_reference_patterns VALUES ('foo')")
 
     analytics_db = tmp_path / "databases" / "analytics.db"
@@ -59,6 +61,8 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
     assert summary_file.exists()
     data = json.loads(summary_file.read_text())
     assert len(data["cross_linked_actions"]) == 1
+    assert "recommended_links" in data
+    assert data["recommended_links"]
 
     with sqlite3.connect(analytics_db) as conn:
         count = conn.execute("SELECT COUNT(*) FROM cross_link_events").fetchone()[0]
@@ -260,13 +264,17 @@ def test_suggest_links_logged(tmp_path, monkeypatch):
 
     summary = json.loads((dashboard_dir / "cross_reference_summary.json").read_text())
     assert summary["suggested_links"]
+    assert summary["recommended_links"] == []
 
     with sqlite3.connect(analytics_db) as conn:
         tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         count = conn.execute("SELECT COUNT(*) FROM cross_link_suggestions").fetchone()[0]
+        rec_count = conn.execute("SELECT COUNT(*) FROM cross_link_recommendations").fetchone()[0]
 
     assert "cross_link_suggestions" in tables
+    assert "cross_link_recommendations" in tables
     assert count >= 1
+    assert rec_count == 0
 
 
 def test_cross_reference_validator_timeout(tmp_path, monkeypatch):

@@ -136,6 +136,16 @@ TABLE_SCHEMAS: Dict[str, str] = {
             timestamp TEXT NOT NULL
         );
     """,
+    "cross_link_recommendations": """
+        CREATE TABLE IF NOT EXISTS cross_link_recommendations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            file_path TEXT NOT NULL,
+            template_id INTEGER,
+            score REAL,
+            valid INTEGER,
+            timestamp TEXT NOT NULL
+        );
+    """,
     "cross_link_summary": """
         CREATE TABLE IF NOT EXISTS cross_link_summary (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
