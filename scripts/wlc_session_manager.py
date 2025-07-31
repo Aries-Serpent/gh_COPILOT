@@ -47,7 +47,8 @@ try:
 except Exception:  # pragma: no cover - allow lazy import
     UnifiedWrapUpOrchestrator = None
 
-DB_PATH = Path(os.getenv("WLC_DB_PATH", "databases/production.db"))
+DEFAULT_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
+DB_PATH = Path(os.getenv("WLC_DB_PATH", str(DEFAULT_DB)))
 
 
 def get_connection(db_path: Path) -> sqlite3.Connection:
@@ -101,7 +102,12 @@ def finalize_session_entry(
 
 def validate_environment() -> bool:
     """Validate enterprise workspace and backup paths."""
-    validate_enterprise_environment()
+    try:
+        validate_enterprise_environment()
+    except EnvironmentError as exc:
+        raise EnvironmentError(
+            "Required environment variables are not set or paths invalid"
+        ) from exc
     return True
 
 

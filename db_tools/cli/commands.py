@@ -7,6 +7,8 @@ import argparse
 import sys
 from pathlib import Path
 
+from utils.cross_platform_paths import CrossPlatformPathManager
+
 from ..operations.access import DatabaseAccessLayer
 from ..operations.cleanup import DatabaseCleanupProcessor
 from ..operations.compliance import DatabaseComplianceChecker
@@ -46,7 +48,11 @@ class DatabaseCLI:
         )
         access_parser.add_argument(
             '--database',
-            default='production.db',
+            default=str(
+                CrossPlatformPathManager.get_workspace_path()
+                / 'databases'
+                / 'production.db'
+            ),
             help='Database path'
         )
 

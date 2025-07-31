@@ -7,7 +7,9 @@ import sys
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
+
+from utils.cross_platform_paths import CrossPlatformPathManager
 
 from ..core.connection import DatabaseConnection
 from ..core.exceptions import DatabaseError
@@ -26,7 +28,13 @@ TEXT_INDICATORS = {
 class DatabaseAccessLayer:
     """Enterprise database access layer with enhanced functionality"""
 
-    def __init__(self, database_path: str = "production.db"):
+    def __init__(self, database_path: Optional[str | Path] = None):
+        if database_path is None:
+            database_path = (
+                CrossPlatformPathManager.get_workspace_path()
+                / "databases"
+                / "production.db"
+            )
         self.database_path = Path(database_path)
         self.db_connection = DatabaseConnection(self.database_path)
         self.logger = logging.getLogger(__name__)
