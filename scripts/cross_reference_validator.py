@@ -25,7 +25,7 @@ from typing import Dict, List, Optional, Set
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
-from utils.log_utils import _log_event, log_event
+from utils.log_utils import log_event, _log_event
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
