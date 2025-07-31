@@ -177,9 +177,12 @@ All contributions must go through the following review workflow:
 
 1. Run `make test` (or `pytest -v`) to ensure the test suite passes.
 2. Run `ruff check .` to validate lint rules and formatting.
-3. Execute `scripts/check_zero_logs.sh` to verify no zero-byte logs remain.
-4. Open a pull request that references the relevant issue and wait for at least one reviewer to approve.
-5. Ensure the EnterpriseComplianceValidator and CI checks succeed before merging.
+3. Run `pyright` for static type analysis.
+4. Execute `scripts/check_zero_logs.sh` to verify no zero-byte logs remain.
+5. Open a pull request that references the relevant issue and wait for at least one senior reviewer to approve.
+6. Ensure the EnterpriseComplianceValidator and CI checks succeed before merging.
+   CI pipelines are defined under [`.github/workflows`](../.github/workflows) and
+   include linting, type checking, and full test runs.
 
 ## BRANCH NAMING
 
@@ -198,8 +201,22 @@ Avoid spaces or special characters and keep branch names under 30 characters.
 - Restore files by copying the desired snapshot back into the workspace and verifying with `scripts/db_tools/verify_disaster_recovery.py` against `databases/disaster_recovery.db`.
 - Consult `docs/BACKUP_COMPLIANCE_GUIDE.md` for full details.
 
+## DATABASE MIGRATION GUIDELINES
+
+When updating any database schema or content:
+
+1. Review the existing schema in `databases/production.db` and create a
+   migration script under `scripts/db_tools/`.
+2. Migrations must be idempotent and include a corresponding rollback step.
+3. Apply migrations using `python scripts/db_tools/migrate.py` and verify the
+   operation with unit tests.
+4. Rollbacks should restore the previous state from the most recent backup
+   snapshot. See `docs/BACKUP_COMPLIANCE_GUIDE.md` for snapshot management.
+
+
 ## LOG HANDLING POLICIES
 
 - All logs are stored under `$GH_COPILOT_BACKUP_ROOT/logs`.
 - Remove zero-byte log files using `scripts/maintenance/quarantine_zero_byte_logs.py`.
 - The manual `scripts/wlc_session_manager.py` is used for experimental Wrapping, Logging, and Compliance (WLC) sessions. It records runs in `production.db` and should be executed only when performing WLC operations.
+ - For full backup and restore instructions, see [BACKUP_COMPLIANCE_GUIDE](BACKUP_COMPLIANCE_GUIDE.md).
