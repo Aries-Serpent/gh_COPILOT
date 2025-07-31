@@ -11,7 +11,11 @@ import requests
 
 @dataclass
 class OpenAIClient:
-    """Simple OpenAI API client with retry and rate limiting."""
+    """Simple OpenAI API client with retry and rate limiting.
+
+    The client reads ``OPENAI_RATE_LIMIT`` and ``OPENAI_MAX_RETRIES`` from the
+    environment to configure request throttling and retry behavior.
+    """
 
     api_key: str | None = None
     base_url: str | None = None
@@ -20,7 +24,11 @@ class OpenAIClient:
 
     def __post_init__(self) -> None:
         self.api_key = self.api_key or os.environ.get("OPENAI_API_KEY", "")
-        self.base_url = self.base_url or os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+        self.base_url = self.base_url or os.environ.get(
+            "OPENAI_BASE_URL", "https://api.openai.com/v1"
+        )
+        self.rate_limit = float(os.environ.get("OPENAI_RATE_LIMIT", self.rate_limit))
+        self.max_retries = int(os.environ.get("OPENAI_MAX_RETRIES", self.max_retries))
         self.session = requests.Session()
         self.logger = logging.getLogger(__name__)
         self._last_request = 0.0
@@ -42,16 +50,26 @@ class OpenAIClient:
             self._wait_rate_limit()
             self._last_request = time.time()
             try:
-                resp = self.session.request(method, url, headers=self._headers(), json=payload, timeout=30)
+                resp = self.session.request(
+                    method, url, headers=self._headers(), json=payload, timeout=30
+                )
             except requests.RequestException as exc:  # pragma: no cover - network failure
                 self.logger.warning("Request error on attempt %s: %s", attempt, exc)
                 if attempt == self.max_retries:
                     raise
                 time.sleep(attempt)
                 continue
+
+            if resp.status_code == 429 and attempt < self.max_retries:
+                delay = 2 ** (attempt - 1)
+                self.logger.warning("Rate limited on attempt %s, sleeping %s", attempt, delay)
+                time.sleep(delay)
+                continue
+
             if resp.status_code >= 500 and attempt < self.max_retries:
                 time.sleep(attempt)
                 continue
+
             return resp
         return resp  # type: ignore
 
