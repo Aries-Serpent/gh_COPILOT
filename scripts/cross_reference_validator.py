@@ -25,10 +25,11 @@ from typing import Dict, List, Optional, Set
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
-from utils.log_utils import _log_event
+from utils.log_utils import _log_event, log_event
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
+BACKUP_ROOT = CrossPlatformPathManager.get_backup_root()
 LOGS_DIR = workspace_root / "logs" / "cross_reference"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"cross_reference_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
@@ -132,7 +133,7 @@ class CrossReferenceValidator:
             for d in docs_dirs + code_dirs:
                 for path in d.rglob(file_name):
                     try:
-                        path.relative_to(backup_root)
+                        path.relative_to(BACKUP_ROOT)
                     except ValueError:
                         related_paths.add(path)
             for path in sorted(related_paths):
