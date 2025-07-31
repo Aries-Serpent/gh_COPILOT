@@ -137,8 +137,7 @@ class CrossReferenceValidator:
                 for row in conn.execute("SELECT file_path, linked_path FROM cross_link_events"):
                     past_links.append({"file_path": row[0], "linked_path": row[1]})
 
-        for d in docs_dirs + code_dirs:
-            validate_enterprise_operation(str(d))
+        backup_root = CrossPlatformPathManager.get_backup_root()
 
         existing_pairs: Set[tuple[str, str]] = {(pl["file_path"], pl["linked_path"]) for pl in past_links}
 
@@ -146,6 +145,7 @@ class CrossReferenceValidator:
             file_name = Path(act["file_path"]).name
             related_paths: Set[Path] = set()
             for d in docs_dirs + code_dirs:
+                validate_enterprise_operation(str(d))
                 for path in d.rglob(file_name):
                     try:
                         path.relative_to(self.backup_root)
