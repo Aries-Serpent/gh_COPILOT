@@ -25,4 +25,37 @@ The `.gitattributes` file explicitly lists patterns that Git LFS should manage. 
 4. **Recovering Artifacts**: To unpack the most recent archive after a fresh clone or CI reset, run `python artifact_manager.py --recover`.
 5. **Committing**: The packaging step commits the archive for you. Ensure CI runs succeed by verifying `git lfs ls-files` lists the new archive.
 
-Following this workflow ensures consistent handling of binary data and prevents accidental commits of large files outside Git LFS. Integrate the packaging command into CI so that session artifacts are preserved automatically.
+Following this workflow ensures consistent handling of binary data and prevents accidental commits of large files outside Git LFS.
+
+## Artifact Manager CLI
+
+The `artifact_manager.py` utility now includes a small command-line interface:
+
+- `--package` – bundle modified files from `tmp/` into a zip archive.
+- `--commit` – after packaging, stage and commit the archive using Git LFS.
+- `--recover <archive>` – extract a session archive back into `tmp/`.
+
+Example usage:
+
+```bash
+python artifact_manager.py --package
+ALLOW_AUTOLFS=1 python artifact_manager.py --package --commit "archive session"
+python artifact_manager.py --recover codex-session_20250101_120000.zip
+```
+
+## GitHub Actions Workflow
+
+The `ci.yml` workflow packages and commits session artifacts automatically after successful tests:
+
+```yaml
+      - name: Package session artifacts
+        run: python artifact_manager.py --package --commit
+```
+
+Nightly runs can also call `--recover` to verify archived files remain valid.
+
+## Troubleshooting
+
+- **Git LFS not found** – run `git lfs install` and verify `git lfs status`.
+- **Permission errors** – ensure `codex_sessions/` is writable and you have commit rights.
+- **Archive not tracked** – set `ALLOW_AUTOLFS=1` or manually update `.gitattributes`.
