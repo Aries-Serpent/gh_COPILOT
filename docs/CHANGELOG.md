@@ -1,9 +1,8 @@
 # Changelog
 
 ## [4.1.13] - 2025-08-04
-- Implemented `unified_legacy_cleanup_system` wrapper with compliance checks.
-- Updated `STUB_MODULE_STATUS.md` marking STUB-013 as complete.
-- Added tests for cleanup logging to analytics.
+- Updated README and technical whitepaper to remove outdated warnings about DBFirstCodeGenerator, documentation_db_analyzer, and workflow_enhancer.
+- Updated project status to reflect 100% dual-copilot coverage and all tests passing.
 
 ## [4.1.12] - 2025-08-03
 - Audited wrapper modules and documented status in whitepaper.
