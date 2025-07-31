@@ -286,24 +286,17 @@ class DatabaseFirstCorrectionEngine:
         return "\n".join(lines)
 
     def _run_ruff_fix(self, file_path: Path) -> None:
-        """Apply ruff autofix to ``file_path``."""
+        """Apply ``ruff check --fix`` to ``file_path``."""
         subprocess.run(
-            [
-                "ruff",
-                "--fix",
-                str(file_path),
-            ],
+            ["ruff", "check", "--fix", str(file_path)],
             capture_output=True,
             text=True,
         )
 
     def cross_validate_with_ruff(self, file_path: Path) -> bool:
-        """Run ruff lint on ``file_path`` and return success."""
+        """Run ``ruff check`` on ``file_path`` and return success."""
         result = subprocess.run(
-            [
-                "ruff",
-                str(file_path),
-            ],
+            ["ruff", "check", str(file_path)],
             capture_output=True,
             text=True,
         )
@@ -312,7 +305,7 @@ class DatabaseFirstCorrectionEngine:
     def _record_correction_history(self, file_path: Path, action: str, details: str = "") -> None:
         """Insert a record into ``correction_history`` table."""
         try:
-            with sqlite3.connect(self.analytics_db) as conn:
+            with sqlite3.connect(self.production_db) as conn:
                 conn.execute(
                     """CREATE TABLE IF NOT EXISTS correction_history (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
