@@ -30,6 +30,7 @@ def test_cli_start_end(tmp_path):
         env=env,
         capture_output=True,
         text=True,
+        cwd=str(tmp_path),
     )
     assert result.returncode == 0
 
@@ -38,6 +39,7 @@ def test_cli_start_end(tmp_path):
         env=env,
         capture_output=True,
         text=True,
+        cwd=str(tmp_path),
     )
     assert result.returncode == 0
 

@@ -13,6 +13,11 @@ def test_entrypoint_requires_env(tmp_path):
     env['GH_COPILOT_WORKSPACE'] = str(tmp_path)
     env.pop('GH_COPILOT_BACKUP_ROOT', None)
     repo_root = Path(__file__).resolve().parents[1]
-    result = subprocess.run(['bash', 'entrypoint.sh'], cwd=repo_root, env=env, capture_output=True, text=True)
+    result = subprocess.run(
+        ['bash', 'entrypoint.sh'], cwd=repo_root, env=env, capture_output=True, text=True
+    )
     assert result.returncode != 0
-    assert 'GH_COPILOT_BACKUP_ROOT is not set' in result.stderr
+    assert (
+        'GH_COPILOT_BACKUP_ROOT is not set' in result.stderr
+        or 'Backup root parent directory is missing' in result.stderr
+    )

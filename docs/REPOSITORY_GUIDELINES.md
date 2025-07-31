@@ -42,7 +42,7 @@ source .venv/bin/activate
 ### 4. Workspace and Backup Variables
 Set the following environment variables in your shell configuration (or load them dynamically using `.env` files):
 - **`GH_COPILOT_WORKSPACE`:** Specifies the repository workspace.
-- **`GH_COPILOT_BACKUP_ROOT`:** Ensures backups and logs are stored outside the workspace to prevent recursive violations. If unset, the system defaults to `/tmp/<user>/gh_COPILOT_Backups` on Linux.
+- **`GH_COPILOT_BACKUP_ROOT`:** Ensures backups and logs are stored outside the workspace to prevent recursive violations. **This variable must be defined before running `setup.sh`.**
 - **`CLW_MAX_LINE_LENGTH`:** Optional terminal output wrap length. Set to `1550` to avoid exceeding the 1600-byte console limit when using `clw`.
 - **`API_SECRET_KEY`:** Secret used by the Enterprise API. Set this or provide `api_secret_key` in your config file.
 - **`FLASK_ENV`:** Set to `production` to disable debug mode in the Enterprise API server.
@@ -161,3 +161,62 @@ grep --exclude=.gitignore "*.zip|*.7z" /.bad_logs_dirs/strict_cleanup_archive)
 Ensure repository health by iteratively:
 
 Updating global formatting and handling assurance
+
+## CODING CONVENTIONS
+
+Follow these standards to keep the codebase consistent:
+
+- Adhere to PEP8 with 4-space indentation and lines under 120 characters.
+- Use `snake_case` for functions and variables and `CamelCase` for classes.
+- Document public methods with triple-quoted docstrings and include type hints where practical.
+- Prefer explicit imports over wildcard imports and remove unused imports before submitting a PR.
+
+## REVIEW AND APPROVAL STEPS
+
+All contributions must go through the following review workflow:
+
+1. Run `make test` (or `pytest -v`) to ensure the test suite passes.
+2. Run `ruff check .` to validate lint rules and formatting.
+3. Run `pyright` for static type analysis.
+4. Execute `scripts/check_zero_logs.sh` to verify no zero-byte logs remain.
+5. Open a pull request that references the relevant issue and wait for at least one senior reviewer to approve.
+6. Ensure the EnterpriseComplianceValidator and CI checks succeed before merging.
+   CI pipelines are defined under [`.github/workflows`](../.github/workflows) and
+   include linting, type checking, and full test runs.
+
+## BRANCH NAMING
+
+Use descriptive branch prefixes to clarify intent:
+
+- `feat/<short-description>` – new features
+- `fix/<short-description>` – bug fixes
+- `docs/<short-description>` – documentation changes
+
+Avoid spaces or special characters and keep branch names under 30 characters.
+
+## BACKUP AND RESTORE PROCEDURES
+
+- Set `GH_COPILOT_BACKUP_ROOT` to an external directory outside the repo.
+- Run `scripts/file_management/autonomous_backup_manager.py` to create backups; snapshots appear under `$GH_COPILOT_BACKUP_ROOT` with timestamped folders.
+- Restore files by copying the desired snapshot back into the workspace and verifying with `scripts/db_tools/verify_disaster_recovery.py` against `databases/disaster_recovery.db`.
+- Consult `docs/BACKUP_COMPLIANCE_GUIDE.md` for full details.
+
+## DATABASE MIGRATION GUIDELINES
+
+When updating any database schema or content:
+
+1. Review the existing schema in `databases/production.db` and create a
+   migration script under `scripts/db_tools/`.
+2. Migrations must be idempotent and include a corresponding rollback step.
+3. Apply migrations using `python scripts/db_tools/migrate.py` and verify the
+   operation with unit tests.
+4. Rollbacks should restore the previous state from the most recent backup
+   snapshot. See `docs/BACKUP_COMPLIANCE_GUIDE.md` for snapshot management.
+
+
+## LOG HANDLING POLICIES
+
+- All logs are stored under `$GH_COPILOT_BACKUP_ROOT/logs`.
+- Remove zero-byte log files using `scripts/maintenance/quarantine_zero_byte_logs.py`.
+- The manual `scripts/wlc_session_manager.py` is used for experimental Wrapping, Logging, and Compliance (WLC) sessions. It records runs in `production.db` and should be executed only when performing WLC operations.
+ - For full backup and restore instructions, see [BACKUP_COMPLIANCE_GUIDE](BACKUP_COMPLIANCE_GUIDE.md).

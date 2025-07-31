@@ -3,11 +3,13 @@
 Emergency C:/Temp Violation Prevention System
 Database-First Anti-Recursion Compliance Validator
 """
+
 import argparse
 import sys
 import shutil
 import logging
 from pathlib import Path
+from utils.cross_platform_paths import CrossPlatformPathManager
 from datetime import datetime
 
 
@@ -15,7 +17,7 @@ class EmergencyAntiRecursionValidator:
     """# # 🚨 Emergency prevention of recursive folder creation and C:/temp violations"""
 
     def __init__(self):
-        self.proper_root = Path("E:/gh_COPILOT")
+        self.proper_root = CrossPlatformPathManager.get_workspace_path()
         self.forbidden_patterns = ["--validate", "--backup", "--temp", "--target"]
         self.setup_logging()
 
@@ -23,10 +25,8 @@ class EmergencyAntiRecursionValidator:
         """Setup enterprise logging"""
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.StreamHandler(sys.stdout)
-            ]
+            format="%(asctime)s - %(levelname)s - %(message)s",
+            handlers=[logging.StreamHandler(sys.stdout)],
         )
         self.logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class EmergencyAntiRecursionValidator:
         workspace_root = self.proper_root
 
         # Forbidden patterns that create recursion
-        forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+        forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
         violations = []
 
         for pattern in forbidden_patterns:
@@ -117,11 +117,9 @@ class EmergencyAntiRecursionValidator:
 
 def main():
     """Main execution function"""
-    parser = argparse.ArgumentParser(description='Emergency Anti-Recursion Validation')
-    parser.add_argument('--emergency-cleanup', action='store_true',
-                        help='Execute emergency cleanup')
-    parser.add_argument('--full-validation', action='store_true',
-                        help='Execute full validation protocol')
+    parser = argparse.ArgumentParser(description="Emergency Anti-Recursion Validation")
+    parser.add_argument("--emergency-cleanup", action="store_true", help="Execute emergency cleanup")
+    parser.add_argument("--full-validation", action="store_true", help="Execute full validation protocol")
 
     args = parser.parse_args()
 

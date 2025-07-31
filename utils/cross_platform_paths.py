@@ -17,10 +17,11 @@ class CrossPlatformPathManager:
     @staticmethod
     def get_workspace_path() -> Path:
         """Return workspace path with cross-platform detection."""
-        workspace_env = os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
-        workspace_path = Path(workspace_env)
-        if workspace_path.exists():
-            return workspace_path
+        workspace_env = os.getenv("GH_COPILOT_WORKSPACE")
+        if workspace_env:
+            workspace_path = Path(workspace_env)
+            if workspace_path.exists():
+                return workspace_path
 
         current_dir = Path.cwd()
         if current_dir.name == "gh_COPILOT":
@@ -30,29 +31,19 @@ class CrossPlatformPathManager:
             if parent.name == "gh_COPILOT":
                 return parent
 
-        if os.name == "nt":
-            potential_paths = [
-                Path(DEFAULT_WORKSPACE),
-                Path("E:/gh_COPILOT"),
-                Path("C:/gh_COPILOT"),
-                Path("D:/gh_COPILOT"),
-            ]
-        else:
-            user_home = Path.home()
-            potential_paths = [
-                Path(DEFAULT_WORKSPACE),
-                user_home / "gh_COPILOT",
-                Path("/opt/gh_COPILOT"),
-                Path("/usr/local/gh_COPILOT"),
-            ]
+        user_home = Path.home()
+        potential_paths = [
+            Path("/workspace/gh_COPILOT"),
+            user_home / "gh_COPILOT",
+            Path("/opt/gh_COPILOT"),
+            Path("/usr/local/gh_COPILOT"),
+        ]
 
         for path in potential_paths:
             if path.exists():
                 return path
 
-        logging.warning(
-            "Could not detect gh_COPILOT workspace, using current directory"
-        )
+        logging.warning("Could not detect gh_COPILOT workspace, using current directory")
         return current_dir
 
     @staticmethod
@@ -90,9 +81,7 @@ class CrossPlatformPathManager:
             if pattern in file_path:
                 validation_result["is_portable"] = False
                 validation_result["issues"].append(f"Hard-coded path found: {pattern}")
-                validation_result["suggested_fix"] = (
-                    "Use CrossPlatformPathManager.get_workspace_path()"
-                )
+                validation_result["suggested_fix"] = "Use CrossPlatformPathManager.get_workspace_path()"
 
         return validation_result
 
@@ -133,13 +122,10 @@ def migrate_hard_coded_paths(file_path: Path) -> Dict[str, Any]:
 
         if (
             "CrossPlatformPathManager" in updated_content
-            and "from utils.cross_platform_paths import CrossPlatformPathManager"
-            not in updated_content
+            and "from utils.cross_platform_paths import CrossPlatformPathManager" not in updated_content
         ):
             lines = updated_content.split("\n")
-            import_line = (
-                "from utils.cross_platform_paths import CrossPlatformPathManager"
-            )
+            import_line = "from utils.cross_platform_paths import CrossPlatformPathManager"
             insert_index = 0
             for i, line in enumerate(lines):
                 if line.startswith("import ") or line.startswith("from "):
@@ -168,9 +154,7 @@ def verify_environment_variables() -> None:
     backup_env = os.getenv("GH_COPILOT_BACKUP_ROOT")
 
     if not workspace_env or not backup_env:
-        raise EnvironmentError(
-            "GH_COPILOT_WORKSPACE and GH_COPILOT_BACKUP_ROOT must be set"
-        )
+        raise EnvironmentError("GH_COPILOT_WORKSPACE and GH_COPILOT_BACKUP_ROOT must be set")
 
     workspace = CrossPlatformPathManager.get_workspace_path()
     backup_root = CrossPlatformPathManager.get_backup_root()
@@ -182,7 +166,4 @@ def verify_environment_variables() -> None:
         raise EnvironmentError("Backup root cannot reside within the workspace")
 
     if not backup_root.parent.exists():
-        raise EnvironmentError(
-            f"Backup root parent does not exist: {backup_root.parent}"
-        )
-
+        raise EnvironmentError(f"Backup root parent does not exist: {backup_root.parent}")

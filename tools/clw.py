@@ -30,7 +30,14 @@ def split_into_chunks(data: bytes, chunk_size: int):
         start += len(chunk)
 
 
+USAGE = """Usage: clw [--help]\n\nPipe output through this wrapper to avoid long lines."""
+
+
 def main() -> None:
+    if len(sys.argv) > 1 and sys.argv[1] in {"-h", "--help"}:
+        print(USAGE)
+        return
+
     max_len = int(os.environ.get("CLW_MAX_LINE_LENGTH", DEFAULT_MAX_LINE_LENGTH))
     wrap_mark = os.environ.get("CLW_WRAP_MARK")
     if wrap_mark:

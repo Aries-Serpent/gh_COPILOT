@@ -5,7 +5,7 @@ This guide explains how to configure environment variables for the gh_COPILOT to
 ## Required Variables
 
 - `GH_COPILOT_WORKSPACE`: Absolute path to the repository workspace. Used by tests and scripts to locate databases and configuration files. If unset, tools default to the current working directory.
-- `GH_COPILOT_BACKUP_ROOT`: External directory for backups. Must not reside inside the workspace. Defaults to `E:/temp/gh_COPILOT_Backups` on Windows or `/tmp/<user>/gh_COPILOT_Backups` on Linux.
+- `GH_COPILOT_BACKUP_ROOT`: External directory for backups. **This variable is required.** Set it to a folder outside the workspace before running `setup.sh`.
 
 Set these variables by editing the provided `.env` file:
 
@@ -46,3 +46,15 @@ ls -l /usr/local/bin/clw
 
 ## Archival Databases
 `archive.db` and `staging.db` are no longer included by default. They have been moved to `archived_databases/` and are also available in the project's GitHub releases. Download them if legacy analysis is required and place them under the `archived_databases/` directory.
+
+## Enterprise Configuration
+
+Workspace policies are defined in `config/enterprise.json`. The file currently specifies path patterns that compliance checks remove or block:
+
+```json
+{
+  "forbidden_paths": ["*temp*"]
+}
+```
+
+Set `CONFIG_PATH` to load a custom configuration file.

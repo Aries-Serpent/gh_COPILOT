@@ -23,10 +23,14 @@ ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 
 CORRECTION_SQL = """
 CREATE TABLE IF NOT EXISTS correction_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id TEXT NOT NULL,
     file_path TEXT NOT NULL,
     violation_code TEXT NOT NULL,
     fix_applied TEXT NOT NULL,
+    violations_count INTEGER DEFAULT 0,
+    fixes_applied INTEGER DEFAULT 0,
+    fix_rate REAL DEFAULT 0.0,
     timestamp TEXT NOT NULL
 );
 """
@@ -47,24 +51,19 @@ def _log_corrections(items: list[tuple[str, str]]) -> None:
     session_id = f"DOC_ANALYZER_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
     ANALYTICS_DB.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(ANALYTICS_DB) as conn:
-        conn.execute(
-            """CREATE TABLE IF NOT EXISTS correction_history (
-                session_id TEXT,
-                file_path TEXT,
-                violation_code TEXT,
-                fix_applied TEXT,
-                timestamp TEXT
-            )"""
-        )
+        conn.executescript(CORRECTION_SQL)
         for title, _ in items:
             conn.execute(
-                "INSERT INTO correction_history (session_id, file_path, violation_code, fix_applied, timestamp)"
-                " VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO correction_history (session_id, file_path, violation_code, fix_applied, violations_count, fixes_applied, fix_rate, timestamp)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     session_id,
                     title,
                     "DOC_CLEANUP",
                     "REMOVED_PLACEHOLDER",
+                    1,
+                    1,
+                    1.0,
                     datetime.utcnow().isoformat(),
                 ),
             )
@@ -126,7 +125,9 @@ def _audit_placeholders_conn(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
         query = "SELECT NULL as title, content FROM enterprise_documentation"
     for title, content in conn.execute(query).fetchall():
         text = content or ""
-        if any(tok in text.upper() for tok in ["TODO", "FIXME", "PLACEHOLDER"]):
+        if not text.strip() or any(
+            tok in text.upper() for tok in ["TODO", "FIXME", "PLACEHOLDER"]
+        ):
             placeholders.append((title or "", text))
     return placeholders
 
@@ -155,6 +156,16 @@ def analyze_documentation_gaps(
         gaps = audit_placeholders(db)
         (log_dir / f"{db.stem}.log").write_text(str(gaps))
         results.append({"db": str(db), "gaps": gaps})
+        analytics.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(analytics) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS doc_audit (db TEXT, gaps INTEGER, ts TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO doc_audit (db, gaps, ts) VALUES (?, ?, ?)",
+                (str(db), gaps, datetime.utcnow().isoformat()),
+            )
+            conn.commit()
     return results
 
 
@@ -261,18 +272,25 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
                 )
                 """
             )
+            fix_rate = (
+                float(removed_backups + removed_dupes) / len(placeholders)
+                if len(placeholders) > 0
+                else 0.0
+            )
             conn.execute(
                 (
                     "INSERT INTO correction_history (session_id, file_path, "
-                    "violations_count, fixes_applied, fix_rate, timestamp) "
-                    "VALUES (?,?,?,?,?,?)"
+                    "violation_code, fix_applied, violations_count, fixes_applied, "
+                    "fix_rate, timestamp) VALUES (?,?,?,?,?,?,?,?)"
                 ),
                 (
                     "doc_cleanup",
                     str(db_path),
+                    "DOC_SUMMARY",
+                    f"{removed_backups + removed_dupes}_removed",
                     len(placeholders),
                     removed_backups + removed_dupes,
-                    0.0,
+                    fix_rate,
                     datetime.utcnow().isoformat(),
                 ),
             )
@@ -322,6 +340,23 @@ def rollback_cleanup(db_path: Path, backup_path: Path) -> bool:
         table="doc_analysis",
         db_path=ANALYTICS_DB,
     )
+    ensure_correction_history(ANALYTICS_DB)
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.execute(
+            "INSERT INTO correction_history (session_id, file_path, violation_code, fix_applied, violations_count, fixes_applied, fix_rate, timestamp) "
+            "VALUES (?,?,?,?,?,?,?,?)",
+            (
+                f"rollback_{datetime.utcnow().isoformat()}",
+                str(db_path),
+                "DOC_ROLLBACK",
+                "DATABASE_RESTORE",
+                1,
+                1,
+                1.0,
+                datetime.utcnow().isoformat(),
+            ),
+        )
+        conn.commit()
     logger.info("Database restored from backup: %s", backup_path)
     return True
 

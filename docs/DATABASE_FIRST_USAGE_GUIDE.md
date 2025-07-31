@@ -141,3 +141,68 @@ sqlite3 databases/analytics.db ".schema code_audit_history"
 
 ## Database-First Enforcement
 The helper `database_first.ensure_db_reference()` verifies a target file path exists in `production.db` before it can be modified. Validation scripts such as `enterprise_dual_copilot_validator.py` flag modules that change files without calling this helper. Always call `ensure_db_reference()` prior to any filesystem write operations.
+
+## 7. End‑to‑End Workflow Example
+
+The following sequence demonstrates how to set up the databases, ingest assets,
+audit the results and perform a rollback if necessary. Commands assume
+`GH_COPILOT_WORKSPACE` points to the repository root and
+`GH_COPILOT_BACKUP_ROOT` is configured outside the workspace.
+
+1. **Initialize the Databases**
+
+   ```bash
+   python scripts/database/unified_database_initializer.py
+   ```
+
+   Expected output:
+
+   ```text
+   [INIT] Created production.db and analytics.db
+   [INIT] Verified schema version
+   ```
+
+2. **Ingest Template and Documentation Assets**
+
+   ```bash
+   python scripts/database/template_asset_ingestor.py --workspace "$GH_COPILOT_WORKSPACE" --templates-dir templates
+   python scripts/database/documentation_ingestor.py --workspace "$GH_COPILOT_WORKSPACE" --docs-dir docs
+   ```
+
+   These commands record ingestion events in `analytics.db` and log progress to
+   `dashboard/compliance/metrics.json`.
+
+3. **Validate Ingested Assets**
+
+   ```bash
+   python scripts/database/ingestion_validator.py --db databases/production.db
+   ```
+
+   On success the script prints `{"status": "validated"}` and updates the
+   dashboard at `/dashboard/compliance`.
+
+4. **Run the Placeholder Audit**
+
+   ```bash
+   python scripts/code_placeholder_audit.py --cleanup --dashboard-dir dashboard/compliance
+   ```
+
+   The output includes a summary such as `{"placeholders_removed": 3}` and the
+   dashboard reflects the new compliance score. A summary file is also written to
+   `dashboard/compliance/placeholder_summary.json` containing the latest
+   finding counts, resolutions, and compliance score. See the schema in
+   [dashboard/README.md](../dashboard/README.md#placeholder_summaryjson-schema).
+
+5. **Rollback a Problematic Entry**
+
+   ```bash
+   python scripts/correction_logger_and_rollback.py --rollback-last
+   ```
+
+   When a rollback occurs, the script confirms with
+   `{"rollback": true}` and inserts a record into
+   `analytics.db:correction_history`.
+
+Open `http://localhost:5000/dashboard/compliance` in your browser to review the
+metrics after each step. This endpoint surfaces ingestion counts, placeholder
+removal stats and rollback events in real time.

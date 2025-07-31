@@ -25,7 +25,10 @@ from typing import Dict, Any, Optional
 
 from tqdm import tqdm
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules.compliance import (
+    validate_enterprise_operation,
+    _log_rollback,
+)
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
 from scripts.database.add_rollback_strategy_history import (
@@ -79,20 +82,44 @@ class CorrectionLoggerRollback:
         return "unspecified"
 
     def suggest_rollback_strategy(self, target: Path) -> str:
-        """Return a rollback recommendation based on past outcomes."""
+        """Return a rollback recommendation based on historical performance."""
         with sqlite3.connect(self.analytics_db) as conn:
             cur = conn.execute(
-                "SELECT outcome FROM rollback_strategy_history WHERE target=?",
+                "SELECT strategy, outcome FROM rollback_strategy_history WHERE target=?",
                 (str(target),),
             )
-            outcomes = [row[0] for row in cur.fetchall()]
-        count = len(outcomes)
-        failures = outcomes.count("failure")
-        if count >= 4 and failures >= 2:
+            rows = cur.fetchall()
+            if not rows:
+                cur = conn.execute("SELECT strategy, outcome FROM rollback_strategy_history")
+                rows = cur.fetchall()
+
+        stats: Dict[str, Dict[str, int]] = {}
+        total = 0
+        successes = 0
+        for strategy, outcome in rows:
+            total += 1
+            if outcome == "success":
+                successes += 1
+            data = stats.setdefault(strategy, {"success": 0, "total": 0})
+            data["total"] += 1
+            if outcome == "success":
+                data["success"] += 1
+
+        if not stats:
+            return "Standard rollback"
+
+        best_name, best_data = max(
+            stats.items(),
+            key=lambda item: (item[1]["success"] / item[1]["total"], item[1]["total"]),
+        )
+        best_rate = best_data["success"] / best_data["total"]
+
+        overall_rate = successes / total if total else 0.0
+        if total >= 4 and overall_rate <= 0.5:
             return "Consider immutable backup storage or audit investigation."
-        if count > 1:
+        if total > 1 and best_rate < 1.0:
             return "Automate regression tests for this file."
-        return "Standard rollback"
+        return f"Use '{best_name}' ({best_rate:.0%} success rate)."
 
     def _ensure_table_exists(self) -> None:
         self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
@@ -141,9 +168,7 @@ class CorrectionLoggerRollback:
                 ),
             )
             conn.commit()
-        logging.info(
-            f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score}"
-        )
+        logging.info(f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score}")
         _log_event(
             {
                 "event": "correction",
@@ -173,19 +198,22 @@ class CorrectionLoggerRollback:
 
     def _record_strategy_history(self, target: Path, strategy: str, outcome: str) -> None:
         """Log chosen rollback strategy and outcome."""
+        clean = strategy
+        if strategy.startswith("Use '") and "(" in strategy:
+            clean = strategy.split("(", 1)[0].replace("Use", "").strip().strip("'")
         with sqlite3.connect(self.analytics_db) as conn:
             conn.execute(
                 "INSERT INTO rollback_strategy_history (target, strategy, outcome, timestamp) VALUES (?, ?, ?, ?)",
                 (
                     str(target),
-                    strategy,
+                    clean,
                     outcome,
                     datetime.now().isoformat(),
                 ),
             )
             conn.commit()
         _log_event(
-            {"event": "strategy", "target": str(target), "strategy": strategy, "outcome": outcome},
+            {"event": "strategy", "target": str(target), "strategy": clean, "outcome": outcome},
             table="rollback_strategy_history",
             db_path=self.analytics_db,
         )
@@ -200,9 +228,7 @@ class CorrectionLoggerRollback:
         with tqdm(total=100, desc=f"Rolling Back {target.name}", unit="%") as pbar:
             pbar.set_description("Validating Target")
             if not target.exists() and not backup_path:
-                logging.error(
-                    f"Target file does not exist and no backup provided: {target}"
-                )
+                logging.error(f"Target file does not exist and no backup provided: {target}")
                 strategy = self.suggest_rollback_strategy(target)
                 self._record_strategy_history(target, strategy, "failure")
                 _log_event(
@@ -214,6 +240,7 @@ class CorrectionLoggerRollback:
                     table="rollback_failures",
                     db_path=self.analytics_db,
                 )
+                _log_rollback(str(target), str(backup_path) if backup_path else None)
                 pbar.update(100)
                 return False
             pbar.update(25)
@@ -239,16 +266,7 @@ class CorrectionLoggerRollback:
                 strategy = self.suggest_rollback_strategy(target)
                 logging.info(f"Suggested strategy: {strategy}")
                 self._record_strategy_history(target, strategy, "success")
-                with sqlite3.connect(self.analytics_db) as conn:
-                    conn.execute(
-                        "INSERT INTO rollback_logs (target, backup, timestamp) VALUES (?, ?, ?)",
-                        (
-                            str(target),
-                            str(backup_path) if backup_path else None,
-                            datetime.now().isoformat(),
-                        ),
-                    )
-                    conn.commit()
+                _log_rollback(str(target), str(backup_path) if backup_path else None)
                 _log_event(
                     {"event": "rollback", "target": str(target)},
                     table="rollback_logs",
@@ -273,17 +291,23 @@ class CorrectionLoggerRollback:
                     table="rollback_failures",
                     db_path=self.analytics_db,
                 )
+                _log_rollback(str(target), str(backup_path) if backup_path else None)
                 pbar.update(25)
                 return False
 
-    def summarize_corrections(self) -> Dict[str, Any]:
+    def summarize_corrections(self, max_entries: int = 100) -> Dict[str, Any]:
         """
         Summarize corrections for compliance reports (Markdown/JSON) for dashboard.
         """
         self.status = "SUMMARIZING"
         with sqlite3.connect(self.analytics_db) as conn:
-            cur = conn.execute("SELECT file_path, rationale, compliance_score, rollback_reference, ts FROM corrections")
+            cur = conn.execute(
+                "SELECT file_path, rationale, compliance_score, rollback_reference, ts "
+                "FROM corrections ORDER BY ts DESC"
+            )
             corrections = cur.fetchall()
+
+        corrections = corrections[:max_entries]
         summary = {
             "timestamp": datetime.now().isoformat(),
             "total_corrections": len(corrections),
@@ -302,10 +326,20 @@ class CorrectionLoggerRollback:
         }
         # Write JSON summary
         DASHBOARD_DIR.mkdir(parents=True, exist_ok=True)
+        archive_dir = DASHBOARD_DIR / "archive"
+        archive_dir.mkdir(parents=True, exist_ok=True)
         json_path = DASHBOARD_DIR / "correction_summary.json"
+        md_path = DASHBOARD_DIR / "correction_summary.md"
+
+        if json_path.exists() or md_path.exists():
+            tag = datetime.now().strftime("%Y%m%d_%H%M%S")
+            if json_path.exists():
+                json_path.rename(archive_dir / f"correction_summary_{tag}.json")
+            if md_path.exists():
+                md_path.rename(archive_dir / f"correction_summary_{tag}.md")
+
         json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
         # Write Markdown summary
-        md_path = DASHBOARD_DIR / "correction_summary.md"
         with open(md_path, "w", encoding="utf-8") as md:
             md.write(f"# Correction Summary\n\n")
             md.write(f"**Timestamp:** {summary['timestamp']}\n\n")
@@ -317,6 +351,14 @@ class CorrectionLoggerRollback:
                 md.write(f"  - Rollback Reference: {corr['rollback_reference']}\n")
                 md.write(f"  - Timestamp: {corr['timestamp']}\n\n")
         logging.info(f"Correction summary written to {json_path} and {md_path}")
+        _log_event(
+            {
+                "event": "correction_summary",
+                "count": summary["total_corrections"],
+            },
+            table="correction_summaries",
+            db_path=self.analytics_db,
+        )
         return summary
 
     def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:

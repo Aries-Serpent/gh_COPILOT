@@ -1,7 +1,7 @@
 # 🎯 gh_COPILOT Toolkit v4.0 Enterprise
 ## High-Performance HTTP Archive (HAR) Analysis with Advanced Enterprise Integration
 
-![GitHub Copilot Integration](https://img.shields.io/badge/GitHub_Copilot-Enterprise_Ready-brightgreen)
+![GitHub Copilot Integration](https://img.shields.io/badge/GitHub_Copilot-Enterprise_Integration_Experimental-orange)
 ![Learning Patterns](https://img.shields.io/badge/Learning_Patterns-ongoing-yellow)
 ![DUAL COPILOT](https://img.shields.io/badge/DUAL_COPILOT-Pattern_Validated-orange)
 ![Database First](https://img.shields.io/badge/Database_First-Architecture_Complete-purple)
@@ -14,10 +14,12 @@
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. **Many features remain experimental or stubbed; quantum functionality is simulated only and several modules are still incomplete.**
+The gh_COPILOT toolkit aims to be an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. **Many features remain experimental or stubbed; quantum functionality is simulated only and several modules are still incomplete.**
 
 > **Note**
 > Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends.
+> **Experimental Phase 5 AI**
+> Advanced AI integration features labeled as **Phase&nbsp;5** remain experimental and are not yet fully implemented.
 
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** initial implementation in progress
@@ -25,6 +27,9 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **DUAL COPILOT Pattern:** primary/secondary validation framework available
 - **Dual Copilot Enforcement:** automation scripts now trigger secondary
   validation via `SecondaryCopilotValidator` with aggregated results.
+- **Archive Migration Executor:** dual-copilot validation added for log archival workflows.
+- **Analytics Consolidation:** `database_consolidation_migration.py` now performs secondary validation after merging sources.
+- **Full Validation Coverage:** ingestion, placeholder audits and migration scripts now run SecondaryCopilotValidator by default.
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
@@ -35,8 +40,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
   optimizer and search helpers. These modules are **experimental** and default to simulation mode unless `QISKIT_IBM_TOKEN` is configured.
 
 ### 🏆 **Enterprise Achievements**
- - ✅ **Script Validation**: 1679 scripts synchronized
- - **24 Synchronized Databases**: Enterprise data management
+ - ✅ **Script Validation**: 1,679 scripts synchronized
+ - **24 Synchronized Databases** (including experimental prototypes): Enterprise data management
 
 ---
 
@@ -44,17 +49,19 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 
 ### **Enterprise Systems**
 - **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`
+- [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
 - **Flask Enterprise Dashboard:** basic endpoints and templates
-- **Template Intelligence Platform:** tracks generated scripts
+ - **Template Intelligence Platform (experimental):** tracks generated scripts
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
 - **Script Validation**: automated checks available
 - **Self-Healing Systems:** experimental correction scripts
 - **Autonomous File Management:** see [Using AutonomousFileManager](docs/USING_AUTONOMOUS_FILE_MANAGER.md)
-- **Continuous Operation Mode:** optional monitoring utilities
-- **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
-  `scripts/monitoring/enterprise_compliance_monitor.py`, and
-  `scripts/monitoring/unified_monitoring_optimization_system.py`.
-  See [monitoring/README.md](monitoring/README.md) for details.
+ - **Continuous Operation Mode (experimental):** optional monitoring utilities
+ - **Quantum Monitoring Scripts (experimental):** `scripts/monitoring/continuous_operation_monitor.py`,
+    `scripts/monitoring/enterprise_compliance_monitor.py`, and
+    `scripts/monitoring/unified_monitoring_optimization_system.py`.
+    *(Experimental – not fully implemented)*
+    See [monitoring/README.md](monitoring/README.md) for details.
 
 ### **Learning Pattern Integration**
 - **Database-First Logic:** Production.db is consulted before generating output
@@ -85,8 +92,11 @@ cp .env.example .env
 # The `OPENAI_API_KEY` variable enables modules in `github_integration/openai_connector.py`.
 # Generate strong secrets with `python -c "import secrets; print(secrets.token_hex(32))"`.
 
-# 2. Run setup script (creates `.venv` and installs requirements)
+# 2. Set the external backup directory and run the setup script
+export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
 bash setup.sh
+# Or run in a single command
+GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh
 # Always run this script before executing tests or automation tasks.
 # The setup process installs packages from all `requirements*.txt` files,
 # including core dependencies like **Flask** and **NumPy**, and prepares
@@ -95,16 +105,24 @@ bash setup.sh
 # update the environment to permit outbound connections to PyPI.
 
 # 2b. Install the line-wrapping utility
+# The repository ships a `tools/clw.py` script. If `/usr/local/bin/clw` is not available,
+# copy this file and make it executable. Run a quick self-test to confirm installation.
 cp tools/clw.py /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
 # Verify clw exists
 ls -l /usr/local/bin/clw
+# Display brief usage information
+/usr/local/bin/clw --help
 
 ### OpenAI Connector
 The repository provides `github_integration/openai_connector.py` for OpenAI API
 calls using the `OpenAIClient` helper in
 `third_party/openai_client.py`. Set `OPENAI_API_KEY` in your `.env` to enable
-these helpers.
+these helpers. Optional variables `OPENAI_RATE_LIMIT` (seconds between
+requests) and `OPENAI_MAX_RETRIES` (number of retries) control the client's
+rate limiting and retry behavior. The client now respects `Retry-After` headers
+for HTTP 429 responses and surfaces the message from 4xx errors like invalid
+credentials.
 
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
@@ -184,11 +202,13 @@ are thin CLI wrappers. They delegate to the core implementations under
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
-Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw.py` to `/usr/local/bin/clw` and make it executable:
+Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw.py` to `/usr/local/bin/clw`, make it executable, and verify with `clw --help`:
 ```bash
 cp tools/clw.py /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
+clw --help
 ```
+Run `/usr/local/bin/clw --help` to see a short usage description.
 
 Once installed, wrap high-volume output like so:
 
@@ -286,12 +306,17 @@ Build and run the container with Docker:
 docker build -t gh_copilot .
 docker run -p 5000:5000 \
   -e GH_COPILOT_BACKUP_ROOT=/path/to/backups \
+  -e FLASK_SECRET_KEY=<generated_secret> \
   gh_copilot
 ```
 
-`entrypoint.sh` sets `GH_COPILOT_WORKSPACE` to `/app` and `GH_COPILOT_BACKUP_ROOT` to `/backup` when unspecified. It then executes `unified_database_initializer.py` to bootstrap `production.db` and `analytics.db` before launching the dashboard. Map `/backup` to a host directory so logs persist.
+See [docs/Docker_Usage.md](docs/Docker_Usage.md) for details on all environment
+variables and the ports exposed by `docker-compose.yml`.
+
+`entrypoint.sh` expects `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` to already be defined. The Docker image sets them to `/app` and `/backup`, but override these when running locally. The script initializes `enterprise_assets.db` only if missing, launches the background workers, and then `exec`s the dashboard command provided via `CMD`. Map `/backup` to a host directory so logs persist.
 
 When launching with Docker Compose, the provided `docker-compose.yml` mounts `${GH_COPILOT_BACKUP_ROOT:-/backup}` at `/backup` and passes environment variables from `.env`. Ensure `GH_COPILOT_BACKUP_ROOT` is configured on the host so backups survive container restarts.
+`FLASK_SECRET_KEY` must also be provided—either via `.env` or by setting the variable when invoking Docker commands.
 
 ### Wrapping, Logging, and Compliance (WLC)
 Run the session manager after setting the workspace and backup paths:
@@ -321,6 +346,7 @@ and [monitoring/README.md](monitoring/README.md).
 
 ### Workspace Detection
 Most scripts read the workspace path from the `GH_COPILOT_WORKSPACE` environment variable. If the variable is not set, the current working directory is used by default.
+The helper `CrossPlatformPathManager.get_workspace_path()` now prioritizes this environment variable and falls back to searching for a `gh_COPILOT` folder starting from the current directory. If no workspace is found, it defaults to `/workspace/gh_COPILOT` when available.
 
 ### WLC Session Manager
 The [WLC Session Manager](docs/WLC_SESSION_MANAGER.md) implements the **Wrapping, Logging, and Compliance** methodology. Run it with:
@@ -371,6 +397,7 @@ documentation.db
 documentation_templates.db
 enhanced_deployment_tracking.db
 enhanced_intelligence.db
+enterprise_builds.db
 enterprise_ml_engine.db
 flake8_violations.db
 learning_monitor.db
@@ -379,7 +406,9 @@ ml_deployment_engine.db
 monitoring.db
 performance_analysis.db
 production.db
+quantum_consolidated.db
 scaling_innovation.db
+template_consolidated.db
 template_documentation.db
 testing.db
 v3_self_learning_engine.db
@@ -496,7 +525,7 @@ Secondary Validator COPILOT (B)
 ├── Verify visual processing
 └── Approve or reject with feedback
      ↓
-Enterprise-Grade Output
+Toward Enterprise-Grade Output (tests pending)
 ```
 
 Optimization and security scripts must invoke their main logic via
@@ -598,8 +627,9 @@ logger = setup_enterprise_logging()
 # Custom directory
 logger = setup_enterprise_logging(log_file="/var/log/gh_copilot/custom.log")
 ```
-
-Tests verify this logging mechanism as part of the DUAL COPILOT pattern.
+The underlying `FileHandler` uses delayed creation so log files aren't created
+until the first message, preventing empty logs. Tests verify this logging
+mechanism as part of the DUAL COPILOT pattern.
 
 ---
 
@@ -658,6 +688,7 @@ class SelfHealingSelfLearningSystem:
 - **`/api/scripts`** - Scripts API endpoint
 - **`/api/health`** - System health check
 - **`/dashboard/compliance`** - Compliance metrics and rollback history
+- **`/summary`** - JSON summary of metrics and alerts
 
 ### **Access Dashboard**
 ```bash
@@ -671,15 +702,19 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 ### Enable Streaming
 
 Set the environment variable `LOG_WEBSOCKET_ENABLED=1` to allow real-time
-log broadcasting over WebSockets. The dashboard's `/metrics_stream` endpoint
+log broadcasting over WebSockets. Install the optional `websockets` package
+(`pip install websockets`) to enable this feature. The dashboard's `/metrics_stream` endpoint
 uses Server-Sent Events by default and works with Flask's ``Response`` when
 `sse_event_stream` is provided from ``utils.log_utils``.
 
 Compliance metrics are generated with `dashboard/compliance_metrics_updater.py`.
 This script reads from `analytics.db` and writes `dashboard/compliance/metrics.json`.
 The compliance score is averaged from records in the `correction_logs` table.
-Correction history is summarized via `scripts/correction_logger_and_rollback.py`,
-producing `dashboard/compliance/correction_summary.json`.
+Correction history is summarized via `scripts/correction_logger_and_rollback.py`.
+The `summarize_corrections()` routine now keeps only the most recent entries
+(configurable via the `max_entries` argument). Existing summary files are moved
+to `dashboard/compliance/archive/` before new summaries are written. The main
+report remains `dashboard/compliance/correction_summary.json`.
 Set `GH_COPILOT_WORKSPACE` before running these utilities:
 
 ```bash
@@ -722,7 +757,7 @@ gh_COPILOT/
 │   ├── validation/          # Enterprise validation framework
 │   ├── database/            # Database management
 │   └── automation/          # Autonomous operations
-├── databases/               # 24 synchronized databases
+├── databases/               # 27 synchronized databases
 ├── web_gui/                 # Flask enterprise dashboard
 ├── documentation/           # Comprehensive documentation
 ├── .github/instructions/    # GitHub Copilot instruction modules
@@ -752,7 +787,7 @@ The project tracks several learning patterns. Current integration status:
 - **DUAL COPILOT Pattern:** 96.8% implementation score
 - **Visual Processing Indicators:** 94.7% implementation score [[docs](docs/GITHUB_COPILOT_INTEGRATION_NOTES.md#visual-processing)]
 - **Autonomous Systems:** 97.2% implementation score [[scheduler](documentation/SYSTEM_OVERVIEW.md#database-synchronization)]
-- **Enterprise Compliance:** 99.1% implementation score [[validation helper](docs/DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement)]
+ - **Enterprise Compliance:** 99.1% implementation score (tests failing) [[validation helper](docs/DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement)]
 
 **Overall Integration Score: 97.4%** ✅
 
@@ -917,6 +952,10 @@ python scripts/code_placeholder_audit.py \
     --analytics-db databases/analytics.db \
     --production-db databases/production.db \
     --exclude-dir builds --exclude-dir archive
+# Automatically clean placeholders:
+python scripts/code_placeholder_audit.py --cleanup
+# Specify a custom summary path:
+python scripts/code_placeholder_audit.py --summary-json results/placeholder_summary.json
 # CI runs the audit via GitHub Actions using `actions/setup-python` and
 # `pip install -r requirements.txt` to ensure dependencies are present.
 
@@ -937,7 +976,10 @@ python docs/quantum_template_generator.py
 
 The audit results are used by the `/dashboard/compliance` endpoint to
 report ongoing placeholder removal progress and overall compliance
-metrics.
+metrics. A machine-readable summary is also written to
+`dashboard/compliance/placeholder_summary.json`. This file tracks total
+findings, resolved counts, and the current compliance score. Refer to
+the JSON schema in [dashboard/README.md](dashboard/README.md#placeholder_summaryjson-schema).
 ```
 
 ### **Contact & Support**
@@ -959,6 +1001,52 @@ score, and optional error details. Detailed usage instructions are available in
 
 ---
 
+## 🔧 Environment Variables
+
+Set these variables in your `.env` file or shell before running scripts:
+
+- `GH_COPILOT_WORKSPACE` – path to the repository root.
+- `GH_COPILOT_BACKUP_ROOT` – external backup directory.
+- `API_SECRET_KEY` – secret key for API endpoints.
+- `OPENAI_API_KEY` – enables optional OpenAI features.
+- `FLASK_SECRET_KEY` – Flask dashboard secret.
+- `FLASK_RUN_PORT` – dashboard port (default `5000`).
+- `QISKIT_IBM_TOKEN` – optional IBM Quantum token.
+- `LOG_WEBSOCKET_ENABLED` – set to `1` to stream logs.
+- `CLW_MAX_LINE_LENGTH` – max line length for the `clw` wrapper (default `1550`).
+
+## 🛠️ Troubleshooting
+
+- **Setup script fails** – ensure network access and rerun `bash setup.sh`.
+- **`clw` not found** – copy `tools/clw.py` to `/usr/local/bin/clw`, make it executable, and run `clw --help`.
+- **Database errors** – verify `GH_COPILOT_WORKSPACE` is configured correctly.
+
+## ❗ Known Issues
+
+The automated test suite reports failures for modules that are not yet fully implemented.
+- `DBFirstCodeGenerator` lacks complete template generation logic and causes several tests to fail.
+- `documentation_db_analyzer` and `workflow_enhancer` are also stubs with failing tests.
+- Quantum modules run in **simulation mode** by default. Features such as `quantum_database_search` and `quantum_neural_networks_predictive_maintenance` remain partially stubbed.
+- Quantum monitoring scripts are experimental.
+
+## CI/CD Overview
+
+The repository uses GitHub Actions to automate linting, testing, and compliance checks.
+
+- **ci.yml** runs Ruff linting, executes the test suite on multiple Python versions, builds the Docker image, and performs a CodeQL scan.
+- **compliance-audit.yml** validates placeholder cleanup and fails if unresolved TODO markers remain.
+- **docs-validation.yml** checks documentation metrics on docs changes and weekly.
+
+To mimic CI locally, run:
+
+```bash
+bash setup.sh
+make test
+python scripts/run_migrations.py
+```
+
+---
+
 **🏆 gh_COPILOT Toolkit v4.0 Enterprise**
 *GitHub Copilot integration with enterprise-oriented tooling*
 
@@ -971,6 +1059,7 @@ Several small modules provide common helpers:
 - `utils.reporting_utils.generate_json_report` – write data to a JSON file.
 - `utils.reporting_utils.generate_markdown_report` – produce a Markdown report.
 - `utils.validation_utils.detect_zero_byte_files` – find empty files for cleanup.
+- `scripts/clean_zero_logs.sh` – remove empty log files under `logs/` (run `make clean-logs`).
 - `utils.validation_utils.validate_path` – verify a path is inside the workspace and outside the backup root.
 - `scripts.optimization.physics_optimization_engine.PhysicsOptimizationEngine` –
   provides simulated quantum-inspired helpers such as Grover search or Shor factorization for physics-oriented optimizations.

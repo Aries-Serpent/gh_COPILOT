@@ -50,8 +50,13 @@ def test_documentation_consolidator(tmp_path, monkeypatch):
     monkeypatch.setenv("DOCUMENTATION_DB_PATH", str(db_dir / "documentation.db"))
     analytics_db = tmp_path / "analytics.db"
     monkeypatch.setenv("ANALYTICS_DB", str(analytics_db))
+
     import importlib
-    consolidate = importlib.import_module("scripts.documentation_consolidator").consolidate
+    import utils.log_utils as log_utils
+    importlib.reload(log_utils)
+    module = importlib.import_module("scripts.documentation_consolidator")
+    importlib.reload(module)
+    consolidate = module.consolidate
     consolidate()
 
     with sqlite3.connect(db_dir / "documentation.db") as conn:

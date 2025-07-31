@@ -8,10 +8,11 @@ raised if invalid templates are encountered or if recursion safeguards fail.
 from __future__ import annotations
 
 import logging
-import os
+from utils.cross_platform_paths import CrossPlatformPathManager
 import sqlite3
 import sys
 import time
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import List, Iterable
@@ -65,7 +66,7 @@ logger = logging.getLogger(__name__)
 
 
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = CrossPlatformPathManager.get_workspace_path()
     forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
@@ -278,6 +279,21 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         self.templates = []
         self.patterns = []
 
+    def _ensure_codegen_table(self) -> None:
+        """Ensure ``code_generation_events`` table has expected columns."""
+        with sqlite3.connect(self.analytics_db) as conn:
+            cur = conn.execute(
+                "PRAGMA table_info(code_generation_events)"
+            )
+            cols = [row[1] for row in cur.fetchall()]
+            if cols and {"objective", "status"}.issubset(cols):
+                return
+            conn.execute("DROP TABLE IF EXISTS code_generation_events")
+            conn.execute(
+                "CREATE TABLE code_generation_events (objective TEXT, status TEXT)"
+            )
+            conn.commit()
+
     def fetch_existing_pattern(self, name: str) -> str | None:  # pragma: no cover - simplified
         result: str | None = None
         if self.production_db.exists():
@@ -304,8 +320,8 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         else:
             ranked = self.rank_templates(objective)
             result = ranked[0] if ranked else "Auto-generated template"
+        self._ensure_codegen_table()
         with sqlite3.connect(self.analytics_db) as conn:
-            conn.execute("CREATE TABLE IF NOT EXISTS code_generation_events (objective TEXT, status TEXT)")
             conn.execute(
                 "INSERT INTO code_generation_events (objective, status) VALUES (?, 'generated')",
                 (objective,),
@@ -338,25 +354,67 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         )
 
         path = Path(f"{objective}.py")
-        path.write_text(stub)
+        tmp_path = path.with_suffix(path.suffix + ".tmp")
 
-        _log_event(
-            {"event": "integration_ready_generated", "objective": objective, "path": str(path)},
-            table="generator_events",
-            db_path=self.analytics_db,
-            test_mode=False,
-        )
-        _log_event(
-            {
-                "event": "code_generated",
-                "doc_id": objective,
-                "path": str(path),
-                "asset_type": "code_stub",
-                "compliance_score": 1.0,
-            },
-            table="correction_logs",
-            db_path=self.analytics_db,
-            test_mode=False,
-        )
+        try:
+            with sqlite3.connect(self.production_db) as conn:
+                conn.execute("BEGIN")
+                tmp_path.write_text(stub)
+                file_hash = hashlib.sha256(stub.encode()).hexdigest()
+                ts = datetime.utcnow().isoformat()
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS script_tracking (file_path TEXT, file_hash TEXT, last_modified TEXT)"
+                )
+                conn.execute(
+                    "INSERT INTO script_tracking (file_path, file_hash, last_modified) VALUES (?, ?, ?)",
+                    (str(path), file_hash, ts),
+                )
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS enhanced_script_tracking (script_path TEXT, script_content TEXT, script_hash TEXT, script_type TEXT, functionality_category TEXT)"
+                )
+                conn.execute(
+                    "INSERT INTO enhanced_script_tracking (script_path, script_content, script_hash, script_type, functionality_category) VALUES (?, ?, ?, 'python', 'generated')",
+                    (str(path), stub, file_hash),
+                )
+                tmp_path.replace(path)
+                conn.commit()
+
+            _log_event(
+                {"event": "integration_ready_generated", "objective": objective, "path": str(path)},
+                table="generator_events",
+                db_path=self.analytics_db,
+                test_mode=False,
+            )
+            _log_event(
+                {
+                    "event": "code_generated",
+                    "doc_id": objective,
+                    "path": str(path),
+                    "asset_type": "code_stub",
+                    "compliance_score": 1.0,
+                },
+                table="correction_logs",
+                db_path=self.analytics_db,
+                test_mode=False,
+            )
+        except Exception as exc:  # pragma: no cover - error handling
+            if "conn" in locals():
+                conn.rollback()
+            if tmp_path.exists():
+                tmp_path.unlink()
+            _log_event(
+                {"event": "integration_ready_failed", "objective": objective, "error": str(exc)},
+                table="generator_events",
+                db_path=self.analytics_db,
+                level=logging.ERROR,
+                test_mode=False,
+            )
+            _log_event(
+                {"event": "integration_ready_rollback", "target": str(path)},
+                table="rollback_logs",
+                db_path=self.analytics_db,
+                test_mode=False,
+            )
+            raise
 
         return path

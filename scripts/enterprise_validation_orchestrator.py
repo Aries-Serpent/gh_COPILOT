@@ -60,6 +60,8 @@ from typing import Any, Dict, List, Optional
 import psutil
 from tqdm import tqdm
 
+from enterprise_modules.compliance import validate_enterprise_operation
+
 # Configure comprehensive logging
 logging.basicConfig(
     level=logging.INFO,
@@ -201,6 +203,7 @@ class EnterpriseValidationOrchestrator:
 
     def __init__(self, workspace_path: Optional[str] = None, config: Optional[ValidationConfiguration] = None):
         """Initialize Enterprise Validation Orchestrator with comprehensive capabilities"""
+        validate_enterprise_operation()
         primary_validate()
         # CRITICAL: Anti-recursion validation
         self.validate_workspace_integrity()

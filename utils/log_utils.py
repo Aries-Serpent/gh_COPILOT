@@ -127,6 +127,25 @@ TABLE_SCHEMAS: Dict[str, str] = {
             timestamp TEXT NOT NULL
         );
     """,
+    "cross_link_suggestions": """
+        CREATE TABLE IF NOT EXISTS cross_link_suggestions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            file_path TEXT NOT NULL,
+            suggested_link TEXT NOT NULL,
+            score REAL,
+            timestamp TEXT NOT NULL
+        );
+    """,
+    "cross_link_recommendations": """
+        CREATE TABLE IF NOT EXISTS cross_link_recommendations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            file_path TEXT NOT NULL,
+            template_id INTEGER,
+            score REAL,
+            valid INTEGER,
+            timestamp TEXT NOT NULL
+        );
+    """,
     "cross_link_summary": """
         CREATE TABLE IF NOT EXISTS cross_link_summary (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -135,6 +154,16 @@ TABLE_SCHEMAS: Dict[str, str] = {
             summary_path TEXT,
             timestamp TEXT NOT NULL
         );
+    """,
+    "correction_summaries": """
+        CREATE TABLE IF NOT EXISTS correction_summaries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event TEXT,
+            count INTEGER,
+            timestamp TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_correction_summaries_timestamp
+            ON correction_summaries(timestamp);
     """,
     "rollback_failures": """
         CREATE TABLE IF NOT EXISTS rollback_failures (
@@ -168,12 +197,27 @@ def _can_create_analytics_db(db_path: Path = DEFAULT_ANALYTICS_DB) -> bool:
     return False
 
 
-def ensure_tables(db_path: Path, tables: Iterable[str], *, test_mode: bool = True) -> None:
+def _resolve_test_mode(test_mode: bool) -> bool:
+    """Return effective test mode respecting ``GH_COPILOT_TEST_MODE``."""
+    env = os.getenv("GH_COPILOT_TEST_MODE")
+    if env is not None:
+        return env == "1"
+    return test_mode
+
+
+def ensure_tables(
+    db_path: Path,
+    tables: Iterable[str],
+    *,
+    test_mode: bool = False,
+) -> None:
     """Ensure the specified tables exist in ``db_path``.
 
     When ``test_mode`` is ``True`` the function simulates table creation using
     :func:`_log_event` and performs no writes.
     """
+    test_mode = _resolve_test_mode(test_mode)
+
     for table in tables:
         schema = TABLE_SCHEMAS.get(table)
         if not schema:
@@ -192,9 +236,11 @@ def insert_event(
     table: str,
     *,
     db_path: Path = DEFAULT_ANALYTICS_DB,
-    test_mode: bool = True,
+    test_mode: bool = False,
 ) -> int:
     """Insert ``event`` into the specified table and return the new row id."""
+    test_mode = _resolve_test_mode(test_mode)
+
     ensure_tables(db_path, [table], test_mode=test_mode)
     if test_mode:
         logging.getLogger(__name__).debug("Simulated insert into %s: %s", table, event)
@@ -219,7 +265,7 @@ def _log_event(
     fallback_file: Optional[Path] = None,
     echo: bool = False,
     level: int = logging.INFO,
-    test_mode: Optional[bool] = None,
+    test_mode: bool = False,
 ) -> bool:
     """Log a structured event in a consistent format.
 
@@ -238,16 +284,15 @@ def _log_event(
     level:
         Logging level used for the echo output.
     test_mode:
-        Override for enabling/disabling database writes. When ``None`` the value
-        is read from ``GH_COPILOT_TEST_MODE`` (default ``"1"``).
+        Override for enabling/disabling database writes. If
+        ``GH_COPILOT_TEST_MODE`` is set it takes precedence.
 
     Returns
     -------
     bool
         ``True`` when the analytics database could be created at ``db_path``.
     """
-    if test_mode is None:
-        test_mode = os.environ.get("GH_COPILOT_TEST_MODE", "1") == "1"
+    test_mode = _resolve_test_mode(test_mode)
 
     payload = dict(event)
     payload.setdefault("timestamp", datetime.utcnow().isoformat())
@@ -303,7 +348,7 @@ def _log_audit_event(
     db_path: Path = DEFAULT_ANALYTICS_DB,
     table: str = "audit_log",
     echo: bool = False,
-    test_mode: bool = True,
+    test_mode: bool = False,
 ) -> bool:
     """Record an audit event in the analytics log.
 
@@ -330,13 +375,22 @@ def _log_audit_event(
     bool
         ``True`` when the analytics database could be created at ``db_path``.
     """
+    test_mode = _resolve_test_mode(test_mode)
+
     event = {
         "description": description,
         "details": details or {},
         "timestamp": datetime.utcnow().isoformat(),
         "level": level,
     }
-    return _log_event(event, table=table, db_path=db_path, echo=echo, level=level, test_mode=test_mode)
+    return _log_event(
+        event,
+        table=table,
+        db_path=db_path,
+        echo=echo,
+        level=level,
+        test_mode=test_mode,
+    )
 
 
 def _log_plain(
@@ -386,21 +440,29 @@ def log_event(event: Dict[str, Any], *, table: str = DEFAULT_LOG_TABLE, db_path:
     insert_event(event, table, db_path=db_path, test_mode=False)
 
 
-def send_dashboard_alert(event: Dict[str, Any], *, table: str = "dashboard_alerts", db_path: Path = DEFAULT_ANALYTICS_DB) -> None:
+def send_dashboard_alert(
+    event: Dict[str, Any], *, table: str = "dashboard_alerts", db_path: Path = DEFAULT_ANALYTICS_DB
+) -> None:
     """Send an alert event to the web dashboard if enabled."""
     if os.getenv("WEB_DASHBOARD_ENABLED") != "1":
         return
     log_event(event, table=table, db_path=db_path)
 
 
-def stream_events(table: str = DEFAULT_LOG_TABLE, *, db_path: Path = DEFAULT_ANALYTICS_DB):
+def stream_events(
+    table: str = DEFAULT_LOG_TABLE,
+    *,
+    db_path: Path = DEFAULT_ANALYTICS_DB,
+):
     """Yield events formatted for Server-Sent Events."""
     if not db_path.exists():
         return
     with sqlite3.connect(db_path) as conn:
         conn.row_factory = sqlite3.Row
         for row in conn.execute(f"SELECT * FROM {table} ORDER BY id ASC"):
-            yield f"data: {json.dumps(dict(row))}\n\n"
+            rec = dict(row)
+            category = rec.get("category") or table
+            yield f"event: {category}\ndata: {json.dumps(rec)}\n\n"
 
 
 def log_stream(
@@ -417,10 +479,15 @@ def log_stream(
             continue
         with sqlite3.connect(db_path) as conn:
             conn.row_factory = sqlite3.Row
-            rows = conn.execute(f"SELECT * FROM {table} WHERE id > ? ORDER BY id ASC", (last_id,))
+            rows = conn.execute(
+                f"SELECT * FROM {table} WHERE id > ? ORDER BY id ASC",
+                (last_id,),
+            )
             for row in rows:
                 last_id = row["id"]
-                yield f"data: {json.dumps(dict(row))}\n\n"
+                rec = dict(row)
+                category = rec.get("category") or table
+                yield f"event: {category}\ndata: {json.dumps(rec)}\n\n"
         time.sleep(poll_interval)
 
 
@@ -440,23 +507,43 @@ def sse_event_stream(
 
 
 def _list_events(
-    table: str = DEFAULT_LOG_TABLE, db_path: Path = DEFAULT_ANALYTICS_DB, limit: int = 100, order: str = "DESC"
+    table: str = DEFAULT_LOG_TABLE,
+    db_path: Path = DEFAULT_ANALYTICS_DB,
+    limit: int = 100,
+    order: str = "DESC",
+    *,
+    test_mode: bool = False,
 ) -> list:
-    """
-    Simulate listing the most recent events from the log table (no DB access).
-    """
-    tqdm.write(f"[TEST] Listing would query {table} in {db_path} (simulated, no DB access)")
-    return []
+    """Return recent events from ``table`` respecting test mode."""
+    test_mode = _resolve_test_mode(test_mode)
+    if test_mode or not db_path.exists():
+        tqdm.write(f"[TEST] Listing would query {table} in {db_path} (simulated, no DB access)")
+        return []
+    with sqlite3.connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            f"SELECT * FROM {table} ORDER BY id {order} LIMIT ?",
+            (limit,),
+        ).fetchall()
+        return [dict(r) for r in rows]
 
 
 def _clear_log(
     table: str = DEFAULT_LOG_TABLE,
     db_path: Path = DEFAULT_ANALYTICS_DB,
+    *,
+    test_mode: bool = False,
 ) -> bool:
-    """
-    Simulate clearing all events from the log table (no DB access).
-    """
-    tqdm.write(f"[TEST] Clearing would delete all from {table} in {db_path} (simulated, no DB access)")
+    """Remove all rows from ``table`` respecting test mode."""
+    test_mode = _resolve_test_mode(test_mode)
+    if test_mode:
+        tqdm.write(f"[TEST] Clearing would delete all from {table} in {db_path} (simulated, no DB access)")
+        return True
+    if not db_path.exists():
+        return False
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(f"DELETE FROM {table}")
+        conn.commit()
     return True
 
 
@@ -507,8 +594,13 @@ def start_websocket_broadcast(
     if os.environ.get("LOG_WEBSOCKET_ENABLED") != "1":
         return
 
+    try:
+        import websockets
+    except ImportError:  # pragma: no cover - optional dependency
+        logging.getLogger(__name__).warning("websockets package not available - skipping broadcast")
+        return
+
     import asyncio
-    import websockets
 
     clients: set = set()
 

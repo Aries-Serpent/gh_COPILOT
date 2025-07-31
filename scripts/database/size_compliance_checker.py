@@ -9,11 +9,12 @@ import sys
 import sqlite3
 from pathlib import Path
 from typing import Dict
+import json
 
 from tqdm import tqdm
 
 from utils.enterprise_logging import EnterpriseLoggingManager
-from utils.log_utils import log_event, send_dashboard_alert, stream_events
+from utils.log_utils import log_event, send_dashboard_alert
 
 ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", "databases/analytics.db"))
 
@@ -22,6 +23,23 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 # SOLUTION: Get module-specific logger without import-time configuration
 logger = None  # Will be initialized when setup_logging() is called
+
+
+def _latest_violation_sse(db_name: str, table_name: str) -> str | None:
+    """Return the most recent violation for ``db_name`` and ``table_name`` as an
+    SSE-formatted string."""
+    if not ANALYTICS_DB.exists():
+        return None
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            "SELECT * FROM size_violations WHERE db=? AND table_name=? ORDER BY id DESC LIMIT 1",
+            (db_name, table_name),
+        ).fetchone()
+        if row:
+            rec = dict(row)
+            return f"event: size_violations\ndata: {json.dumps(rec)}\n\n"
+    return None
 
 
 def setup_logging() -> None:
@@ -35,7 +53,11 @@ def setup_logging() -> None:
 
 
 def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dict[str, float]:
-    """📏 Check database and table sizes with enterprise logging"""
+    """📏 Check database and table sizes with enterprise logging.
+
+    This function now searches recursively within ``databases_dir`` so that
+    database files inside subdirectories are also validated.
+    """
     setup_logging()
 
     logger.info("=" * 60)
@@ -48,7 +70,8 @@ def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dic
         logger.error(f"Database directory not found: {databases_dir}")
         return {}
 
-    db_files = list(databases_dir.glob("*.db"))
+    # Search recursively to include any databases found in subdirectories
+    db_files = list(databases_dir.rglob("*.db"))
     size_results: Dict[str, float] = {}
 
     with tqdm(total=len(db_files), desc="📏 Checking sizes", unit="db") as pbar:
@@ -62,9 +85,9 @@ def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dic
                     cur = conn.cursor()
                     cur.execute("PRAGMA page_size")
                     page_size = cur.fetchone()[0]
-                    tables = [row[0] for row in cur.execute(
-                        "SELECT name FROM sqlite_master WHERE type='table'"
-                    ).fetchall()]
+                    tables = [
+                        row[0] for row in cur.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+                    ]
                     for table in tables:
                         try:
                             cur.execute("SELECT sum(pgsize) FROM dbstat WHERE name=?", (table,))
@@ -79,9 +102,7 @@ def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dic
                             res = pc * page_size
                         table_mb = (res or 0) / (1024 * 1024)
                         if table_mb > threshold_mb:
-                            logger.warning(
-                                f"⚠️ {db_file.name}:{table}: {table_mb:.2f} MB > {threshold_mb} MB"
-                            )
+                            logger.warning(f"⚠️ {db_file.name}:{table}: {table_mb:.2f} MB > {threshold_mb} MB")
                             event = {
                                 "db": db_file.name,
                                 "table_name": table,
@@ -90,17 +111,22 @@ def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dic
                             }
                             log_event(event, table="size_violations", db_path=ANALYTICS_DB)
                             send_dashboard_alert(event, db_path=ANALYTICS_DB)
-                            for line in stream_events("size_violations", db_path=ANALYTICS_DB):
-                                if f'"db": "{db_file.name}"' in line and f'"table_name": "{table}"' in line:
-                                    print(line.strip())
-                                    break
+                            sse = _latest_violation_sse(db_file.name, table)
+                            if sse:
+                                print(sse.strip())
                 if size_mb > threshold_mb:
-                    logger.warning(
-                        f"⚠️ {db_file.name}: {size_mb:.2f} MB > {threshold_mb} MB"
-                    )
-                    event = {"db": db_file.name, "table_name": "__database__", "size_mb": size_mb, "threshold": threshold_mb}
+                    logger.warning(f"⚠️ {db_file.name}: {size_mb:.2f} MB > {threshold_mb} MB")
+                    event = {
+                        "db": db_file.name,
+                        "table_name": "__database__",
+                        "size_mb": size_mb,
+                        "threshold": threshold_mb,
+                    }
                     log_event(event, table="size_violations", db_path=ANALYTICS_DB)
                     send_dashboard_alert(event, db_path=ANALYTICS_DB)
+                    sse = _latest_violation_sse(db_file.name, "__database__")
+                    if sse:
+                        print(sse.strip())
                 else:
                     logger.info(f"✅ {db_file.name}: {size_mb:.2f} MB")
             except Exception as e:
@@ -123,20 +149,32 @@ def check_database_sizes(databases_dir: Path, threshold_mb: float = 99.9) -> Dic
     return size_results
 
 
-def main() -> Dict[str, float]:
-    """🎯 Main function with proper logging initialization"""
+def main(databases_dir: Path | None = None) -> Dict[str, float]:
+    """🎯 Main function with proper logging initialization."""
     EnterpriseLoggingManager.setup_logging(
         log_file="logs/size_compliance_main.log",
         console_output=True,
     )
     logger = EnterpriseLoggingManager.get_module_logger(__name__)
     logger.info("🚀 Size Compliance Checker Started")
-    workspace_path = Path(os.getenv("GH_COPILOT_WORKSPACE", os.getcwd()))
-    databases_dir = workspace_path / "databases"
+
+    if databases_dir is None:
+        workspace_path = Path(os.getenv("GH_COPILOT_WORKSPACE", os.getcwd()))
+        databases_dir = workspace_path / "databases"
+
     results = check_database_sizes(databases_dir)
     logger.info(f"✅ Size check complete: {len(results)} databases processed")
     return results
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Check database size compliance")
+    parser.add_argument(
+        "--path",
+        type=Path,
+        help="Optional path to the databases directory",
+    )
+    args = parser.parse_args()
+    main(args.path)

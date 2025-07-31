@@ -1,4 +1,10 @@
 # CHANGELOG - gh_COPILOT Enterprise Toolkit
+
+## [4.1.3] - 2025-07-27
+### Added
+- Dual Copilot integration verified across core modules, enabling redundant validation for critical workflows.
+### Changed
+- Compliance validator updated to enhance audit trails and ensure enterprise policy alignment.
 ## [4.1.2] - 2025-07-26
 ### Added
 - `databases/migrations/README.md` with migration instructions.

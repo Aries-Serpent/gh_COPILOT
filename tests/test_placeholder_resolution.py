@@ -40,3 +40,5 @@ def test_placeholder_resolution(tmp_path):
     assert row and row[0] == 1 and row[1] is not None and row[2] == "resolved"
     data = json.loads(dash_file.read_text())
     assert data["resolved_count"] >= 1
+    assert data["compliance_status"] == "compliant"
+    assert data["placeholder_counts"] == {}

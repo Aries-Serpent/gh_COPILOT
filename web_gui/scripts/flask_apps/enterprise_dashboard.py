@@ -20,6 +20,8 @@ from flask import (
 )
 from tqdm import tqdm
 
+from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
+
 from config.secret_manager import get_secret
 from utils.cross_platform_paths import CrossPlatformPathManager
 
@@ -33,6 +35,9 @@ app.secret_key = get_secret("FLASK_SECRET_KEY", "dev_key")
 LOG_FILE = Path("logs/dashboard") / "dashboard.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
+
+# Compliance metrics updater used for live streaming
+metrics_updater = ComplianceMetricsUpdater(COMPLIANCE_DIR)
 
 
 def _fetch_metrics() -> Dict[str, Any]:
@@ -54,7 +59,7 @@ def _fetch_metrics() -> Dict[str, Any]:
                 metrics["resolved_placeholders"] = metrics["placeholder_removal"]
                 cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=0")
                 metrics["open_placeholders"] = cur.fetchone()[0]
-                cur.execute("SELECT AVG(compliance_score) FROM corrections")
+                cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
                 val = cur.fetchone()[0]
                 metrics["compliance_score"] = float(val) if val is not None else 0.0
             except sqlite3.Error as exc:
@@ -160,15 +165,12 @@ def metrics_stream() -> Response:
     """Stream metrics as server-sent events for live updates."""
 
     once = request.args.get("once") == "1"
+    interval = int(request.args.get("interval", 5))
 
     def generate() -> Iterable[str]:
-        metrics = _fetch_metrics()
-        yield f"data: {json.dumps(metrics)}\n\n"
-        if once:
-            return
-        while True:
-            time.sleep(5)
-            metrics = _fetch_metrics()
+        for metrics in metrics_updater.stream_metrics(
+            interval=interval, iterations=1 if once else None
+        ):
             yield f"data: {json.dumps(metrics)}\n\n"
 
     return Response(generate(), mimetype="text/event-stream")
@@ -179,14 +181,12 @@ def alerts_stream() -> Response:
     """Stream alerts as server-sent events for live updates."""
 
     once = request.args.get("once") == "1"
+    interval = int(request.args.get("interval", 5))
 
     def generate() -> Iterable[str]:
-        alerts = _fetch_alerts()
-        yield f"data: {json.dumps(alerts)}\n\n"
-        if once:
-            return
-        while True:
-            time.sleep(5)
+        for _ in metrics_updater.stream_metrics(
+            interval=interval, iterations=1 if once else None
+        ):
             alerts = _fetch_alerts()
             yield f"data: {json.dumps(alerts)}\n\n"
 
@@ -228,6 +228,21 @@ def dashboard_info() -> Any:
         pbar.update(1)
     etc = f"ETC: {calculate_etc(start, 1, 1)}"
     logging.info("Dashboard info served | %s", etc)
+    return jsonify(data)
+
+
+@app.get("/summary")
+def summary() -> Any:
+    """Return metrics and alerts in a single payload."""
+    start = time.time()
+    with tqdm(total=1, desc="summary", unit="step") as pbar:
+        data = {
+            "metrics": _fetch_metrics(),
+            "alerts": _fetch_alerts(),
+        }
+        pbar.update(1)
+    etc = f"ETC: {calculate_etc(start, 1, 1)}"
+    logging.info("Summary data served | %s", etc)
     return jsonify(data)
 
 

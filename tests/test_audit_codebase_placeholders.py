@@ -40,3 +40,5 @@ def test_audit_places(tmp_path):
     data = json.loads(summary_file.read_text())
     assert data["progress_status"] == "issues_pending"
     assert data["resolved_count"] == 0
+    assert data["compliance_status"] == "non_compliant"
+    assert any(v >= 1 for v in data["placeholder_counts"].values())

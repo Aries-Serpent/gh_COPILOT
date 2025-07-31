@@ -40,6 +40,8 @@ def test_placeholder_audit_logger(tmp_path):
     data = json.loads(summary_file.read_text())
     assert data["progress_status"] == "issues_pending"
     assert data["resolved_count"] == 0
+    assert data["compliance_status"] == "non_compliant"
+    assert data["placeholder_counts"] == {"TODO": 1}
 
 
 def test_dashboard_placeholder_sync(tmp_path):
@@ -70,6 +72,8 @@ def test_dashboard_placeholder_sync(tmp_path):
     assert data["findings"] == 1
     assert data["progress_status"] == "issues_pending"
     assert data["resolved_count"] == 0
+    assert data["compliance_status"] == "non_compliant"
+    assert data["placeholder_counts"] == {"TODO": 1}
 
 
 def test_rollback_last_entry(tmp_path):

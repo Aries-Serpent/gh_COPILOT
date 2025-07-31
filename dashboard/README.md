@@ -159,7 +159,9 @@ The endpoint is used by the dashboard UI and can be queried by external tools fo
   "findings": 0,
   "resolved_count": 0,
   "compliance_score": 0,
-  "progress_status": "issues_pending"
+  "progress_status": "issues_pending",
+  "compliance_status": "non_compliant",
+  "placeholder_counts": {}
 }
 ```
 
@@ -172,6 +174,21 @@ The endpoint is used by the dashboard UI and can be queried by external tools fo
   "timestamp": "ISO8601 timestamp",
   "total_corrections": 0,
   "corrections": [],
+  "status": "complete"
+}
+```
+
+### `cross_reference_summary.json` Schema
+
+`dashboard/compliance/cross_reference_summary.json` records cross-link actions and recommendations:
+
+```json
+{
+  "timestamp": "ISO8601 timestamp",
+  "cross_linked_actions": [],
+  "cross_links": [],
+  "suggested_links": [],
+  "recommended_links": [],
   "status": "complete"
 }
 ```

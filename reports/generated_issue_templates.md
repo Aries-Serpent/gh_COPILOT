@@ -1,42 +1,63 @@
 # Proposed GitHub Issues
 
-## 1. Replace Hardcoded Secret Keys with Env Variables
-- **Labels**: security, bug
-- **Assignee**: security-team
-- **Description**: Several configuration files contain placeholder secrets. Ensure all secret values are loaded from environment variables and document the process in README.
+Below are example issue templates for common script categories in the repository. Each entry lists source lines, acceptance criteria, and test instructions.
 
-## 2. Integrate OpenAI Codex into Workflow (API Key Handling)
-- **Labels**: feature, devops
+## 1. Audit Script Refactor
+- **Source**: `scripts/code_placeholder_audit.py` lines 1-40
+- **Labels**: refactor, audit
 - **Assignee**: backend-team
-- **Description**: Create a secure connector for OpenAI usage that reads the API key from `OPENAI_API_KEY` environment variable and logs usage metrics.
+- **Acceptance Criteria**:
+  - Consolidate duplicate logic with `scripts/autonomous_setup_and_audit.py`.
+  - Remove hardcoded paths and rely on `GH_COPILOT_WORKSPACE`.
+- **Test Instructions**:
+  - Run `pytest tests/test_code_placeholder_audit.py` and ensure all cases pass.
 
-## 3. Complete Template Synchronizer Transaction Logic
-- **Labels**: enhancement, database
-- **Assignee**: database-team
-- **Description**: Transaction support has been implemented for copy and update operations.
-  The CLI now notes that these run in explicit transactions with audit logging.
-
-## 4. Implement /dashboard/compliance in Flask UI
-- **Labels**: feature, ui
+## 2. Dashboard Compliance Endpoint
+- **Source**: `dashboard/enterprise_dashboard.py` lines 1-20
+- **Labels**: feature, dashboard
 - **Assignee**: web-team
-- **Description**: The Flask dashboard does not expose the compliance overview endpoint. Add a route that serves the `placeholder_summary.json` file with progress metrics.
+- **Acceptance Criteria**:
+  - Expose `/dashboard/compliance` serving metrics from `dashboard/compliance/metrics.json`.
+  - Add progress logging using `tqdm`.
+- **Test Instructions**:
+  - Run `pytest tests/test_dashboard_placeholder_metrics.py`.
 
-## 5. Implement Quantum Template Scoring Module
+## 3. Compliance Metrics Updater Enhancements
+- **Source**: `dashboard/compliance_metrics_updater.py` lines 1-20
+- **Labels**: enhancement, compliance
+- **Assignee**: compliance-team
+- **Acceptance Criteria**:
+  - Validate dashboard events against `analytics.db` before updates.
+  - Include secondary validation via `SecondaryCopilotValidator`.
+- **Test Instructions**:
+  - Execute `pytest tests/test_cross_reference_validator.py`.
+
+## 4. Analytics Migration Tester Improvements
+- **Source**: `scripts/database/analytics_migration_tester.py` lines 1-20
+- **Labels**: migration, database
+- **Assignee**: database-team
+- **Acceptance Criteria**:
+  - Ensure migrations check `production.db` before applying SQL statements.
+  - Log results to `analytics.db:migration_tests` with timestamps.
+- **Test Instructions**:
+  - Run `pytest tests/test_database_list.py::test_verify_expected_databases`.
+
+## 5. Quantum Database Search Optimization
+- **Source**: `quantum/quantum_database_search.py` lines 1-20
 - **Labels**: research, quantum
 - **Assignee**: research-team
-- **Description**: The quantum scoring placeholders in `quantum_optimizer.py` should be replaced with functional scoring algorithms using the simulation utilities.
+- **Acceptance Criteria**:
+  - Support simulated and real backends via `QISKIT_IBM_TOKEN`.
+  - Record all searches with `_log_event` for compliance.
+- **Test Instructions**:
+  - Invoke `pytest tests/test_quantum_integration.py`.
 
-## 6. Consolidate Placeholder Audit Scripts and Fix Path Hardcoding
-- **Labels**: refactor, tech debt
-- **Assignee**: backend-team
-- **Description**: `intelligent_code_analysis_placeholder_detection.py` duplicates logic from `code_placeholder_audit.py`. Consolidate these scripts and remove hardcoded paths.
-
-## 7. Fix Dockerfile Entrypoint for Application Launch
-- **Labels**: bug, devops
-- **Assignee**: devops-team
-- **Description**: Ensure the Dockerfile uses an explicit entrypoint script that sets required environment variables before starting `dashboard/enterprise_dashboard.py`.
-
-## 8. Catalog missing and incomplete modules in gh_COPILOT
-- **Labels**: documentation, analysis, help wanted, triage
-- **Assignee**: maintainer
-- **Description**: Collect and document all `STUB-*` references listed in `docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md`. Summarize the missing modules and features so maintainers can prioritize implementation work.
+## 6. Documentation Validator Coverage
+- **Source**: `scripts/documentation/documentation_validator.py` lines 1-20
+- **Labels**: documentation
+- **Assignee**: docs-team
+- **Acceptance Criteria**:
+  - Detect broken Markdown links and report missing files.
+  - Update coverage metrics in `documentation/COMPREHENSIVE_PROJECT_COMPLETION_STATUS.md`.
+- **Test Instructions**:
+  - Run `pytest tests/test_documentation_validator.py`.

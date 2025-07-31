@@ -21,17 +21,11 @@ import sqlite3
 import time
 from datetime import datetime
 import getpass
+import argparse
 from pathlib import Path
 from typing import Dict, List, Optional
 
-try:
-    from tqdm import tqdm
-except ModuleNotFoundError:  # pragma: no cover - fallback
-    import subprocess
-    import sys
-
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "tqdm"])
-    from tqdm import tqdm
+from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from scripts.database.add_code_audit_log import ensure_code_audit_log
@@ -258,28 +252,53 @@ def log_findings(
 
 
 # Update dashboard/compliance with summary JSON
-def update_dashboard(count: int, dashboard_dir: Path, analytics_db: Path) -> None:
-    """Write summary JSON to dashboard/compliance directory."""
+def update_dashboard(
+    count: int,
+    dashboard_dir: Path,
+    analytics_db: Path,
+    summary_json: Path | None = None,
+) -> None:
+    """Write summary JSON to ``dashboard/compliance`` directory.
+
+    Parameters
+    ----------
+    summary_json:
+        Optional explicit path for the summary JSON output. Defaults to
+        ``dashboard_dir/placeholder_summary.json``.
+    """
     dashboard_dir.mkdir(parents=True, exist_ok=True)
     open_count = count
     resolved = 0
+    placeholder_counts: Dict[str, int] = {}
     if analytics_db.exists():
         with sqlite3.connect(analytics_db) as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
+            )
             open_count = cur.fetchone()[0]
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
+            )
             resolved = cur.fetchone()[0]
+            cur = conn.execute(
+                "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type"
+            )
+            placeholder_counts = {row[0]: row[1] for row in cur.fetchall()}
+
     compliance = max(0, 100 - open_count)
     status = "complete" if open_count == 0 else "issues_pending"
+    compliance_status = "compliant" if open_count == 0 else "non_compliant"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": open_count,
         "resolved_count": resolved,
         "compliance_score": compliance,
         "progress_status": status,
+        "compliance_status": compliance_status,
+        "placeholder_counts": placeholder_counts,
     }
-    summary_file = dashboard_dir / "placeholder_summary.json"
-    summary_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    path = summary_json or dashboard_dir / "placeholder_summary.json"
+    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 # Scan files for patterns with timeout and visual indicators
@@ -420,6 +439,7 @@ def main(
     analytics_db: Optional[str] = None,
     production_db: Optional[str] = None,
     dashboard_dir: Optional[str] = None,
+    dataset_path: Optional[str] = None,
     timeout_minutes: int = 30,
     simulate: bool = False,
     *,
@@ -427,6 +447,7 @@ def main(
     update_resolutions: bool = False,
     apply_fixes: bool = False,
     export: Optional[Path] = None,
+    summary_json: Optional[str] = None,
 ) -> bool:
     """Entry point for placeholder auditing with full enterprise compliance.
 
@@ -437,6 +458,10 @@ def main(
     apply_fixes:
         When ``True`` automatically remove flagged placeholders and log
         corrections.
+    dataset_path:
+        Optional path to a JSON file containing additional audit patterns.
+    summary_json:
+        Optional path for ``placeholder_summary.json`` output.
     """
     # Visual processing indicators: start time, process ID, anti-recursion validation
     if os.getenv("GH_COPILOT_TEST_MODE") == "1":
@@ -459,12 +484,13 @@ def main(
     analytics = Path(analytics_db or workspace / "databases" / "analytics.db")
     production = Path(production_db or workspace / "databases" / "production.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
+    summary_path = Path(summary_json) if summary_json else None
 
     # Database-first: fetch patterns from production.db and config
     patterns = (
         DEFAULT_PATTERNS
         + fetch_db_placeholders(production)
-        + load_best_practice_patterns(dataset_path=Path(dataset_path) if dataset_path else None)  # noqa: F821
+        + load_best_practice_patterns(dataset_path=Path(dataset_path) if dataset_path else None)
     )
     timeout = timeout_minutes * 60 if timeout_minutes else None
 
@@ -506,14 +532,14 @@ def main(
 
     # Log findings to analytics.db
     log_findings(results, analytics, simulate=simulate, update_resolutions=update_resolutions)
-    if export_results:  # noqa: F821
-        Path(export_results).write_text(json.dumps(results, indent=2), encoding="utf-8")  # noqa: F821
+    if export:
+        export.write_text(json.dumps(results, indent=2), encoding="utf-8")
     if apply_fixes and not simulate:
         auto_remove_placeholders(results, production, analytics)
     SecondaryCopilotValidator().validate_corrections([r["file"] for r in results])
     # Update dashboard/compliance
     if not simulate:
-        update_dashboard(len(results), dashboard, analytics)
+        update_dashboard(len(results), dashboard, analytics, summary_path)
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
     elapsed = time.time() - start_time
@@ -536,17 +562,25 @@ def main(
     return valid
 
 
-if __name__ == "__main__":
-    import argparse
+def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
+    """Return CLI arguments for the audit script."""
 
-    parser = argparse.ArgumentParser(description="Audit workspace for TODO/FIXME placeholders")
+    parser = argparse.ArgumentParser(
+        description="Audit workspace for TODO/FIXME placeholders",
+        epilog="For cleanup only, run scripts/placeholder_cleanup.py",
+    )
     parser.add_argument("--workspace-path", type=str, help="Workspace to scan")
     parser.add_argument("--analytics-db", type=str, help="analytics.db location")
     parser.add_argument("--production-db", type=str, help="production.db location")
     parser.add_argument("--dashboard-dir", type=str, help="dashboard/compliance directory")
+    parser.add_argument("--dataset-path", type=str, help="Optional JSON dataset with additional patterns")
     parser.add_argument("--timeout-minutes", type=int, default=30, help="Scan timeout in minutes")
-    parser.add_argument("--simulate", action="store_true", help="Run in test mode without writes")
-    parser.add_argument("--dry-run", action="store_true", help="Alias for --simulate")
+    parser.add_argument(
+        "--simulate",
+        action="store_true",
+        dest="simulate",
+        help="Run in test mode without writes",
+    )
     parser.add_argument(
         "--test-mode",
         action="store_true",
@@ -567,23 +601,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--apply-fixes",
         action="store_true",
+        dest="apply_fixes",
         help="Automatically remove placeholders and log corrections",
-    )
-    parser.add_argument("--cleanup", action="store_true", help="Alias for --apply-fixes")
-    parser.add_argument(
-        "--cleanup",
-        action="store_true",
-        help="Alias for --apply-fixes",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Alias for --simulate",
-    )
-    parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Ignore confirmation prompts when cleaning",
     )
     parser.add_argument(
         "--rollback-last",
@@ -591,14 +610,26 @@ if __name__ == "__main__":
         help="Rollback the most recent audit entry",
     )
     parser.add_argument("--rollback-id", type=int, help="Rollback a specific entry id")
-    parser.add_argument("--force", action="store_true", help="Disable validation checks")
     parser.add_argument("--export", type=Path, help="Export audit results to JSON")
-    args = parser.parse_args()
-    if args.rollback_last or args.rollback_id is not None:
+    parser.add_argument(
+        "--summary-json",
+        type=str,
+        help="Explicit path for placeholder_summary.json output",
+    )
+    return parser.parse_args(argv)
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    if args.rollback_id is not None:
         target_id = args.rollback_id
-        if rollback_last_entry(Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db"), target_id):
-            print("Rollback complete")
+        if rollback_last_entry(
+            Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db"),
+            target_id,
+        ):
+            print(json.dumps({"rollback": True}))
             raise SystemExit(0)
+        print(json.dumps({"rollback": False}))
         raise SystemExit(1)
     if args.rollback_last:
         result = rollback_last_entry(Path(args.analytics_db or Path.cwd() / "databases" / "analytics.db"))
@@ -607,24 +638,18 @@ if __name__ == "__main__":
     if args.test_mode:
         os.environ["GH_COPILOT_TEST_MODE"] = "1"
         args.simulate = True
-    if args.dry_run:
-        args.simulate = True
-    if args.cleanup:
-        args.apply_fixes = True
-    if args.force:
-        os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
     success = main(
         workspace_path=args.workspace_path,
         analytics_db=args.analytics_db,
         production_db=args.production_db,
         dashboard_dir=args.dashboard_dir,
+        dataset_path=args.dataset_path,
         timeout_minutes=args.timeout_minutes,
-        simulate=args.simulate or args.dry_run,
+        simulate=args.simulate,
         exclude_dirs=args.exclude_dirs,
         update_resolutions=args.update_resolutions,
         apply_fixes=args.apply_fixes,
         export=args.export,
+        summary_json=args.summary_json,
     )
-    if args.export:
-        pass
     raise SystemExit(0 if success else 1)

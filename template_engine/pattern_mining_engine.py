@@ -25,6 +25,7 @@ from typing import Dict, List
 from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
 
 from .template_synchronizer import _log_audit_real
 from utils.log_utils import _log_event
@@ -104,10 +105,16 @@ def extract_patterns(templates: List[str]) -> List[str]:
 
 
 def _log_patterns(patterns: List[str], analytics_db: Path) -> None:
-    """
-    Log mined patterns to analytics.db for compliance tracking.
-    """
+    """Log mined patterns and associated compliance records."""
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    for pat in tqdm(patterns, desc="Logging Patterns", unit="pat"):
+        _log_pattern(analytics_db, pat)
+
+
+def _log_pattern(analytics_db: Path, pattern: str) -> None:
+    """Log a single pattern to ``analytics_db`` with audit and compliance info."""
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.utcnow().isoformat()
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             """CREATE TABLE IF NOT EXISTS pattern_mining_log (
@@ -116,30 +123,25 @@ def _log_patterns(patterns: List[str], analytics_db: Path) -> None:
                 ts TEXT
             )"""
         )
-        for pat in tqdm(patterns, desc="Logging Patterns", unit="pat"):
-            conn.execute(
-                "INSERT INTO pattern_mining_log (pattern, ts) VALUES (?, ?)",
-                (pat, datetime.utcnow().isoformat()),
-            )
-        conn.commit()
-
-
-def _log_pattern(analytics_db: Path, pattern: str) -> None:
-    """Log a single pattern to ``analytics_db``."""
-    analytics_db.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(analytics_db) as conn:
         conn.execute(
-            """CREATE TABLE IF NOT EXISTS pattern_mining_log (
+            """CREATE TABLE IF NOT EXISTS compliance_tracking (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                pattern TEXT,
-                ts TEXT
+                compliance_type TEXT,
+                status TEXT,
+                last_check TEXT,
+                next_check TEXT
             )"""
         )
         conn.execute(
             "INSERT INTO pattern_mining_log (pattern, ts) VALUES (?, ?)",
-            (pattern, datetime.utcnow().isoformat()),
+            (pattern, timestamp),
+        )
+        conn.execute(
+            "INSERT INTO compliance_tracking (compliance_type, status, last_check, next_check) VALUES (?, ?, ?, ?)",
+            (pattern, "logged", timestamp, timestamp),
         )
         conn.commit()
+    _log_audit_real(str(analytics_db), f"pattern_logged:{pattern}")
 
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
@@ -164,6 +166,7 @@ def mine_patterns(
     validate_no_recursive_folders()
     start_dt = datetime.now()
     start_ts = time.time()
+    timeout_seconds = timeout_minutes * 60
     process_id = os.getpid()
     logging.info("PROCESS STARTED: Pattern Mining Engine")
     logging.info(f"Start Time: {start_dt.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -197,17 +200,26 @@ def mine_patterns(
                     "INSERT INTO mined_patterns (pattern, mined_at) VALUES (?, ?)",
                     (pat, datetime.utcnow().isoformat()),
                 )
-                _log_pattern(analytics_db, pat)
+                _log_audit_real(str(analytics_db), f"pattern_mined:{pat}")
                 etc = calculate_etc(start_ts, idx, total_steps)
+                if time.time() - start_ts > timeout_seconds:
+                    raise TimeoutError(
+                        f"Process exceeded {timeout_minutes} minute timeout"
+                    )
                 if idx % 10 == 0 or idx == total_steps:
                     logging.info(f"Pattern {idx}/{total_steps} stored | ETC: {etc}")
             conn.commit()
+        _log_patterns(patterns, analytics_db)
     cluster_count = 0
     if patterns:
         vec = TfidfVectorizer().fit_transform(patterns)
         model = KMeans(n_clusters=min(len(patterns), 2), n_init="auto", random_state=0)
         labels = model.fit_predict(vec)
         cluster_count = len(set(labels))
+        inertia = float(model.inertia_)
+        silhouette = 0.0
+        if len(set(labels)) > 1 and vec.shape[0] > 1:
+            silhouette = float(silhouette_score(vec, labels))
         with sqlite3.connect(analytics_db) as conn:
             conn.execute(
                 """CREATE TABLE IF NOT EXISTS pattern_clusters (
@@ -216,13 +228,32 @@ def mine_patterns(
                     ts TEXT
                 )"""
             )
+            conn.execute(
+                """CREATE TABLE IF NOT EXISTS pattern_cluster_metrics (
+                    inertia REAL,
+                    silhouette REAL,
+                    n_clusters INTEGER,
+                    ts TEXT
+                )"""
+            )
             for pat, label in zip(patterns, labels):
+                if time.time() - start_ts > timeout_seconds:
+                    raise TimeoutError(
+                        f"Process exceeded {timeout_minutes} minute timeout"
+                    )
                 conn.execute(
                     "INSERT INTO pattern_clusters (pattern, cluster, ts) VALUES (?,?,?)",
                     (pat, int(label), datetime.utcnow().isoformat()),
                 )
+            conn.execute(
+                "INSERT INTO pattern_cluster_metrics (inertia, silhouette, n_clusters, ts) VALUES (?,?,?,?)",
+                (inertia, silhouette, cluster_count, datetime.utcnow().isoformat()),
+            )
             conn.commit()
-    _log_audit_real(str(analytics_db), f"clusters={cluster_count}")
+    _log_audit_real(
+        str(analytics_db),
+        f"clusters={cluster_count},inertia={inertia:.2f},silhouette={silhouette:.4f}"
+    )
     logging.info(
         "Pattern mining completed in %.2fs | ETC: %s",
         time.time() - start_ts,
@@ -252,6 +283,32 @@ def get_clusters(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> Dict[int, List[st
     for pattern, cluster_id in rows:
         clusters.setdefault(int(cluster_id), []).append(pattern)
     return clusters
+
+
+def get_cluster_metrics(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> dict | None:
+    """Return the most recent cluster metrics from ``analytics_db``."""
+    if not analytics_db.exists():
+        return None
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS pattern_cluster_metrics (
+                inertia REAL,
+                silhouette REAL,
+                n_clusters INTEGER,
+                ts TEXT
+            )"""
+        )
+        row = conn.execute(
+            "SELECT inertia, silhouette, n_clusters FROM pattern_cluster_metrics ORDER BY ts DESC LIMIT 1"
+        ).fetchone()
+    if row is None:
+        return None
+    inertia, silhouette, n_clusters = row
+    return {
+        "inertia": float(inertia),
+        "silhouette": float(silhouette),
+        "n_clusters": int(n_clusters),
+    }
 
 
 def aggregate_cross_references(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> Dict[str, int]:
@@ -301,6 +358,7 @@ __all__ = [
     "extract_patterns",
     "mine_patterns",
     "get_clusters",
+    "get_cluster_metrics",
     "aggregate_cross_references",
     "validate_mining",
 ]

@@ -13,6 +13,7 @@ jobs:
     env:
       GH_COPILOT_WORKSPACE: ${{ github.workspace }}
       GH_COPILOT_BACKUP_ROOT: /tmp/gh_copilot_backup
+      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY || 'test_secret' }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4

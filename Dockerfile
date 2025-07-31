@@ -9,11 +9,10 @@ COPY requirements.txt requirements.txt
 RUN chown -R appuser:appgroup /app
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Initialize databases during build
-RUN python scripts/database/unified_database_initializer.py
-
 # Copy application source
 COPY . /app
+
+
 RUN chown -R appuser:appgroup /app
 
 # Configure environment file
@@ -39,6 +38,7 @@ EXPOSE 5000 5001 5002 5003 5004 5005 5006 8080
 
 HEALTHCHECK --interval=30s --timeout=5s CMD ["python", "scripts/docker_healthcheck.py"]
 
-COPY docker_wrapper.sh /app/docker_wrapper.sh
-RUN chmod +x /app/docker_wrapper.sh
-CMD ["bash", "/app/docker_wrapper.sh"]
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["python", "scripts/docker_entrypoint.py"]
