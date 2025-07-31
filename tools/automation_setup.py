@@ -9,6 +9,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 from utils.log_utils import _log_event, DEFAULT_ANALYTICS_DB
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 DB_PATH = Path("databases/production.db")
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
@@ -110,6 +111,10 @@ def ingest_assets() -> None:
     conn.close()
     _log_event({"event": "templates_ingested", "count": len(tmpl_files)}, db_path=ANALYTICS_DB)
     _log_event({"event": "ingestion_completed", "docs": len(doc_files), "templates": len(tmpl_files)}, db_path=ANALYTICS_DB)
+
+    SecondaryCopilotValidator().validate_corrections(
+        [str(p) for p in doc_files + tmpl_files]
+    )
 
 
 def run_audit() -> None:
