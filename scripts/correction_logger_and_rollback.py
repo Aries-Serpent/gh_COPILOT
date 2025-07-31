@@ -141,9 +141,7 @@ class CorrectionLoggerRollback:
                 ),
             )
             conn.commit()
-        logging.info(
-            f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score}"
-        )
+        logging.info(f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score}")
         _log_event(
             {
                 "event": "correction",
@@ -200,9 +198,7 @@ class CorrectionLoggerRollback:
         with tqdm(total=100, desc=f"Rolling Back {target.name}", unit="%") as pbar:
             pbar.set_description("Validating Target")
             if not target.exists() and not backup_path:
-                logging.error(
-                    f"Target file does not exist and no backup provided: {target}"
-                )
+                logging.error(f"Target file does not exist and no backup provided: {target}")
                 strategy = self.suggest_rollback_strategy(target)
                 self._record_strategy_history(target, strategy, "failure")
                 _log_event(
@@ -276,14 +272,19 @@ class CorrectionLoggerRollback:
                 pbar.update(25)
                 return False
 
-    def summarize_corrections(self) -> Dict[str, Any]:
+    def summarize_corrections(self, max_entries: int = 100) -> Dict[str, Any]:
         """
         Summarize corrections for compliance reports (Markdown/JSON) for dashboard.
         """
         self.status = "SUMMARIZING"
         with sqlite3.connect(self.analytics_db) as conn:
-            cur = conn.execute("SELECT file_path, rationale, compliance_score, rollback_reference, ts FROM corrections")
+            cur = conn.execute(
+                "SELECT file_path, rationale, compliance_score, rollback_reference, ts "
+                "FROM corrections ORDER BY ts DESC"
+            )
             corrections = cur.fetchall()
+
+        corrections = corrections[:max_entries]
         summary = {
             "timestamp": datetime.now().isoformat(),
             "total_corrections": len(corrections),
@@ -302,10 +303,20 @@ class CorrectionLoggerRollback:
         }
         # Write JSON summary
         DASHBOARD_DIR.mkdir(parents=True, exist_ok=True)
+        archive_dir = DASHBOARD_DIR / "archive"
+        archive_dir.mkdir(parents=True, exist_ok=True)
         json_path = DASHBOARD_DIR / "correction_summary.json"
+        md_path = DASHBOARD_DIR / "correction_summary.md"
+
+        if json_path.exists() or md_path.exists():
+            tag = datetime.now().strftime("%Y%m%d_%H%M%S")
+            if json_path.exists():
+                json_path.rename(archive_dir / f"correction_summary_{tag}.json")
+            if md_path.exists():
+                md_path.rename(archive_dir / f"correction_summary_{tag}.md")
+
         json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
         # Write Markdown summary
-        md_path = DASHBOARD_DIR / "correction_summary.md"
         with open(md_path, "w", encoding="utf-8") as md:
             md.write(f"# Correction Summary\n\n")
             md.write(f"**Timestamp:** {summary['timestamp']}\n\n")
