@@ -1,6 +1,5 @@
 import sqlite3
 from pathlib import Path
-import importlib.util
 
 from docs.quantum_template_generator import generate_default_templates
 

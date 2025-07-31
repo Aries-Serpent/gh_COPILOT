@@ -1,5 +1,4 @@
 import sqlite3
-import json
 
 def test_placeholder_cleanup_workflow(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")

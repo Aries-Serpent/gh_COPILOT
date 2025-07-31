@@ -1,4 +1,3 @@
-import os
 from config.secret_manager import get_secret
 
 

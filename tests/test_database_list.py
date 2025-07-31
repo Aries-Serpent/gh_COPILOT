@@ -2,7 +2,6 @@
 from pathlib import Path
 
 from scripts.database.unified_database_management_system import UnifiedDatabaseManager
-import logging
 
 
 def test_verify_expected_databases(monkeypatch):

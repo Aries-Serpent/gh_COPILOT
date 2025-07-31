@@ -5,14 +5,11 @@ DUAL COPILOT PATTERN - Fast validation of essential script functionality
 Ensures all critical scripts maintain 100% functionality after organization
 """
 
-import os
-import sys
 import ast
-import subprocess
 import importlib.util
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Tuple
+from typing import Dict, Any, Tuple
 import logging
 from tqdm import tqdm
 

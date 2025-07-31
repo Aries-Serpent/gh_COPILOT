@@ -10,13 +10,12 @@ Comprehensive validation of database consolidation results:
 ================================================================
 """
 
-import os
 import sqlite3
 import json
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict
 
 
 class DatabaseConsolidationValidator:

@@ -8,7 +8,6 @@ dashboard is responding on the configured port.
 from __future__ import annotations
 
 import os
-from urllib.error import URLError
 from urllib.request import urlopen
 
 from utils.validation_utils import validate_enterprise_environment

@@ -10,14 +10,12 @@ Follows enterprise standards with visual processing indicators and anti-recursio
 import os
 import sys
 import json
-import sqlite3
 import subprocess
 import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any
 from tqdm import tqdm
-import time
 
 class FunctionalityValidationTester:
     """🧠 Enterprise Functionality Validation with Enhanced Cognitive Processing"""

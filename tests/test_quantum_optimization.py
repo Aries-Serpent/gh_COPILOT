@@ -4,7 +4,6 @@
 import logging
 from typing import Any, Dict, List
 
-import pytest
 
 from quantum.quantum_optimization import EnterpriseUtility
 

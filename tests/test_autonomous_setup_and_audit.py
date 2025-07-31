@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 
 from scripts.autonomous_setup_and_audit import ingest_assets
-from utils import log_utils
 from scripts.database.unified_database_initializer import initialize_database
 
 

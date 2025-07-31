@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import importlib
-import logging
 
 
 def test_qiskit_and_qml_import():

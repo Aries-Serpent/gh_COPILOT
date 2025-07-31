@@ -13,16 +13,13 @@ Validates that all future file operations correctly route files to appropriate f
 Enterprise-grade validation with pattern recognition and workflow testing.
 """
 
-import os
 import sys
 import json
-import sqlite3
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Any
 import re
-import tempfile
 import shutil
 
 class FutureFileRoutingValidator:

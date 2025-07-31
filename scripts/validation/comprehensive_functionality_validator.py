@@ -4,14 +4,12 @@ Comprehensive Functionality Validator
 DUAL COPILOT PATTERN - Validate all moved scripts maintain original functionality
 """
 
-import os
 import sys
-import subprocess
 import importlib.util
 import ast
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any
 import logging
 from tqdm import tqdm
 

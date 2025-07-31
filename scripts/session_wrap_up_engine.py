@@ -6,10 +6,7 @@ Comprehensive session termination with integrity validation
 """
 
 import os
-import sys
 import sqlite3
-import hashlib
-import shutil
 from datetime import datetime
 from pathlib import Path
 import json

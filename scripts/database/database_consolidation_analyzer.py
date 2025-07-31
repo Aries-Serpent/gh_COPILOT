@@ -9,14 +9,13 @@ Comprehensive analysis tool for database consolidation strategy
 ================================================================
 """
 
-import os
 import sqlite3
 import hashlib
 import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Set
+from typing import Dict, List, Optional
 from collections import defaultdict
 import re
 

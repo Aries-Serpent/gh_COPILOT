@@ -1,6 +1,5 @@
 import sqlite3
 from pathlib import Path
-import pytest
 from template_engine import template_synchronizer
 
 

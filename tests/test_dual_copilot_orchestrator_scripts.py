@@ -1,5 +1,4 @@
 import runpy
-from pathlib import Path
 
 
 def _runs_with_dual_validation(module: str, monkeypatch) -> bool:

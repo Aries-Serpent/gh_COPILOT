@@ -2,7 +2,6 @@
 Tests for the quantum package.
 """
 
-import pytest
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
