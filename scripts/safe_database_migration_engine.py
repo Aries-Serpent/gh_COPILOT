@@ -312,3 +312,6 @@ def migrate_databases_safe():
 
 if __name__ == "__main__":
     migrate_databases_safe()
+    from secondary_copilot_validator import SecondaryCopilotValidator
+
+    SecondaryCopilotValidator().validate_corrections([__file__])
