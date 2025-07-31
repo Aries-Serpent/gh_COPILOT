@@ -16,3 +16,12 @@ def test_clw_wraps_long_lines(tmp_path):
         check=True,
     )
     assert b"\xe2\x8f\x8e\n" in result.stdout
+
+
+def test_clw_help():
+    result = subprocess.run(
+        ["/usr/local/bin/clw", "--help"],
+        capture_output=True,
+        check=True,
+    )
+    assert b"Usage: clw" in result.stdout

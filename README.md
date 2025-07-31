@@ -110,6 +110,8 @@ cp tools/clw /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
 # Verify clw exists
 ls -l /usr/local/bin/clw
+# Display brief usage information
+/usr/local/bin/clw --help
 
 ### OpenAI Connector
 The repository provides `github_integration/openai_connector.py` for OpenAI API
@@ -202,6 +204,7 @@ Commands that generate large output **must** be piped through `/usr/local/bin/cl
 cp tools/clw /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
 ```
+Run `/usr/local/bin/clw --help` to see a short usage description.
 
 Once installed, wrap high-volume output like so:
 
