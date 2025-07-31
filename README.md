@@ -614,8 +614,9 @@ logger = setup_enterprise_logging()
 # Custom directory
 logger = setup_enterprise_logging(log_file="/var/log/gh_copilot/custom.log")
 ```
-
-Tests verify this logging mechanism as part of the DUAL COPILOT pattern.
+The underlying `FileHandler` uses delayed creation so log files aren't created
+until the first message, preventing empty logs. Tests verify this logging
+mechanism as part of the DUAL COPILOT pattern.
 
 ---
 
@@ -687,7 +688,8 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 ### Enable Streaming
 
 Set the environment variable `LOG_WEBSOCKET_ENABLED=1` to allow real-time
-log broadcasting over WebSockets. The dashboard's `/metrics_stream` endpoint
+log broadcasting over WebSockets. Install the optional `websockets` package
+(`pip install websockets`) to enable this feature. The dashboard's `/metrics_stream` endpoint
 uses Server-Sent Events by default and works with Flask's ``Response`` when
 `sse_event_stream` is provided from ``utils.log_utils``.
 
@@ -1019,6 +1021,7 @@ Several small modules provide common helpers:
 - `utils.reporting_utils.generate_json_report` – write data to a JSON file.
 - `utils.reporting_utils.generate_markdown_report` – produce a Markdown report.
 - `utils.validation_utils.detect_zero_byte_files` – find empty files for cleanup.
+- `scripts/clean_zero_logs.sh` – remove empty log files under `logs/` (run `make clean-logs`).
 - `utils.validation_utils.validate_path` – verify a path is inside the workspace and outside the backup root.
 - `scripts.optimization.physics_optimization_engine.PhysicsOptimizationEngine` –
   provides simulated quantum-inspired helpers such as Grover search or Shor factorization for physics-oriented optimizations.

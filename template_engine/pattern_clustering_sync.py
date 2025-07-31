@@ -22,13 +22,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from utils.cross_platform_paths import CrossPlatformPathManager
+
 import numpy as np
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
 
-LOGS_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "logs" / "pattern_clustering_sync"
+LOGS_DIR = CrossPlatformPathManager.get_workspace_path() / "logs" / "pattern_clustering_sync"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"pattern_clustering_sync_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -38,9 +40,9 @@ logging.basicConfig(
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
-PRODUCTION_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "production.db"
-TEMPLATE_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "template_documentation.db"
-SYNC_AUDIT_DB = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")) / "databases" / "sync_audit.db"
+PRODUCTION_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
+TEMPLATE_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "template_documentation.db"
+SYNC_AUDIT_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "sync_audit.db"
 
 
 class PatternClusteringSync:
@@ -239,9 +241,9 @@ def main(
     logging.info(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"Process ID: {process_id}")
 
-    validate_enterprise_operation(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    validate_enterprise_operation(str(CrossPlatformPathManager.get_workspace_path()))
 
-    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace = CrossPlatformPathManager.get_workspace_path()
     production_db = Path(production_db_path or workspace / "databases" / "production.db")
     template_db = Path(template_db_path or workspace / "databases" / "template_documentation.db")
     audit_db = Path(audit_db_path or workspace / "databases" / "sync_audit.db")

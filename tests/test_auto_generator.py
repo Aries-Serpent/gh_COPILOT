@@ -179,3 +179,33 @@ def test_rank_templates_combines_quantum_scores(tmp_path: Path, monkeypatch) -> 
     ranked = gen.rank_templates("target")
     assert ranked[0] == "foo"
     assert any(ev.get("event") == "quantum_total" for ev in events)
+
+
+def test_quantum_import_failure(monkeypatch):
+    """AutoGenerator handles missing quantum library gracefully."""
+    import importlib
+    import builtins
+    import numpy as np
+
+    orig_import_module = importlib.import_module
+    orig_import = builtins.__import__
+
+    def fake_import_module(name, package=None):
+        if name == "quantum_algorithm_library_expansion":
+            raise ImportError("missing")
+        return orig_import_module(name, package)
+
+    def fake_builtin(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "quantum_algorithm_library_expansion":
+            raise ImportError("missing")
+        return orig_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(importlib, "import_module", fake_import_module)
+    monkeypatch.setattr(builtins, "__import__", fake_builtin)
+    import sys
+    sys.modules.pop("template_engine.auto_generator", None)
+    auto_gen = importlib.import_module("template_engine.auto_generator")
+
+    assert auto_gen.quantum_text_score("hi") == 0.0
+    assert auto_gen.quantum_similarity_score([1.0], [1.0]) == 0.0
+    assert auto_gen.quantum_cluster_score(np.array([[1.0]])) == 0.0
