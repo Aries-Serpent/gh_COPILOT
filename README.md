@@ -107,8 +107,10 @@ bash setup.sh
 # copy this file and make it executable. Run a quick self-test to confirm installation.
 cp tools/clw.py /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
-clw --help
-# Optional: export CLW_MAX_LINE_LENGTH=1550 to keep wrapped output below the console limit
+# Verify clw exists
+ls -l /usr/local/bin/clw
+# Display brief usage information
+/usr/local/bin/clw --help
 
 ### OpenAI Connector
 The repository provides `github_integration/openai_connector.py` for OpenAI API
@@ -202,6 +204,7 @@ cp tools/clw.py /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
 clw --help
 ```
+Run `/usr/local/bin/clw --help` to see a short usage description.
 
 Once installed, wrap high-volume output like so:
 
