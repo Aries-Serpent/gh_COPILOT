@@ -1,42 +1,64 @@
 # Automated Ingestion and Audit Prompts
 
-Use the following prompts to operate the automated setup and auditing workflow:
+Follow these sequential steps to configure the environment, ingest assets, run audits, generate code and, if needed, roll back changes.
 
-## Initialize Environment and Ingest Assets
-```
+## 1. Database Setup
+```bash
 source .venv/bin/activate
 export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
 export GH_COPILOT_BACKUP_ROOT=/external/backups
-python scripts/autonomous_setup_and_audit.py
+python scripts/database/unified_database_initializer.py
 ```
-This command initializes missing databases, ingests documentation and template assets, and performs the placeholder audit.
+Expected output:
+```text
+[INIT] Created production.db and analytics.db
+```
+Troubleshooting:
+- *permission denied*: verify both paths exist and are writable.
+- *database is locked*: close other processes using the database files.
 
-## Run Code Audit and Summarize Findings
-```
-python scripts/autonomous_setup_and_audit.py
-```
-The script logs progress using visual indicators and writes results to `dashboard/compliance`.
-
-## Create GitHub Issues from Audit Results
-```
-python scripts/code_placeholder_audit.py --workspace $GH_COPILOT_WORKSPACE \
-    --analytics-db databases/analytics.db \
-    --production-db databases/production.db \
-    --dashboard-dir dashboard/compliance
-```
-Audit summaries can be copied to new GitHub issues referencing affected modules.
-
-## Automated Placeholder Cleanup
+## 2. Asset Ingestion
 ```bash
-python scripts/code_placeholder_audit.py --workspace $GH_COPILOT_WORKSPACE \
-    --analytics-db databases/analytics.db --production-db databases/production.db \
-    --dashboard-dir dashboard/compliance --cleanup
+python scripts/autonomous_setup_and_audit.py --ingest-only
 ```
-This command audits, cleans placeholders, logs corrections, and updates metrics using the unified audit CLI.
+Internally this calls [`scripts/database/documentation_ingestor.py`](../scripts/database/documentation_ingestor.py) and [`scripts/database/template_asset_ingestor.py`](../scripts/database/template_asset_ingestor.py).
+Expected output:
+```text
+[INGEST] 20 docs loaded
+[INGEST] 15 templates loaded
+```
+Troubleshooting:
+- *0 files found*: confirm Markdown files exist under `docs/` and `prompts/`.
 
-## Mark Corrections and Verify
+## 3. Audit
 ```bash
-python scripts/code_placeholder_audit.py --update-resolutions
-python scripts/correction_logger_and_rollback.py
+python scripts/code_placeholder_audit.py --dashboard-dir dashboard/compliance
 ```
-Open `/dashboard/compliance` in your browser to confirm all placeholders have been resolved.
+Expected output:
+```text
+{"placeholders_removed": 3}
+```
+Troubleshooting:
+- *invalid path*: ensure `GH_COPILOT_WORKSPACE` is set before running the audit.
+
+## 4. Code Generation
+```bash
+python template_engine/db_first_code_generator.py --db databases/production.db --out generated/
+```
+Expected output:
+```text
+[GENERATE] wrote generated/example.py
+```
+Troubleshooting:
+- *ModuleNotFoundError: sklearn*: run `bash setup.sh` to install missing dependencies.
+
+## 5. Rollback
+```bash
+python scripts/correction_logger_and_rollback.py --rollback-last
+```
+Expected output:
+```text
+{"rollback": true}
+```
+Troubleshooting:
+- *No entry found*: confirm at least one record exists in `analytics.db:correction_history`.
