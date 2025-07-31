@@ -363,6 +363,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 )
                 tmp_path.replace(path)
                 conn.commit()
+            tmp_path.rename(path)
 
             _log_event(
                 {"event": "integration_ready_generated", "objective": objective, "path": str(path)},
@@ -387,8 +388,6 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 conn.rollback()
             if tmp_path.exists():
                 tmp_path.unlink()
-            if path.exists():
-                path.unlink()
             _log_event(
                 {"event": "integration_ready_failed", "objective": objective, "error": str(exc)},
                 table="generator_events",
@@ -397,7 +396,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 test_mode=False,
             )
             _log_event(
-                {"event": "rollback", "target": str(path)},
+                {"event": "integration_ready_rollback", "target": str(path)},
                 table="rollback_logs",
                 db_path=self.analytics_db,
                 test_mode=False,

@@ -147,9 +147,11 @@ def test_integration_ready_rollback_on_failure(tmp_path: Path, monkeypatch) -> N
         except sqlite3.Error:
             enhanced = 0
     with sqlite3.connect(analytics) as conn:
-        fails = conn.execute("SELECT COUNT(*) FROM generator_events WHERE event='integration_ready_failed'").fetchone()[
-            0
-        ]
-        rollbacks = conn.execute("SELECT COUNT(*) FROM rollback_logs WHERE event='rollback'").fetchone()[0]
+        fails = conn.execute(
+            "SELECT COUNT(*) FROM generator_events WHERE event='integration_ready_failed'"
+        ).fetchone()[0]
+        rollbacks = conn.execute(
+            "SELECT COUNT(*) FROM rollback_logs WHERE event='integration_ready_rollback'"
+        ).fetchone()[0]
 
     assert tracking == 0 and enhanced == 0 and fails == 1 and rollbacks == 1
