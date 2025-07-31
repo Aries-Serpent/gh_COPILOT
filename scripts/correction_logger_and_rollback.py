@@ -90,9 +90,7 @@ class CorrectionLoggerRollback:
             )
             rows = cur.fetchall()
             if not rows:
-                cur = conn.execute(
-                    "SELECT strategy, outcome FROM rollback_strategy_history"
-                )
+                cur = conn.execute("SELECT strategy, outcome FROM rollback_strategy_history")
                 rows = cur.fetchall()
 
         stats: Dict[str, Dict[str, int]] = {}
@@ -268,22 +266,12 @@ class CorrectionLoggerRollback:
                 strategy = self.suggest_rollback_strategy(target)
                 logging.info(f"Suggested strategy: {strategy}")
                 self._record_strategy_history(target, strategy, "success")
-                with sqlite3.connect(self.analytics_db) as conn:
-                    conn.execute(
-                        "INSERT INTO rollback_logs (target, backup, timestamp) VALUES (?, ?, ?)",
-                        (
-                            str(target),
-                            str(backup_path) if backup_path else None,
-                            datetime.now().isoformat(),
-                        ),
-                    )
-                    conn.commit()
+                _log_rollback(str(target), str(backup_path) if backup_path else None)
                 _log_event(
                     {"event": "rollback", "target": str(target)},
                     table="rollback_logs",
                     db_path=self.analytics_db,
                 )
-                _log_rollback(str(target), str(backup_path) if backup_path else None)
                 return True
             else:
                 logging.error(f"Rollback failed for {target}")
