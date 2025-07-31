@@ -3,8 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from web_gui.scripts.flask_apps.enterprise_dashboard import app
 from dashboard import compliance_metrics_updater as cmu
+cmu.validate_no_recursive_folders = lambda: None
+from web_gui.scripts.flask_apps.enterprise_dashboard import app
 
 
 @pytest.fixture()
@@ -39,6 +40,7 @@ def test_metrics_stream(tmp_path: Path, temp_db: Path, monkeypatch):
     monkeypatch.setattr(cmu, "ensure_tables", lambda *a, **k: None)
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
+    monkeypatch.setattr(cmu, "insert_event", lambda *a, **k: None)
     client = app.test_client()
     resp = client.get("/metrics_stream?once=1")
     assert resp.status_code == 200
