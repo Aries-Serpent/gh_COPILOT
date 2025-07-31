@@ -365,7 +365,7 @@ See [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md) for a full exampl
 
 ### **Primary Databases**
 
-The repository currently maintains **24** active SQLite databases under
+The repository currently maintains **27** active SQLite databases under
 `databases/`:
 
 ```text
@@ -381,6 +381,7 @@ documentation.db
 documentation_templates.db
 enhanced_deployment_tracking.db
 enhanced_intelligence.db
+enterprise_builds.db
 enterprise_ml_engine.db
 flake8_violations.db
 learning_monitor.db
@@ -389,7 +390,9 @@ ml_deployment_engine.db
 monitoring.db
 performance_analysis.db
 production.db
+quantum_consolidated.db
 scaling_innovation.db
+template_consolidated.db
 template_documentation.db
 testing.db
 v3_self_learning_engine.db
@@ -993,8 +996,11 @@ Set these variables in your `.env` file or shell before running scripts:
 
 ## ❗ Known Issues
 
+The automated test suite reports failures for modules that are not yet fully implemented.
+- `DBFirstCodeGenerator` lacks complete template generation logic and causes several tests to fail.
+- `documentation_db_analyzer` and `workflow_enhancer` are also stubs with failing tests.
+- Quantum modules run in **simulation mode** by default. Features such as `quantum_database_search` and `quantum_neural_networks_predictive_maintenance` remain partially stubbed.
 - Quantum monitoring scripts are experimental.
-- `DBFirstCodeGenerator`, `documentation_db_analyzer`, and `workflow_enhancer` remain under development.
 
 ---
 
