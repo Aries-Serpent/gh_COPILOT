@@ -200,6 +200,7 @@ def mine_patterns(
                     "INSERT INTO mined_patterns (pattern, mined_at) VALUES (?, ?)",
                     (pat, datetime.utcnow().isoformat()),
                 )
+                _log_audit_real(str(analytics_db), f"pattern_mined:{pat}")
                 etc = calculate_etc(start_ts, idx, total_steps)
                 if time.time() - start_ts > timeout_seconds:
                     raise TimeoutError(
