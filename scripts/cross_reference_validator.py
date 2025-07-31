@@ -29,7 +29,7 @@ from utils.log_utils import _log_event, log_event
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
-BACKUP_ROOT = CrossPlatformPathManager.get_backup_root()
+backup_root = CrossPlatformPathManager.get_backup_root()
 LOGS_DIR = workspace_root / "logs" / "cross_reference"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"cross_reference_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
@@ -73,6 +73,7 @@ class CrossReferenceValidator:
         logging.info(f"Process ID: {self.process_id}")
 
         self.cross_link_log: List[Dict[str, str]] = []
+        self.suggested_links: List[Dict[str, str]] = []
 
     def _query_cross_reference_patterns(self) -> List[str]:
         """Query production.db for cross-referencing workflow patterns."""
@@ -121,25 +122,71 @@ class CrossReferenceValidator:
         return actions
 
     def _deep_cross_link(self, actions: List[Dict]) -> None:
-        """Perform additional cross-linking between docs and code."""
+        """Perform additional cross-linking between docs and code and suggest
+        new links based on history."""
         workspace = CrossPlatformPathManager.get_workspace_path()
         docs_dirs = [workspace / "docs", workspace / "documentation"]
         code_dirs = [workspace]
+
+        # gather history of past cross links
+        past_links: List[Dict[str, str]] = []
+        if self.analytics_db.exists():
+            with sqlite3.connect(self.analytics_db) as conn:
+                conn.row_factory = sqlite3.Row
+                for row in conn.execute(
+                    "SELECT file_path, linked_path FROM cross_link_events"
+                ):
+                    past_links.append({"file_path": row[0], "linked_path": row[1]})
+
         for d in docs_dirs + code_dirs:
             validate_enterprise_operation(str(d))
+
+        existing_pairs: Set[tuple[str, str]] = {
+            (pl["file_path"], pl["linked_path"]) for pl in past_links
+        }
+
         for act in actions:
             file_name = Path(act["file_path"]).name
             related_paths: Set[Path] = set()
             for d in docs_dirs + code_dirs:
                 for path in d.rglob(file_name):
                     try:
-                        path.relative_to(BACKUP_ROOT)
+                        path.relative_to(backup_root)
                     except ValueError:
                         related_paths.add(path)
             for path in sorted(related_paths):
-                entry = {"file_path": act["file_path"], "linked_path": str(path)}
-                self.cross_link_log.append(entry)
-                log_event(entry, table="cross_link_events", db_path=self.analytics_db)
+                pair = (act["file_path"], str(path))
+                if pair not in existing_pairs:
+                    entry = {"file_path": act["file_path"], "linked_path": str(path)}
+                    self.cross_link_log.append(entry)
+                    log_event(entry, table="cross_link_events", db_path=self.analytics_db)
+                    existing_pairs.add(pair)
+
+        # Suggest additional links using TF-IDF similarity against history
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import cosine_similarity
+
+        history_files = [p["file_path"] for p in past_links]
+        if history_files:
+            vectorizer = TfidfVectorizer().fit(history_files + [a["file_path"] for a in actions])
+            history_vecs = vectorizer.transform(history_files)
+            for act in actions:
+                act_vec = vectorizer.transform([act["file_path"]])
+                sims = cosine_similarity(act_vec, history_vecs)[0]
+                if sims.size == 0:
+                    continue
+                best_idx = sims.argmax()
+                if sims[best_idx] >= 0.2:
+                    suggested = past_links[best_idx]["linked_path"]
+                    pair = (act["file_path"], suggested)
+                    if pair not in existing_pairs:
+                        suggestion = {
+                            "file_path": act["file_path"],
+                            "suggested_link": suggested,
+                            "score": float(sims[best_idx]),
+                        }
+                        self.suggested_links.append(suggestion)
+                        log_event(suggestion, table="cross_link_suggestions", db_path=self.analytics_db)
 
     def _update_dashboard(self, actions: List[Dict]) -> None:
         """Update dashboard/compliance with cross-reference summary."""
@@ -148,6 +195,7 @@ class CrossReferenceValidator:
             "timestamp": datetime.now().isoformat(),
             "cross_linked_actions": actions,
             "cross_links": self.cross_link_log,
+            "suggested_links": self.suggested_links,
             "status": "complete" if actions else "none",
         }
         import json

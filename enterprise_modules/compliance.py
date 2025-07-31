@@ -14,13 +14,7 @@ from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
 
 # Forbidden command patterns that must not appear in operations
-FORBIDDEN_COMMANDS = [
-    "rm -rf",
-    "mkfs",
-    "shutdown",
-    "reboot",
-    "dd if="
-]
+FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
 
 
 def _log_violation(details: str) -> None:
@@ -52,10 +46,14 @@ def _log_rollback(target: str, backup: str | None = None) -> None:
 
 
 def _detect_recursion(path: Path) -> bool:
-    """Return True if ``path`` contains recursive subfolders."""
-    root_name = path.name.lower()
-    for folder in path.rglob(root_name):
+    """Return True if ``path`` contains a nested folder matching itself."""
+    root = path.resolve()
+    for folder in path.rglob(path.name):
         if folder.is_dir() and folder != path:
+            try:
+                folder.resolve().relative_to(root)
+            except ValueError:
+                continue
             return True
     return False
 
@@ -84,7 +82,11 @@ def validate_enterprise_operation(
         violations.append("recursive_workspace")
 
     # Disallow backup directories inside the workspace
-    if backup_root.resolve().as_posix().startswith(workspace.resolve().as_posix()):
+    # Ensure the backup root is truly outside the workspace. Using
+    # ``Path.is_relative_to`` avoids issues with naive string-prefix
+    # comparisons that can misclassify paths such as ``/opt/gh_COPILOT`` and
+    # ``/opt/gh_COPILOT_backup``.
+    if backup_root.resolve().is_relative_to(workspace.resolve()):
         violations.append("backup_root_inside_workspace")
 
     if path.resolve().as_posix().startswith(backup_root.resolve().as_posix()):

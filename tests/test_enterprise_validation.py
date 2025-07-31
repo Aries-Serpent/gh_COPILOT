@@ -25,3 +25,15 @@ def test_validate_enterprise_operation_allows_external_backup(tmp_path, monkeypa
 
     assert validate_enterprise_operation(str(workspace / "data")) is True
 
+
+def test_validate_enterprise_operation_allows_opt_backup(tmp_path, monkeypatch):
+    """Ensure /opt/gh_COPILOT_backup is not treated as inside workspace."""
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", "/opt/gh_COPILOT_backup")
+
+    from enterprise_modules.compliance import validate_enterprise_operation
+
+    assert validate_enterprise_operation(str(workspace / "data")) is True

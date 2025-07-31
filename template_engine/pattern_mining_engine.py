@@ -165,6 +165,7 @@ def mine_patterns(
     validate_no_recursive_folders()
     start_dt = datetime.now()
     start_ts = time.time()
+    timeout_seconds = timeout_minutes * 60
     process_id = os.getpid()
     logging.info("PROCESS STARTED: Pattern Mining Engine")
     logging.info(f"Start Time: {start_dt.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -198,11 +199,15 @@ def mine_patterns(
                     "INSERT INTO mined_patterns (pattern, mined_at) VALUES (?, ?)",
                     (pat, datetime.utcnow().isoformat()),
                 )
-                _log_pattern(analytics_db, pat)
                 etc = calculate_etc(start_ts, idx, total_steps)
+                if time.time() - start_ts > timeout_seconds:
+                    raise TimeoutError(
+                        f"Process exceeded {timeout_minutes} minute timeout"
+                    )
                 if idx % 10 == 0 or idx == total_steps:
                     logging.info(f"Pattern {idx}/{total_steps} stored | ETC: {etc}")
             conn.commit()
+        _log_patterns(patterns, analytics_db)
     cluster_count = 0
     if patterns:
         vec = TfidfVectorizer().fit_transform(patterns)
@@ -230,6 +235,10 @@ def mine_patterns(
                 )"""
             )
             for pat, label in zip(patterns, labels):
+                if time.time() - start_ts > timeout_seconds:
+                    raise TimeoutError(
+                        f"Process exceeded {timeout_minutes} minute timeout"
+                    )
                 conn.execute(
                     "INSERT INTO pattern_clusters (pattern, cluster, ts) VALUES (?,?,?)",
                     (pat, int(label), datetime.utcnow().isoformat()),
