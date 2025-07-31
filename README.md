@@ -26,6 +26,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Dual Copilot Enforcement:** automation scripts now trigger secondary
   validation via `SecondaryCopilotValidator` with aggregated results.
 - **Archive Migration Executor:** dual-copilot validation added for log archival workflows.
+- **Full Validation Coverage:** ingestion, placeholder audits and migration scripts now run SecondaryCopilotValidator by default.
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
