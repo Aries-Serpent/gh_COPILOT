@@ -183,3 +183,34 @@ def test_log_pattern_audit_and_compliance(tmp_path: Path, monkeypatch) -> None:
         au = conn.execute("SELECT COUNT(*) FROM audit_log").fetchone()[0]
         co = conn.execute("SELECT COUNT(*) FROM compliance_tracking").fetchone()[0]
     assert pm == au == co == 1
+
+
+def test_mine_patterns_audit_count_matches(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics = tmp_path / "analytics.db"
+
+    def audit_log(db_name: str, details: str) -> None:
+        with sqlite3.connect(analytics) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS audit_log (id INTEGER PRIMARY KEY AUTOINCREMENT, db_name TEXT, details TEXT, ts TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO audit_log (db_name, details, ts) VALUES (?, ?, ?)",
+                (db_name, details, "test"),
+            )
+            conn.commit()
+
+    monkeypatch.setattr(pme, "_log_audit_real", audit_log)
+    monkeypatch.setattr(pme, "_log_patterns", lambda *a, **k: None)
+
+    prod = tmp_path / "production.db"
+    with sqlite3.connect(prod) as conn:
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("INSERT INTO code_templates (template_code) VALUES ('def x(): pass')")
+
+    patterns = mine_patterns(prod, analytics)
+
+    with sqlite3.connect(analytics) as conn:
+        audit_count = conn.execute("SELECT COUNT(*) FROM audit_log WHERE details LIKE 'pattern_mined:%'").fetchone()[0]
+
+    assert audit_count == len(patterns)
