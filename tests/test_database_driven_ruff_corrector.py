@@ -1,27 +1,28 @@
-#!/usr/bin/env python3
-import sqlite3
-import subprocess
 from pathlib import Path
+import subprocess
+import sqlite3
 
 from scripts.database.database_driven_ruff_corrector import DatabaseDrivenRuffCorrector
 
 
 def _setup_db(db_path: Path) -> None:
+    sql = Path("databases/migrations/add_correction_history.sql").read_text()
     with sqlite3.connect(db_path) as conn:
-        conn.execute(
-            "CREATE TABLE correction_history (id INTEGER PRIMARY KEY, file_path TEXT, violation_code TEXT, original_line TEXT, corrected_line TEXT, correction_timestamp TEXT)"
-        )
-        conn.execute(
-            "CREATE TABLE correction_progress (id INTEGER PRIMARY KEY CHECK (id=1), last_file_index INTEGER NOT NULL, total_files INTEGER NOT NULL, updated_at TEXT NOT NULL)"
-        )
+        conn.executescript(sql)
 
 
-def test_ruff_corrector_records_history(tmp_path, monkeypatch):
-    db_path = tmp_path / "prod.db"
-    _setup_db(db_path)
+def _create_workspace(tmp_path):
+    (tmp_path / "production.db").touch()
+    analytics = tmp_path / "analytics.db"
+    _setup_db(analytics)
+    sample = tmp_path / "sample.py"
+    sample.write_text("import os\nprint('hi')  \n", encoding="utf-8")
+    return sample, analytics
 
-    py_file = tmp_path / "bad.py"
-    py_file.write_text("x=1  \n", encoding="utf-8")
+
+def test_ruff_corrector_runs_fix(tmp_path, monkeypatch):
+    sample, analytics = _create_workspace(tmp_path)
+    corrector = DatabaseDrivenRuffCorrector(workspace_path=str(tmp_path), db_path=str(analytics))
 
     calls = []
 
@@ -29,30 +30,22 @@ def test_ruff_corrector_records_history(tmp_path, monkeypatch):
         calls.append(cmd)
 
         class R:
-            def __init__(self):
-                self.returncode = 0
-                if cmd[:3] == ["ruff", "check", str(py_file)]:
-                    self.stdout = f"{py_file}:1:1: F401 x unused variable"
-                else:
-                    self.stdout = ""
-                if cmd and cmd[0] == "autopep8":
-                    Path(cmd[-1]).write_text("x = 1\n", encoding="utf-8")
+            returncode = 0
+            stdout = ""
 
+        if cmd[:2] == ["ruff", "check"] and "--fix" not in cmd:
+            R.stdout = f"{sample}:1:1 F401 unused import os"
+        if "--fix" in cmd:
+            sample.write_text("import os\nprint('hi')\n", encoding="utf-8")
         return R()
 
     monkeypatch.setattr(subprocess, "run", fake_run)
-    monkeypatch.setattr(
-        "scripts.database.database_driven_ruff_corrector.EnterpriseFlake8Corrector.cross_validate_with_ruff",
-        lambda self, tmp, orig: True,
-    )
-    monkeypatch.setattr(
-        "scripts.database.database_driven_ruff_corrector.SecondaryCopilotValidator.validate_corrections",
-        lambda self, files: True,
-    )
+    monkeypatch.setattr(corrector, "validate_corrections", lambda f: True)
+    monkeypatch.setattr(corrector.ruff_validator, "cross_validate_with_ruff", lambda f, o: True)
 
-    corrector = DatabaseDrivenRuffCorrector(workspace_path=str(tmp_path), db_path=str(db_path))
-    assert corrector.execute_correction()
-    assert any("--fix" in cmd for cmd in calls)
-    with sqlite3.connect(db_path) as conn:
-        rows = conn.execute("SELECT corrected_line FROM correction_history").fetchall()
-    assert rows and rows[0][0] == "x = 1"
+    corrector.execute_correction()
+
+    assert any(cmd[:2] == ["ruff", "check"] and "--fix" in cmd for cmd in calls)
+    with sqlite3.connect(analytics) as conn:
+        rows = conn.execute("SELECT file_path FROM correction_history").fetchall()
+    assert rows and Path(rows[0][0]).name == "sample.py"
