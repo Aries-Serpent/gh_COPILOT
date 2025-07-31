@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+from dashboard import compliance_metrics_updater as cmu
+
+cmu.validate_no_recursive_folders = lambda: None
+cmu.validate_environment_root = lambda: None
 from web_gui.scripts.flask_apps.enterprise_dashboard import app
 
 
@@ -51,6 +55,15 @@ def test_dashboard_info_endpoint():
     resp = client.get("/dashboard_info")
     assert resp.status_code == 200
     assert isinstance(resp.get_json(), dict)
+
+
+def test_summary_endpoint():
+    client = app.test_client()
+    resp = client.get("/summary")
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert "metrics" in data
+    assert "alerts" in data
 
 
 def test_health_endpoint():

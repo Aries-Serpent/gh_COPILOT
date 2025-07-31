@@ -92,3 +92,12 @@ def test_metrics_table(test_app):
     html = resp.data.decode()
     assert "<table" in html
     assert "placeholder_removal" in html
+
+
+def test_summary_endpoint(test_app):
+    client = test_app.test_client()
+    resp = client.get("/summary")
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert "metrics" in data
+    assert "alerts" in data
