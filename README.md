@@ -1091,6 +1091,20 @@ Several small modules provide common helpers:
   ```
 - `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
 - `artifact_manager.py` – package modified files from `tmp/` into `codex_sessions/` for auditing.
+  Use `--package` to create an archive, `--commit` to add it to Git, and `--recover <zip>` to extract.
+
+### Artifact Manager CLI
+
+```bash
+python artifact_manager.py --package
+# package and immediately commit with Git LFS
+ALLOW_AUTOLFS=1 python artifact_manager.py --package --commit "Add session artifacts"
+# recover a prior archive
+python artifact_manager.py --recover codex-session_20250101_120000.zip
+```
+
+The `ci.yml` workflow packages artifacts after tests and commits them with `--commit`, ensuring session
+archives remain tracked via LFS.
 
 ## Future Roadmap
 

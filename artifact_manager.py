@@ -1,8 +1,11 @@
-"""Utility for packaging session artifacts.
+"""Utility for packaging and recovering session artifacts.
 
-Detects changed files in ``tmp/`` since the last commit and archives them into a
-timestamped zip file under ``codex_sessions/``. Git LFS tracking is applied if
-enabled via ``.codex_lfs_policy.yaml``.
+This module detects changed files within a temporary directory, archives them
+into a timestamped zip stored under ``codex_sessions/`` and optionally tracks
+the archive via Git LFS based on ``.codex_lfs_policy.yaml``. Created archives
+are automatically committed to the repository. The module also provides a
+recovery helper to extract the most recent session archive back into the
+temporary directory.
 """
 
 from __future__ import annotations
@@ -100,6 +103,30 @@ def _run_git(cmd: Iterable[str], cwd: Path) -> str:
     return subprocess.check_output(["git", *cmd], cwd=cwd, text=True)
 
 
+def commit_archive(repo_root: Path, archive_path: Path) -> bool:
+    """Commit the created archive to Git.
+
+    Parameters
+    ----------
+    repo_root:
+        Root directory of the repository.
+    archive_path:
+        Path to the zip archive to commit.
+    """
+    try:
+        subprocess.run(["git", "add", str(archive_path)], cwd=repo_root, check=True, capture_output=True)
+        subprocess.run([
+            "git",
+            "commit",
+            "-m",
+            f"chore: add session archive {archive_path.name}",
+        ], cwd=repo_root, check=True, capture_output=True)
+    except subprocess.CalledProcessError as exc:  # noqa: BLE001
+        logger.error("Failed to commit archive: %s", exc)
+        return False
+    return True
+
+
 def detect_tmp_changes(tmp_dir: Path, repo_root: Path) -> List[Path]:
     if not tmp_dir.exists():
         logger.info("Temporary directory %s does not exist.", tmp_dir)
@@ -126,7 +153,42 @@ def create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> Non
                 zf.write(file, arcname=file.relative_to(base_dir))
 
 
+def recover_latest_session(
+    tmp_dir: Path, repo_root: Path, lfs_policy: Optional[LfsPolicy] = None
+) -> Optional[Path]:
+    """Extract the most recent session archive into ``tmp_dir``.
+
+    Parameters
+    ----------
+    tmp_dir:
+        Directory where files will be restored.
+    repo_root:
+        Root directory of the repository containing ``codex_sessions``.
+    """
+    sessions_dir = repo_root / (
+        lfs_policy.session_artifact_dir if lfs_policy else "codex_sessions"
+    )
+    if not sessions_dir.exists():
+        logger.info("No session archives found at %s", sessions_dir)
+        return None
+    archives = sorted(sessions_dir.glob("codex-session_*.zip"), reverse=True)
+    if not archives:
+        logger.info("No session archives present in %s", sessions_dir)
+        return None
+    latest = archives[0]
+    try:
+        with ZipFile(latest, "r") as zf:
+            zf.extractall(repo_root)
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Failed to extract %s: %s", latest, exc)
+        return None
+    logger.info("Recovered session from %s", latest)
+    return latest
+
+
 def package_session(tmp_dir: Path, repo_root: Path, lfs_policy: Optional[LfsPolicy] = None) -> Optional[Path]:
+    """Archive new/modified files from ``tmp_dir`` and commit the archive."""
+
     changed_files = detect_tmp_changes(tmp_dir, repo_root)
     if not changed_files:
         logger.info("No session artifacts detected in %s", tmp_dir)
@@ -135,7 +197,9 @@ def package_session(tmp_dir: Path, repo_root: Path, lfs_policy: Optional[LfsPoli
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     archive_name = f"codex-session_{timestamp}.zip"
 
-    sessions_dir = repo_root / "codex_sessions"
+    sessions_dir = repo_root / (
+        lfs_policy.session_artifact_dir if lfs_policy else "codex_sessions"
+    )
     sessions_dir.mkdir(parents=True, exist_ok=True)
 
     archive_path = sessions_dir / archive_name
@@ -151,17 +215,58 @@ def package_session(tmp_dir: Path, repo_root: Path, lfs_policy: Optional[LfsPoli
     if lfs_policy and lfs_policy.requires_lfs(archive_path):
         lfs_policy.track(archive_path)
 
+    commit_archive(repo_root, archive_path)
+
     return archive_path
 
 
+def recover_latest_session(tmp_dir: Path, repo_root: Path) -> Optional[Path]:
+    """Extract the most recent session archive back into ``tmp_dir``."""
+    sessions_dir = repo_root / "codex_sessions"
+    if not sessions_dir.exists():
+        logger.info("Sessions directory %s does not exist", sessions_dir)
+        return None
+
+    archives = sorted(sessions_dir.glob("codex-session_*.zip"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if not archives:
+        logger.info("No session archives found in %s", sessions_dir)
+        return None
+
+    latest = archives[0]
+    try:
+        with ZipFile(latest, "r") as zf:
+            zf.extractall(repo_root)
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Failed to extract archive %s: %s", latest, exc)
+        return None
+
+    logger.info("Recovered session archive %s", latest)
+    return latest
+
+
 def main() -> None:
+    """Entry point for CLI usage."""
+
+    parser = argparse.ArgumentParser(description="Manage session artifacts")
+    parser.add_argument(
+        "--tmp-dir",
+        type=Path,
+        default=Path("tmp"),
+        help="Temporary directory containing artifacts",
+    )
+    parser.add_argument(
+        "--recover",
+        action="store_true",
+        help="Recover the latest session archive instead of packaging",
+    )
+    args = parser.parse_args()
+
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
     parser = argparse.ArgumentParser(description="Manage session artifacts and Git LFS policies")
     parser.add_argument("--sync-gitattributes", action="store_true", help="regenerate .gitattributes from policy")
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parent
-    tmp_dir = repo_root / "tmp"
     policy = LfsPolicy(repo_root)
 
     if args.sync_gitattributes:
