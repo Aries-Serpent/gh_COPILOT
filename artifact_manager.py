@@ -7,6 +7,7 @@ enabled via ``.codex_lfs_policy.yaml``.
 
 from __future__ import annotations
 
+import argparse
 import logging
 import subprocess
 from datetime import datetime, timezone
@@ -35,6 +36,7 @@ class LfsPolicy:
             ".sqlite",
             ".exe",
         ]
+        self.gitattributes_template = ""
         self.root = root
 
         policy_file = root / ".codex_lfs_policy.yaml"
@@ -47,6 +49,7 @@ class LfsPolicy:
                 self.enabled = bool(data.get("enable_autolfs", False))
                 self.size_threshold_mb = int(data.get("size_threshold_mb", 50))
                 self.binary_extensions = list(data.get("binary_extensions", self.binary_extensions))
+                self.gitattributes_template = data.get("gitattributes_template", "")
 
     def requires_lfs(self, path: Path) -> bool:
         if not path.is_file():
@@ -68,6 +71,29 @@ class LfsPolicy:
                 subprocess.run(["git", "add", str(git_attr)], cwd=self.root, check=True, capture_output=True)
         except subprocess.CalledProcessError as exc:  # noqa: BLE001
             logger.error("Failed to set up Git LFS tracking: %s", exc)
+
+    def sync_gitattributes(self) -> None:
+        """Regenerate .gitattributes from the policy template."""
+        if not self.gitattributes_template:
+            logger.debug("No gitattributes template defined in policy.")
+            return
+
+        attrs_file = self.root / ".gitattributes"
+        lines = [line.rstrip() for line in self.gitattributes_template.splitlines() if line.strip()]
+        patterns = {line.split()[0] for line in lines}
+
+        for ext in self.binary_extensions:
+            pattern = f"*{ext}"
+            if pattern not in patterns:
+                lines.append(f"{pattern} filter=lfs diff=lfs merge=lfs -text")
+                patterns.add(pattern)
+
+        content = "# Git LFS rules for binary artifacts\n" + "\n".join(lines) + "\n# End of LFS patterns\n"
+
+        current = attrs_file.read_text(encoding="utf-8") if attrs_file.exists() else ""
+        if current.strip() != content.strip():
+            attrs_file.write_text(content, encoding="utf-8")
+            logger.info("Updated %s", attrs_file)
 
 
 def _run_git(cmd: Iterable[str], cwd: Path) -> str:
@@ -130,9 +156,18 @@ def package_session(tmp_dir: Path, repo_root: Path, lfs_policy: Optional[LfsPoli
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
+    parser = argparse.ArgumentParser(description="Manage session artifacts and Git LFS policies")
+    parser.add_argument("--sync-gitattributes", action="store_true", help="regenerate .gitattributes from policy")
+    args = parser.parse_args()
+
     repo_root = Path(__file__).resolve().parent
     tmp_dir = repo_root / "tmp"
     policy = LfsPolicy(repo_root)
+
+    if args.sync_gitattributes:
+        policy.sync_gitattributes()
+        return
+
     package_session(tmp_dir, repo_root, policy)
 
 
