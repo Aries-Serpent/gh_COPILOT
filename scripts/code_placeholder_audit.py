@@ -258,7 +258,7 @@ def update_dashboard(
     analytics_db: Path,
     summary_json: Path | None = None,
 ) -> None:
-    """Write summary JSON to dashboard/compliance directory.
+    """Write summary JSON to ``dashboard/compliance`` directory.
 
     Parameters
     ----------
@@ -269,20 +269,33 @@ def update_dashboard(
     dashboard_dir.mkdir(parents=True, exist_ok=True)
     open_count = count
     resolved = 0
+    placeholder_counts: Dict[str, int] = {}
     if analytics_db.exists():
         with sqlite3.connect(analytics_db) as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
+            )
             open_count = cur.fetchone()[0]
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
+            )
             resolved = cur.fetchone()[0]
+            cur = conn.execute(
+                "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type"
+            )
+            placeholder_counts = {row[0]: row[1] for row in cur.fetchall()}
+
     compliance = max(0, 100 - open_count)
     status = "complete" if open_count == 0 else "issues_pending"
+    compliance_status = "compliant" if open_count == 0 else "non_compliant"
     data = {
         "timestamp": datetime.now().isoformat(),
         "findings": open_count,
         "resolved_count": resolved,
         "compliance_score": compliance,
         "progress_status": status,
+        "compliance_status": compliance_status,
+        "placeholder_counts": placeholder_counts,
     }
     path = summary_json or dashboard_dir / "placeholder_summary.json"
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
