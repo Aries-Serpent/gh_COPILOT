@@ -3,7 +3,6 @@
 Database Structure Analysis for PIS Development
 """
 import sqlite3
-import sys
 from pathlib import Path
 
 def analyze_production_db():

@@ -139,6 +139,7 @@ source .venv/bin/activate
 
 3. Run tests with appropriate tools:
 ```bash
+make lint   # Run Ruff formatting and lint checks
 make test   # Preferred test aggregator, combines unit and integration tests
 pytest -v   # Alternative for verbose test output
 ```

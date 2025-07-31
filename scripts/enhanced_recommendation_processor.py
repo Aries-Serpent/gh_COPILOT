@@ -6,13 +6,10 @@ Process and action all remaining system recommendations
 """
 
 import os
-import sys
 import sqlite3
 import json
-import shutil
 from datetime import datetime
 from pathlib import Path
-import hashlib
 
 def process_recommendations():
     """🔧 Process and action all remaining recommendations"""

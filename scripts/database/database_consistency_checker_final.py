@@ -4,12 +4,11 @@ Database Consistency Checker - FINAL CORRECTED VERSION
 Uses EXISTING databases/logs.db with correct column names
 """
 
-import os
 import sqlite3
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Any
 from tqdm import tqdm
 import logging
 

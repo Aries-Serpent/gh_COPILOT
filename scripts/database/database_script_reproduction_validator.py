@@ -12,16 +12,14 @@ can produce all scripts found via semantic search, while validating:
 DUAL COPILOT validation pattern certified.
 """
 
-import os
 import sys
 import sqlite3
 import json
 import subprocess
 import hashlib
-import tempfile
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Set, Tuple, Optional, Any
+from typing import Dict, Set, Tuple, Any
 import logging
 from tqdm import tqdm
 

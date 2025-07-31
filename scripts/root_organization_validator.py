@@ -9,7 +9,6 @@ import os
 import json
 from datetime import datetime
 from pathlib import Path
-import hashlib
 
 def validate_root_organization():
     """📁 Validate root folder organization and file placement"""

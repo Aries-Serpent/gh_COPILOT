@@ -17,14 +17,11 @@ VERSION: 1.0 - Comprehensive Integration Enhancement
 """
 
 import os
-import sys
-import time
 import json
 import sqlite3
-import threading
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List
 from dataclasses import dataclass
 from tqdm import tqdm
 import logging

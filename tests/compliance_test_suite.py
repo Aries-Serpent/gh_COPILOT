@@ -22,7 +22,6 @@ from typing import Any, Dict, List
 
 from tqdm import tqdm
 
-from quantum.quantum_compliance_engine import QuantumComplianceEngine
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from template_engine.db_first_code_generator import DBFirstCodeGenerator
 from template_engine.pattern_clustering_sync import PatternClusteringSync

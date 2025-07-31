@@ -36,6 +36,8 @@ extend-exclude = [
     "enterprise_modules/*",
     "quantum/*",
     "quantum_optimizer.py",
+    "databases/*.db",
+    "*.log",
 ]
 
 [tool.ruff.lint]

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import logging
 import shutil
 import sqlite3
 from pathlib import Path
