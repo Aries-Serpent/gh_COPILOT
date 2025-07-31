@@ -39,7 +39,7 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 - **STUB-010:** Cross-reference updates verified in integration tests.
 - **STUB-011:** Analytics logging hooks pass in `tests/test_add_violation_and_rollback_logs.py` (added in commit [7e6171d](../commit/7e6171d)).
 - **STUB-012:** Dashboard progress indicators validated in `tests/test_dashboard_placeholder_metrics.py` (tracked in commit [9cdf0e8](../commit/9cdf0e8)).
-- **STUB-013:** Legacy cleanup workflow implemented; `unified_legacy_cleanup_system.py` added.
+- **STUB-013:** Legacy cleanup workflow implemented via `unified_legacy_cleanup_system.py`.
 
 ## Lint and Type Check Summary
 
