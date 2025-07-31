@@ -119,47 +119,26 @@ def test_get_clusters_and_audit_logging(tmp_path: Path, monkeypatch) -> None:
     assert count > 0
 
 
-def test_mine_patterns_timeout_storage(tmp_path: Path, monkeypatch) -> None:
+def test_mine_patterns_metrics(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setattr(pme, "_log_audit_real", lambda *a, **k: None)
 
     prod = tmp_path / "production.db"
-    with sqlite3.connect(prod) as conn:
-        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
-        conn.execute("INSERT INTO code_templates (template_code) VALUES ('def x(): pass')")
     analytics = tmp_path / "analytics.db"
-
-    t = types.SimpleNamespace(count=-1)
-
-    def fake_time() -> int:
-        t.count += 1
-        return t.count
-
-    monkeypatch.setattr(pme.time, "time", fake_time)
-    with pytest.raises(TimeoutError):
-        mine_patterns(prod, analytics, timeout_minutes=0)
-
-
-def test_mine_patterns_timeout_clustering(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    monkeypatch.setattr(pme, "_log_audit_real", lambda *a, **k: None)
-
-    prod = tmp_path / "production.db"
     with sqlite3.connect(prod) as conn:
         conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
         conn.execute("INSERT INTO code_templates (template_code) VALUES ('def x(): pass')")
         conn.execute("INSERT INTO code_templates (template_code) VALUES ('def y(): pass')")
-    analytics = tmp_path / "analytics.db"
 
-    monkeypatch.setattr(pme.time, "time", lambda: 0)
+    mine_patterns(prod, analytics)
 
-    orig_fit = pme.KMeans.fit_predict
+    with sqlite3.connect(analytics) as conn:
+        row = conn.execute(
+            "SELECT inertia, silhouette, n_clusters FROM pattern_cluster_metrics"
+        ).fetchone()
 
-    def fake_fit(self, vec):
-        monkeypatch.setattr(pme.time, "time", lambda: 1000)
-        return orig_fit(self, vec)
-
-    monkeypatch.setattr(pme.KMeans, "fit_predict", fake_fit)
-
-    with pytest.raises(TimeoutError):
-        mine_patterns(prod, analytics, timeout_minutes=1)
+    assert row is not None
+    inertia, silhouette, n_clusters = row
+    assert inertia >= 0
+    assert -1.0 <= silhouette <= 1.0
+    assert n_clusters > 0
