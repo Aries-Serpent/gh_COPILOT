@@ -38,8 +38,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
   optimizer and search helpers. These modules are **experimental** and default to simulation mode unless `QISKIT_IBM_TOKEN` is configured.
 
 ### 🏆 **Enterprise Achievements**
- - ✅ **Script Validation**: 1679 scripts synchronized
- - **24 Synchronized Databases**: Enterprise data management
+ - ✅ **Script Validation**: 1,679 scripts synchronized
+ - **30 Synchronized Databases**: Enterprise data management
 
 ---
 
@@ -47,6 +47,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 
 ### **Enterprise Systems**
 - **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`
+- [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
 - **Flask Enterprise Dashboard:** basic endpoints and templates
 - **Template Intelligence Platform:** tracks generated scripts
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
