@@ -486,6 +486,9 @@ compliance logging. The main modules are:
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
+* **Artifact Manager** – `artifact_manager.create_session_archive()` bundles
+  files created in `tmp/` during the current session into a timestamped archive
+  under `codex_sessions/`. Paths can be configured via `.codex_lfs_policy.yaml`.
 
 
 ```python
