@@ -1,4 +1,5 @@
 import runpy
+from pathlib import Path
 
 
 def _runs_with_dual_validation(module: str, monkeypatch) -> bool:
@@ -37,6 +38,23 @@ def _runs_with_dual_validation(module: str, monkeypatch) -> bool:
             "scripts.optimization.optimize_to_100_percent.finalize_100_percent_achievement",
             lambda: True,
         )
+    if module.endswith("workspace_optimizer"):
+        monkeypatch.setattr(
+            "scripts.file_management.workspace_optimizer.WorkspaceOptimizer.optimize",
+            lambda self, wp: [],
+        )
+        monkeypatch.setattr(
+            "utils.cross_platform_paths.CrossPlatformPathManager.get_workspace_path",
+            lambda: Path.cwd(),
+        )
+        monkeypatch.setattr(
+            "utils.cross_platform_paths.CrossPlatformPathManager.get_backup_root",
+            lambda: Path.cwd(),
+        )
+    if module.endswith("quick_filesystem_check"):
+        import io
+
+        monkeypatch.setattr("builtins.open", lambda *a, **kw: io.StringIO(""))
 
     try:
         runpy.run_module(module, run_name="__main__")
@@ -51,3 +69,11 @@ def test_optimizer_triggers_dual_validation(monkeypatch):
 
 def test_security_triggers_dual_validation(monkeypatch):
     assert _runs_with_dual_validation("scripts.optimization.security_compliance_enhancer", monkeypatch)
+
+
+def test_workspace_optimizer_triggers_dual(monkeypatch):
+    assert _runs_with_dual_validation("scripts.file_management.workspace_optimizer", monkeypatch)
+
+
+def test_quick_filesystem_check_triggers_dual(monkeypatch):
+    assert _runs_with_dual_validation("scripts.quick_filesystem_check", monkeypatch)

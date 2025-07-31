@@ -6,6 +6,7 @@ Quick Filesystem Check Script
 import os
 import sys
 import logging
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 print("FILESYSTEM ISOLATION CHECK")
 print("=" * 50)
@@ -46,3 +47,5 @@ with open('quick_filesystem_check.txt', 'w') as f:
 
 print(
         f"\nResults saved to: {os.path.join(os.getcwd(), 'quick_filesystem_check.txt')}")
+
+SecondaryCopilotValidator().validate_corrections(["quick_filesystem_check.txt"])

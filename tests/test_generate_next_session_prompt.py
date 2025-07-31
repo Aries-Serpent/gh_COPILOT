@@ -18,8 +18,21 @@ def test_generate_next_session_prompt(tmp_path, monkeypatch):
     entropy = tmp_path / "NEXT_SESSION_ENTROPY_RESOLUTION.md"
     entropy.write_text("PRIORITY 1: Task A\n- fix issue A\n- fix issue B\n")
     monkeypatch.chdir(tmp_path)
+
+    called = {"v": False}
+
+    def dummy_validate(self, files):
+        called["v"] = True
+        return True
+
+    monkeypatch.setattr(
+        "secondary_copilot_validator.SecondaryCopilotValidator.validate_corrections",
+        dummy_validate,
+    )
+
     prompt = generate_next_session_prompt(Path("."))
     assert "Validation Status: FAILED" in prompt
     assert "anti_recursion_compliance" in prompt
     assert "fix issue A" in prompt
     assert "fix issue B" in prompt
+    assert called["v"]
