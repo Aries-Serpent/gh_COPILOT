@@ -1,4 +1,5 @@
 import runpy
+from pathlib import Path
 
 
 def _runs_with_dual_validation(module: str, monkeypatch) -> bool:
@@ -42,6 +43,23 @@ def _runs_with_dual_validation(module: str, monkeypatch) -> bool:
             "scripts.optimization.optimize_to_100_percent.finalize_100_percent_achievement",
             lambda: True,
         )
+    if module.endswith("workspace_optimizer"):
+        monkeypatch.setattr(
+            "scripts.file_management.workspace_optimizer.WorkspaceOptimizer.optimize",
+            lambda self, wp: [],
+        )
+        monkeypatch.setattr(
+            "utils.cross_platform_paths.CrossPlatformPathManager.get_workspace_path",
+            lambda: Path.cwd(),
+        )
+        monkeypatch.setattr(
+            "utils.cross_platform_paths.CrossPlatformPathManager.get_backup_root",
+            lambda: Path.cwd(),
+        )
+    if module.endswith("quick_filesystem_check"):
+        import io
+
+        monkeypatch.setattr("builtins.open", lambda *a, **kw: io.StringIO(""))
 
     try:
         runpy.run_module(module, run_name="__main__")

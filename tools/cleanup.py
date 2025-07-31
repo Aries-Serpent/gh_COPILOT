@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Tuple
 
 from tqdm import tqdm
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 DB_PATH = Path("databases/production.db")
 TABLE = "obsolete_table"
@@ -72,6 +73,8 @@ def cleanup_obsolete_entries(db_path: Path = DB_PATH) -> Tuple[int, bool]:
 
     with sqlite3.connect(db_path) as conn:
         valid = _secondary_validation(conn)
+
+    SecondaryCopilotValidator().validate_corrections([str(db_path)])
 
     logging.info("Rows deleted: %s", deleted)
     logging.info("Validation: %s", "passed" if valid else "failed")

@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+from secondary_copilot_validator import SecondaryCopilotValidator
 from typing import List, Tuple
 
 
@@ -65,7 +66,15 @@ def generate_next_session_prompt(directory: Path | None = None) -> str:
         prompt_lines.append("Key Tasks:")
         for task in tasks:
             prompt_lines.append(f"- {task}")
-    return "\n".join(prompt_lines)
+    prompt = "\n".join(prompt_lines)
+    files = []
+    if report and report.exists():
+        files.append(str(report))
+    if entropy_file.exists():
+        files.append(str(entropy_file))
+    if files:
+        SecondaryCopilotValidator().validate_corrections(files)
+    return prompt
 
 
 def main() -> None:
