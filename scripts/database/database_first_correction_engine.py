@@ -10,8 +10,11 @@ import sqlite3
 import subprocess
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any, Dict, List
 from tqdm import tqdm
+import hashlib
+
+from scripts.automation.template_auto_generation_complete import TemplateSynthesisEngine
 
 # MANDATORY: Visual processing indicators and logging
 logger = logging.getLogger("DatabaseFirstCorrectionEngine")
@@ -350,6 +353,13 @@ class DatabaseFirstCorrectionEngine:
         # Synchronize codebase first
         sync_stats = self.synchronize_codebase_with_database()
 
+        # Regenerate templates and store them
+        generated_templates = TemplateSynthesisEngine().synthesize_templates()
+        if generated_templates:
+            self._store_generated_templates(generated_templates)
+
+        # Apply automated corrections
+
         # Apply automated corrections
         python_files = list(self.workspace_path.rglob("*.py"))
 
@@ -459,6 +469,58 @@ class DatabaseFirstCorrectionEngine:
 
         # For other cases, return original (manual review needed)
         return line
+
+    def _store_generated_templates(self, templates: List[str]) -> None:
+        """Store synthesized template information in production.db."""
+        try:
+            with sqlite3.connect(self.production_db) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS template_repository (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        template_name TEXT NOT NULL,
+                        template_content TEXT NOT NULL,
+                        template_category TEXT,
+                        usage_count INTEGER DEFAULT 0,
+                        success_rate REAL DEFAULT 0.0,
+                        last_used DATETIME,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        template_hash TEXT UNIQUE
+                    )
+                    """
+                )
+
+                for tmpl in templates:
+                    template_hash = hashlib.sha256(tmpl.encode()).hexdigest()
+                    cursor.execute(
+                        "SELECT 1 FROM template_repository WHERE template_hash = ?",
+                        (template_hash,),
+                    )
+                    if cursor.fetchone():
+                        continue
+                    name = f"auto_{template_hash[:8]}"
+                    cursor.execute(
+                        """
+                        INSERT INTO template_repository (
+                            template_name,
+                            template_content,
+                            template_category,
+                            last_used,
+                            template_hash
+                        ) VALUES (?, ?, ?, ?, ?)
+                        """,
+                        (
+                            name,
+                            tmpl,
+                            "auto_generated",
+                            datetime.now().isoformat(),
+                            template_hash,
+                        ),
+                    )
+                conn.commit()
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to store templates: {e}")
 
     def _log_correction_results(self, results: Dict[str, Any]) -> None:
         """📊 Log correction results to analytics database"""
