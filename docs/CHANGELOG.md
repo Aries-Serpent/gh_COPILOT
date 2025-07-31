@@ -1,8 +1,9 @@
 # Changelog
 
 ## [4.1.13] - 2025-08-04
-- Documented 96.8% dual-copilot coverage as verified in `LESSONS_LEARNED_INTEGRATION_VALIDATION_REPORT.md`.
-- Recorded enterprise compliance reaching 99.1% based on recent audits.
+- Implemented `unified_legacy_cleanup_system` wrapper with compliance checks.
+- Updated `STUB_MODULE_STATUS.md` marking STUB-013 as complete.
+- Added tests for cleanup logging to analytics.
 
 ## [4.1.12] - 2025-08-03
 - Audited wrapper modules and documented status in whitepaper.
