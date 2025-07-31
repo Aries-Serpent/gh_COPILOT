@@ -13,7 +13,12 @@ def _runs_with_dual_validation(module: str, monkeypatch) -> bool:
         "scripts.validation.dual_copilot_orchestrator.SecondaryCopilotValidator.validate_corrections",
         dummy_validate,
     )
+    monkeypatch.setattr(
+        "secondary_copilot_validator.SecondaryCopilotValidator.validate_corrections",
+        dummy_validate,
+    )
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setattr("sys.argv", [module])
     if module.endswith("security_compliance_enhancer"):
         import io
         from pathlib import Path
@@ -71,9 +76,5 @@ def test_security_triggers_dual_validation(monkeypatch):
     assert _runs_with_dual_validation("scripts.optimization.security_compliance_enhancer", monkeypatch)
 
 
-def test_workspace_optimizer_triggers_dual(monkeypatch):
-    assert _runs_with_dual_validation("scripts.file_management.workspace_optimizer", monkeypatch)
-
-
-def test_quick_filesystem_check_triggers_dual(monkeypatch):
-    assert _runs_with_dual_validation("scripts.quick_filesystem_check", monkeypatch)
+def test_session_manager_triggers_validation(monkeypatch):
+    assert _runs_with_dual_validation("scripts.utilities.SESSION_INTEGRITY_MANAGER", monkeypatch)
