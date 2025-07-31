@@ -8,24 +8,21 @@ Infrastructure: Proven Phase 2 patterns with 100% success rate
 import os
 import sys
 import subprocess
-import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import Dict, Any
 from tqdm import tqdm
 import time
 
 # Configure enterprise logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler(
-            f'phase3_systematic_processing_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
-        ),
-        logging.StreamHandler()
-    ]
+        logging.FileHandler(f"phase3_systematic_processing_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -44,19 +41,19 @@ class Phase3SystematicProcessor:
             "E302": {"description": "Expected blank lines", "priority": 2, "estimated_files": 100},
             "E128": {"description": "Continuation line indentation", "priority": 3, "estimated_files": 50},
             "E501": {"description": "Line too long", "priority": 4, "estimated_files": 400},
-            "W293": {"description": "Blank line with whitespace", "priority": 5, "estimated_files": 990}
+            "W293": {"description": "Blank line with whitespace", "priority": 5, "estimated_files": 990},
         }
 
         self.total_estimated_files = 1796
         self.processing_results = {}
 
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info("# # # 🚀 PHASE 3 SYSTEMATIC PROCESSOR INITIALIZED")
         logger.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"Process ID: {self.process_id}")
         logger.info(f"Target Files: {self.total_estimated_files}")
         logger.info(f"Violation Categories: {len(self.violation_categories)}")
-        logger.info("="*80)
+        logger.info("=" * 80)
 
     def scan_violation_baseline(self) -> Dict[str, int]:
         """# # # 📊 Establish baseline violation counts for Phase 3"""
@@ -64,24 +61,31 @@ class Phase3SystematicProcessor:
 
         baseline_violations = {}
 
-        with tqdm(
-    total=len(self.violation_categories), desc="# # # 📊 Baseline Scan", unit="category") as pbar:
+        with tqdm(total=len(self.violation_categories), desc="# # # 📊 Baseline Scan", unit="category") as pbar:
             for violation_code, info in self.violation_categories.items():
                 pbar.set_description(f"# # # 🔍 Scanning {violation_code}")
 
                 try:
                     # Run flake8 for specific violation type
-                    result = subprocess.run([
-                        sys.executable, "-m", "flake8",
-                        "--select", violation_code,
-                        "--statistics",
-                        str(self.workspace_root)
-                    ], capture_output=True, text=True, timeout=300)
+                    result = subprocess.run(
+                        [
+                            sys.executable,
+                            "-m",
+                            "flake8",
+                            "--select",
+                            violation_code,
+                            "--statistics",
+                            str(self.workspace_root),
+                        ],
+                        capture_output=True,
+                        text=True,
+                        timeout=300,
+                    )
 
                     # Parse violation count
                     violation_count = 0
                     if result.stdout:
-                        lines = result.stdout.strip().split('\n')
+                        lines = result.stdout.strip().split("\n")
                         for line in lines:
                             if violation_code in line:
                                 try:
@@ -117,23 +121,31 @@ class Phase3SystematicProcessor:
 
         try:
             # Get F541 violations
-            result = subprocess.run([
-                sys.executable, "-m", "flake8",
-                "--select", "F541",
-                "--format", "%(path)s:%(row)d:%(col)d: %(code)s %(text)s",
-                str(self.workspace_root)
-            ], capture_output=True, text=True, timeout=300)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "flake8",
+                    "--select",
+                    "F541",
+                    "--format",
+                    "%(path)s:%(row)d:%(col)d: %(code)s %(text)s",
+                    str(self.workspace_root),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=300,
+            )
 
             if result.stdout:
-                violation_lines = result.stdout.strip().split('\n')
+                violation_lines = result.stdout.strip().split("\n")
 
-                with tqdm(
-    total=len(violation_lines), desc="# # # 🔧 F541 Processing", unit="violation") as pbar:
+                with tqdm(total=len(violation_lines), desc="# # # 🔧 F541 Processing", unit="violation") as pbar:
                     for line in violation_lines:
-                        if ':' in line and 'F541' in line:
+                        if ":" in line and "F541" in line:
                             try:
                                 # Parse violation details
-                                parts = line.split(':')
+                                parts = line.split(":")
                                 if len(parts) >= 4:
                                     file_path = parts[0]
                                     line_num = int(parts[1])
@@ -160,31 +172,30 @@ class Phase3SystematicProcessor:
             "violations_fixed": violations_fixed,
             "files_processed": files_processed,
             "duration_seconds": duration,
-            "success_rate": (violations_fixed / max(files_processed, 1)) * 100
+            "success_rate": (violations_fixed / max(files_processed, 1)) * 100,
         }
 
-        logger.info(
-    f"# # # ✅ F541 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(f"# # # ✅ F541 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
         return result_data
 
     def fix_f541_violation(self, file_path: str, line_num: int) -> bool:
         """# # # 🔧 Fix individual F541 violation"""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
 
             if line_num <= len(lines):
                 line = lines[line_num - 1]
 
                 # Common F541 fixes
-                if '{' in line and '}' in line:
+                if "{" in line and "}" in line:
                     # Fix empty f-string placeholders
-                    fixed_line = line.replace('{}', '{placeholder}')
+                    fixed_line = line.replace("{}", "{placeholder}")
 
                     if fixed_line != line:
                         lines[line_num - 1] = fixed_line
 
-                        with open(file_path, 'w', encoding='utf-8') as f:
+                        with open(file_path, "w", encoding="utf-8") as f:
                             f.writelines(lines)
 
                         return True
@@ -205,13 +216,21 @@ class Phase3SystematicProcessor:
 
         try:
             # Use autopep8 for E302 violations
-            result = subprocess.run([
-                sys.executable, "-m", "autopep8",
-                "--select", "E302",
-                "--in-place",
-                "--recursive",
-                str(self.workspace_root)
-            ], capture_output=True, text=True, timeout=600)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "autopep8",
+                    "--select",
+                    "E302",
+                    "--in-place",
+                    "--recursive",
+                    str(self.workspace_root),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
 
             # Count processed files
             if result.returncode == 0:
@@ -232,11 +251,10 @@ class Phase3SystematicProcessor:
             "violations_fixed": violations_fixed,
             "files_processed": files_processed,
             "duration_seconds": duration,
-            "success_rate": (violations_fixed / max(files_processed, 1)) * 100
+            "success_rate": (violations_fixed / max(files_processed, 1)) * 100,
         }
 
-        logger.info(
-    f"# # # ✅ E302 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(f"# # # ✅ E302 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
         return result_data
 
     def process_e128_violations(self) -> Dict[str, Any]:
@@ -249,13 +267,21 @@ class Phase3SystematicProcessor:
 
         try:
             # Use autopep8 for E128 violations
-            result = subprocess.run([
-                sys.executable, "-m", "autopep8",
-                "--select", "E128",
-                "--in-place",
-                "--recursive",
-                str(self.workspace_root)
-            ], capture_output=True, text=True, timeout=600)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "autopep8",
+                    "--select",
+                    "E128",
+                    "--in-place",
+                    "--recursive",
+                    str(self.workspace_root),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
 
             if result.returncode == 0:
                 py_files = list(self.workspace_root.rglob("*.py"))
@@ -274,11 +300,10 @@ class Phase3SystematicProcessor:
             "violations_fixed": violations_fixed,
             "files_processed": files_processed,
             "duration_seconds": duration,
-            "success_rate": (violations_fixed / max(files_processed, 1)) * 100
+            "success_rate": (violations_fixed / max(files_processed, 1)) * 100,
         }
 
-        logger.info(
-    f"# # # ✅ E128 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(f"# # # ✅ E128 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
         return result_data
 
     def process_e501_violations(self) -> Dict[str, Any]:
@@ -291,14 +316,22 @@ class Phase3SystematicProcessor:
 
         try:
             # Use autopep8 for E501 violations with aggressive mode
-            result = subprocess.run([
-                sys.executable, "-m", "autopep8",
-                "--select", "E501",
-                "--aggressive",
-                "--in-place",
-                "--recursive",
-                str(self.workspace_root)
-            ], capture_output=True, text=True, timeout=900)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "autopep8",
+                    "--select",
+                    "E501",
+                    "--aggressive",
+                    "--in-place",
+                    "--recursive",
+                    str(self.workspace_root),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=900,
+            )
 
             if result.returncode == 0:
                 py_files = list(self.workspace_root.rglob("*.py"))
@@ -317,11 +350,10 @@ class Phase3SystematicProcessor:
             "violations_fixed": violations_fixed,
             "files_processed": files_processed,
             "duration_seconds": duration,
-            "success_rate": (violations_fixed / max(files_processed, 1)) * 100
+            "success_rate": (violations_fixed / max(files_processed, 1)) * 100,
         }
 
-        logger.info(
-    f"# # # ✅ E501 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(f"# # # ✅ E501 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
         return result_data
 
     def process_w293_violations(self) -> Dict[str, Any]:
@@ -334,13 +366,21 @@ class Phase3SystematicProcessor:
 
         try:
             # Use autopep8 for W293 violations
-            result = subprocess.run([
-                sys.executable, "-m", "autopep8",
-                "--select", "W293",
-                "--in-place",
-                "--recursive",
-                str(self.workspace_root)
-            ], capture_output=True, text=True, timeout=600)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "autopep8",
+                    "--select",
+                    "W293",
+                    "--in-place",
+                    "--recursive",
+                    str(self.workspace_root),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
 
             if result.returncode == 0:
                 py_files = list(self.workspace_root.rglob("*.py"))
@@ -359,11 +399,10 @@ class Phase3SystematicProcessor:
             "violations_fixed": violations_fixed,
             "files_processed": files_processed,
             "duration_seconds": duration,
-            "success_rate": (violations_fixed / max(files_processed, 1)) * 100
+            "success_rate": (violations_fixed / max(files_processed, 1)) * 100,
         }
 
-        logger.info(
-    f"# # # ✅ W293 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
+        logger.info(f"# # # ✅ W293 COMPLETE: {violations_fixed} violations fixed in {duration:.1f}s")
         return result_data
 
     def execute_systematic_processing(self) -> Dict[str, Any]:
@@ -379,14 +418,13 @@ class Phase3SystematicProcessor:
             self.process_e302_violations,
             self.process_e128_violations,
             self.process_e501_violations,
-            self.process_w293_violations
+            self.process_w293_violations,
         ]
 
         processing_results = []
         total_violations_fixed = 0
 
-        with tqdm(
-    total=len(processing_methods), desc="# # # 🔄 Phase 3 Processing", unit="category") as pbar:
+        with tqdm(total=len(processing_methods), desc="# # # 🔄 Phase 3 Processing", unit="category") as pbar:
             for method in processing_methods:
                 pbar.set_description(f"# # # 🔧 {method.__name__.split('_')[1].upper()}")
 
@@ -414,7 +452,7 @@ class Phase3SystematicProcessor:
             "total_violations_fixed": total_violations_fixed,
             "reduction_percentage": reduction_percentage,
             "processing_results": processing_results,
-            "success_status": "COMPLETE"
+            "success_status": "COMPLETE",
         }
 
         return completion_data
@@ -424,10 +462,10 @@ class Phase3SystematicProcessor:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         report_file = f"phase3_completion_report_{timestamp}.txt"
 
-        with open(report_file, 'w', encoding='utf-8') as f:
-            f.write("="*80 + "\n")
+        with open(report_file, "w", encoding="utf-8") as f:
+            f.write("=" * 80 + "\n")
             f.write("# # # 🚀 PHASE 3 SYSTEMATIC PROCESSING - COMPLETION REPORT\n")
-            f.write("="*80 + "\n\n")
+            f.write("=" * 80 + "\n\n")
 
             f.write("# # # 📊 EXECUTION SUMMARY:\n")
             f.write(f"   Start Time: {completion_data['start_time']}\n")
@@ -436,22 +474,21 @@ class Phase3SystematicProcessor:
             f.write(f"   Status: {completion_data['success_status']}\n\n")
 
             f.write("📈 VIOLATION REDUCTION:\n")
-            total_baseline = sum(completion_data['baseline_violations'].values())
-            total_final = sum(completion_data['final_violations'].values())
+            total_baseline = sum(completion_data["baseline_violations"].values())
+            total_final = sum(completion_data["final_violations"].values())
             f.write(f"   Baseline Total: {total_baseline}\n")
             f.write(f"   Final Total: {total_final}\n")
             f.write(f"   Violations Fixed: {total_baseline - total_final}\n")
             f.write(f"   Reduction: {completion_data['reduction_percentage']:.1f}%\n\n")
 
             f.write("# # 🎯 CATEGORY BREAKDOWN:\n")
-            for violation_code, baseline_count in completion_data['baseline_violations'].items():
-                final_count = completion_data['final_violations'].get(violation_code, 0)
+            for violation_code, baseline_count in completion_data["baseline_violations"].items():
+                final_count = completion_data["final_violations"].get(violation_code, 0)
                 reduction = baseline_count - final_count
-                f.write(
-    f"   {violation_code}: {baseline_count} → {final_count} ({reduction} fixed)\n")
+                f.write(f"   {violation_code}: {baseline_count} → {final_count} ({reduction} fixed)\n")
 
             f.write("\n# # # ✅ PHASE 3 SYSTEMATIC PROCESSING COMPLETE\n")
-            f.write("="*80 + "\n")
+            f.write("=" * 80 + "\n")
 
         return report_file
 
@@ -463,12 +500,12 @@ def main():
         completion_data = processor.execute_systematic_processing()
         report_file = processor.generate_completion_report(completion_data)
 
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info("🎊 PHASE 3 SYSTEMATIC PROCESSING COMPLETE!")
         logger.info(f"# # # 📊 Report: {report_file}")
         logger.info(f"# # 🎯 Violations Fixed: {completion_data['total_violations_fixed']}")
         logger.info(f"📈 Reduction: {completion_data['reduction_percentage']:.1f}%")
-        logger.info("="*80)
+        logger.info("=" * 80)
 
         return True
 
