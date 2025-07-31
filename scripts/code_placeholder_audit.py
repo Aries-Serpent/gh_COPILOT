@@ -125,7 +125,7 @@ def log_findings(
     None
         The function writes to the database when not in simulation mode.
     """
-    user = os.getenv("USER", "system")
+    user = os.getenv("GH_COPILOT_USER", os.getenv("USER", "system"))
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     ensure_code_audit_log(analytics_db)
     # Ensure the tracking table exists even when running in simulation mode so
@@ -272,11 +272,21 @@ def update_dashboard(
     placeholder_counts: Dict[str, int] = {}
     if analytics_db.exists():
         with sqlite3.connect(analytics_db) as conn:
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
-            open_count = cur.fetchone()[0]
-            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
-            resolved = cur.fetchone()[0]
-            cur = conn.execute(
+            cur = conn.cursor()
+            has_removals = cur.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_removals'"
+            ).fetchone()
+            if has_removals:
+                cur.execute("SELECT COUNT(*) FROM placeholder_removals")
+                resolved = cur.fetchone()[0]
+                cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
+                open_count = cur.fetchone()[0]
+            else:
+                cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
+                open_count = cur.fetchone()[0]
+                cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
+                resolved = cur.fetchone()[0]
+            cur.execute(
                 "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type"
             )
             placeholder_counts = {row[0]: row[1] for row in cur.fetchall()}
@@ -480,6 +490,8 @@ def main(
     analytics = Path(analytics_db or workspace / "databases" / "analytics.db")
     production = Path(production_db or workspace / "databases" / "production.db")
     dashboard = Path(dashboard_dir or workspace / "dashboard" / "compliance")
+    if dashboard_dir and not str(dashboard).endswith("compliance"):
+        dashboard = dashboard / "compliance"
     summary_path = Path(summary_json) if summary_json else None
 
     # Database-first: fetch patterns from production.db and config
