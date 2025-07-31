@@ -94,10 +94,16 @@ def test_mine_patterns_clusters(tmp_path: Path, monkeypatch) -> None:
         conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
         conn.execute("INSERT INTO code_templates (template_code) VALUES ('def x(): pass')")
         conn.execute("INSERT INTO code_templates (template_code) VALUES ('def y(): pass')")
-    mine_patterns(prod, analytics)
+    patterns = mine_patterns(prod, analytics)
     with sqlite3.connect(analytics) as conn:
         count = conn.execute("SELECT COUNT(*) FROM pattern_clusters").fetchone()[0]
     assert count > 0
+    clusters = get_clusters(analytics)
+    clustered_patterns = sorted(p for pats in clusters.values() for p in pats)
+    assert set(clustered_patterns) == set(patterns)
+    metrics = pme.get_cluster_metrics(analytics)
+    assert metrics is not None
+    assert metrics["silhouette"] >= -1.0
 
     # Completion summary
     end_time = datetime.now()
@@ -147,17 +153,11 @@ def test_mine_patterns_metrics(tmp_path: Path, monkeypatch) -> None:
         conn.execute("INSERT INTO code_templates (template_code) VALUES ('def y(): pass')")
 
     mine_patterns(prod, analytics)
-
-    with sqlite3.connect(analytics) as conn:
-        row = conn.execute(
-            "SELECT inertia, silhouette, n_clusters FROM pattern_cluster_metrics"
-        ).fetchone()
-
-    assert row is not None
-    inertia, silhouette, n_clusters = row
-    assert inertia >= 0
-    assert -1.0 <= silhouette <= 1.0
-    assert n_clusters > 0
+    metrics = pme.get_cluster_metrics(analytics)
+    assert metrics is not None
+    assert metrics["inertia"] >= 0
+    assert -1.0 <= metrics["silhouette"] <= 1.0
+    assert metrics["n_clusters"] > 0
 
 
 def test_log_pattern_audit_and_compliance(tmp_path: Path, monkeypatch) -> None:
