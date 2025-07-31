@@ -2,11 +2,10 @@
 """DatabaseDrivenFlake8CorrectorFunctional
 ========================================
 
-Perform flake8 corrections on a workspace, tracking every fix in
+Perform ruff-based corrections on a workspace, tracking every fix in
 ``production.db``. Scanning handles non-ASCII paths and file content
-in a Unicode-safe manner. After applying ``autopep8`` and ``isort``
-corrections, the script triggers the secondary Copilot validator to
-ensure compliance.
+in a Unicode-safe manner. After applying ``ruff check --fix`` the
+script triggers the secondary Copilot validator to ensure compliance.
 """
 
 from __future__ import annotations
@@ -35,7 +34,7 @@ TEXT_INDICATORS = {
 
 
 class DatabaseDrivenFlake8CorrectorFunctional:
-    """Correct flake8 violations and record them in a database."""
+    """Correct ruff violations and record them in a database."""
 
     DEFAULT_TIMEOUT_MINUTES = 30
 
@@ -111,24 +110,26 @@ class DatabaseDrivenFlake8CorrectorFunctional:
         etc_time = datetime.utcnow() + timedelta(seconds=remaining)
         return etc_time.isoformat()
 
-    def run_flake8_scan(self, files: List[Path]) -> Dict[Path, List[str]]:
-        """Run flake8 on each file and collect violation lines."""
+    def run_ruff_scan(self, files: List[Path]) -> Dict[Path, List[str]]:
+        """Run ``ruff check`` on each file and collect violation lines."""
         violations: Dict[Path, List[str]] = {}
         for file_path in files:
-            cmd = ["flake8", str(file_path)]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(
+                ["ruff", "check", str(file_path)],
+                capture_output=True,
+                text=True,
+            )
             if result.stdout:
                 violations[file_path] = result.stdout.strip().splitlines()
         return violations
 
     def apply_corrections(self, files: List[Path]) -> List[Path]:
-        """Apply autopep8 and isort to each file and return corrected ones."""
+        """Apply ``ruff check --fix`` to each file and return corrected ones."""
         corrected: List[Path] = []
         for idx, path in enumerate(files, start=1):
             self._check_timeout()
             original = path.read_text(encoding="utf-8", errors="ignore")
-            subprocess.run(["autopep8", "--in-place", str(path)], check=False)
-            subprocess.run(["isort", str(path)], check=False)
+            subprocess.run(["ruff", "check", "--fix", str(path)], check=False)
             new_content = path.read_text(encoding="utf-8", errors="ignore")
             if original != new_content:
                 corrected.append(path)
@@ -202,7 +203,7 @@ class DatabaseDrivenFlake8CorrectorFunctional:
                 violations: Dict[Path, List[str]] = {}
                 for idx, f in enumerate(py_files[start_idx:], start=start_idx + 1):
                     self._check_timeout()
-                    file_violations = self.run_flake8_scan([f])
+                    file_violations = self.run_ruff_scan([f])
                     violations.update(file_violations)
                     scan_bar.update(1)
                     self._update_progress(idx)
