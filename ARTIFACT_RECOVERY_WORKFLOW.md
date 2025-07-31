@@ -26,3 +26,17 @@ The `.gitattributes` file explicitly lists patterns that Git LFS should manage. 
 5. **Recovering Artifacts**: To fetch artifacts from previous sessions, run `git lfs pull`. This downloads the referenced binary objects into your working tree.
 
 Following this workflow ensures consistent handling of binary data and prevents accidental commits of large files outside Git LFS.
+
+## Using `artifact_manager.py`
+
+The `artifact_manager.py` utility streamlines packaging and recovery:
+
+```bash
+python artifact_manager.py --package               # create archive
+python artifact_manager.py --package --commit \
+    --message "Add session artifact"               # archive and commit
+python artifact_manager.py --recover               # restore latest archive
+```
+
+Archives are stored in `codex_sessions/` and tracked with Git LFS when
+configured via `.codex_lfs_policy.yaml`.

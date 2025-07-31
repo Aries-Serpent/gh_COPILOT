@@ -486,9 +486,11 @@ compliance logging. The main modules are:
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
-* **Artifact Manager** – `artifact_manager.create_session_archive()` bundles
-  files created in `tmp/` during the current session into a timestamped archive
-  under `codex_sessions/`. Paths can be configured via `.codex_lfs_policy.yaml`.
+* **Artifact Manager** – `artifact_manager.py` packages files created in `tmp/`
+  during the current session into `codex_sessions/` archives. Use
+  `--package` to create an archive and `--commit` with `--message` to save it
+  directly to Git. `--recover` restores the most recent archive back into
+  `tmp/`. Paths are configurable via `.codex_lfs_policy.yaml`.
 
 
 ```python
@@ -1085,7 +1087,7 @@ Several small modules provide common helpers:
   enhancer.enhance()
   ```
 - `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
-- `artifact_manager.py` – package modified files from `tmp/` into `codex_sessions/` for auditing.
+- `artifact_manager.py` – package modified files from `tmp/` into `codex_sessions/` or restore them. Run `python artifact_manager.py --package` to create an archive and `--recover` to extract the latest one.
 
 ## Future Roadmap
 
