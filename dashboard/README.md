@@ -159,7 +159,9 @@ The endpoint is used by the dashboard UI and can be queried by external tools fo
   "findings": 0,
   "resolved_count": 0,
   "compliance_score": 0,
-  "progress_status": "issues_pending"
+  "progress_status": "issues_pending",
+  "compliance_status": "non_compliant",
+  "placeholder_counts": {}
 }
 ```
 
