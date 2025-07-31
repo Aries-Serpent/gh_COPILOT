@@ -15,14 +15,14 @@ Key settings include:
 
 ## Purpose of `.gitattributes`
 
-The `.gitattributes` file explicitly lists patterns that Git LFS should manage. These rules prevent large files from bloating the normal Git history and keep repository clones lightweight.
+The `.gitattributes` file explicitly lists patterns that Git LFS should manage. These rules prevent large files from bloating the normal Git history and keep repository clones lightweight. The patterns are generated from the policy file and include rules for each binary extension and the session archives directory.
 
 ## Workflow
 
 1. **Initial Clone**: When cloning the repository, run `git lfs install` to ensure LFS support is active.
-2. **Creating Artifacts**: Place generated artifacts inside the directory defined by `session_artifact_dir` (`codex_sessions/`).
-3. **Adding Files**: When you add files that match the configured extensions or exceed the size threshold, Git LFS automatically tracks them. Verify with `git lfs status` before committing.
-4. **Committing**: Commit your changes as usual. The large files are stored in LFS, keeping repository history small.
-5. **Recovering Artifacts**: To fetch artifacts from previous sessions, run `git lfs pull`. This downloads the referenced binary objects into your working tree.
+2. **Packaging Artifacts**: Run `python artifact_manager.py` to detect new files in the temp directory and create a timestamped archive. If the archive meets LFS criteria, it is automatically tracked and committed.
+3. **Adding Files**: Files matching the configured extensions or exceeding the size threshold are automatically tracked via Git LFS. Check with `git lfs status` before committing.
+4. **Recovering Artifacts**: To unpack the most recent archive after a fresh clone or CI reset, run `python artifact_manager.py --recover`.
+5. **Committing**: The packaging step commits the archive for you. Ensure CI runs succeed by verifying `git lfs ls-files` lists the new archive.
 
-Following this workflow ensures consistent handling of binary data and prevents accidental commits of large files outside Git LFS.
+Following this workflow ensures consistent handling of binary data and prevents accidental commits of large files outside Git LFS. Integrate the packaging command into CI so that session artifacts are preserved automatically.
