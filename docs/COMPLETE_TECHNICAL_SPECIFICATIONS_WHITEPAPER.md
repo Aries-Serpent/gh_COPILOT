@@ -11,6 +11,7 @@
 The gh_COPILOT Toolkit v4.0 represents a revolutionary enterprise-grade automation platform that implements a database-first, unified system architecture with advanced AI integration capabilities, comprehensive security protocols, and enterprise-scale deployment readiness.
 
 *This whitepaper describes planned capabilities. Several features, including quantum optimization and full enterprise deployment, remain experimental or under development.*
+*Phase&nbsp;5 advanced AI features are experimental and not production ready.*
 
 ### **Core Technical Architecture**
 - **Unified Enterprise Systems**: Gradual consolidation of legacy scripts into modular packages

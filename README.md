@@ -18,6 +18,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 
 > **Note**
 > Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends.
+> **Experimental Phase 5 AI**
+> Advanced AI integration features labeled as **Phase&nbsp;5** remain experimental and are not yet fully implemented.
 
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** initial implementation in progress
