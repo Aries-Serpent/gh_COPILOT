@@ -1,12 +1,16 @@
-"""Utility for packaging session artifacts.
+"""Utility for packaging and recovering session artifacts.
 
-Detects changed files in ``tmp/`` since the last commit and archives them into a
-timestamped zip file under ``codex_sessions/``. Git LFS tracking is applied if
-enabled via ``.codex_lfs_policy.yaml``.
+This module detects changed files within a temporary directory, archives them
+into a timestamped zip stored under ``codex_sessions/`` and optionally tracks
+the archive via Git LFS based on ``.codex_lfs_policy.yaml``. Created archives
+are automatically committed to the repository. The module also provides a
+recovery helper to extract the most recent session archive back into the
+temporary directory.
 """
 
 from __future__ import annotations
 
+import argparse
 import logging
 import subprocess
 from datetime import datetime, timezone
@@ -36,6 +40,7 @@ class LfsPolicy:
             ".sqlite",
             ".exe",
         ]
+        self.gitattributes_template = ""
         self.root = root
 
         policy_file = root / ".codex_lfs_policy.yaml"
@@ -48,6 +53,7 @@ class LfsPolicy:
                 self.enabled = bool(data.get("enable_autolfs", False))
                 self.size_threshold_mb = int(data.get("size_threshold_mb", 50))
                 self.binary_extensions = list(data.get("binary_extensions", self.binary_extensions))
+                self.gitattributes_template = data.get("gitattributes_template", "")
 
     def requires_lfs(self, path: Path) -> bool:
         if not path.is_file():
@@ -69,6 +75,29 @@ class LfsPolicy:
                 subprocess.run(["git", "add", git_attr.name], cwd=self.root, check=True, capture_output=True)
         except subprocess.CalledProcessError as exc:  # noqa: BLE001
             logger.error("Failed to set up Git LFS tracking: %s", exc)
+
+    def sync_gitattributes(self) -> None:
+        """Regenerate .gitattributes from the policy template."""
+        if not self.gitattributes_template:
+            logger.debug("No gitattributes template defined in policy.")
+            return
+
+        attrs_file = self.root / ".gitattributes"
+        lines = [line.rstrip() for line in self.gitattributes_template.splitlines() if line.strip()]
+        patterns = {line.split()[0] for line in lines}
+
+        for ext in self.binary_extensions:
+            pattern = f"*{ext}"
+            if pattern not in patterns:
+                lines.append(f"{pattern} filter=lfs diff=lfs merge=lfs -text")
+                patterns.add(pattern)
+
+        content = "# Git LFS rules for binary artifacts\n" + "\n".join(lines) + "\n# End of LFS patterns\n"
+
+        current = attrs_file.read_text(encoding="utf-8") if attrs_file.exists() else ""
+        if current.strip() != content.strip():
+            attrs_file.write_text(content, encoding="utf-8")
+            logger.info("Updated %s", attrs_file)
 
 
 def detect_tmp_changes(tmp_dir: Path, repo_root: Path) -> List[Path]:
@@ -126,7 +155,9 @@ def package_session(
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     archive_name = f"codex-session_{timestamp}.zip"
 
-    sessions_dir = repo_root / "codex_sessions"
+    sessions_dir = repo_root / (
+        lfs_policy.session_artifact_dir if lfs_policy else "codex_sessions"
+    )
     sessions_dir.mkdir(parents=True, exist_ok=True)
 
     archive_path = sessions_dir / archive_name
@@ -215,8 +246,11 @@ def main() -> None:
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
+    parser = argparse.ArgumentParser(description="Manage session artifacts and Git LFS policies")
+    parser.add_argument("--sync-gitattributes", action="store_true", help="regenerate .gitattributes from policy")
+    args = parser.parse_args()
+
     repo_root = Path(__file__).resolve().parent
-    tmp_dir = repo_root / "tmp"
     policy = LfsPolicy(repo_root)
 
     if args.package:

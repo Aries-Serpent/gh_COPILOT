@@ -1,0 +1,40 @@
+name: artifact LFS
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - artifact_manager.py
+      - .codex_lfs_policy.yaml
+      - .gitattributes
+      - .github/workflows/artifact_lfs.yml
+
+jobs:
+  manage-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+      - name: Setup environment
+        run: bash setup.sh
+      - name: Package session artifacts
+        run: python artifact_manager.py
+      - name: Verify LFS tracking
+        run: git lfs ls-files
+      - name: Commit and push
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add codex_sessions || true
+          if git diff --cached --quiet; then echo "No changes"; else git commit -m "chore: update session artifacts" && git push; fi
+      - name: Restore latest session
+        run: python artifact_manager.py --recover
+        if: always()
