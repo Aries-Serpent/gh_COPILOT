@@ -177,19 +177,26 @@ def _can_create_analytics_db(db_path: Path = DEFAULT_ANALYTICS_DB) -> bool:
     return False
 
 
+def _resolve_test_mode(test_mode: bool) -> bool:
+    """Return effective test mode respecting ``GH_COPILOT_TEST_MODE``."""
+    env = os.getenv("GH_COPILOT_TEST_MODE")
+    if env is not None:
+        return env == "1"
+    return test_mode
+
+
 def ensure_tables(
     db_path: Path,
     tables: Iterable[str],
     *,
-    test_mode: Optional[bool] = None,
+    test_mode: bool = False,
 ) -> None:
     """Ensure the specified tables exist in ``db_path``.
 
     When ``test_mode`` is ``True`` the function simulates table creation using
     :func:`_log_event` and performs no writes.
     """
-    if test_mode is None:
-        test_mode = os.environ.get("GH_COPILOT_TEST_MODE", "1") == "1"
+    test_mode = _resolve_test_mode(test_mode)
 
     for table in tables:
         schema = TABLE_SCHEMAS.get(table)
@@ -209,11 +216,10 @@ def insert_event(
     table: str,
     *,
     db_path: Path = DEFAULT_ANALYTICS_DB,
-    test_mode: Optional[bool] = None,
+    test_mode: bool = False,
 ) -> int:
     """Insert ``event`` into the specified table and return the new row id."""
-    if test_mode is None:
-        test_mode = os.environ.get("GH_COPILOT_TEST_MODE", "1") == "1"
+    test_mode = _resolve_test_mode(test_mode)
 
     ensure_tables(db_path, [table], test_mode=test_mode)
     if test_mode:
@@ -239,7 +245,7 @@ def _log_event(
     fallback_file: Optional[Path] = None,
     echo: bool = False,
     level: int = logging.INFO,
-    test_mode: Optional[bool] = None,
+    test_mode: bool = False,
 ) -> bool:
     """Log a structured event in a consistent format.
 
@@ -258,16 +264,15 @@ def _log_event(
     level:
         Logging level used for the echo output.
     test_mode:
-        Override for enabling/disabling database writes. When ``None`` the value
-        is read from ``GH_COPILOT_TEST_MODE`` (default ``"1"``).
+        Override for enabling/disabling database writes. If
+        ``GH_COPILOT_TEST_MODE`` is set it takes precedence.
 
     Returns
     -------
     bool
         ``True`` when the analytics database could be created at ``db_path``.
     """
-    if test_mode is None:
-        test_mode = os.environ.get("GH_COPILOT_TEST_MODE", "1") == "1"
+    test_mode = _resolve_test_mode(test_mode)
 
     payload = dict(event)
     payload.setdefault("timestamp", datetime.utcnow().isoformat())
@@ -323,7 +328,7 @@ def _log_audit_event(
     db_path: Path = DEFAULT_ANALYTICS_DB,
     table: str = "audit_log",
     echo: bool = False,
-    test_mode: Optional[bool] = None,
+    test_mode: bool = False,
 ) -> bool:
     """Record an audit event in the analytics log.
 
@@ -350,8 +355,7 @@ def _log_audit_event(
     bool
         ``True`` when the analytics database could be created at ``db_path``.
     """
-    if test_mode is None:
-        test_mode = os.environ.get("GH_COPILOT_TEST_MODE", "1") == "1"
+    test_mode = _resolve_test_mode(test_mode)
 
     event = {
         "description": description,
@@ -488,11 +492,10 @@ def _list_events(
     limit: int = 100,
     order: str = "DESC",
     *,
-    test_mode: Optional[bool] = None,
+    test_mode: bool = False,
 ) -> list:
     """Return recent events from ``table`` respecting test mode."""
-    if test_mode is None:
-        test_mode = os.environ.get("GH_COPILOT_TEST_MODE", "1") == "1"
+    test_mode = _resolve_test_mode(test_mode)
     if test_mode or not db_path.exists():
         tqdm.write(f"[TEST] Listing would query {table} in {db_path} (simulated, no DB access)")
         return []
@@ -509,11 +512,10 @@ def _clear_log(
     table: str = DEFAULT_LOG_TABLE,
     db_path: Path = DEFAULT_ANALYTICS_DB,
     *,
-    test_mode: Optional[bool] = None,
+    test_mode: bool = False,
 ) -> bool:
     """Remove all rows from ``table`` respecting test mode."""
-    if test_mode is None:
-        test_mode = os.environ.get("GH_COPILOT_TEST_MODE", "1") == "1"
+    test_mode = _resolve_test_mode(test_mode)
     if test_mode:
         tqdm.write(f"[TEST] Clearing would delete all from {table} in {db_path} (simulated, no DB access)")
         return True

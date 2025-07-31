@@ -1,16 +1,21 @@
-import os
-import sqlite3
-
+import pytest
 from utils.log_utils import _log_event
 
 
-def test_log_event_multiple_tables(tmp_path, monkeypatch):
-    monkeypatch.setenv("GH_COPILOT_TEST_MODE", "1")
+@pytest.mark.parametrize("mode", [False, True])
+def test_log_event_multiple_tables(tmp_path, monkeypatch, mode):
+    if mode:
+        monkeypatch.setenv("GH_COPILOT_TEST_MODE", "1")
+    else:
+        monkeypatch.delenv("GH_COPILOT_TEST_MODE", raising=False)
+
     db_dir = tmp_path / "databases"
     db_dir.mkdir()
     db = db_dir / "analytics.db"
-    assert _log_event({"msg": "a"}, table="sync_events_log", db_path=db)
-    assert _log_event({"msg": "b"}, table="sync_status", db_path=db)
-    assert _log_event({"msg": "c"}, table="doc_analysis", db_path=db)
-    # analytics.db should not actually be created in test mode
-    assert not db.exists()
+    assert _log_event({"event": "fail", "module": "m", "level": "INFO", "target": "t1", "details": "d"}, table="rollback_failures", db_path=db, test_mode=mode)
+    assert _log_event({"event": "fail2", "module": "m", "level": "INFO", "target": "t2", "details": "d2"}, table="rollback_failures", db_path=db, test_mode=mode)
+    assert _log_event({"event": "fail3", "module": "m", "level": "INFO", "target": "t3", "details": "d3"}, table="rollback_failures", db_path=db, test_mode=mode)
+    if mode:
+        assert not db.exists()
+    else:
+        assert db.exists()
