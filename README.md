@@ -95,6 +95,8 @@ cp .env.example .env
 # 2. Set the external backup directory and run the setup script
 export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
 bash setup.sh
+# Or run in a single command
+GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh
 # Always run this script before executing tests or automation tasks.
 # The setup process installs packages from all `requirements*.txt` files,
 # including core dependencies like **Flask** and **NumPy**, and prepares
@@ -307,6 +309,9 @@ docker run -p 5000:5000 \
   -e FLASK_SECRET_KEY=<generated_secret> \
   gh_copilot
 ```
+
+See [docs/Docker_Usage.md](docs/Docker_Usage.md) for details on all environment
+variables and the ports exposed by `docker-compose.yml`.
 
 `entrypoint.sh` expects `GH_COPILOT_WORKSPACE` and `GH_COPILOT_BACKUP_ROOT` to already be defined. The Docker image sets them to `/app` and `/backup`, but override these when running locally. The script initializes `enterprise_assets.db` only if missing, launches the background workers, and then `exec`s the dashboard command provided via `CMD`. Map `/backup` to a host directory so logs persist.
 
