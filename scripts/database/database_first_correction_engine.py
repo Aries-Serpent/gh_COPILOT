@@ -4,22 +4,19 @@
 Enterprise-grade correction system leveraging production.db intelligence
 """
 
-import os
 import sys
 import logging
 import sqlite3
 import subprocess
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, Any
 from tqdm import tqdm
-import json
-import re
 
 # MANDATORY: Visual processing indicators and logging
 logger = logging.getLogger("DatabaseFirstCorrectionEngine")
-logging.basicConfig(
-    level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
 
 class DatabaseFirstCorrectionEngine:
     """🎯 Database-First Correction Engine with Enterprise Compliance"""
@@ -28,6 +25,8 @@ class DatabaseFirstCorrectionEngine:
         self.workspace_path = Path(workspace_path)
         self.production_db = self.workspace_path / "production.db"
         self.analytics_db = self.workspace_path / "analytics.db"
+        self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
+        self.session_id = f"SESSION_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
         # CRITICAL: Anti-recursion validation
         self._validate_workspace_integrity()
@@ -35,10 +34,9 @@ class DatabaseFirstCorrectionEngine:
     def _validate_workspace_integrity(self) -> None:
         """CRITICAL: Validate workspace before correction execution"""
         start_time = datetime.now()
-        logger.info(
-    f"🚀 Workspace Integrity Validation Started: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"🚀 Workspace Integrity Validation Started: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
-        forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+        forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
         violations = []
 
         for pattern in forbidden_patterns:
@@ -62,7 +60,7 @@ class DatabaseFirstCorrectionEngine:
             "correction_templates": [],
             "script_classifications": {},
             "error_patterns": {},
-            "template_mappings": {}
+            "template_mappings": {},
         }
 
         try:
@@ -84,7 +82,7 @@ class DatabaseFirstCorrectionEngine:
                         "category": category,
                         "type": script_type,
                         "importance": importance,
-                        "template": template
+                        "template": template,
                     }
 
                 # Query correction templates
@@ -96,14 +94,13 @@ class DatabaseFirstCorrectionEngine:
                 template_data = cursor.fetchall()
 
                 for template_name, content, correction_type in template_data:
-                    patterns["correction_templates"].append({
-                        "name": template_name,
-                        "content": content,
-                        "type": correction_type
-                    })
+                    patterns["correction_templates"].append(
+                        {"name": template_name, "content": content, "type": correction_type}
+                    )
 
                 logger.info(
-    f"✅ Retrieved {len(script_data)} script patterns and {len(template_data)} correction templates")
+                    f"✅ Retrieved {len(script_data)} script patterns and {len(template_data)} correction templates"
+                )
 
         except sqlite3.Error as e:
             logger.warning(f"⚠️ Database query failed: {e}. Using fallback patterns.")
@@ -113,14 +110,13 @@ class DatabaseFirstCorrectionEngine:
     def synchronize_codebase_with_database(self) -> Dict[str, int]:
         """🔄 Synchronize all codebase scripts with database templates and patterns"""
         start_time = datetime.now()
-        logger.info(
-    f"🚀 Codebase Synchronization Started: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"🚀 Codebase Synchronization Started: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
         sync_stats = {
             "scripts_updated": 0,
             "templates_applied": 0,
             "patterns_synchronized": 0,
-            "database_entries_created": 0
+            "database_entries_created": 0,
         }
 
         # Discover all Python files in codebase
@@ -159,7 +155,7 @@ class DatabaseFirstCorrectionEngine:
 
                 # Get file metadata
                 file_stats = file_path.stat()
-                file_content = file_path.read_text(encoding='utf-8', errors='ignore')
+                file_content = file_path.read_text(encoding="utf-8", errors="ignore")
 
                 # Classify file
                 category = self._classify_file(file_path, file_content)
@@ -167,20 +163,23 @@ class DatabaseFirstCorrectionEngine:
                 importance = self._calculate_importance_score(file_path, file_content)
 
                 # Insert or update
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT OR REPLACE INTO enhanced_script_tracking
                     (script_path, functionality_category, script_type,
                      importance_score, file_size, last_updated, status)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    str(file_path.relative_to(self.workspace_path)),
-                    category,
-                    script_type,
-                    importance,
-                    file_stats.st_size,
-                    datetime.now().isoformat(),
-                    'ACTIVE'
-                ))
+                """,
+                    (
+                        str(file_path.relative_to(self.workspace_path)),
+                        category,
+                        script_type,
+                        importance,
+                        file_stats.st_size,
+                        datetime.now().isoformat(),
+                        "ACTIVE",
+                    ),
+                )
 
         except Exception as e:
             logger.warning(f"⚠️ Database update failed for {file_path}: {e}")
@@ -189,50 +188,50 @@ class DatabaseFirstCorrectionEngine:
         """🏷️ Classify file based on path and content"""
         path_str = str(file_path).lower()
 
-        if 'test' in path_str:
-            return 'testing'
-        elif 'database' in path_str or 'db' in path_str:
-            return 'database_management'
-        elif 'enterprise' in path_str:
-            return 'enterprise_systems'
-        elif 'quantum' in content.lower() or 'quantum' in path_str:
-            return 'quantum_optimization'
-        elif 'web_gui' in path_str or 'flask' in content.lower():
-            return 'web_interface'
-        elif 'flake8' in path_str or 'lint' in path_str:
-            return 'code_quality'
+        if "test" in path_str:
+            return "testing"
+        elif "database" in path_str or "db" in path_str:
+            return "database_management"
+        elif "enterprise" in path_str:
+            return "enterprise_systems"
+        elif "quantum" in content.lower() or "quantum" in path_str:
+            return "quantum_optimization"
+        elif "web_gui" in path_str or "flask" in content.lower():
+            return "web_interface"
+        elif "flake8" in path_str or "lint" in path_str:
+            return "code_quality"
         else:
-            return 'general_utility'
+            return "general_utility"
 
     def _determine_script_type(self, content: str) -> str:
         """📋 Determine script type from content analysis"""
-        if 'class' in content and 'def __init__' in content:
-            return 'class_module'
+        if "class" in content and "def __init__" in content:
+            return "class_module"
         elif 'if __name__ == "__main__"' in content:
-            return 'executable_script'
-        elif 'def ' in content and 'class' not in content:
-            return 'function_library'
+            return "executable_script"
+        elif "def " in content and "class" not in content:
+            return "function_library"
         else:
-            return 'utility_module'
+            return "utility_module"
 
     def _calculate_importance_score(self, file_path: Path, content: str) -> float:
         """📊 Calculate importance score based on file characteristics"""
         score = 0.5  # Base score
 
         # Path-based scoring
-        if 'enterprise' in str(file_path).lower():
+        if "enterprise" in str(file_path).lower():
             score += 0.3
-        if 'database' in str(file_path).lower():
+        if "database" in str(file_path).lower():
             score += 0.2
-        if 'quantum' in str(file_path).lower():
+        if "quantum" in str(file_path).lower():
             score += 0.2
 
         # Content-based scoring
-        if 'CRITICAL' in content:
+        if "CRITICAL" in content:
             score += 0.2
-        if 'MANDATORY' in content:
+        if "MANDATORY" in content:
             score += 0.1
-        if len(content.split('\n')) > 500:  # Large files
+        if len(content.split("\n")) > 500:  # Large files
             score += 0.1
 
         return min(score, 1.0)  # Cap at 1.0
@@ -240,13 +239,13 @@ class DatabaseFirstCorrectionEngine:
     def _apply_database_templates(self, file_path: Path) -> bool:
         """🎨 Apply database templates to file if applicable"""
         try:
-            content = file_path.read_text(encoding='utf-8')
+            content = file_path.read_text(encoding="utf-8")
 
             # Check if file needs template application
             if self._needs_template_update(content):
                 updated_content = self._apply_template_patterns(content)
                 if updated_content != content:
-                    file_path.write_text(updated_content, encoding='utf-8')
+                    file_path.write_text(updated_content, encoding="utf-8")
                     logger.info(f"✅ Applied template to {file_path}")
                     return True
 
@@ -258,36 +257,81 @@ class DatabaseFirstCorrectionEngine:
     def _needs_template_update(self, content: str) -> bool:
         """🔍 Check if file needs template updates"""
         # Check for missing enterprise headers
-        if not content.startswith('#!/usr/bin/env python3'):
+        if not content.startswith("#!/usr/bin/env python3"):
             return True
-        if 'logging' not in content and 'logger' not in content:
+        if "logging" not in content and "logger" not in content:
             return True
         return False
 
     def _apply_template_patterns(self, content: str) -> str:
         """🎨 Apply standard template patterns to content"""
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         # Ensure shebang
-        if not lines[0].startswith('#!'):
-            lines.insert(0, '#!/usr/bin/env python3')
+        if not lines[0].startswith("#!"):
+            lines.insert(0, "#!/usr/bin/env python3")
 
         # Add logging if missing
-        if 'import logging' not in content:
+        if "import logging" not in content:
             # Find appropriate insertion point
             import_section = 0
             for i, line in enumerate(lines):
-                if line.startswith('import ') or line.startswith('from '):
+                if line.startswith("import ") or line.startswith("from "):
                     import_section = i + 1
-            lines.insert(import_section, 'import logging')
+            lines.insert(import_section, "import logging")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
+
+    def _run_ruff_fix(self, file_path: Path) -> None:
+        """Apply ruff autofix to ``file_path``."""
+        subprocess.run(
+            [
+                "ruff",
+                "--fix",
+                str(file_path),
+            ],
+            capture_output=True,
+            text=True,
+        )
+
+    def cross_validate_with_ruff(self, file_path: Path) -> bool:
+        """Run ruff lint on ``file_path`` and return success."""
+        result = subprocess.run(
+            [
+                "ruff",
+                str(file_path),
+            ],
+            capture_output=True,
+            text=True,
+        )
+        return result.returncode == 0
+
+    def _record_correction_history(self, file_path: Path, action: str, details: str = "") -> None:
+        """Insert a record into ``correction_history`` table."""
+        try:
+            with sqlite3.connect(self.analytics_db) as conn:
+                conn.execute(
+                    """CREATE TABLE IF NOT EXISTS correction_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        session_id TEXT NOT NULL,
+                        file_path TEXT NOT NULL,
+                        action TEXT NOT NULL,
+                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        details TEXT
+                    )"""
+                )
+                conn.execute(
+                    "INSERT INTO correction_history (user_id, session_id, file_path, action, details) VALUES (?, ?, ?, ?, ?)",
+                    (0, self.session_id, str(file_path), action, details),
+                )
+        except Exception as exc:  # pragma: no cover - unexpected
+            logger.warning(f"⚠️ Failed to record history for {file_path}: {exc}")
 
     def execute_database_driven_corrections(self) -> Dict[str, Any]:
         """🔧 Execute comprehensive database-driven corrections"""
         start_time = datetime.now()
-        logger.info(
-    f"🚀 Database-Driven Corrections Started: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"🚀 Database-Driven Corrections Started: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
         correction_results = {
             "E501_corrections": 0,
@@ -297,7 +341,7 @@ class DatabaseFirstCorrectionEngine:
             "F821_manual_review": [],
             "F841_corrections": 0,
             "E999_syntax_errors": [],
-            "total_files_processed": 0
+            "total_files_processed": 0,
         }
 
         # Get database patterns
@@ -318,8 +362,7 @@ class DatabaseFirstCorrectionEngine:
                     for key, value in file_corrections.items():
                         if key in correction_results:
                             if isinstance(correction_results[key], list):
-                                correction_results[key].extend(
-    value if isinstance(value, list) else [value])
+                                correction_results[key].extend(value if isinstance(value, list) else [value])
                             else:
                                 correction_results[key] += value
 
@@ -346,12 +389,12 @@ class DatabaseFirstCorrectionEngine:
             "W291_corrections": 0,
             "W293_corrections": 0,
             "F541_corrections": 0,
-            "F841_corrections": 0
+            "F841_corrections": 0,
         }
 
         try:
-            content = file_path.read_text(encoding='utf-8')
-            lines = content.split('\n')
+            content = file_path.read_text(encoding="utf-8")
+            lines = content.split("\n")
             modified = False
 
             # Apply line-by-line corrections
@@ -366,17 +409,17 @@ class DatabaseFirstCorrectionEngine:
                         modified = True
 
                 # F541: f-string missing placeholders
-                if line.strip().startswith('f"') and '{' not in line:
+                if line.strip().startswith('f"') and "{" not in line:
                     lines[i] = line.replace('f"', '"')
                     results["F541_corrections"] += 1
                     modified = True
-                elif line.strip().startswith("f'") and '{' not in line:
+                elif line.strip().startswith("f'") and "{" not in line:
                     lines[i] = line.replace("f'", "'")
                     results["F541_corrections"] += 1
                     modified = True
 
                 # W291: Trailing whitespace
-                if line.endswith(' ') or line.endswith('\t'):
+                if line.endswith(" ") or line.endswith("\t"):
                     lines[i] = line.rstrip()
                     results["W291_corrections"] += 1
                     modified = True
@@ -390,8 +433,12 @@ class DatabaseFirstCorrectionEngine:
 
             # Save if modified
             if modified:
-                file_path.write_text('\n'.join(lines), encoding='utf-8')
+                file_path.write_text("\n".join(lines), encoding="utf-8")
                 logger.info(f"✅ Applied corrections to {file_path}")
+                self._run_ruff_fix(file_path)
+                passed = self.cross_validate_with_ruff(file_path)
+                action = "ruff_fix_pass" if passed else "ruff_fix_fail"
+                self._record_correction_history(file_path, action)
 
         except Exception as e:
             logger.warning(f"⚠️ File correction failed for {file_path}: {e}")
@@ -404,9 +451,9 @@ class DatabaseFirstCorrectionEngine:
             return line
 
         # Simple line breaking for common patterns
-        if '(' in line and ')' in line:
+        if "(" in line and ")" in line:
             # Break at function calls
-            parts = line.split('(', 1)
+            parts = line.split("(", 1)
             if len(parts) == 2:
                 return f"{parts[0]}(\n    {parts[1]}"
 
@@ -419,30 +466,33 @@ class DatabaseFirstCorrectionEngine:
             with sqlite3.connect(self.analytics_db) as conn:
                 cursor = conn.cursor()
 
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO correction_analytics
                     (timestamp, total_files, e501_fixes, w291_fixes, w293_fixes,
                      f541_fixes, f841_fixes, manual_reviews)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    datetime.now().isoformat(),
-                    results["total_files_processed"],
-                    results["E501_corrections"],
-                    results["W291_corrections"],
-                    results["W293_corrections"],
-                    results["F541_corrections"],
-                    results["F841_corrections"],
-                    len(results.get("F821_manual_review", []))
-                ))
+                """,
+                    (
+                        datetime.now().isoformat(),
+                        results["total_files_processed"],
+                        results["E501_corrections"],
+                        results["W291_corrections"],
+                        results["W293_corrections"],
+                        results["F541_corrections"],
+                        results["F841_corrections"],
+                        len(results.get("F821_manual_review", [])),
+                    ),
+                )
 
         except Exception as e:
             logger.warning(f"⚠️ Analytics logging failed: {e}")
 
+
 def main():
     """🚀 Main execution function with enterprise compliance"""
     start_time = datetime.now()
-    logger.info(
-    f"🚀 DATABASE-FIRST CORRECTION ENGINE STARTED: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"🚀 DATABASE-FIRST CORRECTION ENGINE STARTED: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     try:
         # Initialize engine
@@ -464,6 +514,7 @@ def main():
     finally:
         duration = (datetime.now() - start_time).total_seconds()
         logger.info(f"⏱️ Total Duration: {duration:.1f} seconds")
+
 
 if __name__ == "__main__":
     main()
