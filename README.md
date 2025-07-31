@@ -300,6 +300,7 @@ python scripts/file_management/workspace_optimizer.py
 Use the helper scripts to automatically track binary or large files with Git LFS.
 
 ```bash
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
 export ALLOW_AUTOLFS=1
 tools/git_safe_add_commit.py "your commit message"
 ```
@@ -984,6 +985,7 @@ The `compliance-audit.yml` workflow now installs dependencies, including
 python docs/quantum_template_generator.py
 
 # Safely commit staged changes with Git LFS auto-tracking
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
 ALLOW_AUTOLFS=1 tools/git_safe_add_commit.py "<commit message>"
 # Bash fallback:
 ALLOW_AUTOLFS=1 tools/git_safe_add_commit.sh "<commit message>"
