@@ -22,6 +22,7 @@ from typing import Dict, List
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 
 DEFAULT_FILES = [
     "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md",
@@ -117,4 +118,6 @@ def main(
 
 
 if __name__ == "__main__":
-    raise SystemExit(0 if main() else 1)
+    exit_code = 0 if main() else 1
+    SecondaryCopilotValidator().validate_corrections([__file__])
+    raise SystemExit(exit_code)
