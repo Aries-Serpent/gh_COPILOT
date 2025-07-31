@@ -16,22 +16,23 @@ in the following order to satisfy foreign key constraints:
 2. `add_code_audit_history.sql`
 3. `add_code_audit_log.sql`
 4. `add_correction_history.sql`
-5. `add_correction_logs.sql`
-6. `add_corrections.sql`
-7. `add_cross_link_events.sql`
-8. `add_cross_link_suggestions.sql`
-9. `add_cross_link_summary.sql`
-10. `add_dashboard_alerts.sql`
-11. `add_placeholder_removals.sql`
-12. `add_rollback_failures.sql`
-13. `add_rollback_logs.sql`
-14. `add_rollback_strategy_history.sql`
-15. `add_size_violations.sql`
-16. `add_sync_events_log.sql`
-17. `add_unified_wrapup_sessions.sql`
-18. `add_violation_logs.sql`
-19. `create_todo_fixme_tracking.sql`
-20. `extend_todo_fixme_tracking.sql`
+5. `extend_correction_history.sql`
+6. `add_correction_logs.sql`
+7. `add_corrections.sql`
+8. `add_cross_link_events.sql`
+9. `add_cross_link_suggestions.sql`
+10. `add_cross_link_summary.sql`
+11. `add_dashboard_alerts.sql`
+12. `add_placeholder_removals.sql`
+13. `add_rollback_failures.sql`
+14. `add_rollback_logs.sql`
+15. `add_rollback_strategy_history.sql`
+16. `add_size_violations.sql`
+17. `add_sync_events_log.sql`
+18. `add_unified_wrapup_sessions.sql`
+19. `add_violation_logs.sql`
+20. `create_todo_fixme_tracking.sql`
+21. `extend_todo_fixme_tracking.sql`
 
 `extend_todo_fixme_tracking.sql` depends on both `create_todo_fixme_tracking.sql`
 and `add_placeholder_removals.sql` because it references the `placeholder_removals`

@@ -52,6 +52,7 @@ class DatabaseDrivenRuffCorrector:
         self.ruff_validator = EnterpriseFlake8Corrector(self.workspace_path)
         self.start_ts: float | None = None
         self.timeout_seconds = timeout_minutes * 60
+        self.original_lines: Dict[Path, List[str]] = {}
 
     def scan_python_files(self) -> List[Path]:
         files = []
@@ -119,6 +120,7 @@ class DatabaseDrivenRuffCorrector:
         for idx, path in enumerate(files, start=1):
             self._check_timeout()
             original = path.read_text(encoding="utf-8", errors="ignore")
+            self.original_lines[path] = original.splitlines()
             subprocess.run(["ruff", "check", "--fix", str(path)], check=False)
             subprocess.run(["isort", str(path)], check=False)
             subprocess.run(["autopep8", "--in-place", str(path)], check=False)
@@ -162,6 +164,7 @@ class DatabaseDrivenRuffCorrector:
             cursor = conn.cursor()
             for file_path in corrected:
                 corrected_lines = file_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+                original_lines = self.original_lines.get(file_path, [])
                 for line in violations.get(file_path, []):
                     parts = line.split(":", 3)
                     if len(parts) < 4:
@@ -170,10 +173,11 @@ class DatabaseDrivenRuffCorrector:
                     code = rest.strip().split()[0]
                     row_num = int(row)
                     corrected_line = corrected_lines[row_num - 1] if row_num <= len(corrected_lines) else ""
+                    original_line = original_lines[row_num - 1] if row_num <= len(original_lines) else ""
                     cursor.execute(
                         "INSERT INTO correction_history (file_path, violation_code, original_line, corrected_line, correction_timestamp)"
                         " VALUES (?, ?, ?, ?, ?)",
-                        (str(file_path), code, row, corrected_line, timestamp),
+                        (str(file_path), code, original_line, corrected_line, timestamp),
                     )
             conn.commit()
 
