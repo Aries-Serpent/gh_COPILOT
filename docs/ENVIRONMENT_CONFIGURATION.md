@@ -46,3 +46,15 @@ ls -l /usr/local/bin/clw
 
 ## Archival Databases
 `archive.db` and `staging.db` are no longer included by default. They have been moved to `archived_databases/` and are also available in the project's GitHub releases. Download them if legacy analysis is required and place them under the `archived_databases/` directory.
+
+## Enterprise Configuration
+
+Workspace policies are defined in `config/enterprise.json`. The file currently specifies path patterns that compliance checks remove or block:
+
+```json
+{
+  "forbidden_paths": ["*temp*"]
+}
+```
+
+Set `CONFIG_PATH` to load a custom configuration file.
