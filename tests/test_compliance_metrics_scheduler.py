@@ -23,6 +23,8 @@ def test_scheduler_and_stream(tmp_path, monkeypatch):
     monkeypatch.setattr(cmu, "insert_event", lambda *a, **k: None)
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
+    validate_calls = []
+    monkeypatch.setattr(cmu, "validate_enterprise_operation", lambda *a, **k: validate_calls.append(1))
 
     dash = tmp_path / "dashboard"
     updater = cmu.ComplianceMetricsUpdater(dash)
@@ -34,6 +36,7 @@ def test_scheduler_and_stream(tmp_path, monkeypatch):
     monkeypatch.setattr(cmu.ComplianceMetricsUpdater, "update", lambda self, simulate=False: call_count.append(1))
     updater.run_scheduler(interval=0, iterations=3)
     assert len(call_count) == 3
+    assert len(validate_calls) == 3
 
 
 def test_stream_metrics_violation(tmp_path, monkeypatch, caplog):
@@ -53,6 +56,7 @@ def test_stream_metrics_violation(tmp_path, monkeypatch, caplog):
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
 
+    monkeypatch.setattr(cmu, "validate_enterprise_operation", lambda *a, **k: None)
     def _raise_violation(self) -> None:
         raise RuntimeError("Forbidden operation detected")
 
@@ -85,6 +89,7 @@ def test_stream_metrics_stop_event(tmp_path, monkeypatch):
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
 
+    monkeypatch.setattr(cmu, "validate_enterprise_operation", lambda *a, **k: None)
     dash = tmp_path / "dashboard"
     updater = cmu.ComplianceMetricsUpdater(dash)
     stop = threading.Event()
