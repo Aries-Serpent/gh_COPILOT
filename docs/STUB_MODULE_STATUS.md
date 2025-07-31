@@ -20,7 +20,7 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 | STUB-006 | Integrate quantum-inspired scoring hooks | [quantum/quantum_algorithm_library_expansion.py](../quantum/quantum_algorithm_library_expansion.py)<br>[template_engine/auto_generator.py](../template_engine/auto_generator.py) | complete |
 | STUB-007 | Extend dashboard for real-time metrics and alerts | [dashboard/enterprise_dashboard.py](../dashboard/enterprise_dashboard.py)<br>web_gui/templates/ | complete |
 | STUB-008 | Add tests and validation scripts for new modules | [tests/](../tests/)<br>[validation/](../validation/) | complete |
-| STUB-009 | Remove placeholders and enable analytics hooks | [workflow_enhancer.py](../workflow_enhancer.py)<br>[archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py](../archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py) | complete |
+| STUB-009 | Remove placeholders and enable analytics hooks | [template_engine/workflow_enhancer.py](../template_engine/workflow_enhancer.py)<br>[archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py](../archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py) | complete |
 | STUB-010 | Update task suggestion files with cross-references | [docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md](DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md)<br>logs/<br>validation/ | complete |
 | STUB-011 | Record outputs to analytics.db across modules | various modules | complete |
 | STUB-012 | Display placeholder removal progress on dashboard | [dashboard/compliance_metrics_updater.py](../dashboard/compliance_metrics_updater.py) | complete |
@@ -50,7 +50,7 @@ Implementation note: the `ingest_assets` workflow is fully implemented in
 
 ## Test Coverage
 
-Running `pytest` currently results in multiple failures. The majority of failures stem from incomplete modules such as `DBFirstCodeGenerator`, `documentation_db_analyzer`, and `workflow_enhancer`.
+Running `pytest` previously resulted in multiple failures due to incomplete modules such as `DBFirstCodeGenerator` and `documentation_db_analyzer`. The `workflow_enhancer` module now exists at `template_engine/workflow_enhancer.py`, and tests reside under `tests/test_workflow_enhancer*`.
 
 Most quantum-oriented modules operate purely in simulation mode. Hardware execution is not supported and several helper scripts remain stubs.
 
