@@ -557,8 +557,8 @@ def main():
         results = engine.execute_database_driven_corrections()
 
         # Final validation
-        logger.info("🔍 Running final validation...")
-        subprocess.run(["flake8", "."], capture_output=True, text=True)
+        logger.info("🔍 Running final validation with ruff...")
+        subprocess.run(["ruff", "check", "."], capture_output=True, text=True)
 
         logger.info("✅ DATABASE-FIRST CORRECTION ENGINE COMPLETED SUCCESSFULLY")
 

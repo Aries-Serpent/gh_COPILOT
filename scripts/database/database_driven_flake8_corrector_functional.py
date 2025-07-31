@@ -2,11 +2,10 @@
 """DatabaseDrivenFlake8CorrectorFunctional
 ========================================
 
-Perform flake8 corrections on a workspace, tracking every fix in
+Perform ruff-based corrections on a workspace, tracking every fix in
 ``production.db``. Scanning handles non-ASCII paths and file content
-in a Unicode-safe manner. After applying ``autopep8`` and ``isort``
-corrections, the script triggers the secondary Copilot validator to
-ensure compliance.
+in a Unicode-safe manner. After applying ``ruff check --fix`` the
+script triggers the secondary Copilot validator to ensure compliance.
 """
 
 from __future__ import annotations
@@ -35,7 +34,7 @@ TEXT_INDICATORS = {
 
 
 class DatabaseDrivenFlake8CorrectorFunctional:
-    """Correct flake8 violations and record them in a database."""
+    """Correct ruff violations and record them in a database."""
 
     DEFAULT_TIMEOUT_MINUTES = 30
 
@@ -80,10 +79,7 @@ class DatabaseDrivenFlake8CorrectorFunctional:
                 "updated_at TEXT NOT NULL"
                 ")"
             )
-            row = conn.execute(
-                "SELECT last_file_index, total_files FROM correction_progress "
-                "WHERE id=1"
-            ).fetchone()
+            row = conn.execute("SELECT last_file_index, total_files FROM correction_progress WHERE id=1").fetchone()
             if row:
                 conn.execute(
                     "UPDATE correction_progress SET total_files=?, updated_at=? WHERE id=1",
@@ -91,8 +87,7 @@ class DatabaseDrivenFlake8CorrectorFunctional:
                 )
                 return int(row[0])
             conn.execute(
-                "INSERT INTO correction_progress (id, last_file_index, total_files, updated_at) "
-                "VALUES (1, 0, ?, ?)",
+                "INSERT INTO correction_progress (id, last_file_index, total_files, updated_at) VALUES (1, 0, ?, ?)",
                 (total_files, now),
             )
             return 0
@@ -115,33 +110,33 @@ class DatabaseDrivenFlake8CorrectorFunctional:
         etc_time = datetime.utcnow() + timedelta(seconds=remaining)
         return etc_time.isoformat()
 
-    def run_flake8_scan(self, files: List[Path]) -> Dict[Path, List[str]]:
-        """Run flake8 on each file and collect violation lines."""
+    def run_ruff_scan(self, files: List[Path]) -> Dict[Path, List[str]]:
+        """Run ``ruff check`` on each file and collect violation lines."""
         violations: Dict[Path, List[str]] = {}
         for file_path in files:
-            cmd = ["flake8", str(file_path)]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(
+                ["ruff", "check", str(file_path)],
+                capture_output=True,
+                text=True,
+            )
             if result.stdout:
                 violations[file_path] = result.stdout.strip().splitlines()
         return violations
 
     def apply_corrections(self, files: List[Path]) -> List[Path]:
-        """Apply autopep8 and isort to each file and return corrected ones."""
+        """Apply ``ruff check --fix`` to each file and return corrected ones."""
         corrected: List[Path] = []
         for idx, path in enumerate(files, start=1):
             self._check_timeout()
             original = path.read_text(encoding="utf-8", errors="ignore")
-            subprocess.run(["autopep8", "--in-place", str(path)], check=False)
-            subprocess.run(["isort", str(path)], check=False)
+            subprocess.run(["ruff", "check", "--fix", str(path)], check=False)
             new_content = path.read_text(encoding="utf-8", errors="ignore")
             if original != new_content:
                 corrected.append(path)
                 self.validate_corrections([path])
             self._update_progress(idx)
             etc = self._compute_etc(idx, len(files))
-            self.logger.info(
-                f"{TEXT_INDICATORS['progress']} {idx}/{len(files)} ETC {etc}"
-            )
+            self.logger.info(f"{TEXT_INDICATORS['progress']} {idx}/{len(files)} ETC {etc}")
         return corrected
 
     def record_corrections(self, violations: Dict[Path, List[str]], corrected: List[Path]) -> None:
@@ -152,9 +147,7 @@ class DatabaseDrivenFlake8CorrectorFunctional:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             for file_path in corrected:
-                corrected_lines = file_path.read_text(
-                    encoding="utf-8", errors="ignore"
-                ).splitlines()
+                corrected_lines = file_path.read_text(encoding="utf-8", errors="ignore").splitlines()
                 for line in violations.get(file_path, []):
                     parts = line.split(":", 3)
                     if len(parts) < 4:
@@ -162,11 +155,7 @@ class DatabaseDrivenFlake8CorrectorFunctional:
                     _, row, _, rest = parts
                     code = rest.strip().split()[0]
                     row_num = int(row)
-                    corrected_line = (
-                        corrected_lines[row_num - 1]
-                        if row_num <= len(corrected_lines)
-                        else ""
-                    )
+                    corrected_line = corrected_lines[row_num - 1] if row_num <= len(corrected_lines) else ""
                     cursor.execute(
                         "INSERT INTO correction_history (file_path, \
                             violation_code, original_line, corrected_line, correction_timestamp)"
@@ -190,17 +179,11 @@ class DatabaseDrivenFlake8CorrectorFunctional:
 
         backup_root_env = os.getenv("GH_COPILOT_BACKUP_ROOT")
         if backup_root_env and "backup" in root_name:
-            backup_root = (
-                Path(PureWindowsPath(backup_root_env))
-                if os.name == "nt"
-                else Path(backup_root_env)
-            )
+            backup_root = Path(PureWindowsPath(backup_root_env)) if os.name == "nt" else Path(backup_root_env)
             try:
                 self.workspace_path.relative_to(backup_root)
             except ValueError as exc:
-                raise RuntimeError(
-                    f"Backups must be stored under {backup_root}"
-                ) from exc
+                raise RuntimeError(f"Backups must be stored under {backup_root}") from exc
 
     def validate_corrections(self, files: List[Path]) -> bool:
         """Run secondary Copilot validation on ``files``."""
@@ -211,34 +194,28 @@ class DatabaseDrivenFlake8CorrectorFunctional:
         start_dt = datetime.utcnow()
         self.start_ts = time.time()
         pid = os.getpid()
-        self.logger.info(
-            f"{TEXT_INDICATORS['start']} Correction started: {start_dt} PID {pid}"
-        )
+        self.logger.info(f"{TEXT_INDICATORS['start']} Correction started: {start_dt} PID {pid}")
         try:
             self.validate_workspace()
             py_files = self.scan_python_files()
             start_idx = self._init_progress(len(py_files))
-            with tqdm(total=len(py_files), \
-                      desc=f"{TEXT_INDICATORS['progress']} scan", unit="file") as scan_bar:
+            with tqdm(total=len(py_files), desc=f"{TEXT_INDICATORS['progress']} scan", unit="file") as scan_bar:
                 violations: Dict[Path, List[str]] = {}
                 for idx, f in enumerate(py_files[start_idx:], start=start_idx + 1):
                     self._check_timeout()
-                    file_violations = self.run_flake8_scan([f])
+                    file_violations = self.run_ruff_scan([f])
                     violations.update(file_violations)
                     scan_bar.update(1)
                     self._update_progress(idx)
             files_with_issues = list(violations.keys())
-            with tqdm(total=len(files_with_issues), \
-                      desc=f"{TEXT_INDICATORS['progress']} fix", unit="file") as fix_bar:
+            with tqdm(total=len(files_with_issues), desc=f"{TEXT_INDICATORS['progress']} fix", unit="file") as fix_bar:
                 corrected = self.apply_corrections(files_with_issues)
                 fix_bar.update(len(files_with_issues))
             self.record_corrections(violations, corrected)
             valid = self.validate_corrections(corrected)
             duration = (datetime.utcnow() - start_dt).total_seconds()
             if valid:
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s"
-                )
+                self.logger.info(f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s")
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Validation failed")
             return valid
