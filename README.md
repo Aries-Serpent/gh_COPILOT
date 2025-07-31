@@ -296,16 +296,16 @@ export GH_COPILOT_BACKUP_ROOT=/path/to/backups
 python scripts/file_management/workspace_optimizer.py
 ```
 
-### Git LFS Safe Commit
-Use the helper scripts to automatically track binary or large files via Git LFS.
+### Git LFS workflow
+Use the helper scripts to automatically track binary or large files with Git LFS.
 
 ```bash
 export ALLOW_AUTOLFS=1
 tools/git_safe_add_commit.py "your commit message"
 ```
 
-The shell version `tools/git_safe_add_commit.sh` provides the same behaviour and
-can push when invoked with `--push`. See
+The shell version `tools/git_safe_add_commit.sh` behaves the same and can push
+when invoked with `--push`. See
 [docs/GIT_LFS_WORKFLOW.md](docs/GIT_LFS_WORKFLOW.md) for details.
 
 ### Docker Usage
