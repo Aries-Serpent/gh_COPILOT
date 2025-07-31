@@ -18,7 +18,8 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, Optional
+import threading
 
 from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
@@ -205,9 +206,32 @@ class ComplianceMetricsUpdater:
             if phrase in text:
                 raise RuntimeError(f"Forbidden operation detected: {phrase}")
 
-    def stream_metrics(self, interval: int = 5) -> Iterable[Dict[str, Any]]:
-        """Yield metrics in real-time for streaming interfaces."""
+    def stream_metrics(
+        self,
+        interval: int = 5,
+        *,
+        stop_event: Optional[threading.Event] = None,
+        iterations: Optional[int] = None,
+    ) -> Iterable[Dict[str, Any]]:
+        """Yield metrics in real-time for streaming interfaces.
+
+        Parameters
+        ----------
+        interval:
+            Delay between metric fetches.
+        stop_event:
+            Optional ``threading.Event`` used to signal when the loop should
+            stop.
+        iterations:
+            Optional maximum number of iterations to run. If ``None`` the
+            generator runs indefinitely unless ``stop_event`` is set.
+        """
+        count = 0
         while True:
+            if stop_event and stop_event.is_set():
+                break
+            if iterations is not None and count >= iterations:
+                break
             try:
                 validate_no_recursive_folders()
                 self._check_forbidden_operations()
@@ -218,6 +242,7 @@ class ComplianceMetricsUpdater:
             metrics = self._fetch_compliance_metrics()
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
             yield metrics
+            count += 1
             time.sleep(interval)
 
     def _update_dashboard(self, metrics: Dict[str, Any]) -> None:
