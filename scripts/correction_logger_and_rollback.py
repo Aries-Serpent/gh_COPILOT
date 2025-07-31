@@ -90,9 +90,7 @@ class CorrectionLoggerRollback:
             )
             rows = cur.fetchall()
             if not rows:
-                cur = conn.execute(
-                    "SELECT strategy, outcome FROM rollback_strategy_history"
-                )
+                cur = conn.execute("SELECT strategy, outcome FROM rollback_strategy_history")
                 rows = cur.fetchall()
 
         stats: Dict[str, Dict[str, int]] = {}
@@ -363,6 +361,14 @@ class CorrectionLoggerRollback:
                 md.write(f"  - Rollback Reference: {corr['rollback_reference']}\n")
                 md.write(f"  - Timestamp: {corr['timestamp']}\n\n")
         logging.info(f"Correction summary written to {json_path} and {md_path}")
+        _log_event(
+            {
+                "event": "correction_summary",
+                "count": summary["total_corrections"],
+            },
+            table="correction_summaries",
+            db_path=self.analytics_db,
+        )
         return summary
 
     def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
