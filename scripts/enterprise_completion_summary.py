@@ -32,6 +32,9 @@ from datetime import datetime
 from pathlib import Path
 import logging
 
+from enterprise_modules.compliance import validate_enterprise_operation
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+
 def generate_enterprise_completion_report():
     """🏆 Generate comprehensive enterprise completion report"""
     
@@ -260,4 +263,8 @@ def main():
         return 1
 
 if __name__ == "__main__":
-    exit(main())
+    if os.getenv("GH_COPILOT_DISABLE_VALIDATION") != "1":
+        validate_enterprise_operation()
+    exit_code = main()
+    SecondaryCopilotValidator().validate_corrections([__file__])
+    sys.exit(exit_code)
