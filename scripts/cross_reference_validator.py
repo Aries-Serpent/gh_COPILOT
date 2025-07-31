@@ -44,8 +44,6 @@ ANALYTICS_DB = workspace_root / "analytics.db"
 DASHBOARD_DIR = workspace_root / "dashboard" / "compliance"
 TASK_SUGGESTIONS_FILE = workspace_root / "docs" / "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md"
 
-backup_root = CrossPlatformPathManager.get_backup_root()
-
 
 class CrossReferenceValidator:
     """
@@ -59,6 +57,7 @@ class CrossReferenceValidator:
         analytics_db: Path = ANALYTICS_DB,
         dashboard_dir: Path = DASHBOARD_DIR,
         task_suggestions_file: Path = TASK_SUGGESTIONS_FILE,
+        backup_root: Path | None = None,
     ) -> None:
         self.production_db = production_db
         self.analytics_db = analytics_db
@@ -75,6 +74,7 @@ class CrossReferenceValidator:
 
         self.cross_link_log: List[Dict[str, str]] = []
         self.suggested_links: List[Dict[str, str]] = []
+        self.backup_root = backup_root or CrossPlatformPathManager.get_backup_root()
 
     def _query_cross_reference_patterns(self) -> List[str]:
         """Query production.db for cross-referencing workflow patterns."""
@@ -134,17 +134,13 @@ class CrossReferenceValidator:
         if self.analytics_db.exists():
             with sqlite3.connect(self.analytics_db) as conn:
                 conn.row_factory = sqlite3.Row
-                for row in conn.execute(
-                    "SELECT file_path, linked_path FROM cross_link_events"
-                ):
+                for row in conn.execute("SELECT file_path, linked_path FROM cross_link_events"):
                     past_links.append({"file_path": row[0], "linked_path": row[1]})
 
         for d in docs_dirs + code_dirs:
             validate_enterprise_operation(str(d))
 
-        existing_pairs: Set[tuple[str, str]] = {
-            (pl["file_path"], pl["linked_path"]) for pl in past_links
-        }
+        existing_pairs: Set[tuple[str, str]] = {(pl["file_path"], pl["linked_path"]) for pl in past_links}
 
         for act in actions:
             file_name = Path(act["file_path"]).name
@@ -152,7 +148,7 @@ class CrossReferenceValidator:
             for d in docs_dirs + code_dirs:
                 for path in d.rglob(file_name):
                     try:
-                        path.relative_to(backup_root)
+                        path.relative_to(self.backup_root)
                     except ValueError:
                         related_paths.add(path)
             for path in sorted(related_paths):

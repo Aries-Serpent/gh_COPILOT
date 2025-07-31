@@ -30,9 +30,7 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
             )
             """
         )
-        conn.execute(
-            "INSERT INTO todo_fixme_tracking VALUES ('file.py', 'code', 'open', '2024-01-01')"
-        )
+        conn.execute("INSERT INTO todo_fixme_tracking VALUES ('file.py', 'code', 'open', '2024-01-01')")
         conn.execute(
             """
             CREATE TABLE cross_link_events (
@@ -54,9 +52,7 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
     code_dir.mkdir()
     (code_dir / "file.py").write_text("code")
 
-    validator = crv.CrossReferenceValidator(
-        production_db, analytics_db, dashboard_dir, task_file
-    )
+    validator = crv.CrossReferenceValidator(production_db, analytics_db, dashboard_dir, task_file)
     assert validator.validate(timeout_minutes=1)
 
     summary_file = dashboard_dir / "cross_reference_summary.json"
@@ -66,9 +62,7 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
 
     with sqlite3.connect(analytics_db) as conn:
         count = conn.execute("SELECT COUNT(*) FROM cross_link_events").fetchone()[0]
-        summary = conn.execute(
-            "SELECT actions, links, summary_path FROM cross_link_summary"
-        ).fetchone()
+        summary = conn.execute("SELECT actions, links, summary_path FROM cross_link_summary").fetchone()
     assert count == 2
     assert summary[0] == 1
     assert summary[1] == count
@@ -102,9 +96,7 @@ def test_deep_cross_link_excludes_backup(tmp_path, monkeypatch):
             )
             """
         )
-        conn.execute(
-            "INSERT INTO todo_fixme_tracking VALUES ('target.py', 'code', 'open', '2024-01-01')"
-        )
+        conn.execute("INSERT INTO todo_fixme_tracking VALUES ('target.py', 'code', 'open', '2024-01-01')")
         conn.execute(
             """
             CREATE TABLE cross_link_events (
@@ -128,9 +120,7 @@ def test_deep_cross_link_excludes_backup(tmp_path, monkeypatch):
     backup_root.mkdir()
     (backup_root / "target.py").write_text("backup")
 
-    validator = crv.CrossReferenceValidator(
-        production_db, analytics_db, dashboard_dir, task_file
-    )
+    validator = crv.CrossReferenceValidator(production_db, analytics_db, dashboard_dir, task_file)
     assert validator.validate(timeout_minutes=1)
 
     with sqlite3.connect(analytics_db) as conn:
@@ -168,9 +158,7 @@ def test_suggest_links_logged(tmp_path, monkeypatch):
             )
             """
         )
-        conn.execute(
-            "INSERT INTO todo_fixme_tracking VALUES ('feature_new.py', 'code', 'open', '2024-01-01')"
-        )
+        conn.execute("INSERT INTO todo_fixme_tracking VALUES ('feature_new.py', 'code', 'open', '2024-01-01')")
         conn.execute(
             """
             CREATE TABLE cross_link_events (
@@ -180,9 +168,7 @@ def test_suggest_links_logged(tmp_path, monkeypatch):
             )
             """
         )
-        conn.execute(
-            "INSERT INTO cross_link_events VALUES ('feature_old.py', 'docs/feature_old.md', '2024-01-01')"
-        )
+        conn.execute("INSERT INTO cross_link_events VALUES ('feature_old.py', 'docs/feature_old.md', '2024-01-01')")
 
     dashboard_dir = tmp_path / "dashboard"
     task_file = tmp_path / "tasks.md"
@@ -195,18 +181,14 @@ def test_suggest_links_logged(tmp_path, monkeypatch):
     code_dir.mkdir()
     (code_dir / "feature_new.py").write_text("code")
 
-    validator = crv.CrossReferenceValidator(
-        production_db, analytics_db, dashboard_dir, task_file
-    )
+    validator = crv.CrossReferenceValidator(production_db, analytics_db, dashboard_dir, task_file)
     assert validator.validate(timeout_minutes=1)
 
     summary = json.loads((dashboard_dir / "cross_reference_summary.json").read_text())
     assert summary["suggested_links"]
 
     with sqlite3.connect(analytics_db) as conn:
-        tables = {row[0] for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        )}
+        tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         count = conn.execute("SELECT COUNT(*) FROM cross_link_suggestions").fetchone()[0]
 
     assert "cross_link_suggestions" in tables
@@ -228,9 +210,7 @@ def test_cross_reference_validator_timeout(tmp_path, monkeypatch):
 
     analytics_db = tmp_path / "analytics.db"
     with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            "CREATE TABLE cross_link_events (file_path TEXT, linked_path TEXT, timestamp TEXT)"
-        )
+        conn.execute("CREATE TABLE cross_link_events (file_path TEXT, linked_path TEXT, timestamp TEXT)")
 
     dashboard_dir = tmp_path / "dashboard"
     task_file = tmp_path / "tasks.md"
@@ -239,9 +219,7 @@ def test_cross_reference_validator_timeout(tmp_path, monkeypatch):
     logged: list[dict] = []
     monkeypatch.setattr(crv, "_log_event", lambda event, **_: logged.append(event))
 
-    validator = crv.CrossReferenceValidator(
-        production_db, analytics_db, dashboard_dir, task_file
-    )
+    validator = crv.CrossReferenceValidator(production_db, analytics_db, dashboard_dir, task_file)
 
     times = iter([0, 61])
     monkeypatch.setattr(crv.time, "time", lambda: next(times))
