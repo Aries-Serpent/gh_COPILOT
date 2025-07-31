@@ -73,6 +73,18 @@
 - **Compliance:** passed full enterprise audit with enforced anti-recursion.
 - **Contributors:** Copilot, Statix, gh_COPILOT.
 
+## [3.9.0] - 2025-07-13
+- **Features:** finalized disaster recovery tooling and expanded monitoring hooks.
+- **Breaking:** refactored database schema to unify archival tables.
+- **Compliance:** updated security policy and documentation.
+- **Contributors:** Copilot, Statix, gh_COPILOT.
+
+## [3.8.0] - 2025-07-13
+- **Features:** introduced unified script generation with session tracking.
+- **Breaking:** deprecated legacy monitoring interface.
+- **Compliance:** documentation revisions for database-first operations.
+- **Contributors:** Copilot, Statix, gh_COPILOT.
+
 ## [3.5.0] - 2025-07-13
 - **Features:** Phase 4 continuous optimization and predictive maintenance tools.
 - **Breaking:** none.
