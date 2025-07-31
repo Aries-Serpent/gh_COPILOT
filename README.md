@@ -1082,6 +1082,7 @@ Several small modules provide common helpers:
   enhancer.enhance()
   ```
 - `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
+- `artifact_manager.py` – package modified files from `tmp/` into `codex_sessions/` for auditing.
 
 ## Future Roadmap
 
