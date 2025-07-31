@@ -1,16 +1,25 @@
+# Enables automatic Git LFS setup whenever files are added
 enable_autolfs: true
-size_threshold_mb: 50
+# Directory for storing session artifacts
+session_artifact_dir: "codex_sessions/"
+# Files larger than this size (MB) are automatically tracked via LFS
+size_threshold_mb: 99
+# Extensions that should always be stored using Git LFS
 binary_extensions:
+  - .zip
   - .db
   - .7z
-  - .zip
   - .bak
-  - .dot
   - .sqlite
   - .exe
+  - .dot
+# Template used when generating .gitattributes automatically
 gitattributes_template: |
+  codex_sessions/*.zip filter=lfs diff=lfs merge=lfs -text
   *.db filter=lfs diff=lfs merge=lfs -text
   *.7z filter=lfs diff=lfs merge=lfs -text
   *.zip filter=lfs diff=lfs merge=lfs -text
   *.bak filter=lfs diff=lfs merge=lfs -text
+  *.sqlite filter=lfs diff=lfs merge=lfs -text
+  *.exe filter=lfs diff=lfs merge=lfs -text
   *.dot filter=lfs diff=lfs merge=lfs -text
