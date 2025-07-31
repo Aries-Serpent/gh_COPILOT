@@ -5,6 +5,7 @@ from unittest.mock import patch
 from enterprise_modules.compliance import (
     validate_enterprise_operation,
     _log_rollback,
+    _detect_recursion,
 )
 
 
@@ -19,6 +20,15 @@ def test_recursion_detection(tmp_path: Path) -> None:
                 "SELECT details FROM violation_logs"
             ).fetchall()
         assert any("recursive_" in d[0] for d in details)
+
+
+def test_recursion_symlink(tmp_path: Path) -> None:
+    outside = tmp_path.parent / f"{tmp_path.name}_outside"
+    outside.mkdir()
+    link = tmp_path / tmp_path.name
+    link.symlink_to(outside, target_is_directory=True)
+
+    assert not _detect_recursion(tmp_path)
 
 
 def test_log_rollback(tmp_path: Path) -> None:
