@@ -3,6 +3,7 @@ import pytest
 
 from third_party.openai_client import OpenAIClient
 import third_party.openai_client as oc
+import requests
 
 
 def test_chat_completion_success(monkeypatch):
@@ -125,3 +126,35 @@ def test_http_429_backoff(monkeypatch):
     assert req.call_count == 3
     assert sleeps == [1, 2]
     assert result == {"ok": True}
+
+
+def test_http_429_retry_after(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "k")
+    client = OpenAIClient(base_url="http://api", max_retries=2, rate_limit=0)
+
+    sleeps: list[float] = []
+    monkeypatch.setattr(oc.time, "sleep", lambda d: sleeps.append(d))
+    monkeypatch.setattr(oc.time, "time", lambda: 0.0)
+
+    r1 = mock.Mock(status_code=429, headers={"Retry-After": "5"})
+    r2 = mock.Mock(status_code=200)
+    r2.json.return_value = {"ok": True}
+
+    with mock.patch("requests.Session.request", side_effect=[r1, r2]) as req:
+        result = client.chat_completion([{"role": "user", "content": "hi"}])
+
+    assert req.call_count == 2
+    assert sleeps == [5]
+    assert result == {"ok": True}
+
+
+def test_authentication_error(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "k")
+    client = OpenAIClient(base_url="http://api", rate_limit=0)
+
+    err = mock.Mock(status_code=401, headers={"Content-Type": "application/json"})
+    err.json.return_value = {"error": {"message": "invalid api key"}}
+
+    with mock.patch("requests.Session.request", return_value=err):
+        with pytest.raises(requests.HTTPError, match="invalid api key"):
+            client.chat_completion([{"role": "user", "content": "hi"}])

@@ -1,12 +1,8 @@
 import json
 import sqlite3
 from pathlib import Path
-import os
-import sys
-
 import pytest
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from dashboard import compliance_metrics_updater as cmu
 
 
@@ -28,6 +24,7 @@ def test_app(tmp_path: Path, monkeypatch):
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
     monkeypatch.setattr(cmu, "insert_event", lambda *a, **k: None)
     from web_gui.scripts.flask_apps import enterprise_dashboard as ed
+
     monkeypatch.setattr(ed, "ANALYTICS_DB", db)
     monkeypatch.setattr(
         ed,
@@ -92,3 +89,12 @@ def test_metrics_table(test_app):
     html = resp.data.decode()
     assert "<table" in html
     assert "placeholder_removal" in html
+
+
+def test_summary_endpoint(test_app):
+    client = test_app.test_client()
+    resp = client.get("/summary")
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert "metrics" in data
+    assert "alerts" in data

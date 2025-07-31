@@ -26,6 +26,7 @@ from tqdm import tqdm
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 from utils.log_utils import ensure_tables, insert_event
+from enterprise_modules.compliance import _log_rollback
 
 # Internal helpers
 
@@ -254,6 +255,7 @@ def run_migrations(db: Path, *, dry_run: bool = False) -> None:
             conn.rollback()
             logger.error("Migration failed for %s: %s", db, exc)
             _log_audit_real(str(db), f"migration_failed:{exc}")
+            _log_rollback(str(db))
 
 
 def _compliance_check(conn: sqlite3.Connection) -> bool:
@@ -284,6 +286,7 @@ def copy_template_file(src: Path, dst: Path, *, dry_run: bool = False) -> None:
             conn.rollback()
             logger.error("Copy failed: %s", exc)
             _log_audit_real("file_copy", f"failed:{exc}")
+            _log_rollback(str(dst))
             if dst.exists():
                 dst.unlink()
             raise
@@ -315,6 +318,7 @@ def update_template_content(
                 conn.rollback()
                 logger.error("Update failed for %s: %s", db, exc)
                 _log_audit_real(str(db), f"update_failed:{exc}")
+                _log_rollback(str(db))
 
 
 def _synchronize_templates_simulation(

@@ -22,9 +22,14 @@ if [ ! -x /usr/local/bin/clw ]; then
             cp "$WORKSPACE/tools/clw.py" /usr/local/bin/clw
         chmod +x /usr/local/bin/clw
         echo "Installed clw to /usr/local/bin/clw"
+        /usr/local/bin/clw --help >/dev/null || true
     else
         echo "clw script not found in tools/" >&2
     fi
+fi
+
+if [ -x /usr/local/bin/clw ]; then
+    /usr/local/bin/clw --help >/dev/null || true
 fi
 
 if [ -z "${GH_COPILOT_BACKUP_ROOT:-}" ]; then

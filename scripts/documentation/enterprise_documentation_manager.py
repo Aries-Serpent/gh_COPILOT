@@ -17,6 +17,51 @@ from template_engine.template_synchronizer import _compliance_score
 from utils.database_utils import get_validated_production_db_connection
 from utils.log_utils import _log_event
 
+
+def _create_simple_pdf(path: Path, text: str) -> None:
+    """Create a very basic PDF file with the given text."""
+    def _escape(s: str) -> str:
+        return s.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+    lines = text.splitlines()
+    content_lines = ["BT", "/F1 12 Tf"]
+    y = 720
+    for line in lines:
+        content_lines.append(f"72 {y} Td ({_escape(line)}) Tj")
+        y -= 14
+    content_lines.append("ET")
+    content = "\n".join(content_lines)
+    objects = []
+    offsets = []
+
+    def _add(obj: str) -> None:
+        offsets.append(len(b"".join(objects)))
+        objects.append(obj.encode("utf-8") + b"\n")
+
+    _add("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj")
+    _add("2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj")
+    _add(
+        "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+        "/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj"
+    )
+    _add("4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj")
+    _add(
+        f"5 0 obj\n<< /Length {len(content)} >>\nstream\n{content}\nendstream\nendobj"
+    )
+
+    xref_start = sum(len(obj) for obj in objects) + len("%PDF-1.4\n")
+    xref_entries = ["0000000000 65535 f "] + [f"{off:010} 00000 n " for off in offsets]
+    xref_table = "xref\n0 {n}\n".format(n=len(xref_entries)) + "\n".join(xref_entries)
+    trailer = f"trailer\n<< /Root 1 0 R /Size {len(xref_entries)} >>"
+    pdf_bytes = (
+        b"%PDF-1.4\n"
+        + b"".join(objects)
+        + xref_table.encode("utf-8")
+        + trailer.encode("utf-8")
+        + f"\nstartxref\n{xref_start}\n%%EOF".encode("utf-8")
+    )
+    path.write_bytes(pdf_bytes)
+
 TEXT_INDICATORS = {
     "start": "[START]",
     "success": "[SUCCESS]",
@@ -136,7 +181,21 @@ class EnterpriseDocumentationManager:
                             text = f"<html><body>{html_body}</body></html>"
                         else:
                             text = body
-                        path.write_text(text, encoding="utf-8")
+                        if fmt == "pdf":
+                            try:
+                                from reportlab.lib.pagesizes import letter
+                                from reportlab.pdfgen import canvas
+
+                                c = canvas.Canvas(str(path), pagesize=letter)
+                                text_obj = c.beginText(40, 750)
+                                for line in body.splitlines():
+                                    text_obj.textLine(line)
+                                c.drawText(text_obj)
+                                c.save()
+                            except Exception:  # pragma: no cover - fallback if reportlab missing
+                                _create_simple_pdf(path, body)
+                        else:
+                            path.write_text(text, encoding="utf-8")
                         generated.append(path)
                         if main_path is None:
                             main_path = path

@@ -61,10 +61,27 @@ class OpenAIClient:
                 continue
 
             if resp.status_code == 429 and attempt < self.max_retries:
-                delay = 2 ** (attempt - 1)
-                self.logger.warning("Rate limited on attempt %s, sleeping %s", attempt, delay)
+                headers = getattr(resp, "headers", {})
+                retry_after = headers.get("Retry-After") if isinstance(headers, dict) else None
+                try:
+                    retry_after_sec = int(retry_after) if retry_after else 0
+                except ValueError:
+                    retry_after_sec = 0
+                delay = max(2 ** (attempt - 1), retry_after_sec)
+                self.logger.warning(
+                    "Rate limited on attempt %s, sleeping %s", attempt, delay
+                )
                 time.sleep(delay)
                 continue
+
+            if 400 <= resp.status_code < 500 and resp.status_code != 429:
+                try:
+                    detail = resp.json().get("error", {}).get("message", "")
+                except ValueError:
+                    detail = resp.text
+                raise requests.HTTPError(
+                    f"{resp.status_code} client error: {detail}", response=resp
+                )
 
             if resp.status_code >= 500 and attempt < self.max_retries:
                 time.sleep(attempt)

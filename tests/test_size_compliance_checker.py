@@ -6,6 +6,15 @@ from scripts.database import size_compliance_checker as checker
 from utils.log_utils import stream_events
 
 
+def _violation_exists(db_path: Path, db: str, table: str) -> bool:
+    with sqlite3.connect(db_path) as conn:
+        row = conn.execute(
+            "SELECT 1 FROM size_violations WHERE db=? AND table_name=?",
+            (db, table),
+        ).fetchone()
+        return row is not None
+
+
 def test_check_database_sizes(tmp_path: Path) -> None:
     db_file = tmp_path / "analytics.db"
     os.environ["ANALYTICS_DB"] = str(db_file)
@@ -24,8 +33,7 @@ def test_check_database_sizes(tmp_path: Path) -> None:
         conn.commit()
     results = checker.check_database_sizes(tmp_path, threshold_mb=1)
     assert results["big.db"] > 1
-    violations = list(stream_events("size_violations", db_path=db_file))
-    assert violations
+    assert _violation_exists(db_file, "big.db", "__database__")
 
 
 def test_table_size_violation(tmp_path: Path, capsys) -> None:
@@ -43,8 +51,7 @@ def test_table_size_violation(tmp_path: Path, capsys) -> None:
 
     checker.check_database_sizes(tmp_path, threshold_mb=0.5)
     output = capsys.readouterr().out
-    violations = list(stream_events("size_violations", db_path=db_file))
-    assert any('"table_name": "big"' in v for v in violations)
+    assert _violation_exists(db_file, "oversize.db", "big")
     assert "data:" in output
 
 

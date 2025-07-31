@@ -40,4 +40,5 @@ HEALTHCHECK --interval=30s --timeout=5s CMD ["python", "scripts/docker_healthche
 
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
-CMD ["bash", "/app/entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["python", "scripts/docker_entrypoint.py"]

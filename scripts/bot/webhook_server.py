@@ -9,9 +9,7 @@ import hashlib
 import logging
 import os
 from datetime import datetime
-from pathlib import Path
-
-from flask import Flask, jsonify, request
+from flask import Flask, request
 from tqdm import tqdm
 
 from utils.cross_platform_paths import (
