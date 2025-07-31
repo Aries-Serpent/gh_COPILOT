@@ -573,11 +573,12 @@ def start_websocket_broadcast(
         return
 
     try:
-        import asyncio
         import websockets
     except ImportError:  # pragma: no cover - optional dependency
-        logging.getLogger(__name__).warning("websockets package not available")
+        logging.getLogger(__name__).warning("websockets package not available - skipping broadcast")
         return
+
+    import asyncio
 
     clients: set = set()
 

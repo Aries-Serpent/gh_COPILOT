@@ -687,7 +687,8 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 ### Enable Streaming
 
 Set the environment variable `LOG_WEBSOCKET_ENABLED=1` to allow real-time
-log broadcasting over WebSockets. The dashboard's `/metrics_stream` endpoint
+log broadcasting over WebSockets. Install the optional `websockets` package
+(`pip install websockets`) to enable this feature. The dashboard's `/metrics_stream` endpoint
 uses Server-Sent Events by default and works with Flask's ``Response`` when
 `sse_event_stream` is provided from ``utils.log_utils``.
 
