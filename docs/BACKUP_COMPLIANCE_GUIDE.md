@@ -38,6 +38,36 @@ Snapshots are stored as timestamped folders under `$GH_COPILOT_BACKUP_ROOT`. To 
    ```
    Verify the files match the snapshot contents before overwriting existing data.
 
+## Manual Backup and Restore
+
+The automated tools are preferred, but you can create and restore backups
+manually if necessary.
+
+### Manual Backup
+
+1. Create a timestamped directory under `$GH_COPILOT_BACKUP_ROOT`:
+   ```bash
+   ts=$(date +%Y%m%d_%H%M%S)
+   mkdir -p "$GH_COPILOT_BACKUP_ROOT/manual_$ts"
+   ```
+2. Copy the target files or folders:
+   ```bash
+   cp -r /path/to/project "$GH_COPILOT_BACKUP_ROOT/manual_$ts/"
+   ```
+3. Confirm the copied files match the source before deleting originals.
+
+### Manual Restore
+
+1. Locate the desired manual backup directory:
+   ```bash
+   ls $GH_COPILOT_BACKUP_ROOT
+   ```
+2. Copy files back to the workspace:
+   ```bash
+   cp -r $GH_COPILOT_BACKUP_ROOT/manual_<timestamp>/project /restored/project
+   ```
+3. Review file permissions and ownership after restore.
+
 ## Verification with `disaster_recovery.db`
 
 Each backup and restore operation is logged in `disaster_recovery.db`. Use the provided verification script:

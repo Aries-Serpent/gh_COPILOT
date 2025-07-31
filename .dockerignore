@@ -1,3 +1,4 @@
+# Mirror of .gitignore
 /logs/human_logs
 databases/enterprise_assets.db
 /databases/*.db-shm
@@ -8,7 +9,6 @@ __pycache__/
 *.pyc
 target/
 Cargo.lock
-
 # Ignore runtime logs
 logs/**
 # Backup archives
@@ -18,4 +18,7 @@ archive/*.tar
 archive/*.tar.gz
 *.bak
 *.tmp
-
+# Exclude all database files from images
+/databases/*.db
+/databases/*
+logs/**
