@@ -33,9 +33,12 @@ TABLE_SCHEMAS: Dict[str, str] = {
         CREATE TABLE IF NOT EXISTS event_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             event TEXT,
+            details TEXT,
             session TEXT,
             module TEXT,
             level TEXT,
+            fix_count INTEGER,
+            db TEXT,
             timestamp TEXT
         );
         CREATE INDEX IF NOT EXISTS idx_event_log_timestamp
