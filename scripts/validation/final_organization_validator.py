@@ -3,7 +3,6 @@
 Final Modular Organization Validation
 """
 
-import os
 from pathlib import Path
 
 def validate_organization():

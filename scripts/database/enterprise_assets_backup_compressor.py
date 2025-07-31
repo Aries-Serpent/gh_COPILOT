@@ -5,7 +5,7 @@ import logging
 import os
 import zipfile
 from datetime import datetime, timezone
-from pathlib import Path, PureWindowsPath
+from pathlib import Path
 
 from enterprise_modules.compliance import validate_enterprise_operation
 

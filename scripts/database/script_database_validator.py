@@ -14,10 +14,9 @@ Enterprise Standards Compliance:
 import hashlib
 import logging
 import sqlite3
-import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {

@@ -10,7 +10,6 @@ from quantum_algorithm_library_expansion import (
     quantum_cluster_representatives,
     quantum_similarity_score,
 )
-import numpy as np
 
 
 def test_perform_utility_function_runs():

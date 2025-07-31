@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from datetime import datetime
 from copilot.core.enterprise_json_serialization_fix import EnterpriseJSONSerializer
-import logging
 
 
 def test_round_trip_datetime(tmp_path, monkeypatch):

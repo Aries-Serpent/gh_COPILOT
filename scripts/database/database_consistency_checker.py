@@ -8,14 +8,13 @@ and prepares for archive migration workflow.
 Enterprise-grade database consistency validation with migration readiness assessment.
 """
 
-import os
 import sys
 import json
 import sqlite3
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Set, Any
+from typing import Dict, Any
 import hashlib
 
 class DatabaseConsistencyChecker:

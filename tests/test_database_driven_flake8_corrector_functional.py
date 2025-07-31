@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import logging
 import sqlite3
 
 from scripts.database.database_driven_flake8_corrector_functional import \

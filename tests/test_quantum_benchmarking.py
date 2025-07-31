@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import logging
 
 import pytest
 from qiskit_machine_learning.neural_networks import EstimatorQNN

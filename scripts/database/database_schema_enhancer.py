@@ -24,12 +24,10 @@ import os
 import sys
 import sqlite3
 import logging
-import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from tqdm import tqdm
-import time
 
 # MANDATORY: Visual processing indicators
 start_time = datetime.now()

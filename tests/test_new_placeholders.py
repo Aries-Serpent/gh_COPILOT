@@ -1,9 +1,7 @@
-import importlib
 import os
 import shutil
 import sqlite3
 from pathlib import Path
-from unittest.mock import patch
 import pytest
 
 from scripts.session.COMPREHENSIVE_WORKSPACE_MANAGER import ComprehensiveWorkspaceManager
