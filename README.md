@@ -1024,6 +1024,22 @@ The automated test suite reports failures for modules that are not yet fully imp
 - Quantum modules run in **simulation mode** by default. Features such as `quantum_database_search` and `quantum_neural_networks_predictive_maintenance` remain partially stubbed.
 - Quantum monitoring scripts are experimental.
 
+## CI/CD Overview
+
+The repository uses GitHub Actions to automate linting, testing, and compliance checks.
+
+- **ci.yml** runs Ruff linting, executes the test suite on multiple Python versions, builds the Docker image, and performs a CodeQL scan.
+- **compliance-audit.yml** validates placeholder cleanup and fails if unresolved TODO markers remain.
+- **docs-validation.yml** checks documentation metrics on docs changes and weekly.
+
+To mimic CI locally, run:
+
+```bash
+bash setup.sh
+make test
+python scripts/run_migrations.py
+```
+
 ---
 
 **🏆 gh_COPILOT Toolkit v4.0 Enterprise**
