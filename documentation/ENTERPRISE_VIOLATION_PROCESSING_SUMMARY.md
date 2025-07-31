@@ -154,7 +154,7 @@ Batch Processing: 77 batches for systematic processing
 
 ### **Database Schema**
 ✅ **violations table** - Complete violation records with metadata  
-✅ **corrections table** - Applied fix tracking and validation  
+✅ **correction_logs table** - Applied fix tracking and validation
 ✅ **processing_sessions table** - Session-based operation tracking  
 ✅ **monitoring_snapshots table** - Real-time monitoring data  
 ✅ **alerts table** - Alert management and acknowledgment  
