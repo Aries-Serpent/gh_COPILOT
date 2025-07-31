@@ -1,16 +1,19 @@
 import scripts.code_placeholder_audit as audit
 
 
-def test_parse_args_dry_run_alias():
-    args = audit.parse_args(["--dry-run"])
-    assert args.simulate is True
+import pytest
 
 
-def test_parse_args_cleanup_alias():
-    args = audit.parse_args(["--cleanup"])
-    assert args.apply_fixes is True
+def test_removed_dry_run_option():
+    with pytest.raises(SystemExit):
+        audit.parse_args(["--dry-run"])
 
 
-def test_parse_args_force():
-    args = audit.parse_args(["--force"])
-    assert args.force is True
+def test_removed_cleanup_option():
+    with pytest.raises(SystemExit):
+        audit.parse_args(["--cleanup"])
+
+
+def test_removed_force_option():
+    with pytest.raises(SystemExit):
+        audit.parse_args(["--force"])
