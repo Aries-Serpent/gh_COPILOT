@@ -92,7 +92,8 @@ cp .env.example .env
 # The `OPENAI_API_KEY` variable enables modules in `github_integration/openai_connector.py`.
 # Generate strong secrets with `python -c "import secrets; print(secrets.token_hex(32))"`.
 
-# 2. Run setup script (creates `.venv` and installs requirements)
+# 2. Set the external backup directory and run the setup script
+export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
 bash setup.sh
 # Always run this script before executing tests or automation tasks.
 # The setup process installs packages from all `requirements*.txt` files,

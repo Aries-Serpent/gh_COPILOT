@@ -42,7 +42,7 @@ source .venv/bin/activate
 ### 4. Workspace and Backup Variables
 Set the following environment variables in your shell configuration (or load them dynamically using `.env` files):
 - **`GH_COPILOT_WORKSPACE`:** Specifies the repository workspace.
-- **`GH_COPILOT_BACKUP_ROOT`:** Ensures backups and logs are stored outside the workspace to prevent recursive violations. If unset, the system defaults to `/tmp/<user>/gh_COPILOT_Backups` on Linux.
+- **`GH_COPILOT_BACKUP_ROOT`:** Ensures backups and logs are stored outside the workspace to prevent recursive violations. **This variable must be defined before running `setup.sh`.**
 - **`CLW_MAX_LINE_LENGTH`:** Optional terminal output wrap length. Set to `1550` to avoid exceeding the 1600-byte console limit when using `clw`.
 - **`API_SECRET_KEY`:** Secret used by the Enterprise API. Set this or provide `api_secret_key` in your config file.
 - **`FLASK_ENV`:** Set to `production` to disable debug mode in the Enterprise API server.
