@@ -118,7 +118,9 @@ calls using the `OpenAIClient` helper in
 `third_party/openai_client.py`. Set `OPENAI_API_KEY` in your `.env` to enable
 these helpers. Optional variables `OPENAI_RATE_LIMIT` (seconds between
 requests) and `OPENAI_MAX_RETRIES` (number of retries) control the client's
-rate limiting and retry behavior.
+rate limiting and retry behavior. The client now respects `Retry-After` headers
+for HTTP 429 responses and surfaces the message from 4xx errors like invalid
+credentials.
 
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
