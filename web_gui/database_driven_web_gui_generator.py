@@ -75,14 +75,10 @@ class EnterpriseDatabaseProcessor:
             for db_file in db_dir.glob("*.db"):
                 with sqlite3.connect(db_file) as src:
                     src_cursor = src.cursor()
-                    tables = src_cursor.execute(
-                        "SELECT name FROM sqlite_master WHERE type='table'"
-                    ).fetchall()
+                    tables = src_cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
                     for (table_name,) in tables:
                         try:
-                            count = src_cursor.execute(
-                                f"SELECT COUNT(*) FROM {table_name}"
-                            ).fetchone()[0]
+                            count = src_cursor.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
                         except Exception:
                             count = 0
                         cursor.execute(

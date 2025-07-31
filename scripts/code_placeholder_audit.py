@@ -272,13 +272,9 @@ def update_dashboard(
     placeholder_counts: Dict[str, int] = {}
     if analytics_db.exists():
         with sqlite3.connect(analytics_db) as conn:
-            cur = conn.execute(
-                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
-            )
+            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
             open_count = cur.fetchone()[0]
-            cur = conn.execute(
-                "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
-            )
+            cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
             resolved = cur.fetchone()[0]
             cur = conn.execute(
                 "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type"

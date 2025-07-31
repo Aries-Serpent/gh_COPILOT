@@ -4,12 +4,8 @@ from documentation import EnterpriseDocumentationManager
 
 def setup_db(doc_db):
     with sqlite3.connect(doc_db) as conn:
-        conn.execute(
-            "CREATE TABLE documentation_templates (template_name TEXT, template_content TEXT, doc_type TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO documentation_templates VALUES ('default', 'Hello {count}', 'README')"
-        )
+        conn.execute("CREATE TABLE documentation_templates (template_name TEXT, template_content TEXT, doc_type TEXT)")
+        conn.execute("INSERT INTO documentation_templates VALUES ('default', 'Hello {count}', 'README')")
         conn.execute(
             "CREATE TABLE enterprise_documentation (doc_id INTEGER PRIMARY KEY AUTOINCREMENT, doc_type TEXT, title TEXT, content TEXT, compliance REAL)"
         )

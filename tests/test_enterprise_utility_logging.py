@@ -13,7 +13,5 @@ def test_enterprise_utility_logs(tmp_path: Path, monkeypatch) -> None:
     assert util.execute_utility()
     db = tmp_path / "databases" / "analytics.db"
     with sqlite3.connect(db) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM event_log WHERE event='utility_start'"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM event_log WHERE event='utility_start'").fetchone()[0]
     assert count == 1

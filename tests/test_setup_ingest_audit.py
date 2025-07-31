@@ -28,9 +28,7 @@ def test_ingest_assets(tmp_path: Path, monkeypatch) -> None:
         doc_count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
         template_count = conn.execute("SELECT COUNT(*) FROM template_assets").fetchone()[0]
         pattern_count = conn.execute("SELECT COUNT(*) FROM pattern_assets").fetchone()[0]
-        ops_count = conn.execute(
-            "SELECT COUNT(*) FROM cross_database_sync_operations"
-        ).fetchone()[0]
+        ops_count = conn.execute("SELECT COUNT(*) FROM cross_database_sync_operations").fetchone()[0]
 
     assert doc_count == 1
     assert template_count == 1

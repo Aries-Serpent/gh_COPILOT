@@ -34,6 +34,7 @@ from secondary_copilot_validator import SecondaryCopilotValidator
 # Alias for legacy reference
 validate_database_size_reference = check_database_sizes
 
+
 def _compress_database(db_path: Path) -> None:
     """Compress the SQLite database in-place.
 
@@ -57,9 +58,11 @@ def _compress_database(db_path: Path) -> None:
         conn.execute("ANALYZE")
         conn.commit()
 
+
 logger = logging.getLogger(__name__)
 
 DATABASE_LIST_FILE = Path("documentation") / "CONSOLIDATED_DATABASE_LIST.md"
+
 
 def _load_database_names(list_file: Path) -> list[str]:
     """Return database names listed in ``list_file``.
@@ -76,6 +79,7 @@ def _load_database_names(list_file: Path) -> list[str]:
                 names.append(name)
     return names
 
+
 def compress_database(db_path: Path) -> None:
     """Compress ``db_path`` in place using VACUUM and ANALYZE."""
     if not db_path.exists():
@@ -86,15 +90,15 @@ def compress_database(db_path: Path) -> None:
         conn.execute("ANALYZE")
         conn.commit()
 
+
 def validate_database_size(databases_dir: Path, limit_mb: float = 99.9) -> None:
     """Raise ``RuntimeError`` if any database exceeds ``limit_mb``."""
     sizes = check_database_sizes(databases_dir, threshold_mb=limit_mb)
     oversized = {name: size for name, size in sizes.items() if size > limit_mb}
     if oversized:
-        details = ", ".join(
-            f"{name}: {size:.2f} MB" for name, size in oversized.items()
-        )
+        details = ", ".join(f"{name}: {size:.2f} MB" for name, size in oversized.items())
         raise RuntimeError(f"Database size limit exceeded: {details}")
+
 
 def run_migration(
     workspace: Path,
@@ -131,13 +135,9 @@ def run_migration(
             if compression_first:
                 compress_database(src)
             create_external_backup(src, src.stem)
-            start_dt = log_sync_operation(
-                enterprise_db, f"start_migrate_{src.name}", start_time=None
-            )
+            start_dt = log_sync_operation(enterprise_db, f"start_migrate_{src.name}", start_time=None)
             consolidate_databases(enterprise_db, [src])
-            log_sync_operation(
-                enterprise_db, f"completed_migrate_{src.name}", start_time=start_dt
-            )
+            log_sync_operation(enterprise_db, f"completed_migrate_{src.name}", start_time=start_dt)
             _compress_database(enterprise_db)
             bar.update(1)
             if monitor_size:
@@ -159,6 +159,7 @@ def run_migration(
     # DUAL COPILOT PATTERN: secondary validation
     validator = SecondaryCopilotValidator(logger)
     validator.validate_corrections([__file__])
+
 
 if __name__ == "__main__":
     import argparse

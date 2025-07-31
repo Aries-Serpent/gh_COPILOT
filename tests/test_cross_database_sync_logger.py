@@ -24,4 +24,3 @@ def test_log_sync_operation(tmp_path: Path, monkeypatch) -> None:
     assert row[1] == "SUCCESS"
     assert row[2] == start.isoformat()
     assert row[3] > 0
-

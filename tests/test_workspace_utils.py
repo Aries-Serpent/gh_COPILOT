@@ -2,8 +2,7 @@
 
 from pathlib import Path
 
-from copilot.common.workspace_utils import (_within_workspace,
-                                            get_workspace_path)
+from copilot.common.workspace_utils import _within_workspace, get_workspace_path
 
 
 def test_env_var_used(tmp_path, monkeypatch):

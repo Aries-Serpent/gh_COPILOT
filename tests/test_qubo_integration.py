@@ -16,6 +16,7 @@ class DummyTqdm:
             self.updates += 1
             yield item
 
+
 logging.getLogger().setLevel(logging.CRITICAL)
 
 
@@ -42,8 +43,6 @@ def test_progress_bar(monkeypatch):
         bars.append(bar)
         return bar
 
-    monkeypatch.setattr(
-        "scripts.automation.quantum_integration_orchestrator.tqdm", dummy_tqdm
-    )
+    monkeypatch.setattr("scripts.automation.quantum_integration_orchestrator.tqdm", dummy_tqdm)
     integrate_qubo_problems(qubos)
     assert bars and bars[0].updates == len(qubos)

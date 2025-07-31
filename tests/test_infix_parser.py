@@ -8,12 +8,7 @@ import pytest
 
 
 def build_module() -> Path:
-    project_dir = (
-        Path(__file__).resolve().parents[1]
-        / "enterprise_modules"
-        / "rust_extensions"
-        / "infix_parser"
-    )
+    project_dir = Path(__file__).resolve().parents[1] / "enterprise_modules" / "rust_extensions" / "infix_parser"
     env = os.environ.copy()
     env["PYO3_PYTHON"] = sys.executable
     subprocess.run(

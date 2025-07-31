@@ -27,79 +27,33 @@ class ValidationCLI:
 
     def create_parser(self) -> argparse.ArgumentParser:
         """Create command line parser"""
-        parser = argparse.ArgumentParser(
-            description="Validation Tools CLI",
-            prog="validation"
-        )
+        parser = argparse.ArgumentParser(description="Validation Tools CLI", prog="validation")
 
-        subparsers = parser.add_subparsers(
-            dest='command',
-            help='Available commands'
-        )
+        subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
         # Session validation command
-        session_parser = subparsers.add_parser(
-            'session',
-            help='Run session protocol validation'
-        )
-        session_parser.add_argument(
-            '--workspace',
-            help='Workspace path'
-        )
-        session_parser.add_argument(
-            '--comprehensive',
-            action='store_true',
-            help='Run comprehensive session validation'
-        )
+        session_parser = subparsers.add_parser("session", help="Run session protocol validation")
+        session_parser.add_argument("--workspace", help="Workspace path")
+        session_parser.add_argument("--comprehensive", action="store_true", help="Run comprehensive session validation")
 
         # Deployment validation command
-        deploy_parser = subparsers.add_parser(
-            'deployment',
-            help='Run deployment validation'
-        )
-        deploy_parser.add_argument(
-            '--workspace',
-            help='Workspace path'
-        )
+        deploy_parser = subparsers.add_parser("deployment", help="Run deployment validation")
+        deploy_parser.add_argument("--workspace", help="Workspace path")
 
         # Comprehensive validation command
-        comprehensive_parser = subparsers.add_parser(
-            'comprehensive',
-            help='Run all validations'
-        )
+        comprehensive_parser = subparsers.add_parser("comprehensive", help="Run all validations")
+        comprehensive_parser.add_argument("--workspace", help="Workspace path")
+        comprehensive_parser.add_argument("--output", help="Output file path for report")
         comprehensive_parser.add_argument(
-            '--workspace',
-            help='Workspace path'
-        )
-        comprehensive_parser.add_argument(
-            '--output',
-            help='Output file path for report'
-        )
-        comprehensive_parser.add_argument(
-            '--format',
-            choices=['json', 'markdown', 'text'],
-            default='json',
-            help='Report format'
+            "--format", choices=["json", "markdown", "text"], default="json", help="Report format"
         )
 
         # Report generation command
-        report_parser = subparsers.add_parser(
-            'report',
-            help='Generate validation report'
-        )
+        report_parser = subparsers.add_parser("report", help="Generate validation report")
+        report_parser.add_argument("input_file", help="Input validation results file (JSON)")
+        report_parser.add_argument("--output", help="Output file path")
         report_parser.add_argument(
-            'input_file',
-            help='Input validation results file (JSON)'
-        )
-        report_parser.add_argument(
-            '--output',
-            help='Output file path'
-        )
-        report_parser.add_argument(
-            '--format',
-            choices=['json', 'markdown', 'text'],
-            default='markdown',
-            help='Report format'
+            "--format", choices=["json", "markdown", "text"], default="markdown", help="Report format"
         )
 
         return parser
@@ -152,9 +106,9 @@ class ValidationCLI:
             results = [session_result, deployment_result]
 
             # Print individual results
-            print("\n" + "="*60)
+            print("\n" + "=" * 60)
             print("COMPREHENSIVE VALIDATION RESULTS")
-            print("="*60)
+            print("=" * 60)
 
             for i, result in enumerate(results, 1):
                 print(f"\n{i}. {result.message}")
@@ -189,7 +143,7 @@ class ValidationCLI:
                 print("✓ COMPREHENSIVE VALIDATION PASSED")
             else:
                 print("✗ COMPREHENSIVE VALIDATION FAILED")
-            print("="*60)
+            print("=" * 60)
 
             return overall_success
 
@@ -268,7 +222,7 @@ class ValidationCLI:
             ValidationStatus.FAILED: "✗",
             ValidationStatus.WARNING: "⚠",
             ValidationStatus.ERROR: "💥",
-            ValidationStatus.SKIPPED: "⏭"
+            ValidationStatus.SKIPPED: "⏭",
         }
         return symbols.get(result.status, "?")
 
@@ -282,10 +236,10 @@ class ValidationCLI:
             return 1
 
         command_map = {
-            'session': self.run_session_validation,
-            'deployment': self.run_deployment_validation,
-            'comprehensive': self.run_comprehensive_validation,
-            'report': self.generate_report
+            "session": self.run_session_validation,
+            "deployment": self.run_deployment_validation,
+            "comprehensive": self.run_comprehensive_validation,
+            "report": self.generate_report,
         }
 
         command_func = command_map.get(parsed_args.command)

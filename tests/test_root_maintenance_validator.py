@@ -28,4 +28,3 @@ def test_detect_misplaced_files(tmp_path, monkeypatch):
     assert paths.get("error.log") == "logs"
     assert paths.get("server.log") == "logs"
     assert paths.get("analysis.pdf") == "reports"
-

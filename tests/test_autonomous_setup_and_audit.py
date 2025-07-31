@@ -134,9 +134,7 @@ def test_ingest_assets_detects_corruption(tmp_path: Path, monkeypatch) -> None:
 
     def real_log(evt, *, table="correction_logs", db_path=analytics_db, **_):
         with sqlite3.connect(db_path) as conn:
-            conn.execute(
-                f"CREATE TABLE IF NOT EXISTS {table} (event TEXT, path TEXT, compliance_score REAL)"
-            )
+            conn.execute(f"CREATE TABLE IF NOT EXISTS {table} (event TEXT, path TEXT, compliance_score REAL)")
             conn.execute(
                 f"INSERT INTO {table} (event, path, compliance_score) VALUES (?,?,?)",
                 (evt.get("event"), evt.get("path"), evt.get("compliance_score")),
@@ -160,8 +158,6 @@ def test_ingest_assets_detects_corruption(tmp_path: Path, monkeypatch) -> None:
         ingest_assets(docs_dir, templates_dir, db_path)
 
     with sqlite3.connect(analytics_db) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM correction_logs WHERE event='ingestion_mismatch'"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM correction_logs WHERE event='ingestion_mismatch'").fetchone()[0]
 
     assert count > 0

@@ -49,6 +49,7 @@ except ImportError:  # pragma: no cover - optional dependency
         _qal = None
 
     if _qal is not None:
+
         def quantum_text_score(text: str) -> float:
             """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
             return _qal.quantum_text_score(text)
@@ -61,6 +62,7 @@ except ImportError:  # pragma: no cover - optional dependency
             """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
             return _qal.quantum_cluster_score(matrix)
     else:
+
         def quantum_text_score(text: str) -> float:
             """Return a default score when quantum library is unavailable."""
             return 0.0

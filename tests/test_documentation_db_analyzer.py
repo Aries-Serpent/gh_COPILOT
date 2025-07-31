@@ -30,8 +30,11 @@ def test_analyzer_runs_validator_and_logs(tmp_path: Path, monkeypatch) -> None:
         conn.execute("CREATE TABLE enterprise_documentation (title TEXT, content TEXT)")
         conn.execute("INSERT INTO enterprise_documentation VALUES ('A', 'foo')")
     analytics = tmp_path / "analytics.db"
-    dummy = type("D", (), {"called": False, "validate_corrections": lambda self, files: setattr(self, "called", True) or True})()
+    dummy = type(
+        "D", (), {"called": False, "validate_corrections": lambda self, files: setattr(self, "called", True) or True}
+    )()
     import importlib
+
     module = importlib.import_module("scripts.database.documentation_db_analyzer")
     monkeypatch.setattr(module, "SecondaryCopilotValidator", lambda: dummy)
     module.ANALYTICS_DB = analytics

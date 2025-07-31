@@ -5,6 +5,7 @@ This module implements the core AutonomousFileManager class which uses
 anti-recursion rules by validating paths against the workspace and backup
 directories. Visual progress indicators are provided with ``tqdm``.
 """
+
 from __future__ import annotations
 
 import logging

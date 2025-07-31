@@ -35,9 +35,7 @@ def test_config_dependency_analysis_basic(config_workspace: Path) -> None:
     assert report["dependencies"]["a.json"] == ["b.json"]
     assert report["dependencies"]["b.json"] == ["a.json"]
     assert "missing.json" in report["missing_configs"]
-    assert any(
-        set(cycle) == {"a.json", "b.json"} for cycle in report["circular_dependencies"]
-    )
+    assert any(set(cycle) == {"a.json", "b.json"} for cycle in report["circular_dependencies"])
 
 
 def test_config_dependency_analysis_nested(config_workspace: Path) -> None:

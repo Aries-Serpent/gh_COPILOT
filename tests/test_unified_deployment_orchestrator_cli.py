@@ -5,7 +5,12 @@ import shutil
 import subprocess
 from pathlib import Path
 
-SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "orchestration" / "UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py"
+SCRIPT = (
+    Path(__file__).resolve().parents[1]
+    / "scripts"
+    / "orchestration"
+    / "UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED.py"
+)
 DEFAULT_DB = Path("databases/production.db")
 
 

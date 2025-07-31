@@ -25,6 +25,7 @@ class SimpleDummyTqdm:
     def close(self):
         pass
 
+
 logging.getLogger().setLevel(logging.CRITICAL)
 
 
@@ -37,9 +38,7 @@ def test_solve_qubo_bruteforce(monkeypatch):
         bars.append(bar)
         return bar
 
-    monkeypatch.setattr(
-        "scripts.optimization.advanced_qubo_optimization.tqdm", dummy_tqdm
-    )
+    monkeypatch.setattr("scripts.optimization.advanced_qubo_optimization.tqdm", dummy_tqdm)
 
     solution, energy = solve_qubo_bruteforce(matrix)
 

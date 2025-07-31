@@ -42,9 +42,7 @@ def test_backup_database_logs(tmp_path: Path) -> None:
     with sqlite3.connect(replica) as conn:
         assert conn.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 1
     with sqlite3.connect(log_db) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM cross_database_sync_operations"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM cross_database_sync_operations").fetchone()[0]
     assert count == 1
 
 
@@ -76,8 +74,5 @@ def test_synchronize_progress_bar(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
     with sqlite3.connect(replica2) as conn:
         assert conn.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 1
     with sqlite3.connect(log_db) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM cross_database_sync_operations"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM cross_database_sync_operations").fetchone()[0]
     assert count == 2
-

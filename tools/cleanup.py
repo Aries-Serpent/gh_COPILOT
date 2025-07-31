@@ -85,4 +85,3 @@ def cleanup_obsolete_entries(db_path: Path = DB_PATH) -> Tuple[int, bool]:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     cleanup_obsolete_entries()
-

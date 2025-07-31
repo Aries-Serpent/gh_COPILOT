@@ -9,6 +9,7 @@ def get_module(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     import enterprise_modules.compliance as coo
     import scripts.database.enterprise_assets_backup_compressor as mod
+
     importlib.reload(coo)
     return importlib.reload(mod)
 

@@ -61,10 +61,7 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
                 conn.execute(
-                    (
-                        "INSERT INTO template_assets (template_path, content_hash, created_at)"
-                        " VALUES (?, ?, ?)"
-                    ),
+                    ("INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)"),
                     (
                         str(path.relative_to(workspace)),
                         digest,
@@ -72,10 +69,7 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
                     ),
                 )
                 conn.execute(
-                    (
-                        "INSERT INTO pattern_assets (pattern, usage_count, created_at)"
-                        " VALUES (?, 0, ?)"
-                    ),
+                    ("INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)"),
                     (content[:1000], datetime.now(timezone.utc).isoformat()),
                 )
                 bar.update(1)

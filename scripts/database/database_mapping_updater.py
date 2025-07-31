@@ -18,9 +18,7 @@ from tqdm import tqdm
 import logging
 
 # Configure enterprise logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -88,9 +86,7 @@ class DatabaseMappingUpdater:
             logger.error("🚨 RECURSIVE FOLDER VIOLATIONS DETECTED:")
             for violation in violations:
                 logger.error(f"   - {violation}")
-            raise RuntimeError(
-                "CRITICAL: Recursive folder violations prevent execution"
-            )
+            raise RuntimeError("CRITICAL: Recursive folder violations prevent execution")
 
         # MANDATORY: Validate database exists
         if not self.db_path.exists():
@@ -126,9 +122,7 @@ class DatabaseMappingUpdater:
         }
 
         # MANDATORY: Progress bar for database operations
-        with tqdm(
-            total=len(self.file_mappings), desc="🗄️ Updating Database", unit="files"
-        ) as pbar:
+        with tqdm(total=len(self.file_mappings), desc="🗄️ Updating Database", unit="files") as pbar:
             with self.get_database_connection() as conn:
                 cursor = conn.cursor()
 
@@ -139,9 +133,7 @@ class DatabaseMappingUpdater:
                 """)
 
                 if not cursor.fetchone():
-                    logger.warning(
-                        "⚠️ enhanced_script_tracking table not found, creating..."
-                    )
+                    logger.warning("⚠️ enhanced_script_tracking table not found, creating...")
                     self.create_enhanced_script_tracking_table(cursor)
 
                 for old_path, new_path in self.file_mappings.items():
@@ -284,9 +276,7 @@ class DatabaseMappingUpdater:
                 integrity_results["relocated_files_found"] = cursor.fetchone()[0]
 
                 # Validate integrity
-                if integrity_results["relocated_files_found"] == len(
-                    self.file_mappings
-                ):
+                if integrity_results["relocated_files_found"] == len(self.file_mappings):
                     integrity_results["database_health"] = "EXCELLENT"
                     logger.info("✅ Database integrity validation PASSED")
                 else:
@@ -314,13 +304,8 @@ class DatabaseMappingUpdater:
             "duration_seconds": duration,
             "update_results": update_results,
             "integrity_results": integrity_results,
-            "success_rate": (
-                update_results["successful_updates"] / update_results["total_files"]
-            )
-            * 100,
-            "overall_status": "SUCCESS"
-            if update_results["failed_updates"] == 0
-            else "PARTIAL_SUCCESS",
+            "success_rate": (update_results["successful_updates"] / update_results["total_files"]) * 100,
+            "overall_status": "SUCCESS" if update_results["failed_updates"] == 0 else "PARTIAL_SUCCESS",
         }
 
         return completion_report
@@ -329,17 +314,12 @@ class DatabaseMappingUpdater:
         """Run secondary validation and compare results."""
         logger.info("🤖🤖 STARTING SECONDARY VALIDATION")
         secondary = self.validate_database_integrity()
-        match = secondary.get("database_health") == completion_report[
-            "integrity_results"
-        ].get("database_health")
+        match = secondary.get("database_health") == completion_report["integrity_results"].get("database_health")
         if match:
             logger.info("🤖🤖 Secondary validation matches primary results")
         else:
             logger.warning("🤖🤖 Secondary validation mismatch detected")
-            logger.warning(
-                f"Primary: {completion_report['integrity_results']} | "
-                f"Secondary: {secondary}"
-            )
+            logger.warning(f"Primary: {completion_report['integrity_results']} | Secondary: {secondary}")
         return match
 
     def perform_update(self) -> Dict[str, Any]:
@@ -375,25 +355,13 @@ def main():
         logger.info("=" * 60)
         logger.info("✅ CHUNK 2: DATABASE MAPPING UPDATES COMPLETE")
         logger.info("=" * 60)
-        logger.info(
-            f"Total Files Processed: {completion_report['update_results']['total_files']}"
-        )
-        logger.info(
-            f"Successful Updates: {completion_report['update_results']['successful_updates']}"
-        )
-        logger.info(
-            f"Failed Updates: {completion_report['update_results']['failed_updates']}"
-        )
-        logger.info(
-            f"New Entries: {completion_report['update_results']['new_entries']}"
-        )
-        logger.info(
-            f"Updated Entries: {completion_report['update_results']['updated_entries']}"
-        )
+        logger.info(f"Total Files Processed: {completion_report['update_results']['total_files']}")
+        logger.info(f"Successful Updates: {completion_report['update_results']['successful_updates']}")
+        logger.info(f"Failed Updates: {completion_report['update_results']['failed_updates']}")
+        logger.info(f"New Entries: {completion_report['update_results']['new_entries']}")
+        logger.info(f"Updated Entries: {completion_report['update_results']['updated_entries']}")
         logger.info(f"Success Rate: {completion_report['success_rate']:.1f}%")
-        logger.info(
-            f"Database Health: {completion_report['integrity_results']['database_health']}"
-        )
+        logger.info(f"Database Health: {completion_report['integrity_results']['database_health']}")
         logger.info(f"Duration: {completion_report['duration_seconds']:.2f} seconds")
         logger.info(f"Overall Status: {completion_report['overall_status']}")
 
