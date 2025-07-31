@@ -34,20 +34,19 @@ LOG_FILE = LOGS_DIR / f"compliance_test_{datetime.now().strftime('%Y%m%d_%H%M%S'
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
+
 
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+
 
 def run_compliance_tests(tmp_path: Path) -> Dict[str, Any]:
     """
@@ -75,7 +74,7 @@ def run_compliance_tests(tmp_path: Path) -> Dict[str, Any]:
             bar.set_description(f"Testing {name}")
             elapsed = time.time() - start_time
             if elapsed > timeout_seconds:
-                raise TimeoutError(f"Process exceeded {timeout_seconds/60:.1f} minute timeout")
+                raise TimeoutError(f"Process exceeded {timeout_seconds / 60:.1f} minute timeout")
             try:
                 result = test_func(tmp_path)
                 test_results.append({"name": name, "result": "PASS", "details": result})
@@ -94,12 +93,8 @@ def run_compliance_tests(tmp_path: Path) -> Dict[str, Any]:
         logging.info("DUAL COPILOT validation passed: Test coverage and compliance confirmed.")
     else:
         logging.error("DUAL COPILOT validation failed: Test coverage mismatch.")
-    return {
-        "results": test_results,
-        "status": status,
-        "elapsed": elapsed,
-        "dual_copilot_valid": valid
-    }
+    return {"results": test_results, "status": status, "elapsed": elapsed, "dual_copilot_valid": valid}
+
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     elapsed = time.time() - start_time
@@ -109,6 +104,7 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
         return f"{remaining:.2f}s remaining"
     return "N/A"
 
+
 def dual_copilot_validate(test_results: List[Dict[str, Any]]) -> bool:
     """
     DUAL COPILOT: Secondary validator for test coverage and compliance.
@@ -116,6 +112,7 @@ def dual_copilot_validate(test_results: List[Dict[str, Any]]) -> bool:
     passed = all(r["result"] == "PASS" for r in test_results)
     coverage = len(test_results) >= 4
     return passed and coverage
+
 
 def test_db_first_code_generator(tmp_path: Path) -> None:
     gen = DBFirstCodeGenerator(
@@ -127,6 +124,7 @@ def test_db_first_code_generator(tmp_path: Path) -> None:
     result = gen.generate("test_objective")
     assert isinstance(result, str) and len(result) > 0
 
+
 def test_pattern_clustering_sync(tmp_path: Path) -> None:
     sync = PatternClusteringSync(
         tmp_path / "production.db",
@@ -136,6 +134,7 @@ def test_pattern_clustering_sync(tmp_path: Path) -> None:
     success = sync.synchronize_templates(timeout_minutes=1)
     assert success is True
 
+
 def test_correction_logger_and_rollback(tmp_path: Path) -> None:
     log = CorrectionLoggerRollback(tmp_path / "analytics.db")
     test_file = tmp_path / "file.txt"
@@ -144,14 +143,17 @@ def test_correction_logger_and_rollback(tmp_path: Path) -> None:
     rollback_success = log.auto_rollback(test_file, None)
     assert rollback_success is True
 
+
 def test_quantum_compliance_engine(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     import importlib
     import quantum.quantum_compliance_engine as qce
+
     importlib.reload(qce)
     engine = qce.QuantumComplianceEngine(tmp_path)
     score = engine.score(tmp_path / "README.md", ["compliance", "quantum"], [1.0, 2.0])
     assert isinstance(score, float) and score >= 0.0
+
 
 def main() -> None:
     # Setup test workspace
@@ -162,8 +164,10 @@ def main() -> None:
     # Write compliance report
     report_file = workspace / "tests" / "compliance_report.json"
     import json
+
     report_file.write_text(json.dumps(results, indent=2), encoding="utf-8")
     logging.info(f"Compliance report written to {report_file}")
+
 
 if __name__ == "__main__":
     main()

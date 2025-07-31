@@ -76,12 +76,7 @@ def test_initializer_creates_tables(tmp_path: Path) -> None:
     db_path = tmp_path / "enterprise_assets.db"
     initialize_database(db_path)
     with sqlite3.connect(db_path) as conn:
-        tables = set(
-            row[0]
-            for row in conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            )
-        )
+        tables = set(row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'"))
     assert REQUIRED_TABLES.issubset(tables)
 
 
@@ -95,10 +90,9 @@ def test_initializer_schema_columns_and_types(tmp_path: Path) -> None:
             cursor = conn.execute(f"PRAGMA table_info({table})")
             columns = [(row[1], row[2]) for row in cursor.fetchall()]
             for expected_col, expected_type in expected_columns:
-                assert any(
-                    col == expected_col and expected_type in typ
-                    for col, typ in columns
-                ), f"Missing or incorrect column/type in {table}: {expected_col} ({expected_type})"
+                assert any(col == expected_col and expected_type in typ for col, typ in columns), (
+                    f"Missing or incorrect column/type in {table}: {expected_col} ({expected_type})"
+                )
 
 
 def test_initializer_aborts_large_file(tmp_path: Path) -> None:

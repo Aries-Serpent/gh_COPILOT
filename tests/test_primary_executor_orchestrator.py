@@ -38,4 +38,3 @@ def test_orchestrator_invokes_executor_and_validator(monkeypatch):
     assert validated
     assert calls["exec"]
     assert calls["validate"]
-

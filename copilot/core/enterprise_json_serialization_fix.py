@@ -20,12 +20,7 @@ from typing import Any
 from utils.log_utils import log_message
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -52,8 +47,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                log_message(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                log_message(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 log_message(f"{TEXT_INDICATORS['error']} Utility failed", level=logging.ERROR)
@@ -83,8 +77,7 @@ class EnterpriseUtility:
         target = self.workspace_path / "data_fixed.json"
 
         if not source.exists():
-            log_message(
-                f"{TEXT_INDICATORS['error']} {source} not found", level=logging.ERROR)
+            log_message(f"{TEXT_INDICATORS['error']} {source} not found", level=logging.ERROR)
             return False
 
         with open(source, "r", encoding="utf-8") as fh:

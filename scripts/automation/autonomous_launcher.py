@@ -39,8 +39,9 @@ Available Quick Commands:
 def run_command(command_args):
     """Run autonomous CLI command"""
     try:
-        result = subprocess.run([sys.executable, "autonomous_cli.py"] + command_args,
-                                capture_output=False, text=True, check=False)
+        result = subprocess.run(
+            [sys.executable, "autonomous_cli.py"] + command_args, capture_output=False, text=True, check=False
+        )
         return result.returncode == 0
     except (OSError, subprocess.SubprocessError) as e:
         print(f"❌ Error running command: {e}")
@@ -96,7 +97,7 @@ def main() -> None:
 
         try:
             choice = input("\n🎯 Select option (1-7): ").strip()
-            
+
             custom_cmd = None
             if choice == "6":
                 prompt = "🛠️ Enter custom command (e.g., 'optimize --priority critical'): "

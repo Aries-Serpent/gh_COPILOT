@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import sys
 
 import logging
@@ -16,12 +17,7 @@ from pathlib import Path
 from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -42,8 +38,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -67,14 +62,10 @@ class EnterpriseUtility:
                 shutil.copy2(f, deploy_dir)
                 self.logger.info(f"{TEXT_INDICATORS['info']} Deployed {f.name}")
 
-            self.logger.info(
-                f"{TEXT_INDICATORS['success']} Production deployment finished"
-            )
+            self.logger.info(f"{TEXT_INDICATORS['success']} Production deployment finished")
             return True
         except Exception as exc:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Deployment failed: {exc}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Deployment failed: {exc}")
             return False
 
 
@@ -92,6 +83,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

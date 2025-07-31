@@ -203,6 +203,7 @@ def test_quantum_import_failure(monkeypatch):
     monkeypatch.setattr(importlib, "import_module", fake_import_module)
     monkeypatch.setattr(builtins, "__import__", fake_builtin)
     import sys
+
     sys.modules.pop("template_engine.auto_generator", None)
     auto_gen = importlib.import_module("template_engine.auto_generator")
 

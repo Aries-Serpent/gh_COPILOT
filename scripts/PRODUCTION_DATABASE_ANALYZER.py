@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Database-first architecture
 """
+
 import sys
 
 import os
@@ -21,11 +22,11 @@ from scripts.validation.secondary_copilot_validator import SecondaryCopilotValid
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'database': '[DATABASE]',
-    'info': '[INFO]'
+    "start": "[START]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "database": "[DATABASE]",
+    "info": "[INFO]",
 }
 
 

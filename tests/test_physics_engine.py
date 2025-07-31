@@ -5,6 +5,7 @@ import math
 
 import numpy as np
 from qiskit import QuantumCircuit
+
 try:
     from qiskit.algorithms import Shor
 except Exception:  # pragma: no cover - use local stub
@@ -46,7 +47,7 @@ def _grover_index(expected_index: int, num_qubits: int) -> int:
         circ.x(range(num_qubits))
         circ.h(range(num_qubits))
 
-    iterations = max(1, int(math.pi / 4 * math.sqrt(2 ** num_qubits)))
+    iterations = max(1, int(math.pi / 4 * math.sqrt(2**num_qubits)))
     for _ in range(iterations):
         oracle(qc)
         diffusion(qc)

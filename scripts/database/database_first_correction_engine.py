@@ -561,7 +561,8 @@ def main():
 
         # Final validation
         logger.info("🔍 Running final validation...")
-        subprocess.run(["ruff", "check", "."], capture_output=True, text=True)
+        subprocess.run(["ruff", "check", "--fix", "."], capture_output=True, text=True)
+        subprocess.run(["flake8", "."], capture_output=True, text=True)
 
         logger.info("✅ DATABASE-FIRST CORRECTION ENGINE COMPLETED SUCCESSFULLY")
 

@@ -16,7 +16,5 @@ def test_add_rollback_strategy_history(tmp_path: Path) -> None:
             "INSERT INTO rollback_strategy_history (target, strategy, outcome, timestamp)"
             " VALUES ('t', 's', 'success', 'ts')"
         )
-        rows = conn.execute(
-            "SELECT target FROM rollback_strategy_history"
-        ).fetchall()
+        rows = conn.execute("SELECT target FROM rollback_strategy_history").fetchall()
     assert rows

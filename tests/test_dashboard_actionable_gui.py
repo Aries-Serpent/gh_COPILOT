@@ -18,9 +18,7 @@ def test_dashboard_endpoints(tmp_path, monkeypatch):
     metrics.write_text(json.dumps({"metrics": {"issues": 5}}))
     comp_dir = tmp_path / "compliance"
     comp_dir.mkdir()
-    comp_dir.joinpath("correction_summary.json").write_text(
-        json.dumps({"corrections": []})
-    )
+    comp_dir.joinpath("correction_summary.json").write_text(json.dumps({"corrections": []}))
     monkeypatch.setattr(gui, "METRICS_PATH", metrics)
     monkeypatch.setattr(gui, "CORRECTIONS_DIR", comp_dir)
     monkeypatch.setattr(gui, "ANALYTICS_DB", tmp_path / "analytics.db")

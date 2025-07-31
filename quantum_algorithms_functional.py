@@ -73,7 +73,7 @@ def run_grover_search(data: List[int], target: int) -> dict:
         circ.x(range(num_qubits))
         circ.h(range(num_qubits))
 
-    iterations = max(1, int(np.pi / 4 * np.sqrt(2 ** num_qubits)))
+    iterations = max(1, int(np.pi / 4 * np.sqrt(2**num_qubits)))
     for _ in range(iterations):
         oracle(qc)
         diffusion(qc)
@@ -145,4 +145,3 @@ def run_quantum_teleportation(state: Iterable[complex]) -> List[List[complex]]:
     dm = DensityMatrix.from_instruction(qc)
     teleported = dm.reduce([2])
     return teleported.data.tolist()
-

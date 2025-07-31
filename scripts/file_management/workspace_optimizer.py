@@ -1,4 +1,5 @@
 """Workspace optimizer that logs optimization metrics."""
+
 from __future__ import annotations
 
 import logging

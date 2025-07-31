@@ -1,4 +1,5 @@
 """Thin wrapper for :mod:`session_management_consolidation_executor`."""
+
 from session_management_consolidation_executor import EnterpriseUtility
 from utils.log_utils import _log_plain
 

@@ -25,11 +25,8 @@ from tqdm import tqdm
 # 🎨 Visual Processing Setup
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('comprehensive_remaining_processor.log'),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("comprehensive_remaining_processor.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
@@ -55,27 +52,35 @@ class ComprehensiveRemainingProcessor:
 
         # # # 🎯 Comprehensive violation type support
         self.supported_violations = {
-            'E302': {'name': 'expected-2-blank-lines', 'expected_success': 90, 'fix_pattern': self._fix_e302},
-            'E501': {'name': 'line-too-long', 'expected_success': 85, 'fix_pattern': self._fix_e501},
-            'F401': {'name': 'unused-import', 'expected_success': 95, 'fix_pattern': self._fix_f401},
-            'E305': {'name': 'expected-2-blank-lines-after-class', 'expected_success': 90, 'fix_pattern': self._fix_e305},
-            'F821': {'name': 'undefined-name', 'expected_success': 60, 'fix_pattern': self._fix_f821},
-            'F541': {'name': 'f-string-missing-placeholders', 'expected_success': 80, 'fix_pattern': self._fix_f541},
-            'E128': {'name': 'continuation-line-under-indented', 'expected_success': 75, 'fix_pattern': self._fix_e128},
-            'F841': {'name': 'unused-variable', 'expected_success': 85, 'fix_pattern': self._fix_f841},
-            'E122': {'name': 'continuation-line-missing-indentation', 'expected_success': 70, 'fix_pattern': self._fix_e122},
-            'W292': {'name': 'no-newline-at-end-of-file', 'expected_success': 95, 'fix_pattern': self._fix_w292},
-            'E303': {'name': 'too-many-blank-lines', 'expected_success': 85, 'fix_pattern': self._fix_e303},
-            'W391': {'name': 'blank-line-at-end-of-file', 'expected_success': 90, 'fix_pattern': self._fix_w391},
+            "E302": {"name": "expected-2-blank-lines", "expected_success": 90, "fix_pattern": self._fix_e302},
+            "E501": {"name": "line-too-long", "expected_success": 85, "fix_pattern": self._fix_e501},
+            "F401": {"name": "unused-import", "expected_success": 95, "fix_pattern": self._fix_f401},
+            "E305": {
+                "name": "expected-2-blank-lines-after-class",
+                "expected_success": 90,
+                "fix_pattern": self._fix_e305,
+            },
+            "F821": {"name": "undefined-name", "expected_success": 60, "fix_pattern": self._fix_f821},
+            "F541": {"name": "f-string-missing-placeholders", "expected_success": 80, "fix_pattern": self._fix_f541},
+            "E128": {"name": "continuation-line-under-indented", "expected_success": 75, "fix_pattern": self._fix_e128},
+            "F841": {"name": "unused-variable", "expected_success": 85, "fix_pattern": self._fix_f841},
+            "E122": {
+                "name": "continuation-line-missing-indentation",
+                "expected_success": 70,
+                "fix_pattern": self._fix_e122,
+            },
+            "W292": {"name": "no-newline-at-end-of-file", "expected_success": 95, "fix_pattern": self._fix_w292},
+            "E303": {"name": "too-many-blank-lines", "expected_success": 85, "fix_pattern": self._fix_e303},
+            "W391": {"name": "blank-line-at-end-of-file", "expected_success": 90, "fix_pattern": self._fix_w391},
         }
 
         # # # 📊 Processing statistics
         self.stats = {
-            'violations_processed': 0,
-            'successful_fixes': 0,
-            'failed_fixes': 0,
-            'files_processed': 0,
-            'batches_processed': 0
+            "violations_processed": 0,
+            "successful_fixes": 0,
+            "failed_fixes": 0,
+            "files_processed": 0,
+            "batches_processed": 0,
         }
 
         logger.info("# PROCESS COMPREHENSIVE REMAINING PROCESSOR INITIALIZED")
@@ -95,7 +100,7 @@ class ComprehensiveRemainingProcessor:
                 raise RuntimeError("CRITICAL: External backup root cannot be inside workspace!")
 
             # MANDATORY: Scan for recursive violations
-            forbidden_patterns = ['*backup*', '*_backup_*', 'backups']
+            forbidden_patterns = ["*backup*", "*_backup_*", "backups"]
             violations = []
 
             for pattern in forbidden_patterns:
@@ -124,16 +129,17 @@ class ComprehensiveRemainingProcessor:
 
             # Create session metadata
             metadata = {
-                'session_id': self.session_id,
-                'start_time': self.start_time.isoformat(),
-                'workspace_root': str(self.workspace_root),
-                'process_id': self.process_id,
-                'backup_type': 'comprehensive_remaining_violations'
+                "session_id": self.session_id,
+                "start_time": self.start_time.isoformat(),
+                "workspace_root": str(self.workspace_root),
+                "process_id": self.process_id,
+                "backup_type": "comprehensive_remaining_violations",
             }
 
-            metadata_file = self.session_backup_dir / 'session_metadata.json'
-            with open(metadata_file, 'w') as f:
+            metadata_file = self.session_backup_dir / "session_metadata.json"
+            with open(metadata_file, "w") as f:
                 import json
+
                 json.dump(metadata, f, indent=2)
 
             logger.info(f"✅ External backup system ready: {self.session_backup_dir}")
@@ -161,17 +167,17 @@ class ComprehensiveRemainingProcessor:
                 violations = []
                 for row in cursor.fetchall():
                     violation = {
-                        'id': row[0],
-                        'file_path': row[1],
-                        'line_number': row[2],
-                        'column_number': row[3],
-                        'error_code': row[4],
-                        'message': row[5],
-                        'severity': row[6]
+                        "id": row[0],
+                        "file_path": row[1],
+                        "line_number": row[2],
+                        "column_number": row[3],
+                        "error_code": row[4],
+                        "message": row[5],
+                        "severity": row[6],
                     }
 
                     # Filter for supported violation types
-                    if violation['error_code'] in self.supported_violations:
+                    if violation["error_code"] in self.supported_violations:
                         violations.append(violation)
 
                 logger.info(f"📊 Loaded {len(violations)} supported violations for processing")
@@ -181,15 +187,14 @@ class ComprehensiveRemainingProcessor:
             logger.error(f"❌ Failed to load violations: {e}")
             return []
 
-    def create_violation_batches(
-        self, violations: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
+    def create_violation_batches(self, violations: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
         """📦 Create optimized batches for comprehensive processing"""
         batches = []
 
         # Group by file path for efficient processing
         file_groups = {}
         for violation in violations:
-            file_path = violation['file_path']
+            file_path = violation["file_path"]
             if file_path not in file_groups:
                 file_groups[file_path] = []
             file_groups[file_path].append(violation)
@@ -213,7 +218,7 @@ class ComprehensiveRemainingProcessor:
         if current_batch:
             batches.append(current_batch)
 
-        return batches[:self.max_batches]
+        return batches[: self.max_batches]
 
     def backup_file(self, file_path: str) -> bool:
         """💾 Backup file to external backup system"""
@@ -231,8 +236,7 @@ class ComprehensiveRemainingProcessor:
 
             # Copy file with timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            versioned_backup = backup_path.with_name(
-                f"{backup_path.stem}_{timestamp}{backup_path.suffix}")
+            versioned_backup = backup_path.with_name(f"{backup_path.stem}_{timestamp}{backup_path.suffix}")
 
             shutil.copy2(source_path, versioned_backup)
             return True
@@ -245,29 +249,29 @@ class ComprehensiveRemainingProcessor:
 
     def _fix_e302(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix E302: expected 2 blank lines, found X"""
-        lines = file_content.split('\n')
+        lines = file_content.split("\n")
 
         # Insert blank lines before function/class definitions
         if line_number - 1 < len(lines):
             line = lines[line_number - 1]
-            if line.strip().startswith(('def ', 'class ', 'async def ')):
+            if line.strip().startswith(("def ", "class ", "async def ")):
                 # Count existing blank lines above
                 blank_count = 0
                 for i in range(line_number - 2, -1, -1):
-                    if lines[i].strip() == '':
+                    if lines[i].strip() == "":
                         blank_count += 1
                     else:
                         break
 
                 # Add blank lines to reach 2 total
                 if blank_count < 2:
-                    lines.insert(line_number - 1, '')
+                    lines.insert(line_number - 1, "")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _fix_e501(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix E501: line too long"""
-        lines = file_content.split('\n')
+        lines = file_content.split("\n")
 
         if line_number - 1 < len(lines):
             line = lines[line_number - 1]
@@ -275,41 +279,41 @@ class ComprehensiveRemainingProcessor:
             # Simple line breaking for common patterns
             if len(line) > 79:
                 # Try to break at operators or commas
-                for break_char in [', ', ' and ', ' or ', ' + ', ' = ']:
+                for break_char in [", ", " and ", " or ", " + ", " = "]:
                     if break_char in line:
                         parts = line.split(break_char, 1)
                         if len(parts) == 2:
                             indent = len(line) - len(line.lstrip())
-                            continuation_indent = ' ' * (indent + 4)
-                            lines[line_number - 1] = parts[0] + break_char + '\\'
+                            continuation_indent = " " * (indent + 4)
+                            lines[line_number - 1] = parts[0] + break_char + "\\"
                             lines.insert(line_number, continuation_indent + parts[1])
                             break
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _fix_f401(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix F401: unused import"""
-        lines = file_content.split('\n')
+        lines = file_content.split("\n")
 
         if line_number - 1 < len(lines):
             line = lines[line_number - 1].strip()
 
             # Remove unused import lines
-            if line.startswith(('import ', 'from ')):
+            if line.startswith(("import ", "from ")):
                 lines.pop(line_number - 1)
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _fix_e305(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix E305: expected 2 blank lines after class or function definition"""
-        lines = file_content.split('\n')
+        lines = file_content.split("\n")
 
         # Add blank lines after class/function blocks
         if line_number < len(lines):
             # Insert blank line
-            lines.insert(line_number, '')
+            lines.insert(line_number, "")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _fix_f821(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix F821: undefined name (limited fixes for obvious cases)"""
@@ -318,7 +322,7 @@ class ComprehensiveRemainingProcessor:
 
     def _fix_f541(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix F541: f-string is missing placeholders"""
-        lines = file_content.split('\n')
+        lines = file_content.split("\n")
 
         if line_number - 1 < len(lines):
             line = lines[line_number - 1]
@@ -326,87 +330,82 @@ class ComprehensiveRemainingProcessor:
             # Convert f-strings without placeholders to regular strings
             lines[line_number - 1] = re.sub(r'f["\']([^"\']*)["\']', r'"\1"', line)
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _fix_e128(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix E128: continuation line under-indented"""
-        lines = file_content.split('\n')
+        lines = file_content.split("\n")
 
         if line_number - 1 < len(lines):
             line = lines[line_number - 1]
             # Add appropriate indentation
             if line.strip():
-                lines[line_number - 1] = '    ' + line.lstrip()
+                lines[line_number - 1] = "    " + line.lstrip()
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _fix_f841(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix F841: local variable assigned but never used"""
-        lines = file_content.split('\n')
+        lines = file_content.split("\n")
 
         if line_number - 1 < len(lines):
             line = lines[line_number - 1]
 
             # Prefix unused variables with underscore
-            if ' = ' in line:
-                parts = line.split(' = ', 1)
+            if " = " in line:
+                parts = line.split(" = ", 1)
                 var_name = parts[0].strip()
-                if not var_name.startswith('_'):
-                    lines[line_number - 1] = line.replace(var_name, '_' + var_name, 1)
+                if not var_name.startswith("_"):
+                    lines[line_number - 1] = line.replace(var_name, "_" + var_name, 1)
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _fix_e122(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix E122: continuation line missing indentation"""
-        lines = file_content.split('\n')
+        lines = file_content.split("\n")
 
         if line_number - 1 < len(lines):
             line = lines[line_number - 1]
             if line.strip():
                 # Add missing indentation
-                lines[line_number - 1] = '    ' + line
+                lines[line_number - 1] = "    " + line
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _fix_w292(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix W292: no newline at end of file"""
-        if not file_content.endswith('\n'):
-            return file_content + '\n'
+        if not file_content.endswith("\n"):
+            return file_content + "\n"
         return file_content
 
     def _fix_e303(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix E303: too many blank lines"""
-        lines = file_content.split('\n')
+        lines = file_content.split("\n")
 
         # Remove excessive blank lines
-        if line_number - 1 < len(lines) and lines[line_number - 1].strip() == '':
+        if line_number - 1 < len(lines) and lines[line_number - 1].strip() == "":
             lines.pop(line_number - 1)
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _fix_w391(self, file_content: str, line_number: int, violation: Dict[str, Any]) -> str:
         """Fix W391: blank line at end of file"""
-        lines = file_content.split('\n')
+        lines = file_content.split("\n")
 
         # Remove trailing blank lines
-        while lines and lines[-1].strip() == '':
+        while lines and lines[-1].strip() == "":
             lines.pop()
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def process_violation_batch(self, batch: List[Dict[str, Any]]) -> Dict[str, Any]:
         """🔧 Process a batch of violations with comprehensive fixing"""
-        batch_stats = {
-            'processed': 0,
-            'successful': 0,
-            'failed': 0,
-            'files': set()
-        }
+        batch_stats = {"processed": 0, "successful": 0, "failed": 0, "files": set()}
 
         # Group violations by file for efficient processing
         files_to_process = {}
         for violation in batch:
-            file_path = violation['file_path']
+            file_path = violation["file_path"]
             if file_path not in files_to_process:
                 files_to_process[file_path] = []
             files_to_process[file_path].append(violation)
@@ -420,59 +419,60 @@ class ComprehensiveRemainingProcessor:
                     continue
 
                 # Read file content
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     original_content = f.read()
 
                 modified_content = original_content
                 successful_fixes = 0
 
                 # Sort violations by line number (reverse order to maintain line numbers)
-                violations.sort(key=lambda v: v['line_number'], reverse=True)
+                violations.sort(key=lambda v: v["line_number"], reverse=True)
 
                 # Apply fixes
                 for violation in violations:
-                    batch_stats['processed'] += 1
+                    batch_stats["processed"] += 1
 
                     try:
-                        error_code = violation['error_code']
+                        error_code = violation["error_code"]
                         if error_code in self.supported_violations:
-                            fix_method = self.supported_violations[error_code]['fix_pattern']
-                            fixed_content = fix_method(
-                                modified_content, violation['line_number'], violation)
+                            fix_method = self.supported_violations[error_code]["fix_pattern"]
+                            fixed_content = fix_method(modified_content, violation["line_number"], violation)
 
                             if fixed_content != modified_content:
                                 modified_content = fixed_content
                                 successful_fixes += 1
-                                batch_stats['successful'] += 1
+                                batch_stats["successful"] += 1
 
                                 # Update violation status in database
-                                self.update_violation_status(violation['id'], 'fixed')
+                                self.update_violation_status(violation["id"], "fixed")
                             else:
-                                batch_stats['failed'] += 1
+                                batch_stats["failed"] += 1
                                 logger.debug(
-                                    f"No change applied for {error_code} at {file_path}:{violation['line_number']}")
+                                    f"No change applied for {error_code} at {file_path}:{violation['line_number']}"
+                                )
                         else:
-                            batch_stats['failed'] += 1
+                            batch_stats["failed"] += 1
 
                     except Exception as e:
-                        batch_stats['failed'] += 1
+                        batch_stats["failed"] += 1
                         logger.error(
-                            f"❌ Failed to fix {violation['error_code']} in {file_path}:{violation['line_number']}: {e}")
+                            f"❌ Failed to fix {violation['error_code']} in {file_path}:{violation['line_number']}: {e}"
+                        )
 
                 # Write modified content if changes were made
                 if successful_fixes > 0:
-                    with open(file_path, 'w', encoding='utf-8') as f:
+                    with open(file_path, "w", encoding="utf-8") as f:
                         f.write(modified_content)
 
                     logger.info(f"✅ Applied {successful_fixes} fixes to {file_path}")
 
-                batch_stats['files'].add(file_path)
+                batch_stats["files"].add(file_path)
 
             except Exception as e:
                 logger.error(f"❌ Failed to process file {file_path}: {e}")
                 # Mark all violations in this file as failed
                 for violation in violations:
-                    batch_stats['failed'] += 1
+                    batch_stats["failed"] += 1
 
         return batch_stats
 
@@ -482,10 +482,7 @@ class ComprehensiveRemainingProcessor:
             db_path = self.workspace_root / "databases" / "flake8_violations.db"
             with sqlite3.connect(db_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    "UPDATE violations SET status = ? WHERE id = ?",
-                    (status, violation_id)
-                )
+                cursor.execute("UPDATE violations SET status = ? WHERE id = ?", (status, violation_id))
                 conn.commit()
                 return True
 
@@ -497,14 +494,14 @@ class ComprehensiveRemainingProcessor:
         """🚀 Execute comprehensive violation processing with visual indicators"""
 
         print("🚀 COMPREHENSIVE REMAINING VIOLATION PROCESSING")
-        print("="*60)
+        print("=" * 60)
         print("🎯 Target: Process ALL remaining pending violations")
         print(f"Target: >{self.success_target}% success rate with comprehensive coverage")
         print(f"💾 External Backups: {self.external_backup_root}")
 
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info("🚀 COMPREHENSIVE REMAINING VIOLATION PROCESSING STARTED")
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info(f"📋 Session ID: {self.session_id}")
         logger.info(f"🕐 Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"🆔 Process ID: {self.process_id}")
@@ -543,26 +540,29 @@ class ComprehensiveRemainingProcessor:
                 batch_stats = self.process_violation_batch(batch)
 
                 # Update statistics
-                self.stats['violations_processed'] += batch_stats['processed']
-                self.stats['successful_fixes'] += batch_stats['successful']
-                self.stats['failed_fixes'] += batch_stats['failed']
-                self.stats['files_processed'] += len(batch_stats['files'])
-                self.stats['batches_processed'] += 1
+                self.stats["violations_processed"] += batch_stats["processed"]
+                self.stats["successful_fixes"] += batch_stats["successful"]
+                self.stats["failed_fixes"] += batch_stats["failed"]
+                self.stats["files_processed"] += len(batch_stats["files"])
+                self.stats["batches_processed"] += 1
 
                 # Update progress description
-                success_rate = (self.stats['successful_fixes'] / \
-                                max(self.stats['violations_processed'], 1)) * 100
-                batch_progress.set_postfix({
-                    'Processed': self.stats['violations_processed'],
-                    'Fixed': self.stats['successful_fixes'],
-                    'Rate': f"{success_rate:.1f}%"
-                })
+                success_rate = (self.stats["successful_fixes"] / max(self.stats["violations_processed"], 1)) * 100
+                batch_progress.set_postfix(
+                    {
+                        "Processed": self.stats["violations_processed"],
+                        "Fixed": self.stats["successful_fixes"],
+                        "Rate": f"{success_rate:.1f}%",
+                    }
+                )
 
                 # Log batch completion
-                logger.info(f"📊 Batch {i+1}/{len(batches)}: "
-                            f"Processed {batch_stats['processed']}, "
-                            f"Fixed {batch_stats['successful']}, "
-                            f"Failed {batch_stats['failed']}")
+                logger.info(
+                    f"📊 Batch {i + 1}/{len(batches)}: "
+                    f"Processed {batch_stats['processed']}, "
+                    f"Fixed {batch_stats['successful']}, "
+                    f"Failed {batch_stats['failed']}"
+                )
 
             return self._generate_results_summary()
 
@@ -575,26 +575,25 @@ class ComprehensiveRemainingProcessor:
         end_time = datetime.now()
         processing_time = (end_time - self.start_time).total_seconds()
 
-        success_rate = (self.stats['successful_fixes'] / \
-                        max(self.stats['violations_processed'], 1)) * 100
+        success_rate = (self.stats["successful_fixes"] / max(self.stats["violations_processed"], 1)) * 100
 
         results = {
-            'session_id': self.session_id,
-            'processing_time': processing_time,
-            'violations_processed': self.stats['violations_processed'],
-            'successful_fixes': self.stats['successful_fixes'],
-            'failed_fixes': self.stats['failed_fixes'],
-            'success_rate': success_rate,
-            'files_processed': self.stats['files_processed'],
-            'batches_processed': self.stats['batches_processed'],
-            'external_backup_dir': str(self.session_backup_dir),
-            'target_achieved': success_rate >= self.success_target
+            "session_id": self.session_id,
+            "processing_time": processing_time,
+            "violations_processed": self.stats["violations_processed"],
+            "successful_fixes": self.stats["successful_fixes"],
+            "failed_fixes": self.stats["failed_fixes"],
+            "success_rate": success_rate,
+            "files_processed": self.stats["files_processed"],
+            "batches_processed": self.stats["batches_processed"],
+            "external_backup_dir": str(self.session_backup_dir),
+            "target_achieved": success_rate >= self.success_target,
         }
 
         # Log completion
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info("✅ COMPREHENSIVE PROCESSING COMPLETED")
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info(f"📊 Total Violations Processed: {self.stats['violations_processed']:,}")
         logger.info(f"✅ Successful Fixes: {self.stats['successful_fixes']:,}")
         logger.info(f"❌ Failed Fixes: {self.stats['failed_fixes']:,}")
@@ -603,7 +602,7 @@ class ComprehensiveRemainingProcessor:
         logger.info(f"⏱️ Processing Time: {processing_time:.2f} seconds")
         logger.info(f"📈 Success Rate: {success_rate:.1f}%")
         logger.info(f"🎯 Target Achieved: {'✅ YES' if results['target_achieved'] else '⚠️ NO'}")
-        logger.info("="*80)
+        logger.info("=" * 80)
 
         return results
 
@@ -626,7 +625,7 @@ def main():
         print(f"   Processing Time: {results['processing_time']:.2f}s")
         print(f"   External Backups: {results['external_backup_dir']}")
 
-        if results['target_achieved']:
+        if results["target_achieved"]:
             print("🎉 Target success rate achieved!")
         else:
             print("⚠️ Success rate below target, but processing completed safely")

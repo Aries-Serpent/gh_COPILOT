@@ -18,9 +18,7 @@ except ModuleNotFoundError:  # pragma: no cover - stub for missing package
                     like = pattern.replace("*", "%")
                     row = conn.execute(sql, (like,)).fetchone()
                 else:
-                    sql = (
-                        "SELECT template_content FROM templates WHERE template_name = ?"
-                    )
+                    sql = "SELECT template_content FROM templates WHERE template_name = ?"
                     row = conn.execute(sql, (pattern,)).fetchone()
             return row[0].format(**mapping)
 

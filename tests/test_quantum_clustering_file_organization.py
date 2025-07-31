@@ -31,9 +31,9 @@ def test_quantum_clustering(tmp_path, caplog):
     labels = {}
     for record in caplog.records:
         msg = record.getMessage()
-        if msg.startswith('[INFO]') and 'cluster' in msg:
+        if msg.startswith("[INFO]") and "cluster" in msg:
             name, label = msg.split()[1], msg.split()[-1]
-            labels[name.rstrip(':')] = int(label)
+            labels[name.rstrip(":")] = int(label)
 
     assert len(labels) == 4
     assert len(set(labels.values())) == 2

@@ -67,16 +67,12 @@ def synchronize_databases(
     else:
         start_dt = datetime.datetime.now(timezone.utc)
     start_time = time.time()
-    logger.info(
-        "Starting synchronization at %s", datetime.datetime.fromtimestamp(start_time)
-    )
+    logger.info("Starting synchronization at %s", datetime.datetime.fromtimestamp(start_time))
 
     replica_list = list(replicas)
     status = "SUCCESS"
     try:
-        with tqdm(
-            total=len(replica_list), desc="Syncing", unit="db", dynamic_ncols=True
-        ) as bar:
+        with tqdm(total=len(replica_list), desc="Syncing", unit="db", dynamic_ncols=True) as bar:
             for replica in replica_list:
                 if timeout and time.time() - start_time > timeout:
                     logger.error("Synchronization timed out")
@@ -84,12 +80,8 @@ def synchronize_databases(
                     break
                 _copy_database(master, replica)
                 if log_db:
-                    log_sync_operation(
-                        log_db, f"synchronized_{replica.name}", start_time=start_dt
-                    )
-                etc = bar.format_dict.get("elapsed", 0) + bar.format_dict.get(
-                    "remaining", 0
-                )
+                    log_sync_operation(log_db, f"synchronized_{replica.name}", start_time=start_dt)
+                etc = bar.format_dict.get("elapsed", 0) + bar.format_dict.get("remaining", 0)
                 etc_time = datetime.datetime.fromtimestamp(start_time + etc)
                 bar.set_postfix_str(f"ETC {etc_time.strftime('%H:%M:%S')}")
                 bar.update(1)
@@ -98,15 +90,9 @@ def synchronize_databases(
         raise
 
     end_time = time.time()
-    logger.info(
-        "Finished synchronization at %s", datetime.datetime.fromtimestamp(end_time)
-    )
+    logger.info("Finished synchronization at %s", datetime.datetime.fromtimestamp(end_time))
     if log_db:
-        op = (
-            f"timeout_sync_from_{master.name}"
-            if status == "TIMEOUT"
-            else f"completed_sync_from_{master.name}"
-        )
+        op = f"timeout_sync_from_{master.name}" if status == "TIMEOUT" else f"completed_sync_from_{master.name}"
         log_sync_operation(log_db, op, status=status, start_time=start_dt)
 
 
@@ -129,33 +115,23 @@ def _load_database_names(list_file: Path) -> list[str]:
 class EnhancedDatabaseSyncScheduler:
     """Scheduler with detailed sync cycle logging."""
 
-    def __init__(
-        self, workspace_root: Path = Path("."), timeout: int | None = None
-    ) -> None:
+    def __init__(self, workspace_root: Path = Path("."), timeout: int | None = None) -> None:
         self.workspace_root = workspace_root.resolve()
         self.databases_dir = self.workspace_root / "databases"
         self.enterprise_db = self.databases_dir / "enterprise_assets.db"
         if not self.enterprise_db.exists():
             initialize_database(self.enterprise_db)
         self.master_db = self.databases_dir / "enterprise_assets.db"
-        self.list_file = (
-            self.workspace_root / "documentation" / "CONSOLIDATED_DATABASE_LIST.md"
-        )
+        self.list_file = self.workspace_root / "documentation" / "CONSOLIDATED_DATABASE_LIST.md"
         self.timeout = timeout
 
     def execute_sync_cycle(self) -> None:
         """Execute a synchronization cycle with logging."""
         cycle_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        start_dt = log_sync_operation(
-            self.enterprise_db, f"sync_cycle_start_{cycle_id}"
-        )
+        start_dt = log_sync_operation(self.enterprise_db, f"sync_cycle_start_{cycle_id}")
         try:
             db_names: List[str] = _load_database_names(self.list_file)
-            replicas = [
-                self.databases_dir / name
-                for name in db_names
-                if name != self.master_db.name
-            ]
+            replicas = [self.databases_dir / name for name in db_names if name != self.master_db.name]
             synchronize_databases(
                 self.master_db,
                 replicas,
@@ -180,11 +156,7 @@ class EnhancedDatabaseSyncScheduler:
 def format_exception_message(exc: Exception) -> str:
     """Format exception message with truncation."""
     exc_message = f"{type(exc).__name__}: {str(exc)}"
-    return (
-        exc_message
-        if len(exc_message) <= TRUNCATION_LIMIT
-        else exc_message[:TRUNCATION_LIMIT] + "..."
-    )
+    return exc_message if len(exc_message) <= TRUNCATION_LIMIT else exc_message[:TRUNCATION_LIMIT] + "..."
 
 
 if __name__ == "__main__":

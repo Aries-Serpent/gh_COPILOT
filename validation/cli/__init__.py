@@ -2,4 +2,4 @@
 
 from .commands import ValidationCLI
 
-__all__ = ['ValidationCLI']
+__all__ = ["ValidationCLI"]

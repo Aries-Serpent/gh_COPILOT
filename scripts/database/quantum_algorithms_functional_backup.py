@@ -72,7 +72,7 @@ def run_grover_search(data: List[int], target: int) -> Dict[str, Any]:
         circ.x(range(num_qubits))
         circ.h(range(num_qubits))
 
-    iterations = max(1, int(np.pi / 4 * np.sqrt(2 ** num_qubits)))
+    iterations = max(1, int(np.pi / 4 * np.sqrt(2**num_qubits)))
     for _ in tqdm(range(iterations), desc=f"{TEXT_INDICATORS['progress']} grover"):
         oracle(qc)
         diffusion(qc)
@@ -99,8 +99,7 @@ def run_kmeans_clustering(samples: int = 100, clusters: int = 2) -> Dict[str, An
 def run_simple_qnn() -> Dict[str, Any]:
     """Train a small QNN classifier and report accuracy."""
     features, labels = make_blobs(n_samples=200, centers=2, random_state=42)
-    x_train, x_test, y_train, y_test = train_test_split(
-        features, labels, test_size=0.3, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=42)
     scaler = StandardScaler()
     x_train = scaler.fit_transform(x_train)
     x_test = scaler.transform(x_test)

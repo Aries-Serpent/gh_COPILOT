@@ -7,4 +7,3 @@ All new code should import from ``utils.log_utils`` instead.
 from utils.log_utils import _log_event
 
 __all__ = ["_log_event"]
-

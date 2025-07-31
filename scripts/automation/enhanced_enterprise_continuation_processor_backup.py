@@ -59,11 +59,11 @@ import time
 # Configure enterprise logging with UTF-8 encoding
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler('enterprise_continuation_processing.log', encoding='utf-8'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.FileHandler("enterprise_continuation_processing.log", encoding="utf-8"),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -86,20 +86,20 @@ class EnhancedEnterpriseProcessor:
 
         # Enhanced processing configuration for better success rates
         self.high_success_violation_types = [
-            'W293',  # Blank line contains whitespace (>95% success)
-            'W291',  # Trailing whitespace (>90% success)
-            'W292',  # No newline at end of file (>85% success)
-            'W391',  # Blank line at end of file (>85% success)
-            'E201',  # Whitespace after '(' (>80% success)
+            "W293",  # Blank line contains whitespace (>95% success)
+            "W291",  # Trailing whitespace (>90% success)
+            "W292",  # No newline at end of file (>85% success)
+            "W391",  # Blank line at end of file (>85% success)
+            "E201",  # Whitespace after '(' (>80% success)
         ]
 
         self.moderate_success_violation_types = [
-            'E302',  # Expected 2 blank lines (>60% success)
-            'E303',  # Too many blank lines (>70% success)
-            'E305',  # Expected 2 blank lines after class/function (>55% success)
+            "E302",  # Expected 2 blank lines (>60% success)
+            "E303",  # Too many blank lines (>70% success)
+            "E305",  # Expected 2 blank lines after class/function (>55% success)
         ]
 
-        self.session_id = f"enhanced_{datetime.now().strftime('%Y%m%d_%H%M%S')}"""
+        self.session_id = f"enhanced_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
         logger.info("# # # 🚀 ENHANCED ENTERPRISE PROCESSOR INITIALIZED")
         logger.info(f"Session ID: {self.session_id}")
@@ -110,7 +110,7 @@ class EnhancedEnterpriseProcessor:
         workspace_root = Path(os.getcwd())
 
         # Check for recursive violations
-        forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+        forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
         violations = []
 
         for pattern in forbidden_patterns:
@@ -184,42 +184,39 @@ class EnhancedEnterpriseProcessor:
                     file_path, violation_count, violation_ids, error_codes, line_numbers = row
 
                     # Parse grouped data
-                    ids = [int(id_str) for id_str in violation_ids.split(',')]
-                    codes = error_codes.split(',')
-                    lines = [int(line_str) for line_str in line_numbers.split(',')]
+                    ids = [int(id_str) for id_str in violation_ids.split(",")]
+                    codes = error_codes.split(",")
+                    lines = [int(line_str) for line_str in line_numbers.split(",")]
 
                     # Calculate expected success rate
-                    high_success_count = len(
-                        [code for code in codes if code in self.high_success_violation_types])
+                    high_success_count = len([code for code in codes if code in self.high_success_violation_types])
                     moderate_success_count = len(
-                        [code for code in codes if code in self.moderate_success_violation_types])
+                        [code for code in codes if code in self.moderate_success_violation_types]
+                    )
 
                     expected_success_rate = (
-                        (high_success_count * 0.9) +
-                        (moderate_success_count * 0.65) +
-                        ((violation_count - high_success_count - moderate_success_count) * 0.3)
+                        (high_success_count * 0.9)
+                        + (moderate_success_count * 0.65)
+                        + ((violation_count - high_success_count - moderate_success_count) * 0.3)
                     ) / violation_count
 
                     batch = {
-                        'file_path': file_path,
-                        'violation_count': violation_count,
-                        'violation_ids': ids,
-                        'error_codes': codes,
-                        'line_numbers': lines,
-                        'expected_success_rate': expected_success_rate,
-                        'priority': self._calculate_batch_priority(
-    expected_success_rate, violation_count)
+                        "file_path": file_path,
+                        "violation_count": violation_count,
+                        "violation_ids": ids,
+                        "error_codes": codes,
+                        "line_numbers": lines,
+                        "expected_success_rate": expected_success_rate,
+                        "priority": self._calculate_batch_priority(expected_success_rate, violation_count),
                     }
                     batches.append(batch)
 
                 # Sort by expected success rate (highest first)
-                batches.sort(key=lambda b: b['expected_success_rate'], reverse=True)
+                batches.sort(key=lambda b: b["expected_success_rate"], reverse=True)
 
-                logger.info(
-    f"# # # 📊 Created {len(batches)} optimized batches for {priority_filter} processing")
+                logger.info(f"# # # 📊 Created {len(batches)} optimized batches for {priority_filter} processing")
                 if batches:
-                    avg_success_rate = sum(b['expected_success_rate']
-                                           for b in batches) / len(batches)
+                    avg_success_rate = sum(b["expected_success_rate"] for b in batches) / len(batches)
                     logger.info(f"📈 Average expected success rate: {avg_success_rate:.1%}")
 
                 return batches
@@ -246,21 +243,20 @@ class EnhancedEnterpriseProcessor:
         fix_details = []
 
         try:
-            file_path = batch['file_path']
+            file_path = batch["file_path"]
 
             # Create enterprise backup
             backup_path = self.create_enterprise_backup(file_path)
 
             # Read file content
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
 
             original_lines = lines.copy()
             fixes_applied = []
 
             # Process violations in order of success probability
-            violations_data = list(
-                zip(batch['violation_ids'], batch['error_codes'], batch['line_numbers']))
+            violations_data = list(zip(batch["violation_ids"], batch["error_codes"], batch["line_numbers"]))
 
             # Sort by error code priority (high success types first)
             def violation_priority(violation_data):
@@ -275,8 +271,7 @@ class EnhancedEnterpriseProcessor:
             violations_data.sort(key=violation_priority)
 
             # Apply fixes in reverse line order (bottom to top) to maintain line numbers
-            for violation_id, error_code, line_number in sorted(
-                violations_data, key=lambda x: x[2], reverse=True):
+            for violation_id, error_code, line_number in sorted(violations_data, key=lambda x: x[2], reverse=True):
                 try:
                     line_idx = line_number - 1
                     if 0 <= line_idx < len(lines):
@@ -286,34 +281,34 @@ class EnhancedEnterpriseProcessor:
                         if fixed_line != original_line:
                             lines[line_idx] = fixed_line
                             successful_fixes += 1
-                            fixes_applied.append({
-                                'violation_id': violation_id,
-                                'line_number': line_number,
-                                'error_code': error_code,
-                                'original': original_line.strip(),
-                                'fixed': fixed_line.strip()
-                            })
+                            fixes_applied.append(
+                                {
+                                    "violation_id": violation_id,
+                                    "line_number": line_number,
+                                    "error_code": error_code,
+                                    "original": original_line.strip(),
+                                    "fixed": fixed_line.strip(),
+                                }
+                            )
                             fix_details.append(f"Enhanced fix {error_code} at line {line_number}")
                         else:
                             failed_fixes += 1
-                            fix_details.append(
-                                f"Could not enhance fix {error_code} at line {line_number}")
+                            fix_details.append(f"Could not enhance fix {error_code} at line {line_number}")
                     else:
                         failed_fixes += 1
                         fix_details.append(f"Invalid line number {line_number} for {error_code}")
 
                 except Exception as e:
                     failed_fixes += 1
-                    fix_details.append(
-                        f"Error enhancing fix {error_code} at line {line_number}: {str(e)}")
+                    fix_details.append(f"Error enhancing fix {error_code} at line {line_number}: {str(e)}")
 
             # Write enhanced content if fixes were applied
             if successful_fixes > 0:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.writelines(lines)
 
                 # Update database with enhanced schema compatibility
-                self.update_violation_status_enhanced(fixes_applied, 'fixed')
+                self.update_violation_status_enhanced(fixes_applied, "fixed")
 
                 logger.info(f"✅ Applied {successful_fixes} enhanced fixes to {file_path}")
 
@@ -326,40 +321,42 @@ class EnhancedEnterpriseProcessor:
     def apply_enhanced_violation_fix(self, line: str, error_code: str) -> str:
         """# # # 🔧 Apply enhanced violation fix with improved logic"""
         try:
-            if error_code == 'W293':  # Blank line contains whitespace
-                if line.strip() == '':
-                    return '\n'
+            if error_code == "W293":  # Blank line contains whitespace
+                if line.strip() == "":
+                    return "\n"
 
-            elif error_code == 'W291':  # Trailing whitespace
-                return line.rstrip() + ('\n' if line.endswith('\n') else '')
+            elif error_code == "W291":  # Trailing whitespace
+                return line.rstrip() + ("\n" if line.endswith("\n") else "")
 
-            elif error_code == 'W292':  # No newline at end of file
-                if not line.endswith('\n'):
-                    return line + '\n'
+            elif error_code == "W292":  # No newline at end of file
+                if not line.endswith("\n"):
+                    return line + "\n"
 
-            elif error_code == 'W391':  # Blank line at end of file
-                if line.strip() == '':
-                    return ''
+            elif error_code == "W391":  # Blank line at end of file
+                if line.strip() == "":
+                    return ""
 
-            elif error_code == 'E201':  # Whitespace after '('
+            elif error_code == "E201":  # Whitespace after '('
                 # Enhanced logic for multiple cases
-                fixed_line = line.replace('( ', '(')
-                fixed_line = fixed_line.replace('(\t', '(')
+                fixed_line = line.replace("( ", "(")
+                fixed_line = fixed_line.replace("(\t", "(")
                 return fixed_line
 
-            elif error_code == 'E302':  # Expected 2 blank lines
-                if line.strip(
-    ) and (line.startswith('def ') or line.startswith('class ') or line.startswith('async def ')):
-                    return '\n\n' + line
+            elif error_code == "E302":  # Expected 2 blank lines
+                if line.strip() and (
+                    line.startswith("def ") or line.startswith("class ") or line.startswith("async def ")
+                ):
+                    return "\n\n" + line
 
-            elif error_code == 'E303':  # Too many blank lines
-                if line.strip() == '':
-                    return '\n'  # Reduce to single blank line
+            elif error_code == "E303":  # Too many blank lines
+                if line.strip() == "":
+                    return "\n"  # Reduce to single blank line
 
-            elif error_code == 'E305':  # Expected 2 blank lines after class/function
-                if line.strip(
-    ) and (line.startswith('def ') or line.startswith('class ') or line.startswith('async def ')):
-                    return '\n\n' + line
+            elif error_code == "E305":  # Expected 2 blank lines after class/function
+                if line.strip() and (
+                    line.startswith("def ") or line.startswith("class ") or line.startswith("async def ")
+                ):
+                    return "\n\n" + line
 
         except Exception as e:
             logger.warning(f"# # # ⚠️ Enhanced fix failed for {error_code}: {e}")
@@ -374,16 +371,17 @@ class EnhancedEnterpriseProcessor:
 
                 for fix in fixes_applied:
                     # Enhanced update without fixed_date column requirement
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         UPDATE violations
                         SET status = ?
                         WHERE id = ?
-                    """, (status, fix['violation_id']))
+                    """,
+                        (status, fix["violation_id"]),
+                    )
 
                 conn.commit()
-                logger.info(
-                    f"📝 Enhanced update: {len(fixes_applied)} violations marked as '{status}'"
-                )
+                logger.info(f"📝 Enhanced update: {len(fixes_applied)} violations marked as '{status}'")
 
         except Exception as e:
             logger.error(f"❌ Enhanced database update error: {e}")
@@ -396,8 +394,7 @@ class EnhancedEnterpriseProcessor:
                 raise FileNotFoundError(f"Source file not found: {source_path}")
 
             # Create timestamped backup directory
-            backup_timestamp = datetime.now(
-    ).strftime('%Y%m%d_%H%M%S_%f')[:17]  # Include microseconds
+            backup_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:17]  # Include microseconds
             backup_dir = self.backup_root / f"session_{self.session_id}" / backup_timestamp
             backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -410,8 +407,7 @@ class EnhancedEnterpriseProcessor:
             shutil.copy2(source_path, backup_file_path)
 
             # Verify backup
-            if backup_file_path.exists(
-    ) and backup_file_path.stat().st_size == source_path.stat().st_size:
+            if backup_file_path.exists() and backup_file_path.stat().st_size == source_path.stat().st_size:
                 logger.info(f"💾 Enhanced backup: {backup_file_path}")
                 return str(backup_file_path)
             else:
@@ -421,16 +417,15 @@ class EnhancedEnterpriseProcessor:
             logger.error(f"❌ Enhanced backup failed for {file_path}: {e}")
             raise
 
-    def execute_enhanced_processing(self, target_mode: str = "HIGH_SUCCESS",
-                                    max_batches: int = 25) -> Dict[str, Any]:
+    def execute_enhanced_processing(self, target_mode: str = "HIGH_SUCCESS", max_batches: int = 25) -> Dict[str, Any]:
         """# # # 🚀 Execute enhanced processing with improved success rates"""
 
         start_time = datetime.now()
         process_id = os.getpid()
 
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info("🚀 ENHANCED ENTERPRISE VIOLATION PROCESSING STARTED")
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info(f"📋 Session ID: {self.session_id}")
         logger.info(f"🕐 Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"🆔 Process ID: {process_id}")
@@ -460,42 +455,42 @@ class EnhancedEnterpriseProcessor:
             batches_completed = 0
 
             # Process batches with enhanced monitoring
-            with tqdm(
-    total=len(processing_batches), desc="# # # 🔄 Enhanced Processing", unit="batch") as pbar:
-
+            with tqdm(total=len(processing_batches), desc="# # # 🔄 Enhanced Processing", unit="batch") as pbar:
                 for batch_idx, batch in enumerate(processing_batches):
                     batch_start_time = time.time()
 
                     # Update progress description
-                    expected_rate = batch['expected_success_rate']
-                    pbar.set_description(
-                        f"🔧 Processing {batch['priority']} batch (Expected: {expected_rate:.1%})")
+                    expected_rate = batch["expected_success_rate"]
+                    pbar.set_description(f"🔧 Processing {batch['priority']} batch (Expected: {expected_rate:.1%})")
 
                     try:
                         # Apply enhanced fixes
-                        successful_fixes, failed_fixes, fix_details = self.apply_enhanced_fixes(
-                            batch)
+                        successful_fixes, failed_fixes, fix_details = self.apply_enhanced_fixes(batch)
 
                         # Update metrics
                         total_successful_fixes += successful_fixes
                         total_failed_fixes += failed_fixes
-                        total_violations_processed += batch['violation_count']
+                        total_violations_processed += batch["violation_count"]
                         files_processed += 1
                         batches_completed += 1
 
                         # Calculate actual vs expected success rate
-                        actual_success_rate = successful_fixes / \
-                            batch['violation_count'] if batch['violation_count'] > 0 else 0
+                        actual_success_rate = (
+                            successful_fixes / batch["violation_count"] if batch["violation_count"] > 0 else 0
+                        )
 
                         # Enhanced progress display
-                        overall_success_rate = total_successful_fixes / \
-                            total_violations_processed if total_violations_processed > 0 else 0
-                        pbar.set_postfix({
-                            'Fixes': total_successful_fixes,
-                            'Success': f"{overall_success_rate:.1%}",
-                            'Batch': f"{actual_success_rate:.1%}",
-                            'Target': f"{expected_rate:.1%}"
-                        })
+                        overall_success_rate = (
+                            total_successful_fixes / total_violations_processed if total_violations_processed > 0 else 0
+                        )
+                        pbar.set_postfix(
+                            {
+                                "Fixes": total_successful_fixes,
+                                "Success": f"{overall_success_rate:.1%}",
+                                "Batch": f"{actual_success_rate:.1%}",
+                                "Target": f"{expected_rate:.1%}",
+                            }
+                        )
 
                         # Log enhanced results
                         logger.info(
@@ -505,35 +500,36 @@ class EnhancedEnterpriseProcessor:
 
                     except Exception as e:
                         logger.error(f"❌ Enhanced batch failed: {e}")
-                        total_failed_fixes += batch['violation_count']
-                        total_violations_processed += batch['violation_count']
+                        total_failed_fixes += batch["violation_count"]
+                        total_violations_processed += batch["violation_count"]
 
                 pbar.update(1)
 
             # Calculate final enhanced metrics
             processing_time = (datetime.now() - start_time).total_seconds()
-            overall_success_rate = total_successful_fixes / \
-                total_violations_processed if total_violations_processed > 0 else 0
+            overall_success_rate = (
+                total_successful_fixes / total_violations_processed if total_violations_processed > 0 else 0
+            )
 
             # Create enhanced results
             results = {
-                'session_id': self.session_id,
-                'processing_mode': f"ENHANCED_{target_mode}",
-                'total_violations_processed': total_violations_processed,
-                'successful_fixes': total_successful_fixes,
-                'failed_fixes': total_failed_fixes,
-                'files_processed': files_processed,
-                'batches_completed': batches_completed,
-                'processing_time_seconds': processing_time,
-                'overall_success_rate': overall_success_rate,
-                'target_mode': target_mode,
-                'enhancement_level': 'ENTERPRISE_OPTIMIZED'
+                "session_id": self.session_id,
+                "processing_mode": f"ENHANCED_{target_mode}",
+                "total_violations_processed": total_violations_processed,
+                "successful_fixes": total_successful_fixes,
+                "failed_fixes": total_failed_fixes,
+                "files_processed": files_processed,
+                "batches_completed": batches_completed,
+                "processing_time_seconds": processing_time,
+                "overall_success_rate": overall_success_rate,
+                "target_mode": target_mode,
+                "enhancement_level": "ENTERPRISE_OPTIMIZED",
             }
 
             # Enhanced final logging
-            logger.info("="*80)
+            logger.info("=" * 80)
             logger.info("# # # ✅ ENHANCED ENTERPRISE PROCESSING COMPLETED")
-            logger.info("="*80)
+            logger.info("=" * 80)
             logger.info(f"# # # 📊 Violations Processed: {total_violations_processed}")
             logger.info(f"# # # ✅ Successful Fixes: {total_successful_fixes}")
             logger.info(f"❌ Failed Fixes: {total_failed_fixes}")
@@ -541,7 +537,7 @@ class EnhancedEnterpriseProcessor:
             logger.info(f"📁 Files Processed: {files_processed}")
             logger.info(f"⏱️ Processing Time: {processing_time:.2f} seconds")
             logger.info(f"🎯 Enhancement Mode: {target_mode}")
-            logger.info("="*80)
+            logger.info("=" * 80)
 
             return results
 
@@ -553,17 +549,17 @@ class EnhancedEnterpriseProcessor:
     def _create_empty_results(self) -> Dict[str, Any]:
         """# # # 📊 Create empty results structure"""
         return {
-            'session_id': self.session_id,
-            'processing_mode': 'ENHANCED_EMPTY',
-            'total_violations_processed': 0,
-            'successful_fixes': 0,
-            'failed_fixes': 0,
-            'files_processed': 0,
-            'batches_completed': 0,
-            'processing_time_seconds': 0.0,
-            'overall_success_rate': 0.0,
-            'target_mode': 'NONE',
-            'enhancement_level': 'NO_PROCESSING'
+            "session_id": self.session_id,
+            "processing_mode": "ENHANCED_EMPTY",
+            "total_violations_processed": 0,
+            "successful_fixes": 0,
+            "failed_fixes": 0,
+            "files_processed": 0,
+            "batches_completed": 0,
+            "processing_time_seconds": 0.0,
+            "overall_success_rate": 0.0,
+            "target_mode": "NONE",
+            "enhancement_level": "NO_PROCESSING",
         }
 
 
@@ -574,30 +570,24 @@ def main():
         processor = EnhancedEnterpriseProcessor()
 
         print("\n# # # 🚀 ENTERPRISE VIOLATION PROCESSING CONTINUATION")
-        print("="*60)
+        print("=" * 60)
         print("# # 🎯 Phase 1: HIGH SUCCESS RATE VIOLATIONS")
         print("Target: >80% success rate with safe violation types")
 
         # Execute enhanced processing - Phase 1: High Success Types
-        results_phase1 = processor.execute_enhanced_processing(
-            target_mode="HIGH_SUCCESS",
-            max_batches=25
-        )
+        results_phase1 = processor.execute_enhanced_processing(target_mode="HIGH_SUCCESS", max_batches=25)
 
         print("\n# # # ✅ Phase 1 Results:")
         print(f"   Fixes Applied: {results_phase1['successful_fixes']}")
         print(f"   Success Rate: {results_phase1['overall_success_rate']:.1%}")
         print(f"   Files Processed: {results_phase1['files_processed']}")
 
-        if results_phase1['overall_success_rate'] >= 0.75:
+        if results_phase1["overall_success_rate"] >= 0.75:
             print("\n# # 🎯 Phase 2: MODERATE SUCCESS RATE VIOLATIONS")
             print("Target: >65% success rate with moderate violation types")
 
             # Execute enhanced processing - Phase 2: Moderate Success Types
-            results_phase2 = processor.execute_enhanced_processing(
-                target_mode="MODERATE_SUCCESS",
-                max_batches=20
-            )
+            results_phase2 = processor.execute_enhanced_processing(target_mode="MODERATE_SUCCESS", max_batches=20)
 
             print("\n# # # ✅ Phase 2 Results:")
             print(f"   Fixes Applied: {results_phase2['successful_fixes']}")
@@ -605,16 +595,16 @@ def main():
             print(f"   Files Processed: {results_phase2['files_processed']}")
 
             # Combined results
-            total_fixes = results_phase1['successful_fixes'] + results_phase2['successful_fixes']
-            total_processed = results_phase1['total_violations_processed'] + \
-                results_phase2['total_violations_processed']
+            total_fixes = results_phase1["successful_fixes"] + results_phase2["successful_fixes"]
+            total_processed = (
+                results_phase1["total_violations_processed"] + results_phase2["total_violations_processed"]
+            )
             combined_success_rate = total_fixes / total_processed if total_processed > 0 else 0
 
             print("\n🏆 COMBINED RESULTS:")
             print(f"   Total Fixes: {total_fixes}")
             print(f"   Combined Success Rate: {combined_success_rate:.1%}")
-            print(
-    f"   Total Files: {results_phase1['files_processed'] + results_phase2['files_processed']}")
+            print(f"   Total Files: {results_phase1['files_processed'] + results_phase2['files_processed']}")
 
         print("\n🎉 Enhanced enterprise processing completed successfully!")
 

@@ -20,12 +20,7 @@ from qiskit_aer import AerSimulator
 from qiskit import QuantumCircuit, transpile
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -47,8 +42,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -60,8 +54,7 @@ class EnterpriseUtility:
 
     def perform_utility_function(self) -> bool:
         """Benchmark a small Bell-state circuit."""
-        self.logger.info(
-            f"{TEXT_INDICATORS['info']} Executing benchmark circuit")
+        self.logger.info(f"{TEXT_INDICATORS['info']} Executing benchmark circuit")
 
         circuit = QuantumCircuit(2, 2)
         circuit.h(0)

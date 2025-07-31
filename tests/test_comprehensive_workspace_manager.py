@@ -50,4 +50,3 @@ def test_start_end_session_records_wrapup(tmp_path, monkeypatch):
     assert status == "COMPLETED"
     assert end_time is not None
     assert not manager.session_file.exists()
-

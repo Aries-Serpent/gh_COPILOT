@@ -21,20 +21,19 @@ LOG_FILE = LOGS_DIR / f"compliance_report_generator_{datetime.now().strftime('%Y
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
+
 
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+
 
 def _parse_ruff(path: Path) -> Dict[str, Any]:
     """
@@ -46,6 +45,7 @@ def _parse_ruff(path: Path) -> Dict[str, Any]:
             if line.strip():
                 issues += 1
     return {"issues": issues}
+
 
 def _parse_pytest(path: Path) -> Dict[str, Any]:
     """
@@ -61,6 +61,7 @@ def _parse_pytest(path: Path) -> Dict[str, Any]:
         "failed": summary.get("failed", 0),
     }
 
+
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     elapsed = time.time() - start_time
     if current_progress > 0:
@@ -68,6 +69,7 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
         remaining = total_estimated - elapsed
         return f"{remaining:.2f}s remaining"
     return "N/A"
+
 
 def generate_compliance_report(
     ruff_file: Path,
@@ -187,6 +189,7 @@ def generate_compliance_report(
     _log_plain(f"Compliance report generation completed in {elapsed:.2f}s | ETC: {etc}")
     return summary
 
+
 def validate_report(output_dir: Path) -> bool:
     """
     Validate that compliance report JSON exists and is non-zero-byte.
@@ -194,27 +197,21 @@ def validate_report(output_dir: Path) -> bool:
     json_path = output_dir / "compliance_report.json"
     return json_path.exists() and json_path.stat().st_size > 0
 
+
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate compliance report")
     parser.add_argument("--ruff", type=Path, required=True, help="Ruff output file")
     parser.add_argument("--pytest", type=Path, required=True, help="Pytest JSON report")
-    parser.add_argument(
-        "--output", type=Path, default=Path("validation"), help="Output directory"
-    )
+    parser.add_argument("--output", type=Path, default=Path("validation"), help="Output directory")
     parser.add_argument(
         "--db",
         type=Path,
         default=Path("databases") / "analytics.db",
         help="Analytics database path",
     )
-    parser.add_argument(
-        "--timeout",
-        type=int,
-        default=30,
-        help="Timeout in minutes"
-    )
+    parser.add_argument("--timeout", type=int, default=30, help="Timeout in minutes")
     args = parser.parse_args()
 
     _log_plain("[START] Generating compliance report")

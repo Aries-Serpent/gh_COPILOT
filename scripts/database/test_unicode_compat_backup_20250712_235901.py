@@ -10,5 +10,4 @@ def test_unicode_handling():
 
 
 if __name__ == "__main__":
-
     print(test_unicode_handling())

@@ -9,6 +9,7 @@ Enterprise Standards Compliance:
 - Database-first architecture
 - Anti-recursion protection
 """
+
 from datetime import datetime
 from pathlib import Path
 
@@ -20,11 +21,11 @@ import logging
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'progress': '[PROGRESS]',
-    'info': '[INFO]'
+    "start": "[START]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "progress": "[PROGRESS]",
+    "info": "[INFO]",
 }
 
 
@@ -43,7 +44,6 @@ class EnterpriseFlake8Corrector:
 
         try:
             with tqdm(total=100, desc="[PROGRESS] Flake8 Correction", unit="%") as pbar:
-
                 pbar.set_description("[PROGRESS] Scanning files")
                 files_to_correct = self.scan_python_files()
                 pbar.update(25)
@@ -57,8 +57,7 @@ class EnterpriseFlake8Corrector:
                 pbar.update(25)
 
             duration = (datetime.now() - start_time).total_seconds()
-            self.logger.info(
-                f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s")
+            self.logger.info(f"{TEXT_INDICATORS['success']} Correction completed in {duration:.1f}s")
             return validation_passed
 
         except Exception as e:
@@ -108,6 +107,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

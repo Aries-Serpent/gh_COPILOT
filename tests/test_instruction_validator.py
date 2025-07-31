@@ -13,6 +13,7 @@ def test_instruction_validator_pass(tmp_path):
     util = EnterpriseUtility(str(workspace))
     assert util.perform_utility_function() is True
 
+
 def test_instruction_validator_fail(tmp_path):
     workspace = Path(tmp_path)
     copilot_dir = workspace / "copilot"

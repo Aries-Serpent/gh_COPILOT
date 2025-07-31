@@ -5,6 +5,7 @@ import pytest
 
 HELPERS = {"start_indicator", "progress_bar", "end_indicator"}
 
+
 @pytest.mark.parametrize("script", [Path("scripts/utilities/unified_script_generation_system.py")])
 def test_visual_helpers_present(script: Path) -> None:
     tree = ast.parse(script.read_text())

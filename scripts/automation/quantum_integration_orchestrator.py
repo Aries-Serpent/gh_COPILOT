@@ -42,7 +42,13 @@ TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]
 class EnterpriseUtility:
     """Enterprise utility class"""
 
-    def __init__(self, workspace_path: str | None = None, *, use_hardware: bool = False, backend_name: str = "ibmq_qasm_simulator"):
+    def __init__(
+        self,
+        workspace_path: str | None = None,
+        *,
+        use_hardware: bool = False,
+        backend_name: str = "ibmq_qasm_simulator",
+    ):
         env_default = os.getenv("GH_COPILOT_WORKSPACE")
         self.workspace_path = Path(workspace_path or env_default or Path.cwd())
         self.logger = logging.getLogger(__name__)
@@ -55,6 +61,7 @@ class EnterpriseUtility:
     def _init_backend(self) -> None:
         try:
             from qiskit_ibm_provider import IBMProvider
+
             provider = IBMProvider()
             self.backend = provider.get_backend(self.backend_name)
         except Exception as exc:  # pragma: no cover - optional dependency
@@ -101,6 +108,7 @@ class EnterpriseUtility:
         if self.use_hardware and self.backend:
             try:
                 from qiskit import QuantumCircuit
+
                 qc = QuantumCircuit(1, 1)
                 qc.h(0)
                 qc.measure(0, 0)
@@ -125,6 +133,7 @@ class EnterpriseUtility:
 def main() -> bool:
     """Main execution function"""
     import argparse
+
     parser = argparse.ArgumentParser(description="Quantum Integration Orchestrator")
     parser.add_argument("--hardware", action="store_true", help="Use quantum hardware backend")
     parser.add_argument("--backend", default="ibmq_qasm_simulator", help="Backend name")
