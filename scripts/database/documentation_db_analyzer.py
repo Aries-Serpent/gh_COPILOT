@@ -125,7 +125,9 @@ def _audit_placeholders_conn(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
         query = "SELECT NULL as title, content FROM enterprise_documentation"
     for title, content in conn.execute(query).fetchall():
         text = content or ""
-        if any(tok in text.upper() for tok in ["TODO", "FIXME", "PLACEHOLDER"]):
+        if not text.strip() or any(
+            tok in text.upper() for tok in ["TODO", "FIXME", "PLACEHOLDER"]
+        ):
             placeholders.append((title or "", text))
     return placeholders
 
@@ -154,6 +156,16 @@ def analyze_documentation_gaps(
         gaps = audit_placeholders(db)
         (log_dir / f"{db.stem}.log").write_text(str(gaps))
         results.append({"db": str(db), "gaps": gaps})
+        analytics.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(analytics) as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS doc_audit (db TEXT, gaps INTEGER, ts TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO doc_audit (db, gaps, ts) VALUES (?, ?, ?)",
+                (str(db), gaps, datetime.utcnow().isoformat()),
+            )
+            conn.commit()
     return results
 
 
@@ -268,12 +280,14 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
             conn.execute(
                 (
                     "INSERT INTO correction_history (session_id, file_path, "
-                    "violations_count, fixes_applied, fix_rate, timestamp) "
-                    "VALUES (?,?,?,?,?,?)"
+                    "violation_code, fix_applied, violations_count, fixes_applied, "
+                    "fix_rate, timestamp) VALUES (?,?,?,?,?,?,?,?)"
                 ),
                 (
                     "doc_cleanup",
                     str(db_path),
+                    "DOC_SUMMARY",
+                    f"{removed_backups + removed_dupes}_removed",
                     len(placeholders),
                     removed_backups + removed_dupes,
                     fix_rate,
