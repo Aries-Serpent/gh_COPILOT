@@ -12,6 +12,7 @@ from datetime import datetime
 
 class ValidationStatus(Enum):
     """Validation status enumeration"""
+
     PASSED = "passed"
     FAILED = "failed"
     WARNING = "warning"
@@ -22,6 +23,7 @@ class ValidationStatus(Enum):
 @dataclass
 class ValidationResult:
     """Result of a validation operation"""
+
     status: ValidationStatus
     message: str
     details: Dict[str, Any] = field(default_factory=dict)
@@ -65,10 +67,7 @@ class BaseValidator(ABC):
         try:
             # Pre-validation check
             if not self.pre_validate(target):
-                return ValidationResult(
-                    status=ValidationStatus.SKIPPED,
-                    message=f"Validation skipped for {self.name}"
-                )
+                return ValidationResult(status=ValidationStatus.SKIPPED, message=f"Validation skipped for {self.name}")
 
             # Main validation
             result = self.validate(target)
@@ -83,9 +82,7 @@ class BaseValidator(ABC):
 
         except Exception as e:
             error_result = ValidationResult(
-                status=ValidationStatus.ERROR,
-                message=f"Validation error in {self.name}: {str(e)}",
-                errors=[str(e)]
+                status=ValidationStatus.ERROR, message=f"Validation error in {self.name}: {str(e)}", errors=[str(e)]
             )
             self._log_result(error_result)
             return error_result
@@ -135,17 +132,12 @@ class CompositeValidator(BaseValidator):
         elif warning_count > 0:
             status = ValidationStatus.WARNING
             message = (
-                f"Composite validation passed with warnings: {warning_count}/"
-                f"{len(results)} validators had warnings"
+                f"Composite validation passed with warnings: {warning_count}/{len(results)} validators had warnings"
             )
         else:
             status = ValidationStatus.PASSED
             message = f"Composite validation passed: {len(results)}/{len(results)} validators passed"
 
         return ValidationResult(
-            status=status,
-            message=message,
-            details=all_details,
-            errors=all_errors,
-            warnings=all_warnings
+            status=status, message=message, details=all_details, errors=all_errors, warnings=all_warnings
         )

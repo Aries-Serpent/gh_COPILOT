@@ -30,4 +30,3 @@ def test_cleanup_obsolete_entries(tmp_path: Path, monkeypatch) -> None:
         remaining = conn.execute("SELECT COUNT(*) FROM obsolete_table").fetchone()[0]
     assert remaining == 0
     assert called["v"]
-

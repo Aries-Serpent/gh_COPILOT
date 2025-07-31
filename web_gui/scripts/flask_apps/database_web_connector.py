@@ -35,14 +35,9 @@ class DatabaseWebConnector:
 
     def fetch_recent_scripts(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Return recent script activity."""
-        query = (
-            "SELECT script_name, last_modified FROM tracked_scripts "
-            "ORDER BY last_modified DESC LIMIT ?"
-        )
+        query = "SELECT script_name, last_modified FROM tracked_scripts ORDER BY last_modified DESC LIMIT ?"
         with self.get_database_connection() as conn:
             cur = conn.cursor()
             cur.execute(query, (limit,))
             rows = cur.fetchall()
-        return [
-            {"script_name": r[0], "last_modified": r[1]} for r in rows
-        ]
+        return [{"script_name": r[0], "last_modified": r[1]} for r in rows]

@@ -105,9 +105,7 @@ def validate_environment() -> bool:
     try:
         validate_enterprise_environment()
     except EnvironmentError as exc:
-        raise EnvironmentError(
-            "Required environment variables are not set or paths invalid"
-        ) from exc
+        raise EnvironmentError("Required environment variables are not set or paths invalid") from exc
     return True
 
 

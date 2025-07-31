@@ -1,4 +1,5 @@
 """Validation script demonstrating database-first operations and dual-copilot checks."""
+
 from __future__ import annotations
 
 import sqlite3
@@ -28,4 +29,3 @@ if __name__ == "__main__":
     success, validated = run_validation()
     print(f"Primary success: {success}")
     print(f"Secondary success: {validated}")
-

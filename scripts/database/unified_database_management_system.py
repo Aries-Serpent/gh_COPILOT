@@ -58,9 +58,7 @@ class UnifiedDatabaseManager:
     def verify_expected_databases(self) -> Tuple[bool, list[str]]:
         """Return whether all expected databases exist and any missing ones."""
         expected = self._load_expected_names()
-        missing = [
-            name for name in expected if not (self.databases_dir / name).exists()
-        ]
+        missing = [name for name in expected if not (self.databases_dir / name).exists()]
         return len(missing) == 0, missing
 
 
@@ -82,9 +80,7 @@ def _backup_database(source: Path, target: Path, log_db: Path | None = None) -> 
         )
 
 
-def synchronize_databases(
-    master: Path, replicas: Iterable[Path], log_db: Path | None = None
-) -> None:
+def synchronize_databases(master: Path, replicas: Iterable[Path], log_db: Path | None = None) -> None:
     """Synchronize replica databases with the master database."""
     validate_enterprise_operation()
     replica_list = list(replicas)

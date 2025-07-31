@@ -49,6 +49,7 @@ def test_generate_template_no_patterns(tmp_path, monkeypatch):
 
 def test_default_templates_loaded(tmp_path, monkeypatch):
     from template_engine import pattern_templates
+
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path / "ws"))
     gen = TemplateAutoGenerator(tmp_path / "missing.db", tmp_path / "missing.db")
     assert gen.templates == pattern_templates.DEFAULT_TEMPLATES

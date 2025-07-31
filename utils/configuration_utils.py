@@ -61,8 +61,7 @@ def validate_environment_compliance() -> bool:
     return str(workspace).endswith("gh_COPILOT")
 
 
-def operations___init__(workspace_path: Optional[str] = None,
-                        config_path: Optional[str] = None) -> Dict[str, Any]:
+def operations___init__(workspace_path: Optional[str] = None, config_path: Optional[str] = None) -> Dict[str, Any]:
     """Universal initialization pattern for scripts.
 
     This helper sets ``GH_COPILOT_WORKSPACE`` if ``workspace_path`` is provided

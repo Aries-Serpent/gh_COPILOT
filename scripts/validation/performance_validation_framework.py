@@ -17,8 +17,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from database_driven_flake8_corrector_functional import \
-    DatabaseDrivenFlake8CorrectorFunctional
+from database_driven_flake8_corrector_functional import DatabaseDrivenFlake8CorrectorFunctional
 from scripts.utilities.quantum_algorithms_functional import (
     run_grover_search,
     run_kmeans_clustering,
@@ -48,10 +47,7 @@ class PerformanceValidationFramework:
 
     def _ensure_table(self) -> None:
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS performance_baseline ("
-                "metric TEXT PRIMARY KEY, value REAL)"
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS performance_baseline (metric TEXT PRIMARY KEY, value REAL)")
             conn.commit()
 
     def store_baseline(self, metrics: Dict[str, float]) -> None:
@@ -59,8 +55,7 @@ class PerformanceValidationFramework:
         with sqlite3.connect(self.db_path) as conn:
             for key, value in metrics.items():
                 conn.execute(
-                    "INSERT OR REPLACE INTO performance_baseline (metric, value)"
-                    " VALUES (?, ?)",
+                    "INSERT OR REPLACE INTO performance_baseline (metric, value) VALUES (?, ?)",
                     (key, value),
                 )
             conn.commit()
@@ -68,9 +63,7 @@ class PerformanceValidationFramework:
     def load_baseline(self) -> Dict[str, float]:
         """Load stored baseline metrics."""
         with sqlite3.connect(self.db_path) as conn:
-            rows = conn.execute(
-                "SELECT metric, value FROM performance_baseline"
-            ).fetchall()
+            rows = conn.execute("SELECT metric, value FROM performance_baseline").fetchall()
         return {name: float(value) for name, value in rows}
 
     def compare_to_baseline(self, metrics: Dict[str, float]) -> Dict[str, float]:
@@ -125,9 +118,7 @@ class PerformanceValidationFramework:
             templates = TemplateSynthesisEngine().synthesize_templates()
             metrics["template_time"] = time.perf_counter() - t
             metrics["template_throughput"] = (
-                len(templates) / metrics["template_time"]
-                if metrics["template_time"] > 0
-                else 0.0
+                len(templates) / metrics["template_time"] if metrics["template_time"] > 0 else 0.0
             )
             step += 1
             logger.info(
@@ -142,11 +133,7 @@ class PerformanceValidationFramework:
             t = time.perf_counter()
             corrector.execute_correction()
             metrics["flake8_time"] = time.perf_counter() - t
-            metrics["flake8_rate"] = (
-                file_count / metrics["flake8_time"]
-                if metrics["flake8_time"] > 0
-                else 0.0
-            )
+            metrics["flake8_rate"] = file_count / metrics["flake8_time"] if metrics["flake8_time"] > 0 else 0.0
             step += 1
             logger.info(
                 "%s flake8 complete, ETC %.2fs",

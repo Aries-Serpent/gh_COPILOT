@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """PrimaryCopilotExecutor with visual indicators and timeout control."""
+
 from __future__ import annotations
 
 import logging
@@ -86,7 +87,7 @@ class PrimaryCopilotExecutor:
     def _check_timeout(self) -> None:
         elapsed = (datetime.now() - self.start_time).total_seconds()
         if elapsed > self.timeout_seconds:
-            raise TimeoutError(f"Process exceeded {self.timeout_seconds/60:.1f} minute timeout")
+            raise TimeoutError(f"Process exceeded {self.timeout_seconds / 60:.1f} minute timeout")
 
     def _calculate_etc(self, elapsed: float, progress: float) -> float:
         if progress > 0:

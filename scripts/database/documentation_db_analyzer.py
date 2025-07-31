@@ -126,9 +126,7 @@ def _audit_placeholders_conn(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
         query = "SELECT NULL as title, content FROM enterprise_documentation"
     for title, content in conn.execute(query).fetchall():
         text = content or ""
-        if not text.strip() or any(
-            tok in text.upper() for tok in ["TODO", "FIXME", "PLACEHOLDER"]
-        ):
+        if not text.strip() or any(tok in text.upper() for tok in ["TODO", "FIXME", "PLACEHOLDER"]):
             placeholders.append((title or "", text))
     return placeholders
 
@@ -140,9 +138,7 @@ def audit_placeholders(db_path: Path) -> int:
     with sqlite3.connect(db_path) as conn:
         placeholders = _audit_placeholders_conn(conn)
     with sqlite3.connect(ANALYTICS_DB) as log:
-        log.execute(
-            "CREATE TABLE IF NOT EXISTS doc_analysis (db TEXT, gaps INTEGER, ts TEXT)"
-        )
+        log.execute("CREATE TABLE IF NOT EXISTS doc_analysis (db TEXT, gaps INTEGER, ts TEXT)")
         log.execute(
             "INSERT INTO doc_analysis (db, gaps, ts) VALUES (?, ?, ?)",
             (str(db_path), len(placeholders), datetime.utcnow().isoformat()),
@@ -151,9 +147,7 @@ def audit_placeholders(db_path: Path) -> int:
     return len(placeholders)
 
 
-def analyze_documentation_gaps(
-    db_paths: list[Path], analytics: Path, log_dir: Path
-) -> list[dict[str, int]]:
+def analyze_documentation_gaps(db_paths: list[Path], analytics: Path, log_dir: Path) -> list[dict[str, int]]:
     """Return placeholder gap counts for each database."""
     log_dir.mkdir(parents=True, exist_ok=True)
     results = []
@@ -163,9 +157,7 @@ def analyze_documentation_gaps(
         results.append({"db": str(db), "gaps": gaps})
         analytics.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(analytics) as conn:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS doc_audit (db TEXT, gaps INTEGER, ts TEXT)"
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS doc_audit (db TEXT, gaps INTEGER, ts TEXT)")
             conn.execute(
                 "INSERT INTO doc_audit (db, gaps, ts) VALUES (?, ?, ?)",
                 (str(db), gaps, datetime.utcnow().isoformat()),
@@ -179,9 +171,7 @@ def analyze_documentation_tables(db_paths: list[Path], analytics: Path) -> list[
     results = []
     analytics.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(analytics) as conn:
-        conn.execute(
-            "CREATE TABLE IF NOT EXISTS doc_analysis (db TEXT, table_name TEXT, row_count INTEGER, ts TEXT)"
-        )
+        conn.execute("CREATE TABLE IF NOT EXISTS doc_analysis (db TEXT, table_name TEXT, row_count INTEGER, ts TEXT)")
         for db in db_paths:
             count = 0
             if db.exists():
@@ -294,10 +284,7 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
                 "ts TEXT, db TEXT, removed_backups INTEGER, removed_dupes INTEGER)"
             )
             conn.execute(
-                (
-                    "INSERT INTO doc_audit (ts, db, removed_backups, removed_dupes) "
-                    "VALUES (?,?,?,?)"
-                ),
+                ("INSERT INTO doc_audit (ts, db, removed_backups, removed_dupes) VALUES (?,?,?,?)"),
                 (
                     datetime.utcnow().isoformat(),
                     str(db_path),
@@ -319,11 +306,7 @@ def analyze_and_cleanup(db_path: Path, backup_path: Path | None = None) -> dict[
                 )
                 """
             )
-            fix_rate = (
-                float(removed_backups + removed_dupes) / len(placeholders)
-                if len(placeholders) > 0
-                else 0.0
-            )
+            fix_rate = float(removed_backups + removed_dupes) / len(placeholders) if len(placeholders) > 0 else 0.0
             conn.execute(
                 (
                     "INSERT INTO correction_history (session_id, file_path, "
@@ -450,9 +433,7 @@ def main() -> None:
     etc = calculate_etc(start_ts, 1, 1)
     logger.info("Cleanup complete: %s | ETC: %s", report_path, etc)
     with sqlite3.connect(ANALYTICS_DB) as log:
-        log.execute(
-            "CREATE TABLE IF NOT EXISTS doc_analysis (db TEXT, report TEXT, ts TEXT)"
-        )
+        log.execute("CREATE TABLE IF NOT EXISTS doc_analysis (db TEXT, report TEXT, ts TEXT)")
         log.execute(
             "INSERT INTO doc_analysis (db, report, ts) VALUES (?, ?, ?)",
             (str(db_path), str(report_path), datetime.utcnow().isoformat()),

@@ -79,12 +79,7 @@ class AntiRecursionValidator:
 
 class EnterpriseLoggingManager:
     def __init__(self, analytics_db: Path | None = None) -> None:
-        self.analytics_db = (
-            analytics_db
-            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
-            / "databases"
-            / "analytics.db"
-        )
+        self.analytics_db = analytics_db or Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
         self.logger = logging.getLogger("enterprise")
         if not self.logger.handlers:
             handler = logging.StreamHandler()
@@ -125,12 +120,7 @@ ENTERPRISE_INDICATORS = {
 
 class DatabaseDrivenCorrectionEngine:
     def __init__(self, analytics_db: Path | None = None) -> None:
-        self.analytics_db = (
-            analytics_db
-            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
-            / "databases"
-            / "analytics.db"
-        )
+        self.analytics_db = analytics_db or Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
         self.session_id: str | None = None
 
     def start_correction_session(self) -> str:
@@ -216,12 +206,7 @@ class ExecutionMetrics:
 
 class EnterpriseProgressManager:
     def __init__(self, analytics_db: Path | None = None) -> None:
-        self.analytics_db = (
-            analytics_db
-            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
-            / "databases"
-            / "analytics.db"
-        )
+        self.analytics_db = analytics_db or Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
         self.current_metrics: ExecutionMetrics | None = None
         self._task_name = ""
         self._start = datetime.now()

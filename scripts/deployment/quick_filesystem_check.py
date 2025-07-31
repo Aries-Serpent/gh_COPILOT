@@ -13,7 +13,7 @@ print("=" * 50)
 print(f"Python executable: {sys.executable}")
 
 # Check virtual environment
-venv = os.environ.get('VIRTUAL_ENV', 'Not set')
+venv = os.environ.get("VIRTUAL_ENV", "Not set")
 print(f"Virtual environment: {venv}")
 
 # Check current directory
@@ -37,11 +37,10 @@ else:
     print("\n[SUCCESS] NO VIOLATIONS - FILESYSTEM ISOLATION COMPLIANT")
 
 # Save quick results
-with open('quick_filesystem_check.txt', 'w') as f:
+with open("quick_filesystem_check.txt", "w") as f:
     f.write(f"Python: {sys.executable}\n")
     f.write(f"Venv: {venv}\n")
     f.write(f"CWD: {os.getcwd()}\n")
     f.write(f"Violations: {violations}\n")
 
-print(
-        f"\nResults saved to: {os.path.join(os.getcwd(), 'quick_filesystem_check.txt')}")
+print(f"\nResults saved to: {os.path.join(os.getcwd(), 'quick_filesystem_check.txt')}")

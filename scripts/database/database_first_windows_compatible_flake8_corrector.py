@@ -52,7 +52,7 @@ VISUAL_INDICATORS = {
 
 @dataclass
 class FlakeViolation:
-    """Represents a ruff violation"""
+    """Represents a Flake8 violation"""
 
     file_path: str
     line_number: int
@@ -266,9 +266,14 @@ class DatabaseFirstFlake8Corrector:
 
         try:
             cmd = [
-                "ruff",
-                "check",
+                sys.executable,
+                "-m",
+                "flake8",
                 self._sanitize_path(self.workspace_path),
+                "--format=%(path)s:%(row)d:%(col)d:%(code)s:%(text)s",
+                "--max-line-length=88",
+                "--extend-ignore=E203,W503",
+                "--exclude=.git,__pycache__,*.egg-info,build,dist,venv,env",
             ]
 
             env = os.environ.copy()
@@ -320,7 +325,7 @@ class DatabaseFirstFlake8Corrector:
             self.logger.error(f"Error running ruff: {e}")
 
         self.stats["violations_found"] = len(violations)
-        self.logger.info(f"Found {len(violations)} ruff violations", "info")
+        self.logger.info(f"Found {len(violations)} Flake8 violations", "info")
 
         return violations
 
@@ -530,21 +535,6 @@ class DatabaseFirstFlake8Corrector:
                                 ),
                             )
 
-            with sqlite3.connect(self.production_db) as prod:
-                for violation, result in zip(violations, corrections):
-                    if result.success:
-                        for fix in result.violations_fixed:
-                            prod.execute(
-                                "INSERT INTO correction_history (session_id, file_path, violation_code, fix_applied, timestamp) VALUES (?, ?, ?, ?, ?)",
-                                (
-                                    self.session_id,
-                                    violation.file_path,
-                                    violation.error_code,
-                                    fix,
-                                    datetime.now().isoformat(),
-                                ),
-                            )
-
         except Exception as e:
             self.logger.error(f"Error saving to database: {e}")
 
@@ -563,7 +553,7 @@ class DatabaseFirstFlake8Corrector:
         """Execute comprehensive ruff correction with DUAL COPILOT validation"""
 
         start_time = datetime.now()
-        self.logger.info(f"Starting comprehensive ruff correction session: {self.session_id}", "start")
+        self.logger.info(f"Starting comprehensive Flake8 correction session: {self.session_id}", "start")
         self.logger.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}", "info")
         self.logger.info(f"Workspace: {self.workspace_path}", "info")
         self.logger.info(f"Process ID: {os.getpid()}", "info")
@@ -575,8 +565,8 @@ class DatabaseFirstFlake8Corrector:
 
             # Phase 2: Scan for violations
             with tqdm(total=100, desc="[PHASE 2] Scanning Violations", unit="%") as pbar:
-                pbar.set_description("[SEARCH] Scanning for ruff violations")
-                violations = self.run_ruff_scan()
+                pbar.set_description("[SEARCH] Scanning for Flake8 violations")
+                violations = self.run_flake8_scan()
                 pbar.update(100)
 
             if not violations:

@@ -26,9 +26,7 @@ def test_process_operations(tmp_path: Path) -> None:
     assert processor.execute_processing()
 
     with sqlite3.connect(db_main) as conn:
-        rows = conn.execute(
-            "SELECT db_name, table_name, row_count FROM cross_database_summary"
-        ).fetchall()
+        rows = conn.execute("SELECT db_name, table_name, row_count FROM cross_database_summary").fetchall()
 
     summary = {(r[0], r[1]): r[2] for r in rows}
     assert summary[("a.db", "table_a")] == 2

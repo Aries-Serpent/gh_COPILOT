@@ -15,24 +15,19 @@ from typing import Dict, Iterable, List, Tuple
 class BaseConsolidationExecutor:
     """Common utilities for consolidation executors."""
 
-    def __init__(self, workspace_root: str, archive_root: str,
-                 group_name: str, logger: logging.Logger) -> None:
+    def __init__(self, workspace_root: str, archive_root: str, group_name: str, logger: logging.Logger) -> None:
         self.workspace_root = Path(workspace_root)
         self.archive_root = Path(archive_root)
         self.group_name = group_name
         self.logger = logger
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        self.archive_dir = self.archive_root / \
-            "consolidated_scripts" / group_name / self.timestamp
+        self.archive_dir = self.archive_root / "consolidated_scripts" / group_name / self.timestamp
         self.manifest_dir = self.archive_root / "manifests"
         self.archive_dir.mkdir(parents=True, exist_ok=True)
         self.manifest_dir.mkdir(parents=True, exist_ok=True)
 
-    def discover_files(
-            self,
-            patterns: Iterable[str],
-            exclude_names: Iterable[str] | None = None) -> List[Path]:
+    def discover_files(self, patterns: Iterable[str], exclude_names: Iterable[str] | None = None) -> List[Path]:
         """Discover files in the workspace matching patterns."""
         exclude_names = set(exclude_names or [])
         discovered: List[Path] = []
@@ -43,8 +38,7 @@ class BaseConsolidationExecutor:
                     if path.is_file() and path.name not in exclude_names:
                         discovered.append(path)
             except Exception as exc:  # pragma: no cover - logging only
-                self.logger.warning(
-                    "Pattern search failed for %s: %s", pattern, exc)
+                self.logger.warning("Pattern search failed for %s: %s", pattern, exc)
 
         self.logger.info("Discovered %s files", len(discovered))
         return discovered
@@ -82,8 +76,7 @@ class BaseConsolidationExecutor:
 
     def generate_manifest(self, manifest_data: Dict) -> str:
         """Write manifest JSON to disk and return the path."""
-        manifest_path = self.manifest_dir / \
-            f"{self.group_name}_consolidation_{self.timestamp}.json"
+        manifest_path = self.manifest_dir / f"{self.group_name}_consolidation_{self.timestamp}.json"
         with open(manifest_path, "w", encoding="utf-8") as f:
             json.dump(manifest_data, f, indent=2, default=str)
         self.logger.info("Manifest written to %s", manifest_path)

@@ -16,9 +16,7 @@ class EnterpriseUtility:
     """Simplified executor for session consolidation tests."""
 
     def __init__(self, workspace_path: str | Path | None = None) -> None:
-        self.workspace_path = Path(
-            workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
-        )
+        self.workspace_path = Path(workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
         validate_enterprise_operation()
         self.logger = logging.getLogger(__name__)
         self.validator = SessionProtocolValidator(str(self.workspace_path))

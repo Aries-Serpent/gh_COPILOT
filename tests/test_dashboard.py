@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from dashboard import compliance_metrics_updater as cmu
+
 cmu.validate_no_recursive_folders = lambda: None
 from web_gui.scripts.flask_apps.enterprise_dashboard import app
 

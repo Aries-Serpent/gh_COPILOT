@@ -22,7 +22,5 @@ def test_rank_templates_caches_results(tmp_path: Path, monkeypatch) -> None:
     assert first == second
 
     with sqlite3.connect(analytics_db) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM generator_events WHERE event='cache_hit'"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM generator_events WHERE event='cache_hit'").fetchone()[0]
     assert count == 1

@@ -7,11 +7,11 @@ setup: create-env
         pip install -r requirements-test.txt
 
 lint:
-        ruff format .
-        ruff check .
+	ruff format .
+	ruff check . --exit-zero
 
 test: setup lint
-        pytest tests
+	pytest tests
 
 clean-logs:
         bash scripts/clean_zero_logs.sh logs

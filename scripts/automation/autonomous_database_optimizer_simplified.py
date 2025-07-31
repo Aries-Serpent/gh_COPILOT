@@ -147,9 +147,7 @@ class AutonomousDatabaseOptimizer:
 
     def _init_paths_and_ids(self, workspace_path: Optional[str]) -> None:
         """Initialize paths and IDs."""
-        self.workspace_path = Path(
-            workspace_path or os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT")
-        )
+        self.workspace_path = Path(workspace_path or os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
         self.start_time = datetime.now()
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.optimization_id = f"AUTO_OPT_{ts}"
@@ -314,15 +312,11 @@ class AutonomousDatabaseOptimizer:
         # Ensure logs directory exists
         (self.workspace_path / "logs").mkdir(parents=True, exist_ok=True)
 
-        self.logger.info(
-            "%s Logging system initialized", ENHANCED_INDICATORS["success"]
-        )
+        self.logger.info("%s Logging system initialized", ENHANCED_INDICATORS["success"])
 
     def _classify_database_priorities(self) -> Dict[str, List[str]]:
         """Classify databases by enterprise priority."""
-        self.logger.info(
-            "%s Classifying database priorities", ENHANCED_INDICATORS["ai"]
-        )
+        self.logger.info("%s Classifying database priorities", ENHANCED_INDICATORS["ai"])
         levels = {
             "CRITICAL": [
                 "production",
@@ -355,9 +349,7 @@ class AutonomousDatabaseOptimizer:
             ENHANCED_INDICATORS["learn"],
             len(self.learning_patterns),
         )
-        self.logger.info(
-            "%s Initializing self-learning system", ENHANCED_INDICATORS["learn"]
-        )
+        self.logger.info("%s Initializing self-learning system", ENHANCED_INDICATORS["learn"])
         self._ensure_learning_db()
         self._load_learning_patterns()
         self._load_optimization_history()
@@ -522,9 +514,7 @@ class AutonomousDatabaseOptimizer:
         learning_db = self.workspace_path / "databases" / "self_learning.db"
         learning_db.parent.mkdir(parents=True, exist_ok=True)
 
-        self.logger.info(
-            "%s Creating self-learning database", ENHANCED_INDICATORS["success"]
-        )
+        self.logger.info("%s Creating self-learning database", ENHANCED_INDICATORS["success"])
         with sqlite3.connect(str(learning_db)) as conn:
             cursor = conn.cursor()
             # Learning patterns table
@@ -556,9 +546,7 @@ class AutonomousDatabaseOptimizer:
                 )
             """)
             conn.commit()
-            self.logger.info(
-                f"{ENHANCED_INDICATORS['success']} Self-learning database created"
-            )
+            self.logger.info(f"{ENHANCED_INDICATORS['success']} Self-learning database created")
 
     def _load_optimization_history(self):
         """Load optimization history from self-learning database"""
@@ -589,17 +577,11 @@ class AutonomousDatabaseOptimizer:
                             "timestamp": record[8],
                         }
                     )
-                self.logger.info(
-                    f"{ENHANCED_INDICATORS['learn']} Loaded {len(history)} optimization records"
-                )
+                self.logger.info(f"{ENHANCED_INDICATORS['learn']} Loaded {len(history)} optimization records")
         except Exception as e:
-            self.logger.warning(
-                f"{ENHANCED_INDICATORS['warning']} Failed to load optimization history: {e}"
-            )
+            self.logger.warning(f"{ENHANCED_INDICATORS['warning']} Failed to load optimization history: {e}")
 
-    def analyze_enhanced_database_health(
-        self, db_name: str, db_path: Path
-    ) -> EnhancedDatabaseHealth:
+    def analyze_enhanced_database_health(self, db_name: str, db_path: Path) -> EnhancedDatabaseHealth:
         """Analyze database health and return metrics"""
         try:
             start_time = time.time()
@@ -647,15 +629,11 @@ class AutonomousDatabaseOptimizer:
                 usage_pattern_score = self._analyze_usage_patterns(db_name, cursor)
 
                 # Overall health score calculation
-                base_health_score = (
-                    integrity_score + performance_score + efficiency_score
-                ) / 3
+                base_health_score = (integrity_score + performance_score + efficiency_score) / 3
                 health_score = min(100, max(0, base_health_score))
 
                 # Predictive health score
-                predictive_health_score = self._predict_future_health(
-                    db_name, health_score
-                )
+                predictive_health_score = self._predict_future_health(db_name, health_score)
 
                 # Generate enhanced issues and recommendations
                 issues = []
@@ -667,15 +645,11 @@ class AutonomousDatabaseOptimizer:
                     recommendations.append("Execute self-healing integrity repair")
 
                 if fragmentation_ratio > 20:
-                    issues.append(
-                        f"High fragmentation ratio: {fragmentation_ratio:.1f}%"
-                    )
+                    issues.append(f"High fragmentation ratio: {fragmentation_ratio:.1f}%")
                     recommendations.append("Execute enhanced VACUUM optimization")
 
                 if query_performance_ms > 50:
-                    issues.append(
-                        f"Slow query performance: {query_performance_ms:.1f}ms"
-                    )
+                    issues.append(f"Slow query performance: {query_performance_ms:.1f}ms")
                     recommendations.append("Apply adaptive index optimization")
 
                 if efficiency_score < 80:
@@ -687,15 +661,9 @@ class AutonomousDatabaseOptimizer:
 
                 # Predictions
                 ml_predictions = {
-                    "predicted_growth_rate": self._predict_growth_rate(
-                        db_name, db_size
-                    ),
-                    "optimization_urgency": self._calculate_optimization_urgency(
-                        health_score
-                    ),
-                    "recommended_maintenance_window": self._predict_maintenance_window(
-                        db_name
-                    ),
+                    "predicted_growth_rate": self._predict_growth_rate(db_name, db_size),
+                    "optimization_urgency": self._calculate_optimization_urgency(health_score),
+                    "recommended_maintenance_window": self._predict_maintenance_window(db_name),
                 }
 
                 # Priority level calculation
@@ -732,9 +700,7 @@ class AutonomousDatabaseOptimizer:
                 )
 
         except Exception as e:
-            self.logger.error(
-                f"{ENHANCED_INDICATORS['critical']} Health analysis failed for {db_name}: {e}"
-            )
+            self.logger.error(f"{ENHANCED_INDICATORS['critical']} Health analysis failed for {db_name}: {e}")
             return EnhancedDatabaseHealth(
                 database_name=db_name,
                 health_score=0.0,
@@ -799,25 +765,15 @@ class AutonomousDatabaseOptimizer:
         try:
             historical_trend = 0.0
             if self.optimization_history:
-                db_history = [
-                    h
-                    for h in self.optimization_history
-                    if h["database_name"] == db_name
-                ]
+                db_history = [h for h in self.optimization_history if h["database_name"] == db_name]
                 if len(db_history) >= 2:
                     recent_improvements = [h["improvement"] for h in db_history[-5:]]
-                    historical_trend = (
-                        statistics.mean(recent_improvements)
-                        if recent_improvements
-                        else 0.0
-                    )
+                    historical_trend = statistics.mean(recent_improvements) if recent_improvements else 0.0
             # Predict health degradation over time
             degradation_factor = 0.95  # 5% degradation over time without maintenance
             improvement_potential = historical_trend * 0.1
 
-            predicted_health = (
-                current_health * degradation_factor
-            ) + improvement_potential
+            predicted_health = (current_health * degradation_factor) + improvement_potential
             return max(0, min(100, predicted_health))
 
         except Exception:
@@ -854,9 +810,7 @@ class AutonomousDatabaseOptimizer:
         self, db_name: str, db_path: Path, optimization_strategy: str
     ) -> OptimizationResult:
         """Execute enhanced optimization strategy with self-learning"""
-        self.logger.info(
-            f"{ENHANCED_INDICATORS['optimize']} Executing {optimization_strategy} on {db_name}"
-        )
+        self.logger.info(f"{ENHANCED_INDICATORS['optimize']} Executing {optimization_strategy} on {db_name}")
 
         start_time = time.time()
         strategy = self.optimization_strategies[optimization_strategy]
@@ -879,9 +833,7 @@ class AutonomousDatabaseOptimizer:
             backup_filename = f"{db_name}_backup_{timestamp}.db"
             backup_path = backup_dir / backup_filename
             shutil.copy2(db_path, backup_path)
-            self.logger.info(
-                f"{ENHANCED_INDICATORS['success']} Backup created: {backup_path}"
-            )
+            self.logger.info(f"{ENHANCED_INDICATORS['success']} Backup created: {backup_path}")
 
             # Execute enhanced optimization commands with monitoring
             success_count = 0
@@ -897,13 +849,9 @@ class AutonomousDatabaseOptimizer:
                         conn.commit()
                         success_count += 1
                         progress = (i + 1) / total_commands * 100
-                        self.logger.info(
-                            f"{ENHANCED_INDICATORS['monitor']} Progress: {progress:.1f}%"
-                        )
+                        self.logger.info(f"{ENHANCED_INDICATORS['monitor']} Progress: {progress:.1f}%")
                     except sqlite3.Error as e:
-                        self.logger.warning(
-                            f"{ENHANCED_INDICATORS['warning']} Command failed: {sql_command} - {e}"
-                        )
+                        self.logger.warning(f"{ENHANCED_INDICATORS['warning']} Command failed: {sql_command} - {e}")
                         continue
 
             # Capture enhanced after metrics
@@ -919,9 +867,7 @@ class AutonomousDatabaseOptimizer:
 
             # Calculate improvements
             health_improvement = after_health.health_score - before_health.health_score
-            efficiency_gain = (
-                after_health.efficiency_score - before_health.efficiency_score
-            )
+            efficiency_gain = after_health.efficiency_score - before_health.efficiency_score
             execution_time = time.time() - start_time
 
             # Calculate confidence score
@@ -934,14 +880,11 @@ class AutonomousDatabaseOptimizer:
                 "execution_efficiency": efficiency_gain,
                 "command_success_rate": command_success_rate,
                 "database_size_impact": before_health.size_mb - after_health.size_mb,
-                "performance_impact": before_health.query_performance_ms
-                - after_health.query_performance_ms,
+                "performance_impact": before_health.query_performance_ms - after_health.query_performance_ms,
             }
 
             # Store learning pattern
-            self._store_learning_pattern(
-                db_name, optimization_strategy, learning_data, health_improvement > 0
-            )
+            self._store_learning_pattern(db_name, optimization_strategy, learning_data, health_improvement > 0)
             # Store optimization history
             self._store_optimization_history(
                 db_name,
@@ -972,9 +915,7 @@ class AutonomousDatabaseOptimizer:
 
         except Exception as e:
             execution_time = time.time() - start_time
-            self.logger.error(
-                f"{ENHANCED_INDICATORS['critical']} Optimization failed for {db_name}: {e}"
-            )
+            self.logger.error(f"{ENHANCED_INDICATORS['critical']} Optimization failed for {db_name}: {e}")
 
             return OptimizationResult(
                 database_name=db_name,
@@ -991,9 +932,7 @@ class AutonomousDatabaseOptimizer:
                 timestamp=datetime.now(),
             )
 
-    def _store_learning_pattern(
-        self, db_name: str, strategy: str, learning_data: Dict[str, Any], success: bool
-    ):
+    def _store_learning_pattern(self, db_name: str, strategy: str, learning_data: Dict[str, Any], success: bool):
         """Store learning pattern for future optimization decisions"""
         try:
             pattern_id = f"{db_name}_{strategy}_{datetime.now().strftime('%Y%m%d')}"
@@ -1003,13 +942,10 @@ class AutonomousDatabaseOptimizer:
                 pattern = self.learning_patterns[pattern_id]
                 pattern.usage_count += 1
                 pattern.success_rate = (
-                    pattern.success_rate * (pattern.usage_count - 1)
-                    + (100 if success else 0)
+                    pattern.success_rate * (pattern.usage_count - 1) + (100 if success else 0)
                 ) / pattern.usage_count
                 pattern.last_used = datetime.now()
-                pattern.effectiveness_score = learning_data.get(
-                    "strategy_effectiveness", 0
-                )
+                pattern.effectiveness_score = learning_data.get("strategy_effectiveness", 0)
             else:
                 pattern = LearningPattern(
                     pattern_id=pattern_id,
@@ -1050,9 +986,7 @@ class AutonomousDatabaseOptimizer:
                 conn.commit()
 
         except Exception as e:
-            self.logger.warning(
-                f"{ENHANCED_INDICATORS['warning']} Failed to store learning pattern: {e}"
-            )
+            self.logger.warning(f"{ENHANCED_INDICATORS['warning']} Failed to store learning pattern: {e}")
 
     def _store_optimization_history(
         self,
@@ -1092,16 +1026,12 @@ class AutonomousDatabaseOptimizer:
                 conn.commit()
 
         except Exception as e:
-            self.logger.warning(
-                f"{ENHANCED_INDICATORS['warning']} Failed to store optimization history: {e}"
-            )
+            self.logger.warning(f"{ENHANCED_INDICATORS['warning']} Failed to store optimization history: {e}")
 
     async def autonomous_database_improvement(self) -> Dict[str, Any]:
         """Execute autonomous database improvement with self-learning"""
         self.logger.info("=" * 100)
-        self.logger.info(
-            f"{ENHANCED_INDICATORS['optimize']} AUTONOMOUS DATABASE IMPROVEMENT STARTED"
-        )
+        self.logger.info(f"{ENHANCED_INDICATORS['optimize']} AUTONOMOUS DATABASE IMPROVEMENT STARTED")
         self.logger.info(f"Optimization ID: {self.optimization_id}")
         self.logger.info("=" * 100)
 
@@ -1121,9 +1051,7 @@ class AutonomousDatabaseOptimizer:
 
         try:
             # Phase 1: Priority-Focused Health Analysis
-            self.logger.info(
-                f"{ENHANCED_INDICATORS['analyze']} Phase 1: Priority-Focused Health Analysis"
-            )
+            self.logger.info(f"{ENHANCED_INDICATORS['analyze']} Phase 1: Priority-Focused Health Analysis")
 
             prioritized_databases = []
 
@@ -1146,9 +1074,7 @@ class AutonomousDatabaseOptimizer:
                         if db_name not in self.database_registry:
                             continue
 
-                        pbar.set_description(
-                            f"{ENHANCED_INDICATORS['analyze']} {db_name}"
-                        )
+                        pbar.set_description(f"{ENHANCED_INDICATORS['analyze']} {db_name}")
 
                         db_path = self.database_registry[db_name]
                         health = self.analyze_enhanced_database_health(db_name, db_path)
@@ -1180,9 +1106,7 @@ class AutonomousDatabaseOptimizer:
                             prioritized_databases.append((db_name, asdict(health)))
 
             # Phase 2: Intelligent Autonomous Optimization
-            self.logger.info(
-                f"{ENHANCED_INDICATORS['optimize']} Phase 2: Intelligent Autonomous Optimization"
-            )
+            self.logger.info(f"{ENHANCED_INDICATORS['optimize']} Phase 2: Intelligent Autonomous Optimization")
 
             # Sort by health score (lowest first) within priority level
             prioritized_databases.sort(key=lambda x: x[1]["health_score"])
@@ -1200,27 +1124,19 @@ class AutonomousDatabaseOptimizer:
                     unit="db",
                 ) as pbar:
                     for db_name, health_data in databases_needing_optimization:
-                        pbar.set_description(
-                            f"{ENHANCED_INDICATORS['optimize']} {db_name}"
-                        )
+                        pbar.set_description(f"{ENHANCED_INDICATORS['optimize']} {db_name}")
 
                         db_path = self.database_registry[db_name]
 
                         # Select optimal strategies
-                        optimization_strategies = self._select_optimal_strategies(
-                            db_name, health_data
-                        )
+                        optimization_strategies = self._select_optimal_strategies(db_name, health_data)
 
                         db_improvement = 0.0
                         db_efficiency_gain = 0.0
 
                         for strategy in optimization_strategies:
-                            result = self.execute_enhanced_optimization(
-                                db_name, db_path, strategy
-                            )
-                            improvement_results["optimization_results"].append(
-                                asdict(result)
-                            )
+                            result = self.execute_enhanced_optimization(db_name, db_path, strategy)
+                            improvement_results["optimization_results"].append(asdict(result))
 
                             if result.success:
                                 db_improvement += result.improvement_percentage
@@ -1228,9 +1144,7 @@ class AutonomousDatabaseOptimizer:
 
                         improvement_results["databases_optimized"] += 1
                         improvement_results["total_improvement"] += db_improvement
-                        improvement_results["total_efficiency_gain"] += (
-                            db_efficiency_gain
-                        )
+                        improvement_results["total_efficiency_gain"] += db_efficiency_gain
 
                         pbar.update(1)
 
@@ -1239,9 +1153,7 @@ class AutonomousDatabaseOptimizer:
                         )
 
             # Phase 3: Post-Optimization Verification
-            self.logger.info(
-                f"{ENHANCED_INDICATORS['monitor']} Phase 3: Post-Optimization Verification"
-            )
+            self.logger.info(f"{ENHANCED_INDICATORS['monitor']} Phase 3: Post-Optimization Verification")
 
             learning_insights = {}
 
@@ -1252,24 +1164,16 @@ class AutonomousDatabaseOptimizer:
                     unit="db",
                 ) as pbar:
                     for db_name, _ in databases_needing_optimization:
-                        pbar.set_description(
-                            f"{ENHANCED_INDICATORS['monitor']} {db_name}"
-                        )
+                        pbar.set_description(f"{ENHANCED_INDICATORS['monitor']} {db_name}")
 
                         db_path = self.database_registry[db_name]
-                        post_health = self.analyze_enhanced_database_health(
-                            db_name, db_path
-                        )
+                        post_health = self.analyze_enhanced_database_health(db_name, db_path)
 
-                        improvement_results["health_summary"][
-                            f"{db_name}_post_optimization"
-                        ] = asdict(post_health)
+                        improvement_results["health_summary"][f"{db_name}_post_optimization"] = asdict(post_health)
 
                         # Collect learning insights
                         if db_name in improvement_results["health_summary"]:
-                            before_health = improvement_results["health_summary"][
-                                db_name
-                            ]["health_score"]
+                            before_health = improvement_results["health_summary"][db_name]["health_score"]
                             improvement = post_health.health_score - before_health
                             learning_insights[db_name] = {
                                 "improvement_achieved": improvement,
@@ -1284,52 +1188,25 @@ class AutonomousDatabaseOptimizer:
                         pbar.update(1)
 
             # Calculate final metrics
-            improvement_results["execution_time"] = (
-                datetime.now() - self.start_time
-            ).total_seconds()
+            improvement_results["execution_time"] = (datetime.now() - self.start_time).total_seconds()
             improvement_results["learning_insights"] = learning_insights
 
-            if (
-                improvement_results["databases_optimized"] > 0
-                and improvement_results["optimization_results"]
-            ):
+            if improvement_results["databases_optimized"] > 0 and improvement_results["optimization_results"]:
                 improvement_results["success_rate"] = (
-                    len(
-                        [
-                            r
-                            for r in improvement_results["optimization_results"]
-                            if r["success"]
-                        ]
-                    )
+                    len([r for r in improvement_results["optimization_results"] if r["success"]])
                     / len(improvement_results["optimization_results"])
                 ) * 100
 
             # Final Summary
             self.logger.info("=" * 100)
-            self.logger.info(
-                f"{ENHANCED_INDICATORS['success']} AUTONOMOUS DATABASE IMPROVEMENT COMPLETED"
-            )
-            self.logger.info(
-                f"Total Databases: {improvement_results['total_databases']}"
-            )
-            self.logger.info(
-                f"Databases Analyzed: {improvement_results['databases_analyzed']}"
-            )
-            self.logger.info(
-                f"Databases Optimized: {improvement_results['databases_optimized']}"
-            )
-            self.logger.info(
-                f"Total Health Improvement: {improvement_results['total_improvement']:.1f}%"
-            )
-            self.logger.info(
-                f"Total Efficiency Gain: {improvement_results['total_efficiency_gain']:.1f}%"
-            )
-            self.logger.info(
-                f"Success Rate: {improvement_results['success_rate']:.1f}%"
-            )
-            self.logger.info(
-                f"Execution Time: {improvement_results['execution_time']:.1f} seconds"
-            )
+            self.logger.info(f"{ENHANCED_INDICATORS['success']} AUTONOMOUS DATABASE IMPROVEMENT COMPLETED")
+            self.logger.info(f"Total Databases: {improvement_results['total_databases']}")
+            self.logger.info(f"Databases Analyzed: {improvement_results['databases_analyzed']}")
+            self.logger.info(f"Databases Optimized: {improvement_results['databases_optimized']}")
+            self.logger.info(f"Total Health Improvement: {improvement_results['total_improvement']:.1f}%")
+            self.logger.info(f"Total Efficiency Gain: {improvement_results['total_efficiency_gain']:.1f}%")
+            self.logger.info(f"Success Rate: {improvement_results['success_rate']:.1f}%")
+            self.logger.info(f"Execution Time: {improvement_results['execution_time']:.1f} seconds")
             self.logger.info(f"Learning Patterns: {len(learning_insights)}")
             self.logger.info("=" * 100)
 
@@ -1339,18 +1216,12 @@ class AutonomousDatabaseOptimizer:
             return improvement_results
 
         except Exception as e:
-            self.logger.error(
-                f"{ENHANCED_INDICATORS['critical']} Database improvement failed: {e}"
-            )
-            improvement_results["execution_time"] = (
-                datetime.now() - self.start_time
-            ).total_seconds()
+            self.logger.error(f"{ENHANCED_INDICATORS['critical']} Database improvement failed: {e}")
+            improvement_results["execution_time"] = (datetime.now() - self.start_time).total_seconds()
             improvement_results["error"] = str(e)
             return improvement_results
 
-    def _select_optimal_strategies(
-        self, db_name: str, health_data: Dict[str, Any]
-    ) -> List[str]:
+    def _select_optimal_strategies(self, db_name: str, health_data: Dict[str, Any]) -> List[str]:
         """Select optimal optimization strategies using learning patterns"""
         health_score = health_data["health_score"]
 
@@ -1433,40 +1304,28 @@ class AutonomousDatabaseOptimizer:
                     )
 
                     conn.commit()
-                    self.logger.info(
-                        f"{ENHANCED_INDICATORS['success']} Results saved to production database"
-                    )
+                    self.logger.info(f"{ENHANCED_INDICATORS['success']} Results saved to production database")
 
         except Exception as e:
-            self.logger.error(
-                f"{ENHANCED_INDICATORS['warning']} Failed to save to production database: {e}"
-            )
+            self.logger.error(f"{ENHANCED_INDICATORS['warning']} Failed to save to production database: {e}")
 
         # Save to JSON file
         try:
             results_dir = self.workspace_path / "results" / "autonomous_optimization"
             results_dir.mkdir(parents=True, exist_ok=True)
 
-            results_file = (
-                results_dir / f"database_optimization_{self.optimization_id}.json"
-            )
+            results_file = results_dir / f"database_optimization_{self.optimization_id}.json"
             with open(results_file, "w") as f:
                 json.dump(results, f, indent=2, default=str)
 
-            self.logger.info(
-                f"{ENHANCED_INDICATORS['success']} Results saved to {results_file}"
-            )
+            self.logger.info(f"{ENHANCED_INDICATORS['success']} Results saved to {results_file}")
 
         except Exception as e:
-            self.logger.error(
-                f"{ENHANCED_INDICATORS['warning']} Failed to save JSON results: {e}"
-            )
+            self.logger.error(f"{ENHANCED_INDICATORS['warning']} Failed to save JSON results: {e}")
 
     def start_continuous_monitoring(self):
         """Start continuous monitoring and optimization"""
-        self.logger.info(
-            f"{ENHANCED_INDICATORS['monitor']} Starting Continuous Monitoring"
-        )
+        self.logger.info(f"{ENHANCED_INDICATORS['monitor']} Starting Continuous Monitoring")
         self.monitoring_active = True
 
         def monitoring_loop():
@@ -1477,40 +1336,30 @@ class AutonomousDatabaseOptimizer:
                     for db_name in critical_dbs:
                         if db_name in self.database_registry:
                             db_path = self.database_registry[db_name]
-                            health = self.analyze_enhanced_database_health(
-                                db_name, db_path
-                            )
+                            health = self.analyze_enhanced_database_health(db_name, db_path)
 
                             if health.health_score < self.health_thresholds["critical"]:
                                 self.logger.warning(
                                     f"{ENHANCED_INDICATORS['critical']} Critical database {db_name} needs attention: {health.health_score:.1f}%"
                                 )
                                 # Auto-trigger optimization for critical databases
-                                asyncio.create_task(
-                                    self._emergency_optimization(db_name, db_path)
-                                )
+                                asyncio.create_task(self._emergency_optimization(db_name, db_path))
 
                     # Sleep for 30 minutes
                     time.sleep(1800)
 
                 except Exception as e:
-                    self.logger.error(
-                        f"{ENHANCED_INDICATORS['critical']} Monitoring error: {e}"
-                    )
+                    self.logger.error(f"{ENHANCED_INDICATORS['critical']} Monitoring error: {e}")
                     time.sleep(300)  # Sleep 5 minutes on error
 
         monitoring_thread = threading.Thread(target=monitoring_loop, daemon=True)
         monitoring_thread.start()
 
-        self.logger.info(
-            f"{ENHANCED_INDICATORS['success']} Continuous monitoring started"
-        )
+        self.logger.info(f"{ENHANCED_INDICATORS['success']} Continuous monitoring started")
 
     async def _emergency_optimization(self, db_name: str, db_path: Path):
         """Emergency optimization for critical databases"""
-        self.logger.warning(
-            f"{ENHANCED_INDICATORS['critical']} Emergency optimization for {db_name}"
-        )
+        self.logger.warning(f"{ENHANCED_INDICATORS['critical']} Emergency optimization for {db_name}")
 
         emergency_strategies = [
             "self_healing_integrity_check",
@@ -1520,17 +1369,13 @@ class AutonomousDatabaseOptimizer:
         for strategy in emergency_strategies:
             result = self.execute_enhanced_optimization(db_name, db_path, strategy)
             if result.success:
-                self.logger.info(
-                    f"{ENHANCED_INDICATORS['heal']} Emergency optimization successful for {db_name}"
-                )
+                self.logger.info(f"{ENHANCED_INDICATORS['heal']} Emergency optimization successful for {db_name}")
                 break
 
     def stop_continuous_monitoring(self):
         """Stop continuous monitoring"""
         self.monitoring_active = False
-        self.logger.info(
-            f"{ENHANCED_INDICATORS['monitor']} Continuous monitoring stopped"
-        )
+        self.logger.info(f"{ENHANCED_INDICATORS['monitor']} Continuous monitoring stopped")
 
 
 async def main():

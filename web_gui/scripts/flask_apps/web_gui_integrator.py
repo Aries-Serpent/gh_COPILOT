@@ -1,4 +1,5 @@
 """Web GUI integration layer for the enterprise dashboard."""
+
 from __future__ import annotations
 
 import logging
@@ -25,9 +26,7 @@ def requires_role(role: str) -> Callable[[Callable], Callable]:
                 return func(*args, **kwargs)
             user_role = request.headers.get("X-Role")
             if user_role != role:
-                logging.getLogger(__name__).warning(
-                    "Access denied for role %s to %s", user_role, request.path
-                )
+                logging.getLogger(__name__).warning("Access denied for role %s to %s", user_role, request.path)
                 return jsonify({"error": "forbidden"}), 403
             return func(*args, **kwargs)
 

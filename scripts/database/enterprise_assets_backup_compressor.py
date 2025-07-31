@@ -1,4 +1,5 @@
 """Compress enterprise assets backups into the approved backup directory."""
+
 from __future__ import annotations
 
 import logging

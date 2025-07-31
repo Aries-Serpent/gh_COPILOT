@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Database-first architecture
 """
+
 import sys
 
 import logging
@@ -18,11 +19,11 @@ from utils.log_utils import log_message
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'database': '[DATABASE]',
-    'info': '[INFO]'
+    "start": "[START]",
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "database": "[DATABASE]",
+    "info": "[INFO]",
 }
 
 
@@ -89,6 +90,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

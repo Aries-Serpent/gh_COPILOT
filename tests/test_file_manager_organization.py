@@ -43,8 +43,6 @@ def test_organize_files_moves_and_updates(tmp_path):
     assert dest.exists()
 
 
-
-
 def test_organize_files_rejects_backup(tmp_path):
     workspace = tmp_path / "ws"
     backup = tmp_path / "backups"
@@ -88,4 +86,3 @@ def test_fallback_to_components(tmp_path):
 
     dest = workspace / "organized" / "utility" / "ResponseFormatter.py"
     assert dest.exists()
-

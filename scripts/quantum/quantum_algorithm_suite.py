@@ -1,4 +1,5 @@
 """Simulated quantum algorithm suite with common stubs."""
+
 from __future__ import annotations
 
 import logging

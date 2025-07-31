@@ -6,6 +6,7 @@ Enterprise-grade correction system leveraging production.db intelligence
 
 import sys
 import logging
+import os
 import sqlite3
 import subprocess
 from pathlib import Path
@@ -24,7 +25,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 class DatabaseFirstCorrectionEngine:
     """🎯 Database-First Correction Engine with Enterprise Compliance"""
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
+    def __init__(self, workspace_path: str | None = None):
+        if workspace_path is None:
+            workspace_path = os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
         self.workspace_path = Path(workspace_path)
         self.production_db = self.workspace_path / "production.db"
         self.analytics_db = self.workspace_path / "analytics.db"
@@ -557,8 +560,9 @@ def main():
         results = engine.execute_database_driven_corrections()
 
         # Final validation
-        logger.info("🔍 Running final validation with ruff...")
-        subprocess.run(["ruff", "check", "."], capture_output=True, text=True)
+        logger.info("🔍 Running final validation...")
+        subprocess.run(["ruff", "check", "--fix", "."], capture_output=True, text=True)
+        subprocess.run(["flake8", "."], capture_output=True, text=True)
 
         logger.info("✅ DATABASE-FIRST CORRECTION ENGINE COMPLETED SUCCESSFULLY")
 

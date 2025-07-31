@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from typing import Dict, Any
 from typing import List
+
 #!/usr/bin/env python3
 """
 # # 🎯 PHASE 4 E303 FINAL CLEANUP PROCESSOR
@@ -20,6 +21,7 @@ import subprocess
 import logging
 from pathlib import Path
 from datetime import datetime
+
 # UNUSED: # UNUSED: from typing import List, Dict, Tuple, Optional, Any
 from tqdm import tqdm
 
@@ -45,11 +47,8 @@ class Phase4E303FinalCleanupProcessor:
         """# # 🚀 Setup comprehensive visual monitoring"""
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler('phase4_e303_final_cleanup.log'),
-                logging.StreamHandler()
-            ]
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[logging.FileHandler("phase4_e303_final_cleanup.log"), logging.StreamHandler()],
         )
         global logger
         logger = logging.getLogger(__name__)
@@ -67,22 +66,17 @@ class Phase4E303FinalCleanupProcessor:
         """# # 🔍 Setup enhanced patterns for complex violations"""
         self.enhanced_patterns = {
             # Multiple consecutive blank lines (3-5 lines)
-            'multiple_blanks': re.compile(r'\n\n\n+'),
-
+            "multiple_blanks": re.compile(r"\n\n\n+"),
             # Class definition with excessive spacing
-            'class_excessive': re.compile(r'\n\n\n+class\s+\w+'),
-
+            "class_excessive": re.compile(r"\n\n\n+class\s+\w+"),
             # Function definition with excessive spacing
-            'function_excessive': re.compile(r'\n\n\n+def\s+\w+'),
-
+            "function_excessive": re.compile(r"\n\n\n+def\s+\w+"),
             # Indented blocks with excessive spacing
-            'indented_excessive': re.compile(r'\n\n\n+\s+'),
-
+            "indented_excessive": re.compile(r"\n\n\n+\s+"),
             # Comment blocks with excessive spacing
-            'comment_excessive': re.compile(r'\n\n\n+#'),
-
+            "comment_excessive": re.compile(r"\n\n\n+#"),
             # Import statements with excessive spacing
-            'import_excessive': re.compile(r'\n\n\n+(import|from)\s+'),
+            "import_excessive": re.compile(r"\n\n\n+(import|from)\s+"),
         }
 
     def validate_environment_compliance(self):
@@ -90,7 +84,7 @@ class Phase4E303FinalCleanupProcessor:
         workspace_root = Path(os.getcwd())
 
         # Check for recursive violations
-        forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+        forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
         violations = []
 
         for pattern in forbidden_patterns:
@@ -111,26 +105,35 @@ class Phase4E303FinalCleanupProcessor:
 
         try:
             # Run focused E303 scan
-            result = subprocess.run([
-                'python', '-m', 'flake8',
-                '--extend-ignore=E999,W503, \
-                    W504,F401,E501,E402,F811,E722,E741,F841,E712,E713,E714,E701,E702,E703,E704,E711,E721,E731,E732,E742,E743,E901,E902,W601,W602,W603,W604,W605,F821,F822,F823,F831,F901',
-                '--select=E303',
-                '.'
-            ], capture_output=True, text=True, cwd=self.workspace_path)
+            result = subprocess.run(
+                [
+                    "python",
+                    "-m",
+                    "flake8",
+                    "--extend-ignore=E999,W503, \
+                    W504,F401,E501,E402,F811,E722,E741,F841,E712,E713,E714,E701,E702,E703,E704,E711,E721,E731,E732,E742,E743,E901,E902,W601,W602,W603,W604,W605,F821,F822,F823,F831,F901",
+                    "--select=E303",
+                    ".",
+                ],
+                capture_output=True,
+                text=True,
+                cwd=self.workspace_path,
+            )
 
             violations = []
             if result.stdout:
-                for line in result.stdout.strip().split('\n'):
-                    if ':' in line and 'E303' in line:
-                        parts = line.split(':')
+                for line in result.stdout.strip().split("\n"):
+                    if ":" in line and "E303" in line:
+                        parts = line.split(":")
                         if len(parts) >= 4:
-                            violations.append({
-                                'file': parts[0].replace('.\\', ''),
-                                'line': int(parts[1]),
-                                'column': int(parts[2]),
-                                'description': ':'.join(parts[3:]).strip()
-                            })
+                            violations.append(
+                                {
+                                    "file": parts[0].replace(".\\", ""),
+                                    "line": int(parts[1]),
+                                    "column": int(parts[2]),
+                                    "description": ":".join(parts[3:]).strip(),
+                                }
+                            )
 
             logger.info(f"# # 📊 Found {len(violations)} remaining E303 violations")
             return violations
@@ -142,81 +145,59 @@ class Phase4E303FinalCleanupProcessor:
     def analyze_violation_complexity(self, file_path: str, line_num: int) -> Dict[str, Any]:
         """# # 🔍 Analyze violation complexity for enhanced processing"""
         try:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 lines = f.readlines()
 
             if line_num > len(lines):
-                return {'complexity': 'unknown', 'pattern': None}
+                return {"complexity": "unknown", "pattern": None}
 
             # Analyze context around violation
             start_idx = max(0, line_num - 5)
             end_idx = min(len(lines), line_num + 3)
-            context = ''.join(lines[start_idx:end_idx])
+            context = "".join(lines[start_idx:end_idx])
 
             # Count consecutive blank lines
             blank_count = 0
             for i in range(line_num - 1, -1, -1):
-                if i < len(lines) and lines[i].strip() == '':
+                if i < len(lines) and lines[i].strip() == "":
                     blank_count += 1
                 else:
                     break
 
             # Determine complexity and pattern
             if blank_count >= 5:
-                return {
-        'complexity': 'extreme',
-        'pattern': 'multiple_blanks',
-        'blank_count': blank_count}
+                return {"complexity": "extreme", "pattern": "multiple_blanks", "blank_count": blank_count}
             elif blank_count >= 3:
-                return {
-        'complexity': 'high',
-        'pattern': 'multiple_blanks',
-        'blank_count': blank_count}
-            elif 'class ' in context:
-                return {
-        'complexity': 'medium',
-        'pattern': 'class_excessive',
-        'blank_count': blank_count}
-            elif 'def ' in context:
-                return {
-        'complexity': 'medium',
-        'pattern': 'function_excessive',
-        'blank_count': blank_count}
+                return {"complexity": "high", "pattern": "multiple_blanks", "blank_count": blank_count}
+            elif "class " in context:
+                return {"complexity": "medium", "pattern": "class_excessive", "blank_count": blank_count}
+            elif "def " in context:
+                return {"complexity": "medium", "pattern": "function_excessive", "blank_count": blank_count}
             else:
-                return {
-        'complexity': 'standard',
-        'pattern': 'indented_excessive',
-        'blank_count': blank_count}
+                return {"complexity": "standard", "pattern": "indented_excessive", "blank_count": blank_count}
 
         except Exception as e:
             logger.error(f"❌ Error analyzing violation in {file_path}:{line_num}: {e}")
-            return {'complexity': 'unknown', 'pattern': None}
+            return {"complexity": "unknown", "pattern": None}
 
-    def fix_enhanced_e303_violation(
-        self,
-        file_path: str,
-        line_num: int,
-        analysis: Dict[str,
-        Any]) -> bool:
+    def fix_enhanced_e303_violation(self, file_path: str, line_num: int, analysis: Dict[str, Any]) -> bool:
         """# # 🔧 Fix E303 violation with enhanced pattern recognition"""
         try:
             # Read file content
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 lines = f.readlines()
 
             if line_num > len(lines):
                 return False
 
             # Apply enhanced fix based on complexity analysis
-            if analysis['pattern'] == 'multiple_blanks':
+            if analysis["pattern"] == "multiple_blanks":
                 # Handle multiple consecutive blank lines
-                fixed_lines = self.fix_multiple_blank_lines(lines,
-        line_num,
-        analysis['blank_count'])
-            elif analysis['pattern'] == 'class_excessive':
+                fixed_lines = self.fix_multiple_blank_lines(lines, line_num, analysis["blank_count"])
+            elif analysis["pattern"] == "class_excessive":
                 # Handle class definition spacing
                 fixed_lines = self.fix_class_spacing(lines, line_num)
-            elif analysis['pattern'] == 'function_excessive':
+            elif analysis["pattern"] == "function_excessive":
                 # Handle function definition spacing
                 fixed_lines = self.fix_function_spacing(lines, line_num)
             else:
@@ -224,7 +205,7 @@ class Phase4E303FinalCleanupProcessor:
                 fixed_lines = self.fix_standard_spacing(lines, line_num)
 
             # Write fixed content back to file
-            with open(file_path, 'w', encoding='utf-8', newline='') as f:
+            with open(file_path, "w", encoding="utf-8", newline="") as f:
                 f.writelines(fixed_lines)
 
             return True
@@ -233,37 +214,34 @@ class Phase4E303FinalCleanupProcessor:
             logger.error(f"❌ Error fixing {file_path}:{line_num}: {e}")
             return False
 
-    def fix_multiple_blank_lines(self,
-    lines: List[str],
-    line_num: int,
-    blank_count: int) -> List[str]:
+    def fix_multiple_blank_lines(self, lines: List[str], line_num: int, blank_count: int) -> List[str]:
         """# # 🔧 Fix multiple consecutive blank lines"""
         # Find the start of the blank line sequence
         start_blank = line_num - 1
-        while start_blank > 0 and lines[start_blank - 1].strip() == '':
+        while start_blank > 0 and lines[start_blank - 1].strip() == "":
             start_blank -= 1
 
         # Find the end of the blank line sequence
         end_blank = line_num - 1
-        while end_blank < len(lines) - 1 and lines[end_blank + 1].strip() == '':
+        while end_blank < len(lines) - 1 and lines[end_blank + 1].strip() == "":
             end_blank += 1
 
         # Replace excessive blank lines with maximum 2 blank lines
         new_lines = lines[:start_blank]
 
         # Add appropriate number of blank lines based on context
-        if start_blank > 0 and lines[start_blank - 1].strip().startswith('class '):
+        if start_blank > 0 and lines[start_blank - 1].strip().startswith("class "):
             # After class definition, use 2 blank lines
-            new_lines.extend(['\n', '\n'])
-        elif start_blank > 0 and lines[start_blank - 1].strip().startswith('def '):
+            new_lines.extend(["\n", "\n"])
+        elif start_blank > 0 and lines[start_blank - 1].strip().startswith("def "):
             # After function definition, use 2 blank lines
-            new_lines.extend(['\n', '\n'])
+            new_lines.extend(["\n", "\n"])
         else:
             # Standard case, use 1 blank line
-            new_lines.append('\n')
+            new_lines.append("\n")
 
         # Add remaining lines
-        new_lines.extend(lines[end_blank + 1:])
+        new_lines.extend(lines[end_blank + 1 :])
 
         return new_lines
 
@@ -300,8 +278,8 @@ class Phase4E303FinalCleanupProcessor:
 
         with tqdm(total=len(violations), desc="# # 🔧 Final E303 Cleanup", unit="violation") as pbar:
             for violation in violations:
-                file_path = os.path.join(self.workspace_path, violation['file'])
-                line_num = int(violation['line'])
+                file_path = os.path.join(self.workspace_path, violation["file"])
+                line_num = int(violation["line"])
 
                 # Analyze violation complexity
                 analysis = self.analyze_violation_complexity(file_path, line_num)
@@ -309,7 +287,7 @@ class Phase4E303FinalCleanupProcessor:
                 # Apply enhanced fix
                 if self.fix_enhanced_e303_violation(file_path, line_num, analysis):
                     fixed_count += 1
-                    files_modified.add(violation['file'])
+                    files_modified.add(violation["file"])
                     pbar.set_description(f"# # 🔧 Fixed {violation['file']}:{line_num}")
                 else:
                     pbar.set_description(f"❌ Failed {violation['file']}:{line_num}")
@@ -321,51 +299,45 @@ class Phase4E303FinalCleanupProcessor:
         remaining_violations = self.get_remaining_e303_violations()
 
         return self.generate_completion_report(
-            len(violations),
-            fixed_count,
-            len(remaining_violations),
-            len(files_modified)
+            len(violations), fixed_count, len(remaining_violations), len(files_modified)
         )
 
-    def generate_completion_report(self,
-    total: int,
-    fixed: int,
-    remaining: int,
-    files_modified: int = 0) -> Dict[str,
-    Any]:
+    def generate_completion_report(
+        self, total: int, fixed: int, remaining: int, files_modified: int = 0
+    ) -> Dict[str, Any]:
         """# # 📊 Generate comprehensive completion report"""
         end_time = datetime.now()
         duration = (end_time - self.start_time).total_seconds()
 
         report = {
-            'timestamp': end_time.isoformat(),
-            'processor': 'Phase4E303FinalCleanupProcessor',
-            'metrics': {
-                'total_violations': total,
-                'violations_fixed': fixed,
-                'violations_remaining': remaining,
-                'files_modified': files_modified,
-                'success_rate_percent': (fixed / total * 100) if total > 0 else 100.0,
-                'elimination_rate_percent': ((total - \
-                    remaining) / total * 100) if total > 0 else 100.0
+            "timestamp": end_time.isoformat(),
+            "processor": "Phase4E303FinalCleanupProcessor",
+            "metrics": {
+                "total_violations": total,
+                "violations_fixed": fixed,
+                "violations_remaining": remaining,
+                "files_modified": files_modified,
+                "success_rate_percent": (fixed / total * 100) if total > 0 else 100.0,
+                "elimination_rate_percent": ((total - remaining) / total * 100) if total > 0 else 100.0,
             },
-            'performance': {
-                'duration_seconds': duration,
-                'violations_per_second': fixed / duration if duration > 0 else 0,
-                'start_time': self.start_time.isoformat(),
-                'end_time': end_time.isoformat()
+            "performance": {
+                "duration_seconds": duration,
+                "violations_per_second": fixed / duration if duration > 0 else 0,
+                "start_time": self.start_time.isoformat(),
+                "end_time": end_time.isoformat(),
             },
-            'quality': {
-                'target_met': remaining == 0,
-                'target_success_rate': 100.0,
-                'actual_success_rate': (fixed / total * 100) if total > 0 else 100.0
-            }
+            "quality": {
+                "target_met": remaining == 0,
+                "target_success_rate": 100.0,
+                "actual_success_rate": (fixed / total * 100) if total > 0 else 100.0,
+            },
         }
 
         # Save report
         report_file = f"phase4_e303_final_cleanup_report_{end_time.strftime('%Y%m%d_%H%M%S')}.json"
         import json
-        with open(report_file, 'w') as f:
+
+        with open(report_file, "w") as f:
             json.dump(report, f, indent=2)
 
         # Log completion summary
@@ -377,9 +349,9 @@ class Phase4E303FinalCleanupProcessor:
 
     def log_completion_summary(self, report: Dict[str, Any]):
         """📋 Log comprehensive completion summary"""
-        metrics = report['metrics']
-        performance = report['performance']
-        quality = report['quality']
+        metrics = report["metrics"]
+        performance = report["performance"]
+        quality = report["quality"]
 
         logger.info("=" * 80)
         logger.info("🏆 PHASE 4 E303 FINAL CLEANUP COMPLETE")
@@ -390,11 +362,10 @@ class Phase4E303FinalCleanupProcessor:
         logger.info(f"# # ⚠️ Violations Remaining: {metrics['violations_remaining']}")
         logger.info(f"# # 🎯 Success Rate: {metrics['success_rate_percent']:.1f}%")
         logger.info(f"⚡ Elimination Rate: {metrics['elimination_rate_percent']:.1f}%")
-        logger.info(
-    f"# # 🚀 Processing Rate: {performance['violations_per_second']:.1f} violations/sec")
+        logger.info(f"# # 🚀 Processing Rate: {performance['violations_per_second']:.1f} violations/sec")
         logger.info(f"📈 Target Achievement: {'# # ✅ YES' if quality['target_met'] else '❌ NO'}")
 
-        if quality['target_met']:
+        if quality["target_met"]:
             logger.info("🏆 COMPLETE E303 DOMINANCE ACHIEVED!")
         else:
             logger.info("# # ⚠️ Additional cleanup may be required")
@@ -413,7 +384,7 @@ def main():
         processor = Phase4E303FinalCleanupProcessor()
         results = processor.process_remaining_e303_violations()
 
-        if results['quality']['target_met']:
+        if results["quality"]["target_met"]:
             logger.info("🏆 SUCCESS: COMPLETE E303 DOMINANCE ACHIEVED!")
             return 0
         else:

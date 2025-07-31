@@ -20,6 +20,7 @@ from utils.log_utils import _log_event
 
 def _create_simple_pdf(path: Path, text: str) -> None:
     """Create a very basic PDF file with the given text."""
+
     def _escape(s: str) -> str:
         return s.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
 
@@ -45,9 +46,7 @@ def _create_simple_pdf(path: Path, text: str) -> None:
         "/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj"
     )
     _add("4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj")
-    _add(
-        f"5 0 obj\n<< /Length {len(content)} >>\nstream\n{content}\nendstream\nendobj"
-    )
+    _add(f"5 0 obj\n<< /Length {len(content)} >>\nstream\n{content}\nendstream\nendobj")
 
     xref_start = sum(len(obj) for obj in objects) + len("%PDF-1.4\n")
     xref_entries = ["0000000000 65535 f "] + [f"{off:010} 00000 n " for off in offsets]
@@ -61,6 +60,7 @@ def _create_simple_pdf(path: Path, text: str) -> None:
         + f"\nstartxref\n{xref_start}\n%%EOF".encode("utf-8")
     )
     path.write_bytes(pdf_bytes)
+
 
 TEXT_INDICATORS = {
     "start": "[START]",

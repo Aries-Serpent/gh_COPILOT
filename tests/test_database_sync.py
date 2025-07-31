@@ -11,9 +11,7 @@ from scripts.database.unified_database_initializer import initialize_database
 class DummyTqdm:
     """Minimal tqdm replacement for progress validation."""
 
-    def __init__(
-        self, *args: Any, total: int, desc: str, unit: str = "db", **kwargs: Any
-    ) -> None:
+    def __init__(self, *args: Any, total: int, desc: str, unit: str = "db", **kwargs: Any) -> None:
         self.total = total
         self.desc = desc
         self.unit = unit
@@ -43,6 +41,7 @@ def test_synchronize_databases(tmp_path):
     log_db = tmp_path / "log.db"
     initialize_database(log_db)
     from scripts.database.database_sync_scheduler import synchronize_databases
+
     with sqlite3.connect(master) as conn:
         conn.execute("CREATE TABLE t (id INTEGER)")
         conn.execute("INSERT INTO t (id) VALUES (1)")
@@ -51,9 +50,7 @@ def test_synchronize_databases(tmp_path):
         cur = conn.execute("SELECT COUNT(*) FROM t")
         assert cur.fetchone()[0] == 1
     with sqlite3.connect(log_db) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM cross_database_sync_operations"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM cross_database_sync_operations").fetchone()[0]
     assert count >= 2
 
 
@@ -121,7 +118,5 @@ def test_synchronize_logging_progress(tmp_path, monkeypatch):
 
     assert bars and bars[0].updates == 1
     with sqlite3.connect(log_db) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM cross_database_sync_operations"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM cross_database_sync_operations").fetchone()[0]
     assert count >= 2

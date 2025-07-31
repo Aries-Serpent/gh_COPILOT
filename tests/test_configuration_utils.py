@@ -64,4 +64,3 @@ def test_operations_init_sets_env(tmp_path, monkeypatch):
     cfg = operations___init__(workspace_path=str(ws), config_path=str(cfg_file))
     assert os.environ["GH_COPILOT_WORKSPACE"] == str(ws)
     assert cfg["workspace_root"] == str(ws)
-

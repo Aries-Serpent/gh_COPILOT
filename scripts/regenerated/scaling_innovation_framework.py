@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import sys
 
 import logging
@@ -17,12 +18,7 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -44,8 +40,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -60,9 +55,7 @@ class EnterpriseUtility:
         db_path = self.workspace_path / "databases" / "production.db"
         try:
             if not db_path.exists():
-                self.logger.error(
-                    f"{TEXT_INDICATORS['error']} Database not found: {db_path}"
-                )
+                self.logger.error(f"{TEXT_INDICATORS['error']} Database not found: {db_path}")
                 return False
 
             import sqlite3
@@ -70,23 +63,17 @@ class EnterpriseUtility:
 
             with sqlite3.connect(db_path) as conn:
                 cur = conn.cursor()
-                cur.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
-                )
+                cur.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
                 tables = [row[0] for row in cur.fetchall()]
 
                 for table in tqdm(tables, desc="Counting", unit="table"):
                     cur.execute(f"SELECT COUNT(*) FROM {table}")
                     count = cur.fetchone()[0]
-                    self.logger.info(
-                        f"{TEXT_INDICATORS['info']} {table}: {count} rows"
-                    )
+                    self.logger.info(f"{TEXT_INDICATORS['info']} {table}: {count} rows")
 
             return True
         except Exception as exc:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Processing failed: {exc}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Processing failed: {exc}")
             return False
 
 
@@ -104,6 +91,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

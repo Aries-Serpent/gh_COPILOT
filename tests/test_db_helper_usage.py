@@ -13,6 +13,8 @@ def _dummy_conn(tmp_path: Path) -> Iterator[sqlite3.Connection]:
     db = tmp_path / "production.db"
     with sqlite3.connect(db) as conn:
         yield conn
+
+
 def test_optimize_calls_db_helper(monkeypatch, tmp_path):
     called = {"flag": False}
 

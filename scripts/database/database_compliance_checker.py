@@ -27,7 +27,7 @@ def main():
     corrector = EnterpriseFlake8Corrector()
     success = corrector.execute_correction()
 
-    # Display statistics  
+    # Display statistics
     stats = corrector.get_correction_stats()
     print(f"\n{TEXT_INDICATORS['info']} Correction Statistics:")
     print(f"  Total attempts: {stats['total']}")

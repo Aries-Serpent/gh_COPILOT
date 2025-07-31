@@ -31,11 +31,9 @@ from tqdm import tqdm
 
 # MANDATORY: Visual processing indicators
 start_time = datetime.now()
-logger = logging.getLogger('DatabaseSchemaEnhancer')
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logger = logging.getLogger("DatabaseSchemaEnhancer")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
 
 class DatabaseSchemaEnhancer:
     """🗄️ Database Schema Enhancement Engine with Template Intelligence"""
@@ -65,7 +63,7 @@ class DatabaseSchemaEnhancer:
             "documentation": ["documentation", "doc", "readme", "guide", "manual"],
             "testing": ["test", "validation", "checker", "scanner", "verification"],
             "security": ["security", "auth", "compliance", "protection", "safety"],
-            "utility": ["utility", "helper", "tool", "common", "shared"]
+            "utility": ["utility", "helper", "tool", "common", "shared"],
         }
 
     def validate_workspace_integrity(self) -> bool:
@@ -73,7 +71,7 @@ class DatabaseSchemaEnhancer:
         workspace_root = Path(os.getcwd())
 
         # MANDATORY: Check for recursive folder violations
-        forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+        forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
         violations = []
 
         for pattern in forbidden_patterns:
@@ -98,11 +96,10 @@ class DatabaseSchemaEnhancer:
             "schema_enhanced": False,
             "records_categorized": 0,
             "new_columns_added": [],
-            "validation_passed": False
+            "validation_passed": False,
         }
 
         with tqdm(total=100, desc="🔧 Schema Enhancement", unit="%") as pbar:
-
             # Phase 1: Connect to database (20%)
             pbar.set_description("🔗 Connecting to database")
             with sqlite3.connect(self.database_path) as conn:
@@ -141,11 +138,7 @@ class DatabaseSchemaEnhancer:
     def _analyze_current_schema(self, cursor: sqlite3.Cursor) -> Dict[str, Any]:
         """🔍 Analyze current database schema"""
 
-        schema_info = {
-            "tables": [],
-            "columns": {},
-            "missing_columns": []
-        }
+        schema_info = {"tables": [], "columns": {}, "missing_columns": []}
 
         # Get all tables
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
@@ -163,7 +156,7 @@ class DatabaseSchemaEnhancer:
                 "functionality_category",
                 "template_version",
                 "synchronization_status",
-                "last_template_update"
+                "last_template_update",
             ]
 
             existing_columns = schema_info["columns"]["enhanced_script_tracking"]
@@ -176,8 +169,7 @@ class DatabaseSchemaEnhancer:
 
         return schema_info
 
-    def _add_missing_columns(
-    self, cursor: sqlite3.Cursor, schema_info: Dict[str, Any]) -> List[str]:
+    def _add_missing_columns(self, cursor: sqlite3.Cursor, schema_info: Dict[str, Any]) -> List[str]:
         """➕ Add missing columns to database schema"""
 
         columns_added = []
@@ -234,11 +226,14 @@ class DatabaseSchemaEnhancer:
                 category = self._determine_category(script_path)
 
                 # Update record with intelligent categorization
-                cursor.execute("""
+                cursor.execute(
+                    """
                     UPDATE enhanced_script_tracking
                     SET functionality_category = ?, synchronization_status = 'synchronized'
                     WHERE script_path = ?
-                """, (category, script_path))
+                """,
+                    (category, script_path),
+                )
 
                 records_categorized += 1
 
@@ -273,7 +268,7 @@ class DatabaseSchemaEnhancer:
                 "functionality_category",
                 "template_version",
                 "synchronization_status",
-                "last_template_update"
+                "last_template_update",
             ]
 
             missing_columns = [col for col in required_columns if col not in columns]
@@ -364,18 +359,18 @@ class DatabaseSchemaEnhancer:
 
         report = f"""
 === DATABASE SCHEMA ENHANCEMENT REPORT ===
-🚀 Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}
-✅ End Time: {end_time.strftime('%Y-%m-%d %H:%M:%S')}
+🚀 Start Time: {start_time.strftime("%Y-%m-%d %H:%M:%S")}
+✅ End Time: {end_time.strftime("%Y-%m-%d %H:%M:%S")}
 ⏱️ Duration: {duration:.2f} seconds
 
 📊 ENHANCEMENT RESULTS:
-✅ Schema Enhanced: {results['schema_enhanced']}
-✅ Records Categorized: {results['records_categorized']}
-✅ New Columns Added: {len(results['new_columns_added'])}
-✅ Validation Passed: {results['validation_passed']}
+✅ Schema Enhanced: {results["schema_enhanced"]}
+✅ Records Categorized: {results["records_categorized"]}
+✅ New Columns Added: {len(results["new_columns_added"])}
+✅ Validation Passed: {results["validation_passed"]}
 
 🗄️ NEW COLUMNS:
-{', '.join(results['new_columns_added'])}
+{", ".join(results["new_columns_added"])}
 
 🎯 TEMPLATE INTELLIGENCE PLATFORM STATUS:
 ✅ Database schema fully enhanced
