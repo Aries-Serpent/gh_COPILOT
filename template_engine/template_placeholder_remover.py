@@ -19,6 +19,7 @@ from typing import List
 
 from tqdm import tqdm
 from utils.log_utils import ensure_tables
+from utils.cross_platform_paths import CrossPlatformPathManager
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -36,7 +37,7 @@ _PLACEHOLDER_RE = re.compile(r"{{\s*([A-Z0-9_]+)\s*}}")
 
 
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
+    workspace_root = CrossPlatformPathManager.get_workspace_path()
     forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
