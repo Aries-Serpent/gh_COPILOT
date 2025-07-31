@@ -1,3 +1,4 @@
+import logging
 from utils.log_utils import (
     _clear_log,
     _list_events,
@@ -31,7 +32,7 @@ def test_sse_category(tmp_path):
     assert "data:" in first
 
 
-def test_websocket_broadcast_skips(monkeypatch):
+def test_websocket_broadcast_skips(monkeypatch, caplog):
     monkeypatch.setenv("LOG_WEBSOCKET_ENABLED", "1")
     import builtins as blt
 
@@ -43,5 +44,7 @@ def test_websocket_broadcast_skips(monkeypatch):
         return orig_import(name, *args, **kwargs)
 
     monkeypatch.setattr(blt, "__import__", fake_import)
-    start_websocket_broadcast(port=8766)
+    with caplog.at_level(logging.WARNING):
+        start_websocket_broadcast(port=8766)
+    assert any("websockets package not available" in rec.getMessage() for rec in caplog.records)
     monkeypatch.setattr(blt, "__import__", orig_import)

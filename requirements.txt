@@ -41,6 +41,7 @@ qiskit-aer==0.17.1  # Omit if not imported
 
 # --- Any other verified code dependencies can go here ---
 py7zr
+websockets>=10.4  # Optional real-time streaming
 
 # ===========================
 # End of requirements
