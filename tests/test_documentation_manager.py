@@ -74,6 +74,11 @@ def test_generate_files(tmp_path, monkeypatch):
     assert len(files) == 6
     for f in files:
         assert f.exists()
+    pdfs = [p for p in files if p.suffix == ".pdf"]
+    for pdf in pdfs:
+        data = pdf.read_bytes()
+        assert data.startswith(b"%PDF"), "PDF header missing"
+        assert len(data) > 0
 
 
 def test_generate_files_records_status(tmp_path, monkeypatch):
