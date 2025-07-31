@@ -6,6 +6,7 @@ This script consolidates the smaller analytics-related databases into
 exists in both source and target but has a different schema, the data is copied
 into a new table named ``<source>_<table>``.
 """
+
 from __future__ import annotations
 
 import logging
@@ -17,6 +18,7 @@ from typing import Iterable
 from monitoring.performance_tracker import benchmark_queries
 from db_tools.database_first_utils import ensure_db_reference
 from enterprise_modules.compliance import validate_enterprise_operation
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +33,7 @@ ANALYTICS_SOURCES = [
 
 
 def _table_sql(conn: sqlite3.Connection, table: str) -> str:
-    cur = conn.execute(
-        "SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (table,)
-    )
+    cur = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (table,))
     row = cur.fetchone()
     return row[0] if row else ""
 
@@ -42,8 +42,7 @@ def _schemas_match(src: sqlite3.Connection, dest: sqlite3.Connection, table: str
     return _table_sql(src, table) == _table_sql(dest, table)
 
 
-def _copy_table(src: sqlite3.Connection,
-                dest: sqlite3.Connection, table: str, dest_name: str) -> None:
+def _copy_table(src: sqlite3.Connection, dest: sqlite3.Connection, table: str, dest_name: str) -> None:
     create_sql = _table_sql(src, table)
     if dest_name != table:
         create_sql = create_sql.replace(f"CREATE TABLE {table}", f"CREATE TABLE {dest_name}")
@@ -68,8 +67,7 @@ def consolidate_databases(target: Path, sources: Iterable[Path]) -> None:
                 tables = [
                     row[0]
                     for row in src.execute(
-                        "SELECT name FROM sqlite_master "
-                        "WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
                     )
                 ]
                 for table in tables:
@@ -85,6 +83,7 @@ def run() -> None:
     workspace = Path("databases")
     target = workspace / "analytics.db"
     sources = [workspace / name for name in ANALYTICS_SOURCES]
+    logger.info("PRIMARY VALIDATION: analytics consolidation")
     if not ensure_db_reference(str(target)) or not validate_enterprise_operation(str(target)):
         logger.error("[ERROR] Database-first validation failed")
         return
@@ -93,7 +92,12 @@ def run() -> None:
     consolidate_databases(target, sources)
     duration = (perf_counter() - start) * 1000
     benchmark_queries(["SELECT count(*) FROM sqlite_master"], db_path=target)
-    logger.info("Consolidation completed in %.2f ms", duration)
+    validator = SecondaryCopilotValidator(logger)
+    logger.info("SECONDARY VALIDATION: analytics consolidation")
+    if validator.validate_corrections([str(target)]):
+        logger.info("Consolidation completed in %.2f ms", duration)
+    else:
+        logger.error("Consolidation failed secondary validation")
 
 
 if __name__ == "__main__":

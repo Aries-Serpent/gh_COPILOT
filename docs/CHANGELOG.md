@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.1.11] - 2025-08-02
+- Added dual-copilot validation to `database_consolidation_migration.py`.
+- Documented analytics consolidation milestone in README.
+
 ## [4.1.10] - 2025-08-01
 - Updated `STUB_MODULE_STATUS.md` to mark `DBFirstCodeGenerator`,
   `documentation_db_analyzer` and `workflow_enhancer` as incomplete.
