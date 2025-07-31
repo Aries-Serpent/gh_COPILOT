@@ -678,6 +678,7 @@ class SelfHealingSelfLearningSystem:
 - **`/api/scripts`** - Scripts API endpoint
 - **`/api/health`** - System health check
 - **`/dashboard/compliance`** - Compliance metrics and rollback history
+- **`/summary`** - JSON summary of metrics and alerts
 
 ### **Access Dashboard**
 ```bash
