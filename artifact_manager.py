@@ -1,120 +1,140 @@
-#!/usr/bin/env python3
-"""Session Artifact Management Module.
+"""Utility for packaging session artifacts.
 
-This utility detects new or modified files within ``tmp/`` since the last
-commit, compresses them into a timestamped archive and stores the result in
-``codex_sessions/``. Paths can be customized via ``.codex_lfs_policy.yaml`` with
-``tmp_dir`` and ``sessions_dir`` keys.
+Detects changed files in ``tmp/`` since the last commit and archives them into a
+timestamped zip file under ``codex_sessions/``. Git LFS tracking is applied if
+enabled via ``.codex_lfs_policy.yaml``.
 """
 
 from __future__ import annotations
 
 import logging
 import subprocess
-import zipfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import List
+from typing import Iterable, List, Optional
+from zipfile import ZipFile
 
 import yaml
 
-from utils.enterprise_logging import setup_logging
 
-__all__ = ["create_session_archive"]
-
-logger = setup_logging(module_name=__name__)
+logger = logging.getLogger(__name__)
 
 
-def _load_policy() -> dict:
-    """Load `.codex_lfs_policy.yaml` if present."""
-    policy_path = Path(".codex_lfs_policy.yaml")
-    if not policy_path.exists():
-        return {}
-    try:
-        with policy_path.open("r", encoding="utf-8") as f:
-            return yaml.safe_load(f) or {}
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Failed to load policy %s: %s", policy_path, exc)
-        return {}
+class LfsPolicy:
+    """Configuration for Git LFS compliance."""
+
+    def __init__(self, root: Path) -> None:
+        self.enabled = False
+        self.size_threshold_mb = 50
+        self.binary_extensions: List[str] = [
+            ".db",
+            ".7z",
+            ".zip",
+            ".bak",
+            ".dot",
+            ".sqlite",
+            ".exe",
+        ]
+        self.root = root
+
+        policy_file = root / ".codex_lfs_policy.yaml"
+        if policy_file.exists():
+            try:
+                data = yaml.safe_load(policy_file.read_text()) or {}
+            except Exception as exc:  # noqa: BLE001
+                logger.error("Failed to read %s: %s", policy_file, exc)
+            else:
+                self.enabled = bool(data.get("enable_autolfs", False))
+                self.size_threshold_mb = int(data.get("size_threshold_mb", 50))
+                self.binary_extensions = list(data.get("binary_extensions", self.binary_extensions))
+
+    def requires_lfs(self, path: Path) -> bool:
+        if not path.is_file():
+            return False
+        if path.suffix in self.binary_extensions:
+            return True
+        size_mb = path.stat().st_size / (1024 * 1024)
+        return size_mb > self.size_threshold_mb
+
+    def track(self, path: Path) -> None:
+        if not self.enabled:
+            logger.debug("LFS auto tracking disabled.")
+            return
+        try:
+            subprocess.run(["git", "lfs", "install"], cwd=self.root, check=True, capture_output=True)
+            subprocess.run(["git", "lfs", "track", path.name], cwd=self.root, check=True, capture_output=True)
+            git_attr = self.root / ".gitattributes"
+            if git_attr.exists():
+                subprocess.run(["git", "add", str(git_attr)], cwd=self.root, check=True, capture_output=True)
+        except subprocess.CalledProcessError as exc:  # noqa: BLE001
+            logger.error("Failed to set up Git LFS tracking: %s", exc)
 
 
-def _detect_modified(tmp_dir: Path) -> List[Path]:
-    """Return files created or modified under ``tmp_dir`` since last commit."""
-    files: set[Path] = set()
-    try:
-        result = subprocess.run(
-            ["git", "ls-files", "--others", "--exclude-standard", str(tmp_dir)],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        for line in result.stdout.splitlines():
-            if line:
-                files.add(Path(line))
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Failed to detect untracked files: %s", exc)
-
-    try:
-        result = subprocess.run(
-            ["git", "diff", "--name-only", "HEAD", "--", str(tmp_dir)],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        for line in result.stdout.splitlines():
-            if line:
-                files.add(Path(line))
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Failed to detect modified files: %s", exc)
-
-    existing_files = [f.resolve() for f in files if f.exists()]
-    logger.info("Detected %s modified/untracked files", len(existing_files))
-    return existing_files
+def _run_git(cmd: Iterable[str], cwd: Path) -> str:
+    return subprocess.check_output(["git", *cmd], cwd=cwd, text=True)
 
 
-def _add_to_zip(zipf: zipfile.ZipFile, base_dir: Path, file_path: Path) -> None:
-    if file_path.is_file():
-        arcname = file_path.relative_to(base_dir)
-        zipf.write(file_path, arcname=arcname)
-    elif file_path.is_dir():
-        for sub in file_path.rglob("*"):
-            if sub.is_file():
-                arcname = sub.relative_to(base_dir)
-                zipf.write(sub, arcname=arcname)
-
-
-def create_session_archive() -> Path | None:
-    """Create a zip archive of new/modified items in the temporary directory."""
-    policy = _load_policy()
-    tmp_dir = Path(policy.get("tmp_dir", "tmp"))
-    sessions_dir = Path(policy.get("sessions_dir", "codex_sessions"))
-
+def detect_tmp_changes(tmp_dir: Path, repo_root: Path) -> List[Path]:
     if not tmp_dir.exists():
-        logger.warning("Temporary directory %s does not exist", tmp_dir)
+        logger.info("Temporary directory %s does not exist.", tmp_dir)
+        return []
+
+    try:
+        output = _run_git(["status", "--porcelain", str(tmp_dir)], cwd=repo_root)
+    except subprocess.CalledProcessError as exc:  # noqa: BLE001
+        logger.error("git status failed: %s", exc)
+        return []
+
+    changed: List[Path] = []
+    for line in output.splitlines():
+        status, file_path = line[:2], line[3:]
+        if status.strip() in {"M", "A", "??"}:
+            changed.append(repo_root / file_path)
+    return changed
+
+
+def create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> None:
+    with ZipFile(archive_path, "w") as zf:
+        for file in files:
+            if file.exists():
+                zf.write(file, arcname=file.relative_to(base_dir))
+
+
+def package_session(tmp_dir: Path, repo_root: Path, lfs_policy: Optional[LfsPolicy] = None) -> Optional[Path]:
+    changed_files = detect_tmp_changes(tmp_dir, repo_root)
+    if not changed_files:
+        logger.info("No session artifacts detected in %s", tmp_dir)
         return None
 
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    archive_name = f"codex-session_{timestamp}.zip"
+
+    sessions_dir = repo_root / "codex_sessions"
     sessions_dir.mkdir(parents=True, exist_ok=True)
 
-    files = _detect_modified(tmp_dir)
-    if not files:
-        logger.info("No session artifacts detected")
-        return None
-
-    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    archive_name = f"codex-session_{timestamp}.zip"
     archive_path = sessions_dir / archive_name
 
     try:
-        with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-            for file_path in files:
-                _add_to_zip(zipf, tmp_dir, file_path)
+        create_zip(archive_path, changed_files, repo_root)
     except Exception as exc:  # noqa: BLE001
-        logger.error("Failed to create archive %s: %s", archive_path, exc)
+        logger.error("Failed to create archive: %s", exc)
         return None
 
     logger.info("Created session archive %s", archive_path)
+
+    if lfs_policy and lfs_policy.requires_lfs(archive_path):
+        lfs_policy.track(archive_path)
+
     return archive_path
 
 
+def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
+    repo_root = Path(__file__).resolve().parent
+    tmp_dir = repo_root / "tmp"
+    policy = LfsPolicy(repo_root)
+    package_session(tmp_dir, repo_root, policy)
+
+
 if __name__ == "__main__":
-    create_session_archive()
+    main()
