@@ -25,6 +25,7 @@ from typing import Dict, List
 from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
 
 from .template_synchronizer import _log_audit_real
 from utils.log_utils import _log_event
@@ -208,6 +209,10 @@ def mine_patterns(
         model = KMeans(n_clusters=min(len(patterns), 2), n_init="auto", random_state=0)
         labels = model.fit_predict(vec)
         cluster_count = len(set(labels))
+        inertia = float(model.inertia_)
+        silhouette = 0.0
+        if len(set(labels)) > 1 and vec.shape[0] > 1:
+            silhouette = float(silhouette_score(vec, labels))
         with sqlite3.connect(analytics_db) as conn:
             conn.execute(
                 """CREATE TABLE IF NOT EXISTS pattern_clusters (
@@ -216,13 +221,28 @@ def mine_patterns(
                     ts TEXT
                 )"""
             )
+            conn.execute(
+                """CREATE TABLE IF NOT EXISTS pattern_cluster_metrics (
+                    inertia REAL,
+                    silhouette REAL,
+                    n_clusters INTEGER,
+                    ts TEXT
+                )"""
+            )
             for pat, label in zip(patterns, labels):
                 conn.execute(
                     "INSERT INTO pattern_clusters (pattern, cluster, ts) VALUES (?,?,?)",
                     (pat, int(label), datetime.utcnow().isoformat()),
                 )
+            conn.execute(
+                "INSERT INTO pattern_cluster_metrics (inertia, silhouette, n_clusters, ts) VALUES (?,?,?,?)",
+                (inertia, silhouette, cluster_count, datetime.utcnow().isoformat()),
+            )
             conn.commit()
-    _log_audit_real(str(analytics_db), f"clusters={cluster_count}")
+    _log_audit_real(
+        str(analytics_db),
+        f"clusters={cluster_count},inertia={inertia:.2f},silhouette={silhouette:.4f}"
+    )
     logging.info(
         "Pattern mining completed in %.2fs | ETC: %s",
         time.time() - start_ts,

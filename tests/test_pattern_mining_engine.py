@@ -104,3 +104,28 @@ def test_get_clusters_and_audit_logging(tmp_path: Path, monkeypatch) -> None:
     with sqlite3.connect(analytics) as conn:
         count = conn.execute("SELECT COUNT(*) FROM audit_log").fetchone()[0]
     assert count > 0
+
+
+def test_mine_patterns_metrics(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    monkeypatch.setattr(pme, "_log_audit_real", lambda *a, **k: None)
+
+    prod = tmp_path / "production.db"
+    analytics = tmp_path / "analytics.db"
+    with sqlite3.connect(prod) as conn:
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("INSERT INTO code_templates (template_code) VALUES ('def x(): pass')")
+        conn.execute("INSERT INTO code_templates (template_code) VALUES ('def y(): pass')")
+
+    mine_patterns(prod, analytics)
+
+    with sqlite3.connect(analytics) as conn:
+        row = conn.execute(
+            "SELECT inertia, silhouette, n_clusters FROM pattern_cluster_metrics"
+        ).fetchone()
+
+    assert row is not None
+    inertia, silhouette, n_clusters = row
+    assert inertia >= 0
+    assert -1.0 <= silhouette <= 1.0
+    assert n_clusters > 0
