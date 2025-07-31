@@ -3,16 +3,17 @@ CHUNK 1: Discovery & Setup
 Semantic Search File Reference Validation Script
 Enterprise Compliance | DUAL COPILOT Pattern | Visual Processing Indicators
 """
+
 import os
-import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from tqdm import tqdm
 import logging
 
 # === ENTERPRISE LOGGING SETUP ===
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("SemanticSearchValidator")
+
 
 # === ANTI-RECURSION & COMPLIANCE VALIDATION ===
 def validate_no_recursive_folders():
@@ -21,7 +22,7 @@ def validate_no_recursive_folders():
     Returns True if no violations, False otherwise.
     """
     workspace_root = os.path.abspath(os.getcwd())
-    forbidden_patterns = ['backup', 'backups', '_backup_', 'temp']
+    forbidden_patterns = ["backup", "backups", "_backup_", "temp"]
     for root, dirs, files in os.walk(workspace_root):
         for d in dirs:
             d_lower = d.lower()
@@ -31,6 +32,7 @@ def validate_no_recursive_folders():
                     logger.error(f"🚨 RECURSIVE FOLDER DETECTED: {full_path}")
                     return False
     return True
+
 
 def detect_c_temp_violations():
     """
@@ -45,6 +47,7 @@ def detect_c_temp_violations():
                 return True
     return False
 
+
 def chunk_anti_recursion_validation():
     """
     CRITICAL: Validate workspace before chunk execution.
@@ -55,6 +58,7 @@ def chunk_anti_recursion_validation():
     if detect_c_temp_violations():
         raise RuntimeError("CRITICAL: E:/temp/ violations prevent chunk execution")
     return True
+
 
 # === VISUAL PROCESSING INDICATORS ===
 def main():
@@ -81,7 +85,7 @@ def main():
         ("📊 Loading file lists", "Preparing file inventories"),
         ("�️ Loading semantic search references", "Gathering referenced files"),
         ("🛡️ Compliance validation", "Comparing referenced files to databases files"),
-        ("✅ Results", "Logging compliance results")
+        ("✅ Results", "Logging compliance results"),
     ]
     total_phases = len(phases)
     import json
@@ -107,7 +111,9 @@ def main():
                     if isinstance(data, list):
                         referenced_files.update([os.path.normpath(f) for f in data if isinstance(f, str)])
                     elif isinstance(data, dict) and "referenced_files" in data:
-                        referenced_files.update([os.path.normpath(f) for f in data["referenced_files"] if isinstance(f, str)])
+                        referenced_files.update(
+                            [os.path.normpath(f) for f in data["referenced_files"] if isinstance(f, str)]
+                        )
             except Exception as e:
                 logger.warning(f"Could not parse semantic_search_output.json: {e}")
         return list(referenced_files)
@@ -169,19 +175,17 @@ def main():
                 for version in ("3.10", "3.11"):
                     try:
                         import subprocess
+
                         subprocess.check_output(
-                            [f"python{version}", "-m", "py_compile", py_file],
-                            stderr=subprocess.STDOUT
+                            [f"python{version}", "-m", "py_compile", py_file], stderr=subprocess.STDOUT
                         )
                     except Exception as e:
                         logger.error(f"❌ Syntax error ({version}) in {rel_path}: {e}")
                         syntax_ok = False
                 try:
                     import subprocess
-                    result = subprocess.run(
-                        ["flake8", py_file],
-                        capture_output=True, text=True
-                    )
+
+                    result = subprocess.run(["flake8", py_file], capture_output=True, text=True)
                     if result.returncode != 0:
                         logger.error(f"❌ Lint error in {rel_path}:\n{result.stdout}")
                         lint_results.append((rel_path, "lint error"))
@@ -198,16 +202,18 @@ def main():
         logger.info(f"📊 Lint summary: {passed}/{total} scripts passed, {failed} failed.")
         return lint_results
 
-    with tqdm(total=100, desc=process_name, unit="%", bar_format="{l_bar}{bar}| {n:.1f}/{total}{unit} [{elapsed}<{remaining}]") as pbar:
+    with tqdm(
+        total=100, desc=process_name, unit="%", bar_format="{l_bar}{bar}| {n:.1f}/{total}{unit} [{elapsed}<{remaining}]"
+    ) as pbar:
         # Phase 1: Initialization
         phase_name, phase_desc = phases[0]
         pbar.set_description(f"{phase_name}")
         logger.info(f"📊 {phase_name}: {phase_desc}")
         time.sleep(0.1)
-        pbar.update(100/total_phases)
+        pbar.update(100 / total_phases)
         elapsed = (datetime.now() - start_time).total_seconds()
-        progress = (1/total_phases)*100
-        total_estimated = elapsed / (progress/100) if progress > 0 else 0
+        progress = (1 / total_phases) * 100
+        total_estimated = elapsed / (progress / 100) if progress > 0 else 0
         etc = max(0, total_estimated - elapsed)
         logger.info(f"⏱️  Progress: {progress:.1f}% | Elapsed: {elapsed:.1f}s | ETC: {etc:.1f}s")
 
@@ -222,10 +228,10 @@ def main():
                 rel_path = os.path.relpath(os.path.join(root, f), os.getcwd())
                 databases_files.append(os.path.normpath(rel_path))
         time.sleep(0.1)
-        pbar.update(100/total_phases)
+        pbar.update(100 / total_phases)
         elapsed = (datetime.now() - start_time).total_seconds()
-        progress = (2/total_phases)*100
-        total_estimated = elapsed / (progress/100) if progress > 0 else 0
+        progress = (2 / total_phases) * 100
+        total_estimated = elapsed / (progress / 100) if progress > 0 else 0
         etc = max(0, total_estimated - elapsed)
         logger.info(f"⏱️  Progress: {progress:.1f}% | Elapsed: {elapsed:.1f}s | ETC: {etc:.1f}s")
 
@@ -237,10 +243,10 @@ def main():
         if not referenced_files:
             logger.warning("No referenced files found from semantic search or referenced_files.txt.")
         time.sleep(0.1)
-        pbar.update(100/total_phases)
+        pbar.update(100 / total_phases)
         elapsed = (datetime.now() - start_time).total_seconds()
-        progress = (3/total_phases)*100
-        total_estimated = elapsed / (progress/100) if progress > 0 else 0
+        progress = (3 / total_phases) * 100
+        total_estimated = elapsed / (progress / 100) if progress > 0 else 0
         etc = max(0, total_estimated - elapsed)
         logger.info(f"⏱️  Progress: {progress:.1f}% | Elapsed: {elapsed:.1f}s | ETC: {etc:.1f}s")
 
@@ -256,13 +262,13 @@ def main():
             "total_databases_files": len(databases_files),
             "outside_referenced": outside_referenced,
             "inside_referenced": inside_referenced,
-            "compliance_passed": len(outside_referenced) == 0
+            "compliance_passed": len(outside_referenced) == 0,
         }
         time.sleep(0.1)
-        pbar.update(100/total_phases)
+        pbar.update(100 / total_phases)
         elapsed = (datetime.now() - start_time).total_seconds()
-        progress = (4/total_phases)*100
-        total_estimated = elapsed / (progress/100) if progress > 0 else 0
+        progress = (4 / total_phases) * 100
+        total_estimated = elapsed / (progress / 100) if progress > 0 else 0
         etc = max(0, total_estimated - elapsed)
         logger.info(f"⏱️  Progress: {progress:.1f}% | Elapsed: {elapsed:.1f}s | ETC: {etc:.1f}s")
 
@@ -273,7 +279,9 @@ def main():
         logger.info(f"Total referenced files: {len(referenced_files)}")
         logger.info(f"Total databases files: {len(databases_files)}")
         if outside_referenced:
-            logger.error(f"❌ COMPLIANCE VIOLATION: {len(outside_referenced)} referenced files are outside 'databases' directory:")
+            logger.error(
+                f"❌ COMPLIANCE VIOLATION: {len(outside_referenced)} referenced files are outside 'databases' directory:"
+            )
             for f in outside_referenced:
                 logger.error(f"   - {f}")
         else:
@@ -297,7 +305,6 @@ def main():
             logger.info("✅ DUAL COPILOT VALIDATION PASSED: All referenced files are compliant.")
         else:
             logger.error("❌ DUAL COPILOT VALIDATION FAILED: Compliance violations detected.")
-
 
         # Lint all Python scripts in databases/ for 3.10/3.11 compliance
         logger.info("🔄 Linting all Python scripts in databases/ for Python 3.10/3.11 compliance...")
@@ -326,6 +333,7 @@ def main():
                 logger.info(f"  - {k}: {v}")
         except Exception as e:
             logger.error(f"[ERROR] Could not review compliance report: {e}")
+
 
 if __name__ == "__main__":
     main()

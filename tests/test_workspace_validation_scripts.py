@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import importlib
 import pytest
-import logging
 
 MODULES = [
     "critical_flake8_error_corrector",
