@@ -102,7 +102,10 @@ bash setup.sh
 # update the environment to permit outbound connections to PyPI.
 
 # 2b. Install the line-wrapping utility
-cp tools/clw.py /usr/local/bin/clw
+# The repository ships a `tools/clw` script. If `/usr/local/bin/clw` is not available,
+# copy this file and make it executable. This step must be completed **before** running
+# any commands that may emit long output.
+cp tools/clw /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
 # Verify clw exists
 ls -l /usr/local/bin/clw
@@ -193,9 +196,9 @@ are thin CLI wrappers. They delegate to the core implementations under
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
-Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw.py` to `/usr/local/bin/clw` and make it executable:
+Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw` to `/usr/local/bin/clw` and make it executable:
 ```bash
-cp tools/clw.py /usr/local/bin/clw
+cp tools/clw /usr/local/bin/clw
 chmod +x /usr/local/bin/clw
 ```
 
@@ -205,7 +208,7 @@ Once installed, wrap high-volume output like so:
 ls -R | /usr/local/bin/clw
 ```
 
-The script is bundled as `tools/clw.py` and can be copied to `/usr/local/bin/clw` if needed.
+The script is bundled as `tools/clw` and can be copied to `/usr/local/bin/clw` if needed.
 
 If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
 Set `CLW_MAX_LINE_LENGTH=1550` in your environment (e.g. in `.env`) before invoking the wrapper to keep output safe.
@@ -988,7 +991,7 @@ Set these variables in your `.env` file or shell before running scripts:
 ## 🛠️ Troubleshooting
 
 - **Setup script fails** – ensure network access and rerun `bash setup.sh`.
-- **`clw` not found** – copy `tools/clw.py` to `/usr/local/bin/clw` and make it executable.
+- **`clw` not found** – copy `tools/clw` to `/usr/local/bin/clw` and make it executable.
 - **Database errors** – verify `GH_COPILOT_WORKSPACE` is configured correctly.
 
 ## ❗ Known Issues
