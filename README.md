@@ -14,12 +14,12 @@
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit aims to be an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Quantum functionality continues to run in simulation mode, and `DBFirstCodeGenerator` is still being finalized.
+The gh_COPILOT toolkit aims to be an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. **Some modules remain incomplete and quantum functionality runs in simulation mode by default.**
 
 > **Note**
 > Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends.
 > **Experimental Phase 5 AI**
-> Advanced AI integration features labeled as **Phase&nbsp;5** remain experimental and are not yet fully implemented.
+> Advanced AI integration features labeled as **Phase&nbsp;5** remain under active development and run in simulation mode.
 
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** initial implementation in progress
@@ -37,11 +37,11 @@ The gh_COPILOT toolkit aims to be an enterprise-grade system for HTTP Archive (H
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
-  optimizer and search helpers. These modules are **experimental** and default to simulation mode unless `QISKIT_IBM_TOKEN` is configured.
+  optimizer and search helpers. These modules default to simulation mode unless `QISKIT_IBM_TOKEN` is configured.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1,679 scripts synchronized
- - **24 Synchronized Databases** (including experimental prototypes): Enterprise data management
+ - **30 Synchronized Databases**: Enterprise data management
 
 ---
 
@@ -54,7 +54,7 @@ The gh_COPILOT toolkit aims to be an enterprise-grade system for HTTP Archive (H
  - **Template Intelligence Platform:** tracks generated scripts
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
 - **Script Validation**: automated checks available
- - **Self-Healing Systems:** automated correction scripts
+- **Self-Healing Systems:** correction scripts
 - **Autonomous File Management:** see [Using AutonomousFileManager](docs/USING_AUTONOMOUS_FILE_MANAGER.md)
  - **Continuous Operation Mode:** optional monitoring utilities
  - **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
@@ -853,7 +853,7 @@ python scripts/validation/dual_copilot_pattern_tester.py
 - **Database Query Speed:** <10ms average
 - **Script Generation:** <30s for integration-ready output
 - **Template Matching:** >85% accuracy rate
-- **Autonomous Healing:** production-ready correction scripts
+- **Autonomous Healing:** scripts run in simulation; avoid using them in production
 - **Visual Processing:** progress indicators implemented
 
 ### **Enterprise KPIs**
@@ -1026,7 +1026,7 @@ The automated test suite reports failures for modules that are not yet fully imp
 - `DBFirstCodeGenerator` lacks complete template generation logic and causes several tests to fail.
 - `documentation_db_analyzer` and `workflow_enhancer` are now stable modules.
 - Quantum modules run in **simulation mode** by default. Features such as `quantum_database_search` and `quantum_neural_networks_predictive_maintenance` remain partially stubbed.
-- Quantum monitoring scripts are fully supported.
+ - Quantum monitoring scripts run in simulation mode.
 
 ## CI/CD Overview
 
