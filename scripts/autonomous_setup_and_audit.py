@@ -57,6 +57,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
 
     analytics_db = Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
     _log_event({"event": "ingestion_start"}, table="correction_logs", db_path=analytics_db)
+    # Resolve user once for audit trail entries
     user = os.getenv("USER", "system")
     conn = sqlite3.connect(db_path)
     audit_conn = sqlite3.connect(analytics_db)
