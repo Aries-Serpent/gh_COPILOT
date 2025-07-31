@@ -41,6 +41,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+from enterprise_modules.compliance import validate_enterprise_operation
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 
@@ -130,6 +132,9 @@ class EnterpriseDeploymentOrchestrator:
     """
 
     def __init__(self, workspace_path: Optional[str] = None):
+        # Validate enterprise operation before initializing
+        validate_enterprise_operation()
+
         # 🚀 MANDATORY: Start time logging with enterprise formatting
         self.start_time = datetime.now()
         self.session_id = f"DEPLOY_{self.start_time.strftime('%Y%m%d_%H%M%S')}"
@@ -190,6 +195,7 @@ class EnterpriseDeploymentOrchestrator:
     def execute_enterprise_deployment(self) -> Dict[str, Any]:
         """🚀 Execute comprehensive enterprise deployment"""
 
+        validate_enterprise_operation()
         primary_validate()
 
         # 🚀 MANDATORY: Visual processing indicators

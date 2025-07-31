@@ -29,6 +29,7 @@ from typing import Any, Dict, List, Optional
 from tqdm import tqdm
 
 from scripts.wlc_session_manager import run_session
+from enterprise_modules.compliance import validate_enterprise_operation
 
 # Configure enterprise logging
 logging.basicConfig(
@@ -78,6 +79,7 @@ class UnifiedWrapUpOrchestrator:
     """
 
     def __init__(self, workspace_path: Optional[str] = None):
+        validate_enterprise_operation()
         self.workspace_path = Path(workspace_path or os.getcwd())
         self.session_id = f"wrapup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.start_time = datetime.now()
@@ -114,6 +116,7 @@ class UnifiedWrapUpOrchestrator:
 
     def _load_organization_patterns(self) -> Dict[str, Any]:
         """📊 Load file organization patterns from production database"""
+        validate_enterprise_operation(str(self.production_db))
         patterns = {
             "logs": ["*.log", "*_log_*", "*log*"],
             "reports": ["*report*", "*_report_*", "*summary*", "*analysis*"],
@@ -147,9 +150,7 @@ class UnifiedWrapUpOrchestrator:
                     if "report" in file_name and "reports" in patterns:
                         patterns["reports"].append(f"*{file_name.split('_')[0]}*")
 
-                logger.info(
-                    f"📊 Loaded {len(db_patterns)} organization patterns from database"
-                )
+                logger.info(f"📊 Loaded {len(db_patterns)} organization patterns from database")
 
         except Exception as e:
             logger.warning(f"⚠️ Database pattern loading failed: {e}")
@@ -239,6 +240,7 @@ class UnifiedWrapUpOrchestrator:
         6. Final verification and reporting
         """
 
+        validate_enterprise_operation()
         result = WrapUpResult(session_id=self.session_id, start_time=self.start_time)
 
         try:
@@ -262,9 +264,7 @@ class UnifiedWrapUpOrchestrator:
                 pbar.update(100)
 
             # Phase 4: Script modularization analysis
-            with tqdm(
-                total=100, desc="🔧 Phase 4: Script Modularization", unit="%"
-            ) as pbar:
+            with tqdm(total=100, desc="🔧 Phase 4: Script Modularization", unit="%") as pbar:
                 self._execute_phase4_script_modularization(pbar, result)
                 pbar.update(100)
 
@@ -320,9 +320,7 @@ class UnifiedWrapUpOrchestrator:
                 root_maintainer["cleanup_candidates"].append(file_path)
 
         logger.info(f"📊 Discovered {len(root_files)} root files")
-        logger.info(
-            f"📊 {len(root_maintainer['cleanup_candidates'])} candidates for organization"
-        )
+        logger.info(f"📊 {len(root_maintainer['cleanup_candidates'])} candidates for organization")
 
     def _execute_phase2_file_organization(self, pbar: tqdm, result: WrapUpResult):
         """🗂️ Phase 2: Execute database-driven file organization"""
@@ -358,11 +356,7 @@ class UnifiedWrapUpOrchestrator:
                     ".cmd": "batch",
                 }.get(script_path.suffix.lower(), "unknown")
 
-                if (
-                    script_type != "unknown"
-                    and expected_type != "unknown"
-                    and script_type != expected_type
-                ):
+                if script_type != "unknown" and expected_type != "unknown" and script_type != expected_type:
                     file_organizer["misclassified"].append(
                         {
                             "file": str(script_path),
@@ -377,12 +371,8 @@ class UnifiedWrapUpOrchestrator:
                     shutil.move(file_path, target_path)
                     organized_count += 1
                     organized = True
-                    pbar.set_description(
-                        f"📦 Moved {Path(file_path).name} -> scripts/ ({script_type})"
-                    )
-                    logger.info(
-                        f"📦 Organized: {Path(file_path).name} -> scripts/ ({script_type})"
-                    )
+                    pbar.set_description(f"📦 Moved {Path(file_path).name} -> scripts/ ({script_type})")
+                    logger.info(f"📦 Organized: {Path(file_path).name} -> scripts/ ({script_type})")
                     continue
 
                 # Apply organization patterns
@@ -391,9 +381,7 @@ class UnifiedWrapUpOrchestrator:
                         for pattern in patterns:
                             pattern_clean = pattern.replace("*", "").replace(".", "")
                             if pattern_clean in file_name:
-                                target_folder = file_organizer["target_folders"][
-                                    folder_type
-                                ]
+                                target_folder = file_organizer["target_folders"][folder_type]
                                 target_path = target_folder / Path(file_path).name
 
                                 # Move file
@@ -401,12 +389,8 @@ class UnifiedWrapUpOrchestrator:
                                 organized_count += 1
                                 organized = True
 
-                                pbar.set_description(
-                                    f"📦 Moved {Path(file_path).name} -> {folder_type}/"
-                                )
-                                logger.info(
-                                    f"📦 Organized: {Path(file_path).name} -> {folder_type}/"
-                                )
+                                pbar.set_description(f"📦 Moved {Path(file_path).name} -> {folder_type}/")
+                                logger.info(f"📦 Organized: {Path(file_path).name} -> {folder_type}/")
                                 break
 
                     if organized:
@@ -446,9 +430,7 @@ class UnifiedWrapUpOrchestrator:
                 # Validate config file format
                 validation_result = self._validate_config_file(config_file)
 
-                config_validator["validation_results"][str(config_file)] = (
-                    validation_result
-                )
+                config_validator["validation_results"][str(config_file)] = validation_result
 
                 if validation_result["valid"]:
                     config_validator["validated_configs"].append(str(config_file))
@@ -523,14 +505,10 @@ class UnifiedWrapUpOrchestrator:
             except Exception as e:
                 logger.error(f"❌ Script analysis failed for {script_path}: {e}")
 
-        result.scripts_modularized = len(
-            script_modularizer["modularization_candidates"]
-        )
+        result.scripts_modularized = len(script_modularizer["modularization_candidates"])
         result.root_files_remaining = len(root_scripts)
 
-        logger.info(
-            f"📊 Found {len(script_modularizer['modularization_candidates'])} scripts for modularization"
-        )
+        logger.info(f"📊 Found {len(script_modularizer['modularization_candidates'])} scripts for modularization")
         logger.info(f"📊 {len(root_scripts)} scripts remaining in root")
 
     def _analyze_script_modularization(self, script_path: str) -> Dict[str, Any]:
@@ -552,9 +530,7 @@ class UnifiedWrapUpOrchestrator:
             should_modularize = (
                 size_kb > 5  # Large scripts
                 or len(lines) > 100  # Long scripts
-                or script_file.name.startswith(
-                    ("temp_", "test_", "debug_")
-                )  # Temporary scripts
+                or script_file.name.startswith(("temp_", "test_", "debug_"))  # Temporary scripts
                 or category
                 in [
                     "analysis",
@@ -564,9 +540,7 @@ class UnifiedWrapUpOrchestrator:
                 ]  # Specific categories
             )
 
-            recommended_folder = self._recommend_script_folder(
-                script_file.name, category
-            )
+            recommended_folder = self._recommend_script_folder(script_file.name, category)
 
             return {
                 "script_path": script_path,
@@ -577,18 +551,14 @@ class UnifiedWrapUpOrchestrator:
                 "category": category,
                 "should_modularize": should_modularize,
                 "recommended_folder": recommended_folder,
-                "reason": self._get_modularization_reason(
-                    should_modularize, size_kb, len(lines), category
-                ),
+                "reason": self._get_modularization_reason(should_modularize, size_kb, len(lines), category),
             }
 
         except Exception as e:
             return {
                 "script_path": script_path,
                 "script_name": Path(script_path).name,
-                "script_type": self.prevent_executable_misclassification(
-                    Path(script_path)
-                ),
+                "script_type": self.prevent_executable_misclassification(Path(script_path)),
                 "error": str(e),
                 "should_modularize": True,  # Default to modularize on error
                 "recommended_folder": "scripts/utilities",
@@ -741,13 +711,49 @@ class UnifiedWrapUpOrchestrator:
         # If a script type was detected from the header but extension does not
         # match, raise an error to flag potential misclassification.
         if detected != "unknown" and ext not in {
-            ".py", ".pyi", ".pyw", ".pyc", ".pyz", ".whl",
-            ".sh", ".bash", ".zsh", ".ksh", ".csh", ".tcsh", ".dash", ".ps1", ".psm1",
-            ".bat", ".cmd",
-            ".js", ".rb", ".pl", ".php", ".vbs", ".vbe",
-            ".exe", ".dll", ".so", ".dylib", ".msi", ".apk", ".com",
-            ".jar", ".war", ".class",
-            ".go", ".rs", ".c", ".cpp", ".cc", ".cxx", ".h", ".hpp", ".java", ".cs",
+            ".py",
+            ".pyi",
+            ".pyw",
+            ".pyc",
+            ".pyz",
+            ".whl",
+            ".sh",
+            ".bash",
+            ".zsh",
+            ".ksh",
+            ".csh",
+            ".tcsh",
+            ".dash",
+            ".ps1",
+            ".psm1",
+            ".bat",
+            ".cmd",
+            ".js",
+            ".rb",
+            ".pl",
+            ".php",
+            ".vbs",
+            ".vbe",
+            ".exe",
+            ".dll",
+            ".so",
+            ".dylib",
+            ".msi",
+            ".apk",
+            ".com",
+            ".jar",
+            ".war",
+            ".class",
+            ".go",
+            ".rs",
+            ".c",
+            ".cpp",
+            ".cc",
+            ".cxx",
+            ".h",
+            ".hpp",
+            ".java",
+            ".cs",
         }:
             raise ValueError(f"File extension {ext} does not match detected script type {detected}")
 
@@ -767,9 +773,7 @@ class UnifiedWrapUpOrchestrator:
 
         return folder_mapping.get(category, "scripts/utilities")
 
-    def _get_modularization_reason(
-        self, should_modularize: bool, size_kb: float, lines: int, category: str
-    ) -> str:
+    def _get_modularization_reason(self, should_modularize: bool, size_kb: float, lines: int, category: str) -> str:
         """📝 Get reason for modularization recommendation"""
         if not should_modularize:
             return "Keep in root - essential system file"
@@ -829,21 +833,13 @@ class UnifiedWrapUpOrchestrator:
             if "logs in logs/" in rule:
                 return self._check_folder_compliance("logs", [".log"])
             elif "reports in reports/" in rule:
-                return self._check_folder_compliance(
-                    "reports", ["report", "summary", "analysis"]
-                )
+                return self._check_folder_compliance("reports", ["report", "summary", "analysis"])
             elif "results in results/" in rule:
-                return self._check_folder_compliance(
-                    "results", ["result", "output", "data"]
-                )
+                return self._check_folder_compliance("results", ["result", "output", "data"])
             elif "docs in documentation/" in rule:
-                return self._check_folder_compliance(
-                    "documentation", [".md", ".txt", ".rst"]
-                )
+                return self._check_folder_compliance("documentation", [".md", ".txt", ".rst"])
             elif "configs in config/" in rule:
-                return self._check_folder_compliance(
-                    "config", [".json", ".yaml", ".yml", ".ini", ".cfg"]
-                )
+                return self._check_folder_compliance("config", [".json", ".yaml", ".yml", ".ini", ".cfg"])
             elif "Root contains only essential" in rule:
                 return self._check_root_cleanliness()
             else:
@@ -919,70 +915,42 @@ class UnifiedWrapUpOrchestrator:
                 "session_id": result.session_id,
                 "start_time": result.start_time.isoformat(),
                 "end_time": result.end_time.isoformat() if result.end_time else None,
-                "duration_seconds": (
-                    result.end_time - result.start_time
-                ).total_seconds()
-                if result.end_time
-                else None,
+                "duration_seconds": (result.end_time - result.start_time).total_seconds() if result.end_time else None,
                 "status": result.status,
             },
             "file_organization": {
                 "files_organized": result.files_organized,
-                "target_folders": list(
-                    self.components["file_organizer"]["target_folders"].keys()
-                ),
+                "target_folders": list(self.components["file_organizer"]["target_folders"].keys()),
                 "skipped_files": self.components["file_organizer"]["skipped_files"],
                 "error_files": self.components["file_organizer"]["error_files"],
-                "misclassified_scripts": self.components["file_organizer"][
-                    "misclassified"
-                ],
+                "misclassified_scripts": self.components["file_organizer"]["misclassified"],
             },
             "config_validation": {
                 "configs_validated": result.configs_validated,
-                "validated_configs": self.components["config_validator"][
-                    "validated_configs"
-                ],
+                "validated_configs": self.components["config_validator"]["validated_configs"],
                 "broken_configs": self.components["config_validator"]["broken_configs"],
-                "functionality_preserved": self.components["config_validator"][
-                    "functionality_preserved"
-                ],
+                "functionality_preserved": self.components["config_validator"]["functionality_preserved"],
             },
             "script_modularization": {
                 "scripts_modularized": result.scripts_modularized,
                 "root_files_remaining": result.root_files_remaining,
-                "modularization_recommendations": self.components["script_modularizer"][
-                    "recommendations"
-                ],
+                "modularization_recommendations": self.components["script_modularizer"]["recommendations"],
             },
             "compliance_validation": {
                 "compliance_score": result.compliance_score,
                 "violations": self.components["compliance_checker"]["violations"],
-                "rules_checked": self.components["compliance_checker"][
-                    "compliance_rules"
-                ],
+                "rules_checked": self.components["compliance_checker"]["compliance_rules"],
             },
             "root_maintenance": {
-                "root_files_total": len(
-                    self.components["root_maintainer"]["root_files"]
-                ),
-                "essential_files": self.components["root_maintainer"][
-                    "essential_files"
-                ],
-                "cleanup_candidates": len(
-                    self.components["root_maintainer"]["cleanup_candidates"]
-                ),
+                "root_files_total": len(self.components["root_maintainer"]["root_files"]),
+                "essential_files": self.components["root_maintainer"]["essential_files"],
+                "cleanup_candidates": len(self.components["root_maintainer"]["cleanup_candidates"]),
             },
         }
 
-    def _generate_markdown_summary(
-        self, result: WrapUpResult, report: Dict[str, Any]
-    ) -> str:
+    def _generate_markdown_summary(self, result: WrapUpResult, report: Dict[str, Any]) -> str:
         """📝 Generate markdown summary report"""
-        duration = (
-            (result.end_time - result.start_time).total_seconds()
-            if result.end_time
-            else 0
-        )
+        duration = (result.end_time - result.start_time).total_seconds() if result.end_time else 0
 
         return f"""# 🚀 UNIFIED WRAP-UP ORCHESTRATOR - EXECUTION SUMMARY
 
@@ -1027,9 +995,7 @@ class UnifiedWrapUpOrchestrator:
         """📊 Format file organization results for markdown"""
         results = []
         results.append(f"- **Total Files Organized**: {org_results['files_organized']}")
-        results.append(
-            f"- **Target Folders**: {', '.join(org_results['target_folders'])}"
-        )
+        results.append(f"- **Target Folders**: {', '.join(org_results['target_folders'])}")
 
         if org_results["skipped_files"]:
             results.append(f"- **Skipped Files**: {len(org_results['skipped_files'])}")
@@ -1038,57 +1004,41 @@ class UnifiedWrapUpOrchestrator:
             results.append(f"- **Error Files**: {len(org_results['error_files'])}")
 
         if org_results.get("misclassified_scripts"):
-            results.append(
-                f"- **Misclassified Scripts**: {len(org_results['misclassified_scripts'])}"
-            )
+            results.append(f"- **Misclassified Scripts**: {len(org_results['misclassified_scripts'])}")
 
         return "\n".join(results)
 
     def _format_config_validation_results(self, config_results: Dict[str, Any]) -> str:
         """⚙️ Format config validation results for markdown"""
         results = []
-        results.append(
-            f"- **Configs Validated**: {config_results['configs_validated']}"
-        )
+        results.append(f"- **Configs Validated**: {config_results['configs_validated']}")
         results.append(
             f"- **Functionality Preserved**: {'✅ Yes' if config_results['functionality_preserved'] else '❌ No'}"
         )
 
         if config_results["broken_configs"]:
-            results.append(
-                f"- **Broken Configs**: {len(config_results['broken_configs'])}"
-            )
+            results.append(f"- **Broken Configs**: {len(config_results['broken_configs'])}")
 
         return "\n".join(results)
 
-    def _format_script_modularization_results(
-        self, script_results: Dict[str, Any]
-    ) -> str:
+    def _format_script_modularization_results(self, script_results: Dict[str, Any]) -> str:
         """🔧 Format script modularization results for markdown"""
         results = []
-        results.append(
-            f"- **Scripts Requiring Modularization**: {script_results['scripts_modularized']}"
-        )
-        results.append(
-            f"- **Scripts Remaining in Root**: {script_results['root_files_remaining']}"
-        )
+        results.append(f"- **Scripts Requiring Modularization**: {script_results['scripts_modularized']}")
+        results.append(f"- **Scripts Remaining in Root**: {script_results['root_files_remaining']}")
 
         if script_results["modularization_recommendations"]:
             results.append("- **Modularization Recommendations**:")
             for rec in script_results["modularization_recommendations"][:5]:  # Top 5
                 if rec.get("should_modularize"):
-                    results.append(
-                        f"  - `{rec['script_name']}` → `{rec['recommended_folder']}`"
-                    )
+                    results.append(f"  - `{rec['script_name']}` → `{rec['recommended_folder']}`")
 
         return "\n".join(results)
 
     def _format_compliance_results(self, compliance_results: Dict[str, Any]) -> str:
         """✅ Format compliance results for markdown"""
         results = []
-        results.append(
-            f"- **Compliance Score**: {compliance_results['compliance_score']:.1f}%"
-        )
+        results.append(f"- **Compliance Score**: {compliance_results['compliance_score']:.1f}%")
 
         if compliance_results["violations"]:
             results.append("- **Violations Found**:")
@@ -1108,17 +1058,13 @@ class UnifiedWrapUpOrchestrator:
 
         return "\n".join(results)
 
-    def _generate_recommendations(
-        self, result: WrapUpResult, report: Dict[str, Any]
-    ) -> str:
+    def _generate_recommendations(self, result: WrapUpResult, report: Dict[str, Any]) -> str:
         """🎯 Generate actionable recommendations"""
         recommendations = []
 
         # Compliance recommendations
         if result.compliance_score < 100:
-            recommendations.append(
-                "- 📋 Address compliance violations to achieve 100% compliance"
-            )
+            recommendations.append("- 📋 Address compliance violations to achieve 100% compliance")
 
         # Config recommendations
         if not report["config_validation"]["functionality_preserved"]:
@@ -1126,17 +1072,11 @@ class UnifiedWrapUpOrchestrator:
 
         # Script modularization recommendations
         if result.scripts_modularized > 0:
-            recommendations.append(
-                f"- 🔧 Modularize {result.scripts_modularized} scripts for better organization"
-            )
+            recommendations.append(f"- 🔧 Modularize {result.scripts_modularized} scripts for better organization")
 
         # Root maintenance recommendations
-        if result.root_files_remaining > len(
-            report["root_maintenance"]["essential_files"]
-        ):
-            recommendations.append(
-                "- 🏠 Continue root cleanup to maintain minimal root directory"
-            )
+        if result.root_files_remaining > len(report["root_maintenance"]["essential_files"]):
+            recommendations.append("- 🏠 Continue root cleanup to maintain minimal root directory")
 
         if not recommendations:
             recommendations.append("- 🎉 Excellent! All organization goals achieved!")
