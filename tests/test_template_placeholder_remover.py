@@ -21,18 +21,10 @@ def test_remove_unused_placeholders(tmp_path: Path) -> None:
     prod = tmp_path / "production.db"
     analytics = tmp_path / "analytics.db"
     with sqlite3.connect(prod) as conn:
-        conn.execute(
-            "CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)"
-        )
-        conn.execute(
-            "CREATE TABLE template_placeholders (placeholder_name TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO code_templates (id, template_code) VALUES (1, 'def foo(): {{PLACE}}')"
-        )
-        conn.execute(
-            "INSERT INTO template_placeholders (placeholder_name) VALUES ('VALID_PLACEHOLDER')"
-        )
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT)")
+        conn.execute("INSERT INTO code_templates (id, template_code) VALUES (1, 'def foo(): {{PLACE}}')")
+        conn.execute("INSERT INTO template_placeholders (placeholder_name) VALUES ('VALID_PLACEHOLDER')")
     with sqlite3.connect(analytics) as conn:
         conn.execute(
             "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT, resolved INTEGER, resolved_timestamp TEXT, status TEXT, removal_id INTEGER)"
@@ -40,18 +32,14 @@ def test_remove_unused_placeholders(tmp_path: Path) -> None:
 
     # Remove unused placeholders from template string
     with sqlite3.connect(prod) as conn:
-        code = conn.execute(
-            "SELECT template_code FROM code_templates WHERE id=1"
-        ).fetchone()[0]
+        code = conn.execute("SELECT template_code FROM code_templates WHERE id=1").fetchone()[0]
     result = remove_unused_placeholders(code, prod, analytics, timeout_minutes=1)
     assert "{{" not in result, "Placeholder not removed from template"
 
     # Validate DUAL COPILOT pattern: check analytics for removal records
     assert validate_removals(1, analytics), "DUAL COPILOT validation failed"
     with sqlite3.connect(analytics) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM placeholder_removals"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM placeholder_removals").fetchone()[0]
     assert count == 1
 
     # Completion summary
@@ -75,4 +63,3 @@ def test_no_placeholders_returns_same(tmp_path: Path) -> None:
     result = remove_unused_placeholders(code, prod, analytics, timeout_minutes=1)
     assert result == code
     assert validate_removals(0, analytics)
-    

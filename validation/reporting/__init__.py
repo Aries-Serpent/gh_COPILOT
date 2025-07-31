@@ -2,4 +2,4 @@
 
 from .formatters import ValidationReportFormatter
 
-__all__ = ['ValidationReportFormatter']
+__all__ = ["ValidationReportFormatter"]

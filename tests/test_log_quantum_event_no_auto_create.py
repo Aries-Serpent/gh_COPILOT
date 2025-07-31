@@ -10,4 +10,3 @@ def test_log_quantum_event_does_not_create_db(tmp_path, monkeypatch):
 
     qale.log_quantum_event("test", "desc")
     assert not db.exists(), "analytics.db should not be created automatically"
-

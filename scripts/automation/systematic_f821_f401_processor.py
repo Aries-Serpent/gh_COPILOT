@@ -30,11 +30,8 @@ from tqdm import tqdm
 # Configure enterprise logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('systematic_f821_f401_processor.log'),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("systematic_f821_f401_processor.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
@@ -42,6 +39,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ViolationPattern:
     """F821/F401 violation pattern"""
+
     error_code: str
     line_number: int
     column: int
@@ -54,6 +52,7 @@ class ViolationPattern:
 @dataclass
 class ProcessingResults:
     """Processing results summary"""
+
     total_files_processed: int
     f821_violations_found: int
     f401_violations_found: int
@@ -74,35 +73,52 @@ class SystematicF821F401Processor:
 
         # Common import patterns for F821 fixes
         self.common_imports = {
-            'sys': 'import sys',
-            'Path': 'from pathlib import Path',
-            'datetime': 'from datetime import datetime',
-            'tqdm': 'from tqdm import tqdm',
-            'Dict': 'from typing import Dict',
-            'List': 'from typing import List',
-            'Any': 'from typing import Any',
-            'Optional': 'from typing import Optional',
-            'json': 'import json',
-            'os': 'import os',
-            'logging': 'import logging',
-            'shutil': 'import shutil',
-            'zipfile': 'import zipfile',
-            'subprocess': 'import subprocess',
-            'sqlite3': 'import sqlite3',
-            'concurrent': 'import concurrent.futures',
-            'main': '# main function should be defined',
-            'benchmark_queries': '# benchmark_queries should be defined',
-            'flask': 'import flask'
+            "sys": "import sys",
+            "Path": "from pathlib import Path",
+            "datetime": "from datetime import datetime",
+            "tqdm": "from tqdm import tqdm",
+            "Dict": "from typing import Dict",
+            "List": "from typing import List",
+            "Any": "from typing import Any",
+            "Optional": "from typing import Optional",
+            "json": "import json",
+            "os": "import os",
+            "logging": "import logging",
+            "shutil": "import shutil",
+            "zipfile": "import zipfile",
+            "subprocess": "import subprocess",
+            "sqlite3": "import sqlite3",
+            "concurrent": "import concurrent.futures",
+            "main": "# main function should be defined",
+            "benchmark_queries": "# benchmark_queries should be defined",
+            "flask": "import flask",
         }
 
         # Common unused imports that can be safely removed
         self.safe_to_remove = {
-            'typing.Optional', 'typing.Tuple', 'typing.List', 'typing.Dict',
-            'typing.Any', 'typing.Iterator', 're', 'ast', 'time', 'subprocess',
-            'os', 'json', 'datetime.timedelta', 'datetime.datetime',
-            'dataclasses.dataclass', 'collections.defaultdict', 'collections.Counter',
-            'pandas as pd', 'logging', 'pathlib.Path', 'sys', 'threading',
-            'tqdm.tqdm'
+            "typing.Optional",
+            "typing.Tuple",
+            "typing.List",
+            "typing.Dict",
+            "typing.Any",
+            "typing.Iterator",
+            "re",
+            "ast",
+            "time",
+            "subprocess",
+            "os",
+            "json",
+            "datetime.timedelta",
+            "datetime.datetime",
+            "dataclasses.dataclass",
+            "collections.defaultdict",
+            "collections.Counter",
+            "pandas as pd",
+            "logging",
+            "pathlib.Path",
+            "sys",
+            "threading",
+            "tqdm.tqdm",
         }
 
         logger.info("# # # 🚀 SYSTEMATIC F821/F401 PROCESSOR INITIALIZED")
@@ -121,24 +137,31 @@ class SystematicF821F401Processor:
             # Run flake8 scan
             pbar.set_description("# # # 🔍 Running flake8 scan")
             try:
-                result = subprocess.run([
-                    'python', '-m', 'flake8',
-                    '--select=F821,F401',
-                    '--format=%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
-                    str(self.workspace_root)
-                ], capture_output=True, text=True, cwd=self.workspace_root)
+                result = subprocess.run(
+                    [
+                        "python",
+                        "-m",
+                        "flake8",
+                        "--select=F821,F401",
+                        "--format=%(path)s:%(row)d:%(col)d: %(code)s %(text)s",
+                        str(self.workspace_root),
+                    ],
+                    capture_output=True,
+                    text=True,
+                    cwd=self.workspace_root,
+                )
 
                 pbar.update(50)
 
                 # Parse violations
                 pbar.set_description("# # # 📊 Parsing violations")
-                for line in result.stdout.strip().split('\n'):
+                for line in result.stdout.strip().split("\n"):
                     if line.strip():
                         violation = self._parse_violation_line(line)
                         if violation:
-                            if violation.error_code == 'F821':
+                            if violation.error_code == "F821":
                                 f821_violations.append(violation)
-                            elif violation.error_code == 'F401':
+                            elif violation.error_code == "F401":
                                 f401_violations.append(violation)
 
                 pbar.update(50)
@@ -147,15 +170,13 @@ class SystematicF821F401Processor:
                 logger.error(f"Error scanning violations: {e}")
                 pbar.update(100)
 
-        logger.info(
-    f"✅ SCAN COMPLETE: {len(f821_violations)} F821, "
-    f"{len(f401_violations)} F401 violations")
+        logger.info(f"✅ SCAN COMPLETE: {len(f821_violations)} F821, {len(f401_violations)} F401 violations")
         return f821_violations, f401_violations
 
     def _parse_violation_line(self, line: str) -> Optional[ViolationPattern]:
         """Parse a single violation line"""
         # Format: ./file.py:line:col: CODE message
-        pattern = r'^(.+):(\d+):(\d+): (F\d+) (.+)$'
+        pattern = r"^(.+):(\d+):(\d+): (F\d+) (.+)$"
         match = re.match(pattern, line)
 
         if match:
@@ -169,10 +190,10 @@ class SystematicF821F401Processor:
                 error_code=code,
                 line_number=int(line_num),
                 column=int(col),
-                file_path=file_path.lstrip('./'),
+                file_path=file_path.lstrip("./"),
                 message=message,
                 violation_type=violation_type,
-                suggested_fix=suggested_fix
+                suggested_fix=suggested_fix,
             )
         return None
 
@@ -231,7 +252,7 @@ class SystematicF821F401Processor:
         """Fix F821 violations in a single file"""
         try:
             # Read file content
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
 
             # Collect needed imports
@@ -240,8 +261,7 @@ class SystematicF821F401Processor:
                 undefined_name = re.search(r"undefined name '(.+)'", violation.message)
                 if undefined_name:
                     name = undefined_name.group(1)
-                    if name in self.common_imports and not self.common_imports[name].startswith(
-                        '#'):
+                    if name in self.common_imports and not self.common_imports[name].startswith("#"):
                         needed_imports.add(self.common_imports[name])
 
             # Add imports after shebang/docstring
@@ -250,13 +270,13 @@ class SystematicF821F401Processor:
 
                 # Add imports
                 for import_stmt in sorted(needed_imports):
-                    import_line = import_stmt + '\n'
+                    import_line = import_stmt + "\n"
                     if import_line not in lines:
                         lines.insert(import_insert_line, import_line)
                         import_insert_line += 1
 
                 # Write back
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.writelines(lines)
 
                 return True
@@ -270,7 +290,7 @@ class SystematicF821F401Processor:
         """Find the best line to insert imports"""
         # Skip shebang
         start_line = 0
-        if lines and lines[0].startswith('#!'):
+        if lines and lines[0].startswith("#!"):
             start_line = 1
 
         # Skip docstring
@@ -282,7 +302,7 @@ class SystematicF821F401Processor:
                     in_docstring = True
                 elif stripped.endswith('"""') or stripped.endswith("'''"):
                     return i + 1
-            elif not in_docstring and stripped and not stripped.startswith('#'):
+            elif not in_docstring and stripped and not stripped.startswith("#"):
                 return i
 
         return start_line
@@ -318,7 +338,7 @@ class SystematicF821F401Processor:
         """Fix F401 violations in a single file"""
         try:
             # Read file content
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
 
             # Sort violations by line number (descending to avoid line number shifts)
@@ -343,7 +363,7 @@ class SystematicF821F401Processor:
 
             # Write back if changes were made
             if removed_count > 0:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.writelines(lines)
 
             return removed_count
@@ -355,7 +375,7 @@ class SystematicF821F401Processor:
     def _is_safe_to_remove_line(self, line: str, unused_import: str) -> bool:
         """Check if it's safe to remove the entire import line"""
         # Simple heuristic: if the line contains only the unused import
-        return (line.startswith('import ') or line.startswith('from ')) and unused_import in line
+        return (line.startswith("import ") or line.startswith("from ")) and unused_import in line
 
     def execute_systematic_processing(self) -> ProcessingResults:
         """# # 🎯 Execute systematic F821/F401 processing"""
@@ -384,7 +404,7 @@ class SystematicF821F401Processor:
             f401_violations_fixed=f401_fixed,
             success_rate=success_rate,
             processing_time=processing_time,
-            failed_files=[]
+            failed_files=[],
         )
 
         # Log completion summary

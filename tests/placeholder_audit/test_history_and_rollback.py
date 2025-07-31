@@ -1,11 +1,11 @@
 import sqlite3
 
 
-
 def test_history_and_rollback(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     from scripts import code_placeholder_audit as audit
+
     monkeypatch.setattr(
         "scripts.code_placeholder_audit.SecondaryCopilotValidator.validate_corrections",
         lambda self, files: True,
@@ -59,6 +59,7 @@ def test_export_option(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     from scripts import code_placeholder_audit as audit
+
     monkeypatch.setattr(
         "scripts.code_placeholder_audit.SecondaryCopilotValidator.validate_corrections",
         lambda self, files: True,

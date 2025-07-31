@@ -39,9 +39,7 @@ class DocumentationManager:
     def _select_template_from_documentation_db(self, title: str) -> str:
         """Return template from documentation.db matching ``title``."""
         query = (
-            "SELECT template_content FROM documentation_templates "
-            "WHERE template_name = ? OR template_type = ? "
-            "LIMIT 1"
+            "SELECT template_content FROM documentation_templates WHERE template_name = ? OR template_type = ? LIMIT 1"
         )
         try:
             with sqlite3.connect(self.documentation_db) as conn:
@@ -96,9 +94,7 @@ class DocumentationManager:
                     metrics.update(data["metrics"])
             except json.JSONDecodeError:
                 pass
-        metrics["documentation_generated"] = (
-            metrics.get("documentation_generated", 0) + rendered
-        )
+        metrics["documentation_generated"] = metrics.get("documentation_generated", 0) + rendered
         dashboard_file.write_text(
             json.dumps({"metrics": metrics, "status": "updated", "timestamp": metrics["last_update"]}, indent=2),
             encoding="utf-8",

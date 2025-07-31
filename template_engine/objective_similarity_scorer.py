@@ -43,11 +43,7 @@ def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
     venv_root = workspace_root / ".venv"
     for folder in workspace_root.rglob("*"):
-        if (
-            folder == workspace_root
-            or not folder.is_dir()
-            or str(folder).startswith(str(venv_root))
-        ):
+        if folder == workspace_root or not folder.is_dir() or str(folder).startswith(str(venv_root)):
             continue
         name_tokens = folder.name.lower().split("_")
         if any(tok in {"backup", "backups", "temp"} for tok in name_tokens):

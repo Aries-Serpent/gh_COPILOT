@@ -15,9 +15,9 @@ class EnterpriseLoggingManager:
 
     _logging_configured = False
     _default_config = {
-        'level': logging.INFO,
-        'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        'date_format': '%Y-%m-%d %H:%M:%S'
+        "level": logging.INFO,
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "date_format": "%Y-%m-%d %H:%M:%S",
     }
 
     @classmethod
@@ -26,25 +26,19 @@ class EnterpriseLoggingManager:
         level: Optional[int] = None,
         log_file: Optional[str] = None,
         console_output: bool = True,
-        force_reconfigure: bool = False
+        force_reconfigure: bool = False,
     ) -> Dict[str, Any]:
         """🎯 Setup enterprise logging configuration"""
 
         if cls._logging_configured and not force_reconfigure:
-            return {
-                "status": "ALREADY_CONFIGURED",
-                "configuration": cls._default_config
-            }
+            return {"status": "ALREADY_CONFIGURED", "configuration": cls._default_config}
 
         if force_reconfigure:
             logging.getLogger().handlers.clear()
 
-        log_level = level or cls._default_config['level']
+        log_level = level or cls._default_config["level"]
 
-        formatter = logging.Formatter(
-            fmt=cls._default_config['format'],
-            datefmt=cls._default_config['date_format']
-        )
+        formatter = logging.Formatter(fmt=cls._default_config["format"], datefmt=cls._default_config["date_format"])
 
         handlers = []
 
@@ -56,7 +50,7 @@ class EnterpriseLoggingManager:
         if log_file:
             log_path = Path(log_file)
             log_path.parent.mkdir(parents=True, exist_ok=True)
-            file_handler = logging.FileHandler(log_file, encoding='utf-8')
+            file_handler = logging.FileHandler(log_file, encoding="utf-8")
             file_handler.setFormatter(formatter)
             handlers.append(file_handler)
 
@@ -89,11 +83,7 @@ class EnterpriseLoggingManager:
         return logging.getLogger(module_name)
 
     @classmethod
-    def setup_module_logging(
-        cls,
-        module_name: str,
-        log_file: Optional[str] = None
-    ) -> logging.Logger:
+    def setup_module_logging(cls, module_name: str, log_file: Optional[str] = None) -> logging.Logger:
         """🎯 Setup logging for specific module without conflicts"""
 
         if log_file is None:
@@ -107,9 +97,7 @@ class EnterpriseLoggingManager:
 
 
 def setup_logging(
-    level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    module_name: Optional[str] = None
+    level: int = logging.INFO, log_file: Optional[str] = None, module_name: Optional[str] = None
 ) -> logging.Logger:
     """🎯 Setup logging with enterprise compliance"""
 

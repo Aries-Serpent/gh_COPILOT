@@ -3,7 +3,6 @@ import pytest
 import scripts.database.database_driven_flake8_corrector_functional as mod
 from scripts.database.database_driven_flake8_corrector_functional import DatabaseDrivenFlake8CorrectorFunctional
 from pathlib import PureWindowsPath
-import logging
 
 
 def test_validate_workspace_detects_recursion(tmp_path):
@@ -23,8 +22,7 @@ def test_windows_paths_sanitized(monkeypatch):
     monkeypatch.setattr(mod.os, "name", "nt", raising=False)
     monkeypatch.setattr(mod, "Path", DummyPath)
     path = "C:\\Temp\\proj"
-    corrector = DatabaseDrivenFlake8CorrectorFunctional(workspace_path=path, \
-                                                        db_path="C:\\Temp\\db.sqlite")
+    corrector = DatabaseDrivenFlake8CorrectorFunctional(workspace_path=path, db_path="C:\\Temp\\db.sqlite")
     assert isinstance(corrector.workspace_path, PureWindowsPath)
     assert corrector.workspace_path.as_posix() == "C:/Temp/proj"
     assert isinstance(corrector.db_path, PureWindowsPath)

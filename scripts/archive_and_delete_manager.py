@@ -30,9 +30,7 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 # Enterprise logging setup
 ARCHIVE_ROOT = CrossPlatformPathManager.get_workspace_path() / "ARCHIVE(S)"
 MANUAL_DELETE_FOLDER = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups"))
-LOGS_DIR = (
-    CrossPlatformPathManager.get_workspace_path() / "logs" / "archive_delete"
-)
+LOGS_DIR = CrossPlatformPathManager.get_workspace_path() / "logs" / "archive_delete"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"archive_delete_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -42,9 +40,7 @@ logging.basicConfig(
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
 
-PRODUCTION_DB = (
-    CrossPlatformPathManager.get_workspace_path() / "production.db"
-)
+PRODUCTION_DB = CrossPlatformPathManager.get_workspace_path() / "production.db"
 
 
 def validate_no_recursive_folders() -> None:
@@ -170,9 +166,7 @@ class ArchiveAndDeleteManager:
         logging.info(f"Deletion completed in {elapsed:.2f}s | ETC: {etc}")
         self.status = "DELETED"
 
-    def _calculate_etc(
-        self, elapsed: float, current_progress: int, total_work: int
-    ) -> str:
+    def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
         if current_progress > 0:
             total_estimated = elapsed / (current_progress / total_work)
             remaining = total_estimated - elapsed
@@ -187,13 +181,9 @@ class ArchiveAndDeleteManager:
         archive_path = self.archive_root / f"{target.name}.7z"
         valid = archive_path.exists() and archive_path.stat().st_size > 0
         if valid:
-            logging.info(
-                "DUAL COPILOT validation passed: Archive present and non-zero-byte."
-            )
+            logging.info("DUAL COPILOT validation passed: Archive present and non-zero-byte.")
         else:
-            logging.error(
-                "DUAL COPILOT validation failed: Archive missing or zero-byte."
-            )
+            logging.error("DUAL COPILOT validation failed: Archive missing or zero-byte.")
         return valid
 
 
@@ -201,9 +191,7 @@ def main() -> None:
     # Example usage: archive and delete a file
     manager = ArchiveAndDeleteManager()
     # Replace 'target_file_path' with actual file path to archive and delete
-    target_file_path = (
-        CrossPlatformPathManager.get_workspace_path() / "example.txt"
-    )
+    target_file_path = CrossPlatformPathManager.get_workspace_path() / "example.txt"
     if target_file_path.exists():
         archive_path = manager.archive(target_file_path)
         manager.move_to_manual_delete(archive_path)

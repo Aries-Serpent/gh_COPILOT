@@ -13,7 +13,6 @@ while maintaining backward compatibility.
 """
 
 import sys
-import logging
 
 # Import from new modular package
 from db_tools.operations.access import DatabaseAccessLayer as ModularDatabaseAccessLayer, TEXT_INDICATORS

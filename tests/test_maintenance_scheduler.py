@@ -9,9 +9,7 @@ from scripts.database.unified_database_initializer import initialize_database
 class DummyTqdm:
     """Minimal tqdm replacement for progress validation."""
 
-    def __init__(
-        self, *args: Any, total: int, desc: str, unit: str = "task", **kwargs: Any
-    ) -> None:
+    def __init__(self, *args: Any, total: int, desc: str, unit: str = "task", **kwargs: Any) -> None:
         self.total = total
         self.desc = desc
         self.unit = unit
@@ -51,9 +49,7 @@ def test_run_cycle(tmp_path: Path, monkeypatch) -> None:
         conn.execute("INSERT INTO t (id) VALUES (1)")
 
     list_file = docs_dir / "CONSOLIDATED_DATABASE_LIST.md"
-    list_file.write_text(
-        "- enterprise_assets.db  # Size: 0.01 MB\n- replica.db  # Size: 0.01 MB\n"
-    )
+    list_file.write_text("- enterprise_assets.db  # Size: 0.01 MB\n- replica.db  # Size: 0.01 MB\n")
 
     run_cycle(tmp_path)
 
@@ -78,9 +74,7 @@ def test_run_cycle_logging_and_progress(tmp_path: Path, monkeypatch) -> None:
         conn.execute("INSERT INTO t (id) VALUES (1)")
 
     list_file = docs_dir / "CONSOLIDATED_DATABASE_LIST.md"
-    list_file.write_text(
-        "- enterprise_assets.db  # Size: 0.01 MB\n- replica.db  # Size: 0.01 MB\n"
-    )
+    list_file.write_text("- enterprise_assets.db  # Size: 0.01 MB\n- replica.db  # Size: 0.01 MB\n")
 
     bars: list[DummyTqdm] = []
 
@@ -95,7 +89,5 @@ def test_run_cycle_logging_and_progress(tmp_path: Path, monkeypatch) -> None:
 
     assert bars and bars[0].updates == 2
     with sqlite3.connect(log_db) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM cross_database_sync_operations"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM cross_database_sync_operations").fetchone()[0]
     assert count >= 3

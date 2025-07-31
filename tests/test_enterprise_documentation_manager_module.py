@@ -6,18 +6,10 @@ from documentation import EnterpriseDocumentationManager
 def test_documentation_generation(tmp_path, monkeypatch, caplog):
     db_path = tmp_path / "docs.db"
     with sqlite3.connect(db_path) as conn:
-        conn.execute(
-            "CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, title TEXT, content TEXT)"
-        )
-        conn.execute(
-            "CREATE TABLE documentation_templates (template_name TEXT, template_content TEXT, doc_type TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO documentation_templates VALUES ('t1', '# Title {count}', 'README')"
-        )
-        conn.execute(
-            "INSERT INTO enterprise_documentation VALUES ('1', 'README', 'Title1', 'old')"
-        )
+        conn.execute("CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, title TEXT, content TEXT)")
+        conn.execute("CREATE TABLE documentation_templates (template_name TEXT, template_content TEXT, doc_type TEXT)")
+        conn.execute("INSERT INTO documentation_templates VALUES ('t1', '# Title {count}', 'README')")
+        conn.execute("INSERT INTO enterprise_documentation VALUES ('1', 'README', 'Title1', 'old')")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     mgr = EnterpriseDocumentationManager(db_path=str(db_path))
     with caplog.at_level(logging.INFO):

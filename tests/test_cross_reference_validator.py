@@ -79,12 +79,8 @@ def test_cross_reference_validator_updates_dashboard(tmp_path, monkeypatch):
     assert data["recommended_links"]
 
     with sqlite3.connect(analytics_db) as conn:
-        rows = conn.execute(
-            "SELECT file_path, linked_path FROM cross_link_events"
-        ).fetchall()
-        summary = conn.execute(
-            "SELECT actions, links, summary_path FROM cross_link_summary"
-        ).fetchall()
+        rows = conn.execute("SELECT file_path, linked_path FROM cross_link_events").fetchall()
+        summary = conn.execute("SELECT actions, links, summary_path FROM cross_link_summary").fetchall()
 
     assert len(rows) == 2
     assert {Path(r[1]).name for r in rows} == {"file.py"}
@@ -200,9 +196,7 @@ def test_deep_cross_link_respects_updated_backup_env(tmp_path, monkeypatch):
             )
             """
         )
-        conn.execute(
-            "INSERT INTO todo_fixme_tracking VALUES ('target.py', 'code', 'open', '2024-01-01')"
-        )
+        conn.execute("INSERT INTO todo_fixme_tracking VALUES ('target.py', 'code', 'open', '2024-01-01')")
         conn.execute(
             """
             CREATE TABLE cross_link_events (
@@ -225,9 +219,7 @@ def test_deep_cross_link_respects_updated_backup_env(tmp_path, monkeypatch):
     code_dir = tmp_path / "copilot"
     code_dir.mkdir()
     (code_dir / "target.py").write_text("code")
-    validator = crv.CrossReferenceValidator(
-        production_db, analytics_db, dashboard_dir, task_file
-    )
+    validator = crv.CrossReferenceValidator(production_db, analytics_db, dashboard_dir, task_file)
 
     second_backup = tmp_path / "backup2"
     second_backup.mkdir()
@@ -243,10 +235,7 @@ def test_deep_cross_link_respects_updated_backup_env(tmp_path, monkeypatch):
     assert (code_dir / "target.py") in paths
     assert (second_backup / "target.py") not in paths
 
-    assert all(
-        Path(entry["linked_path"]) != second_backup / "target.py"
-        for entry in validator.cross_link_log
-    )
+    assert all(Path(entry["linked_path"]) != second_backup / "target.py" for entry in validator.cross_link_log)
 
 
 def test_suggest_links_logged(tmp_path, monkeypatch):

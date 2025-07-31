@@ -3,7 +3,9 @@ import asyncio
 from pathlib import Path
 
 from scripts.optimization.windows_compatible_optimizer import WindowsCompatibleOptimizer
-from scripts.optimization.windows_compatible_optimizer_async import WindowsCompatibleOptimizer as WindowsCompatibleOptimizerAsync
+from scripts.optimization.windows_compatible_optimizer_async import (
+    WindowsCompatibleOptimizer as WindowsCompatibleOptimizerAsync,
+)
 
 
 def _create_db(tmp_path: Path) -> Path:
@@ -34,5 +36,3 @@ def test_async_analyze_database_health(tmp_path):
     assert health is not None
     assert health.table_count == 1
     assert health.record_count == 2
-
-

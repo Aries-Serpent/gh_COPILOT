@@ -1,4 +1,3 @@
-import os
 import shutil
 from pathlib import Path
 
@@ -26,4 +25,3 @@ def test_integrator_registers_endpoints(tmp_path, monkeypatch):
     for path in paths:
         resp = client.get(path)
         assert resp.status_code == 200
-

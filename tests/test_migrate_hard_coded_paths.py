@@ -1,7 +1,4 @@
-import os
-from pathlib import Path
-
-from utils.cross_platform_paths import migrate_hard_coded_paths, CrossPlatformPathManager
+from utils.cross_platform_paths import migrate_hard_coded_paths
 
 
 def test_migrate_creates_backup(tmp_path, monkeypatch):

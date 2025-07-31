@@ -33,8 +33,7 @@ class TemplateSynthesisEngine:
 
     def __init__(self, analytics_db: Path | None = None, completion_db: Path | None = None) -> None:
         self.generator = TemplateAutoGenerator(
-            analytics_db or Path("analytics.db"), completion_db or Path(
-                "databases/template_completion.db")
+            analytics_db or Path("analytics.db"), completion_db or Path("databases/template_completion.db")
         )
 
     def synthesize_templates(self) -> List[str]:

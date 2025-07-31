@@ -31,8 +31,7 @@ def _fetch_correction_history(limit: int = 5) -> list[dict[str, str | float]]:
         with sqlite3.connect(ANALYTICS_DB) as conn:
             try:
                 cur = conn.execute(
-                    "SELECT file_path, compliance_score, ts FROM correction_logs "
-                    "ORDER BY ts DESC LIMIT ?",
+                    "SELECT file_path, compliance_score, ts FROM correction_logs ORDER BY ts DESC LIMIT ?",
                     (limit,),
                 )
                 history = [
@@ -46,6 +45,7 @@ def _fetch_correction_history(limit: int = 5) -> list[dict[str, str | float]]:
             except sqlite3.Error as exc:
                 logging.error("History fetch error: %s", exc)
     return history
+
 
 __all__ = ["app", "main", "metrics_stream"]
 

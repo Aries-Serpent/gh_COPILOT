@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Generate ER diagrams for specified SQLite databases."""
+
 from __future__ import annotations
 import argparse
 import sqlite3
 from pathlib import Path
 import subprocess
+
 
 def build_dot(db_path: Path) -> str:
     conn = sqlite3.connect(db_path)
@@ -23,12 +25,13 @@ def build_dot(db_path: Path) -> str:
     conn.close()
     lines = ["digraph G {", "rankdir=LR;"]
     for tbl, cols in nodes.items():
-        label = '{%s|%s}' % (tbl, '\\l'.join(cols) + '\\l')
+        label = "{%s|%s}" % (tbl, "\\l".join(cols) + "\\l")
         lines.append(f'"{tbl}" [shape=record,label="{label}"];')
     for src, dst in sorted(edges):
         lines.append(f'"{src}" -> "{dst}";')
     lines.append("}")
     return "\n".join(lines)
+
 
 def generate_diagram(db_path: Path, output_dir: Path) -> Path:
     dot_text = build_dot(db_path)
@@ -37,6 +40,7 @@ def generate_diagram(db_path: Path, output_dir: Path) -> Path:
     dot_path.write_text(dot_text)
     subprocess.run(["dot", "-Tpng", str(dot_path), "-o", str(png_path)], check=True)
     return png_path
+
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Generate ER diagrams for SQLite databases")
@@ -47,6 +51,6 @@ def main(argv: list[str] | None = None) -> None:
     for db in args.db:
         generate_diagram(db, args.output)
 
+
 if __name__ == "__main__":
     main()
-  

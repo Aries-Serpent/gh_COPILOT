@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import sqlite3
 from pathlib import Path
-from typing import Iterable
 
 from template_engine.template_synchronizer import _compliance_score
 from utils.log_utils import _log_event

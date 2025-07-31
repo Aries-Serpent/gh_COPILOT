@@ -1,6 +1,3 @@
-import os
-from pathlib import Path
-
 import py7zr
 import pytest
 
@@ -37,4 +34,3 @@ def test_archive_backups_disallows_internal_backup(tmp_path, monkeypatch):
 
     with pytest.raises(RuntimeError):
         backup_archiver.archive_backups()
-

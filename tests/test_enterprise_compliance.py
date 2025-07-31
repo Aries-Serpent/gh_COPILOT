@@ -5,6 +5,7 @@ def test_compliance_logging_and_zero_byte(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     from session_management_consolidation_executor import EnterpriseUtility
+
     events = []
 
     def fake_log(event, **kwargs):

@@ -36,16 +36,10 @@ class TestSelfHealingSelfLearningSystem:
         scaled = system.ml_models["scaler"].transform(data)
         system.ml_models["anomaly_detector"].fit(scaled)
         # Patch methods
-        system.ml_models["scaler"].transform = MagicMock(
-            wraps=system.ml_models["scaler"].transform
-        )
-        system.ml_models["anomaly_detector"].predict = MagicMock(
-            wraps=system.ml_models["anomaly_detector"].predict
-        )
+        system.ml_models["scaler"].transform = MagicMock(wraps=system.ml_models["scaler"].transform)
+        system.ml_models["anomaly_detector"].predict = MagicMock(wraps=system.ml_models["anomaly_detector"].predict)
         system._generate_healing_strategy = MagicMock(return_value="noop")
-        system._execute_healing_action = MagicMock(
-            return_value={"result": "ok", "success": True}
-        )
+        system._execute_healing_action = MagicMock(return_value={"result": "ok", "success": True})
 
         metrics = {
             "comp": SystemHealth(
@@ -63,6 +57,7 @@ class TestSelfHealingSelfLearningSystem:
     def test_model_training_and_anomaly_detection(self):
         system = SelfHealingSelfLearningSystem(workspace_path=self.temp_dir)
         import numpy as np
+
         rng = np.random.default_rng(42)
         normal = rng.normal(0, 1, size=(50, 3)).tolist()
         outlier = [[10, 10, 10]]

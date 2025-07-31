@@ -46,12 +46,8 @@ def test_execute_utility_queries_db(monkeypatch, tmp_path, caplog):
     db_dir.mkdir()
     db_path = db_dir / "production.db"
     with sqlite3.connect(db_path) as conn:
-        conn.execute(
-            "CREATE TABLE code_templates (name TEXT, category TEXT, template TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO code_templates VALUES ('temp', 'optimization', 'pass')"
-        )
+        conn.execute("CREATE TABLE code_templates (name TEXT, category TEXT, template TEXT)")
+        conn.execute("INSERT INTO code_templates VALUES ('temp', 'optimization', 'pass')")
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
 
@@ -62,9 +58,7 @@ def test_execute_utility_queries_db(monkeypatch, tmp_path, caplog):
         bars.append(bar)
         return bar
 
-    monkeypatch.setattr(
-        "scripts.optimization.advanced_qubo_optimization.tqdm", dummy_tqdm
-    )
+    monkeypatch.setattr("scripts.optimization.advanced_qubo_optimization.tqdm", dummy_tqdm)
 
     dummy = DummyValidator()
     monkeypatch.setattr(
@@ -78,6 +72,4 @@ def test_execute_utility_queries_db(monkeypatch, tmp_path, caplog):
 
     assert bars and bars[0].updates == 4
     assert dummy.called
-    assert any(
-        "Loaded 1 optimization templates" in rec.getMessage() for rec in caplog.records
-    )
+    assert any("Loaded 1 optimization templates" in rec.getMessage() for rec in caplog.records)
