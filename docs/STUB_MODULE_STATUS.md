@@ -24,7 +24,7 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 | STUB-010 | Update task suggestion files with cross-references | [docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md](DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md)<br>logs/<br>validation/ | complete | Documentation Team |
 | STUB-011 | Record outputs to analytics.db across modules | various modules | complete | DataOps Team |
 | STUB-012 | Display placeholder removal progress on dashboard | [dashboard/compliance_metrics_updater.py](../dashboard/compliance_metrics_updater.py) | complete | Web Team |
-| STUB-013 | Implement legacy cleanup workflow | [unified_legacy_cleanup_system.py](../unified_legacy_cleanup_system.py) | not started | Compliance Team |
+| STUB-013 | Implement legacy cleanup workflow | [unified_legacy_cleanup_system.py](../unified_legacy_cleanup_system.py) | complete | Compliance Team |
 
 Implementation note: the `ingest_assets` workflow is fully implemented in
 `scripts/autonomous_setup_and_audit.py` lines 30-150.
@@ -43,7 +43,7 @@ Implementation note: the `ingest_assets` workflow is fully implemented in
 - **STUB-010:** Cross-reference updates verified in integration tests.
 - **STUB-011:** Analytics logging hooks pass in `tests/test_add_violation_and_rollback_logs.py` (added in commit [7e6171d](../commit/7e6171d)).
 - **STUB-012:** Dashboard progress indicators validated in `tests/test_dashboard_placeholder_metrics.py` (tracked in commit [9cdf0e8](../commit/9cdf0e8)).
-- **STUB-013:** Legacy cleanup workflow not implemented yet; `unified_legacy_cleanup_system.py` missing.
+- **STUB-013:** Legacy cleanup workflow implemented; `unified_legacy_cleanup_system.py` added.
 
 ## Lint and Type Check Summary
 
