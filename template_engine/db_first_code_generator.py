@@ -339,11 +339,12 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         )
 
         path = Path(f"{objective}.py")
+        tmp_path = path.with_suffix(path.suffix + ".tmp")
 
         try:
             with sqlite3.connect(self.production_db) as conn:
                 conn.execute("BEGIN")
-                path.write_text(stub)
+                tmp_path.write_text(stub)
                 file_hash = hashlib.sha256(stub.encode()).hexdigest()
                 ts = datetime.utcnow().isoformat()
                 conn.execute(
@@ -360,6 +361,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                     "INSERT INTO enhanced_script_tracking (script_path, script_content, script_hash, script_type, functionality_category) VALUES (?, ?, ?, 'python', 'generated')",
                     (str(path), stub, file_hash),
                 )
+                tmp_path.replace(path)
                 conn.commit()
 
             _log_event(
@@ -381,8 +383,10 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 test_mode=False,
             )
         except Exception as exc:  # pragma: no cover - error handling
-            if 'conn' in locals():
+            if "conn" in locals():
                 conn.rollback()
+            if tmp_path.exists():
+                tmp_path.unlink()
             if path.exists():
                 path.unlink()
             _log_event(
@@ -390,6 +394,12 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 table="generator_events",
                 db_path=self.analytics_db,
                 level=logging.ERROR,
+                test_mode=False,
+            )
+            _log_event(
+                {"event": "rollback", "target": str(path)},
+                table="rollback_logs",
+                db_path=self.analytics_db,
                 test_mode=False,
             )
             raise
