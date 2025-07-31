@@ -31,4 +31,3 @@ def generate_text_report(data: Dict[str, Any], output_path: Path, title: str = "
         lines.append(f"{key}: {value}")
     output_path.write_text("\n".join(lines), encoding="utf-8")
     return output_path
-

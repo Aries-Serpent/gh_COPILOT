@@ -13,6 +13,7 @@ Achievement Foundation:
 
 Next Phase: Database Content Purification
 """
+
 import datetime
 import json
 import logging
@@ -67,7 +68,7 @@ class DatabasePurificationEngine:
             "corrupted_entries_found": 0,
             "corrupted_entries_repaired": 0,
             "schema_optimizations": 0,
-            "performance_improvements": 0
+            "performance_improvements": 0,
         }
 
         self.logger.info("[SUCCESS] Database Purification Engine initialized")
@@ -75,17 +76,13 @@ class DatabasePurificationEngine:
     def setup_enterprise_logging(self):
         """Setup comprehensive enterprise logging system."""
         log_file = (
-            self.workspace_path /
-            f"database_purification_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+            self.workspace_path / f"database_purification_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         )
 
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler(log_file),
-                logging.StreamHandler()
-            ]
+            format="%(asctime)s - %(levelname)s - %(message)s",
+            handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
         )
         self.logger = logging.getLogger(__name__)
 
@@ -117,7 +114,6 @@ class DatabasePurificationEngine:
 
         # [PHASE 1] Database Content Audit
         with tqdm(total=100, desc="[DATABASE] Comprehensive Purification", unit="%") as pbar:
-
             # Step 1: Database Discovery and Validation (20%)
             pbar.set_description("[AUDIT] Database discovery and validation")
             self.validate_database_integrity()
@@ -166,8 +162,7 @@ class DatabasePurificationEngine:
                         self.logger.info(f"[SUCCESS] Database integrity OK: {db_path.name}")
                     else:
                         self.logger.warning(f"[WARNING] Database integrity issues: {db_path.name}")
-                        self.purification_metrics["corrupted_entries_found"] += len(
-                            integrity_result)
+                        self.purification_metrics["corrupted_entries_found"] += len(integrity_result)
 
                 self.purification_metrics["databases_processed"] += 1
 
@@ -203,9 +198,7 @@ class DatabasePurificationEngine:
                         for column in columns:
                             column_name = column[1]
                             # Check for NULL values
-                            cursor.execute(
-                                f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} IS NULL"
-                            )
+                            cursor.execute(f"SELECT COUNT(*) FROM {table_name} WHERE {column_name} IS NULL")
                             null_count = cursor.fetchone()[0]
 
                             if null_count > 0:
@@ -229,7 +222,7 @@ class DatabasePurificationEngine:
                     corruption_checks = [
                         "SELECT COUNT(*) FROM sqlite_master WHERE sql LIKE '%corrupted%'",
                         "SELECT COUNT(*) FROM sqlite_master WHERE sql = ''",
-                        "PRAGMA foreign_key_check"
+                        "PRAGMA foreign_key_check",
                     ]
 
                     for check_query in corruption_checks:
@@ -239,11 +232,8 @@ class DatabasePurificationEngine:
 
                             if check_query == "PRAGMA foreign_key_check":
                                 if result:
-                                    self.logger.warning(
-                                        f"[WARNING] Foreign key violations: {len(result)}"
-                                    )
-                                    self.purification_metrics["corrupted_entries_found"] += len(
-                                        result)
+                                    self.logger.warning(f"[WARNING] Foreign key violations: {len(result)}")
+                                    self.purification_metrics["corrupted_entries_found"] += len(result)
                             else:
                                 corruption_count = result[0][0] if result else 0
                                 if corruption_count > 0:
@@ -262,9 +252,7 @@ class DatabasePurificationEngine:
         for db_path in self.databases:
             try:
                 # Create backup before repair
-                backup_path = (
-                    f"{db_path}.backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
-                )
+                backup_path = f"{db_path}.backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
                 shutil.copy2(str(db_path), backup_path)
                 self.logger.info(f"[INFO] Backup created: {backup_path}")
 
@@ -275,7 +263,7 @@ class DatabasePurificationEngine:
                     repair_operations = [
                         "VACUUM",  # Rebuild database to reclaim space
                         "REINDEX",  # Rebuild all indexes
-                        "ANALYZE"  # Update optimizer statistics
+                        "ANALYZE",  # Update optimizer statistics
                     ]
 
                     for operation in repair_operations:
@@ -305,7 +293,7 @@ class DatabasePurificationEngine:
                 table_name = table[0]
 
                 # Skip system tables
-                if table_name.startswith('sqlite_'):
+                if table_name.startswith("sqlite_"):
                     continue
 
                 # Check if table has primary key
@@ -322,14 +310,12 @@ class DatabasePurificationEngine:
                     column_name = column[1]
 
                     # Common patterns that benefit from indexes
-                    if any(
-                            pattern in column_name.lower() for pattern in ['id', 'name', 'path', 'timestamp']):
+                    if any(pattern in column_name.lower() for pattern in ["id", "name", "path", "timestamp"]):
                         # Check if index already exists
                         cursor.execute(f"PRAGMA index_list({table_name})")
                         existing_indexes = cursor.fetchall()
 
-                        index_exists = any(
-                            column_name in idx[1] for idx in existing_indexes if idx[1])
+                        index_exists = any(column_name in idx[1] for idx in existing_indexes if idx[1])
 
                         if not index_exists:
                             try:
@@ -377,19 +363,19 @@ class DatabasePurificationEngine:
                 "start_time": self.start_time.isoformat(),
                 "end_time": end_time.isoformat(),
                 "duration_seconds": duration,
-                "process_id": self.process_id
+                "process_id": self.process_id,
             },
             "databases_discovered": len(self.databases),
             "purification_metrics": self.purification_metrics,
             "status": "SUCCESS",
-            "compliance_level": "ENTERPRISE_GRADE"
+            "compliance_level": "ENTERPRISE_GRADE",
         }
 
         # Calculate success rates
         if self.purification_metrics["corrupted_entries_found"] > 0:
             repair_rate = (
-                self.purification_metrics["corrupted_entries_repaired"] /
-                self.purification_metrics["corrupted_entries_found"]
+                self.purification_metrics["corrupted_entries_repaired"]
+                / self.purification_metrics["corrupted_entries_found"]
             ) * 100
             report["repair_success_rate"] = f"{repair_rate:.1f}%"
         else:
@@ -397,12 +383,12 @@ class DatabasePurificationEngine:
 
         # Save report to file
         report_file = (
-            self.workspace_path /
-            f"database_purification_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            self.workspace_path
+            / f"database_purification_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         )
 
         if ensure_db_reference(str(report_file)) and validate_enterprise_operation(str(report_file)):
-            with open(report_file, 'w') as f:
+            with open(report_file, "w") as f:
                 json.dump(report, f, indent=2)
         else:
             self.logger.error("[ERROR] Database reference validation failed")
@@ -434,10 +420,8 @@ def main():
         print("=" * 80)
         print(f"Databases Processed: {results['databases_discovered']}")
         print(f"Entries Audited: {results['purification_metrics']['entries_audited']}")
-        print(
-            f"Corrupted Entries Found: {results['purification_metrics']['corrupted_entries_found']}")
-        print(
-            f"Performance Improvements: {results['purification_metrics']['performance_improvements']}")
+        print(f"Corrupted Entries Found: {results['purification_metrics']['corrupted_entries_found']}")
+        print(f"Performance Improvements: {results['purification_metrics']['performance_improvements']}")
         print(f"Schema Optimizations: {results['purification_metrics']['schema_optimizations']}")
         print(f"Duration: {results['execution_summary']['duration_seconds']:.1f} seconds")
         print(f"Status: {results['status']}")

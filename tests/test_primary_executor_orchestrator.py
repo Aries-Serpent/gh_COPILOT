@@ -1,4 +1,3 @@
-import builtins
 import types
 
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
@@ -39,4 +38,3 @@ def test_orchestrator_invokes_executor_and_validator(monkeypatch):
     assert validated
     assert calls["exec"]
     assert calls["validate"]
-

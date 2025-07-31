@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import logging
 
 from scripts.utilities.quantum_algorithms_functional import (
     run_grover_search,

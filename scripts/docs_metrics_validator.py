@@ -5,6 +5,7 @@ This script delegates to :mod:`validate_docs_metrics` to ensure
 backwards compatibility with existing CI workflows expecting
 ``docs_metrics_validator.py``.
 """
+
 from __future__ import annotations
 
 import argparse

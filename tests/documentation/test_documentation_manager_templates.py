@@ -10,9 +10,7 @@ from archive.consolidated_scripts import enterprise_database_driven_documentatio
 
 def _create_production_db(db: Path, content: str) -> None:
     with sqlite3.connect(db) as conn:
-        conn.execute(
-            "CREATE TABLE documentation (title TEXT, content TEXT, compliance_score INTEGER)"
-        )
+        conn.execute("CREATE TABLE documentation (title TEXT, content TEXT, compliance_score INTEGER)")
         conn.execute(
             "INSERT INTO documentation VALUES ('Doc1', ?, 80)",
             (content,),
@@ -20,9 +18,7 @@ def _create_production_db(db: Path, content: str) -> None:
         conn.execute(
             "CREATE TABLE template_repository (template_name TEXT, template_category TEXT, template_content TEXT, success_rate REAL)"
         )
-        conn.execute(
-            "INSERT INTO template_repository VALUES ('Doc1', 'cat', 'prod', 0.9)"
-        )
+        conn.execute("INSERT INTO template_repository VALUES ('Doc1', 'cat', 'prod', 0.9)")
 
 
 def _create_doc_db(db: Path, template: str) -> None:
@@ -42,9 +38,7 @@ def test_template_selection_from_documentation_db(tmp_path: Path) -> None:
     analytics = tmp_path / "databases" / "analytics.db"
     analytics.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(analytics) as conn:
-        conn.execute(
-            "CREATE TABLE render_events (event TEXT, title TEXT, timestamp TEXT)"
-        )
+        conn.execute("CREATE TABLE render_events (event TEXT, title TEXT, timestamp TEXT)")
     out_dir = tmp_path / "render"
     mgr.RENDER_LOG_DIR = out_dir
     mgr.LOG_FILE = out_dir / "log.log"
@@ -55,6 +49,7 @@ def test_template_selection_from_documentation_db(tmp_path: Path) -> None:
 
     # ensure workspace points to tmp_path to avoid recursive check failures
     import os
+
     os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     os.environ["GH_COPILOT_BACKUP_ROOT"] = str(tmp_path / "backups")
 

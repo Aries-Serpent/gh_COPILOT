@@ -203,9 +203,7 @@ def mine_patterns(
                 _log_audit_real(str(analytics_db), f"pattern_mined:{pat}")
                 etc = calculate_etc(start_ts, idx, total_steps)
                 if time.time() - start_ts > timeout_seconds:
-                    raise TimeoutError(
-                        f"Process exceeded {timeout_minutes} minute timeout"
-                    )
+                    raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
                 if idx % 10 == 0 or idx == total_steps:
                     logging.info(f"Pattern {idx}/{total_steps} stored | ETC: {etc}")
             conn.commit()
@@ -238,9 +236,7 @@ def mine_patterns(
             )
             for pat, label in zip(patterns, labels):
                 if time.time() - start_ts > timeout_seconds:
-                    raise TimeoutError(
-                        f"Process exceeded {timeout_minutes} minute timeout"
-                    )
+                    raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
                 conn.execute(
                     "INSERT INTO pattern_clusters (pattern, cluster, ts) VALUES (?,?,?)",
                     (pat, int(label), datetime.utcnow().isoformat()),
@@ -250,10 +246,7 @@ def mine_patterns(
                 (inertia, silhouette, cluster_count, datetime.utcnow().isoformat()),
             )
             conn.commit()
-    _log_audit_real(
-        str(analytics_db),
-        f"clusters={cluster_count},inertia={inertia:.2f},silhouette={silhouette:.4f}"
-    )
+    _log_audit_real(str(analytics_db), f"clusters={cluster_count},inertia={inertia:.2f},silhouette={silhouette:.4f}")
     logging.info(
         "Pattern mining completed in %.2fs | ETC: %s",
         time.time() - start_ts,
@@ -324,9 +317,7 @@ def aggregate_cross_references(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> Dic
                 ts TEXT
             )"""
         )
-        rows = conn.execute(
-            "SELECT file_path, COUNT(*) FROM cross_link_events GROUP BY file_path"
-        ).fetchall()
+        rows = conn.execute("SELECT file_path, COUNT(*) FROM cross_link_events GROUP BY file_path").fetchall()
         for path, num in rows:
             counts[path] = int(num)
             conn.execute(

@@ -1,4 +1,5 @@
 """CLI wrapper for :mod:`validation.protocols.session`."""
+
 from validation.protocols.session import SessionProtocolValidator
 from utils.cross_platform_paths import verify_environment_variables
 

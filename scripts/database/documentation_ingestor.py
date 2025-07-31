@@ -64,9 +64,7 @@ def ingest_documentation(
             conn = sqlite3.connect(db_path)
         with conn, tqdm(total=len(files), desc="Docs", unit="file") as bar:
             for path in files:
-                if timeout_seconds and (
-                    datetime.now(timezone.utc) - start_time
-                ).total_seconds() > timeout_seconds:
+                if timeout_seconds and (datetime.now(timezone.utc) - start_time).total_seconds() > timeout_seconds:
                     logger.error("Ingestion timed out")
                     raise TimeoutError("Documentation ingestion timed out")
 
@@ -77,9 +75,7 @@ def ingest_documentation(
 
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
-                modified_at = datetime.fromtimestamp(
-                    path.stat().st_mtime, timezone.utc
-                ).isoformat()
+                modified_at = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
                 conn.execute(
                     (
                         "INSERT INTO documentation_assets "

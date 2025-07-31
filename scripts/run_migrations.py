@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Apply all SQL migrations to analytics.db."""
+
 from __future__ import annotations
 
 import logging

@@ -168,9 +168,7 @@ def metrics_stream() -> Response:
     interval = int(request.args.get("interval", 5))
 
     def generate() -> Iterable[str]:
-        for metrics in metrics_updater.stream_metrics(
-            interval=interval, iterations=1 if once else None
-        ):
+        for metrics in metrics_updater.stream_metrics(interval=interval, iterations=1 if once else None):
             yield f"data: {json.dumps(metrics)}\n\n"
 
     return Response(generate(), mimetype="text/event-stream")
@@ -184,9 +182,7 @@ def alerts_stream() -> Response:
     interval = int(request.args.get("interval", 5))
 
     def generate() -> Iterable[str]:
-        for _ in metrics_updater.stream_metrics(
-            interval=interval, iterations=1 if once else None
-        ):
+        for _ in metrics_updater.stream_metrics(interval=interval, iterations=1 if once else None):
             alerts = _fetch_alerts()
             yield f"data: {json.dumps(alerts)}\n\n"
 

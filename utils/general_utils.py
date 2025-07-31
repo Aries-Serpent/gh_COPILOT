@@ -8,4 +8,3 @@ def operations_main(main_func: Callable[..., Any]) -> None:
     result = main_func()
     if result is not None:
         print(result)
-

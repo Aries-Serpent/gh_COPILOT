@@ -33,6 +33,7 @@ def secondary_validate() -> bool:
     logging.info("SECONDARY VALIDATION: enterprise operation")
     return validate_enterprise_operation()
 
+
 logger = logging.getLogger(__name__)
 
 SIZE_THRESHOLD_MB = 99.9
@@ -168,8 +169,6 @@ def primary_validate() -> bool:
     """Primary consolidation validation."""
     logger.info("PRIMARY validation executed")
     return True
-
-
 
 
 def migrate_and_compress(

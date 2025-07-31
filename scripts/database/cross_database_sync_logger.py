@@ -48,6 +48,7 @@ def log_sync_operation(
 
     if not db_path.exists():
         from .unified_database_initializer import initialize_database
+
         initialize_database(db_path)
 
     start_dt = start_time or datetime.now(timezone.utc)
@@ -59,6 +60,7 @@ def log_sync_operation(
         if not _table_exists(conn, "cross_database_sync_operations"):
             conn.close()
             from .unified_database_initializer import initialize_database
+
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
         with conn:
@@ -107,11 +109,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     setup_enterprise_logging()
 
-    start_dt = (
-        datetime.fromisoformat(args.start_time)
-        if args.start_time
-        else datetime.now(timezone.utc)
-    )
+    start_dt = datetime.fromisoformat(args.start_time) if args.start_time else datetime.now(timezone.utc)
     ops = args.operation
     if len(ops) > 1:
         from tqdm import tqdm

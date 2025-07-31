@@ -1,4 +1,3 @@
-import os
 import sqlite3
 import shutil
 from pathlib import Path
@@ -36,9 +35,7 @@ def test_optimizer_archives_and_logs(tmp_path, monkeypatch):
     assert archive.exists()
 
     with sqlite3.connect(db_dir / "production.db") as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM workspace_optimization_metrics"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM workspace_optimization_metrics").fetchone()[0]
         assert count == 1
 
 

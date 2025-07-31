@@ -4,6 +4,7 @@ from scripts.code_placeholder_audit import main
 
 os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
 
+
 def test_full_scan_includes_all(tmp_path):
     workspace = tmp_path / "ws"
     workspace.mkdir()

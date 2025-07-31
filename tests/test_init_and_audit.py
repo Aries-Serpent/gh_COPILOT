@@ -13,6 +13,7 @@ def test_init_and_audit(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "ext_backups"))
     from scripts.utilities import init_and_audit
+
     production_db = tmp_path / "databases" / "production.db"
     analytics_db = tmp_path / "databases" / "analytics.db"
 

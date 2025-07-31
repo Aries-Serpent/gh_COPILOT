@@ -12,12 +12,8 @@ from scripts.code_placeholder_audit import (
 def test_fetch_db_placeholders(tmp_path: Path) -> None:
     db = tmp_path / "prod.db"
     with sqlite3.connect(db) as conn:
-        conn.execute(
-            "CREATE TABLE template_placeholders (placeholder_name TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO template_placeholders VALUES ('STUB_PLACE')"
-        )
+        conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT)")
+        conn.execute("INSERT INTO template_placeholders VALUES ('STUB_PLACE')")
     assert fetch_db_placeholders(db) == ["STUB_PLACE"]
 
 

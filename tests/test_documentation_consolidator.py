@@ -5,8 +5,6 @@ import sqlite3
 from pathlib import Path
 
 
-
-
 def _prepare_db(src: Path, dest: Path) -> None:
     shutil.copy(src, dest)
     with sqlite3.connect(dest) as conn:
@@ -53,6 +51,7 @@ def test_documentation_consolidator(tmp_path, monkeypatch):
 
     import importlib
     import utils.log_utils as log_utils
+
     importlib.reload(log_utils)
     module = importlib.import_module("scripts.documentation_consolidator")
     importlib.reload(module)
@@ -61,15 +60,11 @@ def test_documentation_consolidator(tmp_path, monkeypatch):
 
     with sqlite3.connect(db_dir / "documentation.db") as conn:
         cur = conn.execute(
-            "SELECT COUNT(*) FROM enterprise_documentation "
-            "WHERE source_path LIKE '%backup%' OR doc_type='BACKUP_LOG'"
+            "SELECT COUNT(*) FROM enterprise_documentation WHERE source_path LIKE '%backup%' OR doc_type='BACKUP_LOG'"
         )
         assert cur.fetchone()[0] == 0
 
-        cur = conn.execute(
-            "SELECT COUNT(*) FROM enterprise_documentation "
-            "WHERE title='Duplicate'"
-        )
+        cur = conn.execute("SELECT COUNT(*) FROM enterprise_documentation WHERE title='Duplicate'")
         assert cur.fetchone()[0] == 1
 
         cur = conn.execute("SELECT COUNT(*) FROM documentation_templates")

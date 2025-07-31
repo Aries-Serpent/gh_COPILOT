@@ -4,7 +4,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from scripts.database.cross_database_sync_logger import log_sync_operation
-from enterprise_modules.compliance import validate_enterprise_operation
 
 
 def test_log_sync_operation(tmp_path: Path, monkeypatch) -> None:
@@ -25,4 +24,3 @@ def test_log_sync_operation(tmp_path: Path, monkeypatch) -> None:
     assert row[1] == "SUCCESS"
     assert row[2] == start.isoformat()
     assert row[3] > 0
-

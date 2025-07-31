@@ -54,14 +54,16 @@ def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
                         meta_obj = json.loads(metadata)
                     except Exception:
                         meta_obj = metadata if metadata else {}
-                    sessions.append({
-                        "session_id": session_id,
-                        "user_id": user_id,
-                        "state": state,
-                        "created_at": created_at,
-                        "last_updated": last_updated,
-                        "metadata": meta_obj,
-                    })
+                    sessions.append(
+                        {
+                            "session_id": session_id,
+                            "user_id": user_id,
+                            "state": state,
+                            "created_at": created_at,
+                            "last_updated": last_updated,
+                            "metadata": meta_obj,
+                        }
+                    )
         except Exception as e:
             _log_event({"event": "session_discovery_failed", "error": str(e)})
             log_message(
@@ -120,7 +122,7 @@ def consolidate_sessions_atomic(
     session_list: List[Dict[str, Any]],
     output_db: Union[str, Path],
     overwrite: bool = True,
-    backup_dir: Optional[Union[str, Path]] = None
+    backup_dir: Optional[Union[str, Path]] = None,
 ) -> None:
     """
     Atomically consolidates given session records to the output SQLite database.
@@ -167,17 +169,20 @@ def consolidate_sessions_atomic(
         conn.execute("BEGIN TRANSACTION;")
         for session in session_list:
             try:
-                cur.execute("""
+                cur.execute(
+                    """
                     INSERT OR REPLACE INTO sessions (session_id, user_id, state, created_at, last_updated, metadata)
                     VALUES (?, ?, ?, ?, ?, ?)
-                """, (
-                    session.get("session_id"),
-                    session.get("user_id"),
-                    session.get("state"),
-                    session.get("created_at"),
-                    session.get("last_updated"),
-                    json.dumps(session.get("metadata", {})),
-                ))
+                """,
+                    (
+                        session.get("session_id"),
+                        session.get("user_id"),
+                        session.get("state"),
+                        session.get("created_at"),
+                        session.get("last_updated"),
+                        json.dumps(session.get("metadata", {})),
+                    ),
+                )
             except Exception as e:
                 _log_event(
                     {
@@ -291,14 +296,16 @@ def list_all_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
                         meta_obj = json.loads(metadata)
                     except Exception:
                         meta_obj = metadata if metadata else {}
-                    sessions.append({
-                        "session_id": session_id,
-                        "user_id": user_id,
-                        "state": state,
-                        "created_at": created_at,
-                        "last_updated": last_updated,
-                        "metadata": meta_obj,
-                    })
+                    sessions.append(
+                        {
+                            "session_id": session_id,
+                            "user_id": user_id,
+                            "state": state,
+                            "created_at": created_at,
+                            "last_updated": last_updated,
+                            "metadata": meta_obj,
+                        }
+                    )
         except Exception as e:
             _log_event({"event": "list_all_sessions_failed", "error": str(e)})
             log_message(
@@ -351,6 +358,7 @@ def list_all_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
 # Example entrypoint for CLI usage
 def main():
     import argparse
+
     parser = argparse.ArgumentParser(description="Unified Session Management System")
     parser.add_argument("--list", action="store_true", help="List all sessions")
     parser.add_argument("--discover-active", action="store_true", help="Discover all active sessions")

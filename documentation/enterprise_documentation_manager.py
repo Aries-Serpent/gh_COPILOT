@@ -22,11 +22,7 @@ TEXT_INDICATORS = {
 }
 
 logger = logging.getLogger(__name__)
-LOG_RENDER_DIR = (
-    Path(os.getenv("GH_COPILOT_WORKSPACE", DEFAULT_WORKSPACE_ROOT))
-    / "logs"
-    / "template_rendering"
-)
+LOG_RENDER_DIR = Path(os.getenv("GH_COPILOT_WORKSPACE", DEFAULT_WORKSPACE_ROOT)) / "logs" / "template_rendering"
 LOG_RENDER_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -36,11 +32,7 @@ class EnterpriseDocumentationManager:
     def __init__(self, db_path: str = "production.db") -> None:
         workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", DEFAULT_WORKSPACE_ROOT))
         # If not absolute, treat as workspace-relative
-        self.db_path = (
-            workspace_root / db_path
-            if not Path(db_path).is_absolute()
-            else Path(db_path)
-        )
+        self.db_path = workspace_root / db_path if not Path(db_path).is_absolute() else Path(db_path)
         self.analytics_db = workspace_root / "analytics.db"
         self.workspace_root = workspace_root
         self.output_dir = workspace_root / "documentation" / "generated"
@@ -85,9 +77,7 @@ class EnterpriseDocumentationManager:
                 (doc_type,),
             )
             templates = cur.fetchall()
-        self.logger.info(
-            f"{TEXT_INDICATORS['info']} {len(templates)} templates discovered"
-        )
+        self.logger.info(f"{TEXT_INDICATORS['info']} {len(templates)} templates discovered")
         return templates
 
     def select_optimal_template(
@@ -96,14 +86,9 @@ class EnterpriseDocumentationManager:
         """Select template with highest compliance score."""
         if not templates:
             raise ValueError("No templates available")
-        scored = [
-            (name, content, self.calculate_compliance(content))
-            for name, content in templates
-        ]
+        scored = [(name, content, self.calculate_compliance(content)) for name, content in templates]
         best = max(scored, key=lambda t: t[2])
-        self.logger.info(
-            f"{TEXT_INDICATORS['info']} Template selected {best[0]} with score {best[2]:.2f}"
-        )
+        self.logger.info(f"{TEXT_INDICATORS['info']} Template selected {best[0]} with score {best[2]:.2f}")
         return best[0], best[1]
 
     def apply_template_intelligence(
@@ -111,9 +96,7 @@ class EnterpriseDocumentationManager:
     ) -> str:
         """Render documentation content using templates."""
         rendered = []
-        for name, content in tqdm(
-            templates, desc="[PROGRESS] rendering", unit="template"
-        ):
+        for name, content in tqdm(templates, desc="[PROGRESS] rendering", unit="template"):
             rendered.append(content.format(count=len(existing_docs)))
         combined = "\n".join(rendered)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -122,12 +105,8 @@ class EnterpriseDocumentationManager:
         json_file = LOG_RENDER_DIR / f"render_{timestamp}.json"
         md_file.write_text(combined, encoding="utf-8")
         html_file.write_text(f"<pre>{combined}</pre>", encoding="utf-8")
-        json_file.write_text(
-            json.dumps({"content": combined}, indent=2), encoding="utf-8"
-        )
-        self.logger.info(
-            f"{TEXT_INDICATORS['info']} Rendered {len(rendered)} templates"
-        )
+        json_file.write_text(json.dumps({"content": combined}, indent=2), encoding="utf-8")
+        self.logger.info(f"{TEXT_INDICATORS['info']} Rendered {len(rendered)} templates")
         return combined
 
     def calculate_compliance(self, content: str) -> float:
@@ -155,9 +134,7 @@ class EnterpriseDocumentationManager:
                 (datetime.now(), len(content), compliance_score),
             )
             conn.commit()
-        event_file = (
-            LOG_RENDER_DIR / f"event_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-        )
+        event_file = LOG_RENDER_DIR / f"event_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         event_file.write_text(
             f"stored {len(content)} bytes score {compliance_score:.2f}",
             encoding="utf-8",

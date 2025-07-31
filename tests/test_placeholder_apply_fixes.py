@@ -16,9 +16,7 @@ def test_apply_fixes_removes_placeholders(tmp_path: Path) -> None:
     analytics = tmp_path / "analytics.db"
     prod_db = tmp_path / "production.db"
     with sqlite3.connect(prod_db) as conn:
-        conn.execute(
-            "CREATE TABLE template_placeholders (placeholder_name TEXT)"
-        )
+        conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT)")
         conn.execute("INSERT INTO template_placeholders VALUES ('PLACE')")
 
     os.environ["GH_COPILOT_WORKSPACE"] = str(workspace)

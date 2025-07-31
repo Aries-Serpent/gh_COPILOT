@@ -43,9 +43,7 @@ def add_table(db_path: Path) -> None:
     logger.info("Process ID: %s", os.getpid())
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(db_path, timeout=5) as conn, tqdm(
-        total=1, desc="create-table", unit="step"
-    ) as bar:
+    with sqlite3.connect(db_path, timeout=5) as conn, tqdm(total=1, desc="create-table", unit="step") as bar:
         conn.executescript(SCHEMA_SQL)
         conn.commit()
         bar.update(1)

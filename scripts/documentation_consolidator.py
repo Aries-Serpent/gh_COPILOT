@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Consolidate the documentation database and generate feature matrix."""
+
 from __future__ import annotations
 
 import csv
@@ -14,10 +15,7 @@ from typing import Iterable, Tuple
 
 from utils.log_utils import DEFAULT_ANALYTICS_DB, insert_event
 
-CLEANUP_SQL = (
-    "DELETE FROM enterprise_documentation "
-    "WHERE doc_type='BACKUP_LOG' OR source_path LIKE '%backup%'"
-)
+CLEANUP_SQL = "DELETE FROM enterprise_documentation WHERE doc_type='BACKUP_LOG' OR source_path LIKE '%backup%'"
 DEDUPE_SQL = (
     "DELETE FROM enterprise_documentation WHERE rowid NOT IN ("
     "SELECT MIN(rowid) FROM enterprise_documentation GROUP BY title)"
@@ -101,8 +99,7 @@ def populate_templates(db_path: Path) -> None:
                 (template_id, template_name, doc_type, pattern),
             )
             conn.execute(
-                "INSERT OR REPLACE INTO template_registry"
-                " (template_id, doc_type, created_at) VALUES (?, ?, ?)",
+                "INSERT OR REPLACE INTO template_registry (template_id, doc_type, created_at) VALUES (?, ?, ?)",
                 (template_id, doc_type, datetime.utcnow().isoformat()),
             )
         conn.commit()
@@ -141,9 +138,7 @@ def write_matrix(
     planned: Iterable[str],
 ) -> None:
     """Write CSV and Markdown feature matrix."""
-    rows = [(feat, "Implemented") for feat in implemented] + [
-        (feat, "Planned") for feat in planned
-    ]
+    rows = [(feat, "Implemented") for feat in implemented] + [(feat, "Planned") for feat in planned]
     with path_csv.open("w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["Feature", "Status"])
@@ -169,7 +164,7 @@ def generate_feature_matrix(workspace: Path) -> None:
     insert_event(
         {
             "db_name": str(csv_path),
-            "details": f"feature_matrix:{len(implemented)+len(planned)}",
+            "details": f"feature_matrix:{len(implemented) + len(planned)}",
             "ts": datetime.utcnow().isoformat(),
         },
         table="audit_log",

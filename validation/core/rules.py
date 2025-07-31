@@ -32,10 +32,7 @@ class FileExistsRule(ValidationRule):
     """Rule to check if a file exists"""
 
     def __init__(self, file_path: str):
-        super().__init__(
-            name=f"file_exists_{Path(file_path).name}",
-            description=f"Check if file {file_path} exists"
-        )
+        super().__init__(name=f"file_exists_{Path(file_path).name}", description=f"Check if file {file_path} exists")
         self.file_path = Path(file_path)
 
     def check(self, target: Any) -> bool:
@@ -49,10 +46,7 @@ class NoZeroByteFilesRule(ValidationRule):
     """Rule to check for zero-byte files in a directory"""
 
     def __init__(self, directory: Path):
-        super().__init__(
-            name="no_zero_byte_files",
-            description=f"Check for zero-byte files in {directory}"
-        )
+        super().__init__(name="no_zero_byte_files", description=f"Check for zero-byte files in {directory}")
         self.directory = directory
         self.zero_byte_files = []
 
@@ -62,7 +56,7 @@ class NoZeroByteFilesRule(ValidationRule):
         if not self.directory.exists():
             return True  # Can't have zero-byte files if directory doesn't exist
 
-        for path in self.directory.rglob('*'):
+        for path in self.directory.rglob("*"):
             if path.is_file() and path.stat().st_size == 0:
                 self.zero_byte_files.append(path)
 
@@ -78,8 +72,7 @@ class DatabaseIntegrityRule(ValidationRule):
 
     def __init__(self, database_path: Path):
         super().__init__(
-            name=f"db_integrity_{database_path.name}",
-            description=f"Check integrity of database {database_path}"
+            name=f"db_integrity_{database_path.name}", description=f"Check integrity of database {database_path}"
         )
         self.database_path = database_path
         self.integrity_result = None
@@ -93,7 +86,7 @@ class DatabaseIntegrityRule(ValidationRule):
                 cursor = conn.cursor()
                 cursor.execute("PRAGMA integrity_check")
                 self.integrity_result = cursor.fetchone()[0]
-                return self.integrity_result == 'ok'
+                return self.integrity_result == "ok"
         except Exception:
             return False
 
@@ -107,10 +100,7 @@ class JsonValidRule(ValidationRule):
     """Rule to check if a file contains valid JSON"""
 
     def __init__(self, json_file: Path):
-        super().__init__(
-            name=f"json_valid_{json_file.name}",
-            description=f"Check if {json_file} contains valid JSON"
-        )
+        super().__init__(name=f"json_valid_{json_file.name}", description=f"Check if {json_file} contains valid JSON")
         self.json_file = json_file
         self.error_message = None
 
@@ -119,7 +109,7 @@ class JsonValidRule(ValidationRule):
             return False
 
         try:
-            with open(self.json_file, 'r') as f:
+            with open(self.json_file, "r") as f:
                 json.load(f)
             return True
         except json.JSONDecodeError as e:
@@ -139,10 +129,7 @@ class ThresholdRule(ValidationRule):
     """Rule to check if a value meets a threshold"""
 
     def __init__(self, name: str, threshold: float, comparison: str = ">="):
-        super().__init__(
-            name=name,
-            description=f"Check if value {comparison} {threshold}"
-        )
+        super().__init__(name=name, description=f"Check if value {comparison} {threshold}")
         self.threshold = threshold
         self.comparison = comparison
         self.actual_value = None
@@ -151,8 +138,8 @@ class ThresholdRule(ValidationRule):
         # Extract numeric value from target
         if isinstance(target, (int, float)):
             self.actual_value = target
-        elif isinstance(target, dict) and 'value' in target:
-            self.actual_value = target['value']
+        elif isinstance(target, dict) and "value" in target:
+            self.actual_value = target["value"]
         else:
             return False
 
@@ -190,35 +177,23 @@ class RuleBasedValidator(BaseValidator):
             try:
                 if rule.check(target):
                     passed_rules.append(rule)
-                    rule_details[rule.name] = {
-                        'status': 'passed',
-                        'description': rule.description
-                    }
+                    rule_details[rule.name] = {"status": "passed", "description": rule.description}
                 else:
                     failed_rules.append(rule)
                     rule_details[rule.name] = {
-                        'status': 'failed',
-                        'description': rule.description,
-                        'message': rule.get_failure_message(target)
+                        "status": "failed",
+                        "description": rule.description,
+                        "message": rule.get_failure_message(target),
                     }
             except Exception as e:
                 failed_rules.append(rule)
-                rule_details[rule.name] = {
-                    'status': 'error',
-                    'description': rule.description,
-                    'error': str(e)
-                }
+                rule_details[rule.name] = {"status": "error", "description": rule.description, "error": str(e)}
 
         # Determine overall result
         if failed_rules:
             status = ValidationStatus.FAILED
             message = f"Rule validation failed: {len(failed_rules)}/{len(self.rules)} rules failed"
-            errors = [
-                rule_details[rule.name].get(
-                    'message', f'Rule {rule.name} failed'
-                )
-                for rule in failed_rules
-            ]
+            errors = [rule_details[rule.name].get("message", f"Rule {rule.name} failed") for rule in failed_rules]
         else:
             status = ValidationStatus.PASSED
             message = f"Rule validation passed: {len(passed_rules)}/{len(self.rules)} rules passed"
@@ -227,10 +202,6 @@ class RuleBasedValidator(BaseValidator):
         return ValidationResult(
             status=status,
             message=message,
-            details={
-                'rules': rule_details,
-                'passed_count': len(passed_rules),
-                'failed_count': len(failed_rules)
-            },
-            errors=errors
+            details={"rules": rule_details, "passed_count": len(passed_rules), "failed_count": len(failed_rules)},
+            errors=errors,
         )

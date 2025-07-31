@@ -9,6 +9,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 from utils.log_utils import _log_event, DEFAULT_ANALYTICS_DB
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 DB_PATH = Path("databases/production.db")
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
@@ -92,8 +93,7 @@ def ingest_assets() -> None:
             content = path.read_text(encoding="utf-8")
             digest = hashlib.sha256(content.encode()).hexdigest()
             cur.execute(
-                "INSERT INTO template_assets (template_path, content_hash, created_at)"
-                " VALUES (?, ?, ?)",
+                "INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)",
                 (
                     str(path),
                     digest,
@@ -101,22 +101,25 @@ def ingest_assets() -> None:
                 ),
             )
             cur.execute(
-                "INSERT INTO pattern_assets (pattern, usage_count, created_at)"
-                " VALUES (?, 0, ?)",
+                "INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)",
                 (content[:1000], datetime.now(timezone.utc).isoformat()),
             )
             bar.update(1)
     conn.commit()
     conn.close()
     _log_event({"event": "templates_ingested", "count": len(tmpl_files)}, db_path=ANALYTICS_DB)
-    _log_event({"event": "ingestion_completed", "docs": len(doc_files), "templates": len(tmpl_files)}, db_path=ANALYTICS_DB)
+    _log_event(
+        {"event": "ingestion_completed", "docs": len(doc_files), "templates": len(tmpl_files)}, db_path=ANALYTICS_DB
+    )
+
+    SecondaryCopilotValidator().validate_corrections([str(p) for p in doc_files + tmpl_files])
 
 
 def run_audit() -> None:
-    os.system('python scripts/code_placeholder_audit.py')
+    os.system("python scripts/code_placeholder_audit.py")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     start = datetime.now(timezone.utc)
     _log_event({"event": "automation_setup_start"}, db_path=ANALYTICS_DB)
     init_databases()

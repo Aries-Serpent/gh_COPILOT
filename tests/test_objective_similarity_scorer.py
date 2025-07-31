@@ -9,6 +9,7 @@ from template_engine.objective_similarity_scorer import (
     validate_scores,
 )
 
+
 def test_compute_similarity_scores(tmp_path: Path) -> None:
     # Start time logging for test
     start_time = datetime.now()
@@ -20,15 +21,9 @@ def test_compute_similarity_scores(tmp_path: Path) -> None:
     prod = tmp_path / "production.db"
     analytics = tmp_path / "analytics.db"
     with sqlite3.connect(prod) as conn:
-        conn.execute(
-            "CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO code_templates (template_code) VALUES ('print(\"hello\")')"
-        )
-        conn.execute(
-            "INSERT INTO code_templates (template_code) VALUES ('def greet(): return \"hello world\"')"
-        )
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("INSERT INTO code_templates (template_code) VALUES ('print(\"hello\")')")
+        conn.execute("INSERT INTO code_templates (template_code) VALUES ('def greet(): return \"hello world\"')")
 
     # Visual processing indicator: progress bar for scoring
     os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
@@ -42,7 +37,9 @@ def test_compute_similarity_scores(tmp_path: Path) -> None:
     assert scores, "No similarity scores returned"
 
     # Validate DUAL COPILOT pattern: check analytics for score records
-    assert validate_scores(objective, expected_count=len(scores), analytics_db=analytics), "DUAL COPILOT validation failed"
+    assert validate_scores(objective, expected_count=len(scores), analytics_db=analytics), (
+        "DUAL COPILOT validation failed"
+    )
 
 
 def test_similarity_scores_with_quantum(tmp_path: Path) -> None:

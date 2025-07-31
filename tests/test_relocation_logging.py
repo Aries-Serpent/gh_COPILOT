@@ -1,7 +1,5 @@
 import importlib
 
-import pytest
-
 
 def test_relocation_logs_events(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))

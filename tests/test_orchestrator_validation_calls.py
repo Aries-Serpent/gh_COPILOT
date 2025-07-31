@@ -8,7 +8,11 @@ from enterprise_modules import compliance
 @pytest.mark.parametrize(
     "module_name,class_name,method_name",
     [
-        ("scripts.enterprise_deployment_orchestrator", "EnterpriseDeploymentOrchestrator", "execute_enterprise_deployment"),
+        (
+            "scripts.enterprise_deployment_orchestrator",
+            "EnterpriseDeploymentOrchestrator",
+            "execute_enterprise_deployment",
+        ),
         ("scripts.enterprise_validation_orchestrator", "EnterpriseValidationOrchestrator", None),
         ("scripts.orchestrators.unified_wrapup_orchestrator", "UnifiedWrapUpOrchestrator", None),
     ],

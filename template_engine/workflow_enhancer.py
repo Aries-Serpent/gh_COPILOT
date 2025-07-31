@@ -26,6 +26,7 @@ from sklearn.cluster import KMeans
 from tqdm import tqdm
 from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 LOGS_DIR = CrossPlatformPathManager.get_workspace_path() / "logs" / "workflow_enhancer"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
@@ -147,6 +148,15 @@ class TemplateWorkflowEnhancer:
             table="workflow_events",
             db_path=DEFAULT_ANALYTICS_DB,
         )
+        _log_event(
+            {
+                "event": "workflow_report",
+                "template_count": len(templates),
+                "cluster_count": len(clusters),
+            },
+            table="workflow_events",
+            db_path=DEFAULT_ANALYTICS_DB,
+        )
 
     def enhance(self, timeout_minutes: int = 30) -> bool:
         """Enhance workflow using stored templates and patterns.
@@ -194,6 +204,7 @@ class TemplateWorkflowEnhancer:
             logging.info("DUAL COPILOT validation passed: Workflow enhancement integrity confirmed.")
         else:
             logging.error("DUAL COPILOT validation failed: Workflow enhancement mismatch.")
+        SecondaryCopilotValidator().validate_corrections([__file__])
         return valid
 
     def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:

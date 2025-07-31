@@ -1,5 +1,4 @@
 from pathlib import Path
-import os
 import shutil
 
 from scripts.optimization.automated_optimization_engine import main as opt_main
@@ -22,9 +21,7 @@ def test_automated_optimizer_cli(tmp_path, monkeypatch):
         events.append(event)
         return True
 
-    monkeypatch.setattr(
-        "scripts.optimization.automated_optimization_engine._log_event", fake_log
-    )
+    monkeypatch.setattr("scripts.optimization.automated_optimization_engine._log_event", fake_log)
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(ws))
     assert opt_main([str(ws)]) == 0
     assert any(e.get("event") == "optimization_metric" for e in events)
@@ -38,9 +35,7 @@ def test_intelligence_gather_cli(tmp_path, monkeypatch):
         events.append(event)
         return True
 
-    monkeypatch.setattr(
-        "scripts.optimization.intelligence_gathering_system._log_event", fake_log
-    )
+    monkeypatch.setattr("scripts.optimization.intelligence_gathering_system._log_event", fake_log)
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(ws))
     db = ws / "databases" / "production.db"
     assert intel_main([str(db)]) == 0

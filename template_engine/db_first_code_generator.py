@@ -24,6 +24,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
 from utils.log_utils import _log_event
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 from .placeholder_utils import DEFAULT_PRODUCTION_DB, replace_placeholders
 from .objective_similarity_scorer import compute_similarity_scores
@@ -282,16 +283,12 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
     def _ensure_codegen_table(self) -> None:
         """Ensure ``code_generation_events`` table has expected columns."""
         with sqlite3.connect(self.analytics_db) as conn:
-            cur = conn.execute(
-                "PRAGMA table_info(code_generation_events)"
-            )
+            cur = conn.execute("PRAGMA table_info(code_generation_events)")
             cols = [row[1] for row in cur.fetchall()]
             if cols and {"objective", "status"}.issubset(cols):
                 return
             conn.execute("DROP TABLE IF EXISTS code_generation_events")
-            conn.execute(
-                "CREATE TABLE code_generation_events (objective TEXT, status TEXT)"
-            )
+            conn.execute("CREATE TABLE code_generation_events (objective TEXT, status TEXT)")
             conn.commit()
 
     def fetch_existing_pattern(self, name: str) -> str | None:  # pragma: no cover - simplified
@@ -397,6 +394,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 db_path=self.analytics_db,
                 test_mode=False,
             )
+            SecondaryCopilotValidator().validate_corrections([str(path)])
         except Exception as exc:  # pragma: no cover - error handling
             if "conn" in locals():
                 conn.rollback()

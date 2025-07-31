@@ -57,6 +57,7 @@ def test_stream_metrics_violation(tmp_path, monkeypatch, caplog):
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
 
     monkeypatch.setattr(cmu, "validate_enterprise_operation", lambda *a, **k: None)
+
     def _raise_violation(self) -> None:
         raise RuntimeError("Forbidden operation detected")
 

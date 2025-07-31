@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Lightweight orchestrator for Dual Copilot validation."""
+
 from __future__ import annotations
 
 import logging
@@ -11,6 +12,7 @@ from scripts.validation.primary_copilot_executor import PrimaryCopilotExecutor, 
 
 class DualCopilotOrchestrator:
     """Run a primary operation followed by secondary validation."""
+
     def __init__(self, logger: logging.Logger | None = None) -> None:
         self.logger = logger or logging.getLogger(__name__)
         self.validator = SecondaryCopilotValidator(self.logger)
@@ -25,7 +27,7 @@ class DualCopilotOrchestrator:
         self.logger.info("[DUAL] Starting primary operation")
 
         executor = PrimaryCopilotExecutor("Primary Operation", timeout_minutes, self.logger)
-        phase = ProcessPhase("Primary", "Execute main task", "\U0001F680", 100)
+        phase = ProcessPhase("Primary", "Execute main task", "\U0001f680", 100)
         _, primary_success = executor.execute_with_monitoring([phase], primary)
 
         if primary_success:

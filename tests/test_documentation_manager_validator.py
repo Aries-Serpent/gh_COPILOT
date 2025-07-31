@@ -18,9 +18,7 @@ def test_documentation_validator(tmp_path: Path) -> None:
     completion_db = tmp_path / "template.db"
 
     with sqlite3.connect(prod_db) as conn:
-        conn.execute(
-            "CREATE TABLE documentation (title TEXT, content TEXT, compliance_score INTEGER)"
-        )
+        conn.execute("CREATE TABLE documentation (title TEXT, content TEXT, compliance_score INTEGER)")
         conn.execute("INSERT INTO documentation VALUES ('Doc1', 'body', 80)")
 
     with sqlite3.connect(completion_db) as conn:
@@ -40,6 +38,7 @@ def test_documentation_validator(tmp_path: Path) -> None:
     )
     assert manager.render() == 1
     import archive.consolidated_scripts.enterprise_database_driven_documentation_manager as mod
+
     mod_obj = manager
     setattr(mod, "DocumentationManager", lambda: mod_obj)
     assert dual_validate()

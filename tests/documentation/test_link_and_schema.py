@@ -10,7 +10,13 @@ _link_re = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 def _local_links(text):
     for match in _link_re.finditer(text):
         link = match.group(1).strip()
-        if link.startswith(("http://", "https://", "#", "file://")) or "commit/" in link or link.endswith(('.py', '.png')) or link == "data" or not link:
+        if (
+            link.startswith(("http://", "https://", "#", "file://"))
+            or "commit/" in link
+            or link.endswith((".py", ".png"))
+            or link == "data"
+            or not link
+        ):
             continue
         link = link.split("#", 1)[0]
         yield link

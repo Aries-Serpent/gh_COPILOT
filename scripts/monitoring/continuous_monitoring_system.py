@@ -27,7 +27,7 @@ def validate_workspace_integrity() -> bool:
     workspace_root = Path(os.getcwd())
 
     # Check for recursive patterns
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     violations = []
 
     for pattern in forbidden_patterns:
@@ -46,6 +46,7 @@ def validate_workspace_integrity() -> bool:
 @dataclass
 class MonitoringSnapshot:
     """stats" Monitoring data snapshot"""
+
     timestamp: datetime
     total_violations: int
     pending_violations: int
@@ -60,10 +61,11 @@ class MonitoringSnapshot:
 @dataclass
 class AlertThreshold:
     """# ALERT Alert threshold configuration"""
+
     metric: str
     threshold_value: float
     comparison: str  # 'greater_than', 'less_than', 'equals'
-    severity: str    # 'INFO', 'WARNING', 'CRITICAL'
+    severity: str  # 'INFO', 'WARNING', 'CRITICAL'
     enabled: bool
 
 
@@ -101,13 +103,8 @@ class ContinuousMonitoringSystem:
         log_dir.mkdir(exist_ok=True)
 
         # Create file handler with UTF-8 encoding
-        file_handler = logging.FileHandler(
-            log_dir / "continuous_monitoring.log",
-            encoding='utf-8'
-        )
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
+        file_handler = logging.FileHandler(log_dir / "continuous_monitoring.log", encoding="utf-8")
+        file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
 
         # Setup logger
         self.logger = logging.getLogger("continuous_monitoring")
@@ -168,12 +165,12 @@ class ContinuousMonitoringSystem:
     def setup_alert_thresholds(self):
         """# ALERT Setup alert thresholds"""
         self.alert_thresholds = [
-            AlertThreshold('new_violations', 100, 'greater_than', 'WARNING', True),
-            AlertThreshold('critical_violations', 10, 'greater_than', 'CRITICAL', True),
-            AlertThreshold('health_score', 70.0, 'less_than', 'WARNING', True),
-            AlertThreshold('health_score', 50.0, 'less_than', 'CRITICAL', True),
-            AlertThreshold('pending_violations', 15000, 'greater_than', 'WARNING', True),
-            AlertThreshold('files_with_violations', 1000, 'greater_than', 'INFO', True)
+            AlertThreshold("new_violations", 100, "greater_than", "WARNING", True),
+            AlertThreshold("critical_violations", 10, "greater_than", "CRITICAL", True),
+            AlertThreshold("health_score", 70.0, "less_than", "WARNING", True),
+            AlertThreshold("health_score", 50.0, "less_than", "CRITICAL", True),
+            AlertThreshold("pending_violations", 15000, "greater_than", "WARNING", True),
+            AlertThreshold("files_with_violations", 1000, "greater_than", "INFO", True),
         ]
 
     def collect_monitoring_snapshot(self) -> MonitoringSnapshot:
@@ -240,7 +237,7 @@ class ContinuousMonitoringSystem:
                 files_with_violations=files_with_violations,
                 top_violation_types=top_violation_types,
                 critical_violations=critical_violations,
-                health_score=health_score
+                health_score=health_score,
             )
 
     def save_snapshot(self, snapshot: MonitoringSnapshot):
@@ -248,35 +245,38 @@ class ContinuousMonitoringSystem:
         with sqlite3.connect(self.monitoring_db) as conn:
             cursor = conn.cursor()
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO monitoring_snapshots
                 (timestamp, total_violations, pending_violations, fixed_violations,
                  new_violations, files_with_violations, critical_violations,
                  health_score, snapshot_data)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                snapshot.timestamp.isoformat(),
-                snapshot.total_violations,
-                snapshot.pending_violations,
-                snapshot.fixed_violations,
-                snapshot.new_violations,
-                snapshot.files_with_violations,
-                snapshot.critical_violations,
-                snapshot.health_score,
-                json.dumps(asdict(snapshot), default=str)
-            ))
+            """,
+                (
+                    snapshot.timestamp.isoformat(),
+                    snapshot.total_violations,
+                    snapshot.pending_violations,
+                    snapshot.fixed_violations,
+                    snapshot.new_violations,
+                    snapshot.files_with_violations,
+                    snapshot.critical_violations,
+                    snapshot.health_score,
+                    json.dumps(asdict(snapshot), default=str),
+                ),
+            )
 
     def check_alert_thresholds(self, snapshot: MonitoringSnapshot) -> List[Dict[str, Any]]:
         """# ALERT Check if any alert thresholds are exceeded"""
         alerts = []
 
         snapshot_values = {
-            'new_violations': snapshot.new_violations,
-            'critical_violations': snapshot.critical_violations,
-            'health_score': snapshot.health_score,
-            'pending_violations': snapshot.pending_violations,
-            'files_with_violations': snapshot.files_with_violations,
-            'total_violations': snapshot.total_violations
+            "new_violations": snapshot.new_violations,
+            "critical_violations": snapshot.critical_violations,
+            "health_score": snapshot.health_score,
+            "pending_violations": snapshot.pending_violations,
+            "files_with_violations": snapshot.files_with_violations,
+            "total_violations": snapshot.total_violations,
         }
 
         for threshold in self.alert_thresholds:
@@ -286,23 +286,23 @@ class ContinuousMonitoringSystem:
             current_value = snapshot_values.get(threshold.metric, 0)
             triggered = False
 
-            if threshold.comparison == 'greater_than' and current_value > threshold.threshold_value:
+            if threshold.comparison == "greater_than" and current_value > threshold.threshold_value:
                 triggered = True
-            elif threshold.comparison == 'less_than' and current_value < threshold.threshold_value:
+            elif threshold.comparison == "less_than" and current_value < threshold.threshold_value:
                 triggered = True
-            elif threshold.comparison == 'equals' and current_value == threshold.threshold_value:
+            elif threshold.comparison == "equals" and current_value == threshold.threshold_value:
                 triggered = True
 
             if triggered:
                 alert = {
-                    'timestamp': snapshot.timestamp.isoformat(),
-                    'alert_type': f'THRESHOLD_EXCEEDED_{threshold.metric.upper()}',
-                    'severity': threshold.severity,
-                    'metric': threshold.metric,
-                    'current_value': current_value,
-                    'threshold_value': threshold.threshold_value,
-                    'message': f"{threshold.metric} is {current_value}, threshold is {threshold.threshold_value}",
-                    'acknowledged': False
+                    "timestamp": snapshot.timestamp.isoformat(),
+                    "alert_type": f"THRESHOLD_EXCEEDED_{threshold.metric.upper()}",
+                    "severity": threshold.severity,
+                    "metric": threshold.metric,
+                    "current_value": current_value,
+                    "threshold_value": threshold.threshold_value,
+                    "message": f"{threshold.metric} is {current_value}, threshold is {threshold.threshold_value}",
+                    "acknowledged": False,
                 }
                 alerts.append(alert)
 
@@ -317,21 +317,24 @@ class ContinuousMonitoringSystem:
             cursor = conn.cursor()
 
             for alert in alerts:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO alerts
                     (timestamp, alert_type, severity, metric, current_value,
                      threshold_value, message, acknowledged)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    alert['timestamp'],
-                    alert['alert_type'],
-                    alert['severity'],
-                    alert['metric'],
-                    alert['current_value'],
-                    alert['threshold_value'],
-                    alert['message'],
-                    alert['acknowledged']
-                ))
+                """,
+                    (
+                        alert["timestamp"],
+                        alert["alert_type"],
+                        alert["severity"],
+                        alert["metric"],
+                        alert["current_value"],
+                        alert["threshold_value"],
+                        alert["message"],
+                        alert["acknowledged"],
+                    ),
+                )
 
     def monitor_cycle(self):
         """stats" Single monitoring cycle"""
@@ -354,7 +357,8 @@ class ContinuousMonitoringSystem:
 
             # Log status
             self.logger.info(
-    f"Monitoring cycle: {snapshot.pending_violations:,} pending, {snapshot.health_score:.1f}% health")
+                f"Monitoring cycle: {snapshot.pending_violations:,} pending, {snapshot.health_score:.1f}% health"
+            )
 
             return snapshot, alerts
 
@@ -373,10 +377,12 @@ class ContinuousMonitoringSystem:
 
             if snapshot:
                 # Print status update
-                print(f"[{datetime.now().strftime('%H:%M:%S')}] "
-                      f"Pending: {snapshot.pending_violations:,} | "
-                      f"Health: {snapshot.health_score:.1f}% | "
-                      f"Alerts: {len(alerts)}")
+                print(
+                    f"[{datetime.now().strftime('%H:%M:%S')}] "
+                    f"Pending: {snapshot.pending_violations:,} | "
+                    f"Health: {snapshot.health_score:.1f}% | "
+                    f"Alerts: {len(alerts)}"
+                )
 
             # Sleep for remaining interval time
             elapsed = time.time() - start_time
@@ -395,10 +401,7 @@ class ContinuousMonitoringSystem:
             return
 
         self.is_monitoring = True
-        self.monitoring_thread = threading.Thread(
-            target=self.continuous_monitoring_loop,
-            daemon=True
-        )
+        self.monitoring_thread = threading.Thread(target=self.continuous_monitoring_loop, daemon=True)
         self.monitoring_thread.start()
         print("# # SUCCESS Continuous monitoring started")
 
@@ -440,24 +443,14 @@ class ContinuousMonitoringSystem:
             trends = cursor.fetchall()
 
         return {
-            'current_status': asdict(current_snapshot),
-            'recent_alerts': [
-                {
-                    'type': alert[0],
-                    'severity': alert[1],
-                    'message': alert[2],
-                    'timestamp': alert[3]
-                }
+            "current_status": asdict(current_snapshot),
+            "recent_alerts": [
+                {"type": alert[0], "severity": alert[1], "message": alert[2], "timestamp": alert[3]}
                 for alert in recent_alerts
             ],
-            'trends': [
-                {
-                    'timestamp': trend[0],
-                    'pending_violations': trend[1],
-                    'health_score': trend[2]
-                }
-                for trend in trends
-            ]
+            "trends": [
+                {"timestamp": trend[0], "pending_violations": trend[1], "health_score": trend[2]} for trend in trends
+            ],
         }
 
     def run_monitoring_demo(self, duration_minutes: int = 2):
@@ -479,8 +472,7 @@ class ContinuousMonitoringSystem:
 
                 if snapshot:
                     pbar.set_description(
-                        f"# # # 🔄 Pending: {snapshot.pending_violations:,} | "
-                        f"Health: {snapshot.health_score:.1f}%"
+                        f"# # # 🔄 Pending: {snapshot.pending_violations:,} | Health: {snapshot.health_score:.1f}%"
                     )
 
                 # Display alerts
@@ -489,8 +481,7 @@ class ContinuousMonitoringSystem:
 
                 # Sleep for next cycle
                 elapsed = time.time() - start_cycle
-                sleep_time = min(30, end_time.timestamp() - time.time()
-                                 )  # 30s max or remaining time
+                sleep_time = min(30, end_time.timestamp() - time.time())  # 30s max or remaining time
 
                 if sleep_time > 0:
                     time.sleep(sleep_time)
@@ -501,9 +492,9 @@ class ContinuousMonitoringSystem:
         print(f"📊 Final State: {final_snapshot.pending_violations:,} pending violations")
 
         return {
-            'initial_snapshot': initial_snapshot,
-            'final_snapshot': final_snapshot,
-            'demo_duration_minutes': duration_minutes
+            "initial_snapshot": initial_snapshot,
+            "final_snapshot": final_snapshot,
+            "demo_duration_minutes": duration_minutes,
         }
 
 
@@ -534,9 +525,8 @@ def main():
         dashboard = monitor.get_monitoring_dashboard()
 
         # Save dashboard
-        dashboard_file = monitor.monitoring_dir / \
-            f"dashboard_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(dashboard_file, 'w', encoding='utf-8') as f:
+        dashboard_file = monitor.monitoring_dir / f"dashboard_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        with open(dashboard_file, "w", encoding="utf-8") as f:
             json.dump(dashboard, f, indent=2, default=str)
 
         # Success summary
@@ -553,7 +543,7 @@ def main():
         print("=" * 80)
 
         # Show current status
-        current = dashboard['current_status']
+        current = dashboard["current_status"]
         print("\n📊 CURRENT MONITORING STATUS:")
         print(f"   Pending Violations: {current['pending_violations']:,}")
         print(f"   Fixed Violations: {current['fixed_violations']:,}")
@@ -562,9 +552,9 @@ def main():
         print(f"   Critical Violations: {current['critical_violations']:,}")
 
         # Show alerts if any
-        if dashboard['recent_alerts']:
+        if dashboard["recent_alerts"]:
             print(f"\n# ALERT RECENT ALERTS ({len(dashboard['recent_alerts'])}):")
-            for alert in dashboard['recent_alerts'][:3]:
+            for alert in dashboard["recent_alerts"][:3]:
                 print(f"   {alert['severity']}: {alert['message']}")
 
     except Exception as e:
