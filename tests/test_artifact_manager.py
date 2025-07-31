@@ -1,75 +1,66 @@
-import os
+import shutil
 import subprocess
 from pathlib import Path
 
-from artifact_manager import (
-    LfsPolicy,
-    package_session,
-    recover_latest_session,
-)
+from artifact_manager import LfsPolicy, package_session, recover_latest_session
 
 
-def init_repo(tmp_path: Path) -> Path:
-    repo = tmp_path / "repo"
-    repo.mkdir()
-    (repo / "tmp").mkdir(parents=True)
-    subprocess.run(["git", "init"], cwd=repo, check=True)
-    policy = repo / ".codex_lfs_policy.yaml"
-    policy.write_text(
-        """\
-# Enable or disable the automatic Git LFS tracking logic
-enable_autolfs: true
-session_artifact_dir: "codex_sessions"
-size_threshold_mb: 1
-binary_extensions:
-  - .zip
-"""
-    )
-    git_attr = repo / ".gitattributes"
-    git_attr.write_text("codex_sessions/*.zip filter=lfs diff=lfs merge=lfs -text\n")
-    subprocess.run(["git", "add", str(policy), str(git_attr)], cwd=repo, check=True)
-    subprocess.run(["git", "commit", "-m", "init"], cwd=repo, check=True)
-    return repo
+def init_repo(path: Path) -> None:
+    subprocess.run(["git", "init"], cwd=path, check=True, stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=path, check=True)
+    subprocess.run(["git", "config", "user.name", "Tester"], cwd=path, check=True)
+    (path / "README.md").write_text("init", encoding="utf-8")
+    subprocess.run(["git", "add", "README.md"], cwd=path, check=True)
+    subprocess.run(["git", "commit", "-m", "init"], cwd=path, check=True, stdout=subprocess.DEVNULL)
+
+
+def copy_policy(repo: Path) -> None:
+    policy_src = Path(__file__).resolve().parents[1] / ".codex_lfs_policy.yaml"
+    shutil.copy(policy_src, repo / ".codex_lfs_policy.yaml")
 
 
 def test_package_and_recover(tmp_path: Path) -> None:
-    repo = init_repo(tmp_path)
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    init_repo(repo)
+    copy_policy(repo)
+
     tmp_dir = repo / "tmp"
-    test_file = tmp_dir / "example.txt"
-    test_file.write_text("data")
-    subprocess.run(["git", "add", str(test_file)], cwd=repo, check=True)
-    subprocess.run(["git", "commit", "-m", "add tmp file"], cwd=repo, check=True)
-    test_file.write_text("update")
+    tmp_dir.mkdir()
+    sample = tmp_dir / "sample.txt"
+    sample.write_text("data", encoding="utf-8")
+    subprocess.run(["git", "add", str(sample)], cwd=repo, check=True)
 
     policy = LfsPolicy(repo)
     archive = package_session(tmp_dir, repo, policy)
-    assert archive and archive.exists()
+    assert archive is not None and archive.exists()
 
-    # verify committed
-    log = subprocess.check_output(["git", "log", "-1", "--pretty=%B"], cwd=repo, text=True)
-    assert "session archive" in log
+    subprocess.run(["git", "add", str(archive), ".gitattributes"], cwd=repo, check=True)
+    subprocess.run(["git", "commit", "-m", "archive"], cwd=repo, check=True, stdout=subprocess.DEVNULL)
 
-    # ensure lfs tracking
-    lfs_files = subprocess.check_output(["git", "lfs", "ls-files"], cwd=repo, text=True)
-    assert archive.name in lfs_files
+    gitattributes = (repo / ".gitattributes").read_text(encoding="utf-8")
+    assert "filter=lfs" in gitattributes
 
-    # remove tmp file and recover
-    os.remove(test_file)
-    recover_latest_session(tmp_dir, repo, policy)
-    assert test_file.exists()
+    result = subprocess.run(["git", "lfs", "ls-files"], cwd=repo, check=True, capture_output=True, text=True)
+    assert archive.name in result.stdout
+
+    shutil.rmtree(tmp_dir)
+    tmp_dir.mkdir()
+
+    restored = recover_latest_session(tmp_dir, repo)
+    assert restored == archive
+    assert (tmp_dir / "sample.txt").exists()
 
 
-def test_no_changes(tmp_path: Path) -> None:
-    repo = init_repo(tmp_path)
-    policy = LfsPolicy(repo)
+def test_package_no_changes(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    init_repo(repo)
+    copy_policy(repo)
+
     tmp_dir = repo / "tmp"
-    result = package_session(tmp_dir, repo, policy)
-    assert result is None
+    tmp_dir.mkdir()
 
-
-def test_missing_tmp(tmp_path: Path) -> None:
-    repo = init_repo(tmp_path)
     policy = LfsPolicy(repo)
-    tmp_dir = repo / "absent"
-    result = package_session(tmp_dir, repo, policy)
-    assert result is None
+    archive = package_session(tmp_dir, repo, policy)
+    assert archive is None

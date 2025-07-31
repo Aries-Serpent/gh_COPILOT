@@ -197,6 +197,30 @@ def package_session(tmp_dir: Path, repo_root: Path, lfs_policy: Optional[LfsPoli
     return archive_path
 
 
+def recover_latest_session(tmp_dir: Path, repo_root: Path) -> Optional[Path]:
+    """Extract the most recent session archive back into ``tmp_dir``."""
+    sessions_dir = repo_root / "codex_sessions"
+    if not sessions_dir.exists():
+        logger.info("Sessions directory %s does not exist", sessions_dir)
+        return None
+
+    archives = sorted(sessions_dir.glob("codex-session_*.zip"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if not archives:
+        logger.info("No session archives found in %s", sessions_dir)
+        return None
+
+    latest = archives[0]
+    try:
+        with ZipFile(latest, "r") as zf:
+            zf.extractall(repo_root)
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Failed to extract archive %s: %s", latest, exc)
+        return None
+
+    logger.info("Recovered session archive %s", latest)
+    return latest
+
+
 def main() -> None:
     """Entry point for CLI usage."""
 
