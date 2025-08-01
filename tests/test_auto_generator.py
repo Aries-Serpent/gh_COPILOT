@@ -57,6 +57,19 @@ def test_lesson_templates_ranked(tmp_path: Path, monkeypatch) -> None:
     assert any("DatabaseFirstOperator" in t for t in ranked)
 
 
+def test_lessons_dataset_integrated(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    monkeypatch.setattr(
+        auto_generator,
+        "load_lessons",
+        lambda: [{"description": "Lesson template"}],
+    )
+    monkeypatch.setattr(auto_generator, "apply_lessons", lambda *a, **k: None)
+    gen = TemplateAutoGenerator(analytics_db, completion_db)
+    assert any("Lesson template" in t for t in gen.templates)
+
+
 def test_cluster_rep_no_dimension_error(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     analytics_db, completion_db = create_test_dbs(tmp_path)

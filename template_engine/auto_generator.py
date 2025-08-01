@@ -27,6 +27,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
 from utils.log_utils import _log_event
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 from .pattern_templates import get_pattern_templates
 from .learning_templates import get_lesson_templates
@@ -137,10 +138,16 @@ class TemplateAutoGenerator:
         logger.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"Process ID: {os.getpid()}")
         validate_no_recursive_folders()
-        # DB-first loading of patterns and templates
+        # DB-first loading of patterns, lessons, and templates
+        self.lessons = load_lessons()
+        apply_lessons(logger, self.lessons)
         self.patterns = self._load_patterns()
-        self.templates = self._load_templates() + get_pattern_templates() + list(
-            get_lesson_templates().values()
+        lesson_descriptions = [lesson["description"] for lesson in self.lessons]
+        self.templates = (
+            lesson_descriptions
+            + self._load_templates()
+            + get_pattern_templates()
+            + list(get_lesson_templates().values())
         )
         self.cluster_vectorizer = None
         self.cluster_model = self._cluster_patterns()
