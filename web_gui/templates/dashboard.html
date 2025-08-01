@@ -5,7 +5,11 @@
 <div>
     <strong>Placeholder Removals:</strong> <span id="placeholder_removal">0</span><br>
     <strong>Open Placeholders:</strong> <span id="open_placeholders">0</span><br>
-    <strong>Compliance Score:</strong> <span id="compliance_score">0.000</span>
+    <strong>Compliance Score:</strong> <span id="compliance_score">0.000</span><br>
+    <h3>Placeholder Types</h3>
+    <ul id="placeholder_breakdown"></ul>
+    <h3>Compliance Trend</h3>
+    <span id="compliance_trend"></span>
 </div>
 <h2>Violations</h2>
 <ul id="violations"></ul>
@@ -17,6 +21,16 @@ function updateMetrics(data){
     document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
     document.getElementById('open_placeholders').textContent = data.open_placeholders;
     document.getElementById('compliance_score').textContent = data.compliance_score.toFixed(3);
+    const pb = document.getElementById('placeholder_breakdown');
+    pb.innerHTML = '';
+    if(data.placeholder_breakdown){
+        Object.entries(data.placeholder_breakdown).forEach(([type,count])=>{
+            const li = document.createElement('li');
+            li.textContent = type+': '+count;
+            pb.appendChild(li);
+        });
+    }
+    document.getElementById('compliance_trend').textContent = (data.compliance_trend||[]).join(', ');
 }
 function updateAlerts(data){
     const v = document.getElementById('violations');

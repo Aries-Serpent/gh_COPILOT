@@ -41,29 +41,16 @@ metrics_updater = ComplianceMetricsUpdater(COMPLIANCE_DIR)
 
 
 def _fetch_metrics() -> Dict[str, Any]:
-    metrics = {
-        "placeholder_removal": 0,
-        "open_placeholders": 0,
-        "resolved_placeholders": 0,
-        "total_placeholders": 0,
-        "compliance_score": 0.0,
-        "lessons_integration_status": "UNKNOWN",
-        "average_query_latency": 0.0,
-    }
+    metrics = metrics_updater._fetch_compliance_metrics(test_mode=True)
+    metrics.setdefault("total_placeholders", 0)
+    metrics.setdefault("lessons_integration_status", "UNKNOWN")
+    metrics.setdefault("average_query_latency", 0.0)
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.cursor()
             try:
                 cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking")
                 metrics["total_placeholders"] = cur.fetchone()[0]
-                cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
-                metrics["placeholder_removal"] = cur.fetchone()[0]
-                metrics["resolved_placeholders"] = metrics["placeholder_removal"]
-                cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=0")
-                metrics["open_placeholders"] = cur.fetchone()[0]
-                cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
-                val = cur.fetchone()[0]
-                metrics["compliance_score"] = float(val) if val is not None else 0.0
                 try:
                     cur.execute(
                         "SELECT integration_status FROM integration_score_calculations ORDER BY timestamp DESC LIMIT 1"
