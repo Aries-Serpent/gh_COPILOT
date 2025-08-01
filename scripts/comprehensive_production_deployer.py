@@ -13,6 +13,7 @@ import sys
 
 import logging
 import shutil
+import sqlite3
 from pathlib import Path
 from datetime import datetime
 
@@ -51,21 +52,33 @@ class EnterpriseUtility:
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
         try:
+            db_path = self.workspace_path / "databases" / "production.db"
             deploy_dir = self.workspace_path / "builds" / "production"
             deploy_dir.mkdir(parents=True, exist_ok=True)
-            files = [self.workspace_path / "README.md"]
-
-            for f in files:
-                if not f.exists():
-                    self.logger.error(f"{TEXT_INDICATORS['error']} Missing file {f}")
-                    return False
-                shutil.copy2(f, deploy_dir)
-                self.logger.info(f"{TEXT_INDICATORS['info']} Deployed {f.name}")
-
-            self.logger.info(f"{TEXT_INDICATORS['success']} Production deployment finished")
+            with sqlite3.connect(db_path) as conn:
+                row = conn.execute(
+                    "SELECT script_path FROM script_repository ORDER BY RANDOM() LIMIT 1"
+                ).fetchone()
+            if not row:
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} No scripts found in repository"
+                )
+                return False
+            src = self.workspace_path / row[0]
+            if not src.exists():
+                self.logger.error(f"{TEXT_INDICATORS['error']} Missing file {src}")
+                return False
+            dst = deploy_dir / Path(row[0]).name
+            shutil.copy2(src, dst)
+            self.logger.info(f"{TEXT_INDICATORS['info']} Deployed {dst.name}")
+            self.logger.info(
+                f"{TEXT_INDICATORS['success']} Production deployment finished"
+            )
             return True
         except Exception as exc:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Deployment failed: {exc}")
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Deployment failed: {exc}"
+            )
             return False
 
 
