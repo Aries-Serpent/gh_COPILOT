@@ -18,6 +18,11 @@ from dataclasses import dataclass, field
 from tqdm import tqdm
 import uuid
 
+from template_engine.learning_templates import (
+    get_lesson_templates,
+    get_dataset_sources,
+)
+
 
 # 🚨 CRITICAL: Anti-recursion workspace validation
 def validate_workspace_integrity() -> bool:
@@ -73,6 +78,7 @@ class GapAnalysisResult:
     overall_integration_score_impact: float
     gaps_by_category: Dict[str, List[LessonsLearnedGap]]
     remediation_roadmap: List[Dict[str, Any]]
+    dataset_coverage_ok: bool
     analysis_passed: bool
     recommendations: List[str] = field(default_factory=list)
 
@@ -92,6 +98,7 @@ class LessonsLearnedGapAnalyzer:
 
         # Database and file paths
         self.production_db = self.workspace_path / "production.db"
+        self.dataset_sources = get_dataset_sources(str(self.workspace_path))
         self.reports_dir = self.workspace_path / "reports" / "gap_analysis"
         self.logs_dir = self.workspace_path / "logs" / "gap_analysis"
 
@@ -193,10 +200,34 @@ class LessonsLearnedGapAnalyzer:
         self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
 
+    def _dataset_lesson_keys(self) -> set[str]:
+        lessons: set[str] = set()
+        for db in self.dataset_sources:
+            if not db.exists():
+                continue
+            try:
+                with sqlite3.connect(db) as conn:
+                    cur = conn.execute("SELECT lesson_key FROM lessons_learned")
+                    lessons.update(row[0] for row in cur.fetchall())
+            except sqlite3.Error:
+                continue
+        return lessons
+
+    def validate_dataset_coverage(self) -> bool:
+        expected = set(get_lesson_templates().keys())
+        available = self._dataset_lesson_keys()
+        missing = expected - available
+        if missing:
+            self.logger.warning("Missing lessons in dataset: %s", ", ".join(sorted(missing)))
+            return False
+        return True
+
     def execute_comprehensive_gap_analysis(self) -> GapAnalysisResult:
         """🎯 Execute comprehensive lessons learned gap analysis with visual indicators"""
 
         self.logger.info("🚀 STARTING COMPREHENSIVE GAP ANALYSIS")
+
+        coverage_ok = self.validate_dataset_coverage()
 
         # MANDATORY: Visual processing with tqdm
         gaps_found = []
@@ -246,6 +277,8 @@ class LessonsLearnedGapAnalyzer:
             pbar.set_description("🗺️ Remediation Roadmap")
             self._check_timeout()
             analysis_result = self._generate_comprehensive_analysis_result(gaps_found)
+            analysis_result.dataset_coverage_ok = coverage_ok
+            analysis_result.analysis_passed = analysis_result.analysis_passed and coverage_ok
             pbar.update(16.6)
 
         # Log completion summary
@@ -515,6 +548,7 @@ class LessonsLearnedGapAnalyzer:
             overall_integration_score_impact=total_impact,
             gaps_by_category=gaps_by_category,
             remediation_roadmap=remediation_roadmap,
+            dataset_coverage_ok=True,
             analysis_passed=analysis_passed,
             recommendations=recommendations,
         )
