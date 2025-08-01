@@ -108,6 +108,7 @@ def log_findings(
     simulate: bool = False,
     *,
     update_resolutions: bool = False,
+    auto_remove_resolved: bool = False,
 ) -> None:
     """Log audit results to analytics.db.
 
@@ -119,6 +120,8 @@ def log_findings(
         Target analytics database path.
     simulate : bool, optional
         If True, no database writes occur.
+    auto_remove_resolved : bool, optional
+        When ``True`` delete entries marked as resolved from the tracking table.
 
     Returns
     -------
@@ -213,6 +216,8 @@ def log_findings(
                         rowid,
                     ),
                 )
+        if auto_remove_resolved:
+            conn.execute("DELETE FROM todo_fixme_tracking WHERE resolved=1")
         if not update_resolutions:
             for row in results:
                 key = (row["file"], row["line"], row["pattern"], row["context"])
@@ -427,7 +432,7 @@ def auto_remove_placeholders(
 
     logger.summarize_corrections()
     # Mark resolved placeholders
-    log_findings([], analytics_db, simulate=False, update_resolutions=True)
+    log_findings([], analytics_db, simulate=False, update_resolutions=True, auto_remove_resolved=True)
 
 
 def main(
@@ -527,7 +532,13 @@ def main(
             bar.update(1)
 
     # Log findings to analytics.db
-    log_findings(results, analytics, simulate=simulate, update_resolutions=update_resolutions)
+    log_findings(
+        results,
+        analytics,
+        simulate=simulate,
+        update_resolutions=update_resolutions,
+        auto_remove_resolved=update_resolutions,
+    )
     if export:
         export.write_text(json.dumps(results, indent=2), encoding="utf-8")
     if apply_fixes and not simulate:
