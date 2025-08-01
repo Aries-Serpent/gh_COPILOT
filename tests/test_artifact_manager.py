@@ -1,9 +1,12 @@
+import logging
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import Iterable
 from zipfile import ZipFile
 
+import artifact_manager
 from artifact_manager import LfsPolicy, package_session, recover_latest_session
 
 
@@ -167,3 +170,50 @@ def test_cli_tmp_dir_option(tmp_path: Path) -> None:
     assert archives
     with ZipFile(archives[0]) as zf:
         assert "d.txt" in zf.namelist()
+
+
+def test_policy_file_missing_logs_defaults(tmp_path: Path, caplog) -> None:
+    repo = tmp_path
+    init_repo(repo)
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "e.txt").write_text("data", encoding="utf-8")
+
+    with caplog.at_level(logging.INFO):
+        policy = LfsPolicy(repo)
+        archive = package_session(tmp_dir, repo, policy)
+
+    assert archive and archive.exists()
+    messages = " ".join(caplog.messages)
+    assert "not found" in messages
+    assert "Using default LFS policy values" in messages
+    assert "Session artifact directory" in messages
+    assert archive.parent.name == "codex_sessions"
+
+
+def test_package_session_atomic_output(tmp_path: Path, monkeypatch) -> None:
+    repo = tmp_path
+    init_repo(repo)
+    (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: false\n")
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "f.txt").write_text("data", encoding="utf-8")
+
+    recorded: dict[str, Path] = {}
+
+    def fake_create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> None:
+        recorded["tmp"] = archive_path
+        with ZipFile(archive_path, "w") as zf:
+            for file in files:
+                zf.write(file, arcname=file.relative_to(base_dir))
+
+    monkeypatch.setattr(artifact_manager, "create_zip", fake_create_zip)
+
+    policy = LfsPolicy(repo)
+    archive = package_session(tmp_dir, repo, policy)
+
+    assert archive and archive.exists()
+    temp_path = recorded["tmp"]
+    assert temp_path.parent == archive.parent
+    assert temp_path.suffix == ".tmp"
+    assert not temp_path.exists()
