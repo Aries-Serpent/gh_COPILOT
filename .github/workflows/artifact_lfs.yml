@@ -59,7 +59,7 @@ jobs:
           set -e
           # Verify expected LFS artifacts are tracked; see ARTIFACT_RECOVERY_WORKFLOW.md for rationale and troubleshooting
           expected_files="tmp_artifacts.zip tmp/test_artifacts.zip"
-          lfs_list="$(git lfs ls-files | awk '{print $2}')"
+          lfs_list="$(git lfs ls-files | tee lfs_files.log | awk '{print $2}')"
           missing=""
           for f in $expected_files; do
             if ! echo "$lfs_list" | grep -qx "$f"; then
@@ -73,6 +73,23 @@ jobs:
           fi
           git lfs ls-files
         # Parse LFS output and verify expected artifacts; see ARTIFACT_RECOVERY_WORKFLOW.md for troubleshooting and rationale
+      - name: Validate session archive pointers
+        run: |
+          set -e
+          # Parse git lfs ls-files output and ensure session archives exist with LFS pointers
+          # See ARTIFACT_RECOVERY_WORKFLOW.md for recovery workflow details
+          while read -r oid marker path; do
+            if [ "$marker" != "*" ]; then
+              echo "Pointer missing for $path" >&2
+              exit 1
+            fi
+            if [ ! -f "$path" ]; then
+              echo "Missing session archive: $path" >&2
+              exit 1
+            fi
+          done < lfs_files.log
+          rm lfs_files.log
+        # Fail if any session archive is missing or pointers are absent; see ARTIFACT_RECOVERY_WORKFLOW.md
       - name: Push changes
         run: |
           set -e

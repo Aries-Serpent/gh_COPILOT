@@ -112,6 +112,7 @@ def remove_unused_placeholders(
         conn.execute(
             "CREATE TABLE IF NOT EXISTS placeholder_removal_events (event TEXT, placeholder TEXT, removal_id INTEGER, removed INTEGER, timestamp TEXT, level TEXT, module TEXT)"
         )
+        conn.commit()
         etc = "N/A"
         with tqdm(total=total_steps, desc="Removing Placeholders", unit="ph") as bar:
             for idx, ph in enumerate(found, 1):

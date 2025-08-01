@@ -35,7 +35,6 @@ import logging
 import os
 import subprocess
 import sys
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, List, Optional
@@ -249,10 +248,8 @@ def check_directory_health(dir_path: Path, repo_root: Path) -> bool:
 def create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> None:
     """Create ``archive_path`` containing ``files`` relative to ``base_dir``.
 
-    The archive is first written to a temporary file located in the target
-    directory and then atomically renamed to ``archive_path``.  This approach
-    minimises the risk of leaving partial archives behind if the process is
-    interrupted.
+    The caller is responsible for renaming ``archive_path`` to its final
+    destination if an atomic move is required.
     """
 
     archive_dir = archive_path.parent
@@ -262,31 +259,19 @@ def create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> Non
         logger.error("Cannot create directory %s: %s", archive_dir, exc)
         raise
 
-    tmp_file: Path | None = None
     try:
-        with tempfile.NamedTemporaryFile(
-            suffix=".tmp", dir=archive_dir, delete=False
-        ) as tf:
-            tmp_file = Path(tf.name)
-        with ZipFile(tmp_file, "w") as zf:
+        with ZipFile(archive_path, "w") as zf:
             for file in files:
                 if file.exists():
                     zf.write(file, arcname=file.relative_to(base_dir))
-        if archive_path.exists():
-            logger.warning("Replacing existing archive %s", archive_path)
-        os.replace(tmp_file, archive_path)
     except PermissionError as exc:
-        logger.error("Permission denied while creating archive %s: %s", archive_path, exc)
+        logger.error(
+            "Permission denied while creating archive %s: %s", archive_path, exc
+        )
         raise
     except OSError as exc:
         logger.error("Failed to create archive %s: %s", archive_path, exc)
         raise
-    finally:
-        if tmp_file and tmp_file.exists():
-            try:
-                tmp_file.unlink()
-            except OSError:
-                pass
 
 
 def package_session(
@@ -302,33 +287,40 @@ def package_session(
     Parameters
     ----------
     tmp_dir:
-        Temporary directory containing session outputs. This corresponds to the
-        ``--tmp-dir`` CLI flag and is independent of the final archive location
-        governed by ``.codex_lfs_policy.yaml``.
+        Temporary directory containing session outputs. Mirrors the
+        ``--tmp-dir`` flag from :func:`main` and may differ from the final
+        archive location dictated by ``session_artifact_dir`` in
+        ``.codex_lfs_policy.yaml``.
     repo_root:
         Root of the git repository.
     lfs_policy:
         Optional :class:`LfsPolicy` for Git LFS enforcement. If ``None``, the
         policy is loaded from ``.codex_lfs_policy.yaml`` in ``repo_root``.
     commit:
-        If ``True``, commit the created archive to git, honoring any LFS rules
-        from ``.codex_lfs_policy.yaml``.
+        When ``True``, commit the created archive to git and apply tracking
+        rules from ``.codex_lfs_policy.yaml``. Equivalent to passing
+        ``--package --commit`` on the CLI.
     message:
-        Optional commit message. If not provided, a default message using the
-        archive timestamp is used.
+        Optional commit message. If omitted, a timestamped message is used.
 
     Returns
     -------
     Optional[Path]
         Path to the created archive or ``None`` if no changes detected.
 
+    Examples
+    --------
+    Package and commit session outputs located in ``/custom/tmp``::
+
+        package_session(Path("/custom/tmp"), repo_root, commit=True)
+
     Notes
     -----
-    All files packaged into the archive are removed from ``tmp_dir`` to keep the
-    temporary workspace clean. The archive destination derives from
+    Packaged files are removed from ``tmp_dir`` to keep the workspace clean.
+    The archive destination derives from
     ``lfs_policy.session_artifact_dir`` in ``.codex_lfs_policy.yaml``. When
-    ``commit`` is ``True``, the archive is added to git and the policy ensures it
-    is tracked via Git LFS when required.
+    ``commit`` is ``True``, the archive is added to git and the policy ensures
+    it is tracked via Git LFS when required.
     """
 
     if lfs_policy is None:
@@ -365,6 +357,7 @@ def package_session(
     timestamp = datetime.now(timezone.utc)
     archive_name = f"codex-session_{timestamp.strftime('%Y%m%d_%H%M%S')}.zip"
     archive_path = sessions_dir / archive_name
+    tmp_archive_path = archive_path.with_suffix(".tmp")
     logger.info(
         "Packaging session: tmp=%s archive_dir=%s time=%s",
         tmp_dir,
@@ -373,10 +366,18 @@ def package_session(
     )
 
     try:
-        create_zip(archive_path, changed_files, tmp_dir)
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Failed to create archive: %s", exc)
+        create_zip(tmp_archive_path, changed_files, tmp_dir)
+        tmp_archive_path.replace(archive_path)
+    except PermissionError as exc:
+        logger.error("Failed to move archive into %s: %s", sessions_dir, exc)
+        tmp_archive_path.unlink(missing_ok=True)
         return None
+    except OSError as exc:
+        logger.error("Failed to finalize archive in %s: %s", sessions_dir, exc)
+        tmp_archive_path.unlink(missing_ok=True)
+        return None
+
+    logger.info("Session artifacts directory finalized at %s", sessions_dir)
 
     # remove processed files to ensure idempotency
     for file in changed_files:
@@ -437,18 +438,25 @@ def recover_latest_session(
     Parameters
     ----------
     tmp_dir:
-        Destination directory for extracted files. This matches the ``--tmp-dir``
-        CLI option used during packaging.
+        Destination directory for extracted files. This mirrors the
+        ``--tmp-dir`` CLI option and may point to any writable path such as
+        ``/custom/tmp``.
     repo_root:
         Root of the git repository containing session archives.
     lfs_policy:
-        Optional :class:`LfsPolicy` to locate custom session directory. When
+        Optional :class:`LfsPolicy` to locate the session directory. When
         omitted, settings are read from ``.codex_lfs_policy.yaml``.
 
     Returns
     -------
     Optional[Path]
         Path to the extracted archive or ``None`` if none found.
+
+    Examples
+    --------
+    Recover into a custom temporary directory::
+
+        recover_latest_session(Path("/custom/tmp"), repo_root)
 
     Notes
     -----
@@ -488,32 +496,44 @@ def recover_latest_session(
 def main() -> None:
     """Entry point for the artifact manager command line interface.
 
-    ``--tmp-dir`` controls where transient files are gathered for packaging,
-    while the final archive destination is dictated by the
-    ``session_artifact_dir`` setting in ``.codex_lfs_policy.yaml``. Using
-    ``--commit`` commits the generated archive to git and applies any Git LFS
-    tracking rules found in the policy. When ``--sync-gitattributes`` is
-    supplied, the policy's ``gitattributes_template`` and binary extension list
-    regenerate the repository's ``.gitattributes`` file.
+    Flags
+    -----
+    ``--package``
+        Create a session archive from files in the temporary directory. The
+        destination directory comes from ``session_artifact_dir`` in
+        ``.codex_lfs_policy.yaml``.
+    ``--recover``
+        Restore the most recent session archive, also located using
+        ``.codex_lfs_policy.yaml``.
+    ``--commit``
+        Commit the created archive to git and apply tracking rules from
+        ``.codex_lfs_policy.yaml``.
+    ``--message``
+        Commit message to use when ``--commit`` is supplied.
+    ``--tmp-dir``
+        Working directory for session files. Archives always land in the
+        ``session_artifact_dir`` configured in ``.codex_lfs_policy.yaml``.
+    ``--sync-gitattributes``
+        Rebuild ``.gitattributes`` based on ``.codex_lfs_policy.yaml`` and exit.
 
     Examples
     --------
     Package and commit session files using a custom temporary directory::
 
-        python artifact_manager.py --package --tmp-dir build/tmp --commit
+        python artifact_manager.py --package --tmp-dir /custom/tmp --commit
 
     Regenerate the repository's ``.gitattributes`` file from policy::
 
         python artifact_manager.py --sync-gitattributes
 
-    Recover the most recent session into the default temporary directory::
+    Recover the most recent session into a custom temporary directory::
 
-        python artifact_manager.py --recover
+        python artifact_manager.py --recover --tmp-dir /custom/tmp
     """
 
     examples = (
         "Examples:\n"
-        "  python artifact_manager.py --package --tmp-dir build/tmp\n"
+        "  python artifact_manager.py --package --tmp-dir /custom/tmp\n"
         "  python artifact_manager.py --sync-gitattributes"
     )
     parser = argparse.ArgumentParser(
@@ -525,32 +545,34 @@ def main() -> None:
         "--package",
         action="store_true",
         help=(
-            "create a session archive from files in the temporary directory "
-            "(default: %(default)s). Example: --package --tmp-dir build/tmp"
+            "create a session archive from files in the temporary directory and "
+            "store it in the policy's session_artifact_dir from .codex_lfs_policy.yaml "
+            "(default: %(default)s). Example: --package --tmp-dir /custom/tmp"
         ),
     )
     parser.add_argument(
         "--recover",
         action="store_true",
         help=(
-            "restore the most recent session archive back into the temporary "
-            "directory (default: %(default)s). Example: --recover"
+            "restore the most recent session archive defined by .codex_lfs_policy.yaml "
+            "back into the temporary directory (default: %(default)s). Example: "
+            "--recover --tmp-dir /custom/tmp"
         ),
     )
     parser.add_argument(
         "--commit",
         action="store_true",
         help=(
-            "commit the created archive to git and apply LFS policy rules "
-            "(default: %(default)s). Typical use: record session outputs for "
-            "audit trails. Example: --package --commit"
+            "commit the created archive to git and apply rules from .codex_lfs_policy.yaml "
+            "(default: %(default)s). Typical use: record session outputs for audit "
+            "trails. Example: --package --commit"
         ),
     )
     parser.add_argument(
         "--message",
         help=(
-            "commit message when packaging (default: timestamped message). "
-            "Example: --message 'Add session artifacts'"
+            "commit message when packaging; see .codex_lfs_policy.yaml for session_artifact_dir "
+            "(default: timestamped message). Example: --message 'Add session artifacts'"
         ),
     )
     parser.add_argument(
@@ -558,9 +580,9 @@ def main() -> None:
         default="tmp",
         help=(
             "working directory for session files; created if it does not exist "
-            "(default: %(default)s). Archives still go to the policy's "
-            "session_artifact_dir. Typical use: isolate build outputs. "
-            "Example: --tmp-dir build/tmp"
+            "(default: %(default)s). Archives still go to the session_artifact_dir "
+            "in .codex_lfs_policy.yaml. Typical use: isolate build outputs. Example: "
+            "--tmp-dir /custom/tmp"
         ),
     )
     parser.add_argument(

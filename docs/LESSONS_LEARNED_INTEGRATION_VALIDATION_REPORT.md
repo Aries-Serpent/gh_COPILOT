@@ -188,6 +188,14 @@ TEXT_INDICATORS = {
    scripts/documentation/enterprise_compliance_docs_generator.py
    ```
 
+### 🛠 RECENT FIXES
+
+- Updated `scripts/validation/lessons_learned_integration_validator.py` to
+  derive its workspace from `GH_COPILOT_WORKSPACE`, replacing a hard-coded
+  Windows path. The validator now writes logs cross-platform and excludes
+  virtual environment and version-control directories from anti-recursion
+  checks.
+
 ---
 
 ## 🎯 VALIDATION METHODOLOGY

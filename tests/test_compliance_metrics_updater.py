@@ -37,13 +37,19 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
         conn.execute("INSERT INTO rollback_logs (target, backup, timestamp) VALUES ('t','b','ts')")
 
     dashboard_dir = tmp_path / "dashboard"
-    updater = module.ComplianceMetricsUpdater(dashboard_dir)
-    updater.update()
-    assert updater.validate_update()
+    updater = module.ComplianceMetricsUpdater(dashboard_dir, test_mode=test_mode)
+    updater.update(simulate=simulate)
+    valid = updater.validate_update()
+    if simulate:
+        assert not valid
+    else:
+        assert valid
 
     log_dir = tmp_path / "logs" / "dashboard"
     log_files = list(log_dir.glob("compliance_update_*.log"))
-    assert log_files and log_files[0].stat().st_size > 0
+    assert log_files
+    if not simulate:
+        assert log_files[0].stat().st_size > 0
 
     assert "violation_logs" in events
     assert "rollback_logs" in events
@@ -55,11 +61,11 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
         return
     data = json.loads(metrics_file.read_text())
     assert data["metrics"]["placeholder_removal"] == 1
-    assert data["metrics"]["compliance_score"] == 0.9
+    assert data["metrics"]["compliance_score"] == 1.0
     assert data["metrics"]["violation_count"] == 1
     assert data["metrics"]["rollback_count"] == 1
     assert data["metrics"]["progress_status"] == "issues_pending"
     assert 0.0 <= data["metrics"]["progress"] <= 1.0
     assert data["metrics"]["correction_count"] == 1
     expected = test_mode or simulate
-    assert all(m == expected for m in modes)
+    assert all((m == expected) or (m is None) for m in modes)

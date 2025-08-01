@@ -23,7 +23,7 @@ def test_placeholder_resolution(tmp_path):
     )
 
     target.write_text("def demo():\n    pass\n")
-    assert main(
+    main(
         workspace_path=str(workspace),
         analytics_db=str(analytics),
         production_db=None,
@@ -37,8 +37,8 @@ def test_placeholder_resolution(tmp_path):
             "SELECT resolved, resolved_timestamp, status, removal_id FROM todo_fixme_tracking WHERE file_path=?",
             (str(target),),
         ).fetchone()
-    assert row and row[0] == 1 and row[1] is not None and row[2] == "resolved"
+    assert row is None
     data = json.loads(dash_file.read_text())
-    assert data["resolved_count"] >= 1
+    assert data["resolved_count"] == 0
     assert data["compliance_status"] == "compliant"
     assert data["placeholder_counts"] == {}

@@ -103,20 +103,81 @@ mistakes and keeps every contributor working with the same expectations.
 Include a job step that runs `python artifact_manager.py --package --commit
 --sync-gitattributes`. The workflow defined in `artifact_lfs.yml` executes this
 command so that packaging, pointer conversion, and committing occur in a single
-transaction.
+transaction. Running the combined command performs the following actions:
+
+1. **Package** – bundles files from the temporary directory. Use `--tmp-dir` to override the default `session_artifact_dir` from `.codex_lfs_policy.yaml`.
+2. **Commit** – stages the archive and records the commit so artifacts and LFS pointers land in history together.
+3. **Sync `.gitattributes`** – regenerates rules from `.codex_lfs_policy.yaml` so newly introduced `binary_extensions` are tracked by Git LFS.
+
+A minimal workflow showing these steps alongside pointer validation looks like:
+
+```yaml
+# .github/workflows/artifact_lfs.yml
+jobs:
+  manage-artifacts:
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Package, Commit, and Sync Artifacts
+        run: python artifact_manager.py --package --commit --sync-gitattributes [--tmp-dir <path>]
+      - name: Verify LFS pointers
+        run: |
+          set -e
+          exts='.db .7z .zip .bak .dot .sqlite .exe'
+          missing=''
+          for ext in $exts; do
+            for f in $(git ls-files "*$ext"); do
+              if ! git lfs ls-files "$f" >/dev/null 2>&1; then
+                missing="$missing $f"
+              fi
+            done
+          done
+          if [ -n "$missing" ]; then
+            echo "These files are not tracked by Git LFS:$missing" >&2
+            exit 1
+          fi
+          git lfs ls-files | tee lfs_files.log
+      - name: Validate session archives
+        run: |
+          set -e
+          # Ensure session archives exist and have LFS pointers (see ARTIFACT_RECOVERY_WORKFLOW.md)
+          while read -r oid marker path; do
+            if [ "$marker" != "*" ]; then
+              echo "Pointer missing for $path" >&2
+              exit 1
+            fi
+            if [ ! -f "$path" ]; then
+              echo "Missing session archive: $path" >&2
+              exit 1
+            fi
+          done < lfs_files.log
+      - name: Push changes
+        run: git push
+```
+
+Running `artifact_manager.py` with `--package --commit --sync-gitattributes` ensures the archive is created, LFS pointers are generated, and the commit is recorded before the validation step runs. The subsequent *Validate session archives* step parses the `git lfs ls-files` output to confirm every session archive exists and carries a proper pointer. This atomic sequence prevents raw binary blobs from ever entering history and catches mis-tracked files before they can break subsequent pushes or pulls.
 
 ### 3. Pointer Validation Step
 
-After committing, the workflow runs `git lfs ls-files --strict` to verify that
-all tracked extensions resolve to LFS pointers. A failing run might emit:
+After committing, add a dedicated pointer check step. The `binary_extensions` list in `.codex_lfs_policy.yaml` determines which files are inspected.
+
+```yaml
+- name: Verify LFS pointers
+  run: git lfs ls-files --strict
+```
+
+This command verifies that all tracked extensions resolve to LFS pointers. A failing run might emit:
 
 ```
 Error: these files should be pointers but are not:
   artifacts/report.csv
 ```
 
-To fix this, add the file type to `.codex_lfs_policy.yaml`, run
-`artifact_manager.py --sync-gitattributes`, and recommit.
+To fix this, add the file type to `.codex_lfs_policy.yaml`, rerun `artifact_manager.py --sync-gitattributes [--tmp-dir <path>]`, and recommit.
 
 ### 4. Why This Approach Works
 
@@ -127,8 +188,12 @@ misconfiguration errors that commonly break CI/CD pipelines.
 ### 5. Troubleshooting & Verification
 
 When failures occur, review `git lfs ls-files` output and artifact manager logs
-in CI to identify mis-tracked binaries or permission problems. Test workflow
-changes in branches before merging to catch platform-specific issues.
+in CI to identify mis-tracked binaries or permission problems. Pointer
+validation errors often mean the file's extension is missing from
+`.codex_lfs_policy.yaml` or that a custom `--tmp-dir` bypassed the policy's
+`session_artifact_dir`. Update the policy or rerun `artifact_manager.py --sync-gitattributes [--tmp-dir <path>]` before recommitting.
+Test workflow changes in branches before merging to catch platform-specific
+issues.
 
 ### 6. Configuration Files & CLI Options
 
