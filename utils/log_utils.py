@@ -282,11 +282,18 @@ def insert_event(
         return -1
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with _log_lock, sqlite3.connect(db_path) as conn:
-        columns = ", ".join(event.keys())
-        placeholders = ", ".join("?" for _ in event)
+        # Only insert columns that actually exist in the destination table to avoid
+        # ``sqlite3.OperationalError`` when the payload contains extra metadata.
+        existing_cols = {
+            row[1]
+            for row in conn.execute(f"PRAGMA table_info({table})")
+        }
+        filtered = {k: v for k, v in event.items() if k in existing_cols}
+        columns = ", ".join(filtered.keys())
+        placeholders = ", ".join("?" for _ in filtered)
         cur = conn.execute(
             f"INSERT INTO {table} ({columns}) VALUES ({placeholders})",
-            tuple(event.values()),
+            tuple(filtered.values()),
         )
         conn.commit()
         return int(cur.lastrowid)
