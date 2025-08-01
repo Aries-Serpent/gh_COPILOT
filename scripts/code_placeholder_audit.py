@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from tqdm import tqdm
+import shutil
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from scripts.database.add_code_audit_log import ensure_code_audit_log
@@ -275,6 +276,7 @@ def update_dashboard(
     open_count = count
     resolved = 0
     placeholder_counts: Dict[str, int] = {}
+    auto_removal_count = 0
     if analytics_db.exists():
         with sqlite3.connect(analytics_db) as conn:
             cur = conn.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
@@ -285,6 +287,10 @@ def update_dashboard(
                 "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type"
             )
             placeholder_counts = {row[0]: row[1] for row in cur.fetchall()}
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM corrections WHERE rationale='Auto placeholder cleanup'"
+            )
+            auto_removal_count = cur.fetchone()[0]
 
     compliance = max(0, 100 - open_count)
     status = "complete" if open_count == 0 else "issues_pending"
@@ -297,6 +303,7 @@ def update_dashboard(
         "progress_status": status,
         "compliance_status": compliance_status,
         "placeholder_counts": placeholder_counts,
+        "auto_removal_count": auto_removal_count,
     }
     path = summary_json or dashboard_dir / "placeholder_summary.json"
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
@@ -425,10 +432,27 @@ def auto_remove_placeholders(
             if 0 <= idx < len(lines):
                 lines[idx] = re.sub(r"#\s*(TODO|FIXME).*", "", lines[idx])
         new_text = "\n".join(lines)
-        new_text = remove_unused_placeholders(new_text, production_db, analytics_db, timeout_minutes=1)
+        backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
+        backup_dir = backup_root / "auto_placeholder_backups"
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        backup_path = backup_dir / f"{path.name}.{int(time.time())}.bak"
+        shutil.copy2(path, backup_path)
+        new_text = remove_unused_placeholders(
+            new_text,
+            production_db,
+            analytics_db,
+            timeout_minutes=1,
+            source_path=path,
+            logger=logger,
+            backup_path=backup_path,
+        )
         if new_text != text:
             path.write_text(new_text, encoding="utf-8")
-            logger.log_change(path, "Auto placeholder cleanup", 1.0)
+            if SecondaryCopilotValidator().validate_corrections([str(path)]):
+                logger.log_change(path, "Auto placeholder cleanup", 1.0, str(backup_path))
+            else:
+                logger.log_change(path, "Auto placeholder cleanup failed validation", 0.0, str(backup_path))
+                logger.auto_rollback(path, backup_path)
 
     logger.summarize_corrections()
     # Mark resolved placeholders
