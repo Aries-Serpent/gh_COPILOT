@@ -111,6 +111,15 @@ tools/install_clw.sh
 ls -l /usr/local/bin/clw
 /usr/local/bin/clw --help
 
+### Add Lessons After a Run
+Store new insights directly from the gap analyzer:
+
+```bash
+python -m scripts.analysis.lessons_learned_gap_analyzer --lesson "use temp dirs"
+```
+
+Lessons are written to `learning_monitor.db` and automatically applied in future sessions.
+
 ### OpenAI Connector
 The repository provides `github_integration/openai_connector.py` for OpenAI API
 calls using the `OpenAIClient` helper in

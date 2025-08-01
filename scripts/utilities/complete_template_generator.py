@@ -20,6 +20,7 @@ from tqdm import tqdm
 from template_engine.auto_generator import (DEFAULT_ANALYTICS_DB,
                                             DEFAULT_COMPLETION_DB,
                                             TemplateAutoGenerator)
+from utils.lessons_learned_integrator import fetch_lessons_by_tag
 
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -105,11 +106,13 @@ class CompleteTemplateGenerator:
         if not patterns or clusters is None:
             return templates
 
+        lessons = fetch_lessons_by_tag("template")
+        lesson_snippets = [lesson["description"] for lesson in lessons if self._validate_template(lesson["description"]) ]
+
         with sqlite3.connect(self.production_db) as conn:
             data_to_insert = []
             generated_records = []
-            with tqdm(total=clusters.n_clusters, \
-                desc=f"{TEXT_INDICATORS['progress']} create") as bar:
+            with tqdm(total=clusters.n_clusters, desc=f"{TEXT_INDICATORS['progress']} create") as bar:
                 for cluster_id in range(clusters.n_clusters):
                     indices = [i for i, label in enumerate(clusters.labels_) if label == cluster_id]
                     if not indices:
@@ -124,6 +127,7 @@ class CompleteTemplateGenerator:
                         template_id = f"cluster_{cluster_id}_{len(candidate)}"
                         generated_records.append((template_id, candidate, timestamp))
                     bar.update(1)
+            templates.extend(lesson_snippets)
             if data_to_insert:
                 conn.executemany(
                     "INSERT INTO template_generation_stats"

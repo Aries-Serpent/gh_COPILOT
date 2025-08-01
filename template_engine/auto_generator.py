@@ -349,7 +349,9 @@ class TemplateAutoGenerator:
                         db_path=self.analytics_db,
                     )
         if not ranked:
-            candidates = self.templates or self.patterns
+            lesson_templates = list(get_lesson_templates().values())
+            base_candidates = self.templates or self.patterns
+            candidates = base_candidates + lesson_templates
             for tmpl in candidates:
                 vecs = vectorizer.fit_transform([target, tmpl]).toarray()
                 tfidf = float(cosine_similarity([vecs[0]], [vecs[1]])[0][0])
