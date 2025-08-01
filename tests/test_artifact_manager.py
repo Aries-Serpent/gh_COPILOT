@@ -325,6 +325,18 @@ def test_package_session_atomic_output(repo: Path, monkeypatch) -> None:
     assert not temp_path.exists()
 
 
+def test_package_session_default_dir(repo: Path) -> None:
+    init_repo(repo)
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "k.txt").write_text("data", encoding="utf-8")
+
+    policy = LfsPolicy(repo)
+    archive = package_session(tmp_dir, repo, policy)
+
+    assert archive and archive.parent.name == "codex_sessions"
+
+
 def test_invalid_session_dir_value(tmp_path: Path, caplog) -> None:
     repo = tmp_path
     init_repo(repo)
@@ -348,6 +360,22 @@ def test_malformed_yaml_fallback(tmp_path: Path, caplog) -> None:
     with caplog.at_level(logging.ERROR):
         policy = LfsPolicy(repo)
     assert policy.session_artifact_dir == "codex_sessions"
+    assert any("Malformed YAML" in m for m in caplog.messages)
+
+
+def test_package_session_malformed_policy(tmp_path: Path, caplog) -> None:
+    repo = tmp_path
+    init_repo(repo)
+    (repo / ".codex_lfs_policy.yaml").write_text("!bad yaml\n:\n", encoding="utf-8")
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "l.txt").write_text("data", encoding="utf-8")
+
+    with caplog.at_level(logging.ERROR):
+        policy = LfsPolicy(repo)
+    archive = package_session(tmp_dir, repo, policy)
+
+    assert archive and archive.parent.name == "codex_sessions"
     assert any("Malformed YAML" in m for m in caplog.messages)
 
 
@@ -382,8 +410,15 @@ def test_cli_help_lists_options(tmp_path: Path) -> None:
         text=True,
         capture_output=True,
     )
-    assert "--tmp-dir" in result.stdout
-    assert "--sync-gitattributes" in result.stdout
+    for option in [
+        "--package",
+        "--recover",
+        "--commit",
+        "--message",
+        "--tmp-dir",
+        "--sync-gitattributes",
+    ]:
+        assert option in result.stdout
 
 
 def test_session_dir_symlink_outside(tmp_path: Path, caplog) -> None:
