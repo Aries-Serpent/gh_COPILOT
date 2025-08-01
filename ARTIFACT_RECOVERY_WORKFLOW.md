@@ -8,7 +8,21 @@ intended for contributors and CI jobs running in the Codex environment.
 
 All automation uses `.github/workflows/artifact_lfs.yml` to manage
 artifacts. Centralising on a single workflow avoids per-branch
-divergence and ensures every run applies the same rules.
+divergence and ensures every run applies the same rules. The workflow
+packages, syncs, and commits artifacts in a single atomic sequence:
+
+1. **Checkout and setup** – the job fetches the repository with LFS
+   pointers, installs Git LFS, and runs `setup.sh`.
+2. **Package and commit** – `python artifact_manager.py --package --commit
+   --sync-gitattributes [--tmp-dir <path>]` bundles files from the
+   temporary directory (default from `session_artifact_dir` in
+   `.codex_lfs_policy.yaml`), stages the archive, regenerates
+   `.gitattributes`, and records the commit.
+3. **Pointer verification** – the subsequent *Verify LFS pointers* step
+   enumerates `binary_extensions` from `.codex_lfs_policy.yaml` and fails
+   the job if any files skip Git LFS.
+4. **Push** – changes are pushed only after verification succeeds,
+   guaranteeing that packaging, policy sync, and commit occur together.
 
 ## 2. Key CI Workflow Step: Artifact Packaging, Commit, and Sync
 
@@ -16,12 +30,13 @@ Every job that produces artifacts should include:
 
 ```yaml
 - name: Package, Commit, and Sync Artifacts
-  run: python artifact_manager.py --package --commit --sync-gitattributes
+  run: python artifact_manager.py --package --commit --sync-gitattributes [--tmp-dir <path>]
 ```
 
-This single step bundles new files from the temporary directory, commits
-the resulting archive, and updates `.gitattributes` so newly introduced
-binary types are tracked automatically.
+This single step bundles new files from the temporary directory (or the
+directory provided via `--tmp-dir`), commits the resulting archive, and
+updates `.gitattributes` so newly introduced binary types are tracked
+automatically in accordance with `.codex_lfs_policy.yaml`.
 
 ## 3. Why This Approach Works
 
@@ -36,6 +51,9 @@ binary types are tracked automatically.
   log message.
 - If packaging fails, inspect logs for permission issues, missing
   directories, or absent Git LFS installations.
+- If the *Verify LFS pointers* step fails in CI, review
+  `.codex_lfs_policy.yaml` and rerun `artifact_manager.py --sync-gitattributes`
+  before recommitting.
 - Test workflow updates in feature branches to catch platform-specific
   quirks before merging.
 
