@@ -261,12 +261,16 @@ def main() -> None:
         action="store_true",
         help="regenerate .gitattributes from policy",
     )
+    parser.add_argument(
+        "--tmp-dir",
+        help="temporary directory for session artifacts",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
     repo_root = Path(__file__).resolve().parent
-    tmp_dir = repo_root / "tmp"
+    tmp_dir = Path(args.tmp_dir) if args.tmp_dir else repo_root / "tmp"
     policy = LfsPolicy(repo_root)
 
     if args.sync_gitattributes:
