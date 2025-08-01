@@ -7,12 +7,19 @@ from typing import Dict, List, Any, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 
-try:
+try:  # pragma: no cover - optional dependency
     from qiskit import Aer
-    from qiskit_ibm_provider import IBMProvider
     QISKIT_AVAILABLE = True
 except Exception:  # pragma: no cover - optional dependency
+    Aer = None
     QISKIT_AVAILABLE = False
+
+try:  # pragma: no cover - optional dependency
+    from qiskit_ibm_provider import IBMProvider
+    HAS_IBM_PROVIDER = True
+except Exception:  # pragma: no cover - optional dependency
+    IBMProvider = None
+    HAS_IBM_PROVIDER = False
 
 from ..algorithms.base import QuantumAlgorithmBase
 from .registry import get_global_registry
@@ -27,7 +34,7 @@ class QuantumExecutor:
         self.logger = logging.getLogger(__name__)
         self.registry = get_global_registry()
         self.execution_history: List[Dict[str, Any]] = []
-        self.use_hardware = use_hardware and QISKIT_AVAILABLE
+        self.use_hardware = use_hardware and HAS_IBM_PROVIDER and QISKIT_AVAILABLE
         self.backend_name = backend_name
         self.backend = None
         if self.use_hardware:
@@ -39,6 +46,8 @@ class QuantumExecutor:
         """Load a Qiskit backend, falling back to simulation."""
         if not QISKIT_AVAILABLE:
             return None
+        if not HAS_IBM_PROVIDER:
+            return Aer.get_backend("qasm_simulator")
         try:
             provider = IBMProvider()
             return provider.get_backend(backend_name)
