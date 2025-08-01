@@ -5,6 +5,7 @@ from .clustering import QuantumClustering
 from .database_search import QuantumDatabaseSearch
 from .expansion import QuantumLibraryExpansion
 from .functional import QuantumFunctional
+from .hardware_aware import HardwareAwareAlgorithm
 from .teleportation import QuantumTeleportation
 
 __all__ = [
@@ -12,6 +13,7 @@ __all__ = [
     'QuantumClustering',
     'QuantumDatabaseSearch',
     'QuantumFunctional',
+    'HardwareAwareAlgorithm',
     'QuantumLibraryExpansion',
     'QuantumTeleportation',
 ]
