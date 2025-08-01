@@ -20,10 +20,7 @@ The `.gitattributes` file explicitly lists patterns that Git LFS should manage. 
 ## Workflow
 
 1. **Initial Clone**: When cloning the repository, run `git lfs install` to ensure LFS support is active.
-2. **Packaging Artifacts**: Run `python artifact_manager.py` to detect new files in the temp directory and create a time
-
-
-ed archive. If the archive meets LFS criteria, it is automatically tracked and committed.
+2. **Packaging Artifacts**: Run `python artifact_manager.py` to detect new files in the temp directory and create a timed archive. If the archive meets LFS criteria, it is automatically tracked and committed using Git LFS.
 3. **Adding Files**: Files matching the configured extensions or exceeding the size threshold are automatically tracked via Git LFS. Check with `git lfs status` before committing.
 4. **Recovering Artifacts**: To unpack the most recent archive after a fresh clone or CI reset, run `python artifact_manager.py --recover`.
 5. **Committing**: The packaging step commits the archive for you. Ensure CI runs succeed by verifying `git lfs ls-files` lists the new archive.
@@ -36,6 +33,7 @@ The `artifact_manager.py` utility now includes a small command-line interface:
 
 - `--package` – bundle modified files from `tmp/` into a zip archive.
 - `--commit` – after packaging, stage and commit the archive using Git LFS.
+- `--sync-gitattributes` – regenerate `.gitattributes` from `.codex_lfs_policy.yaml` before other operations.
 - `--recover <archive>` – extract a session archive back into `tmp/`.
 
 Example usage:
@@ -43,21 +41,21 @@ Example usage:
 ```bash
 python artifact_manager.py --package
 ALLOW_AUTOLFS=1 python artifact_manager.py --package --commit "archive session"
+python artifact_manager.py --sync-gitattributes --package
 python artifact_manager.py --recover codex-session_<UTC-YYYYmmdd_HHMMSS>.zip
 ```
 
-Archives are stored in `codex_sessions/` and tracked with Git LFS when
-configured via `.codex_lfs_policy.yaml`.
+Archives are stored in `codex_sessions/` and tracked with Git LFS when configured via `.codex_lfs_policy.yaml`.
 ## GitHub Actions Workflow
 
-The `ci.yml` workflow packages and commits session artifacts automatically after successful tests:
+The `.github/workflows/artifact_lfs.yml` workflow packages and commits session artifacts automatically after successful tests:
 
 ```yaml
       - name: Package session artifacts
-        run: python artifact_manager.py --package --commit
+        run: ALLOW_AUTOLFS=1 python artifact_manager.py --package --commit
 ```
 
-Nightly runs can also call `--recover` to verify archived files remain valid.
+This workflow runs packaging with `--commit` so new session archives are automatically tracked and committed. Nightly runs can also call `--recover` to verify archived files remain valid.
 
 ## Troubleshooting
 
