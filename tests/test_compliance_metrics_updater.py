@@ -25,8 +25,11 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     db_dir.mkdir()
     analytics_db = db_dir / "analytics.db"
     with sqlite3.connect(analytics_db) as conn:
-        conn.execute("CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)")
+        conn.execute(
+            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)"
+        )
         conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved', 1)")
+        conn.execute("INSERT INTO todo_fixme_tracking VALUES (0, 'open', 2)")
         conn.execute("CREATE TABLE correction_logs (compliance_score REAL)")
         conn.execute("INSERT INTO correction_logs VALUES (0.9)")
         conn.execute("CREATE TABLE violation_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, details TEXT)")
@@ -61,7 +64,7 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
         return
     data = json.loads(metrics_file.read_text())
     assert data["metrics"]["placeholder_removal"] == 1
-    assert data["metrics"]["compliance_score"] == 1.0
+    assert data["metrics"]["compliance_score"] == 0.5
     assert data["metrics"]["violation_count"] == 1
     assert data["metrics"]["rollback_count"] == 1
     assert data["metrics"]["progress_status"] == "issues_pending"

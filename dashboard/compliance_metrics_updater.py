@@ -119,7 +119,11 @@ class ComplianceMetricsUpdater:
                 metrics["placeholder_removal"] = metrics["resolved_placeholders"]
 
                 open_ph = metrics["open_placeholders"]
-                metrics["compliance_score"] = max(0.0, 1.0 - open_ph / 100.0)
+                resolved_ph = metrics["resolved_placeholders"]
+                total_ph = resolved_ph + open_ph
+                metrics["compliance_score"] = (
+                    resolved_ph / total_ph if total_ph else 0.0
+                )
                 cur.execute("SELECT COUNT(*) FROM correction_logs")
                 metrics["correction_count"] = cur.fetchone()[0]
 
