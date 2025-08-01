@@ -6,6 +6,8 @@
         function updateMetrics(data){
             document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
             document.getElementById('compliance_score').textContent = data.compliance_score.toFixed(3);
+            document.getElementById('lessons_integration_status').textContent = data.lessons_integration_status;
+            document.getElementById('average_query_latency').textContent = data.average_query_latency.toFixed(3);
         }
         function updateRollbacks(logs){
             const list = document.getElementById('rollbacks');
@@ -37,7 +39,9 @@
 <h1>Compliance Dashboard</h1>
 <div>
     <strong>Placeholder Removals:</strong> <span id="placeholder_removal">0</span><br>
-    <strong>Compliance Score:</strong> <span id="compliance_score">0</span>
+    <strong>Compliance Score:</strong> <span id="compliance_score">0</span><br>
+    <strong>Lessons Integration Status:</strong> <span id="lessons_integration_status">UNKNOWN</span><br>
+    <strong>Average Query Latency (ms):</strong> <span id="average_query_latency">0</span>
 </div>
 <h2>Recent Rollbacks</h2>
 <ul id="rollbacks"></ul>
