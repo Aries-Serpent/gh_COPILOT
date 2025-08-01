@@ -12,7 +12,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
-from template_engine.learning_templates import get_dataset_sources
+from template_engine.learning_templates import get_dataset_sources, get_lesson_templates
 from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
@@ -91,6 +91,26 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
                     (content[:1000], datetime.now(timezone.utc).isoformat()),
                 )
                 bar.update(1)
+        lesson_templates = get_lesson_templates()
+        existing_lessons = {
+            row[0]
+            for row in conn.execute(
+                "SELECT lesson_name FROM pattern_assets WHERE lesson_name IS NOT NULL"
+            )
+        }
+        for name, content in lesson_templates.items():
+            if name in existing_lessons:
+                continue
+            conn.execute(
+                (
+                    "INSERT INTO pattern_assets (pattern, usage_count, lesson_name, created_at) VALUES (?, 0, ?, ?)"
+                ),
+                (
+                    content[:1000],
+                    name,
+                    datetime.now(timezone.utc).isoformat(),
+                ),
+            )
     finally:
         conn.commit()
         conn.close()

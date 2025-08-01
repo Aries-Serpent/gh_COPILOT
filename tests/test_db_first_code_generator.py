@@ -6,6 +6,7 @@ os.environ.setdefault("GH_COPILOT_DISABLE_VALIDATION", "1")
 
 from template_engine import db_first_code_generator
 from template_engine.db_first_code_generator import DBFirstCodeGenerator
+from template_engine.learning_templates import get_lesson_templates
 
 
 def create_production_db(tmp_path: Path) -> Path:
@@ -102,3 +103,19 @@ def test_generate_logs_event(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(db_first_code_generator, "_log_event", fake_log)
     gen.generate("Objective1")
     assert calls
+
+
+def test_selects_lesson_template(tmp_path: Path) -> None:
+    prod_db = tmp_path / "prod.db"
+    db_first_code_generator.validate_enterprise_operation = lambda *a, **k: True
+    gen = DBFirstCodeGenerator(
+        prod_db,
+        tmp_path / "documentation.db",
+        tmp_path / "template.db",
+        tmp_path / "analytics.db",
+    )
+    lesson = get_lesson_templates()["database_first"]
+    gen.templates = [lesson]
+    target = "DatabaseFirstOperator load_organization_patterns_from_db"
+    template = gen.select_best_template(target)
+    assert "DatabaseFirstOperator" in template
