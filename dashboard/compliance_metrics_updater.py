@@ -90,7 +90,7 @@ class ComplianceMetricsUpdater:
             "placeholder_removal": 0,
             "open_placeholders": 0,
             "resolved_placeholders": 0,
-            "compliance_score": 0.0,
+            "compliance_score": 1.0,
             "violation_count": 0,
             "rollback_count": 0,
             "progress_status": "unknown",
@@ -122,7 +122,7 @@ class ComplianceMetricsUpdater:
                 resolved_ph = metrics["resolved_placeholders"]
                 total_ph = resolved_ph + open_ph
                 metrics["compliance_score"] = (
-                    resolved_ph / total_ph if total_ph else 0.0
+                    resolved_ph / total_ph if total_ph else 1.0
                 )
                 cur.execute("SELECT COUNT(*) FROM correction_logs")
                 metrics["correction_count"] = cur.fetchone()[0]

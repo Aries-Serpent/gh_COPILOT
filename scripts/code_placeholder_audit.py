@@ -286,7 +286,8 @@ def update_dashboard(
             )
             placeholder_counts = {row[0]: row[1] for row in cur.fetchall()}
 
-    compliance = max(0, 100 - open_count)
+    total = open_count + resolved
+    compliance = resolved / total if total else 1.0
     status = "complete" if open_count == 0 else "issues_pending"
     compliance_status = "compliant" if open_count == 0 else "non_compliant"
     data = {
