@@ -1,5 +1,8 @@
 # Changelog
 
+## [4.1.15] - 2025-08-06
+- Added migration script to ensure `enhanced_lessons_learned` table exists in `production.db` using schema from `learning_monitor.db`.
+
 ## [4.1.14] - 2025-08-05
 - Updated README to report current lint status and failing tests.
 - Noted outstanding tasks tracked in `docs/STUB_MODULE_STATUS.md`.
