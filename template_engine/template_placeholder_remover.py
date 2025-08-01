@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import List
 
 from tqdm import tqdm
-from utils.log_utils import ensure_tables
+from utils.log_utils import ensure_tables, _log_event
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
@@ -105,9 +105,13 @@ def remove_unused_placeholders(
     result = template
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     total_steps = len(found)
+    removed_count = sum(1 for ph in found if ph not in valid)
     elapsed = 0.0
     ensure_tables(analytics_db, ["placeholder_removals", "todo_fixme_tracking"], test_mode=False)
     with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS placeholder_removal_events (event TEXT, placeholder TEXT, removal_id INTEGER, removed INTEGER, timestamp TEXT, level TEXT, module TEXT)"
+        )
         etc = "N/A"
         with tqdm(total=total_steps, desc="Removing Placeholders", unit="ph") as bar:
             for idx, ph in enumerate(found, 1):
@@ -126,6 +130,13 @@ def remove_unused_placeholders(
                         " WHERE placeholder_type=? AND resolved=0",
                         (datetime.utcnow().isoformat(), removal_id, ph),
                     )
+                    conn.commit()
+                    _log_event(
+                        {"event": "placeholder_removed", "placeholder": ph, "removal_id": removal_id},
+                        table="placeholder_removal_events",
+                        db_path=analytics_db,
+                        test_mode=False,
+                    )
                 elapsed = time.time() - start_time.timestamp()
                 etc = calculate_etc(start_time.timestamp(), idx, total_steps)
                 bar.set_postfix(ETC=etc)
@@ -135,6 +146,12 @@ def remove_unused_placeholders(
         conn.commit()
     logging.info(f"Placeholder removal completed in {elapsed:.2f}s | ETC: {etc}")
     _write_log(found, valid, result)
+    _log_event(
+        {"event": "placeholder_removal_summary", "removed": removed_count},
+        table="placeholder_removal_events",
+        db_path=analytics_db,
+        test_mode=False,
+    )
     return result
 
 
