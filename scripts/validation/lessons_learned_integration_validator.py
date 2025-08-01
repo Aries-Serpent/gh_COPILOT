@@ -63,8 +63,15 @@ class LessonsLearnedIntegrationValidator:
     Implements DUAL COPILOT pattern with secondary validation
     """
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
+    def __init__(self, workspace_path: str | None = None):
+        """Initialize validator with dynamic workspace path.
+
+        Falls back to the ``GH_COPILOT_WORKSPACE`` environment variable and
+        ultimately the current working directory to avoid hard-coded platform
+        paths.
+        """
+        workspace_env = workspace_path or os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
+        self.workspace_path = Path(workspace_env)
         self.validation_id = f"LLI_VAL_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.start_time = datetime.now()
         self.process_id = os.getpid()
@@ -111,11 +118,13 @@ class LessonsLearnedIntegrationValidator:
 
     def setup_logging(self):
         """Setup comprehensive logging with visual indicators"""
+        log_dir = self.workspace_path / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s - %(levelname)s - %(message)s",
             handlers=[
-                logging.FileHandler(self.workspace_path / "logs" / f"integration_validation_{self.validation_id}.log"),
+                logging.FileHandler(log_dir / f"integration_validation_{self.validation_id}.log"),
                 logging.StreamHandler(sys.stdout),
             ],
         )
@@ -124,14 +133,22 @@ class LessonsLearnedIntegrationValidator:
     def validate_environment_compliance(self):
         """CRITICAL: Validate workspace environment compliance"""
         try:
-            # Check for recursive backup violations
-            forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
+            # Check for recursive backup or temporary directory violations
             violations = []
 
-            for pattern in forbidden_patterns:
-                for folder in self.workspace_path.rglob(pattern):
-                    if folder.is_dir() and folder != self.workspace_path:
-                        violations.append(str(folder))
+            for folder in self.workspace_path.rglob("*"):
+                if not folder.is_dir() or folder == self.workspace_path:
+                    continue
+
+                # Skip virtual environment, VCS, and expected temp directories
+                if ".venv" in folder.parts or ".git" in folder.parts:
+                    continue
+                if folder == self.workspace_path / "tmp":
+                    continue
+
+                name = folder.name.lower()
+                if "backup" in name or name in {"temp", "tmp"}:
+                    violations.append(str(folder))
 
             if violations:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Recursive violations detected:")
