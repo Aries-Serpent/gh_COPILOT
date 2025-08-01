@@ -196,14 +196,19 @@ def check_directory_health(dir_path: Path, repo_root: Path) -> bool:
             return False
         resolved_root = repo_root.resolve()
         resolved = dir_path.resolve()
+        repo_root_resolved = repo_root.resolve()
     except OSError as exc:  # pragma: no cover - extremely unusual
         logger.error("Failed to resolve %s: %s", dir_path, exc)
         return False
 
     try:
-        resolved.relative_to(repo_root.resolve())
+        resolved.relative_to(repo_root_resolved)
     except ValueError:
         logger.error("Directory %s escapes repository root", resolved)
+        return False
+
+    if dir_path.is_symlink():
+        logger.error("Directory %s is a symlink", dir_path)
         return False
 
     try:

@@ -83,7 +83,50 @@ Unified command-line interface:
 - `--tmp-dir <path>` – select a custom temporary directory (defaults to
   `tmp`).
 
-Examples:
+## CI Integration and Best Practices
+
+The following guidelines ensure artifact packaging and Git LFS automation run
+reliably in continuous integration environments.
+
+### 1. Continuous Integration Overview
+
+Standardize on a single workflow, `.github/workflows/artifact_lfs.yml`, to
+manage large files and session artifacts. Consistent automation prevents manual
+mistakes and keeps every contributor working with the same expectations.
+
+### 2. Key CI Step: Package, Commit, and Sync
+
+Include a job step that runs `python artifact_manager.py --package --commit
+--sync-gitattributes`. This atomically packages artifacts, commits them, and
+updates `.gitattributes` so new binary types are immediately tracked.
+
+### 3. Why This Approach Works
+
+Bundling packaging, pointer updates, and committing in one step eliminates
+missed artifacts, ensures `.gitattributes` stays current, and reduces LFS
+misconfiguration errors that commonly break CI/CD pipelines.
+
+### 4. Troubleshooting & Verification
+
+When failures occur, review `git lfs ls-files` output and artifact manager logs
+in CI to identify mis-tracked binaries or permission problems. Test workflow
+changes in branches before merging to catch platform-specific issues.
+
+### 5. Configuration Files & CLI Options
+
+Keep `.codex_lfs_policy.yaml` up to date and document sample usage for CLI
+options such as `--tmp-dir` and `--sync-gitattributes`. Clear configuration
+reduces onboarding time and avoids confusion during session resets.
+
+### 6. Limitations and Future Improvements
+
+Some LFS or commit errors appear only at `git push`, and all contributors must
+have Git LFS installed. Future work could add notifications for pointer
+validation failures, scheduled cleanup of old temp files, and additional
+documentation on artifact recovery during session iterations.
+
+
+Example usage:
 
 ```bash
 python artifact_manager.py --package
