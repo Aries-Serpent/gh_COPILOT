@@ -8,7 +8,6 @@ import sys
 import difflib
 import shutil
 from pathlib import Path
-from typing import Iterable
 from zipfile import ZipFile
 
 import pytest
@@ -316,32 +315,32 @@ def test_sync_gitattributes_cli_failure(tmp_path: Path) -> None:
     assert "Git command failed" in result.stderr or "Git command failed" in result.stdout
 
 
-def test_package_session_atomic_output(repo: Path, monkeypatch) -> None:
-    """Temporary archive names should be cleaned after packaging."""
+def test_package_session_atomic_output(repo: Path) -> None:
+    """Temporary archive artifacts should be cleaned after packaging."""
 
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: false\n")
     tmp_dir = repo / "tmp"
     tmp_dir.mkdir()
     (tmp_dir / "f.txt").write_text("data", encoding="utf-8")
 
-    recorded: dict[str, Path] = {}
-
-    def fake_create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> None:
-        recorded["tmp"] = archive_path
-        with ZipFile(archive_path, "w") as zf:
-            for file in files:
-                zf.write(file, arcname=file.relative_to(base_dir))
-
-    monkeypatch.setattr(artifact_manager, "create_zip", fake_create_zip)
-
     policy = LfsPolicy(repo)
     archive = package_session(tmp_dir, repo, policy)
 
     assert archive and archive.exists()
-    temp_path = recorded["tmp"]
-    assert temp_path.parent == archive.parent
-    assert temp_path.suffix == ".tmp"
-    assert not temp_path.exists()
+    assert not any(archive.parent.glob("*.tmp"))
+
+
+def test_package_session_logs_sessions_dir(repo: Path, caplog: pytest.LogCaptureFixture) -> None:
+    """Packaging should log the resolved sessions directory."""
+
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "log.txt").write_text("data", encoding="utf-8")
+
+    with caplog.at_level(logging.INFO):
+        package_session(tmp_dir, repo, LfsPolicy(repo))
+
+    assert any("Session artifacts directory" in m for m in caplog.messages)
 
 
 def test_invalid_session_dir_value(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:

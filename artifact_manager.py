@@ -229,12 +229,46 @@ def check_directory_health(dir_path: Path, repo_root: Path) -> bool:
 
 
 def create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> None:
-    """Create ``archive_path`` containing ``files`` relative to ``base_dir``."""
+    """Create ``archive_path`` containing ``files`` relative to ``base_dir``.
 
-    with ZipFile(archive_path, "w") as zf:
-        for file in files:
-            if file.exists():
-                zf.write(file, arcname=file.relative_to(base_dir))
+    The archive is first written to a temporary file located in the target
+    directory and then atomically renamed to ``archive_path``.  This approach
+    minimises the risk of leaving partial archives behind if the process is
+    interrupted.
+    """
+
+    archive_dir = archive_path.parent
+    try:
+        archive_dir.mkdir(parents=True, exist_ok=True)
+    except PermissionError as exc:
+        logger.error("Cannot create directory %s: %s", archive_dir, exc)
+        raise
+
+    tmp_file: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            suffix=".tmp", dir=archive_dir, delete=False
+        ) as tf:
+            tmp_file = Path(tf.name)
+        with ZipFile(tmp_file, "w") as zf:
+            for file in files:
+                if file.exists():
+                    zf.write(file, arcname=file.relative_to(base_dir))
+        if archive_path.exists():
+            logger.warning("Replacing existing archive %s", archive_path)
+        os.replace(tmp_file, archive_path)
+    except PermissionError as exc:
+        logger.error("Permission denied while creating archive %s: %s", archive_path, exc)
+        raise
+    except OSError as exc:
+        logger.error("Failed to create archive %s: %s", archive_path, exc)
+        raise
+    finally:
+        if tmp_file and tmp_file.exists():
+            try:
+                tmp_file.unlink()
+            except OSError:
+                pass
 
 
 def package_session(
@@ -289,6 +323,7 @@ def package_session(
     sessions_dir = repo_root / lfs_policy.session_artifact_dir
     if not check_directory_health(sessions_dir, repo_root):
         return None
+    logger.info("Session artifacts directory: %s", sessions_dir)
 
     timestamp = datetime.now(timezone.utc)
     archive_name = f"codex-session_{timestamp.strftime('%Y%m%d_%H%M%S')}.zip"
@@ -301,19 +336,9 @@ def package_session(
     )
 
     try:
-        with tempfile.NamedTemporaryFile(
-            suffix=".tmp", dir=sessions_dir, delete=False
-        ) as tmp_file:
-            tmp_path = Path(tmp_file.name)
-        create_zip(tmp_path, changed_files, tmp_dir)
-        os.replace(tmp_path, archive_path)
+        create_zip(archive_path, changed_files, tmp_dir)
     except Exception as exc:  # noqa: BLE001
         logger.error("Failed to create archive: %s", exc)
-        if "tmp_path" in locals():
-            try:
-                tmp_path.unlink()
-            except FileNotFoundError:
-                pass
         return None
 
     # remove processed files to ensure idempotency
