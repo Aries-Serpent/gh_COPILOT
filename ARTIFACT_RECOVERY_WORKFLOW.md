@@ -103,7 +103,13 @@ mistakes and keeps every contributor working with the same expectations.
 Include a job step that runs `python artifact_manager.py --package --commit
 --sync-gitattributes`. The workflow defined in `artifact_lfs.yml` executes this
 command so that packaging, pointer conversion, and committing occur in a single
-transaction. A minimal workflow showing these steps alongside pointer validation looks like:
+transaction. Running the combined command performs the following actions:
+
+1. **Package** – bundles files from the temporary directory. Use `--tmp-dir` to override the default `session_artifact_dir` from `.codex_lfs_policy.yaml`.
+2. **Commit** – stages the archive and records the commit so artifacts and LFS pointers land in history together.
+3. **Sync `.gitattributes`** – regenerates rules from `.codex_lfs_policy.yaml` so newly introduced `binary_extensions` are tracked by Git LFS.
+
+A minimal workflow showing these steps alongside pointer validation looks like:
 
 ```yaml
 # .github/workflows/artifact_lfs.yml
@@ -157,16 +163,21 @@ Running `artifact_manager.py` with `--package --commit --sync-gitattributes` ens
 
 ### 3. Pointer Validation Step
 
-After committing, the workflow runs `git lfs ls-files --strict` to verify that
-all tracked extensions resolve to LFS pointers. A failing run might emit:
+After committing, add a dedicated pointer check step. The `binary_extensions` list in `.codex_lfs_policy.yaml` determines which files are inspected.
+
+```yaml
+- name: Verify LFS pointers
+  run: git lfs ls-files --strict
+```
+
+This command verifies that all tracked extensions resolve to LFS pointers. A failing run might emit:
 
 ```
 Error: these files should be pointers but are not:
   artifacts/report.csv
 ```
 
-To fix this, add the file type to `.codex_lfs_policy.yaml`, run
-`artifact_manager.py --sync-gitattributes`, and recommit.
+To fix this, add the file type to `.codex_lfs_policy.yaml`, rerun `artifact_manager.py --sync-gitattributes [--tmp-dir <path>]`, and recommit.
 
 ### 4. Why This Approach Works
 
