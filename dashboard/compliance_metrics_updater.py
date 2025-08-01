@@ -122,9 +122,10 @@ class ComplianceMetricsUpdater:
 
                 open_ph = metrics["open_placeholders"]
                 resolved_ph = metrics["resolved_placeholders"]
-                total_ph = resolved_ph + open_ph
                 metrics["compliance_score"] = (
-                    resolved_ph / total_ph if total_ph else 1.0
+                    resolved_ph / (resolved_ph + open_ph)
+                    if (resolved_ph + open_ph) > 0
+                    else 1.0
                 )
 
                 # Placeholder type breakdown
