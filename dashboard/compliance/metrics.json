@@ -1,11 +1,11 @@
 {
   "metrics": {
     "placeholder_removal": 14,
-    "compliance_score": 0.98,
+    "compliance_score": 0.88,
     "violation_count": 5,
     "rollback_count": 1,
-    "last_update": "2025-07-25T08:59:07.599616"
+    "last_update": "2025-08-01T16:50:44"
   },
   "status": "updated",
-  "timestamp": "2025-07-25T08:59:07.599616"
+  "timestamp": "2025-08-01T16:50:44"
 }
