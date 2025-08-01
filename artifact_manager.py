@@ -201,7 +201,7 @@ def check_directory_health(dir_path: Path, repo_root: Path) -> bool:
         return False
 
     try:
-        resolved.relative_to(resolved_root)
+        resolved.relative_to(repo_root.resolve())
     except ValueError:
         logger.error("Directory %s escapes repository root", resolved)
         return False
