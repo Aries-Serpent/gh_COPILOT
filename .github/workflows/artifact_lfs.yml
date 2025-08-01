@@ -23,17 +23,23 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y git-lfs
+          git lfs install
       - name: Setup environment
         run: bash setup.sh
+      - name: Sync LFS attributes
+        run: |
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '.codex_lfs_policy.yaml'; then
+            python artifact_manager.py --sync-gitattributes
+          fi
       - name: Package session artifacts
-        run: python artifact_manager.py
+        run: python artifact_manager.py --package --commit -m "CI: archive session"
       - name: Verify LFS tracking
         run: git lfs ls-files
       - name: Commit and push
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add codex_sessions || true
+          git add codex_sessions .gitattributes || true
           if git diff --cached --quiet; then echo "No changes"; else git commit -m "chore: update session artifacts" && git push; fi
       - name: Restore latest session
         run: python artifact_manager.py --recover
