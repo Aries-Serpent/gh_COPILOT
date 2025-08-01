@@ -22,3 +22,12 @@ when `qiskit-ibm-provider` is installed and `QISKIT_IBM_TOKEN` is configured.
 Use the `--hardware` flag in `quantum_integration_orchestrator.py` to enable
 hardware execution. If hardware is unavailable, the modules automatically fall
 back to local simulation.
+
+## Algorithms
+
+- `algorithms.expansion.QuantumLibraryExpansion` – Grover search demonstration.
+- `algorithms.teleportation.QuantumTeleportation` – teleports a qubit state using a Bell pair.
+
+## Backend utilities
+
+- `utils.backend_provider.get_backend` – loads IBM Quantum backends and falls back to `Aer` simulators when hardware is unavailable.

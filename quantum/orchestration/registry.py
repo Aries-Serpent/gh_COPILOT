@@ -7,8 +7,9 @@ import logging
 
 from ..algorithms.base import QuantumAlgorithmBase
 from ..algorithms.expansion import QuantumLibraryExpansion
-from ..algorithms.functional import QuantumFunctional  
+from ..algorithms.functional import QuantumFunctional
 from ..algorithms.clustering import QuantumClustering
+from ..algorithms.teleportation import QuantumTeleportation
 
 
 class QuantumAlgorithmRegistry:
@@ -24,6 +25,7 @@ class QuantumAlgorithmRegistry:
         self.register_algorithm("expansion", QuantumLibraryExpansion)
         self.register_algorithm("functional", QuantumFunctional)
         self.register_algorithm("clustering", QuantumClustering)
+        self.register_algorithm("teleportation", QuantumTeleportation)
     
     def register_algorithm(self, name: str, algorithm_class: Type[QuantumAlgorithmBase]):
         """Register a quantum algorithm"""
