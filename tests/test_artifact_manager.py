@@ -310,7 +310,8 @@ def test_runtime_directory_switch(tmp_path: Path) -> None:
 def test_cli_help_lists_options(tmp_path: Path) -> None:
     repo = tmp_path
     init_repo(repo)
-    copy_script_to_repo(repo)
+    copy_script_to_repo(repo)  # This sets the script_dst variable
+    assert 'script_dst' in globals(), "script_dst must be defined by copy_script_to_repo(repo)"
     result = subprocess.run(
         [sys.executable, str(script_dst), "--help"],
         cwd=repo,
