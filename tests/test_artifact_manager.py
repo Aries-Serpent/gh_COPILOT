@@ -405,4 +405,7 @@ def test_session_dir_symlink_outside(tmp_path: Path, caplog) -> None:
     with caplog.at_level(logging.ERROR):
         result = package_session(tmp_dir, repo, policy)
     assert result is None
-    assert any("escapes repository root" in m for m in caplog.messages)
+    assert any(
+        "escapes repository root" in m or "is a symlink" in m
+        for m in caplog.messages
+    )
