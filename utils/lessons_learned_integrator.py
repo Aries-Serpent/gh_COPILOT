@@ -79,7 +79,7 @@ def store_lesson(
     tags: Optional[str] = None,
     db_path: Path = DEFAULT_DB,
 ) -> None:
-    """Store a single lesson in the lessons learned table.
+    """Store a single lesson in the ``enhanced_lessons_learned`` table.
 
     Parameters
     ----------
@@ -100,6 +100,12 @@ def store_lesson(
     ...     tags="documentation",
     ...     db_path=Path("example.db"),
     ... )
+    >>> fetch_lessons_by_tag("documentation", db_path=Path("example.db"))
+    [{'description': 'Document error handling',
+      'source': 'docs',
+      'timestamp': '2024-01-02T00:00:00Z',
+      'validation_status': 'pending',
+      'tags': 'documentation'}]
     """
     try:
         with sqlite3.connect(db_path) as conn:
@@ -119,7 +125,7 @@ def store_lessons(
     lessons: Iterable[Dict[str, str]],
     db_path: Path = DEFAULT_DB,
 ) -> None:
-    """Store multiple lessons using a batch insert.
+    """Store multiple lessons using an ``executemany`` batch insert.
 
     Parameters
     ----------
@@ -138,9 +144,21 @@ def store_lessons(
     ...         "timestamp": "2024-01-03T00:00:00Z",
     ...         "validation_status": "validated",
     ...         "tags": "style",
-    ...     }
+    ...     },
+    ...     {
+    ...         "description": "Prefer pathlib",
+    ...         "source": "review",
+    ...         "timestamp": "2024-01-04T00:00:00Z",
+    ...         "validation_status": "pending",
+    ...     },
     ... ]
     >>> store_lessons(lessons, db_path=Path("example.db"))
+    >>> fetch_lessons_by_tag("style", db_path=Path("example.db"))
+    [{'description': 'Use context managers',
+      'source': 'review',
+      'timestamp': '2024-01-03T00:00:00Z',
+      'validation_status': 'validated',
+      'tags': 'style'}]
     """
     records = [
         (
@@ -184,7 +202,11 @@ def fetch_lessons_by_tag(tag: str, db_path: Path = DEFAULT_DB) -> List[Dict[str,
     Examples
     --------
     >>> fetch_lessons_by_tag("style", db_path=Path("example.db"))
-    []
+    [{'description': 'Use context managers',
+      'source': 'review',
+      'timestamp': '2024-01-03T00:00:00Z',
+      'validation_status': 'validated',
+      'tags': 'style'}]
     """
     results: List[Dict[str, str]] = []
     if not db_path.exists():
