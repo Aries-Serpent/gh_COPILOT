@@ -28,4 +28,25 @@ This guide describes how to use the data backup feature in the gh_COPILOT toolki
    placed in `archive/` at the repository root.
 4. Backups remain stored within `$GH_COPILOT_BACKUP_ROOT` by default.
 
+## Programmatic Backups
+
+The `create_external_backup()` helper ensures backups are written outside
+`GH_COPILOT_WORKSPACE` and raises an error if the target directory is inside the
+repository:
+
+```python
+from pathlib import Path
+from scripts.database.complete_consolidation_orchestrator import create_external_backup
+
+source = Path("databases/enterprise_assets.db")
+backup = create_external_backup(source, "enterprise_backup")
+```
+
+Attempting to back up inside the workspace fails:
+
+```python
+create_external_backup(source, "invalid", backup_dir=Path("disaster_recovery"))
+# RuntimeError: CRITICAL: Backup location inside workspace: ...
+```
+
 For more details on advanced options and restoration procedures, see the documentation in `disaster_recovery/`.
