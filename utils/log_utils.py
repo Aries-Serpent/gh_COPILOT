@@ -360,6 +360,7 @@ def _log_event(
 
     test_result = _can_create_analytics_db(db_path)
     start_ts = time.time()
+    row_id = -1
     with tqdm(total=1, desc="log", unit="evt", leave=False) as bar:
         if test_result:
             ensure_tables(db_path, [table], test_mode=test_mode)
