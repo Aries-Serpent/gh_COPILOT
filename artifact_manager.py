@@ -423,6 +423,14 @@ def recover_latest_session(
 def main() -> None:
     """Entry point for the artifact manager command line interface.
 
+    ``--tmp-dir`` controls where transient files are gathered for packaging.
+    The destination of the resulting archive remains governed by the
+    ``session_artifact_dir`` setting in ``.codex_lfs_policy.yaml``.
+
+    When ``--sync-gitattributes`` is supplied, the policy's
+    ``gitattributes_template`` and binary extension list are used to
+    regenerate the repository's ``.gitattributes`` file.
+
     Examples
     --------
     Package session files using a custom temporary directory::
@@ -447,31 +455,49 @@ def main() -> None:
     parser.add_argument(
         "--package",
         action="store_true",
-        help="create a session archive from files in the temporary directory",
+        help=(
+            "create a session archive from files in the temporary directory "
+            "(default: %(default)s). Example: --package --tmp-dir build/tmp"
+        ),
     )
     parser.add_argument(
         "--recover",
         action="store_true",
-        help="restore the most recent session archive back into the temporary directory",
+        help=(
+            "restore the most recent session archive back into the temporary "
+            "directory (default: %(default)s). Example: --recover"
+        ),
     )
     parser.add_argument(
         "--commit",
         action="store_true",
-        help="commit the created archive to git",
+        help=(
+            "commit the created archive to git (default: %(default)s). "
+            "Example: --package --commit"
+        ),
     )
     parser.add_argument(
         "--message",
-        help="commit message when packaging (defaults to a timestamped message)",
+        help=(
+            "commit message when packaging (default: timestamped message). "
+            "Example: --message 'Add session artifacts'"
+        ),
     )
     parser.add_argument(
         "--tmp-dir",
         default="tmp",
-        help="working directory for session files; created if it does not exist",
+        help=(
+            "working directory for session files; created if it does not exist "
+            "(default: %(default)s). Example: --tmp-dir build/tmp"
+        ),
     )
     parser.add_argument(
         "--sync-gitattributes",
         action="store_true",
-        help="regenerate .gitattributes from policy and exit",
+        help=(
+            "regenerate .gitattributes from policy and exit (default: %(default)s). "
+            "Example: --sync-gitattributes"
+        ),
     )
     args = parser.parse_args()
 
@@ -506,13 +532,24 @@ def main() -> None:
         return
 
     if args.package:
-        package_session(
-            tmp_dir,
-            repo_root,
-            policy,
-            commit=args.commit,
-            message=args.message,
-        )
+        try:
+            package_session(
+                tmp_dir,
+                repo_root,
+                policy,
+                commit=args.commit,
+                message=args.message,
+            )
+        except FileNotFoundError as exc:
+            logger.error("Temporary directory not found: %s", exc)
+            sys.exit(1)
+        except subprocess.CalledProcessError as exc:  # noqa: BLE001
+            msg = exc.stderr.decode().strip() if exc.stderr else str(exc)
+            logger.error("Git command failed during packaging: %s", msg)
+            sys.exit(1)
+        except Exception as exc:  # noqa: BLE001
+            logger.error("Packaging failed: %s", exc)
+            sys.exit(1)
 
     if args.recover:
         recover_latest_session(tmp_dir, repo_root, policy)
