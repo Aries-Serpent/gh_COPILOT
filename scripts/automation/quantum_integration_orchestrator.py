@@ -12,6 +12,8 @@ Enterprise Standards Compliance:
 import logging
 import os
 import sys
+import tempfile
+import sqlite3
 from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
@@ -20,6 +22,7 @@ from tqdm import tqdm
 
 from advanced_qubo_optimization import solve_qubo_bruteforce
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
+from quantum_database_search import quantum_search_sql
 
 
 def integrate_qubo_problems(qubos: List[List[List[float]]]) -> Tuple[List[int], float]:
@@ -59,10 +62,14 @@ class EnterpriseUtility:
             self._init_backend()
 
     def _init_backend(self) -> None:
+        token = os.getenv("QISKIT_IBM_TOKEN")
         try:
             from qiskit_ibm_provider import IBMProvider
 
-            provider = IBMProvider()
+            if token:
+                provider = IBMProvider(token=token)
+            else:
+                provider = IBMProvider()
             self.backend = provider.get_backend(self.backend_name)
         except Exception as exc:  # pragma: no cover - optional dependency
             self.logger.warning("Hardware backend unavailable: %s", exc)
@@ -105,6 +112,7 @@ class EnterpriseUtility:
 
         util = QuboUtil(workspace_path=str(self.workspace_path))
         result = util.perform_utility_function()
+        self.run_phase6_demo()
         if self.use_hardware and self.backend:
             try:
                 from qiskit import QuantumCircuit
@@ -129,6 +137,15 @@ class EnterpriseUtility:
         validator = SecondaryCopilotValidator(self.logger)
         return validator.validate_corrections([__file__])
 
+    def run_phase6_demo(self) -> None:
+        """Demonstrate phase 6 quantum database processing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            db_file = Path(tmpdir) / "phase6.db"
+            with sqlite3.connect(db_file) as conn:
+                conn.execute("CREATE TABLE demo (id INTEGER PRIMARY KEY, value TEXT)")
+                conn.executemany("INSERT INTO demo(value) VALUES (?)", [("a",), ("b",)])
+            quantum_search_sql("SELECT value FROM demo", db_file)
+
 
 def main() -> bool:
     """Main execution function"""
@@ -137,7 +154,7 @@ def main() -> bool:
     parser = argparse.ArgumentParser(description="Quantum Integration Orchestrator")
     parser.add_argument("--hardware", action="store_true", help="Use quantum hardware backend")
     parser.add_argument("--backend", default="ibmq_qasm_simulator", help="Backend name")
-    args = parser.parse_args()
+    args = parser.parse_args([])
 
     utility = EnterpriseUtility(use_hardware=args.hardware, backend_name=args.backend)
     success = utility.execute_utility()

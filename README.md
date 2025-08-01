@@ -20,7 +20,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 > Advanced AI integration features are fully integrated. They default to simulation mode unless real hardware is configured.
 
 ### 🎯 **Recent Milestones**
-- **Lessons Learned Integration:** initial implementation in progress
+- **Lessons Learned Integration:** sessions automatically apply lessons from `learning_monitor.db`
 - **Database-First Architecture:** `databases/production.db` used as primary reference
 - **DUAL COPILOT Pattern:** primary/secondary validation framework available
 - **Dual Copilot Enforcement:** automation scripts now trigger secondary
@@ -36,6 +36,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
   optimizer and search helpers. These modules default to simulation mode unless `QISKIT_IBM_TOKEN` is configured.
+- **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` runs a quantum database search example and uses hardware backends when `QISKIT_IBM_TOKEN` is available.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1,679 scripts synchronized
@@ -96,7 +97,8 @@ bash setup.sh
 GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh
 # Always run this script before executing tests or automation tasks.
 # The setup process installs packages from all `requirements*.txt` files,
-# including core dependencies like **Flask** and **NumPy**, and prepares
+# including core dependencies like **Flask** and **NumPy**, applies
+# database migrations under `databases/migrations/`, and prepares
 # environment variables.
 # If package installation fails due to network restrictions,
 # update the environment to permit outbound connections to PyPI.
