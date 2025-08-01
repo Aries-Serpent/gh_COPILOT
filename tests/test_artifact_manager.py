@@ -432,8 +432,9 @@ def test_package_session_logs_sessions_dir(repo: Path, caplog: pytest.LogCapture
 
     with caplog.at_level(logging.INFO):
         package_session(tmp_dir, repo, LfsPolicy(repo))
-
-    assert any("Session artifacts directory" in m for m in caplog.messages)
+    session_logs = [m for m in caplog.messages if "Session artifacts directory" in m]
+    assert any("resolved" in m for m in session_logs)
+    assert any("finalized" in m for m in session_logs)
 
 
 def test_invalid_session_dir_value(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:

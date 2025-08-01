@@ -35,7 +35,6 @@ import logging
 import os
 import subprocess
 import sys
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, List, Optional
@@ -249,10 +248,8 @@ def check_directory_health(dir_path: Path, repo_root: Path) -> bool:
 def create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> None:
     """Create ``archive_path`` containing ``files`` relative to ``base_dir``.
 
-    The archive is first written to a temporary file located in the target
-    directory and then atomically renamed to ``archive_path``.  This approach
-    minimises the risk of leaving partial archives behind if the process is
-    interrupted.
+    The caller is responsible for renaming ``archive_path`` to its final
+    destination if an atomic move is required.
     """
 
     archive_dir = archive_path.parent
@@ -262,31 +259,19 @@ def create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> Non
         logger.error("Cannot create directory %s: %s", archive_dir, exc)
         raise
 
-    tmp_file: Path | None = None
     try:
-        with tempfile.NamedTemporaryFile(
-            suffix=".tmp", dir=archive_dir, delete=False
-        ) as tf:
-            tmp_file = Path(tf.name)
-        with ZipFile(tmp_file, "w") as zf:
+        with ZipFile(archive_path, "w") as zf:
             for file in files:
                 if file.exists():
                     zf.write(file, arcname=file.relative_to(base_dir))
-        if archive_path.exists():
-            logger.warning("Replacing existing archive %s", archive_path)
-        os.replace(tmp_file, archive_path)
     except PermissionError as exc:
-        logger.error("Permission denied while creating archive %s: %s", archive_path, exc)
+        logger.error(
+            "Permission denied while creating archive %s: %s", archive_path, exc
+        )
         raise
     except OSError as exc:
         logger.error("Failed to create archive %s: %s", archive_path, exc)
         raise
-    finally:
-        if tmp_file and tmp_file.exists():
-            try:
-                tmp_file.unlink()
-            except OSError:
-                pass
 
 
 def package_session(
@@ -365,6 +350,7 @@ def package_session(
     timestamp = datetime.now(timezone.utc)
     archive_name = f"codex-session_{timestamp.strftime('%Y%m%d_%H%M%S')}.zip"
     archive_path = sessions_dir / archive_name
+    tmp_archive_path = archive_path.with_suffix(".tmp")
     logger.info(
         "Packaging session: tmp=%s archive_dir=%s time=%s",
         tmp_dir,
@@ -373,10 +359,18 @@ def package_session(
     )
 
     try:
-        create_zip(archive_path, changed_files, tmp_dir)
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Failed to create archive: %s", exc)
+        create_zip(tmp_archive_path, changed_files, tmp_dir)
+        tmp_archive_path.replace(archive_path)
+    except PermissionError as exc:
+        logger.error("Failed to move archive into %s: %s", sessions_dir, exc)
+        tmp_archive_path.unlink(missing_ok=True)
         return None
+    except OSError as exc:
+        logger.error("Failed to finalize archive in %s: %s", sessions_dir, exc)
+        tmp_archive_path.unlink(missing_ok=True)
+        return None
+
+    logger.info("Session artifacts directory finalized at %s", sessions_dir)
 
     # remove processed files to ensure idempotency
     for file in changed_files:
