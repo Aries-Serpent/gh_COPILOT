@@ -49,6 +49,7 @@ def test_custom_session_dir(tmp_path: Path) -> None:
     (tmp_dir / "b.txt").write_text("data", encoding="utf-8")
 
     policy = LfsPolicy(repo)
+    assert policy.session_artifact_dir == "custom_sessions"
     archive = package_session(tmp_dir, repo, policy)
     assert archive.parent.name == "custom_sessions"
 

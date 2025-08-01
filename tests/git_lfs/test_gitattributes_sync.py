@@ -48,14 +48,14 @@ def test_sync_updates_with_new_extension(tmp_path: Path) -> None:
     assert "*.bin" in content
 
 
-def test_cli_sync_gitattributes(tmp_path: Path) -> None:
+def test_sync_uses_session_dir(tmp_path: Path) -> None:
     init_repo(tmp_path)
     policy = tmp_path / ".codex_lfs_policy.yaml"
     policy.write_text(
-        "gitattributes_template: |\n  *.dat filter=lfs diff=lfs merge=lfs -text\n",
+        "session_artifact_dir: custom_sessions\n"
+        "gitattributes_template: |\n  *.zip filter=lfs diff=lfs merge=lfs -text\n",
         encoding="utf-8",
     )
-    script = Path(__file__).resolve().parents[2] / "artifact_manager.py"
-    shutil.copy(script, tmp_path / "artifact_manager.py")
-    subprocess.run(["python", "artifact_manager.py", "--sync-gitattributes"], cwd=tmp_path, check=True)
-    assert (tmp_path / ".gitattributes").exists()
+    run_sync(tmp_path)
+    content = (tmp_path / ".gitattributes").read_text(encoding="utf-8")
+    assert "custom_sessions/*.zip" in content
