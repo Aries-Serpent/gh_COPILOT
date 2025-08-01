@@ -15,29 +15,73 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Ensure LFS pointers are pulled so session archives commit correctly
+          # Download Git LFS objects so session archives are available to jobs.
+          # See ARTIFACT_RECOVERY_WORKFLOW.md for rationale and troubleshooting.
           lfs: true
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
       - name: Install Git LFS
         run: |
+          set -e
           sudo apt-get update
           sudo apt-get install -y git-lfs
           git lfs install
       - name: Setup environment
-        run: bash setup.sh
+        run: |
+          set -e
+          bash setup.sh
       - name: Package and commit session artifacts
-        # Runs artifact packaging, commit, and .gitattributes sync
-        run: python artifact_manager.py --package --commit --sync-gitattributes
-      - name: List LFS-tracked files
-        # Diagnostic step to confirm pointers are in place
-        run: git lfs ls-files
+        run: |
+          set -e
+          # Packages build outputs, commits them, and synchronizes .gitattributes
+          # for new binary patterns. See ARTIFACT_RECOVERY_WORKFLOW.md for details.
+          python artifact_manager.py --package --commit --sync-gitattributes
+      - name: Verify LFS pointer consistency
+        run: |
+          set -e
+          # Ensure all binary extensions declared in policy are tracked by LFS.
+          extensions="db 7z zip bak dot sqlite exe"
+          missing=""
+          for ext in $extensions; do
+            for file in $(git ls-files "*.${ext}"); do
+              if ! git lfs ls-files --name-only "$file" >/dev/null 2>&1; then
+                echo "Binary file not tracked by LFS: $file" >> lfs_errors.log
+                missing=1
+              fi
+            done
+          done
+          if [ "$missing" = "1" ]; then
+            cat lfs_errors.log
+            echo "ERROR: Some binary files are not managed by Git LFS." >&2
+            exit 1
+          fi
+          git lfs ls-files
       - name: Push changes
         run: |
+          set -e
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git push
-      - name: Restore latest session
-        run: python artifact_manager.py --recover
+      - name: Archive tmp directory
         if: always()
+        run: |
+          set -e
+          if [ -d tmp ]; then
+            zip -r tmp_artifacts.zip tmp
+          else
+            echo "No tmp directory to archive"
+          fi
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: session-artifacts
+          path: tmp_artifacts.zip
+      - name: Restore latest session
+        if: always()
+        run: |
+          set -e
+          # Restores the most recent session archive for inspection.
+          python artifact_manager.py --recover
+

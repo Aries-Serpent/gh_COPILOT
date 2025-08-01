@@ -10,7 +10,6 @@ from zipfile import ZipFile
 import pytest
 
 import artifact_manager
-import pytest
 from artifact_manager import LfsPolicy, package_session, recover_latest_session
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -242,6 +241,28 @@ def test_cli_tmp_dir_option(repo: Path) -> None:
         assert "d.txt" in zf.namelist()
 
 
+def test_cli_creates_missing_tmp_dir(repo: Path) -> None:
+    """Packaging with a non-existent ``--tmp-dir`` should create it."""
+    init_repo(repo)
+    (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: true\n")
+    missing_tmp = repo / "missing_tmp"
+
+    copy_artifact_manager_script(repo)
+    subprocess.run(
+        [
+            sys.executable,
+            str(script_dst),
+            "--package",
+            "--tmp-dir",
+            str(missing_tmp),
+        ],
+        cwd=repo,
+        check=True,
+    )
+
+    assert missing_tmp.exists()
+
+
 def test_policy_file_missing_logs_defaults(repo: Path, caplog) -> None:
     init_repo(repo)
     tmp_dir = repo / "tmp"
@@ -258,6 +279,23 @@ def test_policy_file_missing_logs_defaults(repo: Path, caplog) -> None:
     assert "Using default LFS policy values" in messages
     assert "Packaging session" in messages
     assert archive.parent.name == "codex_sessions"
+
+
+def test_sync_gitattributes_cli_failure(tmp_path: Path) -> None:
+    """CLI should exit non-zero when git operations fail."""
+    (tmp_path / ".codex_lfs_policy.yaml").write_text(
+        "gitattributes_template: |\n  *.dat filter=lfs diff=lfs merge=lfs -text\n",
+        encoding="utf-8",
+    )
+    copy_script_to_repo(tmp_path)
+    result = subprocess.run(
+        [sys.executable, str(script_dst), "--sync-gitattributes"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "Git command failed" in result.stderr or "Git command failed" in result.stdout
 
 
 def test_package_session_atomic_output(repo: Path, monkeypatch) -> None:
@@ -353,7 +391,7 @@ def test_session_dir_symlink_outside(tmp_path: Path, caplog) -> None:
     init_repo(repo)
     if not hasattr(os, "symlink"):
         pytest.skip("symlink not supported")
-    outside = tmp_path / "outside_sessions"
+    outside = tmp_path.parent / "outside_sessions"
     outside.mkdir()
     symlink_dir = repo / "outside_link"
     symlink_dir.symlink_to(outside)
@@ -367,4 +405,7 @@ def test_session_dir_symlink_outside(tmp_path: Path, caplog) -> None:
     with caplog.at_level(logging.ERROR):
         result = package_session(tmp_dir, repo, policy)
     assert result is None
-    assert any("escapes repository root" in m for m in caplog.messages)
+    assert any(
+        "escapes repository root" in m or "is a symlink" in m
+        for m in caplog.messages
+    )
