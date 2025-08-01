@@ -16,8 +16,14 @@ from utils.validation_utils import (
     detect_zero_byte_files,
     validate_enterprise_environment,
 )
-from utils.lessons_learned_integrator import load_lessons, apply_lessons
+from utils.lessons_learned_integrator import (
+    load_lessons,
+    apply_lessons,
+    store_lesson,
+)
+from validation.core.validators import ValidationResult
 from pathlib import Path
+from datetime import datetime
 import logging
 
 # Text-based indicators (NO Unicode emojis)
@@ -51,7 +57,26 @@ class UnifiedSessionManagementSystem:
         """Finalize the session with cleanup checks."""
         zero_files = self._scan_zero_byte_files()
         result = self.validator.validate_session_cleanup()
+        for lesson in collect_lessons(result):
+            store_lesson(**lesson)
         return not zero_files and result.is_success
+
+
+def collect_lessons(result: ValidationResult) -> list[dict[str, str]]:
+    """Derive lesson entries from validator results."""
+    lessons: list[dict[str, str]] = []
+    timestamp = datetime.utcnow().isoformat() + "Z"
+    for msg in result.errors + result.warnings:
+        lessons.append(
+            {
+                "description": msg,
+                "source": "session_validator",
+                "timestamp": timestamp,
+                "validation_status": "pending",
+                "tags": "session",
+            }
+        )
+    return lessons
 
 
 def main() -> None:

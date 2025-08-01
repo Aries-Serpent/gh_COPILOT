@@ -39,6 +39,7 @@ from tqdm import tqdm
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import validate_enterprise_environment
+from utils.lessons_learned_integrator import store_lesson
 
 try:
     from scripts.orchestrators.unified_wrapup_orchestrator import (
@@ -174,6 +175,13 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             raise
 
         finalize_session_entry(conn, entry_id, compliance_score)
+        store_lesson(
+            description=f"WLC session completed with score {compliance_score:.2f}",
+            source="wlc_session_manager",
+            timestamp=datetime.now(UTC).isoformat(),
+            validation_status="validated",
+            tags="wlc",
+        )
 
         if run_orchestrator:
             orchestrator_cls = UnifiedWrapUpOrchestrator

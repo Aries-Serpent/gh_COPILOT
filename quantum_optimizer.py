@@ -2,11 +2,12 @@
 # > Generated: 2025-07-24 19:36:07 | Author: mbaetiong
 
 import numpy as np
-from typing import Callable, Optional, Any, Dict, List, Tuple, Union
+from typing import Callable, Optional, Any, Dict, List, Tuple
 from datetime import datetime
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 import os
+from utils.lessons_learned_integrator import fetch_lessons_by_tag
 
 try:
     from qiskit import QuantumCircuit, Aer, execute
@@ -148,6 +149,21 @@ class QuantumOptimizer:
             "history": self.history
         }
         return summary
+
+
+def score_templates(templates: List[str], tag: str) -> List[tuple[str, float]]:
+    """Weight templates based on lessons tagged with ``tag``."""
+    lessons = fetch_lessons_by_tag(tag)
+    if not lessons:
+        return [(t, 1.0) for t in templates]
+    scores: List[tuple[str, float]] = []
+    for tmpl in templates:
+        weight = 1.0
+        for lesson in lessons:
+            if lesson["description"].lower() in tmpl.lower():
+                weight += 1.0
+        scores.append((tmpl, weight))
+    return scores
 
     def _run_simulated_annealing(self, x0: Optional[np.ndarray], max_iter: int = 500, temp: float = 1.0, cooling: float = 0.95) -> Dict[str, Any]:
         """Simple simulated annealing optimizer (classical, for demonstration)."""

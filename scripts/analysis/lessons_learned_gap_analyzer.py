@@ -12,6 +12,7 @@ import json
 import logging
 import sqlite3
 from datetime import datetime
+import argparse
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
@@ -22,6 +23,7 @@ from template_engine.learning_templates import (
     get_lesson_templates,
     get_dataset_sources,
 )
+from utils.lessons_learned_integrator import store_lesson
 
 
 # 🚨 CRITICAL: Anti-recursion workspace validation
@@ -706,17 +708,27 @@ class LessonsLearnedGapAnalyzer:
             raise TimeoutError(f"Gap analysis exceeded {self.timeout_minutes} minute timeout")
 
 
-def main():
+def main(argv: list[str] | None = None):
     """🎯 Main execution function for gap analysis"""
 
+    parser = argparse.ArgumentParser(description="Run gap analysis or append a lesson")
+    parser.add_argument("--lesson", help="Append a new lesson and exit")
+    args = parser.parse_args(argv)
+
+    if args.lesson:
+        store_lesson(
+            description=args.lesson,
+            source="gap_analyzer",
+            timestamp=datetime.utcnow().isoformat(),
+            validation_status="pending",
+            tags="gap",
+        )
+        print("Lesson stored")
+        return 0
+
     try:
-        # Initialize gap analyzer
         analyzer = LessonsLearnedGapAnalyzer()
-
-        # Execute comprehensive gap analysis
         result = analyzer.execute_comprehensive_gap_analysis()
-
-        # Display results summary
         print("\n" + "=" * 80)
         print("🔍 LESSONS LEARNED GAP ANALYSIS SUMMARY")
         print("=" * 80)
@@ -726,14 +738,11 @@ def main():
         print(f"📉 Integration Score Impact: {result.overall_integration_score_impact:.1f}%")
         print(f"✅ Analysis Status: {'PASSED' if result.analysis_passed else 'FAILED'}")
         print("=" * 80)
-
         if result.recommendations:
             print("\n📋 KEY RECOMMENDATIONS:")
             for i, recommendation in enumerate(result.recommendations, 1):
                 print(f"{i}. {recommendation}")
-
         return 0 if result.analysis_passed else 1
-
     except Exception as e:
         print(f"❌ Gap analysis failed: {str(e)}")
         return 1

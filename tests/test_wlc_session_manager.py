@@ -121,6 +121,18 @@ def test_session_error(tmp_path, monkeypatch):
     assert "boom" in error_details
 
 
+def test_session_persists_lesson(tmp_path, monkeypatch):
+    temp_db = tmp_path / "production.db"
+    shutil.copy(wsm.DB_PATH, temp_db)
+    monkeypatch.setattr(wsm, "DB_PATH", temp_db)
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backups"))
+    stored = {}
+    monkeypatch.setattr(wsm, "store_lesson", lambda **kw: stored.update(kw))
+    wsm.run_session(1, temp_db, False, run_orchestrator=False)
+    assert stored["source"] == "wlc_session_manager"
+
+
 def test_missing_environment(monkeypatch):
     monkeypatch.delenv("GH_COPILOT_WORKSPACE", raising=False)
     monkeypatch.delenv("GH_COPILOT_BACKUP_ROOT", raising=False)
