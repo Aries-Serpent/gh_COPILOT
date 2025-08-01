@@ -1,25 +1,15 @@
 """Utility for packaging and recovering session artifacts.
 
-The design intentionally mirrors real‑world backup tooling where artifacts
-generated during a development session are archived for later inspection or
-disaster recovery.  The archive destination is driven by the
-``session_artifact_dir`` key in ``.codex_lfs_policy.yaml``.  When that file is
-missing or the key is invalid, a safe default of ``"codex_sessions"`` is used.
-
-Key principles implemented in this module:
-
-* **Robust configuration parsing** – malformed YAML, permission errors or bad
-  types are handled gracefully with clear log messages.
-* **Configurable directories** – the active artifact directory is exposed via
-  :attr:`ArtifactManager.session_artifact_dir` so no paths are hard coded.
-* **Atomic writes** – archives are written to a temporary file and only moved to
-  their final location after a successful write to avoid partial data on crash.
-* **Cross‑platform compatibility** – path validation and directory creation use
-  ``pathlib``/``os`` primitives that work on Linux, macOS and Windows.
-
-The module exposes a small :class:`ArtifactManager` class with high level
-``package_session`` and ``recover_latest_session`` helpers as well as a simple
-command line interface for direct use.
+This module detects files within a temporary directory, archives them into a
+timestamped zip stored under a configurable *session artifact directory* and
+optionally tracks the archive via Git LFS based on ``.codex_lfs_policy.yaml``.
+Created archives are automatically committed to the repository. The module also
+provides a recovery helper to extract the most recent session archive back into
+the temporary directory. The command line interface exposes options such as
+``--tmp-dir`` to control the working directory for transient files and
+``--sync-gitattributes`` to regenerate the repository's ``.gitattributes`` from
+policy. The policy file may specify ``session_artifact_dir`` to override the
+default ``codex_sessions`` location used for storing archives.
 """
 
 from __future__ import annotations
@@ -28,6 +18,7 @@ import argparse
 import logging
 import os
 import subprocess
+import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -35,7 +26,6 @@ from typing import Iterable, List, Optional
 from zipfile import ZipFile
 
 import yaml
-from yaml import YAMLError
 
 
 logger = logging.getLogger(__name__)
@@ -72,16 +62,6 @@ class LfsPolicy:
     DEFAULT_SESSION_DIR = "codex_sessions"
 
     def __init__(self, root: Path) -> None:
-        """Parse ``.codex_lfs_policy.yaml`` for LFS and session settings.
-
-        Parameters
-        ----------
-        root:
-            Repository root used to locate the policy file.  The constructor is
-            intentionally forgiving so callers can rely on sane defaults even
-            when the policy file is missing or malformed.
-        """
-
         self.enabled = False
         self.size_threshold_mb = 50
         self.binary_extensions: List[str] = [
@@ -96,7 +76,6 @@ class LfsPolicy:
         self.gitattributes_template = ""
         self.session_artifact_dir = self.DEFAULT_SESSION_DIR
         self.root = root
-        self._raw: dict[str, object] = {}
 
         policy_file = root / ".codex_lfs_policy.yaml"
         try:
@@ -141,22 +120,6 @@ class LfsPolicy:
                     self.session_artifact_dir,
                 )
 
-        data = self._raw
-        self.enabled = bool(data.get("enable_autolfs", False))
-        self.size_threshold_mb = int(data.get("size_threshold_mb", 50))
-        self.binary_extensions = list(data.get("binary_extensions", self.binary_extensions))
-        self.gitattributes_template = data.get("gitattributes_template", "")
-
-        session_dir = data.get("session_artifact_dir", self.session_artifact_dir)
-        if not isinstance(session_dir, str) or not session_dir.strip():
-            logger.warning(
-                "Invalid session_artifact_dir %r; using default %s",
-                session_dir,
-                self.session_artifact_dir,
-            )
-        else:
-            self.session_artifact_dir = session_dir.rstrip("/")
-
     def requires_lfs(self, path: Path) -> bool:
         if not path.is_file():
             return False
@@ -170,26 +133,11 @@ class LfsPolicy:
             logger.debug("LFS auto tracking disabled.")
             return
         try:
-            subprocess.run(
-                ["git", "lfs", "install"],
-                cwd=self.root,
-                check=True,
-                capture_output=True,
-            )
-            subprocess.run(
-                ["git", "lfs", "track", path.name],
-                cwd=self.root,
-                check=True,
-                capture_output=True,
-            )
+            subprocess.run(["git", "lfs", "install"], cwd=self.root, check=True, capture_output=True)
+            subprocess.run(["git", "lfs", "track", path.name], cwd=self.root, check=True, capture_output=True)
             git_attr = self.root / ".gitattributes"
             if git_attr.exists():
-                subprocess.run(
-                    ["git", "add", git_attr.name],
-                    cwd=self.root,
-                    check=True,
-                    capture_output=True,
-                )
+                subprocess.run(["git", "add", git_attr.name], cwd=self.root, check=True, capture_output=True)
         except subprocess.CalledProcessError as exc:  # noqa: BLE001
             logger.error("Failed to set up Git LFS tracking: %s", exc)
 
@@ -216,41 +164,12 @@ class LfsPolicy:
                 lines.append(f"{pattern} filter=lfs diff=lfs merge=lfs -text")
                 patterns.add(pattern)
 
-        content = (
-            "# Git LFS rules for binary artifacts\n"
-            + "\n".join(lines)
-            + "\n# End of LFS patterns\n"
-        )
+        content = "# Git LFS rules for binary artifacts\n" + "\n".join(lines) + "\n# End of LFS patterns\n"
 
         current = attrs_file.read_text(encoding="utf-8") if attrs_file.exists() else ""
         if current.strip() != content.strip():
             attrs_file.write_text(content, encoding="utf-8")
             logger.info("Updated %s", attrs_file)
-
-
-def _check_dir_health(path: Path, *, allow_symlink: bool = False) -> None:
-    """Ensure ``path`` exists, is writable and safe.
-
-    The check avoids common pitfalls such as using a symlinked directory that
-    might escape the repository.  It raises :class:`RuntimeError` on failure so
-    callers can handle it explicitly.
-    """
-
-    try:
-        path.mkdir(parents=True, exist_ok=True)
-    except OSError as exc:  # noqa: BLE001
-        raise RuntimeError(f"Unable to create {path}: {exc}") from exc
-
-    if path.is_symlink() and not allow_symlink:
-        raise RuntimeError(f"Artifact directory {path} must not be a symlink")
-
-    try:
-        test_file = path / ".write_test"
-        with test_file.open("w", encoding="utf-8"):
-            pass
-        test_file.unlink()
-    except OSError as exc:  # noqa: BLE001
-        raise RuntimeError(f"Artifact directory {path} not writable: {exc}") from exc
 
 
 def detect_tmp_changes(tmp_dir: Path, repo_root: Path) -> List[Path]:
@@ -273,19 +192,19 @@ def check_directory_health(dir_path: Path, repo_root: Path) -> bool:
 
     try:
         resolved = dir_path.resolve()
-        repo_resolved = repo_root.resolve()
+        repo_root_resolved = repo_root.resolve()
     except OSError as exc:  # pragma: no cover - extremely unusual
         logger.error("Failed to resolve %s: %s", dir_path, exc)
         return False
 
     try:
-        resolved.relative_to(repo_resolved)
+        resolved.relative_to(repo_root_resolved)
     except ValueError:
         logger.error("Directory %s escapes repository root", resolved)
         return False
 
-    if resolved.is_symlink():
-        logger.error("Directory %s is a symlink", resolved)
+    if dir_path.is_symlink():
+        logger.error("Directory %s is a symlink", dir_path)
         return False
 
     try:
@@ -310,17 +229,34 @@ def create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> Non
                 zf.write(file, arcname=file.relative_to(base_dir))
 
 
-class ArtifactManager:
-    """Manage packaging and recovery of session artifacts.
+def package_session(
+    tmp_dir: Path,
+    repo_root: Path,
+    lfs_policy: Optional[LfsPolicy] = None,
+    *,
+    commit: bool = False,
+    message: str | None = None,
+) -> Optional[Path]:
+    """Package changed files in ``tmp_dir`` into a ZIP archive.
 
     Parameters
     ----------
-    repo_root:
-        Root directory of the repository.
     tmp_dir:
-        Directory where temporary session files live.  Defaults to ``tmp``.
-    policy:
-        Optional :class:`LfsPolicy`.  When omitted a new instance is created.
+        Temporary directory containing session outputs.
+    repo_root:
+        Root of the git repository.
+    lfs_policy:
+        Optional :class:`LfsPolicy` for Git LFS enforcement.
+    commit:
+        If ``True``, commit the created archive to git.
+    message:
+        Optional commit message. If not provided, a default message using the
+        archive timestamp is used.
+
+    Returns
+    -------
+    Optional[Path]
+        Path to the created archive or ``None`` if no changes detected.
 
     Notes
     -----
@@ -356,68 +292,77 @@ class ArtifactManager:
         timestamp.isoformat(),
     )
 
-        if commit:
+    try:
+        with tempfile.NamedTemporaryFile(
+            suffix=".tmp", dir=sessions_dir, delete=False
+        ) as tmp_file:
+            tmp_path = Path(tmp_file.name)
+        create_zip(tmp_path, changed_files, tmp_dir)
+        os.replace(tmp_path, archive_path)
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Failed to create archive: %s", exc)
+        if "tmp_path" in locals():
             try:
-                subprocess.run(
-                    ["git", "add", str(archive_path.relative_to(self.repo_root))],
-                    cwd=self.repo_root,
-                    check=True,
-                )
-                try:
-                    tracked = subprocess.check_output(
-                        [
-                            "git",
-                            "lfs",
-                            "ls-files",
-                            str(archive_path.relative_to(self.repo_root)),
-                        ],
-                        cwd=self.repo_root,
-                        text=True,
-                    )
-                except subprocess.CalledProcessError:
-                    tracked = ""
-                if self.policy.enabled and not tracked.strip():
-                    logger.error("Archive %s is not tracked by Git LFS", archive_path)
-                commit_msg = message or f"Add session artifact {timestamp}"
-                subprocess.run(
-                    ["git", "commit", "-m", commit_msg],
-                    cwd=self.repo_root,
-                    check=True,
-                )
-                logger.info("Committed archive %s", archive_path)
-            except subprocess.CalledProcessError as exc:  # noqa: BLE001
-                logger.error("Failed to commit archive: %s", exc)
+                tmp_path.unlink()
+            except FileNotFoundError:
+                pass
+        return None
 
-        return archive_path
-
-    # ------------------------------------------------------------------
-    def recover_latest_session(self) -> Optional[Path]:
-        """Restore files from the most recent session archive."""
-
-        if not self.session_artifact_dir.exists():
-            logger.warning("%s does not exist", self.session_artifact_dir)
-            return None
-
-        archives = sorted(
-            self.session_artifact_dir.glob("codex-session_*.zip"), reverse=True
-        )
-        if not archives:
-            logger.warning(
-                "No session archives found in %s", self.session_artifact_dir
-            )
-            return None
-
-        archive = archives[0]
+    # remove processed files to ensure idempotency
+    for file in changed_files:
         try:
-            with ZipFile(archive) as zf:
-                zf.extractall(self.tmp_dir)
-        except Exception as exc:  # noqa: BLE001
-            logger.error("Failed to extract %s: %s", archive, exc)
-            return None
+            file.unlink()
+        except FileNotFoundError:
+            continue
+        parent = file.parent
+        while parent != tmp_dir and not any(parent.iterdir()):
+            parent.rmdir()
+            parent = parent.parent
 
-        logger.info("Recovered session from %s", archive)
-        return archive
+    logger.info("Created session archive %s", archive_path)
 
+    if lfs_policy and lfs_policy.requires_lfs(archive_path):
+        lfs_policy.track(archive_path)
+
+    if commit:
+        try:
+            subprocess.run(
+                ["git", "add", str(archive_path.relative_to(repo_root))],
+                cwd=repo_root,
+                check=True,
+            )
+            try:
+                tracked = subprocess.check_output(
+                    [
+                        "git",
+                        "lfs",
+                        "ls-files",
+                        str(archive_path.relative_to(repo_root)),
+                    ],
+                    cwd=repo_root,
+                    text=True,
+                )
+            except subprocess.CalledProcessError:
+                tracked = ""
+            if lfs_policy and lfs_policy.enabled and not tracked.strip():
+                logger.error("Archive %s is not tracked by Git LFS", archive_path)
+            commit_msg = message or f"Add session artifact {timestamp}"
+            subprocess.run(
+                ["git", "commit", "-m", commit_msg],
+                cwd=repo_root,
+                check=True,
+            )
+            logger.info("Committed archive %s", archive_path)
+        except subprocess.CalledProcessError as exc:  # noqa: BLE001
+            logger.error("Failed to commit archive: %s", exc)
+
+    return archive_path
+
+
+def recover_latest_session(
+    tmp_dir: Path, repo_root: Path, lfs_policy: Optional[LfsPolicy] = None
+) -> Optional[Path]:
+    """Restore files from the most recent session archive.
 
     Parameters
     ----------
@@ -446,11 +391,10 @@ class ArtifactManager:
     if not check_directory_health(sessions_dir, repo_root):
         return None
 
-def recover_latest_session(
-    tmp_dir: Path, repo_root: Path, lfs_policy: Optional[LfsPolicy] = None
-) -> Optional[Path]:
-    manager = ArtifactManager(repo_root, tmp_dir, lfs_policy)
-    return manager.recover_latest_session()
+    archives = sorted(sessions_dir.glob("codex-session_*.zip"), reverse=True)
+    if not archives:
+        logger.warning("No session archives found in %s", sessions_dir)
+        return None
 
     archive = archives[0]
     logger.info(
@@ -464,38 +408,57 @@ def recover_latest_session(
         logger.error("Failed to extract %s: %s", archive, exc)
         return None
 
-def main() -> None:
-    """Command-line interface for session packaging and recovery.
+    logger.info("Recovered session from %s", archive)
+    return archive
 
-    The CLI is intentionally compact while offering sensible defaults.  Example
-    usages::
 
 def main() -> None:
     """Entry point for the artifact manager command line interface.
 
-    The CLI consolidates all options in a single :class:`argparse.ArgumentParser`
-    for discoverability.  Usage examples::
+    Examples
+    --------
+    Package session files using a custom temporary directory::
 
         python artifact_manager.py --package --tmp-dir build/tmp
-        python artifact_manager.py --recover
+
+    Regenerate the repository's ``.gitattributes`` file from policy::
+
         python artifact_manager.py --sync-gitattributes
     """
 
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--package", action="store_true", help="create session archive")
-    parser.add_argument("--recover", action="store_true", help="recover latest session")
-    parser.add_argument("--commit", action="store_true", help="commit created archive")
+    examples = (
+        "Examples:\n"
+        "  python artifact_manager.py --package --tmp-dir build/tmp\n"
+        "  python artifact_manager.py --sync-gitattributes"
+    )
+    parser = argparse.ArgumentParser(
+        description="Manage packaging and recovery of session artifacts",
+        epilog=examples,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--package",
+        action="store_true",
+        help="create a session archive from files in the temporary directory",
+    )
+    parser.add_argument(
+        "--recover",
+        action="store_true",
+        help="restore the most recent session archive back into the temporary directory",
+    )
+    parser.add_argument(
+        "--commit",
+        action="store_true",
+        help="commit the created archive to git",
+    )
     parser.add_argument(
         "--message",
-        help="commit message when packaging (default: timestamped message)",
+        help="commit message when packaging (defaults to a timestamped message)",
     )
     parser.add_argument(
         "--tmp-dir",
         default="tmp",
-        help=(
-            "temporary directory for session outputs; the directory is created"
-            " if needed (default: %(default)s)"
-        ),
+        help="working directory for session files; created if it does not exist",
     )
     parser.add_argument(
         "--sync-gitattributes",
@@ -507,22 +470,44 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
     repo_root = Path(__file__).resolve().parent
-    manager = ArtifactManager(repo_root, Path(args.tmp_dir))
+    tmp_dir = Path(args.tmp_dir)
+    if not check_directory_health(tmp_dir, repo_root):
+        sys.exit(1)
+
+    policy = LfsPolicy(repo_root)
 
     if args.sync_gitattributes:
         logger.info("Synchronizing .gitattributes")
         try:
             policy.sync_gitattributes()
+            subprocess.run(
+                ["git", "add", ".gitattributes"],
+                cwd=repo_root,
+                check=True,
+                capture_output=True,
+            )
+        except subprocess.CalledProcessError as exc:  # noqa: BLE001
+            msg = exc.stderr.decode().strip() if exc.stderr else str(exc)
+            logger.error("Git command failed: %s", msg)
+            sys.exit(1)
         except Exception as exc:  # noqa: BLE001
             logger.error("sync_gitattributes failed: %s", exc)
+            sys.exit(1)
         else:
             logger.info(".gitattributes synchronized")
+        return
 
     if args.package:
-        manager.package_session(commit=args.commit, message=args.message)
+        package_session(
+            tmp_dir,
+            repo_root,
+            policy,
+            commit=args.commit,
+            message=args.message,
+        )
 
     if args.recover:
-        manager.recover_latest_session()
+        recover_latest_session(tmp_dir, repo_root, policy)
 
 
 if __name__ == "__main__":

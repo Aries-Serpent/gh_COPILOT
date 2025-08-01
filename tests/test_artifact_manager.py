@@ -10,7 +10,6 @@ from zipfile import ZipFile
 import pytest
 
 import artifact_manager
-import pytest
 from artifact_manager import LfsPolicy, package_session, recover_latest_session
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -92,11 +91,14 @@ def repo(tmp_path: Path, request, repo_tmp_root: Path) -> Path:
 
 
 def test_package_and_recover(repo: Path) -> None:
+    """Round-trip package and recovery through Git LFS."""
+
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: true\n")
     tmp_dir = repo / "tmp"
     tmp_dir.mkdir()
     file_path = tmp_dir / "a.txt"
+    logging.info("Creating %s", file_path)
     file_path.write_text("data", encoding="utf-8")
 
     policy = LfsPolicy(repo)
@@ -109,6 +111,7 @@ def test_package_and_recover(repo: Path) -> None:
 
     # remove file and recover
     for p in tmp_dir.iterdir():
+        logging.info("Removing %s", p)
         p.unlink()
     assert not any(tmp_dir.iterdir())
     recovered = recover_latest_session(tmp_dir, repo, policy)
@@ -117,6 +120,8 @@ def test_package_and_recover(repo: Path) -> None:
 
 
 def test_custom_session_dir(repo: Path) -> None:
+    """Respect ``session_artifact_dir`` when packaging and recovering."""
+
     init_repo(repo)
     policy_content = (
         "enable_autolfs: true\n"
@@ -127,6 +132,7 @@ def test_custom_session_dir(repo: Path) -> None:
     (repo / ".codex_lfs_policy.yaml").write_text(policy_content, encoding="utf-8")
     tmp_dir = repo / "tmp"
     tmp_dir.mkdir()
+    logging.info("Writing %s", tmp_dir / "b.txt")
     (tmp_dir / "b.txt").write_text("data", encoding="utf-8")
 
     policy = LfsPolicy(repo)
@@ -148,6 +154,8 @@ def test_custom_session_dir(repo: Path) -> None:
 
 
 def test_package_session_idempotent(repo: Path) -> None:
+    """Packaging twice without changes should yield no second archive."""
+
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: true\n")
     tmp_dir = repo / "tmp"
@@ -163,7 +171,45 @@ def test_package_session_idempotent(repo: Path) -> None:
     assert result is None
 
 
+def test_package_session_no_changes(repo: Path, caplog) -> None:
+    """Return ``None`` and log when ``tmp`` holds no files to package."""
+
+    init_repo(repo)
+    (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: true\n")
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    policy = LfsPolicy(repo)
+    with caplog.at_level(logging.INFO):
+        result = package_session(tmp_dir, repo, policy)
+    assert result is None
+    sessions_dir = repo / policy.session_artifact_dir
+    assert not any(sessions_dir.glob("*"))
+    assert any("No session artifacts detected" in m for m in caplog.messages)
+
+
+def test_package_session_permission_error(repo: Path, monkeypatch, caplog) -> None:
+    """Gracefully handle failures when the archive cannot be written."""
+
+    init_repo(repo)
+    (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: false\n")
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "perm.txt").write_text("data", encoding="utf-8")
+
+    def raise_perm(*_args, **_kwargs):
+        raise PermissionError("denied")
+
+    monkeypatch.setattr(artifact_manager, "create_zip", raise_perm)
+    policy = LfsPolicy(repo)
+    with caplog.at_level(logging.ERROR):
+        result = package_session(tmp_dir, repo, policy)
+    assert result is None
+    assert any("denied" in m for m in caplog.messages)
+
+
 def test_package_without_autolfs(repo: Path) -> None:
+    """Files are committed directly when auto-LFS is disabled."""
+
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: false\n")
     tmp_dir = repo / "tmp"
@@ -178,6 +224,8 @@ def test_package_without_autolfs(repo: Path) -> None:
 
 
 def test_sync_gitattributes_cli(repo: Path) -> None:
+    """CLI flag regenerates ``.gitattributes`` from policy data."""
+
     init_repo(repo)
     policy_content = (
         "enable_autolfs: true\n"
@@ -201,7 +249,41 @@ def test_sync_gitattributes_cli(repo: Path) -> None:
     assert "*.bin" in content
 
 
+def test_cli_sync_gitattributes_preserves_existing(repo: Path) -> None:
+    """Synchronizing appends rules while keeping unrelated entries intact."""
+
+    init_repo(repo)
+    policy_content = (
+        "enable_autolfs: true\n"
+        "binary_extensions: ['.dat']\n"
+        "gitattributes_template: |\n  *.dat filter=lfs diff=lfs merge=lfs -text\n"
+    )
+    (repo / ".codex_lfs_policy.yaml").write_text(policy_content, encoding="utf-8")
+    existing = "docs/*.md text\n"
+    (repo / ".gitattributes").write_text(existing, encoding="utf-8")
+
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "sample.dat").write_text("data", encoding="utf-8")
+
+    copy_artifact_manager_script(repo)
+    subprocess.run([
+        sys.executable,
+        str(script_dst),
+        "--package",
+        "--tmp-dir",
+        str(tmp_dir),
+        "--sync-gitattributes",
+    ], cwd=repo, check=True)
+
+    content = (repo / ".gitattributes").read_text(encoding="utf-8")
+    assert content.startswith("# Git LFS rules"), content
+    assert "*.dat filter" in content
+
+
 def test_cli_help(repo: Path) -> None:
+    """``--help`` lists supported command-line options."""
+
     init_repo(repo)
     copy_script_to_repo(repo)
     result = subprocess.run(
@@ -216,6 +298,8 @@ def test_cli_help(repo: Path) -> None:
 
 
 def test_cli_tmp_dir_option(repo: Path) -> None:
+    """Packaging honors a user-supplied ``--tmp-dir`` location."""
+
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: true\n")
     custom_tmp = repo / "custom_tmp"
@@ -242,7 +326,57 @@ def test_cli_tmp_dir_option(repo: Path) -> None:
         assert "d.txt" in zf.namelist()
 
 
+def test_cli_tmp_dir_nested_files(repo: Path) -> None:
+    """Nested structures and special names are packaged from custom ``--tmp-dir``."""
+
+    init_repo(repo)
+    (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: true\n")
+    custom_tmp = repo / "custom_tmp"
+    nested = custom_tmp / "sub dir" / "deep"
+    nested.mkdir(parents=True)
+    (nested / "spaced name.txt").write_text("data", encoding="utf-8")
+    (custom_tmp / "empty").mkdir()
+
+    copy_artifact_manager_script(repo)
+    subprocess.run([
+        sys.executable,
+        str(script_dst),
+        "--package",
+        "--tmp-dir",
+        str(custom_tmp),
+    ], cwd=repo, check=True)
+
+    archive = next((repo / "codex_sessions").glob("codex-session_*.zip"))
+    with ZipFile(archive) as zf:
+        names = zf.namelist()
+    assert "sub dir/deep/spaced name.txt" in names
+
+
+def test_cli_creates_missing_tmp_dir(repo: Path) -> None:
+    """Packaging with a non-existent ``--tmp-dir`` should create it."""
+    init_repo(repo)
+    (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: true\n")
+    missing_tmp = repo / "missing_tmp"
+
+    copy_artifact_manager_script(repo)
+    subprocess.run(
+        [
+            sys.executable,
+            str(script_dst),
+            "--package",
+            "--tmp-dir",
+            str(missing_tmp),
+        ],
+        cwd=repo,
+        check=True,
+    )
+
+    assert missing_tmp.exists()
+
+
 def test_policy_file_missing_logs_defaults(repo: Path, caplog) -> None:
+    """Default policy values apply when no config file is present."""
+
     init_repo(repo)
     tmp_dir = repo / "tmp"
     tmp_dir.mkdir()
@@ -260,7 +394,26 @@ def test_policy_file_missing_logs_defaults(repo: Path, caplog) -> None:
     assert archive.parent.name == "codex_sessions"
 
 
+def test_sync_gitattributes_cli_failure(tmp_path: Path) -> None:
+    """CLI should exit non-zero when git operations fail."""
+    (tmp_path / ".codex_lfs_policy.yaml").write_text(
+        "gitattributes_template: |\n  *.dat filter=lfs diff=lfs merge=lfs -text\n",
+        encoding="utf-8",
+    )
+    copy_script_to_repo(tmp_path)
+    result = subprocess.run(
+        [sys.executable, str(script_dst), "--sync-gitattributes"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "Git command failed" in result.stderr or "Git command failed" in result.stdout
+
+
 def test_package_session_atomic_output(repo: Path, monkeypatch) -> None:
+    """Archives are written atomically and temp files cleaned up."""
+
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: false\n")
     tmp_dir = repo / "tmp"
@@ -288,6 +441,8 @@ def test_package_session_atomic_output(repo: Path, monkeypatch) -> None:
 
 
 def test_invalid_session_dir_value(tmp_path: Path, caplog) -> None:
+    """Non-string ``session_artifact_dir`` values fall back to default."""
+
     repo = tmp_path
     init_repo(repo)
     policy_content = "session_artifact_dir: 123\n"
@@ -303,6 +458,8 @@ def test_invalid_session_dir_value(tmp_path: Path, caplog) -> None:
 
 
 def test_malformed_yaml_fallback(tmp_path: Path, caplog) -> None:
+    """Malformed policy files trigger error logs and defaults."""
+
     repo = tmp_path
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("!bad yaml\n:\n", encoding="utf-8")
@@ -314,6 +471,8 @@ def test_malformed_yaml_fallback(tmp_path: Path, caplog) -> None:
 
 
 def test_runtime_directory_switch(tmp_path: Path) -> None:
+    """Switching session directories at runtime writes to new locations."""
+
     repo = tmp_path
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("session_artifact_dir: first\n")
@@ -334,6 +493,8 @@ def test_runtime_directory_switch(tmp_path: Path) -> None:
 
 
 def test_cli_help_lists_options(tmp_path: Path) -> None:
+    """Temporary repositories expose CLI usage information."""
+
     repo = tmp_path
     init_repo(repo)
     copy_script_to_repo(repo)  # This sets the script_dst variable
@@ -349,11 +510,13 @@ def test_cli_help_lists_options(tmp_path: Path) -> None:
 
 
 def test_session_dir_symlink_outside(tmp_path: Path, caplog) -> None:
+    """Reject session directories that resolve outside the repository root."""
+
     repo = tmp_path
     init_repo(repo)
     if not hasattr(os, "symlink"):
         pytest.skip("symlink not supported")
-    outside = tmp_path / "outside_sessions"
+    outside = tmp_path.parent / "outside_sessions"
     outside.mkdir()
     symlink_dir = repo / "outside_link"
     symlink_dir.symlink_to(outside)
