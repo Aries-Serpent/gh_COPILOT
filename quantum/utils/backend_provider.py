@@ -8,7 +8,19 @@ import os
 try:  # pragma: no cover - optional dependency
     from qiskit import Aer
 except Exception:  # pragma: no cover - qiskit may be missing
-    Aer = None
+    try:  # fallback to BasicAer if available
+        from qiskit.providers.basicaer import QasmSimulator
+
+        class _AerShim:  # pragma: no cover - simple shim
+            @staticmethod
+            def get_backend(name: str):
+                if name == "qasm_simulator":
+                    return QasmSimulator()
+                raise ValueError("Backend not available")
+
+        Aer = _AerShim()
+    except Exception:
+        Aer = None
 
 try:  # pragma: no cover - optional dependency
     from qiskit_ibm_provider import IBMProvider
