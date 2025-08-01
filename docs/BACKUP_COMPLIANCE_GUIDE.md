@@ -83,3 +83,34 @@ The script queries the `backup_operations` table to confirm that backups complet
 
 ---
 Ensure all commands are executed from the project root with the virtual environment activated.
+
+## Safe Commit Workflow
+
+After creating a backup you can safely commit the snapshot using the bundled Git
+LFS helper scripts. These utilities prevent accidental commits of large or
+binary files by scanning the staged changes.
+
+1. Ensure both environment variables are set:
+   ```bash
+   export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
+   export ALLOW_AUTOLFS=1
+   ```
+2. Commit using the Python utility (run with `-h` for usage details):
+   ```bash
+   tools/git_safe_add_commit.py "backup: $(date +%Y%m%d)" --push
+   ```
+   Or use the shell version which mirrors the same options:
+   ```bash
+   tools/git_safe_add_commit.sh "backup" --push
+   ```
+   When `ALLOW_AUTOLFS` is `1`, any detected binary or oversized files are
+   automatically tracked with Git LFS before the commit proceeds.
+
+### Troubleshooting
+
+* **Commit aborted with a binary file warning** – confirm `ALLOW_AUTOLFS=1` and
+  rerun the command. Without this variable set the script refuses to continue.
+* **LFS not installed** – the utilities attempt `git lfs install` but you can
+  run it manually if errors persist.
+* **Backups missing** – verify `$GH_COPILOT_BACKUP_ROOT` points outside the
+  repository and that the backup manager has populated the directory.

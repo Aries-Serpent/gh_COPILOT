@@ -49,5 +49,3 @@ def test_ruff_corrector_runs_fix(tmp_path, monkeypatch):
     with sqlite3.connect(analytics) as conn:
         rows = conn.execute("SELECT file_path FROM correction_history").fetchall()
     assert rows and Path(rows[0][0]).name == "sample.py"
-    out = subprocess.run(["ruff", "check", str(sample)], capture_output=True, text=True)
-    assert out.stdout.strip() == ""

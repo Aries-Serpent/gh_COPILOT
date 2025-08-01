@@ -36,13 +36,14 @@ Define these in `.env` or pass them via your CI configuration so Docker containe
 
 ## Line-Wrapping Utility
 
-Install the `clw` line wrapper to prevent terminal overflow during long command output. Copy the script and verify it exists:
+Install the `clw` line wrapper to prevent terminal overflow during long command output. Use the helper installer and verify it exists:
 
 ```bash
-cp tools/clw.py /usr/local/bin/clw
-chmod +x /usr/local/bin/clw
+tools/install_clw.sh
 ls -l /usr/local/bin/clw
 ```
+
+PyYAML is required for `artifact_manager.py` to read `.codex_lfs_policy.yaml`; ensure the package is installed in your environment.
 
 ## Archival Databases
 `archive.db` and `staging.db` are no longer included by default. They have been moved to `archived_databases/` and are also available in the project's GitHub releases. Download them if legacy analysis is required and place them under the `archived_databases/` directory.

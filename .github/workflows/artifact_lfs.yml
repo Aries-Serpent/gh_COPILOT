@@ -1,0 +1,96 @@
+name: artifact LFS
+# See ARTIFACT_RECOVERY_WORKFLOW.md for recovery guidance; fetch LFS pointers immediately.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - artifact_manager.py
+      - .codex_lfs_policy.yaml
+      - .gitattributes
+      - .github/workflows/artifact_lfs.yml
+
+jobs:
+  manage-artifacts:
+    runs-on: ubuntu-latest # adjust steps for macOS/Windows if needed
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true # fetch LFS pointers immediately; see ARTIFACT_RECOVERY_WORKFLOW.md
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install Git LFS
+        run: |
+          set -e
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+      - name: Setup environment
+        run: |
+          set -e
+          bash setup.sh
+      - name: Package and commit session artifacts
+        run: |
+          set -e
+          # Package artifacts, commit, and sync .gitattributes
+          python artifact_manager.py --package --commit --sync-gitattributes
+        # Details in ARTIFACT_RECOVERY_WORKFLOW.md
+      - name: Verify LFS pointers
+        run: |
+          set -e
+          exts='.db .7z .zip .bak .dot .sqlite .exe'
+          missing=''
+          for ext in $exts; do
+            for f in $(git ls-files "*$ext"); do
+              if ! git lfs ls-files "$f" >/dev/null 2>&1; then
+                missing="$missing $f"
+              fi
+            done
+          done
+          if [ -n "$missing" ]; then
+            echo "These files are not tracked by Git LFS:$missing" >&2
+            exit 1
+          fi
+          git lfs ls-files
+        # Fail fast if any policy-defined binary files skip LFS
+      - name: Push changes
+        run: |
+          set -e
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git push
+      - name: Archive tmp directory
+        if: always()
+        run: |
+          set -e
+          if [ -d tmp ]; then
+            zip -r tmp_artifacts.zip tmp
+          else
+            echo "No tmp directory to archive"
+          fi
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: session-artifacts
+          path: tmp_artifacts.zip
+      - name: Restore latest session
+        if: always()
+        run: |
+          set -e
+          python artifact_manager.py --recover
+      - name: Archive tmp artifacts
+        if: always()
+        run: |
+          set -e
+          if [ -d tmp ]; then
+            zip -r tmp_artifacts.zip tmp
+          fi
+      - name: Upload tmp artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tmp-artifacts
+          path: tmp_artifacts.zip
+          # archives assist with troubleshooting and future session resets

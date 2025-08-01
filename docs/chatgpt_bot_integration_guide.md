@@ -8,10 +8,10 @@ This guide explains how to run the optional GitHub bot components used in enterp
    bash setup.sh
    source .venv/bin/activate
    ```
-2. Ensure `/usr/local/bin/clw` is installed. If missing, copy `tools/clw.py` and make it executable:
+2. Ensure `/usr/local/bin/clw` is installed. If missing, run the installer and verify:
    ```bash
-   cp tools/clw.py /usr/local/bin/clw
-   chmod +x /usr/local/bin/clw
+   tools/install_clw.sh
+   ls -l /usr/local/bin/clw
    ```
 
 ## Environment Variables
@@ -38,8 +38,7 @@ python scripts/bot/assign_copilot_license.py chatgpt-bot
 Use this script to grant GitHub Copilot licenses to new team members. The target
 organization is read from `GITHUB_ORG`. The license operation runs through the
 `DualCopilotOrchestrator`, ensuring visual progress indicators and automatic
-Ruff validation after execution. Ruff results are logged to `analytics.db` for
-traceability.
+flake8 validation after execution.
 
 Both scripts log activity under `$GH_COPILOT_BACKUP_ROOT/logs` and record events in `production.db`.
 

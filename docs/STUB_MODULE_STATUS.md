@@ -42,8 +42,8 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 
 ## Lint and Type Check Summary
 
-- `ruff check` reports no issues.
-- `pyright` found no missing imports or type errors.
+- `ruff check` reports numerous issues; example: E722 warnings in `scripts/analysis/*.py`.
+- `pyright` detects missing imports and undefined variables across many modules, with errors exceeding several hundred.
 
 ## Test Coverage
 
@@ -53,7 +53,7 @@ Most quantum-oriented modules operate purely in simulation mode. Hardware execut
 
 ### Known Failing Test Modules
 
-The following table summarizes `pytest` failures observed in the latest test run. These failures reflect the modules referenced earlier where tests still fail (see line 34).
+The following table summarizes `pytest` failures observed in the latest test run. These failures reflect the modules referenced earlier where tests still fail (see line 34) and align with the lint issues outlined in line 48.
 
 | Test Module | Brief Description |
 |-------------|------------------|

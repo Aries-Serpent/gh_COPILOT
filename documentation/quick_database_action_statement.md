@@ -44,9 +44,9 @@
    
 2. Fix compliance issues:
    ```bash
-   ruff check --fix *.py
+   flake8 --select=E,W *.py
+   autopep8 --in-place --aggressive *.py
    ```
-   Each fix session is recorded in `analytics.db` for auditing purposes.
 
 3. Update database templates with missing scripts
 
@@ -60,7 +60,7 @@ python quick_database_test.py
 python efficient_database_reproducibility_validator.py
 
 # Compliance checking
-ruff check --statistics .
+flake8 --statistics .
 ```
 
 ---

@@ -17,20 +17,10 @@ python "$WORKSPACE/scripts/setup_environment.py" >>/tmp/setup_install.log
 
 # install clw line wrapper if missing
 if [ ! -x /usr/local/bin/clw ]; then
-    if [ -f "$WORKSPACE/tools/clw.py" ]; then
-        ln -sf "$WORKSPACE/tools/clw.py" /usr/local/bin/clw 2>/dev/null || \
-            cp "$WORKSPACE/tools/clw.py" /usr/local/bin/clw
-        chmod +x /usr/local/bin/clw
-        echo "Installed clw to /usr/local/bin/clw"
-        /usr/local/bin/clw --help >/dev/null || true
-    else
-        echo "clw script not found in tools/" >&2
-    fi
+    "$WORKSPACE/tools/install_clw.sh"
 fi
 
-if [ -x /usr/local/bin/clw ]; then
-    /usr/local/bin/clw --help >/dev/null || true
-fi
+/usr/local/bin/clw --help >/dev/null || true
 
 if [ -z "${GH_COPILOT_BACKUP_ROOT:-}" ]; then
     echo "Error: GH_COPILOT_BACKUP_ROOT not set. Please set it to an external backup directory." >&2

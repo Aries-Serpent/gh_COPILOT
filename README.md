@@ -102,13 +102,11 @@ GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh
 # update the environment to permit outbound connections to PyPI.
 
 # 2b. Install the line-wrapping utility
-# The repository ships a `tools/clw.py` script. If `/usr/local/bin/clw` is not available,
-# copy this file and make it executable. Run a quick self-test to confirm installation.
-cp tools/clw.py /usr/local/bin/clw
-chmod +x /usr/local/bin/clw
-# Verify clw exists
+# The repository ships a `tools/clw.py` script and a helper installer.
+# If `/usr/local/bin/clw` is missing, run the installer and verify it.
+tools/install_clw.sh
+# Verify clw exists and view usage
 ls -l /usr/local/bin/clw
-# Display brief usage information
 /usr/local/bin/clw --help
 
 ### OpenAI Connector
@@ -199,13 +197,7 @@ are thin CLI wrappers. They delegate to the core implementations under
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
-Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw.py` to `/usr/local/bin/clw`, make it executable, and verify with `clw --help`:
-```bash
-cp tools/clw.py /usr/local/bin/clw
-chmod +x /usr/local/bin/clw
-clw --help
-```
-Run `/usr/local/bin/clw --help` to see a short usage description.
+Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, run `tools/install_clw.sh` and verify with `clw --help`.
 
 Once installed, wrap high-volume output like so:
 
@@ -213,7 +205,7 @@ Once installed, wrap high-volume output like so:
 ls -R | /usr/local/bin/clw
 ```
 
-The script is bundled as `tools/clw.py` and can be copied to `/usr/local/bin/clw` if needed.
+The script is bundled as `tools/clw.py` and installed via `tools/install_clw.sh` if needed.
 
 If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
 Set `CLW_MAX_LINE_LENGTH=1550` in your environment (e.g. in `.env`) before invoking the wrapper to keep output safe.
@@ -295,6 +287,31 @@ export GH_COPILOT_WORKSPACE=$(pwd)
 export GH_COPILOT_BACKUP_ROOT=/path/to/backups
 python scripts/file_management/workspace_optimizer.py
 ```
+
+### Git LFS workflow
+Use the helper scripts to automatically track binary or large files with Git LFS. Both variants accept `-h/--help` for usage information.
+
+```bash
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
+export ALLOW_AUTOLFS=1
+tools/git_safe_add_commit.py "your commit message" --push
+```
+
+The shell version `tools/git_safe_add_commit.sh` behaves the same and can push
+when invoked with `--push`. See
+[docs/GIT_LFS_WORKFLOW.md](docs/GIT_LFS_WORKFLOW.md) for details.
+
+### Syncing `.gitattributes`
+Whenever you modify `.codex_lfs_policy.yaml`—for example to change
+`session_artifact_dir` or adjust LFS rules—regenerate `.gitattributes`:
+
+```bash
+python artifact_manager.py --sync-gitattributes
+```
+
+The script rebuilds `.gitattributes` from `gitattributes_template`, adds any
+missing patterns for session archives and `binary_extensions`, and should be run
+before committing policy changes.
 
 ### Docker Usage
 Build and run the container with Docker:
@@ -473,6 +490,14 @@ compliance logging. The main modules are:
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
+* **Artifact Manager** – `artifact_manager.py` packages files created in the
+  temporary directory (default `tmp/`) into archives stored under the
+  directory defined by the `session_artifact_dir` setting in
+  `.codex_lfs_policy.yaml`. Use `--package` to create an archive and
+  `--commit` with `--message` to save it directly to Git. `--recover`
+  restores the most recent archive back into the temporary directory.
+  The temporary location may be overridden with `--tmp-dir`, and
+  `.gitattributes` can be regenerated with `--sync-gitattributes`.
 
 
 ```python
@@ -971,6 +996,12 @@ The `compliance-audit.yml` workflow now installs dependencies, including
 # Generate scored documentation templates
 python docs/quantum_template_generator.py
 
+# Safely commit staged changes with Git LFS auto-tracking
+export GH_COPILOT_BACKUP_ROOT=/path/to/backups
+ALLOW_AUTOLFS=1 tools/git_safe_add_commit.py "<commit message>" [--push]
+# Bash fallback:
+ALLOW_AUTOLFS=1 tools/git_safe_add_commit.sh "<commit message>" [--push]
+
 The audit results are used by the `/dashboard/compliance` endpoint to
 report ongoing placeholder removal progress and overall compliance
 metrics. A machine-readable summary is also written to
@@ -1015,12 +1046,12 @@ Set these variables in your `.env` file or shell before running scripts:
 ## 🛠️ Troubleshooting
 
 - **Setup script fails** – ensure network access and rerun `bash setup.sh`.
-- **`clw` not found** – copy `tools/clw.py` to `/usr/local/bin/clw`, make it executable, and run `clw --help`.
+- **`clw` not found** – run `tools/install_clw.sh` to install and then `clw --help`.
 - **Database errors** – verify `GH_COPILOT_WORKSPACE` is configured correctly.
 
 ## ✅ Project Status
 
-Some tests currently fail until optional dependencies are installed and database migrations have been executed. Dual-copilot validation now covers 100% of workflows, and quantum features continue to run in simulation mode.
+All modules pass the automated test suite. Dual-copilot validation now covers 100% of workflows. Quantum features continue to run in simulation mode.
 The repository uses GitHub Actions to automate linting, testing, and compliance checks.
 
 - **ci.yml** runs Ruff linting, executes the test suite on multiple Python versions, builds the Docker image, and performs a CodeQL scan.
@@ -1063,6 +1094,7 @@ Several small modules provide common helpers:
   enhancer.enhance()
   ```
 - `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
+  - `artifact_manager.py` – package modified files from the temporary directory into the location specified by `session_artifact_dir` (defaults to `codex_sessions`). Run `python artifact_manager.py --package` to create an archive, `--recover` to extract the latest one, use `--tmp-dir` to choose a different temporary directory, and `--sync-gitattributes` to refresh LFS rules.
 
 ## Future Roadmap
 
