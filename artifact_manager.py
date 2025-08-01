@@ -28,16 +28,34 @@ logger = logging.getLogger(__name__)
 
 
 class LfsPolicy:
-    """Configuration for Git LFS compliance.
+    """Read and hold Git LFS policy settings.
 
-    Parameters read from ``.codex_lfs_policy.yaml`` include:
+    The policy is loaded from ``.codex_lfs_policy.yaml`` located at the
+    repository root.  Only a handful of keys are recognised and all are optional
+    so that new keys can be introduced without breaking older versions.
 
-    - ``enable_autolfs``: toggle automatic ``git lfs track``.
-    - ``size_threshold_mb``: file size threshold for automatic LFS.
-    - ``binary_extensions``: extensions always placed in LFS.
-    - ``gitattributes_template``: base template for ``.gitattributes``.
-    - ``session_artifact_dir``: directory for storing session archives.
+    The relevant YAML structure is::
+
+        enable_autolfs: true|false
+        size_threshold_mb: <int>
+        binary_extensions: [".db", ".zip", ...]
+        gitattributes_template: |
+          pattern filter=lfs diff=lfs merge=lfs -text
+        session_artifact_dir: <str>
+
+    ``session_artifact_dir`` controls where session archives are stored.  If the
+    key is missing, empty or not a string, the default value ``"codex_sessions"``
+    is used.  Future versions may extend this class with explicit schema
+    validation or migration utilities.
+
+    Attributes
+    ----------
+    session_artifact_dir:
+        Directory used for storing session artifacts.  Defaults to
+        ``"codex_sessions"`` when the configuration is missing or invalid.
     """
+
+    DEFAULT_SESSION_DIR = "codex_sessions"
 
     def __init__(self, root: Path) -> None:
         self.enabled = False
@@ -52,28 +70,51 @@ class LfsPolicy:
             ".exe",
         ]
         self.gitattributes_template = ""
-        self.session_artifact_dir = "codex_sessions"
+        self.session_artifact_dir = self.DEFAULT_SESSION_DIR
         self.root = root
 
         policy_file = root / ".codex_lfs_policy.yaml"
-        if policy_file.exists():
-            try:
-                data = yaml.safe_load(policy_file.read_text()) or {}
-            except Exception as exc:  # noqa: BLE001
-                logger.error("Failed to read %s: %s", policy_file, exc)
-            else:
-                self.enabled = bool(data.get("enable_autolfs", False))
-                self.size_threshold_mb = int(data.get("size_threshold_mb", 50))
-                self.binary_extensions = list(
-                    data.get("binary_extensions", self.binary_extensions)
-                )
-                self.gitattributes_template = data.get("gitattributes_template", "")
-                self.session_artifact_dir = str(
-                    data.get("session_artifact_dir", self.session_artifact_dir)
-                ).rstrip("/")
-        else:
+        try:
+            text = policy_file.read_text(encoding="utf-8")
+        except FileNotFoundError:
             logger.info("%s not found", policy_file)
             logger.info("Using default LFS policy values")
+            return
+        except OSError as exc:
+            logger.error("Cannot read %s: %s", policy_file, exc)
+            logger.info("Using default LFS policy values")
+            return
+
+        try:
+            data = yaml.safe_load(text) or {}
+        except yaml.YAMLError as exc:  # noqa: BLE001
+            logger.error("Malformed YAML in %s: %s", policy_file, exc)
+            logger.info("Using default LFS policy values")
+            return
+
+        self.enabled = bool(data.get("enable_autolfs", False))
+        self.size_threshold_mb = int(data.get("size_threshold_mb", 50))
+        self.binary_extensions = list(
+            data.get("binary_extensions", self.binary_extensions)
+        )
+        self.gitattributes_template = data.get("gitattributes_template", "")
+
+        session_dir = data.get("session_artifact_dir")
+        if isinstance(session_dir, str) and session_dir.strip():
+            self.session_artifact_dir = session_dir.strip().rstrip("/\\")
+            logger.info("Using session artifact directory %s", self.session_artifact_dir)
+        else:
+            if session_dir is not None:
+                logger.warning(
+                    "Invalid session_artifact_dir value %r; falling back to %s",
+                    session_dir,
+                    self.session_artifact_dir,
+                )
+            else:
+                logger.info(
+                    "session_artifact_dir not specified; using default %s",
+                    self.session_artifact_dir,
+                )
 
     def requires_lfs(self, path: Path) -> bool:
         if not path.is_file():
@@ -137,6 +178,44 @@ def detect_tmp_changes(tmp_dir: Path, repo_root: Path) -> List[Path]:
     return [p for p in tmp_dir.rglob("*") if p.is_file()]
 
 
+def check_directory_health(dir_path: Path, repo_root: Path) -> bool:
+    """Validate that ``dir_path`` is usable for artifact operations.
+
+    The path must be within ``repo_root``, not a symlink and writable.  The
+    directory is created if necessary.  Any problem is logged and ``False`` is
+    returned so callers can abort their work safely.
+    """
+
+    try:
+        resolved = dir_path.resolve()
+        repo_root.resolve()
+    except OSError as exc:  # pragma: no cover - extremely unusual
+        logger.error("Failed to resolve %s: %s", dir_path, exc)
+        return False
+
+    try:
+        resolved.relative_to(repo_root.resolve())
+    except ValueError:
+        logger.error("Directory %s escapes repository root", resolved)
+        return False
+
+    if resolved.is_symlink():
+        logger.error("Directory %s is a symlink", resolved)
+        return False
+
+    try:
+        os.makedirs(resolved, exist_ok=True)
+    except OSError as exc:
+        logger.error("Failed to create %s: %s", resolved, exc)
+        return False
+
+    if not os.access(resolved, os.W_OK):
+        logger.error("Directory %s is not writable", resolved)
+        return False
+
+    return True
+
+
 def create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> None:
     """Create ``archive_path`` containing ``files`` relative to ``base_dir``."""
 
@@ -179,24 +258,35 @@ def package_session(
     -----
     All files packaged into the archive are removed from ``tmp_dir`` to keep the
     temporary workspace clean. The destination directory for archives is
-    determined by ``lfs_policy.session_artifact_dir`` when provided.
+    determined by ``lfs_policy.session_artifact_dir``.  A directory health check
+    ensures the target exists within the repository and is writable on all
+    supported platforms.
     """
+
+    if lfs_policy is None:
+        lfs_policy = LfsPolicy(repo_root)
 
     changed_files = detect_tmp_changes(tmp_dir, repo_root)
     if not changed_files:
         logger.info("No session artifacts detected in %s", tmp_dir)
         return None
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    archive_name = f"codex-session_{timestamp}.zip"
+    if not check_directory_health(tmp_dir, repo_root):
+        return None
 
-    sessions_dir = repo_root / (
-        lfs_policy.session_artifact_dir if lfs_policy else "codex_sessions"
-    )
-    sessions_dir.mkdir(parents=True, exist_ok=True)
-    logger.info("Session artifact directory: %s", sessions_dir)
+    sessions_dir = repo_root / lfs_policy.session_artifact_dir
+    if not check_directory_health(sessions_dir, repo_root):
+        return None
 
+    timestamp = datetime.now(timezone.utc)
+    archive_name = f"codex-session_{timestamp.strftime('%Y%m%d_%H%M%S')}.zip"
     archive_path = sessions_dir / archive_name
+    logger.info(
+        "Packaging session: tmp=%s archive_dir=%s time=%s",
+        tmp_dir,
+        sessions_dir,
+        timestamp.isoformat(),
+    )
 
     try:
         with tempfile.NamedTemporaryFile(
@@ -283,13 +373,18 @@ def recover_latest_session(
     -------
     Optional[Path]
         Path to the extracted archive or ``None`` if none found.
+
+    Notes
+    -----
+    The session directory is validated for safety before extraction and must
+    reside within the repository root.
     """
 
-    sessions_dir = repo_root / (
-        lfs_policy.session_artifact_dir if lfs_policy else "codex_sessions"
-    )
-    if not sessions_dir.exists():
-        logger.warning("%s does not exist", sessions_dir)
+    if lfs_policy is None:
+        lfs_policy = LfsPolicy(repo_root)
+
+    sessions_dir = repo_root / lfs_policy.session_artifact_dir
+    if not check_directory_health(sessions_dir, repo_root):
         return None
 
     archives = sorted(sessions_dir.glob("codex-session_*.zip"), reverse=True)
@@ -298,6 +393,10 @@ def recover_latest_session(
         return None
 
     archive = archives[0]
+    logger.info(
+        "Restoring session: archive_dir=%s tmp=%s time=%s",\
+        sessions_dir, tmp_dir, datetime.now(timezone.utc).isoformat(),
+    )
     try:
         with ZipFile(archive) as zf:
             zf.extractall(tmp_dir)
@@ -310,22 +409,36 @@ def recover_latest_session(
 
 
 def main() -> None:
-    """Command-line interface for session packaging and recovery."""
+    """Entry point for the artifact manager command line interface.
+
+    The CLI consolidates all options in a single :class:`argparse.ArgumentParser`
+    for discoverability.  Usage examples::
+
+        python artifact_manager.py --package --tmp-dir build/tmp
+        python artifact_manager.py --recover
+        python artifact_manager.py --sync-gitattributes
+    """
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--package", action="store_true", help="create session archive")
     parser.add_argument("--recover", action="store_true", help="recover latest session")
     parser.add_argument("--commit", action="store_true", help="commit created archive")
-    parser.add_argument("--message", help="commit message when packaging")
+    parser.add_argument(
+        "--message",
+        help="commit message when packaging (default: timestamped message)",
+    )
     parser.add_argument(
         "--tmp-dir",
         default="tmp",
-        help="temporary directory containing session outputs",
+        help=(
+            "temporary directory for session outputs; the directory is created"
+            " if needed (default: %(default)s)"
+        ),
     )
     parser.add_argument(
         "--sync-gitattributes",
         action="store_true",
-        help="regenerate .gitattributes from policy",
+        help="regenerate .gitattributes from policy and exit",
     )
     args = parser.parse_args()
 
@@ -336,7 +449,13 @@ def main() -> None:
     policy = LfsPolicy(repo_root)
 
     if args.sync_gitattributes:
-        policy.sync_gitattributes()
+        logger.info("Synchronizing .gitattributes")
+        try:
+            policy.sync_gitattributes()
+        except Exception as exc:  # noqa: BLE001
+            logger.error("sync_gitattributes failed: %s", exc)
+        else:
+            logger.info(".gitattributes synchronized")
 
     if args.package:
         package_session(
