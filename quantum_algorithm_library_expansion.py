@@ -24,6 +24,11 @@ import numpy as np
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 
+from quantum.advanced_quantum_algorithms import (
+    grover_search_qiskit,
+    phase_estimation_qiskit,
+)
+
 ANALYTICS_DB = Path("databases/analytics.db")
 
 
@@ -73,6 +78,8 @@ __all__ = [
     "quantum_similarity_score",
     "quantum_pattern_match_stub",
     "quantum_text_score",
+    "grover_search_qiskit",
+    "phase_estimation_qiskit",
 ]
 
 
