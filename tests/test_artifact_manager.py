@@ -120,9 +120,7 @@ def test_cli_tmp_dir_option(tmp_path: Path) -> None:
     custom_tmp.mkdir()
     (custom_tmp / "d.txt").write_text("data", encoding="utf-8")
 
-    script_src = Path(__file__).resolve().parent.parent / "artifact_manager.py"
-    script_dst = repo / "artifact_manager.py"
-    script_dst.write_text(script_src.read_text(encoding="utf-8"), encoding="utf-8")
+    copy_artifact_manager_script(repo)
     subprocess.run(
         [
             sys.executable,
