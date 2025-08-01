@@ -119,6 +119,54 @@ def test_package_session_permission_error(repo: Path, monkeypatch, caplog: pytes
     assert any("denied" in m for m in caplog.messages)
 
 
+def test_package_session_sessions_dir_mkdir_permission(
+    repo: Path, monkeypatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Permission errors creating the session directory are handled."""
+
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "s.txt").write_text("data", encoding="utf-8")
+
+    sessions_dir = repo / "codex_sessions"
+    orig_mkdir = Path.mkdir
+
+    def fake_mkdir(self, *args, **kwargs):
+        if self == sessions_dir:
+            raise PermissionError("no access")
+        return orig_mkdir(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "mkdir", fake_mkdir)
+    with caplog.at_level(logging.ERROR):
+        result = package_session(tmp_dir, repo, LfsPolicy(repo))
+    assert result is None
+    assert any("no access" in m for m in caplog.messages)
+
+
+def test_package_session_sessions_dir_race(
+    repo: Path, monkeypatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Race conditions creating the session directory are logged."""
+
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "r.txt").write_text("data", encoding="utf-8")
+
+    sessions_dir = repo / "codex_sessions"
+    orig_mkdir = Path.mkdir
+
+    def fake_mkdir(self, *args, **kwargs):
+        if self == sessions_dir:
+            raise FileExistsError("exists")
+        return orig_mkdir(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "mkdir", fake_mkdir)
+    with caplog.at_level(logging.ERROR):
+        result = package_session(tmp_dir, repo, LfsPolicy(repo))
+    assert result is None
+    assert any("race condition" in m.lower() for m in caplog.messages)
+
+
 def test_custom_session_dir(repo: Path) -> None:
     """Respect ``session_artifact_dir`` from policy."""
 

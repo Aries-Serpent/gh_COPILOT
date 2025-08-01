@@ -10,6 +10,22 @@ the temporary directory. The command line interface exposes options such as
 ``--sync-gitattributes`` to regenerate the repository's ``.gitattributes`` from
 policy. The policy file may specify ``session_artifact_dir`` to override the
 default ``codex_sessions`` location used for storing archives.
+
+Example configuration of a custom session directory::
+
+    # .codex_lfs_policy.yaml
+    session_artifact_dir: my_sessions
+
+Typical packaging invocation::
+
+    python artifact_manager.py --package --tmp-dir build/tmp --commit
+
+Troubleshooting ``session_artifact_dir``
+--------------------------------------
+* Ensure the directory path is relative to the repository root.
+* The directory must be writable; permission errors are logged and the
+  operation aborts with defaults.
+* Malformed YAML or a missing policy file falls back to ``codex_sessions``.
 """
 
 from __future__ import annotations
@@ -99,6 +115,8 @@ class LfsPolicy:
             logger.error("Malformed YAML in %s: %s", policy_file, exc)
             logger.info("Using default LFS policy values")
             return
+        else:
+            logger.info("Loaded LFS policy from %s", policy_file)
 
         self.enabled = bool(data.get("enable_autolfs", False))
         self.size_threshold_mb = int(data.get("size_threshold_mb", 50))
@@ -312,6 +330,9 @@ def package_session(
     if lfs_policy is None:
         lfs_policy = LfsPolicy(repo_root)
 
+    sessions_dir = repo_root / lfs_policy.session_artifact_dir
+    logger.info("Session artifacts directory resolved to %s", sessions_dir)
+
     changed_files = detect_tmp_changes(tmp_dir, repo_root)
     if not changed_files:
         logger.info("No session artifacts detected in %s", tmp_dir)
@@ -320,10 +341,22 @@ def package_session(
     if not check_directory_health(tmp_dir, repo_root):
         return None
 
-    sessions_dir = repo_root / lfs_policy.session_artifact_dir
     if not check_directory_health(sessions_dir, repo_root):
         return None
-    logger.info("Session artifacts directory: %s", sessions_dir)
+    try:
+        sessions_dir.mkdir(parents=True, exist_ok=True)
+    except PermissionError as exc:
+        logger.error(
+            "Cannot create session artifacts directory %s: %s", sessions_dir, exc
+        )
+        return None
+    except OSError as exc:  # includes FileExistsError for race conditions
+        logger.error(
+            "Race condition creating session artifacts directory %s: %s",
+            sessions_dir,
+            exc,
+        )
+        return None
 
     timestamp = datetime.now(timezone.utc)
     archive_name = f"codex-session_{timestamp.strftime('%Y%m%d_%H%M%S')}.zip"
