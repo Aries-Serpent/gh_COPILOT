@@ -257,6 +257,11 @@ def main() -> None:
     parser.add_argument("--commit", action="store_true", help="commit created archive")
     parser.add_argument("--message", help="commit message when packaging")
     parser.add_argument(
+        "--tmp-dir",
+        default="tmp",
+        help="temporary directory containing session outputs",
+    )
+    parser.add_argument(
         "--sync-gitattributes",
         action="store_true",
         help="regenerate .gitattributes from policy",
