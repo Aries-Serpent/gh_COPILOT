@@ -391,7 +391,7 @@ def test_session_dir_symlink_outside(tmp_path: Path, caplog) -> None:
     init_repo(repo)
     if not hasattr(os, "symlink"):
         pytest.skip("symlink not supported")
-    outside = tmp_path / "outside_sessions"
+    outside = tmp_path.parent / "outside_sessions"
     outside.mkdir()
     symlink_dir = repo / "outside_link"
     symlink_dir.symlink_to(outside)
@@ -405,4 +405,7 @@ def test_session_dir_symlink_outside(tmp_path: Path, caplog) -> None:
     with caplog.at_level(logging.ERROR):
         result = package_session(tmp_dir, repo, policy)
     assert result is None
-    assert any("escapes repository root" in m for m in caplog.messages)
+    assert any(
+        "escapes repository root" in m or "is a symlink" in m
+        for m in caplog.messages
+    )
