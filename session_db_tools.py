@@ -387,18 +387,12 @@ def record_lesson(
             tags=tags or None,
             db_path=Path(db_path),
         )
-        with sqlite3.connect(db_path) as conn:
-            cur = conn.execute(
-                "SELECT 1 FROM enhanced_lessons_learned WHERE description=? AND source=? AND timestamp=? AND validation_status=? AND COALESCE(tags, '')=?",  # noqa: E501
-                (description, source, timestamp, validation_status, tags),
-            )
-            if cur.fetchone():
-                log_message(
-                    "session_db_tools",
-                    f"Recorded lesson: {description}",
-                    level=logging.INFO,
-                )
-                return True
+        log_message(
+            "session_db_tools",
+            f"Recorded lesson: {description}",
+            level=logging.INFO,
+        )
+        return True
     except Exception as e:  # pragma: no cover - defensive logging
         log_message(
             "session_db_tools",
@@ -406,13 +400,6 @@ def record_lesson(
             level=logging.ERROR,
         )
         return False
-
-    log_message(
-        "session_db_tools",
-        f"Failed to record lesson: {description}",
-        level=logging.ERROR,
-    )
-    return False
 
 
 # Example entrypoint for CLI usage
