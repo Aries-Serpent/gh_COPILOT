@@ -191,6 +191,10 @@ def check_directory_health(dir_path: Path, repo_root: Path) -> bool:
     """
 
     try:
+        if dir_path.is_symlink():
+            logger.error("Directory %s is a symlink", dir_path)
+            return False
+        resolved_root = repo_root.resolve()
         resolved = dir_path.resolve()
         repo_root_resolved = repo_root.resolve()
     except OSError as exc:  # pragma: no cover - extremely unusual

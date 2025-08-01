@@ -1,43 +1,87 @@
 # Artifact Recovery Workflow
 
-This document describes how the repository manages large binary artifacts using Git LFS and how to recover artifacts from prior sessions.
+This guide explains how the repository packages, commits, and restores
+session artifacts while keeping large binary files under Git LFS. It is
+intended for contributors and CI jobs running in the Codex environment.
 
-## Purpose of `.codex_lfs_policy.yaml`
+## 1. Continuous Integration Overview
 
-The `.codex_lfs_policy.yaml` file defines the automatic Git LFS configuration used by the Codex environment. It enables automatic tracking of large or binary files and specifies which file types must always use LFS.
+All automation uses `.github/workflows/artifact_lfs.yml` to manage
+artifacts. Centralising on a single workflow avoids per-branch
+divergence and ensures every run applies the same rules. The workflow
+packages, syncs, and commits artifacts in a single atomic sequence:
 
-Key settings include:
+1. **Checkout and setup** – the job fetches the repository with LFS
+   pointers, installs Git LFS, and runs `setup.sh`.
+2. **Package and commit** – `python artifact_manager.py --package --commit
+   --sync-gitattributes [--tmp-dir <path>]` bundles files from the
+   temporary directory (default from `session_artifact_dir` in
+   `.codex_lfs_policy.yaml`), stages the archive, regenerates
+   `.gitattributes`, and records the commit.
+3. **Pointer verification** – the subsequent *Verify LFS pointers* step
+   enumerates `binary_extensions` from `.codex_lfs_policy.yaml` and fails
+   the job if any files skip Git LFS.
+4. **Push** – changes are pushed only after verification succeeds,
+   guaranteeing that packaging, policy sync, and commit occur together.
 
-- `enable_autolfs`: ensures automatic LFS setup.
-- `session_artifact_dir`: directory where session artifacts are stored.
-- `size_threshold_mb`: files larger than this threshold trigger LFS tracking.
-- `binary_extensions`: list of extensions that should always be tracked via LFS.
+## 2. Key CI Workflow Step: Artifact Packaging, Commit, and Sync
 
-## Purpose of `.gitattributes`
+Every job that produces artifacts should include:
 
-The `.gitattributes` file explicitly lists patterns that Git LFS should manage. These rules prevent large files from bloating the normal Git history and keep repository clones lightweight. The patterns are generated from the policy file and include rules for each binary extension and the session archives directory.
+```yaml
+- name: Package, Commit, and Sync Artifacts
+  run: python artifact_manager.py --package --commit --sync-gitattributes [--tmp-dir <path>]
+```
 
-LFS tracking and pointer compliance must be enforced during CI/CD runs to prevent binary-related PR failures and ensure artifact reproducibility.
+This single step bundles new files from the temporary directory (or the
+directory provided via `--tmp-dir`), commits the resulting archive, and
+updates `.gitattributes` so newly introduced binary types are tracked
+automatically in accordance with `.codex_lfs_policy.yaml`.
 
-## Workflow
+## 3. Why This Approach Works
 
-1. **Initial Clone**: When cloning the repository, run `git lfs install` to ensure LFS support is active.
-2. **Packaging Artifacts**: Run `python artifact_manager.py` to detect new files in the temp directory and create a timed archive. If the archive meets LFS criteria, it is automatically tracked and committed using Git LFS.
-3. **Adding Files**: Files matching the configured extensions or exceeding the size threshold are automatically tracked via Git LFS. Check with `git lfs status` before committing.
-4. **Recovering Artifacts**: To unpack the most recent archive after a fresh clone or CI reset, run `python artifact_manager.py --recover`.
-5. **Committing**: The packaging step commits the archive for you. Ensure CI runs succeed by verifying `git lfs ls-files` lists the new archive.
+- Artifacts are never skipped; every run commits its outputs.
+- LFS pointers remain accurate, keeping git history lightweight.
+- `.gitattributes` stays current, simplifying onboarding and reviews.
 
-Following this workflow ensures consistent handling of binary data and prevents accidental commits of large files outside Git LFS.
+## 4. Troubleshooting & Verification
 
-## Artifact Manager CLI
+- After packaging, run `git lfs ls-files` to ensure all archives are
+  tracked. Missing entries should cause the workflow to fail with a clear
+  log message.
+- If packaging fails, inspect logs for permission issues, missing
+  directories, or absent Git LFS installations.
+- If the *Verify LFS pointers* step fails in CI, review
+  `.codex_lfs_policy.yaml` and rerun `artifact_manager.py --sync-gitattributes`
+  before recommitting.
+- Test workflow updates in feature branches to catch platform-specific
+  quirks before merging.
 
-The `artifact_manager.py` utility now includes a small command-line interface:
+## 5. Important Configuration Files & CLI Options
 
-- `--package` – bundle modified files from `tmp/` into a zip archive.
-- `--commit` – after packaging, stage and commit the archive using Git LFS.
-- `--sync-gitattributes` – regenerate `.gitattributes` from `.codex_lfs_policy.yaml` before other operations.
-- `--recover <archive>` – extract a session archive back into `tmp/`.
-- `--tmp-dir <path>` – override the temporary directory to scan for artifacts.
+### `.codex_lfs_policy.yaml`
+
+Controls automatic Git LFS behaviour. Key settings include
+`enable_autolfs`, `session_artifact_dir`, `size_threshold_mb`, and
+`binary_extensions`.
+
+### `.gitattributes`
+
+Generated from the policy file. Lists patterns handled by Git LFS to keep
+clones small and prevent accidental binary commits.
+
+### `artifact_manager.py` CLI
+
+Unified command-line interface:
+
+- `--package` – bundle modified files from the temp directory into an
+  archive.
+- `--commit` – stage and commit the archive using Git LFS.
+- `--sync-gitattributes` – regenerate `.gitattributes` from policy.
+- `--recover <archive>` – extract a session archive back into the temp
+  directory.
+- `--tmp-dir <path>` – select a custom temporary directory (defaults to
+  `tmp`).
 
 ## CI Integration and Best Practices
 
@@ -91,22 +135,18 @@ python artifact_manager.py --sync-gitattributes --package
 python artifact_manager.py --recover codex-session_<UTC-YYYYmmdd_HHMMSS>.zip
 ```
 
-Archives are stored in `codex_sessions/` and tracked with Git LFS when configured via `.codex_lfs_policy.yaml`.
-## GitHub Actions Workflow
+Archives live in `codex_sessions/` and are tracked with Git LFS when the
+policy file enables `enable_autolfs`.
 
-The `.github/workflows/artifact_lfs.yml` workflow packages and commits session artifacts automatically after successful tests:
+## 6. Limitations and Recommendations
 
-```yaml
-      - name: Package and commit session artifacts
-        run: python artifact_manager.py --package --commit --sync-gitattributes
-      - name: List LFS-tracked files
-        run: git lfs ls-files
-```
+- Git LFS must be installed locally; otherwise packaging and commit
+  steps fail.
+- Pointer errors may only appear at `git push`, so always review CI logs
+  and test locally before pushing.
+- Future improvements could add automated notifications for LFS
+  validation failures or scheduled cleanup of old temporary files.
 
-This workflow ensures packaging with `--commit`, keeps `.gitattributes` in sync, and verifies LFS pointer compliance so that CI fails early if artifacts are not properly tracked. Nightly runs can also call `--recover` to verify archived files remain valid.
+Following this workflow ensures reproducible artifact handling and keeps
+large files out of regular git history.
 
-## Troubleshooting
-
-- **Git LFS not found** – run `git lfs install` and verify `git lfs status`.
-- **Permission errors** – ensure `codex_sessions/` is writable and you have commit rights.
-- **Archive not tracked** – set `ALLOW_AUTOLFS=1` or manually update `.gitattributes`.

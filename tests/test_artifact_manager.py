@@ -299,6 +299,23 @@ def test_policy_file_missing_logs_defaults(repo: Path, caplog: pytest.LogCapture
     assert any("default LFS policy values" in m for m in caplog.messages)
 
 
+def test_sync_gitattributes_cli_failure(tmp_path: Path) -> None:
+    """CLI should exit non-zero when git operations fail."""
+    (tmp_path / ".codex_lfs_policy.yaml").write_text(
+        "gitattributes_template: |\n  *.dat filter=lfs diff=lfs merge=lfs -text\n",
+        encoding="utf-8",
+    )
+    copy_script_to_repo(tmp_path)
+    result = subprocess.run(
+        [sys.executable, str(script_dst), "--sync-gitattributes"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "Git command failed" in result.stderr or "Git command failed" in result.stdout
+
+
 def test_package_session_atomic_output(repo: Path, monkeypatch) -> None:
     """Temporary archive names should be cleaned after packaging."""
 
@@ -357,6 +374,22 @@ def test_malformed_yaml_fallback(tmp_path: Path, caplog: pytest.LogCaptureFixtur
     assert any("Malformed YAML" in m for m in caplog.messages)
 
 
+def test_package_session_malformed_policy(tmp_path: Path, caplog) -> None:
+    repo = tmp_path
+    init_repo(repo)
+    (repo / ".codex_lfs_policy.yaml").write_text("!bad yaml\n:\n", encoding="utf-8")
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "l.txt").write_text("data", encoding="utf-8")
+
+    with caplog.at_level(logging.ERROR):
+        policy = LfsPolicy(repo)
+    archive = package_session(tmp_dir, repo, policy)
+
+    assert archive and archive.parent.name == "codex_sessions"
+    assert any("Malformed YAML" in m for m in caplog.messages)
+
+
 def test_runtime_directory_switch(tmp_path: Path) -> None:
     """Changing the session directory at runtime should place archives accordingly."""
 
@@ -390,8 +423,15 @@ def test_cli_help_lists_options(tmp_path: Path) -> None:
         text=True,
         capture_output=True,
     )
-    assert "--tmp-dir" in result.stdout
-    assert "--sync-gitattributes" in result.stdout
+    for option in [
+        "--package",
+        "--recover",
+        "--commit",
+        "--message",
+        "--tmp-dir",
+        "--sync-gitattributes",
+    ]:
+        assert option in result.stdout
 
 
 def test_session_dir_symlink_outside(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
@@ -415,4 +455,7 @@ def test_session_dir_symlink_outside(tmp_path: Path, caplog: pytest.LogCaptureFi
     with caplog.at_level(logging.ERROR):
         result = package_session(tmp_dir, repo, policy)
     assert result is None
-    assert any("escapes repository root" in m for m in caplog.messages)
+    assert any(
+        "escapes repository root" in m or "is a symlink" in m
+        for m in caplog.messages
+    )
