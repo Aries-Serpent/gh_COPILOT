@@ -13,7 +13,8 @@ def test_lesson_template_merge(tmp_path, monkeypatch):
     monkeypatch.setattr(ag, "quantum_text_score", lambda text: 0.0)
     monkeypatch.setattr(ag, "quantum_similarity_score", lambda a, b: 0.0)
     monkeypatch.setattr(ag, "quantum_cluster_score", lambda m: 0.0)
-    lesson_func = lambda: {"l": "lesson snippet"}
+    def lesson_func():
+        return {"l": "lesson snippet"}
     monkeypatch.setattr(lt, "get_lesson_templates", lesson_func)
     monkeypatch.setattr(ag, "get_lesson_templates", lesson_func)
     gen = ag.TemplateAutoGenerator(analytics_db=tmp_path / "a.db", completion_db=tmp_path / "c.db")

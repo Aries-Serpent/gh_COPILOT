@@ -1,4 +1,3 @@
-import os
 import pytest
 
 from quantum.utils import backend_provider
