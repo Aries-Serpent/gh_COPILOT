@@ -95,6 +95,8 @@ class ComplianceMetricsUpdater:
             "rollback_count": 0,
             "progress_status": "unknown",
             "last_update": datetime.now().isoformat(),
+            "placeholder_breakdown": {},
+            "compliance_trend": [],
         }
         if not ANALYTICS_DB.exists():
             logging.warning("analytics.db not found, using default metrics.")
@@ -124,6 +126,28 @@ class ComplianceMetricsUpdater:
                 metrics["compliance_score"] = (
                     resolved_ph / total_ph if total_ph else 0.0
                 )
+
+                # Placeholder type breakdown
+                try:
+                    cur.execute(
+                        "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking GROUP BY placeholder_type"
+                    )
+                    metrics["placeholder_breakdown"] = {
+                        row[0]: row[1] for row in cur.fetchall() if row[0]
+                    }
+                except sqlite3.Error:
+                    metrics["placeholder_breakdown"] = {}
+
+                # Compliance score trend (most recent first)
+                try:
+                    cur.execute(
+                        "SELECT score FROM correction_logs WHERE event='update' ORDER BY timestamp DESC LIMIT 5"
+                    )
+                    scores = [row[0] for row in cur.fetchall()]
+                    metrics["compliance_trend"] = list(reversed(scores))
+                except sqlite3.Error:
+                    metrics["compliance_trend"] = []
+
                 cur.execute("SELECT COUNT(*) FROM correction_logs")
                 metrics["correction_count"] = cur.fetchone()[0]
 
