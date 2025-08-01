@@ -1,5 +1,10 @@
 # CHANGELOG - gh_COPILOT Enterprise Toolkit
 
+## [4.1.4] - 2025-07-27
+### Added
+- Script `ensure_enhanced_lessons_learned_table.py` validates defaults and creates
+  `enhanced_lessons_learned` in `production.db` when missing.
+
 ## [4.1.3] - 2025-07-27
 ### Added
 - Dual Copilot integration verified across core modules, enabling redundant validation for critical workflows.

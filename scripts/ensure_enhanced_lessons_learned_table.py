@@ -19,6 +19,19 @@ from pathlib import Path
 PRODUCTION_DB = Path("databases/production.db")
 REFERENCE_DB = Path("databases/learning_monitor.db")
 TABLE_NAME = "enhanced_lessons_learned"
+DEFAULT_COLUMNS = [
+    "description",
+    "source",
+    "timestamp",
+    "validation_status",
+    "tags",
+]
+
+
+def _get_column_defaults(conn: sqlite3.Connection) -> dict[str, str | None]:
+    """Return mapping of column name to default value for ``TABLE_NAME``."""
+    info = conn.execute(f"PRAGMA table_info({TABLE_NAME})").fetchall()
+    return {row[1]: row[4] for row in info}
 
 
 def ensure_enhanced_lessons_learned_table(
@@ -48,32 +61,43 @@ def ensure_enhanced_lessons_learned_table(
             "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
             (TABLE_NAME,),
         )
-        if cur.fetchone():
-            return True
-
-        # Fetch creation SQL from the reference database
-        with sqlite3.connect(reference_db) as ref_conn:
-            ref_cur = ref_conn.cursor()
-            ref_cur.execute(
-                "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
-                (TABLE_NAME,),
-            )
-            row = ref_cur.fetchone()
-            if row is None:
-                raise RuntimeError(
-                    f"Reference table {TABLE_NAME} not found in {reference_db}"
+        if not cur.fetchone():
+            with sqlite3.connect(reference_db) as ref_conn:
+                ref_cur = ref_conn.cursor()
+                ref_cur.execute(
+                    "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
+                    (TABLE_NAME,),
                 )
-            create_sql = row[0]
-
-        prod_conn.executescript(create_sql)
-        prod_conn.commit()
+                row = ref_cur.fetchone()
+                if row is None:
+                    raise RuntimeError(
+                        f"Reference table {TABLE_NAME} not found in {reference_db}"
+                    )
+                create_sql = row[0]
+            prod_conn.executescript(create_sql)
+            prod_conn.commit()
 
         # Dual-copilot validation: re-check table existence
         cur.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
             (TABLE_NAME,),
         )
-        return cur.fetchone() is not None
+        if cur.fetchone() is None:
+            return False
+
+    with sqlite3.connect(production_db) as prod_conn, sqlite3.connect(
+        reference_db
+    ) as ref_conn:
+        prod_defaults = _get_column_defaults(prod_conn)
+        ref_defaults = _get_column_defaults(ref_conn)
+
+    for column in DEFAULT_COLUMNS:
+        if prod_defaults.get(column) != ref_defaults.get(column):
+            raise RuntimeError(
+                f"Default mismatch for column {column}: {prod_defaults.get(column)} != {ref_defaults.get(column)}"
+            )
+
+    return True
 
 
 if __name__ == "__main__":
