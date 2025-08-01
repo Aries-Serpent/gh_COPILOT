@@ -188,13 +188,13 @@ def check_directory_health(dir_path: Path, repo_root: Path) -> bool:
 
     try:
         resolved = dir_path.resolve()
-        repo_root.resolve()
+        repo_resolved = repo_root.resolve()
     except OSError as exc:  # pragma: no cover - extremely unusual
         logger.error("Failed to resolve %s: %s", dir_path, exc)
         return False
 
     try:
-        resolved.relative_to(repo_root.resolve())
+        resolved.relative_to(repo_resolved)
     except ValueError:
         logger.error("Directory %s escapes repository root", resolved)
         return False
