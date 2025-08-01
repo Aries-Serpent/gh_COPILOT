@@ -13,7 +13,9 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import subprocess
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, List, Optional
@@ -69,6 +71,9 @@ class LfsPolicy:
                 self.session_artifact_dir = str(
                     data.get("session_artifact_dir", self.session_artifact_dir)
                 ).rstrip("/")
+        else:
+            logger.info("%s not found", policy_file)
+            logger.info("Using default LFS policy values")
 
     def requires_lfs(self, path: Path) -> bool:
         if not path.is_file():
@@ -189,13 +194,24 @@ def package_session(
         lfs_policy.session_artifact_dir if lfs_policy else "codex_sessions"
     )
     sessions_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Session artifact directory: %s", sessions_dir)
 
     archive_path = sessions_dir / archive_name
 
     try:
-        create_zip(archive_path, changed_files, tmp_dir)
+        with tempfile.NamedTemporaryFile(
+            suffix=".tmp", dir=sessions_dir, delete=False
+        ) as tmp_file:
+            tmp_path = Path(tmp_file.name)
+        create_zip(tmp_path, changed_files, tmp_dir)
+        os.replace(tmp_path, archive_path)
     except Exception as exc:  # noqa: BLE001
         logger.error("Failed to create archive: %s", exc)
+        if "tmp_path" in locals():
+            try:
+                tmp_path.unlink()
+            except FileNotFoundError:
+                pass
         return None
 
     # remove processed files to ensure idempotency
