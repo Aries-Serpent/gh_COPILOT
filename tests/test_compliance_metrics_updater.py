@@ -64,7 +64,8 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
         return
     data = json.loads(metrics_file.read_text())
     assert data["metrics"]["placeholder_removal"] == 1
-    assert data["metrics"]["compliance_score"] == 0.5
+    expected_score = 1 / (1 + 1)
+    assert data["metrics"]["compliance_score"] == expected_score
     assert data["metrics"]["violation_count"] == 1
     assert data["metrics"]["rollback_count"] == 1
     assert data["metrics"]["progress_status"] == "issues_pending"

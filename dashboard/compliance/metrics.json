@@ -1,7 +1,9 @@
 {
   "metrics": {
     "placeholder_removal": 14,
-    "compliance_score": 0.88,
+    "open_placeholders": 2,
+    "resolved_placeholders": 14,
+    "compliance_score": 0.875,
     "violation_count": 5,
     "rollback_count": 1,
     "auto_removal_count": 0,
