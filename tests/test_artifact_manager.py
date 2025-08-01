@@ -87,6 +87,21 @@ def test_package_session_no_changes_returns_none(repo: Path, caplog: pytest.LogC
     assert not any(r.levelno >= logging.WARNING for r in caplog.records)
 
 
+def test_package_session_missing_tmp_dir_returns_none(
+    repo: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Return ``None`` when the temporary directory is absent."""
+
+    tmp_dir = repo / "nonexistent"
+    logger.info("Invoking package_session with missing tmp_dir %s", tmp_dir)
+    with caplog.at_level(logging.INFO):
+        result = package_session(tmp_dir, repo, LfsPolicy(repo))
+    assert result is None, "Expected None for missing tmp_dir"
+    sessions_dir = repo / "codex_sessions"
+    assert not sessions_dir.exists() or not any(sessions_dir.iterdir())
+    logger.info("No archives created in %s", sessions_dir)
+
+
 def test_package_session_permission_error(repo: Path, monkeypatch, caplog: pytest.LogCaptureFixture) -> None:
     """Simulate a permission error during packaging and ensure graceful failure."""
 
@@ -365,12 +380,17 @@ def test_malformed_yaml_fallback(tmp_path: Path, caplog: pytest.LogCaptureFixtur
 
     repo = tmp_path
     init_repo(repo)
-    (repo / ".codex_lfs_policy.yaml").write_text("!bad yaml\n:\n", encoding="utf-8")
+    policy_file = repo / ".codex_lfs_policy.yaml"
+    policy_file.write_text("!bad yaml\n:\n", encoding="utf-8")
+    logger.info("Created malformed policy file %s", policy_file)
 
     with caplog.at_level(logging.ERROR):
         policy = LfsPolicy(repo)
     assert policy.session_artifact_dir == "codex_sessions"
+    assert not policy.enabled
     assert any("Malformed YAML" in m for m in caplog.messages)
+    logger.info("Removing malformed policy file %s", policy_file)
+    policy_file.unlink()
 
 
 def test_package_session_malformed_policy(tmp_path: Path, caplog) -> None:
