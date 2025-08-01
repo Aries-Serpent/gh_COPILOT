@@ -80,3 +80,12 @@ def test_additional_metrics_present(test_app):
     assert metrics["lessons_integration_status"] == "FULLY_INTEGRATED"
     assert metrics["average_query_latency"] == pytest.approx(12.5)
 
+
+def test_metrics_endpoint_additional_metrics(test_app):
+    client = test_app.test_client()
+    resp = client.get("/metrics")
+    assert resp.status_code == 200
+    metrics = resp.get_json()
+    assert metrics["lessons_integration_status"] == "FULLY_INTEGRATED"
+    assert metrics["average_query_latency"] == pytest.approx(12.5)
+
