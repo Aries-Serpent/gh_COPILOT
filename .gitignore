@@ -18,6 +18,8 @@ archive/*.tar
 archive/*.tar.gz
 *.bak
 *.tmp
+# Test artifacts
+tmp/
 # Git LFS temporary files
 *.lfs.tmp
 *.lfs.lock
