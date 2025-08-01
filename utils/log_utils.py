@@ -79,6 +79,18 @@ TABLE_SCHEMAS: Dict[str, str] = {
             ts TEXT
         );
     """,
+    "event_log": """
+        CREATE TABLE IF NOT EXISTS event_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            module TEXT,
+            level TEXT,
+            description TEXT,
+            details TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_event_log_timestamp
+            ON event_log(timestamp);
+    """,
     "placeholder_removals": """
         CREATE TABLE IF NOT EXISTS placeholder_removals (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
