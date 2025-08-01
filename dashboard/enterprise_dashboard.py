@@ -17,6 +17,7 @@ from web_gui.scripts.flask_apps.enterprise_dashboard import (
     app,
     _fetch_metrics,
     _fetch_alerts,
+    _fetch_rollbacks,
     metrics_stream,
 )
 
@@ -66,9 +67,13 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO)
     logging.info("Dashboard starting at %s", datetime.utcnow().isoformat())
     _validate_environment()
-    logging.info("Startup metrics: %s", _fetch_metrics())
+    metrics = _fetch_metrics()
+    logging.info("Startup metrics: %s", metrics)
+    logging.info("Rollback count: %s", metrics.get("rollback_count"))
+    logging.info("Progress status: %s", metrics.get("progress_status"))
     logging.info("Startup alerts: %s", _fetch_alerts())
     logging.info("Recent corrections: %s", _fetch_correction_history())
+    logging.info("Recent rollbacks: %s", _fetch_rollbacks())
     port = int(os.getenv("FLASK_RUN_PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=bool(__name__ == "__main__"))
 
