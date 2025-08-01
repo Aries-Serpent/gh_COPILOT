@@ -257,6 +257,11 @@ def main() -> None:
     parser.add_argument("--commit", action="store_true", help="commit created archive")
     parser.add_argument("--message", help="commit message when packaging")
     parser.add_argument(
+        "--tmp-dir",
+        default="tmp",
+        help="temporary directory containing session outputs",
+    )
+    parser.add_argument(
         "--sync-gitattributes",
         action="store_true",
         help="regenerate .gitattributes from policy",
@@ -266,7 +271,7 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
     repo_root = Path(__file__).resolve().parent
-    tmp_dir = repo_root / "tmp"
+    tmp_dir = (repo_root / args.tmp_dir).resolve()
     policy = LfsPolicy(repo_root)
 
     if args.sync_gitattributes:
