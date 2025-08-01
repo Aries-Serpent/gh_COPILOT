@@ -106,7 +106,9 @@ class ComplianceMetricsUpdater:
                 if cur.execute(
                     "SELECT name FROM sqlite_master WHERE type='table' AND name='correction_history'"
                 ).fetchone():
-                    cur.execute("SELECT COUNT(*) FROM correction_history WHERE fix_applied='REMOVED_PLACEHOLDER'")
+                    cur.execute(
+                        "SELECT COUNT(*) FROM correction_history WHERE fix_applied='REMOVED_PLACEHOLDER'"
+                    )
                     metrics["resolved_placeholders"] = cur.fetchone()[0]
                     metrics["open_placeholders"] = 0
                 else:
@@ -116,9 +118,8 @@ class ComplianceMetricsUpdater:
                     metrics["open_placeholders"] = cur.fetchone()[0]
                 metrics["placeholder_removal"] = metrics["resolved_placeholders"]
 
-                cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
-                avg_score = cur.fetchone()[0]
-                metrics["compliance_score"] = float(avg_score) if avg_score is not None else 0.0
+                open_ph = metrics["open_placeholders"]
+                metrics["compliance_score"] = max(0.0, 1.0 - open_ph / 100.0)
                 cur.execute("SELECT COUNT(*) FROM correction_logs")
                 metrics["correction_count"] = cur.fetchone()[0]
 
