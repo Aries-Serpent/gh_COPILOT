@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 
 try:  # pragma: no cover - optional dependency
     from qiskit import Aer
@@ -17,15 +18,18 @@ except Exception:  # pragma: no cover - provider may be missing
 LOGGER = logging.getLogger(__name__)
 
 
-def get_backend(name: str = "ibmq_qasm_simulator", use_hardware: bool = False):
-    """Return a Qiskit backend.
+def get_backend(name: str = "ibmq_qasm_simulator", use_hardware: bool | None = None):
+    """Return a Qiskit backend with optional hardware selection.
 
     Attempts to load an IBM Quantum backend when ``use_hardware`` is True and the
-    provider is available. Falls back to the Aer simulator otherwise.
+    provider is available. Falls back to the Aer simulator otherwise. When
+    ``use_hardware`` is ``None`` the ``QUANTUM_USE_HARDWARE`` environment variable
+    ("1" enables hardware mode) controls the behavior.
 
     Args:
         name: Desired backend name when using hardware.
-        use_hardware: If True, attempt to use an IBM Quantum backend.
+        use_hardware: If True, attempt to use an IBM Quantum backend. If ``None``,
+            read the value from ``QUANTUM_USE_HARDWARE``.
 
     Returns:
         The selected backend instance or ``None`` if Qiskit is unavailable.
@@ -33,6 +37,9 @@ def get_backend(name: str = "ibmq_qasm_simulator", use_hardware: bool = False):
     if Aer is None:
         LOGGER.warning("Qiskit Aer not available; no backend returned")
         return None
+
+    if use_hardware is None:
+        use_hardware = os.getenv("QUANTUM_USE_HARDWARE", "0") == "1"
 
     if use_hardware and IBMProvider is not None:
         try:  # pragma: no cover - requires network credentials

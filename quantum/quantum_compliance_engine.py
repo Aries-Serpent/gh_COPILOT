@@ -21,6 +21,9 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 from tqdm import tqdm
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+from .utils.backend_provider import get_backend
 
 try:
     from qiskit import QuantumCircuit, execute, Aer  # type: ignore
@@ -62,8 +65,9 @@ def validate_environment_root() -> None:
 class QuantumComplianceEngine:
     """
     Quantum-Inspired Compliance Scoring and Clustering Engine.
-    Implements multi-pattern matching, quantum field redundancy, modular weighting.
-    Integrates with qiskit for quantum-inspired scoring where available.
+    Implements multi-pattern matching, quantum field redundancy, modular weighting
+    and optional machine learning pattern recognition. Integrates with qiskit and
+    leverages real IBM Quantum hardware when available.
     """
 
     def __init__(self, workspace: Optional[Path] = None) -> None:
@@ -86,14 +90,17 @@ class QuantumComplianceEngine:
     ) -> float:
         """
         Quantum-inspired compliance scoring for a target file.
-        Applies multi-pattern matching, quantum field redundancy, modular weighting.
-        Integrates with qiskit if available.
+        Applies multi-pattern matching, quantum field redundancy, modular weighting
+        and optional ML-based pattern recognition when ``patterns`` is empty. The
+        scoring integrates with qiskit if available.
         """
         self.status = "SCORING"
         start_time = time.time()
         score = 0.0
         with tqdm(total=100, desc="Quantum Compliance Scoring", unit="%") as pbar:
             pbar.set_description("Analyzing Patterns")
+            if not patterns:
+                patterns = self._ml_pattern_recognition(target)
             pattern_matches = self._multi_pattern_match(target, patterns)
             pbar.update(30)
 
@@ -133,6 +140,20 @@ class QuantumComplianceEngine:
         logging.info(f"Pattern matches: {matches}")
         return matches
 
+    def _ml_pattern_recognition(self, target: Path, top_n: int = 5) -> List[str]:
+        """Use TF-IDF to extract dominant patterns from the target file."""
+        if not target.exists():
+            return []
+        text = target.read_text(encoding="utf-8", errors="ignore")
+        vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 2))
+        tfidf = vectorizer.fit_transform([text])
+        scores = tfidf.toarray()[0]
+        indices = scores.argsort()[::-1][:top_n]
+        features = vectorizer.get_feature_names_out()
+        patterns = [features[i] for i in indices]
+        logging.info("ML pattern recognition identified: %s", patterns)
+        return patterns
+
     def _apply_modular_weighting(self, matches: Dict[str, int], weights: Optional[List[float]]) -> float:
         """Apply modular weighting to pattern matches."""
         if not matches:
@@ -154,7 +175,10 @@ class QuantumComplianceEngine:
         qc.h(0)
         qc.rz(classical_score * 3.1415, 0)
         qc.measure_all()
-        backend = Aer.get_backend("qasm_simulator")
+        backend = get_backend(use_hardware=os.getenv("QUANTUM_USE_HARDWARE", "0") == "1")
+        if backend is None:
+            logging.warning("No backend available, using classical score.")
+            return classical_score
         job = execute(qc, backend, shots=1024)
         result = job.result()
         counts = result.get_counts()

@@ -23,10 +23,16 @@ Use the `--hardware` flag in `quantum_integration_orchestrator.py` to enable
 hardware execution. If hardware is unavailable, the modules automatically fall
 back to local simulation.
 
+Hardware usage can also be toggled globally by setting the environment
+variable `QUANTUM_USE_HARDWARE` to `"1"`. Modules query this flag when no
+explicit option is provided.
+
 ## Algorithms
 
 - `algorithms.expansion.QuantumLibraryExpansion` – Grover search demonstration.
 - `algorithms.teleportation.QuantumTeleportation` – teleports a qubit state using a Bell pair.
+- `algorithms.hardware_aware.HardwareAwareAlgorithm` – demonstrates automatic
+  hardware selection via `qiskit-ibm-provider` with simulator fallback.
 
 ## Backend utilities
 
