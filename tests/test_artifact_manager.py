@@ -1,9 +1,22 @@
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 from zipfile import ZipFile
 
 from artifact_manager import LfsPolicy, package_session, recover_latest_session
+
+
+def copy_script_to_repo(path: Path) -> None:
+    """Copy ``artifact_manager.py`` into the temporary git repo for CLI tests."""
+    global script_dst
+    script_dst = path / "artifact_manager.py"
+    shutil.copy(Path(__file__).resolve().parents[1] / "artifact_manager.py", script_dst)
+
+
+def copy_artifact_manager_script(path: Path) -> None:
+    """Alias used by some tests."""
+    copy_script_to_repo(path)
 
 
 def init_repo(path: Path) -> None:
@@ -49,27 +62,33 @@ def test_custom_session_dir(tmp_path: Path) -> None:
     (tmp_dir / "b.txt").write_text("data", encoding="utf-8")
 
     policy = LfsPolicy(repo)
-    archive = package_session(tmp_dir, repo, policy)
+    archive = package_session(tmp_dir, repo, policy, commit=True)
     assert archive.parent.name == "custom_sessions"
 
-    (tmp_dir / "b.txt").unlink()
+    lfs_files = subprocess.check_output(["git", "lfs", "ls-files"], cwd=repo, text=True)
+    assert archive.name in lfs_files
+
+    assert not (tmp_dir / "b.txt").exists()
     recovered = recover_latest_session(tmp_dir, repo, policy)
     assert recovered == archive
     assert (tmp_dir / "b.txt").exists()
 
 
-def test_package_session_no_changes(tmp_path: Path) -> None:
+def test_package_session_idempotent(tmp_path: Path) -> None:
     repo = tmp_path
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: true\n")
     tmp_dir = repo / "tmp"
     tmp_dir.mkdir()
+    (tmp_dir / "c.txt").write_text("data", encoding="utf-8")
 
     policy = LfsPolicy(repo)
-    result = package_session(tmp_dir, repo, policy, commit=True, message="noop")
+    first = package_session(tmp_dir, repo, policy)
+    assert first and first.exists()
+
+    # second run should detect no changes after cleanup
+    result = package_session(tmp_dir, repo, policy)
     assert result is None
-    log = subprocess.check_output(["git", "log", "--oneline"], cwd=repo, text=True)
-    assert "noop" not in log
 
 
 def test_package_without_autolfs(tmp_path: Path) -> None:
@@ -92,6 +111,7 @@ def test_sync_gitattributes_cli(tmp_path: Path) -> None:
     init_repo(repo)
     policy_content = (
         "enable_autolfs: true\n"
+        "binary_extensions: ['.dat', '.bin']\n"
         "gitattributes_template: |\n  *.dat filter=lfs diff=lfs merge=lfs -text\n"
     )
     (repo / ".codex_lfs_policy.yaml").write_text(policy_content, encoding="utf-8")
@@ -108,6 +128,7 @@ def test_sync_gitattributes_cli(tmp_path: Path) -> None:
     content = gitattributes.read_text(encoding="utf-8")
     assert "Git LFS rules for binary artifacts" in content
     assert "*.dat" in content
+    assert "*.bin" in content
 
 
 def test_cli_tmp_dir_option(tmp_path: Path) -> None:

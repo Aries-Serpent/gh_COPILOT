@@ -1,11 +1,12 @@
 """Utility for packaging and recovering session artifacts.
 
-This module detects changed files within a temporary directory, archives them
-into a timestamped zip stored under a session artifact directory (default
-``codex_sessions``) and optionally tracks the archive via Git LFS based on
-``.codex_lfs_policy.yaml``. Created archives are automatically committed to
-the repository. The module also provides a recovery helper to extract the most
-recent session archive back into the temporary directory.
+This module detects files within a temporary directory, archives them into a
+timestamped zip stored under a configurable *session artifact directory* and
+optionally tracks the archive via Git LFS based on ``.codex_lfs_policy.yaml``.
+Created archives are automatically committed to the repository. The module also
+provides a recovery helper to extract the most recent session archive back into
+the temporary directory. The policy file may specify ``session_artifact_dir`` to
+override the default ``codex_sessions`` location used for storing archives.
 """
 
 from __future__ import annotations
@@ -25,7 +26,16 @@ logger = logging.getLogger(__name__)
 
 
 class LfsPolicy:
-    """Configuration for Git LFS compliance."""
+    """Configuration for Git LFS compliance.
+
+    Parameters read from ``.codex_lfs_policy.yaml`` include:
+
+    - ``enable_autolfs``: toggle automatic ``git lfs track``.
+    - ``size_threshold_mb``: file size threshold for automatic LFS.
+    - ``binary_extensions``: extensions always placed in LFS.
+    - ``gitattributes_template``: base template for ``.gitattributes``.
+    - ``session_artifact_dir``: directory for storing session archives.
+    """
 
     def __init__(self, root: Path) -> None:
         self.enabled = False
@@ -152,6 +162,12 @@ def package_session(
     -------
     Optional[Path]
         Path to the created archive or ``None`` if no changes detected.
+
+    Notes
+    -----
+    All files packaged into the archive are removed from ``tmp_dir`` to keep the
+    temporary workspace clean. The destination directory for archives is
+    determined by ``lfs_policy.session_artifact_dir`` when provided.
     """
 
     changed_files = detect_tmp_changes(tmp_dir, repo_root)
@@ -175,6 +191,17 @@ def package_session(
         logger.error("Failed to create archive: %s", exc)
         return None
 
+    # remove processed files to ensure idempotency
+    for file in changed_files:
+        try:
+            file.unlink()
+        except FileNotFoundError:
+            continue
+        parent = file.parent
+        while parent != tmp_dir and not any(parent.iterdir()):
+            parent.rmdir()
+            parent = parent.parent
+
     logger.info("Created session archive %s", archive_path)
 
     if lfs_policy and lfs_policy.requires_lfs(archive_path):
@@ -182,10 +209,21 @@ def package_session(
 
     if commit:
         try:
-            subprocess.run(["git", "add", str(archive_path.relative_to(repo_root))], cwd=repo_root, check=True)
+            subprocess.run(
+                ["git", "add", str(archive_path.relative_to(repo_root))],
+                cwd=repo_root,
+                check=True,
+            )
             try:
                 tracked = subprocess.check_output(
-                    ["git", "lfs", "ls-files", str(archive_path.name)], cwd=repo_root, text=True
+                    [
+                        "git",
+                        "lfs",
+                        "ls-files",
+                        str(archive_path.relative_to(repo_root)),
+                    ],
+                    cwd=repo_root,
+                    text=True,
                 )
             except subprocess.CalledProcessError:
                 tracked = ""
@@ -266,16 +304,12 @@ def main() -> None:
         action="store_true",
         help="regenerate .gitattributes from policy",
     )
-    parser.add_argument(
-        "--tmp-dir",
-        help="temporary directory for session artifacts",
-    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
     repo_root = Path(__file__).resolve().parent
-    tmp_dir = Path(args.tmp_dir) if args.tmp_dir else repo_root / "tmp"
+    tmp_dir = Path(args.tmp_dir)
     policy = LfsPolicy(repo_root)
 
     if args.sync_gitattributes:
