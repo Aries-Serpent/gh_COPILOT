@@ -47,6 +47,8 @@ def _fetch_metrics() -> Dict[str, Any]:
         "resolved_placeholders": 0,
         "total_placeholders": 0,
         "compliance_score": 0.0,
+        "lessons_integration_status": "UNKNOWN",
+        "average_query_latency": 0.0,
     }
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
@@ -62,6 +64,23 @@ def _fetch_metrics() -> Dict[str, Any]:
                 cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
                 val = cur.fetchone()[0]
                 metrics["compliance_score"] = float(val) if val is not None else 0.0
+                try:
+                    cur.execute(
+                        "SELECT integration_status FROM integration_score_calculations ORDER BY timestamp DESC LIMIT 1"
+                    )
+                    row = cur.fetchone()
+                    if row and row[0]:
+                        metrics["lessons_integration_status"] = row[0]
+                except sqlite3.Error as exc:
+                    logging.error("Lessons integration fetch error: %s", exc)
+                try:
+                    cur.execute(
+                        "SELECT AVG(metric_value) FROM performance_metrics WHERE metric_name='query_latency'"
+                    )
+                    val = cur.fetchone()[0]
+                    metrics["average_query_latency"] = float(val) if val is not None else 0.0
+                except sqlite3.Error as exc:
+                    logging.error("Query latency fetch error: %s", exc)
             except sqlite3.Error as exc:
                 logging.error("Metric fetch error: %s", exc)
     return metrics
