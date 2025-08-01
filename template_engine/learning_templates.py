@@ -56,17 +56,16 @@ class SelfHealingSystem:
 def get_dataset_sources(workspace_path: str | None = None) -> List[Path]:
     """Return database paths ordered by priority.
 
-    The first entry is always ``production.db`` to satisfy the database-first
-    mandate. Additional databases may be used as fallbacks when present.
+    ``production.db`` is always first to satisfy the database-first mandate.
+    Additional ``*.db`` files located in the workspace ``databases``
+    directory are appended in alphabetical order.
     """
 
     workspace = Path(workspace_path or os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
     db_dir = workspace / "databases"
-    return [
-        db_dir / "production.db",
-        db_dir / "template_completion.db",
-        db_dir / "enterprise_assets.db",
-    ]
+    production = db_dir / "production.db"
+    others = sorted(p for p in db_dir.glob("*.db") if p.name != "production.db")
+    return [production, *others]
 
 
 def get_lesson_templates() -> Dict[str, str]:

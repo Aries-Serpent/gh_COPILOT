@@ -203,19 +203,31 @@ class LessonsLearnedGapAnalyzer:
         self.logger.addHandler(console_handler)
 
     def _dataset_lesson_keys(self) -> set[str]:
+        """Collect lesson identifiers from available dataset sources."""
         lessons: set[str] = set()
         for db in self.dataset_sources:
             if not db.exists():
                 continue
             try:
                 with sqlite3.connect(db) as conn:
-                    cur = conn.execute("SELECT lesson_key FROM lessons_learned")
-                    lessons.update(row[0] for row in cur.fetchall())
+                    try:
+                        cur = conn.execute(
+                            "SELECT lesson_name FROM pattern_assets WHERE lesson_name IS NOT NULL"
+                        )
+                        lessons.update(row[0] for row in cur.fetchall())
+                    except sqlite3.Error:
+                        pass
+                    try:
+                        cur = conn.execute("SELECT lesson_key FROM lessons_learned")
+                        lessons.update(row[0] for row in cur.fetchall())
+                    except sqlite3.Error:
+                        pass
             except sqlite3.Error:
                 continue
         return lessons
 
     def validate_dataset_coverage(self) -> bool:
+        """Verify all lesson templates are represented in the dataset."""
         expected = set(get_lesson_templates().keys())
         available = self._dataset_lesson_keys()
         missing = expected - available

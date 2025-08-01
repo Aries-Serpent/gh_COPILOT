@@ -26,6 +26,34 @@ def test_dataset_coverage_validation(tmp_path: Path, monkeypatch) -> None:
     assert not analyzer.validate_dataset_coverage()
 
 
+def test_dataset_coverage_pattern_assets(tmp_path: Path, monkeypatch) -> None:
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.chdir(workspace)
+    db_dir = workspace / "databases"
+    db_dir.mkdir()
+    prod_db = db_dir / "production.db"
+    with sqlite3.connect(prod_db) as conn:
+        conn.execute(
+            "CREATE TABLE pattern_assets (pattern TEXT, usage_count INT, lesson_name TEXT)"
+        )
+        for key in get_lesson_templates().keys():
+            conn.execute(
+                "INSERT INTO pattern_assets VALUES ('', 0, ?)",
+                (key,),
+            )
+    analyzer = LessonsLearnedGapAnalyzer(str(workspace))
+    assert analyzer.validate_dataset_coverage()
+    removed = next(iter(get_lesson_templates().keys()))
+    with sqlite3.connect(prod_db) as conn:
+        conn.execute(
+            "DELETE FROM pattern_assets WHERE lesson_name=?",
+            (removed,),
+        )
+    assert not analyzer.validate_dataset_coverage()
+
+
 def test_append_lesson_cli(monkeypatch):
     from scripts.analysis import lessons_learned_gap_analyzer as lga
 

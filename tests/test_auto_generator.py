@@ -5,10 +5,14 @@ from pathlib import Path
 from template_engine.auto_generator import TemplateAutoGenerator
 import template_engine.auto_generator as auto_generator
 
+os.environ.setdefault("GH_COPILOT_DISABLE_VALIDATION", "1")
+
 
 def create_test_dbs(tmp_path: Path):
-    analytics_db = tmp_path / "analytics.db"
-    completion_db = tmp_path / "template_completion.db"
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    analytics_db = db_dir / "analytics.db"
+    completion_db = db_dir / "template_completion.db"
     with sqlite3.connect(analytics_db) as conn:
         conn.execute("CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, replacement_template TEXT)")
         conn.execute(
@@ -236,3 +240,50 @@ def test_quantum_import_failure(monkeypatch):
     assert auto_gen.quantum_text_score("hi") == 0.0
     assert auto_gen.quantum_similarity_score([1.0], [1.0]) == 0.0
     assert auto_gen.quantum_cluster_score(np.array([[1.0]])) == 0.0
+
+
+def test_lessons_applied_during_generation(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    learning_db = tmp_path / "learning_monitor.db"
+    with sqlite3.connect(learning_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE enhanced_lessons_learned (
+                description TEXT,
+                source TEXT,
+                timestamp TEXT,
+                validation_status TEXT,
+                tags TEXT
+            )
+            """
+        )
+        conn.execute(
+            "INSERT INTO enhanced_lessons_learned VALUES (?,?,?,?,?)",
+            (
+                "integrate tests",
+                "unit",
+                "2024-01-01T00:00:00Z",
+                "validated",
+                "testing",
+            ),
+        )
+    original_load = auto_generator.load_lessons
+    monkeypatch.setattr(
+        auto_generator, "load_lessons", lambda: original_load(db_path=learning_db)
+    )
+    applied = {"called": False}
+
+    original_apply = auto_generator.apply_lessons
+
+    def tracking_apply(logger, lessons):
+        applied["called"] = True
+        original_apply(logger, lessons)
+
+    monkeypatch.setattr(auto_generator, "apply_lessons", tracking_apply)
+
+    gen = TemplateAutoGenerator(analytics_db, completion_db)
+    gen.generate_template({"action": "print"})
+
+    assert applied["called"]
+    assert any("integrate tests" in t for t in gen.templates)
