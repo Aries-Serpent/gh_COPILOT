@@ -1,8 +1,9 @@
 """Tests for lesson storage utilities.
 
-These tests verify that lessons can be stored and retrieved from a
-temporary SQLite database. They cover single inserts, batch inserts and
-filtering by tag.
+These tests ensure the ``store_lesson`` and ``store_lessons`` helpers can
+insert records into a temporary SQLite database and that
+``fetch_lessons_by_tag`` returns the expected filtered rows. They cover
+single inserts, batch inserts, and tag-based filtering.
 """
 
 from __future__ import annotations
