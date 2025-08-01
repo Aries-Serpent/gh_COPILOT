@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -45,3 +46,16 @@ def test_sync_updates_with_new_extension(tmp_path: Path) -> None:
     run_sync(tmp_path)
     content = (tmp_path / ".gitattributes").read_text(encoding="utf-8")
     assert "*.bin" in content
+
+
+def test_sync_uses_session_dir(tmp_path: Path) -> None:
+    init_repo(tmp_path)
+    policy = tmp_path / ".codex_lfs_policy.yaml"
+    policy.write_text(
+        "session_artifact_dir: custom_sessions\n"
+        "gitattributes_template: |\n  *.zip filter=lfs diff=lfs merge=lfs -text\n",
+        encoding="utf-8",
+    )
+    run_sync(tmp_path)
+    content = (tmp_path / ".gitattributes").read_text(encoding="utf-8")
+    assert "custom_sessions/*.zip" in content
