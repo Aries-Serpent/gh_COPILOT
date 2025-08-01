@@ -17,6 +17,8 @@ Key settings include:
 
 The `.gitattributes` file explicitly lists patterns that Git LFS should manage. These rules prevent large files from bloating the normal Git history and keep repository clones lightweight. The patterns are generated from the policy file and include rules for each binary extension and the session archives directory.
 
+LFS tracking and pointer compliance must be enforced during CI/CD runs to prevent binary-related PR failures and ensure artifact reproducibility.
+
 ## Workflow
 
 1. **Initial Clone**: When cloning the repository, run `git lfs install` to ensure LFS support is active.
@@ -35,6 +37,7 @@ The `artifact_manager.py` utility now includes a small command-line interface:
 - `--commit` – after packaging, stage and commit the archive using Git LFS.
 - `--sync-gitattributes` – regenerate `.gitattributes` from `.codex_lfs_policy.yaml` before other operations.
 - `--recover <archive>` – extract a session archive back into `tmp/`.
+- `--tmp-dir <path>` – override the temporary directory to scan for artifacts.
 
 Example usage:
 
@@ -51,11 +54,13 @@ Archives are stored in `codex_sessions/` and tracked with Git LFS when configure
 The `.github/workflows/artifact_lfs.yml` workflow packages and commits session artifacts automatically after successful tests:
 
 ```yaml
-      - name: Package session artifacts
-        run: ALLOW_AUTOLFS=1 python artifact_manager.py --package --commit
+      - name: Package and commit session artifacts
+        run: python artifact_manager.py --package --commit --sync-gitattributes
+      - name: List LFS-tracked files
+        run: git lfs ls-files
 ```
 
-This workflow runs packaging with `--commit` so new session archives are automatically tracked and committed. Nightly runs can also call `--recover` to verify archived files remain valid.
+This workflow ensures packaging with `--commit`, keeps `.gitattributes` in sync, and verifies LFS pointer compliance so that CI fails early if artifacts are not properly tracked. Nightly runs can also call `--recover` to verify archived files remain valid.
 
 ## Troubleshooting
 
