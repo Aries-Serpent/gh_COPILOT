@@ -55,13 +55,23 @@ def test_package_and_recover(tmp_path: Path) -> None:
 def test_custom_session_dir(tmp_path: Path) -> None:
     repo = tmp_path
     init_repo(repo)
-    policy_content = "enable_autolfs: true\nsession_artifact_dir: custom_sessions\n"
+    policy_content = (
+        "enable_autolfs: true\n"
+        "session_artifact_dir: custom_sessions\n"
+        "gitattributes_template: |\n"
+        "  *.db filter=lfs diff=lfs merge=lfs -text\n"
+    )
     (repo / ".codex_lfs_policy.yaml").write_text(policy_content, encoding="utf-8")
     tmp_dir = repo / "tmp"
     tmp_dir.mkdir()
     (tmp_dir / "b.txt").write_text("data", encoding="utf-8")
 
     policy = LfsPolicy(repo)
+    assert policy.session_artifact_dir == "custom_sessions"
+    policy.sync_gitattributes()
+    attrs = (repo / ".gitattributes").read_text(encoding="utf-8")
+    assert "custom_sessions/*.zip" in attrs
+
     archive = package_session(tmp_dir, repo, policy, commit=True)
     assert archive.parent.name == "custom_sessions"
 
