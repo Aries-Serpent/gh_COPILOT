@@ -8,6 +8,7 @@ raised if invalid templates are encountered or if recursion safeguards fail.
 from __future__ import annotations
 
 import logging
+import re
 from utils.cross_platform_paths import CrossPlatformPathManager
 import sqlite3
 import sys
@@ -27,6 +28,7 @@ from utils.log_utils import _log_event
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 from .placeholder_utils import DEFAULT_PRODUCTION_DB, replace_placeholders
+from .template_placeholder_remover import remove_unused_placeholders
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
 
@@ -64,6 +66,14 @@ logging.basicConfig(
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
+
+
+_PLACEHOLDER_RE = re.compile(r"{{\s*[A-Z0-9_]+\s*}}")
+
+
+def _strip_placeholders(text: str) -> str:
+    """Remove placeholder tokens from ``text``."""
+    return _PLACEHOLDER_RE.sub("", text)
 
 
 def validate_no_recursive_folders() -> None:
@@ -177,10 +187,11 @@ class TemplateAutoGenerator:
     def rank_templates(self, target: str) -> List[str]:
         """Return templates ranked by similarity to ``target``."""
         ranked: List[tuple[str, float]] = []
-        q_target = self._quantum_score(target)
+        clean_target = _strip_placeholders(target)
+        q_target = self._quantum_score(clean_target)
         if self.production_db.exists():
             scores = compute_similarity_scores(
-                target,
+                clean_target,
                 production_db=self.production_db,
                 analytics_db=self.analytics_db,
                 timeout_minutes=1,
@@ -197,16 +208,17 @@ class TemplateAutoGenerator:
                     if tid not in id_to_score:
                         continue
                     bonus = 0.0
-                    pats = extract_patterns([text])
-                    if any(p in target for p in pats):
+                    clean_text = _strip_placeholders(text)
+                    pats = extract_patterns([clean_text])
+                    if any(p in clean_target for p in pats):
                         bonus = 0.1
-                    q_sim = self._quantum_similarity(target, text)
-                    tfidf = self.objective_similarity(target, text)
-                    q_text = 1.0 - abs(self._quantum_score(text) - q_target)
+                    q_sim = self._quantum_similarity(clean_target, clean_text)
+                    tfidf = self.objective_similarity(clean_target, clean_text)
+                    q_text = 1.0 - abs(self._quantum_score(clean_text) - q_target)
                     score = id_to_score[tid] + tfidf + q_sim + q_text + bonus
-                    ranked.append((text, score))
+                    ranked.append((clean_text, score))
                     _log_event(
-                        {"event": "rank_eval", "target": target, "template_id": tid, "score": score},
+                        {"event": "rank_eval", "target": clean_target, "template_id": tid, "score": score},
                         table="generator_events",
                         db_path=self.analytics_db,
                     )
@@ -223,13 +235,14 @@ class TemplateAutoGenerator:
         if not ranked:
             candidates = self.templates or self.patterns
             for tmpl in candidates:
-                tfidf = self.objective_similarity(target, tmpl)
-                q_sim = self._quantum_similarity(target, tmpl)
-                q_text = 1.0 - abs(self._quantum_score(tmpl) - q_target)
+                clean_tmpl = _strip_placeholders(tmpl)
+                tfidf = self.objective_similarity(clean_target, clean_tmpl)
+                q_sim = self._quantum_similarity(clean_target, clean_tmpl)
+                q_text = 1.0 - abs(self._quantum_score(clean_tmpl) - q_target)
                 score = tfidf + q_sim + q_text
-                ranked.append((tmpl, score))
+                ranked.append((clean_tmpl, score))
                 _log_event(
-                    {"event": "rank_eval", "target": target, "template_id": -1, "score": score},
+                    {"event": "rank_eval", "target": clean_target, "template_id": -1, "score": score},
                     table="generator_events",
                     db_path=self.analytics_db,
                 )
@@ -244,6 +257,16 @@ class TemplateAutoGenerator:
                     db_path=self.analytics_db,
                 )
         ranked.sort(key=lambda x: x[1], reverse=True)
+        _log_event(
+            {
+                "event": "rank_complete",
+                "target": clean_target,
+                "candidates": len(ranked),
+                "best_score": ranked[0][1] if ranked else 0.0,
+            },
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         return [t for t, _ in ranked]
 
     def select_best_template(self, target: str, timeout: float = 30.0) -> str:
@@ -348,6 +371,9 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 "template_doc": self.documentation_db,
                 "analytics": self.analytics_db,
             },
+        )
+        stub = remove_unused_placeholders(
+            stub, production_db=self.production_db, analytics_db=self.analytics_db
         )
 
         path = Path(f"{objective}.py")
