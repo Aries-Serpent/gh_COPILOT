@@ -4,6 +4,7 @@
     "compliance_score": 0.88,
     "violation_count": 5,
     "rollback_count": 1,
+    "auto_removal_count": 0,
     "last_update": "2025-08-01T16:50:44"
   },
   "status": "updated",
