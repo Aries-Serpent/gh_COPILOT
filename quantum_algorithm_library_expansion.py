@@ -14,7 +14,6 @@ from typing import Iterable, List
 
 try:
     from qiskit import QuantumCircuit
-    from qiskit_aer import AerSimulator
 
     QISKIT_AVAILABLE = True
 except Exception:  # pragma: no cover - qiskit optional
@@ -28,6 +27,7 @@ from quantum.advanced_quantum_algorithms import (
     grover_search_qiskit,
     phase_estimation_qiskit,
 )
+from quantum.utils.backend_provider import get_backend
 
 ANALYTICS_DB = Path("databases/analytics.db")
 
@@ -241,24 +241,28 @@ def quantum_pattern_match_stub(pattern: Iterable[int], data: Iterable[int]) -> b
     return False
 
 
-def quantum_text_score(text: str) -> float:
+def quantum_text_score(text: str, use_hardware: bool | None = None) -> float:
     """Return a quantum-inspired text score.
 
-    Uses ``qiskit`` when available, otherwise falls back to a
-    simple classical heuristic. In either case the execution path
-    is logged to ``analytics.db`` via :func:`log_quantum_event`.
+    When Qiskit is available, the function attempts to obtain a backend using
+    :func:`get_backend` which prefers IBM Quantum hardware when
+    ``use_hardware`` is True. If no backend is available or Qiskit is not
+    installed, the function falls back to a simple classical heuristic.
+    The execution path is logged to ``analytics.db`` via
+    :func:`log_quantum_event`.
     """
     if QISKIT_AVAILABLE:
-        circ = QuantumCircuit(1, 1)
-        theta = (sum(map(ord, text)) % 360) * np.pi / 180
-        circ.ry(theta, 0)
-        circ.measure(0, 0)
-        backend = AerSimulator()
-        result = backend.run(circ, shots=256).result()
-        counts = result.get_counts()
-        score = counts.get("1", 0) / 256
-        log_quantum_event("text_score", "qiskit")
-        return float(score)
+        backend = get_backend(use_hardware=use_hardware)
+        if backend is not None:
+            circ = QuantumCircuit(1, 1)
+            theta = (sum(map(ord, text)) % 360) * np.pi / 180
+            circ.ry(theta, 0)
+            circ.measure(0, 0)
+            result = backend.run(circ, shots=256).result()
+            counts = result.get_counts()
+            score = counts.get("1", 0) / 256
+            log_quantum_event("text_score", "qiskit")
+            return float(score)
 
     arr = np.fromiter((ord(c) for c in text), dtype=float)
     score = float(np.linalg.norm(arr) / ((arr.size or 1) * 255))
