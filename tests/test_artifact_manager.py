@@ -10,6 +10,7 @@ from zipfile import ZipFile
 import pytest
 
 import artifact_manager
+import pytest
 from artifact_manager import LfsPolicy, package_session, recover_latest_session
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -71,8 +72,26 @@ def init_repo(path: Path) -> None:
     subprocess.run(["git", "commit", "-m", "init"], cwd=path, check=True, stdout=subprocess.DEVNULL)
 
 
-def test_package_and_recover(tmp_path: Path) -> None:
-    repo = tmp_path
+@pytest.fixture(scope="module")
+def repo_tmp_root() -> Path:
+    root = Path(__file__).resolve().parents[1] / "tmp"
+    root.mkdir(exist_ok=True)
+    yield root
+    archive = root.parent / "tmp_artifacts.zip"
+    with ZipFile(archive, "w") as zf:
+        for file in root.rglob("*"):
+            if file.is_file():
+                zf.write(file, file.relative_to(root.parent))
+
+
+@pytest.fixture
+def repo(tmp_path: Path, request, repo_tmp_root: Path) -> Path:
+    yield tmp_path
+    dst = repo_tmp_root / request.node.name
+    shutil.copytree(tmp_path, dst, dirs_exist_ok=True)
+
+
+def test_package_and_recover(repo: Path) -> None:
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: true\n")
     tmp_dir = repo / "tmp"
@@ -97,8 +116,7 @@ def test_package_and_recover(tmp_path: Path) -> None:
     assert (tmp_dir / "a.txt").exists()
 
 
-def test_custom_session_dir(tmp_path: Path) -> None:
-    repo = tmp_path
+def test_custom_session_dir(repo: Path) -> None:
     init_repo(repo)
     policy_content = (
         "enable_autolfs: true\n"
@@ -129,8 +147,7 @@ def test_custom_session_dir(tmp_path: Path) -> None:
     assert (tmp_dir / "b.txt").exists()
 
 
-def test_package_session_idempotent(tmp_path: Path) -> None:
-    repo = tmp_path
+def test_package_session_idempotent(repo: Path) -> None:
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: true\n")
     tmp_dir = repo / "tmp"
@@ -146,8 +163,7 @@ def test_package_session_idempotent(tmp_path: Path) -> None:
     assert result is None
 
 
-def test_package_without_autolfs(tmp_path: Path) -> None:
-    repo = tmp_path
+def test_package_without_autolfs(repo: Path) -> None:
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: false\n")
     tmp_dir = repo / "tmp"
@@ -161,8 +177,7 @@ def test_package_without_autolfs(tmp_path: Path) -> None:
     assert archive.name not in lfs_files
 
 
-def test_sync_gitattributes_cli(tmp_path: Path) -> None:
-    repo = tmp_path
+def test_sync_gitattributes_cli(repo: Path) -> None:
     init_repo(repo)
     policy_content = (
         "enable_autolfs: true\n"
@@ -186,8 +201,21 @@ def test_sync_gitattributes_cli(tmp_path: Path) -> None:
     assert "*.bin" in content
 
 
-def test_cli_tmp_dir_option(tmp_path: Path) -> None:
-    repo = tmp_path
+def test_cli_help(repo: Path) -> None:
+    init_repo(repo)
+    copy_script_to_repo(repo)
+    result = subprocess.run(
+        [sys.executable, str(script_dst), "--help"],
+        cwd=repo,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    assert "--tmp-dir" in result.stdout
+    assert "--sync-gitattributes" in result.stdout
+
+
+def test_cli_tmp_dir_option(repo: Path) -> None:
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: true\n")
     custom_tmp = repo / "custom_tmp"
@@ -214,8 +242,7 @@ def test_cli_tmp_dir_option(tmp_path: Path) -> None:
         assert "d.txt" in zf.namelist()
 
 
-def test_policy_file_missing_logs_defaults(tmp_path: Path, caplog) -> None:
-    repo = tmp_path
+def test_policy_file_missing_logs_defaults(repo: Path, caplog) -> None:
     init_repo(repo)
     tmp_dir = repo / "tmp"
     tmp_dir.mkdir()
@@ -233,8 +260,7 @@ def test_policy_file_missing_logs_defaults(tmp_path: Path, caplog) -> None:
     assert archive.parent.name == "codex_sessions"
 
 
-def test_package_session_atomic_output(tmp_path: Path, monkeypatch) -> None:
-    repo = tmp_path
+def test_package_session_atomic_output(repo: Path, monkeypatch) -> None:
     init_repo(repo)
     (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: false\n")
     tmp_dir = repo / "tmp"

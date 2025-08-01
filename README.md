@@ -498,11 +498,14 @@ compliance logging. The main modules are:
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
-* **Artifact Manager** – `artifact_manager.py` packages files created in `tmp/`
-  during the current session into `codex_sessions/` archives. Use
-  `--package` to create an archive and `--commit` with `--message` to save it
-  directly to Git. `--recover` restores the most recent archive back into
-  `tmp/`. Paths are configurable via `.codex_lfs_policy.yaml`.
+* **Artifact Manager** – `artifact_manager.py` packages files created in the
+  temporary directory (default `tmp/`) into archives stored under the
+  directory defined by the `session_artifact_dir` setting in
+  `.codex_lfs_policy.yaml`. Use `--package` to create an archive and
+  `--commit` with `--message` to save it directly to Git. `--recover`
+  restores the most recent archive back into the temporary directory.
+  The temporary location may be overridden with `--tmp-dir`, and
+  `.gitattributes` can be regenerated with `--sync-gitattributes`.
 
 
 ```python
@@ -1099,7 +1102,7 @@ Several small modules provide common helpers:
   enhancer.enhance()
   ```
 - `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
-- `artifact_manager.py` – package modified files from `tmp/` into `codex_sessions/` or restore them. Run `python artifact_manager.py --package` to create an archive and `--recover` to extract the latest one.
+  - `artifact_manager.py` – package modified files from the temporary directory into the location specified by `session_artifact_dir` (defaults to `codex_sessions`). Run `python artifact_manager.py --package` to create an archive, `--recover` to extract the latest one, use `--tmp-dir` to choose a different temporary directory, and `--sync-gitattributes` to refresh LFS rules.
 
 ## Future Roadmap
 
