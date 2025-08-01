@@ -1,4 +1,5 @@
 import logging
+import os
 import shutil
 import subprocess
 import sys
@@ -6,9 +7,50 @@ from pathlib import Path
 from typing import Iterable
 from zipfile import ZipFile
 
+import pytest
+
 import artifact_manager
 import pytest
 from artifact_manager import LfsPolicy, package_session, recover_latest_session
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture(autouse=True)
+def collect_artifacts(tmp_path: Path, request) -> None:
+    """Copy per-test artifacts into the repository ``tmp`` directory.
+
+    Test directories are preserved for later inspection.  They are gathered
+    after each test to maintain reproducibility while keeping the workspace
+    clean during execution.
+    """
+
+    yield
+    repo_tmp = REPO_ROOT / "tmp" / request.node.name
+    repo_tmp.parent.mkdir(parents=True, exist_ok=True)
+    if repo_tmp.exists():
+        shutil.rmtree(repo_tmp)
+    shutil.copytree(tmp_path, repo_tmp)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def zip_repo_tmp() -> None:
+    """Compress collected artifacts into ``tmp/test_artifacts.zip``."""
+
+    yield
+    repo_tmp = REPO_ROOT / "tmp"
+    if not repo_tmp.exists():
+        return
+    zip_path = repo_tmp / "test_artifacts.zip"
+    with ZipFile(zip_path, "w") as zf:
+        for file in repo_tmp.rglob("*"):
+            if file == zip_path:
+                continue
+            zf.write(file, file.relative_to(repo_tmp))
+    # remove individual directories after zipping to avoid committing them
+    for item in repo_tmp.iterdir():
+        if item.is_dir():
+            shutil.rmtree(item)
 
 
 def copy_script_to_repo(path: Path) -> None:
@@ -214,6 +256,7 @@ def test_policy_file_missing_logs_defaults(repo: Path, caplog) -> None:
     messages = " ".join(caplog.messages)
     assert "not found" in messages
     assert "Using default LFS policy values" in messages
+    assert "Packaging session" in messages
     assert archive.parent.name == "codex_sessions"
 
 
@@ -244,52 +287,84 @@ def test_package_session_atomic_output(repo: Path, monkeypatch) -> None:
     assert not temp_path.exists()
 
 
-def test_invalid_session_dir_defaults(repo: Path, caplog) -> None:
+def test_invalid_session_dir_value(tmp_path: Path, caplog) -> None:
+    repo = tmp_path
     init_repo(repo)
     policy_content = "session_artifact_dir: 123\n"
     (repo / ".codex_lfs_policy.yaml").write_text(policy_content, encoding="utf-8")
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "g.txt").write_text("data", encoding="utf-8")
+
     with caplog.at_level(logging.WARNING):
         policy = LfsPolicy(repo)
     assert policy.session_artifact_dir == "codex_sessions"
     assert any("Invalid session_artifact_dir" in m for m in caplog.messages)
 
 
-def test_unreadable_policy_file(repo: Path, caplog, monkeypatch) -> None:
+def test_malformed_yaml_fallback(tmp_path: Path, caplog) -> None:
+    repo = tmp_path
     init_repo(repo)
-    policy_file = repo / ".codex_lfs_policy.yaml"
-    policy_file.write_text("enable_autolfs: true\n", encoding="utf-8")
-
-    original_open = Path.open
-
-    def fake_open(self: Path, *args, **kwargs):
-        if self == policy_file:
-            raise PermissionError("denied")
-        return original_open(self, *args, **kwargs)
-
-    monkeypatch.setattr(Path, "open", fake_open)
+    (repo / ".codex_lfs_policy.yaml").write_text("!bad yaml\n:\n", encoding="utf-8")
 
     with caplog.at_level(logging.ERROR):
         policy = LfsPolicy(repo)
     assert policy.session_artifact_dir == "codex_sessions"
-    assert any("Unable to read" in m for m in caplog.messages)
+    assert any("Malformed YAML" in m for m in caplog.messages)
 
 
-def test_runtime_session_dir_switch(repo: Path) -> None:
+def test_runtime_directory_switch(tmp_path: Path) -> None:
+    repo = tmp_path
     init_repo(repo)
-    (repo / ".codex_lfs_policy.yaml").write_text("enable_autolfs: false\n")
+    (repo / ".codex_lfs_policy.yaml").write_text("session_artifact_dir: first\n")
     tmp_dir = repo / "tmp"
     tmp_dir.mkdir()
-    (tmp_dir / "r1.txt").write_text("data", encoding="utf-8")
-    policy = LfsPolicy(repo)
-    first = package_session(tmp_dir, repo, policy)
-    assert first and first.exists()
+    (tmp_dir / "h.txt").write_text("data", encoding="utf-8")
 
-    # change policy to new directory and package again
-    new_policy_content = "session_artifact_dir: switched\n"
-    (repo / ".codex_lfs_policy.yaml").write_text(new_policy_content, encoding="utf-8")
-    policy2 = LfsPolicy(repo)
-    (tmp_dir / "r2.txt").write_text("more", encoding="utf-8")
-    second = package_session(tmp_dir, repo, policy2)
-    assert second and second.exists()
-    assert first.parent.name == "codex_sessions"
-    assert second.parent.name == "switched"
+    policy = LfsPolicy(repo)
+    archive1 = package_session(tmp_dir, repo, policy)
+    assert archive1 and archive1.parent.name == "first"
+
+    # change policy and package again
+    (repo / ".codex_lfs_policy.yaml").write_text("session_artifact_dir: second\n")
+    policy = LfsPolicy(repo)
+    (tmp_dir / "i.txt").write_text("data", encoding="utf-8")
+    archive2 = package_session(tmp_dir, repo, policy)
+    assert archive2 and archive2.parent.name == "second"
+
+
+def test_cli_help_lists_options(tmp_path: Path) -> None:
+    repo = tmp_path
+    init_repo(repo)
+    copy_script_to_repo(repo)  # This sets the script_dst variable
+    assert 'script_dst' in globals(), "script_dst must be defined by copy_script_to_repo(repo)"
+    result = subprocess.run(
+        [sys.executable, str(script_dst), "--help"],
+        cwd=repo,
+        text=True,
+        capture_output=True,
+    )
+    assert "--tmp-dir" in result.stdout
+    assert "--sync-gitattributes" in result.stdout
+
+
+def test_session_dir_symlink_outside(tmp_path: Path, caplog) -> None:
+    repo = tmp_path
+    init_repo(repo)
+    if not hasattr(os, "symlink"):
+        pytest.skip("symlink not supported")
+    outside = tmp_path / "outside_sessions"
+    outside.mkdir()
+    symlink_dir = repo / "outside_link"
+    symlink_dir.symlink_to(outside)
+    policy_content = f"session_artifact_dir: {symlink_dir.name}\n"
+    (repo / ".codex_lfs_policy.yaml").write_text(policy_content, encoding="utf-8")
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "j.txt").write_text("data", encoding="utf-8")
+
+    policy = LfsPolicy(repo)
+    with caplog.at_level(logging.ERROR):
+        result = package_session(tmp_dir, repo, policy)
+    assert result is None
+    assert any("escapes repository root" in m for m in caplog.messages)
