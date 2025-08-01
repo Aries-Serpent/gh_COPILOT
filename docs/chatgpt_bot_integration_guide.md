@@ -8,10 +8,10 @@ This guide explains how to run the optional GitHub bot components used in enterp
    bash setup.sh
    source .venv/bin/activate
    ```
-2. Ensure `/usr/local/bin/clw` is installed. If missing, copy `tools/clw.py` and make it executable:
+2. Ensure `/usr/local/bin/clw` is installed. If missing, run the installer and verify:
    ```bash
-   cp tools/clw.py /usr/local/bin/clw
-   chmod +x /usr/local/bin/clw
+   tools/install_clw.sh
+   ls -l /usr/local/bin/clw
    ```
 
 ## Environment Variables
