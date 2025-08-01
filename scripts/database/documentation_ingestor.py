@@ -12,6 +12,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
+from template_engine.learning_templates import get_dataset_sources
 
 from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes
@@ -53,6 +54,19 @@ def ingest_documentation(
     docs_dir = docs_dir or (workspace / "documentation")
     files = _gather_markdown_files(docs_dir)
 
+    dataset_dbs = get_dataset_sources(str(workspace))
+    existing_docs: set[str] = set()
+    primary_db = dataset_dbs[0] if dataset_dbs else None
+    if primary_db and primary_db.exists():
+        try:
+            with sqlite3.connect(primary_db) as prod_conn:
+                if _table_exists(prod_conn, "documentation_assets"):
+                    existing_docs = {
+                        row[0] for row in prod_conn.execute("SELECT doc_path FROM documentation_assets")
+                    }
+        except sqlite3.Error:
+            existing_docs = set()
+
     start_time = datetime.now(timezone.utc)
     logger.info("Starting documentation ingestion at %s", start_time.isoformat())
 
@@ -68,8 +82,10 @@ def ingest_documentation(
                     logger.error("Ingestion timed out")
                     raise TimeoutError("Documentation ingestion timed out")
 
-                if path.stat().st_size == 0:
-                    logger.warning("Skipping zero-byte file: %s", path)
+                rel_path = str(path.relative_to(workspace))
+                if path.stat().st_size == 0 or rel_path in existing_docs:
+                    if path.stat().st_size == 0:
+                        logger.warning("Skipping zero-byte file: %s", path)
                     bar.update(1)
                     continue
 
@@ -83,7 +99,7 @@ def ingest_documentation(
                         "VALUES (?, ?, ?, ?)"
                     ),
                     (
-                        str(path.relative_to(workspace)),
+                        rel_path,
                         digest,
                         datetime.now(timezone.utc).isoformat(),
                         modified_at,

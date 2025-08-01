@@ -44,6 +44,19 @@ def test_pattern_templates_loaded(tmp_path: Path) -> None:
     assert any("DatabaseFirstOperator" in t for t in generator.templates)
 
 
+def test_lesson_templates_ranked(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    gen = TemplateAutoGenerator(analytics_db, completion_db)
+    monkeypatch.setattr(auto_generator, "compute_similarity_scores", lambda *a, **k: [])
+    monkeypatch.setattr(auto_generator, "quantum_similarity_score", lambda *a, **k: 0.0)
+    monkeypatch.setattr(auto_generator, "quantum_cluster_score", lambda *a, **k: 0.0)
+    monkeypatch.setattr(gen, "_quantum_similarity", lambda *a, **k: 0.0)
+    monkeypatch.setattr(gen, "_quantum_score", lambda *a, **k: 0.0)
+    ranked = gen.rank_templates("DatabaseFirstOperator")
+    assert any("DatabaseFirstOperator" in t for t in ranked)
+
+
 def test_cluster_rep_no_dimension_error(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     analytics_db, completion_db = create_test_dbs(tmp_path)

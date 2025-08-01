@@ -29,6 +29,7 @@ from tqdm import tqdm
 from utils.log_utils import _log_event
 
 from .pattern_templates import get_pattern_templates
+from .learning_templates import get_lesson_templates
 from .placeholder_utils import DEFAULT_PRODUCTION_DB
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
@@ -138,7 +139,9 @@ class TemplateAutoGenerator:
         validate_no_recursive_folders()
         # DB-first loading of patterns and templates
         self.patterns = self._load_patterns()
-        self.templates = self._load_templates() + get_pattern_templates()
+        self.templates = self._load_templates() + get_pattern_templates() + list(
+            get_lesson_templates().values()
+        )
         self.cluster_vectorizer = None
         self.cluster_model = self._cluster_patterns()
         self._last_objective: dict[str, Any] | None = None
