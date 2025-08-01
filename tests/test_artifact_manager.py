@@ -327,9 +327,7 @@ def test_session_dir_symlink_outside(tmp_path: Path, caplog) -> None:
     init_repo(repo)
     if not hasattr(os, "symlink"):
         pytest.skip("symlink not supported")
-    outside = Path("/tmp/outside_sessions")
-    if outside.exists():
-        shutil.rmtree(outside)
+    outside = tmp_path / "outside_sessions"
     outside.mkdir()
     symlink_dir = repo / "outside_link"
     symlink_dir.symlink_to(outside)
