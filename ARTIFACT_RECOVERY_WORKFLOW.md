@@ -15,14 +15,18 @@ packages, syncs, and commits artifacts in a single atomic sequence:
    pointers, installs Git LFS, and runs `setup.sh`.
 2. **Package and commit** – `python artifact_manager.py --package --commit
    --sync-gitattributes [--tmp-dir <path>]` bundles files from the
-   temporary directory (default from `session_artifact_dir` in
-   `.codex_lfs_policy.yaml`), stages the archive, regenerates
-   `.gitattributes`, and records the commit.
+   temporary directory, stages the archive, regenerates `.gitattributes`,
+   and records the commit. `artifact_lfs.yml` runs this command so that
+   packaging, pointer conversion, and committing happen as one atomic
+   action. A custom `--tmp-dir` overrides the policy’s
+   `session_artifact_dir`, allowing CI jobs to isolate artifacts without
+   changing repository defaults.
 3. **Pointer verification** – the subsequent *Verify LFS pointers* step
    enumerates `binary_extensions` from `.codex_lfs_policy.yaml` and fails
    the job if any files skip Git LFS.
 4. **Push** – changes are pushed only after verification succeeds,
-   guaranteeing that packaging, policy sync, and commit occur together.
+   guaranteeing that packaging, pointer conversion, and commit occur
+   together.
 
 ## 2. Key CI Workflow Step: Artifact Packaging, Commit, and Sync
 
@@ -97,28 +101,44 @@ mistakes and keeps every contributor working with the same expectations.
 ### 2. Key CI Step: Package, Commit, and Sync
 
 Include a job step that runs `python artifact_manager.py --package --commit
---sync-gitattributes`. This atomically packages artifacts, commits them, and
-updates `.gitattributes` so new binary types are immediately tracked.
+--sync-gitattributes`. The workflow defined in `artifact_lfs.yml` executes this
+command so that packaging, pointer conversion, and committing occur in a single
+transaction.
 
-### 3. Why This Approach Works
+### 3. Pointer Validation Step
+
+After committing, the workflow runs `git lfs ls-files --strict` to verify that
+all tracked extensions resolve to LFS pointers. A failing run might emit:
+
+```
+Error: these files should be pointers but are not:
+  artifacts/report.csv
+```
+
+To fix this, add the file type to `.codex_lfs_policy.yaml`, run
+`artifact_manager.py --sync-gitattributes`, and recommit.
+
+### 4. Why This Approach Works
 
 Bundling packaging, pointer updates, and committing in one step eliminates
 missed artifacts, ensures `.gitattributes` stays current, and reduces LFS
 misconfiguration errors that commonly break CI/CD pipelines.
 
-### 4. Troubleshooting & Verification
+### 5. Troubleshooting & Verification
 
 When failures occur, review `git lfs ls-files` output and artifact manager logs
 in CI to identify mis-tracked binaries or permission problems. Test workflow
 changes in branches before merging to catch platform-specific issues.
 
-### 5. Configuration Files & CLI Options
+### 6. Configuration Files & CLI Options
 
-Keep `.codex_lfs_policy.yaml` up to date and document sample usage for CLI
-options such as `--tmp-dir` and `--sync-gitattributes`. Clear configuration
-reduces onboarding time and avoids confusion during session resets.
+Keep `.codex_lfs_policy.yaml` up to date. Its `session_artifact_dir` defines the
+default temporary path; passing `--tmp-dir` overrides it for a job run and can
+isolate artifacts to ephemeral storage. The policy’s `binary_extensions`
+control which files the pointer validation step checks, so CI runs should
+update the policy before changing `--tmp-dir` locations.
 
-### 6. Limitations and Future Improvements
+### 7. Limitations and Future Improvements
 
 Some LFS or commit errors appear only at `git push`, and all contributors must
 have Git LFS installed. Future work could add notifications for pointer

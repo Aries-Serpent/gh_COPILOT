@@ -55,8 +55,22 @@ class ExternalBackupConfiguration:
 
     @staticmethod
     def validate_external_backup_location(backup_path: Path, workspace_path: Path) -> None:
-        if str(backup_path).startswith(str(workspace_path)):
-            raise RuntimeError(f"CRITICAL: Backup location inside workspace: {backup_path}")
+        """Raise if ``backup_path`` resides within ``workspace_path``.
+
+        Paths are resolved prior to comparison to prevent bypasses such as
+        ``..`` segments or symbolic links that would otherwise allow backups to
+        be created inside the repository workspace.
+        """
+
+        resolved_backup = backup_path.resolve()
+        resolved_workspace = workspace_path.resolve()
+        try:
+            resolved_backup.relative_to(resolved_workspace)
+        except ValueError:
+            return
+        raise RuntimeError(
+            f"CRITICAL: Backup location inside workspace: {resolved_backup}"
+        )
 
 
 WORKSPACE_PATH = CrossPlatformPathManager.get_workspace_path()
@@ -99,19 +113,26 @@ def export_table_to_7z(db_path: Path, table: str, dest_dir: Path, level: int = 5
         writer.writerow([d[0] for d in cur.description])
         writer.writerows(cur.fetchall())
         tmp_path = Path(tmp.name)
-    with py7zr.SevenZipFile(archive_path, mode="w", compression_level=level) as zf:  # type: ignore[attr-defined]
+    with py7zr.SevenZipFile(
+        archive_path, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}]
+    ) as zf:  # type: ignore[attr-defined]
         zf.write(tmp_path, arcname=tmp_path.name)
     tmp_path.unlink()
     logger.info("Compressed %s.%s to %s", db_path.name, table, archive_path)
     return archive_path
 
 
-def create_external_backup(source_path: Path, backup_name: str, *, backup_dir: Path | None = None) -> Path:
+def create_external_backup(
+    source_path: Path, backup_name: str, *, backup_dir: Path | None = None
+) -> Path:
     """Create a timestamped backup in the external backup directory."""
 
-    target_dir = backup_dir or BACKUP_DIR
+    target_dir = (backup_dir or BACKUP_DIR).resolve()
+    workspace_path = CrossPlatformPathManager.get_workspace_path()
     # validate backup path is outside the workspace
-    ExternalBackupConfiguration.validate_external_backup_location(target_dir, WORKSPACE_PATH)
+    ExternalBackupConfiguration.validate_external_backup_location(
+        target_dir, workspace_path
+    )
     target_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     dest = target_dir / f"{backup_name}_{timestamp}.backup"
@@ -140,25 +161,30 @@ def create_external_backup(source_path: Path, backup_name: str, *, backup_dir: P
 def compress_large_tables(db_path: Path, analysis: dict, threshold: int = 50000, *, level: int = 5) -> List[Path]:
     """Compress tables with a row count greater than ``threshold``.
 
-    Parameters
-    ----------
-    db_path:
-        Database being analyzed.
-    analysis:
-        Table structure analysis from ``DatabaseMigrationCorrector``.
-    threshold:
-        Minimum row count required to trigger compression.
-    level:
-        Compression level to use when creating the archive.
+    If ``analysis`` lacks table metrics the database is queried directly to
+    determine row counts, ensuring large tables are still archived during
+    consolidation.
     """
     archives: List[Path] = []
-    for table in analysis.get("tables", []):
+    tables = analysis.get("tables")
+    if not tables:
+        with sqlite3.connect(db_path) as conn:
+            cur = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            tables = [
+                {
+                    "name": r[0],
+                    "record_count": conn.execute(f"SELECT COUNT(*) FROM {r[0]}").fetchone()[0],
+                }
+                for r in cur.fetchall()
+            ]
+    dest_dir = db_path.parent.parent / "archives" / "table_exports"
+    for table in tables:
         if table.get("record_count", 0) > threshold:
             archives.append(
                 export_table_to_7z(
                     db_path,
                     table["name"],
-                    Path("archives/table_exports"),
+                    dest_dir,
                     level,
                 )
             )
@@ -226,8 +252,8 @@ def migrate_and_compress(
                 migrator.source_db = src
                 migrator.target_db = enterprise_db
                 migrator.target_conn = conn
-                migrator.migration_report = {"errors": []}
                 migrator.migrate_database_content()
+                conn.commit()
                 analysis = migrator.analyze_database_structure(enterprise_db)
                 compress_large_tables(enterprise_db, analysis)
                 elapsed = perf_counter() - start

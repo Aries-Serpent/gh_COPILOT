@@ -8,10 +8,21 @@ import template_engine.db_first_code_generator as dbgen
 
 
 def create_test_dbs(tmp_path: Path):
-    analytics_db = tmp_path / "analytics.db"
-    completion_db = tmp_path / "template_completion.db"
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    analytics_db = db_dir / "analytics.db"
+    completion_db = db_dir / "template_completion.db"
     with sqlite3.connect(analytics_db) as conn:
-        conn.execute("CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, replacement_template TEXT)")
+        conn.execute(
+            "CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, replacement_template TEXT)"
+        )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS generator_events ("
+            "event TEXT, template_id INTEGER, score REAL, target TEXT,"
+            "timestamp TEXT, module TEXT, level TEXT, duration REAL,"
+            "count INTEGER, items INTEGER, clusters INTEGER, best_template TEXT"
+            ")"
+        )
         conn.execute(
             "INSERT INTO ml_pattern_optimization (replacement_template) VALUES (?)",
             ("print('db')",),

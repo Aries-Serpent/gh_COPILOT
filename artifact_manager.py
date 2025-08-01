@@ -229,12 +229,46 @@ def check_directory_health(dir_path: Path, repo_root: Path) -> bool:
 
 
 def create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> None:
-    """Create ``archive_path`` containing ``files`` relative to ``base_dir``."""
+    """Create ``archive_path`` containing ``files`` relative to ``base_dir``.
 
-    with ZipFile(archive_path, "w") as zf:
-        for file in files:
-            if file.exists():
-                zf.write(file, arcname=file.relative_to(base_dir))
+    The archive is first written to a temporary file located in the target
+    directory and then atomically renamed to ``archive_path``.  This approach
+    minimises the risk of leaving partial archives behind if the process is
+    interrupted.
+    """
+
+    archive_dir = archive_path.parent
+    try:
+        archive_dir.mkdir(parents=True, exist_ok=True)
+    except PermissionError as exc:
+        logger.error("Cannot create directory %s: %s", archive_dir, exc)
+        raise
+
+    tmp_file: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            suffix=".tmp", dir=archive_dir, delete=False
+        ) as tf:
+            tmp_file = Path(tf.name)
+        with ZipFile(tmp_file, "w") as zf:
+            for file in files:
+                if file.exists():
+                    zf.write(file, arcname=file.relative_to(base_dir))
+        if archive_path.exists():
+            logger.warning("Replacing existing archive %s", archive_path)
+        os.replace(tmp_file, archive_path)
+    except PermissionError as exc:
+        logger.error("Permission denied while creating archive %s: %s", archive_path, exc)
+        raise
+    except OSError as exc:
+        logger.error("Failed to create archive %s: %s", archive_path, exc)
+        raise
+    finally:
+        if tmp_file and tmp_file.exists():
+            try:
+                tmp_file.unlink()
+            except OSError:
+                pass
 
 
 def package_session(
@@ -289,6 +323,7 @@ def package_session(
     sessions_dir = repo_root / lfs_policy.session_artifact_dir
     if not check_directory_health(sessions_dir, repo_root):
         return None
+    logger.info("Session artifacts directory: %s", sessions_dir)
 
     timestamp = datetime.now(timezone.utc)
     archive_name = f"codex-session_{timestamp.strftime('%Y%m%d_%H%M%S')}.zip"
@@ -301,19 +336,9 @@ def package_session(
     )
 
     try:
-        with tempfile.NamedTemporaryFile(
-            suffix=".tmp", dir=sessions_dir, delete=False
-        ) as tmp_file:
-            tmp_path = Path(tmp_file.name)
-        create_zip(tmp_path, changed_files, tmp_dir)
-        os.replace(tmp_path, archive_path)
+        create_zip(archive_path, changed_files, tmp_dir)
     except Exception as exc:  # noqa: BLE001
         logger.error("Failed to create archive: %s", exc)
-        if "tmp_path" in locals():
-            try:
-                tmp_path.unlink()
-            except FileNotFoundError:
-                pass
         return None
 
     # remove processed files to ensure idempotency
@@ -423,6 +448,14 @@ def recover_latest_session(
 def main() -> None:
     """Entry point for the artifact manager command line interface.
 
+    ``--tmp-dir`` controls where transient files are gathered for packaging.
+    The destination of the resulting archive remains governed by the
+    ``session_artifact_dir`` setting in ``.codex_lfs_policy.yaml``.
+
+    When ``--sync-gitattributes`` is supplied, the policy's
+    ``gitattributes_template`` and binary extension list are used to
+    regenerate the repository's ``.gitattributes`` file.
+
     Examples
     --------
     Package session files using a custom temporary directory::
@@ -447,31 +480,49 @@ def main() -> None:
     parser.add_argument(
         "--package",
         action="store_true",
-        help="create a session archive from files in the temporary directory",
+        help=(
+            "create a session archive from files in the temporary directory "
+            "(default: %(default)s). Example: --package --tmp-dir build/tmp"
+        ),
     )
     parser.add_argument(
         "--recover",
         action="store_true",
-        help="restore the most recent session archive back into the temporary directory",
+        help=(
+            "restore the most recent session archive back into the temporary "
+            "directory (default: %(default)s). Example: --recover"
+        ),
     )
     parser.add_argument(
         "--commit",
         action="store_true",
-        help="commit the created archive to git",
+        help=(
+            "commit the created archive to git (default: %(default)s). "
+            "Example: --package --commit"
+        ),
     )
     parser.add_argument(
         "--message",
-        help="commit message when packaging (defaults to a timestamped message)",
+        help=(
+            "commit message when packaging (default: timestamped message). "
+            "Example: --message 'Add session artifacts'"
+        ),
     )
     parser.add_argument(
         "--tmp-dir",
         default="tmp",
-        help="working directory for session files; created if it does not exist",
+        help=(
+            "working directory for session files; created if it does not exist "
+            "(default: %(default)s). Example: --tmp-dir build/tmp"
+        ),
     )
     parser.add_argument(
         "--sync-gitattributes",
         action="store_true",
-        help="regenerate .gitattributes from policy and exit",
+        help=(
+            "regenerate .gitattributes from policy and exit (default: %(default)s). "
+            "Example: --sync-gitattributes"
+        ),
     )
     args = parser.parse_args()
 
@@ -506,13 +557,24 @@ def main() -> None:
         return
 
     if args.package:
-        package_session(
-            tmp_dir,
-            repo_root,
-            policy,
-            commit=args.commit,
-            message=args.message,
-        )
+        try:
+            package_session(
+                tmp_dir,
+                repo_root,
+                policy,
+                commit=args.commit,
+                message=args.message,
+            )
+        except FileNotFoundError as exc:
+            logger.error("Temporary directory not found: %s", exc)
+            sys.exit(1)
+        except subprocess.CalledProcessError as exc:  # noqa: BLE001
+            msg = exc.stderr.decode().strip() if exc.stderr else str(exc)
+            logger.error("Git command failed during packaging: %s", msg)
+            sys.exit(1)
+        except Exception as exc:  # noqa: BLE001
+            logger.error("Packaging failed: %s", exc)
+            sys.exit(1)
 
     if args.recover:
         recover_latest_session(tmp_dir, repo_root, policy)

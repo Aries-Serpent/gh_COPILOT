@@ -54,6 +54,22 @@ jobs:
           fi
           git lfs ls-files
         # Fail fast if any policy-defined binary files skip LFS
+      - name: Validate expected LFS archives
+        run: |
+          set -euo pipefail
+          expected_exts=".zip .7z"
+          lfs_list="$(git lfs ls-files | awk '{print $2}')"
+          missing=""
+          for ext in $expected_exts; do
+            if ! echo "$lfs_list" | grep -q "${ext}$"; then
+              missing="$missing $ext"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "Missing expected LFS archives with extensions:$missing" >&2
+            exit 1
+          fi
+        # Parse LFS output; see ARTIFACT_RECOVERY_WORKFLOW.md for troubleshooting and rationale
       - name: Push changes
         run: |
           set -e
