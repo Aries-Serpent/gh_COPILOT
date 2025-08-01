@@ -40,7 +40,34 @@ logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE),
 metrics_updater = ComplianceMetricsUpdater(COMPLIANCE_DIR)
 
 
+def _get_lessons_integration_status(cur: sqlite3.Cursor) -> str:
+    """Return the latest lessons integration status from the database."""
+    try:
+        cur.execute(
+            "SELECT integration_status FROM integration_score_calculations ORDER BY timestamp DESC LIMIT 1"
+        )
+        row = cur.fetchone()
+        return row[0] if row and row[0] else "UNKNOWN"
+    except sqlite3.Error as exc:
+        logging.error("Lessons integration fetch error: %s", exc)
+        return "UNKNOWN"
+
+
+def _get_average_query_latency(cur: sqlite3.Cursor) -> float:
+    """Return the average query latency from performance metrics."""
+    try:
+        cur.execute(
+            "SELECT AVG(metric_value) FROM performance_metrics WHERE metric_name='query_latency'"
+        )
+        val = cur.fetchone()[0]
+        return float(val) if val is not None else 0.0
+    except sqlite3.Error as exc:
+        logging.error("Query latency fetch error: %s", exc)
+        return 0.0
+
+
 def _fetch_metrics() -> Dict[str, Any]:
+    """Fetch compliance metrics including lessons integration and query latency."""
     metrics = metrics_updater._fetch_compliance_metrics(test_mode=True)
     metrics.setdefault("total_placeholders", 0)
     metrics.setdefault("lessons_integration_status", "UNKNOWN")
@@ -51,23 +78,8 @@ def _fetch_metrics() -> Dict[str, Any]:
             try:
                 cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking")
                 metrics["total_placeholders"] = cur.fetchone()[0]
-                try:
-                    cur.execute(
-                        "SELECT integration_status FROM integration_score_calculations ORDER BY timestamp DESC LIMIT 1"
-                    )
-                    row = cur.fetchone()
-                    if row and row[0]:
-                        metrics["lessons_integration_status"] = row[0]
-                except sqlite3.Error as exc:
-                    logging.error("Lessons integration fetch error: %s", exc)
-                try:
-                    cur.execute(
-                        "SELECT AVG(metric_value) FROM performance_metrics WHERE metric_name='query_latency'"
-                    )
-                    val = cur.fetchone()[0]
-                    metrics["average_query_latency"] = float(val) if val is not None else 0.0
-                except sqlite3.Error as exc:
-                    logging.error("Query latency fetch error: %s", exc)
+                metrics["lessons_integration_status"] = _get_lessons_integration_status(cur)
+                metrics["average_query_latency"] = _get_average_query_latency(cur)
             except sqlite3.Error as exc:
                 logging.error("Metric fetch error: %s", exc)
     return metrics

@@ -6,8 +6,8 @@
         function updateMetrics(data){
             document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
             document.getElementById('compliance_score').textContent = data.compliance_score.toFixed(3);
-            document.getElementById('lessons_integration_status').textContent = data.lessons_integration_status;
-            document.getElementById('average_query_latency').textContent = data.average_query_latency.toFixed(3);
+            document.getElementById('lessons_integration_status').textContent = data.lessons_integration_status || 'UNKNOWN';
+            document.getElementById('average_query_latency').textContent = (data.average_query_latency ?? 0).toFixed(3);
             document.getElementById('rollback_count').textContent = data.rollback_count || 0;
             document.getElementById('progress_status').textContent = data.progress_status || 'unknown';
             const pb = document.getElementById('placeholder_breakdown');
