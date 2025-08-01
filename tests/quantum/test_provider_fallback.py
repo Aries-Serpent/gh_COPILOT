@@ -2,8 +2,6 @@ import builtins
 import sqlite3
 from pathlib import Path
 
-import pytest
-
 from quantum.orchestration.executor import QuantumExecutor
 from quantum.orchestration import executor as qexec
 from quantum.orchestration.registry import register_algorithm

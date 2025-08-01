@@ -7,6 +7,7 @@
 # - Query and result monitoring for audit/compliance
 # - Thread-safe execution
 
+import json
 import logging
 import os
 import sqlite3
@@ -35,10 +36,20 @@ def _log_search_event(
         "query": query,
         "db_path": str(db_path),
         "result_count": result_count,
-        "params": params or {},
+        "params": json.dumps(params) if params else "{}",
         "error": error,
     }
-    _log_event(event, table=SEARCH_LOG_TABLE, db_path=DEFAULT_DB_PATH, echo=True if error else False)
+    with sqlite3.connect(DEFAULT_DB_PATH) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS quantum_search_events (timestamp TEXT, query TEXT, db_path TEXT, result_count INTEGER, params TEXT, error TEXT)"
+        )
+        conn.commit()
+    _log_event(
+        event,
+        table=SEARCH_LOG_TABLE,
+        db_path=DEFAULT_DB_PATH,
+        echo=True if error else False,
+    )
 
 def _connect_sqlite(db_path: Path):
     db_path = Path(db_path)
