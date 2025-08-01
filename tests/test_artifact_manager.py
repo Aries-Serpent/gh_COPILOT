@@ -117,6 +117,26 @@ def test_package_session_empty_dir_returns_none(repo: Path, caplog: pytest.LogCa
         logger.info("Removed empty directory %s", empty_dir)
 
 
+def test_package_session_empty_tmp_dir_no_archive(
+    repo: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Ensure an empty ``tmp`` directory produces no archive."""
+
+    tmp_dir = repo / "tmp"
+    logger.info("Creating tmp directory %s", tmp_dir)
+    tmp_dir.mkdir()
+
+    try:
+        with caplog.at_level(logging.INFO):
+            result = package_session(tmp_dir, repo, LfsPolicy(repo))
+        assert result is None
+        sessions_dir = repo / "codex_sessions"
+        assert not sessions_dir.exists() or not any(sessions_dir.iterdir())
+    finally:
+        tmp_dir.rmdir()
+        logger.info("Removed tmp directory %s", tmp_dir)
+
+
 def test_package_session_missing_tmp_dir_returns_none(
     repo: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
