@@ -12,7 +12,11 @@ Enterprise Standards Compliance:
 from copilot.common.workspace_utils import get_workspace_path
 
 from session_protocol_validator import SessionProtocolValidator
-from utils.validation_utils import detect_zero_byte_files, validate_enterprise_environment
+from utils.validation_utils import (
+    detect_zero_byte_files,
+    validate_enterprise_environment,
+)
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 from pathlib import Path
 import logging
 
@@ -28,6 +32,8 @@ class UnifiedSessionManagementSystem:
         validate_enterprise_environment()
         self.validator = SessionProtocolValidator(str(self.workspace_root))
         self.logger = logging.getLogger(self.__class__.__name__)
+        lessons = load_lessons()
+        apply_lessons(self.logger, lessons)
 
     def _scan_zero_byte_files(self) -> list[Path]:
         zero_files = detect_zero_byte_files(self.workspace_root)

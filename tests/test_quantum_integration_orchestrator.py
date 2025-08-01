@@ -18,6 +18,6 @@ class DummyUtility:
 def test_validator_called(monkeypatch):
     dummy_validator = DummyValidator()
     monkeypatch.setattr(qio, "SecondaryCopilotValidator", lambda: dummy_validator)
-    monkeypatch.setattr(qio, "EnterpriseUtility", lambda: DummyUtility())
+    monkeypatch.setattr(qio, "EnterpriseUtility", lambda *a, **k: DummyUtility())
     assert qio.main() is True
     assert dummy_validator.called
