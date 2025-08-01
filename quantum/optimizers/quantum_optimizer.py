@@ -9,11 +9,16 @@ import os
 
 import numpy as np
 
-try:
+try:  # pragma: no cover - import check
     from qiskit import Aer, QuantumCircuit, execute
     QISKIT_AVAILABLE = True
-except ImportError:
+except ImportError:  # pragma: no cover - qiskit optional
     QISKIT_AVAILABLE = False
+
+try:  # pragma: no cover - optional provider
+    from qiskit_ibm_provider import IBMProvider
+except Exception:  # pragma: no cover - provider optional
+    IBMProvider = None
 
 # --- Anti-Recursion Validation ---
 
@@ -70,23 +75,50 @@ class QuantumOptimizer:
         variable_bounds: List[Tuple[float, float]],
         method: str = "simulated_annealing",
         options: Optional[Dict[str, Any]] = None,
+        backend: Any = None,
+        use_hardware: bool = False,
     ):
-        """
-        Initialize optimizer.
-
-        Args:
-            objective_function: Callable function to minimize or maximize.
-            variable_bounds: List of (min, max) tuples for each variable.
-            method: Optimization routine ("simulated_annealing", "basin_hopping", "qaoa", "vqe").
-            options: Dictionary of additional optimizer options.
-        """
+        """Initialize optimizer."""
         self.objective_function = objective_function
         self.variable_bounds = variable_bounds
         self.method = method
         self.options = options or {}
-        self.history = []
-        self.metrics = {}
+        self.history: List[Dict[str, Any]] = []
+        self.metrics: Dict[str, Any] = {}
+        self.backend = backend
+        self.use_hardware = use_hardware
         self._validate_init()
+
+    def set_backend(self, backend: Any, use_hardware: bool = False) -> None:
+        """Set quantum backend for optimizers."""
+        self.backend = backend
+        self.use_hardware = use_hardware
+
+    def configure_backend(
+        self,
+        backend_name: str = "ibmq_qasm_simulator",
+        use_hardware: bool = False,
+        token: Optional[str] = None,
+    ) -> Any:
+        """Acquire and configure an IBM quantum backend.
+
+        Attempts to load credentials from ``QISKIT_IBM_TOKEN`` if ``token`` is
+        not provided. If hardware access fails or the provider is unavailable,
+        the optimizer falls back to the local ``Aer`` simulator.
+        """
+        if use_hardware and IBMProvider is not None:
+            try:
+                provider = IBMProvider(token=token or os.getenv("QISKIT_IBM_TOKEN"))
+                backend = provider.get_backend(backend_name)
+                self.set_backend(backend, True)
+                return backend
+            except Exception:  # pragma: no cover - provider errors
+                pass
+        if QISKIT_AVAILABLE:
+            simulator = Aer.get_backend("statevector_simulator")
+            self.set_backend(simulator, False)
+            return simulator
+        raise ImportError("No quantum backend available")
 
     def _validate_init(self):
         if not callable(self.objective_function):
@@ -233,7 +265,7 @@ class QuantumOptimizer:
         for d in range(depth):
             for q in range(n_qubits):
                 qc.rx(np.pi / (d + 1), q)
-        backend = Aer.get_backend("statevector_simulator")
+        backend = self.backend or Aer.get_backend("statevector_simulator")
         job = execute(qc, backend)
         result = job.result()
         statevector = result.get_statevector()
@@ -247,7 +279,7 @@ class QuantumOptimizer:
         qc = QuantumCircuit(n_qubits)
         for q in range(n_qubits):
             qc.h(q)
-        backend = Aer.get_backend("statevector_simulator")
+        backend = self.backend or Aer.get_backend("statevector_simulator")
         job = execute(qc, backend)
         result = job.result()
         statevector = result.get_statevector()
