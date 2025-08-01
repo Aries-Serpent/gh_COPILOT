@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 
-def test_help_lists_all_options() -> None:
+def test_help_mentions_policy_and_examples() -> None:
     script = Path(__file__).resolve().parents[1] / "artifact_manager.py"
     result = subprocess.run(
         [sys.executable, str(script), "--help"],
@@ -14,14 +14,15 @@ def test_help_lists_all_options() -> None:
         check=True,
     )
     help_text = result.stdout
-    options = {
-        "--package": "create a session archive",
-        "--recover": "restore the most recent session archive",
-        "--commit": "commit the created archive",
-        "--message": "commit message",
-        "--tmp-dir": "working directory for session files",
-        "--sync-gitattributes": "regenerate .gitattributes",
+    option_snippets = {
+        "--package": [".codex_lfs_policy.yaml", "--package --tmp-dir /custom/tmp"],
+        "--recover": [".codex_lfs_policy.yaml", "--recover --tmp-dir /custom/tmp"],
+        "--commit": [".codex_lfs_policy.yaml", "--package --commit"],
+        "--message": [".codex_lfs_policy.yaml", "--message 'Add session artifacts'"],
+        "--tmp-dir": [".codex_lfs_policy.yaml", "--tmp-dir /custom/tmp"],
+        "--sync-gitattributes": [".codex_lfs_policy.yaml", "--sync-gitattributes"],
     }
-    for opt, snippet in options.items():
+    for opt, snippets in option_snippets.items():
         assert opt in help_text
-        assert snippet in help_text
+        for snippet in snippets:
+            assert snippet in help_text
