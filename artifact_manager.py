@@ -1,11 +1,11 @@
 """Utility for packaging and recovering session artifacts.
 
 This module detects changed files within a temporary directory, archives them
-into a timestamped zip stored under ``codex_sessions/`` and optionally tracks
-the archive via Git LFS based on ``.codex_lfs_policy.yaml``. Created archives
-are automatically committed to the repository. The module also provides a
-recovery helper to extract the most recent session archive back into the
-temporary directory.
+into a timestamped zip stored under a session artifact directory (default
+``codex_sessions``) and optionally tracks the archive via Git LFS based on
+``.codex_lfs_policy.yaml``. Created archives are automatically committed to
+the repository. The module also provides a recovery helper to extract the most
+recent session archive back into the temporary directory.
 """
 
 from __future__ import annotations
@@ -14,7 +14,6 @@ import argparse
 import logging
 import subprocess
 from datetime import datetime, timezone
-import argparse
 from pathlib import Path
 from typing import Iterable, List, Optional
 from zipfile import ZipFile
@@ -41,6 +40,7 @@ class LfsPolicy:
             ".exe",
         ]
         self.gitattributes_template = ""
+        self.session_artifact_dir = "codex_sessions"
         self.root = root
 
         policy_file = root / ".codex_lfs_policy.yaml"
@@ -52,8 +52,13 @@ class LfsPolicy:
             else:
                 self.enabled = bool(data.get("enable_autolfs", False))
                 self.size_threshold_mb = int(data.get("size_threshold_mb", 50))
-                self.binary_extensions = list(data.get("binary_extensions", self.binary_extensions))
+                self.binary_extensions = list(
+                    data.get("binary_extensions", self.binary_extensions)
+                )
                 self.gitattributes_template = data.get("gitattributes_template", "")
+                self.session_artifact_dir = str(
+                    data.get("session_artifact_dir", self.session_artifact_dir)
+                ).rstrip("/")
 
     def requires_lfs(self, path: Path) -> bool:
         if not path.is_file():
@@ -111,6 +116,8 @@ def detect_tmp_changes(tmp_dir: Path, repo_root: Path) -> List[Path]:
 
 
 def create_zip(archive_path: Path, files: Iterable[Path], base_dir: Path) -> None:
+    """Create ``archive_path`` containing ``files`` relative to ``base_dir``."""
+
     with ZipFile(archive_path, "w") as zf:
         for file in files:
             if file.exists():
@@ -163,7 +170,7 @@ def package_session(
     archive_path = sessions_dir / archive_name
 
     try:
-        create_zip(archive_path, changed_files, repo_root)
+        create_zip(archive_path, changed_files, tmp_dir)
     except Exception as exc:  # noqa: BLE001
         logger.error("Failed to create archive: %s", exc)
         return None
@@ -197,7 +204,9 @@ def package_session(
     return archive_path
 
 
-def recover_latest_session(tmp_dir: Path, repo_root: Path) -> Optional[Path]:
+def recover_latest_session(
+    tmp_dir: Path, repo_root: Path, lfs_policy: Optional[LfsPolicy] = None
+) -> Optional[Path]:
     """Restore files from the most recent session archive.
 
     Parameters
@@ -205,7 +214,9 @@ def recover_latest_session(tmp_dir: Path, repo_root: Path) -> Optional[Path]:
     tmp_dir:
         Destination directory for extracted files.
     repo_root:
-        Root of the git repository containing ``codex_sessions``.
+        Root of the git repository containing session archives.
+    lfs_policy:
+        Optional :class:`LfsPolicy` to locate custom session directory.
 
     Returns
     -------
@@ -213,7 +224,9 @@ def recover_latest_session(tmp_dir: Path, repo_root: Path) -> Optional[Path]:
         Path to the extracted archive or ``None`` if none found.
     """
 
-    sessions_dir = repo_root / "codex_sessions"
+    sessions_dir = repo_root / (
+        lfs_policy.session_artifact_dir if lfs_policy else "codex_sessions"
+    )
     if not sessions_dir.exists():
         logger.warning("%s does not exist", sessions_dir)
         return None
@@ -243,15 +256,21 @@ def main() -> None:
     parser.add_argument("--recover", action="store_true", help="recover latest session")
     parser.add_argument("--commit", action="store_true", help="commit created archive")
     parser.add_argument("--message", help="commit message when packaging")
+    parser.add_argument(
+        "--sync-gitattributes",
+        action="store_true",
+        help="regenerate .gitattributes from policy",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
-    parser = argparse.ArgumentParser(description="Manage session artifacts and Git LFS policies")
-    parser.add_argument("--sync-gitattributes", action="store_true", help="regenerate .gitattributes from policy")
-    args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parent
+    tmp_dir = repo_root / "tmp"
     policy = LfsPolicy(repo_root)
+
+    if args.sync_gitattributes:
+        policy.sync_gitattributes()
 
     if args.package:
         package_session(
@@ -263,7 +282,7 @@ def main() -> None:
         )
 
     if args.recover:
-        recover_latest_session(tmp_dir, repo_root)
+        recover_latest_session(tmp_dir, repo_root, policy)
 
 
 if __name__ == "__main__":

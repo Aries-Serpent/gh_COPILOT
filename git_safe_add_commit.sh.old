@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+"""Safely commit staged files with optional Git LFS tracking."""
+
+from __future__ import annotations
+
+import mimetypes
+import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import Iterable, List
+
+try:
+    import yaml  # type: ignore
+except Exception:  # pragma: no cover - PyYAML always installed via requirements
+    yaml = None
+
+POLICY_FILE = Path(".codex_lfs_policy.yaml")
+SIZE_LIMIT = 50 * 1024 * 1024
+BINARY_EXTS = {".db", ".7z", ".zip", ".bak", ".dot", ".sqlite", ".exe"}
+
+
+def _run(cmd: Iterable[str]) -> subprocess.CompletedProcess:
+    return subprocess.run(cmd, check=False, text=True, capture_output=True)
+
+
+def _load_policy() -> None:
+    global SIZE_LIMIT, BINARY_EXTS
+    if POLICY_FILE.exists() and yaml:
+        data = yaml.safe_load(POLICY_FILE.read_text(encoding="utf-8")) or {}
+        SIZE_LIMIT = int(data.get("size_threshold_mb", 50)) * 1024 * 1024
+        exts = data.get("binary_extensions")
+        if isinstance(exts, list):
+            BINARY_EXTS.update({e if e.startswith(".") else f".{e}" for e in exts})
+
+
+def _staged_files() -> List[str]:
+    res = _run(["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"])
+    return [f for f in res.stdout.splitlines() if f]
+
+
+def _is_binary(path: Path) -> bool:
+    if path.suffix.lower() in BINARY_EXTS:
+        return True
+    mime, _ = mimetypes.guess_type(str(path))
+    if mime is not None:
+        return not mime.startswith("text")
+    try:
+        with path.open("rb") as fh:
+            chunk = fh.read(1024)
+            return b"\0" in chunk
+    except OSError:
+        return False
+
+
+def _tracked(path: Path) -> bool:
+    if not Path(".gitattributes").exists():
+        return False
+    pattern = f"*{path.suffix}"
+    for line in Path(".gitattributes").read_text(encoding="utf-8").splitlines():
+        if line.strip().startswith(pattern) and "filter=lfs" in line:
+            return True
+    return False
+
+
+def _track_lfs(ext: str) -> None:
+    _run(["git", "lfs", "install"])
+    _run(["git", "lfs", "track", f"*{ext}"])
+    _run(["git", "add", ".gitattributes"])
+    print(f"[LFS] Tracking *{ext}")
+
+
+def main(argv: List[str] | None = None) -> int:
+    argv = argv or sys.argv[1:]
+    _load_policy()
+    files = _staged_files()
+    allow = os.getenv("ALLOW_AUTOLFS") == "1"
+    for f in files:
+        path = Path(f)
+        if not path.exists():
+            continue
+        size = path.stat().st_size
+        if (_is_binary(path) or size > SIZE_LIMIT) and not _tracked(path):
+            if allow:
+                _track_lfs(path.suffix)
+                _run(["git", "add", str(path)])
+            else:
+                print(f"Binary or large file detected: {path}. Set ALLOW_AUTOLFS=1 to auto-track.")
+                return 1
+    message = argv[0] if argv else "auto commit"
+    commit = _run(["git", "commit", "-m", message])
+    if commit.returncode != 0:
+        sys.stdout.write(commit.stdout)
+        sys.stderr.write(commit.stderr)
+        return commit.returncode
+    if len(argv) > 1 and argv[1] == "--push":
+        push = _run(["git", "push"])
+        sys.stdout.write(push.stdout)
+        sys.stderr.write(push.stderr)
+    print("\N{CHECK MARK} Commit successful.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
