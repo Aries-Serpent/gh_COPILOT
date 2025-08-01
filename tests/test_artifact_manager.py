@@ -32,6 +32,25 @@ def test_package_and_recover(tmp_path: Path) -> None:
     for p in tmp_dir.iterdir():
         p.unlink()
     assert not any(tmp_dir.iterdir())
-    recovered = recover_latest_session(tmp_dir, repo)
+    recovered = recover_latest_session(tmp_dir, repo, policy)
     assert recovered == archive
-    assert (tmp_dir / "tmp" / "a.txt").exists()
+    assert (tmp_dir / "a.txt").exists()
+
+
+def test_custom_session_dir(tmp_path: Path) -> None:
+    repo = tmp_path
+    init_repo(repo)
+    policy_content = "enable_autolfs: true\nsession_artifact_dir: custom_sessions\n"
+    (repo / ".codex_lfs_policy.yaml").write_text(policy_content, encoding="utf-8")
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "b.txt").write_text("data", encoding="utf-8")
+
+    policy = LfsPolicy(repo)
+    archive = package_session(tmp_dir, repo, policy)
+    assert archive.parent.name == "custom_sessions"
+
+    (tmp_dir / "b.txt").unlink()
+    recovered = recover_latest_session(tmp_dir, repo, policy)
+    assert recovered == archive
+    assert (tmp_dir / "b.txt").exists()
