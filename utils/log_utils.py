@@ -301,6 +301,11 @@ def insert_event(
             for row in conn.execute(f"PRAGMA table_info({table})")
         }
         filtered = {k: v for k, v in event.items() if k in existing_cols}
+        if not filtered:
+            logging.getLogger(__name__).debug(
+                "Skipping insert into %s; no matching columns", table
+            )
+            return -1
         columns = ", ".join(filtered.keys())
         placeholders = ", ".join("?" for _ in filtered)
         cur = conn.execute(
@@ -358,8 +363,12 @@ def _log_event(
     with tqdm(total=1, desc="log", unit="evt", leave=False) as bar:
         if test_result:
             ensure_tables(db_path, [table], test_mode=test_mode)
-            insert_event(payload, table, db_path=db_path, test_mode=test_mode)
-            bar.set_postfix_str("written" if not test_mode else "simulated")
+            row_id = insert_event(
+                payload, table, db_path=db_path, test_mode=test_mode
+            )
+            bar.set_postfix_str(
+                "simulated" if test_mode or row_id == -1 else "written"
+            )
         else:
             tqdm.write(f"[FAIL] analytics.db could NOT be created at: {db_path}")
             if fallback_file:
@@ -368,8 +377,15 @@ def _log_event(
         bar.update(1)
     duration = time.time() - start_ts
     logger = logging.getLogger(__name__)
-    status = "SIMULATED" if test_mode else "LOGGED"
-    logger.info("analytics.db log event: %s | %.2fs | allowed: %s", json.dumps(payload), duration, test_result)
+    status = "SIMULATED" if test_mode or row_id == -1 else "LOGGED"
+    prefix = "Simulated " if status == "SIMULATED" else ""
+    logger.info(
+        "%sanalytics.db log event: %s | %.2fs | allowed: %s",
+        prefix,
+        json.dumps(payload),
+        duration,
+        test_result,
+    )
     if echo:
         print(
             f"[LOG][{payload['timestamp']}][{table}][{status}] {json.dumps(payload)}",

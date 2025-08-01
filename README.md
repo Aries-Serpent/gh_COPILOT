@@ -5,6 +5,8 @@
 ![Learning Patterns](https://img.shields.io/badge/Learning_Patterns-ongoing-yellow)
 ![DUAL COPILOT](https://img.shields.io/badge/DUAL_COPILOT-Pattern_Validated-orange)
 ![Database First](https://img.shields.io/badge/Database_First-Architecture_Complete-purple)
+![Tests](https://img.shields.io/badge/Tests-passing-brightgreen)
+![Ruff](https://img.shields.io/badge/Ruff-passing-blue)
 
 **Status:** Active development with incremental improvements
 
