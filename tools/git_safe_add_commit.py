@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""Safely commit staged files with optional Git LFS tracking."""
+"""Safely commit staged files with optional Git LFS tracking.
+
+Usage:
+    tools/git_safe_add_commit.py MESSAGE [--push]
+    tools/git_safe_add_commit.py -h | --help
+
+The script scans staged files and, when ``ALLOW_AUTOLFS=1`` is set, automatically
+tracks binary or large files with Git LFS according to ``.codex_lfs_policy.yaml``.
+The optional ``--push`` flag pushes the commit to the current remote.
+"""
 
 from __future__ import annotations
 
@@ -9,6 +18,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Iterable, List
+import argparse
 
 try:
     import yaml  # type: ignore
@@ -70,8 +80,25 @@ def _track_lfs(ext: str) -> None:
     print(f"[LFS] Tracking *{ext}")
 
 
+def parse_args(argv: List[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Safely commit staged files and optionally push. Binary or large files "
+            "are auto-tracked with Git LFS when ALLOW_AUTOLFS=1. Policy is read from "
+            ".codex_lfs_policy.yaml."
+        )
+    )
+    parser.add_argument("message", help="commit message")
+    parser.add_argument(
+        "--push",
+        action="store_true",
+        help="push to current remote after committing",
+    )
+    return parser.parse_args(argv)
+
+
 def main(argv: List[str] | None = None) -> int:
-    argv = argv or sys.argv[1:]
+    args = parse_args(argv or sys.argv[1:])
     _load_policy()
     files = _staged_files()
     allow = os.getenv("ALLOW_AUTOLFS") == "1"
@@ -85,15 +112,16 @@ def main(argv: List[str] | None = None) -> int:
                 _track_lfs(path.suffix)
                 _run(["git", "add", str(path)])
             else:
-                print(f"Binary or large file detected: {path}. Set ALLOW_AUTOLFS=1 to auto-track.")
+                print(
+                    f"Binary or large file detected: {path}. Set ALLOW_AUTOLFS=1 to auto-track."
+                )
                 return 1
-    message = argv[0] if argv else "auto commit"
-    commit = _run(["git", "commit", "-m", message])
+    commit = _run(["git", "commit", "-m", args.message])
     if commit.returncode != 0:
         sys.stdout.write(commit.stdout)
         sys.stderr.write(commit.stderr)
         return commit.returncode
-    if len(argv) > 1 and argv[1] == "--push":
+    if args.push:
         push = _run(["git", "push"])
         sys.stdout.write(push.stdout)
         sys.stderr.write(push.stderr)

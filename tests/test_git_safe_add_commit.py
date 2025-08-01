@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 SCRIPT = Path("tools/git_safe_add_commit.py").resolve()
+SH_SCRIPT = Path("tools/git_safe_add_commit.sh").resolve()
 
 
 def init_repo(path: Path) -> None:
@@ -58,3 +59,21 @@ def test_commit_blocked_without_allow(tmp_path: Path, monkeypatch: pytest.Monkey
     env["PYTHONPATH"] = str(Path.cwd())
     result = subprocess.run(["python", str(SCRIPT), "fail"], cwd=tmp_path, env=env)
     assert result.returncode != 0
+
+
+def test_help(tmp_path: Path) -> None:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(Path.cwd())
+    proc = subprocess.run(
+        ["python", str(SCRIPT), "-h"], cwd=tmp_path, env=env, capture_output=True, text=True
+    )
+    assert proc.returncode == 0
+    assert "ALLOW_AUTOLFS" in proc.stdout
+
+
+def test_shell_help(tmp_path: Path) -> None:
+    proc = subprocess.run(
+        ["bash", str(SH_SCRIPT), "-h"], cwd=tmp_path, capture_output=True, text=True
+    )
+    assert proc.returncode == 0
+    assert "ALLOW_AUTOLFS" in proc.stdout

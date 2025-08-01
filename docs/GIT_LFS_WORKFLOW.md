@@ -4,20 +4,20 @@ This project uses **git-safe-add-commit** utilities to automatically track large
 
 ## Python Utility
 
-Run `tools/git_safe_add_commit.py` instead of `git commit` to scan staged files. When `ALLOW_AUTOLFS=1` is set, binary files or files larger than the configured threshold are automatically tracked using Git LFS. The script installs Git LFS if necessary, updates `.gitattributes`, and re-stages the files before committing.
+Run `tools/git_safe_add_commit.py` instead of `git commit` to scan staged files. When `ALLOW_AUTOLFS=1` is set, binary files or files larger than the configured threshold are automatically tracked using Git LFS. The script installs Git LFS if necessary, updates `.gitattributes`, and re-stages the files before committing. Use `-h/--help` to view all options.
 
 ```bash
-ALLOW_AUTOLFS=1 tools/git_safe_add_commit.py "your message"
+ALLOW_AUTOLFS=1 tools/git_safe_add_commit.py -h
+ALLOW_AUTOLFS=1 tools/git_safe_add_commit.py "your message" --push
 ```
-
-Add `--push` as a second argument to push after committing.
 
 ## Bash Fallback
 
-For minimal environments use `tools/git_safe_add_commit.sh` with the same behaviour. The commit is aborted if `ALLOW_AUTOLFS` is not `1` and an untracked binary or large file is detected.
+For minimal environments use `tools/git_safe_add_commit.sh` with the same behaviour. The commit is aborted if `ALLOW_AUTOLFS` is not `1` and an untracked binary or large file is detected. The shell script mirrors the Python version and also supports `-h/--help`.
 
 ```bash
 export ALLOW_AUTOLFS=1
+./tools/git_safe_add_commit.sh -h
 ./tools/git_safe_add_commit.sh "your message" --push
 ```
 

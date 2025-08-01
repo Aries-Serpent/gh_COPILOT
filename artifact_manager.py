@@ -25,7 +25,11 @@ from pathlib import Path
 from typing import Iterable, List, Optional
 from zipfile import ZipFile
 
-import yaml
+try:  # pragma: no cover - import guard
+    import yaml
+except ModuleNotFoundError as exc:  # pragma: no cover
+    print("PyYAML is required for artifact management. Install it to continue.", file=sys.stderr)
+    raise
 
 
 logger = logging.getLogger(__name__)

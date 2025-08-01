@@ -102,13 +102,11 @@ GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh
 # update the environment to permit outbound connections to PyPI.
 
 # 2b. Install the line-wrapping utility
-# The repository ships a `tools/clw.py` script. If `/usr/local/bin/clw` is not available,
-# copy this file and make it executable. Run a quick self-test to confirm installation.
-cp tools/clw.py /usr/local/bin/clw
-chmod +x /usr/local/bin/clw
-# Verify clw exists
+# The repository ships a `tools/clw.py` script and a helper installer.
+# If `/usr/local/bin/clw` is missing, run the installer and verify it.
+tools/install_clw.sh
+# Verify clw exists and view usage
 ls -l /usr/local/bin/clw
-# Display brief usage information
 /usr/local/bin/clw --help
 
 ### OpenAI Connector
@@ -199,13 +197,7 @@ are thin CLI wrappers. They delegate to the core implementations under
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
-Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, copy `tools/clw.py` to `/usr/local/bin/clw`, make it executable, and verify with `clw --help`:
-```bash
-cp tools/clw.py /usr/local/bin/clw
-chmod +x /usr/local/bin/clw
-clw --help
-```
-Run `/usr/local/bin/clw --help` to see a short usage description.
+Commands that generate large output **must** be piped through `/usr/local/bin/clw` to avoid the 1600-byte line limit. If `clw` is missing, run `tools/install_clw.sh` and verify with `clw --help`.
 
 Once installed, wrap high-volume output like so:
 
@@ -213,7 +205,7 @@ Once installed, wrap high-volume output like so:
 ls -R | /usr/local/bin/clw
 ```
 
-The script is bundled as `tools/clw.py` and can be copied to `/usr/local/bin/clw` if needed.
+The script is bundled as `tools/clw.py` and installed via `tools/install_clw.sh` if needed.
 
 If you hit the limit error, restart the shell and rerun with `clw` or log to a file and inspect chunks.
 Set `CLW_MAX_LINE_LENGTH=1550` in your environment (e.g. in `.env`) before invoking the wrapper to keep output safe.
@@ -297,12 +289,12 @@ python scripts/file_management/workspace_optimizer.py
 ```
 
 ### Git LFS workflow
-Use the helper scripts to automatically track binary or large files with Git LFS.
+Use the helper scripts to automatically track binary or large files with Git LFS. Both variants accept `-h/--help` for usage information.
 
 ```bash
 export GH_COPILOT_BACKUP_ROOT=/path/to/backups
 export ALLOW_AUTOLFS=1
-tools/git_safe_add_commit.py "your commit message"
+tools/git_safe_add_commit.py "your commit message" --push
 ```
 
 The shell version `tools/git_safe_add_commit.sh` behaves the same and can push
@@ -1006,9 +998,9 @@ python docs/quantum_template_generator.py
 
 # Safely commit staged changes with Git LFS auto-tracking
 export GH_COPILOT_BACKUP_ROOT=/path/to/backups
-ALLOW_AUTOLFS=1 tools/git_safe_add_commit.py "<commit message>"
+ALLOW_AUTOLFS=1 tools/git_safe_add_commit.py "<commit message>" [--push]
 # Bash fallback:
-ALLOW_AUTOLFS=1 tools/git_safe_add_commit.sh "<commit message>"
+ALLOW_AUTOLFS=1 tools/git_safe_add_commit.sh "<commit message>" [--push]
 
 The audit results are used by the `/dashboard/compliance` endpoint to
 report ongoing placeholder removal progress and overall compliance
@@ -1054,7 +1046,7 @@ Set these variables in your `.env` file or shell before running scripts:
 ## 🛠️ Troubleshooting
 
 - **Setup script fails** – ensure network access and rerun `bash setup.sh`.
-- **`clw` not found** – copy `tools/clw.py` to `/usr/local/bin/clw`, make it executable, and run `clw --help`.
+- **`clw` not found** – run `tools/install_clw.sh` to install and then `clw --help`.
 - **Database errors** – verify `GH_COPILOT_WORKSPACE` is configured correctly.
 
 ## ✅ Project Status

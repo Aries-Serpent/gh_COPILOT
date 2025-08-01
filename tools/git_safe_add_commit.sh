@@ -1,6 +1,29 @@
 #!/usr/bin/env bash
 # Safely commit staged files with optional Git LFS tracking
 set -e
+
+usage() {
+  cat <<'USAGE'
+Usage: tools/git_safe_add_commit.sh MESSAGE [--push]
+
+Commit staged files and optionally push. Binary or large files are auto-tracked
+with Git LFS when ALLOW_AUTOLFS=1 according to .codex_lfs_policy.yaml.
+
+Options:
+  -h, --help    Show this message and exit
+  --push        Push to current remote after committing
+USAGE
+}
+
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+  esac
+done
+
 ALLOW="${ALLOW_AUTOLFS:-0}"
 SIZE_LIMIT=$((50 * 1024 * 1024))
 
@@ -24,6 +47,6 @@ for f in $FILES; do
   fi
 done
 
-git commit -m "${1:-auto commit}"
+git commit -m "$1"
 [ "$2" = "--push" ] && git push
 printf '\342\234\223 Commit complete\n'

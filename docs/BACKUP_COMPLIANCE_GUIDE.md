@@ -95,11 +95,11 @@ binary files by scanning the staged changes.
    export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
    export ALLOW_AUTOLFS=1
    ```
-2. Commit using the Python utility:
+2. Commit using the Python utility (run with `-h` for usage details):
    ```bash
-   tools/git_safe_add_commit.py "backup: $(date +%Y%m%d)"
+   tools/git_safe_add_commit.py "backup: $(date +%Y%m%d)" --push
    ```
-   Or use the shell version with optional push support:
+   Or use the shell version which mirrors the same options:
    ```bash
    tools/git_safe_add_commit.sh "backup" --push
    ```
