@@ -1,4 +1,5 @@
 name: artifact LFS
+# See ARTIFACT_RECOVERY_WORKFLOW.md for recovery guidance.
 
 on:
   workflow_dispatch:
@@ -11,7 +12,7 @@ on:
 
 jobs:
   manage-artifacts:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Assumes Ubuntu runner environment.
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,9 +31,15 @@ jobs:
       - name: Package and commit session artifacts
         # Runs artifact packaging, commit, and .gitattributes sync
         run: python artifact_manager.py --package --commit --sync-gitattributes
-      - name: List LFS-tracked files
-        # Diagnostic step to confirm pointers are in place
-        run: git lfs ls-files
+      - name: Validate LFS pointers
+        # Refer to ARTIFACT_RECOVERY_WORKFLOW.md for troubleshooting guidance.
+        run: |
+          issues=$(git lfs ls-files | awk '$2 != "-" {print}')
+          if [ -n "$issues" ]; then
+            echo "Stale or missing LFS pointers detected:"
+            echo "$issues"
+            exit 1
+          fi
       - name: Push changes
         run: |
           git config user.name "GitHub Actions"
