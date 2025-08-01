@@ -88,8 +88,15 @@ class LfsPolicy:
             return
 
         attrs_file = self.root / ".gitattributes"
-        lines = [line.rstrip() for line in self.gitattributes_template.splitlines() if line.strip()]
+        lines = [
+            line.rstrip() for line in self.gitattributes_template.splitlines() if line.strip()
+        ]
         patterns = {line.split()[0] for line in lines}
+
+        session_pattern = f"{self.session_artifact_dir}/*.zip"
+        if session_pattern not in patterns:
+            lines.append(f"{session_pattern} filter=lfs diff=lfs merge=lfs -text")
+            patterns.add(session_pattern)
 
         for ext in self.binary_extensions:
             pattern = f"*{ext}"
