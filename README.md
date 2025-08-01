@@ -310,9 +310,11 @@ when invoked with `--push`. See
 [docs/GIT_LFS_WORKFLOW.md](docs/GIT_LFS_WORKFLOW.md) for details.
 
 ### Syncing `.gitattributes`
-Run `artifact_manager.py --sync-gitattributes` whenever `.codex_lfs_policy.yaml`
-changes. The script rebuilds `.gitattributes` using the `gitattributes_template`
-and ensures all extensions listed in `binary_extensions` are included.
+Whenever `.codex_lfs_policy.yaml` is modified (for example, when updating
+`binary_extensions` or `session_artifact_dir`), run
+`python artifact_manager.py --sync-gitattributes`. The command regenerates
+`.gitattributes` from the policy template and ensures all extensions listed in
+`binary_extensions` are included.
 
 ### Docker Usage
 Build and run the container with Docker:
