@@ -134,12 +134,26 @@ jobs:
             echo "These files are not tracked by Git LFS:$missing" >&2
             exit 1
           fi
-          git lfs ls-files
+          git lfs ls-files | tee lfs_files.log
+      - name: Validate session archives
+        run: |
+          set -e
+          # Ensure session archives exist and have LFS pointers (see ARTIFACT_RECOVERY_WORKFLOW.md)
+          while read -r oid marker path; do
+            if [ "$marker" != "*" ]; then
+              echo "Pointer missing for $path" >&2
+              exit 1
+            fi
+            if [ ! -f "$path" ]; then
+              echo "Missing session archive: $path" >&2
+              exit 1
+            fi
+          done < lfs_files.log
       - name: Push changes
         run: git push
 ```
 
-Running `artifact_manager.py` with `--package --commit --sync-gitattributes` ensures the archive is created, LFS pointers are generated, and the commit is recorded before the validation step runs. This atomic sequence prevents raw binary blobs from ever entering history and catches mis-tracked files before they can break subsequent pushes or pulls.
+Running `artifact_manager.py` with `--package --commit --sync-gitattributes` ensures the archive is created, LFS pointers are generated, and the commit is recorded before the validation step runs. The subsequent *Validate session archives* step parses the `git lfs ls-files` output to confirm every session archive exists and carries a proper pointer. This atomic sequence prevents raw binary blobs from ever entering history and catches mis-tracked files before they can break subsequent pushes or pulls.
 
 ### 3. Pointer Validation Step
 
