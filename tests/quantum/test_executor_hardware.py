@@ -39,7 +39,10 @@ class MockProvider:
         return MockBackend()
 
 
-@pytest.mark.skipif(not hasattr(qexec, "IBMProvider"), reason="IBMProvider unavailable")
+@pytest.mark.skipif(
+    (not qexec.QISKIT_AVAILABLE) or (not hasattr(qexec, "IBMProvider")),
+    reason="IBM Qiskit/provider unavailable",
+)
 def test_hardware_backend(monkeypatch):
     monkeypatch.setattr(qexec, "IBMProvider", lambda: MockProvider())
     exec_ = QuantumExecutor(use_hardware=True, backend_name="mock")
@@ -48,7 +51,10 @@ def test_hardware_backend(monkeypatch):
     assert exec_.use_hardware
 
 
-@pytest.mark.skipif(not hasattr(qexec, "IBMProvider"), reason="IBMProvider unavailable")
+@pytest.mark.skipif(
+    (not qexec.QISKIT_AVAILABLE) or (not hasattr(qexec, "IBMProvider")),
+    reason="IBM Qiskit/provider unavailable",
+)
 def test_hardware_fallback(monkeypatch):
     def bad_provider():
         raise RuntimeError("no access")

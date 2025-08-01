@@ -131,6 +131,7 @@ def quantum_search_nosql(
             backend.run(qc).result()
         except Exception as exc:  # pragma: no cover - hardware optional
             logger.warning("Hardware execution fallback: %s", exc)
+            use_hardware = False
     results = []
     error = None
     try:
