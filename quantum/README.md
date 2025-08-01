@@ -10,6 +10,8 @@ gh_COPILOT toolkit.
 - `optimizers.quantum_optimizer.QuantumOptimizer` – classical/quantum hybrid
   optimizer with progress logging. Events are recorded using
   `utils.log_utils._log_event` when executed via higher-level workflows.
+  Use `configure_backend()` to automatically load IBM Quantum credentials from
+  `QISKIT_IBM_TOKEN` and select either hardware or the local simulator.
 
 ## Database Search
 - `quantum.quantum_database_search` – lightweight helpers for SQL, NoSQL and
