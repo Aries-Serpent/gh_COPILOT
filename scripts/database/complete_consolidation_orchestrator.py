@@ -113,7 +113,9 @@ def export_table_to_7z(db_path: Path, table: str, dest_dir: Path, level: int = 5
         writer.writerow([d[0] for d in cur.description])
         writer.writerows(cur.fetchall())
         tmp_path = Path(tmp.name)
-    with py7zr.SevenZipFile(archive_path, mode="w", compression_level=level) as zf:  # type: ignore[attr-defined]
+    with py7zr.SevenZipFile(
+        archive_path, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": level}]
+    ) as zf:  # type: ignore[attr-defined]
         zf.write(tmp_path, arcname=tmp_path.name)
     tmp_path.unlink()
     logger.info("Compressed %s.%s to %s", db_path.name, table, archive_path)
@@ -159,25 +161,30 @@ def create_external_backup(
 def compress_large_tables(db_path: Path, analysis: dict, threshold: int = 50000, *, level: int = 5) -> List[Path]:
     """Compress tables with a row count greater than ``threshold``.
 
-    Parameters
-    ----------
-    db_path:
-        Database being analyzed.
-    analysis:
-        Table structure analysis from ``DatabaseMigrationCorrector``.
-    threshold:
-        Minimum row count required to trigger compression.
-    level:
-        Compression level to use when creating the archive.
+    If ``analysis`` lacks table metrics the database is queried directly to
+    determine row counts, ensuring large tables are still archived during
+    consolidation.
     """
     archives: List[Path] = []
-    for table in analysis.get("tables", []):
+    tables = analysis.get("tables")
+    if not tables:
+        with sqlite3.connect(db_path) as conn:
+            cur = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            tables = [
+                {
+                    "name": r[0],
+                    "record_count": conn.execute(f"SELECT COUNT(*) FROM {r[0]}").fetchone()[0],
+                }
+                for r in cur.fetchall()
+            ]
+    dest_dir = db_path.parent.parent / "archives" / "table_exports"
+    for table in tables:
         if table.get("record_count", 0) > threshold:
             archives.append(
                 export_table_to_7z(
                     db_path,
                     table["name"],
-                    Path("archives/table_exports"),
+                    dest_dir,
                     level,
                 )
             )
@@ -245,8 +252,8 @@ def migrate_and_compress(
                 migrator.source_db = src
                 migrator.target_db = enterprise_db
                 migrator.target_conn = conn
-                migrator.migration_report = {"errors": []}
                 migrator.migrate_database_content()
+                conn.commit()
                 analysis = migrator.analyze_database_structure(enterprise_db)
                 compress_large_tables(enterprise_db, analysis)
                 elapsed = perf_counter() - start
