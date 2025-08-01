@@ -98,9 +98,7 @@ def test_sync_gitattributes_cli(tmp_path: Path) -> None:
     gitattributes = repo / ".gitattributes"
     gitattributes.write_text("old", encoding="utf-8")
 
-    script_src = Path(__file__).resolve().parent.parent / "artifact_manager.py"
-    script_dst = repo / "artifact_manager.py"
-    script_dst.write_text(script_src.read_text(encoding="utf-8"), encoding="utf-8")
+    copy_script_to_repo(repo)
     subprocess.run(
         [sys.executable, str(script_dst), "--sync-gitattributes"],
         cwd=repo,
