@@ -55,8 +55,22 @@ class ExternalBackupConfiguration:
 
     @staticmethod
     def validate_external_backup_location(backup_path: Path, workspace_path: Path) -> None:
-        if str(backup_path).startswith(str(workspace_path)):
-            raise RuntimeError(f"CRITICAL: Backup location inside workspace: {backup_path}")
+        """Raise if ``backup_path`` resides within ``workspace_path``.
+
+        Paths are resolved prior to comparison to prevent bypasses such as
+        ``..`` segments or symbolic links that would otherwise allow backups to
+        be created inside the repository workspace.
+        """
+
+        resolved_backup = backup_path.resolve()
+        resolved_workspace = workspace_path.resolve()
+        try:
+            resolved_backup.relative_to(resolved_workspace)
+        except ValueError:
+            return
+        raise RuntimeError(
+            f"CRITICAL: Backup location inside workspace: {resolved_backup}"
+        )
 
 
 WORKSPACE_PATH = CrossPlatformPathManager.get_workspace_path()
@@ -106,12 +120,17 @@ def export_table_to_7z(db_path: Path, table: str, dest_dir: Path, level: int = 5
     return archive_path
 
 
-def create_external_backup(source_path: Path, backup_name: str, *, backup_dir: Path | None = None) -> Path:
+def create_external_backup(
+    source_path: Path, backup_name: str, *, backup_dir: Path | None = None
+) -> Path:
     """Create a timestamped backup in the external backup directory."""
 
-    target_dir = backup_dir or BACKUP_DIR
+    target_dir = (backup_dir or BACKUP_DIR).resolve()
+    workspace_path = CrossPlatformPathManager.get_workspace_path()
     # validate backup path is outside the workspace
-    ExternalBackupConfiguration.validate_external_backup_location(target_dir, WORKSPACE_PATH)
+    ExternalBackupConfiguration.validate_external_backup_location(
+        target_dir, workspace_path
+    )
     target_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     dest = target_dir / f"{backup_name}_{timestamp}.backup"
