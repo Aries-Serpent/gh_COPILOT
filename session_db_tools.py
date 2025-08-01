@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from utils.log_utils import _log_event, log_message
+from utils.lessons_learned_integrator import store_lesson
 import logging
 
 TEXT_INDICATORS = {
@@ -29,6 +30,15 @@ TEXT_INDICATORS = {
     "info": "[INFO]",
     "atomic": "[ATOMIC]",
 }
+
+
+__all__ = [
+    "discover_active_sessions",
+    "consolidate_sessions_atomic",
+    "get_session_by_id",
+    "list_all_sessions",
+    "record_lesson",
+]
 
 
 def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
@@ -353,6 +363,56 @@ def list_all_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
         _log_event({"event": "list_all_sessions_failed", "error": "unsupported format"})
         return []
     return sessions
+
+
+def record_lesson(
+    db_path: Union[str, Path],
+    description: str,
+    source: str,
+    timestamp: str,
+    validation_status: str,
+    tags: str = "",
+) -> bool:
+    """Store a lesson and log the outcome.
+
+    Returns ``True`` on success, otherwise ``False``.
+    """
+
+    try:
+        store_lesson(
+            description,
+            source=source,
+            timestamp=timestamp,
+            validation_status=validation_status,
+            tags=tags or None,
+            db_path=Path(db_path),
+        )
+        with sqlite3.connect(db_path) as conn:
+            cur = conn.execute(
+                "SELECT 1 FROM enhanced_lessons_learned WHERE description=? AND source=? AND timestamp=? AND validation_status=? AND COALESCE(tags, '')=?",  # noqa: E501
+                (description, source, timestamp, validation_status, tags),
+            )
+            if cur.fetchone():
+                log_message(
+                    "session_db_tools",
+                    f"Recorded lesson: {description}",
+                    level=logging.INFO,
+                )
+                return True
+    except Exception as e:  # pragma: no cover - defensive logging
+        log_message(
+            "session_db_tools",
+            f"Failed to record lesson: {e}",
+            level=logging.ERROR,
+        )
+        return False
+
+    log_message(
+        "session_db_tools",
+        f"Failed to record lesson: {description}",
+        level=logging.ERROR,
+    )
+    return False
 
 
 # Example entrypoint for CLI usage
