@@ -102,13 +102,21 @@ class TemplateAutoGenerator:
 
     def _load_templates(self) -> List[str]:
         templates: List[str] = []
-        if self.completion_db.exists():
-            with sqlite3.connect(self.completion_db) as conn:
-                try:
-                    cur = conn.execute("SELECT template_content FROM templates")
-                    templates = [row[0] for row in cur.fetchall()]
-                except sqlite3.Error as exc:
-                    logger.error(f"Error loading templates: {exc}")
+        db_queries = [
+            (self.completion_db, "SELECT template_content FROM templates"),
+            (self.production_db, "SELECT template_code FROM code_templates"),
+        ]
+        for db_path, query in db_queries:
+            if db_path.exists():
+                with sqlite3.connect(db_path) as conn:
+                    try:
+                        cur = conn.execute(query)
+                        templates = [row[0] for row in cur.fetchall()]
+                    except sqlite3.Error as exc:
+                        logger.error(f"Error loading templates: {exc}")
+                if templates:
+                    logger.info(f"Loaded {len(templates)} templates from {db_path}")
+                    break
         if not templates:
             from . import pattern_templates
 
@@ -117,8 +125,6 @@ class TemplateAutoGenerator:
                 "Loaded %s default templates from pattern_templates",
                 len(templates),
             )
-        else:
-            logger.info(f"Loaded {len(templates)} templates")
         _log_event(
             {"event": "load_templates", "count": len(templates)},
             table="generator_events",
@@ -164,9 +170,12 @@ class TemplateAutoGenerator:
         with tqdm(total=1, desc="Clustering", unit="cluster") as pbar:
             model.fit(matrix)
             pbar.update(1)
+        q_score = quantum_cluster_score(matrix.toarray())
         model.cluster_centers_ += np.random.normal(scale=0.01, size=model.cluster_centers_.shape)
         duration = time.time() - start_ts
-        logger.info(f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s")
+        logger.info(
+            f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s (q_score={q_score:.2f})"
+        )
         _log_event(
             {
                 "event": "cluster",
@@ -174,6 +183,11 @@ class TemplateAutoGenerator:
                 "clusters": n_clusters,
                 "duration": duration,
             },
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
+        _log_event(
+            {"event": "quantum_cluster_score", "score": q_score},
             table="generator_events",
             db_path=self.analytics_db,
         )
@@ -189,6 +203,7 @@ class TemplateAutoGenerator:
         ranked: List[tuple[str, float]] = []
         clean_target = _strip_placeholders(target)
         q_target = self._quantum_score(clean_target)
+        start_ts = time.time()
         if self.production_db.exists():
             scores = compute_similarity_scores(
                 clean_target,
@@ -204,58 +219,63 @@ class TemplateAutoGenerator:
                 except sqlite3.Error as exc:  # pragma: no cover - missing table
                     logger.error(f"Error loading templates: {exc}")
                     rows = []
-                for tid, text in rows:
-                    if tid not in id_to_score:
-                        continue
-                    bonus = 0.0
-                    clean_text = _strip_placeholders(text)
-                    pats = extract_patterns([clean_text])
-                    if any(p in clean_target for p in pats):
-                        bonus = 0.1
-                    q_sim = self._quantum_similarity(clean_target, clean_text)
-                    tfidf = self.objective_similarity(clean_target, clean_text)
-                    q_text = 1.0 - abs(self._quantum_score(clean_text) - q_target)
-                    score = id_to_score[tid] + tfidf + q_sim + q_text + bonus
-                    ranked.append((clean_text, score))
-                    _log_event(
-                        {"event": "rank_eval", "target": clean_target, "template_id": tid, "score": score},
-                        table="generator_events",
-                        db_path=self.analytics_db,
-                    )
-                    _log_event(
-                        {"event": "tfidf_score", "template_id": tid, "score": tfidf},
-                        table="generator_events",
-                        db_path=self.analytics_db,
-                    )
-                    _log_event(
-                        {"event": "quantum_text", "template_id": tid, "score": q_text},
-                        table="generator_events",
-                        db_path=self.analytics_db,
-                    )
+                with tqdm(total=len(rows), desc="Ranking", unit="template") as pbar:
+                    for tid, text in rows:
+                        if tid not in id_to_score:
+                            pbar.update(1)
+                            continue
+                        bonus = 0.0
+                        clean_text = _strip_placeholders(text)
+                        pats = extract_patterns([clean_text])
+                        if any(p in clean_target for p in pats):
+                            bonus = 0.1
+                        q_sim = self._quantum_similarity(clean_target, clean_text)
+                        tfidf = self.objective_similarity(clean_target, clean_text)
+                        q_text = 1.0 - abs(self._quantum_score(clean_text) - q_target)
+                        score = id_to_score[tid] + tfidf + q_sim + q_text + bonus
+                        ranked.append((clean_text, score))
+                        _log_event(
+                            {"event": "rank_eval", "target": clean_target, "template_id": tid, "score": score},
+                            table="generator_events",
+                            db_path=self.analytics_db,
+                        )
+                        _log_event(
+                            {"event": "tfidf_score", "template_id": tid, "score": tfidf},
+                            table="generator_events",
+                            db_path=self.analytics_db,
+                        )
+                        _log_event(
+                            {"event": "quantum_text", "template_id": tid, "score": q_text},
+                            table="generator_events",
+                            db_path=self.analytics_db,
+                        )
+                        pbar.update(1)
         if not ranked:
             candidates = self.templates or self.patterns
-            for tmpl in candidates:
-                clean_tmpl = _strip_placeholders(tmpl)
-                tfidf = self.objective_similarity(clean_target, clean_tmpl)
-                q_sim = self._quantum_similarity(clean_target, clean_tmpl)
-                q_text = 1.0 - abs(self._quantum_score(clean_tmpl) - q_target)
-                score = tfidf + q_sim + q_text
-                ranked.append((clean_tmpl, score))
-                _log_event(
-                    {"event": "rank_eval", "target": clean_target, "template_id": -1, "score": score},
-                    table="generator_events",
-                    db_path=self.analytics_db,
-                )
-                _log_event(
-                    {"event": "tfidf_score", "template_id": -1, "score": tfidf},
-                    table="generator_events",
-                    db_path=self.analytics_db,
-                )
-                _log_event(
-                    {"event": "quantum_text", "template_id": -1, "score": q_text},
-                    table="generator_events",
-                    db_path=self.analytics_db,
-                )
+            with tqdm(total=len(candidates), desc="Ranking", unit="template") as pbar:
+                for tmpl in candidates:
+                    clean_tmpl = _strip_placeholders(tmpl)
+                    tfidf = self.objective_similarity(clean_target, clean_tmpl)
+                    q_sim = self._quantum_similarity(clean_target, clean_tmpl)
+                    q_text = 1.0 - abs(self._quantum_score(clean_tmpl) - q_target)
+                    score = tfidf + q_sim + q_text
+                    ranked.append((clean_tmpl, score))
+                    _log_event(
+                        {"event": "rank_eval", "target": clean_target, "template_id": -1, "score": score},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {"event": "tfidf_score", "template_id": -1, "score": tfidf},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {"event": "quantum_text", "template_id": -1, "score": q_text},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    pbar.update(1)
         ranked.sort(key=lambda x: x[1], reverse=True)
         _log_event(
             {
@@ -264,6 +284,12 @@ class TemplateAutoGenerator:
                 "candidates": len(ranked),
                 "best_score": ranked[0][1] if ranked else 0.0,
             },
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
+        duration = time.time() - start_ts
+        _log_event(
+            {"event": "rank_duration", "target": clean_target, "duration": duration},
             table="generator_events",
             db_path=self.analytics_db,
         )

@@ -43,6 +43,18 @@ def repo(tmp_path: Path) -> Path:
     return tmp_path
 
 
+@pytest.fixture
+def malformed_policy_repo(tmp_path: Path) -> Path:
+    """Repository containing a malformed ``.codex_lfs_policy.yaml``."""
+
+    init_repo(tmp_path)
+    policy_file = tmp_path / ".codex_lfs_policy.yaml"
+    policy_file.write_text("!bad yaml\n:\n", encoding="utf-8")
+    logger.info("Created malformed policy file %s", policy_file)
+    yield tmp_path
+    logger.info("Cleaning up malformed policy repo %s", tmp_path)
+
+
 # ---------------------------------------------------------------------------
 # Packaging and recovery
 # ---------------------------------------------------------------------------
@@ -87,6 +99,24 @@ def test_package_session_no_changes_returns_none(repo: Path, caplog: pytest.LogC
     assert not any(r.levelno >= logging.WARNING for r in caplog.records)
 
 
+def test_package_session_empty_dir_returns_none(repo: Path, caplog: pytest.LogCaptureFixture) -> None:
+    """An empty temporary directory should not produce an archive."""
+
+    empty_dir = repo / "empty_tmp"
+    empty_dir.mkdir()
+    logger.info("Created empty directory %s", empty_dir)
+
+    try:
+        with caplog.at_level(logging.INFO):
+            result = package_session(empty_dir, repo, LfsPolicy(repo))
+        assert result is None
+        sessions_dir = repo / "codex_sessions"
+        assert not sessions_dir.exists() or not any(sessions_dir.iterdir())
+    finally:
+        empty_dir.rmdir()
+        logger.info("Removed empty directory %s", empty_dir)
+
+
 def test_package_session_missing_tmp_dir_returns_none(
     repo: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
@@ -117,6 +147,54 @@ def test_package_session_permission_error(repo: Path, monkeypatch, caplog: pytes
         result = package_session(tmp_dir, repo, LfsPolicy(repo))
     assert result is None
     assert any("denied" in m for m in caplog.messages)
+
+
+def test_package_session_sessions_dir_mkdir_permission(
+    repo: Path, monkeypatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Permission errors creating the session directory are handled."""
+
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "s.txt").write_text("data", encoding="utf-8")
+
+    sessions_dir = repo / "codex_sessions"
+    orig_mkdir = Path.mkdir
+
+    def fake_mkdir(self, *args, **kwargs):
+        if self == sessions_dir:
+            raise PermissionError("no access")
+        return orig_mkdir(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "mkdir", fake_mkdir)
+    with caplog.at_level(logging.ERROR):
+        result = package_session(tmp_dir, repo, LfsPolicy(repo))
+    assert result is None
+    assert any("no access" in m for m in caplog.messages)
+
+
+def test_package_session_sessions_dir_race(
+    repo: Path, monkeypatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Race conditions creating the session directory are logged."""
+
+    tmp_dir = repo / "tmp"
+    tmp_dir.mkdir()
+    (tmp_dir / "r.txt").write_text("data", encoding="utf-8")
+
+    sessions_dir = repo / "codex_sessions"
+    orig_mkdir = Path.mkdir
+
+    def fake_mkdir(self, *args, **kwargs):
+        if self == sessions_dir:
+            raise FileExistsError("exists")
+        return orig_mkdir(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "mkdir", fake_mkdir)
+    with caplog.at_level(logging.ERROR):
+        result = package_session(tmp_dir, repo, LfsPolicy(repo))
+    assert result is None
+    assert any("race condition" in m.lower() for m in caplog.messages)
 
 
 def test_custom_session_dir(repo: Path) -> None:
@@ -375,38 +453,37 @@ def test_invalid_session_dir_value(tmp_path: Path, caplog: pytest.LogCaptureFixt
     assert any("Invalid session_artifact_dir" in m for m in caplog.messages)
 
 
-def test_malformed_yaml_fallback(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
+def test_malformed_yaml_fallback(
+    malformed_policy_repo: Path, caplog: pytest.LogCaptureFixture
+) -> None:
     """Malformed policy files should emit an error and use defaults."""
 
-    repo = tmp_path
-    init_repo(repo)
-    policy_file = repo / ".codex_lfs_policy.yaml"
-    policy_file.write_text("!bad yaml\n:\n", encoding="utf-8")
-    logger.info("Created malformed policy file %s", policy_file)
-
     with caplog.at_level(logging.ERROR):
-        policy = LfsPolicy(repo)
+        policy = LfsPolicy(malformed_policy_repo)
     assert policy.session_artifact_dir == "codex_sessions"
     assert not policy.enabled
     assert any("Malformed YAML" in m for m in caplog.messages)
-    logger.info("Removing malformed policy file %s", policy_file)
-    policy_file.unlink()
 
 
-def test_package_session_malformed_policy(tmp_path: Path, caplog) -> None:
-    repo = tmp_path
-    init_repo(repo)
-    (repo / ".codex_lfs_policy.yaml").write_text("!bad yaml\n:\n", encoding="utf-8")
-    tmp_dir = repo / "tmp"
+def test_package_session_malformed_policy(
+    malformed_policy_repo: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    tmp_dir = malformed_policy_repo / "tmp"
     tmp_dir.mkdir()
     (tmp_dir / "l.txt").write_text("data", encoding="utf-8")
+    logger.info("Created temporary file in %s", tmp_dir)
 
     with caplog.at_level(logging.ERROR):
-        policy = LfsPolicy(repo)
-    archive = package_session(tmp_dir, repo, policy)
+        policy = LfsPolicy(malformed_policy_repo)
+        archive = package_session(tmp_dir, malformed_policy_repo, policy)
 
     assert archive and archive.parent.name == "codex_sessions"
     assert any("Malformed YAML" in m for m in caplog.messages)
+
+    for p in tmp_dir.iterdir():
+        p.unlink()
+    tmp_dir.rmdir()
+    logger.info("Cleaned up temporary directory %s", tmp_dir)
 
 
 def test_runtime_directory_switch(tmp_path: Path) -> None:

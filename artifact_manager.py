@@ -10,6 +10,22 @@ the temporary directory. The command line interface exposes options such as
 ``--sync-gitattributes`` to regenerate the repository's ``.gitattributes`` from
 policy. The policy file may specify ``session_artifact_dir`` to override the
 default ``codex_sessions`` location used for storing archives.
+
+Example configuration of a custom session directory::
+
+    # .codex_lfs_policy.yaml
+    session_artifact_dir: my_sessions
+
+Typical packaging invocation::
+
+    python artifact_manager.py --package --tmp-dir build/tmp --commit
+
+Troubleshooting ``session_artifact_dir``
+--------------------------------------
+* Ensure the directory path is relative to the repository root.
+* The directory must be writable; permission errors are logged and the
+  operation aborts with defaults.
+* Malformed YAML or a missing policy file falls back to ``codex_sessions``.
 """
 
 from __future__ import annotations
@@ -99,6 +115,8 @@ class LfsPolicy:
             logger.error("Malformed YAML in %s: %s", policy_file, exc)
             logger.info("Using default LFS policy values")
             return
+        else:
+            logger.info("Loaded LFS policy from %s", policy_file)
 
         self.enabled = bool(data.get("enable_autolfs", False))
         self.size_threshold_mb = int(data.get("size_threshold_mb", 50))
@@ -284,13 +302,17 @@ def package_session(
     Parameters
     ----------
     tmp_dir:
-        Temporary directory containing session outputs.
+        Temporary directory containing session outputs. This corresponds to the
+        ``--tmp-dir`` CLI flag and is independent of the final archive location
+        governed by ``.codex_lfs_policy.yaml``.
     repo_root:
         Root of the git repository.
     lfs_policy:
-        Optional :class:`LfsPolicy` for Git LFS enforcement.
+        Optional :class:`LfsPolicy` for Git LFS enforcement. If ``None``, the
+        policy is loaded from ``.codex_lfs_policy.yaml`` in ``repo_root``.
     commit:
-        If ``True``, commit the created archive to git.
+        If ``True``, commit the created archive to git, honoring any LFS rules
+        from ``.codex_lfs_policy.yaml``.
     message:
         Optional commit message. If not provided, a default message using the
         archive timestamp is used.
@@ -303,14 +325,17 @@ def package_session(
     Notes
     -----
     All files packaged into the archive are removed from ``tmp_dir`` to keep the
-    temporary workspace clean. The destination directory for archives is
-    determined by ``lfs_policy.session_artifact_dir``.  A directory health check
-    ensures the target exists within the repository and is writable on all
-    supported platforms.
+    temporary workspace clean. The archive destination derives from
+    ``lfs_policy.session_artifact_dir`` in ``.codex_lfs_policy.yaml``. When
+    ``commit`` is ``True``, the archive is added to git and the policy ensures it
+    is tracked via Git LFS when required.
     """
 
     if lfs_policy is None:
         lfs_policy = LfsPolicy(repo_root)
+
+    sessions_dir = repo_root / lfs_policy.session_artifact_dir
+    logger.info("Session artifacts directory resolved to %s", sessions_dir)
 
     changed_files = detect_tmp_changes(tmp_dir, repo_root)
     if not changed_files:
@@ -320,10 +345,22 @@ def package_session(
     if not check_directory_health(tmp_dir, repo_root):
         return None
 
-    sessions_dir = repo_root / lfs_policy.session_artifact_dir
     if not check_directory_health(sessions_dir, repo_root):
         return None
-    logger.info("Session artifacts directory: %s", sessions_dir)
+    try:
+        sessions_dir.mkdir(parents=True, exist_ok=True)
+    except PermissionError as exc:
+        logger.error(
+            "Cannot create session artifacts directory %s: %s", sessions_dir, exc
+        )
+        return None
+    except OSError as exc:  # includes FileExistsError for race conditions
+        logger.error(
+            "Race condition creating session artifacts directory %s: %s",
+            sessions_dir,
+            exc,
+        )
+        return None
 
     timestamp = datetime.now(timezone.utc)
     archive_name = f"codex-session_{timestamp.strftime('%Y%m%d_%H%M%S')}.zip"
@@ -400,11 +437,13 @@ def recover_latest_session(
     Parameters
     ----------
     tmp_dir:
-        Destination directory for extracted files.
+        Destination directory for extracted files. This matches the ``--tmp-dir``
+        CLI option used during packaging.
     repo_root:
         Root of the git repository containing session archives.
     lfs_policy:
-        Optional :class:`LfsPolicy` to locate custom session directory.
+        Optional :class:`LfsPolicy` to locate custom session directory. When
+        omitted, settings are read from ``.codex_lfs_policy.yaml``.
 
     Returns
     -------
@@ -413,8 +452,9 @@ def recover_latest_session(
 
     Notes
     -----
-    The session directory is validated for safety before extraction and must
-    reside within the repository root.
+    The archive location is determined by ``lfs_policy.session_artifact_dir`` in
+    ``.codex_lfs_policy.yaml``. The session directory is validated for safety
+    before extraction and must reside within the repository root.
     """
 
     if lfs_policy is None:
@@ -448,23 +488,27 @@ def recover_latest_session(
 def main() -> None:
     """Entry point for the artifact manager command line interface.
 
-    ``--tmp-dir`` controls where transient files are gathered for packaging.
-    The destination of the resulting archive remains governed by the
-    ``session_artifact_dir`` setting in ``.codex_lfs_policy.yaml``.
-
-    When ``--sync-gitattributes`` is supplied, the policy's
-    ``gitattributes_template`` and binary extension list are used to
+    ``--tmp-dir`` controls where transient files are gathered for packaging,
+    while the final archive destination is dictated by the
+    ``session_artifact_dir`` setting in ``.codex_lfs_policy.yaml``. Using
+    ``--commit`` commits the generated archive to git and applies any Git LFS
+    tracking rules found in the policy. When ``--sync-gitattributes`` is
+    supplied, the policy's ``gitattributes_template`` and binary extension list
     regenerate the repository's ``.gitattributes`` file.
 
     Examples
     --------
-    Package session files using a custom temporary directory::
+    Package and commit session files using a custom temporary directory::
 
-        python artifact_manager.py --package --tmp-dir build/tmp
+        python artifact_manager.py --package --tmp-dir build/tmp --commit
 
     Regenerate the repository's ``.gitattributes`` file from policy::
 
         python artifact_manager.py --sync-gitattributes
+
+    Recover the most recent session into the default temporary directory::
+
+        python artifact_manager.py --recover
     """
 
     examples = (
@@ -497,8 +541,9 @@ def main() -> None:
         "--commit",
         action="store_true",
         help=(
-            "commit the created archive to git (default: %(default)s). "
-            "Example: --package --commit"
+            "commit the created archive to git and apply LFS policy rules "
+            "(default: %(default)s). Typical use: record session outputs for "
+            "audit trails. Example: --package --commit"
         ),
     )
     parser.add_argument(
@@ -513,14 +558,17 @@ def main() -> None:
         default="tmp",
         help=(
             "working directory for session files; created if it does not exist "
-            "(default: %(default)s). Example: --tmp-dir build/tmp"
+            "(default: %(default)s). Archives still go to the policy's "
+            "session_artifact_dir. Typical use: isolate build outputs. "
+            "Example: --tmp-dir build/tmp"
         ),
     )
     parser.add_argument(
         "--sync-gitattributes",
         action="store_true",
         help=(
-            "regenerate .gitattributes from policy and exit (default: %(default)s). "
+            "regenerate .gitattributes from .codex_lfs_policy.yaml and exit "
+            "(default: %(default)s). Typical use: enforce new binary rules. "
             "Example: --sync-gitattributes"
         ),
     )
