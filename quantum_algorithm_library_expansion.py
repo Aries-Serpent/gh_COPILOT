@@ -187,9 +187,15 @@ def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
     """Return simple normalized dot product as quantum-inspired score."""
     arr_a = np.fromiter(a, dtype=float)
     arr_b = np.fromiter(b, dtype=float)
-    if arr_a.size == 0 or arr_b.size == 0:
+    min_len = min(arr_a.size, arr_b.size)
+    if min_len == 0:
         return 0.0
-    score = float(np.dot(arr_a, arr_b) / (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)))
+    arr_a = arr_a[:min_len]
+    arr_b = arr_b[:min_len]
+    denom = np.linalg.norm(arr_a) * np.linalg.norm(arr_b)
+    if denom == 0:
+        return 0.0
+    score = float(np.dot(arr_a, arr_b) / denom)
     log_quantum_event("similarity_score", str(score))
     return score
 
