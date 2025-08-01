@@ -103,7 +103,43 @@ mistakes and keeps every contributor working with the same expectations.
 Include a job step that runs `python artifact_manager.py --package --commit
 --sync-gitattributes`. The workflow defined in `artifact_lfs.yml` executes this
 command so that packaging, pointer conversion, and committing occur in a single
-transaction.
+transaction. A minimal workflow showing these steps alongside pointer validation looks like:
+
+```yaml
+# .github/workflows/artifact_lfs.yml
+jobs:
+  manage-artifacts:
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Package, Commit, and Sync Artifacts
+        run: python artifact_manager.py --package --commit --sync-gitattributes [--tmp-dir <path>]
+      - name: Verify LFS pointers
+        run: |
+          set -e
+          exts='.db .7z .zip .bak .dot .sqlite .exe'
+          missing=''
+          for ext in $exts; do
+            for f in $(git ls-files "*$ext"); do
+              if ! git lfs ls-files "$f" >/dev/null 2>&1; then
+                missing="$missing $f"
+              fi
+            done
+          done
+          if [ -n "$missing" ]; then
+            echo "These files are not tracked by Git LFS:$missing" >&2
+            exit 1
+          fi
+          git lfs ls-files
+      - name: Push changes
+        run: git push
+```
+
+Running `artifact_manager.py` with `--package --commit --sync-gitattributes` ensures the archive is created, LFS pointers are generated, and the commit is recorded before the validation step runs. This atomic sequence prevents raw binary blobs from ever entering history and catches mis-tracked files before they can break subsequent pushes or pulls.
 
 ### 3. Pointer Validation Step
 
@@ -127,8 +163,12 @@ misconfiguration errors that commonly break CI/CD pipelines.
 ### 5. Troubleshooting & Verification
 
 When failures occur, review `git lfs ls-files` output and artifact manager logs
-in CI to identify mis-tracked binaries or permission problems. Test workflow
-changes in branches before merging to catch platform-specific issues.
+in CI to identify mis-tracked binaries or permission problems. Pointer
+validation errors often mean the file's extension is missing from
+`.codex_lfs_policy.yaml` or that a custom `--tmp-dir` bypassed the policy's
+`session_artifact_dir`. Update the policy or rerun `artifact_manager.py --sync-gitattributes [--tmp-dir <path>]` before recommitting.
+Test workflow changes in branches before merging to catch platform-specific
+issues.
 
 ### 6. Configuration Files & CLI Options
 
