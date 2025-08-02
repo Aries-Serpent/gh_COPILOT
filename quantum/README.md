@@ -20,8 +20,9 @@ gh_COPILOT toolkit.
 These modules default to simulation mode but can use real IBM Quantum hardware
 when `qiskit-ibm-provider` is installed and `QISKIT_IBM_TOKEN` is configured.
 Use the `--hardware` flag in `quantum_integration_orchestrator.py` to enable
-hardware execution. If hardware is unavailable, the modules automatically fall
-back to local simulation.
+hardware execution. When no backend is specified the orchestrator automatically
+selects an available device. If hardware is unavailable, the modules
+automatically fall back to local simulation.
 
 Hardware usage can also be toggled globally by setting the environment
 variable `QUANTUM_USE_HARDWARE` to `"1"`. Modules query this flag when no
