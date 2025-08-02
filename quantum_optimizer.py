@@ -7,6 +7,7 @@ from datetime import datetime
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 import os
+from pathlib import Path
 from utils.lessons_learned_integrator import fetch_lessons_by_tag
 
 try:
@@ -21,6 +22,10 @@ This module provides a high-level :class:`QuantumOptimizer` along with
 environment validation helpers. Anti-recursion validation is **not** executed
 on import. Consumers should call :func:`validate_workspace` explicitly or pass
 ``validate_workspace=True`` when instantiating :class:`QuantumOptimizer`.
+
+The anti-recursion checks resolve symlinks and walk both the workspace and
+backup roots to ensure neither is nested within the other, directly or through
+links.
 """
 
 # --- Anti-Recursion Validation ---
@@ -41,26 +46,35 @@ def validate_workspace() -> bool:
 def validate_no_recursive_folders() -> bool:
     """Ensure workspace and backup directories do not recurse into each other.
 
-    The check resolves symlinks and detects nested paths beyond simple equality
-    to guard against accidental workspace/backup containment.
+    The validator resolves symlinks and inspects both trees to catch cases
+    where one root is nested within the other or reachable through symlinks.
     """
 
     workspace = CrossPlatformPathManager.get_workspace_path().resolve()
     backup_root = CrossPlatformPathManager.get_backup_root().resolve()
 
-    if workspace == backup_root:
-        return False
-    if workspace in backup_root.parents or backup_root in workspace.parents:
+    def is_nested(child: Path, parent: Path) -> bool:
+        try:
+            child.relative_to(parent)
+            return True
+        except ValueError:
+            return False
+
+    if workspace == backup_root or is_nested(workspace, backup_root) or is_nested(backup_root, workspace):
         return False
 
-    for root, dirs, _ in os.walk(workspace, followlinks=True):
-        for d in dirs:
-            dpath = (os.path.join(root, d))
-            resolved = os.path.realpath(dpath)
-            if resolved == str(workspace) or resolved == str(backup_root):
-                return False
-            if resolved.startswith(str(workspace)) or resolved.startswith(str(backup_root)):
-                return False
+    for base, target in ((workspace, backup_root), (backup_root, workspace)):
+        for root, dirs, _ in os.walk(base, followlinks=True):
+            for d in dirs:
+                path = Path(root) / d
+                try:
+                    resolved = path.resolve()
+                except OSError:
+                    continue
+                if resolved == workspace or resolved == backup_root:
+                    return False
+                if is_nested(resolved, target):
+                    return False
     return True
 
 def detect_c_temp_violations() -> bool:
