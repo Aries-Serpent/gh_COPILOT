@@ -4,6 +4,8 @@ Database Structure Analysis for PIS Development
 """
 
 import sqlite3
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -47,4 +49,10 @@ def analyze_production_db():
 
 
 if __name__ == "__main__":
-    analyze_production_db()
+    try:
+        analyze_production_db()
+    finally:
+        subprocess.run(
+            [sys.executable, "scripts/wlc_session_manager.py", "--orchestrate"],
+            check=False,
+        )

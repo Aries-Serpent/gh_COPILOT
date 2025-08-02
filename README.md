@@ -293,11 +293,11 @@ Runtime logs, build outputs, and temporary results are stored under the `artifac
 ### Migration Guide
 - `logs/`, `builds/`, `results/`, and `reports/` now reside under `artifacts/`.
 - `scripts/session_wrap_up_engine.py` is superseded by `scripts/orchestrators/unified_wrapup_orchestrator.py`.
-- All long-running workflows must invoke `scripts/wlc_session_manager.py` to record wrap-up details.
+- All primary execution scripts and CLI utilities must invoke `scripts/wlc_session_manager.py --orchestrate` during shutdown (typically in a `finally` block) so wrap-up details are recorded.
 
 See [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) for additional notes.
 
-The project entrypoint triggers `scripts/wlc_session_manager.py` on shutdown to record wrap-up details in `databases/production.db`, write a log under `artifacts/logs/`, and mirror it under `$GH_COPILOT_BACKUP_ROOT/logs`.
+The project entrypoint triggers `scripts/wlc_session_manager.py --orchestrate` on shutdown to record wrap-up details in `databases/production.db`, write a log under `artifacts/logs/`, and mirror it under `$GH_COPILOT_BACKUP_ROOT/logs`.
 
 ### Session Management CLI
 Use ``COMPREHENSIVE_WORKSPACE_MANAGER.py`` to manage session start and end

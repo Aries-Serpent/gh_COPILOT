@@ -655,4 +655,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    finally:
+        subprocess.run(
+            [sys.executable, "scripts/wlc_session_manager.py", "--orchestrate"],
+            check=False,
+        )
