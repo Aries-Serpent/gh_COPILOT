@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Cross-Platform Path Detection System."""
 
-import logging
 import os
 import shutil
 from pathlib import Path
@@ -23,28 +22,11 @@ class CrossPlatformPathManager:
             if workspace_path.exists():
                 return workspace_path
 
-        current_dir = Path.cwd()
-        if current_dir.name == "gh_COPILOT":
-            return current_dir
-
-        for parent in current_dir.parents:
-            if parent.name == "gh_COPILOT":
-                return parent
-
-        user_home = Path.home()
-        potential_paths = [
-            Path("/workspace/gh_COPILOT"),
-            user_home / "gh_COPILOT",
-            Path("/opt/gh_COPILOT"),
-            Path("/usr/local/gh_COPILOT"),
-        ]
-
-        for path in potential_paths:
-            if path.exists():
-                return path
-
-        logging.warning("Could not detect gh_COPILOT workspace, using current directory")
-        return current_dir
+        # Fall back to the current working directory when the environment
+        # variable is unset or invalid. Simplifying the logic avoids
+        # surprising path resolutions and aligns with tests expecting the
+        # current directory as the default workspace.
+        return Path.cwd()
 
     @staticmethod
     def get_backup_root() -> Path:
