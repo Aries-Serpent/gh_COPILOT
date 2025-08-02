@@ -66,6 +66,7 @@ TABLES: dict[str, str] = {
         "id INTEGER PRIMARY KEY,"
         "pattern TEXT NOT NULL,"
         "usage_count INTEGER DEFAULT 0,"
+        "lesson_name TEXT,"
         "created_at TEXT NOT NULL"
         ")"
     ),

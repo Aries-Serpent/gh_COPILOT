@@ -4,11 +4,14 @@
 from __future__ import annotations
 
 import shutil
+import sqlite3
 import subprocess
 import sys
 from pathlib import Path
 from typing import Iterable
 import logging
+
+from . import run_migrations
 
 
 def ensure_env() -> None:
@@ -59,10 +62,35 @@ def install_test_requirements() -> None:
     print("Installed test dependencies: " + ", ".join(packages))
 
 
+def verify_migrations() -> None:
+    """Ensure all SQL migrations have been applied."""
+    repo_root = Path(__file__).resolve().parents[1]
+    migrations_dir = repo_root / "databases" / "migrations"
+    db_path = repo_root / "databases" / "analytics.db"
+
+    if not migrations_dir.exists():
+        print("No migrations directory found; skipping migration verification")
+        return
+
+    run_migrations.ensure_migrations_applied()
+
+    if not db_path.exists():
+        raise FileNotFoundError("analytics.db missing after migration run")
+
+    with sqlite3.connect(db_path) as conn:
+        applied = {row[0] for row in conn.execute("SELECT filename FROM schema_migrations")}
+
+    missing = [p.name for p in migrations_dir.glob("*.sql") if p.name not in applied]
+    if missing:
+        raise RuntimeError(f"Unapplied migrations: {', '.join(missing)}")
+    print("Migrations verified")
+
+
 def main() -> None:
     """Bootstrap environment and install test requirements."""
     ensure_env()
     install_test_requirements()
+    verify_migrations()
 
 
 if __name__ == "__main__":

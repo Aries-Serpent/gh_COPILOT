@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import pytest
+import quantum_algorithm_library_expansion as qalexp
 from quantum_algorithm_library_expansion import (
     EnterpriseUtility,
     demo_grover_search,
@@ -9,6 +11,7 @@ from quantum_algorithm_library_expansion import (
     demo_quantum_teleportation,
     quantum_cluster_representatives,
     quantum_similarity_score,
+    QISKIT_AVAILABLE,
 )
 
 
@@ -60,3 +63,36 @@ def test_quantum_cluster_representatives():
 def test_quantum_similarity_score():
     score = quantum_similarity_score([1, 0], [0.5, 0.5])
     assert 0.0 <= score <= 1.0
+
+
+def test_quantum_text_score_fallback(monkeypatch):
+    monkeypatch.setattr(qalexp, "get_backend", lambda **_: None)
+    score = qalexp.quantum_text_score("abc", use_hardware=True)
+    assert 0.0 <= score <= 1.0
+
+
+def test_quantum_text_score_backend(monkeypatch):
+    if not QISKIT_AVAILABLE:
+        pytest.skip("qiskit not available")
+
+    events = []
+    monkeypatch.setattr(qalexp, "log_quantum_event", lambda n, d: events.append((n, d)))
+
+    class DummyJob:
+        def result(self):
+            class DummyResult:
+                @staticmethod
+                def get_counts():
+                    return {"1": 128}
+
+            return DummyResult()
+
+    class DummyBackend:
+        def run(self, *_, **__):
+            return DummyJob()
+
+    monkeypatch.setattr(qalexp, "get_backend", lambda **_: DummyBackend())
+
+    score = qalexp.quantum_text_score("abc", use_hardware=True)
+    assert 0.0 <= score <= 1.0
+    assert ("text_score", "qiskit") in events

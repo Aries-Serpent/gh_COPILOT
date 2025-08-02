@@ -2,14 +2,36 @@
 from __future__ import annotations
 
 import logging
+import os
 import shutil
 from pathlib import Path
 from zipfile import ZipFile
 
 import pytest
+import sqlite3
+import scripts.wlc_session_manager as wsm
+
+# Enable test mode to prevent side effects such as database writes.
+os.environ.setdefault("TEST_MODE", "1")
+
+
+@pytest.fixture(autouse=True)
+def enforce_test_mode(monkeypatch):
+    """Ensure TEST_MODE is set for each test run."""
+    monkeypatch.setenv("TEST_MODE", "1")
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 logger = logging.getLogger(__name__)
+
+
+@pytest.fixture(scope="session")
+def unified_wrapup_session_db(tmp_path_factory):
+    """Provide a temporary database with the unified_wrapup_sessions table."""
+    db_dir = tmp_path_factory.mktemp("wrapup_db")
+    db_file = db_dir / "production.db"
+    with sqlite3.connect(db_file) as conn:
+        wsm.ensure_session_table(conn)
+    return db_file
 
 
 @pytest.fixture(autouse=True)
@@ -51,6 +73,15 @@ def zip_repo_tmp() -> None:
             shutil.rmtree(item)
 
 
+@pytest.fixture(scope="session", autouse=True)
+def apply_repo_migrations() -> None:
+    """Ensure database migrations are applied before tests run."""
+
+    from scripts.run_migrations import ensure_migrations_applied
+
+    ensure_migrations_applied()
+
+
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     """Display a summary of skipped tests and future improvements."""
 
@@ -63,3 +94,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     terminalreporter.line(
         "Consider extending artifact_manager tests for additional edge cases and CI integration."
     )
+
+
+def pytest_runtest_setup(item):
+    if "hardware" in item.keywords and not os.getenv("QISKIT_IBM_TOKEN"):
+        pytest.skip("QISKIT_IBM_TOKEN not set")

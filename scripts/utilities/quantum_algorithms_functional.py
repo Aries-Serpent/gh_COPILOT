@@ -20,9 +20,9 @@ def run_grover_search(data, target):
     return QuantumFunctional().run_grover_search(data, target)
 
 
-def run_kmeans_clustering(samples=100, clusters=2):
+def run_kmeans_clustering(samples=100, clusters=2, n_init=10):
     """Run KMeans clustering and return metrics."""
-    return QuantumFunctional().run_kmeans_clustering(samples, clusters)
+    return QuantumFunctional().run_kmeans_clustering(samples, clusters, n_init)
 
 
 def run_simple_qnn():

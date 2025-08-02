@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+WITH_OPTIONAL=0
+for arg in "$@"; do
+    case "$arg" in
+        --with-optional) WITH_OPTIONAL=1 ;;
+        *) echo "Usage: $0 [--with-optional]" >&2; exit 1 ;;
+    esac
+done
+
 WORKSPACE="$(cd "$(dirname "$0")" && pwd)"
 
 if [ ! -d "$WORKSPACE/.venv" ]; then
@@ -13,7 +21,20 @@ pip install --upgrade pip >/tmp/setup_install.log
 
 pip install -r "$WORKSPACE/requirements.txt" >>/tmp/setup_install.log
 
+if [ -f "$WORKSPACE/requirements-test.txt" ]; then
+    pip install -r "$WORKSPACE/requirements-test.txt" >>/tmp/setup_install.log
+fi
+
+if [ "$WITH_OPTIONAL" -eq 1 ]; then
+    for req in "$WORKSPACE/requirements-a.txt" "$WORKSPACE/requirements-quantum.txt"; do
+        if [ -f "$req" ]; then
+            pip install -r "$req" >>/tmp/setup_install.log
+        fi
+    done
+fi
+
 python "$WORKSPACE/scripts/setup_environment.py" >>/tmp/setup_install.log
+python "$WORKSPACE/scripts/run_migrations.py" >>/tmp/setup_install.log
 
 # install clw line wrapper if missing
 if [ ! -x /usr/local/bin/clw ]; then

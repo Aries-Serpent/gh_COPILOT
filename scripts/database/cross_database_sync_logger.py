@@ -51,6 +51,8 @@ def log_sync_operation(
 
         initialize_database(db_path)
 
+    if start_time is not None and start_time.tzinfo is None:
+        start_time = start_time.replace(tzinfo=timezone.utc)
     start_dt = start_time or datetime.now(timezone.utc)
     end_dt = datetime.now(timezone.utc)
     duration = (end_dt - start_dt).total_seconds()

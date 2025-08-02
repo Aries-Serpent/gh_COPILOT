@@ -12,5 +12,11 @@ This project includes an automated placeholder audit to keep the codebase compli
    `compliance_score` based on remaining open placeholders. Run it to refresh the
    dashboard after each audit.
 
+The `DatabaseComplianceChecker` now corrects common issues automatically. Its
+`correct_file` routine removes placeholder markers (such as `TODO` or
+`PLACEHOLDER` comments), trims trailing whitespace, ensures files end with a
+newline, and records the outcome to `analytics.db`. If a file cannot be
+corrected, the failure and error message are logged for further review.
+
 These scripts follow the repository's dual‑copilot and database‑first protocols. Ensure
 that the virtual environment is active and tests pass before committing changes.

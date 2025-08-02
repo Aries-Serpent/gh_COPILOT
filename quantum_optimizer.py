@@ -2,11 +2,16 @@
 # > Generated: 2025-07-24 19:36:07 | Author: mbaetiong
 
 import numpy as np
-from typing import Callable, Optional, Any, Dict, List, Tuple, Union
+from typing import Callable, Optional, Any, Dict, List, Tuple
 from datetime import datetime
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 import os
+from pathlib import Path
+from utils.lessons_learned_integrator import fetch_lessons_by_tag
+from quantum.quantum_annealing import run_quantum_annealing
+from quantum.quantum_superposition_search import run_quantum_superposition_search
+from quantum.quantum_entanglement_correction import run_entanglement_correction
 
 try:
     from qiskit import QuantumCircuit, Aer, execute
@@ -14,41 +19,98 @@ try:
 except ImportError:
     QISKIT_AVAILABLE = False
 
+"""Quantum optimization utilities.
+
+This module provides a high-level :class:`QuantumOptimizer` along with
+environment validation helpers. Anti-recursion validation is **not** executed
+on import. Consumers should call :func:`validate_workspace` explicitly or pass
+``validate_workspace=True`` when instantiating :class:`QuantumOptimizer`.
+
+The anti-recursion checks resolve symlinks and walk both the workspace and
+backup roots to ensure neither is nested within the other, directly or through
+links.
+"""
+
 # --- Anti-Recursion Validation ---
 
-def chunk_anti_recursion_validation():
-    """CRITICAL: Validate workspace before chunk execution"""
-    if not validate_no_recursive_folders():
-        raise RuntimeError("CRITICAL: Recursive violations prevent chunk execution")
-    if detect_c_temp_violations():
-        raise RuntimeError("CRITICAL: E:/temp/ violations prevent chunk execution")
+def chunk_anti_recursion_validation() -> bool:
+    """Run anti-recursion checks and surface offending paths."""
+
+    validate_no_recursive_folders()
+    offending = detect_c_temp_violations()
+    if offending:
+        raise RuntimeError(
+            f"CRITICAL: E:/temp/ violations prevent chunk execution: {offending}"
+        )
     return True
 
-def validate_no_recursive_folders():
-    # Placeholder: Implement workspace root and backup root recursion checks
-    workspace = CrossPlatformPathManager.get_workspace_path()
-    backup_root = CrossPlatformPathManager.get_backup_root()
-    real_workspace = workspace.resolve()
-    real_backup = backup_root.resolve()
-    if real_workspace == real_backup:
-        return False
-    for root, dirs, files in os.walk(workspace):
-        for d in dirs:
-            dpath = os.path.realpath(os.path.join(root, d))
-            if dpath == real_workspace or dpath == real_backup:
-                return False
-    return True
 
-def detect_c_temp_violations():
+def validate_workspace() -> bool:
+    """Public entry point to trigger anti-recursion validation."""
+
+    return chunk_anti_recursion_validation()
+
+def validate_no_recursive_folders() -> None:
+    """Ensure workspace and backup directories are distinct and non-nesting.
+
+    Walks both roots, resolving symlinks and comparing inodes so that no
+    subdirectory can link back to either root.
+    """
+
+    workspace = CrossPlatformPathManager.get_workspace_path().resolve()
+    backup_root = CrossPlatformPathManager.get_backup_root().resolve()
+
+    if workspace == backup_root:
+        raise RuntimeError(f"Workspace and backup root are identical: {workspace}")
+    if workspace in backup_root.parents:
+        raise RuntimeError(
+            f"Backup root {backup_root} cannot reside within workspace {workspace}"
+        )
+    if backup_root in workspace.parents:
+        raise RuntimeError(
+            f"Workspace {workspace} cannot reside within backup root {backup_root}"
+        )
+
+    workspace_inode = workspace.stat().st_ino
+    backup_inode = backup_root.stat().st_ino
+
+    def is_nested(child: Path, parent: Path) -> bool:
+        try:
+            child.relative_to(parent)
+            return True
+        except ValueError:
+            return False
+
+    for base, target in ((workspace, backup_root), (backup_root, workspace)):
+        for root, dirs, _ in os.walk(base, followlinks=True):
+            for d in dirs:
+                path = Path(root) / d
+                try:
+                    resolved = path.resolve()
+                    inode = resolved.stat().st_ino
+                except OSError:
+                    continue
+                if inode in {workspace_inode, backup_inode} or resolved in {
+                    workspace,
+                    backup_root,
+                }:
+                    raise RuntimeError(f"Subdirectory {path} links back to {resolved}")
+                if is_nested(resolved, target):
+                    raise RuntimeError(
+                        f"Subdirectory {path} nests within {target}: {resolved}"
+                    )
+
+def detect_c_temp_violations() -> Optional[str]:
     forbidden = ["E:/temp/", "E:\\temp\\"]
     workspace = str(CrossPlatformPathManager.get_workspace_path())
     backup_root = str(CrossPlatformPathManager.get_backup_root())
-    for forbidden_path in forbidden:
-        if workspace.startswith(forbidden_path) or backup_root.startswith(forbidden_path):
-            return True
-    return False
+    for path in (workspace, backup_root):
+        for forbidden_path in forbidden:
+            if path.startswith(forbidden_path):
+                return path
+    return None
 
-chunk_anti_recursion_validation()
+
 
 # --- Quantum Optimizer Class ---
 
@@ -66,7 +128,16 @@ class QuantumOptimizer:
         All quantum routines execute in simulation unless `qiskit-ibm-provider` is installed and configured with `QISKIT_IBM_TOKEN`.
     """
 
-    def __init__(self, objective_function: Callable, variable_bounds: List[Tuple[float, float]], method: str = "simulated_annealing", options: Optional[Dict[str, Any]] = None, backend: Any = None, use_hardware: bool = False):
+    def __init__(
+        self,
+        objective_function: Callable,
+        variable_bounds: List[Tuple[float, float]],
+        method: str = "simulated_annealing",
+        options: Optional[Dict[str, Any]] = None,
+        backend: Any = None,
+        use_hardware: bool = False,
+        validate_workspace: bool = False,
+    ):
         """
         Initialize optimizer.
 
@@ -84,6 +155,8 @@ class QuantumOptimizer:
         self.metrics = {}
         self.backend = backend
         self.use_hardware = use_hardware
+        if validate_workspace:
+            chunk_anti_recursion_validation()
         self._validate_init()
 
     def set_backend(self, backend: Any, use_hardware: bool = False) -> None:
@@ -149,7 +222,13 @@ class QuantumOptimizer:
         }
         return summary
 
-    def _run_simulated_annealing(self, x0: Optional[np.ndarray], max_iter: int = 500, temp: float = 1.0, cooling: float = 0.95) -> Dict[str, Any]:
+    def _run_simulated_annealing(
+        self,
+        x0: Optional[np.ndarray],
+        max_iter: int = 500,
+        temp: float = 1.0,
+        cooling: float = 0.95,
+    ) -> Dict[str, Any]:
         """Simple simulated annealing optimizer (classical, for demonstration)."""
         dim = len(self.variable_bounds)
         if x0 is None:
@@ -169,25 +248,29 @@ class QuantumOptimizer:
                 best_x = x.copy()
             current_temp *= cooling
             if i % max(1, max_iter // 10) == 0:
-                self.log_event("annealing_progress", {"iteration": i, "temperature": current_temp, "current_best": best_val})
+                self.log_event(
+                    "annealing_progress",
+                    {"iteration": i, "temperature": current_temp, "current_best": best_val},
+                )
         return {"best_result": best_x.tolist(), "best_value": float(best_val)}
 
     def _run_basin_hopping(self, x0: Optional[np.ndarray], niter: int = 100) -> Dict[str, Any]:
-        """Basin-hopping optimizer using scipy (if available), else fallback to random restarts."""
+        """Basin-hopping optimizer using scipy (if available), else random restarts."""
         try:
             from scipy.optimize import basinhopping
+
             dim = len(self.variable_bounds)
             if x0 is None:
                 x0 = np.array([(a + b) / 2 for a, b in self.variable_bounds])
-            minimizer_kwargs = {
-                "method": "L-BFGS-B",
-                "bounds": self.variable_bounds
-            }
-            result = basinhopping(self.objective_function, x0, niter=niter, minimizer_kwargs=minimizer_kwargs)
-            self.log_event("basin_hopping_complete", {"fun": float(result.fun), "x": result.x.tolist()})
+            minimizer_kwargs = {"method": "L-BFGS-B", "bounds": self.variable_bounds}
+            result = basinhopping(
+                self.objective_function, x0, niter=niter, minimizer_kwargs=minimizer_kwargs
+            )
+            self.log_event(
+                "basin_hopping_complete", {"fun": float(result.fun), "x": result.x.tolist()}
+            )
             return {"best_result": result.x.tolist(), "best_value": float(result.fun)}
         except ImportError:
-            # Fallback: random restarts
             dim = len(self.variable_bounds)
             best_x = None
             best_val = float("inf")
@@ -198,12 +281,13 @@ class QuantumOptimizer:
                     best_val = val
                     best_x = x.copy()
                 if i % max(1, niter // 10) == 0:
-                    self.log_event("basin_hopping_progress", {"iteration": i, "current_best": best_val})
+                    self.log_event(
+                        "basin_hopping_progress", {"iteration": i, "current_best": best_val}
+                    )
             return {"best_result": best_x.tolist(), "best_value": float(best_val)}
 
     def _run_qaoa(self, **kwargs) -> Dict[str, Any]:
         """Stub: QAOA optimizer (requires Qiskit)."""
-        # Implementation here would depend on Qiskit and problem encoding
         n_qubits = kwargs.get("n_qubits", 3)
         depth = kwargs.get("depth", 2)
         qc = QuantumCircuit(n_qubits)
@@ -234,6 +318,21 @@ class QuantumOptimizer:
         self.log_event("vqe_complete", {"n_qubits": n_qubits, "norm": float(norm)})
         return {"statevector_norm": float(norm), "statevector": statevector.tolist()}
 
+
+def score_templates(templates: List[str], tag: str) -> List[tuple[str, float]]:
+    """Weight templates based on lessons tagged with ``tag``."""
+    lessons = fetch_lessons_by_tag(tag)
+    if not lessons:
+        return [(t, 1.0) for t in templates]
+    scores: List[tuple[str, float]] = []
+    for tmpl in templates:
+        weight = 1.0
+        for lesson in lessons:
+            if lesson["description"].lower() in tmpl.lower():
+                weight += 1.0
+        scores.append((tmpl, weight))
+    return scores
+
 # --- Example Usage ---
 
 if __name__ == "__main__":
@@ -249,3 +348,13 @@ if __name__ == "__main__":
     print("History:")
     for event in summary["history"]:
         print(event)
+
+def run_quantum_routine(name: str, *args, use_hardware: bool = False, **kwargs):
+    """Dispatch to quantum routines by name."""
+    if name == "annealing":
+        return run_quantum_annealing(*args, use_hardware=use_hardware, **kwargs)
+    if name == "superposition_search":
+        return run_quantum_superposition_search(*args, use_hardware=use_hardware, **kwargs)
+    if name == "entanglement_correction":
+        return run_entanglement_correction(*args, use_hardware=use_hardware, **kwargs)
+    raise ValueError(f"Unknown quantum routine: {name}")

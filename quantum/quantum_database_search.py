@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Union
 
 from utils.log_utils import _log_event
+from quantum.algorithms import QuantumEncryptedCommunication
 
 logger = logging.getLogger(__name__)
 DEFAULT_DB_PATH = Path(os.environ.get("QUANTUM_DB_PATH", "databases/quantum.db"))
@@ -172,6 +173,18 @@ def quantum_search_nosql(
         _lock.release()
     return results
 
+
+def quantum_secure_search(
+    query: str,
+    db_path: Union[str, Path] = DEFAULT_DB_PATH,
+    params: Optional[Dict[str, Any]] = None,
+    key: str | None = None,
+) -> List[str]:
+    """Execute a SQL search and return encrypted JSON rows."""
+    rows = quantum_search_sql(query, db_path, params)
+    engine = QuantumEncryptedCommunication(key)
+    return [engine.encrypt_message(json.dumps(row)) for row in rows]
+
 def quantum_search_hybrid(
     search_type: str,
     query: Any,
@@ -211,11 +224,20 @@ def main():
     parser.add_argument("--type", choices=["sql", "nosql", "hybrid"], required=True, help="Search type")
     parser.add_argument("--db", type=str, default=str(DEFAULT_DB_PATH), help="Database file path")
     parser.add_argument("--query", type=str, required=True, help="SQL query string or filter JSON")
-    parser.add_argument("--collection", type=str, help="NoSQL collection/table")
+    parser.add_argument(
+        "--collection",
+        type=str,
+        help="NoSQL collection/table (required for NoSQL and hybrid NoSQL mode)",
+    )
     parser.add_argument("--limit", type=int, default=None, help="Limit results")
     parser.add_argument("--hardware", action="store_true", help="Use quantum hardware backend")
     parser.add_argument("--backend", type=str, default="ibmq_qasm_simulator", help="Backend name")
     parser.add_argument("--params", type=str, help="Params as JSON string")
+    parser.add_argument(
+        "--mode",
+        choices=["sql", "nosql"],
+        help="Hybrid search mode; defaults to 'nosql' when --collection is provided",
+    )
     args = parser.parse_args()
 
     db_path = Path(args.db)
@@ -232,15 +254,29 @@ def main():
         results = quantum_search_nosql(args.collection, filter_query, db_path, args.limit, use_hardware=args.hardware, backend_name=args.backend)
     elif args.type == "hybrid":
         import json
-        if args.collection:
-            extra = {"collection": args.collection}
-        else:
-            extra = {}
-        if args.type == "sql":
-            results = quantum_search_hybrid("sql", args.query, db_path, args.limit, params, use_hardware=args.hardware, backend_name=args.backend)
+        extra = {"collection": args.collection} if args.collection else {}
+        mode = args.mode or ("nosql" if args.collection else "sql")
+        if mode == "sql":
+            results = quantum_search_hybrid(
+                "sql",
+                args.query,
+                db_path,
+                args.limit,
+                params,
+                use_hardware=args.hardware,
+                backend_name=args.backend,
+            )
         else:
             filter_query = json.loads(args.query)
-            results = quantum_search_hybrid("nosql", filter_query, db_path, args.limit, extra, use_hardware=args.hardware, backend_name=args.backend)
+            results = quantum_search_hybrid(
+                "nosql",
+                filter_query,
+                db_path,
+                args.limit,
+                extra,
+                use_hardware=args.hardware,
+                backend_name=args.backend,
+            )
     else:
         results = []
 

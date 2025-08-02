@@ -5,8 +5,14 @@
 ![Learning Patterns](https://img.shields.io/badge/Learning_Patterns-ongoing-yellow)
 ![DUAL COPILOT](https://img.shields.io/badge/DUAL_COPILOT-Pattern_Validated-orange)
 ![Database First](https://img.shields.io/badge/Database_First-Architecture_Complete-purple)
+![Coverage](https://img.shields.io/badge/coverage-automated-blue)
+![Ruff](https://img.shields.io/badge/ruff-linted-blue)
 
 **Status:** Active development with incremental improvements
+
+> Tests: run `pytest` (currently one failing quantum test).
+> Lint: run `ruff check .` (one redefinition warning).
+> Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress.
 
 ---
 
@@ -15,12 +21,12 @@
 The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. All core modules are implemented. Quantum functionality runs in simulation mode by default but supports real hardware when `qiskit-ibm-provider` is configured.
 
 > **Note**
-> Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends.
+> Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends. When `IBM_BACKEND` is unset the system automatically selects an available backend. Use the `--hardware` flag in `quantum_integration_orchestrator.py` or `--use-hardware` in `quantum/cli/executor_cli.py` to enforce hardware execution.
 > **Phase 5 AI**
 > Advanced AI integration features are fully integrated. They default to simulation mode unless real hardware is configured.
 
 ### 🎯 **Recent Milestones**
-- **Lessons Learned Integration:** initial implementation in progress
+- **Lessons Learned Integration:** sessions automatically apply lessons from `learning_monitor.db`
 - **Database-First Architecture:** `databases/production.db` used as primary reference
 - **DUAL COPILOT Pattern:** primary/secondary validation framework available
 - **Dual Copilot Enforcement:** automation scripts now trigger secondary
@@ -34,8 +40,10 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 
-- **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for
-  optimizer and search helpers. These modules default to simulation mode unless `QISKIT_IBM_TOKEN` is configured.
+- **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for optimizer and search helpers. `quantum_optimizer.run_quantum_routine` now exposes annealing, superposition search and entanglement correction. Routines use Qiskit simulators by default and accept `use_hardware=True` to attempt IBM Quantum execution.
+- **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` runs a quantum
+  database search example and uses hardware backends when `QISKIT_IBM_TOKEN` is
+  available.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1,679 scripts synchronized
@@ -91,13 +99,14 @@ cp .env.example .env
 
 # 2. Set the external backup directory and run the setup script
 export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
-bash setup.sh
-# Or run in a single command
-GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh
+bash setup.sh            # installs core and test dependencies
+# Or include optional extras
+GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-optional
 # Always run this script before executing tests or automation tasks.
-# The setup process installs packages from all `requirements*.txt` files,
-# including core dependencies like **Flask** and **NumPy**, and prepares
-# environment variables.
+# The script installs `requirements.txt` and `requirements-test.txt` by default,
+# runs `scripts/run_migrations.py`, and prepares environment variables.
+# Passing `--with-optional` additionally installs `requirements-a.txt` and
+# `requirements-quantum.txt` when present.
 # If package installation fails due to network restrictions,
 # update the environment to permit outbound connections to PyPI.
 
@@ -108,6 +117,15 @@ tools/install_clw.sh
 # Verify clw exists and view usage
 ls -l /usr/local/bin/clw
 /usr/local/bin/clw --help
+
+### Add Lessons After a Run
+Store new insights directly from the gap analyzer:
+
+```bash
+python -m scripts.analysis.lessons_learned_gap_analyzer --lesson "use temp dirs"
+```
+
+Lessons are written to `learning_monitor.db` and automatically applied in future sessions.
 
 ### OpenAI Connector
 The repository provides `github_integration/openai_connector.py` for OpenAI API
@@ -849,11 +867,8 @@ validate_enterprise_standards(final_result)
 bash setup.sh
 source .venv/bin/activate
 
-# Install test dependencies (includes ruff for linting)
-pip install -r requirements-test.txt
-
 # Run comprehensive test suite
-make test  # runs `pytest tests`
+make test  # runs `pytest -q --disable-warnings tests` (defaults: --maxfail=10 --exitfirst)
 
 # Run linter
 ruff format .
@@ -867,6 +882,11 @@ python -m pytest tests/enterprise/ -v
 # DUAL COPILOT pattern validation
 python scripts/validation/dual_copilot_pattern_tester.py
 ```
+
+Tests enforce a default 120 s timeout via `pytest-timeout` (`timeout = 120` in
+`pytest.ini`) and fail fast with `--maxfail=10 --exitfirst`. For modules that
+need more time, decorate slow tests with `@pytest.mark.timeout(<seconds>)` or
+split heavy tests into smaller pieces to keep the suite responsive.
 
 ---
 
@@ -1040,6 +1060,7 @@ Set these variables in your `.env` file or shell before running scripts:
 - `FLASK_SECRET_KEY` – Flask dashboard secret.
 - `FLASK_RUN_PORT` – dashboard port (default `5000`).
 - `QISKIT_IBM_TOKEN` – optional IBM Quantum token.
+- `IBM_BACKEND` – optional IBM Quantum backend name (default `ibmq_qasm_simulator`).
 - `LOG_WEBSOCKET_ENABLED` – set to `1` to stream logs.
 - `CLW_MAX_LINE_LENGTH` – max line length for the `clw` wrapper (default `1550`).
 
@@ -1063,7 +1084,6 @@ To mimic CI locally, run:
 ```bash
 bash setup.sh
 make test
-python scripts/run_migrations.py
 ```
 
 ---
@@ -1114,3 +1134,10 @@ Planned highlights include:
    misclassification of non-executable files.
 6. **Cluster-based Template Retrieval** – use `get_cluster_representatives` to group templates for database-first generation.
 7. **Pattern Clustering Sync Utility** – leverage `PatternClusteringSync` and `DBFirstCodeGenerator` to synchronize templates and generate code using the database-first workflow.
+
+## Future Work
+
+See [Continuous Improvement Roadmap](docs/continuous_improvement_roadmap.md),
+[Stakeholder Roadmap](documentation/continuous_improvement_roadmap.md) and
+[Project Roadmap](documentation/ROADMAP.md) for detailed milestones and
+status tracking.

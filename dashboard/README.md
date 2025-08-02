@@ -76,7 +76,7 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 ```
 
 Visit [http://localhost:5000](http://localhost:5000) in your browser. The dashboard will auto-discover and display current session, database, and compliance data. All metrics update in real time.
-The dashboard HTML template lives in `dashboard/templates/dashboard.html` and automatically refreshes metrics via Server-Sent Events. If SSE is not supported, a JavaScript fallback polls `/metrics` and `/rollback_alerts` every five seconds.
+The dashboard HTML template lives in `dashboard/templates/dashboard.html` and automatically refreshes metrics via Server-Sent Events. If SSE is not supported, a JavaScript fallback polls `/dashboard/compliance` every five seconds.
 
 Example screenshot:
 
@@ -87,7 +87,7 @@ Example screenshot:
 The dashboard templates consume `/metrics_stream` via Server-Sent Events (SSE).
 Metrics are retrieved from `analytics.db` and include placeholder removal totals,
 open placeholder counts, and the average compliance score. If SSE is
-unavailable, a JavaScript fallback polls `/metrics` and `/alerts` every five
+unavailable, a JavaScript fallback polls `/dashboard/compliance` every five
 seconds. Alerts combine rollback and violation logs so operators can react to
 compliance issues immediately.
 
@@ -120,6 +120,7 @@ The `/dashboard/compliance` endpoint returns compliance information as JSON, com
     "compliance_score": 0.0,
     "violation_count": 0,
     "rollback_count": 0,
+    "progress_status": "unknown",
     "last_update": "ISO8601 timestamp"
   },
   "status": "updated",
@@ -143,7 +144,7 @@ The `/dashboard/compliance` endpoint returns compliance information as JSON, com
 }
 ```
 
-- `metrics` — Aggregated compliance metrics (e.g., placeholder removal count, compliance score)
+- `metrics` — Aggregated compliance metrics (e.g., placeholder removal count, compliance score); includes `progress_status` to summarize placeholder resolution progress
 - `rollbacks` — List of correction and rollback events
 - `notes` — Array of status messages using text tags like `[SUCCESS]`
 

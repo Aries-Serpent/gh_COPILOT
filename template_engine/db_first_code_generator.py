@@ -31,6 +31,7 @@ from .placeholder_utils import DEFAULT_PRODUCTION_DB, replace_placeholders
 from .template_placeholder_remover import remove_unused_placeholders
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
+from .learning_templates import get_lesson_templates
 
 # Quantum scoring helper
 try:
@@ -125,6 +126,7 @@ class TemplateAutoGenerator:
                 "Loaded %s default templates from pattern_templates",
                 len(templates),
             )
+            templates += list(get_lesson_templates().values())
         _log_event(
             {"event": "load_templates", "count": len(templates)},
             table="generator_events",

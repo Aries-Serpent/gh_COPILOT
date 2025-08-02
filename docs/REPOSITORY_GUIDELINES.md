@@ -144,6 +144,12 @@ make test   # Preferred test aggregator, combines unit and integration tests
 pytest -v   # Alternative for verbose test output
 ```
 
+The default configuration halts after the first failure
+(`--maxfail=10 --exitfirst`) and applies a 120 s per-test timeout via
+the `pytest-timeout` plugin (`timeout = 120` in `pytest.ini`). For tests
+needing more time, adjust the `timeout` value or decorate specific
+tests with `@pytest.mark.timeout(<seconds>)`.
+
 ### Lint Configuration
 The `.flake8` file at the repository root is the single source of lint rules.
 `pyproject.toml` mirrors these settings for Ruff. When adjusting lint

@@ -3,11 +3,25 @@ import numpy as np
 import quantum_algorithm_library_expansion as qal
 
 
-def test_quantum_text_score_qiskit(tmp_path):
+class _DummyBackend:
+    class _Result:
+        def get_counts(self):
+            return {"1": 128}
+
+    def run(self, circ, shots=256):  # pragma: no cover - simple stub
+        class _Job:
+            def result(self_inner):
+                return _DummyBackend._Result()
+
+        return _Job()
+
+
+def test_quantum_text_score_qiskit(tmp_path, monkeypatch):
     db = tmp_path / "analytics.db"
     qal.ANALYTICS_DB = db
     db.touch()
     qal.QISKIT_AVAILABLE = True
+    monkeypatch.setattr(qal, "get_backend", lambda use_hardware=None: _DummyBackend())
     score = qal.quantum_text_score("hello")
     assert 0 <= score <= 1
     with sqlite3.connect(db) as conn:

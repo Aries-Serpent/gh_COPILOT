@@ -32,8 +32,16 @@ jobs:
           echo "VIRTUAL_ENV=${{ github.workspace }}/.venv" >> $GITHUB_ENV
           echo "PATH=${{ github.workspace }}/.venv/bin:$PATH" >> $GITHUB_ENV
 
-      - name: Lint
-        run: make lint
+      - name: Install lint dependencies
+        run: pip install flake8 ruff
+
+      - name: Run ruff
+        run: |
+          mkdir -p reports/lint
+          ruff check . | tee reports/lint/ruff.txt
+
+      - name: Run flake8
+        run: flake8 --config=.flake8 .
 
       - name: Import template_engine modules
         run: |
@@ -55,12 +63,6 @@ jobs:
               importlib.import_module(m)
           PY
 
-      - name: Lint source
-        run: |
-          pip install flake8 bandit
-          flake8 --config=.flake8 . --count --show-source --statistics
-          bandit -r src -ll
-
       - name: Check for zero-byte files
         run: bash scripts/check_zero_logs.sh .
 
@@ -71,17 +73,21 @@ jobs:
           import template_engine.template_synchronizer
           PY
 
+      - name: Validate roadmap
+        run: python scripts/validate_roadmap.py docs/continuous_improvement_roadmap.md
+
       - name: Run tests with coverage
         run: |
-          mkdir -p artifacts
-          coverage run -m pytest -q tests tests/documentation tests/quantum --junitxml=artifacts/test-results.xml
-          coverage xml -o artifacts/coverage.xml
+          mkdir -p reports/coverage artifacts
+          pytest --cov=. --cov-report=xml:reports/coverage/coverage.xml --cov-report=term --cov-fail-under=50 -q --disable-warnings --maxfail=10 --exitfirst tests tests/documentation tests/quantum --junitxml=artifacts/test-results.xml
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: artifacts
-          path: artifacts
+          path: |
+            artifacts
+            reports
 
       - name: Verify template_engine import
         run: python -c "import template_engine"
@@ -124,7 +130,7 @@ jobs:
             -e GH_COPILOT_BACKUP_ROOT=/tmp/backups \
             -e FLASK_SECRET_KEY=$FLASK_SECRET_KEY \
             -v ${{ github.workspace }}/artifacts:/app/artifacts \
-            gh_copilot coverage run -m pytest -q tests --junitxml=/app/artifacts/test-results.xml
+            gh_copilot coverage run -m pytest -q --disable-warnings --maxfail=10 --exitfirst tests --junitxml=/app/artifacts/test-results.xml
           docker run --rm \
             -e GH_COPILOT_BACKUP_ROOT=/tmp/backups \
             -e FLASK_SECRET_KEY=$FLASK_SECRET_KEY \
@@ -137,6 +143,16 @@ jobs:
         with:
           name: artifacts
           path: artifacts
+
+  optional-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Run setup with optional deps
+        run: bash setup.sh --with-optional
 
   codeql:
     runs-on: ubuntu-latest

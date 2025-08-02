@@ -7,10 +7,11 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from qiskit_aer import AerSimulator
 from qiskit import QuantumCircuit
+from qiskit_aer import AerSimulator
 
 from .base import QuantumAlgorithmBase, TEXT_INDICATORS
+from ..utils import get_backend
 
 
 class QuantumLibraryExpansion(QuantumAlgorithmBase):
@@ -53,7 +54,15 @@ class QuantumLibraryExpansion(QuantumAlgorithmBase):
             circuit.h([0, 1])
             circuit.measure([0, 1], [0, 1])
 
-            backend = self.backend or AerSimulator()
+            backend = self.backend
+            if backend is None:
+                if self.use_hardware:
+                    backend = get_backend(use_hardware=True)
+                else:
+                    backend = AerSimulator()
+            if backend is None:
+                self.logger.error(f"{TEXT_INDICATORS['error']} No backend available")
+                return False
             result = backend.run(circuit, shots=200).result()
             counts = result.get_counts()
             self.logger.info(f"{TEXT_INDICATORS['info']} Counts: {counts}")

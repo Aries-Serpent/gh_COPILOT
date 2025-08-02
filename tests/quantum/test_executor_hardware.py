@@ -39,6 +39,22 @@ class MockProvider:
         return MockBackend()
 
 
+def test_missing_token_fallback(monkeypatch):
+    monkeypatch.delenv("QISKIT_IBM_TOKEN", raising=False)
+    monkeypatch.setattr(qexec, "init_ibm_backend", lambda: (MockBackend(), False))
+    exec_ = QuantumExecutor(use_hardware=True, backend_name="mock")
+    assert exec_.use_hardware is False
+
+
+def test_hardware_execution(monkeypatch):
+    backend = MockBackend()
+    monkeypatch.setattr(qexec, "init_ibm_backend", lambda: (backend, True))
+    exec_ = QuantumExecutor(use_hardware=True, backend_name="mock")
+    result = exec_.execute_algorithm("dummy_test")
+    assert result["success"]
+    assert exec_.use_hardware
+
+
 @pytest.mark.skipif(
     (not qexec.QISKIT_AVAILABLE) or (not hasattr(qexec, "IBMProvider")),
     reason="IBM Qiskit/provider unavailable",

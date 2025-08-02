@@ -12,6 +12,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
+from template_engine.learning_templates import get_dataset_sources, get_lesson_templates
 from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
@@ -48,6 +49,19 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
     template_dir = template_dir or (workspace / "prompts")
     files = _gather_template_files(template_dir)
 
+    dataset_dbs = get_dataset_sources(str(workspace))
+    existing_paths: set[str] = set()
+    primary_db = dataset_dbs[0] if dataset_dbs else None
+    if primary_db and primary_db.exists():
+        try:
+            with sqlite3.connect(primary_db) as prod_conn:
+                if _table_exists(prod_conn, "template_assets"):
+                    existing_paths = {
+                        row[0] for row in prod_conn.execute("SELECT template_path FROM template_assets")
+                    }
+        except sqlite3.Error:
+            existing_paths = set()
+
     start_time = datetime.now(timezone.utc)
 
     conn = sqlite3.connect(db_path)
@@ -58,12 +72,16 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
             conn = sqlite3.connect(db_path)
         with conn, tqdm(total=len(files), desc="Templates", unit="file") as bar:
             for path in files:
+                rel_path = str(path.relative_to(workspace))
+                if rel_path in existing_paths:
+                    bar.update(1)
+                    continue
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
                 conn.execute(
                     ("INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)"),
                     (
-                        str(path.relative_to(workspace)),
+                        rel_path,
                         digest,
                         datetime.now(timezone.utc).isoformat(),
                     ),
@@ -73,6 +91,26 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
                     (content[:1000], datetime.now(timezone.utc).isoformat()),
                 )
                 bar.update(1)
+        lesson_templates = get_lesson_templates()
+        existing_lessons = {
+            row[0]
+            for row in conn.execute(
+                "SELECT lesson_name FROM pattern_assets WHERE lesson_name IS NOT NULL"
+            )
+        }
+        for name, content in lesson_templates.items():
+            if name in existing_lessons:
+                continue
+            conn.execute(
+                (
+                    "INSERT INTO pattern_assets (pattern, usage_count, lesson_name, created_at) VALUES (?, 0, ?, ?)"
+                ),
+                (
+                    content[:1000],
+                    name,
+                    datetime.now(timezone.utc).isoformat(),
+                ),
+            )
     finally:
         conn.commit()
         conn.close()

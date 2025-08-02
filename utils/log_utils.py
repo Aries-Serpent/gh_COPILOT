@@ -79,6 +79,53 @@ TABLE_SCHEMAS: Dict[str, str] = {
             ts TEXT
         );
     """,
+    "event_log": """
+        CREATE TABLE IF NOT EXISTS event_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            module TEXT,
+            level TEXT,
+            description TEXT,
+            details TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_event_log_timestamp
+            ON event_log(timestamp);
+    """,
+    "corrections": """
+        CREATE TABLE IF NOT EXISTS corrections (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            file_path TEXT,
+            rationale TEXT,
+            compliance_score REAL,
+            rollback_reference TEXT,
+            ts TEXT
+        );
+    """,
+    "correction_history": """
+        CREATE TABLE IF NOT EXISTS correction_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            session_id TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            action TEXT NOT NULL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            details TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_correction_history_user_id ON correction_history(user_id);
+        CREATE INDEX IF NOT EXISTS idx_correction_history_session_id ON correction_history(session_id);
+        CREATE INDEX IF NOT EXISTS idx_correction_history_file_path ON correction_history(file_path);
+        CREATE INDEX IF NOT EXISTS idx_correction_history_timestamp ON correction_history(timestamp);
+    """,
+    "code_audit_history": """
+        CREATE TABLE IF NOT EXISTS code_audit_history (
+            id INTEGER PRIMARY KEY,
+            audit_entry TEXT NOT NULL,
+            user TEXT NOT NULL,
+            timestamp TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_code_audit_history_timestamp ON code_audit_history(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_code_audit_history_user ON code_audit_history(user);
+    """,
     "placeholder_removals": """
         CREATE TABLE IF NOT EXISTS placeholder_removals (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -281,22 +328,36 @@ def insert_event(
         logging.getLogger(__name__).debug("Simulated insert into %s: %s", table, event)
         return -1
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    with _log_lock, sqlite3.connect(db_path) as conn:
-        # Only insert columns that actually exist in the destination table to avoid
-        # ``sqlite3.OperationalError`` when the payload contains extra metadata.
-        existing_cols = {
-            row[1]
-            for row in conn.execute(f"PRAGMA table_info({table})")
-        }
-        filtered = {k: v for k, v in event.items() if k in existing_cols}
-        columns = ", ".join(filtered.keys())
-        placeholders = ", ".join("?" for _ in filtered)
-        cur = conn.execute(
-            f"INSERT INTO {table} ({columns}) VALUES ({placeholders})",
-            tuple(filtered.values()),
-        )
-        conn.commit()
-        return int(cur.lastrowid)
+    for _ in range(3):
+        try:
+            with _log_lock, sqlite3.connect(db_path, timeout=30) as conn:
+                # Only insert columns that actually exist in the destination table to
+                # avoid ``sqlite3.OperationalError`` when the payload contains extra
+                # metadata.
+                existing_cols = {
+                    row[1]
+                    for row in conn.execute(f"PRAGMA table_info({table})")
+                }
+                filtered = {k: v for k, v in event.items() if k in existing_cols}
+                if not filtered:
+                    logging.getLogger(__name__).debug(
+                        "Skipping insert into %s; no matching columns", table
+                    )
+                    return -1
+                columns = ", ".join(filtered.keys())
+                placeholders = ", ".join("?" for _ in filtered)
+                cur = conn.execute(
+                    f"INSERT INTO {table} ({columns}) VALUES ({placeholders})",
+                    tuple(filtered.values()),
+                )
+                conn.commit()
+                return int(cur.lastrowid)
+        except sqlite3.OperationalError as exc:
+            if "locked" in str(exc).lower():
+                time.sleep(0.1)
+                continue
+            raise
+    raise sqlite3.OperationalError("database is locked")
 
 
 def _log_event(
@@ -343,11 +404,16 @@ def _log_event(
 
     test_result = _can_create_analytics_db(db_path)
     start_ts = time.time()
+    row_id = -1
     with tqdm(total=1, desc="log", unit="evt", leave=False) as bar:
         if test_result:
             ensure_tables(db_path, [table], test_mode=test_mode)
-            insert_event(payload, table, db_path=db_path, test_mode=test_mode)
-            bar.set_postfix_str("written" if not test_mode else "simulated")
+            row_id = insert_event(
+                payload, table, db_path=db_path, test_mode=test_mode
+            )
+            bar.set_postfix_str(
+                "simulated" if test_mode or row_id == -1 else "written"
+            )
         else:
             tqdm.write(f"[FAIL] analytics.db could NOT be created at: {db_path}")
             if fallback_file:
@@ -356,8 +422,15 @@ def _log_event(
         bar.update(1)
     duration = time.time() - start_ts
     logger = logging.getLogger(__name__)
-    status = "SIMULATED" if test_mode else "LOGGED"
-    logger.info("analytics.db log event: %s | %.2fs | allowed: %s", json.dumps(payload), duration, test_result)
+    status = "SIMULATED" if test_mode or row_id == -1 else "LOGGED"
+    prefix = "Simulated " if status == "SIMULATED" else ""
+    logger.info(
+        "%sanalytics.db log event: %s | %.2fs | allowed: %s",
+        prefix,
+        json.dumps(payload),
+        duration,
+        test_result,
+    )
     if echo:
         print(
             f"[LOG][{payload['timestamp']}][{table}][{status}] {json.dumps(payload)}",

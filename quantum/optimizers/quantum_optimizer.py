@@ -5,7 +5,9 @@ from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from utils.cross_platform_paths import CrossPlatformPathManager
+from pathlib import Path
 import os
+import warnings
 
 import numpy as np
 
@@ -15,46 +17,91 @@ try:  # pragma: no cover - import check
 except ImportError:  # pragma: no cover - qiskit optional
     QISKIT_AVAILABLE = False
 
-try:  # pragma: no cover - optional provider
-    from qiskit_ibm_provider import IBMProvider
-except Exception:  # pragma: no cover - provider optional
-    IBMProvider = None
+from quantum.ibm_backend import init_ibm_backend
 
 # --- Anti-Recursion Validation ---
 
-def chunk_anti_recursion_validation():
-    """CRITICAL: Validate workspace before chunk execution"""
-    if not validate_no_recursive_folders():
-        raise RuntimeError("CRITICAL: Recursive violations prevent chunk execution")
-    if detect_c_temp_violations():
-        raise RuntimeError("CRITICAL: E:/temp/ violations prevent chunk execution")
+def chunk_anti_recursion_validation() -> bool:
+    """Run all anti-recursion checks.
+
+    Returns ``True`` when the workspace and backup paths are safe.
+    Raises ``RuntimeError`` with details on failure.
+    """
+
+    validate_no_recursive_folders()
+    offending = detect_c_temp_violations()
+    if offending:
+        raise RuntimeError(f"CRITICAL: E:/temp/ violations prevent chunk execution: {offending}")
     return True
 
-def validate_no_recursive_folders():
-    # Placeholder: Implement workspace root and backup root recursion checks
-    workspace = CrossPlatformPathManager.get_workspace_path()
-    backup_root = CrossPlatformPathManager.get_backup_root()
-    real_workspace = workspace.resolve()
-    real_backup = backup_root.resolve()
-    if real_workspace == real_backup:
-        return False
-    for root, dirs, files in os.walk(workspace):
-        for d in dirs:
-            dpath = os.path.realpath(os.path.join(root, d))
-            if dpath == real_workspace or dpath == real_backup:
-                return False
-    return True
 
-def detect_c_temp_violations():
+def validate_workspace() -> bool:
+    """Public entry point to trigger anti-recursion validation."""
+
+    return chunk_anti_recursion_validation()
+
+
+def validate_no_recursive_folders() -> None:
+    """Ensure workspace and backup directories are distinct and non-nesting.
+
+    Walks both roots resolving symlinks and comparing inodes so that no
+    subdirectory can link back to either root.
+    """
+
+    workspace = CrossPlatformPathManager.get_workspace_path().resolve()
+    backup_root = CrossPlatformPathManager.get_backup_root().resolve()
+
+    if workspace == backup_root:
+        raise RuntimeError(f"Workspace and backup root are identical: {workspace}")
+    if workspace in backup_root.parents:
+        raise RuntimeError(
+            f"Backup root {backup_root} cannot reside within workspace {workspace}"
+        )
+    if backup_root in workspace.parents:
+        raise RuntimeError(
+            f"Workspace {workspace} cannot reside within backup root {backup_root}"
+        )
+
+    workspace_inode = workspace.stat().st_ino
+    backup_inode = backup_root.stat().st_ino
+
+    def is_nested(child: Path, parent: Path) -> bool:
+        try:
+            child.relative_to(parent)
+            return True
+        except ValueError:
+            return False
+
+    for base, target in ((workspace, backup_root), (backup_root, workspace)):
+        for root, dirs, _ in os.walk(base, followlinks=True):
+            for d in dirs:
+                path = Path(root) / d
+                try:
+                    resolved = path.resolve()
+                    inode = resolved.stat().st_ino
+                except OSError:
+                    continue
+                if inode in {workspace_inode, backup_inode} or resolved in {
+                    workspace,
+                    backup_root,
+                }:
+                    raise RuntimeError(f"Subdirectory {path} links back to {resolved}")
+                if is_nested(resolved, target):
+                    raise RuntimeError(
+                        f"Subdirectory {path} nests within {target}: {resolved}"
+                    )
+
+
+def detect_c_temp_violations() -> Optional[str]:
     forbidden = ["E:/temp/", "E:\\temp\\"]
     workspace = str(CrossPlatformPathManager.get_workspace_path())
     backup_root = str(CrossPlatformPathManager.get_backup_root())
     for forbidden_path in forbidden:
-        if workspace.startswith(forbidden_path) or backup_root.startswith(forbidden_path):
-            return True
-    return False
-
-chunk_anti_recursion_validation()
+        if workspace.startswith(forbidden_path):
+            return workspace
+        if backup_root.startswith(forbidden_path):
+            return backup_root
+    return None
 
 # --- Quantum Optimizer Class ---
 
@@ -77,6 +124,7 @@ class QuantumOptimizer:
         options: Optional[Dict[str, Any]] = None,
         backend: Any = None,
         use_hardware: bool = False,
+        validate_workspace: bool = False,
     ):
         """Initialize optimizer."""
         self.objective_function = objective_function
@@ -87,12 +135,36 @@ class QuantumOptimizer:
         self.metrics: Dict[str, Any] = {}
         self.backend = backend
         self.use_hardware = use_hardware
+        if validate_workspace:
+            chunk_anti_recursion_validation()
         self._validate_init()
 
-    def set_backend(self, backend: Any, use_hardware: bool = False) -> None:
-        """Set quantum backend for optimizers."""
-        self.backend = backend
-        self.use_hardware = use_hardware
+    def set_backend(
+        self,
+        backend: Any | None,
+        use_hardware: bool = False,
+        token_env: str = "QISKIT_IBM_TOKEN",
+    ) -> None:
+        """Set quantum backend for optimizers.
+
+        When ``use_hardware`` is True and ``backend`` is ``None``, this method
+        attempts to initialize an IBM backend via :func:`init_ibm_backend`.
+        ``use_hardware`` is updated based on the availability of the hardware
+        backend. The chosen backend is logged with a ``[QUANTUM_BACKEND]`` tag.
+        """
+        if use_hardware and backend is None:
+            backend, success = init_ibm_backend(token_env=token_env)
+            if not success:
+                warnings.warn(
+                    "Hardware backend initialization failed; using simulator",
+                )
+            self.backend = backend
+            self.use_hardware = success
+        else:
+            self.backend = backend
+            self.use_hardware = use_hardware
+        backend_name = getattr(self.backend, "name", str(self.backend))
+        self.log_event("[QUANTUM_BACKEND]", {"backend": backend_name, "hardware": self.use_hardware})
 
     def configure_backend(
         self,
@@ -106,14 +178,14 @@ class QuantumOptimizer:
         not provided. If hardware access fails or the provider is unavailable,
         the optimizer falls back to the local ``Aer`` simulator.
         """
-        if use_hardware and IBMProvider is not None:
-            try:
-                provider = IBMProvider(token=token or os.getenv("QISKIT_IBM_TOKEN"))
-                backend = provider.get_backend(backend_name)
-                self.set_backend(backend, True)
+        if use_hardware:
+            if token:
+                os.environ.setdefault("QISKIT_IBM_TOKEN", token)
+            os.environ.setdefault("IBM_BACKEND", backend_name)
+            backend, success = init_ibm_backend()
+            self.set_backend(backend, success)
+            if success:
                 return backend
-            except Exception:  # pragma: no cover - provider errors
-                pass
         if QISKIT_AVAILABLE:
             simulator = Aer.get_backend("statevector_simulator")
             self.set_backend(simulator, False)
@@ -149,11 +221,23 @@ class QuantumOptimizer:
 
         Args:
             x0: Initial guess for variables (if required by method).
+            backend_name: Optional IBM backend name when requesting hardware.
+            token: Optional IBM Quantum API token.
             kwargs: Additional arguments passed to optimizer.
 
         Returns:
             Dictionary containing result, metrics, and full history.
         """
+        backend_name = kwargs.pop("backend_name", "ibmq_qasm_simulator")
+        token = kwargs.pop("token", None)
+        if self.use_hardware and self.backend is None:
+            try:
+                self.configure_backend(
+                    backend_name=backend_name, use_hardware=True, token=token
+                )
+            except Exception:
+                self.use_hardware = False
+
         self.log_event("optimization_start", {"method": self.method, "bounds": self.variable_bounds})
         start_time = datetime.utcnow()
         result = None

@@ -17,6 +17,7 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from tqdm import tqdm
 import logging
+from utils.lessons_learned_integrator import load_lessons
 
 # MANDATORY: Text indicators for cross-platform compatibility
 TEXT_INDICATORS = {
@@ -346,17 +347,19 @@ class LessonsLearnedIntegrationValidator:
                 self.check_visual_processing_standards(),
                 self.check_session_integrity_systems(),
                 self.check_database_integration(),
+                self.check_lessons_dataset_usage(),
+                self.audit_module_hooks(),
             ]
-
             compliance_score = sum(compliance_checks) / len(compliance_checks)
             is_compliant = compliance_score >= 0.8
-
-            self.logger.info(f"{TEXT_INDICATORS['validation']} Enterprise compliance: {compliance_score:.1%}")
-
+            self.logger.info(
+                f"{TEXT_INDICATORS['validation']} Enterprise compliance: {compliance_score:.1%}"
+            )
             return is_compliant
-
         except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Enterprise compliance validation failed: {str(e)}")
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Enterprise compliance validation failed: {str(e)}"
+            )
             return False
 
     def validate_dual_copilot_pattern(self) -> bool:
@@ -400,9 +403,57 @@ class LessonsLearnedIntegrationValidator:
             "comprehensive_session"
         )
 
+    def check_lessons_dataset_usage(self) -> bool:
+        """Confirm curated lessons dataset is present and non-empty."""
+        try:
+            lessons = load_lessons()
+            count = len(lessons)
+            if count:
+                self.logger.info(
+                    f"{TEXT_INDICATORS['info']} Lessons dataset entries: {count}"
+                )
+                return True
+            self.logger.warning(f"{TEXT_INDICATORS['warning']} Lessons dataset empty")
+            return False
+        except Exception as exc:  # pragma: no cover - unexpected errors
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Lessons dataset check failed: {exc}"
+            )
+            return False
+
     def check_database_integration(self) -> bool:
         """Check database integration implementation"""
         return self.search_pattern_evidence("production.db") or self.search_pattern_evidence("database_first")
+
+    def audit_module_hooks(self) -> bool:
+        """Audit scripts and template_engine modules for lessons learned hooks."""
+        target_dirs = ["scripts", "template_engine"]
+        missing_modules: List[str] = []
+        for directory in target_dirs:
+            dir_path = self.workspace_path / directory
+            if not dir_path.exists():
+                continue
+            for path in dir_path.rglob("*.py"):
+                try:
+                    content = path.read_text(encoding="utf-8")
+                except Exception as exc:  # pragma: no cover - unexpected errors
+                    self.logger.warning(
+                        f"{TEXT_INDICATORS['warning']} Could not read {path}: {exc}"
+                    )
+                    continue
+                if "lessons_learned_integrator" not in content:
+                    missing_modules.append(path.relative_to(self.workspace_path).as_posix())
+        if missing_modules:
+            self.logger.warning(
+                f"{TEXT_INDICATORS['warning']} Missing lessons learned hooks: {len(missing_modules)} modules"
+            )
+            for module in missing_modules:
+                self.logger.warning(f"  - {module}")
+            return False
+        self.logger.info(
+            f"{TEXT_INDICATORS['success']} All modules include lessons learned hooks"
+        )
+        return True
 
     def log_validation_summary(self, result: IntegrationValidationResult):
         """Log comprehensive validation summary"""

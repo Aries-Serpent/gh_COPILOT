@@ -5,12 +5,18 @@ quantum algorithms.  The implementations rely solely on the Qiskit simulator
 backends so they can be executed in a unit-test environment without requiring
 real quantum hardware.  These functions are intentionally lightweight and are
 meant for demonstration and testing purposes only.
+
+The :func:`run_kmeans_clustering` helper now exposes an ``n_init`` parameter
+with a numeric default of ``10`` rather than using ``"auto"``.  This maintains
+compatibility with older versions of scikit-learn that do not support the
+string value while still allowing callers to opt in to ``"auto"`` when running
+on newer releases.
 """
 
 from __future__ import annotations
 
 import time
-from typing import Iterable, List
+from typing import Iterable, List, Union
 
 import numpy as np
 from qiskit.circuit import QuantumCircuit
@@ -85,11 +91,13 @@ def run_grover_search(data: List[int], target: int) -> dict:
     return {"index": int(measured, 2), "iterations": iterations}
 
 
-def run_kmeans_clustering(samples: int = 100, clusters: int = 2) -> dict:
+def run_kmeans_clustering(
+    samples: int = 100, clusters: int = 2, n_init: Union[int, str] = 10
+) -> dict:
     """Run KMeans clustering and return inertia and runtime."""
     features, _ = make_blobs(n_samples=samples, centers=clusters, random_state=42)
     start = time.perf_counter()
-    model = KMeans(n_clusters=clusters, n_init="auto", random_state=42)
+    model = KMeans(n_clusters=clusters, n_init=n_init, random_state=42)
     model.fit(features)
     runtime = time.perf_counter() - start
     return {"inertia": float(model.inertia_), "time": runtime}

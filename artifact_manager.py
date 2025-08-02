@@ -42,8 +42,11 @@ from zipfile import ZipFile
 
 try:  # pragma: no cover - import guard
     import yaml
-except ModuleNotFoundError as exc:  # pragma: no cover
-    print("PyYAML is required for artifact management. Install it to continue.", file=sys.stderr)
+except ModuleNotFoundError:  # pragma: no cover
+    print(
+        "PyYAML is required for artifact management. Install it to continue.",
+        file=sys.stderr,
+    )
     raise
 
 
@@ -215,7 +218,6 @@ def check_directory_health(dir_path: Path, repo_root: Path) -> bool:
         if dir_path.is_symlink():
             logger.error("Directory %s is a symlink", dir_path)
             return False
-        resolved_root = repo_root.resolve()
         resolved = dir_path.resolve()
         repo_root_resolved = repo_root.resolve()
     except OSError as exc:  # pragma: no cover - extremely unusual
@@ -479,8 +481,10 @@ def recover_latest_session(
 
     archive = archives[0]
     logger.info(
-        "Restoring session: archive_dir=%s tmp=%s time=%s",\
-        sessions_dir, tmp_dir, datetime.now(timezone.utc).isoformat(),
+        "Restoring session: archive_dir=%s tmp=%s time=%s",
+        sessions_dir,
+        tmp_dir,
+        datetime.now(timezone.utc).isoformat(),
     )
     try:
         with ZipFile(archive) as zf:

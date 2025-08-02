@@ -40,28 +40,46 @@ logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE),
 metrics_updater = ComplianceMetricsUpdater(COMPLIANCE_DIR)
 
 
+def _get_lessons_integration_status(cur: sqlite3.Cursor) -> str:
+    """Return the latest lessons integration status from the database."""
+    try:
+        cur.execute(
+            "SELECT integration_status FROM integration_score_calculations ORDER BY timestamp DESC LIMIT 1"
+        )
+        row = cur.fetchone()
+        return row[0] if row and row[0] else "UNKNOWN"
+    except sqlite3.Error as exc:
+        logging.error("Lessons integration fetch error: %s", exc)
+        return "UNKNOWN"
+
+
+def _get_average_query_latency(cur: sqlite3.Cursor) -> float:
+    """Return the average query latency from performance metrics."""
+    try:
+        cur.execute(
+            "SELECT AVG(metric_value) FROM performance_metrics WHERE metric_name='query_latency'"
+        )
+        val = cur.fetchone()[0]
+        return float(val) if val is not None else 0.0
+    except sqlite3.Error as exc:
+        logging.error("Query latency fetch error: %s", exc)
+        return 0.0
+
+
 def _fetch_metrics() -> Dict[str, Any]:
-    metrics = {
-        "placeholder_removal": 0,
-        "open_placeholders": 0,
-        "resolved_placeholders": 0,
-        "total_placeholders": 0,
-        "compliance_score": 0.0,
-    }
+    """Fetch compliance metrics including lessons integration and query latency."""
+    metrics = metrics_updater._fetch_compliance_metrics(test_mode=True)
+    metrics.setdefault("total_placeholders", 0)
+    metrics.setdefault("lessons_integration_status", "UNKNOWN")
+    metrics.setdefault("average_query_latency", 0.0)
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.cursor()
             try:
                 cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking")
                 metrics["total_placeholders"] = cur.fetchone()[0]
-                cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=1")
-                metrics["placeholder_removal"] = cur.fetchone()[0]
-                metrics["resolved_placeholders"] = metrics["placeholder_removal"]
-                cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE resolved=0")
-                metrics["open_placeholders"] = cur.fetchone()[0]
-                cur.execute("SELECT AVG(compliance_score) FROM correction_logs")
-                val = cur.fetchone()[0]
-                metrics["compliance_score"] = float(val) if val is not None else 0.0
+                metrics["lessons_integration_status"] = _get_lessons_integration_status(cur)
+                metrics["average_query_latency"] = _get_average_query_latency(cur)
             except sqlite3.Error as exc:
                 logging.error("Metric fetch error: %s", exc)
     return metrics

@@ -2,10 +2,17 @@
 from pathlib import Path
 import shutil
 
+from unittest.mock import patch
+
 from scripts.utilities.unified_script_generation_system import EnterpriseUtility
 
 
-def test_template_generation(tmp_path):
+@patch(
+    "scripts.utilities.unified_script_generation_system.SecondaryCopilotValidator.validate_corrections",
+    return_value=True,
+)
+@patch("scripts.utilities.unified_script_generation_system.PatternRecognizer")
+def test_template_generation(mock_recognizer, _validate, tmp_path):
     workspace = Path(tmp_path)
     db_dir = workspace / "databases"
     db_dir.mkdir()
@@ -14,6 +21,7 @@ def test_template_generation(tmp_path):
 
     utility = EnterpriseUtility(str(workspace))
     assert utility.perform_utility_function() is True
+    mock_recognizer.return_value.recognize.assert_called()
 
     generated_dir = workspace / "generated_templates"
     generated_files = list(generated_dir.glob("template_*.txt"))

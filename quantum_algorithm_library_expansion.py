@@ -14,7 +14,6 @@ from typing import Iterable, List
 
 try:
     from qiskit import QuantumCircuit
-    from qiskit_aer import AerSimulator
 
     QISKIT_AVAILABLE = True
 except Exception:  # pragma: no cover - qiskit optional
@@ -23,6 +22,12 @@ except Exception:  # pragma: no cover - qiskit optional
 import numpy as np
 from sklearn.cluster import KMeans
 from tqdm import tqdm
+
+from quantum.advanced_quantum_algorithms import (
+    grover_search_qiskit,
+    phase_estimation_qiskit,
+)
+from quantum.utils.backend_provider import get_backend
 
 ANALYTICS_DB = Path("databases/analytics.db")
 
@@ -73,6 +78,8 @@ __all__ = [
     "quantum_similarity_score",
     "quantum_pattern_match_stub",
     "quantum_text_score",
+    "grover_search_qiskit",
+    "phase_estimation_qiskit",
 ]
 
 
@@ -180,9 +187,15 @@ def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
     """Return simple normalized dot product as quantum-inspired score."""
     arr_a = np.fromiter(a, dtype=float)
     arr_b = np.fromiter(b, dtype=float)
-    if arr_a.size == 0 or arr_b.size == 0:
+    min_len = min(arr_a.size, arr_b.size)
+    if min_len == 0:
         return 0.0
-    score = float(np.dot(arr_a, arr_b) / (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)))
+    arr_a = arr_a[:min_len]
+    arr_b = arr_b[:min_len]
+    denom = np.linalg.norm(arr_a) * np.linalg.norm(arr_b)
+    if denom == 0:
+        return 0.0
+    score = float(np.dot(arr_a, arr_b) / denom)
     log_quantum_event("similarity_score", str(score))
     return score
 
@@ -228,24 +241,28 @@ def quantum_pattern_match_stub(pattern: Iterable[int], data: Iterable[int]) -> b
     return False
 
 
-def quantum_text_score(text: str) -> float:
+def quantum_text_score(text: str, use_hardware: bool | None = None) -> float:
     """Return a quantum-inspired text score.
 
-    Uses ``qiskit`` when available, otherwise falls back to a
-    simple classical heuristic. In either case the execution path
-    is logged to ``analytics.db`` via :func:`log_quantum_event`.
+    When Qiskit is available, the function attempts to obtain a backend using
+    :func:`get_backend` which prefers IBM Quantum hardware when
+    ``use_hardware`` is True. If no backend is available or Qiskit is not
+    installed, the function falls back to a simple classical heuristic.
+    The execution path is logged to ``analytics.db`` via
+    :func:`log_quantum_event`.
     """
     if QISKIT_AVAILABLE:
-        circ = QuantumCircuit(1, 1)
-        theta = (sum(map(ord, text)) % 360) * np.pi / 180
-        circ.ry(theta, 0)
-        circ.measure(0, 0)
-        backend = AerSimulator()
-        result = backend.run(circ, shots=256).result()
-        counts = result.get_counts()
-        score = counts.get("1", 0) / 256
-        log_quantum_event("text_score", "qiskit")
-        return float(score)
+        backend = get_backend(use_hardware=use_hardware)
+        if backend is not None:
+            circ = QuantumCircuit(1, 1)
+            theta = (sum(map(ord, text)) % 360) * np.pi / 180
+            circ.ry(theta, 0)
+            circ.measure(0, 0)
+            result = backend.run(circ, shots=256).result()
+            counts = result.get_counts()
+            score = counts.get("1", 0) / 256
+            log_quantum_event("text_score", "qiskit")
+            return float(score)
 
     arr = np.fromiter((ord(c) for c in text), dtype=float)
     score = float(np.linalg.norm(arr) / ((arr.size or 1) * 255))

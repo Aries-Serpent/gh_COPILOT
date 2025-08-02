@@ -22,6 +22,11 @@ pip install -r requirements-ml.txt     # Machine learning and analytics
                                        # (includes qiskit-machine-learning)
 ```
 
+Running `bash setup.sh` installs both `requirements.txt` and
+`requirements-test.txt` automatically and executes
+`scripts/run_migrations.py` so local and CI environments share the same test
+dependencies and database schema.
+
 For local testing or CI pipelines, use the provided `Makefile`:
 
 ```bash

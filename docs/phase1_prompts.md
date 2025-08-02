@@ -14,7 +14,7 @@ This file contains suggested GitHub issues and workflow snippets generated from 
 
 3. **Add CI for lint and tests**
    - *Title*: Introduce GitHub Actions workflow for `ruff` and `pytest`
-   - *Body*: "Automate style and test checks. Workflow should install dependencies via `setup.sh`, set required environment variables, then run `ruff check .` and `pytest -q`."
+   - *Body*: "Automate style and test checks. Workflow should install dependencies via `setup.sh`, set required environment variables, then run `ruff check .` and `pytest -q --disable-warnings --maxfail=10 --exitfirst`."
 
 4. **Document ingestion process**
    - *Title*: Document safe usage of ingestion scripts
@@ -39,5 +39,5 @@ jobs:
         run: |
           source .venv/bin/activate
           ruff check .
-          pytest -q
+          pytest -q --disable-warnings --maxfail=10 --exitfirst
 ```
