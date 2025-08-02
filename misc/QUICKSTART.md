@@ -21,13 +21,24 @@ python run.py
 python main.py
 ```
 
+### Option 3: Run ZIP transformer
+```bash
+python -m enhanced_base64_transformer_zip
+```
+
 ## Features
 
 - **File to Base64**: Drag & drop files or use file picker
-- **Base64 to Image**: Paste Base64 text and preview images  
+- **Base64 to Image**: Paste Base64 text and preview images
 - **Theme Toggle**: Switch between light and dark themes
 - **Multi-format Support**: PNG, JPEG, BMP image formats
 - **Background Processing**: Non-blocking file operations
+
+## ZIP Variant Features
+
+- **ZIP to Base64**: Encode `.zip` archives to text
+- **Base64 to ZIP**: Decode text and view contained filenames
+- **Theme Toggle**: Dark/light mode support
 
 ## Troubleshooting
 

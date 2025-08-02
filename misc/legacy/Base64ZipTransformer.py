@@ -1,4 +1,10 @@
-"""Legacy Base64 transformer specialized for ZIP archives."""
+"""Legacy Base64 ZIP Transformer.
+
+This module mirrors the structure of ``Base64ImageTransformer`` but focuses on
+ZIP archives.  The ``EncodeWorker`` is reused to convert binary files to a
+Base64 string, while ``DecodeWorker`` validates decoded data as a ZIP archive
+and exposes the contained entries.
+"""
 
 from __future__ import annotations
 
@@ -6,6 +12,7 @@ import base64
 import binascii
 import io
 import zipfile
+from pathlib import Path
 from typing import List, Optional
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
@@ -30,6 +37,31 @@ from Base64ImageTransformer import EncodeWorker
 
 class DecodeWorker(QObject):
     """Worker that decodes Base64 text and validates it as a ZIP archive."""
+
+    encoding_successful = pyqtSignal(str)
+    encoding_failed = pyqtSignal(str)
+    finished = pyqtSignal()
+
+    def __init__(self, file_path: str) -> None:
+        super().__init__()
+        self.file_path = file_path
+
+    def run_encode(self) -> None:
+        """Read the file and emit a Base64 string."""
+        try:
+            data = Path(self.file_path).read_bytes()
+            b64_str = base64.b64encode(data).decode("utf-8")
+            self.encoding_successful.emit(b64_str)
+        except FileNotFoundError:
+            self.encoding_failed.emit(f"File not found: {self.file_path}")
+        except Exception as exc:  # noqa: BLE001 - broad to surface errors in UI
+            self.encoding_failed.emit(f"Failed to encode file: {exc}")
+        finally:
+            self.finished.emit()
+
+
+class DecodeWorker(QObject):
+    """Worker object to decode Base64 text into ZIP bytes and list entries."""
 
     decoding_successful = pyqtSignal(bytes, list)
     decoding_failed = pyqtSignal(str)
@@ -94,46 +126,36 @@ class Base64ZipTransformer(QWidget):
         self._init_zip_to_b64_tab()
         self._init_b64_to_zip_tab()
 
-        self.progress = QProgressBar()
-        self.progress.setVisible(False)
-        main_layout.addWidget(self.progress)
+        self.encode_thread: Optional[QThread] = None
+        self.decode_thread: Optional[QThread] = None
+        self.decoded_zip_data: Optional[bytes] = None
 
     # ------------------------------------------------------------------
-    # Encoding tab
+    # Tab 1: ZIP to Base64
     # ------------------------------------------------------------------
     def _init_zip_to_b64_tab(self) -> None:
-        self.tab_zip_to_b64 = QWidget()
-        layout = QVBoxLayout(self.tab_zip_to_b64)
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
 
-        btn_select = QPushButton(self.UI_STRINGS.BTN_SELECT_ZIP)
-        btn_select.clicked.connect(self.select_zip_for_encoding)
-        layout.addWidget(btn_select)
+        select_btn = QPushButton("Select ZIP File")
+        select_btn.clicked.connect(self.select_zip_for_encoding)
+        layout.addWidget(select_btn)
 
-        self.txt_b64_output = QTextEdit()
-        self.txt_b64_output.setReadOnly(True)
-        layout.addWidget(self.txt_b64_output)
+        self.b64_output = QTextEdit()
+        self.b64_output.setReadOnly(True)
+        layout.addWidget(self.b64_output)
 
-        btn_row = QHBoxLayout()
-        self.btn_copy_b64 = QPushButton(self.UI_STRINGS.BTN_COPY_B64)
-        self.btn_copy_b64.setEnabled(False)
-        self.btn_copy_b64.clicked.connect(self.copy_b64)
-        btn_row.addWidget(self.btn_copy_b64)
+        copy_btn = QPushButton("Copy Base64")
+        copy_btn.clicked.connect(
+            lambda: QApplication.clipboard().setText(self.b64_output.toPlainText())
+        )
+        layout.addWidget(copy_btn)
 
-        btn_clear = QPushButton(self.UI_STRINGS.BTN_CLEAR_B64_OUTPUT)
-        btn_clear.clicked.connect(self.txt_b64_output.clear)
-        btn_row.addWidget(btn_clear)
-
-        layout.addLayout(btn_row)
-
-        layout.addStretch()
-        self.tabs.addTab(self.tab_zip_to_b64, self.UI_STRINGS.TAB_ZIP_TO_B64)
+        self.tabs.addTab(tab, "ZIP to Base64")
 
     def select_zip_for_encoding(self) -> None:
         file_path, _ = QFileDialog.getOpenFileName(
-            self,
-            self.UI_STRINGS.BTN_SELECT_ZIP,
-            "",
-            "ZIP Files (*.zip);;All Files (*)",
+            self, "Select ZIP", "", "ZIP Files (*.zip);;All Files (*)"
         )
         if not file_path:
             return
@@ -252,4 +274,3 @@ class Base64ZipTransformer(QWidget):
             QMessageBox.critical(
                 self, self.UI_STRINGS.ERR_DECODE_FAILED_TITLE, str(exc)
             )
-

@@ -5,16 +5,17 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from PyQt6.QtWidgets import QApplication, QHBoxLayout, QPushButton, QVBoxLayout
 
-# Make legacy module importable
+from PyQt6.QtWidgets import QPushButton, QHBoxLayout
+
+# Import legacy transformer
 legacy_path = Path(__file__).parent.parent.parent.parent / "legacy"
 sys.path.insert(0, str(legacy_path.resolve()))
-from Base64ZipTransformer import Base64ZipTransformer
+from legacy.Base64ZipTransformer import Base64ZipTransformer  # noqa: E402
 
 
 class EnhancedBase64ZipTransformer(Base64ZipTransformer):
-    """Enhanced transformer adding a dark/light theme toggle."""
+    """Enhanced version with theme toggle support."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -23,12 +24,13 @@ class EnhancedBase64ZipTransformer(Base64ZipTransformer):
         self.add_theme_controls()
 
     def add_theme_controls(self) -> None:
+        """Insert a theme toggle button into the first tab."""
         theme_layout = QHBoxLayout()
+
         self.theme_button = QPushButton("Toggle Dark Theme")
         self.theme_button.clicked.connect(self.toggle_theme)
         theme_layout.addWidget(self.theme_button)
         theme_layout.addStretch()
-
         tab_layout = self.tab_zip_to_b64.layout()
         if isinstance(tab_layout, QVBoxLayout):
             tab_layout.addLayout(theme_layout)
@@ -129,4 +131,3 @@ def main() -> None:  # pragma: no cover - UI entry
 
 if __name__ == "__main__":  # pragma: no cover - UI entry
     main()
-
