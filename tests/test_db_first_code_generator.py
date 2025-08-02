@@ -9,6 +9,10 @@ from template_engine.db_first_code_generator import DBFirstCodeGenerator
 from template_engine.learning_templates import get_lesson_templates
 
 
+def allow_operation(*args: object, **kwargs: object) -> bool:
+    return True
+
+
 def create_production_db(tmp_path: Path) -> Path:
     db = tmp_path / "production.db"
     with sqlite3.connect(db) as conn:
@@ -33,7 +37,7 @@ def create_production_db(tmp_path: Path) -> Path:
 
 def test_existing_pattern_loaded(tmp_path: Path) -> None:
     prod_db = create_production_db(tmp_path)
-    db_first_code_generator.validate_enterprise_operation = lambda *args, **kwargs: True
+    db_first_code_generator.validate_enterprise_operation = allow_operation
     gen = DBFirstCodeGenerator(
         prod_db,
         tmp_path / "documentation.db",
@@ -46,7 +50,7 @@ def test_existing_pattern_loaded(tmp_path: Path) -> None:
 
 def test_missing_pattern_triggers_database_lookup(tmp_path: Path, monkeypatch) -> None:
     prod_db = create_production_db(tmp_path)
-    db_first_code_generator.validate_enterprise_operation = lambda *args, **kwargs: True
+    db_first_code_generator.validate_enterprise_operation = allow_operation
     gen = DBFirstCodeGenerator(
         prod_db,
         tmp_path / "documentation.db",
@@ -70,7 +74,7 @@ def test_similarity_ranking_selects_best(tmp_path: Path, monkeypatch) -> None:
         conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
         conn.execute("INSERT INTO code_templates (template_code) VALUES ('foo')")
         conn.execute("INSERT INTO code_templates (template_code) VALUES ('bar')")
-    db_first_code_generator.validate_enterprise_operation = lambda *a, **k: True
+    db_first_code_generator.validate_enterprise_operation = allow_operation
     gen = DBFirstCodeGenerator(
         prod_db,
         tmp_path / "documentation.db",
@@ -88,7 +92,7 @@ def test_similarity_ranking_selects_best(tmp_path: Path, monkeypatch) -> None:
 
 def test_generate_logs_event(tmp_path: Path, monkeypatch) -> None:
     prod_db = create_production_db(tmp_path)
-    db_first_code_generator.validate_enterprise_operation = lambda *a, **k: True
+    db_first_code_generator.validate_enterprise_operation = allow_operation
     gen = DBFirstCodeGenerator(
         prod_db,
         tmp_path / "documentation.db",
@@ -107,7 +111,7 @@ def test_generate_logs_event(tmp_path: Path, monkeypatch) -> None:
 
 def test_selects_lesson_template(tmp_path: Path) -> None:
     prod_db = tmp_path / "prod.db"
-    db_first_code_generator.validate_enterprise_operation = lambda *a, **k: True
+    db_first_code_generator.validate_enterprise_operation = allow_operation
     gen = DBFirstCodeGenerator(
         prod_db,
         tmp_path / "documentation.db",

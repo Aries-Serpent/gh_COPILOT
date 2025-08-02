@@ -48,10 +48,13 @@ def test_docs_metrics_validator_wrapper(tmp_path, monkeypatch):
     db_path = _setup_db(tmp_path)
     from scripts import docs_metrics_validator
 
+    def validate(path: Path) -> bool:
+        return path == db_path
+
     monkeypatch.setattr(
         docs_metrics_validator,
         "validate",
-        lambda path: path == db_path,
+        validate,
     )
 
     result = docs_metrics_validator.main(["--db-path", str(db_path)])
@@ -61,7 +64,11 @@ def test_docs_metrics_validator_wrapper(tmp_path, monkeypatch):
 def test_docs_metrics_validator_as_script(tmp_path, monkeypatch):
     db_path = _setup_db(tmp_path)
     module = types.ModuleType("validate_docs_metrics")
-    module.validate = lambda path: path == db_path
+
+    def validate(path: Path) -> bool:
+        return path == db_path
+
+    module.validate = validate
     module.DB_PATH = Path("dummy")
     monkeypatch.setitem(sys.modules, "validate_docs_metrics", module)
     script = Path(__file__).resolve().parents[1] / "scripts" / "docs_metrics_validator.py"
@@ -75,7 +82,11 @@ def test_docs_metrics_validator_as_script(tmp_path, monkeypatch):
 def test_docs_metrics_validator_module(tmp_path, monkeypatch):
     db_path = _setup_db(tmp_path)
     module = types.ModuleType("scripts.validate_docs_metrics")
-    module.validate = lambda path: path == db_path
+
+    def validate(path: Path) -> bool:
+        return path == db_path
+
+    module.validate = validate
     module.DB_PATH = Path("dummy")
     module.WHITEPAPER_PATH = tmp_path / "whitepaper.md"
     module.WHITEPAPER_PATH.write_text("templates: 0")
