@@ -18,7 +18,7 @@ The gh_COPILOT Toolkit v4.0 represents a revolutionary enterprise-grade automati
 - **Multiple SQLite Databases**: `production.db` and related databases provide a central data source
 - **Web Interface**: Flask dashboard with basic endpoints and templates
 - **Advanced AI Integration**: tooling supports further automation efforts
-- **Quantum-Enhanced Processing**: placeholder algorithms under exploration
+- **Quantum-Enhanced Processing**: annealing, superposition search and entanglement correction routines available (simulation-first with optional `use_hardware` flag).
 - **Enterprise Security Framework**: Zero-tolerance anti-recursion and comprehensive session integrity
 - *Note: earlier drafts referenced a 32+ database ecosystem. The current repository ships with a handful of SQLite databases for testing.*
 
