@@ -2,23 +2,15 @@
 # > Generated: 2025-07-24 06:42 | Author: mbaetiong
 
 import os
-import shutil
 import sqlite3
 import subprocess
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "wlc_session_manager.py"
-DEFAULT_DB = Path("databases/production.db")
 
 
-def copy_db_to_tmp(tmp_path):
-    temp_db = tmp_path / "production.db"
-    shutil.copy(DEFAULT_DB, temp_db)
-    return temp_db
-
-
-def test_cli_execution(tmp_path):
-    temp_db = copy_db_to_tmp(tmp_path)
+def test_cli_execution(unified_wrapup_session_db, tmp_path):
+    temp_db = unified_wrapup_session_db
     env = os.environ.copy()
     env["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     env["GH_COPILOT_BACKUP_ROOT"] = str(tmp_path / "backups")
@@ -47,8 +39,8 @@ def test_cli_execution(tmp_path):
     assert count == before
 
 
-def test_cli_orchestrate(tmp_path):
-    temp_db = copy_db_to_tmp(tmp_path)
+def test_cli_orchestrate(unified_wrapup_session_db, tmp_path):
+    temp_db = unified_wrapup_session_db
     env = os.environ.copy()
     env["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     env["GH_COPILOT_BACKUP_ROOT"] = str(tmp_path / "backups")
@@ -73,8 +65,8 @@ def test_cli_orchestrate(tmp_path):
     assert result.returncode == 0
 
 
-def test_cli_invalid_env(tmp_path):
-    temp_db = copy_db_to_tmp(tmp_path)
+def test_cli_invalid_env(unified_wrapup_session_db, tmp_path):
+    temp_db = unified_wrapup_session_db
     env = os.environ.copy()
     env["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     env["PYTHONPATH"] = str(Path.cwd())
