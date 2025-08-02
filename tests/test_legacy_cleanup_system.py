@@ -3,8 +3,10 @@ import sqlite3
 import pytest
 
 import importlib
-from unified_legacy_cleanup_system import UnifiedLegacyCleanupSystem
-from secondary_copilot_validator import SecondaryCopilotValidator
+from scripts.unified_legacy_cleanup_system import UnifiedLegacyCleanupSystem
+from scripts.validation.secondary_copilot_validator import (
+    SecondaryCopilotValidator,
+)
 
 
 def test_cleanup_execution_and_logs(tmp_path, monkeypatch):
@@ -26,7 +28,7 @@ def test_cleanup_execution_and_logs(tmp_path, monkeypatch):
         conn.commit()
     # patch _log_event to avoid DB writes during test and reload module
     monkeypatch.setattr("utils.log_utils._log_event", lambda *a, **k: None)
-    import unified_legacy_cleanup_system as uls
+    import scripts.unified_legacy_cleanup_system as uls
     import scripts.database.add_violation_logs as av
     import scripts.database.add_rollback_logs as ar
 

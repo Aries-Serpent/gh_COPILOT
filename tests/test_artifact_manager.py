@@ -1,4 +1,4 @@
-"""Comprehensive tests for :mod:`artifact_manager` utilities and CLI."""
+"""Comprehensive tests for :mod:`scripts.utilities.artifact_manager` utilities and CLI."""
 from __future__ import annotations
 
 import logging
@@ -12,8 +12,12 @@ from zipfile import ZipFile
 
 import pytest
 
-import artifact_manager
-from artifact_manager import LfsPolicy, package_session, recover_latest_session
+from scripts.utilities import artifact_manager
+from scripts.utilities.artifact_manager import (
+    LfsPolicy,
+    package_session,
+    recover_latest_session,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +27,13 @@ def copy_script_to_repo(path: Path) -> None:
 
     global script_dst
     script_dst = path / "artifact_manager.py"
-    shutil.copy(Path(__file__).resolve().parents[1] / "artifact_manager.py", script_dst)
+    shutil.copy(
+        Path(__file__).resolve().parents[1]
+        / "scripts"
+        / "utilities"
+        / "artifact_manager.py",
+        script_dst,
+    )
 
 
 def init_repo(path: Path) -> None:

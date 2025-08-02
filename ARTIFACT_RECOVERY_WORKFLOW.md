@@ -13,7 +13,7 @@ packages, syncs, and commits artifacts in a single atomic sequence:
 
 1. **Checkout and setup** – the job fetches the repository with LFS
    pointers, installs Git LFS, and runs `setup.sh`.
-2. **Package and commit** – `python artifact_manager.py --package --commit
+2. **Package and commit** – `python scripts/utilities/artifact_manager.py --package --commit
    --sync-gitattributes [--tmp-dir <path>]` bundles files from the
    temporary directory, stages the archive, regenerates `.gitattributes`,
    and records the commit. `artifact_lfs.yml` runs this command so that
@@ -34,7 +34,7 @@ Every job that produces artifacts should include:
 
 ```yaml
 - name: Package, Commit, and Sync Artifacts
-  run: python artifact_manager.py --package --commit --sync-gitattributes [--tmp-dir <path>]
+  run: python scripts/utilities/artifact_manager.py --package --commit --sync-gitattributes [--tmp-dir <path>]
 ```
 
 This single step bundles new files from the temporary directory (or the
@@ -56,7 +56,7 @@ automatically in accordance with `.codex_lfs_policy.yaml`.
 - If packaging fails, inspect logs for permission issues, missing
   directories, or absent Git LFS installations.
 - If the *Verify LFS pointers* step fails in CI, review
-  `.codex_lfs_policy.yaml` and rerun `artifact_manager.py --sync-gitattributes`
+  `.codex_lfs_policy.yaml` and rerun `scripts/utilities/artifact_manager.py --sync-gitattributes`
   before recommitting.
 - Test workflow updates in feature branches to catch platform-specific
   quirks before merging.
@@ -74,7 +74,7 @@ Controls automatic Git LFS behaviour. Key settings include
 Generated from the policy file. Lists patterns handled by Git LFS to keep
 clones small and prevent accidental binary commits.
 
-### `artifact_manager.py` CLI
+### `scripts/utilities/artifact_manager.py` CLI
 
 Unified command-line interface:
 
@@ -100,7 +100,7 @@ mistakes and keeps every contributor working with the same expectations.
 
 ### 2. Key CI Step: Package, Commit, and Sync
 
-Include a job step that runs `python artifact_manager.py --package --commit
+Include a job step that runs `python scripts/utilities/artifact_manager.py --package --commit
 --sync-gitattributes`. The workflow defined in `artifact_lfs.yml` executes this
 command so that packaging, pointer conversion, and committing occur in a single
 transaction. Running the combined command performs the following actions:
@@ -123,7 +123,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Package, Commit, and Sync Artifacts
-        run: python artifact_manager.py --package --commit --sync-gitattributes [--tmp-dir <path>]
+        run: python scripts/utilities/artifact_manager.py --package --commit --sync-gitattributes [--tmp-dir <path>]
       - name: Verify LFS pointers
         run: |
           set -e
@@ -159,7 +159,7 @@ jobs:
         run: git push
 ```
 
-Running `artifact_manager.py` with `--package --commit --sync-gitattributes` ensures the archive is created, LFS pointers are generated, and the commit is recorded before the validation step runs. The subsequent *Validate session archives* step parses the `git lfs ls-files` output to confirm every session archive exists and carries a proper pointer. This atomic sequence prevents raw binary blobs from ever entering history and catches mis-tracked files before they can break subsequent pushes or pulls.
+Running `scripts/utilities/artifact_manager.py` with `--package --commit --sync-gitattributes` ensures the archive is created, LFS pointers are generated, and the commit is recorded before the validation step runs. The subsequent *Validate session archives* step parses the `git lfs ls-files` output to confirm every session archive exists and carries a proper pointer. This atomic sequence prevents raw binary blobs from ever entering history and catches mis-tracked files before they can break subsequent pushes or pulls.
 
 ### 3. Pointer Validation Step
 
@@ -177,7 +177,7 @@ Error: these files should be pointers but are not:
   artifacts/report.csv
 ```
 
-To fix this, add the file type to `.codex_lfs_policy.yaml`, rerun `artifact_manager.py --sync-gitattributes [--tmp-dir <path>]`, and recommit.
+To fix this, add the file type to `.codex_lfs_policy.yaml`, rerun `scripts/utilities/artifact_manager.py --sync-gitattributes [--tmp-dir <path>]`, and recommit.
 
 ### 4. Why This Approach Works
 
@@ -191,7 +191,7 @@ When failures occur, review `git lfs ls-files` output and artifact manager logs
 in CI to identify mis-tracked binaries or permission problems. Pointer
 validation errors often mean the file's extension is missing from
 `.codex_lfs_policy.yaml` or that a custom `--tmp-dir` bypassed the policy's
-`session_artifact_dir`. Update the policy or rerun `artifact_manager.py --sync-gitattributes [--tmp-dir <path>]` before recommitting.
+`session_artifact_dir`. Update the policy or rerun `scripts/utilities/artifact_manager.py --sync-gitattributes [--tmp-dir <path>]` before recommitting.
 Test workflow changes in branches before merging to catch platform-specific
 issues.
 
@@ -214,10 +214,10 @@ documentation on artifact recovery during session iterations.
 Example usage:
 
 ```bash
-python artifact_manager.py --package
-ALLOW_AUTOLFS=1 python artifact_manager.py --package --commit "archive session"
-python artifact_manager.py --sync-gitattributes --package
-python artifact_manager.py --recover codex-session_<UTC-YYYYmmdd_HHMMSS>.zip
+python scripts/utilities/artifact_manager.py --package
+ALLOW_AUTOLFS=1 python scripts/utilities/artifact_manager.py --package --commit "archive session"
+python scripts/utilities/artifact_manager.py --sync-gitattributes --package
+python scripts/utilities/artifact_manager.py --recover codex-session_<UTC-YYYYmmdd_HHMMSS>.zip
 ```
 
 Archives live in `codex_sessions/` and are tracked with Git LFS when the

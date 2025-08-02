@@ -112,7 +112,7 @@ command with `clw` or redirect the output to a file for chunked review.
 
 ## Artifact Policy
 
-Runtime build and log directories now live under `artifacts/` to keep the repository root clean. Use subfolders such as `artifacts/builds/`, `artifacts/logs/`, `artifacts/results/`, and `artifacts/reports/` for transient output. These paths are gitignored and managed with `artifact_manager.py`.
+Runtime build and log directories now live under `artifacts/` to keep the repository root clean. Use subfolders such as `artifacts/builds/`, `artifacts/logs/`, `artifacts/results/`, and `artifacts/reports/` for transient output. These paths are gitignored and managed with `scripts/utilities/artifact_manager.py`.
 
 ---
 
