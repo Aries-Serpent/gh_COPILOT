@@ -11,6 +11,10 @@ Cargo.lock
 
 # Ignore runtime logs
 logs/**
+# Runtime artifacts
+builds/
+results/
+reports/
 # Backup archives
 archive/*.7z
 archive/*.zip
