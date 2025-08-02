@@ -1,4 +1,4 @@
-import quantum_algorithm_library_expansion as qale
+import quantum.quantum_algorithm_library_expansion as qale
 
 
 def test_log_quantum_event_does_not_create_db(tmp_path, monkeypatch):

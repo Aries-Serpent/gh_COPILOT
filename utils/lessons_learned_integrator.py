@@ -33,9 +33,11 @@ from utils.log_utils import _log_event
 
 # Derive the default database path from the workspace to honor the
 # database-first pattern in cross-platform environments.
-DEFAULT_DB = Path(
-    os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
-) / "databases" / "learning_monitor.db"
+def _get_default_db() -> Path:
+    return Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())) / "databases" / "learning_monitor.db"
+
+
+DEFAULT_DB = _get_default_db()
 TABLE = "enhanced_lessons_learned"
 
 
@@ -269,3 +271,42 @@ def fetch_lessons_by_tag(tag: str, db_path: Path = DEFAULT_DB) -> List[Dict[str,
         except sqlite3.Error as exc:  # pragma: no cover
             _log_event({"error": str(exc)}, table="lessons_learned_errors", db_path=db_path)
     return results
+
+
+def retrieve_prior_lessons(db_path: Path | None = None) -> List[Dict[str, str]]:
+    """Convenience wrapper to load previously stored lessons.
+
+    Parameters
+    ----------
+    db_path:
+        Optional path to the lessons database. Defaults to
+        ``learning_monitor.db`` under the workspace.
+
+    Returns
+    -------
+    list of dict
+        Lessons previously persisted in the database.
+    """
+
+    return load_lessons(db_path or _get_default_db())
+
+
+def persist_new_lessons(
+    lessons: Iterable[Dict[str, str]], db_path: Path | None = None
+) -> None:
+    """Store lessons not already recorded in the database.
+
+    Parameters
+    ----------
+    lessons:
+        Iterable of lesson dictionaries containing ``description``,
+        ``source``, ``timestamp``, ``validation_status`` and optional ``tags``.
+    db_path:
+        Path to the SQLite database used for persistence.
+    """
+
+    target_db = db_path or _get_default_db()
+    existing = {lesson["description"] for lesson in load_lessons(target_db)}
+    new_lessons = [lesson for lesson in lessons if lesson["description"] not in existing]
+    if new_lessons:
+        store_lessons(new_lessons, db_path=target_db)

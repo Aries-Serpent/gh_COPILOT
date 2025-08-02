@@ -8,7 +8,10 @@ MISSION: Verify 100% compliance with 99.9MB database limit
 
 from pathlib import Path
 from datetime import datetime
+import os
 import sqlite3
+
+from enterprise_modules.compliance import validate_enterprise_operation
 
 
 class FinalComplianceVerifier:
@@ -19,6 +22,11 @@ class FinalComplianceVerifier:
         self.databases_dir = Path("e:/gh_COPILOT/databases")
         self.max_size_mb = 99.9
         self.max_size_bytes = int(self.max_size_mb * 1024 * 1024)
+
+        backup_root = os.getenv("GH_COPILOT_BACKUP_ROOT")
+        if not backup_root:
+            raise EnvironmentError("GH_COPILOT_BACKUP_ROOT not set")
+        validate_enterprise_operation(backup_root)
 
         print("=" * 80)
         print("✅ FINAL DATABASE COMPLIANCE VERIFICATION")

@@ -18,8 +18,8 @@ Feature,Status
 `unified_script_generation_system.py` – generates scripts from templates,Implemented
 `unified_monitoring_optimization_system.py` – collects performance data,Implemented
 `web_gui_integration_system.py` – wraps Web-GUI components under one interface,Implemented
-`unified_database_management_system.py` – utilities for SQLite operations,Implemented
-`unified_disaster_recovery_system.py` – backup and restoration helpers,Implemented
+`scripts/unified_database_management_system.py` – utilities for SQLite operations,Implemented
+`scripts/unified_disaster_recovery_system.py` – backup and restoration helpers,Implemented
 `enterprise_unicode_compatibility_fix.py` – handles Unicode issues,Implemented
 `final_deployment_validator.py` – validates deployment configuration,Implemented
 Anti-recursion protection enabled,Implemented

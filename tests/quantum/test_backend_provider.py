@@ -8,19 +8,27 @@ class DummyBackend:
 
 
 class DummyProvider:
+    def __init__(self, token=None):
+        if token != "token":
+            raise RuntimeError("missing token")
+
     def get_backend(self, name):
         return DummyBackend()
 
 
 @pytest.mark.skipif(backend_provider.Aer is None, reason="Qiskit not available")
-def test_get_backend_uses_provider(monkeypatch):
-    monkeypatch.setattr(backend_provider, "IBMProvider", lambda: DummyProvider())
-    backend = backend_provider.get_backend("dummy", use_hardware=True)
+def test_auto_detects_hardware_with_token(monkeypatch):
+    monkeypatch.setenv("QISKIT_IBM_TOKEN", "token")
+    monkeypatch.setattr(backend_provider, "IBMProvider", DummyProvider)
+    backend = backend_provider.get_backend("dummy")
     assert isinstance(backend, DummyBackend)
 
 
 @pytest.mark.skipif(backend_provider.Aer is None, reason="Qiskit not available")
-def test_get_backend_falls_back(monkeypatch):
-    monkeypatch.setattr(backend_provider, "IBMProvider", None)
-    backend = backend_provider.get_backend(use_hardware=True)
-    assert backend is not None
+def test_falls_back_without_token(monkeypatch):
+    monkeypatch.delenv("QISKIT_IBM_TOKEN", raising=False)
+    monkeypatch.setattr(backend_provider, "IBMProvider", DummyProvider)
+    backend = backend_provider.get_backend("dummy")
+    from qiskit import Aer as _Aer
+
+    assert backend == _Aer.get_backend("qasm_simulator")

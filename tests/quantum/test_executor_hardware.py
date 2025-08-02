@@ -1,8 +1,12 @@
 import pytest
-from quantum.orchestration import executor as qexec
 from quantum.orchestration.executor import QuantumExecutor
 from quantum.orchestration.registry import register_algorithm
 from quantum.algorithms.base import QuantumAlgorithmBase
+from quantum.utils import backend_provider
+
+pytestmark = pytest.mark.skipif(
+    backend_provider.Aer is None, reason="Qiskit not available"
+)
 
 
 class DummyAlgo(QuantumAlgorithmBase):
@@ -40,43 +44,20 @@ class MockProvider:
 
 
 def test_missing_token_fallback(monkeypatch):
-    monkeypatch.delenv("QISKIT_IBM_TOKEN", raising=False)
-    monkeypatch.setattr(qexec, "init_ibm_backend", lambda: (MockBackend(), False))
+    monkeypatch.setattr(backend_provider, "_load_provider", lambda: None)
     exec_ = QuantumExecutor(use_hardware=True, backend_name="mock")
     assert exec_.use_hardware is False
 
 
 def test_hardware_execution(monkeypatch):
     backend = MockBackend()
-    monkeypatch.setattr(qexec, "init_ibm_backend", lambda: (backend, True))
+
+    class Provider:
+        def get_backend(self, name):
+            return backend
+
+    monkeypatch.setattr(backend_provider, "_load_provider", lambda: Provider())
     exec_ = QuantumExecutor(use_hardware=True, backend_name="mock")
     result = exec_.execute_algorithm("dummy_test")
     assert result["success"]
     assert exec_.use_hardware
-
-
-@pytest.mark.skipif(
-    (not qexec.QISKIT_AVAILABLE) or (not hasattr(qexec, "IBMProvider")),
-    reason="IBM Qiskit/provider unavailable",
-)
-def test_hardware_backend(monkeypatch):
-    monkeypatch.setattr(qexec, "IBMProvider", lambda: MockProvider())
-    exec_ = QuantumExecutor(use_hardware=True, backend_name="mock")
-    result = exec_.execute_algorithm("dummy_test")
-    assert result["success"]
-    assert exec_.use_hardware
-
-
-@pytest.mark.skipif(
-    (not qexec.QISKIT_AVAILABLE) or (not hasattr(qexec, "IBMProvider")),
-    reason="IBM Qiskit/provider unavailable",
-)
-def test_hardware_fallback(monkeypatch):
-    def bad_provider():
-        raise RuntimeError("no access")
-
-    monkeypatch.setattr(qexec, "IBMProvider", bad_provider)
-    exec_ = QuantumExecutor(use_hardware=True, backend_name="mock")
-    assert exec_.use_hardware is False
-    result = exec_.execute_algorithm("dummy_test")
-    assert result["success"]

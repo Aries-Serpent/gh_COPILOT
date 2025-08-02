@@ -28,6 +28,7 @@ from tqdm import tqdm
 
 from utils.log_utils import _log_event
 from utils.lessons_learned_integrator import load_lessons, apply_lessons
+from ml_pattern_recognition import PatternRecognizer
 
 from .pattern_templates import get_pattern_templates
 from .learning_templates import get_lesson_templates
@@ -37,7 +38,7 @@ from .pattern_mining_engine import extract_patterns
 
 # Quantum scoring helper
 try:
-    from quantum_algorithm_library_expansion import (
+    from quantum.quantum_algorithm_library_expansion import (
         quantum_text_score,
         quantum_similarity_score,
         quantum_cluster_score,
@@ -46,22 +47,22 @@ except ImportError:  # pragma: no cover - optional dependency
     from importlib import import_module
 
     try:
-        _qal = import_module("quantum_algorithm_library_expansion")
+        _qal = import_module("quantum.quantum_algorithm_library_expansion")
     except Exception:
         _qal = None
 
     if _qal is not None:
 
         def quantum_text_score(text: str) -> float:
-            """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+            """Fallback invoking :mod:`quantum.quantum_algorithm_library_expansion`."""
             return _qal.quantum_text_score(text)
 
         def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
-            """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+            """Fallback invoking :mod:`quantum.quantum_algorithm_library_expansion`."""
             return _qal.quantum_similarity_score(a, b)
 
         def quantum_cluster_score(matrix: np.ndarray) -> float:
-            """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+            """Fallback invoking :mod:`quantum.quantum_algorithm_library_expansion`."""
             return _qal.quantum_cluster_score(matrix)
     else:
 
@@ -142,6 +143,16 @@ class TemplateAutoGenerator:
         self.lessons = load_lessons()
         apply_lessons(logger, self.lessons)
         self.patterns = self._load_patterns()
+        self.pattern_recognizer = PatternRecognizer()
+        self.pattern_labels: list[str] = []
+        if self.patterns:
+            try:
+                self.pattern_recognizer.learn(self.patterns)
+                self.pattern_labels = self.pattern_recognizer.recognize(
+                    self.patterns, db_path=self.analytics_db
+                )
+            except Exception as exc:  # pragma: no cover - log and continue
+                logger.error(f"Pattern recognition failed: {exc}")
         lesson_descriptions = [lesson["description"] for lesson in self.lessons]
         self.templates = (
             lesson_descriptions

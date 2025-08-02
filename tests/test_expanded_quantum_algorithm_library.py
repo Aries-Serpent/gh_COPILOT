@@ -5,3 +5,8 @@ from scripts.utilities.expanded_quantum_algorithm_library import EnterpriseUtili
 def test_perform_utility_function_runs():
     util = EnterpriseUtility()
     assert util.perform_utility_function() is True
+
+
+def test_bell_state_generation():
+    util = EnterpriseUtility()
+    assert util._generate_bell_state() is True

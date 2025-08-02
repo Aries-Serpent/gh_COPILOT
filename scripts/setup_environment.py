@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Bootstrap environment and ensure test requirements are installed."""
+"""Bootstrap environment and optional test requirements."""
 
 from __future__ import annotations
 
+import argparse
+import logging
 import shutil
 import sqlite3
 import subprocess
 import sys
 from pathlib import Path
 from typing import Iterable
-import logging
 
 from . import run_migrations
 
@@ -86,10 +87,19 @@ def verify_migrations() -> None:
     print("Migrations verified")
 
 
-def main() -> None:
-    """Bootstrap environment and install test requirements."""
+def main(argv: list[str] | None = None) -> None:
+    """Bootstrap environment and optionally install test requirements."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--install-tests",
+        action="store_true",
+        help="install requirements-test.txt",
+    )
+    args = parser.parse_args(argv)
+
     ensure_env()
-    install_test_requirements()
+    if args.install_tests:
+        install_test_requirements()
     verify_migrations()
 
 

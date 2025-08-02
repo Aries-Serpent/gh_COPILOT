@@ -20,9 +20,9 @@ from typing import List, Tuple
 
 from tqdm import tqdm
 
-from advanced_qubo_optimization import solve_qubo_bruteforce
+from scripts.entrypoints.advanced_qubo_optimization import solve_qubo_bruteforce
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
-from quantum_database_search import quantum_search_sql
+from quantum.quantum_database_search import quantum_search_sql
 from quantum.ibm_backend import init_ibm_backend
 
 
@@ -99,7 +99,7 @@ class EnterpriseUtility:
         self.logger.info(f"{TEXT_INDICATORS['info']} Running QUBO demo")
 
         try:
-            from advanced_qubo_optimization import (
+            from scripts.entrypoints.advanced_qubo_optimization import (
                 EnterpriseUtility as QuboUtil,
             )
         except ImportError as exc:  # pragma: no cover - import guard

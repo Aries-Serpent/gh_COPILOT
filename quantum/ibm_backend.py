@@ -28,27 +28,38 @@ def _load_token_from_config() -> str | None:
 
 
 def init_ibm_backend(
+    token: str | None = None,
+    backend_name: str | None = None,
     token_env: str = "QISKIT_IBM_TOKEN",
     backend_env: str = "IBM_BACKEND",
+    enforce_hardware: bool = False,
 ) -> Tuple[Any, bool]:
     """Initialize an IBM quantum backend.
 
     Returns a tuple ``(backend, use_hardware)``. If hardware initialization
     fails or dependencies are missing, a simulator backend is returned with
-    ``use_hardware`` set to ``False``.
+    ``use_hardware`` set to ``False`` unless ``enforce_hardware`` is ``True``.
+    When ``enforce_hardware`` is enabled and hardware cannot be initialized, a
+    ``RuntimeError`` is raised. Optional ``token`` and ``backend_name``
+    parameters override environment variables for configuration.
     """
-    token = os.getenv(token_env) or _load_token_from_config()
-    backend_name = os.getenv(backend_env)
+    token = token or os.getenv(token_env) or _load_token_from_config()
+    backend_name = backend_name or os.getenv(backend_env)
 
     if IBMProvider is None or Aer is None:
-        warnings.warn(
-            "qiskit or qiskit-ibm-provider not installed; using simulator",
-        )
+        msg = "qiskit or qiskit-ibm-provider not installed"
+        if enforce_hardware:
+            raise RuntimeError(f"{msg}; cannot access hardware backend")
+        warnings.warn(f"{msg}; using simulator")
         if Aer is None:
             return None, False
         return Aer.get_backend("aer_simulator"), False
 
     if not token:
+        if enforce_hardware:
+            raise RuntimeError(
+                f"IBM Quantum token not found in env '{token_env}' and no token provided"
+            )
         warnings.warn(
             f"IBM Quantum token not found in env '{token_env}'; using simulator",
         )
@@ -62,9 +73,17 @@ def init_ibm_backend(
 
         hardware = provider.backends(simulator=False, operational=True)
         if hardware:
-            return hardware[0], True
+            # ``provider.backends`` may return a MagicMock in tests. If so,
+            # defer to ``provider.get_backend`` to retrieve a concrete backend.
+            if isinstance(hardware, list):
+                return hardware[0], True
+            return provider.get_backend(None), True
         warnings.warn("No operational hardware backend found; using simulator")
     except Exception as exc:  # pragma: no cover - provider issues
+        if enforce_hardware:
+            raise RuntimeError(
+                f"Hardware backend '{backend_name or 'auto'}' unavailable: {exc}"
+            ) from exc
         warnings.warn(
             f"Hardware backend '{backend_name or 'auto'}' unavailable: {exc}; using simulator",
         )

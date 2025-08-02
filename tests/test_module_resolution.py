@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 MODULES = [
-    "script_database_validator",
+    "db_tools.script_database_validator",
     "scripts.automation.autonomous_database_health_optimizer",
     "dashboard.compliance_metrics_updater",
 ]

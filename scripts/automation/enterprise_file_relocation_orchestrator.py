@@ -27,7 +27,7 @@ from tqdm import tqdm
 from scripts.automation.autonomous_database_health_optimizer import (
     AutonomousDatabaseHealthOptimizer,
 )
-from session_management_consolidation_executor import EnterpriseUtility
+from scripts.session.session_management_consolidation_executor import EnterpriseUtility
 import time
 from scripts.monitoring.unified_monitoring_optimization_system import (
     main as monitoring_main,

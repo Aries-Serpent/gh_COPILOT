@@ -30,18 +30,35 @@ except Exception:  # pragma: no cover - provider may be missing
 LOGGER = logging.getLogger(__name__)
 
 
+def _load_provider():
+    """Return an :class:`IBMProvider` instance if available and configured."""
+
+    if IBMProvider is None:
+        return None
+
+    token = os.getenv("QISKIT_IBM_TOKEN")
+    try:  # pragma: no cover - network dependent
+        if token:
+            return IBMProvider(token=token)
+        return IBMProvider()
+    except Exception as exc:  # pragma: no cover - provider may fail
+        LOGGER.debug("IBMProvider unavailable: %s", exc)
+        return None
+
+
 def get_backend(name: str = "ibmq_qasm_simulator", use_hardware: bool | None = None):
     """Return a Qiskit backend with optional hardware selection.
 
-    Attempts to load an IBM Quantum backend when ``use_hardware`` is True and the
-    provider is available. Falls back to the Aer simulator otherwise. When
-    ``use_hardware`` is ``None`` the ``QUANTUM_USE_HARDWARE`` environment variable
-    ("1" enables hardware mode) controls the behavior.
+    When ``use_hardware`` is ``None`` the function automatically enables hardware
+    mode if the ``qiskit-ibm-provider`` package is installed and a token is
+    available via ``QISKIT_IBM_TOKEN``. ``QUANTUM_USE_HARDWARE`` ("1" or "0")
+    overrides this auto-detection. Falls back to the local ``Aer`` simulator when
+    a hardware backend cannot be selected.
 
     Args:
         name: Desired backend name when using hardware.
-        use_hardware: If True, attempt to use an IBM Quantum backend. If ``None``,
-            read the value from ``QUANTUM_USE_HARDWARE``.
+        use_hardware: If True, force hardware usage; if False force simulator;
+            if ``None`` auto-detect based on environment variables.
 
     Returns:
         The selected backend instance or ``None`` if Qiskit is unavailable.
@@ -50,14 +67,22 @@ def get_backend(name: str = "ibmq_qasm_simulator", use_hardware: bool | None = N
         LOGGER.warning("Qiskit Aer not available; no backend returned")
         return None
 
-    if use_hardware is None:
-        use_hardware = os.getenv("QUANTUM_USE_HARDWARE", "0") == "1"
+    provider = None
 
-    if use_hardware and IBMProvider is not None:
-        try:  # pragma: no cover - requires network credentials
-            provider = IBMProvider()
-            return provider.get_backend(name)
-        except Exception as exc:  # pragma: no cover - provider may fail
-            LOGGER.warning("IBM backend unavailable: %s; using simulator", exc)
+    if use_hardware is None:
+        env = os.getenv("QUANTUM_USE_HARDWARE")
+        if env is not None:
+            use_hardware = env == "1"
+        else:
+            provider = _load_provider()
+            use_hardware = provider is not None
+
+    if use_hardware:
+        provider = provider or _load_provider()
+        if provider is not None:
+            try:  # pragma: no cover - requires network credentials
+                return provider.get_backend(name)
+            except Exception as exc:  # pragma: no cover - provider may fail
+                LOGGER.warning("IBM backend unavailable: %s; using simulator", exc)
 
     return Aer.get_backend("qasm_simulator")

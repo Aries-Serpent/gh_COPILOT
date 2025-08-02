@@ -1,6 +1,6 @@
-"""Thin wrapper for :mod:`session_management_consolidation_executor`."""
+"""Thin wrapper for :mod:`scripts.session.session_management_consolidation_executor`."""
 
-from session_management_consolidation_executor import EnterpriseUtility
+from scripts.session.session_management_consolidation_executor import EnterpriseUtility
 from utils.log_utils import _log_plain
 
 __all__ = ["EnterpriseUtility", "hello_world"]

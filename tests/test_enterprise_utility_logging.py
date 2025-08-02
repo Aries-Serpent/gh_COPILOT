@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-from session_management_consolidation_executor import EnterpriseUtility
+from scripts.session.session_management_consolidation_executor import EnterpriseUtility
 
 
 def test_enterprise_utility_logs(tmp_path: Path, monkeypatch) -> None:
