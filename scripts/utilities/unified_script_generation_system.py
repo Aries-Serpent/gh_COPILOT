@@ -22,6 +22,7 @@ from dataclasses import dataclass
 from tqdm import tqdm
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.visual_progress import start_indicator, progress_bar, end_indicator
+from ml_pattern_recognition import PatternRecognizer
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
@@ -105,6 +106,9 @@ class EnterpriseUtility:
                     placeholders = re.findall(r"{(.*?)}", content)
                     placeholder_counter.update(placeholders)
                 pbar.update(60)
+
+                recognizer = PatternRecognizer()
+                recognizer.recognize(list(placeholder_counter.keys()))
 
                 if not rows:
                     self.logger.error(f"{TEXT_INDICATORS['error']} No templates found in database")

@@ -26,3 +26,7 @@
 - Quantum-ready architecture (planned)
 - Advanced predictive capabilities
 - Industry benchmark leadership
+
+### Future Phases
+- Continuous improvement initiatives detailed in [Project Roadmap](../../ROADMAP.md)
+- ML pattern recognition, autonomous expansion and quantum upgrades `[status: planned]`
