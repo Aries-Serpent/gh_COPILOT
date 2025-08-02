@@ -52,6 +52,26 @@ DEFAULT_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "prod
 DB_PATH = Path(os.getenv("WLC_DB_PATH", str(DEFAULT_DB)))
 
 
+def ensure_session_table(db_path: Path) -> None:
+    """Create the session table if it does not exist."""
+    if os.getenv("TEST_MODE"):
+        return
+    with get_connection(db_path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS unified_wrapup_sessions (
+                session_id TEXT PRIMARY KEY,
+                start_time TEXT NOT NULL,
+                end_time TEXT,
+                status TEXT,
+                compliance_score REAL,
+                error_details TEXT
+            )
+            """,
+        )
+        conn.commit()
+
+
 def get_connection(db_path: Path) -> sqlite3.Connection:
     return sqlite3.connect(db_path)
 
@@ -144,11 +164,10 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
     if not validate_environment():
         raise EnvironmentError("Required environment variables are not set or paths invalid")
 
-    if os.getenv("TEST_MODE"):
-        return
-
-    setup_logging(verbose)
-    logging.info("WLC session starting")
+    test_mode = bool(os.getenv("TEST_MODE"))
+    if not test_mode:
+        setup_logging(verbose)
+        logging.info("WLC session starting")
 
     global UnifiedWrapUpOrchestrator
     if UnifiedWrapUpOrchestrator is None:
@@ -157,6 +176,8 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         )
 
         UnifiedWrapUpOrchestrator = _Orchestrator
+
+    ensure_session_table(db_path)
 
     with get_connection(db_path) as conn:
         conn.execute(
@@ -182,15 +203,24 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         compliance_score = 1.0
         try:
             for i in tqdm(range(steps), desc="WLC Session", unit="step"):
-                logging.info("Step %d/%d completed", i + 1, steps)
-                time.sleep(0.1)
+                if not test_mode:
+                    logging.info("Step %d/%d completed", i + 1, steps)
+                sleep_time = 0.1
+                if os.getenv("TEST"):
+                    sleep_time = 0.01
+                if not test_mode:
+                    time.sleep(sleep_time)
 
-            orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(CrossPlatformPathManager.get_workspace_path()))
-            result = orchestrator.execute_unified_wrapup()
-            compliance_score = result.compliance_score / 100.0
+            if not test_mode:
+                orchestrator = UnifiedWrapUpOrchestrator(
+                    workspace_path=str(CrossPlatformPathManager.get_workspace_path())
+                )
+                result = orchestrator.execute_unified_wrapup()
+                compliance_score = result.compliance_score / 100.0
 
         except Exception as exc:  # noqa: BLE001
-            logging.exception("WLC session failed")
+            if not test_mode:
+                logging.exception("WLC session failed")
             finalize_session_entry(conn, entry_id, 0.0, error=str(exc))
             raise
 
@@ -203,24 +233,29 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             tags="wlc",
         )
 
-        if run_orchestrator:
+        if run_orchestrator and not test_mode:
             orchestrator_cls = UnifiedWrapUpOrchestrator
             if orchestrator_cls is None:
                 from scripts.orchestrators.unified_wrapup_orchestrator import (
                     UnifiedWrapUpOrchestrator as orchestrator_cls,
                 )
 
-            orchestrator = orchestrator_cls(workspace_path=str(CrossPlatformPathManager.get_workspace_path()))
+            orchestrator = orchestrator_cls(
+                workspace_path=str(CrossPlatformPathManager.get_workspace_path())
+            )
             orchestrator.execute_unified_wrapup()
 
         validator = SecondaryCopilotValidator()
         validator.validate_corrections([__file__])
 
-    if os.getenv("WLC_RUN_ORCHESTRATOR") == "1":
-        orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(CrossPlatformPathManager.get_workspace_path()))
+    if os.getenv("WLC_RUN_ORCHESTRATOR") == "1" and not test_mode:
+        orchestrator = UnifiedWrapUpOrchestrator(
+            workspace_path=str(CrossPlatformPathManager.get_workspace_path())
+        )
         orchestrator.execute_unified_wrapup()
 
-    logging.info("WLC session completed")
+    if not test_mode:
+        logging.info("WLC session completed")
 
 
 def main(argv: list[str] | None = None) -> None:

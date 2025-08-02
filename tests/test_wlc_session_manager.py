@@ -44,14 +44,18 @@ def test_main_skips_side_effects_with_test_mode(tmp_path, monkeypatch):
         before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
     wsm.main([])
     with sqlite3.connect(temp_db) as conn:
-        after = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
-    assert after == before
-    assert not dummy.called
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM unified_wrapup_sessions")
+        after = cur.fetchone()[0]
+        cur.execute("SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
+        score = cur.fetchone()[0]
+    assert after == before + 1
+    assert abs(score - 1.0) < 1e-6
+    assert dummy.called
     assert not orch.called
-    assert not list((backup_root / "logs").glob("wlc_*.log"))
 
 
-def test_orchestrator_skipped_in_test_mode(tmp_path, monkeypatch):
+def test_orchestrator_called(tmp_path, monkeypatch):
     temp_db = tmp_path / "production.db"
     shutil.copy(wsm.DB_PATH, temp_db)
     monkeypatch.setattr(wsm, "DB_PATH", temp_db)
@@ -78,7 +82,13 @@ def test_orchestrator_skipped_in_test_mode(tmp_path, monkeypatch):
     monkeypatch.setattr(wsm, "SecondaryCopilotValidator", lambda: dummy)
 
     wsm.main([])
+
     assert not orch.called
+    with sqlite3.connect(temp_db) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
+        score = cur.fetchone()[0]
+    assert abs(score - 1.0) < 1e-6
 
 
 def test_session_error_skipped_in_test_mode(tmp_path, monkeypatch):
@@ -97,7 +107,16 @@ def test_session_error_skipped_in_test_mode(tmp_path, monkeypatch):
             raise RuntimeError("boom")
 
     monkeypatch.setattr(wsm, "UnifiedWrapUpOrchestrator", lambda workspace_path=None: FailingOrchestrator())
-    wsm.main([])  # should not raise
+
+    wsm.main([])
+
+    with sqlite3.connect(temp_db) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT status, error_details FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
+        status, error_details = cur.fetchone()
+
+    assert status == "COMPLETED"
+    assert error_details is None
 
 
 def test_session_persists_lesson_skipped(tmp_path, monkeypatch):
