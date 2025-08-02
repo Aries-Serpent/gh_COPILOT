@@ -22,7 +22,7 @@ FILE_MOVES: Dict[str, str] = {
     "performance_validation_complete.py": "scripts/validation/",
     "performance_validation_framework.py": "scripts/validation/",
     "physics_optimization_engine.py": "scripts/optimization/",
-    "script_database_validator.py": "scripts/database/",
+    "script_database_validator.py": "db_tools/",
     "secondary_copilot_validator.py": "scripts/validation/",
     "simplified_quantum_integration_orchestrator.py": "scripts/session/",
     "temp_db_check.py": "db_tools/",

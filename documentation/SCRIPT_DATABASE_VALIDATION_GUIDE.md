@@ -6,7 +6,7 @@ The Script Database Validation System ensures that all scripts within the reposi
 
 ## Components
 
-### 1. Core Validator (`script_database_validator.py`)
+### 1. Core Validator (`db_tools/script_database_validator.py`)
 
 The primary validation engine that:
 - Scans repository for all script files (`.py`, `.ps1`, `.sh`, `.bat`)
@@ -40,13 +40,13 @@ Comprehensive test coverage for:
 
 ```bash
 # Generate validation report
-python3 script_database_validator.py --report validation_report.md
+python3 db_tools/script_database_validator.py --report validation_report.md
 
 # Verbose validation with console output
-python3 script_database_validator.py --verbose
+python3 db_tools/script_database_validator.py --verbose
 
 # Update database with out-of-sync scripts
-python3 script_database_validator.py --update --verbose
+python3 db_tools/script_database_validator.py --update --verbose
 ```
 
 ### Enterprise Synchronization
@@ -69,7 +69,7 @@ python3 enterprise_script_database_synchronizer_complete.py --auto-sync --no-bac
 
 ```bash
 # Specify custom workspace root
-python3 script_database_validator.py --workspace /path/to/workspace --report report.md
+python3 db_tools/script_database_validator.py --workspace /path/to/workspace --report report.md
 
 # Enterprise sync for specific workspace
 python3 enterprise_script_database_synchronizer_complete.py --workspace /path/to/workspace --auto-sync

@@ -4,7 +4,7 @@ Production Readiness Demonstration
 Shows that the script database validation system meets all requirements
 """
 
-from script_database_validator import ScriptDatabaseValidator
+from db_tools.script_database_validator import ScriptDatabaseValidator
 from pathlib import Path
 
 
@@ -75,7 +75,7 @@ def show_integration_examples():
     print("-" * 40)
     
     print("\n• Daily Validation Check:")
-    print("  python3 script_database_validator.py --verbose")
+    print("  python3 db_tools/script_database_validator.py --verbose")
     
     print("\n• Weekly Synchronization:")
     print("  python3 enterprise_script_database_synchronizer_complete.py --auto-sync")
@@ -84,7 +84,7 @@ def show_integration_examples():
     print("  python3 enterprise_script_database_synchronizer_complete.py --compliance-report")
     
     print("\n• CI/CD Integration:")
-    print("  if ! python3 script_database_validator.py; then")
+    print("  if ! python3 db_tools/script_database_validator.py; then")
     print("    echo 'Database sync required'")
     print("    exit 1")
     print("  fi")
