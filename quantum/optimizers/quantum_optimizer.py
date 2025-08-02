@@ -149,11 +149,23 @@ class QuantumOptimizer:
 
         Args:
             x0: Initial guess for variables (if required by method).
+            backend_name: Optional IBM backend name when requesting hardware.
+            token: Optional IBM Quantum API token.
             kwargs: Additional arguments passed to optimizer.
 
         Returns:
             Dictionary containing result, metrics, and full history.
         """
+        backend_name = kwargs.pop("backend_name", "ibmq_qasm_simulator")
+        token = kwargs.pop("token", None)
+        if self.use_hardware and self.backend is None:
+            try:
+                self.configure_backend(
+                    backend_name=backend_name, use_hardware=True, token=token
+                )
+            except Exception:
+                self.use_hardware = False
+
         self.log_event("optimization_start", {"method": self.method, "bounds": self.variable_bounds})
         start_time = datetime.utcnow()
         result = None
