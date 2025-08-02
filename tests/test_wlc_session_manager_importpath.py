@@ -10,7 +10,7 @@ def test_cli_import_path(unified_wrapup_session_db, tmp_path):
     env = os.environ.copy()
     env["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     env["GH_COPILOT_BACKUP_ROOT"] = str(tmp_path / "backups")
-    env["TEST_MODE"] = "1"
+    env["TEST_MODE"] = "1"  # ensure early exit during tests
     result = subprocess.run(
         [
             "python",
