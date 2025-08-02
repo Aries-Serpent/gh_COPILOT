@@ -24,10 +24,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture
-def unified_wrapup_session_db(tmp_path):
-    """Provide a temporary database with unified_wrapup_sessions table."""
-    db_file = tmp_path / "production.db"
+@pytest.fixture(scope="session")
+def unified_wrapup_session_db(tmp_path_factory):
+    """Provide a temporary database with the unified_wrapup_sessions table."""
+    db_dir = tmp_path_factory.mktemp("wrapup_db")
+    db_file = db_dir / "production.db"
     with sqlite3.connect(db_file) as conn:
         wsm.ensure_session_table(conn)
     return db_file
