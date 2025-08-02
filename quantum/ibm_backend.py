@@ -28,6 +28,8 @@ def _load_token_from_config() -> str | None:
 
 
 def init_ibm_backend(
+    token: str | None = None,
+    backend_name: str | None = None,
     token_env: str = "QISKIT_IBM_TOKEN",
     backend_env: str = "IBM_BACKEND",
 ) -> Tuple[Any, bool]:
@@ -35,10 +37,11 @@ def init_ibm_backend(
 
     Returns a tuple ``(backend, use_hardware)``. If hardware initialization
     fails or dependencies are missing, a simulator backend is returned with
-    ``use_hardware`` set to ``False``.
+    ``use_hardware`` set to ``False``. Optional ``token`` and ``backend_name``
+    parameters override environment variables for configuration.
     """
-    token = os.getenv(token_env) or _load_token_from_config()
-    backend_name = os.getenv(backend_env)
+    token = token or os.getenv(token_env) or _load_token_from_config()
+    backend_name = backend_name or os.getenv(backend_env)
 
     if IBMProvider is None or Aer is None:
         warnings.warn(

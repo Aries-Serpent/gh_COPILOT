@@ -37,6 +37,10 @@ This documentation suite provides comprehensive information about the quantum op
    - Step-by-step module creation
    - CLI integration instructions
    - Testing and validation checklist
+7. **[Hardware Setup](HARDWARE_SETUP.md)**
+   - Token and backend configuration
+   - Hardware execution flags
+   - Simulator fallback behavior
 
 ### Quick Start
 For immediate implementation, start with the Integration Guide and follow the deployment checklist.
@@ -51,7 +55,7 @@ For immediate implementation, start with the Integration Guide and follow the de
 -### Generated Information
 **Documentation Version**: 1.2
 **Generated**: 2025-07-10T10:28:01.243876
- **Total Documents**: 6
+ **Total Documents**: 7
  **Status**: Enterprise Review Ready
 
 ### Newly Added Algorithms (v1.1)

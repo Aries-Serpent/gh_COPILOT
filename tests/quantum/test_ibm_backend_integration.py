@@ -16,9 +16,25 @@ def _load_ibm_backend():
 
 @pytest.mark.hardware
 def test_backend_initializes_with_real_provider(monkeypatch):
-    """Verify real provider initialization when token is available."""
+    """Verify provider initialization with token using a mock provider."""
+    monkeypatch.setenv("QISKIT_IBM_TOKEN", "TOKEN")
     monkeypatch.delenv("IBM_BACKEND", raising=False)
     ibm_backend = _load_ibm_backend()
+
+    class DummyProvider:
+        def __init__(self, token: str):
+            assert token == "TOKEN"
+
+        def backends(self, simulator: bool = False, operational: bool = True):
+            return ["backend"]
+
+    class DummyAer:
+        @staticmethod
+        def get_backend(name: str):  # pragma: no cover - not used
+            return name
+
+    monkeypatch.setattr(ibm_backend, "IBMProvider", DummyProvider)
+    monkeypatch.setattr(ibm_backend, "Aer", DummyAer)
     backend, use_hw = ibm_backend.init_ibm_backend()
-    assert backend is not None
+    assert backend == "backend"
     assert use_hw is True

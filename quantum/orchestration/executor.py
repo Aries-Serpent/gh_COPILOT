@@ -49,7 +49,9 @@ class QuantumExecutor:
             self.logger.warning("IBM provider unavailable; using simulator")
             self.use_hardware = False
         if self.use_hardware:
-            backend, success = init_ibm_backend()
+            backend, success = init_ibm_backend(
+                token=env_token, backend_name=self.backend_name
+            )
             self.backend = backend
             self.use_hardware = success
         elif QISKIT_AVAILABLE:
@@ -62,7 +64,9 @@ class QuantumExecutor:
             if QISKIT_AVAILABLE:
                 return Aer.get_backend("qasm_simulator")
             return None
-        backend, success = init_ibm_backend()
+        backend, success = init_ibm_backend(
+            token=os.getenv("QISKIT_IBM_TOKEN"), backend_name=backend_name
+        )
         self.use_hardware = success
         if success:
             return backend
