@@ -1,27 +1,12 @@
 import sqlite3
-from pathlib import Path
 
 from session_db_tools import record_lesson
-
-
-def _create_table(db: Path) -> None:
-    with sqlite3.connect(db) as conn:
-        conn.execute(
-            """
-            CREATE TABLE enhanced_lessons_learned (
-                description TEXT,
-                source TEXT,
-                timestamp TEXT,
-                validation_status TEXT,
-                tags TEXT
-            )
-            """
-        )
+from utils.lessons_learned_integrator import ensure_lessons_table
 
 
 def test_record_lesson_success(tmp_path):
     db = tmp_path / "lessons.db"
-    _create_table(db)
+    ensure_lessons_table(db)
     result = record_lesson(
         db,
         "Ensure backups",
@@ -44,9 +29,9 @@ def test_record_lesson_success(tmp_path):
     )
 
 
-def test_record_lesson_failure(tmp_path):
+def test_record_lesson_creates_table(tmp_path):
     db = tmp_path / "lessons.db"
-    # Table is not created to trigger failure
+    # Table not pre-created; store_lesson should create it automatically
     result = record_lesson(
         db,
         "Missing table",
@@ -55,4 +40,4 @@ def test_record_lesson_failure(tmp_path):
         validation_status="validated",
         tags="testing",
     )
-    assert result is False
+    assert result is True

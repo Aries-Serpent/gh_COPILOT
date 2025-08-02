@@ -195,6 +195,8 @@ TEXT_INDICATORS = {
   Windows path. The validator now writes logs cross-platform and excludes
   virtual environment and version-control directories from anti-recursion
   checks.
+- Added environment-aware database path and automatic table creation helper in
+  `utils/lessons_learned_integrator.py` to ensure database-first compliance.
 
 ---
 

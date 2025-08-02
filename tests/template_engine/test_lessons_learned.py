@@ -1,33 +1,17 @@
 import logging
-import sqlite3
-from pathlib import Path
 
 from utils.lessons_learned_integrator import (
-    store_lesson,
-    load_lessons,
-    fetch_lessons_by_tag,
     apply_lessons,
+    ensure_lessons_table,
+    fetch_lessons_by_tag,
+    load_lessons,
+    store_lesson,
 )
 
 
-def _init_db(path: Path) -> Path:
-    with sqlite3.connect(path) as conn:
-        conn.execute(
-            """
-            CREATE TABLE enhanced_lessons_learned (
-                description TEXT,
-                source TEXT,
-                timestamp TEXT,
-                validation_status TEXT,
-                tags TEXT
-            )
-            """
-        )
-    return path
-
-
 def test_store_retrieve_apply(tmp_path, caplog):
-    db = _init_db(tmp_path / "lessons.db")
+    db = tmp_path / "lessons.db"
+    ensure_lessons_table(db)
     store_lesson(
         "use mock DB",
         source="unit",

@@ -1,31 +1,18 @@
 import sqlite3
-from pathlib import Path
+from pathlib import Path  # noqa: F401
 
 from utils.lessons_learned_integrator import (
+    ensure_lessons_table,
+    fetch_lessons_by_tag,
     load_lessons,
     store_lesson,
     store_lessons,
-    fetch_lessons_by_tag,
 )
-
-def _create_table(db: Path) -> None:
-    with sqlite3.connect(db) as conn:
-        conn.execute(
-            """
-            CREATE TABLE enhanced_lessons_learned (
-                description TEXT,
-                source TEXT,
-                timestamp TEXT,
-                validation_status TEXT,
-                tags TEXT
-            )
-            """
-        )
 
 
 def test_load_lessons(tmp_path):
     db = tmp_path / "lessons.db"
-    _create_table(db)
+    ensure_lessons_table(db)
     store_lesson(
         "Use temp dirs",
         source="tests",
@@ -40,7 +27,7 @@ def test_load_lessons(tmp_path):
 
 def test_store_lesson_and_fetch_by_tag(tmp_path):
     db = tmp_path / "lessons.db"
-    _create_table(db)
+    ensure_lessons_table(db)
     store_lesson(
         "Add more docs",
         source="review",
@@ -55,7 +42,7 @@ def test_store_lesson_and_fetch_by_tag(tmp_path):
 
 def test_store_lessons_batch(tmp_path):
     db = tmp_path / "lessons.db"
-    _create_table(db)
+    ensure_lessons_table(db)
     lessons = [
         {
             "description": "Use context managers",
