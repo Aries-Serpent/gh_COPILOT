@@ -3,6 +3,8 @@ import pytest
 
 from quantum.optimizers.quantum_optimizer import QuantumOptimizer
 
+pytestmark = pytest.mark.timeout(60)
+
 
 def test_simulated_annealing_runs():
     def obj(x):
