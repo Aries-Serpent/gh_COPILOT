@@ -26,7 +26,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 > Advanced AI integration features are fully integrated. They default to simulation mode unless real hardware is configured.
 
 ### 🎯 **Recent Milestones**
-- **Lessons Learned Integration:** sessions automatically apply lessons from `learning_monitor.db`
+- **Lessons Learned Integration:** sessions persist and reuse lessons from `learning_monitor.db`
 - **Database-First Architecture:** `databases/production.db` used as primary reference
 - **DUAL COPILOT Pattern:** primary/secondary validation framework available
 - **Dual Copilot Enforcement:** automation scripts now trigger secondary

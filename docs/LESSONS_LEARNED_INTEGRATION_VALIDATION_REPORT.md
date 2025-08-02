@@ -201,6 +201,9 @@ TEXT_INDICATORS = {
 - Extended the validator to audit all modules in `scripts/` and
   `template_engine/` for `utils.lessons_learned_integrator` hooks, logging any
   missing integrations for review.
+- Session modules now persist lessons to `learning_monitor.db`, and the
+  validator audits `session_*` utilities to ensure lessons are applied across
+  runs.
 
 ---
 
