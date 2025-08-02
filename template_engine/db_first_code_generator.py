@@ -35,7 +35,7 @@ from .learning_templates import get_lesson_templates
 
 # Quantum scoring helper
 try:
-    from quantum.quantum_algorithm_library_expansion import (
+    from quantum_algorithm_library_expansion import (
         quantum_text_score,
         quantum_similarity_score,
         quantum_cluster_score,

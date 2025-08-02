@@ -18,11 +18,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-import sys
-
-if __package__ is None or __package__ == "":
-    sys.path.append(str(Path(__file__).resolve().parents[2]))
-
 from utils.log_utils import _log_event, log_message
 from utils.lessons_learned_integrator import store_lesson
 import logging

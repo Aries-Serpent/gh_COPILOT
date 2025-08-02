@@ -24,11 +24,6 @@ class TestAutonomousDatabaseHealthOptimizer:
         # Create databases directory
         (workspace / "databases").mkdir(exist_ok=True)
         (workspace / "logs").mkdir(exist_ok=True)
-        security_dir = workspace / "security"
-        security_dir.mkdir(exist_ok=True)
-        (security_dir / "enterprise_security_policy.json").write_text(
-            '{"encryption": "AES256", "access_control": "RBAC"}'
-        )
 
         yield workspace
 

@@ -38,7 +38,7 @@ The validator now audits every module within `scripts/` and `template_engine/` f
 
 **Code Evidence Found:**
 ```python
-# From scripts/unified_monitoring_optimization_system.py
+# From unified_monitoring_optimization_system.py
 def perform_utility_function(self) -> bool:
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path))
     perf_db = workspace / "databases" / "performance_monitoring.db"
@@ -201,9 +201,6 @@ TEXT_INDICATORS = {
 - Extended the validator to audit all modules in `scripts/` and
   `template_engine/` for `utils.lessons_learned_integrator` hooks, logging any
   missing integrations for review.
-- Session modules now persist lessons to `learning_monitor.db`, and the
-  validator audits `session_*` utilities to ensure lessons are applied across
-  runs.
 
 ---
 

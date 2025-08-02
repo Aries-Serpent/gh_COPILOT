@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from quantum.optimizers import quantum_optimizer as qo
+import quantum_optimizer as qo
 
 
 def objective(x: np.ndarray) -> float:

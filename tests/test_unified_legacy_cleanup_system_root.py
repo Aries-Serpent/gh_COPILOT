@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.unified_legacy_cleanup_wrapper import UnifiedLegacyCleanupSystem
+from unified_legacy_cleanup_system import UnifiedLegacyCleanupSystem
 
 
 @pytest.fixture()
@@ -29,7 +29,7 @@ def test_cleanup_removes_files_and_logs(setup_workspace: Path, monkeypatch):
     deprecated.write_text("print('legacy')\n")
     events = []
     monkeypatch.setattr(
-        "scripts.unified_legacy_cleanup_wrapper._log_event",
+        "unified_legacy_cleanup_system._log_event",
         lambda evt, **_: events.append(evt),
     )
     system = UnifiedLegacyCleanupSystem(str(setup_workspace))
@@ -53,11 +53,11 @@ def test_cleanup_rollback_on_error(setup_workspace: Path, monkeypatch):
 
     monkeypatch.setattr(Path, "unlink", fake_remove)
     monkeypatch.setattr(
-        "scripts.unified_legacy_cleanup_wrapper.UnifiedDisasterRecoverySystem.perform_recovery",
+        "unified_legacy_cleanup_system.UnifiedDisasterRecoverySystem.perform_recovery",
         lambda self: fake_recover(),
     )
     monkeypatch.setattr(
-        "scripts.unified_legacy_cleanup_wrapper._log_event",
+        "unified_legacy_cleanup_system._log_event",
         lambda *_, **__: None,
     )
     system = UnifiedLegacyCleanupSystem(str(setup_workspace))
@@ -75,7 +75,7 @@ def test_cleanup_writes_to_db(setup_workspace: Path, monkeypatch):
             conn.execute("INSERT INTO event_log (event) VALUES (?)", (event["event"],))
             conn.commit()
 
-    monkeypatch.setattr("scripts.unified_legacy_cleanup_wrapper._log_event", fake_log)
+    monkeypatch.setattr("unified_legacy_cleanup_system._log_event", fake_log)
 
     assert system.run_cleanup()
     with sqlite3.connect(analytics) as conn:

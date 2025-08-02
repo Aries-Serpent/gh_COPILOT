@@ -34,6 +34,8 @@ def validate_root_organization():
         "ENTERPRISE_DEVELOPMENT_MISSION_ACCOMPLISHED.md": "Mission status",
         "FINAL_LESSONS_LEARNED_INTEGRATION_VALIDATION.md": "Lessons learned",
         "UNIFIED_WRAP_UP_ORCHESTRATOR_IMPLEMENTATION_COMPLETE.md": "Wrap-up status",
+        # Temporary validation files (acceptable)
+        "temp_db_check.py": "Temporary database validation script",
     }
 
     # Define file patterns that should NOT be in root

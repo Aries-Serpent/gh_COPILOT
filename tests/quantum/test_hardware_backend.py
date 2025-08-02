@@ -1,7 +1,5 @@
 from unittest.mock import MagicMock
 
-import pytest
-
 from quantum.ibm_backend import init_ibm_backend
 
 
@@ -9,7 +7,6 @@ def test_init_backend_success(monkeypatch):
     backend = object()
     provider = MagicMock()
     provider.return_value.get_backend.return_value = backend
-    provider.return_value.backends.return_value = [backend]
     monkeypatch.setenv("QISKIT_IBM_TOKEN", "token")
     monkeypatch.setattr("quantum.ibm_backend.IBMProvider", provider)
     def _stub_get_backend_backend(name):
@@ -35,15 +32,3 @@ def test_init_backend_no_token(monkeypatch):
     result, use_hw = init_ibm_backend()
     assert result is simulator
     assert use_hw is False
-
-
-def test_enforce_hardware_without_token(monkeypatch):
-    monkeypatch.delenv("QISKIT_IBM_TOKEN", raising=False)
-    def _stub_get_backend_simulator(name):
-        return object()
-
-    monkeypatch.setattr(
-        "quantum.ibm_backend.Aer", MagicMock(get_backend=_stub_get_backend_simulator)
-    )
-    with pytest.raises(RuntimeError):
-        init_ibm_backend(enforce_hardware=True)

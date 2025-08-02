@@ -18,7 +18,7 @@ Example configuration of a custom session directory::
 
 Typical packaging invocation::
 
-    python scripts/utilities/artifact_manager.py --package --tmp-dir build/tmp --commit
+    python artifact_manager.py --package --tmp-dir build/tmp --commit
 
 Troubleshooting ``session_artifact_dir``
 --------------------------------------
@@ -524,21 +524,21 @@ def main() -> None:
     --------
     Package and commit session files using a custom temporary directory::
 
-        python scripts/utilities/artifact_manager.py --package --tmp-dir /custom/tmp --commit
+        python artifact_manager.py --package --tmp-dir /custom/tmp --commit
 
     Regenerate the repository's ``.gitattributes`` file from policy::
 
-        python scripts/utilities/artifact_manager.py --sync-gitattributes
+        python artifact_manager.py --sync-gitattributes
 
     Recover the most recent session into a custom temporary directory::
 
-        python scripts/utilities/artifact_manager.py --recover --tmp-dir /custom/tmp
+        python artifact_manager.py --recover --tmp-dir /custom/tmp
     """
 
     examples = (
         "Examples:\n"
-        "  python scripts/utilities/artifact_manager.py --package --tmp-dir /custom/tmp\n"
-        "  python scripts/utilities/artifact_manager.py --sync-gitattributes"
+        "  python artifact_manager.py --package --tmp-dir /custom/tmp\n"
+        "  python artifact_manager.py --sync-gitattributes"
     )
     parser = argparse.ArgumentParser(
         description="Manage packaging and recovery of session artifacts",

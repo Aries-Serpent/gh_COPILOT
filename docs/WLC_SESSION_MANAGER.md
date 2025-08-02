@@ -43,7 +43,7 @@ export API_SECRET_KEY=<generated_secret>
 python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --orchestrate --verbose
 ```
 
-This command writes a log file to both `artifacts/logs/` and `$GH_COPILOT_BACKUP_ROOT/logs/` with a timestamped name such as `wlc_20250101_120000.log`.
+This command writes a log file to `$GH_COPILOT_BACKUP_ROOT/logs/` with a timestamped name such as `wlc_20250101_120000.log`.
 It also inserts a new row into the `unified_wrapup_sessions` table of `production.db` capturing the session ID, start and end times, status, and compliance score.
 
 For any major workflow, end with the session manager to capture compliance data:
@@ -53,15 +53,15 @@ python my_long_running_script.py
 python scripts/wlc_session_manager.py --db-path databases/production.db
 ```
 
-Logs are saved under `artifacts/logs/` and `$GH_COPILOT_BACKUP_ROOT/logs/` with a timestamped filename
+Logs are saved under `$GH_COPILOT_BACKUP_ROOT/logs/` with a timestamped filename
 like `wlc_20250101_120000.log`.
 
-Log files are written under `artifacts/logs/` and `$GH_COPILOT_BACKUP_ROOT/logs/`, and a new row is inserted into the `unified_wrapup_sessions` table of `production.db`.
+Log files will be written under `$GH_COPILOT_BACKUP_ROOT/logs/` and a new row is inserted into the `unified_wrapup_sessions` table of `production.db`.
 
-The WLC session manager is also invoked automatically by
-[`scripts/orchestrators/unified_wrapup_orchestrator.py`](../scripts/orchestrators/unified_wrapup_orchestrator.py)
-to record wrap-up operations. When the orchestrator finishes its workflow, it
-triggers a lightweight WLC session using the same database for compliance tracking.
+The WLC session manager is also invoked automatically by the
+`UnifiedWrapUpOrchestrator` to record wrap-up operations. When the orchestrator
+finishes its workflow, it triggers a lightweight WLC session using the same
+database for compliance tracking.
 Each session creates an entry in the `unified_wrapup_sessions` table with
 `session_id`, timestamps, status, and a compliance score. Errors are recorded in
 the `error_details` column for audit purposes.

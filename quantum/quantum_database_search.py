@@ -18,7 +18,6 @@ from typing import List, Dict, Any, Optional, Union
 
 from utils.log_utils import _log_event
 from quantum.algorithms import QuantumEncryptedCommunication
-from quantum.advanced_quantum_algorithms import grover_search_list
 
 logger = logging.getLogger(__name__)
 DEFAULT_DB_PATH = Path(os.environ.get("QUANTUM_DB_PATH", "databases/quantum.db"))
@@ -112,100 +111,6 @@ def quantum_search_sql(
         _log_search_event(query, db_path, len(results), params, error)
         _lock.release()
     return results
-
-
-def quantum_search_registered_db(
-    query: str,
-    db_name: str,
-    params: Optional[Dict[str, Any]] = None,
-    limit: Optional[int] = None,
-    workspace_root: str | None = None,
-    **kwargs: Any,
-) -> List[Dict[str, Any]]:
-    """Execute ``query`` against a registered database using quantum search.
-
-    The database must be listed under the workspace managed by
-    :class:`~scripts.database.unified_database_management_system.UnifiedDatabaseManager`.
-    An empty list is returned if the database is unknown.
-    """
-
-    from scripts.database.unified_database_management_system import (
-        UnifiedDatabaseManager,
-    )
-
-    mgr = UnifiedDatabaseManager(workspace_root=workspace_root or ".")
-    db_path = mgr.databases_dir / db_name
-    if not db_path.exists():
-        logger.error("Registered database not found: %s", db_name)
-        _log_search_event(query, db_path, 0, params, "db not found")
-        return []
-    return quantum_search_sql(query, db_path, params, limit, **kwargs)
-
-
-def quantum_find_record(
-    query: str,
-    column: str,
-    target: str,
-    db_path: Union[str, Path] = DEFAULT_DB_PATH,
-    *,
-    use_hardware: bool = False,
-    backend_name: str | None = None,
-) -> Optional[Dict[str, Any]]:
-    """Return the first row whose ``column`` matches ``target``.
-
-    ``grover_search_list`` is used to locate the target value when quantum
-    execution is enabled; otherwise a classical search is performed.
-    """
-
-    rows = quantum_search_sql(
-        query,
-        db_path,
-        params=None,
-        limit=None,
-        use_hardware=use_hardware,
-        backend_name=backend_name,
-    )
-    dataset = [str(row.get(column)) for row in rows]
-    try:
-        match = grover_search_list(dataset, str(target), use_quantum=use_hardware)
-    except ValueError:
-        return None
-    for row in rows:
-        if str(row.get(column)) == match:
-            return row
-    return None
-
-
-def quantum_join_sql(
-    left_table: str,
-    right_table: str,
-    join_condition: str,
-    db_path: Union[str, Path] = DEFAULT_DB_PATH,
-    *,
-    use_hardware: bool = False,
-    backend_name: str | None = None,
-    limit: Optional[int] = None,
-) -> List[Dict[str, Any]]:
-    """Perform an inner join between two tables with optional quantum warmup."""
-
-    if use_hardware and backend_name:
-        try:  # pragma: no cover - hardware optional
-            from qiskit_ibm_provider import IBMProvider
-            from qiskit import QuantumCircuit
-            provider = IBMProvider()
-            backend = provider.get_backend(backend_name)
-            qc = QuantumCircuit(1, 1)
-            qc.h(0)
-            qc.measure(0, 0)
-            backend.run(qc).result()
-        except Exception as exc:
-            logger.warning("Hardware join fallback: %s", exc)
-
-    query = (
-        f"SELECT l.id AS id, l.v AS left_v, r.v AS right_v "
-        f"FROM {left_table} AS l INNER JOIN {right_table} AS r ON {join_condition}"
-    )
-    return quantum_search_sql(query, db_path, params=None, limit=limit)
 
 def quantum_search_nosql(
     collection: str,

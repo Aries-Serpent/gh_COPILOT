@@ -7,11 +7,6 @@ import pytest
 @pytest.mark.parametrize("simulate,test_mode", [(True, False), (False, True), (False, False)])
 def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    security_dir = tmp_path / "security"
-    security_dir.mkdir()
-    (security_dir / "enterprise_security_policy.json").write_text(
-        '{"encryption": "AES256", "access_control": "RBAC"}'
-    )
     module = importlib.import_module("dashboard.compliance_metrics_updater")
     importlib.reload(module)
     modes = []

@@ -222,12 +222,12 @@ def test_quantum_import_failure(monkeypatch):
     orig_import = builtins.__import__
 
     def fake_import_module(name, package=None):
-        if name == "quantum.quantum_algorithm_library_expansion":
+        if name == "quantum_algorithm_library_expansion":
             raise ImportError("missing")
         return orig_import_module(name, package)
 
     def fake_builtin(name, globals=None, locals=None, fromlist=(), level=0):
-        if name == "quantum.quantum_algorithm_library_expansion":
+        if name == "quantum_algorithm_library_expansion":
             raise ImportError("missing")
         return orig_import(name, globals, locals, fromlist, level)
 

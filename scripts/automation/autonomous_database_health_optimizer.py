@@ -28,8 +28,6 @@ from scripts.monitoring.unified_monitoring_optimization_system import (
 
 from ml_pattern_recognition import PatternRecognizer
 from utils.validation_utils import run_compliance_gates
-from enterprise_modules.compliance import validate_enterprise_operation
-from security.compliance_checker import enforce_security_policies
 
 # Progress bar with graceful fallback
 try:
@@ -338,11 +336,6 @@ class AutonomousDatabaseHealthOptimizer:
         self.optimization_history: Dict[str, Any] = {}
         self._load_learning_patterns()
         self._load_optimization_history()
-
-    def run_compliance_audit(self) -> None:
-        """Validate security policies and workspace paths."""
-        enforce_security_policies()
-        validate_enterprise_operation(str(self.workspace_path))
 
         # ML-based pattern recognizer for subsystem analysis
         self.pattern_recognizer = PatternRecognizer()
@@ -1074,7 +1067,6 @@ class AutonomousDatabaseHealthOptimizer:
             )
             return self._initialize_improvement_results()
 
-        self.run_compliance_audit()
         self._log_improvement_start()
 
         improvement_results = self._initialize_improvement_results()
@@ -1090,9 +1082,6 @@ class AutonomousDatabaseHealthOptimizer:
 
         # Calculate final metrics and save results
         self._finalize_improvement_results(improvement_results)
-
-        # Execute maintenance and self-healing routines
-        self.perform_maintenance_tasks()
 
         # Extend optimization to additional subsystems
         self.optimize_additional_subsystems()
@@ -1316,50 +1305,6 @@ class AutonomousDatabaseHealthOptimizer:
         """
         self._save_to_production_database(results)
         self._save_to_json_file(results)
-
-    def perform_maintenance_tasks(self) -> None:
-        """Run routine maintenance and self-healing across databases."""
-        if self.offline_mode:
-            self.logger.info("%s Offline mode - skipping maintenance", INDICATORS["warning"])
-            return
-        for name, db_path in self.database_registry.items():
-            if not db_path.exists():
-                continue
-            try:
-                with sqlite3.connect(db_path) as conn:
-                    status = conn.execute("PRAGMA integrity_check").fetchone()[0]
-                if status != "ok":
-                    self.logger.warning(
-                        "%s Integrity check failed for %s", INDICATORS["warning"], name
-                    )
-                    self._self_heal_database(db_path)
-            except sqlite3.Error as exc:
-                self.logger.error(
-                    "%s Integrity check error for %s: %s",
-                    INDICATORS["critical"],
-                    name,
-                    exc,
-                )
-                self._self_heal_database(db_path)
-
-    def _self_heal_database(self, db_path: Path) -> None:
-        """Attempt basic self-healing by backing up and vacuuming the database."""
-        backup_path = db_path.with_suffix(".bak")
-        try:
-            shutil.copy(db_path, backup_path)
-            with sqlite3.connect(db_path) as conn:
-                conn.execute("VACUUM")
-                conn.execute("PRAGMA integrity_check")
-            self.logger.info(
-                "%s Self-healed database %s", INDICATORS["heal"], db_path.name
-            )
-        except Exception as exc:  # pragma: no cover - log and continue
-            self.logger.error(
-                "%s Self-healing failed for %s: %s",
-                INDICATORS["critical"],
-                db_path.name,
-                exc,
-            )
 
     def _save_to_production_database(self, results: Dict[str, Any]) -> None:
         """Save results to production database.

@@ -39,11 +39,7 @@ from tqdm import tqdm
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import validate_enterprise_environment
-from utils.lessons_learned_integrator import (
-    apply_lessons,
-    persist_new_lessons,
-    retrieve_prior_lessons,
-)
+from utils.lessons_learned_integrator import store_lesson
 
 try:
     from scripts.orchestrators.unified_wrapup_orchestrator import (
@@ -176,9 +172,6 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
     setup_logging(verbose)
     logging.info("WLC session starting")
 
-    existing_lessons = retrieve_prior_lessons()
-    apply_lessons(logging.getLogger(__name__), existing_lessons)
-
     global UnifiedWrapUpOrchestrator
     if UnifiedWrapUpOrchestrator is None:
         from scripts.orchestrators.unified_wrapup_orchestrator import (
@@ -213,16 +206,12 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             raise
 
         finalize_session_entry(conn, entry_id, compliance_score)
-        persist_new_lessons(
-            [
-                {
-                    "description": f"WLC session completed with score {compliance_score:.2f}",
-                    "source": "wlc_session_manager",
-                    "timestamp": datetime.now(UTC).isoformat(),
-                    "validation_status": "validated",
-                    "tags": "wlc",
-                }
-            ]
+        store_lesson(
+            description=f"WLC session completed with score {compliance_score:.2f}",
+            source="wlc_session_manager",
+            timestamp=datetime.now(UTC).isoformat(),
+            validation_status="validated",
+            tags="wlc",
         )
 
         if run_orchestrator:

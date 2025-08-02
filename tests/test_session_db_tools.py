@@ -1,6 +1,6 @@
 import sqlite3
 
-from scripts.session.session_db_tools import record_lesson
+from session_db_tools import record_lesson
 from utils.lessons_learned_integrator import ensure_lessons_table
 
 

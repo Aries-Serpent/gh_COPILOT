@@ -233,7 +233,7 @@ implemented consistently.
 Recent reports confirm several modules have reached production-ready status. Key metrics include:
 
 - **Python Compliance**: [databases_python_compliance_action_statement.md](../reports/databases_python_compliance_action_statement.md) lists 100% compatibility for Python 3.10/3.11, zero flake8 violations and full database reproduction.
-- **Test Coverage**: [`comprehensive_test_results.json`](../archive/comprehensive_test_results.json) recorded 269 tests executed with 246 passing, 18 failing and 5 skipped.
+- **Test Coverage**: [`comprehensive_test_results.json`](../comprehensive_test_results.json) recorded 269 tests executed with 246 passing, 18 failing and 5 skipped.
 - **Deployment Verification**: [`ENTERPRISE_DEPLOYMENT_COMPLETION_REPORT.json`](../reports/ENTERPRISE_DEPLOYMENT_COMPLETION_REPORT.json) marks deployment modules as *100% VERIFIED* and *ENTERPRISE READY*.
 
 For modules still labeled `STUB-*`, refer to Issue **8. Catalog missing and incomplete modules** in [`reports/generated_issue_templates.md`](../reports/generated_issue_templates.md). Use these verified metrics to prioritize the unresolved items.

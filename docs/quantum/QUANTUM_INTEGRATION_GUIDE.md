@@ -78,7 +78,7 @@ environment variable `QISKIT_IBM_TOKEN` with your IBM Quantum API key. Then
 enable hardware mode via the orchestrator:
 
 ```bash
-python scripts/automation/quantum_integration_orchestrator.py --hardware --backend ibm_oslo
+python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
 If the backend or token is unavailable the toolkit automatically falls back to

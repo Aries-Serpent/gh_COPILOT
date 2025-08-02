@@ -5,7 +5,6 @@ import os
 import sqlite3
 from pathlib import Path
 
-import pytest
 from tqdm import tqdm
 
 
@@ -56,4 +55,4 @@ def test_analytics_protocol_dry_run(capsys) -> None:
     print(f"Completed simulation in {dt.datetime.now() - start}")
     captured = capsys.readouterr()
     assert "Completed simulation" in captured.out
-    assert analytics_db.stat().st_mtime == pytest.approx(mtime, abs=2)
+    assert analytics_db.stat().st_mtime == mtime

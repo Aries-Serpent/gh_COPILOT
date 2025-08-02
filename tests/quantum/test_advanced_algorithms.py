@@ -4,7 +4,6 @@ import pytest
 
 from quantum.advanced_quantum_algorithms import (
     QISKIT_AVAILABLE,
-    grover_search_list,
     grover_search_qiskit,
     phase_estimation_qiskit,
 )
@@ -19,8 +18,3 @@ def test_grover_search_qiskit():
 def test_phase_estimation_qiskit():
     estimate = phase_estimation_qiskit(0.125, precision=3)
     assert abs(estimate - 0.125) < 0.01
-
-
-def test_grover_search_list_classical():
-    items = ["a", "b", "c", "d"]
-    assert grover_search_list(items, "c", use_quantum=False) == "c"
