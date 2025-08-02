@@ -17,16 +17,18 @@ class DummyProvider:
 
 
 @pytest.mark.skipif(backend_provider.Aer is None, reason="Qiskit not available")
-def test_auto_detects_hardware_with_token(monkeypatch):
+def test_env_override_enables_hardware(monkeypatch):
     monkeypatch.setenv("QISKIT_IBM_TOKEN", "token")
+    monkeypatch.setenv("QUANTUM_USE_HARDWARE", "1")
     monkeypatch.setattr(backend_provider, "IBMProvider", DummyProvider)
     backend = backend_provider.get_backend("dummy")
     assert isinstance(backend, DummyBackend)
 
 
 @pytest.mark.skipif(backend_provider.Aer is None, reason="Qiskit not available")
-def test_falls_back_without_token(monkeypatch):
-    monkeypatch.delenv("QISKIT_IBM_TOKEN", raising=False)
+def test_env_override_disables_hardware(monkeypatch):
+    monkeypatch.setenv("QISKIT_IBM_TOKEN", "token")
+    monkeypatch.setenv("QUANTUM_USE_HARDWARE", "0")
     monkeypatch.setattr(backend_provider, "IBMProvider", DummyProvider)
     backend = backend_provider.get_backend("dummy")
     from qiskit import Aer as _Aer

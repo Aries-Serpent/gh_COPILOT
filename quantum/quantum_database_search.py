@@ -112,6 +112,38 @@ def quantum_search_sql(
         _lock.release()
     return results
 
+
+def quantum_join_sql(
+    left_table: str,
+    right_table: str,
+    join_condition: str,
+    db_path: Union[str, Path] = DEFAULT_DB_PATH,
+    *,
+    use_hardware: bool = False,
+    backend_name: str | None = None,
+    limit: Optional[int] = None,
+) -> List[Dict[str, Any]]:
+    """Perform an inner join between two tables with optional quantum warmup."""
+
+    if use_hardware and backend_name:
+        try:  # pragma: no cover - hardware optional
+            from qiskit_ibm_provider import IBMProvider
+            from qiskit import QuantumCircuit
+            provider = IBMProvider()
+            backend = provider.get_backend(backend_name)
+            qc = QuantumCircuit(1, 1)
+            qc.h(0)
+            qc.measure(0, 0)
+            backend.run(qc).result()
+        except Exception as exc:
+            logger.warning("Hardware join fallback: %s", exc)
+
+    query = (
+        f"SELECT l.id AS id, l.v AS left_v, r.v AS right_v "
+        f"FROM {left_table} AS l INNER JOIN {right_table} AS r ON {join_condition}"
+    )
+    return quantum_search_sql(query, db_path, params=None, limit=limit)
+
 def quantum_search_nosql(
     collection: str,
     filter_query: Dict[str, Any],

@@ -57,14 +57,40 @@ def train_pipeline(data: Iterable[str], model_path: Path, *, n_clusters: int = 2
 
 
 class PatternRecognizer:
-    """ML-based pattern recognizer with lessons-learned feedback."""
+    """ML-based pattern recognizer with lessons-learned feedback.
 
-    def __init__(self, model: SklearnPatternModel | None = None) -> None:
-        self.model = model or SklearnPatternModel()
+    Parameters
+    ----------
+    model:
+        Optional preconfigured :class:`SklearnPatternModel` instance. If ``None``
+        and ``model_path`` exists, the model is loaded from disk. Otherwise a new
+        model is created.
+    model_path:
+        Location where the model should be persisted. Defaults to
+        ``artifacts/pattern_model.joblib``.
+    """
+
+    def __init__(
+        self,
+        model: SklearnPatternModel | None = None,
+        model_path: Path | None = None,
+    ) -> None:
+        self.model_path = model_path or Path("artifacts/pattern_model.joblib")
+        if model is not None:
+            self.model = model
+        elif self.model_path.exists():
+            self.model = SklearnPatternModel.load(self.model_path)
+        else:
+            self.model = SklearnPatternModel()
 
     def learn(self, data: Iterable[str]) -> None:
         """Train the underlying model on ``data``."""
         self.model.fit(data)
+        try:
+            self.model.save(self.model_path)
+        except Exception:
+            # Persisting the model is a best-effort operation; ignore failures
+            pass
 
     def recognize(self, data: Iterable[str], *, db_path: Path | None = None) -> List[str]:
         """Return recognized patterns from ``data`` and record lessons."""

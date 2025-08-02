@@ -7,12 +7,15 @@ consistent API.
 """
 from __future__ import annotations
 
+import argparse
+import os
 from typing import Any, Dict, Iterable, List, Optional
 
 from .orchestration.executor import QuantumExecutor
 from .orchestration.registry import get_global_registry
 from .hybrid_database_processor import QuantumDatabaseProcessor
 from .next_generation_ai import NextGenerationAI
+from .quantum_data_pipeline import QuantumDataPipeline
 
 
 class QuantumIntegrationOrchestrator:
@@ -21,7 +24,7 @@ class QuantumIntegrationOrchestrator:
     def __init__(
         self,
         *,
-        use_hardware: bool = False,
+        use_hardware: bool | None = None,
         backend_name: Optional[str] = None,
         max_workers: int = 4,
     ) -> None:
@@ -77,5 +80,56 @@ class QuantumIntegrationOrchestrator:
         """Return aggregated statistics from the executor."""
         return self.executor.get_execution_summary()
 
+    def run_data_pipeline(
+        self,
+        db_path: str | None = None,
+        *,
+        use_hardware: bool | None = None,
+    ) -> Dict[str, Any]:
+        """Execute the quantum-accelerated data pipeline."""
+
+        pipeline = QuantumDataPipeline(
+            use_hardware=use_hardware if use_hardware is not None else self.executor.use_hardware,
+            backend_name=self.executor.backend_name,
+        )
+        return pipeline.run(db_path=db_path)
+
 
 __all__ = ["QuantumIntegrationOrchestrator"]
+
+
+def _main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Quantum Integration Orchestrator"
+    )
+    parser.add_argument(
+        "--use-hardware",
+        dest="use_hardware",
+        action="store_true",
+        help="Force use of IBM Quantum hardware",
+    )
+    parser.add_argument(
+        "--simulator",
+        dest="use_hardware",
+        action="store_false",
+        help="Force local simulator",
+    )
+    parser.add_argument(
+        "--backend",
+        default=os.getenv("IBM_BACKEND", "ibmq_qasm_simulator"),
+        help="Backend name when using hardware",
+    )
+    parser.set_defaults(use_hardware=None)
+    args = parser.parse_args()
+
+    orchestrator = QuantumIntegrationOrchestrator(
+        use_hardware=args.use_hardware, backend_name=args.backend
+    )
+    backend_name = getattr(orchestrator.executor.backend, "name", "none")
+    print(
+        f"Backend: {backend_name} (hardware={orchestrator.executor.use_hardware})"
+    )
+
+
+if __name__ == "__main__":
+    _main()
