@@ -27,8 +27,10 @@ def test_summary_file_created_after_runs(tmp_path):
     data1 = json.loads(summary.read_text())
     assert data1.get("findings", 0) >= 1
     assert data1.get("resolved_count") == 0
-    total1 = data1["findings"] + data1["resolved_count"]
-    expected1 = data1["resolved_count"] / total1 if total1 else 1.0
+    denominator1 = data1["findings"] + data1["resolved_count"]
+    expected1 = (
+        data1["resolved_count"] / denominator1 if denominator1 else 1.0
+    )
     assert data1["compliance_score"] == expected1
     assert "progress_status" in data1
     assert "compliance_status" in data1
@@ -47,8 +49,10 @@ def test_summary_file_created_after_runs(tmp_path):
     data2 = json.loads(summary2.read_text())
     assert "findings" in data2
     assert "resolved_count" in data2
-    total2 = data2["findings"] + data2["resolved_count"]
-    expected2 = data2["resolved_count"] / total2 if total2 else 1.0
+    denominator2 = data2["findings"] + data2["resolved_count"]
+    expected2 = (
+        data2["resolved_count"] / denominator2 if denominator2 else 1.0
+    )
     assert data2["compliance_score"] == expected2
     assert "placeholder_counts" in data2
 
