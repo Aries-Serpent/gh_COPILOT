@@ -4,7 +4,9 @@ This package provides experimental quantum-inspired utilities used across the
 gh_COPILOT toolkit.
 
 > **Note**
-> All quantum modules run in simulation unless `qiskit-ibm-provider` is installed and configured with `QISKIT_IBM_TOKEN`.
+> Modules automatically run on IBM Quantum hardware when `qiskit-ibm-provider`
+> is installed and `QISKIT_IBM_TOKEN` is set. Otherwise they fall back to the
+> local simulator.
 
 ## Optimizers
 - `optimizers.quantum_optimizer.QuantumOptimizer` – classical/quantum hybrid
@@ -25,23 +27,27 @@ gh_COPILOT toolkit.
 
 These modules default to simulation mode but can use real IBM Quantum hardware
 when `qiskit-ibm-provider` is installed and `QISKIT_IBM_TOKEN` is configured.
-Use the `--hardware` flag in `quantum_integration_orchestrator.py` to enable
-hardware execution. When no backend is specified the orchestrator automatically
-selects an available device. If hardware is unavailable, the modules
-automatically fall back to local simulation.
+Use the `--use-hardware` flag in `quantum_integration_orchestrator.py` to force
+hardware execution or `--simulator` to force local simulation. When no backend
+is specified the orchestrator automatically selects an available device. If
+hardware is unavailable, the modules automatically fall back to local
+simulation.
 
-Hardware usage can also be toggled globally by setting the environment
-variable `QUANTUM_USE_HARDWARE` to `"1"`. Modules query this flag when no
-explicit option is provided.
+Hardware usage can also be toggled globally by setting the environment variable
+`QUANTUM_USE_HARDWARE` to `"1"` or `"0"`. If the variable is unset the modules
+auto-detect availability based on `QISKIT_IBM_TOKEN`.
 
 ## IBM Quantum Access
 
 To run on real IBM Quantum hardware you need an access token from
 <https://quantum-computing.ibm.com>. Set the environment variable
-`QISKIT_IBM_TOKEN` before executing any demo modules:
+`QISKIT_IBM_TOKEN` before executing any demo modules or use the helper
+`quantum/cli/token_setup.py` script:
 
 ```
 export QISKIT_IBM_TOKEN="YOUR_API_TOKEN"
+# or
+python -m quantum.cli.token_setup --token YOUR_API_TOKEN --use-hardware
 ```
 
 If the token or requested backend is unavailable the modules automatically

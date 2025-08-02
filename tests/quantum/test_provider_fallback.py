@@ -1,12 +1,11 @@
-import builtins
 import sqlite3
 from pathlib import Path
 
 from quantum.orchestration.executor import QuantumExecutor
-from quantum.orchestration import executor as qexec
 from quantum.orchestration.registry import register_algorithm
 from quantum.algorithms.base import QuantumAlgorithmBase
 from quantum.quantum_database_search import quantum_search_sql
+from quantum.utils import backend_provider
 
 
 class DummyAlgo(QuantumAlgorithmBase):
@@ -30,10 +29,10 @@ def _setup_db(path: Path) -> None:
 
 
 def test_executor_falls_back_without_ibm(monkeypatch):
-    monkeypatch.setattr(qexec, "HAS_IBM_PROVIDER", False)
+    monkeypatch.setattr(backend_provider, "_load_provider", lambda: None)
     exec_ = QuantumExecutor(use_hardware=True)
     assert exec_.use_hardware is False
-    if qexec.QISKIT_AVAILABLE:
+    if backend_provider.Aer is not None:
         assert exec_.backend is not None
     else:
         assert exec_.backend is None
@@ -44,15 +43,9 @@ def test_executor_falls_back_without_ibm(monkeypatch):
 def test_quantum_search_sql_fallback(tmp_path, monkeypatch):
     db = tmp_path / "db.sqlite"
     _setup_db(db)
-    real_import = builtins.__import__
-
-    def fake_import(name, *args, **kwargs):
-        if name == "qiskit_ibm_provider":
-            raise ImportError("no provider")
-        return real_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(builtins, "__import__", fake_import)
+    monkeypatch.setattr(backend_provider, "_load_provider", lambda: None)
     results = quantum_search_sql(
         "SELECT name FROM items", db, use_hardware=True, backend_name="mock"
     )
     assert {"name": "a"} in results and {"name": "b"} in results
+
