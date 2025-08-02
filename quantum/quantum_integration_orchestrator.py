@@ -7,10 +7,12 @@ consistent API.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterable, List, Optional
 
 from .orchestration.executor import QuantumExecutor
 from .orchestration.registry import get_global_registry
+from .hybrid_database_processor import QuantumDatabaseProcessor
+from .next_generation_ai import NextGenerationAI
 
 
 class QuantumIntegrationOrchestrator:
@@ -29,6 +31,31 @@ class QuantumIntegrationOrchestrator:
             backend_name=backend_name,
         )
         self.registry = get_global_registry()
+
+    # ------------------------------------------------------------------
+    # Advanced algorithm and database-processing helpers
+    # ------------------------------------------------------------------
+
+    def analyze_data(self, data: Iterable[float]) -> Dict[str, Any]:
+        """Run next-generation AI analysis on ``data``.
+
+        The method selects between quantum and classical strategies based on
+        whether the underlying executor reports hardware availability.
+        """
+
+        ai = NextGenerationAI(use_quantum=self.executor.use_hardware)
+        return ai.analyze(data)
+
+    def process_database(
+        self, query: str, *, use_quantum: bool = True
+    ) -> Dict[str, Any]:
+        """Process a database query with optional quantum acceleration."""
+
+        processor = QuantumDatabaseProcessor(
+            use_quantum=use_quantum,
+            hardware_available=self.executor.use_hardware,
+        )
+        return processor.process(query)
 
     def run_algorithm(self, name: str, **kwargs: Any) -> Dict[str, Any]:
         """Execute a single algorithm by name."""

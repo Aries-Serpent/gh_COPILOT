@@ -13,6 +13,8 @@ from .quantum_database_search import (
     quantum_search_hybrid,
 )
 from .optimizers.quantum_optimizer import QuantumOptimizer
+from .hybrid_database_processor import QuantumDatabaseProcessor
+from .next_generation_ai import NextGenerationAI
 
 # Import new modular components
 from .algorithms.base import QuantumAlgorithmBase
@@ -39,5 +41,7 @@ __all__ = [
     "get_global_registry",
     "QuantumExecutor",
     "QuantumIntegrationOrchestrator",
+    "QuantumDatabaseProcessor",
+    "NextGenerationAI",
     "QuantumOptimizer",
 ]
