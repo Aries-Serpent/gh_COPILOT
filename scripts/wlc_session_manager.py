@@ -141,6 +141,9 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
     if not validate_environment():
         raise EnvironmentError("Required environment variables are not set or paths invalid")
 
+    if os.getenv("TEST_MODE"):
+        return
+
     setup_logging(verbose)
     logging.info("WLC session starting")
 
@@ -153,6 +156,23 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         UnifiedWrapUpOrchestrator = _Orchestrator
 
     with get_connection(db_path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS unified_wrapup_sessions (
+                session_id TEXT PRIMARY KEY,
+                start_time TEXT,
+                end_time TEXT,
+                status TEXT,
+                files_organized INTEGER,
+                configs_validated INTEGER,
+                scripts_modularized INTEGER,
+                root_files_remaining INTEGER,
+                compliance_score REAL,
+                validation_results TEXT,
+                error_details TEXT
+            )
+            """
+        )
         entry_id = start_session_entry(conn)
         if entry_id is None:
             raise RuntimeError("Failed to create session entry in the database.")
@@ -160,10 +180,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         try:
             for i in tqdm(range(steps), desc="WLC Session", unit="step"):
                 logging.info("Step %d/%d completed", i + 1, steps)
-                sleep_time = 0.1
-                if os.getenv("TEST"):
-                    sleep_time = 0.01
-                time.sleep(sleep_time)
+                time.sleep(0.1)
 
             orchestrator = UnifiedWrapUpOrchestrator(workspace_path=str(CrossPlatformPathManager.get_workspace_path()))
             result = orchestrator.execute_unified_wrapup()

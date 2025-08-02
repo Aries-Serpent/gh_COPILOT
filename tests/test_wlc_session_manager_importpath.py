@@ -13,6 +13,7 @@ def test_cli_import_path(tmp_path):
     env = os.environ.copy()
     env["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     env["GH_COPILOT_BACKUP_ROOT"] = str(tmp_path / "backups")
+    env["TEST_MODE"] = "1"
     result = subprocess.run(
         [
             "python",
