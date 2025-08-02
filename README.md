@@ -260,6 +260,20 @@ python scripts/automation/quantum_integration_orchestrator.py --hardware --backe
 
 Set `QISKIT_IBM_TOKEN` to your IBM Quantum API token for hardware execution. If the provider cannot be initialized the orchestrator automatically falls back to simulation.
 
+Persist your token and verify connectivity with the helper script:
+
+```bash
+python -m quantum.cli.token_setup --token YOUR_TOKEN --save --use-hardware
+```
+
+Run a simple circuit on hardware to confirm access:
+
+```bash
+python scripts/quantum/run_hardware_demo.py --hardware --backend ibm_oslo
+```
+
+If hardware is requested but misconfigured these commands raise a clear error instead of silently falling back to the simulator.
+
 ### Run Template Matcher
 ```bash
 echo "def foo(): pass" | python scripts/template_matcher.py

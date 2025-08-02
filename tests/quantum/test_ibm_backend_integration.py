@@ -1,7 +1,10 @@
+import os
 import pytest
 
 import importlib.util
 from pathlib import Path
+
+os.environ["QISKIT_IBM_TOKEN"] = "TOKEN"
 
 
 def _load_ibm_backend():
@@ -17,7 +20,6 @@ def _load_ibm_backend():
 @pytest.mark.hardware
 def test_backend_initializes_with_real_provider(monkeypatch):
     """Verify provider initialization with token using a mock provider."""
-    monkeypatch.setenv("QISKIT_IBM_TOKEN", "TOKEN")
     monkeypatch.delenv("IBM_BACKEND", raising=False)
     ibm_backend = _load_ibm_backend()
 
@@ -35,6 +37,6 @@ def test_backend_initializes_with_real_provider(monkeypatch):
 
     monkeypatch.setattr(ibm_backend, "IBMProvider", DummyProvider)
     monkeypatch.setattr(ibm_backend, "Aer", DummyAer)
-    backend, use_hw = ibm_backend.init_ibm_backend()
+    backend, use_hw = ibm_backend.init_ibm_backend(enforce_hardware=True)
     assert backend == "backend"
     assert use_hw is True

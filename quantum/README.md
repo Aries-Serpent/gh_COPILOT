@@ -46,12 +46,16 @@ To run on real IBM Quantum hardware you need an access token from
 
 ```
 export QISKIT_IBM_TOKEN="YOUR_API_TOKEN"
-# or
-python -m quantum.cli.token_setup --token YOUR_API_TOKEN --use-hardware
+# or persist the token and verify hardware access
+python -m quantum.cli.token_setup --token YOUR_API_TOKEN --save --use-hardware
 ```
 
-If the token or requested backend is unavailable the modules automatically
-fall back to local simulation, preserving existing behavior.
+Run ``scripts/quantum/run_hardware_demo.py --hardware`` to execute a simple
+quantum circuit. If the provider or token is misconfigured the utilities raise a
+``RuntimeError`` instead of silently falling back to simulation.
+
+If a hardware backend is unavailable the modules automatically fall back to
+local simulation.
 
 ## Algorithms
 
