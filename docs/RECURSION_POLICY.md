@@ -7,6 +7,7 @@ The workspace and backup directories must never contain one another, even throug
 - **Bidirectional checks**: both workspace and backup trees are scanned with symlink
   resolution to prevent indirect containment (e.g., a link in the backup root
   pointing back to the workspace).
+- **Detailed errors**: any violation raises a ``RuntimeError`` that reports the offending paths for quick diagnosis.
 - **Explicit validation**: importing the optimizer module performs no filesystem access. Call `validate_workspace()` or pass `validate_workspace=True` to `QuantumOptimizer` when you need these checks.
 
 Example:

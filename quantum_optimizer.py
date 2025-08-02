@@ -34,27 +34,45 @@ links.
 # --- Anti-Recursion Validation ---
 
 def chunk_anti_recursion_validation() -> bool:
-    """Validate workspace and backup paths for recursion issues."""
-    if not validate_no_recursive_folders():
-        raise RuntimeError("CRITICAL: Recursive violations prevent chunk execution")
-    if detect_c_temp_violations():
-        raise RuntimeError("CRITICAL: E:/temp/ violations prevent chunk execution")
+    """Run anti-recursion checks and surface offending paths."""
+
+    validate_no_recursive_folders()
+    offending = detect_c_temp_violations()
+    if offending:
+        raise RuntimeError(
+            f"CRITICAL: E:/temp/ violations prevent chunk execution: {offending}"
+        )
     return True
 
 
 def validate_workspace() -> bool:
     """Public entry point to trigger anti-recursion validation."""
+
     return chunk_anti_recursion_validation()
 
-def validate_no_recursive_folders() -> bool:
-    """Ensure workspace and backup directories do not recurse into each other.
+def validate_no_recursive_folders() -> None:
+    """Ensure workspace and backup directories are distinct and non-nesting.
 
-    The validator resolves symlinks and inspects both trees to catch cases
-    where one root is nested within the other or reachable through symlinks.
+    Walks both roots, resolving symlinks and comparing inodes so that no
+    subdirectory can link back to either root.
     """
 
     workspace = CrossPlatformPathManager.get_workspace_path().resolve()
     backup_root = CrossPlatformPathManager.get_backup_root().resolve()
+
+    if workspace == backup_root:
+        raise RuntimeError(f"Workspace and backup root are identical: {workspace}")
+    if workspace in backup_root.parents:
+        raise RuntimeError(
+            f"Backup root {backup_root} cannot reside within workspace {workspace}"
+        )
+    if backup_root in workspace.parents:
+        raise RuntimeError(
+            f"Workspace {workspace} cannot reside within backup root {backup_root}"
+        )
+
+    workspace_inode = workspace.stat().st_ino
+    backup_inode = backup_root.stat().st_ino
 
     def is_nested(child: Path, parent: Path) -> bool:
         try:
@@ -63,31 +81,34 @@ def validate_no_recursive_folders() -> bool:
         except ValueError:
             return False
 
-    if workspace == backup_root or is_nested(workspace, backup_root) or is_nested(backup_root, workspace):
-        return False
-
     for base, target in ((workspace, backup_root), (backup_root, workspace)):
         for root, dirs, _ in os.walk(base, followlinks=True):
             for d in dirs:
                 path = Path(root) / d
                 try:
                     resolved = path.resolve()
+                    inode = resolved.stat().st_ino
                 except OSError:
                     continue
-                if resolved == workspace or resolved == backup_root:
-                    return False
+                if inode in {workspace_inode, backup_inode} or resolved in {
+                    workspace,
+                    backup_root,
+                }:
+                    raise RuntimeError(f"Subdirectory {path} links back to {resolved}")
                 if is_nested(resolved, target):
-                    return False
-    return True
+                    raise RuntimeError(
+                        f"Subdirectory {path} nests within {target}: {resolved}"
+                    )
 
-def detect_c_temp_violations() -> bool:
+def detect_c_temp_violations() -> Optional[str]:
     forbidden = ["E:/temp/", "E:\\temp\\"]
     workspace = str(CrossPlatformPathManager.get_workspace_path())
     backup_root = str(CrossPlatformPathManager.get_backup_root())
-    for forbidden_path in forbidden:
-        if workspace.startswith(forbidden_path) or backup_root.startswith(forbidden_path):
-            return True
-    return False
+    for path in (workspace, backup_root):
+        for forbidden_path in forbidden:
+            if path.startswith(forbidden_path):
+                return path
+    return None
 
 
 

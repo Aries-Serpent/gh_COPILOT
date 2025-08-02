@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from utils.cross_platform_paths import CrossPlatformPathManager
+from pathlib import Path
 import os
 import warnings
 
@@ -41,10 +42,10 @@ def validate_workspace() -> bool:
 
 
 def validate_no_recursive_folders() -> None:
-    """Ensure workspace and backup directories are distinct and not nested.
+    """Ensure workspace and backup directories are distinct and non-nesting.
 
-    Traverses the workspace to detect subdirectories that resolve back to either
-    root, preventing symlink-based recursion.
+    Walks both roots resolving symlinks and comparing inodes so that no
+    subdirectory can link back to either root.
     """
 
     workspace = CrossPlatformPathManager.get_workspace_path().resolve()
@@ -64,16 +65,31 @@ def validate_no_recursive_folders() -> None:
     workspace_inode = workspace.stat().st_ino
     backup_inode = backup_root.stat().st_ino
 
-    for root, dirs, _ in os.walk(workspace, followlinks=True):
-        for d in dirs:
-            path = os.path.join(root, d)
-            real = os.path.realpath(path)
-            try:
-                inode = os.stat(real).st_ino
-            except FileNotFoundError:
-                continue
-            if inode in {workspace_inode, backup_inode}:
-                raise RuntimeError(f"Subdirectory {path} links back to {real}")
+    def is_nested(child: Path, parent: Path) -> bool:
+        try:
+            child.relative_to(parent)
+            return True
+        except ValueError:
+            return False
+
+    for base, target in ((workspace, backup_root), (backup_root, workspace)):
+        for root, dirs, _ in os.walk(base, followlinks=True):
+            for d in dirs:
+                path = Path(root) / d
+                try:
+                    resolved = path.resolve()
+                    inode = resolved.stat().st_ino
+                except OSError:
+                    continue
+                if inode in {workspace_inode, backup_inode} or resolved in {
+                    workspace,
+                    backup_root,
+                }:
+                    raise RuntimeError(f"Subdirectory {path} links back to {resolved}")
+                if is_nested(resolved, target):
+                    raise RuntimeError(
+                        f"Subdirectory {path} nests within {target}: {resolved}"
+                    )
 
 
 def detect_c_temp_violations() -> Optional[str]:
