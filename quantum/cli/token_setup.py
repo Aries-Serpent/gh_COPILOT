@@ -5,7 +5,9 @@ from __future__ import annotations
 import argparse
 import os
 
-from quantum.utils.backend_provider import get_backend
+import json
+
+from quantum.ibm_backend import CONFIG_PATH, init_ibm_backend
 
 
 def main() -> None:
@@ -23,20 +25,40 @@ def main() -> None:
         action="store_true",
         help="Require hardware backend (fallback to simulator otherwise)",
     )
+    parser.add_argument(
+        "--save",
+        action="store_true",
+        help="Persist token to config/qiskit.json for future sessions",
+    )
     args = parser.parse_args()
 
     if args.token:
         os.environ["QISKIT_IBM_TOKEN"] = args.token
+        if args.save:
+            CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+            CONFIG_PATH.write_text(json.dumps({"QISKIT_IBM_TOKEN": args.token}))
+            CONFIG_PATH.chmod(0o600)
 
-    backend = get_backend(args.backend, use_hardware=args.use_hardware or None)
+    try:
+        backend, use_hw = init_ibm_backend(
+            token=args.token,
+            backend_name=args.backend if args.use_hardware else None,
+            enforce_hardware=args.use_hardware,
+        )
+    except RuntimeError as exc:
+        print(f"Error: {exc}")
+        return
+
     if backend is None:
         print("No backend available")
         return
 
     backend_name = getattr(backend, "name", "unknown")
     print(f"Loaded backend: {backend_name}")
-    if args.use_hardware and backend_name == "qasm_simulator":
-        print("Hardware backend unavailable; used simulator instead")
+    if use_hw:
+        print("Hardware access verified")
+    else:
+        print("Using simulator backend")
 
 
 if __name__ == "__main__":
