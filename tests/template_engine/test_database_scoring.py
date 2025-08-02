@@ -80,7 +80,10 @@ def test_similarity_scoring_hooks_used(tmp_path: Path, monkeypatch) -> None:
 def test_db_first_generation_output(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     prod = create_production_db(tmp_path, "print('hi')")
-    dbgen.validate_enterprise_operation = lambda *a, **k: True
+    def _always_true(*args, **kwargs):
+        return True
+
+    dbgen.validate_enterprise_operation = _always_true
     gen = DBFirstCodeGenerator(prod, tmp_path / "doc.db", tmp_path / "tpl.db", tmp_path / "analytics.db")
 
     monkeypatch.setattr(auto_generator, "compute_similarity_scores", lambda *a, **k: [(1, 1.0)])

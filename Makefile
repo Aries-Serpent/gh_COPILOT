@@ -11,7 +11,7 @@ lint:
 	ruff check . --exit-zero
 
 test: setup lint
-	pytest tests
+        pytest -q --disable-warnings --maxfail=10 --exitfirst tests
 
 clean-logs:
         bash scripts/clean_zero_logs.sh logs

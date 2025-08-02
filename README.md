@@ -866,7 +866,7 @@ bash setup.sh --with-optional
 source .venv/bin/activate
 
 # Run comprehensive test suite
-make test  # runs `pytest tests`
+make test  # runs `pytest -q --disable-warnings --maxfail=10 --exitfirst tests`
 
 # Run linter
 ruff format .

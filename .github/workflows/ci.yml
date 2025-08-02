@@ -74,7 +74,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           mkdir -p artifacts
-          coverage run -m pytest -q tests tests/documentation tests/quantum --junitxml=artifacts/test-results.xml
+          coverage run -m pytest -q --disable-warnings --maxfail=10 --exitfirst tests tests/documentation tests/quantum --junitxml=artifacts/test-results.xml
           coverage xml -o artifacts/coverage.xml
 
       - name: Upload artifacts
@@ -124,7 +124,7 @@ jobs:
             -e GH_COPILOT_BACKUP_ROOT=/tmp/backups \
             -e FLASK_SECRET_KEY=$FLASK_SECRET_KEY \
             -v ${{ github.workspace }}/artifacts:/app/artifacts \
-            gh_copilot coverage run -m pytest -q tests --junitxml=/app/artifacts/test-results.xml
+            gh_copilot coverage run -m pytest -q --disable-warnings --maxfail=10 --exitfirst tests --junitxml=/app/artifacts/test-results.xml
           docker run --rm \
             -e GH_COPILOT_BACKUP_ROOT=/tmp/backups \
             -e FLASK_SECRET_KEY=$FLASK_SECRET_KEY \

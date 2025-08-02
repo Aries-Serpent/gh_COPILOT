@@ -20,39 +20,72 @@ from quantum.ibm_backend import init_ibm_backend
 
 # --- Anti-Recursion Validation ---
 
-def chunk_anti_recursion_validation():
-    """CRITICAL: Validate workspace before chunk execution"""
-    if not validate_no_recursive_folders():
-        raise RuntimeError("CRITICAL: Recursive violations prevent chunk execution")
-    if detect_c_temp_violations():
-        raise RuntimeError("CRITICAL: E:/temp/ violations prevent chunk execution")
+def chunk_anti_recursion_validation() -> bool:
+    """Run all anti-recursion checks.
+
+    Returns ``True`` when the workspace and backup paths are safe.
+    Raises ``RuntimeError`` with details on failure.
+    """
+
+    validate_no_recursive_folders()
+    offending = detect_c_temp_violations()
+    if offending:
+        raise RuntimeError(f"CRITICAL: E:/temp/ violations prevent chunk execution: {offending}")
     return True
 
-def validate_no_recursive_folders():
-    # Placeholder: Implement workspace root and backup root recursion checks
-    workspace = CrossPlatformPathManager.get_workspace_path()
-    backup_root = CrossPlatformPathManager.get_backup_root()
-    real_workspace = workspace.resolve()
-    real_backup = backup_root.resolve()
-    if real_workspace == real_backup:
-        return False
-    for root, dirs, files in os.walk(workspace):
+
+def validate_workspace() -> bool:
+    """Public entry point to trigger anti-recursion validation."""
+
+    return chunk_anti_recursion_validation()
+
+
+def validate_no_recursive_folders() -> None:
+    """Ensure workspace and backup directories are distinct and not nested.
+
+    Traverses the workspace to detect subdirectories that resolve back to either
+    root, preventing symlink-based recursion.
+    """
+
+    workspace = CrossPlatformPathManager.get_workspace_path().resolve()
+    backup_root = CrossPlatformPathManager.get_backup_root().resolve()
+
+    if workspace == backup_root:
+        raise RuntimeError(f"Workspace and backup root are identical: {workspace}")
+    if workspace in backup_root.parents:
+        raise RuntimeError(
+            f"Backup root {backup_root} cannot reside within workspace {workspace}"
+        )
+    if backup_root in workspace.parents:
+        raise RuntimeError(
+            f"Workspace {workspace} cannot reside within backup root {backup_root}"
+        )
+
+    workspace_inode = workspace.stat().st_ino
+    backup_inode = backup_root.stat().st_ino
+
+    for root, dirs, _ in os.walk(workspace, followlinks=True):
         for d in dirs:
-            dpath = os.path.realpath(os.path.join(root, d))
-            if dpath == real_workspace or dpath == real_backup:
-                return False
-    return True
+            path = os.path.join(root, d)
+            real = os.path.realpath(path)
+            try:
+                inode = os.stat(real).st_ino
+            except FileNotFoundError:
+                continue
+            if inode in {workspace_inode, backup_inode}:
+                raise RuntimeError(f"Subdirectory {path} links back to {real}")
 
-def detect_c_temp_violations():
+
+def detect_c_temp_violations() -> Optional[str]:
     forbidden = ["E:/temp/", "E:\\temp\\"]
     workspace = str(CrossPlatformPathManager.get_workspace_path())
     backup_root = str(CrossPlatformPathManager.get_backup_root())
     for forbidden_path in forbidden:
-        if workspace.startswith(forbidden_path) or backup_root.startswith(forbidden_path):
-            return True
-    return False
-
-chunk_anti_recursion_validation()
+        if workspace.startswith(forbidden_path):
+            return workspace
+        if backup_root.startswith(forbidden_path):
+            return backup_root
+    return None
 
 # --- Quantum Optimizer Class ---
 
@@ -75,6 +108,7 @@ class QuantumOptimizer:
         options: Optional[Dict[str, Any]] = None,
         backend: Any = None,
         use_hardware: bool = False,
+        validate_workspace: bool = False,
     ):
         """Initialize optimizer."""
         self.objective_function = objective_function
@@ -85,6 +119,8 @@ class QuantumOptimizer:
         self.metrics: Dict[str, Any] = {}
         self.backend = backend
         self.use_hardware = use_hardware
+        if validate_workspace:
+            chunk_anti_recursion_validation()
         self._validate_init()
 
     def set_backend(
