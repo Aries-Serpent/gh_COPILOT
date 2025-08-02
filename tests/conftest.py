@@ -51,6 +51,15 @@ def zip_repo_tmp() -> None:
             shutil.rmtree(item)
 
 
+@pytest.fixture(scope="session", autouse=True)
+def apply_repo_migrations() -> None:
+    """Ensure database migrations are applied before tests run."""
+
+    from scripts.run_migrations import ensure_migrations_applied
+
+    ensure_migrations_applied()
+
+
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     """Display a summary of skipped tests and future improvements."""
 

@@ -24,6 +24,11 @@ from advanced_qubo_optimization import solve_qubo_bruteforce
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from quantum_database_search import quantum_search_sql
 
+try:  # optional dependency
+    from qiskit_ibm_provider import IBMProvider  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    IBMProvider = None  # type: ignore
+
 
 def integrate_qubo_problems(qubos: List[List[List[float]]]) -> Tuple[List[int], float]:
     """Solve multiple QUBO problems and return the best solution."""
@@ -63,13 +68,14 @@ class EnterpriseUtility:
 
     def _init_backend(self) -> None:
         token = os.getenv("QISKIT_IBM_TOKEN")
+        if IBMProvider is None:
+            self.logger.warning(
+                "qiskit_ibm_provider not installed; quantum hardware disabled"
+            )
+            self.use_hardware = False
+            return
         try:
-            from qiskit_ibm_provider import IBMProvider
-
-            if token:
-                provider = IBMProvider(token=token)
-            else:
-                provider = IBMProvider()
+            provider = IBMProvider(token=token) if token else IBMProvider()
             self.backend = provider.get_backend(self.backend_name)
         except Exception as exc:  # pragma: no cover - optional dependency
             self.logger.warning("Hardware backend unavailable: %s", exc)

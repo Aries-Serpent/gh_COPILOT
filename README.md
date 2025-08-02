@@ -96,14 +96,15 @@ cp .env.example .env
 
 # 2. Set the external backup directory and run the setup script
 export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
-bash setup.sh
-# Or run in a single command
-GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh
+bash setup.sh            # core dependencies only
+# Or include optional extras and test requirements
+GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-optional
 # Always run this script before executing tests or automation tasks.
-# The setup process installs packages from all `requirements*.txt` files,
-# including core dependencies like **Flask** and **NumPy**, applies
-# database migrations under `databases/migrations/`, and prepares
-# environment variables.
+# By default only `requirements.txt` is installed. Passing `--with-optional`
+# additionally installs `requirements-a.txt`, `requirements-test.txt`, and
+# `requirements-quantum.txt` when present. The setup process also applies
+# database migrations under `databases/migrations/` and prepares environment
+# variables.
 # If package installation fails due to network restrictions,
 # update the environment to permit outbound connections to PyPI.
 
@@ -861,11 +862,8 @@ validate_enterprise_standards(final_result)
 ```bash
 # Contributors must execute `bash setup.sh` before running tests.
 # Ensure environment setup
-bash setup.sh
+bash setup.sh --with-optional
 source .venv/bin/activate
-
-# Install test dependencies (includes ruff for linting)
-pip install -r requirements-test.txt
 
 # Run comprehensive test suite
 make test  # runs `pytest tests`
@@ -1076,7 +1074,7 @@ The repository uses GitHub Actions to automate linting, testing, and compliance 
 To mimic CI locally, run:
 
 ```bash
-bash setup.sh
+bash setup.sh --with-optional
 make test
 python scripts/run_migrations.py
 ```

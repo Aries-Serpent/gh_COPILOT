@@ -138,6 +138,16 @@ jobs:
           name: artifacts
           path: artifacts
 
+  optional-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Run setup with optional deps
+        run: bash setup.sh --with-optional
+
   codeql:
     runs-on: ubuntu-latest
     env:
