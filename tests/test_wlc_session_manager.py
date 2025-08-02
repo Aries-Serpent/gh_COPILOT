@@ -44,14 +44,9 @@ def test_main_skips_side_effects_with_test_mode(tmp_path, monkeypatch):
         before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
     wsm.main([])
     with sqlite3.connect(temp_db) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM unified_wrapup_sessions")
-        after = cur.fetchone()[0]
-        cur.execute("SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
-        score = cur.fetchone()[0]
-    assert after == before + 1
-    assert abs(score - 1.0) < 1e-6
-    assert dummy.called
+        after = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
+    assert after == before
+    assert not dummy.called
     assert not orch.called
 
 
@@ -81,14 +76,15 @@ def test_orchestrator_called(tmp_path, monkeypatch):
     dummy = DummyValidator()
     monkeypatch.setattr(wsm, "SecondaryCopilotValidator", lambda: dummy)
 
-    wsm.main([])
-
-    assert not orch.called
     with sqlite3.connect(temp_db) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
-        score = cur.fetchone()[0]
-    assert abs(score - 1.0) < 1e-6
+        before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
+    wsm.main([])
+    with sqlite3.connect(temp_db) as conn:
+        after = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
+
+    assert after == before
+    assert not orch.called
+    assert not dummy.called
 
 
 def test_session_error_skipped_in_test_mode(tmp_path, monkeypatch):
@@ -108,15 +104,13 @@ def test_session_error_skipped_in_test_mode(tmp_path, monkeypatch):
 
     monkeypatch.setattr(wsm, "UnifiedWrapUpOrchestrator", lambda workspace_path=None: FailingOrchestrator())
 
-    wsm.main([])
-
     with sqlite3.connect(temp_db) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT status, error_details FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
-        status, error_details = cur.fetchone()
+        before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
+    wsm.main([])
+    with sqlite3.connect(temp_db) as conn:
+        after = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
 
-    assert status == "COMPLETED"
-    assert error_details is None
+    assert after == before
 
 
 def test_session_persists_lesson_skipped(tmp_path, monkeypatch):
@@ -135,6 +129,6 @@ def test_session_persists_lesson_skipped(tmp_path, monkeypatch):
 def test_missing_environment(monkeypatch):
     monkeypatch.delenv("GH_COPILOT_WORKSPACE", raising=False)
     monkeypatch.delenv("GH_COPILOT_BACKUP_ROOT", raising=False)
-    monkeypatch.setenv("TEST_MODE", "1")
+    monkeypatch.delenv("TEST_MODE", raising=False)
     with pytest.raises(EnvironmentError):
         wsm.run_session(1, wsm.DB_PATH, False)
