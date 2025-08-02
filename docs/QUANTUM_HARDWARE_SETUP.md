@@ -19,14 +19,18 @@ Specify a backend name via `IBM_BACKEND`:
 ```bash
 export IBM_BACKEND="ibmq_qasm_simulator"
 ```
-If unset, the default simulator is used.
+If unset, an available hardware backend is chosen automatically when possible,
+otherwise the default simulator is used.
 
 ## 3. CLI Usage
-Use the executor CLI to force hardware execution:
+Use the executor CLI or orchestrator to force hardware execution:
 ```bash
 python -m quantum.cli.executor_cli --use-hardware --backend ibm_nairobi
+python quantum_integration_orchestrator.py --hardware
 ```
-The flag validates that `QISKIT_IBM_TOKEN` is present and selects the requested backend.
+Both flags validate that `QISKIT_IBM_TOKEN` is present and select the requested
+backend. When no backend is supplied the orchestrator attempts automatic
+selection.
 
 ## 4. Expected Outputs
 When hardware is available, logs include `[QUANTUM_BACKEND]` and the selected backend name. If initialization fails, a warning is emitted and the Aer simulator is used instead.
