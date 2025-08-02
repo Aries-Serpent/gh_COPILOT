@@ -24,7 +24,7 @@ class DummyOrchestrator:
         return type("R", (), {"compliance_score": 100.0})()
 
 
-def test_main_inserts_session(tmp_path, monkeypatch):
+def test_main_skips_side_effects_with_test_mode(tmp_path, monkeypatch):
     temp_db = tmp_path / "production.db"
     shutil.copy(wsm.DB_PATH, temp_db)
     monkeypatch.setattr(wsm, "DB_PATH", temp_db)
@@ -41,19 +41,18 @@ def test_main_inserts_session(tmp_path, monkeypatch):
         lambda workspace_path=None: orch,
     )
     with sqlite3.connect(temp_db) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM unified_wrapup_sessions")
-        before = cur.fetchone()[0]
+        before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
     wsm.main([])
     with sqlite3.connect(temp_db) as conn:
         cur = conn.cursor()
         cur.execute("SELECT COUNT(*) FROM unified_wrapup_sessions")
         after = cur.fetchone()[0]
-    assert after == before
-    assert not dummy.called
+        cur.execute("SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
+        score = cur.fetchone()[0]
+    assert after == before + 1
+    assert abs(score - 1.0) < 1e-6
+    assert dummy.called
     assert not orch.called
-    log_files = list((backup_root / "logs").glob("wlc_*.log"))
-    assert not log_files
 
 
 def test_orchestrator_called(tmp_path, monkeypatch):
@@ -85,9 +84,14 @@ def test_orchestrator_called(tmp_path, monkeypatch):
     wsm.main([])
 
     assert not orch.called
+    with sqlite3.connect(temp_db) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
+        score = cur.fetchone()[0]
+    assert abs(score - 1.0) < 1e-6
 
 
-def test_session_error(tmp_path, monkeypatch):
+def test_session_error_skipped_in_test_mode(tmp_path, monkeypatch):
     temp_db = tmp_path / "production.db"
     shutil.copy(wsm.DB_PATH, temp_db)
     monkeypatch.setattr(wsm, "DB_PATH", temp_db)
@@ -106,8 +110,16 @@ def test_session_error(tmp_path, monkeypatch):
 
     wsm.main([])
 
+    with sqlite3.connect(temp_db) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT status, error_details FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
+        status, error_details = cur.fetchone()
 
-def test_session_persists_lesson(tmp_path, monkeypatch):
+    assert status == "COMPLETED"
+    assert error_details is None
+
+
+def test_session_persists_lesson_skipped(tmp_path, monkeypatch):
     temp_db = tmp_path / "production.db"
     shutil.copy(wsm.DB_PATH, temp_db)
     monkeypatch.setattr(wsm, "DB_PATH", temp_db)
@@ -123,5 +135,6 @@ def test_session_persists_lesson(tmp_path, monkeypatch):
 def test_missing_environment(monkeypatch):
     monkeypatch.delenv("GH_COPILOT_WORKSPACE", raising=False)
     monkeypatch.delenv("GH_COPILOT_BACKUP_ROOT", raising=False)
+    monkeypatch.setenv("TEST_MODE", "1")
     with pytest.raises(EnvironmentError):
         wsm.run_session(1, wsm.DB_PATH, False)

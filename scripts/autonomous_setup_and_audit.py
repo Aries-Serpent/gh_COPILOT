@@ -16,6 +16,7 @@ from scripts.code_placeholder_audit import main as placeholder_audit
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from template_engine.template_synchronizer import _compliance_score
 from utils.log_utils import _log_event, TABLE_SCHEMAS
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 
 LOGGER = logging.getLogger(__name__)
@@ -27,6 +28,20 @@ def init_database(db_path: Path) -> None:
         conn = sqlite3.connect(db_path)
         conn.close()
         LOGGER.info("Created database %s", db_path)
+
+
+def load_lesson_dataset(db_path: Path) -> list[dict[str, str]]:
+    """Load lessons from the database and log their application.
+
+    Parameters
+    ----------
+    db_path:
+        Path to the SQLite database containing the ``enhanced_lessons_learned``
+        table.
+    """
+    lessons = load_lessons(db_path)
+    apply_lessons(LOGGER, lessons)
+    return lessons
 
 
 def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
@@ -340,6 +355,13 @@ def main() -> None:
 
     init_database(analytics_db)
     init_database(production_db)
+
+    lessons = load_lesson_dataset(production_db)
+    _log_event(
+        {"event": "lessons_loaded", "count": len(lessons)},
+        table="correction_logs",
+        db_path=analytics_db,
+    )
 
     ingest_assets(workspace / "documentation", workspace / "template_engine", production_db)
 

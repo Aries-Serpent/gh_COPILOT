@@ -126,7 +126,7 @@ class TemplateAutoGenerator:
                 "Loaded %s default templates from pattern_templates",
                 len(templates),
             )
-        templates += list(get_lesson_templates().values())
+            templates += list(get_lesson_templates().values())
         _log_event(
             {"event": "load_templates", "count": len(templates)},
             table="generator_events",
