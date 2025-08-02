@@ -15,6 +15,13 @@ except Exception:  # pragma: no cover - optional dependency
     Aer = None
     QISKIT_AVAILABLE = False
 
+try:  # pragma: no cover - optional dependency
+    from qiskit_ibm_provider import IBMProvider  # type: ignore
+    HAS_IBM_PROVIDER = True
+except Exception:  # pragma: no cover - optional dependency
+    IBMProvider = None  # type: ignore
+    HAS_IBM_PROVIDER = False
+
 from quantum.ibm_backend import init_ibm_backend
 
 from .registry import get_global_registry
@@ -38,6 +45,9 @@ class QuantumExecutor:
         self.backend = None
         env_token = os.getenv("QISKIT_IBM_TOKEN")
         self.use_hardware = use_hardware or bool(env_token)
+        if self.use_hardware and not HAS_IBM_PROVIDER:
+            self.logger.warning("IBM provider unavailable; using simulator")
+            self.use_hardware = False
         if self.use_hardware:
             backend, success = init_ibm_backend()
             self.backend = backend
@@ -47,6 +57,11 @@ class QuantumExecutor:
 
     def _load_backend(self, backend_name: str):
         """Load a Qiskit backend, falling back to simulation."""
+        if not HAS_IBM_PROVIDER:
+            self.use_hardware = False
+            if QISKIT_AVAILABLE:
+                return Aer.get_backend("qasm_simulator")
+            return None
         backend, success = init_ibm_backend()
         self.use_hardware = success
         if success:

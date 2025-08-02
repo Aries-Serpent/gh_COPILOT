@@ -91,6 +91,41 @@ TABLE_SCHEMAS: Dict[str, str] = {
         CREATE INDEX IF NOT EXISTS idx_event_log_timestamp
             ON event_log(timestamp);
     """,
+    "corrections": """
+        CREATE TABLE IF NOT EXISTS corrections (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            file_path TEXT,
+            rationale TEXT,
+            compliance_score REAL,
+            rollback_reference TEXT,
+            ts TEXT
+        );
+    """,
+    "correction_history": """
+        CREATE TABLE IF NOT EXISTS correction_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            session_id TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            action TEXT NOT NULL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            details TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_correction_history_user_id ON correction_history(user_id);
+        CREATE INDEX IF NOT EXISTS idx_correction_history_session_id ON correction_history(session_id);
+        CREATE INDEX IF NOT EXISTS idx_correction_history_file_path ON correction_history(file_path);
+        CREATE INDEX IF NOT EXISTS idx_correction_history_timestamp ON correction_history(timestamp);
+    """,
+    "code_audit_history": """
+        CREATE TABLE IF NOT EXISTS code_audit_history (
+            id INTEGER PRIMARY KEY,
+            audit_entry TEXT NOT NULL,
+            user TEXT NOT NULL,
+            timestamp TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_code_audit_history_timestamp ON code_audit_history(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_code_audit_history_user ON code_audit_history(user);
+    """,
     "placeholder_removals": """
         CREATE TABLE IF NOT EXISTS placeholder_removals (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

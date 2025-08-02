@@ -128,6 +128,17 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
             ")"
         )
         conn.execute(
+            "CREATE TABLE IF NOT EXISTS correction_history ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "user_id INTEGER NOT NULL,"
+            "session_id TEXT NOT NULL,"
+            "file_path TEXT NOT NULL,"
+            "action TEXT NOT NULL,"
+            "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,"
+            "details TEXT"
+            ")"
+        )
+        conn.execute(
             "CREATE TABLE IF NOT EXISTS violation_logs ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "timestamp TEXT NOT NULL,"
@@ -208,7 +219,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                     ),
                 )
                 audit_conn.execute(
-                    "INSERT INTO correction_history (user_id, session_id, file_path, action, timestamp) VALUES (1, 'ingest_assets', ?, 'ingest', ?, ?)",
+                    "INSERT INTO correction_history (user_id, session_id, file_path, action, timestamp, details) VALUES (1, 'ingest_assets', ?, 'ingest', ?, ?)",
                     (
                         str(path.relative_to(doc_path.parent)),
                         datetime.now(timezone.utc).isoformat(),
