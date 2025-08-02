@@ -872,7 +872,7 @@ bash setup.sh --with-optional
 source .venv/bin/activate
 
 # Run comprehensive test suite
-make test  # runs `pytest -q --disable-warnings --maxfail=10 --exitfirst tests`
+make test  # runs `pytest -q --disable-warnings tests` (defaults: --maxfail=10 --exitfirst)
 
 # Run linter
 ruff format .
@@ -887,10 +887,10 @@ python -m pytest tests/enterprise/ -v
 python scripts/validation/dual_copilot_pattern_tester.py
 ```
 
-Tests enforce a default 120 s timeout via `pytest-timeout` (configured in
-`pytest.ini` with `--maxfail=10 --timeout=120`). For modules that need more time,
-decorate slow tests with `@pytest.mark.timeout(<seconds>)` or split heavy tests
-into smaller pieces to keep the suite responsive.
+Tests enforce a default 120 s timeout via `pytest-timeout` (`timeout = 120` in
+`pytest.ini`) and fail fast with `--maxfail=10 --exitfirst`. For modules that
+need more time, decorate slow tests with `@pytest.mark.timeout(<seconds>)` or
+split heavy tests into smaller pieces to keep the suite responsive.
 
 ---
 
