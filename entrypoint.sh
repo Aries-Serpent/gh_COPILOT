@@ -4,9 +4,10 @@ set -euo pipefail
 cleanup() {
     echo "Received termination signal. Stopping children..." >&2
     kill $(jobs -p) 2>/dev/null || true
+    python scripts/wlc_session_manager.py || true
 }
 
-trap cleanup INT TERM
+trap cleanup INT TERM EXIT
 
 # Validate enterprise environment before starting services
 python - <<'PY'

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from session_management_consolidation_executor import EnterpriseUtility
+from scripts.session.session_management_consolidation_executor import EnterpriseUtility
 from simplified_quantum_integration_orchestrator import hello_world
 
 

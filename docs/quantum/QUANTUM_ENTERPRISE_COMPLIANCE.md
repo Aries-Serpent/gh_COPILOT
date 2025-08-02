@@ -96,7 +96,7 @@ To execute routines on IBM Quantum hardware:
 2. Set the environment variable `QISKIT_IBM_TOKEN` with your IBM Quantum API key.
 3. Launch the orchestrator with the desired backend:
    ```bash
-   python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
+   python scripts/automation/quantum_integration_orchestrator.py --hardware --backend ibm_oslo
    ```
 If the backend or token is unavailable, the toolkit automatically falls back to
 simulation mode.
