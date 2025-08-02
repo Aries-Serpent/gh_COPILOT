@@ -1,5 +1,5 @@
-"""ML pattern recognition package stubs."""
+"""ML pattern recognition package."""
 
-from .recognizer import PatternRecognizer, StubModel
+from .recognizer import PatternRecognizer, SklearnPatternModel
 
-__all__ = ["PatternRecognizer", "StubModel"]
+__all__ = ["PatternRecognizer", "SklearnPatternModel"]

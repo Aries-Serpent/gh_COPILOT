@@ -328,27 +328,36 @@ def insert_event(
         logging.getLogger(__name__).debug("Simulated insert into %s: %s", table, event)
         return -1
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    with _log_lock, sqlite3.connect(db_path) as conn:
-        # Only insert columns that actually exist in the destination table to avoid
-        # ``sqlite3.OperationalError`` when the payload contains extra metadata.
-        existing_cols = {
-            row[1]
-            for row in conn.execute(f"PRAGMA table_info({table})")
-        }
-        filtered = {k: v for k, v in event.items() if k in existing_cols}
-        if not filtered:
-            logging.getLogger(__name__).debug(
-                "Skipping insert into %s; no matching columns", table
-            )
-            return -1
-        columns = ", ".join(filtered.keys())
-        placeholders = ", ".join("?" for _ in filtered)
-        cur = conn.execute(
-            f"INSERT INTO {table} ({columns}) VALUES ({placeholders})",
-            tuple(filtered.values()),
-        )
-        conn.commit()
-        return int(cur.lastrowid)
+    for _ in range(3):
+        try:
+            with _log_lock, sqlite3.connect(db_path, timeout=30) as conn:
+                # Only insert columns that actually exist in the destination table to
+                # avoid ``sqlite3.OperationalError`` when the payload contains extra
+                # metadata.
+                existing_cols = {
+                    row[1]
+                    for row in conn.execute(f"PRAGMA table_info({table})")
+                }
+                filtered = {k: v for k, v in event.items() if k in existing_cols}
+                if not filtered:
+                    logging.getLogger(__name__).debug(
+                        "Skipping insert into %s; no matching columns", table
+                    )
+                    return -1
+                columns = ", ".join(filtered.keys())
+                placeholders = ", ".join("?" for _ in filtered)
+                cur = conn.execute(
+                    f"INSERT INTO {table} ({columns}) VALUES ({placeholders})",
+                    tuple(filtered.values()),
+                )
+                conn.commit()
+                return int(cur.lastrowid)
+        except sqlite3.OperationalError as exc:
+            if "locked" in str(exc).lower():
+                time.sleep(0.1)
+                continue
+            raise
+    raise sqlite3.OperationalError("database is locked")
 
 
 def _log_event(
