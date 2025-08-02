@@ -9,6 +9,11 @@ from pathlib import Path
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import _log_event
+from utils.lessons_learned_integrator import (
+    apply_lessons,
+    load_lessons,
+    store_lesson,
+)
 from validation.protocols.session import SessionProtocolValidator
 
 
@@ -21,6 +26,9 @@ class EnterpriseUtility:
         self.logger = logging.getLogger(__name__)
         self.validator = SessionProtocolValidator(str(self.workspace_path))
         self.analytics_db = self.workspace_path / "databases" / "analytics.db"
+        self.learning_db = self.workspace_path / "databases" / "learning_monitor.db"
+        self.loaded_lessons = load_lessons(self.learning_db)
+        apply_lessons(self.logger, self.loaded_lessons)
 
     def _validate_environment(self) -> bool:
         valid = bool(os.getenv("GH_COPILOT_WORKSPACE")) and bool(os.getenv("GH_COPILOT_BACKUP_ROOT"))
@@ -49,9 +57,23 @@ class EnterpriseUtility:
         if success:
             self.logger.info("[SUCCESS] Utility completed")
             _log_event({"event": "utility_success"}, db_path=self.workspace_path / "analytics.db")
+            store_lesson(
+                "Session utility completed successfully",
+                source="session_management",
+                timestamp=datetime.utcnow().isoformat(),
+                validation_status="validated",
+                db_path=self.learning_db,
+            )
         else:
             self.logger.error("[ERROR] Utility failed")
             _log_event({"event": "utility_failed"}, db_path=self.workspace_path / "analytics.db")
+            store_lesson(
+                "Session utility encountered an error",
+                source="session_management",
+                timestamp=datetime.utcnow().isoformat(),
+                validation_status="pending",
+                db_path=self.learning_db,
+            )
         return success
 
 
