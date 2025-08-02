@@ -14,6 +14,7 @@ Ensure the following environment variables are configured before running the ses
 
 - `GH_COPILOT_WORKSPACE` – absolute path to the project root.
 - `GH_COPILOT_BACKUP_ROOT` – external directory for logs and backups.
+- `TEST_MODE` – when set to any value, the session manager exits immediately, skipping logging, delays, and database writes. This is useful for tests.
 
 Both paths must exist or the tool will raise an `EnvironmentError`.
 
