@@ -58,7 +58,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
 - **Flask Enterprise Dashboard:** basic endpoints and templates
  - **Template Intelligence Platform:** tracks generated scripts
-- **Documentation logs:** rendered templates saved under `logs/template_rendering/`
+- **Documentation logs:** rendered templates saved under `artifacts/logs/template_rendering/`
 - **Script Validation**: automated checks available
 - **Self-Healing Systems:** correction scripts
 - **Autonomous File Management:** see [Using AutonomousFileManager](docs/USING_AUTONOMOUS_FILE_MANAGER.md)
@@ -201,13 +201,13 @@ python scripts/generate_docs_metrics.py
 python -m scripts.docs_metrics_validator
 python scripts/wlc_session_manager.py --db-path databases/production.db
 ```
-The session manager logs the documentation update to `production.db` and writes a log file under `$GH_COPILOT_BACKUP_ROOT/logs`.
+The session manager logs the documentation update to `production.db` and writes a log file to both `artifacts/logs/` and `$GH_COPILOT_BACKUP_ROOT/logs`.
 To regenerate enterprise documentation directly from the production database use:
 
 ```bash
 python archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py
 ```
-This script pulls templates from both `documentation.db` and `production.db` and outputs Markdown, HTML and JSON files under `logs/template_rendering/`. Each render is logged to `analytics.db` and progress appears under `dashboard/compliance`.
+This script pulls templates from both `documentation.db` and `production.db` and outputs Markdown, HTML and JSON files under `artifacts/logs/template_rendering/`. Each render is logged to `analytics.db` and progress appears under `dashboard/compliance`.
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
 are thin CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor``.
@@ -279,9 +279,16 @@ workspace, maintaining anti-recursion compliance.
 The `validate_enterprise_environment` helper enforces these settings at script startup.
 
 ### Artifact Management Policy
-Runtime logs, build outputs, and temporary results are stored under the `artifacts/` directory. Directories such as `builds/`, `logs/`, `results/`, `reports/`, and `tmp/` are ignored by version control to keep the repository clean. Archive transient outputs with `artifact_manager.py` when needed.
+Runtime logs, build outputs, and temporary results are stored under the `artifacts/` directory. Subdirectories such as `artifacts/builds/`, `artifacts/logs/`, `artifacts/results/`, `artifacts/reports/`, and `artifacts/tmp/` are ignored by version control to keep the repository clean. Archive transient outputs with `artifact_manager.py` when needed.
 
-The project entrypoint triggers `scripts/wlc_session_manager.py` on shutdown to record wrap-up details in `databases/production.db` and under `$GH_COPILOT_BACKUP_ROOT/logs`.
+### Migration Guide
+- `logs/`, `builds/`, `results/`, and `reports/` now reside under `artifacts/`.
+- `scripts/session_wrap_up_engine.py` is superseded by `scripts/orchestrators/unified_wrapup_orchestrator.py`.
+- All long-running workflows must invoke `scripts/wlc_session_manager.py` to record wrap-up details.
+
+See [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) for additional notes.
+
+The project entrypoint triggers `scripts/wlc_session_manager.py` on shutdown to record wrap-up details in `databases/production.db`, write a log under `artifacts/logs/`, and mirror it under `$GH_COPILOT_BACKUP_ROOT/logs`.
 
 ### Session Management CLI
 Use ``COMPREHENSIVE_WORKSPACE_MANAGER.py`` to manage session start and end
@@ -373,7 +380,7 @@ python <your_script>.py
 python scripts/wlc_session_manager.py --db-path databases/production.db
 ```
 
-Each run writes a timestamped log to `$GH_COPILOT_BACKUP_ROOT/logs/`.
+Each run writes a timestamped log to `artifacts/logs/` and `$GH_COPILOT_BACKUP_ROOT/logs/`.
 
 For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
 See [docs/WLC_QUICKSTART.md](docs/WLC_QUICKSTART.md) for a quickstart guide.
@@ -403,7 +410,7 @@ python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.d
 The manager validates required environment variables, executes the
 `UnifiedWrapUpOrchestrator` for comprehensive cleanup, and performs dual
 validation through the `SecondaryCopilotValidator`. It records each session in
-`production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
+`production.db` and writes logs under both `artifacts/logs/` and `$GH_COPILOT_BACKUP_ROOT/logs`.
 Each run inserts a row into the `unified_wrapup_sessions` table with a
 compliance score for audit purposes. Ensure all command output is piped through
 `/usr/local/bin/clw` to avoid exceeding the line length limit.
@@ -415,8 +422,8 @@ See [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md) for a full exampl
 `scripts/wlc_session_manager.py --orchestrate` so wrap-up logging occurs even when the main process exits.
 
 ### Artifact Management
-Transient build and runtime outputs such as `builds/`, `results/`, `logs/`, and
-`reports/` live under the `artifacts/` directory and are ignored by Git. This
+Transient build and runtime outputs such as `artifacts/builds/`, `artifacts/results/`, `artifacts/logs/`, and
+`artifacts/reports/` live under the `artifacts/` directory and are ignored by Git. This
 keeps the repository root clean and prevents accidental commits of generated
 files. See `artifact_manager.py` for packaging and recovery utilities.
 
@@ -668,13 +675,13 @@ _log_event({"event": "sync_start"}, table="sync_events_log")
 ```
 
 `setup_enterprise_logging()` accepts an optional `log_file` parameter. When
-omitted, logs are saved under `logs/` relative to the workspace. Provide a path
+omitted, logs are saved under `artifacts/logs/` relative to the workspace. Provide a path
 to store logs in a custom directory:
 
 ```python
 from utils.logging_utils import setup_enterprise_logging
 
-# Default logs directory (logs/)
+# Default logs directory (artifacts/logs/)
 logger = setup_enterprise_logging()
 
 # Custom directory
@@ -1113,7 +1120,7 @@ Several small modules provide common helpers:
 - `utils.reporting_utils.generate_json_report` – write data to a JSON file.
 - `utils.reporting_utils.generate_markdown_report` – produce a Markdown report.
 - `utils.validation_utils.detect_zero_byte_files` – find empty files for cleanup.
-- `scripts/clean_zero_logs.sh` – remove empty log files under `logs/` (run `make clean-logs`).
+- `scripts/clean_zero_logs.sh` – remove empty log files under `artifacts/logs/` (run `make clean-logs`).
 - `utils.validation_utils.validate_path` – verify a path is inside the workspace and outside the backup root.
 - `scripts.optimization.physics_optimization_engine.PhysicsOptimizationEngine` –
   provides simulated quantum-inspired helpers such as Grover search or Shor factorization for physics-oriented optimizations.

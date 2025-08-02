@@ -74,7 +74,7 @@ Add `CLW_MAX_LINE_LENGTH=1550` to your environment (or `.env`) to keep wrapped
 output under the 1600-byte limit, and pipe large output through `clw`.
 
 The test `tests/test_wlc_session_manager.py` verifies that a new session record
-is inserted and logs are written under `$GH_COPILOT_BACKUP_ROOT/logs/`.
+is inserted and logs are written under `$GH_COPILOT_BACKUP_ROOT/logs/` and mirrored to `artifacts/logs/`.
 
 Each entry in `production.db`'s `unified_wrapup_sessions` table captures the
 session ID, timestamps, completion status, compliance score, and any error
@@ -97,7 +97,7 @@ start and end times, completion status, compliance score, and any errors.
 python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.db --verbose
 ```
 
-Log files are stored under `$GH_COPILOT_BACKUP_ROOT/logs/`.
+Log files are stored under `$GH_COPILOT_BACKUP_ROOT/logs/` and duplicated in `artifacts/logs/`.
 
 ### Output Safety with `clw`
 Pipe any command that could produce large output through `/usr/local/bin/clw`
@@ -110,12 +110,16 @@ grep -R "pattern" | /usr/local/bin/clw
 If a limit error occurs, restart the session, rerun `setup.sh`, and repeat the
 command with `clw` or redirect the output to a file for chunked review.
 
+## Artifact Policy
+
+Runtime build and log directories now live under `artifacts/` to keep the repository root clean. Use subfolders such as `artifacts/builds/`, `artifacts/logs/`, `artifacts/results/`, and `artifacts/reports/` for transient output. These paths are gitignored and managed with `artifact_manager.py`.
+
 ---
 
 ## LOG MAINTENANCE
 
 To avoid unnecessary CI failures or clutter in Pull Requests, ensure that:
-1. **Zero-Byte Logs:** Any log files with zero-byte sizes in `logs/` are removed, moved to quarantine, or filled with placeholders.
+1. **Zero-Byte Logs:** Any log files with zero-byte sizes in `artifacts/logs/` are removed, moved to quarantine, or filled with placeholders.
 2. **Verification Script:** Use the provided script `scripts/check_zero_logs.sh` locally before pushing to verify compliance.
 
 ```bash
