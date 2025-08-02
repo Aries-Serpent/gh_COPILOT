@@ -33,8 +33,8 @@ if [ "$WITH_OPTIONAL" -eq 1 ]; then
     done
 fi
 
-python "$WORKSPACE/scripts/setup_environment.py" >>/tmp/setup_install.log
-python "$WORKSPACE/scripts/run_migrations.py" >>/tmp/setup_install.log
+python -m scripts.setup_environment >>/tmp/setup_install.log
+python -m scripts.run_migrations >>/tmp/setup_install.log
 
 # install clw line wrapper if missing
 if [ ! -x /usr/local/bin/clw ]; then
