@@ -127,6 +127,11 @@ python -m scripts.analysis.lessons_learned_gap_analyzer --lesson "use temp dirs"
 
 Lessons are written to `learning_monitor.db` and automatically applied in future sessions.
 
+### End-to-End Lessons Flow
+1. `scripts/wlc_session_manager.py` loads prior lessons at startup and logs them for transparency.
+2. The same session persists new wrap-up lessons back into `learning_monitor.db`.
+3. `scripts/analysis/lessons_learned_gap_analyzer.py` records remediation actions as lessons, closing detected gaps for future runs.
+
 ### OpenAI Connector
 The repository provides `github_integration/openai_connector.py` for OpenAI API
 calls using the `OpenAIClient` helper in
