@@ -10,8 +10,9 @@
 
 **Status:** Active development with incremental improvements
 
-> Current test and lint status should be verified locally using `pytest` and `ruff`.
-> Quantum modules operate in placeholder simulation modes pending full compliance integration.
+> Tests: run `pytest` (currently one failing quantum test).
+> Lint: run `ruff check .` (one redefinition warning).
+> Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress.
 
 ---
 
@@ -881,6 +882,11 @@ python -m pytest tests/enterprise/ -v
 # DUAL COPILOT pattern validation
 python scripts/validation/dual_copilot_pattern_tester.py
 ```
+
+Tests enforce a default 120 s timeout via `pytest-timeout` (configured in
+`pytest.ini` with `--maxfail=10 --timeout=120`). For modules that need more time,
+decorate slow tests with `@pytest.mark.timeout(<seconds>)` or split heavy tests
+into smaller pieces to keep the suite responsive.
 
 ---
 

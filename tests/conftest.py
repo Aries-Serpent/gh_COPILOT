@@ -9,6 +9,8 @@ from zipfile import ZipFile
 
 import pytest
 
+os.environ.setdefault("TEST_MODE", "1")
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 logger = logging.getLogger(__name__)
 
