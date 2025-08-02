@@ -23,6 +23,7 @@ def test_cli_execution(tmp_path):
     env["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     env["GH_COPILOT_BACKUP_ROOT"] = str(tmp_path / "backups")
     env["PYTHONPATH"] = str(Path.cwd())
+    env["TEST_MODE"] = "1"
     with sqlite3.connect(temp_db) as conn:
         before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
 
@@ -51,6 +52,7 @@ def test_cli_orchestrate(tmp_path):
     env["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     env["GH_COPILOT_BACKUP_ROOT"] = str(tmp_path / "backups")
     env["PYTHONPATH"] = str(Path.cwd())
+    env["TEST_MODE"] = "1"
 
     result = subprocess.run(
         [
@@ -75,6 +77,7 @@ def test_cli_invalid_env(tmp_path):
     env["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     env["PYTHONPATH"] = str(Path.cwd())
     env.pop("GH_COPILOT_BACKUP_ROOT", None)
+    env["TEST_MODE"] = "1"
     # Missing GH_COPILOT_BACKUP_ROOT
     result = subprocess.run(
         [
