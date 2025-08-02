@@ -288,12 +288,13 @@ workspace, maintaining anti-recursion compliance.
 The `validate_enterprise_environment` helper enforces these settings at script startup.
 
 ### Artifact Management Policy
-Runtime logs, build outputs, and temporary results are stored under the `artifacts/` directory. Subdirectories such as `artifacts/builds/`, `artifacts/logs/`, `artifacts/results/`, `artifacts/reports/`, and `artifacts/tmp/` are ignored by version control to keep the repository clean. Archive transient outputs with `artifact_manager.py` when needed.
+All build outputs, logs, reports (including coverage), and other temporary files must be written to the `artifacts/` directory. Subdirectories such as `artifacts/builds/`, `artifacts/logs/`, `artifacts/results/`, `artifacts/reports/`, and `artifacts/tmp/` are ignored by version control to keep the repository clean. Use `artifact_manager.py` to archive transient outputs when needed.
 
 ### Migration Guide
-- `logs/`, `builds/`, `results/`, and `reports/` now reside under `artifacts/`.
-- `scripts/session_wrap_up_engine.py` is superseded by `scripts/orchestrators/unified_wrapup_orchestrator.py`.
-- All long-running workflows must invoke `scripts/wlc_session_manager.py` to record wrap-up details.
+To adopt this policy:
+1. Move existing logs, build outputs, reports, coverage data, and temp files into `artifacts/`.
+2. Remove previously tracked artifacts from Git or relocate them to `archive/` for historical reference.
+3. Ensure all long-running workflows invoke `scripts/wlc_session_manager.py` to record wrap-up details.
 
 See [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) for additional notes.
 
