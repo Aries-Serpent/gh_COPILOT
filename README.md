@@ -5,12 +5,14 @@
 ![Learning Patterns](https://img.shields.io/badge/Learning_Patterns-ongoing-yellow)
 ![DUAL COPILOT](https://img.shields.io/badge/DUAL_COPILOT-Pattern_Validated-orange)
 ![Database First](https://img.shields.io/badge/Database_First-Architecture_Complete-purple)
-<!-- CI badges for tests and lint will appear when workflows are configured -->
+[![CI](https://github.com/gh-COPILOT/gh_COPILOT/actions/workflows/ci.yml/badge.svg)](https://github.com/gh-COPILOT/gh_COPILOT/actions/workflows/ci.yml)
+[![Compliance](https://github.com/gh-COPILOT/gh_COPILOT/actions/workflows/compliance-audit.yml/badge.svg)](https://github.com/gh-COPILOT/gh_COPILOT/actions/workflows/compliance-audit.yml)
 
 **Status:** Active development with incremental improvements
 
-> Current test and lint status should be verified locally using `pytest` and `ruff`.
-> Quantum modules operate in placeholder simulation modes pending full compliance integration.
+> Tests: run `pytest` (currently one failing quantum test).
+> Lint: run `ruff check .` (one redefinition warning).
+> Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress.
 
 ---
 
