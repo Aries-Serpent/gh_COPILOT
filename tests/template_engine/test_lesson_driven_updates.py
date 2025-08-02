@@ -1,6 +1,7 @@
 import sqlite3
 
 import template_engine.auto_generator as ag
+from utils.lessons_learned_integrator import ensure_lessons_table
 
 
 def test_lessons_from_db_update_templates(tmp_path, monkeypatch):
@@ -9,10 +10,8 @@ def test_lessons_from_db_update_templates(tmp_path, monkeypatch):
     db_dir = tmp_path / "databases"
     db_dir.mkdir()
     db = db_dir / "learning_monitor.db"
+    ensure_lessons_table(db)
     with sqlite3.connect(db) as conn:
-        conn.execute(
-            "CREATE TABLE enhanced_lessons_learned (description TEXT, source TEXT, timestamp TEXT, validation_status TEXT, tags TEXT)"
-        )
         conn.execute(
             "INSERT INTO enhanced_lessons_learned VALUES (?,?,?,?,?)",
             ("Prefer dataclasses", "test", "2024", "validated", "style"),

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from template_engine.auto_generator import TemplateAutoGenerator
 import template_engine.auto_generator as auto_generator
+from utils.lessons_learned_integrator import ensure_lessons_table
 
 os.environ.setdefault("GH_COPILOT_DISABLE_VALIDATION", "1")
 
@@ -246,18 +247,8 @@ def test_lessons_applied_during_generation(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     analytics_db, completion_db = create_test_dbs(tmp_path)
     learning_db = tmp_path / "learning_monitor.db"
+    ensure_lessons_table(learning_db)
     with sqlite3.connect(learning_db) as conn:
-        conn.execute(
-            """
-            CREATE TABLE enhanced_lessons_learned (
-                description TEXT,
-                source TEXT,
-                timestamp TEXT,
-                validation_status TEXT,
-                tags TEXT
-            )
-            """
-        )
         conn.execute(
             "INSERT INTO enhanced_lessons_learned VALUES (?,?,?,?,?)",
             (

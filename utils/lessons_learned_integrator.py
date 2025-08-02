@@ -24,14 +24,43 @@ Examples
 """
 from __future__ import annotations
 
+import os
 import sqlite3
 from pathlib import Path
-from typing import List, Dict, Iterable, Optional
+from typing import Dict, Iterable, List, Optional
 
 from utils.log_utils import _log_event
 
-DEFAULT_DB = Path("databases/learning_monitor.db")
+# Derive the default database path from the workspace to honor the
+# database-first pattern in cross-platform environments.
+DEFAULT_DB = Path(
+    os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
+) / "databases" / "learning_monitor.db"
 TABLE = "enhanced_lessons_learned"
+
+
+def ensure_lessons_table(db_path: Path = DEFAULT_DB) -> None:
+    """Create the lessons table in ``db_path`` if missing.
+
+    Parameters
+    ----------
+    db_path:
+        Path to the SQLite database. If the file does not exist it will be
+        created along with the ``enhanced_lessons_learned`` table.
+    """
+
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            f"""
+            CREATE TABLE IF NOT EXISTS {TABLE} (
+                description TEXT,
+                source TEXT,
+                timestamp TEXT,
+                validation_status TEXT,
+                tags TEXT
+            )
+            """
+        )
 
 
 def load_lessons(db_path: Path = DEFAULT_DB) -> List[Dict[str, str]]:
@@ -50,6 +79,7 @@ def load_lessons(db_path: Path = DEFAULT_DB) -> List[Dict[str, str]]:
     lessons: List[Dict[str, str]] = []
     if not db_path.exists():
         return lessons
+    ensure_lessons_table(db_path)
     with sqlite3.connect(db_path) as conn:
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
@@ -108,6 +138,7 @@ def store_lesson(
       'tags': 'documentation'}]
     """
     try:
+        ensure_lessons_table(db_path)
         with sqlite3.connect(db_path) as conn:
             conn.execute(
                 f"""
@@ -171,6 +202,7 @@ def store_lessons(
         for lesson in lessons
     ]
     try:
+        ensure_lessons_table(db_path)
         with sqlite3.connect(db_path) as conn:
             conn.executemany(
                 f"""

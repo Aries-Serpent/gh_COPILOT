@@ -9,34 +9,21 @@ single inserts, batch inserts, and tag-based filtering.
 from __future__ import annotations
 
 import sqlite3
-from pathlib import Path
+from pathlib import Path  # noqa: F401
 
 from utils.lessons_learned_integrator import (
+    ensure_lessons_table,
     fetch_lessons_by_tag,
     store_lesson,
     store_lessons,
 )
 
 
-def _create_table(db_path: Path) -> None:
-    """Create the ``enhanced_lessons_learned`` table in ``db_path``."""
-    with sqlite3.connect(db_path) as conn:
-        conn.execute(
-            """
-            CREATE TABLE enhanced_lessons_learned (
-                description TEXT,
-                source TEXT,
-                timestamp TEXT,
-                validation_status TEXT,
-                tags TEXT
-            )
-            """
-        )
 
 
 def test_store_lesson_inserts_row(tmp_path: Path) -> None:
     db = tmp_path / "lessons.db"
-    _create_table(db)
+    ensure_lessons_table(db)
     store_lesson(
         "Document edge cases",
         source="review",
@@ -60,7 +47,7 @@ def test_store_lesson_inserts_row(tmp_path: Path) -> None:
 
 def test_store_lessons_batch_inserts_rows(tmp_path: Path) -> None:
     db = tmp_path / "lessons.db"
-    _create_table(db)
+    ensure_lessons_table(db)
     lessons = [
         {
             "description": "Use context managers",
@@ -86,7 +73,7 @@ def test_store_lessons_batch_inserts_rows(tmp_path: Path) -> None:
 
 def test_fetch_lessons_by_tag_filters(tmp_path: Path) -> None:
     db = tmp_path / "lessons.db"
-    _create_table(db)
+    ensure_lessons_table(db)
     store_lesson(
         "Tag filtering works",
         source="tests",
