@@ -28,6 +28,7 @@ from tqdm import tqdm
 
 from utils.log_utils import _log_event
 from utils.lessons_learned_integrator import load_lessons, apply_lessons
+from ml_pattern_recognition import PatternRecognizer
 
 from .pattern_templates import get_pattern_templates
 from .learning_templates import get_lesson_templates
@@ -142,6 +143,16 @@ class TemplateAutoGenerator:
         self.lessons = load_lessons()
         apply_lessons(logger, self.lessons)
         self.patterns = self._load_patterns()
+        self.pattern_recognizer = PatternRecognizer()
+        self.pattern_labels: list[str] = []
+        if self.patterns:
+            try:
+                self.pattern_recognizer.learn(self.patterns)
+                self.pattern_labels = self.pattern_recognizer.recognize(
+                    self.patterns, db_path=self.analytics_db
+                )
+            except Exception as exc:  # pragma: no cover - log and continue
+                logger.error(f"Pattern recognition failed: {exc}")
         lesson_descriptions = [lesson["description"] for lesson in self.lessons]
         self.templates = (
             lesson_descriptions
