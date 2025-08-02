@@ -209,7 +209,7 @@ This script pulls templates from both `documentation.db` and `production.db` and
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
 are thin CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor``.
-- ``unified_session_management_system.py`` starts new sessions via enterprise compliance checks.
+- ``scripts/session/unified_session_management_system.py`` starts new sessions via enterprise compliance checks.
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
@@ -252,7 +252,7 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 
 ### Run Simplified Quantum Integration Orchestrator
 ```bash
-python simplified_quantum_integration_orchestrator.py
+python scripts/session/simplified_quantum_integration_orchestrator.py
 ```
 
 By default the orchestrator uses the simulator. To execute algorithms on IBM Quantum hardware install `qiskit-ibm-provider` and run:

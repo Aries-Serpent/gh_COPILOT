@@ -38,7 +38,7 @@ The validator now audits every module within `scripts/` and `template_engine/` f
 
 **Code Evidence Found:**
 ```python
-# From unified_monitoring_optimization_system.py
+# From scripts/unified_monitoring_optimization_system.py
 def perform_utility_function(self) -> bool:
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path))
     perf_db = workspace / "databases" / "performance_monitoring.db"

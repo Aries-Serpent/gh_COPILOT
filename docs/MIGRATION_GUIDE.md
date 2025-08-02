@@ -1,17 +1,16 @@
 # Migration Guide
 
-This guide highlights recent structural changes and how to adapt existing workflows.
+The following thin wrapper modules were relocated to improve project organization. Update any imports or CLI calls accordingly.
 
-## Renamed Modules
-- `scripts/session_wrap_up_engine.py` → `scripts/orchestrators/unified_wrapup_orchestrator.py`
+| Old Path | New Path |
+| --- | --- |
+| `advanced_qubo_optimization.py` | `scripts/advanced_qubo_optimization.py` |
+| `simplified_quantum_integration_orchestrator.py` | `scripts/session/simplified_quantum_integration_orchestrator.py` |
+| `unified_database_management_system.py` | `scripts/unified_database_management_system.py` |
+| `unified_disaster_recovery_system.py` | `scripts/unified_disaster_recovery_system.py` |
+| `unified_legacy_cleanup_system.py` | `scripts/unified_legacy_cleanup_wrapper.py` |
+| `unified_monitoring_optimization_system.py` | `scripts/unified_monitoring_optimization_system.py` |
+| `unified_script_generation_system.py` | `scripts/unified_script_generation_system.py` |
+| `unified_session_management_system.py` | removed; use `scripts/session/unified_session_management_system.py` |
 
-## New Paths
-- Runtime artifacts now reside under `artifacts/`:
-  - `artifacts/builds/`
-  - `artifacts/logs/`
-  - `artifacts/results/`
-  - `artifacts/reports/`
-
-## Wrap-Up Enforcement
-Always invoke `scripts/wlc_session_manager.py` at the end of long-running workflows. The manager logs wrap-up details to `databases/production.db`, stores a local log in `artifacts/logs/`, and mirrors the log to `$GH_COPILOT_BACKUP_ROOT/logs`.
-
+For any renamed modules, adjust imports to the new locations. CLI examples in the README and documentation have been updated accordingly.
