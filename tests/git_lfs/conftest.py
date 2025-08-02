@@ -40,5 +40,11 @@ def copy_cli(git_repo: Path) -> Path:
     """Copy ``artifact_manager.py`` into the git repository for CLI invocation."""
 
     dst = git_repo / "artifact_manager.py"
-    shutil.copy(Path(__file__).resolve().parents[2] / "artifact_manager.py", dst)
+    shutil.copy(
+        Path(__file__).resolve().parents[2]
+        / "scripts"
+        / "utilities"
+        / "artifact_manager.py",
+        dst,
+    )
     return dst
