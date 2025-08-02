@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.1.16] - 2025-08-02
+- Added IBM provider availability flag and hardware fallback handling in `QuantumExecutor`.
+- Introduced stub backend for scoring tests and stabilized quantum test simulations.
+- Expanded `TABLE_SCHEMAS` with correction and audit tables for asset ingestion routines.
+- Adjusted tests to avoid persistent environment mutations.
+
 ## [4.1.15] - 2025-08-06
 - Added migration script to ensure `enhanced_lessons_learned` table exists in `production.db` using schema from `learning_monitor.db`.
 
