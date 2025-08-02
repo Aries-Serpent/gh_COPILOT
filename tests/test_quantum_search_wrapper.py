@@ -1,4 +1,5 @@
 import sqlite3
+import sys
 from pathlib import Path
 
 from quantum.quantum_database_search import (
@@ -33,3 +34,47 @@ def test_hybrid_sql_search(tmp_path: Path):
     setup_db(db)
     res = quantum_search_hybrid("sql", "SELECT name FROM items", db)
     assert {"name": "a"} in res and {"name": "b"} in res
+
+
+def test_cli_hybrid_modes(monkeypatch, tmp_path: Path, capsys):
+    db = tmp_path / "db.sqlite"
+    setup_db(db)
+    # SQL mode (default when no collection provided)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "qds",
+            "--type",
+            "hybrid",
+            "--db",
+            str(db),
+            "--query",
+            "SELECT name FROM items",
+        ],
+    )
+    from quantum.quantum_database_search import main as cli_main
+
+    cli_main()
+    sql_out = capsys.readouterr().out
+    assert "Search results (2):" in sql_out
+
+    # NoSQL mode (collection provided)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "qds",
+            "--type",
+            "hybrid",
+            "--db",
+            str(db),
+            "--query",
+            "{\"name\": \"a\"}",
+            "--collection",
+            "items",
+        ],
+    )
+    cli_main()
+    nosql_out = capsys.readouterr().out
+    assert "Search results (1):" in nosql_out
