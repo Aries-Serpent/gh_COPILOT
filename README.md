@@ -100,13 +100,15 @@ cp .env.example .env
 # 2. Set the external backup directory and run the setup script
 export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
 bash setup.sh            # installs core dependencies
-# Or include test and optional extras
-GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-optional
+# Include extras as needed
+GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-test
+GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-a
+GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-quantum
+# Use `--with-all` to install all optional groups at once.
 # Always run this script before executing tests or automation tasks.
-# The script installs `requirements.txt` by default and, when `--with-optional`
-# is supplied, also installs `requirements-a.txt`, `requirements-test.txt`, and
-# `requirements-quantum.txt` when present. Database migrations are triggered
-# automatically if any `.db` files exist.
+# The script installs `requirements.txt` by default. Optional flags install
+# their corresponding requirements files when present. Database migrations run
+# automatically without manual intervention.
 # If package installation fails due to network restrictions,
 # update the environment to permit outbound connections to PyPI.
 
@@ -141,18 +143,8 @@ credentials.
 python scripts/database/unified_database_initializer.py
 
 # Add analytics tables (setup runs migrations automatically when databases exist)
+# Migrations are applied automatically during `setup.sh`
 python scripts/database/add_code_audit_log.py
-# If `analytics.db` is missing required tables, run the SQL migrations manually
-sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
-sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
-sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
-sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
-sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
-sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
-sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
-# Verify creation
-sqlite3 databases/analytics.db ".schema code_audit_log"
-sqlite3 databases/analytics.db ".schema code_audit_history"
 python scripts/database/size_compliance_checker.py
 
 # 3b. Synchronize databases
@@ -468,21 +460,8 @@ The previously referenced `optimization_metrics.db` is deprecated and no longer
 included in the repository.
 
 ### Analytics Database Test Protocol
-You must never create or modify the `analytics.db` file automatically. Use the commands below for manual migrations.
-To create or migrate the file manually, run:
-
-```bash
-sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
-sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
-sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
-sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
-sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
-sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
-sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
-```
-
-Automated tests perform these migrations in-memory with progress bars and DUAL
-COPILOT validation, leaving the on-disk database untouched.
+The setup script now applies all SQL migrations automatically. Manual
+invocations of `sqlite3` are no longer required for routine development.
 
 ### **Database-First Workflow**
 1. **Connect Safely:** Use `get_validated_production_db_connection()` from
