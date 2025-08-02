@@ -7,6 +7,8 @@ consistent API.
 """
 from __future__ import annotations
 
+import argparse
+import os
 from typing import Any, Dict, Iterable, List, Optional
 
 from .orchestration.executor import QuantumExecutor
@@ -21,7 +23,7 @@ class QuantumIntegrationOrchestrator:
     def __init__(
         self,
         *,
-        use_hardware: bool = False,
+        use_hardware: bool | None = None,
         backend_name: Optional[str] = None,
         max_workers: int = 4,
     ) -> None:
@@ -79,3 +81,40 @@ class QuantumIntegrationOrchestrator:
 
 
 __all__ = ["QuantumIntegrationOrchestrator"]
+
+
+def _main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Quantum Integration Orchestrator"
+    )
+    parser.add_argument(
+        "--use-hardware",
+        dest="use_hardware",
+        action="store_true",
+        help="Force use of IBM Quantum hardware",
+    )
+    parser.add_argument(
+        "--simulator",
+        dest="use_hardware",
+        action="store_false",
+        help="Force local simulator",
+    )
+    parser.add_argument(
+        "--backend",
+        default=os.getenv("IBM_BACKEND", "ibmq_qasm_simulator"),
+        help="Backend name when using hardware",
+    )
+    parser.set_defaults(use_hardware=None)
+    args = parser.parse_args()
+
+    orchestrator = QuantumIntegrationOrchestrator(
+        use_hardware=args.use_hardware, backend_name=args.backend
+    )
+    backend_name = getattr(orchestrator.executor.backend, "name", "none")
+    print(
+        f"Backend: {backend_name} (hardware={orchestrator.executor.use_hardware})"
+    )
+
+
+if __name__ == "__main__":
+    _main()

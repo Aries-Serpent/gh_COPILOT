@@ -8,23 +8,16 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Optional
 
+from quantum.utils.backend_provider import get_backend
+
+from .registry import get_global_registry
+
 try:  # pragma: no cover - optional dependency
     from qiskit import Aer
     QISKIT_AVAILABLE = True
 except Exception:  # pragma: no cover - optional dependency
     Aer = None
     QISKIT_AVAILABLE = False
-
-try:  # pragma: no cover - optional dependency
-    from qiskit_ibm_provider import IBMProvider  # type: ignore
-    HAS_IBM_PROVIDER = True
-except Exception:  # pragma: no cover - optional dependency
-    IBMProvider = None  # type: ignore
-    HAS_IBM_PROVIDER = False
-
-from quantum.ibm_backend import init_ibm_backend
-
-from .registry import get_global_registry
 
 
 class QuantumExecutor:
@@ -33,7 +26,7 @@ class QuantumExecutor:
     def __init__(
         self,
         max_workers: int = 4,
-        use_hardware: bool = False,
+        use_hardware: bool | None = None,
         backend_name: Optional[str] = None,
     ):
         self.max_workers = max_workers
@@ -42,37 +35,10 @@ class QuantumExecutor:
         self.execution_history: List[Dict[str, Any]] = []
         env_backend = os.getenv("IBM_BACKEND", "ibmq_qasm_simulator")
         self.backend_name = backend_name or env_backend
-        self.backend = None
-        env_token = os.getenv("QISKIT_IBM_TOKEN")
-        self.use_hardware = use_hardware or bool(env_token)
-        if self.use_hardware and not HAS_IBM_PROVIDER:
-            self.logger.warning("IBM provider unavailable; using simulator")
-            self.use_hardware = False
-        if self.use_hardware:
-            backend, success = init_ibm_backend(
-                token=env_token, backend_name=self.backend_name
-            )
-            self.backend = backend
-            self.use_hardware = success
-        elif QISKIT_AVAILABLE:
-            self.backend = Aer.get_backend("qasm_simulator")
-
-    def _load_backend(self, backend_name: str):
-        """Load a Qiskit backend, falling back to simulation."""
-        if not HAS_IBM_PROVIDER:
-            self.use_hardware = False
-            if QISKIT_AVAILABLE:
-                return Aer.get_backend("qasm_simulator")
-            return None
-        backend, success = init_ibm_backend(
-            token=os.getenv("QISKIT_IBM_TOKEN"), backend_name=backend_name
+        self.backend = get_backend(self.backend_name, use_hardware=use_hardware)
+        self.use_hardware = (
+            self.backend is not None and getattr(self.backend, "name", "") != "qasm_simulator"
         )
-        self.use_hardware = success
-        if success:
-            return backend
-        if QISKIT_AVAILABLE:
-            return Aer.get_backend("qasm_simulator")
-        return None
     
     def execute_algorithm(self, algorithm_name: str, **kwargs) -> Dict[str, Any]:
         """Execute a single algorithm by name"""
