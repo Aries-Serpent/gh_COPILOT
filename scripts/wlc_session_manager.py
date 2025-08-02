@@ -52,26 +52,6 @@ DEFAULT_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "prod
 DB_PATH = Path(os.getenv("WLC_DB_PATH", str(DEFAULT_DB)))
 
 
-def ensure_session_table(db_path: Path) -> None:
-    """Create the session table if it does not exist."""
-    if os.getenv("TEST_MODE"):
-        return
-    with get_connection(db_path) as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS unified_wrapup_sessions (
-                session_id TEXT PRIMARY KEY,
-                start_time TEXT NOT NULL,
-                end_time TEXT,
-                status TEXT,
-                compliance_score REAL,
-                error_details TEXT
-            )
-            """,
-        )
-        conn.commit()
-
-
 def get_connection(db_path: Path) -> sqlite3.Connection:
     return sqlite3.connect(db_path)
 
@@ -177,7 +157,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: bool = False) -> None:
     if os.getenv("TEST_MODE"):
-        return
+        return  # Skip side effects during tests
     if not validate_environment():
         raise EnvironmentError("Required environment variables are not set or paths invalid")
 
@@ -193,8 +173,6 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         )
 
         UnifiedWrapUpOrchestrator = _Orchestrator
-
-    ensure_session_table(db_path)
 
     with get_connection(db_path) as conn:
         ensure_session_table(conn)

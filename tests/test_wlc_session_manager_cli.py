@@ -79,7 +79,7 @@ def test_cli_invalid_env(tmp_path):
     env["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     env["PYTHONPATH"] = str(Path.cwd())
     env.pop("GH_COPILOT_BACKUP_ROOT", None)
-    env["TEST_MODE"] = "1"
+    env.pop("TEST_MODE", None)
     # Missing GH_COPILOT_BACKUP_ROOT
     result = subprocess.run(
         [
