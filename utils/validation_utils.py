@@ -1,10 +1,12 @@
 """Validation utilities for gh_COPILOT Enterprise Toolkit"""
 
 import json
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterable, List, Tuple
 
 from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.lessons_learned_integrator import store_lesson
 
 
 def validate_workspace_integrity() -> Dict[str, Any]:
@@ -124,3 +126,40 @@ def operations_validate_workspace() -> None:
         "zero_byte_files": zero_bytes,
     }
     print(json.dumps(report, indent=2))
+
+
+def run_compliance_gates(
+    gates: Iterable[Tuple[str, bool]], *, db_path: Path | None = None
+) -> bool:
+    """Execute compliance gates and record failed checks as lessons.
+
+    Parameters
+    ----------
+    gates:
+        Iterable of (name, passed) pairs.
+    db_path:
+        Optional path for the lessons database.
+
+    Returns
+    -------
+    bool
+        ``True`` if all gates passed, ``False`` otherwise.
+    """
+
+    all_passed = True
+    timestamp = datetime.utcnow().isoformat()
+    for name, passed in gates:
+        if not passed:
+            all_passed = False
+            kwargs = {}
+            if db_path is not None:
+                kwargs["db_path"] = db_path
+            store_lesson(
+                description=f"Compliance gate failed: {name}",
+                source="compliance_gate",
+                timestamp=timestamp,
+                validation_status="pending",
+                tags="compliance",
+                **kwargs,
+            )
+    return all_passed

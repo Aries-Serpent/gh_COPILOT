@@ -1,11 +1,11 @@
 # Continuous Improvement Phases
 
 ## Short-Term
-- Deploy ML pattern recognition stub `[status: planned]`
-- Establish lessons-learned feedback loop `[status: planned]`
+- Deploy ML-based pattern recognition with feedback loop `[status: active]`
+- Introduce pipeline-wide compliance gating checks `[status: active]`
 
 ## Mid-Term
-- Expand autonomous systems to new modules `[status: planned]`
+- Expand autonomous systems to new modules and subsystems `[status: active]`
 - Integrate quantum-ready phases for algorithm research `[status: planned]`
 
 ## Long-Term

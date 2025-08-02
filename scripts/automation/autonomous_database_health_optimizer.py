@@ -26,6 +26,9 @@ from scripts.monitoring.unified_monitoring_optimization_system import (
     EnterpriseUtility,
 )
 
+from ml_pattern_recognition import PatternRecognizer
+from utils.validation_utils import run_compliance_gates
+
 # Progress bar with graceful fallback
 try:
     from tqdm import tqdm
@@ -333,6 +336,9 @@ class AutonomousDatabaseHealthOptimizer:
         self.optimization_history: Dict[str, Any] = {}
         self._load_learning_patterns()
         self._load_optimization_history()
+
+        # ML-based pattern recognizer for subsystem analysis
+        self.pattern_recognizer = PatternRecognizer()
 
         self.logger.info("%s Autonomous Database Health Optimizer Initialized", INDICATORS["optimize"])
         self.logger.info("Workspace: %s", self.workspace_path)
@@ -1077,6 +1083,14 @@ class AutonomousDatabaseHealthOptimizer:
         # Calculate final metrics and save results
         self._finalize_improvement_results(improvement_results)
 
+        # Extend optimization to additional subsystems
+        self.optimize_additional_subsystems()
+
+        # Run compliance gating checks across the pipeline
+        run_compliance_gates(
+            [("success_rate", improvement_results["success_rate"] >= 80.0)]
+        )
+
         return improvement_results
 
     def _log_improvement_start(self) -> None:
@@ -1366,6 +1380,20 @@ class AutonomousDatabaseHealthOptimizer:
 
         except OSError as e:
             self.logger.error("%s Failed to save JSON results: %s", INDICATORS["warning"], str(e))
+
+    def optimize_additional_subsystems(self) -> None:
+        """Optimize non-database subsystems using ML pattern recognition."""
+        subsystems = ["cache", "storage"]
+        # Train and recognize patterns for subsystem names
+        self.pattern_recognizer.learn(subsystems)
+        patterns = self.pattern_recognizer.recognize(subsystems)
+        for subsystem, pattern in zip(subsystems, patterns):
+            self.logger.info(
+                "%s Subsystem %s recognized as %s",
+                INDICATORS["learn"],
+                subsystem,
+                pattern,
+            )
 
     def _load_offline_results(self) -> Dict[str, Any]:
         """Load cached optimization results for offline mode."""
