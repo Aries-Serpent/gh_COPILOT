@@ -18,6 +18,7 @@ from typing import List, Dict, Any, Optional, Union
 
 from utils.log_utils import _log_event
 from quantum.algorithms import QuantumEncryptedCommunication
+from quantum.advanced_quantum_algorithms import grover_search_list
 
 logger = logging.getLogger(__name__)
 DEFAULT_DB_PATH = Path(os.environ.get("QUANTUM_DB_PATH", "databases/quantum.db"))
@@ -111,6 +112,68 @@ def quantum_search_sql(
         _log_search_event(query, db_path, len(results), params, error)
         _lock.release()
     return results
+
+
+def quantum_search_registered_db(
+    query: str,
+    db_name: str,
+    params: Optional[Dict[str, Any]] = None,
+    limit: Optional[int] = None,
+    workspace_root: str | None = None,
+    **kwargs: Any,
+) -> List[Dict[str, Any]]:
+    """Execute ``query`` against a registered database using quantum search.
+
+    The database must be listed under the workspace managed by
+    :class:`~scripts.database.unified_database_management_system.UnifiedDatabaseManager`.
+    An empty list is returned if the database is unknown.
+    """
+
+    from scripts.database.unified_database_management_system import (
+        UnifiedDatabaseManager,
+    )
+
+    mgr = UnifiedDatabaseManager(workspace_root=workspace_root or ".")
+    db_path = mgr.databases_dir / db_name
+    if not db_path.exists():
+        logger.error("Registered database not found: %s", db_name)
+        _log_search_event(query, db_path, 0, params, "db not found")
+        return []
+    return quantum_search_sql(query, db_path, params, limit, **kwargs)
+
+
+def quantum_find_record(
+    query: str,
+    column: str,
+    target: str,
+    db_path: Union[str, Path] = DEFAULT_DB_PATH,
+    *,
+    use_hardware: bool = False,
+    backend_name: str | None = None,
+) -> Optional[Dict[str, Any]]:
+    """Return the first row whose ``column`` matches ``target``.
+
+    ``grover_search_list`` is used to locate the target value when quantum
+    execution is enabled; otherwise a classical search is performed.
+    """
+
+    rows = quantum_search_sql(
+        query,
+        db_path,
+        params=None,
+        limit=None,
+        use_hardware=use_hardware,
+        backend_name=backend_name,
+    )
+    dataset = [str(row.get(column)) for row in rows]
+    try:
+        match = grover_search_list(dataset, str(target), use_quantum=use_hardware)
+    except ValueError:
+        return None
+    for row in rows:
+        if str(row.get(column)) == match:
+            return row
+    return None
 
 
 def quantum_join_sql(
