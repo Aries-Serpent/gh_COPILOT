@@ -21,8 +21,12 @@ pip install --upgrade pip >/tmp/setup_install.log
 
 pip install -r "$WORKSPACE/requirements.txt" >>/tmp/setup_install.log
 
+if [ -f "$WORKSPACE/requirements-test.txt" ]; then
+    pip install -r "$WORKSPACE/requirements-test.txt" >>/tmp/setup_install.log
+fi
+
 if [ "$WITH_OPTIONAL" -eq 1 ]; then
-    for req in "$WORKSPACE/requirements-a.txt" "$WORKSPACE/requirements-test.txt" "$WORKSPACE/requirements-quantum.txt"; do
+    for req in "$WORKSPACE/requirements-a.txt" "$WORKSPACE/requirements-quantum.txt"; do
         if [ -f "$req" ]; then
             pip install -r "$req" >>/tmp/setup_install.log
         fi
@@ -30,9 +34,7 @@ if [ "$WITH_OPTIONAL" -eq 1 ]; then
 fi
 
 python "$WORKSPACE/scripts/setup_environment.py" >>/tmp/setup_install.log
-if find "$WORKSPACE/databases/migrations" -name '*.sql' | grep -q .; then
-    python "$WORKSPACE/scripts/run_migrations.py" >>/tmp/setup_install.log
-fi
+python "$WORKSPACE/scripts/run_migrations.py" >>/tmp/setup_install.log
 
 # install clw line wrapper if missing
 if [ ! -x /usr/local/bin/clw ]; then
