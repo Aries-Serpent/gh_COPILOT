@@ -5,7 +5,7 @@ This guide summarizes how to communicate changes effectively in the gh_COPILOT p
 ## Commit Message Conventions
 - Use **Conventional Commits** prefixes (`feat:`, `fix:`, `docs:`, `chore:`, etc.).
 - Keep messages concise and explain the reason for the change.
-- Run `ruff check .` and `pytest -q` before committing to ensure code quality.
+- Run `ruff check .` and `pytest -q --disable-warnings --maxfail=10 --exitfirst` before committing to ensure code quality.
 
 ## Recent Validation
 The most recent linting run showed no issues using `ruff`. Automated tests

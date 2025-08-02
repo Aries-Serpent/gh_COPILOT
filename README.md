@@ -868,7 +868,7 @@ source .venv/bin/activate
 pip install -r requirements-test.txt
 
 # Run comprehensive test suite
-make test  # runs `pytest tests`
+make test  # runs `pytest -q --disable-warnings --maxfail=10 --exitfirst tests`
 
 # Run linter
 ruff format .
