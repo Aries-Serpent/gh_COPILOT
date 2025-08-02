@@ -9,6 +9,7 @@ in unit tests without requiring external services.
 from __future__ import annotations
 
 import math
+from typing import Iterable
 
 try:  # pragma: no cover - qiskit optional at runtime
     from qiskit import QuantumCircuit, transpile
@@ -108,4 +109,31 @@ def phase_estimation_qiskit(theta: float, precision: int = 3) -> float:
     return int(measured, 2) / (2**precision)
 
 
-__all__ = ["grover_search_qiskit", "phase_estimation_qiskit"]
+def grover_search_list(data: Iterable[str], target: str, *, use_quantum: bool = True) -> str:
+    """Search ``data`` for ``target`` using Grover's algorithm when possible.
+
+    The search falls back to a classical lookup when quantum execution is
+    unavailable.  ``data`` must be indexable as a list and the length must be a
+    power of two for the quantum path.  The function returns the found value and
+    raises :class:`ValueError` if ``target`` is not present.
+    """
+
+    items = list(data)
+    if target not in items:
+        raise ValueError("target not in data")
+
+    index = items.index(target)
+    n_qubits = math.ceil(math.log2(len(items)))
+    if use_quantum and QISKIT_AVAILABLE and len(items) == 2**n_qubits:
+        bitstring = format(index, f"0{n_qubits}b")
+        measured = grover_search_qiskit(bitstring)
+        return items[int(measured, 2)]
+
+    return target
+
+
+__all__ = [
+    "grover_search_qiskit",
+    "phase_estimation_qiskit",
+    "grover_search_list",
+]
