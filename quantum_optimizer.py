@@ -9,6 +9,9 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 import os
 from pathlib import Path
 from utils.lessons_learned_integrator import fetch_lessons_by_tag
+from quantum.quantum_annealing import run_quantum_annealing
+from quantum.quantum_superposition_search import run_quantum_superposition_search
+from quantum.quantum_entanglement_correction import run_entanglement_correction
 
 try:
     from qiskit import QuantumCircuit, Aer, execute
@@ -324,3 +327,13 @@ if __name__ == "__main__":
     print("History:")
     for event in summary["history"]:
         print(event)
+
+def run_quantum_routine(name: str, *args, use_hardware: bool = False, **kwargs):
+    """Dispatch to quantum routines by name."""
+    if name == "annealing":
+        return run_quantum_annealing(*args, use_hardware=use_hardware, **kwargs)
+    if name == "superposition_search":
+        return run_quantum_superposition_search(*args, use_hardware=use_hardware, **kwargs)
+    if name == "entanglement_correction":
+        return run_entanglement_correction(*args, use_hardware=use_hardware, **kwargs)
+    raise ValueError(f"Unknown quantum routine: {name}")
