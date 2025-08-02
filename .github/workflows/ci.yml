@@ -36,7 +36,9 @@ jobs:
         run: pip install flake8 ruff
 
       - name: Run ruff
-        run: ruff check .
+        run: |
+          mkdir -p reports/lint
+          ruff check . | tee reports/lint/ruff.txt
 
       - name: Run flake8
         run: flake8 --config=.flake8 .
@@ -71,17 +73,21 @@ jobs:
           import template_engine.template_synchronizer
           PY
 
+      - name: Validate roadmap
+        run: python scripts/validate_roadmap.py docs/continuous_improvement_roadmap.md
+
       - name: Run tests with coverage
         run: |
-          mkdir -p artifacts
-          coverage run -m pytest -q --disable-warnings --maxfail=10 --exitfirst tests tests/documentation tests/quantum --junitxml=artifacts/test-results.xml
-          coverage xml -o artifacts/coverage.xml
+          mkdir -p reports/coverage artifacts
+          pytest --cov=. --cov-report=xml:reports/coverage/coverage.xml --cov-report=term --cov-fail-under=50 -q --disable-warnings --maxfail=10 --exitfirst tests tests/documentation tests/quantum --junitxml=artifacts/test-results.xml
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: artifacts
-          path: artifacts
+          path: |
+            artifacts
+            reports
 
       - name: Verify template_engine import
         run: python -c "import template_engine"

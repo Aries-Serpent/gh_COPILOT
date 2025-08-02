@@ -5,8 +5,8 @@
 ![Learning Patterns](https://img.shields.io/badge/Learning_Patterns-ongoing-yellow)
 ![DUAL COPILOT](https://img.shields.io/badge/DUAL_COPILOT-Pattern_Validated-orange)
 ![Database First](https://img.shields.io/badge/Database_First-Architecture_Complete-purple)
-[![CI](https://github.com/gh-COPILOT/gh_COPILOT/actions/workflows/ci.yml/badge.svg)](https://github.com/gh-COPILOT/gh_COPILOT/actions/workflows/ci.yml)
-[![Compliance](https://github.com/gh-COPILOT/gh_COPILOT/actions/workflows/compliance-audit.yml/badge.svg)](https://github.com/gh-COPILOT/gh_COPILOT/actions/workflows/compliance-audit.yml)
+![Coverage](https://img.shields.io/badge/coverage-automated-blue)
+![Ruff](https://img.shields.io/badge/ruff-linted-blue)
 
 **Status:** Active development with incremental improvements
 
@@ -1135,3 +1135,10 @@ Planned highlights include:
    misclassification of non-executable files.
 6. **Cluster-based Template Retrieval** – use `get_cluster_representatives` to group templates for database-first generation.
 7. **Pattern Clustering Sync Utility** – leverage `PatternClusteringSync` and `DBFirstCodeGenerator` to synchronize templates and generate code using the database-first workflow.
+
+## Future Work
+
+See [Continuous Improvement Roadmap](docs/continuous_improvement_roadmap.md),
+[Stakeholder Roadmap](documentation/continuous_improvement_roadmap.md) and
+[Project Roadmap](documentation/ROADMAP.md) for detailed milestones and
+status tracking.
