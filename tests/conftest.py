@@ -9,7 +9,14 @@ from zipfile import ZipFile
 
 import pytest
 
+# Enable test mode to prevent side effects such as database writes.
 os.environ.setdefault("TEST_MODE", "1")
+
+
+@pytest.fixture(autouse=True)
+def enforce_test_mode(monkeypatch):
+    """Ensure TEST_MODE is set for each test run."""
+    monkeypatch.setenv("TEST_MODE", "1")
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 logger = logging.getLogger(__name__)
