@@ -7,6 +7,22 @@ def test_remove_unused_placeholders_logs_event(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     prod_db = tmp_path / "prod.db"
     analytics_db = tmp_path / "databases" / "analytics.db"
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS placeholder_removal_events (
+                event TEXT,
+                placeholder TEXT,
+                removal_id INTEGER,
+                removed INTEGER,
+                timestamp TEXT,
+                level TEXT,
+                module TEXT
+            )
+            """
+        )
+        conn.commit()
     with sqlite3.connect(prod_db) as conn:
         conn.execute(
             "CREATE TABLE template_placeholders (placeholder_name TEXT, default_value TEXT)"
