@@ -7,6 +7,9 @@
             document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
             document.getElementById('compliance_score').textContent = data.compliance_score.toFixed(3);
             document.getElementById('lessons_integration_status').textContent = data.lessons_integration_status || 'UNKNOWN';
+            document.getElementById('lessons_hook_coverage').textContent =
+                data.lessons_hook_coverage !== undefined ? (data.lessons_hook_coverage * 100).toFixed(1) + '%' : '0%';
+            document.getElementById('missing_lesson_hooks').textContent = (data.missing_lesson_hooks || []).join(', ') || 'none';
             document.getElementById('average_query_latency').textContent = (data.average_query_latency ?? 0).toFixed(3);
             document.getElementById('rollback_count').textContent = data.rollback_count || 0;
             document.getElementById('progress_status').textContent = data.progress_status || 'unknown';
@@ -63,6 +66,8 @@
     <strong>Placeholder Removals:</strong> <span id="placeholder_removal">0</span><br>
     <strong>Compliance Score:</strong> <span id="compliance_score">0</span><br>
     <strong>Lessons Integration Status:</strong> <span id="lessons_integration_status">UNKNOWN</span><br>
+    <strong>Lessons Hook Coverage:</strong> <span id="lessons_hook_coverage">0%</span><br>
+    <strong>Missing Lesson Hooks:</strong> <span id="missing_lesson_hooks">none</span><br>
     <strong>Average Query Latency (ms):</strong> <span id="average_query_latency">0</span><br>
     <strong>Rollback Count:</strong> <span id="rollback_count">0</span><br>
     <strong>Progress Status:</strong> <span id="progress_status">unknown</span>
