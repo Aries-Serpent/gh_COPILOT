@@ -8,7 +8,12 @@ from archive.consolidated_scripts.enterprise_database_driven_documentation_manag
 )
 from template_engine import auto_generator
 
-auto_generator.validate_no_recursive_folders = lambda: None
+
+def no_recursive_folders() -> None:
+    return None
+
+
+auto_generator.validate_no_recursive_folders = no_recursive_folders
 
 
 def test_documentation_validator(tmp_path: Path) -> None:
@@ -40,5 +45,9 @@ def test_documentation_validator(tmp_path: Path) -> None:
     import archive.consolidated_scripts.enterprise_database_driven_documentation_manager as mod
 
     mod_obj = manager
-    setattr(mod, "DocumentationManager", lambda: mod_obj)
+
+    def documentation_manager_factory() -> DocumentationManager:
+        return mod_obj
+
+    setattr(mod, "DocumentationManager", documentation_manager_factory)
     assert dual_validate()

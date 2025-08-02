@@ -5,7 +5,12 @@ import pytest
 
 from dashboard import compliance_metrics_updater as cmu
 
-cmu.validate_no_recursive_folders = lambda: None
+
+def no_recursive_folders() -> None:
+    return None
+
+
+cmu.validate_no_recursive_folders = no_recursive_folders
 from web_gui.scripts.flask_apps.enterprise_dashboard import app
 
 
@@ -27,9 +32,13 @@ def temp_db(tmp_path: Path) -> Path:
 
 def test_fetch_compliance_metrics(tmp_path: Path, temp_db: Path, monkeypatch):
     monkeypatch.setattr(cmu, "ANALYTICS_DB", temp_db)
-    monkeypatch.setattr(cmu, "ensure_tables", lambda *a, **k: None)
-    monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
-    monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
+    
+    def noop(*a: object, **k: object) -> None:
+        return None
+
+    monkeypatch.setattr(cmu, "ensure_tables", noop)
+    monkeypatch.setattr(cmu, "validate_no_recursive_folders", no_recursive_folders)
+    monkeypatch.setattr(cmu, "validate_environment_root", noop)
     updater = cmu.ComplianceMetricsUpdater(tmp_path, test_mode=True)
     metrics = updater._fetch_compliance_metrics(test_mode=True)
     assert metrics["rollback_count"] == 1
@@ -38,10 +47,14 @@ def test_fetch_compliance_metrics(tmp_path: Path, temp_db: Path, monkeypatch):
 
 def test_metrics_stream(tmp_path: Path, temp_db: Path, monkeypatch):
     monkeypatch.setattr(cmu, "ANALYTICS_DB", temp_db)
-    monkeypatch.setattr(cmu, "ensure_tables", lambda *a, **k: None)
-    monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
-    monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
-    monkeypatch.setattr(cmu, "insert_event", lambda *a, **k: None)
+    
+    def noop(*a: object, **k: object) -> None:
+        return None
+
+    monkeypatch.setattr(cmu, "ensure_tables", noop)
+    monkeypatch.setattr(cmu, "validate_no_recursive_folders", no_recursive_folders)
+    monkeypatch.setattr(cmu, "validate_environment_root", noop)
+    monkeypatch.setattr(cmu, "insert_event", noop)
     client = app.test_client()
     resp = client.get("/metrics_stream?once=1")
     assert resp.status_code == 200
