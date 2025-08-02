@@ -14,9 +14,8 @@ def test_cli_execution(unified_wrapup_session_db, tmp_path):
     env = os.environ.copy()
     env["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     env["GH_COPILOT_BACKUP_ROOT"] = str(tmp_path / "backups")
-    env["TEST_MODE"] = "1"
+    env["TEST_MODE"] = "1"  # ensure early exit during tests
     env["PYTHONPATH"] = str(Path.cwd())
-    env["TEST_MODE"] = "1"
     with sqlite3.connect(temp_db) as conn:
         before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
 
@@ -44,9 +43,8 @@ def test_cli_orchestrate(unified_wrapup_session_db, tmp_path):
     env = os.environ.copy()
     env["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     env["GH_COPILOT_BACKUP_ROOT"] = str(tmp_path / "backups")
-    env["TEST_MODE"] = "1"
+    env["TEST_MODE"] = "1"  # ensure early exit during tests
     env["PYTHONPATH"] = str(Path.cwd())
-    env["TEST_MODE"] = "1"
 
     result = subprocess.run(
         [
