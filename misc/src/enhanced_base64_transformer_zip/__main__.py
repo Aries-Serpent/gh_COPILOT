@@ -1,5 +1,4 @@
-"""Entry point for the Enhanced Base64 ZIP Transformer."""
-
+"""Entry 
 from __future__ import annotations
 
 import sys
