@@ -24,7 +24,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from tqdm import tqdm
-from quantum_algorithm_library_expansion import quantum_text_score
+from quantum.quantum_algorithm_library_expansion import quantum_text_score
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")

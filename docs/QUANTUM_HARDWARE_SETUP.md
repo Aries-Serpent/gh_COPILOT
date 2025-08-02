@@ -26,7 +26,7 @@ otherwise the default simulator is used.
 Use the executor CLI or orchestrator to force hardware execution:
 ```bash
 python -m quantum.cli.executor_cli --use-hardware --backend ibm_nairobi
-python quantum_integration_orchestrator.py --hardware
+python scripts/automation/quantum_integration_orchestrator.py --hardware
 ```
 Both flags validate that `QISKIT_IBM_TOKEN` is present and select the requested
 backend. When no backend is supplied the orchestrator attempts automatic

@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-from quantum_database_search import quantum_search_nosql, quantum_search_sql
+from quantum.quantum_database_search import quantum_search_nosql, quantum_search_sql
 
 
 def test_sql_search(tmp_path: Path):

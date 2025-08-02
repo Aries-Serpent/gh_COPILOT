@@ -11,7 +11,7 @@ Enterprise Standards Compliance:
 
 from copilot.common.workspace_utils import get_workspace_path
 
-from session_protocol_validator import SessionProtocolValidator
+from scripts.session.session_protocol_validator import SessionProtocolValidator
 from utils.validation_utils import (
     detect_zero_byte_files,
     validate_enterprise_environment,

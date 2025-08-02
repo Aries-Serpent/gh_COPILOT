@@ -37,7 +37,7 @@ from .pattern_mining_engine import extract_patterns
 
 # Quantum scoring helper
 try:
-    from quantum_algorithm_library_expansion import (
+    from quantum.quantum_algorithm_library_expansion import (
         quantum_text_score,
         quantum_similarity_score,
         quantum_cluster_score,
@@ -46,22 +46,22 @@ except ImportError:  # pragma: no cover - optional dependency
     from importlib import import_module
 
     try:
-        _qal = import_module("quantum_algorithm_library_expansion")
+        _qal = import_module("quantum.quantum_algorithm_library_expansion")
     except Exception:
         _qal = None
 
     if _qal is not None:
 
         def quantum_text_score(text: str) -> float:
-            """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+            """Fallback invoking :mod:`quantum.quantum_algorithm_library_expansion`."""
             return _qal.quantum_text_score(text)
 
         def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
-            """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+            """Fallback invoking :mod:`quantum.quantum_algorithm_library_expansion`."""
             return _qal.quantum_similarity_score(a, b)
 
         def quantum_cluster_score(matrix: np.ndarray) -> float:
-            """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
+            """Fallback invoking :mod:`quantum.quantum_algorithm_library_expansion`."""
             return _qal.quantum_cluster_score(matrix)
     else:
 
