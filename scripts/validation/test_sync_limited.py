@@ -6,7 +6,7 @@ Limited Script Sync Test - Validates functionality with a small subset of script
 import tempfile
 import sqlite3
 from pathlib import Path
-from script_database_validator import ScriptDatabaseValidator
+from db_tools.script_database_validator import ScriptDatabaseValidator
 
 
 def test_limited_sync():

@@ -38,7 +38,7 @@ Based on the semantic search results, the workspace contains numerous Python scr
 The workspace demonstrates **ENTERPRISE-GRADE SCRIPT REPRODUCTION CAPABILITY** through:
 
 1. **Script Database Integration**:
-   - `script_database_validator.py` - Validates script-database synchronization
+   - `db_tools/script_database_validator.py` - Validates script-database synchronization
    - `enterprise_audit_production_deployment.py` - Stores scripts in database for reproduction
    - Production database with script repository tables
 
@@ -93,7 +93,7 @@ For scripts with remaining violations:
 
 ```bash
 # 1. Update database with corrected scripts
-python script_database_validator.py --update
+python db_tools/script_database_validator.py --update
 
 # 2. Verify reproduction capability
 python enterprise_audit_production_deployment.py --validate-reproduction

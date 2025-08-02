@@ -89,7 +89,7 @@
 - real_time_intelligence_analytics_dashboard.py
 - recursive_violation_cleanup.py
 - refined_enterprise_continuation_processor_fixed.py
-- script_database_validator.py
+- db_tools/script_database_validator.py
 - self_healing_self_learning_system.py
 - semantic_search_reference_validator.py
 - SESSION_INTEGRITY_MANAGER.py
@@ -201,7 +201,7 @@
 - real_time_intelligence_analytics_dashboard.py
 - refined_enterprise_continuation_processor_fixed.py
 - safe_database_migrator.py
-- script_database_validator.py
+- db_tools/script_database_validator.py
 - script_modulation_analyzer.py
 - self_healing_self_learning_system.py
 - SESSION_INTEGRITY_MANAGER.py
