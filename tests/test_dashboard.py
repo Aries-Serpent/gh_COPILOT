@@ -6,11 +6,11 @@ import pytest
 from dashboard import compliance_metrics_updater as cmu
 
 
-def no_recursive_folders() -> None:
+def _stub_no_recursive_folders() -> None:
     return None
 
 
-cmu.validate_no_recursive_folders = no_recursive_folders
+cmu.validate_no_recursive_folders = _stub_no_recursive_folders
 from web_gui.scripts.flask_apps.enterprise_dashboard import app
 
 
@@ -37,7 +37,7 @@ def test_fetch_compliance_metrics(tmp_path: Path, temp_db: Path, monkeypatch):
         return None
 
     monkeypatch.setattr(cmu, "ensure_tables", noop)
-    monkeypatch.setattr(cmu, "validate_no_recursive_folders", no_recursive_folders)
+    monkeypatch.setattr(cmu, "validate_no_recursive_folders", _stub_no_recursive_folders)
     monkeypatch.setattr(cmu, "validate_environment_root", noop)
     updater = cmu.ComplianceMetricsUpdater(tmp_path, test_mode=True)
     metrics = updater._fetch_compliance_metrics(test_mode=True)
@@ -52,7 +52,7 @@ def test_metrics_stream(tmp_path: Path, temp_db: Path, monkeypatch):
         return None
 
     monkeypatch.setattr(cmu, "ensure_tables", noop)
-    monkeypatch.setattr(cmu, "validate_no_recursive_folders", no_recursive_folders)
+    monkeypatch.setattr(cmu, "validate_no_recursive_folders", _stub_no_recursive_folders)
     monkeypatch.setattr(cmu, "validate_environment_root", noop)
     monkeypatch.setattr(cmu, "insert_event", noop)
     client = app.test_client()

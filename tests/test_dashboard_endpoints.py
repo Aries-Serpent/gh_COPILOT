@@ -2,16 +2,16 @@
 from dashboard import compliance_metrics_updater as cmu
 
 
-def no_recursive_folders() -> None:
+def _stub_no_recursive_folders() -> None:
     return None
 
 
-def no_environment_root() -> None:
+def _stub_no_environment_root() -> None:
     return None
 
 
-cmu.validate_no_recursive_folders = no_recursive_folders
-cmu.validate_environment_root = no_environment_root
+cmu.validate_no_recursive_folders = _stub_no_recursive_folders
+cmu.validate_environment_root = _stub_no_environment_root
 from web_gui.scripts.flask_apps.enterprise_dashboard import app
 
 
