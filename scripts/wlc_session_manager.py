@@ -168,11 +168,8 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         return  # Skip side effects during tests
     if not validate_environment():
         raise EnvironmentError("Required environment variables are not set or paths invalid")
-
-    test_mode = bool(os.getenv("TEST_MODE"))
-    if not test_mode:
-        setup_logging(verbose)
-        logging.info("WLC session starting")
+    setup_logging(verbose)
+    logging.info("WLC session starting")
 
     global UnifiedWrapUpOrchestrator
     if UnifiedWrapUpOrchestrator is None:
@@ -190,24 +187,20 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         compliance_score = 1.0
         try:
             for i in tqdm(range(steps), desc="WLC Session", unit="step"):
-                if not test_mode:
-                    logging.info("Step %d/%d completed", i + 1, steps)
+                logging.info("Step %d/%d completed", i + 1, steps)
                 sleep_time = 0.1
                 if os.getenv("TEST"):
                     sleep_time = 0.01
-                if not test_mode:
-                    time.sleep(sleep_time)
+                time.sleep(sleep_time)
 
-            if not test_mode:
-                orchestrator = UnifiedWrapUpOrchestrator(
-                    workspace_path=str(CrossPlatformPathManager.get_workspace_path())
-                )
-                result = orchestrator.execute_unified_wrapup()
-                compliance_score = result.compliance_score / 100.0
+            orchestrator = UnifiedWrapUpOrchestrator(
+                workspace_path=str(CrossPlatformPathManager.get_workspace_path())
+            )
+            result = orchestrator.execute_unified_wrapup()
+            compliance_score = result.compliance_score / 100.0
 
         except Exception as exc:  # noqa: BLE001
-            if not test_mode:
-                logging.exception("WLC session failed")
+            logging.exception("WLC session failed")
             finalize_session_entry(conn, entry_id, 0.0, error=str(exc))
             raise
 
@@ -220,7 +213,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
             tags="wlc",
         )
 
-        if run_orchestrator and not test_mode:
+        if run_orchestrator:
             orchestrator_cls = UnifiedWrapUpOrchestrator
             if orchestrator_cls is None:
                 from scripts.orchestrators.unified_wrapup_orchestrator import (
@@ -235,14 +228,13 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
         validator = SecondaryCopilotValidator()
         validator.validate_corrections([__file__])
 
-    if os.getenv("WLC_RUN_ORCHESTRATOR") == "1" and not test_mode:
+    if os.getenv("WLC_RUN_ORCHESTRATOR") == "1":
         orchestrator = UnifiedWrapUpOrchestrator(
             workspace_path=str(CrossPlatformPathManager.get_workspace_path())
         )
         orchestrator.execute_unified_wrapup()
 
-    if not test_mode:
-        logging.info("WLC session completed")
+    logging.info("WLC session completed")
 
 
 def main(argv: list[str] | None = None) -> None:
