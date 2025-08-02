@@ -99,14 +99,14 @@ cp .env.example .env
 
 # 2. Set the external backup directory and run the setup script
 export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
-bash setup.sh            # installs core and test dependencies
-# Or include optional extras
+bash setup.sh            # installs core dependencies
+# Or include test and optional extras
 GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-optional
 # Always run this script before executing tests or automation tasks.
-# The script installs `requirements.txt` and `requirements-test.txt` by default,
-# runs `scripts/run_migrations.py`, and prepares environment variables.
-# Passing `--with-optional` additionally installs `requirements-a.txt` and
-# `requirements-quantum.txt` when present.
+# The script installs `requirements.txt` by default and, when `--with-optional`
+# is supplied, also installs `requirements-a.txt`, `requirements-test.txt`, and
+# `requirements-quantum.txt` when present. Database migrations are triggered
+# automatically if any `.db` files exist.
 # If package installation fails due to network restrictions,
 # update the environment to permit outbound connections to PyPI.
 
@@ -140,7 +140,7 @@ credentials.
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
 
-# Add analytics tables and run migrations
+# Add analytics tables (setup runs migrations automatically when databases exist)
 python scripts/database/add_code_audit_log.py
 # If `analytics.db` is missing required tables, run the SQL migrations manually
 sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
@@ -150,8 +150,6 @@ sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
 sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
-# Or run all migrations sequentially
-python scripts/run_migrations.py
 # Verify creation
 sqlite3 databases/analytics.db ".schema code_audit_log"
 sqlite3 databases/analytics.db ".schema code_audit_history"
@@ -481,11 +479,6 @@ sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
 sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
 sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
-```
-
-Alternatively, run all migrations sequentially:
-```bash
-python scripts/run_migrations.py
 ```
 
 Automated tests perform these migrations in-memory with progress bars and DUAL
