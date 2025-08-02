@@ -7,6 +7,7 @@ def test_init_backend_success(monkeypatch):
     backend = object()
     provider = MagicMock()
     provider.return_value.get_backend.return_value = backend
+    provider.return_value.backends.return_value = [backend]
     monkeypatch.setenv("QISKIT_IBM_TOKEN", "token")
     monkeypatch.setattr("quantum.ibm_backend.IBMProvider", provider)
     def _stub_get_backend_backend(name):

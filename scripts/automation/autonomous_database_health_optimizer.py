@@ -28,6 +28,8 @@ from scripts.monitoring.unified_monitoring_optimization_system import (
 
 from ml_pattern_recognition import PatternRecognizer
 from utils.validation_utils import run_compliance_gates
+from enterprise_modules.compliance import validate_enterprise_operation
+from security.compliance_checker import enforce_security_policies
 
 # Progress bar with graceful fallback
 try:
@@ -336,6 +338,11 @@ class AutonomousDatabaseHealthOptimizer:
         self.optimization_history: Dict[str, Any] = {}
         self._load_learning_patterns()
         self._load_optimization_history()
+
+    def run_compliance_audit(self) -> None:
+        """Validate security policies and workspace paths."""
+        enforce_security_policies()
+        validate_enterprise_operation(str(self.workspace_path))
 
         # ML-based pattern recognizer for subsystem analysis
         self.pattern_recognizer = PatternRecognizer()
@@ -1067,6 +1074,7 @@ class AutonomousDatabaseHealthOptimizer:
             )
             return self._initialize_improvement_results()
 
+        self.run_compliance_audit()
         self._log_improvement_start()
 
         improvement_results = self._initialize_improvement_results()

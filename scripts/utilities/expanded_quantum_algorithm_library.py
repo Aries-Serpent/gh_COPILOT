@@ -56,8 +56,7 @@ class EnterpriseUtility:
             self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
             return False
 
-    def perform_utility_function(self) -> bool:
-        """Generate and verify a three-qubit GHZ state."""
+    def _generate_ghz_state(self) -> bool:
         self.logger.info(f"{TEXT_INDICATORS['info']} Creating GHZ state")
         from qiskit import QuantumCircuit
         from qiskit_aer import AerSimulator
@@ -71,9 +70,30 @@ class EnterpriseUtility:
         backend = AerSimulator()
         result = backend.run(circuit, shots=200).result()
         counts = result.get_counts()
-        self.logger.info(f"{TEXT_INDICATORS['info']} Counts: {counts}")
-
+        self.logger.info(f"{TEXT_INDICATORS['info']} GHZ counts: {counts}")
         return "000" in counts and "111" in counts
+
+    def _generate_bell_state(self) -> bool:
+        self.logger.info(f"{TEXT_INDICATORS['info']} Creating Bell state")
+        from qiskit import QuantumCircuit
+        from qiskit_aer import AerSimulator
+
+        circuit = QuantumCircuit(2, 2)
+        circuit.h(0)
+        circuit.cx(0, 1)
+        circuit.measure(range(2), range(2))
+
+        backend = AerSimulator()
+        result = backend.run(circuit, shots=200).result()
+        counts = result.get_counts()
+        self.logger.info(f"{TEXT_INDICATORS['info']} Bell counts: {counts}")
+        return "00" in counts and "11" in counts
+
+    def perform_utility_function(self) -> bool:
+        """Run sample quantum algorithms and verify outputs."""
+        ghz_ok = self._generate_ghz_state()
+        bell_ok = self._generate_bell_state()
+        return ghz_ok and bell_ok
 
 
 def main():
