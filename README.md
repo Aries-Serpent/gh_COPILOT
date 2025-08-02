@@ -99,15 +99,14 @@ cp .env.example .env
 
 # 2. Set the external backup directory and run the setup script
 export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
-bash setup.sh            # core dependencies only
-# Or include optional extras and test requirements
+bash setup.sh            # installs core and test dependencies
+# Or include optional extras
 GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-optional
 # Always run this script before executing tests or automation tasks.
-# By default only `requirements.txt` is installed. Passing `--with-optional`
-# additionally installs `requirements-a.txt`, `requirements-test.txt`, and
-# `requirements-quantum.txt` when present. The setup process also applies
-# database migrations under `databases/migrations/` and prepares environment
-# variables.
+# The script installs `requirements.txt` and `requirements-test.txt` by default,
+# runs `scripts/run_migrations.py`, and prepares environment variables.
+# Passing `--with-optional` additionally installs `requirements-a.txt` and
+# `requirements-quantum.txt` when present.
 # If package installation fails due to network restrictions,
 # update the environment to permit outbound connections to PyPI.
 
@@ -865,7 +864,7 @@ validate_enterprise_standards(final_result)
 ```bash
 # Contributors must execute `bash setup.sh` before running tests.
 # Ensure environment setup
-bash setup.sh --with-optional
+bash setup.sh
 source .venv/bin/activate
 
 # Run comprehensive test suite
@@ -1083,9 +1082,8 @@ The repository uses GitHub Actions to automate linting, testing, and compliance 
 To mimic CI locally, run:
 
 ```bash
-bash setup.sh --with-optional
+bash setup.sh
 make test
-python scripts/run_migrations.py
 ```
 
 ---
