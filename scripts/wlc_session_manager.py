@@ -74,6 +74,14 @@ def ensure_session_table(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
+def initialize_database(db_path: Path) -> None:
+    """Pre-run check to ensure required tables exist."""
+    if os.getenv("TEST_MODE"):
+        return
+    with get_connection(db_path) as conn:
+        ensure_session_table(conn)
+
+
 def setup_logging(verbose: bool) -> Path:
     """Configure enterprise logging to external backup root."""
     backup_root = CrossPlatformPathManager.get_backup_root()
@@ -241,6 +249,7 @@ def main(argv: list[str] | None = None) -> None:
     if os.getenv("TEST_MODE"):
         return
     args = parse_args(argv)
+    initialize_database(args.db_path)
     run_session(
         args.steps,
         args.db_path,
