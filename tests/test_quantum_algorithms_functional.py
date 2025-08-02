@@ -23,6 +23,20 @@ def test_run_kmeans_clustering_returns_inertia():
     assert metrics["inertia"] >= 0
 
 
+def test_run_kmeans_clustering_allows_custom_n_init():
+    metrics = run_kmeans_clustering(samples=20, clusters=2, n_init=1)
+    assert metrics["inertia"] >= 0
+
+
+def test_run_kmeans_clustering_supports_auto():
+    import sklearn
+
+    version = tuple(int(x) for x in sklearn.__version__.split(".")[:2])
+    if version >= (1, 4):
+        metrics = run_kmeans_clustering(samples=20, clusters=2, n_init="auto")
+        assert metrics["inertia"] >= 0
+
+
 def test_run_simple_qnn_accuracy_range():
     metrics = run_simple_qnn()
     assert 0.0 <= metrics["accuracy"] <= 1.0
