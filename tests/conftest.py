@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import shutil
 from pathlib import Path
 from zipfile import ZipFile
@@ -72,3 +73,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     terminalreporter.line(
         "Consider extending artifact_manager tests for additional edge cases and CI integration."
     )
+
+
+def pytest_runtest_setup(item):
+    if "hardware" in item.keywords and not os.getenv("QISKIT_IBM_TOKEN"):
+        pytest.skip("QISKIT_IBM_TOKEN not set")
