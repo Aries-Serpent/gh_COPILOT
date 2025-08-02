@@ -5,15 +5,15 @@ Refactored from original database_compliance_checker.py with enhanced functional
 
 import logging
 import os
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from tqdm import tqdm
 
 from ..core.connection import DatabaseConnection
-from ..core.exceptions import DatabaseError
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -33,7 +33,9 @@ class DatabaseComplianceChecker:
             workspace_path = os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
 
         self.workspace_path = Path(workspace_path)
-        self.database_path = self.workspace_path / "databases" / "flake8_violations.db"
+        # Use analytics.db for logging correction history
+        self.database_path = self.workspace_path / "databases" / "analytics.db"
+        self.database_path.parent.mkdir(parents=True, exist_ok=True)
         self.db_connection = DatabaseConnection(self.database_path)
         self.logger = logging.getLogger(__name__)
 
@@ -103,32 +105,64 @@ class DatabaseComplianceChecker:
 
         for file_path in files:
             try:
-                if self.correct_file(file_path):
+                success, message = self.correct_file(file_path)
+                self.log_correction_to_database(file_path, success, message)
+                if success:
                     corrected.append(file_path)
-                    self.log_correction_to_database(file_path, True)
-                else:
-                    self.log_correction_to_database(file_path, False)
             except Exception as e:
-                self.logger.error(f"{TEXT_INDICATORS['error']} Failed to correct {file_path}: {e}")
-                self.log_correction_to_database(file_path, False, str(e))
+                error_msg = str(e)
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} Failed to correct {file_path}: {error_msg}")
+                self.log_correction_to_database(file_path, False, error_msg)
 
         return corrected
 
-    def correct_file(self, file_path: str) -> bool:
-        """Correct a single file - placeholder for actual correction logic"""
+    def correct_file(self, file_path: str) -> Tuple[bool, str]:
+        """Inspect and fix common compliance issues in a single file.
+
+        Returns:
+            Tuple[bool, str]: Success flag and details or error message.
+        """
         try:
-            # This is a placeholder - actual correction logic would go here
-            # For now, just validate the file can be read
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            # Basic validation that file is readable
-            return len(content) >= 0
+            corrected = content
+            corrections: List[str] = []
+
+            # Remove common placeholder markers (TODO, FIXME, PLACEHOLDER)
+            placeholder_pattern = re.compile(r"\b(TODO|FIXME|PLACEHOLDER)\b")
+            corrected, placeholder_count = placeholder_pattern.subn('', corrected)
+            if placeholder_count:
+                corrections.append(f"removed {placeholder_count} placeholder markers")
+
+            # Trim trailing whitespace
+            trailing_ws_pattern = re.compile(r"[ \t]+(\r?\n)")
+            corrected, ws_count = trailing_ws_pattern.subn(r"\1", corrected)
+            if ws_count:
+                corrections.append(f"trimmed whitespace in {ws_count} lines")
+
+            # Ensure file ends with a newline
+            if corrected and not corrected.endswith('\n'):
+                corrected += '\n'
+                corrections.append('added terminal newline')
+
+            if corrections and corrected != content:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(corrected)
+                self.logger.info(
+                    f"{TEXT_INDICATORS['info']} Applied corrections to {file_path}: "
+                    + ", ".join(corrections)
+                )
+                return True, "; ".join(corrections)
+
+            return True, "no changes needed"
 
         except Exception as e:
+            error_msg = str(e)
             self.logger.error(
-                f"{TEXT_INDICATORS['error']} File correction failed for {file_path}: {e}")
-            return False
+                f"{TEXT_INDICATORS['error']} File correction failed for {file_path}: {error_msg}")
+            return False, error_msg
 
     def validate_corrections(self, files: List[str]) -> bool:
         """Validate that corrections were successful"""
