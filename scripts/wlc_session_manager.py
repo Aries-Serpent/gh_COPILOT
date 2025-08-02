@@ -76,6 +76,24 @@ def get_connection(db_path: Path) -> sqlite3.Connection:
     return sqlite3.connect(db_path)
 
 
+def ensure_session_table(conn: sqlite3.Connection) -> None:
+    """Create unified_wrapup_sessions table if it does not exist."""
+    cur = conn.cursor()
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS unified_wrapup_sessions (
+            session_id TEXT,
+            start_time TEXT,
+            status TEXT,
+            end_time TEXT,
+            compliance_score REAL,
+            error_details TEXT
+        )
+        """
+    )
+    conn.commit()
+
+
 def setup_logging(verbose: bool) -> Path:
     """Configure enterprise logging to external backup root."""
     backup_root = CrossPlatformPathManager.get_backup_root()
@@ -159,7 +177,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: bool = False) -> None:
     if os.getenv("TEST_MODE"):
-        logging.info("TEST_MODE enabled; skipping run_session")
         return
     if not validate_environment():
         raise EnvironmentError("Required environment variables are not set or paths invalid")
@@ -180,23 +197,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
     ensure_session_table(db_path)
 
     with get_connection(db_path) as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS unified_wrapup_sessions (
-                session_id TEXT PRIMARY KEY,
-                start_time TEXT,
-                end_time TEXT,
-                status TEXT,
-                files_organized INTEGER,
-                configs_validated INTEGER,
-                scripts_modularized INTEGER,
-                root_files_remaining INTEGER,
-                compliance_score REAL,
-                validation_results TEXT,
-                error_details TEXT
-            )
-            """
-        )
+        ensure_session_table(conn)
         entry_id = start_session_entry(conn)
         if entry_id is None:
             raise RuntimeError("Failed to create session entry in the database.")
