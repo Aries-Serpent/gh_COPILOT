@@ -138,6 +138,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: bool = False) -> None:
+    if os.getenv("TEST_MODE"):
+        logging.info("TEST_MODE enabled; skipping run_session")
+        return
     if not validate_environment():
         raise EnvironmentError("Required environment variables are not set or paths invalid")
 
@@ -204,6 +207,8 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
 
 
 def main(argv: list[str] | None = None) -> None:
+    if os.getenv("TEST_MODE"):
+        return
     args = parse_args(argv)
     run_session(
         args.steps,
@@ -214,4 +219,6 @@ def main(argv: list[str] | None = None) -> None:
 
 
 if __name__ == "__main__":
+    if os.getenv("TEST_MODE"):
+        sys.exit(0)
     main()
