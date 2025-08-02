@@ -21,7 +21,7 @@
 The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. All core modules are implemented. Quantum functionality runs in simulation mode by default but supports real hardware when `qiskit-ibm-provider` is configured.
 
 > **Note**
-> Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and supply an IBM Quantum token via the `QISKIT_IBM_TOKEN` environment variable or the `--token` flag. Select a backend with `IBM_BACKEND` or `--backend`. Use the `--hardware` flag in `quantum_integration_orchestrator.py` or `--use-hardware` in `quantum/cli/executor_cli.py` to enforce hardware execution.
+> Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and supply an IBM Quantum token via the `QISKIT_IBM_TOKEN` environment variable or the `--token` flag. Select a backend with `IBM_BACKEND` or `--backend`. Use the `--hardware` flag in `scripts/automation/quantum_integration_orchestrator.py` or `--use-hardware` in `quantum/cli/executor_cli.py` to enforce hardware execution.
 > **Phase 5 AI**
 > Advanced AI integration features are fully integrated. They default to simulation mode unless real hardware is configured.
 
@@ -41,7 +41,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 
 - **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for optimizer and search helpers. `quantum_optimizer.run_quantum_routine` now exposes annealing, superposition search and entanglement correction. Routines use Qiskit simulators by default and accept `use_hardware=True` to attempt IBM Quantum execution.
-- **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` now supports
+- **Phase 6 Quantum Demo:** `scripts/automation/quantum_integration_orchestrator.py` now supports
   advanced algorithms and quantum-enhanced database processing, using hardware
   backends when `QISKIT_IBM_TOKEN` is available.
 
@@ -260,7 +260,7 @@ python simplified_quantum_integration_orchestrator.py
 By default the orchestrator uses the simulator. To execute algorithms on IBM Quantum hardware install `qiskit-ibm-provider` and run:
 
 ```bash
-python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
+python scripts/automation/quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
 Set `QISKIT_IBM_TOKEN` to your IBM Quantum API token for hardware execution. If the provider cannot be initialized the orchestrator automatically falls back to simulation.
@@ -277,6 +277,11 @@ follow the steps in [docs/enterprise_backup_guide.md](docs/enterprise_backup_gui
 to create and manage backups. This variable ensures backups never reside in the
 workspace, maintaining anti-recursion compliance.
 The `validate_enterprise_environment` helper enforces these settings at script startup.
+
+### Artifact Management Policy
+Runtime logs, build outputs, and temporary results are stored under the `artifacts/` directory. Directories such as `builds/`, `logs/`, `results/`, `reports/`, and `tmp/` are ignored by version control to keep the repository clean. Archive transient outputs with `artifact_manager.py` when needed.
+
+The project entrypoint triggers `scripts/wlc_session_manager.py` on shutdown to record wrap-up details in `databases/production.db` and under `$GH_COPILOT_BACKUP_ROOT/logs`.
 
 ### Session Management CLI
 Use ``COMPREHENSIVE_WORKSPACE_MANAGER.py`` to manage session start and end

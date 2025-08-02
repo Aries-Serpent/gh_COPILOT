@@ -1,4 +1,4 @@
-from session_management_consolidation_executor import EnterpriseUtility
+from scripts.session.session_management_consolidation_executor import EnterpriseUtility
 from utils.lessons_learned_integrator import load_lessons
 
 

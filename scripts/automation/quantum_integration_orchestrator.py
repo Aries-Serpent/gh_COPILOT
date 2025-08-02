@@ -22,7 +22,7 @@ from tqdm import tqdm
 
 from advanced_qubo_optimization import solve_qubo_bruteforce
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
-from quantum_database_search import quantum_search_sql
+from quantum.quantum_database_search import quantum_search_sql
 from quantum.ibm_backend import init_ibm_backend
 
 

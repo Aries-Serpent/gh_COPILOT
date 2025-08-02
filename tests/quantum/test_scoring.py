@@ -1,6 +1,6 @@
 import sqlite3
 import numpy as np
-import quantum_algorithm_library_expansion as qal
+import quantum.quantum_algorithm_library_expansion as qal
 
 
 class _DummyBackend:

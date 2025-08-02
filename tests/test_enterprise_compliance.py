@@ -4,7 +4,7 @@ from utils import log_utils
 def test_compliance_logging_and_zero_byte(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    from session_management_consolidation_executor import EnterpriseUtility
+    from scripts.session.session_management_consolidation_executor import EnterpriseUtility
 
     events = []
 
@@ -14,7 +14,7 @@ def test_compliance_logging_and_zero_byte(tmp_path, monkeypatch):
 
     monkeypatch.setattr(log_utils, "_log_event", fake_log)
     monkeypatch.setattr(
-        "session_management_consolidation_executor._log_event",
+        "scripts.session.session_management_consolidation_executor._log_event",
         fake_log,
     )
 

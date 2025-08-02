@@ -96,7 +96,7 @@ The PIS Framework has successfully achieved **Phase 6: Quantum Integration Orche
 
 ### Quantum Integration Orchestrator Development
 **Files Created:**
-- `quantum_integration_orchestrator.py` - Comprehensive integration system
+- `scripts/automation/quantum_integration_orchestrator.py` - Comprehensive integration system
 - `simplified_quantum_integration_orchestrator.py` - Streamlined execution system
 - `quantum_performance_integration_tester.py` - Performance validation system
 
