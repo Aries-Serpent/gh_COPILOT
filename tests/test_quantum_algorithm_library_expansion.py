@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pytest
-import quantum.quantum_algorithm_library_expansion as qalexp
-from quantum.quantum_algorithm_library_expansion import (
+import quantum_algorithm_library_expansion as qalexp
+from quantum_algorithm_library_expansion import (
     EnterpriseUtility,
     demo_grover_search,
     demo_shor_factorization,

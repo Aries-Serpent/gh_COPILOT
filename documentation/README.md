@@ -35,8 +35,8 @@
 - `unified_script_generation_system.py` – generates scripts from templates
 - `unified_monitoring_optimization_system.py` – collects performance data
 - `web_gui_integration_system.py` – wraps Web-GUI components under one interface
-- `scripts/entrypoints/unified_database_management_system.py` – utilities for SQLite operations
-- `scripts/unified_disaster_recovery_system.py` – backup and restoration helpers
+- `unified_database_management_system.py` – utilities for SQLite operations
+- `unified_disaster_recovery_system.py` – backup and restoration helpers
 - `enterprise_unicode_compatibility_fix.py` – handles Unicode issues
 - `final_deployment_validator.py` – validates deployment configuration
 

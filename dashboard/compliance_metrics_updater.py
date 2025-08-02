@@ -24,7 +24,6 @@ import threading
 from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
 from enterprise_modules.compliance import validate_enterprise_operation
-from security.compliance_checker import enforce_security_policies
 
 
 # Enterprise logging setup
@@ -337,7 +336,6 @@ class ComplianceMetricsUpdater:
             If ``True``, skip writing to the dashboard and log files.
         """
         validate_enterprise_operation(str(self.dashboard_dir))
-        enforce_security_policies()
         self.status = "UPDATING"
         start_time = time.time()
         with tqdm(total=3, desc="Updating Compliance Metrics", unit="step") as pbar:

@@ -1,5 +1,5 @@
 from unittest import mock
-from quantum.optimizers import quantum_optimizer as qo
+import quantum_optimizer as qo
 
 
 def test_validate_no_recursive_folders_normal(tmp_path):
@@ -7,8 +7,8 @@ def test_validate_no_recursive_folders_normal(tmp_path):
     bk = tmp_path / "bk"
     ws.mkdir()
     bk.mkdir()
-    with mock.patch("quantum.optimizers.quantum_optimizer.CrossPlatformPathManager.get_workspace_path", return_value=ws), \
-         mock.patch("quantum.optimizers.quantum_optimizer.CrossPlatformPathManager.get_backup_root", return_value=bk):
+    with mock.patch("quantum_optimizer.CrossPlatformPathManager.get_workspace_path", return_value=ws), \
+         mock.patch("quantum_optimizer.CrossPlatformPathManager.get_backup_root", return_value=bk):
         assert qo.validate_no_recursive_folders()
 
 
@@ -17,8 +17,8 @@ def test_validate_no_recursive_folders_nested(tmp_path):
     bk = ws / "bk"
     ws.mkdir()
     bk.mkdir()
-    with mock.patch("quantum.optimizers.quantum_optimizer.CrossPlatformPathManager.get_workspace_path", return_value=ws), \
-         mock.patch("quantum.optimizers.quantum_optimizer.CrossPlatformPathManager.get_backup_root", return_value=bk):
+    with mock.patch("quantum_optimizer.CrossPlatformPathManager.get_workspace_path", return_value=ws), \
+         mock.patch("quantum_optimizer.CrossPlatformPathManager.get_backup_root", return_value=bk):
         assert qo.validate_no_recursive_folders() is False
 
 

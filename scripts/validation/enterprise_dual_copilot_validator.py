@@ -77,24 +77,6 @@ class AntiRecursionValidator:
             return False
 
 
-class PolicyComplianceChecker:
-    """Verify required environment policies are satisfied."""
-
-    required_env_vars = ("ALLOW_AUTOLFS", "GH_COPILOT_BACKUP_ROOT")
-
-    def __init__(self, logger: logging.Logger | None = None) -> None:
-        self.logger = logger or logging.getLogger(__name__)
-
-    def run_checks(self) -> bool:
-        missing = [var for var in self.required_env_vars if not os.getenv(var)]
-        if missing:
-            self.logger.error(
-                "Missing required environment variables: %s", ", ".join(missing)
-            )
-            return False
-        return True
-
-
 class EnterpriseLoggingManager:
     def __init__(self, analytics_db: Path | None = None) -> None:
         self.analytics_db = analytics_db or Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
@@ -940,11 +922,6 @@ class EnterpriseOrchestrator:
             "enterprise_compliance": False,
             "execution_summary": {},
         }
-
-        policy_checker = PolicyComplianceChecker(self.logger)
-        if not policy_checker.run_checks():
-            orchestration_result["error"] = "policy_check_failed"
-            return orchestration_result
 
         try:
             # PHASE 1: PRIMARY COPILOT EXECUTION

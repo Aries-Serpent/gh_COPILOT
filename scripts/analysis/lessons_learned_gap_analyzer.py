@@ -23,7 +23,7 @@ from template_engine.learning_templates import (
     get_lesson_templates,
     get_dataset_sources,
 )
-from utils.lessons_learned_integrator import persist_new_lessons, store_lesson
+from utils.lessons_learned_integrator import store_lesson
 
 
 # 🚨 CRITICAL: Anti-recursion workspace validation
@@ -308,7 +308,6 @@ class LessonsLearnedGapAnalyzer:
         # Update database and generate reports
         self._update_gap_analysis_database(analysis_result)
         self._generate_gap_analysis_reports(analysis_result)
-        self._auto_resolve_gaps(gaps_found)
 
         return analysis_result
 
@@ -711,26 +710,6 @@ class LessonsLearnedGapAnalyzer:
             json.dump(report_data, f, indent=2, ensure_ascii=False)
 
         self.logger.info(f"📊 Gap analysis report generated: {json_report_path}")
-
-    def _auto_resolve_gaps(self, gaps: List[LessonsLearnedGap]) -> None:
-        """Create remediation lessons for detected gaps and persist them."""
-
-        lessons = []
-        now = datetime.utcnow().isoformat()
-        for gap in gaps:
-            for action in gap.remediation_actions:
-                lessons.append(
-                    {
-                        "description": action,
-                        "source": f"gap:{gap.gap_id}",
-                        "timestamp": now,
-                        "validation_status": "pending",
-                        "tags": gap.category,
-                    }
-                )
-        if lessons:
-            persist_new_lessons(lessons)
-            self.logger.info("📝 Stored %d remediation lessons", len(lessons))
 
     def _check_timeout(self) -> None:
         """⏱️ Check for timeout conditions"""

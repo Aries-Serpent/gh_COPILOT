@@ -19,7 +19,7 @@ This document outlines the finalized strategy for merging 40 + SQLite databases 
 - **Constraint: ** no database may exceed 99.9 MB.
 
 # 🗄️ Database-First Analysis
-- Use `scripts/database/database_consolidation_analyzer.py` and `db_tools/temp_db_check.py` to list tables and sizes for each database.
+- Use `scripts/database/database_consolidation_analyzer.py` and `scripts/temp_db_check.py` to list tables and sizes for each database.
 - Validate inventory against `documentation/CONSOLIDATED_DATABASE_LIST.md`.
 
 # 📋 Implementation Strategy
@@ -38,7 +38,7 @@ This document outlines the finalized strategy for merging 40 + SQLite databases 
 - Abort if any file grows beyond 99.9 MB.
 
 ### Phase 3 – Synchronization Workflow
- - Scripts: `database_sync_scheduler.py`, `enterprise_script_database_synchronizer_complete.py`, `db_tools/script_database_validator.py`, `database_script_reproducibility_validator.py`, `unified_database_management_system.py`, `cross_database_sync_logger.py`.
+ - Scripts: `database_sync_scheduler.py`, `enterprise_script_database_synchronizer_complete.py`, `script_database_validator.py`, `database_script_reproducibility_validator.py`, `unified_database_management_system.py`, `cross_database_sync_logger.py`.
 - Sync only `enterprise_assets.db`.
 - Record all sync operations in `cross_database_sync_operations`.
 
@@ -83,12 +83,12 @@ This document outlines the finalized strategy for merging 40 + SQLite databases 
 - `documentation_consolidator.py`
 - `complete_template_generator.py`
 - `enterprise_script_database_synchronizer_complete.py`
-- `db_tools/script_database_validator.py`
+- `script_database_validator.py`
 - `database_script_reproducibility_validator.py`
 - `unified_database_management_system.py`
 - `database_consolidation_validator.py`
 - `database_sync_scheduler.py`
-- `db_tools/temp_db_check.py`
+- `temp_db_check.py`
 - `documentation_db_analyzer.py`
 - `database_migration_verifier.py`
 

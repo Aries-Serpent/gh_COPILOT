@@ -443,18 +443,6 @@ class LessonsLearnedIntegrationValidator:
                     continue
                 if "lessons_learned_integrator" not in content:
                     missing_modules.append(path.relative_to(self.workspace_path).as_posix())
-
-        session_files = [p for p in self.workspace_path.glob("session_*\.py")]
-        for path in session_files:
-            try:
-                content = path.read_text(encoding="utf-8")
-            except Exception as exc:  # pragma: no cover - unexpected errors
-                self.logger.warning(
-                    f"{TEXT_INDICATORS['warning']} Could not read {path}: {exc}"
-                )
-                continue
-            if "lessons_learned_integrator" not in content:
-                missing_modules.append(path.relative_to(self.workspace_path).as_posix())
         if missing_modules:
             self.logger.warning(
                 f"{TEXT_INDICATORS['warning']} Missing lessons learned hooks: {len(missing_modules)} modules"

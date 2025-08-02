@@ -67,7 +67,7 @@ class DatabaseScriptReproductionValidator:
             "e:\\gh_COPILOT\\scripts\\comprehensive_database_structure_analyzer.py",
             "e:\\gh_COPILOT\\tests\\test_script_database_validator.py",
             "e:\\gh_COPILOT\\enterprise_audit_production_deployment.py",
-            "e:\\gh_COPILOT\\db_tools\\script_database_validator.py",
+            "e:\\gh_COPILOT\\script_database_validator.py",
             # Add more paths from semantic search results...
         ]
 

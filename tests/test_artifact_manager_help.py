@@ -6,12 +6,7 @@ from pathlib import Path
 
 
 def test_help_mentions_policy_and_examples() -> None:
-    script = (
-        Path(__file__).resolve().parents[1]
-        / "scripts"
-        / "utilities"
-        / "artifact_manager.py"
-    )
+    script = Path(__file__).resolve().parents[1] / "artifact_manager.py"
     result = subprocess.run(
         [sys.executable, str(script), "--help"],
         capture_output=True,
