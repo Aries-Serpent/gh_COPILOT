@@ -8,6 +8,8 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import pytest
+import sqlite3
+import scripts.wlc_session_manager as wsm
 
 # Enable test mode to prevent side effects such as database writes.
 os.environ.setdefault("TEST_MODE", "1")
@@ -20,6 +22,15 @@ def enforce_test_mode(monkeypatch):
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 logger = logging.getLogger(__name__)
+
+
+@pytest.fixture
+def unified_wrapup_session_db(tmp_path):
+    """Provide a temporary database with unified_wrapup_sessions table."""
+    db_file = tmp_path / "production.db"
+    with sqlite3.connect(db_file) as conn:
+        wsm.ensure_session_table(conn)
+    return db_file
 
 
 @pytest.fixture(autouse=True)
