@@ -7,6 +7,7 @@ __all__ = [
     "quantum_search_sql",
     "quantum_search_nosql",
     "quantum_search_hybrid",
+    "quantum_secure_search",
     "cli",
 ]
 
@@ -28,6 +29,13 @@ def quantum_search_nosql(*args, **kwargs):
 def quantum_search_hybrid(*args, **kwargs):
     """Lazy import and execute ``quantum_search_hybrid``."""
     from quantum.quantum_database_search import quantum_search_hybrid as _func
+
+    return _func(*args, **kwargs)
+
+
+def quantum_secure_search(*args, **kwargs):
+    """Lazy import and execute ``quantum_secure_search``."""
+    from quantum.quantum_database_search import quantum_secure_search as _func
 
     return _func(*args, **kwargs)
 

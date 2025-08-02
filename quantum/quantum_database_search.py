@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Union
 
 from utils.log_utils import _log_event
+from quantum.algorithms import QuantumEncryptedCommunication
 
 logger = logging.getLogger(__name__)
 DEFAULT_DB_PATH = Path(os.environ.get("QUANTUM_DB_PATH", "databases/quantum.db"))
@@ -171,6 +172,18 @@ def quantum_search_nosql(
         _log_search_event(sql, db_path, len(results), filter_query, error)
         _lock.release()
     return results
+
+
+def quantum_secure_search(
+    query: str,
+    db_path: Union[str, Path] = DEFAULT_DB_PATH,
+    params: Optional[Dict[str, Any]] = None,
+    key: str | None = None,
+) -> List[str]:
+    """Execute a SQL search and return encrypted JSON rows."""
+    rows = quantum_search_sql(query, db_path, params)
+    engine = QuantumEncryptedCommunication(key)
+    return [engine.encrypt_message(json.dumps(row)) for row in rows]
 
 def quantum_search_hybrid(
     search_type: str,
