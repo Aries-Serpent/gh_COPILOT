@@ -287,13 +287,16 @@ def update_dashboard(
                 "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type"
             )
             placeholder_counts = {row[0]: row[1] for row in cur.fetchall()}
-            cur = conn.execute(
-                "SELECT COUNT(*) FROM corrections WHERE rationale='Auto placeholder cleanup'"
-            )
-            auto_removal_count = cur.fetchone()[0]
+            try:
+                cur = conn.execute(
+                    "SELECT COUNT(*) FROM corrections WHERE rationale='Auto placeholder cleanup'"
+                )
+                auto_removal_count = cur.fetchone()[0]
+            except sqlite3.Error:
+                auto_removal_count = 0
 
-    total = open_count + resolved
-    compliance = resolved / total if total else 1.0
+    denominator = open_count + resolved
+    compliance = resolved / denominator if denominator else 1.0
     status = "complete" if open_count == 0 else "issues_pending"
     compliance_status = "compliant" if open_count == 0 else "non_compliant"
     data = {

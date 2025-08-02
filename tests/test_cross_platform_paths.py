@@ -29,6 +29,13 @@ def test_workspace_parent_detection(monkeypatch, tmp_path):
     assert CrossPlatformPathManager.get_workspace_path() == sub
 
 
+def test_workspace_env_invalid(monkeypatch, tmp_path):
+    missing = tmp_path / "missing"
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(missing))
+    monkeypatch.chdir(tmp_path)
+    assert CrossPlatformPathManager.get_workspace_path() == tmp_path
+
+
 def test_backup_defaults_match(monkeypatch):
     """Both helpers should resolve the same default backup directory."""
     monkeypatch.delenv("GH_COPILOT_BACKUP_ROOT", raising=False)

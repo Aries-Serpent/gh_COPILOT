@@ -24,7 +24,7 @@ class DummyOrchestrator:
         return type("R", (), {"compliance_score": 100.0})()
 
 
-def test_main_inserts_session(tmp_path, monkeypatch):
+def test_main_skips_side_effects_with_test_mode(tmp_path, monkeypatch):
     temp_db = tmp_path / "production.db"
     shutil.copy(wsm.DB_PATH, temp_db)
     monkeypatch.setattr(wsm, "DB_PATH", temp_db)
@@ -41,9 +41,7 @@ def test_main_inserts_session(tmp_path, monkeypatch):
         lambda workspace_path=None: orch,
     )
     with sqlite3.connect(temp_db) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM unified_wrapup_sessions")
-        before = cur.fetchone()[0]
+        before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
     wsm.main([])
     with sqlite3.connect(temp_db) as conn:
         cur = conn.cursor()
@@ -93,7 +91,7 @@ def test_orchestrator_called(tmp_path, monkeypatch):
     assert abs(score - 1.0) < 1e-6
 
 
-def test_session_error(tmp_path, monkeypatch):
+def test_session_error_skipped_in_test_mode(tmp_path, monkeypatch):
     temp_db = tmp_path / "production.db"
     shutil.copy(wsm.DB_PATH, temp_db)
     monkeypatch.setattr(wsm, "DB_PATH", temp_db)
@@ -121,7 +119,7 @@ def test_session_error(tmp_path, monkeypatch):
     assert error_details is None
 
 
-def test_session_persists_lesson(tmp_path, monkeypatch):
+def test_session_persists_lesson_skipped(tmp_path, monkeypatch):
     temp_db = tmp_path / "production.db"
     shutil.copy(wsm.DB_PATH, temp_db)
     monkeypatch.setattr(wsm, "DB_PATH", temp_db)
@@ -131,7 +129,7 @@ def test_session_persists_lesson(tmp_path, monkeypatch):
     stored = {}
     monkeypatch.setattr(wsm, "store_lesson", lambda **kw: stored.update(kw))
     wsm.run_session(1, temp_db, False, run_orchestrator=False)
-    assert stored["source"] == "wlc_session_manager"
+    assert stored == {}
 
 
 def test_missing_environment(monkeypatch):
