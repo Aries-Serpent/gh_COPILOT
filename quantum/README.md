@@ -52,3 +52,8 @@ fall back to local simulation, preserving existing behavior.
 ## Backend utilities
 
 - `utils.backend_provider.get_backend` – loads IBM Quantum backends and falls back to `Aer` simulators when hardware is unavailable.
+
+## Pattern Recognition
+
+- `ml_pattern_recognition.PatternRecognizer` – logistic regression based pattern recognizer using placeholder datasets. Use
+  `load_placeholder_data` to generate sample data for experiments.
