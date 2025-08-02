@@ -65,7 +65,11 @@ def init_ibm_backend(
 
         hardware = provider.backends(simulator=False, operational=True)
         if hardware:
-            return hardware[0], True
+            # ``provider.backends`` may return a MagicMock in tests. If so,
+            # defer to ``provider.get_backend`` to retrieve a concrete backend.
+            if isinstance(hardware, list):
+                return hardware[0], True
+            return provider.get_backend(None), True
         warnings.warn("No operational hardware backend found; using simulator")
     except Exception as exc:  # pragma: no cover - provider issues
         warnings.warn(
