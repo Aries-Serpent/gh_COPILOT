@@ -1,5 +1,3 @@
-import sqlite3
-
 import pytest
 
 import scripts.wlc_session_manager as wsm
@@ -37,10 +35,10 @@ def test_main_skips_side_effects_with_test_mode(unified_wrapup_session_db, tmp_p
         "UnifiedWrapUpOrchestrator",
         lambda workspace_path=None: orch,
     )
-    with sqlite3.connect(unified_wrapup_session_db) as conn:
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
         before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
     wsm.main([])
-    with sqlite3.connect(unified_wrapup_session_db) as conn:
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
         after = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
     assert after == before
     assert not dummy.called
@@ -71,10 +69,10 @@ def test_orchestrator_called(unified_wrapup_session_db, tmp_path, monkeypatch):
     dummy = DummyValidator()
     monkeypatch.setattr(wsm, "SecondaryCopilotValidator", lambda: dummy)
 
-    with sqlite3.connect(unified_wrapup_session_db) as conn:
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
         before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
     wsm.main([])
-    with sqlite3.connect(unified_wrapup_session_db) as conn:
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
         after = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
 
     assert after == before
@@ -97,10 +95,10 @@ def test_session_error_skipped_in_test_mode(unified_wrapup_session_db, tmp_path,
 
     monkeypatch.setattr(wsm, "UnifiedWrapUpOrchestrator", lambda workspace_path=None: FailingOrchestrator())
 
-    with sqlite3.connect(unified_wrapup_session_db) as conn:
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
         before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
     wsm.main([])
-    with sqlite3.connect(unified_wrapup_session_db) as conn:
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
         after = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
 
     assert after == before
