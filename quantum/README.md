@@ -17,6 +17,12 @@ gh_COPILOT toolkit.
 - `quantum.quantum_database_search` – lightweight helpers for SQL, NoSQL and
   hybrid search. All queries are logged to `analytics.db` for compliance.
 
+## Data Pipelines
+- `quantum.quantum_data_pipeline.QuantumDataPipeline` – orchestrates database
+  joins and advanced algorithms (Grover search and VQE). Pipelines attempt to
+  use IBM Quantum hardware when available and otherwise fall back to the local
+  simulator.
+
 These modules default to simulation mode but can use real IBM Quantum hardware
 when `qiskit-ibm-provider` is installed and `QISKIT_IBM_TOKEN` is configured.
 Use the `--hardware` flag in `quantum_integration_orchestrator.py` to enable
