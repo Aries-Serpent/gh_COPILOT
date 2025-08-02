@@ -406,6 +406,14 @@ The table stores `session_id`, timestamps, status, compliance score, and
 optional error details so administrators can audit every session.
 The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
 See [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md) for a full example showing environment variable setup, CLI options, log file location, and database updates.
+`entrypoint.sh` traps `EXIT`, `INT`, and `TERM` signals and invokes
+`scripts/wlc_session_manager.py --orchestrate` so wrap-up logging occurs even when the main process exits.
+
+### Artifact Management
+Transient build and runtime outputs such as `builds/`, `results/`, `logs/`, and
+`reports/` live under the `artifacts/` directory and are ignored by Git. This
+keeps the repository root clean and prevents accidental commits of generated
+files. See `artifact_manager.py` for packaging and recovery utilities.
 
 ---
 

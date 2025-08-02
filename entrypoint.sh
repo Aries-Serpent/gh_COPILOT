@@ -2,11 +2,12 @@
 set -euo pipefail
 
 cleanup() {
-    echo "Received termination signal. Stopping children..." >&2
+    echo "Running wrap-up..." >&2
     kill $(jobs -p) 2>/dev/null || true
+    python scripts/wlc_session_manager.py --orchestrate || true
 }
 
-trap cleanup INT TERM
+trap cleanup INT TERM EXIT
 
 # Validate enterprise environment before starting services
 python - <<'PY'
@@ -39,4 +40,6 @@ metrics_pid=$!
 python scripts/code_placeholder_audit.py &
 audit_pid=$!
 
-exec "$@"
+"$@"
+status=$?
+exit $status
