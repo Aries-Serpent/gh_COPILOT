@@ -40,7 +40,7 @@
 - **Database Integration**: `session_management.db`, `analytics.db`
 
 #### 3. **Unified Database Management System** ✅
-- **File**: `unified_database_management_system.py`
+- **File**: `scripts/entrypoints/unified_database_management_system.py`
 - **Status**: 24 databases synchronized
 - **Features**: Cross-database operations, integrity validation, performance optimization
 - **Database Integration**: All enterprise databases
@@ -208,7 +208,7 @@
 
 2. **Database Synchronization Validation**:
    ```bash
-   python unified_database_management_system.py --validate-all-databases
+   python scripts/entrypoints/unified_database_management_system.py --validate-all-databases
    ```
 
 3. **Web-GUI Deployment Test**:

@@ -6,6 +6,8 @@ from pathlib import Path
 
 os.environ["QISKIT_IBM_TOKEN"] = "TOKEN"
 
+pytestmark = pytest.mark.skip(reason="Hardware backend not available in test environment")
+
 
 def _load_ibm_backend():
     spec = importlib.util.spec_from_file_location(

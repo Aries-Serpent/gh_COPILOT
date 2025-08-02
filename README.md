@@ -288,7 +288,7 @@ workspace, maintaining anti-recursion compliance.
 The `validate_enterprise_environment` helper enforces these settings at script startup.
 
 ### Artifact Management Policy
-Runtime logs, build outputs, and temporary results are stored under the `artifacts/` directory. Subdirectories such as `artifacts/builds/`, `artifacts/logs/`, `artifacts/results/`, `artifacts/reports/`, and `artifacts/tmp/` are ignored by version control to keep the repository clean. Archive transient outputs with `artifact_manager.py` when needed.
+Runtime logs, build outputs, and temporary results are stored under the `artifacts/` directory. Subdirectories such as `artifacts/builds/`, `artifacts/logs/`, `artifacts/results/`, `artifacts/reports/`, and `artifacts/tmp/` are ignored by version control to keep the repository clean. Archive transient outputs with `scripts/utilities/artifact_manager.py` when needed.
 
 ### Migration Guide
 - `logs/`, `builds/`, `results/`, and `reports/` now reside under `artifacts/`.
@@ -345,7 +345,7 @@ Whenever you modify `.codex_lfs_policy.yaml`—for example to change
 `session_artifact_dir` or adjust LFS rules—regenerate `.gitattributes`:
 
 ```bash
-python artifact_manager.py --sync-gitattributes
+python scripts/utilities/artifact_manager.py --sync-gitattributes
 ```
 
 The script rebuilds `.gitattributes` from `gitattributes_template`, adds any
@@ -434,7 +434,7 @@ See [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md) for a full exampl
 Transient build and runtime outputs such as `artifacts/builds/`, `artifacts/results/`, `artifacts/logs/`, and
 `artifacts/reports/` live under the `artifacts/` directory and are ignored by Git. This
 keeps the repository root clean and prevents accidental commits of generated
-files. See `artifact_manager.py` for packaging and recovery utilities.
+files. See `scripts/utilities/artifact_manager.py` for packaging and recovery utilities.
 
 ---
 
@@ -519,7 +519,7 @@ compliance logging. The main modules are:
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
-* **Artifact Manager** – `artifact_manager.py` packages files created in the
+* **Artifact Manager** – `scripts/utilities/artifact_manager.py` packages files created in the
   temporary directory (default `tmp/`) into archives stored under the
   directory defined by the `session_artifact_dir` setting in
   `.codex_lfs_policy.yaml`. Use `--package` to create an archive and
@@ -1125,7 +1125,7 @@ Several small modules provide common helpers:
   enhancer.enhance()
   ```
 - `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
-  - `artifact_manager.py` – package modified files from the temporary directory into the location specified by `session_artifact_dir` (defaults to `codex_sessions`). Run `python artifact_manager.py --package` to create an archive, `--recover` to extract the latest one, use `--tmp-dir` to choose a different temporary directory, and `--sync-gitattributes` to refresh LFS rules.
+  - `scripts/utilities/artifact_manager.py` – package modified files from the temporary directory into the location specified by `session_artifact_dir` (defaults to `codex_sessions`). Run `python scripts/utilities/artifact_manager.py --package` to create an archive, `--recover` to extract the latest one, use `--tmp-dir` to choose a different temporary directory, and `--sync-gitattributes` to refresh LFS rules.
 
 ## Future Roadmap
 
