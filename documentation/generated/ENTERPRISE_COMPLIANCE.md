@@ -60,5 +60,12 @@
 3. **Regular Compliance Audits**: Monthly compliance validation
 4. **Training Integration**: Ensure all documentation follows patterns
 
+### 🔍 **FINAL VALIDATION FLOW**
+The `DualCopilotOrchestrator` now reports detailed metrics from the
+`SecondaryCopilotValidator` whenever a primary operation fails. Metrics
+include the list of failed files, command output, and execution time,
+providing clearer insight into compliance issues discovered during the
+secondary validation phase.
+
 ---
 *Enterprise Compliance maintained by Database-Driven Management System*

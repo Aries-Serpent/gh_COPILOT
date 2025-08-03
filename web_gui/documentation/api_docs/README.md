@@ -104,6 +104,21 @@ Authorization: Bearer <token>
 }
 ```
 
+### Rollback History
+**Endpoint**: `GET /rollback_history`
+**Description**: Retrieve recent rollback events from `analytics.db`
+
+**Response**:
+```json
+[
+  {
+    "target": "file.py",
+    "backup": "file.py.bak",
+    "timestamp": "2025-01-06T12:00:00Z"
+  }
+]
+```
+
 ## SDK Examples
 
 ### Python SDK

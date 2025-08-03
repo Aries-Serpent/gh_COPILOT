@@ -30,3 +30,15 @@ def test_workflow_enhancer_basic(tmp_path, monkeypatch):
     assert len(clusters) == 2
     score = enhancer.score_compliance(templates)
     assert score > 0
+
+
+def test_pattern_mining(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setattr(workflow_enhancer, "validate_enterprise_operation", lambda *_a, **_k: True)
+    db = tmp_path / "prod.db"
+    _setup_db(db)
+    dashboard = tmp_path / "dash"
+    enhancer = TemplateWorkflowEnhancer(db, dashboard)
+    templates = enhancer.fetch_templates()
+    patterns = enhancer.mine_patterns(templates)
+    assert "content" in patterns

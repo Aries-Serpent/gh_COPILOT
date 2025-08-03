@@ -83,6 +83,29 @@ def get_violations():
     return jsonify({"violations": logs})
 
 
+@app.get("/placeholder-audit")
+def get_placeholder_audit():
+    entries = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT file_path, line_number, placeholder_type, context FROM placeholder_audit ORDER BY id DESC LIMIT 100"
+                )
+                entries = [
+                    {
+                        "file_path": row[0],
+                        "line_number": row[1],
+                        "placeholder_type": row[2],
+                        "context": row[3],
+                    }
+                    for row in cur.fetchall()
+                ]
+            except sqlite3.Error:
+                pass
+    return jsonify({"results": entries})
+
+
 @app.post("/rollback")
 def trigger_rollback():
     payload = request.get_json(force=True) or {}
