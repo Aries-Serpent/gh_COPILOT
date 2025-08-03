@@ -206,3 +206,12 @@ audit the results and perform a rollback if necessary. Commands assume
 Open `http://localhost:5000/dashboard/compliance` in your browser to review the
 metrics after each step. This endpoint surfaces ingestion counts, placeholder
 removal stats and rollback events in real time.
+
+## Recovery Steps
+
+If a synchronization run fails or databases become inconsistent:
+
+1. Stop any running synchronization processes using `DatabaseSynchronizationEngine.stop_realtime_sync`.
+2. Restore the last known good backups from the external backup directory referenced by `GH_COPILOT_BACKUP_ROOT`.
+3. Re-run `DatabaseSynchronizationEngine.sync` with the restored databases to ensure alignment.
+4. Verify `logs/synchronization.log` for any conflict or error entries and address them before resuming automated sync.

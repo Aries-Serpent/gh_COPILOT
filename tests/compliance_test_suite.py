@@ -66,6 +66,7 @@ def run_compliance_tests(tmp_path: Path) -> Dict[str, Any]:
         ("DBFirstCodeGenerator", test_db_first_code_generator),
         ("PatternClusteringSync", test_pattern_clustering_sync),
         ("CorrectionLoggerRollback", test_correction_logger_and_rollback),
+        ("PlaceholderAudit", test_placeholder_audit_module),
         ("QuantumComplianceEngine", test_quantum_compliance_engine),
     ]
     total_steps = len(test_cases)
@@ -142,6 +143,19 @@ def test_correction_logger_and_rollback(tmp_path: Path) -> None:
     log.log_change(test_file, "test rationale", compliance_score=1.0, rollback_reference=None)
     rollback_success = log.auto_rollback(test_file, None)
     assert rollback_success is True
+
+
+def test_placeholder_audit_module(tmp_path: Path) -> None:
+    import scripts.code_placeholder_audit as placeholder_audit
+
+    result = placeholder_audit.main(
+        workspace_path=str(tmp_path),
+        analytics_db=str(tmp_path / "analytics.db"),
+        production_db=str(tmp_path / "production.db"),
+        dashboard_dir=str(tmp_path / "dashboard"),
+        simulate=True,
+    )
+    assert isinstance(result, bool)
 
 
 def test_quantum_compliance_engine(tmp_path: Path, monkeypatch) -> None:

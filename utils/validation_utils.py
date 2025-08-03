@@ -3,10 +3,24 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any, Dict, Iterable, List, Tuple, Callable
+from functools import wraps
+import tempfile
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.lessons_learned_integrator import store_lesson
+
+
+def calculate_composite_compliance_score(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+) -> float:
+    """Return composite compliance score based on lint and test results."""
+    total_tests = tests_passed + tests_failed
+    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+    lint_score = max(0.0, 100 - ruff_issues)
+    return round((lint_score + test_score) / 2, 2)
 
 
 def validate_workspace_integrity() -> Dict[str, Any]:
@@ -163,3 +177,33 @@ def run_compliance_gates(
                 **kwargs,
             )
     return all_passed
+
+
+_LOCK_DIR = Path(tempfile.gettempdir()) / "gh_copilot_locks"
+_LOCK_DIR.mkdir(exist_ok=True)
+
+
+def anti_recursion_guard(func: Callable) -> Callable:
+    """Decorator preventing recursive invocation of ``func`` using a lock file."""
+
+    lock_file = _LOCK_DIR / f"{func.__name__}.lock"
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if lock_file.exists():
+            raise RuntimeError("Anti-recursion guard triggered")
+        try:
+            lock_file.touch()
+            return func(*args, **kwargs)
+        finally:
+            lock_file.unlink(missing_ok=True)
+
+    return wrapper
+
+
+def run_dual_copilot_validation(primary: Callable[[], bool], secondary: Callable[[], bool]) -> bool:
+    """Run primary and secondary validation functions and return combined result."""
+
+    primary_result = primary()
+    secondary_result = secondary()
+    return primary_result and secondary_result

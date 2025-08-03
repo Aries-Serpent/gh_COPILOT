@@ -11,7 +11,14 @@ SH_SCRIPT = Path("tools/git_safe_add_commit.sh").resolve()
 def init_repo(path: Path) -> None:
     subprocess.run(["git", "init"], cwd=path, check=True, stdout=subprocess.DEVNULL)
     (path / "README.md").write_text("init", encoding="utf-8")
-    subprocess.run(["git", "add", "README.md"], cwd=path, check=True)
+    docs = path / "docs"
+    docs.mkdir()
+    (docs / "GOVERNANCE_STANDARDS.md").write_text("rules", encoding="utf-8")
+    subprocess.run(
+        ["git", "add", "README.md", "docs/GOVERNANCE_STANDARDS.md"],
+        cwd=path,
+        check=True,
+    )
     subprocess.run(["git", "commit", "-m", "init"], cwd=path, check=True, stdout=subprocess.DEVNULL)
 
 
@@ -64,16 +71,25 @@ def test_commit_blocked_without_allow(tmp_path: Path, monkeypatch: pytest.Monkey
 def test_help(tmp_path: Path) -> None:
     env = os.environ.copy()
     env["PYTHONPATH"] = str(Path.cwd())
-    proc = subprocess.run(
-        ["python", str(SCRIPT), "-h"], cwd=tmp_path, env=env, capture_output=True, text=True
-    )
+    proc = subprocess.run(["python", str(SCRIPT), "-h"], cwd=tmp_path, env=env, capture_output=True, text=True)
     assert proc.returncode == 0
     assert "ALLOW_AUTOLFS" in proc.stdout
 
 
+def test_missing_governance_doc(tmp_path: Path) -> None:
+    init_repo(tmp_path)
+    (tmp_path / "docs" / "GOVERNANCE_STANDARDS.md").unlink()
+    new_file = tmp_path / "data.txt"
+    new_file.write_text("x", encoding="utf-8")
+    subprocess.run(["git", "add", str(new_file)], cwd=tmp_path, check=True)
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(Path.cwd())
+    result = subprocess.run(["python", str(SCRIPT), "msg"], cwd=tmp_path, env=env)
+    assert result.returncode != 0
+
+
 def test_shell_help(tmp_path: Path) -> None:
-    proc = subprocess.run(
-        ["bash", str(SH_SCRIPT), "-h"], cwd=tmp_path, capture_output=True, text=True
-    )
+    proc = subprocess.run(["bash", str(SH_SCRIPT), "-h"], cwd=tmp_path, capture_output=True, text=True)
     assert proc.returncode == 0
     assert "ALLOW_AUTOLFS" in proc.stdout

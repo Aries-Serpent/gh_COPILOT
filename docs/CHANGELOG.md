@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.17] - 2025-08-07
+- Added unit tests for `AntiRecursionValidator` to enforce external backup roots.
+- Updated user prompts with backup root guidance.
+- Documented anti-recursion guards in README.
+- Clarified quantum placeholder status in README and docs.
+- Updated changelog and user prompts to reflect current implementation.
+
 ## [4.1.16] - 2025-08-02
 - Added IBM provider availability flag and hardware fallback handling in `QuantumExecutor`.
 - Introduced stub backend for scoring tests and stabilized quantum test simulations.
@@ -15,7 +22,7 @@
 
 ## [4.1.13] - 2025-08-04
 - Updated README and technical whitepaper to remove outdated warnings about DBFirstCodeGenerator, documentation_db_analyzer, and workflow_enhancer.
-- Updated project status to reflect 100% dual-copilot coverage and all tests passing.
+ - Updated project status to reflect expanded dual-copilot coverage; test failures remain.
 
 ## [4.1.12] - 2025-08-03
 - Audited wrapper modules and documented status in whitepaper.

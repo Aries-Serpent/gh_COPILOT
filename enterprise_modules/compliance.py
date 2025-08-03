@@ -14,6 +14,7 @@ from utils.log_utils import send_dashboard_alert
 
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 # Forbidden command patterns that must not appear in operations
 FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
@@ -160,4 +161,13 @@ def validate_enterprise_operation(
     return not violations
 
 
-__all__ = ["validate_enterprise_operation", "_log_rollback"]
+def run_final_validation(primary_callable, targets) -> tuple[bool, bool, dict]:
+    """Run DualCopilotOrchestrator and expose detailed validator metrics."""
+    orchestrator = DualCopilotOrchestrator()
+    primary_success, validation_success, metrics = orchestrator.run(
+        primary_callable, targets
+    )
+    return primary_success, validation_success, metrics
+
+
+__all__ = ["validate_enterprise_operation", "_log_rollback", "run_final_validation"]

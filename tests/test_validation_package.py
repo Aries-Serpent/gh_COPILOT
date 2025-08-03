@@ -5,6 +5,8 @@ Tests for the validation package.
 import tempfile
 import json
 import sqlite3
+import shutil
+import os
 from pathlib import Path
 
 from validation.core.validators import BaseValidator, ValidationResult, ValidationStatus, CompositeValidator
@@ -19,6 +21,7 @@ from validation.core.rules import (
 from validation.protocols.session import SessionProtocolValidator
 from validation.protocols.deployment import DeploymentValidator
 from validation.reporting.formatters import ValidationReportFormatter
+from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 
 
 class MockValidator(BaseValidator):
@@ -418,3 +421,16 @@ class TestValidationReporting:
             with open(json_file) as f:
                 data = json.load(f)
             assert len(data["results"]) == 1
+
+
+def test_rollback_path_recorded(tmp_path: Path):
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
+    os.environ["GH_COPILOT_TEST_MODE"] = "1"
+    target = tmp_path / "file.txt"
+    backup = tmp_path / "file.txt.bak"
+    target.write_text("content", encoding="utf-8")
+    shutil.copy2(target, backup)
+    logger = CorrectionLoggerRollback(tmp_path / "analytics.db")
+    assert logger.auto_rollback(target, backup) is True
+    assert target.exists()
+    assert backup.exists()

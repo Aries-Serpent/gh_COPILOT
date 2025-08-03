@@ -1,6 +1,7 @@
 import pytest
 
 import scripts.wlc_session_manager as wsm
+from unified_session_management_system import prevent_recursion
 
 
 class DummyValidator:
@@ -121,3 +122,17 @@ def test_missing_environment(monkeypatch):
     monkeypatch.delenv("TEST_MODE", raising=False)
     with pytest.raises(EnvironmentError):
         wsm.run_session(1, wsm.DB_PATH, False)
+
+
+def test_prevent_recursion_blocks_nested_calls():
+    calls: list[int] = []
+
+    @prevent_recursion
+    def recurse(depth: int = 0) -> None:
+        calls.append(depth)
+        if depth == 0:
+            recurse(depth + 1)
+
+    with pytest.raises(RuntimeError):
+        recurse()
+    assert calls == [0]

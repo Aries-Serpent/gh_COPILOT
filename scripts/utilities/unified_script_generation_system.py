@@ -14,15 +14,19 @@ import sys
 import logging
 import re
 import sqlite3
+import json
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
 from dataclasses import dataclass
+import numpy as np
+from sklearn.cluster import KMeans
 from tqdm import tqdm
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.visual_progress import start_indicator, progress_bar, end_indicator
 from ml_pattern_recognition import PatternRecognizer
+from unified_session_management_system import prevent_recursion
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
@@ -73,6 +77,54 @@ class EnterpriseUtility:
             self.logger.error(f"{TEXT_INDICATORS['error']} Utility error: {e}")
             end_indicator("Script Generation Utility", start_time)
             return False
+
+    def cluster_templates(self, template_paths: list[Path], n_clusters: int = 2) -> dict[int, list[Path]]:
+        """Cluster templates based on placeholder counts.
+
+        Parameters
+        ----------
+        template_paths:
+            List of paths to template files.
+        n_clusters:
+            Desired number of clusters. Adjusted if fewer templates exist.
+
+        Returns
+        -------
+        dict[int, list[Path]]
+            Mapping of cluster label to template paths. Results are also
+            written to ``cluster_output.json`` in the workspace.
+        """
+
+        features: list[list[int]] = []
+        valid_paths: list[Path] = []
+        for path in template_paths:
+            if not path.exists():
+                continue
+            text = path.read_text(encoding="utf-8")
+            placeholders = re.findall(r"{(.*?)}", text)
+            features.append([len(placeholders)])
+            valid_paths.append(path)
+
+        if not features:
+            return {}
+
+        matrix = np.array(features)
+        n_clusters = min(n_clusters, len(features))
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        labels = kmeans.fit_predict(matrix)
+        clusters: dict[int, list[Path]] = {i: [] for i in range(n_clusters)}
+        for label, path in zip(labels, valid_paths):
+            clusters[int(label)].append(path)
+
+        cluster_file = self.workspace_path / "cluster_output.json"
+        cluster_file.write_text(
+            json.dumps({k: [str(p) for p in v] for k, v in clusters.items()}, indent=2),
+            encoding="utf-8",
+        )
+        self.logger.info(
+            f"{TEXT_INDICATORS['info']} Cluster output written to {cluster_file}"
+        )
+        return clusters
 
     def perform_utility_function(self) -> bool:
         """Generate a template using patterns from ``template_documentation.db``.
@@ -144,6 +196,7 @@ class EnterpriseUtility:
             return False
 
 
+@prevent_recursion
 def main():
     """Main execution function"""
     utility = EnterpriseUtility()

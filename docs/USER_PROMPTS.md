@@ -2,13 +2,17 @@
 
 Follow these sequential steps to configure the environment, ingest assets, run audits, generate code and, if needed, roll back changes.
 
+> **Note:** Quantum features referenced in these prompts operate in placeholder simulation mode. No hardware access is required.
+
 ## 1. Database Setup
 ```bash
 source .venv/bin/activate
 export GH_COPILOT_WORKSPACE=/path/to/gh_COPILOT
-export GH_COPILOT_BACKUP_ROOT=/external/backups
+export GH_COPILOT_BACKUP_ROOT=/external/backups  # must be outside the workspace
 python scripts/database/unified_database_initializer.py
 ```
+- ensure the backup root resides outside `GH_COPILOT_WORKSPACE`; internal paths are rejected.
+
 Expected output:
 ```text
 [INIT] Created production.db and analytics.db

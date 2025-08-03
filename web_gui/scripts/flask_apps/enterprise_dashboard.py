@@ -87,6 +87,7 @@ def _fetch_metrics() -> Dict[str, Any]:
     metrics.setdefault("total_placeholders", 0)
     metrics.setdefault("lessons_integration_status", "UNKNOWN")
     metrics.setdefault("average_query_latency", 0.0)
+    metrics.setdefault("composite_score", 0.0)
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.cursor()
@@ -95,20 +96,33 @@ def _fetch_metrics() -> Dict[str, Any]:
                 metrics["total_placeholders"] = cur.fetchone()[0]
                 metrics["lessons_integration_status"] = _get_lessons_integration_status(cur)
                 metrics["average_query_latency"] = _get_average_query_latency(cur)
+                cur.execute(
+                    "SELECT composite_score FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
+                )
+                row = cur.fetchone()
+                if row and row[0] is not None:
+                    metrics["composite_score"] = row[0]
             except sqlite3.Error as exc:
                 logging.error("Metric fetch error: %s", exc)
     return metrics
 
 
-def _fetch_rollbacks() -> List[Dict[str, Any]]:
+def _fetch_rollbacks(limit: int = 5) -> List[Dict[str, Any]]:
+    """Fetch recent rollback events directly from ``analytics.db``."""
     records: List[Dict[str, Any]] = []
-    file = COMPLIANCE_DIR / "correction_summary.json"
-    if file.exists():
-        try:
-            data = json.loads(file.read_text())
-            records = data.get("corrections", [])
-        except json.JSONDecodeError:
-            logging.warning("Invalid correction summary JSON")
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT ?",
+                    (limit,),
+                )
+                records = [
+                    {"target": row[0], "backup": row[1], "timestamp": row[2]}
+                    for row in cur.fetchall()
+                ]
+            except sqlite3.Error as exc:
+                logging.error("Rollback fetch error: %s", exc)
     return records
 
 

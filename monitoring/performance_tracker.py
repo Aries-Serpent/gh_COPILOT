@@ -14,9 +14,19 @@ DB_PATH = WORKSPACE_ROOT / "analytics.db"
 
 WEB_DASHBOARD_ENABLED = os.getenv("WEB_DASHBOARD_ENABLED") == "1"
 
+RESPONSE_TIME_ALERT_MS = 100.0
+ERROR_RATE_ALERT = 0.05
+
 logger = logging.getLogger(__name__)
 
-__all__ = ["track_query_time", "record_error", "ensure_table", "benchmark_queries"]
+__all__ = [
+    "track_query_time",
+    "record_error",
+    "ensure_table",
+    "benchmark_queries",
+    "RESPONSE_TIME_ALERT_MS",
+    "ERROR_RATE_ALERT",
+]
 
 
 def _ensure_table(conn: sqlite3.Connection) -> None:
@@ -49,6 +59,8 @@ def _compute_metrics(conn: sqlite3.Connection) -> Dict[str, float]:
         "error_rate": error_rate,
         "within_time_target": avg_response < 50.0,
         "within_error_target": error_rate < 0.01,
+        "response_time_alert": avg_response > RESPONSE_TIME_ALERT_MS,
+        "error_rate_alert": error_rate > ERROR_RATE_ALERT,
     }
 
 

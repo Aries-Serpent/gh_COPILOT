@@ -8,17 +8,18 @@
 ![Coverage](https://img.shields.io/badge/coverage-automated-blue)
 ![Ruff](https://img.shields.io/badge/ruff-linted-blue)
 
-**Status:** Active development with incremental improvements
+**Status:** Active development with incremental improvements. Several core systems (e.g., disaster recovery and session-management enhancements) are still under construction.
 
-> Tests: run `pytest` before committing.
+> Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
-> Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress.
+> Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for details.
+> Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules.
 
 ---
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. All core modules are implemented. Quantum functionality runs in simulation mode by default but supports real hardware when `qiskit-ibm-provider` is configured.
+The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality currently exists as placeholder modules that run in simulation mode. Hooks for real hardware are planned but are not yet fully integrated, even when `qiskit-ibm-provider` is configured.
 
 > **Note**
 > Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends. When `IBM_BACKEND` is unset the system automatically selects an available backend. Use the `--hardware` flag in `quantum_integration_orchestrator.py` or `--use-hardware` in `quantum/cli/executor_cli.py` to enforce hardware execution.
@@ -37,13 +38,15 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
+- **Disaster Recovery Validation:** `UnifiedDisasterRecoverySystem` verifies external backup roots and restores files from `production_backup`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
+- **Anti-Recursion Guards:** backup and session modules now enforce external backup roots.
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 
-- **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for optimizer and search helpers. `quantum_optimizer.run_quantum_routine` now exposes annealing, superposition search and entanglement correction. Routines use Qiskit simulators by default and accept `use_hardware=True` to attempt IBM Quantum execution.
-- **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` runs a quantum
-  database search example and uses hardware backends when `QISKIT_IBM_TOKEN` is
-  available.
+- **Quantum Placeholder Utilities:** see [quantum/README.md](quantum/README.md) for simulated optimizer and search helpers. `quantum_optimizer.run_quantum_routine` includes placeholder hooks for annealing and search routines; entanglement correction is not implemented. These stubs run on Qiskit simulators and ignore `use_hardware=True` until real hardware integration lands. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for current status.
+- **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` demonstrates a simulated quantum
+  database search. Hardware backend flags are accepted but remain no-ops until
+  future phases implement real execution.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1,679 scripts synchronized
@@ -56,14 +59,14 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 ### **Enterprise Systems**
 - **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`
 - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
-- **Flask Enterprise Dashboard:** basic endpoints and templates
+- **Flask Enterprise Dashboard:** planned; implementation in progress
  - **Template Intelligence Platform:** tracks generated scripts
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
 - **Script Validation**: automated checks available
 - **Self-Healing Systems:** correction scripts
 - **Autonomous File Management:** see [Using AutonomousFileManager](docs/USING_AUTONOMOUS_FILE_MANAGER.md)
  - **Continuous Operation Mode:** optional monitoring utilities
- - **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
+   - **Simulated Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
     `scripts/monitoring/enterprise_compliance_monitor.py`, and
     `scripts/monitoring/unified_monitoring_optimization_system.py`.
     See [monitoring/README.md](monitoring/README.md) for details.
@@ -827,7 +830,7 @@ The project tracks several learning patterns. Current integration status:
 **DUAL COPILOT Pattern:** 100% implementation score
 **Visual Processing Indicators:** 94.7% implementation score [[docs](docs/GITHUB_COPILOT_INTEGRATION_NOTES.md#visual-processing)]
 **Autonomous Systems:** 97.2% implementation score [[scheduler](documentation/SYSTEM_OVERVIEW.md#database-synchronization)]
-**Enterprise Compliance:** automated tests run `pytest` and `ruff`. Latest results show all tests passing with no lint errors. [[validation helper](docs/DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement)]
+**Enterprise Compliance:** automated tests run `pytest` and `ruff`. Recent runs show failing tests while `ruff` reports no lint errors. [[validation helper](docs/DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement)]
 
 **Overall Integration Score: 97.4%** ✅
 

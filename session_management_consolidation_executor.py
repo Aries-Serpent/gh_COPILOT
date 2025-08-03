@@ -16,11 +16,15 @@ class EnterpriseUtility:
     """Simplified executor for session consolidation tests."""
 
     def __init__(self, workspace_path: str | Path | None = None) -> None:
-        self.workspace_path = Path(workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+        self.workspace_path = Path(
+            workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
+        )
         validate_enterprise_operation()
         self.logger = logging.getLogger(__name__)
         self.validator = SessionProtocolValidator(str(self.workspace_path))
         self.analytics_db = self.workspace_path / "databases" / "analytics.db"
+        backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
+        self.pid_file = backup_root / "session_management_consolidation_executor.pid"
 
     def _validate_environment(self) -> bool:
         valid = bool(os.getenv("GH_COPILOT_WORKSPACE")) and bool(os.getenv("GH_COPILOT_BACKUP_ROOT"))
@@ -41,18 +45,39 @@ class EnterpriseUtility:
 
     def execute_utility(self) -> bool:
         """Execute consolidation routine with logging and validation."""
-        self.logger.info("[START] Utility started: %s", datetime.now().isoformat())
-        _log_event({"event": "utility_start"}, db_path=self.workspace_path / "analytics.db")
-        env_ok = self._validate_environment()
-        validation = self.validator.validate_startup()
-        success = env_ok and validation.is_success and self.perform_utility_function()
-        if success:
-            self.logger.info("[SUCCESS] Utility completed")
-            _log_event({"event": "utility_success"}, db_path=self.workspace_path / "analytics.db")
-        else:
-            self.logger.error("[ERROR] Utility failed")
-            _log_event({"event": "utility_failed"}, db_path=self.workspace_path / "analytics.db")
-        return success
+        self._register_pid()
+        try:
+            self.logger.info("[START] Utility started: %s", datetime.now().isoformat())
+            _log_event({"event": "utility_start"}, db_path=self.workspace_path / "analytics.db")
+            env_ok = self._validate_environment()
+            validation = self.validator.validate_startup()
+            success = env_ok and validation.is_success and self.perform_utility_function()
+            if success:
+                self.logger.info("[SUCCESS] Utility completed")
+                _log_event({"event": "utility_success"}, db_path=self.workspace_path / "analytics.db")
+            else:
+                self.logger.error("[ERROR] Utility failed")
+                _log_event({"event": "utility_failed"}, db_path=self.workspace_path / "analytics.db")
+            return success
+        finally:
+            self._clear_pid()
+
+    def _register_pid(self) -> None:
+        """Record the current PID to prevent recursive execution."""
+        current_pid = os.getpid()
+        if self.pid_file.exists():
+            try:
+                existing = int(self.pid_file.read_text().strip())
+            except ValueError:
+                existing = None
+            if existing and Path(f"/proc/{existing}").exists():
+                raise RuntimeError("Recursive invocation detected")
+        self.pid_file.write_text(str(current_pid))
+
+    def _clear_pid(self) -> None:
+        """Remove the PID file if it exists."""
+        if self.pid_file.exists():
+            self.pid_file.unlink()
 
 
 __all__ = ["EnterpriseUtility", "main"]
