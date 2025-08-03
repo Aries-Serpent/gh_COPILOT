@@ -41,14 +41,23 @@ except ImportError:
 # Enterprise logging setup
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 LOGS_DIR = WORKSPACE_ROOT / "artifacts" / "logs" / "quantum_compliance"
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = LOGS_DIR / f"quantum_compliance_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
-)
+logger = logging.getLogger(__name__)
+
+
+def setup_logging() -> None:
+    """Configure module logging handlers."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    log_file = LOGS_DIR / f"quantum_compliance_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setFormatter(formatter)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    logger.setLevel(logging.INFO)
+    logger.handlers.clear()
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
 
 
 # Anti-recursion validation
@@ -58,14 +67,14 @@ def validate_no_recursive_folders() -> None:
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
-                logging.error(f"Recursive folder detected: {folder}")
+                logger.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
 
 
 def validate_environment_root() -> None:
     workspace_root = WORKSPACE_ROOT
     if not str(workspace_root).replace("\\", "/").endswith("gh_COPILOT"):
-        logging.warning(f"Non-standard workspace root: {workspace_root}")
+        logger.warning(f"Non-standard workspace root: {workspace_root}")
 
 
 class QuantumComplianceEngine:
@@ -85,9 +94,9 @@ class QuantumComplianceEngine:
         self.validator = SecondaryCopilotValidator()
         validate_no_recursive_folders()
         validate_environment_root()
-        logging.info(f"PROCESS STARTED: Quantum Compliance Scoring")
-        logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        logging.info(f"Process ID: {self.process_id}")
+        logger.info("PROCESS STARTED: Quantum Compliance Scoring")
+        logger.info("Start Time: %s", self.start_time.strftime("%Y-%m-%d %H:%M:%S"))
+        logger.info("Process ID: %s", self.process_id)
 
     def score(
         self,
@@ -112,7 +121,7 @@ class QuantumComplianceEngine:
             pattern_matches = self._multi_pattern_match(target, patterns)
             pbar.update(30)
             if not self.validator.validate_corrections(list(pattern_matches.keys())):
-                logging.error("Secondary validation failed for pattern matches.")
+                logger.error("Secondary validation failed for pattern matches.")
 
             pbar.set_description("Applying Modular Weighting")
             weighted_score = self._apply_modular_weighting(pattern_matches, modular_weights)
@@ -133,19 +142,19 @@ class QuantumComplianceEngine:
 
         elapsed = time.time() - start_time
         etc = self._calculate_etc(elapsed, 100, 100)
-        logging.info(
+        logger.info(
             f"Quantum compliance scoring completed in {elapsed:.2f}s | ETC: {etc}"
         )
-        logging.info(f"Target: {target} | Score: {score:.4f}")
+        logger.info("Target: %s | Score: %.4f", target, score)
         suggestions = self._cognitive_learning_fetch(patterns)
         if suggestions:
-            logging.info("Comparable scripts: %s", suggestions)
+            logger.info("Comparable scripts: %s", suggestions)
             if not self.validator.validate_corrections(suggestions):
-                logging.error("Secondary validation failed for cognitive suggestions.")
+                logger.error("Secondary validation failed for cognitive suggestions.")
         if score < threshold:
-            logging.error("Quantum compliance score below threshold.")
+            logger.error("Quantum compliance score below threshold.")
         if not self.validator.validate_corrections([f"{score:.4f}"]):
-            logging.error("Secondary validation failed for computed score.")
+            logger.error("Secondary validation failed for computed score.")
         self.status = "COMPLETED"
         return score
 
@@ -153,12 +162,12 @@ class QuantumComplianceEngine:
         """Multi-pattern matching for compliance analysis."""
         matches: Dict[str, int] = {}
         if not target.exists():
-            logging.warning(f"Target file does not exist: {target}")
+            logger.warning(f"Target file does not exist: {target}")
             return matches
         content = target.read_text(encoding="utf-8", errors="ignore")
         for pattern in patterns:
             matches[pattern] = len(re.findall(pattern, content, re.MULTILINE))
-        logging.info(f"Pattern matches: {matches}")
+        logger.info("Pattern matches: %s", matches)
         return matches
 
     def _ml_pattern_recognition(self, target: Path, top_n: int = 5) -> List[str]:
@@ -172,7 +181,7 @@ class QuantumComplianceEngine:
         indices = scores.argsort()[::-1][:top_n]
         features = vectorizer.get_feature_names_out()
         patterns = [features[i] for i in indices]
-        logging.info("ML pattern recognition identified: %s", patterns)
+        logger.info("ML pattern recognition identified: %s", patterns)
         return patterns
 
     def _apply_modular_weighting(self, matches: Dict[str, int], weights: Optional[List[float]]) -> float:
@@ -184,13 +193,13 @@ class QuantumComplianceEngine:
         score = sum(count * weight for count, weight in zip(matches.values(), weights))
         max_possible = sum(weight for weight in weights)
         normalized_score = score / max_possible if max_possible > 0 else 0.0
-        logging.info(f"Weighted score: {normalized_score:.4f}")
+        logger.info("Weighted score: %.4f", normalized_score)
         return normalized_score
 
     def _quantum_field_redundancy(self, classical_score: float) -> float:
         """Quantum-inspired scoring using qiskit (if available)."""
         if not QISKIT_AVAILABLE:
-            logging.warning("Qiskit not available, using classical score.")
+            logger.warning("Qiskit not available, using classical score.")
             return classical_score
         qc = QuantumCircuit(1)
         qc.h(0)
@@ -198,13 +207,13 @@ class QuantumComplianceEngine:
         qc.measure_all()
         backend = get_backend(use_hardware=os.getenv("QUANTUM_USE_HARDWARE", "0") == "1")
         if backend is None:
-            logging.warning("No backend available, using classical score.")
+            logger.warning("No backend available, using classical score.")
             return classical_score
         job = execute(qc, backend, shots=1024)
         result = job.result()
         counts = result.get_counts()
         quantum_score = counts.get("1", 0) / 1024
-        logging.info(f"Quantum field redundancy score: {quantum_score:.4f}")
+        logger.info("Quantum field redundancy score: %.4f", quantum_score)
         return quantum_score
 
     def _cognitive_learning_fetch(self, patterns: List[str], limit: int = 3) -> List[str]:
@@ -231,6 +240,7 @@ class QuantumComplianceEngine:
         return "N/A"
 
 def main() -> None:
+    setup_logging()
     workspace = WORKSPACE_ROOT
     engine = QuantumComplianceEngine(workspace)
     # Example usage: scoring a README.md file with sample patterns and weights
