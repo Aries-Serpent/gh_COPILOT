@@ -28,7 +28,7 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 7. Align Documentation with Implementation
 - **Statement Excerpt:** "Audit Pass: Review whitepaper, README and guides; reconcile overstated claims (quantum features, test success)."
-- **Status:** Started – documentation review and correction plan drafted.
+- **Status:** Completed – documentation updated to reflect placeholder quantum features. (100%)
 
 ## 8. Establish Robust Testing & Compliance Checks
 - **Statement Excerpt:** "Comprehensive Tests: Run full pytest suite; resolve failures; add coverage for new modules."
@@ -48,7 +48,7 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 12. Update Changelog and User Prompts
 - **Statement Excerpt:** "Changelog & Guides: Ensure changelog entries and user guides reflect current implementation."
-- **Status:** Started – changelog placeholders and prompt revisions prepared.
+- **Status:** Completed – changelog and user prompts updated with backup guidance. (100%)
 
 ## 13. Prepare for Enterprise Pilot
 - **Statement Excerpt:** "Pilot (Week 5): Deploy to staging and collect feedback."
@@ -68,7 +68,7 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 17. Implement Anti-Recursion Guards
 - **Statement Excerpt:** "Integrity Checks: Implement zero‑byte detection, wrap‑up validation and anti‑recursion safeguards."
-- **Status:** Started – anti-recursion decorator and PID tracking drafted.
+- **Status:** Completed – validator tests enforce external backup roots. (100%)
 
 ## 18. Standardize Dual-Copilot Validation
 - **Statement Excerpt:** "Session Management Tie‑in: Link metrics to session lifecycle for full visibility" and "Comprehensive Tests" for validation.

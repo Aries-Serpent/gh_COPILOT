@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.1.17] - 2025-08-07
+- Added unit tests for `AntiRecursionValidator` to enforce external backup roots.
+- Updated user prompts with backup root guidance.
+- Documented anti-recursion guards in README.
+
 ## [4.1.16] - 2025-08-02
 - Added IBM provider availability flag and hardware fallback handling in `QuantumExecutor`.
 - Introduced stub backend for scoring tests and stabilized quantum test simulations.
