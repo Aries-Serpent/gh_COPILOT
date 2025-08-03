@@ -1,5 +1,14 @@
 import logging
+import sys
+import types
 from types import SimpleNamespace
+
+sys.modules.setdefault(
+    "scripts.monitoring.unified_monitoring_optimization_system",
+    types.ModuleType("unified_monitoring_optimization_system"),
+)
+dummy_module = sys.modules["scripts.monitoring.unified_monitoring_optimization_system"]
+dummy_module.EnterpriseUtility = object
 
 import scripts.utilities.unified_session_management_system as usms
 
@@ -17,12 +26,22 @@ class DummyValidator:
 
 
 def test_lessons_applied_and_stored(monkeypatch, tmp_path, caplog):
-    monkeypatch.setattr(usms, "SessionProtocolValidator", lambda *a, **k: DummyValidator())
-    monkeypatch.setattr(usms, "validate_enterprise_environment", lambda: True)
-    monkeypatch.setattr(usms, "detect_zero_byte_files", lambda p: [])
-    monkeypatch.setattr(usms, "load_lessons", lambda: [{"description": "use tmp", "tags": "session"}])
+    monkeypatch.setattr(
+        "session_protocol_validator.SessionProtocolValidator", lambda *a, **k: DummyValidator()
+    )
+    monkeypatch.setattr(
+        "utils.validation_utils.validate_enterprise_environment", lambda: True
+    )
+    monkeypatch.setattr("utils.validation_utils.detect_zero_byte_files", lambda p: [])
+    monkeypatch.setattr(
+        "utils.lessons_learned_integrator.load_lessons",
+        lambda: [{"description": "use tmp", "tags": "session"}],
+    )
     stored = []
-    monkeypatch.setattr(usms, "store_lesson", lambda **kwargs: stored.append(kwargs))
+    monkeypatch.setattr(
+        "utils.lessons_learned_integrator.store_lesson",
+        lambda **kwargs: stored.append(kwargs),
+    )
     with caplog.at_level(logging.INFO):
         system = usms.UnifiedSessionManagementSystem(workspace_root=str(tmp_path))
         system.start_session()

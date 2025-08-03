@@ -16,6 +16,7 @@ WEB_DASHBOARD_ENABLED = os.getenv("WEB_DASHBOARD_ENABLED") == "1"
 
 RESPONSE_TIME_ALERT_MS = 100.0
 ERROR_RATE_ALERT = 0.05
+ANOMALY_DEVIATION = 25.0
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,8 @@ __all__ = [
     "benchmark_queries",
     "RESPONSE_TIME_ALERT_MS",
     "ERROR_RATE_ALERT",
+    "ml_anomaly_detect",
+    "quantum_hook",
 ]
 
 
@@ -54,7 +57,7 @@ def _compute_metrics(conn: sqlite3.Connection) -> Dict[str, float]:
     cur = conn.execute("SELECT SUM(is_error), COUNT(*) FROM query_performance")
     errors, total = cur.fetchone()
     error_rate = (errors or 0) / total if total else 0.0
-    return {
+    metrics = {
         "avg_response_time_ms": avg_response,
         "error_rate": error_rate,
         "within_time_target": avg_response < 50.0,
@@ -62,6 +65,23 @@ def _compute_metrics(conn: sqlite3.Connection) -> Dict[str, float]:
         "response_time_alert": avg_response > RESPONSE_TIME_ALERT_MS,
         "error_rate_alert": error_rate > ERROR_RATE_ALERT,
     }
+    metrics["ml_anomaly"] = ml_anomaly_detect(metrics)
+    quantum_hook(metrics)
+    return metrics
+
+
+def ml_anomaly_detect(metrics: Dict[str, float]) -> bool:
+    """Naive ML-based anomaly detector for performance metrics."""
+
+    values = [metrics["avg_response_time_ms"], metrics["error_rate"] * 100]
+    avg = sum(values) / len(values)
+    return any(abs(v - avg) > ANOMALY_DEVIATION for v in values)
+
+
+def quantum_hook(metrics: Dict[str, float]) -> None:
+    """Placeholder for quantum performance optimization hooks."""
+
+    _ = metrics
 
 
 def _update_dashboard(metrics: Dict[str, float]) -> None:

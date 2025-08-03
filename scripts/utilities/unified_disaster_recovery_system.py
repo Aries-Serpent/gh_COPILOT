@@ -56,6 +56,11 @@ class BackupScheduler:
         if workspace in backup_root.parents or backup_root == workspace:
             msg = f"Backup root {backup_root} resides within workspace {workspace}"
             self.logger.error("%s %s", TEXT_INDICATORS["error"], msg)
+            # Record the compliance failure before raising an error to ensure the
+            # event is captured even when scheduling aborts early.
+            self.compliance_logger.log(
+                "backup_failed", path=str(backup_root), reason="recursive"
+            )
             raise ValueError(msg)
 
         backup_root.mkdir(parents=True, exist_ok=True)

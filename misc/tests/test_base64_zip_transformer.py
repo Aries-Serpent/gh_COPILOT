@@ -1,13 +1,19 @@
 """Regression tests for the Base64 ZIP transformer."""
 
 from __future__ import annotations
+
 import io
 import zipfile
 from pathlib import Path
 
+import pytest
+
+# Skip tests if PyQt6 is unavailable
+pytest.importorskip("PyQt6")
 
 # Make legacy module importable
 import sys
+
 sys.path.append(str(Path(__file__).resolve().parents[1] / "legacy"))
 from Base64ZipTransformer import DecodeWorker, EncodeWorker  # noqa: E402
 

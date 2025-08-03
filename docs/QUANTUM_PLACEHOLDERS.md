@@ -9,10 +9,11 @@ but exist to reserve package structure for upcoming development.
 Refer to [README.md](../README.md) for a high-level overview of how these placeholders fit into the current system.
 
 ## Status
-- Modules return inputs unchanged and do not perform quantum operations.
+- Modules return inputs unchanged and operate entirely in simulation mode.
+- Placeholder calls may log events for analytics but perform no quantum work.
 - Maintainers can expand these stubs with real algorithms when hardware
-  integration becomes available.
- - Hardware-related flags are accepted by some interfaces but are currently ignored.
+  integration becomes available. Hardware-related flags are accepted by some
+  interfaces but are currently ignored.
 
 ## Roadmap
 1. Implement quantum optimization engine hooks.
