@@ -16,6 +16,7 @@ import logging
 import os
 import sqlite3
 import time
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
@@ -166,6 +167,20 @@ class ComplianceMetricsUpdater:
                     metrics["rollback_count"] = 0
             except Exception as e:
                 logging.error(f"Error fetching metrics: {e}")
+        correction_summary = DASHBOARD_DIR / "correction_summary.json"
+        if correction_summary.exists():
+            try:
+                summary_data = json.loads(correction_summary.read_text(encoding="utf-8"))
+                metrics["correction_logs"] = summary_data.get("corrections", [])
+                if metrics["correction_logs"]:
+                    scores = [c.get("compliance_score", 0.0) for c in metrics["correction_logs"]]
+                    metrics["average_correction_score"] = sum(scores) / len(scores)
+            except json.JSONDecodeError:
+                logging.warning("Failed to parse correction_summary.json")
+                metrics["correction_logs"] = []
+        else:
+            metrics["correction_logs"] = []
+
         total_ph = metrics["resolved_placeholders"] + metrics["open_placeholders"]
         if total_ph:
             metrics["progress"] = metrics["resolved_placeholders"] / float(total_ph)
