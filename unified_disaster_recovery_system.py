@@ -32,6 +32,9 @@ def log_backup_event(event: str, details: Optional[Dict[str, Any]] = None) -> No
 
 
 from scripts.utilities.unified_disaster_recovery_system import (  # noqa: E402
+    BackupScheduler,
+    ComplianceLogger,
+    RestoreExecutor,
     UnifiedDisasterRecoverySystem as _UnifiedDisasterRecoverySystem,
 )
 
@@ -46,5 +49,12 @@ def schedule_backups() -> None:
 # Re-export class for public consumers
 UnifiedDisasterRecoverySystem = _UnifiedDisasterRecoverySystem
 
-__all__ = ["UnifiedDisasterRecoverySystem", "schedule_backups", "log_backup_event"]
+__all__ = [
+    "UnifiedDisasterRecoverySystem",
+    "BackupScheduler",
+    "RestoreExecutor",
+    "ComplianceLogger",
+    "schedule_backups",
+    "log_backup_event",
+]
 
