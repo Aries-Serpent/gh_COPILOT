@@ -23,7 +23,9 @@ from utils.log_utils import _log_event
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "analytics.db"
 
-__all__ = ["monitor_logs", "notify"]
+LOG_ERROR_ALERT_THRESHOLD = 10
+
+__all__ = ["monitor_logs", "notify", "LOG_ERROR_ALERT_THRESHOLD"]
 
 
 def monitor_logs(log_files: Iterable[Path], db_path: Optional[Path] = None) -> int:
@@ -71,8 +73,9 @@ def notify(error_count: int, db_path: Optional[Path] = None) -> None:
     """Record a notification event for ``error_count`` errors."""
 
     path = db_path or DB_PATH
+    severity = "ALERT" if error_count > LOG_ERROR_ALERT_THRESHOLD else "INFO"
     _log_event(
-        {"errors_found": error_count},
+        {"errors_found": error_count, "severity": severity},
         table="log_notifications",
         db_path=path,
         test_mode=False,

@@ -6,6 +6,7 @@ from monitoring.health_monitor import (
     ensure_table,
     record_system_health,
     recent_average,
+    check_alerts,
 )
 
 
@@ -37,3 +38,10 @@ def test_recent_average_computes_values(tmp_path):
     avg = recent_average(2, db_path=db)
     assert round(avg["avg_cpu_percent"], 1) == 15.0
     assert round(avg["avg_memory_percent"], 1) == 25.0
+
+
+def test_check_alerts_flags_thresholds():
+    metrics = {"cpu_percent": 90.0, "memory_percent": 95.0, "disk_percent": 50.0}
+    alerts = check_alerts(metrics)
+    assert alerts["cpu"] and alerts["memory"]
+    assert not alerts["disk"]
