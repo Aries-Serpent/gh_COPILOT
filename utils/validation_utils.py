@@ -202,8 +202,30 @@ def anti_recursion_guard(func: Callable) -> Callable:
 
 
 def run_dual_copilot_validation(primary: Callable[[], bool], secondary: Callable[[], bool]) -> bool:
-    """Run primary and secondary validation functions and return combined result."""
+    """Run primary and secondary validators with explicit failure reporting.
 
-    primary_result = primary()
-    secondary_result = secondary()
+    Both validators are executed even if the primary raises an exception.
+    Any exceptions are captured and reported after both validators run. If
+    either validator raises an exception, a ``RuntimeError`` describing the
+    failure(s) is raised. Otherwise, the combined boolean result of both
+    validators is returned.
+    """
+
+    errors: list[str] = []
+
+    try:
+        primary_result = bool(primary())
+    except Exception as exc:  # pragma: no cover - defensive
+        primary_result = False
+        errors.append(f"Primary validation error: {exc}")
+
+    try:
+        secondary_result = bool(secondary())
+    except Exception as exc:  # pragma: no cover - defensive
+        secondary_result = False
+        errors.append(f"Secondary validation error: {exc}")
+
+    if errors:
+        raise RuntimeError("; ".join(errors))
+
     return primary_result and secondary_result
