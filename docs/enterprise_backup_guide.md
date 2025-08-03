@@ -1,6 +1,8 @@
 # Enterprise Backup Guide
 
 This guide describes how to use the data backup feature in the gh_COPILOT toolkit.
+The current implementation enforces an external `GH_COPILOT_BACKUP_ROOT` and
+verifies restore operations; misconfigured paths abort with an error.
 
 ## Prerequisites
 - Ensure the `GH_COPILOT_BACKUP_ROOT` environment variable points to an external directory outside the repository workspace. When running the Docker container, map a host folder to `/backup` so the volume persists:

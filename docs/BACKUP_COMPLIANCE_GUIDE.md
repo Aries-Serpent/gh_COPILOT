@@ -1,6 +1,8 @@
 # Backup Compliance Guide
 
 This document explains the approved workflow for creating backups, restoring from snapshot archives, and verifying those operations using `disaster_recovery.db`.
+The disaster recovery tooling enforces external backup roots and validates
+restore operations; scripts abort if the path resides inside the workspace.
 
 ## Running Backup Scripts
 
