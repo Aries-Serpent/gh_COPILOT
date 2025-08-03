@@ -2,11 +2,19 @@ import importlib
 import json
 import sqlite3
 import pytest
+import sys
+import types
 
 
 @pytest.mark.parametrize("simulate,test_mode", [(True, False), (False, True), (False, False)])
 def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    stub = types.SimpleNamespace(
+        CorrectionLoggerRollback=object,
+        validate_enterprise_operation=lambda *a, **k: None,
+        _log_rollback=lambda *a, **k: None,
+    )
+    monkeypatch.setitem(sys.modules, "scripts.correction_logger_and_rollback", stub)
     module = importlib.import_module("dashboard.compliance_metrics_updater")
     importlib.reload(module)
     modes = []
@@ -73,3 +81,55 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     assert data["metrics"]["correction_count"] == 1
     expected = test_mode or simulate
     assert all((m == expected) or (m is None) for m in modes)
+
+
+def test_correction_summary_ingestion(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    stub = types.SimpleNamespace(
+        CorrectionLoggerRollback=object,
+        validate_enterprise_operation=lambda *a, **k: None,
+        _log_rollback=lambda *a, **k: None,
+    )
+    monkeypatch.setitem(sys.modules, "scripts.correction_logger_and_rollback", stub)
+    module = importlib.import_module("dashboard.compliance_metrics_updater")
+    importlib.reload(module)
+    monkeypatch.setattr(module, "ensure_tables", lambda *a, **k: None)
+    monkeypatch.setattr(module, "insert_event", lambda *a, **k: None)
+    monkeypatch.setattr(module, "validate_no_recursive_folders", lambda: None)
+    monkeypatch.setattr(module, "validate_environment_root", lambda: None)
+
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    analytics_db = db_dir / "analytics.db"
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)"
+        )
+        conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved', 1)")
+        conn.execute("CREATE TABLE correction_logs (event TEXT, compliance_score REAL)")
+        conn.execute("INSERT INTO correction_logs VALUES ('update', 0.9)")
+        conn.execute("CREATE TABLE violation_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, details TEXT)")
+
+    corr_dir = tmp_path / "dashboard" / "compliance"
+    corr_dir.mkdir(parents=True)
+    summary = {
+        "timestamp": "ts",
+        "total_corrections": 1,
+        "corrections": [
+            {
+                "file_path": "file.py",
+                "rationale": "fix",
+                "compliance_score": 0.9,
+                "rollback_reference": "ref",
+                "timestamp": "ts",
+                "root_cause": "coding standards",
+            }
+        ],
+        "status": "complete",
+    }
+    (corr_dir / "correction_summary.json").write_text(json.dumps(summary))
+
+    updater = module.ComplianceMetricsUpdater(tmp_path / "dashboard", test_mode=True)
+    updater.update(simulate=False)
+    data = json.loads((tmp_path / "dashboard" / "metrics.json").read_text())
+    assert data["metrics"]["correction_logs"][0]["file_path"] == "file.py"

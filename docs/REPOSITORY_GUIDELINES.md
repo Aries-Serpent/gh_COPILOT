@@ -3,7 +3,7 @@
 
 ## OBJECTIVE
 
-This file defines the standard operating procedures (SOPs) for contributing to the **gh_COPILOT** project, maintaining repository health, and ensuring compliance with enterprise and team guidelines.
+This file defines the standard operating procedures (SOPs) for contributing to the **gh_COPILOT** project, maintaining repository health, and ensuring compliance with enterprise and team guidelines. Review the [Governance Standards](GOVERNANCE_STANDARDS.md) for overarching policies and coding conventions.
 
 ## AGENTS RESPONSIBILITY
 
