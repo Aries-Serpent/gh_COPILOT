@@ -14,3 +14,9 @@ This project expects consistent logging and documentation conventions.
 ## Code Style
 - Follow existing snake_case function names and CamelCase classes.
 - Keep line length under 120 characters.
+
+## Monitoring
+- Capture runtime metrics with `unified_monitoring_optimization_system.push_metrics`.
+- Link metrics to `unified_wrapup_sessions` using the `session_id` parameter.
+- Use `detect_anomalies` to flag unusual metric patterns; escalate any anomalies.
+- Experimental quantum processing may be invoked via `QuantumInterface.analyze` for future integrations.
