@@ -29,7 +29,7 @@ These task stubs originate from the gap analysis report and have been formally s
 ## 7. Align Documentation with Implementation
 - **Statement Excerpt:** "Audit Pass: Review whitepaper, README and guides; reconcile overstated claims (quantum features, test success)."
 - **Status:** In Progress – placeholder quantum features documented; further alignment ongoing.
-- [ ] **Progress:** 20% – README clarifies placeholder modules and disaster recovery details.
+- [ ] **Progress:** 40% – README and whitepaper toned down quantum claims and backup guide updated.
 
 ## 8. Establish Robust Testing & Compliance Checks
 - **Statement Excerpt:** "Comprehensive Tests: Run full pytest suite; resolve failures; add coverage for new modules."
@@ -81,7 +81,7 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 19. Clarify Quantum Placeholder Features
 - **Statement Excerpt:** "Audit Pass: Review whitepaper, README and guides; reconcile overstated claims (quantum features, test success)."
-- **Status:** In Progress – 50% complete. README and placeholder docs now highlight simulation-only behavior.
+  - **Status:** In Progress – 70% complete. README and whitepaper now highlight simulation-only behavior.
 
 ## 20. Implement Compliance Metrics Calculations
 - **Statement Excerpt:** "Metrics Integration: Display compliance trends, rollback logs and placeholder metrics" coupled with "Quantitative Goals: All modules implemented; tests >95% coverage; compliance score ≥0.9; dashboard latency <1 min."
@@ -91,8 +91,8 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ### Progress Checklist
 
-- [ ] 7. Align Documentation with Implementation — 20% complete
+ - [ ] 7. Align Documentation with Implementation — 40% complete
 - [x] 12. Update Changelog and User Prompts — 100% complete
 - [ ] 17. Implement Anti-Recursion Guards — 50% complete
 - [ ] 18. Standardize Dual-Copilot Validation — 40% complete
-- [ ] 19. Clarify Quantum Placeholder Features — 50% complete
+ - [ ] 19. Clarify Quantum Placeholder Features — 70% complete

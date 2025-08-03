@@ -3,16 +3,24 @@
 <h1>Compliance Dashboard</h1>
 <div id="progress">Loading...</div>
 <div>
-    <strong>Placeholder Removals:</strong> <span id="placeholder_removal">0</span><br>
-    <strong>Open Placeholders:</strong> <span id="open_placeholders">0</span><br>
-    <strong>Compliance Score:</strong> <span id="compliance_score">0.000</span><br>
+    <strong>Placeholder Removals:</strong> <span id="placeholder_removal">{{ metrics.placeholder_removal or 0 }}</span><br>
+    <strong>Open Placeholders:</strong> <span id="open_placeholders">{{ metrics.open_placeholders or 0 }}</span><br>
+    <strong>Compliance Score:</strong> <span id="compliance_score">{{ '%.3f'|format(metrics.compliance_score or 0) }}</span><br>
     <h3>Placeholder Types</h3>
     <ul id="placeholder_breakdown"></ul>
     <h3>Compliance Trend</h3>
-    <span id="compliance_trend"></span>
+    <span id="compliance_trend">
+        {% for score in metrics.compliance_trend or [] %}
+            {{ score }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    </span>
 </div>
 <h2>Violations</h2>
-<ul id="violations"></ul>
+<ul id="violations">
+    {% for v in (alerts.violations if alerts is defined else []) %}
+        <li>{{ v.timestamp }} - {{ v.details }}</li>
+    {% endfor %}
+</ul>
 <h2>Rollbacks</h2>
 <ul id="rollbacks"></ul>
 <h2>Rollback History</h2>

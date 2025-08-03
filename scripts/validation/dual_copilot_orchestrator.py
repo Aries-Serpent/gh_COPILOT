@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Tuple
 
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from scripts.validation.primary_copilot_executor import PrimaryCopilotExecutor, ProcessPhase
@@ -22,8 +22,8 @@ class DualCopilotOrchestrator:
         primary: Callable[[], bool],
         validation_targets: Iterable[str],
         timeout_minutes: int = 30,
-    ) -> tuple[bool, bool]:
-        """Execute primary callable with visual monitoring then validate targets."""
+    ) -> Tuple[bool, bool, dict]:
+        """Execute primary callable then validate targets, returning metrics."""
         self.logger.info("[DUAL] Starting primary operation")
 
         executor = PrimaryCopilotExecutor("Primary Operation", timeout_minutes, self.logger)
@@ -35,5 +35,7 @@ class DualCopilotOrchestrator:
         else:
             self.logger.error("[DUAL] Primary operation failed")
 
-        validation_success = self.validator.validate_corrections(list(validation_targets))
-        return primary_success, validation_success
+        validation_success = self.validator.validate_corrections(
+            list(validation_targets), primary_success
+        )
+        return primary_success, validation_success, self.validator.metrics
