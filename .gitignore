@@ -25,3 +25,5 @@ tmp/
 *.lfs.lock
 
 databases/analytics.db
+databases/*.db
+databases/*.zip

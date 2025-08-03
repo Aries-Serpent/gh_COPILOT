@@ -1135,6 +1135,14 @@ Planned highlights include:
 6. **Cluster-based Template Retrieval** – use `get_cluster_representatives` to group templates for database-first generation.
 7. **Pattern Clustering Sync Utility** – leverage `PatternClusteringSync` and `DBFirstCodeGenerator` to synchronize templates and generate code using the database-first workflow.
 
+### Reconstructing the analytics database
+
+To rebuild the `analytics.db` file from its stored Base64 zip, run:
+
+```bash
+base64 -d databases/analytics_db_zip.b64 | tee databases/analytics_db.zip >/dev/null && unzip -o databases/analytics_db.zip -d databases/
+```
+
 ## Future Work
 
 See [Continuous Improvement Roadmap](docs/continuous_improvement_roadmap.md),
