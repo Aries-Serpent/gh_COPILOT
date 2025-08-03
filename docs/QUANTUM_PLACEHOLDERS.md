@@ -1,19 +1,23 @@
 # Quantum Placeholder Modules
 
 The `scripts/quantum_placeholders` package provides importable stubs for
-future quantum integrations. They reference the planned features outlined
-in the [technical whitepaper](COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md)
-around line 587 and later. These modules are **not** used in production
-but exist to reserve package structure for upcoming development.
+future quantum integrations. These modules are **simulation-only** helpers
+and are intentionally excluded from production import paths. They reference
+the planned features outlined in the
+[technical whitepaper](COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md)
+around line 587 and later. The placeholders reserve package structure for
+upcoming development without affecting production builds.
 
 Refer to [README.md](../README.md) for a high-level overview of how these placeholders fit into the current system.
 
 ## Status
-- Modules return inputs unchanged and operate entirely in simulation mode.
-- Placeholder calls may log events for analytics but perform no quantum work.
+- Modules return inputs unchanged, operate in simulation mode, and do not
+  perform quantum operations.
 - Maintainers can expand these stubs with real algorithms when hardware
-  integration becomes available. Hardware-related flags are accepted by some
-  interfaces but are currently ignored.
+  integration becomes available.
+- Hardware-related flags are accepted by some interfaces but are currently
+  ignored.
+- Placeholder modules are excluded from production builds.
 
 ## Roadmap
 1. Implement quantum optimization engine hooks.
