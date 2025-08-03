@@ -2,6 +2,8 @@
 
 Follow these sequential steps to configure the environment, ingest assets, run audits, generate code and, if needed, roll back changes.
 
+> **Note:** Quantum features referenced in these prompts operate in placeholder simulation mode. No hardware access is required.
+
 ## 1. Database Setup
 ```bash
 source .venv/bin/activate

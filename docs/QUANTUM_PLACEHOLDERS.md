@@ -6,6 +6,8 @@ in the [technical whitepaper](COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md)
 around line 587 and later. These modules are **not** used in production
 but exist to reserve package structure for upcoming development.
 
+Refer to [README.md](../README.md) for a high-level overview of how these placeholders fit into the current system.
+
 ## Status
 - Modules return inputs unchanged and do not perform quantum operations.
 - Maintainers can expand these stubs with real algorithms when hardware
