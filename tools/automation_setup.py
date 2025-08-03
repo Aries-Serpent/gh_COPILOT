@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import os
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -10,6 +9,7 @@ from tqdm import tqdm
 
 from utils.log_utils import _log_event, DEFAULT_ANALYTICS_DB
 from secondary_copilot_validator import SecondaryCopilotValidator
+from scripts.code_placeholder_audit import main as placeholder_audit
 
 DB_PATH = Path("databases/production.db")
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
@@ -115,8 +115,37 @@ def ingest_assets() -> None:
     SecondaryCopilotValidator().validate_corrections([str(p) for p in doc_files + tmpl_files])
 
 
-def run_audit() -> None:
-    os.system("python scripts/code_placeholder_audit.py")
+def run_placeholder_audit() -> None:
+    placeholder_audit(
+        workspace_path=str(Path.cwd()),
+        analytics_db=str(ANALYTICS_DB),
+        production_db=str(DB_PATH),
+        dashboard_dir=str(Path("dashboard/compliance")),
+    )
+
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS placeholder_audit (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file_path TEXT,
+                line_number INTEGER,
+                placeholder_type TEXT,
+                context TEXT,
+                timestamp TEXT
+            )
+            """
+        )
+        cur = conn.execute(
+            "SELECT file_path, line_number, placeholder_type, context, timestamp FROM todo_fixme_tracking WHERE status='open'"
+        )
+        rows = cur.fetchall()
+        conn.execute("DELETE FROM placeholder_audit")
+        conn.executemany(
+            "INSERT INTO placeholder_audit (file_path, line_number, placeholder_type, context, timestamp) VALUES (?, ?, ?, ?, ?)",
+            rows,
+        )
+        conn.commit()
 
 
 if __name__ == "__main__":
@@ -124,7 +153,7 @@ if __name__ == "__main__":
     _log_event({"event": "automation_setup_start"}, db_path=ANALYTICS_DB)
     init_databases()
     ingest_assets()
-    run_audit()
+    run_placeholder_audit()
     duration = (datetime.now(timezone.utc) - start).total_seconds()
     _log_event({"event": "automation_setup_end", "duration": duration}, db_path=ANALYTICS_DB)
     print(f"Automation finished in {duration}s")
