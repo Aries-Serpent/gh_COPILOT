@@ -13,7 +13,7 @@
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
 > Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for details.
-> Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules.
+> Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards.
 
 ---
 
