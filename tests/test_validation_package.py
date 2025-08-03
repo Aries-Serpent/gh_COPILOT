@@ -19,6 +19,7 @@ from validation.core.rules import (
 from validation.protocols.session import SessionProtocolValidator
 from validation.protocols.deployment import DeploymentValidator
 from validation.reporting.formatters import ValidationReportFormatter
+from scripts import code_placeholder_audit as placeholder_audit
 
 
 class MockValidator(BaseValidator):
@@ -418,3 +419,24 @@ class TestValidationReporting:
             with open(json_file) as f:
                 data = json.load(f)
             assert len(data["results"]) == 1
+
+
+class TestComplianceIntegration:
+    """Ensure compliance utilities integrate with validation package."""
+
+    def test_placeholder_audit_simulation(self, tmp_path):
+        """Run placeholder audit in simulation mode."""
+        sample = tmp_path / "sample.py"
+        sample.write_text("# TODO: fix\n")
+
+        assert placeholder_audit.main(workspace_path=str(tmp_path), simulate=True)
+
+    def test_rollback_paths_exist(self):
+        """Verify rollback utility paths exist."""
+        paths = [
+            Path("scripts/database/add_rollback_logs.py"),
+            Path("databases/migrations/add_rollback_logs.sql"),
+        ]
+
+        for p in paths:
+            assert p.exists(), f"Missing rollback path: {p}"
