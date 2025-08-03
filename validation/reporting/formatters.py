@@ -8,6 +8,8 @@ from typing import Dict, List, Any
 from pathlib import Path
 
 from ..core.validators import ValidationResult, ValidationStatus
+from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
+from utils.cross_platform_paths import CrossPlatformPathManager
 
 
 class ValidationReportFormatter:
@@ -178,6 +180,14 @@ class ValidationReportFormatter:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write(content)
+
+            try:
+                analytics_db = CrossPlatformPathManager.get_workspace_path() / "databases" / "analytics.db"
+                CorrectionLoggerRollback(analytics_db).log_change(
+                    output_path, "Validation report saved", compliance_score=1.0
+                )
+            except Exception as log_exc:
+                print(f"Correction logging failed: {log_exc}")
 
             return True
 

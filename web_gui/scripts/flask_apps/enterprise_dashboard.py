@@ -101,8 +101,7 @@ def _fetch_metrics() -> Dict[str, Any]:
 
 
 def _fetch_rollbacks(limit: int = 5) -> List[Dict[str, Any]]:
-    """Return recent rollback logs from analytics.db."""
-
+    """Fetch recent rollback events directly from ``analytics.db``."""
     records: List[Dict[str, Any]] = []
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
@@ -116,7 +115,7 @@ def _fetch_rollbacks(limit: int = 5) -> List[Dict[str, Any]]:
                     for row in cur.fetchall()
                 ]
             except sqlite3.Error as exc:
-                logging.error("Rollback log fetch error: %s", exc)
+                logging.error("Rollback fetch error: %s", exc)
     return records
 
 

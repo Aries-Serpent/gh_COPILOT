@@ -22,11 +22,9 @@
     {% endfor %}
 </ul>
 <h2>Rollbacks</h2>
-<ul id="rollbacks">
-    {% for rb in (alerts.rollbacks if alerts is defined else []) %}
-        <li>{{ rb.timestamp }} - {{ rb.target }}{% if rb.backup %} ({{ rb.backup }}){% endif %}</li>
-    {% endfor %}
-</ul>
+<ul id="rollbacks"></ul>
+<h2>Rollback History</h2>
+<ul id="rollback_history"></ul>
 <p><a href="/dashboard/compliance">Compliance Metrics</a></p>
 <script>
 function updateMetrics(data){
@@ -60,6 +58,17 @@ function updateAlerts(data){
         r.appendChild(li);
     });
 }
+function loadRollbackHistory(){
+    fetch('/rollback_history').then(r=>r.json()).then(data=>{
+        const h = document.getElementById('rollback_history');
+        h.innerHTML = '';
+        data.forEach(a=>{
+            const li = document.createElement('li');
+            li.textContent = a.timestamp + ' - ' + a.target + (a.backup ? '(' + a.backup + ')' : '');
+            h.appendChild(li);
+        });
+    });
+}
 window.onload = function(){
     if(window.EventSource){
         const esMetrics = new EventSource('/metrics_stream');
@@ -78,5 +87,6 @@ window.onload = function(){
             fetch('/alerts').then(r => r.json()).then(updateAlerts);
         }, 5000);
     }
+    loadRollbackHistory();
 };
 </script>
