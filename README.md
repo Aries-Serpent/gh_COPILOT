@@ -268,6 +268,12 @@ python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 
 Set `QISKIT_IBM_TOKEN` to your IBM Quantum API token for hardware execution. If the provider cannot be initialized the orchestrator automatically falls back to simulation.
 
+### Quantum Placeholder Modules
+
+The `scripts/quantum_placeholders` package offers simulation-only stubs that reserve
+future quantum interfaces. These modules are excluded from production import paths
+and only load in development or test environments.
+
 ### Run Template Matcher
 ```bash
 echo "def foo(): pass" | python scripts/template_matcher.py
