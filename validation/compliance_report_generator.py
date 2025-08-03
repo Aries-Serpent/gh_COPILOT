@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from utils.log_utils import _log_plain
+from utils.validation_utils import calculate_composite_compliance_score
 import os
 import sqlite3
 import sys
@@ -128,10 +129,16 @@ def generate_compliance_report(
             raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
 
         timestamp = datetime.utcnow().isoformat()
+        composite_score = calculate_composite_compliance_score(
+            ruff_metrics["issues"],
+            pytest_metrics["passed"],
+            pytest_metrics["failed"],
+        )
         summary = {
             "timestamp": timestamp,
             "ruff": ruff_metrics,
             "pytest": pytest_metrics,
+            "composite_score": composite_score,
             "process_id": process_id,
             "start_time": start_time_dt.isoformat(),
         }
@@ -149,6 +156,9 @@ def generate_compliance_report(
             md.write(
                 f"## Pytest Results: {pytest_metrics['passed']} passed / {pytest_metrics['failed']} failed of {pytest_metrics['total']} total\n"
             )
+            md.write(
+                f"## Composite Compliance Score: {composite_score:.2f}\n"
+            )
         bar.update(1)
         elapsed = time.time() - start_time
         etc = calculate_etc(start_time, 3, total_steps)
@@ -165,16 +175,22 @@ def generate_compliance_report(
                     ruff_issues INTEGER,
                     tests_passed INTEGER,
                     tests_failed INTEGER,
+                    composite_score REAL,
                     ts TEXT,
                     process_id INTEGER
                 )"""
             )
+            try:
+                conn.execute("ALTER TABLE code_quality_metrics ADD COLUMN composite_score REAL")
+            except sqlite3.OperationalError:
+                pass
             conn.execute(
-                "INSERT INTO code_quality_metrics (ruff_issues, tests_passed, tests_failed, ts, process_id) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO code_quality_metrics (ruff_issues, tests_passed, tests_failed, composite_score, ts, process_id) VALUES (?, ?, ?, ?, ?, ?)",
                 (
                     ruff_metrics["issues"],
                     pytest_metrics["passed"],
                     pytest_metrics["failed"],
+                    composite_score,
                     summary["timestamp"],
                     process_id,
                 ),

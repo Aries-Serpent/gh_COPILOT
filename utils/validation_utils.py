@@ -11,6 +11,18 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.lessons_learned_integrator import store_lesson
 
 
+def calculate_composite_compliance_score(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+) -> float:
+    """Return composite compliance score based on lint and test results."""
+    total_tests = tests_passed + tests_failed
+    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+    lint_score = max(0.0, 100 - ruff_issues)
+    return round((lint_score + test_score) / 2, 2)
+
+
 def validate_workspace_integrity() -> Dict[str, Any]:
     """Validate workspace integrity and structure"""
     workspace = CrossPlatformPathManager.get_workspace_path()
