@@ -10,6 +10,12 @@ upcoming development without affecting production builds.
 
 Refer to [README.md](../README.md) for a high-level overview of how these placeholders fit into the current system.
 
+## Modules
+- `quantum_placeholder_algorithm.py`: returns data unchanged to simulate a quantum pass.
+- `quantum_annealing.py`: provides a toy annealing routine using Qiskit when available or a deterministic fallback.
+- `quantum_entanglement_correction.py`: demonstrates simple Bell pair error detection and correction.
+- `quantum_superposition_search.py`: generates uniform superposition probabilities via simulator or classical logic.
+
 ## Status
 - Modules return inputs unchanged, operate in simulation mode, and do not
   perform quantum operations.

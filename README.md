@@ -1081,7 +1081,7 @@ Set these variables in your `.env` file or shell before running scripts:
 
 ## ✅ Project Status
 
-Ruff linting and targeted tests now pass after addressing a quantum optimizer fallback issue. Outstanding tasks—including fixes for failing modules like `documentation_manager` and `cross_database_sync_logger`—are tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Dual-copilot validation remains in place and quantum features continue to run in simulation mode.
+Ruff linting runs and targeted tests pass in simulation, but the full test suite still reports failures. Outstanding tasks—including fixes for failing modules like `documentation_manager` and `cross_database_sync_logger`—are tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Dual-copilot validation remains in place and quantum features continue to run in simulation mode.
 The repository uses GitHub Actions to automate linting, testing, and compliance checks.
 
 - **ci.yml** runs Ruff linting, executes the test suite on multiple Python versions, builds the Docker image, and performs a CodeQL scan.
