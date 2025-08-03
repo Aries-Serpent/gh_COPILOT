@@ -16,17 +16,18 @@ from __future__ import annotations
 import logging
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 
 from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 from .utils.backend_provider import get_backend
 
 try:
-    from qiskit import QuantumCircuit, execute, Aer  # type: ignore
+    from qiskit import QuantumCircuit, execute  # type: ignore
 
     QISKIT_AVAILABLE = True
 except ImportError:
@@ -76,6 +77,7 @@ class QuantumComplianceEngine:
         self.process_id = os.getpid()
         self.timeout_seconds = 1800  # 30 minutes
         self.status = "INITIALIZED"
+        self.validator = SecondaryCopilotValidator()
         validate_no_recursive_folders()
         validate_environment_root()
         logging.info(f"PROCESS STARTED: Quantum Compliance Scoring")
@@ -87,6 +89,7 @@ class QuantumComplianceEngine:
         target: Path,
         patterns: List[str],
         modular_weights: Optional[List[float]] = None,
+        threshold: float = 0.85,
     ) -> float:
         """
         Quantum-inspired compliance scoring for a target file.
@@ -125,6 +128,10 @@ class QuantumComplianceEngine:
         etc = self._calculate_etc(elapsed, 100, 100)
         logging.info(f"Quantum compliance scoring completed in {elapsed:.2f}s | ETC: {etc}")
         logging.info(f"Target: {target} | Score: {score:.4f}")
+        if score < threshold:
+            logging.error("Quantum compliance score below threshold.")
+        if not self.validator.validate_corrections([f"{score:.4f}"]):
+            logging.error("Secondary validation failed for computed score.")
         self.status = "COMPLETED"
         return score
 
@@ -193,16 +200,6 @@ class QuantumComplianceEngine:
             return f"{remaining:.2f}s remaining"
         return "N/A"
 
-    def validate_compliance(self, score: float, threshold: float = 0.85) -> bool:
-        """DUAL COPILOT: Secondary validator for quantum logic integrity and compliance."""
-        valid = score >= threshold
-        if valid:
-            logging.info("DUAL COPILOT validation passed: Quantum compliance score meets threshold.")
-        else:
-            logging.error("DUAL COPILOT validation failed: Quantum compliance score below threshold.")
-        return valid
-
-
 def main() -> None:
     workspace = WORKSPACE_ROOT
     engine = QuantumComplianceEngine(workspace)
@@ -210,8 +207,7 @@ def main() -> None:
     target_file = workspace / "README.md"
     patterns = ["compliance", "quantum", "enterprise", "validation"]
     weights = [1.5, 2.0, 1.0, 1.0]
-    score = engine.score(target_file, patterns, weights)
-    engine.validate_compliance(score, threshold=0.85)
+    engine.score(target_file, patterns, weights, threshold=0.85)
 
 
 if __name__ == "__main__":
