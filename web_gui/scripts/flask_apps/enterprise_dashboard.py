@@ -100,15 +100,23 @@ def _fetch_metrics() -> Dict[str, Any]:
     return metrics
 
 
-def _fetch_rollbacks() -> List[Dict[str, Any]]:
+def _fetch_rollbacks(limit: int = 5) -> List[Dict[str, Any]]:
+    """Return recent rollback logs from analytics.db."""
+
     records: List[Dict[str, Any]] = []
-    file = COMPLIANCE_DIR / "correction_summary.json"
-    if file.exists():
-        try:
-            data = json.loads(file.read_text())
-            records = data.get("corrections", [])
-        except json.JSONDecodeError:
-            logging.warning("Invalid correction summary JSON")
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT ?",
+                    (limit,),
+                )
+                records = [
+                    {"target": row[0], "backup": row[1], "timestamp": row[2]}
+                    for row in cur.fetchall()
+                ]
+            except sqlite3.Error as exc:
+                logging.error("Rollback log fetch error: %s", exc)
     return records
 
 
