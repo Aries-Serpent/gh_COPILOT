@@ -26,7 +26,11 @@ from tqdm import tqdm
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.visual_progress import start_indicator, progress_bar, end_indicator
 from ml_pattern_recognition import PatternRecognizer
-from unified_session_management_system import prevent_recursion
+try:
+    from unified_session_management_system import prevent_recursion
+except Exception:  # pragma: no cover - fallback if session system unavailable
+    def prevent_recursion(func):
+        return func
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
@@ -187,6 +191,11 @@ class EnterpriseUtility:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Validation failed")
                 end_indicator("Script Generation Utility", start_time)
                 return False
+
+            # Cluster all generated templates for classification
+            generated_templates = list(generated_dir.glob("*.txt"))
+            if generated_templates:
+                self.cluster_templates(generated_templates, n_clusters=3)
 
             end_indicator("Script Generation Utility", start_time)
             return True
