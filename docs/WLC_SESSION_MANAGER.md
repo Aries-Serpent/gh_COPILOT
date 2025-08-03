@@ -8,6 +8,12 @@ The Wrapping, Logging, and Compliance (WLC) methodology provides a structured ap
 
 This file documents how `scripts/wlc_session_manager.py` implements the WLC methodology with dual-copilot validation and tqdm progress indicators.
 
+## Enhanced Session Integrity
+
+- Lifecycle states are logged at the start and end of each session.
+- The session manager detects zero-byte files before and after cleanup using `ensure_no_zero_byte_files`.
+- Critical lifecycle functions are protected by `anti_recursion_guard` to prevent recursive execution.
+
 ## Environment Setup
 
 Ensure the following environment variables are configured before running the session manager:

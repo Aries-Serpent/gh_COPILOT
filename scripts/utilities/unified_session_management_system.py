@@ -11,16 +11,6 @@ Enterprise Standards Compliance:
 
 from copilot.common.workspace_utils import get_workspace_path
 
-from session_protocol_validator import SessionProtocolValidator
-from utils.validation_utils import (
-    detect_zero_byte_files,
-    validate_enterprise_environment,
-)
-from utils.lessons_learned_integrator import (
-    load_lessons,
-    apply_lessons,
-    store_lesson,
-)
 from validation.core.validators import ValidationResult
 from pathlib import Path
 from datetime import datetime
@@ -35,13 +25,17 @@ class UnifiedSessionManagementSystem:
 
     def __init__(self, workspace_root: str | None = None) -> None:
         self.workspace_root = get_workspace_path(workspace_root)
+        from utils.validation_utils import validate_enterprise_environment
         validate_enterprise_environment()
+        from session_protocol_validator import SessionProtocolValidator
         self.validator = SessionProtocolValidator(str(self.workspace_root))
         self.logger = logging.getLogger(self.__class__.__name__)
+        from utils.lessons_learned_integrator import load_lessons, apply_lessons
         lessons = load_lessons()
         apply_lessons(self.logger, lessons)
 
     def _scan_zero_byte_files(self) -> list[Path]:
+        from utils.validation_utils import detect_zero_byte_files
         zero_files = detect_zero_byte_files(self.workspace_root)
         for path in zero_files:
             self.logger.warning("Zero-byte file detected: %s", path)
@@ -49,19 +43,50 @@ class UnifiedSessionManagementSystem:
 
     def start_session(self) -> bool:
         """Return ``True`` if session validation succeeds."""
-        zero_files = self._scan_zero_byte_files()
-        env_valid = validate_enterprise_environment()
-        result = self.validator.validate_startup()
-        return env_valid and not zero_files and result.is_success
+
+        from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
+
+        @anti_recursion_guard
+        def _start() -> bool:
+            self.logger.info("%s Lifecycle start", TEXT_INDICATORS["start"])
+            zero_files = self._scan_zero_byte_files()
+            env_valid = validate_enterprise_environment()
+            result = self.validator.validate_startup()
+            success = env_valid and not zero_files and result.is_success
+            indicator = (
+                TEXT_INDICATORS["success"] if success else TEXT_INDICATORS["error"]
+            )
+            self.logger.info(
+                "%s Lifecycle start %s", indicator, "passed" if success else "failed"
+            )
+            return success
+
+        return _start()
 
     def end_session(self) -> bool:
         """Finalize the session with cleanup checks."""
-        zero_files = self._scan_zero_byte_files()
-        env_valid = validate_enterprise_environment()
-        result = self.validator.validate_session_cleanup()
-        for lesson in collect_lessons(result):
-            store_lesson(**lesson)
-        return env_valid and not zero_files and result.is_success
+
+        from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
+
+        @anti_recursion_guard
+        def _end() -> bool:
+            self.logger.info("%s Lifecycle end", TEXT_INDICATORS["start"])
+            zero_files = self._scan_zero_byte_files()
+            env_valid = validate_enterprise_environment()
+            result = self.validator.validate_session_cleanup()
+            from utils.lessons_learned_integrator import store_lesson
+            for lesson in collect_lessons(result):
+                store_lesson(**lesson)
+            success = env_valid and not zero_files and result.is_success
+            indicator = (
+                TEXT_INDICATORS["success"] if success else TEXT_INDICATORS["error"]
+            )
+            self.logger.info(
+                "%s Lifecycle end %s", indicator, "passed" if success else "failed"
+            )
+            return success
+
+        return _end()
 
 
 def collect_lessons(result: ValidationResult) -> list[dict[str, str]]:

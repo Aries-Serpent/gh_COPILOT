@@ -19,9 +19,6 @@ from datetime import datetime
 from pathlib import Path
 
 from monitoring.health_monitor import gather_metrics
-from scripts.utilities.unified_session_management_system import (
-    UnifiedSessionManagementSystem,
-)
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
@@ -156,6 +153,10 @@ def collect_metrics(session_id: str | None = None) -> dict[str, float]:
     ``monitoring_metrics`` table.
     """
     # Start a session and generate an ID if none supplied
+    from scripts.utilities.unified_session_management_system import (
+        UnifiedSessionManagementSystem,
+    )
+
     session_manager = UnifiedSessionManagementSystem()
     session_manager.start_session()
     sid = session_id or str(uuid.uuid4())
