@@ -9,6 +9,14 @@ import os
 from scripts.utilities.unified_session_management_system import (
     UnifiedSessionManagementSystem,
 )
+from utils.validation_utils import detect_zero_byte_files
+
+__all__ = [
+    "UnifiedSessionManagementSystem",
+    "ensure_no_zero_byte_files",
+    "main",
+]
+
 
 _active_pids: dict[tuple[str, str], set[int]] = {}
 
@@ -47,6 +55,8 @@ def main() -> int:
     """Run session validation and return an exit code."""
     system = UnifiedSessionManagementSystem()
     success = system.start_session()
+    with ensure_no_zero_byte_files(system.workspace_root):
+        system.end_session()
     print("Valid" if success else "Invalid")
     return 0 if success else 1
 

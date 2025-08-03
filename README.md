@@ -13,6 +13,7 @@
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
 > Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for details.
+> Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules.
 
 ---
 
@@ -42,7 +43,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Anti-Recursion Guards:** backup and session modules now enforce external backup roots.
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 
-- **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for optimizer and search helpers. `quantum_optimizer.run_quantum_routine` provides placeholder hooks for annealing, superposition search and entanglement correction. These stubs run on Qiskit simulators and ignore `use_hardware=True` until real hardware integration lands. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for current status.
+- **Quantum Placeholder Utilities:** see [quantum/README.md](quantum/README.md) for simulated optimizer and search helpers. `quantum_optimizer.run_quantum_routine` includes placeholder hooks for annealing and search routines; entanglement correction is not implemented. These stubs run on Qiskit simulators and ignore `use_hardware=True` until real hardware integration lands. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for current status.
 - **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` demonstrates a simulated quantum
   database search. Hardware backend flags are accepted but remain no-ops until
   future phases implement real execution.
@@ -65,7 +66,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Self-Healing Systems:** correction scripts
 - **Autonomous File Management:** see [Using AutonomousFileManager](docs/USING_AUTONOMOUS_FILE_MANAGER.md)
  - **Continuous Operation Mode:** optional monitoring utilities
- - **Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
+   - **Simulated Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
     `scripts/monitoring/enterprise_compliance_monitor.py`, and
     `scripts/monitoring/unified_monitoring_optimization_system.py`.
     See [monitoring/README.md](monitoring/README.md) for details.
