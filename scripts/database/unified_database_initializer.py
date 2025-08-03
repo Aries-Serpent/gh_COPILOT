@@ -22,7 +22,7 @@ from tqdm import tqdm
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.logging_utils import setup_enterprise_logging
-from utils.validation_utils import detect_zero_byte_files, validate_path
+from utils.validation_utils import anti_recursion_guard, detect_zero_byte_files, validate_path
 
 from .add_code_audit_log import ensure_code_audit_log
 from .cross_database_sync_logger import log_sync_operation
@@ -223,6 +223,7 @@ def initialize_database(db_path: Path) -> None:
         logger.error("DUAL COPILOT VALIDATION: FAILED")
 
 
+@anti_recursion_guard
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     db_path = root / "databases" / "enterprise_assets.db"

@@ -100,7 +100,7 @@ def test_initializer_aborts_large_file(tmp_path: Path) -> None:
     os.environ["GH_COPILOT_BACKUP_ROOT"] = str(tmp_path / "backups")
     db_path = tmp_path / "enterprise_assets.db"
     with open(db_path, "wb") as f:
-        f.seek(100_000_000)
+        f.seek(105_000_000)
         f.write(b"0")
     with pytest.raises(RuntimeError):
         initialize_database(db_path)

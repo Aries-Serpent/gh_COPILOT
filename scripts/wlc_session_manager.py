@@ -38,7 +38,7 @@ from tqdm import tqdm
 
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from utils.cross_platform_paths import CrossPlatformPathManager
-from utils.validation_utils import validate_enterprise_environment
+from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
 from utils.lessons_learned_integrator import store_lesson
 
 try:
@@ -238,6 +238,7 @@ def run_session(steps: int, db_path: Path, verbose: bool, *, run_orchestrator: b
     logging.info("WLC session completed")
 
 
+@anti_recursion_guard
 def main(argv: list[str] | None = None) -> None:
     if os.getenv("TEST_MODE") == "1":
         logging.debug("TEST_MODE=1; exiting early")

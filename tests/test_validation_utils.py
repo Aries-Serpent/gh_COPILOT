@@ -1,4 +1,8 @@
+import time
+from threading import Thread
+
 import pytest
+import utils.validation_utils as validation_utils
 
 from utils.validation_utils import (
     anti_recursion_guard,
@@ -19,6 +23,25 @@ def test_anti_recursion_guard_prevents_recursion():
 
     with pytest.raises(RuntimeError):
         recurse(1)
+
+
+def test_anti_recursion_guard_cleans_lock_on_concurrent_invocation():
+    calls = []
+
+    @anti_recursion_guard
+    def slow() -> None:
+        calls.append("run")
+        time.sleep(0.1)
+
+    thread = Thread(target=slow)
+    thread.start()
+    time.sleep(0.02)
+    with pytest.raises(RuntimeError):
+        slow()
+    thread.join()
+
+    lock_file = validation_utils._LOCK_DIR / f"{slow.__name__}.lock"
+    assert not lock_file.exists()
 
 
 def test_run_dual_copilot_validation_executes_both():

@@ -23,14 +23,14 @@ lightweight references for future implementation.
 | GovernanceStandards | docs/GOVERNANCE_STANDARDS.md | Reference standards in README/contributing | CI checks for governance | Governance standards document | Establish organizational rules | 0% |
 | ContinuousMonitoringSetup | Metrics pushed to analytics.db | Alerts for threshold breaches | Validate monitoring endpoints | Monitoring endpoints explained | Enable live insight | 0% |
 | BackupValidationChecks | Verify external backup root | Tests for backup path logic | Ensure no backups inside workspace | Environment setup docs | Prevent recursive backups | 100% |
-| AntiRecursionGuards | Decorator tracking active sessions | Apply to risk modules | Recursion prevention tests | Developer guide usage | Avoid nested execution | 50% |
+| AntiRecursionGuards | Decorator tracking active sessions | Apply to risk modules | Recursion prevention tests | Developer guide usage | Avoid nested execution | 60% |
 | DualCopilotValidationStandardization | Audit scripts for secondary validation | Orchestrator coordinates modules | Verify orchestrator triggers | Dual copilot flow documented | Standardize validation pattern | 40% |
 | QuantumPlaceholderFeatures | Placeholder modules under scripts/quantum_placeholders | Exclude from production path | Importability tests | Quantum roadmap and placeholder status | Clarify future quantum features | 50% |
 
 ## Progress Tracker Checklist
 
 - [x] BackupValidationChecks – 100%
-- [ ] AntiRecursionGuards – 50%
+- [ ] AntiRecursionGuards – 60%
 - [ ] DualCopilotValidationStandardization – 40%
 - [ ] DocumentationAlignment — 20% complete
 - [x] ChangelogUserPrompts — 100%
