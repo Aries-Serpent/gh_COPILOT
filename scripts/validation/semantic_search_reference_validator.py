@@ -9,6 +9,7 @@ import time
 from datetime import datetime
 from tqdm import tqdm
 import logging
+from utils.validation_utils import anti_recursion_guard
 
 # === ENTERPRISE LOGGING SETUP ===
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -16,6 +17,7 @@ logger = logging.getLogger("SemanticSearchValidator")
 
 
 # === ANTI-RECURSION & COMPLIANCE VALIDATION ===
+@anti_recursion_guard
 def validate_no_recursive_folders():
     """
     Scan workspace for forbidden recursive folders (backup/temp) and log violations.
