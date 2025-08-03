@@ -18,7 +18,7 @@
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality runs in simulation mode by default but supports real hardware when `qiskit-ibm-provider` is configured.
+The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality currently exists as placeholder modules that run in simulation mode. Hooks for real hardware are planned but are not yet fully integrated, even when `qiskit-ibm-provider` is configured.
 
 > **Note**
 > Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends. When `IBM_BACKEND` is unset the system automatically selects an available backend. Use the `--hardware` flag in `quantum_integration_orchestrator.py` or `--use-hardware` in `quantum/cli/executor_cli.py` to enforce hardware execution.
@@ -42,10 +42,10 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Anti-Recursion Guards:** backup and session modules now enforce external backup roots.
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 
-- **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for optimizer and search helpers. `quantum_optimizer.run_quantum_routine` now exposes annealing, superposition search and entanglement correction. Routines use Qiskit simulators by default and accept `use_hardware=True` to attempt IBM Quantum execution.
-- **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` runs a quantum
-  database search example and uses hardware backends when `QISKIT_IBM_TOKEN` is
-  available.
+- **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for optimizer and search helpers. `quantum_optimizer.run_quantum_routine` provides placeholder hooks for annealing, superposition search and entanglement correction. These stubs run on Qiskit simulators and ignore `use_hardware=True` until real hardware integration lands. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for current status.
+- **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` demonstrates a simulated quantum
+  database search. Hardware backend flags are accepted but remain no-ops until
+  future phases implement real execution.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1,679 scripts synchronized
