@@ -10,7 +10,7 @@
 
 **Status:** Active development with incremental improvements. Several core systems (e.g., disaster recovery and session-management enhancements) are still under construction.
 
-> Tests: run `pytest` before committing.
+> Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
 > Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for details.
 
@@ -56,7 +56,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 ### **Enterprise Systems**
 - **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`
 - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
-- **Flask Enterprise Dashboard:** basic endpoints and templates
+- **Flask Enterprise Dashboard:** planned; implementation in progress
  - **Template Intelligence Platform:** tracks generated scripts
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
 - **Script Validation**: automated checks available
@@ -827,7 +827,7 @@ The project tracks several learning patterns. Current integration status:
 **DUAL COPILOT Pattern:** 100% implementation score
 **Visual Processing Indicators:** 94.7% implementation score [[docs](docs/GITHUB_COPILOT_INTEGRATION_NOTES.md#visual-processing)]
 **Autonomous Systems:** 97.2% implementation score [[scheduler](documentation/SYSTEM_OVERVIEW.md#database-synchronization)]
-**Enterprise Compliance:** automated tests run `pytest` and `ruff`. Latest results show all tests passing with no lint errors. [[validation helper](docs/DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement)]
+**Enterprise Compliance:** automated tests run `pytest` and `ruff`. Recent runs show failing tests while `ruff` reports no lint errors. [[validation helper](docs/DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement)]
 
 **Overall Integration Score: 97.4%** ✅
 
