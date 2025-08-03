@@ -5,12 +5,13 @@ executor. When quantum hardware is unavailable, the underlying executor
 falls back to the local `qasm_simulator` so callers can rely on a
 consistent API.
 """
+
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from .orchestration.executor import QuantumExecutor
-from .orchestration.registry import get_global_registry
+from quantum.orchestration.executor import QuantumExecutor
+from quantum.orchestration.registry import get_global_registry
 
 
 class QuantumIntegrationOrchestrator:
@@ -34,9 +35,7 @@ class QuantumIntegrationOrchestrator:
         """Execute a single algorithm by name."""
         return self.executor.execute_algorithm(name, **kwargs)
 
-    def run_plan(
-        self, algorithm_configs: List[Dict[str, Any]], *, parallel: bool = False
-    ) -> List[Dict[str, Any]]:
+    def run_plan(self, algorithm_configs: List[Dict[str, Any]], *, parallel: bool = False) -> List[Dict[str, Any]]:
         """Execute multiple algorithms sequentially or in parallel."""
         if parallel:
             return self.executor.execute_algorithms_parallel(algorithm_configs)

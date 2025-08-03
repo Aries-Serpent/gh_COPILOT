@@ -1,8 +1,8 @@
 import pytest
 
-from quantum.quantum_annealing import run_quantum_annealing
-from quantum.quantum_superposition_search import run_quantum_superposition_search
-from quantum.quantum_entanglement_correction import run_entanglement_correction
+from scripts.quantum_placeholders.quantum_annealing import run_quantum_annealing
+from scripts.quantum_placeholders.quantum_superposition_search import run_quantum_superposition_search
+from scripts.quantum_placeholders.quantum_entanglement_correction import run_entanglement_correction
 
 
 def test_quantum_annealing_simulation():
