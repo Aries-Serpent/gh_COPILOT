@@ -8,6 +8,11 @@ Self-Healing and Dual Copilot validation patterns described in
 
 from __future__ import annotations
 
+import logging
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
+
 DATABASE_FIRST_TEMPLATE = """class DatabaseFirstOperator:
     def __init__(self, workspace_path: str = os.getenv('GH_COPILOT_WORKSPACE', str(Path.cwd()))):
         self.production_db = Path(workspace_path) / 'databases' / 'production.db'

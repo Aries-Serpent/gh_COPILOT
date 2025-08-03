@@ -27,6 +27,7 @@ from tqdm import tqdm
 from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
 from secondary_copilot_validator import SecondaryCopilotValidator
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 LOGS_DIR = CrossPlatformPathManager.get_workspace_path() / "logs" / "workflow_enhancer"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
@@ -37,6 +38,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 PRODUCTION_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
 DASHBOARD_DIR = CrossPlatformPathManager.get_workspace_path() / "dashboard" / "compliance"

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import json
 import re
 import sqlite3
@@ -8,6 +9,9 @@ from pathlib import Path
 from typing import Mapping
 
 from tqdm import tqdm
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_TEMPLATE_DOC_DB = Path("databases/template_documentation.db")
