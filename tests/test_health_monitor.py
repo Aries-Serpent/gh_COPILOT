@@ -8,6 +8,8 @@ from monitoring.health_monitor import (
     recent_average,
     check_alerts,
 )
+import scripts.monitoring.unified_monitoring_optimization_system as umos
+from unified_monitoring_optimization_system import collect_metrics
 
 
 def _prepare_db(tmp_path: Path) -> Path:

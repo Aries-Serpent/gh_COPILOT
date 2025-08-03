@@ -14,7 +14,11 @@ import sqlite3
 from pathlib import Path
 from typing import Dict, Optional
 
-from scripts.monitoring.unified_monitoring_optimization_system import EnterpriseUtility
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+    collect_metrics,
+    quantum_hook,
+)
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "analytics.db"

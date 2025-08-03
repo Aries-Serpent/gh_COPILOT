@@ -28,6 +28,7 @@ except Exception:  # pragma: no cover - PyYAML always installed via requirements
 POLICY_FILE = Path(".codex_lfs_policy.yaml")
 SIZE_LIMIT = 50 * 1024 * 1024
 BINARY_EXTS = {".db", ".7z", ".zip", ".bak", ".dot", ".sqlite", ".exe"}
+GOVERNANCE_DOC = Path("docs/GOVERNANCE_STANDARDS.md")
 
 
 def _run(cmd: Iterable[str]) -> subprocess.CompletedProcess:
@@ -100,6 +101,9 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
 def main(argv: List[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     _load_policy()
+    if not GOVERNANCE_DOC.exists():
+        print("Missing governance standards document: docs/GOVERNANCE_STANDARDS.md")
+        return 1
     files = _staged_files()
     allow = os.getenv("ALLOW_AUTOLFS") == "1"
     for f in files:
@@ -112,9 +116,7 @@ def main(argv: List[str] | None = None) -> int:
                 _track_lfs(path.suffix)
                 _run(["git", "add", str(path)])
             else:
-                print(
-                    f"Binary or large file detected: {path}. Set ALLOW_AUTOLFS=1 to auto-track."
-                )
+                print(f"Binary or large file detected: {path}. Set ALLOW_AUTOLFS=1 to auto-track.")
                 return 1
     commit = _run(["git", "commit", "-m", args.message])
     if commit.returncode != 0:
