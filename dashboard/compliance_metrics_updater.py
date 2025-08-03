@@ -124,9 +124,8 @@ class ComplianceMetricsUpdater:
                 open_ph = metrics["open_placeholders"]
                 resolved_ph = metrics["resolved_placeholders"]
                 denominator = resolved_ph + open_ph
-                metrics["compliance_score"] = (
-                    resolved_ph / denominator if denominator else 1.0
-                )
+                base_score = resolved_ph / denominator if denominator else 1.0
+                metrics["compliance_score"] = base_score
 
                 # Placeholder type breakdown
                 try:
@@ -165,6 +164,8 @@ class ComplianceMetricsUpdater:
                 else:
                     metrics["recent_rollbacks"] = []
                     metrics["rollback_count"] = 0
+                penalty = 0.1 * metrics["violation_count"] + 0.05 * metrics["rollback_count"]
+                metrics["compliance_score"] = max(0.0, min(1.0, base_score - penalty))
             except Exception as e:
                 logging.error(f"Error fetching metrics: {e}")
         correction_summary = DASHBOARD_DIR / "correction_summary.json"
