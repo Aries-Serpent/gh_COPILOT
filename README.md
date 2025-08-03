@@ -18,7 +18,7 @@
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. All core modules are implemented. Quantum functionality runs in simulation mode by default but supports real hardware when `qiskit-ibm-provider` is configured.
+The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, but components such as the disaster-recovery system and web dashboard remain incomplete. Quantum functionality runs in simulation mode by default but supports real hardware when `qiskit-ibm-provider` is configured.
 
 > **Note**
 > Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends. When `IBM_BACKEND` is unset the system automatically selects an available backend. Use the `--hardware` flag in `quantum_integration_orchestrator.py` or `--use-hardware` in `quantum/cli/executor_cli.py` to enforce hardware execution.
@@ -827,7 +827,7 @@ The project tracks several learning patterns. Current integration status:
 **DUAL COPILOT Pattern:** 100% implementation score
 **Visual Processing Indicators:** 94.7% implementation score [[docs](docs/GITHUB_COPILOT_INTEGRATION_NOTES.md#visual-processing)]
 **Autonomous Systems:** 97.2% implementation score [[scheduler](documentation/SYSTEM_OVERVIEW.md#database-synchronization)]
-**Enterprise Compliance:** automated tests run `pytest` and `ruff`. Latest results show all tests passing with no lint errors. [[validation helper](docs/DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement)]
+**Enterprise Compliance:** automated tests run `pytest` and `ruff`. Recent runs show failing tests while `ruff` reports no lint errors. [[validation helper](docs/DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement)]
 
 **Overall Integration Score: 97.4%** ✅
 
