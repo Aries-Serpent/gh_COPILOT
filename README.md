@@ -8,17 +8,18 @@
 ![Coverage](https://img.shields.io/badge/coverage-automated-blue)
 ![Ruff](https://img.shields.io/badge/ruff-linted-blue)
 
-**Status:** Active development with incremental improvements
+**Status:** Active development; several core systems remain incomplete.
 
-> Tests: run `pytest` before committing.
+> Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
-> Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress.
+> Quantum modules operate in placeholder simulation modes; compliance auditing and web dashboard integration are still in progress.
+> Disaster recovery and database synchronization engines are not yet fully implemented.
 
 ---
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, but components such as the disaster-recovery system and web dashboard remain incomplete. Quantum functionality runs in simulation mode by default but supports real hardware when `qiskit-ibm-provider` is configured.
+The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Several modules – including disaster recovery, web dashboard, and database synchronization – are still under development. Quantum functionality runs in simulation mode by default but supports real hardware when `qiskit-ibm-provider` is configured.
 
 > **Note**
 > Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends. When `IBM_BACKEND` is unset the system automatically selects an available backend. Use the `--hardware` flag in `quantum_integration_orchestrator.py` or `--use-hardware` in `quantum/cli/executor_cli.py` to enforce hardware execution.
@@ -56,7 +57,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 ### **Enterprise Systems**
 - **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`
 - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
-- **Flask Enterprise Dashboard:** basic endpoints and templates
+- **Flask Enterprise Dashboard:** planned; implementation in progress
  - **Template Intelligence Platform:** tracks generated scripts
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
 - **Script Validation**: automated checks available
