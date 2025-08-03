@@ -12,7 +12,6 @@ import base64
 import binascii
 import io
 import zipfile
-from pathlib import Path
 from typing import List, Optional
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
@@ -21,7 +20,6 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
     QMessageBox,
-    QProgressBar,
     QPushButton,
     QTabWidget,
     QTextEdit,
@@ -33,33 +31,6 @@ from PyQt6.QtWidgets import (
 
 # Reuse the existing EncodeWorker from the image transformer
 from Base64ImageTransformer import EncodeWorker
-
-
-class DecodeWorker(QObject):
-    """Worker that decodes Base64 text and validates it as a ZIP archive."""
-
-    encoding_successful = pyqtSignal(str)
-    encoding_failed = pyqtSignal(str)
-    finished = pyqtSignal()
-
-    def __init__(self, file_path: str) -> None:
-        super().__init__()
-        self.file_path = file_path
-
-    def run_encode(self) -> None:
-        """Read the file and emit a Base64 string."""
-        try:
-            data = Path(self.file_path).read_bytes()
-            b64_str = base64.b64encode(data).decode("utf-8")
-            self.encoding_successful.emit(b64_str)
-        except FileNotFoundError:
-            self.encoding_failed.emit(f"File not found: {self.file_path}")
-        except Exception as exc:  # noqa: BLE001 - broad to surface errors in UI
-            self.encoding_failed.emit(f"Failed to encode file: {exc}")
-        finally:
-            self.finished.emit()
-
-
 class DecodeWorker(QObject):
     """Worker object to decode Base64 text into ZIP bytes and list entries."""
 
