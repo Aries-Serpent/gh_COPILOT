@@ -37,6 +37,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
+- **Disaster Recovery Validation:** `UnifiedDisasterRecoverySystem` verifies external backup roots and restores files from `production_backup`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 
