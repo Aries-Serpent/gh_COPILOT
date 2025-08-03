@@ -48,7 +48,7 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 12. Update Changelog and User Prompts
 - **Statement Excerpt:** "Changelog & Guides: Ensure changelog entries and user guides reflect current implementation."
-- **Status:** Started – changelog placeholders and prompt revisions prepared.
+- **Status:** In Progress – 15% complete. Changelog updated and user prompts refreshed.
 
 ## 13. Prepare for Enterprise Pilot
 - **Statement Excerpt:** "Pilot (Week 5): Deploy to staging and collect feedback."
@@ -76,9 +76,17 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 19. Clarify Quantum Placeholder Features
 - **Statement Excerpt:** "Audit Pass: Review whitepaper, README and guides; reconcile overstated claims (quantum features, test success)."
-- **Status:** Started – quantum roadmap placeholders and documentation notes added.
+- **Status:** In Progress – 30% complete. Expanded quantum placeholder documentation and cross-links.
 
 ## 20. Implement Compliance Metrics Calculations
 - **Statement Excerpt:** "Metrics Integration: Display compliance trends, rollback logs and placeholder metrics" coupled with "Quantitative Goals: All modules implemented; tests >95% coverage; compliance score ≥0.9; dashboard latency <1 min."
 - **Status:** Started – compliance score formulas and dashboard metric wiring initiated.
+
+---
+
+### Progress Checklist
+
+- [ ] 7. Align Documentation with Implementation — 20% complete
+- [ ] 12. Update Changelog and User Prompts — 15% complete
+- [ ] 19. Clarify Quantum Placeholder Features — 30% complete
 
