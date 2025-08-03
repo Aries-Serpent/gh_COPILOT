@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import math
 
-import numpy as np
+import numpy as np_module
 from qiskit import QuantumCircuit
 
 try:
@@ -84,4 +84,4 @@ def test_fourier_transform():
     qc.append(QFT(2, do_swaps=False), range(2))
     expected = Statevector.from_instruction(qc).data.tolist()
     assert len(result) == len(expected)
-    assert np.allclose(result, expected)
+    assert np_module.allclose(result, expected)
