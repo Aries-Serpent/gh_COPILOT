@@ -25,6 +25,16 @@ from scripts.database.complete_consolidation_orchestrator import create_external
 backup_path = create_external_backup(source_file, "my_backup")
 ```
 
+### Disaster Recovery
+Use `UnifiedDisasterRecoverySystem` to restore files from external backups:
+```python
+from unified_disaster_recovery_system import UnifiedDisasterRecoverySystem
+
+system = UnifiedDisasterRecoverySystem()
+system.perform_recovery()
+```
+The utility copies data from `$GH_COPILOT_BACKUP_ROOT/production_backup` into a `restored/` directory and logs `[START]` and `[SUCCESS]` indicators. Recovery aborts if the backup root is inside the workspace.
+
 ### Appendix: Using `validate_enterprise_operation()`
 Before any script performs file changes, call:
 ```python
