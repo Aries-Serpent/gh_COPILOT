@@ -49,17 +49,19 @@ class UnifiedSessionManagementSystem:
 
     def start_session(self) -> bool:
         """Return ``True`` if session validation succeeds."""
-        self._scan_zero_byte_files()
+        zero_files = self._scan_zero_byte_files()
+        env_valid = validate_enterprise_environment()
         result = self.validator.validate_startup()
-        return result.is_success
+        return env_valid and not zero_files and result.is_success
 
     def end_session(self) -> bool:
         """Finalize the session with cleanup checks."""
         zero_files = self._scan_zero_byte_files()
+        env_valid = validate_enterprise_environment()
         result = self.validator.validate_session_cleanup()
         for lesson in collect_lessons(result):
             store_lesson(**lesson)
-        return not zero_files and result.is_success
+        return env_valid and not zero_files and result.is_success
 
 
 def collect_lessons(result: ValidationResult) -> list[dict[str, str]]:
