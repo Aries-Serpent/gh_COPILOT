@@ -15,7 +15,9 @@ errors discovered.
 from __future__ import annotations
 
 import os
+import threading
 from pathlib import Path
+from time import sleep
 from typing import Iterable, Optional
 
 from utils.log_utils import _log_event
@@ -25,7 +27,7 @@ DB_PATH = WORKSPACE_ROOT / "analytics.db"
 
 LOG_ERROR_ALERT_THRESHOLD = 10
 
-__all__ = ["monitor_logs", "notify", "LOG_ERROR_ALERT_THRESHOLD"]
+__all__ = ["monitor_logs", "notify", "schedule_log_monitoring", "LOG_ERROR_ALERT_THRESHOLD"]
 
 
 def monitor_logs(log_files: Iterable[Path], db_path: Optional[Path] = None) -> int:
@@ -80,6 +82,48 @@ def notify(error_count: int, db_path: Optional[Path] = None) -> None:
         db_path=path,
         test_mode=False,
     )
+
+
+def schedule_log_monitoring(
+    log_files: Iterable[Path],
+    interval: float,
+    db_path: Optional[Path] = None,
+    stop_event: Optional[threading.Event] = None,
+) -> threading.Thread:
+    """Periodically scan ``log_files`` and push metrics to ``analytics.db``.
+
+    A background thread runs :func:`monitor_logs` every ``interval`` seconds
+    until ``stop_event`` is set.
+
+    Parameters
+    ----------
+    log_files:
+        Files to monitor for error lines.
+    interval:
+        Number of seconds between scans.
+    db_path:
+        Optional path to the analytics database. Defaults to
+        ``analytics.db`` in the workspace.
+    stop_event:
+        Optional :class:`threading.Event` used to signal the thread to stop.
+
+    Returns
+    -------
+    threading.Thread
+        The started daemon thread.
+    """
+
+    def _loop() -> None:
+        while stop_event is None or not stop_event.is_set():
+            monitor_logs(log_files, db_path=db_path)
+            if stop_event is None:
+                sleep(interval)
+            else:
+                stop_event.wait(interval)
+
+    thread = threading.Thread(target=_loop, daemon=True)
+    thread.start()
+    return thread
 
 
 if __name__ == "__main__":  # pragma: no cover - manual invocation
