@@ -164,13 +164,23 @@ def demo_quantum_phase_estimation(theta: float = 0.25, precision: int = 3) -> fl
 
 
 def quantum_cluster_stub(data: Iterable[float]) -> List[int]:
-    """Return cluster labels using a placeholder algorithm."""
-    seq = list(data)
-    log_quantum_event("cluster_stub", f"len={len(seq)}")
-    labels: List[int] = []
-    for i, _ in enumerate(tqdm(seq, desc="cluster", unit="item")):
-        labels.append(i % 2)
-    return labels
+    """Cluster one-dimensional ``data`` using :class:`~sklearn.cluster.KMeans`.
+
+    The function groups the values into two clusters using a classical
+    KMeans algorithm.  It mirrors the behaviour of a simple quantum
+    clustering routine while remaining lightweight for testing
+    environments that may not have access to quantum hardware.  The
+    resulting cluster labels are returned in the order of the input
+    sequence.
+    """
+
+    seq = np.fromiter(data, dtype=float).reshape(-1, 1)
+    if seq.size == 0:
+        return []
+    log_quantum_event("cluster_stub", f"len={seq.size}")
+    model = KMeans(n_clusters=min(2, len(seq)), n_init="auto", random_state=0)
+    labels = model.fit_predict(seq)
+    return labels.tolist()
 
 
 def quantum_cluster_representatives(data: Iterable[str], n_clusters: int) -> List[str]:
@@ -201,9 +211,17 @@ def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
 
 
 def quantum_score_stub(values: Iterable[float]) -> float:
-    """Return a fake quantum-inspired score."""
+    """Return a normalized Euclidean norm of ``values``.
+
+    Values are interpreted as amplitudes of a simulated quantum state.
+    The score is the L2 norm of the vector divided by its length,
+    providing a scale-invariant measure of magnitude.
+    """
+
     arr = np.fromiter(values, dtype=float)
-    score = float(np.sum(arr) / (len(arr) + 1))
+    if arr.size == 0:
+        return 0.0
+    score = float(np.linalg.norm(arr) / arr.size)
     log_quantum_event("score_stub", str(score))
     return score
 
@@ -230,13 +248,40 @@ def demo_quantum_neural_network(data: Iterable[float]) -> List[float]:
 
 
 def quantum_pattern_match_stub(pattern: Iterable[int], data: Iterable[int]) -> bool:
-    """Return True if pattern is found in data."""
-    seq = list(data)
+    """Return ``True`` if ``pattern`` is found in ``data`` using KMP.
+
+    The Knuth–Morris–Pratt algorithm is employed to locate the pattern
+    efficiently within the data sequence.  This provides a more
+    algorithmically meaningful implementation than the previous
+    placeholder.
+    """
+
     pat = list(pattern)
-    for i in range(len(seq) - len(pat) + 1):
-        if seq[i : i + len(pat)] == pat:
-            log_quantum_event("pattern_match", "found")
-            return True
+    seq = list(data)
+    if not pat:
+        log_quantum_event("pattern_match", "trivial")
+        return True
+
+    # Pre-compute longest-prefix-suffix table
+    lps = [0] * len(pat)
+    j = 0
+    for i in range(1, len(pat)):
+        while j > 0 and pat[i] != pat[j]:
+            j = lps[j - 1]
+        if pat[i] == pat[j]:
+            j += 1
+            lps[i] = j
+
+    # Scan the data using the prefix table
+    j = 0
+    for val in seq:
+        while j > 0 and val != pat[j]:
+            j = lps[j - 1]
+        if val == pat[j]:
+            j += 1
+            if j == len(pat):
+                log_quantum_event("pattern_match", "found")
+                return True
     log_quantum_event("pattern_match", "not_found")
     return False
 
