@@ -12,6 +12,7 @@ Refer to [README.md](../README.md) for a high-level overview of how these placeh
 - Modules return inputs unchanged and do not perform quantum operations.
 - Maintainers can expand these stubs with real algorithms when hardware
   integration becomes available.
+ - Hardware-related flags are accepted by some interfaces but are currently ignored.
 
 ## Roadmap
 1. Implement quantum optimization engine hooks.
@@ -20,3 +21,5 @@ Refer to [README.md](../README.md) for a high-level overview of how these placeh
 
 This document tracks the placeholder status and will be updated as the
 quantum roadmap progresses.
+
+Progress on clarifying these placeholders is tracked in [PHASE5_TASKS_STARTED.md](PHASE5_TASKS_STARTED.md#19-clarify-quantum-placeholder-features).
