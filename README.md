@@ -10,8 +10,8 @@
 
 **Status:** Active development with incremental improvements
 
-> Tests: run `pytest` (currently one failing quantum test).
-> Lint: run `ruff check .` (one redefinition warning).
+> Tests: run `pytest` before committing.
+> Lint: run `ruff check .` before committing.
 > Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress.
 
 ---
