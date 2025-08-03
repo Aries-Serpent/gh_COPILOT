@@ -64,7 +64,7 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 16. Implement Backup Validation Checks
 - **Statement Excerpt:** "Integrity Checks: Implement zero‑byte detection, wrap‑up validation and anti‑recursion safeguards" applied to backup paths.
-- **Status:** Started – external backup validation and path enforcement scripted.
+- **Status:** Implemented – disaster recovery now enforces external backup roots and aborts when misconfigured.
 
 ## 17. Implement Anti-Recursion Guards
 - **Statement Excerpt:** "Integrity Checks: Implement zero‑byte detection, wrap‑up validation and anti‑recursion safeguards."
