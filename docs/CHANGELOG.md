@@ -1,6 +1,9 @@
 # Changelog
 
 ## [4.1.17] - 2025-08-07
+- Added unit tests for `AntiRecursionValidator` to enforce external backup roots.
+- Updated user prompts with backup root guidance.
+- Documented anti-recursion guards in README.
 - Clarified quantum placeholder status in README and docs.
 - Updated changelog and user prompts to reflect current implementation.
 
