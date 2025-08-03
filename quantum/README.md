@@ -56,15 +56,18 @@ fall back to local simulation, preserving existing behavior.
 
 ## Pattern Recognition
 
-- `ml_pattern_recognition.PatternRecognizer` – logistic regression based pattern recognizer using production datasets. Use
-  `ml_pattern_recognition.load_production_data` to load training data from
-  `databases/production.db` or a path supplied via the `ML_PATTERN_DATA_PATH`
-  environment variable.
+- `ml_pattern_recognition.PatternRecognizer` – logistic regression based pattern
+  recognizer using production datasets. Use
+  `load_production_data` to fetch samples from `databases/production.db`. The
+  ``evaluate`` method supports ``use_quantum=True`` to include a quantum
+  similarity score via
+  ``quantum_algorithm_library_expansion.quantum_similarity_score``.
 
 ### Configuration
 
-1. Prepare a dataset of newline-separated patterns.
-2. Set `ML_PATTERN_DATA_PATH` to the dataset location or place the file in
-   `databases/production_patterns.txt` and reference it via
-   `load_production_data`.
-3. Train the recognizer using `PatternRecognizer.learn` with the loaded data.
+1. Ensure `databases/production.db` contains entries in the
+   `solution_patterns` table.
+2. Load data with `load_production_data()` and train the recognizer using
+   `PatternRecognizer.train`.
+3. Optionally call `evaluate(..., use_quantum=True)` to compute a quantum
+   similarity score alongside accuracy.
