@@ -1,16 +1,23 @@
 <!doctype html>
 <html>
 <head>
-    <title>Metrics</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Compliance Metrics</title>
 </head>
 <body>
-<h1>Metrics</h1>
+<h1>Compliance Metrics</h1>
+<p><strong>Compliance Score:</strong> {{ metrics.compliance_score }}</p>
+
+<h2>Correction Logs</h2>
 <ul>
-{% for key, value in data.get('metrics', {}).items() %}
-    <li><strong>{{ key }}:</strong> {{ value }}</li>
+{% for entry in metrics.correction_logs %}
+    <li>
+        {{ entry.timestamp }} - {{ entry.file_path }}<br>
+        Rationale: {{ entry.rationale }}<br>
+        Score: {{ entry.compliance_score }}
+    </li>
 {% endfor %}
 </ul>
+
 </body>
 </html>
 
