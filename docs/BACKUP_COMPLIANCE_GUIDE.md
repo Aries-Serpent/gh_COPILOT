@@ -1,9 +1,8 @@
 # Backup & Compliance Guide
 
-This guide describes how the disaster recovery utilities manage backups and
-logging. The functionality lives in
-`scripts/utilities/unified_disaster_recovery_system.py` and is exposed through
-`UnifiedDisasterRecoverySystem`.
+This document explains the approved workflow for creating backups, restoring from snapshot archives, and verifying those operations using `disaster_recovery.db`.
+The disaster recovery tooling enforces external backup roots and validates
+restore operations; scripts abort if the path resides inside the workspace.
 
 ## Environment Variables
 

@@ -8,7 +8,7 @@
 ![Coverage](https://img.shields.io/badge/coverage-automated-blue)
 ![Ruff](https://img.shields.io/badge/ruff-linted-blue)
 
-**Status:** Active development with incremental improvements. Several core systems (e.g., disaster recovery and session-management enhancements) are still under construction.
+**Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots and has verified restore tests, while session-management enhancements remain under construction.
 
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
@@ -83,7 +83,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 ## 🚀 QUICK START
 
 ### **Prerequisites**
-- Python 3.8+
+- Python 1,679.8+
 - PowerShell (for Windows automation)
 - SQLite3
 - Required packages: `pip install -r requirements.txt` (includes `py7zr` for 7z archive support)

@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.1.18] - 2025-08-08
+- Documented disaster recovery enforcement and verified restore procedures.
+- Clarified simulation-only behavior of quantum placeholders.
+- Regenerated documentation metrics to match production data.
+
 ## [4.1.17] - 2025-08-07
 - Added unit tests for `AntiRecursionValidator` to enforce external backup roots.
 - Updated user prompts with backup root guidance.
