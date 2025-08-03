@@ -32,7 +32,7 @@ from utils.log_utils import _log_event
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"pattern_mining_engine_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 

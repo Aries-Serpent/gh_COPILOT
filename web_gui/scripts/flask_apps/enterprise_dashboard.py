@@ -32,7 +32,7 @@ COMPLIANCE_DIR = Path(os.getenv("COMPLIANCE_DIR", workspace_root / "dashboard" /
 TEMPLATES = Path(__file__).resolve().parents[2] / "templates"
 app = Flask(__name__, template_folder=str(TEMPLATES))
 app.secret_key = get_secret("FLASK_SECRET_KEY", "dev_key")
-LOG_FILE = Path("logs/dashboard") / "dashboard.log"
+LOG_FILE = Path("artifacts/logs/dashboard") / "dashboard.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
 

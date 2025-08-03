@@ -28,7 +28,7 @@ from quantum_algorithm_library_expansion import quantum_text_score
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"objective_similarity_scorer_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 

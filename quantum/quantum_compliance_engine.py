@@ -16,9 +16,9 @@ from __future__ import annotations
 import logging
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 
 from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -26,7 +26,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from .utils.backend_provider import get_backend
 
 try:
-    from qiskit import QuantumCircuit, execute, Aer  # type: ignore
+    from qiskit import QuantumCircuit, execute  # type: ignore
 
     QISKIT_AVAILABLE = True
 except ImportError:
@@ -34,7 +34,7 @@ except ImportError:
 
 # Enterprise logging setup
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
-LOGS_DIR = WORKSPACE_ROOT / "logs" / "quantum_compliance"
+LOGS_DIR = WORKSPACE_ROOT / "artifacts" / "logs" / "quantum_compliance"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"quantum_compliance_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 

@@ -57,7 +57,7 @@ except ImportError:  # pragma: no cover - optional dependency
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
 
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"auto_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 

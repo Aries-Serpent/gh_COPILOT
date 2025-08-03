@@ -14,7 +14,7 @@ from typing import Dict, Any
 from tqdm import tqdm
 
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"compliance_report_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
