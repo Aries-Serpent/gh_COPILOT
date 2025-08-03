@@ -12,10 +12,20 @@ import warnings
 import numpy as np
 
 try:  # pragma: no cover - import check
-    from qiskit import Aer, QuantumCircuit, execute
+    from qiskit import Aer
+    from qiskit.primitives import Estimator
+    from qiskit.quantum_info import SparsePauliOp
+    from qiskit.circuit.library import TwoLocal
+    try:
+        from qiskit.algorithms.minimum_eigensolvers import QAOA, VQE
+        from qiskit.algorithms.optimizers import COBYLA
+    except Exception:
+        from qiskit_algorithms.minimum_eigensolvers import QAOA, VQE  # type: ignore
+        from qiskit_algorithms.optimizers import COBYLA  # type: ignore
     QISKIT_AVAILABLE = True
-except ImportError:  # pragma: no cover - qiskit optional
+except Exception:  # pragma: no cover - qiskit optional
     QISKIT_AVAILABLE = False
+    Aer = Estimator = SparsePauliOp = TwoLocal = QAOA = VQE = COBYLA = None  # type: ignore
 
 from quantum.ibm_backend import init_ibm_backend
 
@@ -354,38 +364,64 @@ class QuantumOptimizer:
                     self.log_event("basin_hopping_progress", {"iteration": i, "current_best": best_val})
             return {"best_result": best_x.tolist(), "best_value": float(best_val)}
 
+    def _get_estimator(self) -> Any:
+        """Create an estimator for the current backend with hardware fallback."""
+        if not QISKIT_AVAILABLE:
+            raise ImportError("Qiskit is required for quantum estimators")
+        if self.backend is not None:
+            try:
+                return Estimator(backend=self.backend)
+            except Exception:
+                backend_name = getattr(self.backend, "name", str(self.backend))
+                self.log_event("backend_fallback", {"backend": backend_name})
+                self.backend = Aer.get_backend("statevector_simulator")
+                self.use_hardware = False
+                return Estimator(backend=self.backend)
+        return Estimator()
+
     def _run_qaoa(self, **kwargs) -> Dict[str, Any]:
-        """Stub: QAOA optimizer (requires Qiskit)."""
-        # Implementation here would depend on Qiskit and problem encoding
-        n_qubits = kwargs.get("n_qubits", 3)
-        depth = kwargs.get("depth", 2)
-        qc = QuantumCircuit(n_qubits)
-        for q in range(n_qubits):
-            qc.h(q)
-        for d in range(depth):
-            for q in range(n_qubits):
-                qc.rx(np.pi / (d + 1), q)
-        backend = self.backend or Aer.get_backend("statevector_simulator")
-        job = execute(qc, backend)
-        result = job.result()
-        statevector = result.get_statevector()
-        norm = np.sum(np.abs(statevector) ** 2)
-        self.log_event("qaoa_complete", {"n_qubits": n_qubits, "depth": depth, "norm": float(norm)})
-        return {"statevector_norm": float(norm), "statevector": statevector.tolist()}
+        """Run QAOA using Qiskit's minimum eigensolver API."""
+        n_qubits = kwargs.get("n_qubits", len(self.variable_bounds) or 2)
+        reps = kwargs.get("reps", 1)
+        max_iter = kwargs.get("max_iter", 100)
+        estimator = self._get_estimator()
+        optimizer = COBYLA(maxiter=max_iter)
+        ansatz = TwoLocal(n_qubits, "ry", "cz", reps=reps)
+        interval = max(1, max_iter // 10)
+
+        def callback(eval_count, params, mean, _):
+            if eval_count % interval == 0:
+                self.log_event("qaoa_progress", {"eval_count": eval_count, "mean": float(mean)})
+
+        qaoa = QAOA(ansatz=ansatz, optimizer=optimizer, estimator=estimator, callback=callback)
+        hamiltonian = SparsePauliOp.from_list([("Z" * n_qubits, 1.0)])
+        self.log_event("qaoa_start", {"n_qubits": n_qubits, "reps": reps})
+        result = qaoa.compute_minimum_eigenvalue(hamiltonian)
+        energy = float(result.eigenvalue.real)
+        self.log_event("qaoa_complete", {"energy": energy})
+        return {"eigenvalue": energy}
 
     def _run_vqe(self, **kwargs) -> Dict[str, Any]:
-        """Stub: VQE optimizer (requires Qiskit)."""
-        n_qubits = kwargs.get("n_qubits", 2)
-        qc = QuantumCircuit(n_qubits)
-        for q in range(n_qubits):
-            qc.h(q)
-        backend = self.backend or Aer.get_backend("statevector_simulator")
-        job = execute(qc, backend)
-        result = job.result()
-        statevector = result.get_statevector()
-        norm = np.sum(np.abs(statevector) ** 2)
-        self.log_event("vqe_complete", {"n_qubits": n_qubits, "norm": float(norm)})
-        return {"statevector_norm": float(norm), "statevector": statevector.tolist()}
+        """Run VQE using Qiskit's minimum eigensolver API."""
+        n_qubits = kwargs.get("n_qubits", len(self.variable_bounds) or 2)
+        reps = kwargs.get("reps", 1)
+        max_iter = kwargs.get("max_iter", 100)
+        estimator = self._get_estimator()
+        optimizer = COBYLA(maxiter=max_iter)
+        ansatz = TwoLocal(n_qubits, "ry", "cz", reps=reps)
+        interval = max(1, max_iter // 10)
+
+        def callback(eval_count, params, mean, _):
+            if eval_count % interval == 0:
+                self.log_event("vqe_progress", {"eval_count": eval_count, "mean": float(mean)})
+
+        vqe = VQE(ansatz=ansatz, optimizer=optimizer, estimator=estimator, callback=callback)
+        hamiltonian = SparsePauliOp.from_list([("Z" * n_qubits, 1.0)])
+        self.log_event("vqe_start", {"n_qubits": n_qubits, "reps": reps})
+        result = vqe.compute_minimum_eigenvalue(hamiltonian)
+        energy = float(result.eigenvalue.real)
+        self.log_event("vqe_complete", {"energy": energy})
+        return {"eigenvalue": energy}
 
 # --- Example Usage ---
 
