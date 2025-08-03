@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import hashlib
 import sqlite3
 from datetime import datetime, timezone
@@ -148,7 +149,7 @@ def run_placeholder_audit() -> None:
         conn.commit()
 
 
-if __name__ == "__main__":
+def run_automation_setup() -> None:
     start = datetime.now(timezone.utc)
     _log_event({"event": "automation_setup_start"}, db_path=ANALYTICS_DB)
     init_databases()
@@ -157,3 +158,24 @@ if __name__ == "__main__":
     duration = (datetime.now(timezone.utc) - start).total_seconds()
     _log_event({"event": "automation_setup_end", "duration": duration}, db_path=ANALYTICS_DB)
     print(f"Automation finished in {duration}s")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Automation utilities")
+    sub = parser.add_subparsers(dest="command")
+
+    sync_parser = sub.add_parser("sync-db", help="Synchronize two SQLite databases")
+    sync_parser.add_argument("source", help="Source database path")
+    sync_parser.add_argument("target", help="Target database path")
+
+    args = parser.parse_args()
+
+    if args.command == "sync-db":
+        sync_databases(args.source, args.target)
+        return
+
+    run_automation_setup()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,7 @@
 import pytest
 
 import scripts.wlc_session_manager as wsm
+import unified_session_management_system as usms
 
 
 class DummyValidator:
@@ -121,3 +122,17 @@ def test_missing_environment(monkeypatch):
     monkeypatch.delenv("TEST_MODE", raising=False)
     with pytest.raises(EnvironmentError):
         wsm.run_session(1, wsm.DB_PATH, False)
+
+
+def test_zero_byte_guard_detects(tmp_path):
+    empty = tmp_path / "a.txt"
+    empty.touch()
+    with pytest.raises(RuntimeError):
+        with usms.ensure_no_zero_byte_files(tmp_path):
+            pass
+
+
+def test_zero_byte_guard_allows_clean_path(tmp_path):
+    (tmp_path / "b.txt").write_text("data")
+    with usms.ensure_no_zero_byte_files(tmp_path):
+        pass

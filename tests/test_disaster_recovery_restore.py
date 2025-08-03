@@ -1,4 +1,7 @@
+import hashlib
+
 from unified_disaster_recovery_system import UnifiedDisasterRecoverySystem
+from scripts.utilities import unified_disaster_recovery_system as util_module
 
 
 def test_recovery_restores_files(tmp_path, monkeypatch):
@@ -15,3 +18,43 @@ def test_recovery_restores_files(tmp_path, monkeypatch):
     restored = workspace / "restored" / "data.txt"
     assert restored.exists()
     assert restored.read_text() == "ok"
+
+
+def test_restore_backup_success(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    backup_root = tmp_path / "backup"
+    backup_root.mkdir()
+    backup_file = backup_root / "data.txt"
+    backup_file.write_text("data", encoding="utf-8")
+    (backup_root / "data.txt.sha256").write_text(
+        hashlib.sha256(backup_file.read_bytes()).hexdigest(), encoding="utf-8"
+    )
+
+    events = []
+    monkeypatch.setattr(util_module.enterprise_logging, "log_event", lambda e: events.append(e))
+
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    system = UnifiedDisasterRecoverySystem(str(workspace))
+    assert system.restore_backup(backup_file)
+    restored = workspace / "data.txt"
+    assert restored.exists()
+    assert any(evt["event"] == "restore_success" for evt in events)
+
+
+def test_restore_backup_hash_mismatch(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    backup_root = tmp_path / "backup"
+    backup_root.mkdir()
+    backup_file = backup_root / "data.txt"
+    backup_file.write_text("data", encoding="utf-8")
+    (backup_root / "data.txt.sha256").write_text("bad", encoding="utf-8")
+
+    events = []
+    monkeypatch.setattr(util_module.enterprise_logging, "log_event", lambda e: events.append(e))
+
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    system = UnifiedDisasterRecoverySystem(str(workspace))
+    assert not system.restore_backup(backup_file)
+    assert any(evt["event"] == "restore_failed" for evt in events)
