@@ -5,8 +5,9 @@ import builtins
 import logging
 import os
 import sqlite3
+import threading
 from pathlib import Path
-from time import perf_counter
+from time import perf_counter, sleep
 from typing import Dict, Iterable, Optional
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
@@ -25,6 +26,8 @@ __all__ = [
     "record_error",
     "ensure_table",
     "benchmark_queries",
+    "push_metrics",
+    "schedule_metrics_push",
     "RESPONSE_TIME_ALERT_MS",
     "ERROR_RATE_ALERT",
     "ml_anomaly_detect",
@@ -136,6 +139,50 @@ def benchmark_queries(queries: Iterable[str], db_path: Optional[Path] = None) ->
             duration = (perf_counter() - start) * 1000
             metrics = track_query_time(query, duration, db_path=path)
     return metrics
+
+
+def push_metrics(db_path: Optional[Path] = None) -> Dict[str, float]:
+    """Compute aggregate metrics and store them in ``analytics.db``."""
+
+    path = db_path or DB_PATH
+    with sqlite3.connect(path) as conn:
+        _ensure_table(conn)
+        metrics = _compute_metrics(conn)
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS performance_summary (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                avg_response_time_ms REAL,
+                error_rate REAL,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        conn.execute(
+            "INSERT INTO performance_summary (avg_response_time_ms, error_rate) VALUES (?, ?)",
+            (metrics["avg_response_time_ms"], metrics["error_rate"]),
+        )
+        conn.commit()
+    _update_dashboard(metrics)
+    return metrics
+
+
+def schedule_metrics_push(
+    interval: float, db_path: Optional[Path] = None, stop_event: Optional[threading.Event] = None
+) -> threading.Thread:
+    """Periodically push performance metrics to ``analytics.db``."""
+
+    def _loop() -> None:
+        while stop_event is None or not stop_event.is_set():
+            push_metrics(db_path=db_path)
+            if stop_event is None:
+                sleep(interval)
+            else:
+                stop_event.wait(interval)
+
+    thread = threading.Thread(target=_loop, daemon=True)
+    thread.start()
+    return thread
 
 
 builtins.benchmark_queries = benchmark_queries
