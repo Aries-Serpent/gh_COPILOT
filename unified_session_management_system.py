@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import Any, Callable, Iterator
 import functools
 import os
+from contextlib import contextmanager
+from pathlib import Path
 
-from scripts.utilities.unified_session_management_system import (
-    UnifiedSessionManagementSystem,
-)
 from utils.validation_utils import detect_zero_byte_files
 
 __all__ = [
-    "UnifiedSessionManagementSystem",
     "ensure_no_zero_byte_files",
+    "prevent_recursion",
     "main",
 ]
 
@@ -47,16 +46,34 @@ def prevent_recursion(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
-__all__ = ["UnifiedSessionManagementSystem", "main", "prevent_recursion"]
+
+@contextmanager
+def ensure_no_zero_byte_files(path: str | os.PathLike[str]) -> Iterator[None]:
+    """Validate that ``path`` contains no zero-byte files before and after."""
+    target = Path(path)
+    zero_files = detect_zero_byte_files(target)
+    if zero_files:
+        raise RuntimeError(f"Zero-byte files detected: {zero_files}")
+    try:
+        yield
+    finally:
+        zero_files = detect_zero_byte_files(target)
+        if zero_files:
+            raise RuntimeError(f"Zero-byte files detected: {zero_files}")
 
 
 @prevent_recursion
 def main() -> int:
     """Run session validation and return an exit code."""
+    from scripts.utilities.unified_session_management_system import (
+        UnifiedSessionManagementSystem,
+    )
+
     system = UnifiedSessionManagementSystem()
-    success = system.start_session()
     with ensure_no_zero_byte_files(system.workspace_root):
-        system.end_session()
+        start_ok = system.start_session()
+        end_ok = system.end_session()
+    success = start_ok and end_ok
     print("Valid" if success else "Invalid")
     return 0 if success else 1
 
