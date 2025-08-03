@@ -1,4 +1,5 @@
 """Fixtures for Git LFS related tests."""
+
 from __future__ import annotations
 
 import shutil
@@ -11,7 +12,14 @@ import pytest
 def _init_repo(path: Path) -> None:
     subprocess.run(["git", "init"], cwd=path, check=True, stdout=subprocess.DEVNULL)
     (path / "README.md").write_text("init", encoding="utf-8")
-    subprocess.run(["git", "add", "README.md"], cwd=path, check=True)
+    docs = path / "docs"
+    docs.mkdir()
+    (docs / "GOVERNANCE_STANDARDS.md").write_text("rules", encoding="utf-8")
+    subprocess.run(
+        ["git", "add", "README.md", "docs/GOVERNANCE_STANDARDS.md"],
+        cwd=path,
+        check=True,
+    )
     subprocess.run(["git", "commit", "-m", "init"], cwd=path, check=True, stdout=subprocess.DEVNULL)
 
 
