@@ -65,14 +65,17 @@ These task stubs originate from the gap analysis report and have been formally s
 ## 16. Implement Backup Validation Checks
 - **Statement Excerpt:** "Integrity Checks: Implement zero‑byte detection, wrap‑up validation and anti‑recursion safeguards" applied to backup paths.
 - **Status:** Implemented – disaster recovery now enforces external backup roots and aborts when misconfigured.
+- **Progress:** [x] 100% – tests verify backup roots must reside outside the workspace.
 
 ## 17. Implement Anti-Recursion Guards
 - **Statement Excerpt:** "Integrity Checks: Implement zero‑byte detection, wrap‑up validation and anti‑recursion safeguards."
 - **Status:** Started – anti-recursion decorator and PID tracking drafted.
+- **Progress:** [ ] 40% – basic anti-recursion guard decorator added.
 
 ## 18. Standardize Dual-Copilot Validation
 - **Statement Excerpt:** "Session Management Tie‑in: Link metrics to session lifecycle for full visibility" and "Comprehensive Tests" for validation.
 - **Status:** Started – orchestrator updates and dual validation test plan created.
+- **Progress:** [ ] 30% – helper for running primary and secondary validations implemented.
 
 ## 19. Clarify Quantum Placeholder Features
 - **Statement Excerpt:** "Audit Pass: Review whitepaper, README and guides; reconcile overstated claims (quantum features, test success)."
