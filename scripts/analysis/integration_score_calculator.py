@@ -87,12 +87,14 @@ class IntegrationScoreCalculator:
 
         # Database and file paths
         self.production_db = self.workspace_path / "production.db"
+        self.analytics_db = self.workspace_path / "databases" / "analytics.db"
         self.reports_dir = self.workspace_path / "reports" / "integration_scores"
         self.logs_dir = self.workspace_path / "logs" / "integration_scores"
 
         # Ensure directories exist
         self.reports_dir.mkdir(parents=True, exist_ok=True)
         self.logs_dir.mkdir(parents=True, exist_ok=True)
+        self.analytics_db.parent.mkdir(parents=True, exist_ok=True)
 
         # Initialize enterprise logging
         self._setup_enterprise_logging()
@@ -719,9 +721,9 @@ class IntegrationScoreCalculator:
         return recommendations
 
     def _update_score_calculation_database(self, result: IntegrationScoreResult) -> None:
-        """🗄️ Update database with score calculation results"""
+        """🗄️ Update analytics database with score calculation results"""
         try:
-            with sqlite3.connect(self.production_db) as conn:
+            with sqlite3.connect(self.analytics_db) as conn:
                 cursor = conn.cursor()
 
                 # Create integration score calculations table if not exists
