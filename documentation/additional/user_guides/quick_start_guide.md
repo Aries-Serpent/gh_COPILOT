@@ -129,6 +129,19 @@ recommendations = platform.get_environment_recommendations("production")
 print(recommendations)
 ```
 
+### Template Clustering and Cleanup
+```python
+import os
+from pathlib import Path
+from scripts.utilities.unified_script_generation_system import EnterpriseUtility
+from scripts.cleanup import cleanup_legacy_assets
+
+utility = EnterpriseUtility(workspace_path=os.getenv("GH_COPILOT_WORKSPACE", "/path/to/workspace"))
+clusters = utility.cluster_templates(list((utility.workspace_path / "generated_templates").glob("*.txt")))
+# Remove stale templates from the smallest cluster in dry-run mode
+cleanup_legacy_assets(utility.workspace_path / "cluster_output.json", dry_run=True)
+```
+
 ## Best Practices
 
 ### 1. Naming Conventions
