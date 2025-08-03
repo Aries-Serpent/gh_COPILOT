@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import time
 from datetime import datetime
 from pathlib import Path
@@ -23,6 +24,10 @@ from typing import List, Dict, Optional
 from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
 from secondary_copilot_validator import SecondaryCopilotValidator
+from enterprise_modules.database_utils import (
+    enterprise_database_context,
+    execute_safe_query,
+)
 
 from .utils.backend_provider import get_backend
 
@@ -106,6 +111,8 @@ class QuantumComplianceEngine:
                 patterns = self._ml_pattern_recognition(target)
             pattern_matches = self._multi_pattern_match(target, patterns)
             pbar.update(30)
+            if not self.validator.validate_corrections(list(pattern_matches.keys())):
+                logging.error("Secondary validation failed for pattern matches.")
 
             pbar.set_description("Applying Modular Weighting")
             weighted_score = self._apply_modular_weighting(pattern_matches, modular_weights)
@@ -126,8 +133,15 @@ class QuantumComplianceEngine:
 
         elapsed = time.time() - start_time
         etc = self._calculate_etc(elapsed, 100, 100)
-        logging.info(f"Quantum compliance scoring completed in {elapsed:.2f}s | ETC: {etc}")
+        logging.info(
+            f"Quantum compliance scoring completed in {elapsed:.2f}s | ETC: {etc}"
+        )
         logging.info(f"Target: {target} | Score: {score:.4f}")
+        suggestions = self._cognitive_learning_fetch(patterns)
+        if suggestions:
+            logging.info("Comparable scripts: %s", suggestions)
+            if not self.validator.validate_corrections(suggestions):
+                logging.error("Secondary validation failed for cognitive suggestions.")
         if score < threshold:
             logging.error("Quantum compliance score below threshold.")
         if not self.validator.validate_corrections([f"{score:.4f}"]):
@@ -137,13 +151,13 @@ class QuantumComplianceEngine:
 
     def _multi_pattern_match(self, target: Path, patterns: List[str]) -> Dict[str, int]:
         """Multi-pattern matching for compliance analysis."""
-        matches = {}
+        matches: Dict[str, int] = {}
         if not target.exists():
             logging.warning(f"Target file does not exist: {target}")
             return matches
         content = target.read_text(encoding="utf-8", errors="ignore")
         for pattern in patterns:
-            matches[pattern] = content.count(pattern)
+            matches[pattern] = len(re.findall(pattern, content, re.MULTILINE))
         logging.info(f"Pattern matches: {matches}")
         return matches
 
@@ -192,6 +206,22 @@ class QuantumComplianceEngine:
         quantum_score = counts.get("1", 0) / 1024
         logging.info(f"Quantum field redundancy score: {quantum_score:.4f}")
         return quantum_score
+
+    def _cognitive_learning_fetch(self, patterns: List[str], limit: int = 3) -> List[str]:
+        """Fetch comparable script templates from the production database."""
+        db_path = self.workspace / "databases" / "production.db"
+        if not db_path.exists():
+            return []
+        suggestions: List[str] = []
+        with enterprise_database_context(str(db_path)) as conn:
+            for pattern in patterns:
+                rows = execute_safe_query(
+                    conn,
+                    "SELECT template_name FROM script_templates WHERE description LIKE ? LIMIT ?",
+                    (f"%{pattern}%", limit),
+                ) or []
+                suggestions.extend(row["template_name"] for row in rows)
+        return suggestions
 
     def _calculate_etc(self, elapsed: float, current_progress: int, total_work: int) -> str:
         if current_progress > 0:
