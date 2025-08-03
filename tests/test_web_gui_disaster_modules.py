@@ -1,4 +1,4 @@
-from scripts.unified_disaster_recovery_system import UnifiedDisasterRecoverySystem
+from unified_disaster_recovery_system import UnifiedDisasterRecoverySystem
 from web_gui_integration_system import WebGUIIntegrationSystem
 
 

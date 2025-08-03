@@ -14,7 +14,6 @@ from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from .cross_database_sync_logger import log_sync_operation
-from quantum.quantum_database_search import quantum_search_sql
 
 logger = logging.getLogger(__name__)
 
@@ -61,27 +60,6 @@ class UnifiedDatabaseManager:
         expected = self._load_expected_names()
         missing = [name for name in expected if not (self.databases_dir / name).exists()]
         return len(missing) == 0, missing
-
-    def quantum_query(
-        self,
-        db_name: str,
-        query: str,
-        params: dict | None = None,
-        limit: int | None = None,
-        **kwargs,
-    ) -> list[dict[str, object]]:
-        """Run a quantum-enhanced SQL query against a managed database.
-
-        Parameters are passed directly to
-        :func:`quantum.quantum_database_search.quantum_search_sql`.  Raises
-        :class:`FileNotFoundError` if ``db_name`` is not registered under the
-        manager's ``databases`` directory.
-        """
-
-        db_path = self.databases_dir / db_name
-        if not db_path.exists():
-            raise FileNotFoundError(f"database not found: {db_name}")
-        return quantum_search_sql(query, db_path, params, limit, **kwargs)
 
 
 def _backup_database(source: Path, target: Path, log_db: Path | None = None) -> None:

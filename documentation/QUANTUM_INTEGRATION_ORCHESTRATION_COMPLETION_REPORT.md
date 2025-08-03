@@ -37,7 +37,7 @@ The PIS Framework has successfully achieved **Phase 6: Quantum Integration Orche
 
 ### 2. ⚛️ ADVANCED QUBO OPTIMIZATION ENGINE
 **Status:** DEVELOPED - READY FOR INTEGRATION  
-**File:** `scripts/entrypoints/advanced_qubo_optimization.py`
+**File:** `advanced_qubo_optimization.py`  
 **Performance:** **13.34x Quantum Advantage** (Exceeds 3.0x target by 345%)
 
 #### Achievements:
@@ -96,8 +96,8 @@ The PIS Framework has successfully achieved **Phase 6: Quantum Integration Orche
 
 ### Quantum Integration Orchestrator Development
 **Files Created:**
-- `scripts/automation/quantum_integration_orchestrator.py` - Comprehensive integration system
-- `scripts/session/simplified_quantum_integration_orchestrator.py` - Streamlined execution system
+- `quantum_integration_orchestrator.py` - Comprehensive integration system
+- `simplified_quantum_integration_orchestrator.py` - Streamlined execution system
 - `quantum_performance_integration_tester.py` - Performance validation system
 
 ### Integration Testing Results:

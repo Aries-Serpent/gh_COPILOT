@@ -6,10 +6,12 @@ Provides backward-compatible access to all quantum operations.
 import argparse
 import sys
 import json
+from pathlib import Path
 from typing import List, Dict, Any
 
 from ..orchestration.registry import get_global_registry
 from ..orchestration.executor import QuantumExecutor
+from ..quantum_compliance_engine import QuantumComplianceEngine
 
 
 class QuantumCLI:
@@ -99,6 +101,19 @@ class QuantumCLI:
         info_parser.add_argument(
             'algorithm',
             help='Algorithm to show info for'
+        )
+
+        # Compliance command
+        compliance_parser = subparsers.add_parser(
+            'compliance',
+            help='Run quantum compliance scoring on a file',
+        )
+        compliance_parser.add_argument('target', help='Target file to analyze')
+        compliance_parser.add_argument(
+            '--patterns', nargs='*', default=[], help='Patterns to match'
+        )
+        compliance_parser.add_argument(
+            '--threshold', type=float, default=0.85, help='Score threshold'
         )
         
         return parser
@@ -257,7 +272,8 @@ class QuantumCLI:
             'run': self.run_algorithm,
             'batch': self.run_batch,
             'perf': self.show_performance,
-            'info': self.show_algorithm_info
+            'info': self.show_algorithm_info,
+            'compliance': self.run_compliance,
         }
         
         command_func = command_map.get(parsed_args.command)
@@ -267,6 +283,13 @@ class QuantumCLI:
         
         success = command_func(parsed_args)
         return 0 if success else 1
+
+    def run_compliance(self, args) -> bool:
+        """Run quantum compliance scoring on a file."""
+        engine = QuantumComplianceEngine()
+        score = engine.score(Path(args.target), args.patterns, threshold=args.threshold)
+        print(f"Compliance score: {score:.4f}")
+        return score >= args.threshold
 
 
 def main():

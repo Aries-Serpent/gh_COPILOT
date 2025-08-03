@@ -11,10 +11,6 @@ Cargo.lock
 
 # Ignore runtime logs
 logs/**
-# Runtime artifacts
-builds/
-results/
-reports/
 # Backup archives
 archive/*.7z
 archive/*.zip
@@ -24,12 +20,8 @@ archive/*.tar.gz
 *.tmp
 # Test artifacts
 tmp/
-# Build and report artifacts
-builds/
-results/
-reports/
-artifacts/
 # Git LFS temporary files
 *.lfs.tmp
 *.lfs.lock
 
+databases/analytics.db

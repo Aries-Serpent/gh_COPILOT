@@ -24,11 +24,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from tqdm import tqdm
-from quantum.quantum_algorithm_library_expansion import quantum_text_score
+from quantum_algorithm_library_expansion import quantum_text_score
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"objective_similarity_scorer_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -37,6 +38,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 
 def validate_no_recursive_folders() -> None:

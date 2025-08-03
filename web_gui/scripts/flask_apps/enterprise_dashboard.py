@@ -32,7 +32,7 @@ COMPLIANCE_DIR = Path(os.getenv("COMPLIANCE_DIR", workspace_root / "dashboard" /
 TEMPLATES = Path(__file__).resolve().parents[2] / "templates"
 app = Flask(__name__, template_folder=str(TEMPLATES))
 app.secret_key = get_secret("FLASK_SECRET_KEY", "dev_key")
-LOG_FILE = Path("logs/dashboard") / "dashboard.log"
+LOG_FILE = Path("artifacts/logs/dashboard") / "dashboard.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
 
@@ -41,16 +41,31 @@ metrics_updater = ComplianceMetricsUpdater(COMPLIANCE_DIR)
 
 
 def _get_lessons_integration_status(cur: sqlite3.Cursor) -> str:
-    """Return the latest lessons integration status from the database."""
+    """Return the latest lessons integration status from the database.
+
+    Provides descriptive fallbacks when the primary table is missing or empty."""
     try:
         cur.execute(
             "SELECT integration_status FROM integration_score_calculations ORDER BY timestamp DESC LIMIT 1"
         )
         row = cur.fetchone()
-        return row[0] if row and row[0] else "UNKNOWN"
+        if row and row[0]:
+            return row[0]
+        cur.execute("SELECT COUNT(*) FROM integration_score_calculations")
+        if cur.fetchone()[0] == 0:
+            logging.info("No integration score records found")
+            return "NO_DATA"
+    except sqlite3.OperationalError:
+        try:
+            cur.execute("SELECT COUNT(*) FROM enhanced_lessons_learned")
+            return "PENDING" if cur.fetchone()[0] else "NO_DATA"
+        except sqlite3.Error as exc:
+            logging.error("Lessons integration fallback error: %s", exc)
+            return "NO_DATA"
     except sqlite3.Error as exc:
         logging.error("Lessons integration fetch error: %s", exc)
-        return "UNKNOWN"
+        return "NO_DATA"
+    return "UNKNOWN"
 
 
 def _get_average_query_latency(cur: sqlite3.Cursor) -> float:

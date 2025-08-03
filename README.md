@@ -10,8 +10,8 @@
 
 **Status:** Active development with incremental improvements
 
-> Tests: run `pytest` (currently one failing quantum test).
-> Lint: run `ruff check .` (one redefinition warning).
+> Tests: run `pytest` before committing.
+> Lint: run `ruff check .` before committing.
 > Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress.
 
 ---
@@ -21,12 +21,12 @@
 The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. All core modules are implemented. Quantum functionality runs in simulation mode by default but supports real hardware when `qiskit-ibm-provider` is configured.
 
 > **Note**
-> Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and supply an IBM Quantum token via the `QISKIT_IBM_TOKEN` environment variable or the `--token` flag. Select a backend with `IBM_BACKEND` or `--backend`. Use the `--hardware` flag in `scripts/automation/quantum_integration_orchestrator.py` or `--use-hardware` in `quantum/cli/executor_cli.py` to enforce hardware execution.
+> Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends. When `IBM_BACKEND` is unset the system automatically selects an available backend. Use the `--hardware` flag in `quantum_integration_orchestrator.py` or `--use-hardware` in `quantum/cli/executor_cli.py` to enforce hardware execution.
 > **Phase 5 AI**
 > Advanced AI integration features are fully integrated. They default to simulation mode unless real hardware is configured.
 
 ### 🎯 **Recent Milestones**
-- **Lessons Learned Integration:** sessions persist and reuse lessons from `learning_monitor.db`
+- **Lessons Learned Integration:** sessions automatically apply lessons from `learning_monitor.db`
 - **Database-First Architecture:** `databases/production.db` used as primary reference
 - **DUAL COPILOT Pattern:** primary/secondary validation framework available
 - **Dual Copilot Enforcement:** automation scripts now trigger secondary
@@ -40,10 +40,10 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
 - **Analytics Migrations:** run `add_code_audit_log.sql`, `add_correction_history.sql`, `add_code_audit_history.sql`, `add_violation_logs.sql`, and `add_rollback_logs.sql` (use `sqlite3` manually if `analytics.db` shipped without the tables) or use the initializer. The `correction_history` table tracks file corrections with `user_id`, session ID, action, timestamp, and optional details. The new `code_audit_history` table records each audit entry along with the responsible user and timestamp.
 
-- **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for optimizer and search helpers. New data pipelines combine Grover search, VQE and database joins with automatic fallback to simulation when hardware is unavailable.
-- **Phase 6 Quantum Demo:** `scripts/automation/quantum_integration_orchestrator.py` now supports
-  advanced algorithms and quantum-enhanced database processing, using hardware
-  backends when `QISKIT_IBM_TOKEN` is available.
+- **Quantum Utilities:** see [quantum/README.md](quantum/README.md) for optimizer and search helpers. `quantum_optimizer.run_quantum_routine` now exposes annealing, superposition search and entanglement correction. Routines use Qiskit simulators by default and accept `use_hardware=True` to attempt IBM Quantum execution.
+- **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` runs a quantum
+  database search example and uses hardware backends when `QISKIT_IBM_TOKEN` is
+  available.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1,679 scripts synchronized
@@ -58,7 +58,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
 - **Flask Enterprise Dashboard:** basic endpoints and templates
  - **Template Intelligence Platform:** tracks generated scripts
-- **Documentation logs:** rendered templates saved under `artifacts/logs/template_rendering/`
+- **Documentation logs:** rendered templates saved under `logs/template_rendering/`
 - **Script Validation**: automated checks available
 - **Self-Healing Systems:** correction scripts
 - **Autonomous File Management:** see [Using AutonomousFileManager](docs/USING_AUTONOMOUS_FILE_MANAGER.md)
@@ -99,16 +99,14 @@ cp .env.example .env
 
 # 2. Set the external backup directory and run the setup script
 export GH_COPILOT_BACKUP_ROOT=/path/to/external/backups
-bash setup.sh            # installs core dependencies
-# Include extras as needed
-GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-test
-GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-a
-GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-quantum
-# Use `--with-all` to install all optional groups at once.
+bash setup.sh            # installs core and test dependencies
+# Or include optional extras
+GH_COPILOT_BACKUP_ROOT=/path/to/external/backups bash setup.sh --with-optional
 # Always run this script before executing tests or automation tasks.
-# The script installs `requirements.txt` by default. Optional flags install
-# their corresponding requirements files when present. Database migrations run
-# automatically without manual intervention.
+# The script installs `requirements.txt` and `requirements-test.txt` by default,
+# runs `scripts/run_migrations.py`, and prepares environment variables.
+# Passing `--with-optional` additionally installs `requirements-a.txt` and
+# `requirements-quantum.txt` when present.
 # If package installation fails due to network restrictions,
 # update the environment to permit outbound connections to PyPI.
 
@@ -129,11 +127,6 @@ python -m scripts.analysis.lessons_learned_gap_analyzer --lesson "use temp dirs"
 
 Lessons are written to `learning_monitor.db` and automatically applied in future sessions.
 
-### End-to-End Lessons Flow
-1. `scripts/wlc_session_manager.py` loads prior lessons at startup and logs them for transparency.
-2. The same session persists new wrap-up lessons back into `learning_monitor.db`.
-3. `scripts/analysis/lessons_learned_gap_analyzer.py` records remediation actions as lessons, closing detected gaps for future runs.
-
 ### OpenAI Connector
 The repository provides `github_integration/openai_connector.py` for OpenAI API
 calls using the `OpenAIClient` helper in
@@ -147,9 +140,21 @@ credentials.
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
 
-# Add analytics tables (setup runs migrations automatically when databases exist)
-# Migrations are applied automatically during `setup.sh`
+# Add analytics tables and run migrations
 python scripts/database/add_code_audit_log.py
+# If `analytics.db` is missing required tables, run the SQL migrations manually
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
+sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
+# Or run all migrations sequentially
+python scripts/run_migrations.py
+# Verify creation
+sqlite3 databases/analytics.db ".schema code_audit_log"
+sqlite3 databases/analytics.db ".schema code_audit_history"
 python scripts/database/size_compliance_checker.py
 
 # 3b. Synchronize databases
@@ -196,17 +201,17 @@ python scripts/generate_docs_metrics.py
 python -m scripts.docs_metrics_validator
 python scripts/wlc_session_manager.py --db-path databases/production.db
 ```
-The session manager logs the documentation update to `production.db` and writes a log file to both `artifacts/logs/` and `$GH_COPILOT_BACKUP_ROOT/logs`.
+The session manager logs the documentation update to `production.db` and writes a log file under `$GH_COPILOT_BACKUP_ROOT/logs`.
 To regenerate enterprise documentation directly from the production database use:
 
 ```bash
 python archive/consolidated_scripts/enterprise_database_driven_documentation_manager.py
 ```
-This script pulls templates from both `documentation.db` and `production.db` and outputs Markdown, HTML and JSON files under `artifacts/logs/template_rendering/`. Each render is logged to `analytics.db` and progress appears under `dashboard/compliance`.
+This script pulls templates from both `documentation.db` and `production.db` and outputs Markdown, HTML and JSON files under `logs/template_rendering/`. Each render is logged to `analytics.db` and progress appears under `dashboard/compliance`.
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
 are thin CLI wrappers. They delegate to the core implementations under
 ``validation.protocols.session`` and ``session_management_consolidation_executor``.
-- ``scripts/session/unified_session_management_system.py`` starts new sessions via enterprise compliance checks.
+- ``unified_session_management_system.py`` starts new sessions via enterprise compliance checks.
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
 ### **Output Safety with `clw`**
@@ -249,30 +254,16 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 
 ### Run Simplified Quantum Integration Orchestrator
 ```bash
-python scripts/session/simplified_quantum_integration_orchestrator.py
+python simplified_quantum_integration_orchestrator.py
 ```
 
 By default the orchestrator uses the simulator. To execute algorithms on IBM Quantum hardware install `qiskit-ibm-provider` and run:
 
 ```bash
-python scripts/automation/quantum_integration_orchestrator.py --hardware --backend ibm_oslo
+python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
 Set `QISKIT_IBM_TOKEN` to your IBM Quantum API token for hardware execution. If the provider cannot be initialized the orchestrator automatically falls back to simulation.
-
-Persist your token and verify connectivity with the helper script:
-
-```bash
-python -m quantum.cli.token_setup --token YOUR_TOKEN --save --use-hardware
-```
-
-Run a simple circuit on hardware to confirm access:
-
-```bash
-python scripts/quantum/run_hardware_demo.py --hardware --backend ibm_oslo
-```
-
-If hardware is requested but misconfigured these commands raise a clear error instead of silently falling back to the simulator.
 
 ### Run Template Matcher
 ```bash
@@ -286,19 +277,6 @@ follow the steps in [docs/enterprise_backup_guide.md](docs/enterprise_backup_gui
 to create and manage backups. This variable ensures backups never reside in the
 workspace, maintaining anti-recursion compliance.
 The `validate_enterprise_environment` helper enforces these settings at script startup.
-
-### Artifact Management Policy
-All build outputs, logs, reports (including coverage), and other temporary files must be written to the `artifacts/` directory. Subdirectories such as `artifacts/builds/`, `artifacts/logs/`, `artifacts/results/`, `artifacts/reports/`, and `artifacts/tmp/` are ignored by version control to keep the repository clean. Use `artifact_manager.py` to archive transient outputs when needed.
-
-### Migration Guide
-To adopt this policy:
-1. Move existing logs, build outputs, reports, coverage data, and temp files into `artifacts/`.
-2. Remove previously tracked artifacts from Git or relocate them to `archive/` for historical reference.
-3. Ensure all long-running workflows invoke `scripts/wlc_session_manager.py` to record wrap-up details.
-
-See [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) for additional notes.
-
-The project entrypoint triggers `scripts/wlc_session_manager.py` on shutdown to record wrap-up details in `databases/production.db`, write a log under `artifacts/logs/`, and mirror it under `$GH_COPILOT_BACKUP_ROOT/logs`.
 
 ### Session Management CLI
 Use ``COMPREHENSIVE_WORKSPACE_MANAGER.py`` to manage session start and end
@@ -346,7 +324,7 @@ Whenever you modify `.codex_lfs_policy.yaml`—for example to change
 `session_artifact_dir` or adjust LFS rules—regenerate `.gitattributes`:
 
 ```bash
-python scripts/utilities/artifact_manager.py --sync-gitattributes
+python artifact_manager.py --sync-gitattributes
 ```
 
 The script rebuilds `.gitattributes` from `gitattributes_template`, adds any
@@ -390,7 +368,7 @@ python <your_script>.py
 python scripts/wlc_session_manager.py --db-path databases/production.db
 ```
 
-Each run writes a timestamped log to `artifacts/logs/` and `$GH_COPILOT_BACKUP_ROOT/logs/`.
+Each run writes a timestamped log to `$GH_COPILOT_BACKUP_ROOT/logs/`.
 
 For more information see [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md).
 See [docs/WLC_QUICKSTART.md](docs/WLC_QUICKSTART.md) for a quickstart guide.
@@ -420,7 +398,7 @@ python scripts/wlc_session_manager.py --steps 2 --db-path databases/production.d
 The manager validates required environment variables, executes the
 `UnifiedWrapUpOrchestrator` for comprehensive cleanup, and performs dual
 validation through the `SecondaryCopilotValidator`. It records each session in
-`production.db` and writes logs under both `artifacts/logs/` and `$GH_COPILOT_BACKUP_ROOT/logs`.
+`production.db` and writes logs under `$GH_COPILOT_BACKUP_ROOT/logs`.
 Each run inserts a row into the `unified_wrapup_sessions` table with a
 compliance score for audit purposes. Ensure all command output is piped through
 `/usr/local/bin/clw` to avoid exceeding the line length limit.
@@ -428,14 +406,6 @@ The table stores `session_id`, timestamps, status, compliance score, and
 optional error details so administrators can audit every session.
 The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
 See [docs/WLC_SESSION_MANAGER.md](docs/WLC_SESSION_MANAGER.md) for a full example showing environment variable setup, CLI options, log file location, and database updates.
-`entrypoint.sh` traps `EXIT`, `INT`, and `TERM` signals and invokes
-`scripts/wlc_session_manager.py --orchestrate` so wrap-up logging occurs even when the main process exits.
-
-### Artifact Management
-Transient build and runtime outputs such as `artifacts/builds/`, `artifacts/results/`, `artifacts/logs/`, and
-`artifacts/reports/` live under the `artifacts/` directory and are ignored by Git. This
-keeps the repository root clean and prevents accidental commits of generated
-files. See `scripts/utilities/artifact_manager.py` for packaging and recovery utilities.
 
 ---
 
@@ -480,8 +450,26 @@ The previously referenced `optimization_metrics.db` is deprecated and no longer
 included in the repository.
 
 ### Analytics Database Test Protocol
-The setup script now applies all SQL migrations automatically. Manual
-invocations of `sqlite3` are no longer required for routine development.
+You must never create or modify the `analytics.db` file automatically. Use the commands below for manual migrations.
+To create or migrate the file manually, run:
+
+```bash
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_log.sql
+sqlite3 databases/analytics.db < databases/migrations/add_correction_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_code_audit_history.sql
+sqlite3 databases/analytics.db < databases/migrations/add_violation_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/add_rollback_logs.sql
+sqlite3 databases/analytics.db < databases/migrations/create_todo_fixme_tracking.sql
+sqlite3 databases/analytics.db < databases/migrations/extend_todo_fixme_tracking.sql
+```
+
+Alternatively, run all migrations sequentially:
+```bash
+python scripts/run_migrations.py
+```
+
+Automated tests perform these migrations in-memory with progress bars and DUAL
+COPILOT validation, leaving the on-disk database untouched.
 
 ### **Database-First Workflow**
 1. **Connect Safely:** Use `get_validated_production_db_connection()` from
@@ -520,7 +508,7 @@ compliance logging. The main modules are:
 * **Log Utilities** – unified `_log_event` helper under `utils.log_utils` logs
   events to `sync_events_log`, `sync_status`, or `doc_analysis` tables in
   `analytics.db` with visual indicators and DUAL COPILOT validation.
-* **Artifact Manager** – `scripts/utilities/artifact_manager.py` packages files created in the
+* **Artifact Manager** – `artifact_manager.py` packages files created in the
   temporary directory (default `tmp/`) into archives stored under the
   directory defined by the `session_artifact_dir` setting in
   `.codex_lfs_policy.yaml`. Use `--package` to create an archive and
@@ -667,13 +655,13 @@ _log_event({"event": "sync_start"}, table="sync_events_log")
 ```
 
 `setup_enterprise_logging()` accepts an optional `log_file` parameter. When
-omitted, logs are saved under `artifacts/logs/` relative to the workspace. Provide a path
+omitted, logs are saved under `logs/` relative to the workspace. Provide a path
 to store logs in a custom directory:
 
 ```python
 from utils.logging_utils import setup_enterprise_logging
 
-# Default logs directory (artifacts/logs/)
+# Default logs directory (logs/)
 logger = setup_enterprise_logging()
 
 # Custom directory
@@ -839,7 +827,7 @@ The project tracks several learning patterns. Current integration status:
 **DUAL COPILOT Pattern:** 100% implementation score
 **Visual Processing Indicators:** 94.7% implementation score [[docs](docs/GITHUB_COPILOT_INTEGRATION_NOTES.md#visual-processing)]
 **Autonomous Systems:** 97.2% implementation score [[scheduler](documentation/SYSTEM_OVERVIEW.md#database-synchronization)]
-**Enterprise Compliance:** automated tests run `pytest` and `ruff`. Latest results show 146 of 178 tests passing with 29 failures; `ruff` reports 244 lint errors. [[validation helper](docs/DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement)]
+**Enterprise Compliance:** automated tests run `pytest` and `ruff`. Latest results show all tests passing with no lint errors. [[validation helper](docs/DATABASE_FIRST_USAGE_GUIDE.md#database-first-enforcement)]
 
 **Overall Integration Score: 97.4%** ✅
 
@@ -921,7 +909,7 @@ split heavy tests into smaller pieces to keep the suite responsive.
 
 ## 🚀 FUTURE ROADMAP
 
-### **Phase 6: Quantum Enhancement**
+### **Phase 6: Quantum Enhancement (placeholder, not implemented)**
 - Advanced quantum algorithm integration
 - Quantum-enhanced database processing
 - Next-generation AI capabilities
@@ -1071,8 +1059,8 @@ Set these variables in your `.env` file or shell before running scripts:
 - `OPENAI_API_KEY` – enables optional OpenAI features.
 - `FLASK_SECRET_KEY` – Flask dashboard secret.
 - `FLASK_RUN_PORT` – dashboard port (default `5000`).
-- `QISKIT_IBM_TOKEN` – optional IBM Quantum token (or use `--token`).
-- `IBM_BACKEND` – optional IBM Quantum backend name (default `ibmq_qasm_simulator`, or use `--backend`).
+- `QISKIT_IBM_TOKEN` – optional IBM Quantum token.
+- `IBM_BACKEND` – optional IBM Quantum backend name (default `ibmq_qasm_simulator`).
 - `LOG_WEBSOCKET_ENABLED` – set to `1` to stream logs.
 - `CLW_MAX_LINE_LENGTH` – max line length for the `clw` wrapper (default `1550`).
 
@@ -1084,7 +1072,7 @@ Set these variables in your `.env` file or shell before running scripts:
 
 ## ✅ Project Status
 
-Ruff linting passes cleanly, but the test suite currently reports failures (`41 failed, 339 passed` from `pytest`). Outstanding tasks—including fixes for failing modules like `documentation_manager` and `cross_database_sync_logger`—are tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Dual-copilot validation remains in place and quantum features continue to run in simulation mode.
+Ruff linting and targeted tests now pass after addressing a quantum optimizer fallback issue. Outstanding tasks—including fixes for failing modules like `documentation_manager` and `cross_database_sync_logger`—are tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Dual-copilot validation remains in place and quantum features continue to run in simulation mode.
 The repository uses GitHub Actions to automate linting, testing, and compliance checks.
 
 - **ci.yml** runs Ruff linting, executes the test suite on multiple Python versions, builds the Docker image, and performs a CodeQL scan.
@@ -1112,7 +1100,7 @@ Several small modules provide common helpers:
 - `utils.reporting_utils.generate_json_report` – write data to a JSON file.
 - `utils.reporting_utils.generate_markdown_report` – produce a Markdown report.
 - `utils.validation_utils.detect_zero_byte_files` – find empty files for cleanup.
-- `scripts/clean_zero_logs.sh` – remove empty log files under `artifacts/logs/` (run `make clean-logs`).
+- `scripts/clean_zero_logs.sh` – remove empty log files under `logs/` (run `make clean-logs`).
 - `utils.validation_utils.validate_path` – verify a path is inside the workspace and outside the backup root.
 - `scripts.optimization.physics_optimization_engine.PhysicsOptimizationEngine` –
   provides simulated quantum-inspired helpers such as Grover search or Shor factorization for physics-oriented optimizations.
@@ -1126,7 +1114,7 @@ Several small modules provide common helpers:
   enhancer.enhance()
   ```
 - `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
-  - `scripts/utilities/artifact_manager.py` – package modified files from the temporary directory into the location specified by `session_artifact_dir` (defaults to `codex_sessions`). Run `python scripts/utilities/artifact_manager.py --package` to create an archive, `--recover` to extract the latest one, use `--tmp-dir` to choose a different temporary directory, and `--sync-gitattributes` to refresh LFS rules.
+  - `artifact_manager.py` – package modified files from the temporary directory into the location specified by `session_artifact_dir` (defaults to `codex_sessions`). Run `python artifact_manager.py --package` to create an archive, `--recover` to extract the latest one, use `--tmp-dir` to choose a different temporary directory, and `--sync-gitattributes` to refresh LFS rules.
 
 ## Future Roadmap
 

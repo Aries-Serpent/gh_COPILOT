@@ -26,6 +26,7 @@ from tqdm import tqdm
 
 from utils.log_utils import _log_event
 from secondary_copilot_validator import SecondaryCopilotValidator
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 from .placeholder_utils import DEFAULT_PRODUCTION_DB, replace_placeholders
 from .template_placeholder_remover import remove_unused_placeholders
@@ -33,9 +34,11 @@ from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
 from .learning_templates import get_lesson_templates
 
+apply_lessons(logging.getLogger(__name__), load_lessons())
+
 # Quantum scoring helper
 try:
-    from quantum.quantum_algorithm_library_expansion import (
+    from quantum_algorithm_library_expansion import (
         quantum_text_score,
         quantum_similarity_score,
         quantum_cluster_score,
@@ -57,7 +60,7 @@ except ImportError:  # pragma: no cover - optional dependency
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
 
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"auto_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 

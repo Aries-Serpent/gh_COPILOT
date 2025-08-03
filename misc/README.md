@@ -65,6 +65,36 @@ base64-transformer
 3. Click "Decode" to preview the image
 4. Save the decoded image in various formats
 
+### Enhanced Base64 ZIP Transformer
+
+The ZIP-oriented variant mirrors the image tool but works with archive files.
+
+#### ZIP to Base64
+1. Switch to the "ZIP to Base64" tab.
+2. Select a `.zip` file.
+3. Copy the generated Base64 string.
+
+#### Base64 to ZIP
+1. Switch to the "Base64 to ZIP" tab.
+2. Paste a Base64 string and decode.
+3. Inspect the listed archive entries and save the reconstructed `.zip` file.
+
+Run the ZIP variant with:
+
+```bash
+python -m enhanced_base64_transformer_zip
+```
+
+### ZIP to Base64
+1. Switch to the "ZIP to Base64" tab.
+2. Select a `.zip` file to encode.
+3. Copy the resulting Base64 text.
+
+### Base64 to ZIP
+1. Switch to the "Base64 to ZIP" tab.
+2. Paste Base64 text representing a ZIP archive.
+3. Decode to view archive entries and optionally save the ZIP file.
+
 ### Advanced Features
 
 #### Custom Preview Sizes

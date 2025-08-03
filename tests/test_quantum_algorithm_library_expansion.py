@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pytest
-import quantum.quantum_algorithm_library_expansion as qalexp
-from quantum.quantum_algorithm_library_expansion import (
+import quantum_algorithm_library_expansion as qalexp
+from quantum_algorithm_library_expansion import (
     EnterpriseUtility,
     demo_grover_search,
     demo_shor_factorization,
@@ -10,7 +10,10 @@ from quantum.quantum_algorithm_library_expansion import (
     demo_quantum_phase_estimation,
     demo_quantum_teleportation,
     quantum_cluster_representatives,
+    quantum_cluster_stub,
     quantum_similarity_score,
+    quantum_score_stub,
+    quantum_pattern_match_stub,
     QISKIT_AVAILABLE,
 )
 
@@ -60,9 +63,20 @@ def test_quantum_cluster_representatives():
     assert len(reps) == 2
 
 
+def test_quantum_cluster_stub():
+    labels = quantum_cluster_stub([0.0, 0.1, 0.9, 1.0])
+    assert len(labels) == 4
+    assert set(labels) == {0, 1}
+
+
 def test_quantum_similarity_score():
     score = quantum_similarity_score([1, 0], [0.5, 0.5])
     assert 0.0 <= score <= 1.0
+
+
+def test_quantum_score_stub():
+    score = quantum_score_stub([3, 4])
+    assert pytest.approx(score, rel=1e-5) == 2.5
 
 
 def test_quantum_text_score_fallback(monkeypatch):
@@ -96,3 +110,8 @@ def test_quantum_text_score_backend(monkeypatch):
     score = qalexp.quantum_text_score("abc", use_hardware=True)
     assert 0.0 <= score <= 1.0
     assert ("text_score", "qiskit") in events
+
+
+def test_quantum_pattern_match_stub():
+    assert quantum_pattern_match_stub([1, 2], [0, 1, 2, 3]) is True
+    assert quantum_pattern_match_stub([2, 1], [0, 1, 2, 3]) is False

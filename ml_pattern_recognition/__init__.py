@@ -1,5 +1,5 @@
-"""ML pattern recognition package."""
+"""ML pattern recognition package using production datasets."""
 
-from .recognizer import PatternRecognizer, SklearnPatternModel, train_pipeline
+from .recognizer import PatternRecognizer, SklearnPatternModel, load_production_data
 
-__all__ = ["PatternRecognizer", "SklearnPatternModel", "train_pipeline"]
+__all__ = ["PatternRecognizer", "SklearnPatternModel", "load_production_data"]

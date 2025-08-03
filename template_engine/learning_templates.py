@@ -8,9 +8,13 @@ directly by automation scripts.
 
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 from typing import Dict, List
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 LESSON_TEMPLATES: Dict[str, str] = {
     "database_first": """

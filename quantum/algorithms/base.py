@@ -3,7 +3,6 @@ Base quantum algorithm class with standardized interface.
 """
 
 import logging
-import time
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
@@ -31,12 +30,12 @@ class QuantumAlgorithmBase(ABC):
     @abstractmethod
     def execute_algorithm(self) -> bool:
         """Execute the quantum algorithm - must be implemented by subclasses"""
-        pass
+        raise NotImplementedError
     
     @abstractmethod
     def get_algorithm_name(self) -> str:
         """Get the name of the algorithm"""
-        pass
+        raise NotImplementedError
     
     def execute_utility(self) -> bool:
         """Standardized utility execution with logging and timing"""

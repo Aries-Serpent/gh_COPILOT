@@ -23,10 +23,11 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from secondary_copilot_validator import SecondaryCopilotValidator
 import shutil
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"template_placeholder_remover_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -35,6 +36,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 _PLACEHOLDER_RE = re.compile(r"{{\s*([A-Z0-9_]+)\s*}}")
 
