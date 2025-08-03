@@ -17,7 +17,7 @@ export GH_COPILOT_BACKUP_ROOT="/external/backup/location"
 - Unix/Linux: /temp/gh_COPILOT_Backups
 
 Validation
-The system automatically validates that backup locations are external to the workspace and will raise errors if internal backup attempts are detected.
+The system automatically validates that backup locations are external to the workspace and will raise errors if internal backup attempts are detected. The `UnifiedDisasterRecoverySystem` refuses to run when `GH_COPILOT_BACKUP_ROOT` points inside the workspace.
 
 Usage
 ```python
