@@ -56,5 +56,15 @@ fall back to local simulation, preserving existing behavior.
 
 ## Pattern Recognition
 
-- `ml_pattern_recognition.PatternRecognizer` – logistic regression based pattern recognizer using placeholder datasets. Use
-  `load_placeholder_data` to generate sample data for experiments.
+- `ml_pattern_recognition.PatternRecognizer` – logistic regression based pattern recognizer using production datasets. Use
+  `ml_pattern_recognition.load_production_data` to load training data from
+  `databases/production.db` or a path supplied via the `ML_PATTERN_DATA_PATH`
+  environment variable.
+
+### Configuration
+
+1. Prepare a dataset of newline-separated patterns.
+2. Set `ML_PATTERN_DATA_PATH` to the dataset location or place the file in
+   `databases/production_patterns.txt` and reference it via
+   `load_production_data`.
+3. Train the recognizer using `PatternRecognizer.learn` with the loaded data.

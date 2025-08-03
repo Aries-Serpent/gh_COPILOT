@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable, List
@@ -10,6 +11,9 @@ from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from utils.lessons_learned_integrator import store_lesson
+
+
+"""Pattern recognition utilities backed by production datasets."""
 
 
 class SklearnPatternModel:
@@ -60,3 +64,22 @@ class PatternRecognizer:
                 **kwargs,
             )
         return predictions
+
+
+def load_production_data(path: Path | None = None) -> List[str]:
+    """Load training data from a production-ready dataset.
+
+    If ``path`` is ``None`` the function looks for ``ML_PATTERN_DATA_PATH``
+    environment variable. Returns a list of non-empty lines.
+    """
+
+    if path is None:
+        env_path = os.getenv("ML_PATTERN_DATA_PATH")
+        if not env_path:
+            return []
+        path = Path(env_path)
+
+    if not path.exists():
+        return []
+
+    return [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
