@@ -1,6 +1,10 @@
 import pytest
 
-from utils.validation_utils import anti_recursion_guard, run_dual_copilot_validation
+from utils.validation_utils import (
+    anti_recursion_guard,
+    run_dual_copilot_validation,
+    calculate_composite_compliance_score,
+)
 
 
 def test_anti_recursion_guard_prevents_recursion():
@@ -45,3 +49,9 @@ def test_dual_copilot_runs_secondary_even_if_primary_fails():
 
     assert run_dual_copilot_validation(primary, secondary) is False
     assert order == ["primary", "secondary"]
+
+
+def test_calculate_composite_compliance_score_handles_metrics():
+    assert calculate_composite_compliance_score(0, 10, 0) == 100.0
+    assert calculate_composite_compliance_score(10, 8, 2) == 85.0
+    assert calculate_composite_compliance_score(5, 0, 0) == 47.5

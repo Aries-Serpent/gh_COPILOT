@@ -87,6 +87,7 @@ def _fetch_metrics() -> Dict[str, Any]:
     metrics.setdefault("total_placeholders", 0)
     metrics.setdefault("lessons_integration_status", "UNKNOWN")
     metrics.setdefault("average_query_latency", 0.0)
+    metrics.setdefault("composite_score", 0.0)
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.cursor()
@@ -95,6 +96,12 @@ def _fetch_metrics() -> Dict[str, Any]:
                 metrics["total_placeholders"] = cur.fetchone()[0]
                 metrics["lessons_integration_status"] = _get_lessons_integration_status(cur)
                 metrics["average_query_latency"] = _get_average_query_latency(cur)
+                cur.execute(
+                    "SELECT composite_score FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
+                )
+                row = cur.fetchone()
+                if row and row[0] is not None:
+                    metrics["composite_score"] = row[0]
             except sqlite3.Error as exc:
                 logging.error("Metric fetch error: %s", exc)
     return metrics
