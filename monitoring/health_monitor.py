@@ -16,6 +16,7 @@ DB_PATH = WORKSPACE_ROOT / "analytics.db"
 CPU_ALERT_THRESHOLD = 85.0
 MEMORY_ALERT_THRESHOLD = 90.0
 DISK_ALERT_THRESHOLD = 90.0
+ANOMALY_DEVIATION = 20.0
 
 __all__ = [
     "record_system_health",
@@ -23,6 +24,8 @@ __all__ = [
     "gather_metrics",
     "ensure_table",
     "check_alerts",
+    "ml_anomaly_detect",
+    "quantum_hook",
 ]
 
 
@@ -54,13 +57,33 @@ def gather_metrics() -> Dict[str, float]:
     }
 
 
+def ml_anomaly_detect(metrics: Dict[str, float]) -> bool:
+    """Naive ML-based anomaly detector placeholder.
+
+    This uses a simple deviation heuristic until a model is plugged in.
+    """
+
+    values = [metrics["cpu_percent"], metrics["memory_percent"], metrics["disk_percent"]]
+    avg = sum(values) / len(values)
+    return any(abs(v - avg) > ANOMALY_DEVIATION for v in values)
+
+
+def quantum_hook(metrics: Dict[str, float]) -> None:
+    """Placeholder for future quantum-based anomaly analysis."""
+
+    _ = metrics
+
+
 def check_alerts(metrics: Dict[str, float]) -> Dict[str, bool]:
     """Return ``True`` for metrics exceeding alert thresholds."""
-    return {
+    alerts = {
         "cpu": metrics["cpu_percent"] > CPU_ALERT_THRESHOLD,
         "memory": metrics["memory_percent"] > MEMORY_ALERT_THRESHOLD,
         "disk": metrics["disk_percent"] > DISK_ALERT_THRESHOLD,
     }
+    alerts["ml_anomaly"] = ml_anomaly_detect(metrics)
+    quantum_hook(metrics)
+    return alerts
 
 
 def record_system_health(db_path: Optional[Path] = None) -> Dict[str, float]:

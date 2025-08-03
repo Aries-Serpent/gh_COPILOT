@@ -1,5 +1,14 @@
 import logging
+import sys
+import types
 from types import SimpleNamespace
+
+sys.modules.setdefault(
+    "scripts.monitoring.unified_monitoring_optimization_system",
+    types.ModuleType("unified_monitoring_optimization_system"),
+)
+dummy_module = sys.modules["scripts.monitoring.unified_monitoring_optimization_system"]
+dummy_module.EnterpriseUtility = object
 
 import scripts.utilities.unified_session_management_system as usms
 

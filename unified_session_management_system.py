@@ -14,8 +14,8 @@ from utils.validation_utils import detect_zero_byte_files, anti_recursion_guard
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "UnifiedSessionManagementSystem",
     "ensure_no_zero_byte_files",
+    "prevent_recursion",
     "main",
 ]
 
@@ -36,6 +36,10 @@ def ensure_no_zero_byte_files(root: str | Path):
 @anti_recursion_guard
 def main() -> int:
     """Run session validation and return an exit code."""
+    from scripts.utilities.unified_session_management_system import (
+        UnifiedSessionManagementSystem,
+    )
+
     system = UnifiedSessionManagementSystem()
     logger.info("Lifecycle start")
     success = system.start_session()
