@@ -104,20 +104,23 @@ Authorization: Bearer <token>
 }
 ```
 
-### Rollback History
-**Endpoint**: `GET /rollback_history`
-**Description**: Retrieve recent rollback events from `analytics.db`
+## Monitoring Endpoints
 
-**Response**:
-```json
-[
-  {
-    "target": "file.py",
-    "backup": "file.py.bak",
-    "timestamp": "2025-01-06T12:00:00Z"
-  }
-]
-```
+### Metrics
+**Endpoint**: `GET /metrics`
+**Description**: Return aggregated system and compliance metrics.
+
+### Corrections
+**Endpoint**: `GET /corrections`
+**Description**: List recorded correction entries.
+
+### Compliance
+**Endpoint**: `GET /compliance`
+**Description**: Combine metric data and correction summaries.
+
+### Violations
+**Endpoint**: `GET /violations`
+**Description**: Retrieve recent violation log entries.
 
 ## SDK Examples
 

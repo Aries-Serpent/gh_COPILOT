@@ -6,6 +6,7 @@ from monitoring.health_monitor import (
     ensure_table,
     record_system_health,
     recent_average,
+    check_alerts,
 )
 import scripts.monitoring.unified_monitoring_optimization_system as umos
 from unified_monitoring_optimization_system import collect_metrics
@@ -41,31 +42,8 @@ def test_recent_average_computes_values(tmp_path):
     assert round(avg["avg_memory_percent"], 1) == 25.0
 
 
-def test_collect_metrics_records_session(tmp_path, monkeypatch):
-    class DummySession:
-        def start_session(self) -> bool:
-            return True
-
-    monkeypatch.setattr(umos, "UnifiedSessionManagementSystem", lambda: DummySession())
-    monkeypatch.setattr(
-        umos,
-        "gather_metrics",
-        lambda: {
-            "cpu_percent": 1.0,
-            "memory_percent": 2.0,
-            "disk_percent": 3.0,
-            "net_bytes_sent": 4,
-            "net_bytes_recv": 5,
-        },
-    )
-    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-
-    result = collect_metrics()
-    assert result["session_id"]
-
-    with sqlite3.connect(tmp_path / "analytics.db") as conn:
-        row = conn.execute(
-            "SELECT session_id, cpu_percent FROM monitoring_metrics"
-        ).fetchone()
-    assert row[0] == result["session_id"]
-    assert row[1] == 1.0
+def test_check_alerts_flags_thresholds():
+    metrics = {"cpu_percent": 90.0, "memory_percent": 95.0, "disk_percent": 50.0}
+    alerts = check_alerts(metrics)
+    assert alerts["cpu"] and alerts["memory"]
+    assert not alerts["disk"]

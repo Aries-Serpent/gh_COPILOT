@@ -13,11 +13,16 @@ import psutil
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "analytics.db"
 
+CPU_ALERT_THRESHOLD = 85.0
+MEMORY_ALERT_THRESHOLD = 90.0
+DISK_ALERT_THRESHOLD = 90.0
+
 __all__ = [
     "record_system_health",
     "recent_average",
     "gather_metrics",
     "ensure_table",
+    "check_alerts",
 ]
 
 
@@ -46,6 +51,15 @@ def gather_metrics() -> Dict[str, float]:
         "disk_percent": psutil.disk_usage("/").percent,
         "net_bytes_sent": psutil.net_io_counters().bytes_sent,
         "net_bytes_recv": psutil.net_io_counters().bytes_recv,
+    }
+
+
+def check_alerts(metrics: Dict[str, float]) -> Dict[str, bool]:
+    """Return ``True`` for metrics exceeding alert thresholds."""
+    return {
+        "cpu": metrics["cpu_percent"] > CPU_ALERT_THRESHOLD,
+        "memory": metrics["memory_percent"] > MEMORY_ALERT_THRESHOLD,
+        "disk": metrics["disk_percent"] > DISK_ALERT_THRESHOLD,
     }
 
 
