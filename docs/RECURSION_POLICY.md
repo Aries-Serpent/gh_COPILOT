@@ -28,3 +28,20 @@ validate_workspace()
 # 2. backup root linking back to workspace
 (bk / 'ws_link').symlink_to(ws)
 ```
+
+## Developer Usage
+
+Use the `anti_recursion_guard` decorator from `utils.validation_utils` to prevent
+scripts from invoking themselves recursively. Decorate any entry points that
+perform filesystem operations or manage archives:
+
+```python
+from utils.validation_utils import anti_recursion_guard
+
+@anti_recursion_guard
+def archive_backups() -> Path:
+    ...
+```
+
+This guard creates a transient lock file so that re-entrant calls raise a
+`RuntimeError` instead of causing recursive behaviour.
