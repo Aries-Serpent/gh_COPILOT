@@ -30,3 +30,18 @@ def test_run_dual_copilot_validation_executes_both():
 
     assert run_dual_copilot_validation(primary, secondary) is True
     assert order == ["primary", "secondary"]
+
+
+def test_dual_copilot_runs_secondary_even_if_primary_fails():
+    order = []
+
+    def primary() -> bool:
+        order.append("primary")
+        return False
+
+    def secondary() -> bool:
+        order.append("secondary")
+        return True
+
+    assert run_dual_copilot_validation(primary, secondary) is False
+    assert order == ["primary", "secondary"]
