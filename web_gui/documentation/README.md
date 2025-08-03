@@ -74,6 +74,18 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
    - Health Check: http://localhost:5000/api/health
    - Scripts Data: http://localhost:5000/api/scripts
 
+### 🛠 Deployment Instructions
+
+1. Backup existing databases and configuration files.
+2. Install dependencies and generate the dashboard script as shown above.
+3. Start the Flask dashboard with `python flask_apps/enterprise_dashboard.py`.
+4. Verify metrics at `/dashboard/compliance` and rollback logs at `/dashboard/rollback`.
+
+### 📸 Deployment Screenshots
+
+![Dashboard View](deployment/screenshots/dashboard.png)
+![Metrics Page](deployment/screenshots/metrics.png)
+
 ### 📊 Database Integration
 
 The web GUI leverages existing database patterns discovered through systematic analysis:

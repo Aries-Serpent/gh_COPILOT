@@ -5,7 +5,7 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 from tqdm import tqdm
 
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
@@ -116,6 +116,33 @@ def trigger_rollback():
         ok = rollbacker.auto_rollback(target, Path(backup) if backup else None)
         bar.update(1)
     return jsonify({"status": "ok" if ok else "failed"})
+
+
+@app.get("/dashboard/compliance")
+def compliance_dashboard():
+    """Render compliance metrics page."""
+    metrics = fetch_db_metrics()
+    return render_template("compliance_metrics.html", metrics=metrics)
+
+
+@app.get("/dashboard/rollback")
+def rollback_dashboard():
+    """Render rollback logs page."""
+    logs = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.cursor()
+            try:
+                cur.execute(
+                    "SELECT timestamp, target, backup FROM rollback_logs ORDER BY timestamp DESC LIMIT 50"
+                )
+                logs = [
+                    {"timestamp": row[0], "target": row[1], "backup": row[2]}
+                    for row in cur.fetchall()
+                ]
+            except sqlite3.Error:
+                pass
+    return render_template("rollback_logs.html", logs=logs)
 
 
 __all__ = ["app"]
