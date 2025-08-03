@@ -19,6 +19,12 @@ except ImportError:  # pragma: no cover - qiskit optional
 
 from quantum.ibm_backend import init_ibm_backend
 
+# Expose IBMProvider for monkeypatching in tests
+try:  # pragma: no cover - optional dependency
+    from qiskit_ibm_provider import IBMProvider
+except Exception:  # pragma: no cover - provider may be missing
+    IBMProvider = None
+
 # --- Anti-Recursion Validation ---
 
 def chunk_anti_recursion_validation() -> bool:
@@ -153,13 +159,23 @@ class QuantumOptimizer:
         backend. The chosen backend is logged with a ``[QUANTUM_BACKEND]`` tag.
         """
         if use_hardware and backend is None:
-            backend, success = init_ibm_backend(token_env=token_env)
-            if not success:
+            if IBMProvider is None:
                 warnings.warn(
-                    "Hardware backend initialization failed; using simulator",
+                    "IBMProvider not available; using simulator",
                 )
-            self.backend = backend
-            self.use_hardware = success
+                backend = (
+                    Aer.get_backend("aer_simulator") if QISKIT_AVAILABLE else None
+                )
+                self.backend = backend
+                self.use_hardware = False
+            else:
+                backend, success = init_ibm_backend(token_env=token_env)
+                if not success:
+                    warnings.warn(
+                        "Hardware backend initialization failed; using simulator",
+                    )
+                self.backend = backend
+                self.use_hardware = success
         else:
             self.backend = backend
             self.use_hardware = use_hardware
