@@ -14,7 +14,7 @@ import logging
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     quarantine_dir = Path("_ZERO_BYTE_QUARANTINE")
-    moved = quarantine_zero_byte_files(Path("logs"), quarantine_dir)
+    moved = quarantine_zero_byte_files(Path("artifacts/logs"), quarantine_dir)
     logging.info("Moved %s zero-byte log file(s) to %s", moved, quarantine_dir)
 
 

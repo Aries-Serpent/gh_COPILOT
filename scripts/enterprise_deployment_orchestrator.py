@@ -140,14 +140,14 @@ class EnterpriseDeploymentOrchestrator:
         self.session_id = f"DEPLOY_{self.start_time.strftime('%Y%m%d_%H%M%S')}"
 
         # Setup enterprise logging
-        log_dir = Path("logs")
-        log_dir.mkdir(exist_ok=True)
+        log_dir = Path("artifacts/logs")
+        log_dir.mkdir(parents=True, exist_ok=True)
 
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s - %(levelname)s - %(message)s",
             handlers=[
-                logging.FileHandler(f"logs/enterprise_deployment_{self.session_id}.log"),
+                logging.FileHandler(f"artifacts/logs/enterprise_deployment_{self.session_id}.log"),
                 logging.StreamHandler(),
             ],
         )

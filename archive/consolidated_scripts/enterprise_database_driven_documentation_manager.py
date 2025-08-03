@@ -17,7 +17,7 @@ from tqdm import tqdm
 from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
 
-RENDER_LOG_DIR = Path("logs/template_rendering")
+RENDER_LOG_DIR = Path("artifacts/logs/template_rendering")
 LOG_FILE = RENDER_LOG_DIR / "documentation_render.log"
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 

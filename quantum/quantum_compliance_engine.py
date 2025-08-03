@@ -35,7 +35,7 @@ except ImportError:
 
 # Enterprise logging setup
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
-LOGS_DIR = WORKSPACE_ROOT / "logs" / "quantum_compliance"
+LOGS_DIR = WORKSPACE_ROOT / "artifacts" / "logs" / "quantum_compliance"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"quantum_compliance_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 

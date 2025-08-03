@@ -13,8 +13,8 @@ from tqdm import tqdm
 import logging
 
 # Configure logging to route to logs folder
-logs_folder = Path("logs")
-logs_folder.mkdir(exist_ok=True)
+logs_folder = Path("artifacts/logs")
+logs_folder.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     filename=logs_folder / f"file_assessment_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
     level=logging.INFO,
@@ -37,7 +37,7 @@ class FileMovementAssessment:
 
         # Define correct folder structure
         self.target_folders = {
-            "logs": self.workspace_root / "logs",
+            "logs": self.workspace_root / "artifacts" / "logs",
             "reports": self.workspace_root / "reports",
             "results": self.workspace_root / "results",
             "documentation": self.workspace_root / "documentation",
