@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -39,6 +40,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()],
 )
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 PRODUCTION_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "production.db"
 TEMPLATE_DB = CrossPlatformPathManager.get_workspace_path() / "databases" / "template_documentation.db"

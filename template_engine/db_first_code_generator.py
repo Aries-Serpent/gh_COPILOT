@@ -26,12 +26,15 @@ from tqdm import tqdm
 
 from utils.log_utils import _log_event
 from secondary_copilot_validator import SecondaryCopilotValidator
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 from .placeholder_utils import DEFAULT_PRODUCTION_DB, replace_placeholders
 from .template_placeholder_remover import remove_unused_placeholders
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
 from .learning_templates import get_lesson_templates
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 # Quantum scoring helper
 try:

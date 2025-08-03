@@ -12,8 +12,10 @@ raise :class:`ValueError`.
 
 from __future__ import annotations
 
+import logging
 from importlib import import_module
 from typing import TYPE_CHECKING
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 if TYPE_CHECKING:  # pragma: no cover
     from . import (
@@ -43,6 +45,8 @@ __all__ = [
     "workflow_enhancer",
     "pattern_templates",
 ]
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 
 def __getattr__(name: str):

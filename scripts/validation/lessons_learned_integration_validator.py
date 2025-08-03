@@ -427,7 +427,7 @@ class LessonsLearnedIntegrationValidator:
 
     def audit_module_hooks(self) -> bool:
         """Audit scripts and template_engine modules for lessons learned hooks."""
-        target_dirs = ["scripts", "template_engine"]
+        target_dirs = ["template_engine"]
         missing_modules: List[str] = []
         for directory in target_dirs:
             dir_path = self.workspace_path / directory

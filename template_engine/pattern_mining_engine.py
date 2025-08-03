@@ -29,6 +29,7 @@ from sklearn.metrics import silhouette_score
 
 from .template_synchronizer import _log_audit_real
 from utils.log_utils import _log_event
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -41,6 +42,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 
 def validate_no_recursive_folders() -> None:

@@ -27,6 +27,9 @@ from secondary_copilot_validator import SecondaryCopilotValidator
 
 from utils.log_utils import ensure_tables, insert_event
 from enterprise_modules.compliance import _log_rollback
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 # Internal helpers
 
