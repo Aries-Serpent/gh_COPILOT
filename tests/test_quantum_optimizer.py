@@ -34,3 +34,27 @@ def test_set_backend_hardware(monkeypatch):
     opt.set_backend(None, use_hardware=True)
     assert opt.use_hardware is True
     assert opt.backend is backend
+
+
+def test_qaoa_runs_with_progress():
+    pytest.importorskip("qiskit_algorithms")
+    def obj(x):
+        return float(np.sum(x))
+
+    optimizer = QuantumOptimizer(obj, [(0, 1)], method="qaoa")
+    summary = optimizer.run(n_qubits=1, reps=1, max_iter=2)
+    events = [e["event"] for e in summary["history"]]
+    assert "qaoa_complete" in events
+    assert any(e == "qaoa_progress" for e in events)
+
+
+def test_vqe_runs_with_progress():
+    pytest.importorskip("qiskit_algorithms")
+    def obj(x):
+        return float(np.sum(x))
+
+    optimizer = QuantumOptimizer(obj, [(0, 1)], method="vqe")
+    summary = optimizer.run(n_qubits=1, reps=1, max_iter=2)
+    events = [e["event"] for e in summary["history"]]
+    assert "vqe_complete" in events
+    assert any(e == "vqe_progress" for e in events)
