@@ -62,6 +62,24 @@ def _load_rollbacks(limit: int = 10) -> list[dict[str, Any]]:
     return records
 
 
+def _load_audit_results(limit: int = 50) -> list[dict[str, Any]]:
+    """Return aggregated placeholder audit results from ``analytics.db``."""
+    rows: list[dict[str, Any]] = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
+                    (limit,),
+                )
+                rows = [
+                    {"placeholder_type": r[0], "count": r[1]} for r in cur.fetchall()
+                ]
+            except sqlite3.Error as exc:  # pragma: no cover - log and continue
+                logging.error("Audit fetch error: %s", exc)
+    return rows
+
+
 @app.route("/")
 def index() -> str:
     """Render the main dashboard page."""
@@ -80,6 +98,12 @@ def rollback_logs() -> Any:
     return jsonify(_load_rollbacks())
 
 
+@app.route("/audit-results")
+def audit_results() -> Any:
+    """Return placeholder audit results as JSON."""
+    return jsonify(_load_audit_results())
+
+
 @app.route("/metrics/view")
 def metrics_view() -> str:
     """Render a simple HTML view of the metrics."""
@@ -90,6 +114,12 @@ def metrics_view() -> str:
 def rollback_logs_view() -> str:
     """Render a simple HTML view of rollback logs."""
     return render_template("rollback_logs.html", logs=_load_rollbacks())
+
+
+@app.route("/audit-results/view")
+def audit_results_view() -> str:
+    """Render an HTML view of audit results."""
+    return render_template("audit_results.html", results=_load_audit_results())
 
 
 def _validate_environment() -> None:

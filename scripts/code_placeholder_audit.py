@@ -110,7 +110,7 @@ def log_findings(
     *,
     update_resolutions: bool = False,
     auto_remove_resolved: bool = False,
-) -> None:
+    ) -> int:
     """Log audit results to analytics.db.
 
     Parameters
@@ -126,8 +126,8 @@ def log_findings(
 
     Returns
     -------
-    None
-        The function writes to the database when not in simulation mode.
+    int
+        Number of newly inserted audit records.
     """
     user = os.getenv("USER", "system")
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
@@ -158,7 +158,8 @@ def log_findings(
             __name__,
             "[TEST MODE] Simulation enabled: not writing to analytics.db",
         )
-        return
+        return 0
+    inserted = 0
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             """
@@ -254,7 +255,9 @@ def log_findings(
                         " VALUES (?, ?, ?, ?, ?, 'open')",
                         values[:-1],
                     )
+                    inserted += 1
         conn.commit()
+    return inserted
 
 
 # Update dashboard/compliance with summary JSON
@@ -560,13 +563,18 @@ def main(
             bar.update(1)
 
     # Log findings to analytics.db
-    log_findings(
+    inserted = log_findings(
         results,
         analytics,
         simulate=simulate,
         update_resolutions=update_resolutions,
         auto_remove_resolved=update_resolutions,
     )
+    if not simulate:
+        log_message(
+            __name__,
+            f"{TEXT['info']} logged {inserted} findings to {analytics}",
+        )
     if export:
         export.write_text(json.dumps(results, indent=2), encoding="utf-8")
     if apply_fixes and not simulate:
