@@ -1,7 +1,7 @@
 import pytest
 
 import scripts.wlc_session_manager as wsm
-import unified_session_management_system as usms
+from unified_session_management_system import prevent_recursion
 
 
 class DummyValidator:
@@ -124,15 +124,15 @@ def test_missing_environment(monkeypatch):
         wsm.run_session(1, wsm.DB_PATH, False)
 
 
-def test_zero_byte_guard_detects(tmp_path):
-    empty = tmp_path / "a.txt"
-    empty.touch()
+def test_prevent_recursion_blocks_nested_calls():
+    calls: list[int] = []
+
+    @prevent_recursion
+    def recurse(depth: int = 0) -> None:
+        calls.append(depth)
+        if depth == 0:
+            recurse(depth + 1)
+
     with pytest.raises(RuntimeError):
-        with usms.ensure_no_zero_byte_files(tmp_path):
-            pass
-
-
-def test_zero_byte_guard_allows_clean_path(tmp_path):
-    (tmp_path / "b.txt").write_text("data")
-    with usms.ensure_no_zero_byte_files(tmp_path):
-        pass
+        recurse()
+    assert calls == [0]

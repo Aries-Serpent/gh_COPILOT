@@ -26,6 +26,7 @@ from tqdm import tqdm
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.visual_progress import start_indicator, progress_bar, end_indicator
 from ml_pattern_recognition import PatternRecognizer
+from unified_session_management_system import prevent_recursion
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
@@ -195,6 +196,7 @@ class EnterpriseUtility:
             return False
 
 
+@prevent_recursion
 def main():
     """Main execution function"""
     utility = EnterpriseUtility()
