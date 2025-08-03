@@ -58,3 +58,20 @@ def test_restore_backup_hash_mismatch(tmp_path, monkeypatch):
     system = UnifiedDisasterRecoverySystem(str(workspace))
     assert not system.restore_backup(backup_file)
     assert any(evt["event"] == "restore_failed" for evt in events)
+
+
+def test_restore_backup_missing_checksum(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    backup_root = tmp_path / "backup"
+    backup_root.mkdir()
+    backup_file = backup_root / "data.txt"
+    backup_file.write_text("data", encoding="utf-8")
+
+    events = []
+    monkeypatch.setattr(util_module.enterprise_logging, "log_event", lambda e: events.append(e))
+
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    system = UnifiedDisasterRecoverySystem(str(workspace))
+    assert not system.restore_backup(backup_file)
+    assert any(evt["event"] == "restore_failed" for evt in events)
