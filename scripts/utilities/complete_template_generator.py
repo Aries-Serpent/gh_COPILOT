@@ -11,15 +11,14 @@ from __future__ import annotations
 
 import logging
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
 
 from tqdm import tqdm
 
-from template_engine.auto_generator import (DEFAULT_ANALYTICS_DB,
-                                            DEFAULT_COMPLETION_DB,
-                                            TemplateAutoGenerator)
+DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
+DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
 from utils.lessons_learned_integrator import fetch_lessons_by_tag
 
 TEXT_INDICATORS = {
@@ -45,7 +44,7 @@ class CompleteTemplateGenerator:
         self.analytics_db = analytics_db
         self.completion_db = completion_db
         self.production_db = production_db
-        self.generator = TemplateAutoGenerator(analytics_db, completion_db)
+        self.generator = None
         self._ensure_stats_table()
         self._ensure_generated_table()
 
@@ -100,6 +99,10 @@ class CompleteTemplateGenerator:
     # ------------------------------------------------------------------
     def create_templates(self) -> List[str]:
         """Synthesize new templates from known patterns."""
+        if self.generator is None:
+            from template_engine.auto_generator import TemplateAutoGenerator
+            self.generator = TemplateAutoGenerator(self.analytics_db, self.completion_db)
+
         templates: List[str] = []
         clusters = self.generator.cluster_model
         patterns = self.generator.patterns
@@ -146,8 +149,43 @@ class CompleteTemplateGenerator:
     def regenerate_templates(self) -> List[str]:
         """Reinitialize generator and regenerate templates."""
         logger.info(f"{TEXT_INDICATORS['info']} regenerating templates")
+        from template_engine.auto_generator import TemplateAutoGenerator
         self.generator = TemplateAutoGenerator(self.analytics_db, self.completion_db)
         return self.create_templates()
+
+    # ------------------------------------------------------------------
+    def cleanup_legacy_assets(self, retention_days: int = 30) -> int:
+        """Remove template records older than ``retention_days``.
+
+        Parameters
+        ----------
+        retention_days:
+            Number of days to retain generated template metadata.
+
+        Returns
+        -------
+        int
+            Total number of records removed from ``production.db``.
+        """
+
+        cutoff = datetime.utcnow() - timedelta(days=retention_days)
+        removed = 0
+        with sqlite3.connect(self.production_db) as conn:
+            cur1 = conn.execute(
+                "DELETE FROM template_generation_stats WHERE generated_at < ?",
+                (cutoff.isoformat(),),
+            )
+            cur2 = conn.execute(
+                "DELETE FROM generated_templates WHERE generated_at < ?",
+                (cutoff.isoformat(),),
+            )
+            removed = (cur1.rowcount or 0) + (cur2.rowcount or 0)
+            conn.commit()
+
+        logger.info(
+            f"{TEXT_INDICATORS['info']} cleaned {removed} legacy template records"
+        )
+        return removed
 
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
