@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.1.17] - 2025-08-07
+- Clarified quantum placeholder status in README and docs.
+- Updated changelog and user prompts to reflect current implementation.
+
 ## [4.1.16] - 2025-08-02
 - Added IBM provider availability flag and hardware fallback handling in `QuantumExecutor`.
 - Introduced stub backend for scoring tests and stabilized quantum test simulations.
