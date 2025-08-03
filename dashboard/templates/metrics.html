@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head>
+    <title>Metrics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<h1>Metrics</h1>
+<ul>
+{% for key, value in data.get('metrics', {}).items() %}
+    <li><strong>{{ key }}:</strong> {{ value }}</li>
+{% endfor %}
+</ul>
+</body>
+</html>
+

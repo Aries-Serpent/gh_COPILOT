@@ -9,6 +9,16 @@ This module is designed to meet enterprise auditability and compliance standards
 
 ---
 
+## Setup
+
+1. Run `bash setup.sh` to install dependencies. If the script reports an error, ensure required system packages and Python
+   dependencies are installed.
+2. Activate the virtual environment:
+   `source .venv/bin/activate`.
+3. Launch the dashboard with `python dashboard/enterprise_dashboard.py`.
+
+---
+
 ## FEATURES
 
 | Feature                      | Description                                                                                  |
@@ -81,6 +91,14 @@ The dashboard HTML template lives in `dashboard/templates/dashboard.html` and au
 Example screenshot:
 
 ![Dashboard Screenshot](static/dashboard_screenshot.png)
+
+### Manual QA
+
+1. Start the dashboard: `python dashboard/enterprise_dashboard.py`.
+2. Visit [http://localhost:5000/](http://localhost:5000/) and verify the dashboard renders.
+3. Open `/metrics/view` to confirm metrics are displayed.
+4. Open `/rollback-logs/view` to confirm rollback entries are shown.
+5. Ensure styling from `dashboard/static/style.css` is applied.
 
 ### Live Metrics
 
