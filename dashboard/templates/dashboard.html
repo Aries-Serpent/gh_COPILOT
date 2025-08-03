@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>Compliance Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
     <script>
         function updateMetrics(data){
             document.getElementById('placeholder_removal').textContent = data.placeholder_removal;
