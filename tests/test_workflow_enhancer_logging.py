@@ -27,6 +27,10 @@ def test_workflow_enhancer_logs(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setattr(workflow_enhancer, "validate_enterprise_operation", lambda *_a, **_k: True)
     monkeypatch.setattr(log_utils, "_log_event", fake_log)
     monkeypatch.setattr(workflow_enhancer, "_log_event", fake_log)
+    monkeypatch.setattr(workflow_enhancer, "collect_metrics", lambda: {"cpu_percent": 10.0})
+    import dashboard.compliance_metrics_updater as cmu
+
+    monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
 
     db = tmp_path / "prod.db"
     _init_db(db)

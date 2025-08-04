@@ -10,5 +10,7 @@
       "timestamp": "2025-07-30T07:20:38.830065"
     }
   ],
-  "status": "complete"
+  "status": "complete",
+  "recursion_depth": 0,
+  "pid": 0
 }

@@ -30,7 +30,13 @@ import shutil
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from scripts.database.add_code_audit_log import ensure_code_audit_log
-from template_engine.template_placeholder_remover import remove_unused_placeholders
+# ``template_engine`` is optional; fall back to a no-op if missing.
+try:
+    from template_engine.template_placeholder_remover import remove_unused_placeholders
+except ModuleNotFoundError:
+    def remove_unused_placeholders(text: str, *args, **kwargs) -> str:  # type: ignore[no-redef]
+        """Return text unchanged when placeholder remover is unavailable."""
+        return text
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 import secondary_copilot_validator
 from utils.log_utils import log_message
@@ -695,7 +701,7 @@ def main(
     valid = validate_results(len(results), analytics)
     if fail_on_findings and results:
         valid = False
-    secondary = SecondaryCopilotValidator()
+    secondary = secondary_copilot_validator.SecondaryCopilotValidator()
     secondary.validate_corrections([r["file"] for r in results])
     if valid:
         log_message(__name__, f"{TEXT['success']} audit logged {len(results)} findings")

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import Optional
 
 try:  # pragma: no cover - optional dependency
     from qiskit import Aer
@@ -30,7 +31,12 @@ except Exception:  # pragma: no cover - provider may be missing
 LOGGER = logging.getLogger(__name__)
 
 
-def get_backend(name: str = "ibmq_qasm_simulator", use_hardware: bool | None = None):
+def get_backend(
+    name: str = "ibmq_qasm_simulator",
+    use_hardware: bool | None = None,
+    token: Optional[str] = None,
+    token_env: str = "QISKIT_IBM_TOKEN",
+):
     """Return a Qiskit backend with optional hardware selection.
 
     Attempts to load an IBM Quantum backend when ``use_hardware`` is True and the
@@ -38,12 +44,22 @@ def get_backend(name: str = "ibmq_qasm_simulator", use_hardware: bool | None = N
     ``use_hardware`` is ``None`` the ``QUANTUM_USE_HARDWARE`` environment variable
     ("1" enables hardware mode) controls the behavior.
 
-    Args:
-        name: Desired backend name when using hardware.
-        use_hardware: If True, attempt to use an IBM Quantum backend. If ``None``,
-            read the value from ``QUANTUM_USE_HARDWARE``.
+    Parameters
+    ----------
+    name:
+        Desired backend name when using hardware.
+    use_hardware:
+        If True, attempt to use an IBM Quantum backend. If ``None``, read the
+        value from ``QUANTUM_USE_HARDWARE``.
+    token:
+        Optional IBM Quantum API token. If not provided the function falls back
+        to the ``token_env`` environment variable.
+    token_env:
+        Name of the environment variable that may hold the token.
 
-    Returns:
+    Returns
+    -------
+    Any
         The selected backend instance or ``None`` if Qiskit is unavailable.
     """
     if Aer is None:
@@ -55,7 +71,8 @@ def get_backend(name: str = "ibmq_qasm_simulator", use_hardware: bool | None = N
 
     if use_hardware and IBMProvider is not None:
         try:  # pragma: no cover - requires network credentials
-            provider = IBMProvider()
+            tok = token or os.getenv(token_env)
+            provider = IBMProvider(token=tok) if tok else IBMProvider()
             return provider.get_backend(name)
         except Exception as exc:  # pragma: no cover - provider may fail
             LOGGER.warning("IBM backend unavailable: %s; using simulator", exc)

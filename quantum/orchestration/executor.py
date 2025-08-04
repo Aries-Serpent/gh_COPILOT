@@ -35,6 +35,7 @@ class QuantumExecutor:
         max_workers: int = 4,
         use_hardware: bool = False,
         backend_name: Optional[str] = None,
+        token: str | None = None,
     ):
         self.max_workers = max_workers
         self.logger = logging.getLogger(__name__)
@@ -43,13 +44,13 @@ class QuantumExecutor:
         env_backend = os.getenv("IBM_BACKEND", "ibmq_qasm_simulator")
         self.backend_name = backend_name or env_backend
         self.backend = None
-        env_token = os.getenv("QISKIT_IBM_TOKEN")
-        self.use_hardware = use_hardware or bool(env_token)
+        self.token = token or os.getenv("QISKIT_IBM_TOKEN")
+        self.use_hardware = use_hardware or bool(self.token)
         if self.use_hardware and not HAS_IBM_PROVIDER:
             self.logger.warning("IBM provider unavailable; using simulator")
             self.use_hardware = False
         if self.use_hardware:
-            backend, success = init_ibm_backend()
+            backend, success = init_ibm_backend(token=self.token)
             self.backend = backend
             self.use_hardware = success
         elif QISKIT_AVAILABLE:
@@ -62,7 +63,7 @@ class QuantumExecutor:
             if QISKIT_AVAILABLE:
                 return Aer.get_backend("qasm_simulator")
             return None
-        backend, success = init_ibm_backend()
+        backend, success = init_ibm_backend(token=self.token)
         self.use_hardware = success
         if success:
             return backend

@@ -33,12 +33,15 @@ jobs:
           echo "PATH=${{ github.workspace }}/.venv/bin:$PATH" >> $GITHUB_ENV
 
       - name: Install lint dependencies
-        run: pip install flake8 ruff
+        run: pip install flake8 ruff pyright
 
       - name: Run ruff
         run: |
           mkdir -p reports/lint
           ruff check . | tee reports/lint/ruff.txt
+
+      - name: Run pyright
+        run: pyright
 
       - name: Run flake8
         run: flake8 --config=.flake8 .

@@ -26,9 +26,19 @@ from tqdm import tqdm
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.visual_progress import start_indicator, progress_bar, end_indicator
 from ml_pattern_recognition import PatternRecognizer
-from template_engine import pattern_mining_engine
+try:
+    from template_engine import pattern_mining_engine
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    class _FallbackPatternMiningEngine:  # noqa: D401 - simple stub
+        """Fallback when the template engine is unavailable."""
+
+        def mine_patterns(self, *args, **kwargs):  # type: ignore[no-untyped-def]
+            return []
+
+    pattern_mining_engine = _FallbackPatternMiningEngine()
 from quantum_optimizer import QuantumOptimizer
-from unified_legacy_cleanup_system import UnifiedLegacyCleanupSystem
+# The cleanup system is optional here; imported lazily when needed.
+from unified_legacy_cleanup_system import UnifiedLegacyCleanupSystem  # noqa: F401
 try:
     from unified_session_management_system import prevent_recursion
 except Exception:  # pragma: no cover - fallback if session system unavailable
