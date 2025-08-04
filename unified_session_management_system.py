@@ -16,6 +16,8 @@ __all__ = [
 ]
 
 
+prevent_recursion = anti_recursion_guard
+
 @contextmanager
 def ensure_no_zero_byte_files(root: str | Path):
         """Verify the workspace is free of zero-byte files before and after the block."""
