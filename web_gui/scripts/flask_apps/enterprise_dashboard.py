@@ -24,6 +24,7 @@ from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 
 from config.secret_manager import get_secret
 from utils.cross_platform_paths import CrossPlatformPathManager
+from enterprise_modules.compliance import get_latest_compliance_score
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
 ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", workspace_root / "databases" / "analytics.db"))
@@ -88,6 +89,7 @@ def _fetch_metrics() -> Dict[str, Any]:
     metrics.setdefault("lessons_integration_status", "UNKNOWN")
     metrics.setdefault("average_query_latency", 0.0)
     metrics.setdefault("composite_score", 0.0)
+    metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.cursor()

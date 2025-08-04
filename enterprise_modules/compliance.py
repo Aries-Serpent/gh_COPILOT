@@ -3,8 +3,10 @@ from __future__ import annotations
 """Enterprise compliance helpers and enforcement routines."""
 
 import os
+import re
 import shutil
 import sqlite3
+import subprocess
 import sys
 import json
 from datetime import datetime
@@ -25,6 +27,7 @@ class ComplianceError(Exception):
 # Forbidden command patterns that must not appear in operations
 FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
 MAX_RECURSION_DEPTH = 5
+PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
 
 
 def _load_forbidden_paths() -> list[str]:
@@ -86,6 +89,108 @@ def _detect_recursion(path: Path) -> bool:
                 continue
             return True
     return False
+
+
+def _run_ruff() -> int:
+    """Return the number of lint issues reported by Ruff."""
+    try:
+        result = subprocess.run(
+            ["ruff", ".", "--output-format", "json"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        return len(json.loads(result.stdout or "[]"))
+    except Exception:  # pragma: no cover - lint fallback
+        return 0
+
+
+def _run_pytest() -> tuple[int, int]:
+    """Return numbers of passed and failed tests from pytest."""
+    try:
+        result = subprocess.run(
+            ["pytest", "-q"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        m_pass = re.search(r"(\d+) passed", result.stdout)
+        m_fail = re.search(r"(\d+) failed", result.stdout)
+        passed = int(m_pass.group(1)) if m_pass else 0
+        failed = int(m_fail.group(1)) if m_fail else 0
+        return passed, failed
+    except Exception:  # pragma: no cover - test fallback
+        return 0, 0
+
+
+def _count_placeholders() -> int:
+    """Return count of placeholder patterns (TODO/FIXME) in repository."""
+    workspace = CrossPlatformPathManager.get_workspace_path()
+    count = 0
+    for path in workspace.rglob("*.py"):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        for pat in PLACEHOLDER_PATTERNS:
+            count += text.count(pat)
+    return count
+
+
+def calculate_compliance_score(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+    placeholder_count: int,
+) -> float:
+    """Return composite compliance score combining lint, tests and placeholders."""
+
+    lint_score = max(0.0, 1 - ruff_issues / 50)
+    total_tests = tests_passed + tests_failed
+    test_score = (tests_passed / total_tests) if total_tests else 0.0
+    placeholder_score = 1 / (1 + placeholder_count)
+    return round((lint_score + test_score + placeholder_score) / 3, 3)
+
+
+def persist_compliance_score(score: float, db_path: Path | None = None) -> None:
+    """Persist ``score`` to the ``compliance_scores`` table in analytics.db."""
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    db = db_path or (workspace / "databases" / "analytics.db")
+    db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS compliance_scores (timestamp TEXT, score REAL)"
+        )
+        conn.execute(
+            "INSERT INTO compliance_scores (timestamp, score) VALUES (?, ?)",
+            (datetime.now().isoformat(), float(score)),
+        )
+        conn.commit()
+
+
+def get_latest_compliance_score(db_path: Path | None = None) -> float:
+    """Return the most recent compliance score from analytics.db."""
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    db = db_path or (workspace / "databases" / "analytics.db")
+    if not db.exists():
+        return 0.0
+    with sqlite3.connect(db) as conn:
+        cur = conn.execute(
+            "SELECT score FROM compliance_scores ORDER BY timestamp DESC LIMIT 1"
+        )
+        row = cur.fetchone()
+        return float(row[0]) if row else 0.0
+
+
+def calculate_and_persist_compliance_score() -> float:
+    """Run lint, tests and placeholder scan to compute and store score."""
+    issues = _run_ruff()
+    passed, failed = _run_pytest()
+    placeholders = _count_placeholders()
+    score = calculate_compliance_score(issues, passed, failed, placeholders)
+    persist_compliance_score(score)
+    send_dashboard_alert({"event": "compliance_score", "score": score})
+    return score
 
 
 def generate_compliance_summary() -> dict:
@@ -253,5 +358,9 @@ __all__ = [
     "validate_environment",
     "enforce_anti_recursion",
     "generate_compliance_summary",
+    "calculate_compliance_score",
+    "persist_compliance_score",
+    "get_latest_compliance_score",
+    "calculate_and_persist_compliance_score",
     "ComplianceError",
 ]
