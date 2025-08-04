@@ -19,6 +19,9 @@ def ensure_not_production() -> None:
         raise RuntimeError(msg)
 
 
+# Prevent import in production environments.
+ensure_not_production()
+
 from . import (
     quantum_placeholder_algorithm,
     quantum_annealing,
@@ -32,3 +35,4 @@ __all__ = [
     "quantum_superposition_search",
     "quantum_entanglement_correction",
 ]
+
