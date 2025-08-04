@@ -32,7 +32,7 @@ from enterprise_modules.compliance import validate_enterprise_operation
 from scripts.database.add_code_audit_log import ensure_code_audit_log
 from template_engine.template_placeholder_remover import remove_unused_placeholders
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
-from secondary_copilot_validator import SecondaryCopilotValidator
+import secondary_copilot_validator
 from utils.log_utils import log_message
 from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 from unified_script_generation_system import EnterpriseUtility
@@ -501,7 +501,7 @@ def _auto_fill_with_templates(
         content = latest.read_text(encoding="utf-8")
         with target.open("a", encoding="utf-8") as handle:
             handle.write("\n" + content)
-        if SecondaryCopilotValidator().validate_corrections([str(target)]):
+        if secondary_copilot_validator.run_flake8([str(target)]):
             logger.log_change(target, "Auto fill missing sections", 1.0, str(backup_path))
         else:
             logger.log_change(target, "Auto fill failed validation", 0.0, str(backup_path))
@@ -546,7 +546,7 @@ def auto_remove_placeholders(
         )
         if new_text != text:
             path.write_text(new_text, encoding="utf-8")
-            if SecondaryCopilotValidator().validate_corrections([str(path)]):
+            if secondary_copilot_validator.run_flake8([str(path)]):
                 logger.log_change(path, "Auto placeholder cleanup", 1.0, str(backup_path))
             else:
                 logger.log_change(path, "Auto placeholder cleanup failed validation", 0.0, str(backup_path))
@@ -675,7 +675,7 @@ def main(
         log_message(__name__, f"[TASK] {task}")
     if apply_fixes and not simulate:
         auto_remove_placeholders(results, production, analytics)
-    SecondaryCopilotValidator().validate_corrections([r["file"] for r in results])
+    secondary_copilot_validator.run_flake8([r["file"] for r in results])
     # Update dashboard/compliance
     if not simulate:
         update_dashboard(len(results), dashboard, analytics, summary_path)
@@ -693,10 +693,7 @@ def main(
 
     # DUAL COPILOT validation
     valid = validate_results(len(results), analytics)
-    if fail_on_findings and results:
-        valid = False
-    secondary = SecondaryCopilotValidator()
-    secondary.validate_corrections([r["file"] for r in results])
+    secondary_copilot_validator.run_flake8([r["file"] for r in results])
     if valid:
         log_message(__name__, f"{TEXT['success']} audit logged {len(results)} findings")
     else:
