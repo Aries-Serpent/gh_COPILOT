@@ -1,8 +1,10 @@
 # Quantum Hardware Setup
 
-This guide outlines configuration steps for IBM Quantum integration. Current releases
-use simulators only; tokens and backend names are stored for future use but have no
-effect until real-device access is enabled.
+This guide outlines placeholder configuration steps for eventual IBM Quantum
+integration. Current releases operate **only** in simulator mode; tokens and
+backend names are stored for future use but have no effect until real-device
+access is enabled. Following these steps will not enable hardware execution
+today.
 
 ## 1. Acquire a Token
 1. Create an IBM Quantum account.
@@ -24,7 +26,7 @@ export IBM_BACKEND="ibmq_qasm_simulator"
 The orchestrator records this value but always uses the default simulator.
 
 ## 3. CLI Usage
-Use the executor CLI or orchestrator with hardware flags (placeholders):
+Use the executor CLI or orchestrator with hardware flags (placeholders only):
 ```bash
 python -m quantum.cli.executor_cli --use-hardware --backend ibm_nairobi
 python quantum_integration_orchestrator.py --hardware
