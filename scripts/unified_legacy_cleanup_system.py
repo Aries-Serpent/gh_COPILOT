@@ -12,6 +12,8 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import sqlite3
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
@@ -104,13 +106,51 @@ class UnifiedLegacyCleanupSystem:
             return False
 
     def optimize_workspace(self, dry_run: bool = False) -> None:
-        """Placeholder workspace optimization step."""
+        """Organize files based on classification database."""
         logger.info("Optimizing workspace layout")
         _log_event({"event": "optimize_workspace_start"}, db_path=self.analytics_db)
-        if dry_run:
-            _log_event({"event": "optimize_workspace_dry_run"}, db_path=self.analytics_db)
+        class_db = self.config.class_db
+        if not class_db.exists():
+            _log_event({"event": "optimize_workspace_no_db"}, db_path=self.analytics_db)
             return
-        # Currently a no-op; real implementation would reorganize files
+        try:
+            with sqlite3.connect(class_db) as conn:
+                rows = conn.execute(
+                    "SELECT file_path, file_category FROM intelligent_file_classification"
+                ).fetchall()
+        except Exception as exc:  # pragma: no cover - database might not exist
+            logger.warning(f"Classification query failed: {exc}")
+            _log_event(
+                {"event": "optimize_workspace_query_failed", "error": str(exc)},
+                db_path=self.analytics_db,
+            )
+            return
+        for path_str, category in rows:
+            src = self.config.workspace_path / path_str
+            if not src.exists():
+                continue
+            dest_dir = self.config.workspace_path / "organized" / str(category)
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            dest = dest_dir / src.name
+            _log_event(
+                {"event": "optimize_workspace_move", "source": str(src), "dest": str(dest)},
+                db_path=self.analytics_db,
+            )
+            if dry_run:
+                continue
+            try:
+                validate_enterprise_operation(str(dest_dir))
+                shutil.move(str(src), str(dest))
+            except Exception as exc:  # pragma: no cover - file system errors
+                logger.error(f"Optimization move failed: {exc}")
+                _log_event(
+                    {
+                        "event": "optimize_workspace_move_failed",
+                        "error": str(exc),
+                        "source": str(src),
+                    },
+                    db_path=self.analytics_db,
+                )
         _log_event({"event": "optimize_workspace_complete"}, db_path=self.analytics_db)
         return
 
