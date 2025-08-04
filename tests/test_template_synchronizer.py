@@ -135,3 +135,21 @@ def test_simulation_with_clustering(tmp_path: Path, monkeypatch) -> None:
     synced = template_synchronizer.synchronize_templates([db_a, db_b], cluster=True)
     assert synced == 2
     assert called["flag"] is True
+
+
+def test_cluster_templates_logs_metrics(tmp_path: Path, monkeypatch) -> None:
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
+    analytics = tmp_path.parent / "analytics.db"
+    monkeypatch.setattr(template_synchronizer, "ANALYTICS_DB", analytics)
+    templates = {"t1": "foo bar", "t2": "bar baz", "t3": "baz qux"}
+    reps = template_synchronizer._cluster_templates(templates, n_clusters=2)
+    assert reps
+    with sqlite3.connect(analytics) as conn:
+        row = conn.execute(
+            "SELECT inertia, silhouette, n_clusters FROM template_sync_cluster_metrics"
+        ).fetchone()
+    assert row is not None
+    inertia, silhouette, n_clusters = row
+    assert inertia >= 0
+    assert -1.0 <= silhouette <= 1.0
+    assert n_clusters == 2
