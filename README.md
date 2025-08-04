@@ -602,7 +602,8 @@ Toward Enterprise-Grade Output (tests pending)
 
 Optimization and security scripts must invoke their main logic via
 `DualCopilotOrchestrator` so that a `SecondaryCopilotValidator` review
-follows every primary execution.
+follows every primary execution and runtime metrics are captured for
+analytics.
 
 ### **Implementation Example**
 ```python

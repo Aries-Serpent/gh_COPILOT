@@ -42,7 +42,7 @@ def test_cli_runs_orchestrated_cycles(monkeypatch, tmp_path):
         def run(self, primary, targets):
             calls.append("run")
             primary()
-            return True, True
+            return True, True, {}
 
     monkeypatch.setattr(
         "scripts.monitoring.continuous_monitoring_engine.DualCopilotOrchestrator",

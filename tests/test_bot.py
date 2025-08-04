@@ -59,7 +59,7 @@ def test_main_uses_dual_orchestrator(monkeypatch):
 
     def fake_run(self, primary, targets, timeout_minutes=30):
         called["ran"] = True
-        return True, True
+        return True, True, {}
 
     monkeypatch.setattr("scripts.bot.assign_copilot_license.DualCopilotOrchestrator.run", fake_run)
 
