@@ -679,6 +679,11 @@ displays a brief progress bar. The helper returns ``True`` when the record is
 successfully inserted so callers can validate logging as part of the DUAL
 COPILOT workflow.
 
+Cross-database synchronization via
+`scripts/database/cross_database_sync_logger.py` automatically leverages this
+pipeline—each call to `log_sync_operation` now emits an analytics event so that
+sync activity is tracked centrally in `analytics.db`.
+
 ```python
 from utils.log_utils import _log_event
 from utils.log_utils import _log_event
