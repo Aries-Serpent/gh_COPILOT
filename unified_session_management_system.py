@@ -4,11 +4,9 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Callable
 import logging
 
-from scripts.utilities.unified_session_management_system import (
-    UnifiedSessionManagementSystem,
-)
 from utils.validation_utils import detect_zero_byte_files, anti_recursion_guard
 
 logger = logging.getLogger(__name__)
@@ -31,6 +29,18 @@ def ensure_no_zero_byte_files(root: str | Path):
     after = detect_zero_byte_files(root_path)
     if after:
         raise RuntimeError(f"Zero-byte files detected: {after}")
+
+
+def prevent_recursion(func: Callable) -> Callable:
+    """Decorator forwarding to :func:`anti_recursion_guard`.
+
+    It raises ``RuntimeError`` when ``func`` is invoked recursively within the
+    same process. This lightweight wrapper is re-exported for convenience so
+    other modules can apply the guard without importing validation utilities
+    directly.
+    """
+
+    return anti_recursion_guard(func)
 
 
 @anti_recursion_guard

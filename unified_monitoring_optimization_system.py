@@ -14,6 +14,7 @@ import sqlite3
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
+import psutil
 from sklearn.ensemble import IsolationForest
 
 from typing import TYPE_CHECKING
@@ -27,6 +28,7 @@ DB_PATH = WORKSPACE_ROOT / "databases" / "analytics.db"
 __all__ = [
     "push_metrics",
     "detect_anomalies",
+    "collect_metrics",
     "QuantumInterface",
 ]
 
@@ -110,6 +112,35 @@ def push_metrics(
                 (session_id, json.dumps(metrics)),
             )
         conn.commit()
+
+
+def collect_metrics(
+    *, session_id: Optional[str] = None, db_path: Optional[Path] = None
+) -> Dict[str, float]:
+    """Collect system metrics and persist them.
+
+    Parameters
+    ----------
+    session_id:
+        Optional identifier to associate metrics with a session.
+    db_path:
+        Optional database override. Defaults to :data:`DB_PATH`.
+
+    Returns
+    -------
+    dict
+        Mapping of collected metric names to values.
+    """
+
+    metrics = {
+        "cpu_percent": psutil.cpu_percent(interval=1),
+        "memory_percent": psutil.virtual_memory().percent,
+        "disk_percent": psutil.disk_usage("/").percent,
+        "net_bytes_sent": psutil.net_io_counters().bytes_sent,
+        "net_bytes_recv": psutil.net_io_counters().bytes_recv,
+    }
+    push_metrics(metrics, db_path=db_path, session_id=session_id)
+    return metrics
 
 
 def detect_anomalies(
