@@ -46,7 +46,9 @@ Standard session patterns are defined in `.github/instructions/SESSION_TEMPLATES
 Entry points that start or end a session should apply the
 `anti_recursion_guard` decorator from `scripts.session.anti_recursion_enforcer`.
 This guard uses both a lock file and process checks to prevent accidentally
-starting multiple session managers at the same time.
+starting multiple session managers at the same time. The
+`scripts/session/unified_session_management_system.py` CLI wrapper applies
+this decorator to its ``main`` function.
 
 ```python
 from scripts.session.anti_recursion_enforcer import anti_recursion_guard

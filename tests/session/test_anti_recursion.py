@@ -46,3 +46,12 @@ def test_decorator_allows_single_call(monkeypatch):
 
     assert wrapped() == "ok"
     assert calls == ["check", "run"]
+
+
+def test_decorator_prevents_reentrancy():
+    @anti_recursion_guard
+    def recur():
+        recur()
+
+    with pytest.raises(RuntimeError):
+        recur()
