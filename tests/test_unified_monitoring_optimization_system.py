@@ -5,10 +5,12 @@ from __future__ import annotations
 import json
 import sqlite3
 from pathlib import Path
+import pytest
+
+from quantum_algorithm_library_expansion import quantum_score_stub
 
 from unified_monitoring_optimization_system import (
     detect_anomalies,
-    record_quantum_score,
     push_metrics,
     auto_heal_session,
 )
@@ -36,8 +38,8 @@ def test_push_metrics_links_session(tmp_path: Path) -> None:
     assert row == ("abc", json.dumps({"cpu": 1.0}))
 
 
-def test_detect_anomalies_flags_outlier() -> None:
-    """An obvious outlier should be returned by the detector."""
+def test_detect_anomalies_flags_and_persists_outlier(tmp_path: Path) -> None:
+    """Anomalies should include scores and be stored in ``analytics.db``."""
 
     history = [
         {"cpu": 10.0, "mem": 20.0},
@@ -45,12 +47,33 @@ def test_detect_anomalies_flags_outlier() -> None:
         {"cpu": 95.0, "mem": 99.0},
     ]
 
-    anomalies = detect_anomalies(history, contamination=0.34)
-    assert history[-1] in anomalies
+    db = tmp_path / "analytics.db"
+    anomalies = detect_anomalies(history, contamination=0.34, db_path=db)
+
     assert len(anomalies) == 1
+    anomaly = anomalies[0]
+    assert "anomaly_score" in anomaly
+    assert "composite_score" in anomaly
+    if quantum_score_stub is not None:
+        expected = (
+            anomaly["anomaly_score"] + quantum_score_stub(history[-1].values())
+        ) / 2
+        assert anomaly["composite_score"] == pytest.approx(expected)
+
+    with sqlite3.connect(db) as conn:
+        row = conn.execute(
+            "SELECT metrics_json, anomaly_score, quantum_score, composite_score FROM anomaly_results"
+        ).fetchone()
+
+    assert row is not None
+    assert json.loads(row[0]) == {"cpu": 95.0, "mem": 99.0}
+    assert row[1] == anomaly["anomaly_score"]
+    assert row[3] == anomaly["composite_score"]
+    if quantum_score_stub is not None:
+        assert row[2] == pytest.approx(quantum_score_stub(history[-1].values()))
 
 
-def test_auto_heal_session_restarts_on_anomaly() -> None:
+def test_auto_heal_session_restarts_on_anomaly(tmp_path: Path) -> None:
     """Anomalies should trigger a restart via the session manager."""
 
     class DummyManager:
@@ -71,7 +94,10 @@ def test_auto_heal_session_restarts_on_anomaly() -> None:
     ]
 
     mgr = DummyManager()
-    restarted = auto_heal_session(history, contamination=0.34, manager=mgr)
+    db = tmp_path / "analytics.db"
+    restarted = auto_heal_session(
+        history, contamination=0.34, manager=mgr, db_path=db
+    )
 
     assert restarted is True
     assert mgr.started == 1
