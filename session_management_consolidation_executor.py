@@ -10,6 +10,7 @@ from pathlib import Path
 from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import _log_event
 from validation.protocols.session import SessionProtocolValidator
+from utils.validation_utils import anti_recursion_guard
 
 
 class EnterpriseUtility:
@@ -43,6 +44,7 @@ class EnterpriseUtility:
                 return False
         return True
 
+    @anti_recursion_guard
     def execute_utility(self) -> bool:
         """Execute consolidation routine with logging and validation."""
         self._register_pid()
