@@ -20,6 +20,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
+from secondary_copilot_validator import SecondaryCopilotValidator, run_dual_copilot_validation
+
+if __package__ in {None, ""}:
+    SCRIPT_DIR = Path(__file__).resolve().parent
+    sys.path.insert(0, str(SCRIPT_DIR))
+    import validate_docs_metrics  # type: ignore
+else:  # pragma: no cover
+    from . import validate_docs_metrics
 
 # The production database resides under ``databases/``. Using this path avoids
 # accidental creation of an empty database when ``production.db`` does not exist
@@ -102,6 +110,17 @@ def main(argv: list[str] | None = None) -> None:
             logger.info("updating %s", path)
             update_file(path, metrics)
     _log_event({"event": "generate_docs_metrics_complete"}, db_path=args.analytics_db)
+
+    validator = SecondaryCopilotValidator()
+
+    def _primary() -> bool:
+        return validate_docs_metrics.validate(args.db_path)
+
+    def _secondary() -> bool:
+        files = [str(path) for path in README_PATHS if path.exists()]
+        return validator.validate_corrections(files)
+
+    run_dual_copilot_validation(_primary, _secondary)
     logger.info("documentation metrics generation complete")
 
 

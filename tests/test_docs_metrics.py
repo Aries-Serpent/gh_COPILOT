@@ -125,3 +125,34 @@ def test_generate_and_validate_round_trip(tmp_path, monkeypatch):
 
     generate_docs_metrics.main(["--db-path", str(db_path), "--analytics-db", str(tmp_path / "analytics.db")])
     assert validate_docs_metrics.validate(db_path)
+
+
+def test_generate_metrics_invokes_dual_copilot(tmp_path, monkeypatch):
+    db_path = _setup_db(tmp_path)
+    db_list = tmp_path / "DATABASE_LIST.md"
+    db_list.write_text("- a.db\n")
+    readme = tmp_path / "README.md"
+    readme.write_text(
+        "*Generated on 2000-01-01 00:00:00*\n"
+        "Script Validation: 0 scripts\n"
+        "0 Synchronized Databases\n"
+    )
+
+    monkeypatch.setattr(generate_docs_metrics, "DATABASE_LIST", db_list)
+    monkeypatch.setattr(generate_docs_metrics, "README_PATHS", [readme])
+
+    called = {}
+
+    def fake_run(primary, secondary):
+        called["primary"] = primary
+        called["secondary"] = secondary
+        return True
+
+    monkeypatch.setattr(generate_docs_metrics, "run_dual_copilot_validation", fake_run)
+    generate_docs_metrics.main([
+        "--db-path",
+        str(db_path),
+        "--analytics-db",
+        str(tmp_path / "analytics.db"),
+    ])
+    assert "primary" in called and "secondary" in called

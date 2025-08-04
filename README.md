@@ -12,7 +12,7 @@
 
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
-> Quantum modules run **exclusively** in simulation mode. Hardware flags and IBM Quantum credentials are accepted but ignored for now. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Compliance auditing remains in progress.
+> Quantum modules default to simulation mode. Hardware flags and IBM Quantum credentials prepare the environment for upcoming real-device execution. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Compliance auditing remains in progress.
 > Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards.
 
 ---
@@ -22,9 +22,9 @@
 The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality exists only as placeholder modules operating in simulation mode. Hooks for real hardware are planned but are not yet fully integrated, even when `qiskit-ibm-provider` is configured.
 
 > **Note**
-> Qiskit-based operations currently run in **simulation mode** only. Hardware tokens and backend flags are accepted for future use but are ignored; real hardware execution is not yet implemented.
+> Real hardware execution will be enabled through a forthcoming `QuantumExecutor` module. When tokens and backend flags are supplied, modules verify credentials but fall back to simulators until hardware access is released.
 > **Roadmap**
-> A dedicated `QuantumExecutor` module will enable IBM Quantum hardware in a future release. Until then, all hardware options are inert and default to simulator backends.
+> Hardware integration is in progress and will automatically leverage IBM Quantum backends when available, with simulator fallback as a safety net.
 > **Phase 5 AI**
 > Advanced AI integration features are fully integrated. They default to simulation mode unless real hardware is configured.
 
