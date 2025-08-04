@@ -6,9 +6,6 @@ from contextlib import contextmanager
 from pathlib import Path
 import logging
 
-from scripts.utilities.unified_session_management_system import (
-    UnifiedSessionManagementSystem,
-)
 from utils.validation_utils import detect_zero_byte_files, anti_recursion_guard
 
 logger = logging.getLogger(__name__)
@@ -19,6 +16,8 @@ __all__ = [
     "main",
 ]
 
+
+prevent_recursion = anti_recursion_guard
 
 @contextmanager
 def ensure_no_zero_byte_files(root: str | Path):
