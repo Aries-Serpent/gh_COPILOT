@@ -26,6 +26,11 @@ from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
 from enterprise_modules.compliance import validate_enterprise_operation
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
+from unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+    push_metrics,
+)
+from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 
 
 # Enterprise logging setup
@@ -85,6 +90,8 @@ class ComplianceMetricsUpdater:
             test_mode=self.test_mode,
         )
         self.forbidden_phrases = ["rm -rf", "sudo", "wget "]
+        self.monitoring_utility = EnterpriseUtility()
+        self.correction_logger = CorrectionLoggerRollback(ANALYTICS_DB)
 
     def _fetch_compliance_metrics(self, *, test_mode: bool = False) -> Dict[str, Any]:
         """Fetch compliance metrics from analytics.db."""
@@ -349,6 +356,31 @@ class ComplianceMetricsUpdater:
             test_mode=test_mode,
         )
 
+    def _push_monitoring_metrics(self, metrics: Dict[str, Any]) -> None:
+        """Send metrics to the unified monitoring system."""
+        monitoring_metrics = {
+            "compliance_score": float(metrics.get("compliance_score", 0.0)),
+            "violation_count": float(metrics.get("violation_count", 0.0)),
+            "rollback_count": float(metrics.get("rollback_count", 0.0)),
+        }
+        push_metrics(monitoring_metrics, table="enterprise_metrics", db_path=ANALYTICS_DB)
+        if monitoring_metrics["compliance_score"] < 0.8:
+            self.monitoring_utility.execute_utility()
+
+    def _synchronize_corrections(self, metrics: Dict[str, Any]) -> None:
+        """Log violations and rollbacks via the correction logger."""
+        if metrics.get("violation_count") or metrics.get("compliance_score", 1.0) < 0.8:
+            self.correction_logger.log_violation("Compliance degradation detected")
+        for entry in metrics.get("recent_rollbacks", []):
+            target = Path(entry.get("target", ""))
+            backup = entry.get("backup")
+            self.correction_logger.log_change(
+                target,
+                "Auto rollback recorded",
+                metrics.get("compliance_score", 0.0),
+                rollback_reference=backup,
+            )
+
     def update(self, simulate: bool = False) -> None:
         """Update compliance metrics for the web dashboard with full compliance and validation.
 
@@ -377,6 +409,8 @@ class ComplianceMetricsUpdater:
 
                 pbar.set_description("Logging Update Event")
                 self._log_update_event(metrics, test_mode=self.test_mode)
+                self._push_monitoring_metrics(metrics)
+                self._synchronize_corrections(metrics)
                 pbar.update(1)
             else:
                 pbar.set_description("Simulation Mode")
