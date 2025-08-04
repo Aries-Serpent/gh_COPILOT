@@ -16,7 +16,9 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from flask import Flask, jsonify, render_template
+import time
+
+from flask import Flask, Response, jsonify, render_template, request
 
 from utils.validation_utils import validate_enterprise_environment
 from database_first_synchronization_engine import list_events
@@ -51,14 +53,13 @@ def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
         return records
     try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            try:
-                cur = conn.execute(
-                    "SELECT timestamp, target, backup FROM rollback_logs ORDER BY timestamp DESC LIMIT ?",
-                    (limit,),
-                )
-                records = [{"timestamp": row[0], "target": row[1], "backup": row[2]} for row in cur.fetchall()]
-            except sqlite3.Error as exc:  # pragma: no cover - log and continue
-                logging.error("Rollback fetch error: %s", exc)
+            cur = conn.execute(
+                "SELECT timestamp, target, backup FROM rollback_logs ORDER BY timestamp DESC LIMIT ?",
+                (limit,),
+            )
+            records = [{"timestamp": row[0], "target": row[1], "backup": row[2]} for row in cur.fetchall()]
+    except sqlite3.Error as exc:  # pragma: no cover - log and continue
+        logging.error("Rollback fetch error: %s", exc)
     return records
 
 
@@ -78,14 +79,13 @@ def _load_audit_results(limit: int = 50) -> list[dict[str, Any]]:
         return rows
     try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            try:
-                cur = conn.execute(
-                    "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
-                    (limit,),
-                )
-                rows = [{"placeholder_type": r[0], "count": r[1]} for r in cur.fetchall()]
-            except sqlite3.Error as exc:  # pragma: no cover - log and continue
-                logging.error("Audit fetch error: %s", exc)
+            cur = conn.execute(
+                "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
+                (limit,),
+            )
+            rows = [{"placeholder_type": r[0], "count": r[1]} for r in cur.fetchall()]
+    except sqlite3.Error as exc:  # pragma: no cover - log and continue
+        logging.error("Audit fetch error: %s", exc)
     return rows
 
 
@@ -103,6 +103,28 @@ def index() -> str:
 def metrics() -> Any:
     """Return compliance metrics as JSON."""
     return jsonify(_load_metrics())
+
+
+@app.route("/metrics_stream")
+def metrics_stream() -> Response:
+    """Stream metrics as server-sent events.
+
+    Supports optional ``once`` query parameter to send a single event and
+    ``interval`` to control update frequency in seconds.
+    """
+
+    once = request.args.get("once") == "1"
+    interval = int(request.args.get("interval", "5"))
+
+    def generate() -> Any:
+        while True:
+            payload = json.dumps(_load_metrics().get("metrics", {}))
+            yield f"data: {payload}\n\n"
+            if once:
+                break
+            time.sleep(interval)
+
+    return Response(generate(), mimetype="text/event-stream")
 
 
 @app.route("/rollback-logs")
