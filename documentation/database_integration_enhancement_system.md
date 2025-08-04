@@ -493,6 +493,20 @@ python scripts/database_integration_enhancer.py --generate-report
 4. **Performance Optimization**: Design queries for optimal performance
 5. **Schema Evolution**: Plan schema changes with integration considerations
 
+### 📑 Synchronization Audit Log and Failure Modes
+
+- **Log Format**: Each synchronization action is written to `logs/synchronization.log`
+  using the pattern `"<action> <table>:<id>"` (e.g., `"update items:42"`).
+- **Audit Table**: Decisions are persisted to `analytics.db` in the
+  `sync_audit_log` table with columns `source_db`, `target_db`, `action`, and
+  `timestamp`.
+- **Conflict Handling**: When the target row has a newer timestamp than the
+  source, the engine records `conflict_skip <table>:<id>` in both the log file
+  and audit table.
+- **Retry Logic**: Transient `sqlite3` errors trigger a rollback and automatic
+  retry (default three attempts) to prevent partial updates. A final failure
+  raises the exception after all retries are exhausted.
+
 ---
 
 *Database Integration Enhancement System v1.0*
