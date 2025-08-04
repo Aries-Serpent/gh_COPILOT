@@ -48,7 +48,11 @@ def _load_metrics() -> dict[str, Any]:
             metrics = json.loads(METRICS_FILE.read_text()).get("metrics", {})
         except json.JSONDecodeError as exc:  # pragma: no cover - log and fall back
             logging.error("Metrics decode error: %s", exc)
-    metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
+    try:
+        metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
+    except sqlite3.Error as exc:  # pragma: no cover - missing table
+        logging.error("Compliance score fetch error: %s", exc)
+        metrics["compliance_score"] = 0.0
     try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
             conn.row_factory = sqlite3.Row

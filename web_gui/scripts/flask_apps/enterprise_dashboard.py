@@ -84,16 +84,24 @@ def _get_average_query_latency(cur: sqlite3.Cursor) -> float:
 
 def _fetch_metrics() -> Dict[str, Any]:
     """Fetch compliance metrics including lessons integration and query latency."""
+    metrics: Dict[str, Any] = {
+        "total_placeholders": 0,
+        "lessons_integration_status": "UNKNOWN",
+        "average_query_latency": 0.0,
+        "composite_score": 0.0,
+        "score_breakdown": {},
+    }
+    try:  # pragma: no cover - best effort integration with updater
+        data = metrics_updater._fetch_compliance_metrics(test_mode=True)
+        if isinstance(data, dict):
+            metrics.update(data)
+    except Exception:
+        pass
     try:
-        metrics = metrics_updater._fetch_compliance_metrics(test_mode=True)
-    except Exception:  # pragma: no cover - fallback on error
-        metrics = {}
-    metrics.setdefault("total_placeholders", 0)
-    metrics.setdefault("lessons_integration_status", "UNKNOWN")
-    metrics.setdefault("average_query_latency", 0.0)
-    metrics.setdefault("composite_score", 0.0)
-    metrics.setdefault("score_breakdown", {})
-    metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
+        metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
+    except sqlite3.Error as exc:  # pragma: no cover - fallback on schema issues
+        logging.error("Compliance score fetch error: %s", exc)
+        metrics["compliance_score"] = 0.0
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             conn.row_factory = sqlite3.Row
@@ -230,13 +238,16 @@ def metrics() -> Any:
 @app.get("/metrics_stream")
 def metrics_stream() -> Response:
     """Stream metrics as server-sent events for live updates."""
-
     once = request.args.get("once") == "1"
+    if once:
+        data = json.dumps(_fetch_metrics())
+        return Response(f"data: {data}\n\n", mimetype="text/event-stream")
     interval = int(request.args.get("interval", 5))
 
     def generate() -> Iterable[str]:
-        for metrics in metrics_updater.stream_metrics(interval=interval, iterations=1 if once else None):
-            yield f"data: {json.dumps(metrics)}\n\n"
+        while True:
+            yield f"data: {json.dumps(_fetch_metrics())}\n\n"
+            time.sleep(interval)
 
     return Response(generate(), mimetype="text/event-stream")
 
@@ -246,12 +257,16 @@ def alerts_stream() -> Response:
     """Stream alerts as server-sent events for live updates."""
 
     once = request.args.get("once") == "1"
+    if once:
+        alerts = json.dumps(_fetch_alerts())
+        return Response(f"data: {alerts}\n\n", mimetype="text/event-stream")
     interval = int(request.args.get("interval", 5))
 
     def generate() -> Iterable[str]:
-        for _ in metrics_updater.stream_metrics(interval=interval, iterations=1 if once else None):
+        while True:
             alerts = _fetch_alerts()
             yield f"data: {json.dumps(alerts)}\n\n"
+            time.sleep(interval)
 
     return Response(generate(), mimetype="text/event-stream")
 

@@ -9,6 +9,9 @@ from pathlib import Path
 from tqdm import tqdm
 
 from utils.log_utils import _log_event, DEFAULT_ANALYTICS_DB
+from scripts.database.cross_database_sync_logger import (
+    log_sync_operation_with_analytics,
+)
 from secondary_copilot_validator import SecondaryCopilotValidator
 from scripts.code_placeholder_audit import main as placeholder_audit
 
@@ -147,6 +150,20 @@ def run_placeholder_audit() -> None:
             rows,
         )
         conn.commit()
+
+
+def sync_databases(source: str, target: str) -> None:
+    """Copy all data from ``source`` SQLite database into ``target``.
+
+    The operation is logged via :func:`log_sync_operation_with_analytics` to
+    maintain an audit trail.
+    """
+
+    src = Path(source)
+    dst = Path(target)
+    with sqlite3.connect(src) as src_conn, sqlite3.connect(dst) as dst_conn:
+        src_conn.backup(dst_conn)
+    log_sync_operation_with_analytics([src, dst], "sync_databases")
 
 
 def run_automation_setup() -> None:
