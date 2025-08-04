@@ -90,16 +90,17 @@ CREATE TABLE quantum_audit_log (
 - **Quantum Secure**: ✅ Compliant
 - **Audit Ready**: ✅ Documentation Complete
 
-### Optional Hardware Setup
-To execute routines on IBM Quantum hardware:
+### Optional Hardware Setup *(placeholder)
+Hardware execution is not yet supported. The steps below outline the future flow:
 1. Install `qiskit-ibm-provider` in the project virtual environment.
 2. Set the environment variable `QISKIT_IBM_TOKEN` with your IBM Quantum API key.
 3. Launch the orchestrator with the desired backend:
    ```bash
+   # placeholder; still runs on simulators
    python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
    ```
-If the backend or token is unavailable, the toolkit automatically falls back to
-simulation mode.
+The toolkit ignores backend selection and token values and always operates in
+simulation mode. Hardware integration will arrive with the upcoming `QuantumExecutor` module.
 
 ---
 *Compliance Report v1.0*

@@ -58,13 +58,11 @@ The following table summarizes `pytest` failures observed in the latest test run
 | Test Module | Brief Description |
 |-------------|------------------|
 | `tests/documentation/test_documentation_manager_templates.py` | Template selection from documentation database |
-| `tests/template_engine/test_template_caching.py` | Template caching and ranking |
 | `tests/test_archive_scripts.py` | Archive utility function checks |
 | `tests/test_autonomous_setup_and_audit.py` | Asset ingestion validation |
 | `tests/test_complete_consolidation_orchestrator.py` | Consolidation export and compression routines |
 | `tests/test_complete_template_generator.py` | Template generation workflow |
 | `tests/test_compliance_metrics_updater.py` | Compliance metrics updater logic |
-| `tests/test_comprehensive_workspace_manager.py` | Session start/end recording |
 | `tests/test_comprehensive_workspace_manager_cli.py` | CLI environment requirements |
 | `tests/test_compress_database.py` | Database compression effect |
 | `tests/test_correction_history.py` | Correction history logging |
@@ -73,7 +71,6 @@ The following table summarizes `pytest` failures observed in the latest test run
 | `tests/test_database_list.py` | Database presence verification |
 | `tests/test_db_helper_usage.py` | DB helper invocation |
 | `tests/test_disallowed_paths.py` | Disallowed path validation |
-| `tests/test_documentation_consolidator.py` | Documentation consolidation |
 | `tests/test_documentation_db_analyzer.py` | Documentation DB analyzer |
 | `tests/test_documentation_manager_validator.py` | Documentation validator |
 | `tests/test_enterprise_database_driven_documentation_manager.py` | Dual copilot validation hooks |

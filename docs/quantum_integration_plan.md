@@ -10,6 +10,10 @@
 - Interfaces mirror potential hardware usage for future parity.
 - Maintains identical interfaces so future hardware support can plug in without API changes.
 
+## Hardware Requirements
+- Future hardware execution will require `qiskit` plus `qiskit-ibm-provider` and a valid IBM Quantum token provided via the `QISKIT_IBM_TOKEN` environment variable.
+- Setting `QUANTUM_USE_HARDWARE=1` enables hardware mode; when these prerequisites are missing the integration continues to run on simulators.
+
 ## Placeholder Modules
 
 Prototype implementations reside under `scripts/quantum_placeholders/`.

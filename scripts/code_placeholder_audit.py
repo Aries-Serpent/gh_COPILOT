@@ -104,6 +104,18 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
             return []
 
 
+# Generate human-readable tasks for removing placeholders
+def generate_removal_tasks(results: List[Dict]) -> List[str]:
+    """Return actionable tasks for each detected placeholder."""
+
+    tasks: List[str] = []
+    for item in results:
+        tasks.append(
+            f"Remove {item['pattern']} in {item['file']}:{item['line']} - {item['context']}"
+        )
+    return tasks
+
+
 # Insert findings into analytics.db.code_audit_log
 def log_findings(
     results: List[Dict],
@@ -560,6 +572,7 @@ def main(
     apply_fixes: bool = False,
     export: Optional[Path] = None,
     summary_json: Optional[str] = None,
+    fail_on_findings: bool = False,
 ) -> bool:
     """Entry point for placeholder auditing with full enterprise compliance.
 
@@ -657,6 +670,9 @@ def main(
         )
     if export:
         export.write_text(json.dumps(results, indent=2), encoding="utf-8")
+    tasks = generate_removal_tasks(results)
+    for task in tasks:
+        log_message(__name__, f"[TASK] {task}")
     if apply_fixes and not simulate:
         auto_remove_placeholders(results, production, analytics)
     secondary_copilot_validator.run_flake8([r["file"] for r in results])
@@ -745,6 +761,11 @@ def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
         type=str,
         help="Explicit path for placeholder_summary.json output",
     )
+    parser.add_argument(
+        "--fail-on-findings",
+        action="store_true",
+        help="Exit with failure if any placeholders are found",
+    )
     return parser.parse_args(argv)
 
 
@@ -780,5 +801,6 @@ if __name__ == "__main__":
         apply_fixes=args.apply_fixes,
         export=args.export,
         summary_json=args.summary_json,
+        fail_on_findings=args.fail_on_findings,
     )
     raise SystemExit(0 if success else 1)

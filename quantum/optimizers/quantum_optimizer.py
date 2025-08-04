@@ -7,7 +7,6 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 from utils.cross_platform_paths import CrossPlatformPathManager
 from pathlib import Path
 import os
-import warnings
 
 import numpy as np
 
@@ -27,13 +26,7 @@ except Exception:  # pragma: no cover - qiskit optional
     QISKIT_AVAILABLE = False
     Aer = Estimator = SparsePauliOp = TwoLocal = QAOA = VQE = COBYLA = None  # type: ignore
 
-from quantum.ibm_backend import init_ibm_backend
-
-# Expose IBMProvider for monkeypatching in tests
-try:  # pragma: no cover - optional dependency
-    from qiskit_ibm_provider import IBMProvider
-except Exception:  # pragma: no cover - provider may be missing
-    IBMProvider = None
+from quantum.utils.backend_provider import get_backend
 
 # --- Anti-Recursion Validation ---
 
@@ -159,38 +152,35 @@ class QuantumOptimizer:
         self,
         backend: Any | None,
         use_hardware: bool = False,
-        token_env: str = "QISKIT_IBM_TOKEN",
+        backend_name: str = "ibmq_qasm_simulator",
     ) -> None:
         """Set quantum backend for optimizers.
 
-        When ``use_hardware`` is True and ``backend`` is ``None``, this method
-        attempts to initialize an IBM backend via :func:`init_ibm_backend`.
-        ``use_hardware`` is updated based on the availability of the hardware
-        backend. The chosen backend is logged with a ``[QUANTUM_BACKEND]`` tag.
+        When ``backend`` is ``None`` this method acquires a backend via
+        :func:`quantum.utils.backend_provider.get_backend`, preferring IBM
+        Quantum hardware when ``use_hardware`` is ``True``.  If hardware access
+        is unavailable the local simulator is used.  The resolved backend is
+        logged with a ``[QUANTUM_BACKEND]`` tag and ``self.use_hardware`` is
+        updated to reflect whether a real device was selected.
         """
-        if use_hardware and backend is None:
-            if IBMProvider is None:
-                warnings.warn(
-                    "IBMProvider not available; using simulator",
-                )
-                backend = (
-                    Aer.get_backend("aer_simulator") if QISKIT_AVAILABLE else None
-                )
-                self.backend = backend
-                self.use_hardware = False
-            else:
-                backend, success = init_ibm_backend(token_env=token_env)
-                if not success:
-                    warnings.warn(
-                        "Hardware backend initialization failed; using simulator",
-                    )
-                self.backend = backend
-                self.use_hardware = success
+        if backend is None:
+            backend = get_backend(backend_name, use_hardware=use_hardware)
+            is_hardware = False
+            if backend is not None and use_hardware:
+                try:
+                    is_hardware = not backend.configuration().simulator
+                except Exception:  # pragma: no cover - backend may lack config
+                    is_hardware = False
+            self.backend = backend
+            self.use_hardware = is_hardware
         else:
             self.backend = backend
             self.use_hardware = use_hardware
-        backend_name = getattr(self.backend, "name", str(self.backend))
-        self.log_event("[QUANTUM_BACKEND]", {"backend": backend_name, "hardware": self.use_hardware})
+        backend_label = getattr(self.backend, "name", str(self.backend))
+        self.log_event(
+            "[QUANTUM_BACKEND]",
+            {"backend": backend_label, "hardware": self.use_hardware},
+        )
 
     def configure_backend(
         self,
@@ -198,24 +188,19 @@ class QuantumOptimizer:
         use_hardware: bool = False,
         token: Optional[str] = None,
     ) -> Any:
-        """Acquire and configure an IBM quantum backend.
+        """Acquire and configure a quantum backend.
 
-        Attempts to load credentials from ``QISKIT_IBM_TOKEN`` if ``token`` is
-        not provided. If hardware access fails or the provider is unavailable,
-        the optimizer falls back to the local ``Aer`` simulator.
+        Credentials may be supplied via ``token`` or the ``QISKIT_IBM_TOKEN``
+        environment variable.  When ``use_hardware`` is True the function
+        requests an IBM Quantum backend and otherwise returns the local
+        simulator.  ``ImportError`` is raised if no backend can be obtained.
         """
-        if use_hardware:
-            if token:
-                os.environ.setdefault("QISKIT_IBM_TOKEN", token)
-            os.environ.setdefault("IBM_BACKEND", backend_name)
-            backend, success = init_ibm_backend()
-            self.set_backend(backend, success)
-            if success:
-                return backend
-        if QISKIT_AVAILABLE:
-            simulator = Aer.get_backend("statevector_simulator")
-            self.set_backend(simulator, False)
-            return simulator
+        if token:
+            os.environ.setdefault("QISKIT_IBM_TOKEN", token)
+        backend = get_backend(backend_name, use_hardware=use_hardware)
+        self.set_backend(backend, use_hardware)
+        if backend is not None:
+            return backend
         raise ImportError("No quantum backend available")
 
     def _validate_init(self):
