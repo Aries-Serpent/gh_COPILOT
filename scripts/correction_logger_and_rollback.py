@@ -168,7 +168,6 @@ class CorrectionLoggerRollback:
         correction_type: str = "general",
         compliance_score: float = 1.0,
         rollback_reference: Optional[str] = None,
-        correction_type: str = "general",
         score_delta: float = 0.0,
         compliance_delta: float = 0.0,
         session_id: Optional[str] = None,
@@ -188,7 +187,7 @@ class CorrectionLoggerRollback:
                 compliance_score - prev_score if prev_score is not None else compliance_score
             )
             conn.execute(
-                "INSERT INTO corrections (file_path, rationale, correction_type, compliance_score, compliance_delta, score_delta, rollback_reference, session_id, ts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO corrections (file_path, rationale, correction_type, compliance_score, score_delta, compliance_delta, rollback_reference, session_id, process_id, script, ts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     str(file_path),
                     rationale,
@@ -216,7 +215,6 @@ class CorrectionLoggerRollback:
                 "score": compliance_score,
                 "score_delta": score_delta,
                 "delta": compliance_delta,
-                "correction_type": correction_type,
                 "session_id": session_id,
             },
             table="corrections",
