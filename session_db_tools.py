@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from utils.log_utils import _log_event, log_message
 from utils.lessons_learned_integrator import store_lesson
+from utils.validation_utils import anti_recursion_guard
 import logging
 
 TEXT_INDICATORS = {
@@ -41,6 +42,7 @@ __all__ = [
 ]
 
 
+@anti_recursion_guard
 def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
     """
     Discover and return all active sessions in the session database.
@@ -128,6 +130,7 @@ def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
         return []
 
 
+@anti_recursion_guard
 def consolidate_sessions_atomic(
     session_list: List[Dict[str, Any]],
     output_db: Union[str, Path],
