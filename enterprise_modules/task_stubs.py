@@ -7,7 +7,10 @@ serve as placeholders so downstream systems can reference
 emerging work without requiring full functionality yet.
 """
 from dataclasses import dataclass
-from typing import List
+from pathlib import Path
+from typing import List, Union, Optional
+
+from .database_utils import fetch_template
 
 
 @dataclass
@@ -20,6 +23,36 @@ class TaskStub:
     testing: str
     documentation: str
     planning: str
+
+
+def load_template(
+    name: str,
+    templates_dir: Union[str, Path] = Path("templates"),
+    extension: str = ".tpl",
+) -> str:
+    """Load template content preferring database entries.
+
+    Parameters
+    ----------
+    name:
+        Template name to retrieve.
+    templates_dir:
+        Directory containing file-based templates.
+    extension:
+        File extension for template files.
+    """
+
+    content: Optional[str] = fetch_template(name)
+    if content is not None:
+        return content
+
+    file_path = Path(templates_dir) / f"{name}{extension}"
+    if file_path.exists():
+        return file_path.read_text()
+
+    raise FileNotFoundError(
+        f"Template '{name}' not found in database or at {file_path}"
+    )
 
 
 TASK_STUBS: List[TaskStub] = [
@@ -185,4 +218,4 @@ TASK_STUBS: List[TaskStub] = [
     ),
 ]
 
-__all__ = ["TaskStub", "TASK_STUBS"]
+__all__ = ["TaskStub", "TASK_STUBS", "load_template"]
