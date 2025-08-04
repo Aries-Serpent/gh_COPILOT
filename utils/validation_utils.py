@@ -17,12 +17,33 @@ def calculate_composite_compliance_score(
     ruff_issues: int,
     tests_passed: int,
     tests_failed: int,
-) -> float:
-    """Return composite compliance score based on lint and test results."""
+) -> Dict[str, float]:
+    """Return detailed compliance scores for dashboard display.
+
+    Parameters
+    ----------
+    ruff_issues: int
+        Total number of lint issues reported by Ruff.
+    tests_passed: int
+        Number of tests that passed.
+    tests_failed: int
+        Number of tests that failed.
+
+    Returns
+    -------
+    Dict[str, float]
+        Dictionary containing ``lint_score``, ``test_score`` and ``composite``.
+    """
+
     total_tests = tests_passed + tests_failed
     test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
     lint_score = max(0.0, 100 - ruff_issues)
-    return round((lint_score + test_score) / 2, 2)
+    composite = round((lint_score + test_score) / 2, 2)
+    return {
+        "lint_score": round(lint_score, 2),
+        "test_score": round(test_score, 2),
+        "composite": composite,
+    }
 
 
 def validate_workspace_integrity() -> Dict[str, Any]:
