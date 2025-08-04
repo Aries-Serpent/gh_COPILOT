@@ -1188,6 +1188,19 @@ Several small modules provide common helpers:
 - `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
   - `artifact_manager.py` – package modified files from the temporary directory into the location specified by `session_artifact_dir` (defaults to `codex_sessions`). Run `python artifact_manager.py --package` to create an archive, `--recover` to extract the latest one, use `--tmp-dir` to choose a different temporary directory, and `--sync-gitattributes` to refresh LFS rules.
 
+### Reclone Repository Utility
+
+The `reclone_repo.py` script downloads a fresh clone of a Git repository. It is
+useful for replacing a corrupted working copy or for disaster recovery
+scenarios.
+
+```bash
+python reclone_repo.py --repo-url <REPO_URL> --dest /path/to/clone --clean
+```
+
+Use `--backup-existing` to move any pre-existing destination directory to
+`$GH_COPILOT_BACKUP_ROOT/<name>_TIMESTAMP` before cloning.
+
 ## Future Roadmap
 
 Phase 6 development will introduce additional quantum features, expanded
