@@ -2,6 +2,11 @@
 
 This folder contains helper documentation for keeping repository metrics in sync.
 
+On every push the CI pipeline automatically runs
+`scripts/generate_docs_metrics.py` followed by
+`scripts/validate_docs_metrics.py` to ensure documentation statistics stay
+consistent with the production database.
+
 ## Updating Metrics
 
 Run `python scripts/generate_docs_metrics.py` to refresh metrics in the main
