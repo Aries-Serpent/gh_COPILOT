@@ -25,16 +25,16 @@ def analytics_db(tmp_path: Path, monkeypatch) -> Path:
             [(0.3, "2024-01-01"), (0.6, "2024-01-02")],
         )
         conn.execute(
-            "CREATE TABLE violation_logs (details TEXT, timestamp TEXT)"
+            "CREATE TABLE violation_logs (timestamp TEXT, event TEXT, details TEXT, cause TEXT, remediation_path TEXT, rollback_trigger TEXT, count INTEGER)"
         )
         conn.execute(
-            "INSERT INTO violation_logs VALUES ('v1', '2024-01-03')"
+            "INSERT INTO violation_logs (timestamp, event, details) VALUES ('2024-01-03', 'violation', 'v1')"
         )
         conn.execute(
-            "CREATE TABLE rollback_logs (target TEXT, backup TEXT, timestamp TEXT)"
+            "CREATE TABLE rollback_logs (target TEXT, backup TEXT, violation_id INTEGER, outcome TEXT, event TEXT, count INTEGER, timestamp TEXT)"
         )
         conn.execute(
-            "INSERT INTO rollback_logs VALUES ('file', 'bak', '2024-01-03')"
+            "INSERT INTO rollback_logs (target, backup, outcome, event, timestamp) VALUES ('file', 'bak', 'success', 'rollback', '2024-01-03')"
         )
         conn.execute(
             "CREATE TABLE performance_metrics (metric_name TEXT, metric_value REAL)"

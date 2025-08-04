@@ -27,8 +27,12 @@ def test_violation_and_rollback_logging(tmp_path, monkeypatch):
         conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved', 1)")
         conn.execute("CREATE TABLE correction_logs (file_path TEXT, compliance_score REAL, ts TEXT)")
         conn.execute("INSERT INTO correction_logs VALUES ('f',1.0,'ts')")
-        conn.execute("CREATE TABLE violation_logs (timestamp TEXT, details TEXT)")
-        conn.execute("CREATE TABLE rollback_logs (target TEXT, backup TEXT, timestamp TEXT)")
+        conn.execute(
+            "CREATE TABLE violation_logs (timestamp TEXT, event TEXT, details TEXT, cause TEXT, remediation_path TEXT, rollback_trigger TEXT, count INTEGER)"
+        )
+        conn.execute(
+            "CREATE TABLE rollback_logs (target TEXT, backup TEXT, violation_id INTEGER, outcome TEXT, event TEXT, count INTEGER, timestamp TEXT)"
+        )
         conn.commit()
 
     logger = CorrectionLoggerRollback(analytics_db)

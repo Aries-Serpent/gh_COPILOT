@@ -5,6 +5,7 @@ from pathlib import Path
 import template_engine.pattern_mining_engine as pme
 from template_engine.pattern_mining_engine import (
     extract_patterns,
+    cluster_templates,
     mine_patterns,
     get_clusters,
     validate_mining,
@@ -28,6 +29,12 @@ def test_extract_patterns():
     end_time = datetime.now()
     duration = (end_time - start_time).total_seconds()
     print(f"TEST COMPLETED: test_extract_patterns in {duration:.2f}s")
+
+
+def test_cluster_templates_basic():
+    features = [[1.0, 0.0], [0.0, 1.0]]
+    labels = cluster_templates(features, n_clusters=2)
+    assert sorted(set(labels)) == [0, 1]
 
 
 def test_mine_patterns(tmp_path: Path, monkeypatch) -> None:

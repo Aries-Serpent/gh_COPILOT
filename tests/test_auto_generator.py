@@ -278,3 +278,10 @@ def test_lessons_applied_during_generation(tmp_path: Path, monkeypatch) -> None:
 
     assert applied["called"]
     assert any("integrate tests" in t for t in gen.templates)
+
+
+def test_validate_no_recursive_folders_ignores_venv(tmp_path: Path, monkeypatch) -> None:
+    """Virtual environments may contain backup-like paths that should be ignored."""
+    (tmp_path / ".venv/lib/python/backupsearch").mkdir(parents=True)
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    auto_generator.validate_no_recursive_folders()  # Should not raise

@@ -392,7 +392,7 @@ class ComplianceMetricsUpdater:
         validate_enterprise_operation(str(self.dashboard_dir))
         self.status = "UPDATING"
         start_time = time.time()
-        with tqdm(total=3, desc="Updating Compliance Metrics", unit="step") as pbar:
+        with tqdm(total=4, desc="Updating Compliance Metrics", unit="step") as pbar:
             pbar.set_description("Fetching Metrics")
             metrics = self._fetch_compliance_metrics(test_mode=self.test_mode or simulate)
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
@@ -412,12 +412,16 @@ class ComplianceMetricsUpdater:
                 self._push_monitoring_metrics(metrics)
                 self._synchronize_corrections(metrics)
                 pbar.update(1)
+
+                pbar.set_description("Syncing External Systems")
+                self._sync_external_systems(metrics)
+                pbar.update(1)
             else:
                 pbar.set_description("Simulation Mode")
-                pbar.update(2)
+                pbar.update(3)
 
         elapsed = time.time() - start_time
-        etc = self._calculate_etc(elapsed, 3, 3)
+        etc = self._calculate_etc(elapsed, 4, 4)
         logging.info(f"Compliance metrics update completed in {elapsed:.2f}s | ETC: {etc}")
         insert_event(
             {"event": "update_complete", "duration": elapsed},

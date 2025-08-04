@@ -49,6 +49,7 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     modes = []
     events = []
     monkeypatch.setattr(module, "ensure_tables", lambda *a, **k: None)
+    monkeypatch.setattr(module, "push_metrics", lambda m, **k: push_calls.append(m))
 
     def _capture_event(event, table, **k):
         modes.append(k.get("test_mode"))

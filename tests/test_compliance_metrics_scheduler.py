@@ -16,8 +16,12 @@ def test_scheduler_and_stream(tmp_path, monkeypatch):
         conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved')")
         conn.execute("CREATE TABLE correction_logs (compliance_score REAL)")
         conn.execute("INSERT INTO correction_logs VALUES (1.0)")
-        conn.execute("CREATE TABLE violation_logs (timestamp TEXT, details TEXT)")
-        conn.execute("CREATE TABLE rollback_logs (target TEXT, backup TEXT, timestamp TEXT)")
+        conn.execute(
+            "CREATE TABLE violation_logs (timestamp TEXT, event TEXT, details TEXT, cause TEXT, remediation_path TEXT, rollback_trigger TEXT, count INTEGER)"
+        )
+        conn.execute(
+            "CREATE TABLE rollback_logs (target TEXT, backup TEXT, violation_id INTEGER, outcome TEXT, event TEXT, count INTEGER, timestamp TEXT)"
+        )
 
     monkeypatch.setattr(cmu, "ANALYTICS_DB", analytics_db)
     monkeypatch.setattr(cmu, "ensure_tables", lambda *a, **k: None)
