@@ -70,11 +70,17 @@ class AntiRecursionValidator:
         self.backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
 
     def validate_workspace_integrity(self) -> bool:
-        """Return True if backup path is not within the workspace."""
+        """Return ``True`` when workspace and backup paths are disjoint."""
         try:
-            return not str(self.backup_root).startswith(str(self.workspace))
+            workspace = self.workspace.resolve()
+            backup = self.backup_root.resolve()
         except Exception:
             return False
+        if workspace == backup:
+            return False
+        if backup in workspace.parents or workspace in backup.parents:
+            return False
+        return True
 
 
 class EnterpriseLoggingManager:
