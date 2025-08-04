@@ -10,7 +10,7 @@
 ### **System Classification**
 The gh_COPILOT Toolkit v4.0 represents an enterprise-grade automation platform in active development that implements a database-first, unified system architecture with advanced AI integration capabilities. Several subsystems—including disaster recovery, the web dashboard, and the database synchronization engine—remain incomplete, and the current test suite reports multiple failures.
 
-*Quantum optimization features default to simulation mode. Enterprise deployment capabilities are still in progress.*
+*All quantum modules run in simulation mode; enterprise deployment capabilities are still in progress.*
 *Phase&nbsp;5 advanced AI features are partially integrated and not yet production ready.*
 
 ### **Core Technical Architecture**
