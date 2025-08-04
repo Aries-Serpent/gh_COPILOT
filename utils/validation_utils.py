@@ -17,6 +17,7 @@ def calculate_composite_compliance_score(
     ruff_issues: int,
     tests_passed: int,
     tests_failed: int,
+    placeholders: int,
 ) -> Dict[str, float]:
     """Return detailed compliance scores for dashboard display.
 
@@ -28,20 +29,27 @@ def calculate_composite_compliance_score(
         Number of tests that passed.
     tests_failed: int
         Number of tests that failed.
+    placeholders: int
+        Remaining TODO/FIXME markers in the repository.
 
     Returns
     -------
     Dict[str, float]
-        Dictionary containing ``lint_score``, ``test_score`` and ``composite``.
+        Dictionary containing ``lint_score``, ``test_score``,
+        ``placeholder_score`` and ``composite``.
     """
 
     total_tests = tests_passed + tests_failed
     test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
     lint_score = max(0.0, 100 - ruff_issues)
-    composite = round((lint_score + test_score) / 2, 2)
+    placeholder_score = max(0.0, 100 - (10 * placeholders))
+    composite = round(
+        0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score, 2
+    )
     return {
         "lint_score": round(lint_score, 2),
         "test_score": round(test_score, 2),
+        "placeholder_score": round(placeholder_score, 2),
         "composite": composite,
     }
 

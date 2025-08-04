@@ -46,6 +46,16 @@ def _load_metrics() -> dict[str, Any]:
         except json.JSONDecodeError as exc:  # pragma: no cover - log and fall back
             logging.error("Metrics decode error: %s", exc)
     metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
+    try:
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT composite_score FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
+            )
+            row = cur.fetchone()
+            if row:
+                metrics["composite_score"] = row[0]
+    except sqlite3.Error as exc:  # pragma: no cover - log and continue
+        logging.error("Composite fetch error: %s", exc)
     return {"metrics": metrics, "notes": []}
 
 
