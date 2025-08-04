@@ -8,7 +8,7 @@ roughly by priority for future work.
 
 | ID | Description | Owner | Status | Commit/PR |
 |----|-------------|-------|--------|-----------|
-| 1 | Database-First Integration - add anti-recursion checks and scoring | DataOps Team | In progress | |
+| 1 | Database-First Integration - add anti-recursion checks and scoring | DataOps Team | In progress (guards enhanced) | |
 | 2 | Compliance Dashboard enhancements with audit metrics | Web Team | In progress | |
 | 3 | Integration-Ready Code Generation with quantum scoring | CodeGen Team | In progress | |
 | 4 | Correction and Rollback Patterns with history logs | Compliance Team | In progress | |
