@@ -33,23 +33,31 @@ class UnifiedSessionManagementSystem:
         from utils.lessons_learned_integrator import load_lessons, apply_lessons
         lessons = load_lessons()
         apply_lessons(self.logger, lessons)
+        self._session_active = False
 
-    def _scan_zero_byte_files(self) -> list[Path]:
+    def _cleanup_zero_byte_files(self) -> list[Path]:
         from utils.validation_utils import detect_zero_byte_files
         zero_files = detect_zero_byte_files(self.workspace_root)
         for path in zero_files:
-            self.logger.warning("Zero-byte file detected: %s", path)
+            try:
+                path.unlink()
+                self.logger.warning("Removed zero-byte file: %s", path)
+            except OSError:
+                self.logger.error("Failed to remove zero-byte file: %s", path)
         return zero_files
 
     def start_session(self) -> bool:
         """Return ``True`` if session validation succeeds."""
 
         from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
+        if self._session_active:
+            raise RuntimeError("Session already active")
+        self._session_active = True
 
         @anti_recursion_guard
         def _start() -> bool:
             self.logger.info("%s Lifecycle start", TEXT_INDICATORS["start"])
-            zero_files = self._scan_zero_byte_files()
+            zero_files = self._cleanup_zero_byte_files()
             env_valid = validate_enterprise_environment()
             result = self.validator.validate_startup()
             success = env_valid and not zero_files and result.is_success
@@ -61,17 +69,22 @@ class UnifiedSessionManagementSystem:
             )
             return success
 
-        return _start()
+        success = _start()
+        if not success:
+            self._session_active = False
+        return success
 
     def end_session(self) -> bool:
         """Finalize the session with cleanup checks."""
 
         from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
+        if not self._session_active:
+            raise RuntimeError("No active session")
 
         @anti_recursion_guard
         def _end() -> bool:
             self.logger.info("%s Lifecycle end", TEXT_INDICATORS["start"])
-            zero_files = self._scan_zero_byte_files()
+            zero_files = self._cleanup_zero_byte_files()
             env_valid = validate_enterprise_environment()
             result = self.validator.validate_session_cleanup()
             from utils.lessons_learned_integrator import store_lesson
@@ -86,7 +99,9 @@ class UnifiedSessionManagementSystem:
             )
             return success
 
-        return _end()
+        success = _end()
+        self._session_active = False
+        return success
 
 
 def collect_lessons(result: ValidationResult) -> list[dict[str, str]]:
