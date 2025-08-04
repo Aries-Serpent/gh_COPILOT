@@ -19,6 +19,17 @@ def secondary():
 run_dual_copilot_validation(primary, secondary)
 ```
 
+### Behavior
+
+* Validations run in order: the primary function executes before the
+  secondary.
+* The secondary validation always runs, even if the primary raises an
+  exception.
+* Exceptions from both steps are aggregated and reported in the order they
+  occurred.
+* The helper returns `True` only when **both** validations succeed; otherwise it
+  returns `False` or raises a combined `RuntimeError`.
+
 Recent orchestrators such as
 `scripts/orchestrators/unified_wrapup_orchestrator.py` delegate their primary
 and secondary checks through this helper, ensuring a unified validation
