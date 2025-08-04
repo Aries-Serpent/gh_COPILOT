@@ -186,6 +186,13 @@ def generate_compliance_report(
             except sqlite3.OperationalError:
                 pass
             conn.execute(
+                """CREATE TABLE IF NOT EXISTS violation_stats (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    violation_count INTEGER,
+                    ts TEXT
+                )"""
+            )
+            conn.execute(
                 "INSERT INTO code_quality_metrics (ruff_issues, tests_passed, tests_failed, composite_score, ts, process_id) VALUES (?, ?, ?, ?, ?, ?)",
                 (
                     ruff_metrics["issues"],
@@ -195,6 +202,11 @@ def generate_compliance_report(
                     summary["timestamp"],
                     process_id,
                 ),
+            )
+            total_violations = ruff_metrics["issues"] + pytest_metrics["failed"]
+            conn.execute(
+                "INSERT INTO violation_stats (violation_count, ts) VALUES (?, ?)",
+                (total_violations, summary["timestamp"]),
             )
             conn.commit()
         bar.update(1)

@@ -25,11 +25,23 @@ def fetch_db_metrics() -> dict:
         "violation_count": 0,
         "rollback_count": 0,
         "timestamp": datetime.utcnow().isoformat(),
+        "score": 0.0,
+        "last_audit_date": None,
     }
     if not ANALYTICS_DB.exists():
         return data
     with sqlite3.connect(ANALYTICS_DB) as conn:
         cur = conn.cursor()
+        try:
+            cur.execute(
+                "SELECT composite_score, ts FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
+            )
+            row = cur.fetchone()
+            if row:
+                data["score"] = row[0]
+                data["last_audit_date"] = row[1]
+        except sqlite3.Error:
+            pass
         try:
             cur.execute("SELECT COUNT(*) FROM placeholder_audit")
             data["violation_count"] = cur.fetchone()[0]
