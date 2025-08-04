@@ -5,11 +5,11 @@
 </head>
 <body>
 <h1>Compliance Metrics</h1>
-<p><strong>Compliance Score:</strong> {{ metrics.compliance_score }}</p>
+<p><strong>Compliance Score:</strong> {{ metrics.compliance_score | default(0) }}</p>
 
 <h2>Correction Logs</h2>
 <ul>
-{% for entry in metrics.correction_logs %}
+{% for entry in metrics.correction_logs or [] %}
     <li>
         {{ entry.timestamp }} - {{ entry.file_path }}<br>
         Rationale: {{ entry.rationale }}<br>

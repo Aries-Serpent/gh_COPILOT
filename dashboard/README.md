@@ -99,7 +99,8 @@ Example screenshot:
 2. Visit [http://localhost:5000/](http://localhost:5000/) and verify the dashboard renders.
 3. Open `/metrics/view` to confirm metrics are displayed.
 4. Open `/rollback-logs/view` to confirm rollback entries are shown.
-5. Ensure styling from `dashboard/static/style.css` is applied.
+5. Open `/sync-events/view` to confirm synchronization events are shown.
+6. Ensure styling from `dashboard/static/style.css` is applied.
 
 ### Live Metrics
 

@@ -26,4 +26,4 @@ python scripts/code_placeholder_audit.py --simulate
 ```
 
 All outputs should be reviewed to ensure that no placeholders remain and that
-coverage metrics are captured.
+coverage metrics are captured. The full test suite currently reports multiple failures; use the results to guide further development rather than expecting a clean pass.

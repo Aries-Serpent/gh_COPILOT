@@ -101,6 +101,7 @@ class ComplianceMetricsUpdater:
             "placeholder_removal": 0,
             "open_placeholders": 0,
             "resolved_placeholders": 0,
+            "auto_resolved_placeholders": 0,
             "compliance_score": 1.0,
             "violation_count": 0,
             "rollback_count": 0,
@@ -147,6 +148,14 @@ class ComplianceMetricsUpdater:
                     }
                 except sqlite3.Error:
                     metrics["placeholder_breakdown"] = {}
+
+                try:
+                    cur.execute(
+                        "SELECT COUNT(*) FROM corrections WHERE rationale='Auto placeholder cleanup'"
+                    )
+                    metrics["auto_resolved_placeholders"] = cur.fetchone()[0]
+                except sqlite3.Error:
+                    metrics["auto_resolved_placeholders"] = 0
 
                 # Compliance score trend (most recent first)
                 try:
@@ -341,6 +350,7 @@ class ComplianceMetricsUpdater:
         self.dashboard_dir.mkdir(parents=True, exist_ok=True)
         dashboard_file = self.dashboard_dir / "metrics.json"
         rollback_file = self.dashboard_dir / "rollback_logs.json"
+        placeholder_file = self.dashboard_dir / "placeholder_summary.json"
         import json
 
         dashboard_content = {
@@ -351,6 +361,10 @@ class ComplianceMetricsUpdater:
         dashboard_file.write_text(json.dumps(dashboard_content, indent=2), encoding="utf-8")
         rollback_file.write_text(
             json.dumps(metrics.get("recent_rollbacks", []), indent=2),
+            encoding="utf-8",
+        )
+        placeholder_file.write_text(
+            json.dumps(metrics.get("placeholder_breakdown", {}), indent=2),
             encoding="utf-8",
         )
         logging.info(f"Dashboard metrics updated: {dashboard_file}")

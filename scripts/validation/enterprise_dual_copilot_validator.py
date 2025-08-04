@@ -36,6 +36,7 @@ from typing import Any, Dict, List, Optional
 from tqdm import tqdm
 import psutil
 from utils.log_utils import _log_event
+import secondary_copilot_validator
 
 # Unicode-compatible file handler (fallback implementation)
 
@@ -70,11 +71,17 @@ class AntiRecursionValidator:
         self.backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
 
     def validate_workspace_integrity(self) -> bool:
-        """Return True if backup path is not within the workspace."""
+        """Return ``True`` when workspace and backup paths are disjoint."""
         try:
-            return not str(self.backup_root).startswith(str(self.workspace))
+            workspace = self.workspace.resolve()
+            backup = self.backup_root.resolve()
         except Exception:
             return False
+        if workspace == backup:
+            return False
+        if backup in workspace.parents or workspace in backup.parents:
+            return False
+        return True
 
 
 class EnterpriseLoggingManager:
@@ -938,6 +945,15 @@ class EnterpriseOrchestrator:
                 pbar.update(100)
 
                 orchestration_result["primary_execution"] = primary_results
+
+                file_list: list[str] = []
+                for result in primary_results.values():
+                    if isinstance(result, dict):
+                        files = result.get("file_list", [])
+                        if isinstance(files, list):
+                            file_list.extend(str(f) for f in files)
+                if file_list:
+                    secondary_copilot_validator.run_flake8(file_list)
 
                 # Extract execution metrics for validation
                 execution_metrics = ExecutionMetrics(

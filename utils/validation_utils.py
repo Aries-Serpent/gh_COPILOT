@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple, Callable
 from functools import wraps
 import tempfile
+import os
+import psutil
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.lessons_learned_integrator import store_lesson
@@ -15,12 +17,33 @@ def calculate_composite_compliance_score(
     ruff_issues: int,
     tests_passed: int,
     tests_failed: int,
-) -> float:
-    """Return composite compliance score based on lint and test results."""
+) -> Dict[str, float]:
+    """Return detailed compliance scores for dashboard display.
+
+    Parameters
+    ----------
+    ruff_issues: int
+        Total number of lint issues reported by Ruff.
+    tests_passed: int
+        Number of tests that passed.
+    tests_failed: int
+        Number of tests that failed.
+
+    Returns
+    -------
+    Dict[str, float]
+        Dictionary containing ``lint_score``, ``test_score`` and ``composite``.
+    """
+
     total_tests = tests_passed + tests_failed
     test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
     lint_score = max(0.0, 100 - ruff_issues)
-    return round((lint_score + test_score) / 2, 2)
+    composite = round((lint_score + test_score) / 2, 2)
+    return {
+        "lint_score": round(lint_score, 2),
+        "test_score": round(test_score, 2),
+        "composite": composite,
+    }
 
 
 def validate_workspace_integrity() -> Dict[str, Any]:
@@ -184,19 +207,34 @@ _LOCK_DIR.mkdir(exist_ok=True)
 
 
 def anti_recursion_guard(func: Callable) -> Callable:
-    """Decorator preventing recursive invocation of ``func`` using a lock file."""
+    """Decorator preventing recursive invocation using lock and PID files."""
 
     lock_file = _LOCK_DIR / f"{func.__name__}.lock"
+    pid_file = _LOCK_DIR / f"{func.__name__}.pid"
 
     @wraps(func)
     def wrapper(*args, **kwargs):
+        current_pid = os.getpid()
         if lock_file.exists():
             raise RuntimeError("Anti-recursion guard triggered")
+        if pid_file.exists():
+            try:
+                existing = int(pid_file.read_text().strip())
+            except ValueError:
+                existing = None
+            if existing and psutil.pid_exists(existing):
+                raise RuntimeError("PID guard triggered")
         try:
             lock_file.touch()
+            pid_file.write_text(str(current_pid))
             return func(*args, **kwargs)
         finally:
             lock_file.unlink(missing_ok=True)
+            try:
+                if pid_file.exists() and int(pid_file.read_text().strip()) == current_pid:
+                    pid_file.unlink()
+            except Exception:  # pragma: no cover - best effort cleanup
+                pid_file.unlink(missing_ok=True)
 
     return wrapper
 

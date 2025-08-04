@@ -3,8 +3,17 @@ from types import SimpleNamespace
 
 import pytest
 
-from unified_session_management_system import ensure_no_zero_byte_files
+import unified_session_management_system as usm
+from unified_session_management_system import ensure_no_zero_byte_files, finalize_session
 from utils.validation_utils import _LOCK_DIR
+import sys
+import types
+
+_stub = types.ModuleType("correction_logger_and_rollback")
+_stub.CorrectionLoggerRollback = object
+sys.modules.setdefault("scripts.correction_logger_and_rollback", _stub)
+import scripts
+scripts.correction_logger_and_rollback = _stub
 
 
 class DummyValidator:
@@ -61,6 +70,13 @@ def test_lifecycle_logging(monkeypatch, tmp_path, caplog):
         "UnifiedDisasterRecoverySystem",
         lambda: SimpleNamespace(schedule_backups=lambda: None),
     )
+    monkeypatch.setattr(
+        usms.UnifiedSessionManagementSystem,
+        "_scan_zero_byte_files",
+        lambda self: [],
+        raising=False,
+    )
+    monkeypatch.setattr(usms.UnifiedSessionManagementSystem, "_cleanup_zero_byte_files", lambda self: [])
     system = usms.UnifiedSessionManagementSystem(workspace_root=str(tmp_path))
     with caplog.at_level(logging.INFO):
         system.start_session()
@@ -113,6 +129,13 @@ def test_metrics_and_recovery(monkeypatch, tmp_path):
         "scripts.correction_logger_and_rollback.CorrectionLoggerRollback", FakeCLR
     )
     monkeypatch.setattr(usms, "CorrectionLoggerRollback", FakeCLR)
+    monkeypatch.setattr(
+        usms.UnifiedSessionManagementSystem,
+        "_scan_zero_byte_files",
+        lambda self: [],
+        raising=False,
+    )
+    monkeypatch.setattr(usms.UnifiedSessionManagementSystem, "_cleanup_zero_byte_files", lambda self: [])
 
     system = usms.UnifiedSessionManagementSystem(workspace_root=str(tmp_path))
     assert not system.start_session()
@@ -120,3 +143,51 @@ def test_metrics_and_recovery(monkeypatch, tmp_path):
     assert "rollback" in events
     assert metrics["validator_success"] == 0.0
     assert metrics["zero_byte_files"] == 0.0
+
+
+def test_zero_byte_logging(tmp_path, monkeypatch):
+    db_file = tmp_path / "analytics.db"
+    monkeypatch.setattr(usm, "ANALYTICS_DB", db_file)
+    empty = tmp_path / "empty.txt"
+    empty.touch()
+    with pytest.raises(RuntimeError):
+        with ensure_no_zero_byte_files(tmp_path):
+            pass
+    import sqlite3
+    with sqlite3.connect(db_file) as conn:
+        rows = conn.execute("SELECT path, phase FROM zero_byte_files").fetchall()
+    assert rows and rows[0][0].endswith("empty.txt") and rows[0][1] == "before"
+
+
+def test_finalize_session_records_hash(tmp_path, monkeypatch):
+    log_dir = tmp_path / "logs"
+    log_dir.mkdir()
+    (log_dir / "session.log").write_text("hello")
+    db_file = tmp_path / "analytics.db"
+    monkeypatch.setattr(usm, "ANALYTICS_DB", db_file)
+    digest = finalize_session(log_dir)
+    import sqlite3
+    with sqlite3.connect(db_file) as conn:
+        stored = conn.execute("SELECT hash FROM session_hashes").fetchone()[0]
+    assert stored == digest
+
+
+def test_finalize_session_recursion_guard(tmp_path):
+    log_dir = tmp_path / "logs"
+    log_dir.mkdir()
+    (log_dir / "session.log").write_text("data")
+    lock_file = _LOCK_DIR / "finalize_session.lock"
+    lock_file.touch()
+    with pytest.raises(RuntimeError):
+        finalize_session(log_dir)
+    lock_file.unlink(missing_ok=True)
+
+
+def test_finalize_session_empty_log(tmp_path, monkeypatch):
+    log_dir = tmp_path / "logs"
+    log_dir.mkdir()
+    (log_dir / "session.log").touch()
+    db_file = tmp_path / "analytics.db"
+    monkeypatch.setattr(usm, "ANALYTICS_DB", db_file)
+    with pytest.raises(RuntimeError):
+        finalize_session(log_dir)

@@ -2,6 +2,11 @@
 
 This folder contains helper documentation for keeping repository metrics in sync.
 
+On every push the CI pipeline automatically runs
+`scripts/generate_docs_metrics.py` followed by
+`scripts/validate_docs_metrics.py` to ensure documentation statistics stay
+consistent with the production database.
+
 ## Updating Metrics
 
 Run `python scripts/generate_docs_metrics.py` to refresh metrics in the main
@@ -80,3 +85,12 @@ The module ``template_engine.workflow_enhancer`` provides the
 optimisation. It clusters stored templates, mines common patterns and writes
 a compliance report to ``dashboard/compliance``. Use
 ``enhance()`` to process a database of templates and generate metrics.
+
+## Quantum Placeholder Modules
+
+Modules under `scripts/quantum_placeholders/` act as stubs for upcoming
+quantum features. Each file sets `PLACEHOLDER_ONLY = True`, and packaging
+utilities detect this marker to skip the modules so they are never included
+in production builds. Importing them while `GH_COPILOT_ENV` is set to
+`"production"` raises a `RuntimeError` via `ensure_not_production`.
+They remain importable for experimentation and planning.

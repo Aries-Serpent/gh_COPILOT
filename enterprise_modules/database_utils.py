@@ -10,10 +10,11 @@ Usage:
     from enterprise_modules.database_utils import get_enterprise_database_connection, execute_safe_query
 """
 
+import os
 import sqlite3
 import logging
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any, Tuple, Union
 from contextlib import contextmanager
 
 
@@ -202,6 +203,48 @@ def check_table_exists(
     except Exception as e:
         logging.error(f"Error checking if table {table_name} exists: {e}")
         return False
+
+
+def fetch_template(
+    name: str,
+    db_path: Union[str, Path, None] = None,
+) -> Optional[str]:
+    """Return template body from ``production.db`` if present.
+
+    Parameters
+    ----------
+    name:
+        Template identifier to fetch.
+    db_path:
+        Optional path to the database. When not provided, defaults to
+        ``<GH_COPILOT_WORKSPACE>/databases/production.db``.
+    """
+
+    workspace = Path(
+        os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
+    )
+    db_file = Path(db_path) if db_path else workspace / "databases" / "production.db"
+
+    with enterprise_database_context(str(db_file)) as conn:
+        row = execute_safe_query(
+            conn,
+            "SELECT template_content FROM template_repository WHERE template_name = ?",
+            (name,),
+            fetch_all=False,
+        )
+        if row:
+            return row["template_content"]
+
+        row = execute_safe_query(
+            conn,
+            "SELECT base_template FROM script_templates WHERE template_name = ?",
+            (name,),
+            fetch_all=False,
+        )
+        if row:
+            return row["base_template"]
+
+    return None
 
 
 def get_table_schema(

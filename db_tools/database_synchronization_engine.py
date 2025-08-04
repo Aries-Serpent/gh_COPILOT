@@ -7,7 +7,7 @@ import sqlite3
 import threading
 import time
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 # Schema mapping for known databases. Each database maps table names to simple
@@ -30,10 +30,17 @@ DATABASE_SCHEMA_MAP: Dict[str, Dict[str, str]] = {
 class DatabaseSynchronizationEngine:
     """Synchronize SQLite databases with basic conflict resolution."""
 
-    def __init__(self, schema_map: Dict[str, Dict[str, str]] | None = None, *, log_path: Path | str = Path("logs/synchronization.log")) -> None:
+    def __init__(
+        self,
+        schema_map: Dict[str, Dict[str, str]] | None = None,
+        *,
+        log_path: Path | str = Path("logs/synchronization.log"),
+        audit_db_path: Path | str | None = Path("analytics.db"),
+    ) -> None:
         self.schema_map = schema_map or DATABASE_SCHEMA_MAP
         self.log_path = Path(log_path)
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        self.audit_db_path = Path(audit_db_path) if audit_db_path else None
 
         self._logger = logging.getLogger("database_synchronization")
         self._logger.setLevel(logging.INFO)
@@ -71,47 +78,76 @@ class DatabaseSynchronizationEngine:
     # ------------------------------------------------------------------
     # Core synchronization logic
     # ------------------------------------------------------------------
-    def sync(self, source: Path | str, target: Path | str) -> None:
+    def sync(self, source: Path | str, target: Path | str, *, retries: int = 3) -> None:
         """Synchronize data from ``source`` SQLite database to ``target``."""
 
         source_path = Path(source)
         target_path = Path(target)
         self._logger.info("sync_start %s -> %s", source_path, target_path)
 
-        with sqlite3.connect(source_path) as src, sqlite3.connect(target_path) as tgt:
-            src.row_factory = sqlite3.Row
-            tgt.row_factory = sqlite3.Row
+        for attempt in range(1, retries + 1):
+            try:
+                with sqlite3.connect(source_path) as src, sqlite3.connect(target_path) as tgt:
+                    src.row_factory = sqlite3.Row
+                    tgt.row_factory = sqlite3.Row
+                    tgt.execute("BEGIN")
 
-            tables = [r[0] for r in src.execute("SELECT name FROM sqlite_master WHERE type='table'")]
-            for table in tables:
-                self._ensure_table(schema_sql=src.execute(
-                    "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
-                    (table,),
-                ).fetchone()[0], table=table, conn=tgt)
+                    tables = [r[0] for r in src.execute("SELECT name FROM sqlite_master WHERE type='table'")]
+                    audit_actions: list[str] = []
+                    for table in tables:
+                        self._ensure_table(
+                            schema_sql=src.execute(
+                                "SELECT sql FROM sqlite_master WHERE type='table' AND name=?",
+                                (table,),
+                            ).fetchone()[0],
+                            table=table,
+                            conn=tgt,
+                        )
 
-                src_rows: Dict[Any, Dict[str, Any]] = {row["id"]: dict(row) for row in src.execute(f"SELECT * FROM {table}")}
-                tgt_rows: Dict[Any, Dict[str, Any]] = {row["id"]: dict(row) for row in tgt.execute(f"SELECT * FROM {table}")}
+                        src_rows: Dict[Any, Dict[str, Any]] = {
+                            row["id"]: dict(row) for row in src.execute(f"SELECT * FROM {table}")
+                        }
+                        tgt_rows: Dict[Any, Dict[str, Any]] = {
+                            row["id"]: dict(row) for row in tgt.execute(f"SELECT * FROM {table}")
+                        }
 
-                for pk, srow in src_rows.items():
-                    if pk not in tgt_rows:
-                        self._insert_row(tgt, table, srow)
-                        self._logger.info("insert %s:%s", table, pk)
-                        continue
+                        for pk, srow in src_rows.items():
+                            if pk not in tgt_rows:
+                                self._insert_row(tgt, table, srow)
+                                action = f"insert {table}:{pk}"
+                                self._logger.info(action)
+                                audit_actions.append(action)
+                                continue
 
-                    trow = tgt_rows[pk]
-                    src_ts = srow.get("updated_at") or srow.get("modified_at")
-                    tgt_ts = trow.get("updated_at") or trow.get("modified_at")
-                    if src_ts and tgt_ts and src_ts > tgt_ts:
-                        self._update_row(tgt, table, srow)
-                        self._logger.info("update %s:%s", table, pk)
-                    else:
-                        self._logger.info("conflict_skip %s:%s", table, pk)
+                            trow = tgt_rows[pk]
+                            src_ts = srow.get("updated_at") or srow.get("modified_at")
+                            tgt_ts = trow.get("updated_at") or trow.get("modified_at")
+                            if src_ts and tgt_ts and src_ts > tgt_ts:
+                                self._update_row(tgt, table, srow)
+                                action = f"update {table}:{pk}"
+                                self._logger.info(action)
+                                audit_actions.append(action)
+                            else:
+                                action = f"conflict_skip {table}:{pk}"
+                                self._logger.info(action)
+                                audit_actions.append(action)
 
-                for pk in set(tgt_rows) - set(src_rows):
-                    tgt.execute(f"DELETE FROM {table} WHERE id=?", (pk,))
-                    self._logger.info("delete %s:%s", table, pk)
+                        for pk in set(tgt_rows) - set(src_rows):
+                            tgt.execute(f"DELETE FROM {table} WHERE id=?", (pk,))
+                            action = f"delete {table}:{pk}"
+                            self._logger.info(action)
+                            audit_actions.append(action)
 
-            tgt.commit()
+                    tgt.commit()
+
+                for act in audit_actions:
+                    self._log_audit_action(source_path, target_path, act)
+                break
+            except sqlite3.Error as exc:
+                self._logger.error("sync_retry %s/%s %s", attempt, retries, exc)
+                if attempt == retries:
+                    raise
+                time.sleep(0.1)
 
         self._logger.info("sync_complete %s -> %s", source_path, target_path)
 
@@ -145,6 +181,23 @@ class DatabaseSynchronizationEngine:
             f"UPDATE {table} SET {assignments} WHERE id=?",
             values,
         )
+
+    # ------------------------------------------------------------------
+    # Audit logging
+    # ------------------------------------------------------------------
+    def _log_audit_action(self, source_db: Path, target_db: Path, action: str) -> None:
+        if not self.audit_db_path:
+            return
+
+        schema = self.schema_map.get("analytics.db", {}).get("sync_audit_log")
+        with sqlite3.connect(self.audit_db_path) as conn:
+            if schema:
+                conn.execute(f"CREATE TABLE IF NOT EXISTS sync_audit_log ({schema})")
+            conn.execute(
+                "INSERT INTO sync_audit_log (source_db, target_db, action, timestamp) VALUES (?, ?, ?, ?)",
+                (str(source_db), str(target_db), action, int(time.time())),
+            )
+            conn.commit()
 
 
 def sync_databases(source: str | Path, target: str | Path) -> None:

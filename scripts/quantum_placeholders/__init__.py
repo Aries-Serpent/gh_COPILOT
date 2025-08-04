@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import os
 
+PLACEHOLDER_ONLY = True
+
 
 def ensure_not_production() -> None:
     """Raise an error if placeholders load in production."""
@@ -16,9 +18,21 @@ def ensure_not_production() -> None:
         msg = "Quantum placeholder modules should not be used in production."
         raise RuntimeError(msg)
 
+
+# Prevent import in production environments.
+ensure_not_production()
+
+from . import (
+    quantum_placeholder_algorithm,
+    quantum_annealing,
+    quantum_superposition_search,
+    quantum_entanglement_correction,
+)
+
 __all__ = [
     "quantum_placeholder_algorithm",
     "quantum_annealing",
     "quantum_superposition_search",
     "quantum_entanglement_correction",
 ]
+

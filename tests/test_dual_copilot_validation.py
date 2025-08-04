@@ -1,6 +1,6 @@
 import pytest
 
-from utils.validation_utils import run_dual_copilot_validation
+from secondary_copilot_validator import run_dual_copilot_validation
 
 
 def test_primary_exception_still_runs_secondary():
@@ -54,4 +54,37 @@ def test_both_validations_return_false_ordered():
 
     result = run_dual_copilot_validation(primary, secondary)
     assert result is False
+    assert order == ["primary", "secondary"]
+
+
+def test_secondary_exception_reports_order():
+    order = []
+
+    def primary() -> bool:
+        order.append("primary")
+        return True
+
+    def secondary() -> bool:
+        order.append("secondary")
+        raise ValueError("boom")
+
+    with pytest.raises(RuntimeError) as excinfo:
+        run_dual_copilot_validation(primary, secondary)
+
+    assert "Secondary validation error" in str(excinfo.value)
+    assert order == ["primary", "secondary"]
+
+
+def test_both_validations_succeed_ordered():
+    order = []
+
+    def primary() -> bool:
+        order.append("primary")
+        return True
+
+    def secondary() -> bool:
+        order.append("secondary")
+        return True
+
+    assert run_dual_copilot_validation(primary, secondary) is True
     assert order == ["primary", "secondary"]

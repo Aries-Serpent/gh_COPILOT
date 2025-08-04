@@ -129,7 +129,7 @@ def generate_compliance_report(
             raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
 
         timestamp = datetime.utcnow().isoformat()
-        composite_score = calculate_composite_compliance_score(
+        scores = calculate_composite_compliance_score(
             ruff_metrics["issues"],
             pytest_metrics["passed"],
             pytest_metrics["failed"],
@@ -138,7 +138,8 @@ def generate_compliance_report(
             "timestamp": timestamp,
             "ruff": ruff_metrics,
             "pytest": pytest_metrics,
-            "composite_score": composite_score,
+            "scores": scores,
+            "composite_score": scores["composite"],
             "process_id": process_id,
             "start_time": start_time_dt.isoformat(),
         }
@@ -157,7 +158,7 @@ def generate_compliance_report(
                 f"## Pytest Results: {pytest_metrics['passed']} passed / {pytest_metrics['failed']} failed of {pytest_metrics['total']} total\n"
             )
             md.write(
-                f"## Composite Compliance Score: {composite_score:.2f}\n"
+                f"## Composite Compliance Score: {scores['composite']:.2f}\n"
             )
         bar.update(1)
         elapsed = time.time() - start_time
@@ -190,7 +191,7 @@ def generate_compliance_report(
                     ruff_metrics["issues"],
                     pytest_metrics["passed"],
                     pytest_metrics["failed"],
-                    composite_score,
+                    scores["composite"],
                     summary["timestamp"],
                     process_id,
                 ),

@@ -12,17 +12,19 @@
 
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
-> Quantum modules operate in placeholder simulation modes; compliance auditing is still in progress. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) for details.
+> Quantum modules run **exclusively** in simulation mode. Hardware flags and IBM Quantum credentials are accepted but ignored for now. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Compliance auditing remains in progress.
 > Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards.
 
 ---
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality currently exists as placeholder modules that run in simulation mode. Hooks for real hardware are planned but are not yet fully integrated, even when `qiskit-ibm-provider` is configured.
+The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality exists only as placeholder modules operating in simulation mode. Hooks for real hardware are planned but are not yet fully integrated, even when `qiskit-ibm-provider` is configured.
 
 > **Note**
-> Qiskit-based operations run in **simulation mode** unless hardware access is configured. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum backends. When `IBM_BACKEND` is unset the system automatically selects an available backend. Use the `--hardware` flag in `quantum_integration_orchestrator.py` or `--use-hardware` in `quantum/cli/executor_cli.py` to enforce hardware execution.
+> Qiskit-based operations currently run in **simulation mode** only. Hardware tokens and backend flags are accepted for future use but are ignored; real hardware execution is not yet implemented.
+> **Roadmap**
+> A dedicated `QuantumExecutor` module will enable IBM Quantum hardware in a future release. Until then, all hardware options are inert and default to simulator backends.
 > **Phase 5 AI**
 > Advanced AI integration features are fully integrated. They default to simulation mode unless real hardware is configured.
 
@@ -99,6 +101,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - PowerShell (for Windows automation)
 - SQLite3
 - Required packages: `pip install -r requirements.txt` (includes `py7zr` for 7z archive support)
+- Optional for IBM Quantum hardware: install `qiskit-ibm-provider` and set `QUANTUM_USE_HARDWARE=1` with a valid `QISKIT_IBM_TOKEN`; otherwise the toolkit runs in simulator mode
 
 ### **Installation & Setup**
 ```bash
@@ -272,13 +275,14 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 python simplified_quantum_integration_orchestrator.py
 ```
 
-By default the orchestrator uses the simulator. To execute algorithms on IBM Quantum hardware install `qiskit-ibm-provider` and run:
+By default the orchestrator uses the simulator. Flags `--hardware` and `--backend` are placeholders that currently have no effect; they will enable IBM Quantum backends once the planned `QuantumExecutor` module arrives.
 
 ```bash
+# placeholder flags; still executes on simulators
 python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
-Set `QISKIT_IBM_TOKEN` to your IBM Quantum API token for hardware execution. If the provider cannot be initialized the orchestrator automatically falls back to simulation.
+Set `QISKIT_IBM_TOKEN` for future hardware execution. The value is ignored today and the orchestrator always falls back to simulation. See [docs/QUANTUM_HARDWARE_SETUP.md](docs/QUANTUM_HARDWARE_SETUP.md) for the integration roadmap.
 
 ### Quantum Placeholder Modules
 
@@ -309,6 +313,13 @@ follow the steps in [docs/enterprise_backup_guide.md](docs/enterprise_backup_gui
 to create and manage backups. This variable ensures backups never reside in the
 workspace, maintaining anti-recursion compliance.
 The `validate_enterprise_environment` helper enforces these settings at script startup.
+
+Run scheduled backups and restore them with:
+
+```bash
+python scripts/utilities/unified_disaster_recovery_system.py --schedule
+python scripts/utilities/unified_disaster_recovery_system.py --restore /path/to/backup.bak
+```
 
 ### Session Management CLI
 Use ``COMPREHENSIVE_WORKSPACE_MANAGER.py`` to manage session start and end
@@ -684,6 +695,11 @@ Cross-database synchronization via
 `scripts/database/cross_database_sync_logger.py` automatically leverages this
 pipeline—each call to `log_sync_operation` now emits an analytics event so that
 sync activity is tracked centrally in `analytics.db`.
+
+The `database_first_synchronization_engine.py` module extends this pipeline
+with `SchemaMapper` and `SyncManager` helpers. Synchronization runs use
+explicit transactions, support conflict-resolution callbacks and log a row to
+`analytics.db`'s `synchronization_events` table.
 
 ```python
 from utils.log_utils import _log_event

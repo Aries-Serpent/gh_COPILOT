@@ -10,7 +10,7 @@
 ### **System Classification**
 The gh_COPILOT Toolkit v4.0 represents an enterprise-grade automation platform in active development that implements a database-first, unified system architecture with advanced AI integration capabilities. Several subsystems—including disaster recovery, the web dashboard, and the database synchronization engine—remain incomplete, and the current test suite reports multiple failures.
 
-*Quantum optimization features default to simulation mode. Enterprise deployment capabilities are still in progress.*
+*All quantum modules run exclusively in simulation mode; any hardware configuration is currently ignored until future integration lands.*
 *Phase&nbsp;5 advanced AI features are partially integrated and not yet production ready.*
 
 ### **Core Technical Architecture**
@@ -587,9 +587,10 @@ class Phase4Phase5Integrator:
 # MANDATORY: Quantum optimization pattern (aspirational)
 class QuantumOptimizationEngine:
     """⚛️ Quantum-enhanced processing with classical fallback"""
-    
+
     def apply_quantum_optimization(self, data: Any):
         # Note: Quantum algorithms are placeholders for future implementation
+        # `quantum_hardware_available` currently always returns False; hardware execution is pending.
         if self.quantum_hardware_available():
             return self.execute_quantum_algorithms(data)
         else:

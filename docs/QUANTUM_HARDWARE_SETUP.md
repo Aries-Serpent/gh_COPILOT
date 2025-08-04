@@ -1,6 +1,6 @@
 # Quantum Hardware Setup
 
-This guide explains how to run gh_COPILOT components on IBM Quantum hardware.
+Hardware execution is not yet supported. This guide documents the preparatory steps for future IBM Quantum integration. All operations currently run on simulators even when tokens or backend names are provided.
 
 ## 1. Acquire a Token
 1. Create an IBM Quantum account.
@@ -14,23 +14,23 @@ This guide explains how to run gh_COPILOT components on IBM Quantum hardware.
    {"QISKIT_IBM_TOKEN": "your_token_here"}
    ```
 
-## 2. Optional Backend Selection
+## 2. Optional Backend Selection *(placeholder)*
 Specify a backend name via `IBM_BACKEND`:
 ```bash
 export IBM_BACKEND="ibmq_qasm_simulator"
 ```
-If unset, an available hardware backend is chosen automatically when possible,
-otherwise the default simulator is used.
+The value is recorded for future use, but all executions fall back to the default simulator regardless of this setting.
 
-## 3. CLI Usage
-Use the executor CLI or orchestrator to force hardware execution:
+## 3. CLI Usage *(flags are inert)*
+Use the executor CLI or orchestrator to demonstrate where hardware flags will eventually apply:
 ```bash
-python -m quantum.cli.executor_cli --use-hardware --backend ibm_nairobi
-python quantum_integration_orchestrator.py --hardware
+python -m quantum.cli.executor_cli --use-hardware --backend ibm_nairobi  # no-op
+python quantum_integration_orchestrator.py --hardware  # no-op
 ```
-Both flags validate that `QISKIT_IBM_TOKEN` is present and select the requested
-backend. When no backend is supplied the orchestrator attempts automatic
-selection.
+These options merely check for `QISKIT_IBM_TOKEN` and always execute on simulators; backend selection is ignored.
 
 ## 4. Expected Outputs
-When hardware is available, logs include `[QUANTUM_BACKEND]` and the selected backend name. If initialization fails, a warning is emitted and the Aer simulator is used instead.
+Hardware backends are not invoked. Logs always reflect simulator usage, emitting a warning when hardware options are requested.
+
+## 5. Roadmap
+Future releases will introduce a `QuantumExecutor` module to enable real hardware execution once IBM backend support is finalized.

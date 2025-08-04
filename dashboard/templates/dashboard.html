@@ -24,7 +24,13 @@
                     pb.appendChild(li);
                 });
             }
-            document.getElementById('compliance_trend').textContent = (data.compliance_trend||[]).join(', ');
+            const ct = document.getElementById('compliance_trend');
+            ct.innerHTML = '';
+            (data.compliance_trend || []).forEach(v => {
+                const li = document.createElement('li');
+                li.textContent = v;
+                ct.appendChild(li);
+            });
         }
         function updateRollbacks(logs){
             const list = document.getElementById('rollbacks');
@@ -65,8 +71,8 @@
 <body>
 <h1>Compliance Dashboard</h1>
 <div>
-    <strong>Placeholder Removals:</strong> <span id="placeholder_removal">0</span><br>
-    <strong>Compliance Score:</strong> <span id="compliance_score">0</span><br>
+    <strong>Placeholder Removals:</strong> <span id="placeholder_removal">{{ metrics.placeholder_removal | default(0) }}</span><br>
+    <strong>Compliance Score:</strong> <span id="compliance_score">{{ metrics.compliance_score | default(0) }}</span><br>
     <strong>Lessons Integration Status:</strong> <span id="lessons_integration_status">UNKNOWN</span><br>
     <strong>Lessons Hook Coverage:</strong> <span id="lessons_hook_coverage">0%</span><br>
     <strong>Missing Lesson Hooks:</strong> <span id="missing_lesson_hooks">none</span><br>
@@ -76,9 +82,13 @@
     <h3>Placeholder Types</h3>
     <ul id="placeholder_breakdown"></ul>
     <h3>Compliance Trend</h3>
-    <span id="compliance_trend"></span>
+    <ul id="compliance_trend"></ul>
 </div>
 <h2>Recent Rollbacks</h2>
-<ul id="rollbacks"></ul>
+<ul id="rollbacks">
+{% for log in rollbacks %}
+    <li>{{ log.timestamp }} - {{ log.target }}{% if log.backup %} ({{ log.backup }}){% endif %}</li>
+{% endfor %}
+</ul>
 </body>
 </html>

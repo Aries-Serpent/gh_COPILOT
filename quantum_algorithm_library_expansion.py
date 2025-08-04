@@ -184,13 +184,27 @@ def quantum_cluster_stub(data: Iterable[float]) -> List[int]:
 
 
 def quantum_cluster_representatives(data: Iterable[str], n_clusters: int) -> List[str]:
-    """Return representative strings for each cluster (placeholder)."""
+    """Return representative strings for each cluster using KMeans."""
     log_quantum_event("cluster_reps", f"n={n_clusters}")
     items = list(data)
     if not items:
         return []
-    step = max(1, len(items) // n_clusters)
-    return [items[i] for i in range(0, len(items), step)][:n_clusters]
+    n_clusters = min(n_clusters, len(items))
+    # Encode each string by length and average character ordinal
+    features = np.array(
+        [[len(s), float(np.mean([ord(c) for c in s]))] for s in items],
+        dtype=float,
+    )
+    model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+    labels = model.fit_predict(features)
+    representatives: List[str] = []
+    for i in range(n_clusters):
+        idx = np.where(labels == i)[0]
+        center = model.cluster_centers_[i]
+        cluster_features = features[idx]
+        distances = np.linalg.norm(cluster_features - center, axis=1)
+        representatives.append(items[idx[np.argmin(distances)]])
+    return representatives
 
 
 def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
