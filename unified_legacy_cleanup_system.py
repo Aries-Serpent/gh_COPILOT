@@ -76,43 +76,47 @@ class UnifiedLegacyCleanupSystem(_BaseCleanup):
             db_path=self.analytics_db,
         )
 
-    def purge_superseded_scripts(
-        self, directory: Path, keep_latest: int = 1, dry_run: bool = False
-    ) -> list[Path]:
-        """Remove older generated scripts from ``directory``.
+    def purge_generated_templates(self, directory: Path, keep: int = 1, dry_run: bool = False) -> int:
+        """Remove superseded generated templates.
 
         Parameters
         ----------
         directory:
-            Directory containing generated scripts.
-        keep_latest:
-            Number of most recent scripts to preserve.
+            Directory containing generated templates.
+        keep:
+            Number of most recent templates to retain.
         dry_run:
-            When ``True`` no files are deleted.
+            If ``True``, only log actions without removing files.
 
         Returns
         -------
-        list[Path]
-            List of removed script paths.
+        int
+            Count of templates removed.
         """
+        if not directory.exists():
+            return 0
 
         files = sorted(
             directory.glob("template_*.txt"),
-            key=lambda f: f.stat().st_mtime,
+            key=lambda p: p.stat().st_mtime,
             reverse=True,
         )
-        removed: list[Path] = []
-        for path in files[keep_latest:]:
-            removed.append(path)
+        removed = 0
+        for old in files[keep:]:
             if dry_run:
+                logger.info(f"[DRY-RUN] Would remove {old}")
                 continue
-            path.unlink(missing_ok=True)
-            log_cleanup_event(
-                str(path),
-                action="removed",
-                reason="superseded",
-                db_path=self.analytics_db,
-            )
+            try:
+                old.unlink()
+                removed += 1
+                log_cleanup_event(
+                    str(old),
+                    action="removed",
+                    reason="superseded",
+                    db_path=self.analytics_db,
+                )
+            except Exception:  # pragma: no cover - ignore file errors
+                pass
         return removed
 
     def run_cleanup(self, dry_run: bool = False) -> bool:

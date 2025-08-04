@@ -8,11 +8,14 @@ from scripts.utilities.unified_script_generation_system import EnterpriseUtility
 
 
 @patch(
+    "scripts.utilities.unified_script_generation_system.UnifiedLegacyCleanupSystem.purge_generated_templates"
+)
+@patch(
     "scripts.utilities.unified_script_generation_system.SecondaryCopilotValidator.validate_corrections",
     return_value=True,
 )
 @patch("scripts.utilities.unified_script_generation_system.PatternRecognizer")
-def test_template_generation(mock_recognizer, _validate, tmp_path):
+def test_template_generation(mock_recognizer, _validate, mock_purge, tmp_path):
     workspace = Path(tmp_path)
     db_dir = workspace / "databases"
     db_dir.mkdir()
@@ -22,6 +25,7 @@ def test_template_generation(mock_recognizer, _validate, tmp_path):
     utility = EnterpriseUtility(str(workspace))
     assert utility.perform_utility_function() is True
     mock_recognizer.return_value.recognize.assert_called()
+    mock_purge.assert_called()
 
     generated_dir = workspace / "generated_templates"
     generated_files = list(generated_dir.glob("template_*.txt"))
