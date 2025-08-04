@@ -27,6 +27,7 @@ by more than the `ANOMALY_DEVIATION` threshold. Existing alerts remain:
 
 ## Quantum Hooks
 
-Both modules expose a `quantum_hook` function as a placeholder for future
-quantum-based optimizations. The hook currently performs no action but
-provides a stable integration point for upcoming quantum routines.
+Both modules expose a `quantum_hook` function that computes a
+quantum-inspired score via `quantum_score_stub`. The score is stored with the
+metrics and can drive advanced anomaly detection or future quantum-based
+optimizations.

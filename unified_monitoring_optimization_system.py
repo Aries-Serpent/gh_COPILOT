@@ -14,12 +14,17 @@ import sqlite3
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
+import numpy as np
 import psutil
 from sklearn.ensemble import IsolationForest
 from scripts.monitoring.unified_monitoring_optimization_system import (
     EnterpriseUtility,
-    collect_metrics,
 )
+
+try:  # pragma: no cover - optional quantum library
+    from quantum_algorithm_library_expansion import quantum_score_stub
+except Exception:  # pragma: no cover - library may be missing
+    quantum_score_stub = None
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "databases" / "analytics.db"
@@ -32,6 +37,7 @@ __all__ = [
     "collect_metrics",
     "QuantumInterface",
     "collect_metrics",
+    "record_quantum_score",
 ]
 
 
@@ -172,6 +178,43 @@ def detect_anomalies(
     model = IsolationForest(contamination=contamination, random_state=42)
     preds = model.fit_predict(data)
     return [m for m, pred in zip(history_list, preds) if pred == -1]
+
+
+def record_quantum_score(
+    values: Iterable[float],
+    *,
+    table: str = "quantum_scores",
+    db_path: Optional[Path] = None,
+    session_id: Optional[str] = None,
+) -> float:
+    """Score ``values`` using quantum-inspired logic and log the metric.
+
+    Parameters
+    ----------
+    values:
+        Iterable of numeric values representing the candidate state.
+    table:
+        Optional table name where the score is stored. Defaults to
+        ``quantum_scores``.
+    db_path:
+        Optional database override. When omitted the default analytics
+        database is used.
+    session_id:
+        Optional session identifier to link the score with lifecycle data.
+
+    Returns
+    -------
+    float
+        The computed quantum-inspired score.
+    """
+
+    if quantum_score_stub is None:
+        arr = np.fromiter(values, dtype=float)
+        score = float(np.linalg.norm(arr) / arr.size) if arr.size else 0.0
+    else:
+        score = float(quantum_score_stub(values))
+    push_metrics({"quantum_score": score}, table=table, db_path=db_path, session_id=session_id)
+    return score
 
 
 class QuantumInterface:

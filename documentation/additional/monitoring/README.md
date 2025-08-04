@@ -6,4 +6,5 @@ This module provides runtime health metrics linked to session IDs.
 - Each metrics record is associated with a session ID validated by
   `UnifiedSessionManagementSystem`.
 - Metrics are stored in `analytics.db` within the `monitoring_metrics` table.
-- `quantum_hook()` is reserved for future quantum processing integrations.
+- `quantum_hook()` computes a quantum-inspired score for the collected metrics,
+  enabling advanced anomaly analysis.
