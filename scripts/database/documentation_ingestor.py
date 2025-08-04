@@ -56,16 +56,47 @@ def ingest_documentation(
 
     dataset_dbs = get_dataset_sources(str(workspace))
     existing_docs: set[str] = set()
+    existing_hashes: set[str] = set()
+
+    if db_path.exists():
+        try:
+            with sqlite3.connect(db_path) as conn:
+                if _table_exists(conn, "documentation_assets"):
+                    existing_docs.update(
+                        row[0]
+                        for row in conn.execute(
+                            "SELECT doc_path FROM documentation_assets"
+                        )
+                    )
+                    existing_hashes.update(
+                        row[0]
+                        for row in conn.execute(
+                            "SELECT content_hash FROM documentation_assets"
+                        )
+                    )
+        except sqlite3.Error:
+            existing_docs = set()
+            existing_hashes = set()
+
     primary_db = dataset_dbs[0] if dataset_dbs else None
-    if primary_db and primary_db.exists():
+    if primary_db and primary_db.exists() and primary_db != db_path:
         try:
             with sqlite3.connect(primary_db) as prod_conn:
                 if _table_exists(prod_conn, "documentation_assets"):
-                    existing_docs = {
-                        row[0] for row in prod_conn.execute("SELECT doc_path FROM documentation_assets")
-                    }
+                    existing_docs.update(
+                        row[0]
+                        for row in prod_conn.execute(
+                            "SELECT doc_path FROM documentation_assets"
+                        )
+                    )
+                    existing_hashes.update(
+                        row[0]
+                        for row in prod_conn.execute(
+                            "SELECT content_hash FROM documentation_assets"
+                        )
+                    )
         except sqlite3.Error:
-            existing_docs = set()
+            pass
 
     start_time = datetime.now(timezone.utc)
     logger.info("Starting documentation ingestion at %s", start_time.isoformat())
@@ -118,6 +149,8 @@ def ingest_documentation(
                     ),
                 )
                 bar.update(1)
+                existing_docs.add(rel_path)
+                existing_hashes.add(digest)
     finally:
         conn.commit()
         conn.close()
