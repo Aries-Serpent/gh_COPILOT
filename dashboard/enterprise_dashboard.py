@@ -47,7 +47,9 @@ def _load_metrics() -> dict[str, Any]:
 def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
     """Return recent rollback log entries from ``analytics.db``."""
     records: list[dict[str, Any]] = []
-    if ANALYTICS_DB.exists():
+    if not ANALYTICS_DB.exists():
+        return records
+    try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
             try:
                 cur = conn.execute(
@@ -72,7 +74,9 @@ def _load_sync_events(limit: int = 10) -> list[dict[str, Any]]:
 def _load_audit_results(limit: int = 50) -> list[dict[str, Any]]:
     """Return aggregated placeholder audit results from ``analytics.db``."""
     rows: list[dict[str, Any]] = []
-    if ANALYTICS_DB.exists():
+    if not ANALYTICS_DB.exists():
+        return rows
+    try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
             try:
                 cur = conn.execute(
@@ -88,7 +92,11 @@ def _load_audit_results(limit: int = 50) -> list[dict[str, Any]]:
 @app.route("/")
 def index() -> str:
     """Render the main dashboard page."""
-    return render_template("dashboard.html")
+    return render_template(
+        "dashboard.html",
+        metrics=_load_metrics().get("metrics", {}),
+        rollbacks=get_rollback_logs(),
+    )
 
 
 @app.route("/metrics")
@@ -128,7 +136,8 @@ def dashboard_compliance() -> Any:
 @app.route("/metrics/view")
 def metrics_view() -> str:
     """Render a simple HTML view of the metrics."""
-    return render_template("metrics.html", data=_load_metrics())
+    metrics_data = _load_metrics().get("metrics", {})
+    return render_template("metrics.html", metrics=metrics_data)
 
 
 @app.route("/rollback-logs/view")
