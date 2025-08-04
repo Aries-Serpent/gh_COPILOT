@@ -63,8 +63,8 @@ For validation details see [validation/Database_First_Validation.md](validation/
 The `docs/quantum_template_generator.py` script demonstrates the production
 workflow for generating documentation templates using quantum-inspired scoring.
 It queries `databases/production.db` for representative templates with
-`TemplateAutoGenerator`. When quantum components are available, the script ranks
-templates via `QuantumExecutor`; otherwise a classical fallback score is used.
+`TemplateAutoGenerator`. Quantum components run in simulation mode via
+`QuantumExecutor`, and hardware flags are ignored until future integration.
 Run the script with `python docs/quantum_template_generator.py` to produce
 scored templates. The underlying `TemplateAutoGenerator` clusters templates
 using `sklearn.cluster.KMeans` and exposes a
