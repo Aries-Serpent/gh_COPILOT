@@ -36,6 +36,7 @@ from typing import Any, Dict, List, Optional
 from tqdm import tqdm
 import psutil
 from utils.log_utils import _log_event
+import secondary_copilot_validator
 
 # Unicode-compatible file handler (fallback implementation)
 
@@ -944,6 +945,15 @@ class EnterpriseOrchestrator:
                 pbar.update(100)
 
                 orchestration_result["primary_execution"] = primary_results
+
+                file_list: list[str] = []
+                for result in primary_results.values():
+                    if isinstance(result, dict):
+                        files = result.get("file_list", [])
+                        if isinstance(files, list):
+                            file_list.extend(str(f) for f in files)
+                if file_list:
+                    secondary_copilot_validator.run_flake8(file_list)
 
                 # Extract execution metrics for validation
                 execution_metrics = ExecutionMetrics(
