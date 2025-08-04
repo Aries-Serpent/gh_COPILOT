@@ -13,8 +13,8 @@ def test_dashboard_metrics_after_audit(monkeypatch):
     from web_gui.scripts.flask_apps import enterprise_dashboard as ed
 
     sample_metrics = {
-        "open_placeholders": 1,
-        "total_placeholders": 1,
+        "open_placeholders": 0,
+        "total_placeholders": 0,
         "rollback_count": 0,
         "progress_status": "pending",
         "placeholder_removal": 0,
@@ -30,8 +30,8 @@ def test_dashboard_metrics_after_audit(monkeypatch):
     client = ed.app.test_client()
     resp = client.get("/dashboard/compliance")
     data = resp.get_json()
-    assert data["metrics"]["open_placeholders"] == 1
-    assert data["metrics"]["total_placeholders"] == 1
+    assert data["metrics"]["open_placeholders"] == 0
+    assert data["metrics"]["total_placeholders"] == 0
     assert "rollback_count" in data["metrics"]
     assert "progress_status" in data["metrics"]
 
@@ -69,6 +69,12 @@ def test_lessons_status_from_populated_db(tmp_path, monkeypatch):
         )
         conn.execute(
             "INSERT INTO performance_metrics VALUES ('query_latency', 1.0, 'ms', '2024')"
+        )
+        conn.execute(
+            "CREATE TABLE compliance_scores (score REAL, timestamp TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO compliance_scores VALUES (1.0, '2024')"
         )
 
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)

@@ -7,12 +7,15 @@ def test_history_and_rollback(tmp_path, monkeypatch):
     from scripts import code_placeholder_audit as audit
 
     monkeypatch.setattr(
-        "scripts.code_placeholder_audit.SecondaryCopilotValidator.validate_corrections",
+        "secondary_copilot_validator.SecondaryCopilotValidator.validate_corrections",
         lambda self, files: True,
     )
+    import scripts.correction_logger_and_rollback as clr
     monkeypatch.setattr(
-        "scripts.correction_logger_and_rollback.validate_enterprise_operation",
+        clr,
+        "validate_enterprise_operation",
         lambda: None,
+        raising=False,
     )
     ws = tmp_path / "ws"
     ws.mkdir()
@@ -61,12 +64,15 @@ def test_export_option(tmp_path, monkeypatch):
     from scripts import code_placeholder_audit as audit
 
     monkeypatch.setattr(
-        "scripts.code_placeholder_audit.SecondaryCopilotValidator.validate_corrections",
+        "secondary_copilot_validator.SecondaryCopilotValidator.validate_corrections",
         lambda self, files: True,
     )
+    import scripts.correction_logger_and_rollback as clr
     monkeypatch.setattr(
-        "scripts.correction_logger_and_rollback.validate_enterprise_operation",
+        clr,
+        "validate_enterprise_operation",
         lambda: None,
+        raising=False,
     )
     ws = tmp_path / "ws"
     ws.mkdir()

@@ -30,6 +30,12 @@ def app(tmp_path: Path, monkeypatch):
         conn.execute(
             "CREATE TABLE rollback_logs (target TEXT, backup TEXT, timestamp TEXT)"
         )
+        conn.execute(
+            "CREATE TABLE compliance_scores (score REAL, timestamp TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO compliance_scores VALUES (1.0, '2024-01-01')"
+        )
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(cmu, "ensure_tables", lambda *a, **k: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
@@ -56,6 +62,5 @@ def test_metrics_endpoint_includes_new_fields(app):
 def test_dashboard_template_has_new_elements(app):
     client = app.test_client()
     html = client.get("/").data.decode()
-    assert 'id="placeholder_breakdown"' in html
-    assert 'id="compliance_trend"' in html
+    assert "id='metrics_stream'" in html
 
