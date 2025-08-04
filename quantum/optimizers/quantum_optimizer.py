@@ -195,9 +195,9 @@ class QuantumOptimizer:
         requests an IBM Quantum backend and otherwise returns the local
         simulator.  ``ImportError`` is raised if no backend can be obtained.
         """
-        if token:
-            os.environ.setdefault("QISKIT_IBM_TOKEN", token)
-        backend = get_backend(backend_name, use_hardware=use_hardware)
+        backend = get_backend(
+            backend_name, use_hardware=use_hardware, token=token
+        )
         self.set_backend(backend, use_hardware)
         if backend is not None:
             return backend

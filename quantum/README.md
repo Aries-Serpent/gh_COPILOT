@@ -4,27 +4,32 @@ This package provides experimental quantum-inspired utilities used across the
 gh_COPILOT toolkit.
 
 > **Note**
-> All quantum modules run in simulation only. Installing `qiskit-ibm-provider` or setting `QISKIT_IBM_TOKEN` has no effect because hardware execution is not yet supported.
+> Modules automatically attempt hardware execution when IBM Quantum credentials
+> are supplied. Set `QISKIT_IBM_TOKEN` or pass a token directly to APIs. If
+> hardware access is unavailable the local simulator is used.
 
 ## Optimizers
 - `optimizers.quantum_optimizer.QuantumOptimizer` – classical/quantum hybrid
   optimizer with progress logging. Events are recorded using
   `utils.log_utils._log_event` when executed via higher-level workflows.
-  Use `configure_backend()` for consistent configuration; credentials are ignored and the local simulator is always selected.
+  Use `configure_backend()` for consistent configuration; credentials may be
+  supplied via argument or environment variable. Hardware backends are used
+  when available, otherwise the local simulator is selected.
 
 ## Database Search
 - `quantum.quantum_database_search` – lightweight helpers for SQL, NoSQL and
   hybrid search. All queries are logged to `analytics.db` for compliance.
 
-These modules always run on local simulators. The `--hardware` flag in
-`quantum_integration_orchestrator.py` and the `QUANTUM_USE_HARDWARE`
-environment variable are placeholders with no effect.
+These modules run on IBM Quantum hardware when credentials are provided and the
+environment supports the provider. The `--hardware` flag in
+`quantum_integration_orchestrator.py` and the `QUANTUM_USE_HARDWARE` environment
+variable enable hardware execution with automatic simulator fallback.
 
 ## IBM Quantum Access
 
-Hardware access is planned but not yet available. You may set
-`QISKIT_IBM_TOKEN` for future use, but it is currently ignored and the
-modules always fall back to local simulation.
+Set `QISKIT_IBM_TOKEN` or provide a token argument to enable hardware use. When
+no token is supplied or the provider fails to initialize, the system falls back
+to simulation.
 
 ## Algorithms
 
@@ -37,7 +42,8 @@ modules always fall back to local simulation.
 
 ## Backend utilities
 
-- `utils.backend_provider.get_backend` – currently returns the `Aer` simulator; hardware backends are ignored.
+  - `utils.backend_provider.get_backend` – selects an IBM Quantum backend when
+    credentials are available, otherwise returns the local `Aer` simulator.
 
 ## Pattern Recognition
 
