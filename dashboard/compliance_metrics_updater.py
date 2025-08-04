@@ -101,6 +101,7 @@ class ComplianceMetricsUpdater:
             "placeholder_removal": 0,
             "open_placeholders": 0,
             "resolved_placeholders": 0,
+            "auto_resolved_placeholders": 0,
             "compliance_score": 1.0,
             "violation_count": 0,
             "rollback_count": 0,
@@ -147,6 +148,14 @@ class ComplianceMetricsUpdater:
                     }
                 except sqlite3.Error:
                     metrics["placeholder_breakdown"] = {}
+
+                try:
+                    cur.execute(
+                        "SELECT COUNT(*) FROM corrections WHERE rationale='Auto placeholder cleanup'"
+                    )
+                    metrics["auto_resolved_placeholders"] = cur.fetchone()[0]
+                except sqlite3.Error:
+                    metrics["auto_resolved_placeholders"] = 0
 
                 # Compliance score trend (most recent first)
                 try:
