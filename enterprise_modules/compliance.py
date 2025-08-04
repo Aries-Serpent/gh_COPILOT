@@ -78,17 +78,46 @@ def _log_rollback(target: str, backup: str | None = None) -> None:
         conn.commit()
 
 
-def _detect_recursion(path: Path) -> bool:
-    """Return True if ``path`` contains a nested folder matching itself."""
+def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bool:
+    """Return True if ``path`` contains a nested folder matching itself or
+    exceeds ``max_depth`` during traversal.
+
+    The search records the process ID of the caller to ``last_pid`` for
+    diagnostic purposes and aborts early when the depth limit is hit. This
+    prevents runaway recursive scans across nested directories.
+    """
     root = path.resolve()
-    for folder in path.rglob(path.name):
-        if folder.is_dir() and folder != path:
-            try:
-                folder.resolve().relative_to(root)
-            except ValueError:
-                continue
+    pid = os.getpid()
+    setattr(_detect_recursion, "last_pid", pid)
+
+    visited: set[Path] = set()
+
+    def _walk(current: Path, depth: int) -> bool:
+        if depth > max_depth:
             return True
-    return False
+        try:
+            current_resolved = current.resolve()
+        except OSError:
+            return False
+        if current_resolved in visited:
+            return True
+        visited.add(current_resolved)
+
+        for child in current.iterdir():
+            if not child.is_dir():
+                continue
+            if child.name == root.name and child != root:
+                try:
+                    child.resolve().relative_to(root)
+                except ValueError:
+                    pass
+                else:
+                    return True
+            if _walk(child, depth + 1):
+                return True
+        return False
+
+    return _walk(root, 0)
 
 
 def _run_ruff() -> int:
@@ -253,9 +282,14 @@ def enforce_anti_recursion(context: object) -> bool:
     depth = getattr(context, "recursion_depth", 0)
     if depth >= MAX_RECURSION_DEPTH:
         raise ComplianceError("Recursion limit exceeded.")
+    pid = os.getpid()
+    previous_pid = getattr(context, "pid", pid)
+    if previous_pid != pid:
+        raise ComplianceError("PID mismatch detected.")
 
     setattr(context, "recursion_depth", depth + 1)
     setattr(context, "parent_pid", os.getppid())
+    setattr(context, "pid", pid)
     return True
 
 

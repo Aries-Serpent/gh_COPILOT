@@ -86,6 +86,26 @@ def test_enforce_anti_recursion_nested_limit() -> None:
     for _ in range(MAX_RECURSION_DEPTH):
         assert enforce_anti_recursion(ctx) is True
         assert ctx.parent_pid == os.getppid()
+        assert ctx.pid == os.getpid()
 
     with pytest.raises(ComplianceError):
         enforce_anti_recursion(ctx)
+
+
+def test_enforce_anti_recursion_pid_mismatch() -> None:
+    ctx = SimpleNamespace(recursion_depth=0, pid=-1)
+    with pytest.raises(ComplianceError):
+        enforce_anti_recursion(ctx)
+
+
+def test_detect_recursion_depth_abort(tmp_path: Path) -> None:
+    current = tmp_path
+    for i in range(MAX_RECURSION_DEPTH + 1):
+        current = current / f"d{i}"
+        current.mkdir()
+    assert _detect_recursion(tmp_path)
+
+
+def test_detect_recursion_pid_record(tmp_path: Path) -> None:
+    _detect_recursion(tmp_path)
+    assert getattr(_detect_recursion, "last_pid") == os.getpid()
