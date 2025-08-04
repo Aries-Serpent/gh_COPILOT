@@ -3,7 +3,10 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from scripts.database.cross_database_sync_logger import log_sync_operation
+from scripts.database.cross_database_sync_logger import (
+    log_sync_operation,
+    log_sync_operation_with_analytics,
+)
 from scripts.database.unified_database_initializer import initialize_database
 
 
@@ -69,3 +72,19 @@ def test_log_sync_operation_multiple_databases(tmp_path: Path, monkeypatch) -> N
                 "SELECT COUNT(*) FROM cross_database_sync_operations"
             ).fetchone()[0]
         assert after == before[idx] + 1
+
+
+def test_log_sync_operation_with_analytics(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(
+        "enterprise_modules.compliance.validate_enterprise_operation",
+        lambda: None,
+    )
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    db_path = tmp_path / "enterprise_assets.db"
+    start = datetime.now(timezone.utc)
+    log_sync_operation_with_analytics(db_path, "analytics_op", start_time=start)
+    with sqlite3.connect(tmp_path / "databases" / "analytics.db") as conn:
+        row = conn.execute(
+            "SELECT source, target FROM sync_events_log ORDER BY id DESC"
+        ).fetchone()
+    assert row == ("analytics_op", "SUCCESS")
