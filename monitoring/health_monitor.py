@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Dict, Optional
 
 import psutil
+from quantum_algorithm_library_expansion import quantum_score_stub
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "analytics.db"
@@ -30,7 +31,7 @@ __all__ = [
 
 
 def ensure_table(conn: sqlite3.Connection) -> None:
-    """Ensure the system_health table exists."""
+    """Ensure the system_health table exists and has quantum_score."""
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS system_health (
@@ -40,10 +41,16 @@ def ensure_table(conn: sqlite3.Connection) -> None:
             memory_percent REAL,
             disk_percent REAL,
             net_bytes_sent INTEGER,
-            net_bytes_recv INTEGER
+            net_bytes_recv INTEGER,
+            quantum_score REAL
         )
         """
     )
+    # Add column if table existed without quantum_score
+    try:
+        conn.execute("ALTER TABLE system_health ADD COLUMN quantum_score REAL")
+    except sqlite3.OperationalError:
+        pass
 
 
 def gather_metrics() -> Dict[str, float]:
@@ -68,10 +75,13 @@ def ml_anomaly_detect(metrics: Dict[str, float]) -> bool:
     return any(abs(v - avg) > ANOMALY_DEVIATION for v in values)
 
 
-def quantum_hook(metrics: Dict[str, float]) -> None:
-    """Placeholder for future quantum-based anomaly analysis."""
+def quantum_hook(metrics: Dict[str, float]) -> float:
+    """Compute a quantum-inspired score for system metrics."""
 
-    _ = metrics
+    values = [metrics["cpu_percent"], metrics["memory_percent"], metrics["disk_percent"]]
+    score = quantum_score_stub(values)
+    metrics["quantum_score"] = score
+    return score
 
 
 def check_alerts(metrics: Dict[str, float]) -> Dict[str, bool]:
@@ -89,6 +99,7 @@ def check_alerts(metrics: Dict[str, float]) -> Dict[str, bool]:
 def record_system_health(db_path: Optional[Path] = None) -> Dict[str, float]:
     """Record current system health metrics and return them."""
     metrics = gather_metrics()
+    quantum_hook(metrics)
     path = db_path or DB_PATH
     with sqlite3.connect(path) as conn:
         ensure_table(conn)
@@ -99,8 +110,9 @@ def record_system_health(db_path: Optional[Path] = None) -> Dict[str, float]:
                 memory_percent,
                 disk_percent,
                 net_bytes_sent,
-                net_bytes_recv
-            ) VALUES (?, ?, ?, ?, ?)
+                net_bytes_recv,
+                quantum_score
+            ) VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
                 metrics["cpu_percent"],
@@ -108,6 +120,7 @@ def record_system_health(db_path: Optional[Path] = None) -> Dict[str, float]:
                 metrics["disk_percent"],
                 metrics["net_bytes_sent"],
                 metrics["net_bytes_recv"],
+                metrics["quantum_score"],
             ),
         )
         conn.commit()
@@ -125,20 +138,22 @@ def recent_average(n: int = 10, db_path: Optional[Path] = None) -> Dict[str, flo
                    AVG(memory_percent),
                    AVG(disk_percent),
                    AVG(net_bytes_sent),
-                   AVG(net_bytes_recv)
+                   AVG(net_bytes_recv),
+                   AVG(quantum_score)
             FROM (
                 SELECT * FROM system_health ORDER BY id DESC LIMIT ?
             )
             """,
             (n,),
         )
-        row = cur.fetchone() or (0, 0, 0, 0, 0)
+        row = cur.fetchone() or (0, 0, 0, 0, 0, 0)
         return {
             "avg_cpu_percent": row[0] or 0.0,
             "avg_memory_percent": row[1] or 0.0,
             "avg_disk_percent": row[2] or 0.0,
             "avg_net_bytes_sent": row[3] or 0.0,
             "avg_net_bytes_recv": row[4] or 0.0,
+            "avg_quantum_score": row[5] or 0.0,
         }
 
 
