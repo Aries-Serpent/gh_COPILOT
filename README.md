@@ -685,6 +685,11 @@ Cross-database synchronization via
 pipeline—each call to `log_sync_operation` now emits an analytics event so that
 sync activity is tracked centrally in `analytics.db`.
 
+The `database_first_synchronization_engine.py` module extends this pipeline
+with `SchemaMapper` and `SyncManager` helpers. Synchronization runs use
+explicit transactions, support conflict-resolution callbacks and log a row to
+`analytics.db`'s `synchronization_events` table.
+
 ```python
 from utils.log_utils import _log_event
 from utils.log_utils import _log_event
