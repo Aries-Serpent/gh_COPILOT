@@ -31,6 +31,7 @@ Expected output:
 [INGEST] 20 docs loaded
 [INGEST] 15 templates loaded
 ```
+Duplicate files are skipped automatically based on their content hash.
 Troubleshooting:
 - *0 files found*: confirm Markdown files exist under `docs/` and `prompts/`.
 

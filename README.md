@@ -37,6 +37,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Full Validation Coverage:** ingestion, placeholder audits and migration scripts now run SecondaryCopilotValidator by default.
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
+- **Integrated Legacy Cleanup:** script generation automatically purges superseded templates to keep workspaces current
 - **Disaster Recovery Orchestration:** scheduled backups and recovery
   execution coordinated through a new orchestrator with session and
   compliance hooks
@@ -62,7 +63,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 ### **Enterprise Systems**
 - **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`
 - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
-- **Flask Enterprise Dashboard:** planned; implementation in progress
+ - **Flask Enterprise Dashboard:** run `python web_gui_integration_system.py` to launch the metrics and compliance dashboard
  - **Template Intelligence Platform:** tracks generated scripts
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
 - **Script Validation**: automated checks available

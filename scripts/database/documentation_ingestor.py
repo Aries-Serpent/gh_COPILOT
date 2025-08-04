@@ -56,16 +56,47 @@ def ingest_documentation(
 
     dataset_dbs = get_dataset_sources(str(workspace))
     existing_docs: set[str] = set()
+    existing_hashes: set[str] = set()
+
+    if db_path.exists():
+        try:
+            with sqlite3.connect(db_path) as conn:
+                if _table_exists(conn, "documentation_assets"):
+                    existing_docs.update(
+                        row[0]
+                        for row in conn.execute(
+                            "SELECT doc_path FROM documentation_assets"
+                        )
+                    )
+                    existing_hashes.update(
+                        row[0]
+                        for row in conn.execute(
+                            "SELECT content_hash FROM documentation_assets"
+                        )
+                    )
+        except sqlite3.Error:
+            existing_docs = set()
+            existing_hashes = set()
+
     primary_db = dataset_dbs[0] if dataset_dbs else None
-    if primary_db and primary_db.exists():
+    if primary_db and primary_db.exists() and primary_db != db_path:
         try:
             with sqlite3.connect(primary_db) as prod_conn:
                 if _table_exists(prod_conn, "documentation_assets"):
-                    existing_docs = {
-                        row[0] for row in prod_conn.execute("SELECT doc_path FROM documentation_assets")
-                    }
+                    existing_docs.update(
+                        row[0]
+                        for row in prod_conn.execute(
+                            "SELECT doc_path FROM documentation_assets"
+                        )
+                    )
+                    existing_hashes.update(
+                        row[0]
+                        for row in prod_conn.execute(
+                            "SELECT content_hash FROM documentation_assets"
+                        )
+                    )
         except sqlite3.Error:
-            existing_docs = set()
+            pass
 
     start_time = datetime.now(timezone.utc)
     logger.info("Starting documentation ingestion at %s", start_time.isoformat())
@@ -76,6 +107,13 @@ def ingest_documentation(
             conn.close()
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
+        existing_hashes = {
+            row[0]
+            for row in conn.execute(
+                "SELECT content_hash FROM documentation_assets"
+            )
+        }
+
         with conn, tqdm(total=len(files), desc="Docs", unit="file") as bar:
             for path in files:
                 if timeout_seconds and (datetime.now(timezone.utc) - start_time).total_seconds() > timeout_seconds:
@@ -91,6 +129,11 @@ def ingest_documentation(
 
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
+                if digest in existing_hashes:
+                    logger.info("Skipping duplicate content: %s", path)
+                    bar.update(1)
+                    continue
+                existing_hashes.add(digest)
                 modified_at = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
                 conn.execute(
                     (
@@ -106,6 +149,8 @@ def ingest_documentation(
                     ),
                 )
                 bar.update(1)
+                existing_docs.add(rel_path)
+                existing_hashes.add(digest)
     finally:
         conn.commit()
         conn.close()

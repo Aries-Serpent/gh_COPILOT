@@ -292,7 +292,10 @@ class ComplianceMetricsUpdater:
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
             yield metrics
             count += 1
-            time.sleep(interval)
+            if stop_event:
+                stop_event.wait(interval)
+            else:
+                time.sleep(interval)
 
     def _update_dashboard(self, metrics: Dict[str, Any]) -> None:
         """Update dashboard/compliance with metrics."""

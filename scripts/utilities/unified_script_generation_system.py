@@ -190,6 +190,11 @@ class EnterpriseUtility:
 
             self.logger.info(f"{TEXT_INDICATORS['success']} Generated template stored at {output_file}")
 
+            from unified_legacy_cleanup_system import UnifiedLegacyCleanupSystem
+
+            cleanup = UnifiedLegacyCleanupSystem(self.workspace_path)
+            cleanup.purge_superseded_scripts(generated_dir)
+
             validator = DualCopilotValidator()
             valid = validator.validate(ValidationResult(output_file=output_file, progress_complete=pbar.n == 100))
             secondary = SecondaryCopilotValidator(self.logger)
