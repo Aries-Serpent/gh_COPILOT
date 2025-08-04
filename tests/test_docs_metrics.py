@@ -48,17 +48,24 @@ def test_docs_metrics_validator_wrapper(tmp_path, monkeypatch):
     db_path = _setup_db(tmp_path)
     from scripts import docs_metrics_validator
 
-    def validate(path: Path) -> bool:
-        return path == db_path
+    called: dict[str, object] = {}
 
-    monkeypatch.setattr(
-        docs_metrics_validator,
-        "validate",
-        validate,
-    )
+    def validate(path: Path) -> bool:
+        assert path == db_path
+        called["primary"] = True
+        return True
+
+    class DummyValidator:
+        def validate_corrections(self, files, primary_success=None):
+            called["secondary"] = (files, primary_success)
+            return True
+
+    monkeypatch.setattr(docs_metrics_validator, "validate", validate)
+    monkeypatch.setattr(docs_metrics_validator, "SecondaryCopilotValidator", lambda: DummyValidator())
 
     result = docs_metrics_validator.main(["--db-path", str(db_path)])
     assert result == 0
+    assert called["secondary"] == ([], True)
 
 
 def test_docs_metrics_validator_as_script(tmp_path, monkeypatch):
