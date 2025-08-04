@@ -15,6 +15,14 @@ from enterprise_modules.utility_utils import (
     setup_enterprise_logging,
     validate_environment_compliance,
 )
+from unified_disaster_recovery_system import (
+    UnifiedDisasterRecoverySystem,
+    log_backup_event,
+)
+from unified_session_management_system import (
+    ensure_no_zero_byte_files,
+    prevent_recursion,
+)
 
 
 class ComplianceError(RuntimeError):
@@ -92,6 +100,30 @@ class ComplianceChecker:
                 f"Compliance threshold exceeded: {violations} > {self.threshold}"
             )
         return violations == 0
+
+    def pre_deployment_validation(self, workspace: str | Path | None = None) -> bool:
+        """Execute compliance checks with session and backup integration.
+
+        The workspace is first validated for zero-byte files and recursion
+        using :mod:`unified_session_management_system`. If all checks pass, a
+        backup is scheduled via :class:`UnifiedDisasterRecoverySystem` and the
+        event logged for forensic traceability.
+        """
+        workspace_path = Path(workspace) if workspace else Path.cwd()
+
+        @prevent_recursion
+        def _execute() -> bool:
+            with ensure_no_zero_byte_files(workspace_path):
+                ok = self.run_checks()
+                if ok:
+                    system = UnifiedDisasterRecoverySystem(str(workspace_path))
+                    system.schedule_backups()
+                    log_backup_event(
+                        "pre_deployment_backup", {"path": str(workspace_path)}
+                    )
+                return ok
+
+        return _execute()
 
 
 __all__ = ["ComplianceChecker", "ComplianceError"]

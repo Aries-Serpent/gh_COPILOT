@@ -88,6 +88,31 @@ def _detect_recursion(path: Path) -> bool:
     return False
 
 
+def generate_compliance_summary() -> dict:
+    """Aggregate violation and rollback metrics for dashboards.
+
+    Returns a dictionary with counts of logged compliance violations and
+    rollbacks sourced from ``analytics.db``. A dashboard alert is emitted to
+    expose the current compliance posture.
+    """
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    analytics_db = workspace / "databases" / "analytics.db"
+    if not analytics_db.exists():
+        summary = {"violations": 0, "rollbacks": 0}
+        send_dashboard_alert({"event": "compliance_summary", **summary})
+        return summary
+
+    with sqlite3.connect(analytics_db) as conn:
+        cur = conn.execute("SELECT COUNT(*) FROM violation_logs")
+        violations = cur.fetchone()[0]
+        cur = conn.execute("SELECT COUNT(*) FROM rollback_logs")
+        rollbacks = cur.fetchone()[0]
+
+    summary = {"violations": violations, "rollbacks": rollbacks}
+    send_dashboard_alert({"event": "compliance_summary", **summary})
+    return summary
+
+
 def validate_environment() -> bool:
     """Run baseline environment checks.
 
@@ -220,5 +245,6 @@ __all__ = [
     "run_final_validation",
     "validate_environment",
     "enforce_anti_recursion",
+    "generate_compliance_summary",
     "ComplianceError",
 ]
