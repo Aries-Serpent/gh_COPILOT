@@ -26,6 +26,7 @@ from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
+import numpy as np
 
 from .template_synchronizer import _log_audit_real
 from utils.log_utils import _log_event
@@ -105,6 +106,30 @@ def extract_patterns(templates: List[str]) -> List[str]:
         for i in range(len(words) - 2):
             patterns.add(" ".join(words[i : i + 3]))
     return list(patterns)
+
+
+def cluster_templates(features: List[List[float]], n_clusters: int = 5) -> List[int]:
+    """Cluster templates based on numeric features using KMeans.
+
+    Parameters
+    ----------
+    features: List[List[float]]
+        Feature vectors representing templates.
+    n_clusters: int, optional
+        Desired number of clusters, default is 5.
+
+    Returns
+    -------
+    List[int]
+        Cluster label for each feature vector. Returns an empty list when
+        ``features`` is empty.
+    """
+    if not features:
+        return []
+    data = np.array(features)
+    k = min(len(data), n_clusters)
+    model = KMeans(n_clusters=k, n_init="auto", random_state=0)
+    return model.fit_predict(data).tolist()
 
 
 def _log_patterns(patterns: List[str], analytics_db: Path) -> None:
@@ -350,6 +375,7 @@ def validate_mining(expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_
 
 __all__ = [
     "extract_patterns",
+    "cluster_templates",
     "mine_patterns",
     "get_clusters",
     "get_cluster_metrics",
