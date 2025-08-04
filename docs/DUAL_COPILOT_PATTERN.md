@@ -16,3 +16,9 @@ fails.
 
 Use `utils.validation_utils.run_dual_copilot_validation` to coordinate
 this flow in code.
+
+Recent orchestrators such as `scripts.enterprise_deployment_orchestrator`,
+`scripts.continuous_operation_orchestrator`, and
+`scripts.enterprise_validation_orchestrator` now delegate their primary and
+secondary checks through this helper, ensuring a unified validation workflow
+across the toolkit.

@@ -6,31 +6,31 @@ from contextlib import contextmanager
 from pathlib import Path
 import logging
 
-from scripts.utilities.unified_session_management_system import (
-    UnifiedSessionManagementSystem,
-)
 from utils.validation_utils import detect_zero_byte_files, anti_recursion_guard
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
     "ensure_no_zero_byte_files",
-    "prevent_recursion",
     "main",
 ]
 
 
 @contextmanager
 def ensure_no_zero_byte_files(root: str | Path):
-    """Verify the workspace is free of zero-byte files before and after the block."""
-    root_path = Path(root)
-    before = detect_zero_byte_files(root_path)
-    if before:
-        raise RuntimeError(f"Zero-byte files detected: {before}")
-    yield
-    after = detect_zero_byte_files(root_path)
-    if after:
-        raise RuntimeError(f"Zero-byte files detected: {after}")
+        """Verify the workspace is free of zero-byte files before and after the block."""
+        root_path = Path(root)
+        before = detect_zero_byte_files(root_path)
+        if before:
+            for path in before:
+                path.unlink(missing_ok=True)
+            raise RuntimeError(f"Zero-byte files detected: {before}")
+        yield
+        after = detect_zero_byte_files(root_path)
+        if after:
+            for path in after:
+                path.unlink(missing_ok=True)
+            raise RuntimeError(f"Zero-byte files detected: {after}")
 
 
 @anti_recursion_guard

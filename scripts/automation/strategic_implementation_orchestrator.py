@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from tqdm import tqdm
+from utils.validation_utils import run_dual_copilot_validation
 
 # Enhanced Cognitive Processing Imports
 try:
@@ -801,8 +802,15 @@ def main():
         print(f"Report Location: {report_path}")
         print("=" * 80)
 
-        orchestrator.primary_validate()
-        orchestrator.secondary_validate()
+        def _primary_validation():
+            logger.info("🔍 PRIMARY VALIDATION")
+            return orchestrator.primary_validate()
+
+        def _secondary_validation():
+            logger.info("🔍 SECONDARY VALIDATION")
+            return orchestrator.secondary_validate()
+
+        run_dual_copilot_validation(_primary_validation, _secondary_validation)
 
         return implementation_results
 
