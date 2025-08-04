@@ -976,6 +976,21 @@ class Phase5AIIntegrationEngine:
         )
 ```
 
+#### Composite Compliance Scoring
+
+Phase 5 introduces a weighted compliance metric combining lint hygiene,
+test success, and placeholder backlog:
+
+```
+L = max(0, 100 - lint_warnings)
+T = passed / (passed + failed) * 100
+P = max(0, 100 - 10 * placeholders)
+score = 0.3 * L + 0.5 * T + 0.2 * P
+```
+
+This composite score is persisted to `code_quality_metrics` in `analytics.db`
+and exposed on the compliance dashboard.
+
 ### **Quantum Optimization Engine (Placeholder)**
 *Planned placeholder – algorithms not yet implemented.*
 ```python

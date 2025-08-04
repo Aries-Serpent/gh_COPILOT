@@ -143,13 +143,15 @@ def calculate_compliance_score(
     tests_failed: int,
     placeholder_count: int,
 ) -> float:
-    """Return composite compliance score combining lint, tests and placeholders."""
+    """Return weighted compliance score combining lint, tests and placeholders."""
 
-    lint_score = max(0.0, 1 - ruff_issues / 50)
+    lint_score = max(0.0, 1 - ruff_issues / 100)
     total_tests = tests_passed + tests_failed
     test_score = (tests_passed / total_tests) if total_tests else 0.0
-    placeholder_score = 1 / (1 + placeholder_count)
-    return round((lint_score + test_score + placeholder_score) / 3, 3)
+    placeholder_score = max(0.0, 1 - (placeholder_count / 10))
+    return round(
+        0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score, 3
+    )
 
 
 def persist_compliance_score(score: float, db_path: Path | None = None) -> None:

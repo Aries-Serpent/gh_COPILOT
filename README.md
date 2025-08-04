@@ -809,6 +809,21 @@ The `summarize_corrections()` routine now keeps only the most recent entries
 (configurable via the `max_entries` argument). Existing summary files are moved
 to `dashboard/compliance/archive/` before new summaries are written. The main
 report remains `dashboard/compliance/correction_summary.json`.
+
+### Composite Compliance Score
+
+Lint warnings, test results, and remaining placeholders are combined into a
+single weighted score:
+
+```
+L = max(0, 100 - lint_warnings)
+T = passed / (passed + failed) * 100
+P = max(0, 100 - 10 * placeholders)
+score = 0.3 * L + 0.5 * T + 0.2 * P
+```
+
+The composite score is stored in `code_quality_metrics` within `analytics.db`
+and displayed on the dashboard.
 Set `GH_COPILOT_WORKSPACE` before running these utilities:
 
 ```bash
