@@ -22,6 +22,7 @@ from flask import Flask, Response, jsonify, render_template, request
 
 from utils.validation_utils import validate_enterprise_environment
 from database_first_synchronization_engine import list_events
+from enterprise_modules.compliance import get_latest_compliance_score
 
 
 # Paths to metrics and rollback data
@@ -37,13 +38,15 @@ app = Flask(
 
 
 def _load_metrics() -> dict[str, Any]:
-    """Load dashboard metrics from ``metrics.json``."""
+    """Load dashboard metrics from ``metrics.json`` and analytics.db."""
+    metrics: dict[str, Any] = {}
     if METRICS_FILE.exists():
         try:
-            return json.loads(METRICS_FILE.read_text())
+            metrics = json.loads(METRICS_FILE.read_text()).get("metrics", {})
         except json.JSONDecodeError as exc:  # pragma: no cover - log and fall back
             logging.error("Metrics decode error: %s", exc)
-    return {"metrics": {}, "notes": []}
+    metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
+    return {"metrics": metrics, "notes": []}
 
 
 def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
