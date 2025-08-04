@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from scripts.database.cross_database_sync_logger import log_sync_operation
+from scripts.database.unified_database_initializer import initialize_database
 
 
 def test_log_sync_operation(tmp_path: Path, monkeypatch) -> None:
@@ -40,3 +41,31 @@ def test_log_sync_operation_accepts_naive_datetime(tmp_path: Path, monkeypatch) 
             "SELECT start_time FROM cross_database_sync_operations ORDER BY id DESC"
         ).fetchone()
     assert row[0] == start.replace(tzinfo=timezone.utc).isoformat()
+
+
+def test_log_sync_operation_multiple_databases(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(
+        "enterprise_modules.compliance.validate_enterprise_operation",
+        lambda: None,
+    )
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    db1 = tmp_path / "db1.db"
+    db2 = tmp_path / "db2.db"
+    initialize_database(db1)
+    initialize_database(db2)
+    before = []
+    for db in (db1, db2):
+        with sqlite3.connect(db) as conn:
+            before.append(
+                conn.execute(
+                    "SELECT COUNT(*) FROM cross_database_sync_operations"
+                ).fetchone()[0]
+            )
+    start = datetime.now(timezone.utc)
+    log_sync_operation([db1, db2], "multi", start_time=start)
+    for idx, db in enumerate((db1, db2)):
+        with sqlite3.connect(db) as conn:
+            after = conn.execute(
+                "SELECT COUNT(*) FROM cross_database_sync_operations"
+            ).fetchone()[0]
+        assert after == before[idx] + 1
