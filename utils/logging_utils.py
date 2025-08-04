@@ -45,4 +45,16 @@ def log_enterprise_operation(operation: str, status: str, details: str = "") -> 
         logger.info(f"{prefix} {operation}: {details}")
 
 
+def log_dual_validation_outcome(primary: object, secondary: object) -> None:
+    """Record outcomes from each copilot and note discrepancies."""
+    log_enterprise_operation("Primary copilot", "INFO", str(primary))
+    log_enterprise_operation("Secondary copilot", "INFO", str(secondary))
+    if primary != secondary:
+        log_enterprise_operation(
+            "Dual validation discrepancy",
+            "WARNING",
+            f"primary={primary} secondary={secondary}",
+        )
+
+
 ANALYTICS_DB = Path("databases") / "analytics.db"

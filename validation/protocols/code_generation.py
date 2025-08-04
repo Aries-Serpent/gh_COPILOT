@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
+from typing import Any, Callable, Tuple
 
+from utils.logging_utils import log_dual_validation_outcome
 from ..core.validators import BaseValidator, ValidationResult, ValidationStatus
 
 
@@ -36,3 +38,13 @@ class DBFirstGenerationValidator(BaseValidator):
                 message=f"validation error: {exc}",
                 errors=[str(exc)],
             )
+
+
+def run_dual_validation(
+    primary: Callable[[], Any], secondary: Callable[[], Any]
+) -> Tuple[Any, Any]:
+    """Execute primary and secondary copilots sequentially and log outcomes."""
+    primary_result = primary()
+    secondary_result = secondary()
+    log_dual_validation_outcome(primary_result, secondary_result)
+    return primary_result, secondary_result
