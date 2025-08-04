@@ -19,7 +19,14 @@ from sklearn.ensemble import IsolationForest
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
-    from scripts.monitoring.unified_monitoring_optimization_system import EnterpriseUtility as _EnterpriseUtility  # noqa: F401
+    from scripts.monitoring.unified_monitoring_optimization_system import (
+        EnterpriseUtility as _EnterpriseUtility,  # noqa: F401
+        collect_metrics as _collect_metrics,  # noqa: F401
+    )
+else:
+    from scripts.monitoring.unified_monitoring_optimization_system import (
+        collect_metrics,
+    )
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "databases" / "analytics.db"
@@ -28,6 +35,7 @@ __all__ = [
     "push_metrics",
     "detect_anomalies",
     "QuantumInterface",
+    "collect_metrics",
 ]
 
 

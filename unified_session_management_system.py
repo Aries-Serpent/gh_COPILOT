@@ -33,6 +33,16 @@ def ensure_no_zero_byte_files(root: str | Path):
             raise RuntimeError(f"Zero-byte files detected: {after}")
 
 
+def prevent_recursion(func):
+    """Decorator proxy for :func:`anti_recursion_guard`.
+
+    Exposes the anti-recursion guard to maintain backward compatibility
+    with modules expecting :func:`prevent_recursion` in this namespace.
+    """
+
+    return anti_recursion_guard(func)
+
+
 @anti_recursion_guard
 def main() -> int:
     """Run session validation and return an exit code."""
