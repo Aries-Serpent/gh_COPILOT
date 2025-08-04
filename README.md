@@ -97,11 +97,11 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 ## 🚀 QUICK START
 
 ### **Prerequisites**
-- Python 1,679.8+
+- Python 3.8+
 - PowerShell (for Windows automation)
 - SQLite3
 - Required packages: `pip install -r requirements.txt` (includes `py7zr` for 7z archive support)
- - Quantum routines use the Qiskit simulator only; installing `qiskit-ibm-provider` or setting `QUANTUM_USE_HARDWARE=1` has no effect because hardware execution is not yet supported
+- Quantum routines use the Qiskit simulator only; installing `qiskit-ibm-provider` or setting `QUANTUM_USE_HARDWARE=1` has no effect because hardware execution is not yet supported
 
 ### **Installation & Setup**
 ```bash
@@ -135,6 +135,8 @@ tools/install_clw.sh
 # Verify clw exists and view usage
 ls -l /usr/local/bin/clw
 /usr/local/bin/clw --help
+
+```
 
 ### Add Lessons After a Run
 Store new insights directly from the gap analyzer:
