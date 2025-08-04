@@ -2,7 +2,7 @@
 ## Implementation and Deployment
 
 > **Note**
-> All quantum features run in simulation unless `qiskit-ibm-provider` is installed and configured with `QISKIT_IBM_TOKEN`.
+> All quantum features run in simulation only. Installing `qiskit-ibm-provider` or setting `QISKIT_IBM_TOKEN` has no effect because hardware execution is not yet supported.
 
 ### Integration Architecture
 ```
@@ -73,17 +73,10 @@ result = quantum_engine.optimize_code_analysis(
 ```
 
 ### Hardware Backends
-Install `qiskit-ibm-provider` and set `QISKIT_IBM_TOKEN` to enable hardware access.
-The orchestrator validates credentials and uses the requested backend when available;
-otherwise it automatically falls back to simulation:
-
-```bash
-python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
-```
-
-See [docs/QUANTUM_HARDWARE_SETUP.md](../QUANTUM_HARDWARE_SETUP.md) for setup details and
-[../diagrams/quantum_hardware_flow.dot](../diagrams/quantum_hardware_flow.dot) for the
-integration flow.
+Hardware backends are not yet supported. The orchestrator accepts `--hardware`
+and `--backend` flags but always runs on the local simulator. See
+[docs/QUANTUM_HARDWARE_SETUP.md](../QUANTUM_HARDWARE_SETUP.md) for the future
+integration roadmap.
 
 ### Deployment Checklist
 - [ ] Quantum simulation environment *(not started)*

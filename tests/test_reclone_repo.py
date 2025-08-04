@@ -1,40 +1,109 @@
+"""Tests for ``reclone_repo.py``."""
+
+from __future__ import annotations
+
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-
-def create_source_repo(tmp_path: Path):
-    repo = tmp_path / "source"
-    repo.mkdir()
-    subprocess.run(["git", "init", "-b", "main"], cwd=repo, check=True)
-    (repo / "file.txt").write_text("hello", encoding="utf-8")
-    subprocess.run(["git", "add", "file.txt"], cwd=repo, check=True)
-    subprocess.run(["git", "commit", "-m", "initial"], cwd=repo, check=True)
-    result = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, check=True, capture_output=True, text=True)
-    return repo, result.stdout.strip()
+SCRIPT = Path(__file__).resolve().parents[1] / "reclone_repo.py"
 
 
-def run_script(args, env=None):
-    cmd = [sys.executable, "scripts/reclone_repo.py"] + args
-    return subprocess.run(cmd, capture_output=True, text=True, env=env)
+def init_repo(path: Path) -> str:
+    """Create a simple git repository and return its commit hash."""
+
+    subprocess.run(["git", "init", "-b", "master", str(path)], check=True)
+    readme = path / "README.md"
+    readme.write_text("test", encoding="utf-8")
+    subprocess.run(["git", "-C", str(path), "add", "README.md"], check=True)
+    subprocess.run(["git", "-C", str(path), "commit", "-m", "init"], check=True)
+    rev = subprocess.run(
+        ["git", "-C", str(path), "rev-parse", "HEAD"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return rev.stdout.strip()
 
 
-def test_clone_and_print_commit_hash(tmp_path):
-    repo, commit = create_source_repo(tmp_path)
-    dest = tmp_path / "clone"
-    result = run_script(["--repo-url", str(repo), "--dest", str(dest)])
-    assert result.returncode == 0
-    assert result.stdout.strip() == commit
-    assert (dest / ".git").is_dir()
+def run_script(args: list[str], env: dict[str, str]) -> None:
+    """Run the reclone script with the given arguments and environment."""
+
+    cmd = [sys.executable, str(SCRIPT), *args]
+    subprocess.run(cmd, check=True, env=env)
 
 
-def test_backup_requires_env(tmp_path):
-    repo, _ = create_source_repo(tmp_path)
-    dest = tmp_path / "existing"
+def test_backup_existing(tmp_path):
+    """Existing destination should be backed up before cloning."""
+
+    src = tmp_path / "src"
+    dest = tmp_path / "dest"
+    backup_root = tmp_path / "backups"
+    backup_root.mkdir()
+
+    expected = init_repo(src)
     dest.mkdir()
+    (dest / "old.txt").write_text("old", encoding="utf-8")
+
     env = os.environ.copy()
-    env.pop("GH_COPILOT_BACKUP_ROOT", None)
-    result = run_script(["--repo-url", str(repo), "--dest", str(dest), "--backup-existing"], env=env)
-    assert result.returncode != 0
-    assert "GH_COPILOT_BACKUP_ROOT" in result.stderr
+    env["GH_COPILOT_BACKUP_ROOT"] = str(backup_root)
+
+    run_script(
+        [
+            "--repo-url",
+            str(src),
+            "--dest",
+            str(dest),
+            "--branch",
+            "master",
+            "--backup-existing",
+        ],
+        env,
+    )
+
+    rev = subprocess.run(
+        ["git", "-C", str(dest), "rev-parse", "HEAD"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    assert rev == expected
+
+    backups = list(backup_root.iterdir())
+    assert len(backups) == 1
+    assert (backups[0] / "old.txt").exists()
+
+
+def test_clean(tmp_path):
+    """Destination directory should be removed when ``--clean`` is given."""
+
+    src = tmp_path / "src2"
+    dest = tmp_path / "dest2"
+    expected = init_repo(src)
+    dest.mkdir()
+    (dest / "junk.txt").write_text("junk", encoding="utf-8")
+
+    env = os.environ.copy()
+
+    run_script(
+        [
+            "--repo-url",
+            str(src),
+            "--dest",
+            str(dest),
+            "--branch",
+            "master",
+            "--clean",
+        ],
+        env,
+    )
+
+    rev = subprocess.run(
+        ["git", "-C", str(dest), "rev-parse", "HEAD"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    assert rev == expected
+    assert not (dest / "junk.txt").exists()
