@@ -51,16 +51,47 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
 
     dataset_dbs = get_dataset_sources(str(workspace))
     existing_paths: set[str] = set()
+    existing_hashes: set[str] = set()
+
+    if db_path.exists():
+        try:
+            with sqlite3.connect(db_path) as conn:
+                if _table_exists(conn, "template_assets"):
+                    existing_paths.update(
+                        row[0]
+                        for row in conn.execute(
+                            "SELECT template_path FROM template_assets"
+                        )
+                    )
+                    existing_hashes.update(
+                        row[0]
+                        for row in conn.execute(
+                            "SELECT content_hash FROM template_assets"
+                        )
+                    )
+        except sqlite3.Error:
+            existing_paths = set()
+            existing_hashes = set()
+
     primary_db = dataset_dbs[0] if dataset_dbs else None
-    if primary_db and primary_db.exists():
+    if primary_db and primary_db.exists() and primary_db != db_path:
         try:
             with sqlite3.connect(primary_db) as prod_conn:
                 if _table_exists(prod_conn, "template_assets"):
-                    existing_paths = {
-                        row[0] for row in prod_conn.execute("SELECT template_path FROM template_assets")
-                    }
+                    existing_paths.update(
+                        row[0]
+                        for row in prod_conn.execute(
+                            "SELECT template_path FROM template_assets"
+                        )
+                    )
+                    existing_hashes.update(
+                        row[0]
+                        for row in prod_conn.execute(
+                            "SELECT content_hash FROM template_assets"
+                        )
+                    )
         except sqlite3.Error:
-            existing_paths = set()
+            pass
 
     start_time = datetime.now(timezone.utc)
 
@@ -73,13 +104,15 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
         with conn, tqdm(total=len(files), desc="Templates", unit="file") as bar:
             for path in files:
                 rel_path = str(path.relative_to(workspace))
-                if rel_path in existing_paths:
-                    bar.update(1)
-                    continue
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
+                if rel_path in existing_paths or digest in existing_hashes:
+                    bar.update(1)
+                    continue
                 conn.execute(
-                    ("INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)"),
+                    (
+                        "INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)"
+                    ),
                     (
                         rel_path,
                         digest,
@@ -91,6 +124,8 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
                     (content[:1000], datetime.now(timezone.utc).isoformat()),
                 )
                 bar.update(1)
+                existing_paths.add(rel_path)
+                existing_hashes.add(digest)
         lesson_templates = get_lesson_templates()
         existing_lessons = {
             row[0]
