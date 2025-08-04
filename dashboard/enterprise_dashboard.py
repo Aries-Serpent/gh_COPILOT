@@ -43,7 +43,7 @@ def _load_metrics() -> dict[str, Any]:
     return {"metrics": {}, "notes": []}
 
 
-def _load_rollbacks(limit: int = 10) -> list[dict[str, Any]]:
+def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
     """Return recent rollback log entries from ``analytics.db``."""
     records: list[dict[str, Any]] = []
     if ANALYTICS_DB.exists():
@@ -95,13 +95,23 @@ def metrics() -> Any:
 @app.route("/rollback-logs")
 def rollback_logs() -> Any:
     """Return recent rollback log entries as JSON."""
-    return jsonify(_load_rollbacks())
+    return jsonify(get_rollback_logs())
 
 
 @app.route("/audit-results")
 def audit_results() -> Any:
     """Return placeholder audit results as JSON."""
     return jsonify(_load_audit_results())
+
+
+@app.route("/dashboard/compliance")
+def dashboard_compliance() -> Any:
+    """Return combined metrics and rollback logs."""
+    data = {
+        "metrics": _load_metrics().get("metrics", {}),
+        "rollbacks": get_rollback_logs(),
+    }
+    return jsonify(data)
 
 
 @app.route("/metrics/view")
@@ -113,7 +123,7 @@ def metrics_view() -> str:
 @app.route("/rollback-logs/view")
 def rollback_logs_view() -> str:
     """Render a simple HTML view of rollback logs."""
-    return render_template("rollback_logs.html", logs=_load_rollbacks())
+    return render_template("rollback_logs.html", logs=get_rollback_logs())
 
 
 @app.route("/audit-results/view")
@@ -138,7 +148,7 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO)
     _validate_environment()
     logging.info("Startup metrics: %s", _load_metrics().get("metrics"))
-    logging.info("Recent rollbacks: %s", _load_rollbacks())
+    logging.info("Recent rollbacks: %s", get_rollback_logs())
     port = int(os.getenv("FLASK_RUN_PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=bool(__name__ == "__main__"))
 

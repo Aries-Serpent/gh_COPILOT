@@ -24,7 +24,13 @@
                     pb.appendChild(li);
                 });
             }
-            document.getElementById('compliance_trend').textContent = (data.compliance_trend||[]).join(', ');
+            const ct = document.getElementById('compliance_trend');
+            ct.innerHTML = '';
+            (data.compliance_trend || []).forEach(v => {
+                const li = document.createElement('li');
+                li.textContent = v;
+                ct.appendChild(li);
+            });
         }
         function updateRollbacks(logs){
             const list = document.getElementById('rollbacks');
@@ -76,7 +82,7 @@
     <h3>Placeholder Types</h3>
     <ul id="placeholder_breakdown"></ul>
     <h3>Compliance Trend</h3>
-    <span id="compliance_trend"></span>
+    <ul id="compliance_trend"></ul>
 </div>
 <h2>Recent Rollbacks</h2>
 <ul id="rollbacks"></ul>
