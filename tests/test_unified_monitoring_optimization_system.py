@@ -13,6 +13,7 @@ from unified_monitoring_optimization_system import (
     detect_anomalies,
     push_metrics,
     auto_heal_session,
+    record_quantum_score,
 )
 
 
@@ -95,10 +96,59 @@ def test_auto_heal_session_restarts_on_anomaly(tmp_path: Path) -> None:
 
     mgr = DummyManager()
     db = tmp_path / "analytics.db"
+    anomalies = detect_anomalies(history, contamination=0.34, db_path=db)
     restarted = auto_heal_session(
-        history, contamination=0.34, manager=mgr, db_path=db
+        anomalies=anomalies, manager=mgr, db_path=db
     )
 
     assert restarted is True
     assert mgr.started == 1
     assert mgr.ended == 1
+
+
+def test_record_quantum_score_persists_value(tmp_path: Path) -> None:
+    """Quantum scores should be stored for later analysis."""
+
+    metrics = {"cpu": 1.0, "mem": 2.0}
+    db = tmp_path / "analytics.db"
+    score = record_quantum_score(metrics, db_path=db)
+
+    with sqlite3.connect(db) as conn:
+        row = conn.execute(
+            "SELECT metrics_json, score FROM quantum_scores"
+        ).fetchone()
+
+    assert row is not None
+    assert json.loads(row[0]) == metrics
+    assert row[1] == pytest.approx(score)
+
+
+def test_auto_heal_session_ignores_normal_metrics(tmp_path: Path) -> None:
+    """No restart should occur when metrics are within normal ranges."""
+
+    class DummyManager:
+        def __init__(self) -> None:
+            self.started = 0
+            self.ended = 0
+
+        def start_session(self) -> None:  # pragma: no cover - simple increment
+            self.started += 1
+
+        def end_session(self) -> None:  # pragma: no cover - simple increment
+            self.ended += 1
+
+    history = [
+        {"cpu": 5.0, "mem": 10.0},
+        {"cpu": 5.0, "mem": 10.0},
+        {"cpu": 5.0, "mem": 10.0},
+    ]
+
+    mgr = DummyManager()
+    db = tmp_path / "analytics.db"
+    restarted = auto_heal_session(
+        history, contamination=0.01, manager=mgr, db_path=db
+    )
+
+    assert restarted is False
+    assert mgr.started == 0
+    assert mgr.ended == 0
