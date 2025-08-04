@@ -78,6 +78,29 @@ def _log_rollback(target: str, backup: str | None = None) -> None:
         conn.commit()
 
 
+def _ensure_recursion_pid_log(db_path: Path) -> None:
+    """Ensure the ``recursion_pid_log`` table exists."""
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS recursion_pid_log (path TEXT, pid INTEGER, timestamp TEXT)"
+        )
+        conn.commit()
+
+
+def _record_recursion_pid(path: Path, pid: int) -> None:
+    """Record ``pid`` executions against ``path`` for recursion tracking."""
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    analytics_db = workspace / "databases" / "analytics.db"
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    _ensure_recursion_pid_log(analytics_db)
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            "INSERT INTO recursion_pid_log (path, pid, timestamp) VALUES (?, ?, ?)",
+            (str(path.resolve()), pid, datetime.now().isoformat()),
+        )
+        conn.commit()
+
+
 def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bool:
     """Return True if ``path`` contains a nested folder matching itself or
     exceeds ``max_depth`` during traversal.
@@ -93,6 +116,15 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
     setattr(_detect_recursion, "last_pid", pid)
     setattr(_detect_recursion, "max_depth_reached", 0)
     setattr(_detect_recursion, "aborted", False)
+
+    # Abort immediately if the working directory itself exceeds ``max_depth``
+    root_depth = len(root.relative_to(root.anchor).parts)
+    if root_depth > max_depth:
+        setattr(_detect_recursion, "aborted", True)
+        _record_recursion_pid(root, pid)
+        return True
+
+    _record_recursion_pid(root, pid)
 
     visited: set[Path] = set()
 
