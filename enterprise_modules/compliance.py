@@ -176,6 +176,47 @@ def _count_placeholders() -> int:
     return count
 
 
+def calculate_composite_score(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+    placeholders_open: int,
+    placeholders_resolved: int,
+) -> tuple[float, dict]:
+    """Return composite code-quality score and component breakdown.
+
+    The score blends lint results, test pass ratio and placeholder
+    resolution ratio. Each component is normalised to ``0..1`` and
+    combined with weights of ``0.4`` for linting, ``0.4`` for tests and
+    ``0.2`` for placeholder resolution.
+    """
+
+    lint_score = max(0.0, 1 - ruff_issues / 100)
+    total_tests = tests_passed + tests_failed
+    test_score = (tests_passed / total_tests) if total_tests else 0.0
+    total_placeholders = placeholders_open + placeholders_resolved
+    placeholder_score = (
+        placeholders_resolved / total_placeholders
+        if total_placeholders
+        else 1.0
+    )
+    composite = round(
+        0.4 * lint_score + 0.4 * test_score + 0.2 * placeholder_score,
+        3,
+    )
+    breakdown = {
+        "ruff_issues": ruff_issues,
+        "tests_passed": tests_passed,
+        "tests_failed": tests_failed,
+        "placeholders_open": placeholders_open,
+        "placeholders_resolved": placeholders_resolved,
+        "lint_score": round(lint_score, 3),
+        "test_score": round(test_score, 3),
+        "placeholder_score": round(placeholder_score, 3),
+    }
+    return composite, breakdown
+
+
 def calculate_compliance_score(
     ruff_issues: int,
     tests_passed: int,
@@ -208,6 +249,68 @@ def persist_compliance_score(score: float, db_path: Path | None = None) -> None:
         )
         conn.commit()
 
+
+def record_code_quality_metrics(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+    placeholders_open: int,
+    placeholders_resolved: int,
+    composite_score: float,
+    db_path: Path | None = None,
+    *,
+    test_mode: bool = False,
+) -> None:
+    """Store code quality metrics in ``code_quality_metrics`` table."""
+
+    if test_mode:
+        return
+
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    db = db_path or (workspace / "databases" / "analytics.db")
+    db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS code_quality_metrics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ruff_issues INTEGER,
+                tests_passed INTEGER,
+                tests_failed INTEGER,
+                placeholders_open INTEGER,
+                placeholders_resolved INTEGER,
+                composite_score REAL,
+                ts TEXT
+            )"""
+        )
+        try:
+            conn.execute(
+                "ALTER TABLE code_quality_metrics ADD COLUMN placeholders_open INTEGER"
+            )
+        except sqlite3.OperationalError:
+            pass
+        try:
+            conn.execute(
+                "ALTER TABLE code_quality_metrics ADD COLUMN placeholders_resolved INTEGER"
+            )
+        except sqlite3.OperationalError:
+            pass
+        conn.execute(
+            """INSERT INTO code_quality_metrics (
+                ruff_issues, tests_passed, tests_failed,
+                placeholders_open, placeholders_resolved,
+                composite_score, ts
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (
+                int(ruff_issues),
+                int(tests_passed),
+                int(tests_failed),
+                int(placeholders_open),
+                int(placeholders_resolved),
+                float(composite_score),
+                datetime.now().isoformat(),
+            ),
+        )
+        conn.commit()
 
 def get_latest_compliance_score(db_path: Path | None = None) -> float:
     """Return the most recent compliance score from analytics.db."""
@@ -411,6 +514,8 @@ __all__ = [
     "generate_compliance_summary",
     "calculate_compliance_score",
     "persist_compliance_score",
+    "calculate_composite_score",
+    "record_code_quality_metrics",
     "get_latest_compliance_score",
     "calculate_and_persist_compliance_score",
     "ComplianceError",

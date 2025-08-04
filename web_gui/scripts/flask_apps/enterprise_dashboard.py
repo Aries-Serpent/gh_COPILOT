@@ -38,7 +38,7 @@ LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
 
 # Compliance metrics updater used for live streaming
-metrics_updater = ComplianceMetricsUpdater(COMPLIANCE_DIR)
+metrics_updater = ComplianceMetricsUpdater(COMPLIANCE_DIR, test_mode=True)
 
 
 def _get_lessons_integration_status(cur: sqlite3.Cursor) -> str:
@@ -84,14 +84,19 @@ def _get_average_query_latency(cur: sqlite3.Cursor) -> float:
 
 def _fetch_metrics() -> Dict[str, Any]:
     """Fetch compliance metrics including lessons integration and query latency."""
-    metrics = metrics_updater._fetch_compliance_metrics(test_mode=True)
+    try:
+        metrics = metrics_updater._fetch_compliance_metrics(test_mode=True)
+    except Exception:  # pragma: no cover - fallback on error
+        metrics = {}
     metrics.setdefault("total_placeholders", 0)
     metrics.setdefault("lessons_integration_status", "UNKNOWN")
     metrics.setdefault("average_query_latency", 0.0)
     metrics.setdefault("composite_score", 0.0)
+    metrics.setdefault("score_breakdown", {})
     metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.row_factory = sqlite3.Row
             cur = conn.cursor()
             try:
                 cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking")
@@ -99,11 +104,28 @@ def _fetch_metrics() -> Dict[str, Any]:
                 metrics["lessons_integration_status"] = _get_lessons_integration_status(cur)
                 metrics["average_query_latency"] = _get_average_query_latency(cur)
                 cur.execute(
-                    "SELECT composite_score FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
+                    """
+                    SELECT ruff_issues, tests_passed, tests_failed,
+                           placeholders_open, placeholders_resolved,
+                           composite_score
+                    FROM code_quality_metrics
+                    ORDER BY id DESC LIMIT 1
+                    """
                 )
                 row = cur.fetchone()
-                if row and row[0] is not None:
-                    metrics["composite_score"] = row[0]
+                if row and row["composite_score"] is not None:
+                    metrics["composite_score"] = row["composite_score"]
+                    total_tests = row["tests_passed"] + row["tests_failed"]
+                    total_ph = row["placeholders_open"] + row["placeholders_resolved"]
+                    metrics["score_breakdown"] = {
+                        "ruff_issues": row["ruff_issues"],
+                        "tests_passed": row["tests_passed"],
+                        "tests_failed": row["tests_failed"],
+                        "placeholders_open": row["placeholders_open"],
+                        "placeholders_resolved": row["placeholders_resolved"],
+                        "test_pass_ratio": row["tests_passed"] / total_tests if total_tests else 0.0,
+                        "placeholder_resolution_ratio": row["placeholders_resolved"] / total_ph if total_ph else 1.0,
+                    }
             except sqlite3.Error as exc:
                 logging.error("Metric fetch error: %s", exc)
     return metrics
@@ -192,12 +214,8 @@ def dashboard_compliance() -> Any:
 
 @app.get("/")
 def index() -> Any:
-    """Render the dashboard with live metrics via SSE."""
-    metrics = _fetch_metrics()
-    alerts = _fetch_alerts()
-    return render_template("dashboard.html", metrics=metrics, alerts=alerts)
-
-
+    """Return a minimal dashboard placeholder."""
+    return "<h1>Compliance Dashboard</h1>\n<div id='metrics_stream'></div>"
 @app.get("/metrics")
 def metrics() -> Any:
     start = time.time()

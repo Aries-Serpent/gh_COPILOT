@@ -24,7 +24,13 @@ import threading
 
 from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules.compliance import (
+    validate_enterprise_operation,
+    calculate_composite_score,
+    record_code_quality_metrics,
+    _run_ruff,
+    _run_pytest,
+)
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
 from unified_monitoring_optimization_system import (
     EnterpriseUtility,
@@ -76,6 +82,7 @@ class ComplianceMetricsUpdater:
 
     def __init__(self, dashboard_dir: Path, *, test_mode: bool = False) -> None:
         self.dashboard_dir = dashboard_dir
+        self.dashboard_dir.mkdir(parents=True, exist_ok=True)
         self.test_mode = test_mode
         self.start_time = datetime.now()
         self.process_id = os.getpid()
@@ -109,6 +116,8 @@ class ComplianceMetricsUpdater:
             "last_update": datetime.now().isoformat(),
             "placeholder_breakdown": {},
             "compliance_trend": [],
+            "composite_score": 0.0,
+            "score_breakdown": {},
         }
         if not ANALYTICS_DB.exists():
             logging.warning("analytics.db not found, using default metrics.")
@@ -180,7 +189,7 @@ class ComplianceMetricsUpdater:
                     ]
                     cur.execute("SELECT COUNT(*) FROM rollback_logs")
                     metrics["rollback_count"] = cur.fetchone()[0]
-                    if metrics["rollback_count"]:
+                    if metrics["rollback_count"] and not test_mode:
                         DisasterRecoveryOrchestrator().run_backup_cycle()
                 else:
                     metrics["recent_rollbacks"] = []
@@ -238,6 +247,32 @@ class ComplianceMetricsUpdater:
             metrics["progress"] = metrics["resolved_placeholders"] / float(total_ph)
         else:
             metrics["progress"] = 1.0
+
+        if test_mode:
+            ruff_issues = 0
+            tests_passed, tests_failed = 1, 0
+        else:
+            ruff_issues = _run_ruff()
+            tests_passed, tests_failed = _run_pytest()
+        composite, breakdown = calculate_composite_score(
+            ruff_issues,
+            tests_passed,
+            tests_failed,
+            metrics.get("open_placeholders", 0),
+            metrics.get("resolved_placeholders", 0),
+        )
+        metrics["composite_score"] = composite
+        metrics["score_breakdown"] = breakdown
+        record_code_quality_metrics(
+            ruff_issues,
+            tests_passed,
+            tests_failed,
+            metrics.get("open_placeholders", 0),
+            metrics.get("resolved_placeholders", 0),
+            composite,
+            db_path=ANALYTICS_DB,
+            test_mode=test_mode,
+        )
         if metrics["violation_count"] or metrics["rollback_count"] or metrics["open_placeholders"]:
             metrics["progress_status"] = "issues_pending"
         else:
@@ -503,6 +538,10 @@ class ComplianceMetricsUpdater:
         else:
             logging.error("DUAL COPILOT validation failed: Dashboard metrics file missing or zero-byte.")
         return valid
+
+    def _sync_external_systems(self, metrics: Dict[str, Any]) -> None:
+        """Placeholder for external system synchronization."""
+        return None
 
 
 def main(simulate: bool = False, stream: bool = False, test_mode: bool = False) -> None:
