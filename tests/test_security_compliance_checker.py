@@ -1,4 +1,6 @@
 import pytest
+from contextlib import contextmanager
+from pathlib import Path
 
 from security.compliance_checker import ComplianceChecker, ComplianceError
 
@@ -28,35 +30,36 @@ def test_validate_operation_logs(monkeypatch):
     assert "operation_policy_violation" in checker.events
 
 
-def test_run_checks_triggers_backup(monkeypatch, tmp_path):
-    events = []
-    workspace = tmp_path / "ws"
-    workspace.mkdir()
-    backup_root = tmp_path / "backup"
-    backup_root.mkdir()
-    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
-    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+def test_pre_deployment_validation_schedules_backup(monkeypatch, tmp_path: Path) -> None:
+    checker = ComplianceChecker(threshold=0)
+    monkeypatch.setattr(checker, "run_checks", lambda: True)
+
+    state: dict[str, str] = {}
 
     class DummySystem:
-        def __init__(self, *_):
+        def __init__(self, workspace_path: str) -> None:
             pass
 
-        def schedule_backups(self):
-            return backup_root / "b.txt"
+        def schedule_backups(self) -> None:
+            state["backup"] = "done"
+
+    @contextmanager
+    def fake_cm(_path: Path):
+        yield
 
     monkeypatch.setattr(
-        "unified_disaster_recovery_system.UnifiedDisasterRecoverySystem",
-        DummySystem,
+        "security.compliance_checker.UnifiedDisasterRecoverySystem", DummySystem
     )
     monkeypatch.setattr(
-        "unified_disaster_recovery_system.log_backup_event",
-        lambda event, details=None: events.append((event, details)),
+        "security.compliance_checker.ensure_no_zero_byte_files", fake_cm
+    )
+    monkeypatch.setattr(
+        "security.compliance_checker.prevent_recursion", lambda f: f
+    )
+    monkeypatch.setattr(
+        "security.compliance_checker.log_backup_event", lambda e, details=None: state.setdefault("event", e)
     )
 
-    checker = ComplianceChecker(threshold=0)
-    monkeypatch.setattr(checker, "validate_environment", lambda: {"compliance_status": "NONE"})
-
-    with pytest.raises(ComplianceError):
-        checker.run_checks()
-
-    assert any(evt[0] == "compliance_violation" for evt in events)
+    assert checker.pre_deployment_validation(workspace=tmp_path) is True
+    assert state.get("backup") == "done"
+    assert state.get("event") == "pre_deployment_backup"

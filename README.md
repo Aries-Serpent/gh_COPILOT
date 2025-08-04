@@ -39,6 +39,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Autonomous Systems:** early self-healing scripts included
 - **Integrated Legacy Cleanup:** script generation automatically purges superseded templates to keep workspaces current
 - **Disaster Recovery Orchestration:** scheduled backups and recovery
+- **Compliance Integration:** pre-deployment validation now links session
+  integrity checks with disaster recovery backups
   execution coordinated through a new orchestrator with session and
   compliance hooks
 - **Cross-Database Reconciliation:** new `cross_database_reconciler.py` heals
