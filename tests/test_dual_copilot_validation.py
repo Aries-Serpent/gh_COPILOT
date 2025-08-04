@@ -1,6 +1,6 @@
 import pytest
 
-from utils.validation_utils import run_dual_copilot_validation
+from secondary_copilot_validator import run_dual_copilot_validation
 
 
 def test_primary_exception_still_runs_secondary():
