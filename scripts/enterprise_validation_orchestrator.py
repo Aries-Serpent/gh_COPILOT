@@ -60,7 +60,8 @@ from typing import Any, Dict, List, Optional
 import psutil
 from tqdm import tqdm
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules import compliance
+from utils.validation_utils import run_dual_copilot_validation
 
 # Configure comprehensive logging
 logging.basicConfig(
@@ -203,8 +204,17 @@ class EnterpriseValidationOrchestrator:
 
     def __init__(self, workspace_path: Optional[str] = None, config: Optional[ValidationConfiguration] = None):
         """Initialize Enterprise Validation Orchestrator with comprehensive capabilities"""
-        validate_enterprise_operation()
-        primary_validate()
+        compliance.validate_enterprise_operation()
+
+        def _primary_start():
+            logger.info("🔍 PRIMARY VALIDATION")
+            return primary_validate()
+
+        def _secondary_start():
+            logger.info("🔍 SECONDARY VALIDATION")
+            return self.secondary_validate()
+
+        run_dual_copilot_validation(_primary_start, _secondary_start)
         # CRITICAL: Anti-recursion validation
         self.validate_workspace_integrity()
 
@@ -682,12 +692,17 @@ class EnterpriseValidationOrchestrator:
         logger.info("=" * 80)
 
         # Dual Copilot validation
-        logger.info("🔍 PRIMARY VALIDATION")
-        primary_ok = self.primary_validate()
-        logger.info("🔍 SECONDARY VALIDATION")
-        secondary_ok = self.secondary_validate()
-        self.validation_metrics.primary_valid = primary_ok
-        self.validation_metrics.secondary_valid = secondary_ok
+        def _primary():
+            logger.info("🔍 PRIMARY VALIDATION")
+            return self.primary_validate()
+
+        def _secondary():
+            logger.info("🔍 SECONDARY VALIDATION")
+            return self.secondary_validate()
+
+        validation_passed = run_dual_copilot_validation(_primary, _secondary)
+        self.validation_metrics.primary_valid = validation_passed
+        self.validation_metrics.secondary_valid = validation_passed
 
         return self.validation_metrics
 
