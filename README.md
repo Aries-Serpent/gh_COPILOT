@@ -157,6 +157,7 @@ rate limiting and retry behavior. The client now respects `Retry-After` headers
 for HTTP 429 responses and surfaces the message from 4xx errors like invalid
 credentials.
 
+```bash
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
 
