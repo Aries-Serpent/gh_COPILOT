@@ -24,6 +24,12 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 logger = logging.getLogger(__name__)
 
 
+@pytest.fixture(autouse=True)
+def set_workspace_env(monkeypatch):
+    """Provide a default workspace path for modules expecting it."""
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(REPO_ROOT))
+
+
 @pytest.fixture(scope="session")
 def unified_wrapup_session_db(tmp_path_factory):
     """Provide a temporary database with the unified_wrapup_sessions table."""
