@@ -46,7 +46,8 @@ extend_todo_fixme_tracking.sql
 ```
 
 An accompanying Graphviz file at `docs/diagrams/migration_dependencies.dot` visualizes
-these relationships.
+these relationships. For entity-relationship diagrams of the databases, see
+[docs/ER_DIAGRAMS.md](../../docs/ER_DIAGRAMS.md).
 
 ## Migration Prerequisites
 

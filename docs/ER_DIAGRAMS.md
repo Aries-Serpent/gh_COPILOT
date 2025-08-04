@@ -7,5 +7,6 @@ This directory contains automatically generated diagrams for core SQLite databas
 - **production.db** – see [diagrams/production_er.dot](diagrams/production_er.dot)
 - **analytics.db** – see [diagrams/analytics_er.dot](diagrams/analytics_er.dot)
 - **monitoring.db** – see [diagrams/monitoring_er.dot](diagrams/monitoring_er.dot)
+- **Migration dependencies** – see [diagrams/migration_dependencies.dot](diagrams/migration_dependencies.dot) and [databases/migrations/README.md](../databases/migrations/README.md)
 
 These databases work together to track enterprise scripts, analytics events, and system monitoring data. Tables within `production.db` hold primary configuration and tracking records. `analytics.db` mirrors key events and maintains performance metrics, while `monitoring.db` stores health reports and optimization logs. Data flows from `production.db` into `analytics.db` for reporting, and `monitoring.db` consumes data from both databases to evaluate system status.
