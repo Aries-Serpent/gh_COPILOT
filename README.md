@@ -62,6 +62,21 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
   database search. Hardware backend flags are accepted but remain no-ops until
   future phases implement real execution.
 
+### Compliance Scoring
+
+The enterprise dashboard reports an overall code quality score derived from
+lint, test and placeholder metrics:
+
+```
+lint_score = max(0, 100 - ruff_issues)
+test_score = (tests_passed / total_tests) * 100
+placeholder_score = (placeholders_resolved / total_placeholders) * 100
+score = (lint_score + test_score + placeholder_score) / 3
+```
+
+This value is persisted to `analytics.db` and surfaced via
+`dashboard/enterprise_dashboard.py`.
+
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1,679 scripts synchronized
  - **30 Synchronized Databases**: Enterprise data management
