@@ -12,19 +12,19 @@
 
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
-> Quantum modules attempt hardware execution when IBM Quantum credentials are provided and fall back to simulators when devices or tokens are unavailable. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Compliance auditing is enforced via `EnterpriseComplianceValidator` with metrics stored in `analytics.db`.
+> Quantum modules run exclusively in simulation mode; hardware flags are currently ignored. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
 > Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards.
 
 ---
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality now supports optional hardware execution through IBM Quantum when credentials are supplied, with automatic simulator fallback when devices are unavailable.
+The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality operates solely through simulators; hardware execution is not yet available.
 
 > **Note**
-> Modules expose backend selection via environment variables such as `QUANTUM_USE_HARDWARE`, `QUANTUM_BACKEND`, and `QISKIT_IBM_TOKEN`. When credentials or hardware are unavailable, they automatically fall back to simulators.
+> Modules accept backend-selection environment variables such as `QUANTUM_USE_HARDWARE`, `QUANTUM_BACKEND`, and `QISKIT_IBM_TOKEN`, but these flags are no-ops until hardware support lands.
 > **Roadmap**
-> Hardware integration continues to mature and will eventually leverage IBM Quantum backends, with graceful simulator fallback when devices cannot be reached.
+> Hardware integration is planned for future phases; current builds always use simulators.
 > **Phase 5 AI**
 > Advanced AI integration features operate in simulation mode by default and only attempt hardware execution when explicitly configured.
 
@@ -116,9 +116,8 @@ This value is persisted to `analytics.db` and surfaced via
 - PowerShell (for Windows automation)
 - SQLite3
 - Required packages: `pip install -r requirements.txt` (includes `py7zr` for 7z archive support)
-- Quantum routines default to the Qiskit simulator but can use IBM Quantum
-  hardware when `qiskit-ibm-provider` is installed and credentials are
-  available
+- Quantum routines run on Qiskit simulators; hardware execution is not
+  yet supported, and any provider credentials are ignored
 
 ### **Installation & Setup**
 ```bash

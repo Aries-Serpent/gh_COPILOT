@@ -96,7 +96,7 @@ These task stubs originate from the gap analysis report and have been formally s
 - [x] 7. Align Documentation with Implementation — 100% complete
 - [x] 12. Update Changelog and User Prompts — 100% complete
 - [x] 17. Implement Anti-Recursion Guards — 100% complete
-- [ ] 18. Standardize Dual-Copilot Validation — 40% complete
-- [ ] 19. Clarify Quantum Placeholder Features — 90% complete
-- [ ] 20. Implement Compliance Metrics Calculations — 40% complete
+ - [x] 18. Standardize Dual-Copilot Validation — 100% complete
+ - [x] 19. Clarify Quantum Placeholder Features — 100% complete
+ - [ ] 20. Implement Compliance Metrics Calculations — 40% complete
 - [x] Dual-copilot hooks added to `docs_metrics_validator.py` and `backup_archiver.py`

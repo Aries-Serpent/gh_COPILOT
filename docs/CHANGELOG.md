@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.1.20] - 2025-08-10
+- Audited README, docs, and whitepaper to clarify simulation-only quantum modules and partial module completion.
+- Updated compliance metrics descriptions and fixed progress checklist in PHASE5_TASKS_STARTED.md.
+- Regenerated technical whitepaper to reflect current metrics.
+
 ## [4.1.19] - 2025-08-09
 - Enforced content-hash deduplication for documentation and template ingestion.
 
