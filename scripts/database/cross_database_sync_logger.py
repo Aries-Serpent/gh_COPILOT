@@ -3,7 +3,9 @@
 
 This module provides :func:`log_sync_operation` which records an operation name,
 status, caller supplied start time, calculated duration and a timestamp to the
-``cross_database_sync_operations`` table in one or more databases.  The
+``cross_database_sync_operations`` table in one or more databases.  In addition,
+each call emits an analytics event via :func:`utils.log_utils.log_event` so that
+sync activity is captured by the unified logging pipeline.  The
 ``validate_enterprise_operation`` guard is executed before any write occurs and
 CLI usage displays a progress bar when logging multiple operations.
 """
@@ -11,6 +13,7 @@ CLI usage displays a progress bar when logging multiple operations.
 from __future__ import annotations
 
 import logging
+import os
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -18,6 +21,7 @@ from typing import Iterable
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from utils.logging_utils import setup_enterprise_logging
+from utils.log_utils import log_event
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +106,21 @@ def log_sync_operation(
         timestamp,
         status,
     )
+    try:
+        analytics_db = Path(os.getenv("ANALYTICS_DB", "databases/analytics.db"))
+        log_event(
+            {
+                "module": "cross_database_sync_logger",
+                "level": "INFO",
+                "description": operation,
+                "status": status,
+                "duration": duration,
+                "timestamp": timestamp,
+            },
+            db_path=analytics_db,
+        )
+    except Exception as exc:  # pragma: no cover - best effort analytics logging
+        logger.error("Failed to log analytics event: %s", exc)
     return start_dt
 
 
