@@ -6,6 +6,7 @@ from typing import Dict
 
 from quantum.utils.backend_provider import get_backend
 from quantum.utils.audit_log import log_quantum_audit
+from . import ensure_not_production
 
 try:  # pragma: no cover - optional dependency
     from qiskit import QuantumCircuit, transpile
@@ -16,6 +17,7 @@ except Exception:  # pragma: no cover
 
 def run_quantum_superposition_search(num_qubits: int = 2, *, use_hardware: bool = False) -> Dict[str, float]:
     """Return probability distribution for a uniform superposition."""
+    ensure_not_production()
     backend = get_backend(use_hardware=use_hardware) if QISKIT_AVAILABLE else None
     n = num_qubits
     if backend is not None and getattr(backend.configuration(), "simulator", True):

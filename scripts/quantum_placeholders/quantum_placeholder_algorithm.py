@@ -9,6 +9,8 @@ TODO: Implement real quantum algorithm integration as detailed in the whitepaper
 
 from __future__ import annotations
 
+from . import ensure_not_production
+
 
 def simulate_quantum_process(data: list[int]) -> list[int]:
     """Return data unchanged as a placeholder simulation.
@@ -20,4 +22,5 @@ def simulate_quantum_process(data: list[int]) -> list[int]:
         The same list, representing a simulated quantum pass.
     """
 
+    ensure_not_production()
     return data

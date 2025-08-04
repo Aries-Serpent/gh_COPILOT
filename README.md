@@ -274,6 +274,17 @@ The `scripts/quantum_placeholders` package offers simulation-only stubs that res
 future quantum interfaces. These modules are excluded from production import paths
 and only load in development or test environments.
 
+#### Roadmap
+
+- [quantum_placeholder_algorithm](scripts/quantum_placeholders/quantum_placeholder_algorithm.py)
+  → will evolve into a full optimizer engine.
+- [quantum_annealing](scripts/quantum_placeholders/quantum_annealing.py)
+  → planned hardware-backed annealing routine.
+- [quantum_superposition_search](scripts/quantum_placeholders/quantum_superposition_search.py)
+  → future superposition search module.
+- [quantum_entanglement_correction](scripts/quantum_placeholders/quantum_entanglement_correction.py)
+  → slated for robust entanglement error correction.
+
 ### Run Template Matcher
 ```bash
 echo "def foo(): pass" | python scripts/template_matcher.py
