@@ -20,6 +20,8 @@ from pathlib import Path
 from typing import Iterable
 
 from enterprise_modules.compliance import validate_enterprise_operation
+from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.log_utils import log_event
 from utils.logging_utils import setup_enterprise_logging
 from utils.log_utils import log_event
 
@@ -41,7 +43,7 @@ def log_sync_operation(
     *,
     status: str = "SUCCESS",
     start_time: datetime | None = None,
-) -> datetime:
+    ) -> datetime:
     """Insert a sync operation record and return the start timestamp.
 
     ``db_paths`` may be a single path or an iterable of paths.  The operation
@@ -121,6 +123,36 @@ def log_sync_operation(
         )
     except Exception as exc:  # pragma: no cover - best effort analytics logging
         logger.error("Failed to log analytics event: %s", exc)
+    return start_dt
+
+
+def log_sync_operation_with_analytics(
+    db_paths: Path | Iterable[Path],
+    operation: str,
+    *,
+    status: str = "SUCCESS",
+    start_time: datetime | None = None,
+    analytics_db: Path | None = None,
+) -> datetime:
+    """Log a sync operation and record an analytics event.
+
+    This helper combines :func:`log_sync_operation` with :func:`log_event` to
+    provide an audit-grade trail of synchronization activity.  ``analytics_db``
+    defaults to ``databases/analytics.db`` under the current workspace.
+    """
+
+    start_dt = log_sync_operation(
+        db_paths, operation, status=status, start_time=start_time
+    )
+    event = {
+        "source": operation,
+        "target": status,
+        "ts": datetime.now(timezone.utc).isoformat(),
+    }
+    db_path = analytics_db or (
+        CrossPlatformPathManager.get_workspace_path() / "databases" / "analytics.db"
+    )
+    log_event(event, table="sync_events_log", db_path=db_path)
     return start_dt
 
 

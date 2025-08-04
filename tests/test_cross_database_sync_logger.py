@@ -3,7 +3,10 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from scripts.database.cross_database_sync_logger import log_sync_operation
+from scripts.database.cross_database_sync_logger import (
+    log_sync_operation,
+    log_sync_operation_with_analytics,
+)
 from scripts.database.unified_database_initializer import initialize_database
 
 
@@ -71,7 +74,7 @@ def test_log_sync_operation_multiple_databases(tmp_path: Path, monkeypatch) -> N
         assert after == before[idx] + 1
 
 
-def test_log_sync_operation_logs_event(tmp_path: Path, monkeypatch) -> None:
+def test_log_sync_operation_with_analytics(tmp_path: Path, monkeypatch) -> None:
     """Verify analytics event emission via log_event."""
     monkeypatch.setattr(
         "enterprise_modules.compliance.validate_enterprise_operation",
