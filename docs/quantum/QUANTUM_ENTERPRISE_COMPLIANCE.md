@@ -4,14 +4,13 @@
 ## Regulatory and Security Compliance
 
 > **Note**
-> All quantum capabilities operate in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+> All quantum capabilities operate in simulation only. Installing `qiskit-ibm-provider` or configuring IBM Quantum tokens has no effect because hardware execution is not supported.
 
 ### Simulation Mode
 The PIS Framework defaults to a high‑fidelity simulator. All quantum features
-mirror production logic but run classically unless a hardware backend is
-explicitly configured. This ensures deterministic results for testing and
-compliance audits. Hardware support can be enabled as described in the
-**Optional Hardware Setup** section below.
+mirror production logic and run classically for deterministic testing and
+compliance audits. Hardware support is not yet available; the steps in the
+**Optional Hardware Setup** section are placeholders for future integration.
 
 ### Compliance Framework
 The quantum-enhanced PIS Framework meets all enterprise compliance requirements:
@@ -36,7 +35,7 @@ The quantum-enhanced PIS Framework meets all enterprise compliance requirements:
 ### Implemented Quantum Routines
 - **Quantum Annealing Optimization**: Transverse-field Ising model that flips
   qubits when given negative costs. Simulation uses Qiskit's Aer backend and
-  hardware can be enabled with `use_hardware=True`. Example:
+  the `use_hardware` parameter is ignored. Example:
   ```python
   from quantum.quantum_annealing import run_quantum_annealing
   run_quantum_annealing([1, -1])
