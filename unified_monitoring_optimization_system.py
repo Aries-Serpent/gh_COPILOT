@@ -29,6 +29,7 @@ __all__ = [
     "push_metrics",
     "detect_anomalies",
     "QuantumInterface",
+    "collect_metrics",
 ]
 
 
