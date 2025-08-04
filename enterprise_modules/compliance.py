@@ -17,7 +17,6 @@ from utils.log_utils import send_dashboard_alert
 
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
-from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 
 class ComplianceError(Exception):
@@ -208,6 +207,42 @@ def _count_placeholders() -> int:
     return count
 
 
+def calculate_compliance_score(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+    placeholders_open: int,
+    placeholders_resolved: int,
+) -> float:
+    """Return overall code-quality score on a ``0..100`` scale.
+
+    The score is the mean of three component scores:
+
+    ``lint_score``
+        ``max(0, 100 - ruff_issues)``
+
+    ``test_score``
+        ``(tests_passed / total_tests) * 100`` where ``total_tests`` is the sum
+        of passed and failed tests. If no tests ran, this component is ``0``.
+
+    ``placeholder_score``
+        ``(placeholders_resolved / total_placeholders) * 100`` where
+        ``total_placeholders`` is the sum of open and resolved placeholders. If
+        no placeholders were found the component defaults to ``100``.
+    """
+
+    lint_score = max(0.0, 100 - ruff_issues)
+    total_tests = tests_passed + tests_failed
+    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+    total_placeholders = placeholders_open + placeholders_resolved
+    placeholder_score = (
+        placeholders_resolved / total_placeholders * 100
+        if total_placeholders
+        else 100.0
+    )
+    return round((lint_score + test_score + placeholder_score) / 3, 2)
+
+
 def calculate_composite_score(
     ruff_issues: int,
     tests_passed: int,
@@ -215,26 +250,14 @@ def calculate_composite_score(
     placeholders_open: int,
     placeholders_resolved: int,
 ) -> tuple[float, dict]:
-    """Return composite code-quality score and component breakdown.
+    """Return composite score and component breakdown on a 0–100 scale."""
 
-    The score blends lint results, test pass ratio and placeholder
-    resolution ratio. Each component is normalised to ``0..1`` and
-    combined with weights of ``0.4`` for linting, ``0.4`` for tests and
-    ``0.2`` for placeholder resolution.
-    """
-
-    lint_score = max(0.0, 1 - ruff_issues / 100)
-    total_tests = tests_passed + tests_failed
-    test_score = (tests_passed / total_tests) if total_tests else 0.0
-    total_placeholders = placeholders_open + placeholders_resolved
-    placeholder_score = (
-        placeholders_resolved / total_placeholders
-        if total_placeholders
-        else 1.0
-    )
-    composite = round(
-        0.4 * lint_score + 0.4 * test_score + 0.2 * placeholder_score,
-        3,
+    score = calculate_compliance_score(
+        ruff_issues,
+        tests_passed,
+        tests_failed,
+        placeholders_open,
+        placeholders_resolved,
     )
     breakdown = {
         "ruff_issues": ruff_issues,
@@ -242,28 +265,21 @@ def calculate_composite_score(
         "tests_failed": tests_failed,
         "placeholders_open": placeholders_open,
         "placeholders_resolved": placeholders_resolved,
-        "lint_score": round(lint_score, 3),
-        "test_score": round(test_score, 3),
-        "placeholder_score": round(placeholder_score, 3),
+        "lint_score": max(0.0, 100 - ruff_issues),
+        "test_score": (
+            tests_passed / (tests_passed + tests_failed) * 100
+            if (tests_passed + tests_failed)
+            else 0.0
+        ),
+        "placeholder_score": (
+            placeholders_resolved
+            / (placeholders_open + placeholders_resolved)
+            * 100
+            if (placeholders_open + placeholders_resolved)
+            else 100.0
+        ),
     }
-    return composite, breakdown
-
-
-def calculate_compliance_score(
-    ruff_issues: int,
-    tests_passed: int,
-    tests_failed: int,
-    placeholder_count: int,
-) -> float:
-    """Return weighted compliance score combining lint, tests and placeholders."""
-
-    lint_score = max(0.0, 1 - ruff_issues / 100)
-    total_tests = tests_passed + tests_failed
-    test_score = (tests_passed / total_tests) if total_tests else 0.0
-    placeholder_score = max(0.0, 1 - (placeholder_count / 10))
-    return round(
-        0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score, 3
-    )
+    return score, breakdown
 
 
 def persist_compliance_score(score: float, db_path: Path | None = None) -> None:
@@ -362,8 +378,10 @@ def calculate_and_persist_compliance_score() -> float:
     """Run lint, tests and placeholder scan to compute and store score."""
     issues = _run_ruff()
     passed, failed = _run_pytest()
-    placeholders = _count_placeholders()
-    score = calculate_compliance_score(issues, passed, failed, placeholders)
+    placeholders_open = _count_placeholders()
+    score = calculate_compliance_score(
+        issues, passed, failed, placeholders_open, 0
+    )
     persist_compliance_score(score)
     send_dashboard_alert({"event": "compliance_score", "score": score})
     return score
@@ -530,6 +548,10 @@ def validate_enterprise_operation(
 
 def run_final_validation(primary_callable, targets) -> tuple[bool, bool, dict]:
     """Run DualCopilotOrchestrator and expose detailed validator metrics."""
+    from scripts.validation.dual_copilot_orchestrator import (
+        DualCopilotOrchestrator,
+    )
+
     orchestrator = DualCopilotOrchestrator()
     primary_success, validation_success, metrics = orchestrator.run(
         primary_callable, targets
