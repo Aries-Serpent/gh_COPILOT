@@ -1,5 +1,8 @@
 # Changelog
 
+## [4.1.19] - 2025-08-09
+- Enforced content-hash deduplication for documentation and template ingestion.
+
 ## [4.1.18] - 2025-08-08
 - Documented disaster recovery enforcement and verified restore procedures.
 - Clarified simulation-only behavior of quantum placeholders.

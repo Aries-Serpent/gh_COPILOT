@@ -170,7 +170,8 @@ audit the results and perform a rollback if necessary. Commands assume
    ```
 
    These commands record ingestion events in `analytics.db` and log progress to
-   `dashboard/compliance/metrics.json`.
+   `dashboard/compliance/metrics.json`. Duplicate files are skipped based on
+   their content hash.
 
 3. **Validate Ingested Assets**
 

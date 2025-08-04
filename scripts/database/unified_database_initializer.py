@@ -48,7 +48,7 @@ TABLES: dict[str, str] = {
         "CREATE TABLE IF NOT EXISTS documentation_assets ("
         "id INTEGER PRIMARY KEY,"
         "doc_path TEXT NOT NULL,"
-        "content_hash TEXT NOT NULL,"
+        "content_hash TEXT NOT NULL UNIQUE,"
         "created_at TEXT NOT NULL,"
         "modified_at TEXT NOT NULL"
         ")"
@@ -57,7 +57,7 @@ TABLES: dict[str, str] = {
         "CREATE TABLE IF NOT EXISTS template_assets ("
         "id INTEGER PRIMARY KEY,"
         "template_path TEXT NOT NULL,"
-        "content_hash TEXT NOT NULL,"
+        "content_hash TEXT NOT NULL UNIQUE,"
         "created_at TEXT NOT NULL"
         ")"
     ),
