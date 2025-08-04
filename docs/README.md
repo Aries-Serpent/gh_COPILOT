@@ -86,6 +86,13 @@ optimisation. It clusters stored templates, mines common patterns and writes
 a compliance report to ``dashboard/compliance``. Use
 ``enhance()`` to process a database of templates and generate metrics.
 
+### Documentation DB Analyzer
+
+``scripts/database/documentation_db_analyzer`` audits documentation
+databases for placeholder gaps and table statistics. Results are recorded in
+``analytics.db`` and every run triggers ``SecondaryCopilotValidator`` to
+enforce the dual-copilot review pattern.
+
 ## Quantum Placeholder Modules
 
 Modules under `scripts/quantum_placeholders/` act as stubs for upcoming

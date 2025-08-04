@@ -163,6 +163,7 @@ def analyze_documentation_gaps(db_paths: list[Path], analytics: Path, log_dir: P
                 (str(db), gaps, datetime.utcnow().isoformat()),
             )
             conn.commit()
+    SecondaryCopilotValidator().validate_corrections([str(p) for p in db_paths])
     return results
 
 
