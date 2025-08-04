@@ -8,4 +8,6 @@ store and they will influence template generation automatically.
 
 `TemplateWorkflowEnhancer` can generate in-memory compliance summaries via
 `generate_compliance_report`, combining clustering, pattern mining and
-compliance scoring for downstream analytics.
+compliance scoring for downstream analytics. Reports include remediation
+recommendations and deliver metrics to the dashboard while respecting
+monitoring signals to defer heavy processing during high system load.
