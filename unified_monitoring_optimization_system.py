@@ -3,7 +3,10 @@
 This module re-exports :class:`EnterpriseUtility` and :func:`collect_metrics`
 from ``scripts.monitoring.unified_monitoring_optimization_system`` and
 provides a ``push_metrics`` helper used by tests and lightweight integrations
-to store arbitrary monitoring metrics in ``analytics.db``.
+to store arbitrary monitoring metrics in ``analytics.db``.  It also exposes
+``auto_heal_session`` which couples anomaly detection with the session
+management subsystem to restart sessions when system metrics deviate
+significantly from learned baselines.
 """
 
 from __future__ import annotations
@@ -37,6 +40,7 @@ __all__ = [
     "collect_metrics",
     "QuantumInterface",
     "collect_metrics",
+    "auto_heal_session",
     "record_quantum_score",
 ]
 
@@ -180,42 +184,49 @@ def detect_anomalies(
     return [m for m, pred in zip(history_list, preds) if pred == -1]
 
 
-def record_quantum_score(
-    values: Iterable[float],
+def auto_heal_session(
+    history: Iterable[Dict[str, float]],
     *,
-    table: str = "quantum_scores",
-    db_path: Optional[Path] = None,
-    session_id: Optional[str] = None,
-) -> float:
-    """Score ``values`` using quantum-inspired logic and log the metric.
+    contamination: float = 0.1,
+    manager: Optional["UnifiedSessionManagementSystem"] = None,
+) -> bool:
+    """Restart the session when metric anomalies are detected.
 
     Parameters
     ----------
-    values:
-        Iterable of numeric values representing the candidate state.
-    table:
-        Optional table name where the score is stored. Defaults to
-        ``quantum_scores``.
-    db_path:
-        Optional database override. When omitted the default analytics
-        database is used.
-    session_id:
-        Optional session identifier to link the score with lifecycle data.
+    history:
+        Iterable of metric mappings ordered chronologically.
+    contamination:
+        Proportion of outliers passed to :func:`detect_anomalies`.
+    manager:
+        Optional session manager.  When omitted a new
+        :class:`scripts.utilities.unified_session_management_system.UnifiedSessionManagementSystem`
+        instance is created.
 
     Returns
     -------
-    float
-        The computed quantum-inspired score.
+    bool
+        ``True`` when a restart was attempted due to detected anomalies.
     """
 
-    if quantum_score_stub is None:
-        arr = np.fromiter(values, dtype=float)
-        score = float(np.linalg.norm(arr) / arr.size) if arr.size else 0.0
-    else:
-        score = float(quantum_score_stub(values))
-    push_metrics({"quantum_score": score}, table=table, db_path=db_path, session_id=session_id)
-    return score
+    anomalies = detect_anomalies(history, contamination=contamination)
+    if not anomalies:
+        return False
+    if manager is None:
+        from scripts.utilities.unified_session_management_system import (
+            UnifiedSessionManagementSystem,
+        )
 
+        manager = UnifiedSessionManagementSystem()
+    try:
+        try:
+            manager.end_session()
+        except Exception:
+            pass
+        manager.start_session()
+        return True
+    except Exception:
+        return False
 
 class QuantumInterface:
     """Placeholder interface for quantum metric processing."""

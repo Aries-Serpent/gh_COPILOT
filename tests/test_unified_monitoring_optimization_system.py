@@ -10,6 +10,7 @@ from unified_monitoring_optimization_system import (
     detect_anomalies,
     record_quantum_score,
     push_metrics,
+    auto_heal_session,
 )
 
 
@@ -49,15 +50,29 @@ def test_detect_anomalies_flags_outlier() -> None:
     assert len(anomalies) == 1
 
 
-def test_record_quantum_score_logs_metric(tmp_path: Path) -> None:
-    """Quantum scores should be stored for monitoring."""
+def test_auto_heal_session_restarts_on_anomaly() -> None:
+    """Anomalies should trigger a restart via the session manager."""
 
-    db = tmp_path / "analytics.db"
-    values = [0.0, 3.0, 4.0]
-    score = record_quantum_score(values, db_path=db)
+    class DummyManager:
+        def __init__(self) -> None:
+            self.started = 0
+            self.ended = 0
 
-    with sqlite3.connect(db) as conn:
-        stored = conn.execute("SELECT metrics_json FROM quantum_scores").fetchone()[0]
+        def start_session(self) -> None:  # pragma: no cover - simple increment
+            self.started += 1
 
-    assert json.loads(stored) == {"quantum_score": score}
+        def end_session(self) -> None:  # pragma: no cover - simple increment
+            self.ended += 1
 
+    history = [
+        {"cpu": 5.0, "mem": 10.0},
+        {"cpu": 6.0, "mem": 11.0},
+        {"cpu": 95.0, "mem": 99.0},
+    ]
+
+    mgr = DummyManager()
+    restarted = auto_heal_session(history, contamination=0.34, manager=mgr)
+
+    assert restarted is True
+    assert mgr.started == 1
+    assert mgr.ended == 1

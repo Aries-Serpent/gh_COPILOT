@@ -26,6 +26,13 @@ from scripts.monitoring.unified_monitoring_optimization_system import main as mo
 monitoring_main()
 ```
 
+## Self-Healing Sessions
+
+`unified_monitoring_optimization_system.auto_heal_session` merges anomaly
+detection with session management. Provide a recent metric history and the
+helper will restart the session when outliers are observed, enabling autonomous
+recovery during continuous operation.
+
 ## Scheduled Metrics Push
 
 `log_error_notifier.py` and `performance_tracker.py` can push metrics to
