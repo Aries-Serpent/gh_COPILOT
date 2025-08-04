@@ -19,6 +19,7 @@ from typing import Any
 from flask import Flask, jsonify, render_template
 
 from utils.validation_utils import validate_enterprise_environment
+from database_first_synchronization_engine import list_events
 
 
 # Paths to metrics and rollback data
@@ -50,17 +51,24 @@ def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
         return records
     try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            cur = conn.execute(
-                "SELECT timestamp, target, backup FROM rollback_logs ORDER BY timestamp DESC LIMIT ?",
-                (limit,),
-            )
-            records = [
-                {"timestamp": row[0], "target": row[1], "backup": row[2]}
-                for row in cur.fetchall()
-            ]
-    except sqlite3.Error as exc:  # pragma: no cover - log and continue
-        logging.error("Rollback fetch error: %s", exc)
+            try:
+                cur = conn.execute(
+                    "SELECT timestamp, target, backup FROM rollback_logs ORDER BY timestamp DESC LIMIT ?",
+                    (limit,),
+                )
+                records = [{"timestamp": row[0], "target": row[1], "backup": row[2]} for row in cur.fetchall()]
+            except sqlite3.Error as exc:  # pragma: no cover - log and continue
+                logging.error("Rollback fetch error: %s", exc)
     return records
+
+
+def _load_sync_events(limit: int = 10) -> list[dict[str, Any]]:
+    """Return recent synchronization events from ``analytics.db``."""
+    try:
+        return list_events(ANALYTICS_DB, limit)
+    except sqlite3.Error as exc:  # pragma: no cover - log and continue
+        logging.error("Sync events fetch error: %s", exc)
+    return []
 
 
 def _load_audit_results(limit: int = 50) -> list[dict[str, Any]]:
@@ -70,15 +78,14 @@ def _load_audit_results(limit: int = 50) -> list[dict[str, Any]]:
         return rows
     try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
-            cur = conn.execute(
-                "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
-                (limit,),
-            )
-            rows = [
-                {"placeholder_type": r[0], "count": r[1]} for r in cur.fetchall()
-            ]
-    except sqlite3.Error as exc:  # pragma: no cover - log and continue
-        logging.error("Audit fetch error: %s", exc)
+            try:
+                cur = conn.execute(
+                    "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type ORDER BY COUNT(*) DESC LIMIT ?",
+                    (limit,),
+                )
+                rows = [{"placeholder_type": r[0], "count": r[1]} for r in cur.fetchall()]
+            except sqlite3.Error as exc:  # pragma: no cover - log and continue
+                logging.error("Audit fetch error: %s", exc)
     return rows
 
 
@@ -110,6 +117,12 @@ def audit_results() -> Any:
     return jsonify(_load_audit_results())
 
 
+@app.route("/sync-events")
+def sync_events() -> Any:
+    """Return recent synchronization events as JSON."""
+    return jsonify(_load_sync_events())
+
+
 @app.route("/dashboard/compliance")
 def dashboard_compliance() -> Any:
     """Return combined metrics and rollback logs."""
@@ -139,6 +152,12 @@ def audit_results_view() -> str:
     return render_template("audit_results.html", results=_load_audit_results())
 
 
+@app.route("/sync-events/view")
+def sync_events_view() -> str:
+    """Render an HTML view of synchronization events."""
+    return render_template("sync_events.html", events=_load_sync_events())
+
+
 def _validate_environment() -> None:
     """Validate required environment variables and log their values."""
     try:
@@ -162,4 +181,3 @@ def main() -> None:
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
     main()
-

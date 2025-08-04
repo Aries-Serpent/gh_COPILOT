@@ -8,11 +8,11 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 2. Build Flask-based Dashboard
 - **Statement Excerpt:** "Framework Setup: Scaffold Flask app and templates powered by analytics.db."
-- **Status:** Started – base Flask blueprint and metrics routes outlined.
+- **Status:** In Progress – sync events route and template added; metrics and rollback logs accessible.
 
 ## 3. Implement Database Synchronization Engine
 - **Statement Excerpt:** "Schema Review: Map schemas for production, analytics and auxiliary DBs" and "Sync Logic: Build real‑time synchronization with conflict resolution and logging."
-- **Status:** Started – synchronization interface and logging hooks scoped.
+- **Status:** In Progress – synchronization engine logs events and exposes `list_events` helper.
 
 ## 4. Expand Monitoring and Optimization
 - **Statement Excerpt:** "Analytics Expansion: Integrate ML-enhanced monitoring and placeholder quantum hooks."

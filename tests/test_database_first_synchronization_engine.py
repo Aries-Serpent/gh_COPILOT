@@ -5,14 +5,16 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-from database_first_synchronization_engine import SchemaMapper, SyncManager
+from database_first_synchronization_engine import (
+    SchemaMapper,
+    SyncManager,
+    list_events,
+)
 
 
 def _create_db(path: Path, rows: list[tuple[int, str, int]]) -> None:
     with sqlite3.connect(path) as conn:
-        conn.execute(
-            "CREATE TABLE items (id INTEGER PRIMARY KEY, data TEXT, updated_at INTEGER)"
-        )
+        conn.execute("CREATE TABLE items (id INTEGER PRIMARY KEY, data TEXT, updated_at INTEGER)")
         conn.executemany(
             "INSERT INTO items (id, data, updated_at) VALUES (?, ?, ?)",
             rows,
@@ -21,9 +23,7 @@ def _create_db(path: Path, rows: list[tuple[int, str, int]]) -> None:
 
 def _read_rows(path: Path) -> list[tuple[int, str, int]]:
     with sqlite3.connect(path) as conn:
-        return conn.execute(
-            "SELECT id, data, updated_at FROM items ORDER BY id"
-        ).fetchall()
+        return conn.execute("SELECT id, data, updated_at FROM items ORDER BY id").fetchall()
 
 
 def test_bidirectional_sync_and_logging(tmp_path: Path) -> None:
@@ -58,8 +58,8 @@ def test_bidirectional_sync_and_logging(tmp_path: Path) -> None:
     assert calls  # conflict resolver invoked
 
     with sqlite3.connect(analytics) as conn:
-        rows = conn.execute(
-            "SELECT source_db, target_db, action FROM synchronization_events"
-        ).fetchall()
+        rows = conn.execute("SELECT source_db, target_db, action FROM synchronization_events").fetchall()
         assert rows[0][2] == "sync"
 
+    events = list_events(analytics, limit=1)
+    assert events and events[0]["action"] == "sync"
