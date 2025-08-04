@@ -6,6 +6,10 @@ Lesson templates are returned by `get_lesson_templates()` in
 initialization and ranking. To extend behavior, add new entries to the lesson
 store and they will influence template generation automatically.
 
+`pattern_mining_engine.rank_patterns_quantum` can rank mined patterns against a
+target string using quantum-inspired scoring, enabling adaptive template
+selection when quantum modules are available.
+
 `TemplateWorkflowEnhancer` can generate in-memory compliance summaries via
 `generate_compliance_report`, combining clustering, pattern mining and
 compliance scoring for downstream analytics. Reports include remediation
