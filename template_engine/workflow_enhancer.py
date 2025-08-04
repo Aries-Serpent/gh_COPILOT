@@ -28,6 +28,8 @@ from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.lessons_learned_integrator import load_lessons, apply_lessons
+from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
+from unified_monitoring_optimization_system import collect_metrics
 
 LOGS_DIR = CrossPlatformPathManager.get_workspace_path() / "logs" / "workflow_enhancer"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
@@ -120,22 +122,45 @@ class TemplateWorkflowEnhancer:
         return avg_score
 
     def generate_compliance_report(
-        self, templates: List[Dict[str, Any]]
+        self,
+        templates: List[Dict[str, Any]],
+        clusters: Optional[Dict[int, List[Dict[str, Any]]]] = None,
+        patterns: Optional[List[str]] = None,
+        compliance_score: Optional[float] = None,
     ) -> Dict[str, Any]:
         """Generate a compliance report for the provided templates.
 
-        Clusters templates, mines patterns, and calculates the average
-        compliance score. The resulting dictionary can be consumed by
-        analytics or dashboard modules for further processing.
+        Parameters
+        ----------
+        templates:
+            Templates to analyse.
+        clusters, patterns, compliance_score:
+            Optional pre-computed values to avoid redundant work.
         """
-        clusters = self.cluster_templates(templates)
-        compliance_score = self.score_compliance(templates)
-        patterns = self.mine_patterns(templates)
+        clusters = clusters or self.cluster_templates(templates)
+        patterns = patterns or self.mine_patterns(templates)
+        compliance_score = compliance_score or self.score_compliance(templates)
+
+        recommendations: List[str] = []
+        if compliance_score < 0.9:
+            recommendations.append("Increase average compliance score.")
+        for idx, items in clusters.items():
+            scores = [float(t["score"]) for t in items if t.get("score") is not None]
+            if scores and np.mean(scores) < 0.8:
+                recommendations.append(f"Review templates in cluster {idx} for remediation.")
+
+        updater = ComplianceMetricsUpdater(self.dashboard_dir, test_mode=True)
+        metrics = updater._fetch_compliance_metrics(test_mode=True)
+        metrics["suggestion"] = updater._cognitive_compliance_suggestion(metrics)
+        updater._update_dashboard(metrics)
+
         report = {
             "total_templates": len(templates),
             "cluster_count": len(clusters),
             "patterns_mined": patterns,
             "average_compliance_score": compliance_score,
+            "recommendations": recommendations,
+            "dashboard_metrics": metrics,
         }
         return report
 
@@ -147,15 +172,12 @@ class TemplateWorkflowEnhancer:
         compliance_score: float,
     ) -> None:
         """Generate modular report and dashboard-ready metrics."""
+        report = self.generate_compliance_report(
+            templates, clusters=clusters, patterns=patterns, compliance_score=compliance_score
+        )
+        report["timestamp"] = datetime.now().isoformat()
+        report["status"] = "enhanced"
         self.dashboard_dir.mkdir(parents=True, exist_ok=True)
-        report = {
-            "timestamp": datetime.now().isoformat(),
-            "total_templates": len(templates),
-            "cluster_count": len(clusters),
-            "patterns_mined": patterns,
-            "average_compliance_score": compliance_score,
-            "status": "enhanced",
-        }
         import json
 
         report_file = self.dashboard_dir / "workflow_enhancement_report.json"
@@ -164,9 +186,9 @@ class TemplateWorkflowEnhancer:
         _log_event(
             {
                 "event": "workflow_enhancement_report_generated",
-                "template_count": len(templates),
-                "cluster_count": len(clusters),
-                "avg_score": compliance_score,
+                "template_count": report["total_templates"],
+                "cluster_count": report["cluster_count"],
+                "avg_score": report["average_compliance_score"],
             },
             table="workflow_events",
             db_path=DEFAULT_ANALYTICS_DB,
@@ -174,12 +196,21 @@ class TemplateWorkflowEnhancer:
         _log_event(
             {
                 "event": "workflow_report",
-                "template_count": len(templates),
-                "cluster_count": len(clusters),
+                "template_count": report["total_templates"],
+                "cluster_count": report["cluster_count"],
             },
             table="workflow_events",
             db_path=DEFAULT_ANALYTICS_DB,
         )
+
+    def _monitor_and_schedule(self) -> bool:
+        """Consult monitoring metrics and decide whether to run enhancement."""
+        metrics = collect_metrics()
+        cpu = metrics.get("cpu_percent", 0.0)
+        if cpu > 80.0:
+            logging.warning("High CPU usage detected (%.2f%%); deferring enhancement", cpu)
+            return False
+        return True
 
     def enhance(self, timeout_minutes: int = 30) -> bool:
         """Enhance workflow using stored templates and patterns.
@@ -190,6 +221,9 @@ class TemplateWorkflowEnhancer:
         """
         self.status = "ENHANCING"
         _log_event({"event": "workflow_enhancement_start"}, table="workflow_events", db_path=DEFAULT_ANALYTICS_DB)
+        if not self._monitor_and_schedule():
+            self.status = "DEFERRED"
+            return False
         start_time = time.time()
         timeout_seconds = timeout_minutes * 60
         templates = self.fetch_templates()

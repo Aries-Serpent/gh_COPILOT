@@ -24,6 +24,8 @@ from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from secondary_copilot_validator import SecondaryCopilotValidator
 import shutil
 from utils.lessons_learned_integrator import load_lessons, apply_lessons
+from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
+from unified_script_generation_system import EnterpriseUtility
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
@@ -97,6 +99,11 @@ def remove_unused_placeholders(
     source_path: Optional[Path] = None,
     logger: Optional[CorrectionLoggerRollback] = None,
     backup_path: Optional[Path] = None,
+    update_compliance: bool = False,
+    auto_remediate: bool = False,
+    workspace_path: Optional[Path] = None,
+    dashboard_dir: Optional[Path] = None,
+    simulate: bool = False,
 ) -> str:
     """
     Remove placeholders not defined in production DB from the template string.
@@ -188,6 +195,21 @@ def remove_unused_placeholders(
         db_path=analytics_db,
         test_mode=False,
     )
+    if update_compliance:
+        try:
+            updater = ComplianceMetricsUpdater(
+                dashboard_dir or Path("dashboard/compliance"), test_mode=simulate
+            )
+            updater.update(simulate=simulate)
+            updater.validate_update()
+        except Exception as exc:  # pragma: no cover - dashboard errors
+            logging.error("Compliance metrics update failed: %s", exc)
+    if auto_remediate:
+        try:
+            utility = EnterpriseUtility(str(workspace_path or Path.cwd()))
+            utility.execute_utility()
+        except Exception as exc:  # pragma: no cover - generation errors
+            logging.error("Script generation failed: %s", exc)
     return result
 
 

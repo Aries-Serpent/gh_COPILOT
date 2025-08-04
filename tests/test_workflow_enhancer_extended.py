@@ -22,6 +22,24 @@ def test_enhance_creates_report(tmp_path: Path, monkeypatch) -> None:
         tmp_path / "analytics.db",
         raising=False,
     )
+    class DummyUpdater:
+        def __init__(self, *_, **__):
+            pass
+
+        def _fetch_compliance_metrics(self, test_mode: bool = False):
+            return {}
+
+        def _cognitive_compliance_suggestion(self, metrics):
+            return ""
+
+        def _update_dashboard(self, metrics):
+            return None
+
+    monkeypatch.setattr("template_engine.workflow_enhancer.ComplianceMetricsUpdater", DummyUpdater)
+    monkeypatch.setattr(
+        "template_engine.workflow_enhancer.collect_metrics",
+        lambda: {"cpu_percent": 10.0},
+    )
     db = tmp_path / "prod.db"
     dash = tmp_path / "dash"
     _create_db(db)
@@ -44,6 +62,24 @@ def test_enhancer_runs_validator(tmp_path: Path, monkeypatch) -> None:
         "template_engine.workflow_enhancer.DEFAULT_ANALYTICS_DB",
         tmp_path / "analytics.db",
         raising=False,
+    )
+    class DummyUpdater:
+        def __init__(self, *_, **__):
+            pass
+
+        def _fetch_compliance_metrics(self, test_mode: bool = False):
+            return {}
+
+        def _cognitive_compliance_suggestion(self, metrics):
+            return ""
+
+        def _update_dashboard(self, metrics):
+            return None
+
+    monkeypatch.setattr("template_engine.workflow_enhancer.ComplianceMetricsUpdater", DummyUpdater)
+    monkeypatch.setattr(
+        "template_engine.workflow_enhancer.collect_metrics",
+        lambda: {"cpu_percent": 10.0},
     )
     db = tmp_path / "prod.db"
     dash = tmp_path / "dash"
