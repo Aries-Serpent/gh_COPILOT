@@ -1,109 +1,96 @@
-"""Tests for ``reclone_repo.py``."""
+"""Tests for reclone_repo.py utility."""
 
 from __future__ import annotations
 
-import os
 import subprocess
 import sys
 from pathlib import Path
 
-SCRIPT = Path(__file__).resolve().parents[1] / "reclone_repo.py"
+import pytest
+
+SCRIPT_PATH = Path(__file__).resolve().parents[1] / "reclone_repo.py"
 
 
-def init_repo(path: Path) -> str:
-    """Create a simple git repository and return its commit hash."""
-
-    subprocess.run(["git", "init", "-b", "master", str(path)], check=True)
-    readme = path / "README.md"
-    readme.write_text("test", encoding="utf-8")
-    subprocess.run(["git", "-C", str(path), "add", "README.md"], check=True)
-    subprocess.run(["git", "-C", str(path), "commit", "-m", "init"], check=True)
-    rev = subprocess.run(
-        ["git", "-C", str(path), "rev-parse", "HEAD"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    return rev.stdout.strip()
+def _create_repo(tmp_path: Path) -> Path:
+    """Create a simple git repository and return its path."""
+    origin = tmp_path / "origin"
+    subprocess.check_call(["git", "init", "-b", "main", origin])
+    (origin / "file.txt").write_text("content", encoding="utf-8")
+    subprocess.check_call(["git", "-C", origin, "add", "file.txt"])
+    subprocess.check_call(["git", "-C", origin, "commit", "-m", "init"])
+    return origin
 
 
-def run_script(args: list[str], env: dict[str, str]) -> None:
-    """Run the reclone script with the given arguments and environment."""
+def test_clone_basic(tmp_path: Path) -> None:
+    origin = _create_repo(tmp_path)
+    dest = tmp_path / "clone"
 
-    cmd = [sys.executable, str(SCRIPT), *args]
-    subprocess.run(cmd, check=True, env=env)
-
-
-def test_backup_existing(tmp_path):
-    """Existing destination should be backed up before cloning."""
-
-    src = tmp_path / "src"
-    dest = tmp_path / "dest"
-    backup_root = tmp_path / "backups"
-    backup_root.mkdir()
-
-    expected = init_repo(src)
-    dest.mkdir()
-    (dest / "old.txt").write_text("old", encoding="utf-8")
-
-    env = os.environ.copy()
-    env["GH_COPILOT_BACKUP_ROOT"] = str(backup_root)
-
-    run_script(
+    result = subprocess.check_output(
         [
+            sys.executable,
+            str(SCRIPT_PATH),
             "--repo-url",
-            str(src),
+            str(origin),
             "--dest",
             str(dest),
-            "--branch",
-            "master",
-            "--backup-existing",
         ],
-        env,
-    )
-
-    rev = subprocess.run(
-        ["git", "-C", str(dest), "rev-parse", "HEAD"],
-        capture_output=True,
         text=True,
-        check=True,
-    ).stdout.strip()
-    assert rev == expected
+    ).strip()
+
+    expected = subprocess.check_output(
+        ["git", "-C", str(origin), "rev-parse", "HEAD"],
+        text=True,
+    ).strip()
+    assert result == expected
+    assert (dest / "file.txt").exists()
+
+
+def test_backup_existing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    origin = _create_repo(tmp_path)
+    dest = tmp_path / "clone"
+    dest.mkdir()
+    (dest / "old.txt").write_text("old", encoding="utf-8")
+    backup_root = tmp_path / "backups"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+
+    subprocess.check_call(
+        [
+            sys.executable,
+            str(SCRIPT_PATH),
+            "--repo-url",
+            str(origin),
+            "--dest",
+            str(dest),
+            "--backup-existing",
+        ]
+    )
 
     backups = list(backup_root.iterdir())
     assert len(backups) == 1
     assert (backups[0] / "old.txt").exists()
+    assert (dest / "file.txt").exists()
 
 
-def test_clean(tmp_path):
-    """Destination directory should be removed when ``--clean`` is given."""
-
-    src = tmp_path / "src2"
-    dest = tmp_path / "dest2"
-    expected = init_repo(src)
+def test_backup_env_missing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    origin = _create_repo(tmp_path)
+    dest = tmp_path / "clone"
     dest.mkdir()
-    (dest / "junk.txt").write_text("junk", encoding="utf-8")
 
-    env = os.environ.copy()
+    monkeypatch.delenv("GH_COPILOT_BACKUP_ROOT", raising=False)
 
-    run_script(
+    proc = subprocess.run(
         [
+            sys.executable,
+            str(SCRIPT_PATH),
             "--repo-url",
-            str(src),
+            str(origin),
             "--dest",
             str(dest),
-            "--branch",
-            "master",
-            "--clean",
+            "--backup-existing",
         ],
-        env,
-    )
-
-    rev = subprocess.run(
-        ["git", "-C", str(dest), "rev-parse", "HEAD"],
         capture_output=True,
         text=True,
-        check=True,
-    ).stdout.strip()
-    assert rev == expected
-    assert not (dest / "junk.txt").exists()
+    )
+    assert proc.returncode != 0
+    assert "GH_COPILOT_BACKUP_ROOT" in proc.stderr

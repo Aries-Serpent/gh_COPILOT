@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
-"""Utility to obtain a clean clone of a Git repository.
+"""Utility to obtain a fresh clone of a Git repository.
 
-This script replaces a possibly corrupted working copy by cloning a fresh
-copy of a repository. It can optionally back up or remove an existing
-destination before cloning.
+This script is intended for disaster recovery or when a corrupted working
+copy needs to be replaced with a clean clone. It supports backing up or
+removing an existing destination before cloning and confirms success by
+printing the latest commit hash.
 """
 
 from __future__ import annotations
@@ -17,136 +17,173 @@ from datetime import datetime
 from pathlib import Path
 
 
-def ensure_git_available() -> None:
-    """Ensure that the ``git`` executable is available."""
+def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments.
 
-    if shutil.which("git") is None:
-        raise RuntimeError("git is required but was not found in PATH")
-
-
-def validate_dest_parent(dest: Path) -> None:
-    """Verify that the destination's parent directory exists."""
-
-    if not dest.parent.exists():
-        raise RuntimeError(
-            f"Destination parent directory does not exist: {dest.parent}"
-        )
-
-
-def validate_backup_root(dest: Path, backup_root: Path) -> None:
-    """Validate backup root for ``--backup-existing`` option.
-
-    The backup root must exist and reside outside the destination path to
-    avoid recursive moves.
+    Returns
+    -------
+    argparse.Namespace
+        Populated namespace with arguments for the cloning operation.
     """
 
-    if not backup_root.exists():
-        raise RuntimeError(f"Backup root does not exist: {backup_root}")
-
-    dest_abs = dest.resolve()
-    backup_abs = backup_root.resolve()
-
-    if backup_abs == dest_abs or backup_abs in dest_abs.parents:
-        raise RuntimeError("Backup root must be outside destination path")
-    if dest_abs == backup_abs or dest_abs in backup_abs.parents:
-        raise RuntimeError("Destination must be outside backup root")
-
-
-def backup_existing(dest: Path, backup_root: Path) -> None:
-    """Move existing destination directory to a timestamped backup."""
-
-    if not dest.exists():
-        return
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_path = backup_root / f"{dest.name}_{timestamp}"
-    shutil.move(str(dest), str(backup_path))
-
-
-def clean_existing(dest: Path) -> None:
-    """Remove the destination directory if it exists."""
-
-    if dest.exists():
-        shutil.rmtree(dest)
-
-
-def git_clone(repo_url: str, branch: str, dest: Path) -> None:
-    """Clone the repository using ``git``."""
-
-    cmd = ["git", "clone", "--branch", branch, repo_url, str(dest)]
-    subprocess.run(cmd, check=True)
-
-
-def latest_commit(dest: Path) -> str:
-    """Return the latest commit hash in the clone."""
-
-    cmd = ["git", "-C", str(dest), "rev-parse", "HEAD"]
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    return result.stdout.strip()
-
-
-def parse_args(argv: list[str]) -> argparse.Namespace:
-    """Parse command-line arguments."""
-
-    parser = argparse.ArgumentParser(description="Re-clone a Git repository")
-    parser.add_argument("--repo-url", required=True, help="URL of repository to clone")
-    parser.add_argument("--dest", required=True, help="Destination directory")
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--branch", default="main", help="Branch or tag to checkout (default: main)"
+        "--repo-url",
+        required=True,
+        help="HTTPS or SSH URL of the Git repository to clone",
+    )
+    parser.add_argument(
+        "--dest",
+        required=True,
+        help="Destination directory where the new clone will reside",
+    )
+    parser.add_argument(
+        "--branch",
+        default="main",
+        help="Branch or tag to check out after cloning (default: main)",
     )
     parser.add_argument(
         "--backup-existing",
         action="store_true",
-        help="Backup the existing destination directory before cloning",
+        help=(
+            "If set and destination exists, move it to a timestamped backup "
+            "under GH_COPILOT_BACKUP_ROOT"
+        ),
     )
     parser.add_argument(
         "--clean",
         action="store_true",
-        help="Remove the destination directory before cloning",
+        help="Remove any existing destination directory before cloning",
     )
-    return parser.parse_args(argv)
+    return parser.parse_args()
 
 
-def main(argv: list[str] | None = None) -> int:
-    """Program entry point."""
+def ensure_git_available() -> None:
+    """Ensure the git executable is available on PATH."""
 
-    args = parse_args(argv or sys.argv[1:])
-    dest = Path(args.dest).expanduser()
+    if shutil.which("git") is None:
+        print("Error: git command not found. Please install Git.", file=sys.stderr)
+        raise SystemExit(1)
 
-    try:
-        ensure_git_available()
-        validate_dest_parent(dest)
 
-        if args.backup_existing and args.clean:
+def validate_paths(dest: Path, backup_flag: bool) -> Path | None:
+    """Validate destination and backup paths.
+
+    Parameters
+    ----------
+    dest:
+        Destination directory for the clone.
+    backup_flag:
+        Whether the backup option was requested.
+
+    Returns
+    -------
+    Path | None
+        Resolved path to GH_COPILOT_BACKUP_ROOT when backup_flag is True,
+        otherwise None.
+    """
+
+    dest_parent = dest.parent
+    if not dest_parent.exists():
+        print(
+            f"Error: parent directory '{dest_parent}' does not exist.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+
+    backup_root = None
+    if backup_flag:
+        env_var = os.getenv("GH_COPILOT_BACKUP_ROOT")
+        if not env_var:
             print(
-                "Cannot use --backup-existing and --clean together",
+                "Error: GH_COPILOT_BACKUP_ROOT is not set while --backup-existing is used.",
                 file=sys.stderr,
             )
-            return 1
+            raise SystemExit(1)
+        backup_root = Path(env_var).expanduser().resolve()
+        if not backup_root.exists():
+            print(
+                f"Error: backup root '{backup_root}' does not exist.",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
+        dest_resolved = dest.resolve()
+        if backup_root.is_relative_to(dest_resolved):
+            print(
+                "Error: GH_COPILOT_BACKUP_ROOT cannot be within destination path.",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
 
+    return backup_root
+
+
+def backup_existing(dest: Path, backup_root: Path) -> None:
+    """Move existing destination to a timestamped backup directory."""
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_name = f"{dest.name}_{timestamp}"
+    target = backup_root / backup_name
+    shutil.move(str(dest), str(target))
+    print(f"Existing directory moved to backup: {target}")
+
+
+def clean_existing(dest: Path) -> None:
+    """Remove existing destination directory."""
+
+    shutil.rmtree(dest)
+    print(f"Removed existing directory: {dest}")
+
+
+def clone_repository(repo_url: str, branch: str, dest: Path) -> None:
+    """Clone the repository to the destination path."""
+
+    cmd = ["git", "clone", "--branch", branch, repo_url, str(dest)]
+    subprocess.check_call(cmd)
+
+
+def print_latest_commit(dest: Path) -> None:
+    """Print the latest commit hash of the cloned repository."""
+
+    cmd = ["git", "-C", str(dest), "rev-parse", "HEAD"]
+    result = subprocess.check_output(cmd, text=True).strip()
+    print(result)
+
+
+def main() -> None:
+    """Entry point for command-line execution."""
+
+    args = parse_args()
+    if args.backup_existing and args.clean:
+        print(
+            "Error: --backup-existing and --clean are mutually exclusive.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+
+    ensure_git_available()
+    dest = Path(args.dest).expanduser()
+    backup_root = validate_paths(dest, args.backup_existing)
+
+    if dest.exists():
         if args.backup_existing:
-            backup_root_env = os.environ.get("GH_COPILOT_BACKUP_ROOT")
-            if not backup_root_env:
-                print(
-                    "GH_COPILOT_BACKUP_ROOT environment variable is required for --backup-existing",
-                    file=sys.stderr,
-                )
-                return 1
-            backup_root = Path(backup_root_env).expanduser()
-            validate_backup_root(dest, backup_root)
-            backup_existing(dest, backup_root)
+            backup_existing(dest, backup_root)  # type: ignore[arg-type]
         elif args.clean:
             clean_existing(dest)
+        else:
+            print(
+                f"Error: destination '{dest}' already exists. Use --clean or --backup-existing.",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
 
-        git_clone(args.repo_url, args.branch, dest)
-        commit_hash = latest_commit(dest)
-        print(commit_hash)
-        return 0
-    except (RuntimeError, subprocess.CalledProcessError) as exc:
-        print(str(exc), file=sys.stderr)
-        return 1
+    try:
+        clone_repository(args.repo_url, args.branch, dest)
+        print_latest_commit(dest)
+    except subprocess.CalledProcessError as exc:
+        print(f"Error: git command failed with exit code {exc.returncode}", file=sys.stderr)
+        raise SystemExit(exc.returncode)
 
 
-if __name__ == "__main__":  # pragma: no cover
-    sys.exit(main())
-
+if __name__ == "__main__":
+    main()
