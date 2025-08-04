@@ -13,6 +13,9 @@ requires-python = ">=3.8"
 final-enterprise-orchestrator = "copilot.orchestrators.final_enterprise_orchestrator:main"
 unified-deployment-orchestrator = "copilot.orchestrators.unified_deployment_orchestrator:main"
 
+[tool.setuptools.packages.find]
+exclude = ["scripts.quantum_placeholders"]
+
 [tool.ruff]
 target-version = "py38"
 line-length = 120
@@ -31,6 +34,7 @@ extend-exclude = [
     "scripts/enterprise/*",
     "scripts/optimization/*",
     "scripts/utilities/*",
+    "scripts/quantum_placeholders/*",
     "copilot_qiskit_stubs/*",
     "db_tools/*",
     "enterprise_modules/*",
@@ -62,6 +66,7 @@ exclude = [
     "scripts/enterprise/*",
     "scripts/optimization/*",
     "scripts/utilities/*",
+    "scripts/quantum_placeholders/*",
     "copilot_qiskit_stubs/*",
     "db_tools/*",
     "enterprise_modules/*",
