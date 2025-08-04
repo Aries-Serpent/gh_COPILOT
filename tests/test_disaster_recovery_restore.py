@@ -41,7 +41,7 @@ def test_restore_backup_success(tmp_path, monkeypatch):
     assert restore_backup(backup_file)
     restored = workspace / "data.txt"
     assert restored.exists()
-    assert any(evt["event"] == "restore_success" for evt in events)
+    assert any(evt["description"] == "restore_success" for evt in events)
 
 
 def test_restore_backup_hash_mismatch(tmp_path, monkeypatch):
@@ -58,7 +58,7 @@ def test_restore_backup_hash_mismatch(tmp_path, monkeypatch):
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     assert not restore_backup(backup_file)
-    assert any(evt["event"] == "restore_failed" for evt in events)
+    assert any(evt["description"] == "restore_failed" for evt in events)
 
 
 def test_restore_backup_missing_checksum(tmp_path, monkeypatch):
@@ -74,4 +74,4 @@ def test_restore_backup_missing_checksum(tmp_path, monkeypatch):
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
     assert not restore_backup(backup_file)
-    assert any(evt["event"] == "restore_failed" for evt in events)
+    assert any(evt["description"] == "restore_failed" for evt in events)
