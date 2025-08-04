@@ -262,7 +262,7 @@ class ComplexityCorrector(EnterpriseFlake8Corrector):
 
             original = Path(file_path).read_text(encoding="utf-8")
             Path(file_path).write_text(
-                "# TODO: reduce complexity\n" + original,
+                "# NOTE: review complexity\n" + original,
                 encoding="utf-8",
             )
             self.logger.info("Marked complexity in %s", file_path)
@@ -295,7 +295,7 @@ class UndefinedNameCorrector(EnterpriseFlake8Corrector):
 
             original = Path(file_path).read_text(encoding="utf-8")
             Path(file_path).write_text(
-                "# TODO: fix undefined names\n" + original,
+                "# NOTE: fix undefined names\n" + original,
                 encoding="utf-8",
             )
             self.logger.info("Marked undefined names in %s", file_path)
