@@ -35,6 +35,7 @@ from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.log_utils import log_message
 from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
+from unified_script_generation_system import EnterpriseUtility
 
 # Visual processing indicator constants
 TEXT = {
@@ -461,6 +462,40 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
     return "N/A"
 
 
+def _auto_fill_with_templates(
+    target: Path,
+    logger: CorrectionLoggerRollback,
+    backup_path: Path,
+) -> None:
+    """Auto-fill missing sections using unified script generation system.
+
+    Parameters
+    ----------
+    target:
+        File path to augment.
+    logger:
+        ``CorrectionLoggerRollback`` instance for logging changes.
+    backup_path:
+        Path to backup for potential rollback.
+    """
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
+    utility = EnterpriseUtility(str(workspace))
+    if utility.perform_utility_function():
+        gen_dir = workspace / "generated_templates"
+        try:
+            latest = max(gen_dir.glob("template_*.txt"), key=lambda p: p.stat().st_mtime)
+        except ValueError:
+            return
+        content = latest.read_text(encoding="utf-8")
+        with target.open("a", encoding="utf-8") as handle:
+            handle.write("\n" + content)
+        if SecondaryCopilotValidator().validate_corrections([str(target)]):
+            logger.log_change(target, "Auto fill missing sections", 1.0, str(backup_path))
+        else:
+            logger.log_change(target, "Auto fill failed validation", 0.0, str(backup_path))
+            logger.auto_rollback(target, backup_path)
+
+
 def auto_remove_placeholders(
     results: List[Dict],
     production_db: Path,
@@ -504,6 +539,7 @@ def auto_remove_placeholders(
             else:
                 logger.log_change(path, "Auto placeholder cleanup failed validation", 0.0, str(backup_path))
                 logger.auto_rollback(path, backup_path)
+            _auto_fill_with_templates(path, logger, backup_path)
 
     logger.summarize_corrections()
     # Mark resolved placeholders

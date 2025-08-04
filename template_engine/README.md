@@ -18,3 +18,6 @@ store and they will influence template generation automatically.
   objectives against templates using TF-IDF and cosine similarity, with optional
   quantum or Jaccard measures. Results are recorded in analytics logs for
   downstream use.
+- `TemplateWorkflowEnhancer` can generate in-memory compliance summaries via
+  `generate_compliance_report`, combining clustering, pattern mining and
+  compliance scoring for downstream analytics.
