@@ -1,9 +1,9 @@
 """Utilities for the Unified Monitoring Optimization System.
 
-This module exposes :class:`EnterpriseUtility` from
-``scripts.monitoring.unified_monitoring_optimization_system`` and provides a
-``push_metrics`` helper used by tests and lightweight integrations to store
-arbitrary monitoring metrics in ``analytics.db``.
+This module re-exports :class:`EnterpriseUtility` and :func:`collect_metrics`
+from ``scripts.monitoring.unified_monitoring_optimization_system`` and
+provides a ``push_metrics`` helper used by tests and lightweight integrations
+to store arbitrary monitoring metrics in ``analytics.db``.
 """
 
 from __future__ import annotations
@@ -15,19 +15,21 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
 from sklearn.ensemble import IsolationForest
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:  # pragma: no cover
-    from scripts.monitoring.unified_monitoring_optimization_system import EnterpriseUtility as _EnterpriseUtility  # noqa: F401
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+    collect_metrics,
+)
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "databases" / "analytics.db"
 
 __all__ = [
+    "EnterpriseUtility",
+    "collect_metrics",
     "push_metrics",
     "detect_anomalies",
     "QuantumInterface",
+    "collect_metrics",
 ]
 
 

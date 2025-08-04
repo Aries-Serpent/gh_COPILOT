@@ -1,11 +1,13 @@
 import shutil
 from pathlib import Path
 
-from web_gui.scripts.flask_apps.enterprise_dashboard import app
 from web_gui.scripts.flask_apps.web_gui_integrator import WebGUIIntegrator
 
 
 def test_integrator_registers_endpoints(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    from web_gui.scripts.flask_apps.enterprise_dashboard import app
+
     db_copy = tmp_path / "production.db"
     shutil.copy(Path("databases/production.db"), db_copy)
     monkeypatch.setenv("ENTERPRISE_AUTH_DISABLED", "1")

@@ -47,6 +47,18 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
         )
         conn.execute("INSERT INTO rollback_logs (target, backup, timestamp) VALUES ('t','b','ts')")
 
+    called: list[bool] = []
+
+    class DummyOrchestrator:
+        def __init__(self, *a, **k):
+            pass
+
+        def run_backup_cycle(self):
+            called.append(True)
+            return tmp_path / "dummy"
+
+    monkeypatch.setattr(module, "DisasterRecoveryOrchestrator", DummyOrchestrator)
+
     dashboard_dir = tmp_path / "dashboard"
     updater = module.ComplianceMetricsUpdater(dashboard_dir, test_mode=test_mode)
     updater.update(simulate=simulate)
@@ -81,6 +93,7 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     assert data["metrics"]["correction_count"] == 1
     expected = test_mode or simulate
     assert all((m == expected) or (m is None) for m in modes)
+    assert called
 
 
 def test_correction_summary_ingestion(tmp_path, monkeypatch):
