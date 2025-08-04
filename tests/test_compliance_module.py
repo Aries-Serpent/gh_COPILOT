@@ -115,6 +115,20 @@ def test_detect_recursion_pid_record(tmp_path: Path) -> None:
     assert getattr(_detect_recursion, "last_pid") == os.getpid()
 
 
+def test_pid_logged_to_db(tmp_path: Path) -> None:
+    """``_detect_recursion`` should log PID information to analytics.db."""
+    with patch.dict("os.environ", {"GH_COPILOT_WORKSPACE": str(tmp_path)}):
+        target = tmp_path / "sub"
+        target.mkdir()
+        _detect_recursion(target)
+        db = tmp_path / "databases" / "analytics.db"
+        with sqlite3.connect(db) as conn:
+            row = conn.execute(
+                "SELECT path, pid FROM recursion_pid_log"
+            ).fetchone()
+    assert row == (str(target.resolve()), os.getpid())
+
+
 def test_validate_operation_depth_logs(tmp_path: Path) -> None:
     current = tmp_path
     for i in range(MAX_RECURSION_DEPTH + 1):
@@ -129,3 +143,13 @@ def test_validate_operation_depth_logs(tmp_path: Path) -> None:
                 for row in conn.execute("SELECT details FROM violation_logs")
             }
         assert "recursive_workspace" in details or "recursive_target" in details
+
+
+def test_detect_recursion_root_depth(tmp_path: Path) -> None:
+    """Abort immediately if path depth exceeds ``MAX_RECURSION_DEPTH``."""
+    deep = tmp_path
+    for i in range(MAX_RECURSION_DEPTH + 1):
+        deep = deep / f"d{i}"
+    deep.mkdir(parents=True)
+    assert _detect_recursion(deep)
+    assert getattr(_detect_recursion, "aborted") is True
