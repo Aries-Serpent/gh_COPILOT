@@ -18,6 +18,14 @@ def ensure_not_production() -> None:
         msg = "Quantum placeholder modules should not be used in production."
         raise RuntimeError(msg)
 
+
+from . import (
+    quantum_placeholder_algorithm,
+    quantum_annealing,
+    quantum_superposition_search,
+    quantum_entanglement_correction,
+)
+
 __all__ = [
     "quantum_placeholder_algorithm",
     "quantum_annealing",

@@ -1,3 +1,5 @@
+"""Tests for placeholder quantum modules."""
+
 from importlib import import_module
 from typing import Any, Sequence
 

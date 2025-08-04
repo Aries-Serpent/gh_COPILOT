@@ -85,5 +85,7 @@ a compliance report to ``dashboard/compliance``. Use
 
 Modules under `scripts/quantum_placeholders/` act as stubs for upcoming
 quantum features. Each file sets `PLACEHOLDER_ONLY = True`, and packaging
-utilities skip these modules so they are never included in production
-builds. They remain importable for experimentation and planning.
+utilities detect this marker to skip the modules so they are never included
+in production builds. Importing them while `GH_COPILOT_ENV` is set to
+`"production"` raises a `RuntimeError` via `ensure_not_production`.
+They remain importable for experimentation and planning.

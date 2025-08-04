@@ -13,6 +13,8 @@
 ## Placeholder Modules
 
 Prototype implementations reside under `scripts/quantum_placeholders/`.
-Each module defines `PLACEHOLDER_ONLY = True`, and build tooling skips
-them during packaging. These stubs document planned functionality while
-keeping production deployments free of unfinished quantum code.
+Each module defines `PLACEHOLDER_ONLY = True`, and build tooling
+detects this marker to exclude them during packaging. Importing a
+placeholder when `GH_COPILOT_ENV` is set to `"production"` raises a
+`RuntimeError`, keeping production deployments free of unfinished
+quantum code while preserving importability for planning.
