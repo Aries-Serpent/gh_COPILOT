@@ -8,8 +8,9 @@ dashboard.
 - `scripts/correction_logger_and_rollback.py` records every correction in
   `databases/analytics.db` and writes a summary to
   `dashboard/compliance/correction_summary.json`.
-- Each entry includes the affected file path, rationale, compliance score and
-  rollback reference.
+- Each entry includes the affected file path, rationale, correction type,
+  compliance score, compliance delta, session identifier, and rollback
+  reference.
 
 ## Metrics Ingestion
 

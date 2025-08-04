@@ -110,6 +110,9 @@ class EnterpriseUtility:
             valid_paths.append(path)
 
         if not features:
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} No valid templates to cluster"
+            )
             return {}
 
         matrix = np.array(features)
@@ -124,6 +127,9 @@ class EnterpriseUtility:
         cluster_file.write_text(
             json.dumps({k: [str(p) for p in v] for k, v in clusters.items()}, indent=2),
             encoding="utf-8",
+        )
+        self.logger.info(
+            f"{TEXT_INDICATORS['info']} Clustered {len(valid_paths)} templates into {n_clusters} clusters"
         )
         self.logger.info(
             f"{TEXT_INDICATORS['info']} Cluster output written to {cluster_file}"

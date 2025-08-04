@@ -1,9 +1,9 @@
 """Utilities for the Unified Monitoring Optimization System.
 
-This module exposes :class:`EnterpriseUtility` from
-``scripts.monitoring.unified_monitoring_optimization_system`` and provides a
-``push_metrics`` helper used by tests and lightweight integrations to store
-arbitrary monitoring metrics in ``analytics.db``.
+This module re-exports :class:`EnterpriseUtility` and :func:`collect_metrics`
+from ``scripts.monitoring.unified_monitoring_optimization_system`` and
+provides a ``push_metrics`` helper used by tests and lightweight integrations
+to store arbitrary monitoring metrics in ``analytics.db``.
 """
 
 from __future__ import annotations
@@ -14,20 +14,24 @@ import sqlite3
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
+import psutil
 from sklearn.ensemble import IsolationForest
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:  # pragma: no cover
-    from scripts.monitoring.unified_monitoring_optimization_system import EnterpriseUtility as _EnterpriseUtility  # noqa: F401
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+    collect_metrics,
+)
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "databases" / "analytics.db"
 
 __all__ = [
+    "EnterpriseUtility",
+    "collect_metrics",
     "push_metrics",
     "detect_anomalies",
+    "collect_metrics",
     "QuantumInterface",
+    "collect_metrics",
 ]
 
 
@@ -110,6 +114,35 @@ def push_metrics(
                 (session_id, json.dumps(metrics)),
             )
         conn.commit()
+
+
+def collect_metrics(
+    *, session_id: Optional[str] = None, db_path: Optional[Path] = None
+) -> Dict[str, float]:
+    """Collect system metrics and persist them.
+
+    Parameters
+    ----------
+    session_id:
+        Optional identifier to associate metrics with a session.
+    db_path:
+        Optional database override. Defaults to :data:`DB_PATH`.
+
+    Returns
+    -------
+    dict
+        Mapping of collected metric names to values.
+    """
+
+    metrics = {
+        "cpu_percent": psutil.cpu_percent(interval=1),
+        "memory_percent": psutil.virtual_memory().percent,
+        "disk_percent": psutil.disk_usage("/").percent,
+        "net_bytes_sent": psutil.net_io_counters().bytes_sent,
+        "net_bytes_recv": psutil.net_io_counters().bytes_recv,
+    }
+    push_metrics(metrics, db_path=db_path, session_id=session_id)
+    return metrics
 
 
 def detect_anomalies(

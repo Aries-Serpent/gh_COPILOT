@@ -12,10 +12,10 @@ def test_correction_summary_generation(tmp_path: Path, monkeypatch) -> None:
     analytics = tmp_path / "analytics.db"
     with sqlite3.connect(analytics) as conn:
         conn.execute(
-            "CREATE TABLE corrections (file_path TEXT, rationale TEXT, correction_type TEXT, compliance_score REAL, score_delta REAL, rollback_reference TEXT, ts TEXT)"
+            "CREATE TABLE corrections (file_path TEXT, rationale TEXT, correction_type TEXT, compliance_score REAL, score_delta REAL, compliance_delta REAL, rollback_reference TEXT, session_id TEXT, ts TEXT)"
         )
         conn.execute(
-            "INSERT INTO corrections VALUES ('f.py','test','general',1.0,0.0,'', '2025-01-01')"
+            "INSERT INTO corrections VALUES ('f.py','test','general',1.0,0.0,'','sess-1', '2025-01-01')"
         )
     monkeypatch.setattr("scripts.correction_logger_and_rollback.DASHBOARD_DIR", tmp_path)
     monkeypatch.setattr(clr, "validate_enterprise_operation", lambda *a, **k: None)
@@ -31,10 +31,10 @@ def test_correction_summary_event_logged(tmp_path: Path, monkeypatch) -> None:
     analytics = tmp_path / "analytics.db"
     with sqlite3.connect(analytics) as conn:
         conn.execute(
-            "CREATE TABLE corrections (file_path TEXT, rationale TEXT, correction_type TEXT, compliance_score REAL, score_delta REAL, rollback_reference TEXT, ts TEXT)"
+            "CREATE TABLE corrections (file_path TEXT, rationale TEXT, correction_type TEXT, compliance_score REAL, score_delta REAL, compliance_delta REAL, rollback_reference TEXT, session_id TEXT, ts TEXT)"
         )
         conn.execute(
-            "INSERT INTO corrections VALUES ('f.py','test','general',1.0,0.0,'', '2025-01-01')"
+            "INSERT INTO corrections VALUES ('f.py','test','general',1.0,0.0,'','sess-1', '2025-01-01')"
         )
     monkeypatch.setattr("scripts.correction_logger_and_rollback.DASHBOARD_DIR", tmp_path)
     monkeypatch.setattr(clr, "validate_enterprise_operation", lambda *a, **k: None)

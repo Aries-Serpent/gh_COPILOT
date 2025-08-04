@@ -21,11 +21,15 @@ def test_primary_exception_still_runs_secondary():
     assert order == ["primary", "secondary"]
 
 
-def test_both_exceptions_are_reported():
+def test_both_exceptions_are_reported_with_order():
+    order = []
+
     def primary() -> bool:
+        order.append("primary")
         raise ValueError("p")
 
     def secondary() -> bool:
+        order.append("secondary")
         raise ValueError("s")
 
     with pytest.raises(RuntimeError) as excinfo:
@@ -34,3 +38,20 @@ def test_both_exceptions_are_reported():
     message = str(excinfo.value)
     assert "Primary validation error" in message
     assert "Secondary validation error" in message
+    assert order == ["primary", "secondary"]
+
+
+def test_both_validations_return_false_ordered():
+    order = []
+
+    def primary() -> bool:
+        order.append("primary")
+        return False
+
+    def secondary() -> bool:
+        order.append("secondary")
+        return False
+
+    result = run_dual_copilot_validation(primary, secondary)
+    assert result is False
+    assert order == ["primary", "secondary"]

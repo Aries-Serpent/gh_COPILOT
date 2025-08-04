@@ -25,6 +25,7 @@ import threading
 from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
 from enterprise_modules.compliance import validate_enterprise_operation
+from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
 
 
 # Enterprise logging setup
@@ -161,6 +162,8 @@ class ComplianceMetricsUpdater:
                     ]
                     cur.execute("SELECT COUNT(*) FROM rollback_logs")
                     metrics["rollback_count"] = cur.fetchone()[0]
+                    if metrics["rollback_count"]:
+                        DisasterRecoveryOrchestrator().run_backup_cycle()
                 else:
                     metrics["recent_rollbacks"] = []
                     metrics["rollback_count"] = 0
@@ -289,7 +292,10 @@ class ComplianceMetricsUpdater:
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
             yield metrics
             count += 1
-            time.sleep(interval)
+            if stop_event:
+                stop_event.wait(interval)
+            else:
+                time.sleep(interval)
 
     def _update_dashboard(self, metrics: Dict[str, Any]) -> None:
         """Update dashboard/compliance with metrics."""

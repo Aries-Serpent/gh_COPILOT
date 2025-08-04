@@ -34,6 +34,7 @@ from template_engine.template_placeholder_remover import remove_unused_placehold
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.log_utils import log_message
+from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 
 # Visual processing indicator constants
 TEXT = {
@@ -316,6 +317,49 @@ def update_dashboard(
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
+# Scan a single file for placeholder patterns
+def scan_file_for_placeholders(file_path: Path, patterns: List[str] | None = None) -> List[Dict]:
+    """Return placeholder findings for ``file_path``.
+
+    Parameters
+    ----------
+    file_path:
+        File to scan for placeholder tokens.
+    patterns:
+        Optional list of regex patterns. Defaults to :data:`DEFAULT_PATTERNS`.
+
+    Returns
+    -------
+    List[Dict]
+        A list of findings with ``file``, ``line``, ``pattern`` and ``context``
+        keys. Errors reading the file are logged and yield an empty list.
+    """
+
+    patterns = patterns or DEFAULT_PATTERNS
+    try:
+        lines = file_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+    except Exception as exc:  # pragma: no cover - read errors are logged
+        log_message(
+            __name__,
+            f"{TEXT['error']} Could not read {file_path}: {exc}",
+            level=logging.ERROR,
+        )
+        return []
+    results: List[Dict] = []
+    for idx, line in enumerate(lines, 1):
+        for pat in patterns:
+            if re.search(pat, line):
+                results.append(
+                    {
+                        "file": str(file_path),
+                        "line": idx,
+                        "pattern": pat,
+                        "context": line.strip()[:200],
+                    }
+                )
+    return results
+
+
 # Scan files for patterns with timeout and visual indicators
 def scan_files(workspace: Path, patterns: List[str], timeout: Optional[float] = None) -> List[Dict]:
     """Scan files for given patterns with optional timeout and progress bar."""
@@ -585,6 +629,13 @@ def main(
         update_dashboard(len(results), dashboard, analytics, summary_path)
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
+    # Combine with Compliance Metrics Updater for real-time metrics
+    try:
+        updater = ComplianceMetricsUpdater(dashboard, test_mode=simulate)
+        updater.update(simulate=simulate)
+        updater.validate_update()
+    except Exception as exc:  # pragma: no cover - updater errors
+        log_message(__name__, f"{TEXT['error']} compliance update failed: {exc}", level=logging.ERROR)
     elapsed = time.time() - start_time
     log_message(__name__, f"{TEXT['info']} audit completed in {elapsed:.2f}s")
 
