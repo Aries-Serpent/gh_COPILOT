@@ -107,6 +107,13 @@ def ingest_documentation(
             conn.close()
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
+        existing_hashes = {
+            row[0]
+            for row in conn.execute(
+                "SELECT content_hash FROM documentation_assets"
+            )
+        }
+
         with conn, tqdm(total=len(files), desc="Docs", unit="file") as bar:
             for path in files:
                 if timeout_seconds and (datetime.now(timezone.utc) - start_time).total_seconds() > timeout_seconds:
@@ -123,8 +130,10 @@ def ingest_documentation(
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
                 if digest in existing_hashes:
+                    logger.info("Skipping duplicate content: %s", path)
                     bar.update(1)
                     continue
+                existing_hashes.add(digest)
                 modified_at = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
                 conn.execute(
                     (

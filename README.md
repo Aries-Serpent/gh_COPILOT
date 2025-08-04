@@ -37,6 +37,9 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Full Validation Coverage:** ingestion, placeholder audits and migration scripts now run SecondaryCopilotValidator by default.
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
+- **Disaster Recovery Orchestration:** scheduled backups and recovery
+  execution coordinated through a new orchestrator with session and
+  compliance hooks
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Disaster Recovery Validation:** `UnifiedDisasterRecoverySystem` verifies external backup roots and restores files from `production_backup`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`
@@ -59,7 +62,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 ### **Enterprise Systems**
 - **Multiple SQLite Databases:** `databases/production.db`, `databases/analytics.db`, `databases/monitoring.db`
 - [ER Diagrams](docs/ER_DIAGRAMS.md) for key databases
-- **Flask Enterprise Dashboard:** planned; implementation in progress
+ - **Flask Enterprise Dashboard:** run `python web_gui_integration_system.py` to launch the metrics and compliance dashboard
  - **Template Intelligence Platform:** tracks generated scripts
 - **Documentation logs:** rendered templates saved under `logs/template_rendering/`
 - **Script Validation**: automated checks available
@@ -273,6 +276,17 @@ Set `QISKIT_IBM_TOKEN` to your IBM Quantum API token for hardware execution. If 
 The `scripts/quantum_placeholders` package offers simulation-only stubs that reserve
 future quantum interfaces. These modules are excluded from production import paths
 and only load in development or test environments.
+
+#### Roadmap
+
+- [quantum_placeholder_algorithm](scripts/quantum_placeholders/quantum_placeholder_algorithm.py)
+  → will evolve into a full optimizer engine.
+- [quantum_annealing](scripts/quantum_placeholders/quantum_annealing.py)
+  → planned hardware-backed annealing routine.
+- [quantum_superposition_search](scripts/quantum_placeholders/quantum_superposition_search.py)
+  → future superposition search module.
+- [quantum_entanglement_correction](scripts/quantum_placeholders/quantum_entanglement_correction.py)
+  → slated for robust entanglement error correction.
 
 ### Run Template Matcher
 ```bash

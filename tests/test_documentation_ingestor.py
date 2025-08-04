@@ -45,6 +45,23 @@ def test_zero_byte_file_skipped(tmp_path: Path, monkeypatch) -> None:
     assert ops >= 1
 
 
+def test_duplicate_document_skipped(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    workspace = tmp_path
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    db_dir = workspace / "databases"
+    db_dir.mkdir()
+    docs_dir = workspace / "documentation"
+    docs_dir.mkdir()
+    (docs_dir / "a.md").write_text("# Guide")
+    (docs_dir / "b.md").write_text("# Guide")
+    ingest_documentation(workspace, docs_dir)
+    db_path = db_dir / "enterprise_assets.db"
+    with sqlite3.connect(db_path) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
+    assert count == 1
+
+
 def test_missing_directory(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     workspace = tmp_path

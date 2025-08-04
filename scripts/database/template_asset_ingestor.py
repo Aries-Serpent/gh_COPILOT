@@ -101,14 +101,23 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
             conn.close()
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
+        existing_hashes = {
+            row[0]
+            for row in conn.execute(
+                "SELECT content_hash FROM template_assets"
+            )
+        }
+
         with conn, tqdm(total=len(files), desc="Templates", unit="file") as bar:
             for path in files:
                 rel_path = str(path.relative_to(workspace))
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
-                if rel_path in existing_paths or digest in existing_hashes:
+                if digest in existing_hashes:
+                    logger.info("Skipping duplicate content: %s", path)
                     bar.update(1)
                     continue
+                existing_hashes.add(digest)
                 conn.execute(
                     (
                         "INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)"
