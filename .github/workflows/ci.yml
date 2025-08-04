@@ -76,6 +76,16 @@ jobs:
       - name: Validate roadmap
         run: python scripts/validate_roadmap.py docs/continuous_improvement_roadmap.md
 
+      - name: Placeholder audit
+        env:
+          GH_COPILOT_DISABLE_VALIDATION: "1"
+        run: |
+          python scripts/code_placeholder_audit.py --workspace-path . \
+            --analytics-db databases/analytics.db \
+            --production-db databases/production.db \
+            --dashboard-dir dashboard/compliance \
+            --simulate --fail-on-findings
+
       - name: Run tests with coverage
         run: |
           mkdir -p reports/coverage artifacts
