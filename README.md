@@ -23,6 +23,8 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 
 > **Note**
 > Qiskit-based operations currently run in **simulation mode** only. Hardware tokens and backend flags are accepted for future use but are ignored; real hardware execution is not yet implemented.
+> **Roadmap**
+> A dedicated `QuantumExecutor` module will enable IBM Quantum hardware in a future release. Until then, all hardware options are inert and default to simulator backends.
 > **Phase 5 AI**
 > Advanced AI integration features are fully integrated. They default to simulation mode unless real hardware is configured.
 
@@ -99,6 +101,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - PowerShell (for Windows automation)
 - SQLite3
 - Required packages: `pip install -r requirements.txt` (includes `py7zr` for 7z archive support)
+- Optional for IBM Quantum hardware: install `qiskit-ibm-provider` and set `QUANTUM_USE_HARDWARE=1` with a valid `QISKIT_IBM_TOKEN`; otherwise the toolkit runs in simulator mode
 
 ### **Installation & Setup**
 ```bash
@@ -272,13 +275,14 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 python simplified_quantum_integration_orchestrator.py
 ```
 
-By default the orchestrator uses the simulator. To execute algorithms on IBM Quantum hardware install `qiskit-ibm-provider` and run:
+By default the orchestrator uses the simulator. Flags `--hardware` and `--backend` are placeholders that currently have no effect; they will enable IBM Quantum backends once the planned `QuantumExecutor` module arrives.
 
 ```bash
+# placeholder flags; still executes on simulators
 python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
-Set `QISKIT_IBM_TOKEN` to your IBM Quantum API token for hardware execution. If the provider cannot be initialized the orchestrator automatically falls back to simulation.
+Set `QISKIT_IBM_TOKEN` for future hardware execution. The value is ignored today and the orchestrator always falls back to simulation. See [docs/QUANTUM_HARDWARE_SETUP.md](docs/QUANTUM_HARDWARE_SETUP.md) for the integration roadmap.
 
 ### Quantum Placeholder Modules
 

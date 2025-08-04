@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import re
 import sqlite3
 from datetime import datetime
@@ -14,6 +15,9 @@ ROOT = Path(__file__).resolve().parents[1]
 # Extend sys.path so the script can import project utilities when executed
 # directly as ``python scripts/generate_docs_metrics.py``.
 sys.path.append(str(ROOT))
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
 
@@ -90,12 +94,15 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
+    logger.info("gathering documentation metrics")
     metrics = get_metrics(args.db_path)
     _log_event({"event": "generate_docs_metrics", "metrics": metrics}, db_path=args.analytics_db)
     for path in README_PATHS:
         if path.exists():
+            logger.info("updating %s", path)
             update_file(path, metrics)
     _log_event({"event": "generate_docs_metrics_complete"}, db_path=args.analytics_db)
+    logger.info("documentation metrics generation complete")
 
 
 if __name__ == "__main__":

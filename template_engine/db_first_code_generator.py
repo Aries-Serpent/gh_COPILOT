@@ -25,7 +25,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
 from utils.log_utils import _log_event
-from secondary_copilot_validator import SecondaryCopilotValidator
+import secondary_copilot_validator
 from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 from .placeholder_utils import DEFAULT_PRODUCTION_DB, replace_placeholders
@@ -451,7 +451,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 db_path=self.analytics_db,
                 test_mode=False,
             )
-            SecondaryCopilotValidator().validate_corrections([str(path)])
+            secondary_copilot_validator.run_flake8([str(path)])
         except Exception as exc:  # pragma: no cover - error handling
             if "conn" in locals():
                 conn.rollback()

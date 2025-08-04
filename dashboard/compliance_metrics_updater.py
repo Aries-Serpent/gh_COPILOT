@@ -350,6 +350,7 @@ class ComplianceMetricsUpdater:
         self.dashboard_dir.mkdir(parents=True, exist_ok=True)
         dashboard_file = self.dashboard_dir / "metrics.json"
         rollback_file = self.dashboard_dir / "rollback_logs.json"
+        placeholder_file = self.dashboard_dir / "placeholder_summary.json"
         import json
 
         dashboard_content = {
@@ -360,6 +361,10 @@ class ComplianceMetricsUpdater:
         dashboard_file.write_text(json.dumps(dashboard_content, indent=2), encoding="utf-8")
         rollback_file.write_text(
             json.dumps(metrics.get("recent_rollbacks", []), indent=2),
+            encoding="utf-8",
+        )
+        placeholder_file.write_text(
+            json.dumps(metrics.get("placeholder_breakdown", {}), indent=2),
             encoding="utf-8",
         )
         logging.info(f"Dashboard metrics updated: {dashboard_file}")
