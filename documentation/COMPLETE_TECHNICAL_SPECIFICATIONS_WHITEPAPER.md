@@ -27,7 +27,7 @@ The gh_COPILOT Toolkit v4.0 represents a revolutionary enterprise-grade automati
 - **Web Interface**: Flask dashboard with basic endpoints and templates
 - **Advanced AI Integration**: tooling supports further automation efforts
 - **Quantum-Enhanced Processing**: placeholder algorithms under exploration
-- *All Qiskit-based functions run in simulation mode by default. Install `qiskit-ibm-provider` and set the optional `QISKIT_IBM_TOKEN` environment variable to use real IBM Quantum hardware.*
+ - *All Qiskit-based functions run in simulation mode only. Installing `qiskit-ibm-provider` and setting `QISKIT_IBM_TOKEN` has no effect because IBM Quantum hardware integration is not yet available and several quantum modules remain stubs.*
 - **Enterprise Security Framework**: Zero-tolerance anti-recursion and comprehensive session integrity
  - *Note: earlier drafts referenced a 32+ database ecosystem. The current repository contains **27** SQLite databases for testing.*
 
@@ -601,7 +601,8 @@ class QuantumOptimizationEngine:
     """⚛️ Quantum-enhanced processing with classical fallback"""
     
     def apply_quantum_optimization(self, data: Any):
-        # Note: Quantum algorithms are placeholders for future implementation
+        # Note: quantum algorithms are placeholders; `quantum_hardware_available`
+        # currently always returns False and hardware execution is not supported
         if self.quantum_hardware_available():
             return self.execute_quantum_algorithms(data)
         else:

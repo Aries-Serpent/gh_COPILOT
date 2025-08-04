@@ -12,21 +12,21 @@
 
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
-> Quantum modules default to simulation mode. Hardware flags and IBM Quantum credentials prepare the environment for upcoming real-device execution. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Compliance auditing remains in progress.
+> Quantum modules run in simulation only. Hardware flags and IBM Quantum credentials are ignored until the planned `QuantumExecutor` module arrives. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Compliance auditing remains in progress.
 > Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards.
 
 ---
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality exists only as placeholder modules operating in simulation mode. Hooks for real hardware are planned but are not yet fully integrated, even when `qiskit-ibm-provider` is configured.
+The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality exists only as placeholder modules operating in simulation mode. Hooks for real hardware are planned but are not yet integrated, and several quantum modules remain stubs even when `qiskit-ibm-provider` is configured.
 
 > **Note**
-> Real hardware execution will be enabled through a forthcoming `QuantumExecutor` module. When tokens and backend flags are supplied, modules verify credentials but fall back to simulators until hardware access is released.
+> Real hardware execution will be enabled through a forthcoming `QuantumExecutor` module. When tokens and backend flags are supplied, modules verify credentials but always fall back to simulators until hardware access is released.
 > **Roadmap**
-> Hardware integration is in progress and will automatically leverage IBM Quantum backends when available, with simulator fallback as a safety net.
+> Hardware integration is in progress and will eventually leverage IBM Quantum backends, but no hardware execution is available today.
 > **Phase 5 AI**
-> Advanced AI integration features are fully integrated. They default to simulation mode unless real hardware is configured.
+> Advanced AI integration features are fully integrated. They operate in simulation mode; hardware configuration currently has no effect.
 
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** sessions automatically apply lessons from `learning_monitor.db`
@@ -101,7 +101,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - PowerShell (for Windows automation)
 - SQLite3
 - Required packages: `pip install -r requirements.txt` (includes `py7zr` for 7z archive support)
-- Optional for IBM Quantum hardware: install `qiskit-ibm-provider` and set `QUANTUM_USE_HARDWARE=1` with a valid `QISKIT_IBM_TOKEN`; otherwise the toolkit runs in simulator mode
+ - Quantum routines use the Qiskit simulator only; installing `qiskit-ibm-provider` or setting `QUANTUM_USE_HARDWARE=1` has no effect because hardware execution is not yet supported
 
 ### **Installation & Setup**
 ```bash
@@ -282,7 +282,7 @@ By default the orchestrator uses the simulator. Flags `--hardware` and `--backen
 python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
-Set `QISKIT_IBM_TOKEN` for future hardware execution. The value is ignored today and the orchestrator always falls back to simulation. See [docs/QUANTUM_HARDWARE_SETUP.md](docs/QUANTUM_HARDWARE_SETUP.md) for the integration roadmap.
+Set `QISKIT_IBM_TOKEN` for future hardware execution. The value is ignored today and the orchestrator always falls back to simulation because hardware support and related modules are incomplete. See [docs/QUANTUM_HARDWARE_SETUP.md](docs/QUANTUM_HARDWARE_SETUP.md) for the integration roadmap.
 
 ### Quantum Placeholder Modules
 
@@ -1113,8 +1113,8 @@ Set these variables in your `.env` file or shell before running scripts:
 - `OPENAI_API_KEY` – enables optional OpenAI features.
 - `FLASK_SECRET_KEY` – Flask dashboard secret.
 - `FLASK_RUN_PORT` – dashboard port (default `5000`).
-- `QISKIT_IBM_TOKEN` – optional IBM Quantum token.
-- `IBM_BACKEND` – optional IBM Quantum backend name (default `ibmq_qasm_simulator`).
+ - `QISKIT_IBM_TOKEN` – placeholder for future IBM Quantum access (currently ignored).
+ - `IBM_BACKEND` – placeholder for future hardware selection; defaults to `ibmq_qasm_simulator` with no real hardware support.
 - `LOG_WEBSOCKET_ENABLED` – set to `1` to stream logs.
 - `CLW_MAX_LINE_LENGTH` – max line length for the `clw` wrapper (default `1550`).
 
