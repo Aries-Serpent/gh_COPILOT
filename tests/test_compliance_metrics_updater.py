@@ -9,22 +9,41 @@ import types
 @pytest.mark.parametrize("simulate,test_mode", [(True, False), (False, True), (False, False)])
 def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    push_calls: list[dict] = []
-    clr_calls: list[bool] = []
+    push_calls = []
+    executed = []
 
-    class DummyCLR:
+    class DummyEnterpriseUtility:
+        def execute_utility(self):
+            executed.append(True)
+            return True
+
+    def dummy_push(metrics, *, table="monitoring_metrics", db_path=None, session_id=None):
+        push_calls.append((metrics, table, db_path, session_id))
+
+    class DummyCorrectionLoggerRollback:
+        instances = []
+
         def __init__(self, *a, **k):
-            pass
+            self.logged = {"violation": 0, "change": 0}
+            DummyCorrectionLoggerRollback.instances.append(self)
 
-        def summarize_corrections(self):
-            clr_calls.append(True)
+        def log_violation(self, details: str) -> None:
+            self.logged["violation"] += 1
 
-    stub = types.SimpleNamespace(
-        CorrectionLoggerRollback=DummyCLR,
+        def log_change(self, *a, **k) -> None:
+            self.logged["change"] += 1
+
+    stub_corr = types.SimpleNamespace(
+        CorrectionLoggerRollback=DummyCorrectionLoggerRollback,
         validate_enterprise_operation=lambda *a, **k: None,
         _log_rollback=lambda *a, **k: None,
     )
-    monkeypatch.setitem(sys.modules, "scripts.correction_logger_and_rollback", stub)
+    stub_monitor = types.SimpleNamespace(
+        push_metrics=dummy_push,
+        EnterpriseUtility=DummyEnterpriseUtility,
+    )
+    monkeypatch.setitem(sys.modules, "scripts.correction_logger_and_rollback", stub_corr)
+    monkeypatch.setitem(sys.modules, "unified_monitoring_optimization_system", stub_monitor)
     module = importlib.import_module("dashboard.compliance_metrics_updater")
     importlib.reload(module)
     modes = []
@@ -92,6 +111,7 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     metrics_file = dashboard_dir / "metrics.json"
     if simulate:
         assert not metrics_file.exists()
+        assert not push_calls
         return
     data = json.loads(metrics_file.read_text())
     assert data["metrics"]["placeholder_removal"] == 1
@@ -105,25 +125,27 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     expected = test_mode or simulate
     assert all((m == expected) or (m is None) for m in modes)
     assert called
-    if simulate:
-        assert not push_calls
-        assert not clr_calls
-    else:
-        assert push_calls
-        assert clr_calls
+    assert push_calls
+    assert executed
+    logger_instance = DummyCorrectionLoggerRollback.instances[0]
+    assert logger_instance.logged["violation"] == 1
+    assert logger_instance.logged["change"] == 1
 
 
 def test_correction_summary_ingestion(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    class DummyCLR:
+    class DummyCorrectionLoggerRollback:
         def __init__(self, *a, **k):
             pass
 
-        def summarize_corrections(self):
-            return {}
+        def log_violation(self, *a, **k):
+            pass
+
+        def log_change(self, *a, **k):
+            pass
 
     stub = types.SimpleNamespace(
-        CorrectionLoggerRollback=DummyCLR,
+        CorrectionLoggerRollback=DummyCorrectionLoggerRollback,
         validate_enterprise_operation=lambda *a, **k: None,
         _log_rollback=lambda *a, **k: None,
     )
