@@ -129,7 +129,9 @@ class CorrectionLoggerRollback:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     file_path TEXT,
                     rationale TEXT,
+                    correction_type TEXT,
                     compliance_score REAL,
+                    score_delta REAL,
                     rollback_reference TEXT,
                     ts TEXT
                 )"""
@@ -151,6 +153,8 @@ class CorrectionLoggerRollback:
         rationale: str,
         compliance_score: float = 1.0,
         rollback_reference: Optional[str] = None,
+        correction_type: str = "general",
+        score_delta: float = 0.0,
     ) -> None:
         """
         Record a correction event in analytics.db with compliance score and rollback reference.
@@ -158,23 +162,29 @@ class CorrectionLoggerRollback:
         self.status = "LOGGING"
         with sqlite3.connect(self.analytics_db) as conn:
             conn.execute(
-                "INSERT INTO corrections (file_path, rationale, compliance_score, rollback_reference, ts) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO corrections (file_path, rationale, correction_type, compliance_score, score_delta, rollback_reference, ts) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 (
                     str(file_path),
                     rationale,
+                    correction_type,
                     compliance_score,
+                    score_delta,
                     rollback_reference,
                     datetime.now().isoformat(),
                 ),
             )
             conn.commit()
-        logging.info(f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score}")
+        logging.info(
+            f"Correction logged for {file_path} | Rationale: {rationale} | Type: {correction_type} | Compliance: {compliance_score}"
+        )
         _log_event(
             {
                 "event": "correction",
                 "file_path": str(file_path),
                 "rationale": rationale,
+                "correction_type": correction_type,
                 "score": compliance_score,
+                "score_delta": score_delta,
             },
             table="corrections",
             db_path=self.analytics_db,
@@ -182,16 +192,36 @@ class CorrectionLoggerRollback:
         key = str(file_path)
         self.history_cache[key] = self.history_cache.get(key, 0) + 1
 
-    def log_violation(self, details: str) -> None:
+    def log_violation(
+        self,
+        details: str,
+        *,
+        cause: str = "",
+        remediation_path: str = "",
+        rollback_trigger: str = "",
+    ) -> None:
         """Record a compliance violation in ``violation_logs``."""
         with sqlite3.connect(self.analytics_db) as conn:
             conn.execute(
-                "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
-                (datetime.now().isoformat(), details),
+                "INSERT INTO violation_logs (timestamp, event, details, cause, remediation_path, rollback_trigger) VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    datetime.now().isoformat(),
+                    "violation",
+                    details,
+                    cause,
+                    remediation_path,
+                    rollback_trigger,
+                ),
             )
             conn.commit()
         _log_event(
-            {"event": "violation", "details": details},
+            {
+                "event": "violation",
+                "details": details,
+                "cause": cause,
+                "remediation_path": remediation_path,
+                "rollback_trigger": rollback_trigger,
+            },
             table="violation_logs",
             db_path=self.analytics_db,
         )
@@ -218,7 +248,12 @@ class CorrectionLoggerRollback:
             db_path=self.analytics_db,
         )
 
-    def auto_rollback(self, target: Path, backup_path: Optional[Path] = None) -> bool:
+    def auto_rollback(
+        self,
+        target: Path,
+        backup_path: Optional[Path] = None,
+        violation_id: Optional[int] = None,
+    ) -> bool:
         """
         Auto-rollback for failed syncs or corrections. Restores file from backup if available.
         """
@@ -268,7 +303,13 @@ class CorrectionLoggerRollback:
                 self._record_strategy_history(target, strategy, "success")
                 _log_rollback(str(target), str(backup_path) if backup_path else None)
                 _log_event(
-                    {"event": "rollback", "target": str(target)},
+                    {
+                        "event": "rollback",
+                        "target": str(target),
+                        "backup": str(backup_path) if backup_path else None,
+                        "violation_id": violation_id,
+                        "outcome": "success",
+                    },
                     table="rollback_logs",
                     db_path=self.analytics_db,
                 )
@@ -278,7 +319,13 @@ class CorrectionLoggerRollback:
                 strategy = self.suggest_rollback_strategy(target)
                 self._record_strategy_history(target, strategy, "failure")
                 _log_event(
-                    {"event": "rollback_failed", "target": str(target)},
+                    {
+                        "event": "rollback_failed",
+                        "target": str(target),
+                        "backup": str(backup_path) if backup_path else None,
+                        "violation_id": violation_id,
+                        "outcome": "failure",
+                    },
                     table="rollback_logs",
                     db_path=self.analytics_db,
                 )
@@ -302,7 +349,7 @@ class CorrectionLoggerRollback:
         self.status = "SUMMARIZING"
         with sqlite3.connect(self.analytics_db) as conn:
             cur = conn.execute(
-                "SELECT file_path, rationale, compliance_score, rollback_reference, ts "
+                "SELECT file_path, rationale, correction_type, compliance_score, score_delta, rollback_reference, ts "
                 "FROM corrections ORDER BY ts DESC"
             )
             corrections = cur.fetchall()
@@ -315,9 +362,11 @@ class CorrectionLoggerRollback:
                 {
                     "file_path": row[0],
                     "rationale": row[1],
-                    "compliance_score": row[2],
-                    "rollback_reference": row[3],
-                    "timestamp": row[4],
+                    "correction_type": row[2],
+                    "compliance_score": row[3],
+                    "score_delta": row[4],
+                    "rollback_reference": row[5],
+                    "timestamp": row[6],
                     "root_cause": self._derive_root_cause(row[1]),
                 }
                 for row in corrections
@@ -347,7 +396,9 @@ class CorrectionLoggerRollback:
             for corr in summary["corrections"]:
                 md.write(f"- **File:** {corr['file_path']}\n")
                 md.write(f"  - Rationale: {corr['rationale']}\n")
+                md.write(f"  - Type: {corr['correction_type']}\n")
                 md.write(f"  - Compliance Score: {corr['compliance_score']}\n")
+                md.write(f"  - Score Delta: {corr['score_delta']}\n")
                 md.write(f"  - Rollback Reference: {corr['rollback_reference']}\n")
                 md.write(f"  - Timestamp: {corr['timestamp']}\n\n")
         logging.info(f"Correction summary written to {json_path} and {md_path}")

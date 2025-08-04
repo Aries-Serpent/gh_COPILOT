@@ -19,13 +19,15 @@ def temp_db(tmp_path: Path) -> Path:
     db = tmp_path / "analytics.db"
     with sqlite3.connect(db) as conn:
         conn.execute(
-            "CREATE TABLE rollback_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, target TEXT, backup TEXT, timestamp TEXT)"
+            "CREATE TABLE rollback_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, target TEXT, backup TEXT, violation_id INTEGER, outcome TEXT, event TEXT, count INTEGER, timestamp TEXT)"
         )
         conn.execute("CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT)")
         conn.execute("CREATE TABLE correction_logs (compliance_score REAL)")
-        conn.execute("CREATE TABLE violation_logs (id INTEGER)")
         conn.execute(
-            "INSERT INTO rollback_logs (target, backup, timestamp) VALUES ('file.py', 'file.py.bak', '2024-01-01T00:00:00Z')"
+            "CREATE TABLE violation_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, event TEXT, details TEXT, cause TEXT, remediation_path TEXT, rollback_trigger TEXT, count INTEGER)"
+        )
+        conn.execute(
+            "INSERT INTO rollback_logs (target, backup, outcome, event, timestamp) VALUES ('file.py', 'file.py.bak', 'success', 'rollback', '2024-01-01T00:00:00Z')"
         )
     return db
 
