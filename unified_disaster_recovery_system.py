@@ -9,6 +9,7 @@ but we keep this thin wrapper so downstream code can simply import from
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 from utils import log_utils as enterprise_logging
@@ -39,11 +40,35 @@ from scripts.utilities.unified_disaster_recovery_system import (  # noqa: E402
 )
 
 
-def schedule_backups() -> None:
-    """Convenience wrapper to schedule backups using the default system."""
+def schedule_backups() -> Path:
+    """Convenience wrapper to schedule backups using the default system.
+
+    Returns
+    -------
+    Path
+        Location of the created backup file.
+    """
 
     system = _UnifiedDisasterRecoverySystem()
-    system.schedule_backups()
+    return system.schedule_backups()
+
+
+def restore_backup(path: str | Path) -> bool:
+    """Restore a backup file with integrity verification.
+
+    Parameters
+    ----------
+    path:
+        Filesystem path to the backup file to restore.
+
+    Returns
+    -------
+    bool
+        ``True`` when restoration succeeds, ``False`` otherwise.
+    """
+
+    system = _UnifiedDisasterRecoverySystem()
+    return system.restore_backup(path)
 
 
 # Re-export class for public consumers
@@ -55,6 +80,7 @@ __all__ = [
     "RestoreExecutor",
     "ComplianceLogger",
     "schedule_backups",
+    "restore_backup",
     "log_backup_event",
 ]
 

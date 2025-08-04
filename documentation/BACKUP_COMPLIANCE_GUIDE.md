@@ -23,18 +23,16 @@ Usage
 
 ### Scheduling Backups
 ```python
-from unified_disaster_recovery_system import UnifiedDisasterRecoverySystem
+from unified_disaster_recovery_system import schedule_backups
 
-system = UnifiedDisasterRecoverySystem()
-backup_path = system.schedule_backups()
+backup_path = schedule_backups()
 ```
 
 ### Restoring a Backup
 ```python
-from unified_disaster_recovery_system import UnifiedDisasterRecoverySystem
+from unified_disaster_recovery_system import restore_backup
 
-system = UnifiedDisasterRecoverySystem()
-system.restore_backup(backup_path)
+restore_backup(backup_path)
 ```
 
 ### Disaster Recovery

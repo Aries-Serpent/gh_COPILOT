@@ -1,6 +1,9 @@
 import hashlib
 
-from unified_disaster_recovery_system import UnifiedDisasterRecoverySystem
+from unified_disaster_recovery_system import (
+    UnifiedDisasterRecoverySystem,
+    restore_backup,
+)
 from scripts.utilities import unified_disaster_recovery_system as util_module
 
 
@@ -35,8 +38,7 @@ def test_restore_backup_success(tmp_path, monkeypatch):
     monkeypatch.setattr(util_module.enterprise_logging, "log_event", lambda e: events.append(e))
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
-    system = UnifiedDisasterRecoverySystem(str(workspace))
-    assert system.restore_backup(backup_file)
+    assert restore_backup(backup_file)
     restored = workspace / "data.txt"
     assert restored.exists()
     assert any(evt["event"] == "restore_success" for evt in events)
@@ -55,8 +57,7 @@ def test_restore_backup_hash_mismatch(tmp_path, monkeypatch):
     monkeypatch.setattr(util_module.enterprise_logging, "log_event", lambda e: events.append(e))
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
-    system = UnifiedDisasterRecoverySystem(str(workspace))
-    assert not system.restore_backup(backup_file)
+    assert not restore_backup(backup_file)
     assert any(evt["event"] == "restore_failed" for evt in events)
 
 
@@ -72,6 +73,5 @@ def test_restore_backup_missing_checksum(tmp_path, monkeypatch):
     monkeypatch.setattr(util_module.enterprise_logging, "log_event", lambda e: events.append(e))
 
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
-    system = UnifiedDisasterRecoverySystem(str(workspace))
-    assert not system.restore_backup(backup_file)
+    assert not restore_backup(backup_file)
     assert any(evt["event"] == "restore_failed" for evt in events)
