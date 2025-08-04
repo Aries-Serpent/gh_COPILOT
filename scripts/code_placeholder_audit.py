@@ -693,7 +693,10 @@ def main(
 
     # DUAL COPILOT validation
     valid = validate_results(len(results), analytics)
-    secondary_copilot_validator.run_flake8([r["file"] for r in results])
+    if fail_on_findings and results:
+        valid = False
+    secondary = SecondaryCopilotValidator()
+    secondary.validate_corrections([r["file"] for r in results])
     if valid:
         log_message(__name__, f"{TEXT['success']} audit logged {len(results)} findings")
     else:
