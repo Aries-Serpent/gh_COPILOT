@@ -15,9 +15,8 @@ import json
 import os
 import sqlite3
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, TYPE_CHECKING
 
-import numpy as np
 import psutil
 from sklearn.ensemble import IsolationForest
 from scripts.monitoring.unified_monitoring_optimization_system import (
@@ -41,8 +40,12 @@ __all__ = [
     "QuantumInterface",
     "collect_metrics",
     "auto_heal_session",
-    "record_quantum_score",
 ]
+
+if TYPE_CHECKING:  # pragma: no cover - imported for type hints only
+    from scripts.utilities.unified_session_management_system import (
+        UnifiedSessionManagementSystem,
+    )
 
 
 def _ensure_table(conn: sqlite3.Connection, table: str, with_session: bool) -> None:
@@ -155,10 +158,60 @@ def collect_metrics(
     return metrics
 
 
+def _train_isolation_forest(
+    data: List[List[float]], *, contamination: float
+) -> IsolationForest:
+    """Train an :class:`IsolationForest` on ``data``.
+
+    Parameters
+    ----------
+    data:
+        Two dimensional list representing metric history.
+    contamination:
+        Proportion of outliers in the data set.
+
+    Returns
+    -------
+    IsolationForest
+        Fitted model ready for anomaly scoring.
+    """
+
+    model = IsolationForest(contamination=contamination, random_state=42)
+    model.fit(data)
+    return model
+
+
+def _ensure_anomaly_table(conn: sqlite3.Connection) -> None:
+    """Create the ``anomaly_results`` table if required."""
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS anomaly_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            metrics_json TEXT NOT NULL,
+            anomaly_score REAL NOT NULL,
+            quantum_score REAL,
+            composite_score REAL NOT NULL
+        )
+        """
+    )
+
+
 def detect_anomalies(
-    history: Iterable[Dict[str, float]], *, contamination: float = 0.1
+    history: Iterable[Dict[str, float]],
+    *,
+    contamination: float = 0.1,
+    db_path: Optional[Path] = None,
 ) -> List[Dict[str, float]]:
-    """Identify anomalous metric entries using ``IsolationForest``.
+    """Identify anomalous metric entries and persist results.
+
+    The function trains an :class:`IsolationForest` on ``history`` and
+    computes anomaly scores for each entry. When the optional
+    :func:`quantum_score_stub` is available a composite health metric is
+    produced by averaging the anomaly score with the quantum score. All
+    detected anomalies are stored in ``analytics.db`` for dashboard
+    consumption.
 
     Parameters
     ----------
@@ -166,11 +219,16 @@ def detect_anomalies(
         Iterable of metric mappings ordered chronologically.
     contamination:
         Proportion of outliers in the data set.
+    db_path:
+        Optional path to the analytics database. Defaults to
+        :data:`DB_PATH`.
 
     Returns
     -------
     list of dict
-        Subset of ``history`` flagged as anomalies.
+        Subset of ``history`` flagged as anomalies. Each entry contains the
+        additional keys ``anomaly_score``, ``quantum_score`` (when available)
+        and ``composite_score``.
     """
 
     history_list = list(history)
@@ -179,16 +237,52 @@ def detect_anomalies(
 
     keys = sorted(history_list[0])
     data = [[m[k] for k in keys] for m in history_list]
-    model = IsolationForest(contamination=contamination, random_state=42)
-    preds = model.fit_predict(data)
-    return [m for m, pred in zip(history_list, preds) if pred == -1]
+    model = _train_isolation_forest(data, contamination=contamination)
+    preds = model.predict(data)
+    scores = -model.score_samples(data)
+
+    path = db_path or DB_PATH
+    anomalies: List[Dict[str, float]] = []
+
+    with sqlite3.connect(path) as conn:
+        _ensure_anomaly_table(conn)
+        for metrics, pred, score in zip(history_list, preds, scores):
+            if pred != -1:
+                continue
+            anomaly: Dict[str, float] = dict(metrics)
+            anomaly_score = float(score)
+            anomaly["anomaly_score"] = anomaly_score
+            quantum_score = (
+                float(quantum_score_stub(metrics.values()))
+                if quantum_score_stub is not None
+                else None
+            )
+            if quantum_score is not None:
+                anomaly["quantum_score"] = quantum_score
+                composite = (anomaly_score + quantum_score) / 2.0
+            else:
+                composite = anomaly_score
+            anomaly["composite_score"] = composite
+            anomalies.append(anomaly)
+            conn.execute(
+                """
+                INSERT INTO anomaly_results (
+                    metrics_json, anomaly_score, quantum_score, composite_score
+                ) VALUES (?, ?, ?, ?)
+                """,
+                (json.dumps(metrics), anomaly_score, quantum_score, composite),
+            )
+        conn.commit()
+
+    return anomalies
 
 
 def auto_heal_session(
     history: Iterable[Dict[str, float]],
     *,
     contamination: float = 0.1,
-    manager: Optional["UnifiedSessionManagementSystem"] = None,
+    manager: Optional[UnifiedSessionManagementSystem] = None,
+    db_path: Optional[Path] = None,
 ) -> bool:
     """Restart the session when metric anomalies are detected.
 
@@ -202,6 +296,9 @@ def auto_heal_session(
         Optional session manager.  When omitted a new
         :class:`scripts.utilities.unified_session_management_system.UnifiedSessionManagementSystem`
         instance is created.
+    db_path:
+        Optional analytics database path forwarded to
+        :func:`detect_anomalies`.
 
     Returns
     -------
@@ -209,7 +306,9 @@ def auto_heal_session(
         ``True`` when a restart was attempted due to detected anomalies.
     """
 
-    anomalies = detect_anomalies(history, contamination=contamination)
+    anomalies = detect_anomalies(
+        history, contamination=contamination, db_path=db_path
+    )
     if not anomalies:
         return False
     if manager is None:
