@@ -39,6 +39,8 @@ def test_restore_executor_verifies_integrity(tmp_path, monkeypatch):
     workspace.mkdir()
     backup_root = tmp_path / "backup"
     backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
 
     backup_file = backup_root / "data.txt"
     data = "payload"
@@ -51,7 +53,6 @@ def test_restore_executor_verifies_integrity(tmp_path, monkeypatch):
     monkeypatch.setattr(
         util_module.enterprise_logging, "log_event", lambda e: events.append(e)
     )
-    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
 
     system = UnifiedDisasterRecoverySystem(str(workspace))
     assert system.restore_backup(backup_file)
@@ -89,6 +90,26 @@ def test_retention_policy_prunes_old_backups(tmp_path, monkeypatch):
     assert first not in backups
 
 
+def test_schedule_uses_default_retention(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    backup_root = tmp_path / "backup"
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+
+    import datetime as dt
+
+    times = [dt.datetime(2020, 1, 1, 0, 0, i) for i in range(util_module.DEFAULT_MAX_BACKUPS + 1)]
+    monkeypatch.setattr(util_module, "datetime", type("_dt", (), {"utcnow": lambda: times.pop(0)}))
+
+    system = UnifiedDisasterRecoverySystem(str(workspace))
+    for _ in range(util_module.DEFAULT_MAX_BACKUPS + 1):
+        system.schedule_backups()
+
+    backups = list(backup_root.glob("scheduled_backup_*.bak"))
+    assert len(backups) == util_module.DEFAULT_MAX_BACKUPS
+
+
 def test_cli_schedule_and_restore_logs_to_db(tmp_path, monkeypatch):
     workspace = tmp_path / "ws"
     workspace.mkdir()
@@ -115,4 +136,46 @@ def test_cli_schedule_and_restore_logs_to_db(tmp_path, monkeypatch):
 
     assert "backup_scheduled" in events
     assert "restore_success" in events
+
+
+def test_restore_rejects_untrusted_path(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    backup_root = tmp_path / "backup"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+
+    data = "payload"
+    backup_file = workspace / "data.bak"
+    backup_file.write_text(data, encoding="utf-8")
+    (workspace / "data.bak.sha256").write_text(
+        hashlib.sha256(data.encode("utf-8")).hexdigest(), encoding="utf-8"
+    )
+
+    events = []
+    monkeypatch.setattr(
+        util_module.enterprise_logging, "log_event", lambda e: events.append(e)
+    )
+
+    system = UnifiedDisasterRecoverySystem(str(workspace))
+    assert not system.restore_backup(backup_file)
+    assert any(evt["description"] == "restore_failed" for evt in events)
+
+
+def test_compliance_logger_emits_global_event(monkeypatch):
+    events = []
+    monkeypatch.setattr(
+        util_module.enterprise_logging, "log_event", lambda e: events.append(e)
+    )
+    called = {}
+    monkeypatch.setattr(
+        util_module, "log_backup_event", lambda *a, **k: called.setdefault("ok", True)
+    )
+
+    logger = util_module.ComplianceLogger()
+    logger.log("test_event")
+
+    assert events and events[0]["description"] == "test_event"
+    assert called.get("ok")
 

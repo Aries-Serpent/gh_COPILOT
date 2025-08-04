@@ -310,6 +310,13 @@ to create and manage backups. This variable ensures backups never reside in the
 workspace, maintaining anti-recursion compliance.
 The `validate_enterprise_environment` helper enforces these settings at script startup.
 
+Run scheduled backups and restore them with:
+
+```bash
+python scripts/utilities/unified_disaster_recovery_system.py --schedule
+python scripts/utilities/unified_disaster_recovery_system.py --restore /path/to/backup.bak
+```
+
 ### Session Management CLI
 Use ``COMPREHENSIVE_WORKSPACE_MANAGER.py`` to manage session start and end
 operations:

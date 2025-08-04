@@ -22,6 +22,8 @@ __all__ = [
     "main",
 ]
 
+DEFAULT_MAX_BACKUPS = 5
+
 TEXT_INDICATORS = {
     "start": "[START]",
     "success": "[SUCCESS]",
@@ -53,6 +55,9 @@ class BackupScheduler:
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def schedule(self, max_backups: Optional[int] = None) -> Path:
+        if max_backups is None:
+            max_backups = int(os.getenv("GH_COPILOT_MAX_BACKUPS", DEFAULT_MAX_BACKUPS))
+
         backup_root = Path(
             os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups")
         ).resolve()
@@ -78,12 +83,15 @@ class BackupScheduler:
         )
         self.compliance_logger.log("backup_scheduled", path=str(backup_file))
 
-        if max_backups is not None:
-            backups = sorted(backup_root.glob("scheduled_backup_*.bak"), key=os.path.getmtime, reverse=True)
-            for old in backups[max_backups:]:
-                old.unlink(missing_ok=True)
-                old.with_suffix(old.suffix + ".sha256").unlink(missing_ok=True)
-                self.compliance_logger.log("backup_pruned", path=str(old))
+        backups = sorted(
+            backup_root.glob("scheduled_backup_*.bak"),
+            key=os.path.getmtime,
+            reverse=True,
+        )
+        for old in backups[max_backups:]:
+            old.unlink(missing_ok=True)
+            old.with_suffix(old.suffix + ".sha256").unlink(missing_ok=True)
+            self.compliance_logger.log("backup_pruned", path=str(old))
 
         return backup_file
 
@@ -97,8 +105,37 @@ class RestoreExecutor:
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def restore(self, path: str | Path) -> bool:
-        backup_file = Path(path)
+        backup_file = Path(path).resolve()
         hash_file = backup_file.with_suffix(backup_file.suffix + ".sha256")
+
+        backup_root = Path(
+            os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp/gh_COPILOT_Backups")
+        ).resolve()
+        workspace = self.workspace_path.resolve()
+
+        if workspace in backup_file.parents or backup_file == workspace:
+            self.logger.error(
+                "%s Backup path %s resides within workspace %s",
+                TEXT_INDICATORS["error"],
+                backup_file,
+                workspace,
+            )
+            self.compliance_logger.log(
+                "restore_failed", path=str(backup_file), reason="workspace"
+            )
+            return False
+
+        if backup_root not in backup_file.parents:
+            self.logger.error(
+                "%s Backup path %s is outside backup root %s",
+                TEXT_INDICATORS["error"],
+                backup_file,
+                backup_root,
+            )
+            self.compliance_logger.log(
+                "restore_failed", path=str(backup_file), reason="untrusted_location"
+            )
+            return False
 
         if not backup_file.exists() or not hash_file.exists():
             self.logger.error(
