@@ -10,6 +10,8 @@
 ### **System Classification**
 The gh_COPILOT Toolkit v4.0 represents an enterprise-grade automation platform in active development that implements a database-first, unified system architecture with advanced AI integration capabilities. Several subsystems—including disaster recovery, the web dashboard, and the database synchronization engine—remain incomplete, and the current test suite reports multiple failures.
 
+Compliance and audit metrics are logged to `analytics.db` via the `EnterpriseComplianceValidator`.
+
 *All quantum modules run exclusively in simulation mode; any hardware configuration is currently ignored until future integration lands.*
 *Phase&nbsp;5 advanced AI features are partially integrated and not yet production ready.*
 
@@ -20,6 +22,7 @@ The gh_COPILOT Toolkit v4.0 represents an enterprise-grade automation platform i
 - **Advanced AI Integration**: tooling supports further automation efforts
 - **Quantum-Inspired Processing**: placeholder routines for annealing and search operate in simulation mode; the `use_hardware` flag is currently ignored.
 - **Quantum-Inspired Communication**: prototype modules simulate secure channels and query encryption; real quantum encryption is not implemented.
+- **Compliance & Audit Framework**: `EnterpriseComplianceValidator` records code audits, rollback history, and compliance metrics in `analytics.db`.
 - **Enterprise Security Framework**: Zero-tolerance anti-recursion and comprehensive session integrity
 - *Note: earlier drafts referenced a 32+ database ecosystem. The current repository ships with a handful of SQLite databases for testing.*
 

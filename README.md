@@ -12,7 +12,7 @@
 
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
-> Quantum modules run in simulation only. Hardware flags and IBM Quantum credentials are ignored until the planned `QuantumExecutor` module arrives. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Compliance auditing remains in progress.
+> Quantum modules run in simulation only. Hardware flags and IBM Quantum credentials are ignored until the planned `QuantumExecutor` module arrives. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Compliance auditing is enforced via `EnterpriseComplianceValidator` with metrics stored in `analytics.db`.
 > Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards.
 
 ---
@@ -137,6 +137,14 @@ ls -l /usr/local/bin/clw
 /usr/local/bin/clw --help
 
 ```
+
+### Reclone a Repository
+Use `scripts/reclone_repo.py` to create a fresh clone of any Git repository.
+This is helpful when a working copy becomes corrupted or when a clean
+re-clone is required. The utility can back up or remove an existing
+destination directory before cloning. See
+[docs/RECLONE_REPO_GUIDE.md](docs/RECLONE_REPO_GUIDE.md) for detailed
+instructions and examples.
 
 ### Add Lessons After a Run
 Store new insights directly from the gap analyzer:
