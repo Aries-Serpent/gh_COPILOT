@@ -43,6 +43,30 @@ def analytics_db(tmp_path: Path, monkeypatch) -> Path:
             "INSERT INTO performance_metrics VALUES ('query_latency', ?)",
             [(10.0,), (20.0,)],
         )
+        conn.execute(
+            "CREATE TABLE pattern_cluster_metrics (inertia REAL, silhouette REAL, n_clusters INTEGER, ts TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO pattern_cluster_metrics VALUES (10.0, 0.5, 3, '2024-01-01')"
+        )
+        conn.execute(
+            """
+            CREATE TABLE objective_similarity (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                objective TEXT,
+                template_id INTEGER,
+                score REAL,
+                ts TEXT
+            )
+            """
+        )
+        conn.executemany(
+            "INSERT INTO objective_similarity (objective, template_id, score, ts) VALUES (?, ?, ?, ?)",
+            [
+                ("obj", 1, 0.7, "2024-01-01"),
+                ("obj", 2, 0.9, "2024-01-01"),
+            ],
+        )
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(cmu, "ensure_tables", lambda *a, **k: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
@@ -57,6 +81,11 @@ def test_score_trend_and_formula(analytics_db: Path, tmp_path: Path):
     assert metrics["compliance_trend"] == [0.3, 0.6]
     expected = max(0.0, min(1.0, (2 / 3) - 0.1 - 0.05))
     assert metrics["compliance_score"] == pytest.approx(expected, rel=1e-3)
+    assert metrics["pattern_cluster_quality"] == {
+        "inertia": 10.0,
+        "silhouette": 0.5,
+    }
+    assert metrics["average_similarity_score"] == pytest.approx(0.8, rel=1e-3)
 
 
 def test_latency_metric(analytics_db: Path):

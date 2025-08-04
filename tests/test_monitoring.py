@@ -12,7 +12,7 @@ def test_health_monitor_anomaly_detection():
     alerts = check_alerts(metrics)
     assert alerts["cpu"]
     assert alerts["ml_anomaly"]
-    assert health_quantum_hook(metrics) is None
+    assert isinstance(health_quantum_hook(metrics), float)
 
 
 def test_performance_tracker_alerts(tmp_path):
@@ -20,6 +20,8 @@ def test_performance_tracker_alerts(tmp_path):
     metrics = track_query_time("slow_query", 150.0, db_path=db)
     assert metrics["response_time_alert"]
     assert metrics["ml_anomaly"]
+    assert "quantum_score" in metrics
     metrics = record_error("slow_query", db_path=db)
     assert metrics["error_rate_alert"]
-    assert perf_quantum_hook(metrics) is None
+    assert isinstance(perf_quantum_hook(metrics), float)
+    assert "quantum_score" in metrics

@@ -7,13 +7,22 @@ event logging used across operational modules.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any, Callable, Dict, List
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules.compliance import _log_rollback, validate_enterprise_operation
 from enterprise_modules.utility_utils import (
     setup_enterprise_logging,
     validate_environment_compliance,
+)
+from unified_disaster_recovery_system import (
+    UnifiedDisasterRecoverySystem,
+    log_backup_event,
+)
+from unified_session_management_system import (
+    ensure_no_zero_byte_files,
+    prevent_recursion,
 )
 
 
@@ -62,9 +71,7 @@ class ComplianceChecker:
             self.log_event("environment_non_compliant")
         return result
 
-    def validate_operation(
-        self, *, path: str | None = None, command: str | None = None
-    ) -> bool:
+    def validate_operation(self, *, path: str | None = None, command: str | None = None) -> bool:
         """Validate an operation prior to execution."""
         ok = validate_enterprise_operation(target_path=path, command=command)
         if not ok:
@@ -88,11 +95,59 @@ class ComplianceChecker:
                 self.log_event(f"rule_error:{rule.__name__}:{exc}")
 
         if violations > self.threshold:
-            raise ComplianceError(
-                f"Compliance threshold exceeded: {violations} > {self.threshold}"
-            )
+            self._trigger_compliance_backup()
+            raise ComplianceError(f"Compliance threshold exceeded: {violations} > {self.threshold}")
         return violations == 0
+
+    def pre_deployment_validation(self, workspace: str | Path | None = None) -> bool:
+        """Execute compliance checks with session and backup integration.
+
+        The workspace is first validated for zero-byte files and recursion
+        using :mod:`unified_session_management_system`. If all checks pass, a
+        backup is scheduled via :class:`UnifiedDisasterRecoverySystem` and the
+        event logged for forensic traceability.
+        """
+        workspace_path = Path(workspace) if workspace else Path.cwd()
+
+        @prevent_recursion
+        def _execute() -> bool:
+            with ensure_no_zero_byte_files(workspace_path):
+                ok = self.run_checks()
+                if ok:
+                    system = UnifiedDisasterRecoverySystem(str(workspace_path))
+                    system.schedule_backups()
+                    log_backup_event(
+                        "pre_deployment_backup", {"path": str(workspace_path)}
+                    )
+                return ok
+
+        return _execute()
+
+    def _trigger_compliance_backup(self) -> None:
+        """Schedule a backup and log rollback details on violations.
+
+        This method integrates the compliance checker with the session
+        management and disaster recovery modules to provide a unified security
+        posture. It performs a zero-byte file check, triggers a backup, logs a
+        rollback record, and emits a compliance event for dashboard
+        visualization.
+        """
+
+        from unified_disaster_recovery_system import (
+            UnifiedDisasterRecoverySystem,
+            log_backup_event,
+        )
+        from unified_session_management_system import ensure_no_zero_byte_files
+
+        workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+        system = UnifiedDisasterRecoverySystem(str(workspace))
+        try:
+            with ensure_no_zero_byte_files(workspace):
+                backup_file = system.schedule_backups()
+        except RuntimeError:
+            backup_file = system.schedule_backups()
+        _log_rollback(str(workspace), str(backup_file))
+        log_backup_event("compliance_violation", {"backup": str(backup_file)})
 
 
 __all__ = ["ComplianceChecker", "ComplianceError"]
-

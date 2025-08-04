@@ -26,6 +26,11 @@ from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
 from enterprise_modules.compliance import validate_enterprise_operation
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
+from unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+    push_metrics,
+)
+from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 
 
 # Enterprise logging setup
@@ -65,6 +70,8 @@ class ComplianceMetricsUpdater:
     Update compliance metrics for the web dashboard.
     Integrates real-time metrics, violation/rollback alerts, and actionable GUI features.
     Validates all dashboard events are fed by analytics.db and correction logs.
+    Aggregates pattern mining quality indicators and objective similarity scores
+    to enhance compliance ranking.
     """
 
     def __init__(self, dashboard_dir: Path, *, test_mode: bool = False) -> None:
@@ -85,6 +92,8 @@ class ComplianceMetricsUpdater:
             test_mode=self.test_mode,
         )
         self.forbidden_phrases = ["rm -rf", "sudo", "wget "]
+        self.monitoring_utility = EnterpriseUtility()
+        self.correction_logger = CorrectionLoggerRollback(ANALYTICS_DB)
 
     def _fetch_compliance_metrics(self, *, test_mode: bool = False) -> Dict[str, Any]:
         """Fetch compliance metrics from analytics.db."""
@@ -169,6 +178,36 @@ class ComplianceMetricsUpdater:
                     metrics["rollback_count"] = 0
                 penalty = 0.1 * metrics["violation_count"] + 0.05 * metrics["rollback_count"]
                 metrics["compliance_score"] = max(0.0, min(1.0, base_score - penalty))
+
+                # Pattern mining quality metrics
+                try:
+                    cur.execute(
+                        "SELECT inertia, silhouette FROM pattern_cluster_metrics ORDER BY ts DESC LIMIT 1"
+                    )
+                    row = cur.fetchone()
+                    if row:
+                        metrics["pattern_cluster_quality"] = {
+                            "inertia": float(row[0]),
+                            "silhouette": float(row[1]),
+                        }
+                    else:
+                        metrics["pattern_cluster_quality"] = {
+                            "inertia": 0.0,
+                            "silhouette": 0.0,
+                        }
+                except sqlite3.Error:
+                    metrics["pattern_cluster_quality"] = {
+                        "inertia": 0.0,
+                        "silhouette": 0.0,
+                    }
+
+                # Objective similarity scoring metric
+                try:
+                    cur.execute("SELECT AVG(score) FROM objective_similarity")
+                    avg = cur.fetchone()[0]
+                    metrics["average_similarity_score"] = float(avg) if avg is not None else 0.0
+                except sqlite3.Error:
+                    metrics["average_similarity_score"] = 0.0
             except Exception as e:
                 logging.error(f"Error fetching metrics: {e}")
         correction_summary = DASHBOARD_DIR / "correction_summary.json"
@@ -349,6 +388,31 @@ class ComplianceMetricsUpdater:
             test_mode=test_mode,
         )
 
+    def _push_monitoring_metrics(self, metrics: Dict[str, Any]) -> None:
+        """Send metrics to the unified monitoring system."""
+        monitoring_metrics = {
+            "compliance_score": float(metrics.get("compliance_score", 0.0)),
+            "violation_count": float(metrics.get("violation_count", 0.0)),
+            "rollback_count": float(metrics.get("rollback_count", 0.0)),
+        }
+        push_metrics(monitoring_metrics, table="enterprise_metrics", db_path=ANALYTICS_DB)
+        if monitoring_metrics["compliance_score"] < 0.8:
+            self.monitoring_utility.execute_utility()
+
+    def _synchronize_corrections(self, metrics: Dict[str, Any]) -> None:
+        """Log violations and rollbacks via the correction logger."""
+        if metrics.get("violation_count") or metrics.get("compliance_score", 1.0) < 0.8:
+            self.correction_logger.log_violation("Compliance degradation detected")
+        for entry in metrics.get("recent_rollbacks", []):
+            target = Path(entry.get("target", ""))
+            backup = entry.get("backup")
+            self.correction_logger.log_change(
+                target,
+                "Auto rollback recorded",
+                metrics.get("compliance_score", 0.0),
+                rollback_reference=backup,
+            )
+
     def update(self, simulate: bool = False) -> None:
         """Update compliance metrics for the web dashboard with full compliance and validation.
 
@@ -360,7 +424,7 @@ class ComplianceMetricsUpdater:
         validate_enterprise_operation(str(self.dashboard_dir))
         self.status = "UPDATING"
         start_time = time.time()
-        with tqdm(total=3, desc="Updating Compliance Metrics", unit="step") as pbar:
+        with tqdm(total=4, desc="Updating Compliance Metrics", unit="step") as pbar:
             pbar.set_description("Fetching Metrics")
             metrics = self._fetch_compliance_metrics(test_mode=self.test_mode or simulate)
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
@@ -377,13 +441,19 @@ class ComplianceMetricsUpdater:
 
                 pbar.set_description("Logging Update Event")
                 self._log_update_event(metrics, test_mode=self.test_mode)
+                self._push_monitoring_metrics(metrics)
+                self._synchronize_corrections(metrics)
+                pbar.update(1)
+
+                pbar.set_description("Syncing External Systems")
+                self._sync_external_systems(metrics)
                 pbar.update(1)
             else:
                 pbar.set_description("Simulation Mode")
-                pbar.update(2)
+                pbar.update(3)
 
         elapsed = time.time() - start_time
-        etc = self._calculate_etc(elapsed, 3, 3)
+        etc = self._calculate_etc(elapsed, 4, 4)
         logging.info(f"Compliance metrics update completed in {elapsed:.2f}s | ETC: {etc}")
         insert_event(
             {"event": "update_complete", "duration": elapsed},

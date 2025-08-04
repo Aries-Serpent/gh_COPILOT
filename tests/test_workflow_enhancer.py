@@ -47,6 +47,20 @@ def test_pattern_mining(tmp_path, monkeypatch):
 def test_generate_compliance_report(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     monkeypatch.setattr(workflow_enhancer, "validate_enterprise_operation", lambda *_a, **_k: True)
+    class DummyUpdater:
+        def __init__(self, *_, **__):
+            pass
+
+        def _fetch_compliance_metrics(self, test_mode: bool = False):
+            return {}
+
+        def _cognitive_compliance_suggestion(self, metrics):
+            return ""
+
+        def _update_dashboard(self, metrics):
+            return None
+
+    monkeypatch.setattr(workflow_enhancer, "ComplianceMetricsUpdater", DummyUpdater)
     db = tmp_path / "prod.db"
     _setup_db(db)
     dashboard = tmp_path / "dash"
@@ -56,3 +70,26 @@ def test_generate_compliance_report(tmp_path, monkeypatch):
     assert report["total_templates"] == 2
     assert report["cluster_count"] >= 1
     assert "average_compliance_score" in report
+    assert "recommendations" in report
+
+
+def test_enhancement_respects_monitoring(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    monkeypatch.setattr(workflow_enhancer, "validate_enterprise_operation", lambda *_a, **_k: True)
+    monkeypatch.setattr(
+        workflow_enhancer,
+        "collect_metrics",
+        lambda: {"cpu_percent": 95.0},
+    )
+    monkeypatch.setattr(
+        workflow_enhancer,
+        "DEFAULT_ANALYTICS_DB",
+        tmp_path / "analytics.db",
+        raising=False,
+    )
+    db = tmp_path / "prod.db"
+    _setup_db(db)
+    dashboard = tmp_path / "dash"
+    enhancer = TemplateWorkflowEnhancer(db, dashboard)
+    assert not enhancer.enhance(timeout_minutes=1)
+    assert not (dashboard / "workflow_enhancement_report.json").exists()

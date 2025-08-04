@@ -12,6 +12,12 @@ Enable continuous monitoring by running `python scripts/monitoring/continuous_op
 Ensure the environment variable `GH_COPILOT_WORKSPACE` points to your workspace
 root so analytics databases can be located.
 
+Both `health_monitor.py` and `performance_tracker.py` now compute a
+quantum-inspired score for their respective metrics using
+`quantum_algorithm_library_expansion.quantum_score_stub`. The score is recorded
+alongside traditional metrics in `analytics.db`, enabling advanced anomaly
+detection and future quantum-enabled analysis.
+
 Long-running scripts should import and trigger `UnifiedMonitoringOptimizationSystem`
 to record optimization metrics:
 

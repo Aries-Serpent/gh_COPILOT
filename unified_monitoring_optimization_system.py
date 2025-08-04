@@ -17,12 +17,17 @@ import sqlite3
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
+import numpy as np
 import psutil
 from sklearn.ensemble import IsolationForest
 from scripts.monitoring.unified_monitoring_optimization_system import (
     EnterpriseUtility,
-    collect_metrics,
 )
+
+try:  # pragma: no cover - optional quantum library
+    from quantum_algorithm_library_expansion import quantum_score_stub
+except Exception:  # pragma: no cover - library may be missing
+    quantum_score_stub = None
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "databases" / "analytics.db"
@@ -36,6 +41,7 @@ __all__ = [
     "QuantumInterface",
     "collect_metrics",
     "auto_heal_session",
+    "record_quantum_score",
 ]
 
 
@@ -221,7 +227,6 @@ def auto_heal_session(
         return True
     except Exception:
         return False
-
 
 class QuantumInterface:
     """Placeholder interface for quantum metric processing."""

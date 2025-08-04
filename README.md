@@ -37,9 +37,18 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Full Validation Coverage:** ingestion, placeholder audits and migration scripts now run SecondaryCopilotValidator by default.
 - **Visual Processing Indicators:** progress bar utilities implemented
 - **Autonomous Systems:** early self-healing scripts included
+- **Integrated Legacy Cleanup:** script generation automatically purges superseded templates to keep workspaces current
 - **Disaster Recovery Orchestration:** scheduled backups and recovery
+- **Compliance Integration:** pre-deployment validation now links session
+  integrity checks with disaster recovery backups
   execution coordinated through a new orchestrator with session and
   compliance hooks
+- **Cross-Database Reconciliation:** new `cross_database_reconciler.py` heals
+  drift across `production.db`, `analytics.db` and related stores.
+- **Event Rate Monitoring:** `database_event_monitor.py` aggregates metrics in
+  `analytics.db` and alerts on anomalous activity.
+- **Point-in-Time Snapshots:** `point_in_time_backup.py` provides timestamped
+  SQLite backups with restore support.
 - **Placeholder Auditing:** detection script logs findings to `analytics.db:code_audit_log`
 - **Disaster Recovery Validation:** `UnifiedDisasterRecoverySystem` verifies external backup roots and restores files from `production_backup`
 - **Correction History:** cleanup and fix events recorded in `analytics.db:correction_history`

@@ -8,6 +8,7 @@ from pathlib import Path
 
 from unified_monitoring_optimization_system import (
     detect_anomalies,
+    record_quantum_score,
     push_metrics,
     auto_heal_session,
 )
@@ -75,4 +76,3 @@ def test_auto_heal_session_restarts_on_anomaly() -> None:
     assert restarted is True
     assert mgr.started == 1
     assert mgr.ended == 1
-
