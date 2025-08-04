@@ -32,6 +32,14 @@ from .template_synchronizer import _log_audit_real
 from utils.log_utils import _log_event
 from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
+# Quantum scoring helper
+try:  # pragma: no cover - optional dependency
+    from quantum_algorithm_library_expansion import quantum_text_score
+except ImportError:  # pragma: no cover - dependency not installed
+    def quantum_text_score(text: str) -> float:
+        """Return a default score when quantum library is unavailable."""
+        return 0.0
+
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 LOGS_DIR = Path("artifacts/logs/template_rendering")
@@ -106,6 +114,35 @@ def extract_patterns(templates: List[str]) -> List[str]:
         for i in range(len(words) - 2):
             patterns.add(" ".join(words[i : i + 3]))
     return list(patterns)
+
+
+def rank_patterns_quantum(patterns: List[str], target: str) -> List[tuple[str, float]]:
+    """Rank patterns against ``target`` using quantum-inspired scoring.
+
+    Each pattern receives a score based on the absolute difference between
+    its quantum text score and that of ``target``. Patterns with scores
+    closer to the target are ranked higher.
+
+    Parameters
+    ----------
+    patterns:
+        Mined pattern strings to rank.
+    target:
+        Reference string for comparison.
+
+    Returns
+    -------
+    List[tuple[str, float]]
+        List of ``(pattern, score)`` tuples sorted by descending score.
+    """
+
+    target_score = quantum_text_score(target)
+    scored = []
+    for pat in patterns:
+        score = 1.0 - abs(quantum_text_score(pat) - target_score)
+        scored.append((pat, score))
+    scored.sort(key=lambda x: x[1], reverse=True)
+    return scored
 
 
 def cluster_templates(features: List[List[float]], n_clusters: int = 5) -> List[int]:
@@ -375,6 +412,7 @@ def validate_mining(expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_
 
 __all__ = [
     "extract_patterns",
+    "rank_patterns_quantum",
     "cluster_templates",
     "mine_patterns",
     "get_clusters",
