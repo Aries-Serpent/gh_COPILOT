@@ -238,8 +238,9 @@ python archive/consolidated_scripts/enterprise_database_driven_documentation_man
 ```
 This script pulls templates from both `documentation.db` and `production.db` and outputs Markdown, HTML and JSON files under `logs/template_rendering/`. Each render is logged to `analytics.db` and progress appears under `dashboard/compliance`.
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
-are thin CLI wrappers. They delegate to the core implementations under
-``validation.protocols.session`` and ``session_management_consolidation_executor``.
+are stable CLI wrappers. They delegate to the core implementations under
+``validation.protocols.session`` and ``session_management_consolidation_executor`` and can
+be used directly in automation scripts.
 - ``unified_session_management_system.py`` starts new sessions via enterprise compliance checks.
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
@@ -286,14 +287,14 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 python simplified_quantum_integration_orchestrator.py
 ```
 
-By default the orchestrator uses the simulator. Flags `--hardware` and `--backend` are placeholders that currently have no effect; they will enable IBM Quantum backends once the planned `QuantumExecutor` module arrives.
+By default the orchestrator uses the simulator. Flags `--hardware` and `--backend` are placeholders with no effect; real-device execution is not available. A future `QuantumExecutor` module will handle IBM Quantum backends when hardware integration arrives.
 
 ```bash
 # placeholder flags; still executes on simulators
 python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
-Set `QISKIT_IBM_TOKEN` for future hardware execution. The value is ignored today and the orchestrator always falls back to simulation because hardware support and related modules are incomplete. See [docs/QUANTUM_HARDWARE_SETUP.md](docs/QUANTUM_HARDWARE_SETUP.md) for the integration roadmap.
+Set `QISKIT_IBM_TOKEN` for future hardware execution. The value is ignored today and the orchestrator always falls back to simulation because hardware support is not yet implemented. See [docs/QUANTUM_HARDWARE_SETUP.md](docs/QUANTUM_HARDWARE_SETUP.md) for the integration roadmap.
 
 ### Quantum Placeholder Modules
 

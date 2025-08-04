@@ -10,7 +10,9 @@
 ### **System Classification**
 The gh_COPILOT Toolkit v4.0 represents an enterprise-grade automation platform in active development that implements a database-first, unified system architecture with advanced AI integration capabilities. Several subsystems—including disaster recovery, the web dashboard, and the database synchronization engine—remain incomplete, and the current test suite reports multiple failures.
 
-Compliance and audit metrics are logged to `analytics.db` via the `EnterpriseComplianceValidator`.
+Compliance and audit metrics are logged to `analytics.db` via the
+`EnterpriseComplianceValidator`, and compliance scores are computed by the
+`WLC_SESSION_MANAGER` during session wrap-up.
 
 *All quantum modules run exclusively in simulation mode; any hardware configuration is currently ignored until future integration lands.*
 *Phase&nbsp;5 advanced AI features are partially integrated and not yet production ready.*
@@ -35,7 +37,7 @@ Prototype quantum-inspired communication utilities simulate secure SQL queries v
 
 ### **1. Unified Monitoring & Optimization System**
 **File**: [`unified_monitoring_optimization_system.py`](unified_monitoring_optimization_system.py)
-Status: thin wrapper for `scripts.monitoring.unified_monitoring_optimization_system`
+Status: stable CLI wrapper for `scripts.monitoring.unified_monitoring_optimization_system`
 
 #### **Technical Intent**
 - **Primary Function**: Centralized monitoring, performance optimization, and analytics with optional quantum-inspired enhancements
@@ -74,7 +76,7 @@ class UnifiedMonitoringOptimizationSystem:
 
 ### **2. Unified Script Generation System**
 **File**: [`unified_script_generation_system.py`](unified_script_generation_system.py)
-Status: thin wrapper for `scripts.utilities.unified_script_generation_system`
+Status: stable CLI wrapper for `scripts.utilities.unified_script_generation_system`
 
 #### **Technical Intent**
 - **Primary Function**: Enterprise-grade script generation with template intelligence and optional quantum-inspired enhancements (simulation only)
@@ -112,7 +114,7 @@ class UnifiedScriptGenerationSystem:
 
 ### **3. Unified Session Management System**
 **File**: [`unified_session_management_system.py`](unified_session_management_system.py)
-Status: thin wrapper for `scripts.utilities.unified_session_management_system`
+Status: stable CLI wrapper for `scripts.utilities.unified_session_management_system`
 
 #### **Technical Intent**
 - **Primary Function**: Enterprise-compliant session management with comprehensive integrity validation
@@ -148,7 +150,7 @@ class UnifiedSessionManagementSystem:
 
 ### **4. Unified Disaster Recovery System**
 **File**: [`unified_disaster_recovery_system.py`](unified_disaster_recovery_system.py)
-Status: thin wrapper for `scripts.utilities.unified_disaster_recovery_system`
+Status: stable CLI wrapper for `scripts.utilities.unified_disaster_recovery_system`
 
 #### **Technical Intent**
 - **Primary Function**: Enterprise-grade backup, recovery, and business continuity
@@ -224,7 +226,7 @@ class UnifiedLegacyCleanupSystem:
 
 ### **6. Web-GUI Integration System**
 **File**: [`web_gui_integration_system.py`](web_gui_integration_system.py)
-Status: thin wrapper for `scripts.utilities.web_gui_integration_system`
+Status: stable CLI wrapper for `scripts.utilities.web_gui_integration_system`
 
 #### **Technical Intent**
 - **Primary Function**: Enterprise-grade web interface for system management and monitoring
