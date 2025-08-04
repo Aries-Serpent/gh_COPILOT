@@ -3,7 +3,10 @@
 This module re-exports :class:`EnterpriseUtility` and :func:`collect_metrics`
 from ``scripts.monitoring.unified_monitoring_optimization_system`` and
 provides a ``push_metrics`` helper used by tests and lightweight integrations
-to store arbitrary monitoring metrics in ``analytics.db``.
+to store arbitrary monitoring metrics in ``analytics.db``.  It also exposes
+``auto_heal_session`` which couples anomaly detection with the session
+management subsystem to restart sessions when system metrics deviate
+significantly from learned baselines.
 """
 
 from __future__ import annotations
@@ -32,6 +35,7 @@ __all__ = [
     "collect_metrics",
     "QuantumInterface",
     "collect_metrics",
+    "auto_heal_session",
 ]
 
 
@@ -172,6 +176,51 @@ def detect_anomalies(
     model = IsolationForest(contamination=contamination, random_state=42)
     preds = model.fit_predict(data)
     return [m for m, pred in zip(history_list, preds) if pred == -1]
+
+
+def auto_heal_session(
+    history: Iterable[Dict[str, float]],
+    *,
+    contamination: float = 0.1,
+    manager: Optional["UnifiedSessionManagementSystem"] = None,
+) -> bool:
+    """Restart the session when metric anomalies are detected.
+
+    Parameters
+    ----------
+    history:
+        Iterable of metric mappings ordered chronologically.
+    contamination:
+        Proportion of outliers passed to :func:`detect_anomalies`.
+    manager:
+        Optional session manager.  When omitted a new
+        :class:`scripts.utilities.unified_session_management_system.UnifiedSessionManagementSystem`
+        instance is created.
+
+    Returns
+    -------
+    bool
+        ``True`` when a restart was attempted due to detected anomalies.
+    """
+
+    anomalies = detect_anomalies(history, contamination=contamination)
+    if not anomalies:
+        return False
+    if manager is None:
+        from scripts.utilities.unified_session_management_system import (
+            UnifiedSessionManagementSystem,
+        )
+
+        manager = UnifiedSessionManagementSystem()
+    try:
+        try:
+            manager.end_session()
+        except Exception:
+            pass
+        manager.start_session()
+        return True
+    except Exception:
+        return False
 
 
 class QuantumInterface:
