@@ -206,9 +206,16 @@ def collect_metrics(session_id: str | None = None) -> dict[str, float]:
     return {"session_id": sid, **metrics}
 
 
-def quantum_hook(metrics: dict[str, float]) -> None:
-    """Placeholder for future quantum metric processing."""
-    _ = metrics
+from quantum_algorithm_library_expansion import quantum_score_stub
+
+
+def quantum_hook(metrics: dict[str, float]) -> float:
+    """Compute a quantum-inspired score for unified metrics."""
+
+    values = [metrics.get("cpu_percent", 0.0), metrics.get("memory_percent", 0.0), metrics.get("disk_percent", 0.0)]
+    score = quantum_score_stub(values)
+    metrics["quantum_score"] = score
+    return score
 
 
 def main():

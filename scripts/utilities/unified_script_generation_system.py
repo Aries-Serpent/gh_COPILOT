@@ -28,6 +28,7 @@ from utils.visual_progress import start_indicator, progress_bar, end_indicator
 from ml_pattern_recognition import PatternRecognizer
 from template_engine import pattern_mining_engine
 from quantum_optimizer import QuantumOptimizer
+from unified_legacy_cleanup_system import UnifiedLegacyCleanupSystem
 try:
     from unified_session_management_system import prevent_recursion
 except Exception:  # pragma: no cover - fallback if session system unavailable
@@ -225,6 +226,11 @@ class EnterpriseUtility:
 
             self.logger.info(f"{TEXT_INDICATORS['success']} Generated template stored at {output_file}")
 
+            from unified_legacy_cleanup_system import UnifiedLegacyCleanupSystem
+
+            cleanup = UnifiedLegacyCleanupSystem(self.workspace_path)
+            cleanup.purge_superseded_scripts(generated_dir)
+
             validator = DualCopilotValidator()
             valid = validator.validate(ValidationResult(output_file=output_file, progress_complete=pbar.n == 100))
             secondary = SecondaryCopilotValidator(self.logger)
@@ -238,6 +244,8 @@ class EnterpriseUtility:
             generated_templates = list(generated_dir.glob("*.txt"))
             if generated_templates:
                 self.cluster_templates(generated_templates, n_clusters=3)
+                cleanup = UnifiedLegacyCleanupSystem(self.workspace_path)
+                cleanup.purge_generated_templates(generated_dir)
 
             end_indicator("Script Generation Utility", start_time)
             return True
@@ -245,7 +253,6 @@ class EnterpriseUtility:
             self.logger.error(f"{TEXT_INDICATORS['error']} Generation failed: {exc}")
             end_indicator("Script Generation Utility", start_time)
             return False
-
 
 @prevent_recursion
 def main():

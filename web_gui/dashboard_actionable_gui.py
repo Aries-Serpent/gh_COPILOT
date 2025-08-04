@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 
-METRICS_PATH = Path("dashboard/metrics.json")
+METRICS_PATH = Path("dashboard/compliance/metrics.json")
 CORRECTIONS_DIR = Path("dashboard/compliance")
 ANALYTICS_DB = Path("databases/analytics.db")
 

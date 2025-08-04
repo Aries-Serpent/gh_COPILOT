@@ -8,7 +8,9 @@ from pathlib import Path
 
 from unified_monitoring_optimization_system import (
     detect_anomalies,
+    record_quantum_score,
     push_metrics,
+    auto_heal_session,
 )
 
 
@@ -47,3 +49,30 @@ def test_detect_anomalies_flags_outlier() -> None:
     assert history[-1] in anomalies
     assert len(anomalies) == 1
 
+
+def test_auto_heal_session_restarts_on_anomaly() -> None:
+    """Anomalies should trigger a restart via the session manager."""
+
+    class DummyManager:
+        def __init__(self) -> None:
+            self.started = 0
+            self.ended = 0
+
+        def start_session(self) -> None:  # pragma: no cover - simple increment
+            self.started += 1
+
+        def end_session(self) -> None:  # pragma: no cover - simple increment
+            self.ended += 1
+
+    history = [
+        {"cpu": 5.0, "mem": 10.0},
+        {"cpu": 6.0, "mem": 11.0},
+        {"cpu": 95.0, "mem": 99.0},
+    ]
+
+    mgr = DummyManager()
+    restarted = auto_heal_session(history, contamination=0.34, manager=mgr)
+
+    assert restarted is True
+    assert mgr.started == 1
+    assert mgr.ended == 1

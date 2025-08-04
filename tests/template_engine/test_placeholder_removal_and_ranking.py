@@ -97,7 +97,9 @@ def test_generate_integration_ready_code_removes_placeholders(tmp_path, monkeypa
         "template_engine.template_placeholder_remover.validate_no_recursive_folders",
         lambda: None,
     )
-    (workspace / "logs" / "template_rendering").mkdir(parents=True, exist_ok=True)
+    (workspace / "artifacts" / "logs" / "template_rendering").mkdir(
+        parents=True, exist_ok=True
+    )
     monkeypatch.chdir(workspace)
     path = gen.generate_integration_ready_code("demo")
     assert "{{UNKNOWN}}" not in path.read_text()
