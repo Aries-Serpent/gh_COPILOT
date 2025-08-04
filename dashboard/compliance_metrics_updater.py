@@ -65,6 +65,8 @@ class ComplianceMetricsUpdater:
     Update compliance metrics for the web dashboard.
     Integrates real-time metrics, violation/rollback alerts, and actionable GUI features.
     Validates all dashboard events are fed by analytics.db and correction logs.
+    Aggregates pattern mining quality indicators and objective similarity scores
+    to enhance compliance ranking.
     """
 
     def __init__(self, dashboard_dir: Path, *, test_mode: bool = False) -> None:
@@ -169,6 +171,36 @@ class ComplianceMetricsUpdater:
                     metrics["rollback_count"] = 0
                 penalty = 0.1 * metrics["violation_count"] + 0.05 * metrics["rollback_count"]
                 metrics["compliance_score"] = max(0.0, min(1.0, base_score - penalty))
+
+                # Pattern mining quality metrics
+                try:
+                    cur.execute(
+                        "SELECT inertia, silhouette FROM pattern_cluster_metrics ORDER BY ts DESC LIMIT 1"
+                    )
+                    row = cur.fetchone()
+                    if row:
+                        metrics["pattern_cluster_quality"] = {
+                            "inertia": float(row[0]),
+                            "silhouette": float(row[1]),
+                        }
+                    else:
+                        metrics["pattern_cluster_quality"] = {
+                            "inertia": 0.0,
+                            "silhouette": 0.0,
+                        }
+                except sqlite3.Error:
+                    metrics["pattern_cluster_quality"] = {
+                        "inertia": 0.0,
+                        "silhouette": 0.0,
+                    }
+
+                # Objective similarity scoring metric
+                try:
+                    cur.execute("SELECT AVG(score) FROM objective_similarity")
+                    avg = cur.fetchone()[0]
+                    metrics["average_similarity_score"] = float(avg) if avg is not None else 0.0
+                except sqlite3.Error:
+                    metrics["average_similarity_score"] = 0.0
             except Exception as e:
                 logging.error(f"Error fetching metrics: {e}")
         correction_summary = DASHBOARD_DIR / "correction_summary.json"
