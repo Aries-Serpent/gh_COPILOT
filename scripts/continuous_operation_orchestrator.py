@@ -44,20 +44,21 @@ import numpy as np
 from tqdm import tqdm
 
 from utils.cross_platform_paths import CrossPlatformPathManager
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules import compliance
+from utils.validation_utils import run_dual_copilot_validation
 
 # 🚨 CRITICAL: Anti-recursion validation
 
 
 # Validate environment compliance before proceeding
 if os.getenv("GH_COPILOT_DISABLE_VALIDATION") != "1":
-    validate_enterprise_operation()
+    compliance.validate_enterprise_operation()
 
 
 def primary_validate() -> bool:
     """Run primary environment validation."""
     logging.info("PRIMARY VALIDATION: continuous operation environment")
-    return validate_enterprise_operation()
+    return compliance.validate_enterprise_operation()
 
 
 @dataclass
@@ -161,7 +162,7 @@ class ContinuousOperationOrchestrator:
     def primary_validate(self) -> bool:
         """Primary validation step for continuous operation."""
         logging.info("PRIMARY VALIDATION: continuous operation environment")
-        return validate_enterprise_operation()
+        return compliance.validate_enterprise_operation()
 
     def secondary_validate(self) -> bool:
         """Run secondary validation after continuous operation."""
@@ -223,12 +224,17 @@ class ContinuousOperationOrchestrator:
         self._log_cycle_completion_summary(cycle_results)
 
         # Dual Copilot validation
-        logging.info("🔍 PRIMARY VALIDATION")
-        primary_ok = self.primary_validate()
-        logging.info("🔍 SECONDARY VALIDATION")
-        secondary_ok = self.secondary_validate()
-        cycle_results["primary_validation"] = primary_ok
-        cycle_results["secondary_validation"] = secondary_ok
+        def _primary():
+            logging.info("🔍 PRIMARY VALIDATION")
+            return self.primary_validate()
+
+        def _secondary():
+            logging.info("🔍 SECONDARY VALIDATION")
+            return self.secondary_validate()
+
+        validation_passed = run_dual_copilot_validation(_primary, _secondary)
+        cycle_results["primary_validation"] = validation_passed
+        cycle_results["secondary_validation"] = validation_passed
 
         return cycle_results
 
@@ -375,7 +381,15 @@ class ContinuousOperationOrchestrator:
         logging.info(f"Duration: {duration_hours} hours")
         logging.info(f"Target Excellence: {self.target_excellence:.1%}")
 
-        primary_validate()
+        def _primary_start():
+            logging.info("🔍 PRIMARY VALIDATION")
+            return primary_validate()
+
+        def _secondary_start():
+            logging.info("🔍 SECONDARY VALIDATION")
+            return self.secondary_validate()
+
+        run_dual_copilot_validation(_primary_start, _secondary_start)
 
         end_time = self.start_time + timedelta(hours=duration_hours)
         operation_results = {

@@ -6,6 +6,7 @@ from typing import Dict
 
 from quantum.utils.backend_provider import get_backend
 from quantum.utils.audit_log import log_quantum_audit
+from . import ensure_not_production
 
 try:  # pragma: no cover - optional dependency
     from qiskit import QuantumCircuit, transpile
@@ -16,6 +17,7 @@ except Exception:  # pragma: no cover
 
 def run_entanglement_correction(*, use_hardware: bool = False) -> Dict[str, int]:
     """Create a Bell pair, apply an X error, and correct it."""
+    ensure_not_production()
     backend = get_backend(use_hardware=use_hardware) if QISKIT_AVAILABLE else None
     if backend is not None:
         qc = QuantumCircuit(2, 2)

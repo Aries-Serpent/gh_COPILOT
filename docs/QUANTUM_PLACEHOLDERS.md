@@ -26,9 +26,15 @@ Refer to [README.md](../README.md) for a high-level overview of how these placeh
 - Placeholder modules are excluded from production builds.
 
 ## Roadmap
-1. Implement quantum optimization engine hooks.
-2. Integrate hardware or simulator backends.
-3. Expose results to analytics dashboards.
+
+- [quantum\_placeholder\_algorithm](../scripts/quantum_placeholders/quantum_placeholder_algorithm.py)
+  – evolve into a full optimizer module under `quantum/`.
+- [quantum\_annealing](../scripts/quantum_placeholders/quantum_annealing.py)
+  – migrate to a hardware-backed annealing implementation.
+- [quantum\_entanglement\_correction](../scripts/quantum_placeholders/quantum_entanglement_correction.py)
+  – replace with robust entanglement correction utilities.
+- [quantum\_superposition\_search](../scripts/quantum_placeholders/quantum_superposition_search.py)
+  – expand into comprehensive superposition search routines.
 
 This document tracks the placeholder status and will be updated as the
 quantum roadmap progresses.

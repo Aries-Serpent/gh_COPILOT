@@ -42,8 +42,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules import compliance
 from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.validation_utils import run_dual_copilot_validation
 
 
 # 🚨 CRITICAL: Anti-recursion validation
@@ -133,7 +134,7 @@ class EnterpriseDeploymentOrchestrator:
 
     def __init__(self, workspace_path: Optional[str] = None):
         # Validate enterprise operation before initializing
-        validate_enterprise_operation()
+        compliance.validate_enterprise_operation()
 
         # 🚀 MANDATORY: Start time logging with enterprise formatting
         self.start_time = datetime.now()
@@ -195,8 +196,17 @@ class EnterpriseDeploymentOrchestrator:
     def execute_enterprise_deployment(self) -> Dict[str, Any]:
         """🚀 Execute comprehensive enterprise deployment"""
 
-        validate_enterprise_operation()
-        primary_validate()
+        compliance.validate_enterprise_operation()
+
+        def _primary_start():
+            logging.info("🔍 PRIMARY VALIDATION")
+            return primary_validate()
+
+        def _secondary_start():
+            logging.info("🔍 SECONDARY VALIDATION")
+            return self.secondary_validate()
+
+        run_dual_copilot_validation(_primary_start, _secondary_start)
 
         # 🚀 MANDATORY: Visual processing indicators
         logging.info(f"🚀 ENTERPRISE DEPLOYMENT STARTED: {self.session_id}")
@@ -275,12 +285,17 @@ class EnterpriseDeploymentOrchestrator:
         self._log_deployment_summary(deployment_results)
 
         # Dual Copilot validation steps
-        logging.info("🔍 PRIMARY VALIDATION")
-        primary_ok = self.primary_validate()
-        logging.info("🔍 SECONDARY VALIDATION")
-        secondary_ok = self.secondary_validate()
-        deployment_results["primary_validation"] = primary_ok
-        deployment_results["secondary_validation"] = secondary_ok
+        def _primary():
+            logging.info("🔍 PRIMARY VALIDATION")
+            return self.primary_validate()
+
+        def _secondary():
+            logging.info("🔍 SECONDARY VALIDATION")
+            return self.secondary_validate()
+
+        validation_passed = run_dual_copilot_validation(_primary, _secondary)
+        deployment_results["primary_validation"] = validation_passed
+        deployment_results["secondary_validation"] = validation_passed
 
         return deployment_results
 
