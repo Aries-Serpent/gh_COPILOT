@@ -9,6 +9,8 @@ TODO: Implement real quantum algorithm integration as detailed in the whitepaper
 
 from __future__ import annotations
 
+PLACEHOLDER_ONLY = True
+
 from . import ensure_not_production
 
 

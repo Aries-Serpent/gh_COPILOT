@@ -32,6 +32,12 @@ def generate_script_from_repository(workspace: Path, output_name: str) -> bool:
             return False
 
         src_file = workspace / row[0]
+        if "scripts/quantum_placeholders" in src_file.as_posix():
+            logger.error(
+                "%s Placeholder modules are excluded from packaging",
+                TEXT_INDICATORS["error"],
+            )
+            return False
         if not src_file.exists():
             logger.error("%s Missing script at %s", TEXT_INDICATORS["error"], src_file)
             return False

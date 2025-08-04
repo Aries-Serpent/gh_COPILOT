@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import os
 
+PLACEHOLDER_ONLY = True
+
 
 def ensure_not_production() -> None:
     """Raise an error if placeholders load in production."""
