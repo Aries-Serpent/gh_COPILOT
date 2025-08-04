@@ -1,6 +1,8 @@
 # Quantum Hardware Setup
 
-Hardware execution is not yet supported. This guide documents the preparatory steps for future IBM Quantum integration. All operations currently run on simulators even when tokens or backend names are provided.
+This guide outlines configuration steps for IBM Quantum integration. Current releases
+use simulators by default, but supplying tokens and backend names prepares the system
+for real-device execution as soon as access is enabled.
 
 ## 1. Acquire a Token
 1. Create an IBM Quantum account.
@@ -14,23 +16,25 @@ Hardware execution is not yet supported. This guide documents the preparatory st
    {"QISKIT_IBM_TOKEN": "your_token_here"}
    ```
 
-## 2. Optional Backend Selection *(placeholder)*
+## 2. Backend Selection
 Specify a backend name via `IBM_BACKEND`:
 ```bash
 export IBM_BACKEND="ibmq_qasm_simulator"
 ```
-The value is recorded for future use, but all executions fall back to the default simulator regardless of this setting.
+The orchestrator attempts to use this backend; if unavailable it falls back to the default simulator.
 
-## 3. CLI Usage *(flags are inert)*
-Use the executor CLI or orchestrator to demonstrate where hardware flags will eventually apply:
+## 3. CLI Usage
+Use the executor CLI or orchestrator with hardware flags:
 ```bash
-python -m quantum.cli.executor_cli --use-hardware --backend ibm_nairobi  # no-op
-python quantum_integration_orchestrator.py --hardware  # no-op
+python -m quantum.cli.executor_cli --use-hardware --backend ibm_nairobi
+python quantum_integration_orchestrator.py --hardware
 ```
-These options merely check for `QISKIT_IBM_TOKEN` and always execute on simulators; backend selection is ignored.
+If the specified backend is unavailable, execution falls back to simulators with a warning.
 
 ## 4. Expected Outputs
-Hardware backends are not invoked. Logs always reflect simulator usage, emitting a warning when hardware options are requested.
+When hardware access is configured, logs reflect the chosen backend. Without access,
+the system logs a fallback message and uses the simulator.
 
 ## 5. Roadmap
-Future releases will introduce a `QuantumExecutor` module to enable real hardware execution once IBM backend support is finalized.
+Upcoming releases will introduce a `QuantumExecutor` module that manages credential
+authentication, backend selection, and automatic simulator fallback.
