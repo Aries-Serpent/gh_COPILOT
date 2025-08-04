@@ -18,6 +18,26 @@ class MockBackend:
         return Result()
 
 
+class MockHardwareBackend(MockBackend):
+    name = "hardware"
+
+    class _Cfg:
+        simulator = False
+
+    def configuration(self):
+        return self._Cfg()
+
+
+class MockSimulatorBackend(MockBackend):
+    name = "simulator"
+
+    class _Cfg:
+        simulator = True
+
+    def configuration(self):
+        return self._Cfg()
+
+
 class MockProvider:
     def __init__(self, *_, **__):
         pass
@@ -28,10 +48,12 @@ class MockProvider:
 
 @pytest.mark.skipif(not qo.QISKIT_AVAILABLE, reason="Qiskit not available")
 def test_configure_backend_hardware(monkeypatch):
-    monkeypatch.setattr(qo, "IBMProvider", lambda token=None: MockProvider())
+    monkeypatch.setattr(
+        qo, "get_backend", lambda name, use_hardware: MockHardwareBackend()
+    )
     opt = QuantumOptimizer(objective, [(-1, 1)], method="simulated_annealing")
     backend = opt.configure_backend("mock_backend", use_hardware=True)
-    assert backend is opt.backend
+    assert isinstance(backend, MockHardwareBackend)
     assert opt.use_hardware
 
 
@@ -40,8 +62,10 @@ def test_configure_backend_fallback(monkeypatch):
     def bad_provider(*_, **__):
         raise RuntimeError("bad credentials")
 
-    monkeypatch.setattr(qo, "IBMProvider", bad_provider)
+    monkeypatch.setattr(
+        qo, "get_backend", lambda name, use_hardware: MockSimulatorBackend()
+    )
     opt = QuantumOptimizer(objective, [(-1, 1)], method="simulated_annealing")
     backend = opt.configure_backend("mock_backend", use_hardware=True)
-    assert backend is opt.backend
+    assert isinstance(backend, MockSimulatorBackend)
     assert opt.use_hardware is False

@@ -4,6 +4,9 @@
 > **Note**
 > All quantum features operate in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
 
+### Hardware Requirements
+Running against IBM Quantum hardware requires the `qiskit` and `qiskit-ibm-provider` packages, a valid API token set via `QISKIT_IBM_TOKEN`, and the environment variable `QUANTUM_USE_HARDWARE=1`. Without these settings the library falls back to the local Aer simulator.
+
 ### Executive Summary
 The PIS (Plan Issued Statement) Framework integrates quantum optimization algorithms to achieve unprecedented performance improvements in code analysis, error detection, and compliance validation. The latest update introduces the **Quantum Database Search** module for Grover-based queries.
 

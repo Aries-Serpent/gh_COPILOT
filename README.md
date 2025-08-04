@@ -101,6 +101,7 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - PowerShell (for Windows automation)
 - SQLite3
 - Required packages: `pip install -r requirements.txt` (includes `py7zr` for 7z archive support)
+- Optional for IBM Quantum hardware: install `qiskit-ibm-provider` and set `QUANTUM_USE_HARDWARE=1` with a valid `QISKIT_IBM_TOKEN`; otherwise the toolkit runs in simulator mode
 
 ### **Installation & Setup**
 ```bash
