@@ -4,13 +4,16 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 from typing import Callable, Iterable, Tuple
 
 from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from scripts.validation.primary_copilot_executor import PrimaryCopilotExecutor, ProcessPhase
 from scripts.monitoring.unified_monitoring_optimization_system import (
     EnterpriseUtility,
+    collect_metrics,
 )
+from utils.log_utils import _log_event
 
 
 class DualCopilotOrchestrator:
@@ -32,6 +35,7 @@ class DualCopilotOrchestrator:
         timeout_minutes: int = 30,
     ) -> Tuple[bool, bool, dict]:
         """Execute primary callable then validate targets, returning metrics."""
+        start_time = datetime.utcnow()
         self.logger.info("[DUAL] Starting primary operation")
 
         executor = PrimaryCopilotExecutor("Primary Operation", timeout_minutes, self.logger)
@@ -51,4 +55,17 @@ class DualCopilotOrchestrator:
         except Exception:  # pragma: no cover - best effort monitoring
             self.logger.exception("[DUAL] Monitoring execution failed")
 
-        return primary_success, validation_success
+        metrics = collect_metrics()
+        end_time = datetime.utcnow()
+        _log_event(
+            {
+                "event": "dual_copilot_run",
+                "primary_success": primary_success,
+                "validation_success": validation_success,
+                "start_time": start_time.isoformat(),
+                "end_time": end_time.isoformat(),
+                **metrics,
+            }
+        )
+
+        return primary_success, validation_success, metrics
