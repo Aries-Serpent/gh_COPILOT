@@ -10,6 +10,7 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 import os
 from pathlib import Path
 from utils.lessons_learned_integrator import fetch_lessons_by_tag
+from quantum.utils.backend_provider import get_backend
 
 try:
     from qiskit import QuantumCircuit, Aer, execute
@@ -119,7 +120,11 @@ class QuantumOptimizer:
     - Logs optimization metrics for compliance and reproducibility
 
     Note:
-        All quantum routines execute in simulation unless `qiskit-ibm-provider` is installed and configured with `QISKIT_IBM_TOKEN`.
+        Backends are resolved via :func:`quantum.utils.backend_provider.get_backend`.
+        When ``use_hardware`` is ``True`` the optimizer attempts to run on an
+        IBM Quantum device using credentials supplied via ``QISKIT_IBM_TOKEN``
+        (or the ``token`` argument). If hardware access is unavailable the
+        optimizer automatically falls back to local simulation.
     """
 
     def __init__(
@@ -153,10 +158,60 @@ class QuantumOptimizer:
             chunk_anti_recursion_validation()
         self._validate_init()
 
-    def set_backend(self, backend: Any, use_hardware: bool = False) -> None:
-        """Set quantum backend for optimizers."""
-        self.backend = backend
-        self.use_hardware = use_hardware
+    def set_backend(
+        self,
+        backend: Any | None,
+        use_hardware: bool = False,
+        backend_name: str = "ibmq_qasm_simulator",
+    ) -> None:
+        """Set quantum backend for optimizers.
+
+        When ``backend`` is ``None`` this method acquires a backend via
+        :func:`quantum.utils.backend_provider.get_backend`, preferring IBM
+        Quantum hardware when ``use_hardware`` is ``True``. If hardware access
+        fails or a simulator is returned, ``self.use_hardware`` is set to
+        ``False`` and the local simulator is used.
+        """
+        if backend is None:
+            backend = get_backend(backend_name, use_hardware=use_hardware)
+            is_hardware = False
+            if backend is not None and use_hardware:
+                try:
+                    is_hardware = not backend.configuration().simulator
+                except Exception:
+                    is_hardware = False
+            self.backend = backend
+            self.use_hardware = is_hardware
+        else:
+            self.backend = backend
+            self.use_hardware = use_hardware
+
+        backend_label = getattr(self.backend, "name", str(self.backend))
+        self.log_event(
+            "[QUANTUM_BACKEND]",
+            {"backend": backend_label, "hardware": self.use_hardware},
+        )
+
+    def configure_backend(
+        self,
+        backend_name: str = "ibmq_qasm_simulator",
+        use_hardware: bool = False,
+        token: Optional[str] = None,
+    ) -> Any:
+        """Acquire and configure a quantum backend.
+
+        Credentials may be supplied via ``token`` or the ``QISKIT_IBM_TOKEN``
+        environment variable. When ``use_hardware`` is ``True`` an IBM Quantum
+        backend is requested; otherwise the local simulator is used. Raises
+        ``ImportError`` if no backend can be obtained.
+        """
+        if token:
+            os.environ.setdefault("QISKIT_IBM_TOKEN", token)
+        backend = get_backend(backend_name, use_hardware=use_hardware)
+        self.set_backend(backend, use_hardware, backend_name=backend_name)
+        if backend is not None:
+            return backend
+        raise ImportError("No quantum backend available")
 
     def _validate_init(self):
         if not callable(self.objective_function):
@@ -177,17 +232,30 @@ class QuantumOptimizer:
         # Optionally, persist to analytics.db or compliance logs
 
     def run(self, x0: Optional[np.ndarray] = None, **kwargs) -> Dict[str, Any]:
-        """
-        Run the selected optimization routine.
+        """Run the selected optimization routine.
 
         Args:
             x0: Initial guess for variables (if required by method).
+            backend_name: Optional IBM backend name when requesting hardware.
+            token: Optional IBM Quantum API token.
             kwargs: Additional arguments passed to optimizer.
 
         Returns:
             Dictionary containing result, metrics, and full history.
         """
-        self.log_event("optimization_start", {"method": self.method, "bounds": self.variable_bounds})
+        backend_name = kwargs.pop("backend_name", "ibmq_qasm_simulator")
+        token = kwargs.pop("token", None)
+        if self.use_hardware and self.backend is None:
+            try:
+                self.configure_backend(
+                    backend_name=backend_name, use_hardware=True, token=token
+                )
+            except Exception:
+                self.use_hardware = False
+
+        self.log_event(
+            "optimization_start", {"method": self.method, "bounds": self.variable_bounds}
+        )
         start_time = datetime.utcnow()
         result = None
 
@@ -212,7 +280,10 @@ class QuantumOptimizer:
         self.metrics["elapsed_seconds"] = elapsed
         self.log_event(
             "optimization_complete",
-            {"elapsed_seconds": elapsed, "best_result": result.get("best_result") if result else None},
+            {
+                "elapsed_seconds": elapsed,
+                "best_result": result.get("best_result") if result else None,
+            },
         )
         summary = {"result": result, "metrics": self.metrics, "history": self.history}
         return summary

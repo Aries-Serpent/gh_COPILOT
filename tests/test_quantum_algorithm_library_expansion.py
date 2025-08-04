@@ -80,7 +80,7 @@ def test_quantum_score_stub():
 
 
 def test_quantum_text_score_fallback(monkeypatch):
-    monkeypatch.setattr(qalexp, "get_backend", lambda **_: None)
+    monkeypatch.setattr(qalexp, "configure_backend", lambda **_: None)
     score = qalexp.quantum_text_score("abc", use_hardware=True)
     assert 0.0 <= score <= 1.0
 
@@ -105,7 +105,7 @@ def test_quantum_text_score_backend(monkeypatch):
         def run(self, *_, **__):
             return DummyJob()
 
-    monkeypatch.setattr(qalexp, "get_backend", lambda **_: DummyBackend())
+    monkeypatch.setattr(qalexp, "configure_backend", lambda **_: DummyBackend())
 
     score = qalexp.quantum_text_score("abc", use_hardware=True)
     assert 0.0 <= score <= 1.0
