@@ -19,7 +19,8 @@ from utils.cross_platform_paths import CrossPlatformPathManager
 import py7zr  # pyright: ignore[reportMissingImports]
 from tqdm import tqdm
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules import compliance
+from utils.validation_utils import run_dual_copilot_validation
 
 from .database_migration_corrector import DatabaseMigrationCorrector
 from .size_compliance_checker import check_database_sizes
@@ -31,7 +32,7 @@ py7zr = cast(Any, py7zr)
 def secondary_validate() -> bool:
     """Run secondary validation mirroring :func:`validate_enterprise_operation`."""
     logging.info("SECONDARY VALIDATION: enterprise operation")
-    return validate_enterprise_operation()
+    return compliance.validate_enterprise_operation()
 
 
 logger = logging.getLogger(__name__)
@@ -218,7 +219,7 @@ def migrate_and_compress(
         Compression level used when archiving large tables.
     """
     logging.info("PRIMARY VALIDATION: enterprise operation")
-    validate_enterprise_operation()
+    compliance.validate_enterprise_operation()
     db_dir = workspace / "databases"
     enterprise_db = db_dir / "enterprise_assets.db"
     initialize_database(enterprise_db)
@@ -267,8 +268,16 @@ def migrate_and_compress(
         logger.info("Consolidation complete")
         logger.info("Backup Root: %s", BACKUP_ROOT)
         logger.info("Session Backup Directory: %s", session_backup_dir)
-        primary_validate()
-        secondary_validate()
+
+        def _primary():
+            logger.info("PRIMARY VALIDATION")
+            return primary_validate()
+
+        def _secondary():
+            logger.info("SECONDARY VALIDATION")
+            return secondary_validate()
+
+        run_dual_copilot_validation(_primary, _secondary)
     except Exception as exc:
         logger.exception("Migration failed: %s", exc)
         if conn is not None:
@@ -290,8 +299,6 @@ def migrate_and_compress(
         )
         logger.removeHandler(handler)
         handler.close()
-
-    secondary_validate()
 
 
 if __name__ == "__main__":
