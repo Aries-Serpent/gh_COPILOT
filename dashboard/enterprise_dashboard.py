@@ -48,12 +48,30 @@ def _load_metrics() -> dict[str, Any]:
     metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
     try:
         with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.row_factory = sqlite3.Row
             cur = conn.execute(
-                "SELECT composite_score FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
+                """
+                SELECT ruff_issues, tests_passed, tests_failed,
+                       placeholders_open, placeholders_resolved,
+                       composite_score
+                FROM code_quality_metrics
+                ORDER BY id DESC LIMIT 1
+                """
             )
             row = cur.fetchone()
             if row:
-                metrics["composite_score"] = row[0]
+                metrics["composite_score"] = row["composite_score"]
+                total_tests = row["tests_passed"] + row["tests_failed"]
+                total_ph = row["placeholders_open"] + row["placeholders_resolved"]
+                metrics["score_breakdown"] = {
+                    "ruff_issues": row["ruff_issues"],
+                    "tests_passed": row["tests_passed"],
+                    "tests_failed": row["tests_failed"],
+                    "placeholders_open": row["placeholders_open"],
+                    "placeholders_resolved": row["placeholders_resolved"],
+                    "test_pass_ratio": row["tests_passed"] / total_tests if total_tests else 0.0,
+                    "placeholder_resolution_ratio": row["placeholders_resolved"] / total_ph if total_ph else 1.0,
+                }
     except sqlite3.Error as exc:  # pragma: no cover - log and continue
         logging.error("Composite fetch error: %s", exc)
     return {"metrics": metrics, "notes": []}
