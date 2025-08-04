@@ -7,7 +7,9 @@
     "violation_count": 5,
     "rollback_count": 1,
     "auto_removal_count": 0,
-    "last_update": "2025-08-01T16:50:44"
+    "last_update": "2025-08-01T16:50:44",
+    "recursion_depth": 0,
+    "pid": 0
   },
   "status": "updated",
   "timestamp": "2025-08-01T16:50:44"

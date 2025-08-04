@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from pathlib import Path
 from types import SimpleNamespace
@@ -12,6 +13,7 @@ from enterprise_modules.compliance import (
     validate_environment,
     enforce_anti_recursion,
     ComplianceError,
+    MAX_RECURSION_DEPTH,
 )
 
 
@@ -77,3 +79,13 @@ def test_enforce_anti_recursion() -> None:
     enforce_anti_recursion(SimpleNamespace(recursion_depth=1))
     with pytest.raises(ComplianceError):
         enforce_anti_recursion(SimpleNamespace(recursion_depth=10))
+
+
+def test_enforce_anti_recursion_nested_limit() -> None:
+    ctx = SimpleNamespace()
+    for _ in range(MAX_RECURSION_DEPTH):
+        assert enforce_anti_recursion(ctx) is True
+        assert ctx.parent_pid == os.getppid()
+
+    with pytest.raises(ComplianceError):
+        enforce_anti_recursion(ctx)

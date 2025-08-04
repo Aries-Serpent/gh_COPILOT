@@ -140,10 +140,17 @@ def validate_environment() -> bool:
 
 
 def enforce_anti_recursion(context: object) -> bool:
-    """Ensure recursion depth does not exceed ``MAX_RECURSION_DEPTH``."""
+    """Ensure recursion depth does not exceed ``MAX_RECURSION_DEPTH``.
+
+    Records the parent process ID on the context and increments the
+    ``recursion_depth`` attribute for nested invocations.
+    """
     depth = getattr(context, "recursion_depth", 0)
-    if depth > MAX_RECURSION_DEPTH:
+    if depth >= MAX_RECURSION_DEPTH:
         raise ComplianceError("Recursion limit exceeded.")
+
+    setattr(context, "recursion_depth", depth + 1)
+    setattr(context, "parent_pid", os.getppid())
     return True
 
 
