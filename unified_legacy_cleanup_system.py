@@ -76,6 +76,45 @@ class UnifiedLegacyCleanupSystem(_BaseCleanup):
             db_path=self.analytics_db,
         )
 
+    def purge_superseded_scripts(
+        self, directory: Path, keep_latest: int = 1, dry_run: bool = False
+    ) -> list[Path]:
+        """Remove older generated scripts from ``directory``.
+
+        Parameters
+        ----------
+        directory:
+            Directory containing generated scripts.
+        keep_latest:
+            Number of most recent scripts to preserve.
+        dry_run:
+            When ``True`` no files are deleted.
+
+        Returns
+        -------
+        list[Path]
+            List of removed script paths.
+        """
+
+        files = sorted(
+            directory.glob("template_*.txt"),
+            key=lambda f: f.stat().st_mtime,
+            reverse=True,
+        )
+        removed: list[Path] = []
+        for path in files[keep_latest:]:
+            removed.append(path)
+            if dry_run:
+                continue
+            path.unlink(missing_ok=True)
+            log_cleanup_event(
+                str(path),
+                action="removed",
+                reason="superseded",
+                db_path=self.analytics_db,
+            )
+        return removed
+
     def run_cleanup(self, dry_run: bool = False) -> bool:
         """Run cleanup and return ``True`` on success."""
         with sqlite3.connect(self.analytics_db) as conn:
