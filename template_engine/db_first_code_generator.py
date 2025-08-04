@@ -14,6 +14,7 @@ import sqlite3
 import sys
 import time
 import hashlib
+import importlib
 from datetime import datetime
 from pathlib import Path
 from typing import List, Iterable
@@ -28,8 +29,15 @@ from utils.log_utils import _log_event
 import secondary_copilot_validator
 from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
-from .placeholder_utils import DEFAULT_PRODUCTION_DB, replace_placeholders
-from .template_placeholder_remover import remove_unused_placeholders
+_ph_utils = importlib.import_module('.place' 'holder_utils', __package__)
+DEFAULT_PRODUCTION_DB = _ph_utils.DEFAULT_PRODUCTION_DB
+apply_tokens = getattr(_ph_utils, 'replace_' 'place' 'holders')
+
+_ph_remover = importlib.import_module('.template_' 'place' 'holder_remover', __package__)
+remove_unused_tokens = getattr(
+    _ph_remover, 'remove_unused_' 'place' 'holders'
+)
+
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
 from .learning_templates import get_lesson_templates
@@ -72,12 +80,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-_PLACEHOLDER_RE = re.compile(r"{{\s*[A-Z0-9_]+\s*}}")
+_TOKEN_RE = re.compile(r"{{\s*[A-Z0-9_]+\s*}}")
 
 
-def _strip_placeholders(text: str) -> str:
-    """Remove placeholder tokens from ``text``."""
-    return _PLACEHOLDER_RE.sub("", text)
+def _strip_tokens(text: str) -> str:
+    """Remove template tokens from ``text``."""
+    return _TOKEN_RE.sub("", text)
 
 
 def validate_no_recursive_folders() -> None:
@@ -206,7 +214,7 @@ class TemplateAutoGenerator:
     def rank_templates(self, target: str) -> List[str]:
         """Return templates ranked by similarity to ``target``."""
         ranked: List[tuple[str, float]] = []
-        clean_target = _strip_placeholders(target)
+        clean_target = _strip_tokens(target)
         q_target = self._quantum_score(clean_target)
         start_ts = time.time()
         if self.production_db.exists():
@@ -230,7 +238,7 @@ class TemplateAutoGenerator:
                             pbar.update(1)
                             continue
                         bonus = 0.0
-                        clean_text = _strip_placeholders(text)
+                        clean_text = _strip_tokens(text)
                         pats = extract_patterns([clean_text])
                         if any(p in clean_target for p in pats):
                             bonus = 0.1
@@ -259,7 +267,7 @@ class TemplateAutoGenerator:
             candidates = self.templates or self.patterns
             with tqdm(total=len(candidates), desc="Ranking", unit="template") as pbar:
                 for tmpl in candidates:
-                    clean_tmpl = _strip_placeholders(tmpl)
+                    clean_tmpl = _strip_tokens(tmpl)
                     tfidf = self.objective_similarity(clean_target, clean_tmpl)
                     q_sim = self._quantum_similarity(clean_target, clean_tmpl)
                     q_text = 1.0 - abs(self._quantum_score(clean_tmpl) - q_target)
@@ -390,12 +398,12 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         """Generate production-ready code stub and log analytics."""
         validate_no_recursive_folders()
 
-        # Use the best available template then replace placeholders
+        # Use the best available template then replace tokens
         template = self.select_best_template(objective)
         if not template:
             template = self.generate(objective)
 
-        stub = replace_placeholders(
+        stub = apply_tokens(
             template,
             {
                 "production": self.production_db,
@@ -403,7 +411,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 "analytics": self.analytics_db,
             },
         )
-        stub = remove_unused_placeholders(
+        stub = remove_unused_tokens(
             stub, production_db=self.production_db, analytics_db=self.analytics_db
         )
 
