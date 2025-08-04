@@ -1,6 +1,6 @@
 # Quantum Hardware Setup
 
-This guide explains how to run gh_COPILOT components on IBM Quantum hardware.
+Hardware execution is not yet supported. This guide documents the preparatory steps for future IBM Quantum integration. All operations currently run on simulators even when tokens or backend names are provided.
 
 ## 1. Acquire a Token
 1. Create an IBM Quantum account.
@@ -19,18 +19,15 @@ Specify a backend name via `IBM_BACKEND`:
 ```bash
 export IBM_BACKEND="ibmq_qasm_simulator"
 ```
-If unset, an available hardware backend is chosen automatically when possible,
-otherwise the default simulator is used.
+The value is recorded for future use, but all executions fall back to the default simulator regardless of this setting.
 
 ## 3. CLI Usage
-Use the executor CLI or orchestrator to force hardware execution:
+Use the executor CLI or orchestrator to demonstrate where hardware flags will eventually apply (currently no-ops):
 ```bash
 python -m quantum.cli.executor_cli --use-hardware --backend ibm_nairobi
 python quantum_integration_orchestrator.py --hardware
 ```
-Both flags validate that `QISKIT_IBM_TOKEN` is present and select the requested
-backend. When no backend is supplied the orchestrator attempts automatic
-selection.
+Both flags validate that `QISKIT_IBM_TOKEN` is present but still run against simulators; backend selection is ignored.
 
 ## 4. Expected Outputs
-When hardware is available, logs include `[QUANTUM_BACKEND]` and the selected backend name. If initialization fails, a warning is emitted and the Aer simulator is used instead.
+Hardware backends are not invoked. Logs always reflect simulator usage, emitting a warning when hardware options are requested.
