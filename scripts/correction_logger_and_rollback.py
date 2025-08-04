@@ -133,6 +133,7 @@ class CorrectionLoggerRollback:
                     compliance_score REAL,
                     compliance_delta REAL,
                     rollback_reference TEXT,
+                    session_id TEXT,
                     process_id INTEGER,
                     script TEXT,
                     ts TEXT
@@ -166,6 +167,9 @@ class CorrectionLoggerRollback:
         correction_type: str = "general",
         compliance_score: float = 1.0,
         rollback_reference: Optional[str] = None,
+        correction_type: str = "general",
+        compliance_delta: float = 0.0,
+        session_id: Optional[str] = None,
     ) -> None:
         """
         Record a correction event in analytics.db with compliance score and rollback reference.
@@ -182,19 +186,7 @@ class CorrectionLoggerRollback:
                 compliance_score - prev_score if prev_score is not None else compliance_score
             )
             conn.execute(
-                """
-                INSERT INTO corrections (
-                    file_path,
-                    rationale,
-                    correction_type,
-                    compliance_score,
-                    compliance_delta,
-                    rollback_reference,
-                    process_id,
-                    script,
-                    ts
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
+                "INSERT INTO corrections (file_path, rationale, correction_type, compliance_score, compliance_delta, rollback_reference, session_id, ts) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     str(file_path),
                     rationale,
@@ -202,6 +194,7 @@ class CorrectionLoggerRollback:
                     compliance_score,
                     compliance_delta,
                     rollback_reference,
+                    session_id,
                     self.process_id,
                     file_path.name,
                     datetime.now().isoformat(),
@@ -219,6 +212,8 @@ class CorrectionLoggerRollback:
                 "correction_type": correction_type,
                 "score": compliance_score,
                 "delta": compliance_delta,
+                "correction_type": correction_type,
+                "session_id": session_id,
             },
             table="corrections",
             db_path=self.analytics_db,
@@ -306,6 +301,8 @@ class CorrectionLoggerRollback:
                     "Auto-rollback executed",
                     compliance_score=0.0,
                     rollback_reference=str(backup_path),
+                    correction_type="rollback",
+                    compliance_delta=0.0,
                 )
                 strategy = self.suggest_rollback_strategy(target)
                 logging.info(f"Suggested strategy: {strategy}")
@@ -346,7 +343,7 @@ class CorrectionLoggerRollback:
         self.status = "SUMMARIZING"
         with sqlite3.connect(self.analytics_db) as conn:
             cur = conn.execute(
-                "SELECT file_path, rationale, correction_type, compliance_score, compliance_delta, rollback_reference, ts, process_id, script "
+                "SELECT file_path, rationale, correction_type, compliance_score, compliance_delta, rollback_reference, ts, process_id, session_id, script "
                 "FROM corrections ORDER BY ts DESC"
             )
             corrections = cur.fetchall()
@@ -463,7 +460,14 @@ def main(
     rationale = "Corrected syntax error in example.txt"
     compliance_score = 0.95
     backup_path = workspace / "backups" / "example.txt.bak"
-    logger.log_change(target_file, rationale, compliance_score, str(backup_path))
+    logger.log_change(
+        target_file,
+        rationale,
+        compliance_score,
+        str(backup_path),
+        correction_type="manual",
+        compliance_delta=0.0,
+    )
     # Simulate rollback
     logger.auto_rollback(target_file, backup_path)
     # Summarize corrections
