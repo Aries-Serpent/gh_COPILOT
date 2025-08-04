@@ -129,8 +129,12 @@ class CorrectionLoggerRollback:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     file_path TEXT,
                     rationale TEXT,
+                    correction_type TEXT,
                     compliance_score REAL,
+                    compliance_delta REAL,
                     rollback_reference TEXT,
+                    process_id INTEGER,
+                    script TEXT,
                     ts TEXT
                 )"""
             )
@@ -143,12 +147,23 @@ class CorrectionLoggerRollback:
                     timestamp TEXT NOT NULL
                 )"""
             )
+            existing = {row[1] for row in conn.execute("PRAGMA table_info(corrections)")}
+            required = {
+                "correction_type": "TEXT",
+                "compliance_delta": "REAL",
+                "process_id": "INTEGER",
+                "script": "TEXT",
+            }
+            for col, col_type in required.items():
+                if col not in existing:
+                    conn.execute(f"ALTER TABLE corrections ADD COLUMN {col} {col_type}")
             conn.commit()
 
     def log_change(
         self,
         file_path: Path,
         rationale: str,
+        correction_type: str = "general",
         compliance_score: float = 1.0,
         rollback_reference: Optional[str] = None,
     ) -> None:
@@ -157,24 +172,53 @@ class CorrectionLoggerRollback:
         """
         self.status = "LOGGING"
         with sqlite3.connect(self.analytics_db) as conn:
+            cur = conn.execute(
+                "SELECT compliance_score FROM corrections WHERE file_path=? ORDER BY ts DESC LIMIT 1",
+                (str(file_path),),
+            )
+            row = cur.fetchone()
+            prev_score = row[0] if row else None
+            compliance_delta = (
+                compliance_score - prev_score if prev_score is not None else compliance_score
+            )
             conn.execute(
-                "INSERT INTO corrections (file_path, rationale, compliance_score, rollback_reference, ts) VALUES (?, ?, ?, ?, ?)",
+                """
+                INSERT INTO corrections (
+                    file_path,
+                    rationale,
+                    correction_type,
+                    compliance_score,
+                    compliance_delta,
+                    rollback_reference,
+                    process_id,
+                    script,
+                    ts
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
                 (
                     str(file_path),
                     rationale,
+                    correction_type,
                     compliance_score,
+                    compliance_delta,
                     rollback_reference,
+                    self.process_id,
+                    file_path.name,
                     datetime.now().isoformat(),
                 ),
             )
             conn.commit()
-        logging.info(f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score}")
+        logging.info(
+            f"Correction logged for {file_path} | Rationale: {rationale} | Compliance: {compliance_score} | Delta: {compliance_delta}"
+        )
         _log_event(
             {
                 "event": "correction",
                 "file_path": str(file_path),
                 "rationale": rationale,
+                "correction_type": correction_type,
                 "score": compliance_score,
+                "delta": compliance_delta,
             },
             table="corrections",
             db_path=self.analytics_db,
@@ -302,7 +346,7 @@ class CorrectionLoggerRollback:
         self.status = "SUMMARIZING"
         with sqlite3.connect(self.analytics_db) as conn:
             cur = conn.execute(
-                "SELECT file_path, rationale, compliance_score, rollback_reference, ts "
+                "SELECT file_path, rationale, correction_type, compliance_score, compliance_delta, rollback_reference, ts, process_id, script "
                 "FROM corrections ORDER BY ts DESC"
             )
             corrections = cur.fetchall()
@@ -315,9 +359,13 @@ class CorrectionLoggerRollback:
                 {
                     "file_path": row[0],
                     "rationale": row[1],
-                    "compliance_score": row[2],
-                    "rollback_reference": row[3],
-                    "timestamp": row[4],
+                    "correction_type": row[2],
+                    "compliance_score": row[3],
+                    "compliance_delta": row[4],
+                    "rollback_reference": row[5],
+                    "timestamp": row[6],
+                    "process_id": row[7],
+                    "script": row[8],
                     "root_cause": self._derive_root_cause(row[1]),
                 }
                 for row in corrections
@@ -347,8 +395,12 @@ class CorrectionLoggerRollback:
             for corr in summary["corrections"]:
                 md.write(f"- **File:** {corr['file_path']}\n")
                 md.write(f"  - Rationale: {corr['rationale']}\n")
+                md.write(f"  - Correction Type: {corr['correction_type']}\n")
                 md.write(f"  - Compliance Score: {corr['compliance_score']}\n")
+                md.write(f"  - Compliance Delta: {corr['compliance_delta']}\n")
                 md.write(f"  - Rollback Reference: {corr['rollback_reference']}\n")
+                md.write(f"  - Process ID: {corr['process_id']}\n")
+                md.write(f"  - Script: {corr['script']}\n")
                 md.write(f"  - Timestamp: {corr['timestamp']}\n\n")
         logging.info(f"Correction summary written to {json_path} and {md_path}")
         _log_event(
