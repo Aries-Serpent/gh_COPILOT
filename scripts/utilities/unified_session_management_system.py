@@ -24,6 +24,8 @@ from unified_disaster_recovery_system import (
 )
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 
+from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
+
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
@@ -99,7 +101,8 @@ class UnifiedSessionManagementSystem:
         def _start() -> bool:
             self._trigger_backup("pre_session")
             self.logger.info("%s Lifecycle start", TEXT_INDICATORS["start"])
-            zero_files = self._cleanup_zero_byte_files()
+            DisasterRecoveryOrchestrator(str(self.workspace_root)).run_backup_cycle()
+            zero_files = self._scan_zero_byte_files()
             env_valid = validate_enterprise_environment()
             result = self.validator.validate_startup()
             success = env_valid and not zero_files and result.is_success
