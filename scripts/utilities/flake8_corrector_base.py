@@ -106,6 +106,11 @@ class EnterpriseFlake8Corrector:
         """Basic validation that something changed."""
         return bool(files)
 
+    def cross_validate_with_ruff(self, path: Path, original: str) -> bool:
+        """Run ``ruff`` on *path* to ensure no new violations were introduced."""
+        result = subprocess.run(["ruff", "check", str(path)], capture_output=True, text=True)
+        return result.returncode == 0
+
 
 class WhitespaceCorrector(EnterpriseFlake8Corrector):
     """Correct common whitespace issues (E1xx/E2xx)."""

@@ -5,7 +5,7 @@
 Run ``ruff --fix`` across the workspace and log results to
 ``correction_history`` in ``production.db``. Validation reuses the
 ``cross_validate_with_ruff`` helper from
-``EnterpriseTemplateComplianceEnhancer``.
+``EnterpriseFlake8Corrector``.
 """
 
 from __future__ import annotations
@@ -23,9 +23,7 @@ from tqdm import tqdm
 
 from copilot.common.workspace_utils import _within_workspace
 from secondary_copilot_validator import SecondaryCopilotValidator
-from scripts.optimization.enterprise_template_compliance_enhancer import (
-    EnterpriseFlake8Corrector,
-)
+from scripts.utilities.flake8_corrector_base import EnterpriseFlake8Corrector
 
 logger = logging.getLogger(__name__)
 
