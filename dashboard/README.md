@@ -30,6 +30,7 @@ This module is designed to meet enterprise auditability and compliance standards
 | Backup and Recovery          | Initiate enterprise backup jobs, view logs, run restores, manage backup retention           |
 | Visual Processing Indicators | Progress bars, phase indicators, detailed execution status                                   |
 | Quantum Monitoring           | Extensible hooks for quantum and advanced analytics                                         |
+| Monitoring Integration       | Pushes compliance metrics to unified monitoring and correction systems for remediation      |
 
 ---
 
