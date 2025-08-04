@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+PLACEHOLDER_ONLY = True
+
 from typing import Dict
 
 from quantum.utils.backend_provider import get_backend

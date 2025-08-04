@@ -80,3 +80,10 @@ The module ``template_engine.workflow_enhancer`` provides the
 optimisation. It clusters stored templates, mines common patterns and writes
 a compliance report to ``dashboard/compliance``. Use
 ``enhance()`` to process a database of templates and generate metrics.
+
+## Quantum Placeholder Modules
+
+Modules under `scripts/quantum_placeholders/` act as stubs for upcoming
+quantum features. Each file sets `PLACEHOLDER_ONLY = True`, and packaging
+utilities skip these modules so they are never included in production
+builds. They remain importable for experimentation and planning.
