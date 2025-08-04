@@ -36,10 +36,9 @@ __all__ = [
     "collect_metrics",
     "push_metrics",
     "detect_anomalies",
-    "collect_metrics",
     "QuantumInterface",
-    "collect_metrics",
     "auto_heal_session",
+    "record_quantum_score",
 ]
 
 if TYPE_CHECKING:  # pragma: no cover - imported for type hints only
@@ -277,9 +276,56 @@ def detect_anomalies(
     return anomalies
 
 
+def record_quantum_score(
+    metrics: Dict[str, float], *, db_path: Optional[Path] = None
+) -> float:
+    """Record a quantum score for ``metrics`` in ``analytics.db``.
+
+    When :func:`quantum_score_stub` is available its output is used. Otherwise
+    a deterministic average of the metric values provides a placeholder score.
+
+    Parameters
+    ----------
+    metrics:
+        Mapping of metric names to numeric values.
+    db_path:
+        Optional analytics database path. Defaults to :data:`DB_PATH`.
+
+    Returns
+    -------
+    float
+        The calculated quantum score.
+    """
+
+    score = (
+        float(quantum_score_stub(metrics.values()))
+        if quantum_score_stub is not None
+        else sum(metrics.values()) / len(metrics)
+    )
+    path = db_path or DB_PATH
+    with sqlite3.connect(path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS quantum_scores (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                metrics_json TEXT NOT NULL,
+                score REAL NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            "INSERT INTO quantum_scores (metrics_json, score) VALUES (?, ?)",
+            (json.dumps(metrics), score),
+        )
+        conn.commit()
+    return score
+
+
 def auto_heal_session(
-    history: Iterable[Dict[str, float]],
+    history: Optional[Iterable[Dict[str, float]]] = None,
     *,
+    anomalies: Optional[Iterable[Dict[str, float]]] = None,
     contamination: float = 0.1,
     manager: Optional[UnifiedSessionManagementSystem] = None,
     db_path: Optional[Path] = None,
@@ -289,9 +335,14 @@ def auto_heal_session(
     Parameters
     ----------
     history:
-        Iterable of metric mappings ordered chronologically.
+        Iterable of metric mappings ordered chronologically. Required when
+        ``anomalies`` is not supplied.
+    anomalies:
+        Pre-computed anomalies from :func:`detect_anomalies`. When provided the
+        ``history`` parameter is ignored.
     contamination:
-        Proportion of outliers passed to :func:`detect_anomalies`.
+        Proportion of outliers passed to :func:`detect_anomalies` when
+        ``history`` is used.
     manager:
         Optional session manager.  When omitted a new
         :class:`scripts.utilities.unified_session_management_system.UnifiedSessionManagementSystem`
@@ -306,9 +357,14 @@ def auto_heal_session(
         ``True`` when a restart was attempted due to detected anomalies.
     """
 
-    anomalies = detect_anomalies(
-        history, contamination=contamination, db_path=db_path
-    )
+    if anomalies is None:
+        if history is None:
+            raise ValueError("history or anomalies must be provided")
+        anomalies = detect_anomalies(
+            history, contamination=contamination, db_path=db_path
+        )
+    else:
+        anomalies = list(anomalies)
     if not anomalies:
         return False
     if manager is None:
