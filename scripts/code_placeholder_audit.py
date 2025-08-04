@@ -34,6 +34,7 @@ from template_engine.template_placeholder_remover import remove_unused_placehold
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.log_utils import log_message
+from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 
 # Visual processing indicator constants
 TEXT = {
@@ -585,6 +586,13 @@ def main(
         update_dashboard(len(results), dashboard, analytics, summary_path)
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
+    # Combine with Compliance Metrics Updater for real-time metrics
+    try:
+        updater = ComplianceMetricsUpdater(dashboard, test_mode=simulate)
+        updater.update(simulate=simulate)
+        updater.validate_update()
+    except Exception as exc:  # pragma: no cover - updater errors
+        log_message(__name__, f"{TEXT['error']} compliance update failed: {exc}", level=logging.ERROR)
     elapsed = time.time() - start_time
     log_message(__name__, f"{TEXT['info']} audit completed in {elapsed:.2f}s")
 
