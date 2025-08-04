@@ -107,4 +107,3 @@ def test_clean(tmp_path):
     ).stdout.strip()
     assert rev == expected
     assert not (dest / "junk.txt").exists()
-

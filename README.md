@@ -138,6 +138,14 @@ ls -l /usr/local/bin/clw
 
 ```
 
+### Reclone a Repository
+Use `scripts/reclone_repo.py` to create a fresh clone of any Git repository.
+This is helpful when a working copy becomes corrupted or when a clean
+re-clone is required. The utility can back up or remove an existing
+destination directory before cloning. See
+[docs/RECLONE_REPO_GUIDE.md](docs/RECLONE_REPO_GUIDE.md) for detailed
+instructions and examples.
+
 ### Add Lessons After a Run
 Store new insights directly from the gap analyzer:
 
