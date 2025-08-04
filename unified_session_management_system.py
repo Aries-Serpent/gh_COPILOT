@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Callable
 import logging
 
 from utils.validation_utils import detect_zero_byte_files, anti_recursion_guard
@@ -40,6 +41,18 @@ def prevent_recursion(func):
 
     Exposes the anti-recursion guard to maintain backward compatibility
     with modules expecting :func:`prevent_recursion` in this namespace.
+    """
+
+    return anti_recursion_guard(func)
+
+
+def prevent_recursion(func: Callable) -> Callable:
+    """Decorator forwarding to :func:`anti_recursion_guard`.
+
+    It raises ``RuntimeError`` when ``func`` is invoked recursively within the
+    same process. This lightweight wrapper is re-exported for convenience so
+    other modules can apply the guard without importing validation utilities
+    directly.
     """
 
     return anti_recursion_guard(func)
