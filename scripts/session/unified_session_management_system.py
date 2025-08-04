@@ -7,10 +7,12 @@ avoid code duplication.
 from scripts.utilities.unified_session_management_system import (
     UnifiedSessionManagementSystem,
 )
+from .anti_recursion_enforcer import anti_recursion_guard
 
 __all__ = ["UnifiedSessionManagementSystem", "main"]
 
 
+@anti_recursion_guard
 def main() -> int:
     """Start a session validation run."""
     system = UnifiedSessionManagementSystem()

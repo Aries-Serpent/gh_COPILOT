@@ -12,7 +12,8 @@ __all__ = ["AntiRecursionEnforcer", "anti_recursion_guard"]
 
 
 _LOCK_DIR = Path(tempfile.gettempdir()) / "gh_copilot_locks"
-_LOCK_DIR.mkdir(exist_ok=True)
+# Ensure the lock directory exists even if the parent path is missing
+_LOCK_DIR.mkdir(parents=True, exist_ok=True)
 
 
 F = TypeVar("F", bound=Callable[..., object])
