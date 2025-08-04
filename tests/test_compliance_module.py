@@ -104,8 +104,28 @@ def test_detect_recursion_depth_abort(tmp_path: Path) -> None:
         current = current / f"d{i}"
         current.mkdir()
     assert _detect_recursion(tmp_path)
+    assert getattr(_detect_recursion, "aborted") is True
+    assert (
+        getattr(_detect_recursion, "max_depth_reached") >= MAX_RECURSION_DEPTH + 1
+    )
 
 
 def test_detect_recursion_pid_record(tmp_path: Path) -> None:
     _detect_recursion(tmp_path)
     assert getattr(_detect_recursion, "last_pid") == os.getpid()
+
+
+def test_validate_operation_depth_logs(tmp_path: Path) -> None:
+    current = tmp_path
+    for i in range(MAX_RECURSION_DEPTH + 1):
+        current = current / f"d{i}"
+        current.mkdir()
+    with patch.dict("os.environ", {"GH_COPILOT_WORKSPACE": str(tmp_path)}):
+        assert not validate_enterprise_operation(str(tmp_path))
+        db = tmp_path / "databases" / "analytics.db"
+        with sqlite3.connect(db) as conn:
+            details = {
+                row[0]
+                for row in conn.execute("SELECT details FROM violation_logs")
+            }
+        assert "recursive_workspace" in details or "recursive_target" in details

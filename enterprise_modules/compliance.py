@@ -83,17 +83,27 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
     exceeds ``max_depth`` during traversal.
 
     The search records the process ID of the caller to ``last_pid`` for
-    diagnostic purposes and aborts early when the depth limit is hit. This
-    prevents runaway recursive scans across nested directories.
+    diagnostic purposes. It also tracks the deepest level visited via
+    ``max_depth_reached`` and sets an ``aborted`` flag when the traversal
+    exceeds ``max_depth``. This prevents runaway recursive scans across nested
+    directories and exposes diagnostic information for tests.
     """
     root = path.resolve()
     pid = os.getpid()
     setattr(_detect_recursion, "last_pid", pid)
+    setattr(_detect_recursion, "max_depth_reached", 0)
+    setattr(_detect_recursion, "aborted", False)
 
     visited: set[Path] = set()
 
     def _walk(current: Path, depth: int) -> bool:
+        setattr(
+            _detect_recursion,
+            "max_depth_reached",
+            max(getattr(_detect_recursion, "max_depth_reached"), depth),
+        )
         if depth > max_depth:
+            setattr(_detect_recursion, "aborted", True)
             return True
         try:
             current_resolved = current.resolve()
@@ -313,11 +323,21 @@ def validate_enterprise_operation(
             if pat in lower:
                 violations.append(f"forbidden_command:{pat}")
                 break
-
+    recursion_flag = False
     if _detect_recursion(workspace):
         _log_violation("recursive_workspace")
         send_dashboard_alert({"event": "recursive_workspace", "path": str(workspace)})
         violations.append("recursive_workspace")
+        recursion_flag = True
+
+    if _detect_recursion(path):
+        _log_violation("recursive_target")
+        send_dashboard_alert({"event": "recursive_target", "path": str(path)})
+        violations.append("recursive_target")
+        recursion_flag = True
+
+    if recursion_flag:
+        return False
 
     # Disallow backup directories inside the workspace
     # Ensure the backup root is truly outside the workspace. Using
@@ -342,11 +362,6 @@ def validate_enterprise_operation(
             break
         if parent.name.lower().startswith("backup"):
             violations.append(f"forbidden_subpath:{parent}")
-
-    if _detect_recursion(path):
-        _log_violation("recursive_target")
-        send_dashboard_alert({"event": "recursive_target", "path": str(path)})
-        violations.append("recursive_target")
 
     # Cleanup forbidden backup folders within workspace
     venv_path = workspace / ".venv"
