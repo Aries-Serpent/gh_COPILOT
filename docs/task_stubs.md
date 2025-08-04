@@ -8,6 +8,7 @@ lightweight references for future implementation.
 | --- | --- | --- | --- | --- | --- | --- |
 | UnifiedDisasterRecoverySystem | Autonomous backups and restore workflow | Backup scheduler, restore executor, compliance logger | Unit tests for backup creation and restore integrity | Usage guides for DR system | Establish baseline DR capabilities | 100% |
 | FlaskDashboard | Flask app powered by analytics.db | Templates for compliance trends and rollback logs | Manual QA for layout and data updates | README updates covering web UI setup | Provide initial dashboard | 0% |
+| ComplianceMetrics | Composite score formulas for lint and tests | Aggregate Ruff issue counts and Pytest results | Unit tests validating score outputs | COMPLIANCE_METRICS.md usage guide | Source metrics from Ruff logs, Pytest JSON and analytics.db | 40% |
 | DatabaseSynchronizationEngine | Real time sync across databases | Conflict resolution and logging | Integration tests for data consistency | Failure modes and recovery steps | Keep datasets in sync | 0% |
 | MonitoringOptimization | ML enhanced monitoring with quantum hooks | Link metrics to session lifecycle | Validate metric calculations and alerts | Monitoring guidelines and metrics reference | Expand observability | 0% |
 | SessionManagementEnhancements | Zero byte detection and anti recursion | Lifecycle enforcement logging states | Unit tests for validation rules | Revised session protocol docs | Strengthen session integrity | 0% |
@@ -35,3 +36,4 @@ lightweight references for future implementation.
 - [ ] DocumentationAlignment — 90% complete
 - [x] ChangelogUserPrompts — 100%
 - [ ] QuantumPlaceholderFeatures — 60% complete
+- [ ] ComplianceMetrics — 40% complete

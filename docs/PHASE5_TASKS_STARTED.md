@@ -85,7 +85,10 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 20. Implement Compliance Metrics Calculations
 - **Statement Excerpt:** "Metrics Integration: Display compliance trends, rollback logs and placeholder metrics" coupled with "Quantitative Goals: All modules implemented; tests >95% coverage; compliance score ≥0.9; dashboard latency <1 min."
-- **Status:** Started – compliance score formulas and dashboard metric wiring initiated.
+- **Status:** In Progress – 40% complete. Remaining work finalizes composite formulas and data sources:
+  - ``lint_score = max(0, 100 − ruff_issues)`` from Ruff logs
+  - ``test_score = (tests_passed / total_tests) * 100`` from Pytest JSON
+  - ``placeholder_score`` derived from `correction_logs` in ``analytics.db``
 
 ---
 
@@ -96,3 +99,4 @@ These task stubs originate from the gap analysis report and have been formally s
 - [ ] 17. Implement Anti-Recursion Guards — 50% complete
 - [ ] 18. Standardize Dual-Copilot Validation — 40% complete
 - [ ] 19. Clarify Quantum Placeholder Features — 90% complete
+- [ ] 20. Implement Compliance Metrics Calculations — 40% complete
