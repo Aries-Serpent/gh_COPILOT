@@ -8,6 +8,7 @@ from pathlib import Path
 
 from unified_monitoring_optimization_system import (
     detect_anomalies,
+    record_quantum_score,
     push_metrics,
 )
 
@@ -46,4 +47,17 @@ def test_detect_anomalies_flags_outlier() -> None:
     anomalies = detect_anomalies(history, contamination=0.34)
     assert history[-1] in anomalies
     assert len(anomalies) == 1
+
+
+def test_record_quantum_score_logs_metric(tmp_path: Path) -> None:
+    """Quantum scores should be stored for monitoring."""
+
+    db = tmp_path / "analytics.db"
+    values = [0.0, 3.0, 4.0]
+    score = record_quantum_score(values, db_path=db)
+
+    with sqlite3.connect(db) as conn:
+        stored = conn.execute("SELECT metrics_json FROM quantum_scores").fetchone()[0]
+
+    assert json.loads(stored) == {"quantum_score": score}
 
