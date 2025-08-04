@@ -73,6 +73,13 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 5. **API Endpoints**:
    - Health Check: http://localhost:5000/api/health
    - Scripts Data: http://localhost:5000/api/scripts
+   - Compliance Summary: http://localhost:5000/api/compliance
+   - Rollback Logs: http://localhost:5000/api/rollbacks
+   - Correction History: http://localhost:5000/api/corrections
+   - Compliance Stream (SSE): http://localhost:5000/api/compliance_stream
+   - Trigger Ingestion: POST http://localhost:5000/api/ingest
+   - Trigger Rollback: POST http://localhost:5000/api/rollback
+   - Trigger Backup: POST http://localhost:5000/api/backup
 
 ### 🛠 Deployment Instructions
 

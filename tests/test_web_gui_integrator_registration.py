@@ -23,7 +23,18 @@ def test_integrator_registers_endpoints(tmp_path, monkeypatch):
         "/deployment",
         "/api/scripts",
         "/api/health",
+        "/api/compliance",
+        "/api/rollbacks",
+        "/api/corrections",
     ]
     for path in paths:
         resp = client.get(path)
+        assert resp.status_code == 200
+
+    stream_resp = client.get("/api/compliance_stream?once=1")
+    assert stream_resp.status_code == 200
+
+    post_paths = ["/api/ingest", "/api/rollback", "/api/backup"]
+    for path in post_paths:
+        resp = client.post(path, json={})
         assert resp.status_code == 200
