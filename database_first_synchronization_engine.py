@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
-from typing import Callable, Dict, Any
+from typing import Callable, Dict, Any, List
 
 
 class SchemaMapper:
@@ -25,9 +25,7 @@ class SchemaMapper:
     def map(self, source: sqlite3.Connection, target: sqlite3.Connection) -> None:
         """Ensure tables from ``source`` exist in ``target``."""
 
-        for name, sql in source.execute(
-            "SELECT name, sql FROM sqlite_master WHERE type='table'"
-        ):
+        for name, sql in source.execute("SELECT name, sql FROM sqlite_master WHERE type='table'"):
             exists = target.execute(
                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
                 (name,),
@@ -52,8 +50,7 @@ class SyncManager:
         self,
         db_a: Path | str,
         db_b: Path | str,
-        resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]]
-        | None = None,
+        resolver: Callable[[str, Dict[str, Any], Dict[str, Any]], Dict[str, Any]] | None = None,
     ) -> None:
         """Bidirectionally synchronize ``db_a`` and ``db_b``.
 
@@ -75,27 +72,13 @@ class SyncManager:
                 self.mapper.map(conn_a, conn_b)
                 self.mapper.map(conn_b, conn_a)
 
-                tables_a = {
-                    r[0] for r in conn_a.execute(
-                        "SELECT name FROM sqlite_master WHERE type='table'"
-                    )
-                }
-                tables_b = {
-                    r[0] for r in conn_b.execute(
-                        "SELECT name FROM sqlite_master WHERE type='table'"
-                    )
-                }
+                tables_a = {r[0] for r in conn_a.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                tables_b = {r[0] for r in conn_b.execute("SELECT name FROM sqlite_master WHERE type='table'")}
                 tables = tables_a | tables_b
 
                 for table in tables:
-                    rows_a = {
-                        row["id"]: dict(row)
-                        for row in conn_a.execute(f"SELECT * FROM {table}")
-                    }
-                    rows_b = {
-                        row["id"]: dict(row)
-                        for row in conn_b.execute(f"SELECT * FROM {table}")
-                    }
+                    rows_a = {row["id"]: dict(row) for row in conn_a.execute(f"SELECT * FROM {table}")}
+                    rows_b = {row["id"]: dict(row) for row in conn_b.execute(f"SELECT * FROM {table}")}
 
                     for pk in rows_a.keys() | rows_b.keys():
                         in_a = pk in rows_a
@@ -132,9 +115,7 @@ class SyncManager:
         )
 
     @staticmethod
-    def _default_resolver(
-        table: str, row_a: Dict[str, Any], row_b: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _default_resolver(table: str, row_a: Dict[str, Any], row_b: Dict[str, Any]) -> Dict[str, Any]:
         ts_a = row_a.get("updated_at") or row_a.get("modified_at") or 0
         ts_b = row_b.get("updated_at") or row_b.get("modified_at") or 0
         return row_a if ts_a >= ts_b else row_b
@@ -161,5 +142,27 @@ class SyncManager:
             conn.commit()
 
 
-__all__ = ["SchemaMapper", "SyncManager"]
+def list_events(analytics_db: Path | str, limit: int = 10) -> List[Dict[str, Any]]:
+    """Return recent synchronization events from ``analytics.db``."""
+    events: List[Dict[str, Any]] = []
+    db_path = Path(analytics_db)
+    if not db_path.exists():
+        return events
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.execute(
+            "SELECT timestamp, source_db, target_db, action FROM synchronization_events ORDER BY timestamp DESC LIMIT ?",
+            (limit,),
+        )
+        events = [
+            {
+                "timestamp": row[0],
+                "source_db": row[1],
+                "target_db": row[2],
+                "action": row[3],
+            }
+            for row in cur.fetchall()
+        ]
+    return events
 
+
+__all__ = ["SchemaMapper", "SyncManager", "list_events"]
