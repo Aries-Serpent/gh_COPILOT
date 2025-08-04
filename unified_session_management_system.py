@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Callable
 import logging
 
-from utils.validation_utils import detect_zero_byte_files, anti_recursion_guard
+from utils.validation_utils import detect_zero_byte_files
+from scripts.session.anti_recursion_enforcer import anti_recursion_guard
 from enterprise_modules.compliance import validate_environment, ComplianceError
 
 logger = logging.getLogger(__name__)

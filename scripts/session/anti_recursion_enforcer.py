@@ -1,7 +1,22 @@
 from __future__ import annotations
+
+from functools import wraps
+from pathlib import Path
+from typing import Callable, TypeVar, cast
 import logging
 import os
 import psutil
+import tempfile
+
+__all__ = ["AntiRecursionEnforcer", "anti_recursion_guard"]
+
+
+_LOCK_DIR = Path(tempfile.gettempdir()) / "gh_copilot_locks"
+_LOCK_DIR.mkdir(exist_ok=True)
+
+
+F = TypeVar("F", bound=Callable[..., object])
+
 
 class AntiRecursionEnforcer:
     """Detect and handle recursive session execution."""
@@ -46,3 +61,29 @@ class AntiRecursionEnforcer:
             psutil.Process(pid).terminate()
         except psutil.Error as exc:  # pragma: no cover - best effort
             self.logger.error("Failed to terminate session %s: %s", pid, exc)
+
+
+def anti_recursion_guard(func: F) -> F:
+    """Decorator that combines lock-file and process-based recursion checks.
+
+    A temporary lock file prevents re-entrancy within the same process while
+    :class:`AntiRecursionEnforcer` guards against multiple running processes
+    with identical command lines. A ``RuntimeError`` is raised if the guard is
+    triggered.
+    """
+
+    lock_file = _LOCK_DIR / f"{func.__name__}.lock"
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):  # type: ignore[misc]
+        if lock_file.exists():
+            raise RuntimeError("Anti-recursion guard triggered")
+        enforcer = AntiRecursionEnforcer()
+        enforcer.enforce_no_recursion()
+        try:
+            lock_file.touch()
+            return func(*args, **kwargs)
+        finally:
+            lock_file.unlink(missing_ok=True)
+
+    return cast(F, wrapper)
