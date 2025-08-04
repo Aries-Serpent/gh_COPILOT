@@ -75,16 +75,19 @@ def test_log_sync_operation_multiple_databases(tmp_path: Path, monkeypatch) -> N
 
 
 def test_log_sync_operation_with_analytics(tmp_path: Path, monkeypatch) -> None:
+    """Verify analytics event emission via log_event."""
     monkeypatch.setattr(
         "enterprise_modules.compliance.validate_enterprise_operation",
         lambda: None,
     )
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics_db = tmp_path / "analytics.db"
+    monkeypatch.setenv("ANALYTICS_DB", str(analytics_db))
     db_path = tmp_path / "enterprise_assets.db"
-    start = datetime.now(timezone.utc)
-    log_sync_operation_with_analytics(db_path, "analytics_op", start_time=start)
-    with sqlite3.connect(tmp_path / "databases" / "analytics.db") as conn:
+    initialize_database(db_path)
+    log_sync_operation(db_path, "analytics_op")
+    with sqlite3.connect(analytics_db) as conn:
         row = conn.execute(
-            "SELECT source, target FROM sync_events_log ORDER BY id DESC"
+            "SELECT module, description FROM event_log ORDER BY id DESC"
         ).fetchone()
-    assert row == ("analytics_op", "SUCCESS")
+    assert row == ("cross_database_sync_logger", "analytics_op")

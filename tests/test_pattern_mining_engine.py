@@ -167,6 +167,15 @@ def test_mine_patterns_metrics(tmp_path: Path, monkeypatch) -> None:
     assert metrics["n_clusters"] > 0
 
 
+def test_rank_patterns_quantum(monkeypatch) -> None:
+    patterns = ["alpha beta gamma", "foo bar baz"]
+    scores = {"alpha beta gamma": 0.2, "foo bar baz": 0.8, "foo bar baz qux": 0.9}
+    monkeypatch.setattr(pme, "quantum_text_score", lambda text: scores[text])
+    ranked = pme.rank_patterns_quantum(patterns, "foo bar baz qux")
+    assert ranked[0][0] == "foo bar baz"
+    assert ranked[0][1] > ranked[1][1]
+
+
 def test_log_pattern_audit_and_compliance(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     analytics = tmp_path / "analytics.db"

@@ -8,6 +8,7 @@ from typing import Callable
 import logging
 
 from utils.validation_utils import detect_zero_byte_files, anti_recursion_guard
+from enterprise_modules.compliance import validate_environment, ComplianceError
 
 logger = logging.getLogger(__name__)
 
@@ -17,33 +18,21 @@ __all__ = [
 ]
 
 
-prevent_recursion = anti_recursion_guard
-
 @contextmanager
 def ensure_no_zero_byte_files(root: str | Path):
-        """Verify the workspace is free of zero-byte files before and after the block."""
-        root_path = Path(root)
-        before = detect_zero_byte_files(root_path)
-        if before:
-            for path in before:
-                path.unlink(missing_ok=True)
-            raise RuntimeError(f"Zero-byte files detected: {before}")
-        yield
-        after = detect_zero_byte_files(root_path)
-        if after:
-            for path in after:
-                path.unlink(missing_ok=True)
-            raise RuntimeError(f"Zero-byte files detected: {after}")
-
-
-def prevent_recursion(func):
-    """Decorator proxy for :func:`anti_recursion_guard`.
-
-    Exposes the anti-recursion guard to maintain backward compatibility
-    with modules expecting :func:`prevent_recursion` in this namespace.
-    """
-
-    return anti_recursion_guard(func)
+    """Verify the workspace is free of zero-byte files before and after the block."""
+    root_path = Path(root)
+    before = detect_zero_byte_files(root_path)
+    if before:
+        for path in before:
+            path.unlink(missing_ok=True)
+        raise RuntimeError(f"Zero-byte files detected: {before}")
+    yield
+    after = detect_zero_byte_files(root_path)
+    if after:
+        for path in after:
+            path.unlink(missing_ok=True)
+        raise RuntimeError(f"Zero-byte files detected: {after}")
 
 
 def prevent_recursion(func: Callable) -> Callable:
@@ -64,6 +53,12 @@ def main() -> int:
     from scripts.utilities.unified_session_management_system import (
         UnifiedSessionManagementSystem,
     )
+    try:
+        validate_environment()
+    except ComplianceError as exc:  # pragma: no cover - simple error log
+        logger.error("Environment validation failed: %s", exc)
+        print("Invalid")
+        return 1
 
     system = UnifiedSessionManagementSystem()
     logger.info("Lifecycle start")

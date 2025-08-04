@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 import sqlite3
+import sys
 import json
 from datetime import datetime
 from pathlib import Path
@@ -16,8 +17,14 @@ from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
+
+class ComplianceError(Exception):
+    """Raised when enterprise compliance checks fail."""
+
+
 # Forbidden command patterns that must not appear in operations
 FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
+MAX_RECURSION_DEPTH = 5
 
 
 def _load_forbidden_paths() -> list[str]:
@@ -81,6 +88,65 @@ def _detect_recursion(path: Path) -> bool:
     return False
 
 
+def generate_compliance_summary() -> dict:
+    """Aggregate violation and rollback metrics for dashboards.
+
+    Returns a dictionary with counts of logged compliance violations and
+    rollbacks sourced from ``analytics.db``. A dashboard alert is emitted to
+    expose the current compliance posture.
+    """
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    analytics_db = workspace / "databases" / "analytics.db"
+    if not analytics_db.exists():
+        summary = {"violations": 0, "rollbacks": 0}
+        send_dashboard_alert({"event": "compliance_summary", **summary})
+        return summary
+
+    with sqlite3.connect(analytics_db) as conn:
+        cur = conn.execute("SELECT COUNT(*) FROM violation_logs")
+        violations = cur.fetchone()[0]
+        cur = conn.execute("SELECT COUNT(*) FROM rollback_logs")
+        rollbacks = cur.fetchone()[0]
+
+    summary = {"violations": violations, "rollbacks": rollbacks}
+    send_dashboard_alert({"event": "compliance_summary", **summary})
+    return summary
+
+
+def validate_environment() -> bool:
+    """Run baseline environment checks.
+
+    The workspace must contain ``production.db`` and be readable and writable.
+    """
+
+    def check_python_version() -> bool:
+        return sys.version_info >= (3, 8)
+
+    def check_required_files() -> bool:
+        workspace = CrossPlatformPathManager.get_workspace_path()
+        return (workspace / "production.db").exists()
+
+    def check_permissions() -> bool:
+        workspace = CrossPlatformPathManager.get_workspace_path()
+        return os.access(workspace, os.R_OK | os.W_OK)
+
+    checks = [check_python_version, check_required_files, check_permissions]
+    for check in checks:
+        if not check():
+            raise ComplianceError(
+                f"Compliance validation failed: {check.__name__}"
+            )
+    return True
+
+
+def enforce_anti_recursion(context: object) -> bool:
+    """Ensure recursion depth does not exceed ``MAX_RECURSION_DEPTH``."""
+    depth = getattr(context, "recursion_depth", 0)
+    if depth > MAX_RECURSION_DEPTH:
+        raise ComplianceError("Recursion limit exceeded.")
+    return True
+
+
 def validate_enterprise_operation(
     target_path: str | None = None,
     *,
@@ -107,10 +173,13 @@ def validate_enterprise_operation(
 
     # Disallow backup directories inside the workspace
     # Ensure the backup root is truly outside the workspace. Using
-    # ``Path.is_relative_to`` avoids issues with naive string-prefix
-    # comparisons that can misclassify paths such as ``/opt/gh_COPILOT`` and
-    # ``/opt/gh_COPILOT_backup``.
-    if backup_root.resolve().is_relative_to(workspace.resolve()):
+    # ``Path.is_relative_to`` is available in Python 3.9+. Use a fallback so
+    # the check works on Python 3.8 as well.
+    try:
+        backup_root.resolve().relative_to(workspace.resolve())
+    except ValueError:
+        pass
+    else:
         violations.append("backup_root_inside_workspace")
 
     if path.resolve().as_posix().startswith(backup_root.resolve().as_posix()):
@@ -170,4 +239,12 @@ def run_final_validation(primary_callable, targets) -> tuple[bool, bool, dict]:
     return primary_success, validation_success, metrics
 
 
-__all__ = ["validate_enterprise_operation", "_log_rollback", "run_final_validation"]
+__all__ = [
+    "validate_enterprise_operation",
+    "_log_rollback",
+    "run_final_validation",
+    "validate_environment",
+    "enforce_anti_recursion",
+    "generate_compliance_summary",
+    "ComplianceError",
+]
