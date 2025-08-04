@@ -12,6 +12,13 @@ The script ingests documentation and templates, then invokes the internal
 placeholder audit. Findings are written to `databases/analytics.db` in the
 `placeholder_audit` table.
 
+The audit now prints a list of actionable tasks for every unresolved
+placeholder so developers can quickly remove them. Example output:
+
+```
+[TASK] Remove TODO in path/to/file.py:42 - refactor needed
+```
+
 ## Viewing Results
 
 The dashboard exposes audit findings via the `/placeholder-audit` route:
@@ -22,3 +29,19 @@ python -m web_gui.dashboard_actionable_gui
 
 Then visit `http://localhost:5000/placeholder-audit` to fetch the latest
 results in JSON form.
+
+## CI Integration
+
+Fail builds if placeholders remain by running the audit with
+`--fail-on-findings`:
+
+```
+python scripts/code_placeholder_audit.py --fail-on-findings --simulate \
+  --workspace-path "$GH_COPILOT_WORKSPACE" \
+  --analytics-db databases/analytics.db \
+  --production-db databases/production.db \
+  --dashboard-dir dashboard/compliance
+```
+
+The command exits with a non-zero status when unresolved placeholders are
+found, enabling CI pipelines to block merges until cleanup is complete.
