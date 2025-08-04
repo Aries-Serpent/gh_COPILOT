@@ -26,6 +26,8 @@ from tqdm import tqdm
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.visual_progress import start_indicator, progress_bar, end_indicator
 from ml_pattern_recognition import PatternRecognizer
+from template_engine import pattern_mining_engine
+from quantum_optimizer import QuantumOptimizer
 try:
     from unified_session_management_system import prevent_recursion
 except Exception:  # pragma: no cover - fallback if session system unavailable
@@ -136,6 +138,33 @@ class EnterpriseUtility:
         )
         return clusters
 
+    def quantum_score_placeholders(self, placeholders: list[str]) -> list[str]:
+        """Rank placeholders using quantum-inspired scoring.
+
+        Placeholder complexity is measured by length with a penalty applied
+        for non-identifiers. The list is sorted by this score after running a
+        ``QuantumOptimizer`` to simulate quantum weighting.
+        """
+
+        if not placeholders:
+            return []
+        base_scores = []
+        for name in placeholders:
+            complexity = len(name)
+            compliance_penalty = 0 if name.isidentifier() else 5
+            base_scores.append(complexity + compliance_penalty)
+
+        optimizer = QuantumOptimizer(
+            objective_function=lambda x: sum(
+                (x[i] - base_scores[i]) ** 2 for i in range(len(base_scores))
+            ),
+            variable_bounds=[(0, max(1, b * 2)) for b in base_scores],
+            method="simulated_annealing",
+        )
+        optimizer.run()
+        ranked = [p for p, _ in sorted(zip(placeholders, base_scores), key=lambda kv: kv[1])]
+        return ranked
+
     def perform_utility_function(self) -> bool:
         """Generate a template using patterns from ``template_documentation.db``.
 
@@ -169,6 +198,12 @@ class EnterpriseUtility:
                     placeholder_counter.update(placeholders)
                 pbar.update(60)
 
+                pattern_mining_engine.mine_patterns(
+                    production_db=databases_dir / "production.db",
+                    analytics_db=databases_dir / "analytics.db",
+                    timeout_minutes=1,
+                )
+
                 recognizer = PatternRecognizer()
                 recognizer.recognize(list(placeholder_counter.keys()))
 
@@ -177,8 +212,9 @@ class EnterpriseUtility:
                     return False
 
                 top_placeholders = [p for p, _ in placeholder_counter.most_common(5)]
+                ranked_placeholders = self.quantum_score_placeholders(top_placeholders)
                 synthesized_lines = ["# Synthesized template", ""]
-                synthesized_lines.extend(f"{{{p}}}" for p in top_placeholders)
+                synthesized_lines.extend(f"{{{p}}}" for p in ranked_placeholders)
                 synthesized_template = "\n".join(synthesized_lines)
 
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

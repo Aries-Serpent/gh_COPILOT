@@ -8,11 +8,19 @@ from scripts.utilities.unified_script_generation_system import EnterpriseUtility
 
 
 @patch(
+    "scripts.utilities.unified_script_generation_system.pattern_mining_engine.mine_patterns",
+    return_value=["alpha"],
+)
+@patch(
+    "scripts.utilities.unified_script_generation_system.QuantumOptimizer.run",
+    return_value={"result": {}},
+)
+@patch(
     "scripts.utilities.unified_script_generation_system.SecondaryCopilotValidator.validate_corrections",
     return_value=True,
 )
 @patch("scripts.utilities.unified_script_generation_system.PatternRecognizer")
-def test_template_generation(mock_recognizer, _validate, tmp_path):
+def test_template_generation(mock_recognizer, _validate, mock_run, mock_mine, tmp_path):
     workspace = Path(tmp_path)
     db_dir = workspace / "databases"
     db_dir.mkdir()
@@ -22,6 +30,8 @@ def test_template_generation(mock_recognizer, _validate, tmp_path):
     utility = EnterpriseUtility(str(workspace))
     assert utility.perform_utility_function() is True
     mock_recognizer.return_value.recognize.assert_called()
+    mock_mine.assert_called()
+    mock_run.assert_called()
 
     generated_dir = workspace / "generated_templates"
     generated_files = list(generated_dir.glob("template_*.txt"))
