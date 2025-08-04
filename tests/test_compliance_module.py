@@ -1,11 +1,17 @@
 import sqlite3
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
+
+import pytest
 
 from enterprise_modules.compliance import (
     validate_enterprise_operation,
     _log_rollback,
     _detect_recursion,
+    validate_environment,
+    enforce_anti_recursion,
+    ComplianceError,
 )
 
 
@@ -57,3 +63,17 @@ def test_detect_recursion_true(tmp_path: Path) -> None:
 def test_detect_recursion_false(tmp_path: Path) -> None:
     """``_detect_recursion`` should return False without matching folders."""
     assert not _detect_recursion(tmp_path)
+
+
+def test_validate_environment(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    with pytest.raises(ComplianceError):
+        validate_environment()
+    (tmp_path / "production.db").touch()
+    assert validate_environment() is True
+
+
+def test_enforce_anti_recursion() -> None:
+    enforce_anti_recursion(SimpleNamespace(recursion_depth=1))
+    with pytest.raises(ComplianceError):
+        enforce_anti_recursion(SimpleNamespace(recursion_depth=10))

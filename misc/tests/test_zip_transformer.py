@@ -6,6 +6,9 @@ import sys
 import zipfile
 from pathlib import Path
 
+import pytest
+
+pytest.importorskip("PyQt6")
 from PyQt6.QtCore import QCoreApplication
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "legacy"))

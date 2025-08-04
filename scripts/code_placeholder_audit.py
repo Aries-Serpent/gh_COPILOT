@@ -34,6 +34,8 @@ from template_engine.template_placeholder_remover import remove_unused_placehold
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.log_utils import log_message
+from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
+from unified_script_generation_system import EnterpriseUtility
 
 # Visual processing indicator constants
 TEXT = {
@@ -110,7 +112,7 @@ def log_findings(
     *,
     update_resolutions: bool = False,
     auto_remove_resolved: bool = False,
-) -> None:
+    ) -> int:
     """Log audit results to analytics.db.
 
     Parameters
@@ -126,8 +128,8 @@ def log_findings(
 
     Returns
     -------
-    None
-        The function writes to the database when not in simulation mode.
+    int
+        Number of newly inserted audit records.
     """
     user = os.getenv("USER", "system")
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
@@ -158,7 +160,8 @@ def log_findings(
             __name__,
             "[TEST MODE] Simulation enabled: not writing to analytics.db",
         )
-        return
+        return 0
+    inserted = 0
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             """
@@ -254,7 +257,9 @@ def log_findings(
                         " VALUES (?, ?, ?, ?, ?, 'open')",
                         values[:-1],
                     )
+                    inserted += 1
         conn.commit()
+    return inserted
 
 
 # Update dashboard/compliance with summary JSON
@@ -311,6 +316,49 @@ def update_dashboard(
     }
     path = summary_json or dashboard_dir / "placeholder_summary.json"
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+
+# Scan a single file for placeholder patterns
+def scan_file_for_placeholders(file_path: Path, patterns: List[str] | None = None) -> List[Dict]:
+    """Return placeholder findings for ``file_path``.
+
+    Parameters
+    ----------
+    file_path:
+        File to scan for placeholder tokens.
+    patterns:
+        Optional list of regex patterns. Defaults to :data:`DEFAULT_PATTERNS`.
+
+    Returns
+    -------
+    List[Dict]
+        A list of findings with ``file``, ``line``, ``pattern`` and ``context``
+        keys. Errors reading the file are logged and yield an empty list.
+    """
+
+    patterns = patterns or DEFAULT_PATTERNS
+    try:
+        lines = file_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+    except Exception as exc:  # pragma: no cover - read errors are logged
+        log_message(
+            __name__,
+            f"{TEXT['error']} Could not read {file_path}: {exc}",
+            level=logging.ERROR,
+        )
+        return []
+    results: List[Dict] = []
+    for idx, line in enumerate(lines, 1):
+        for pat in patterns:
+            if re.search(pat, line):
+                results.append(
+                    {
+                        "file": str(file_path),
+                        "line": idx,
+                        "pattern": pat,
+                        "context": line.strip()[:200],
+                    }
+                )
+    return results
 
 
 # Scan files for patterns with timeout and visual indicators
@@ -414,6 +462,40 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
     return "N/A"
 
 
+def _auto_fill_with_templates(
+    target: Path,
+    logger: CorrectionLoggerRollback,
+    backup_path: Path,
+) -> None:
+    """Auto-fill missing sections using unified script generation system.
+
+    Parameters
+    ----------
+    target:
+        File path to augment.
+    logger:
+        ``CorrectionLoggerRollback`` instance for logging changes.
+    backup_path:
+        Path to backup for potential rollback.
+    """
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
+    utility = EnterpriseUtility(str(workspace))
+    if utility.perform_utility_function():
+        gen_dir = workspace / "generated_templates"
+        try:
+            latest = max(gen_dir.glob("template_*.txt"), key=lambda p: p.stat().st_mtime)
+        except ValueError:
+            return
+        content = latest.read_text(encoding="utf-8")
+        with target.open("a", encoding="utf-8") as handle:
+            handle.write("\n" + content)
+        if SecondaryCopilotValidator().validate_corrections([str(target)]):
+            logger.log_change(target, "Auto fill missing sections", 1.0, str(backup_path))
+        else:
+            logger.log_change(target, "Auto fill failed validation", 0.0, str(backup_path))
+            logger.auto_rollback(target, backup_path)
+
+
 def auto_remove_placeholders(
     results: List[Dict],
     production_db: Path,
@@ -457,6 +539,7 @@ def auto_remove_placeholders(
             else:
                 logger.log_change(path, "Auto placeholder cleanup failed validation", 0.0, str(backup_path))
                 logger.auto_rollback(path, backup_path)
+            _auto_fill_with_templates(path, logger, backup_path)
 
     logger.summarize_corrections()
     # Mark resolved placeholders
@@ -560,13 +643,18 @@ def main(
             bar.update(1)
 
     # Log findings to analytics.db
-    log_findings(
+    inserted = log_findings(
         results,
         analytics,
         simulate=simulate,
         update_resolutions=update_resolutions,
         auto_remove_resolved=update_resolutions,
     )
+    if not simulate:
+        log_message(
+            __name__,
+            f"{TEXT['info']} logged {inserted} findings to {analytics}",
+        )
     if export:
         export.write_text(json.dumps(results, indent=2), encoding="utf-8")
     if apply_fixes and not simulate:
@@ -577,6 +665,13 @@ def main(
         update_dashboard(len(results), dashboard, analytics, summary_path)
     else:
         log_message(__name__, "[TEST MODE] Dashboard update skipped")
+    # Combine with Compliance Metrics Updater for real-time metrics
+    try:
+        updater = ComplianceMetricsUpdater(dashboard, test_mode=simulate)
+        updater.update(simulate=simulate)
+        updater.validate_update()
+    except Exception as exc:  # pragma: no cover - updater errors
+        log_message(__name__, f"{TEXT['error']} compliance update failed: {exc}", level=logging.ERROR)
     elapsed = time.time() - start_time
     log_message(__name__, f"{TEXT['info']} audit completed in {elapsed:.2f}s")
 

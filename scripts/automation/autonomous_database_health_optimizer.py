@@ -27,7 +27,7 @@ from scripts.monitoring.unified_monitoring_optimization_system import (
 )
 
 from ml_pattern_recognition import PatternRecognizer
-from utils.validation_utils import run_compliance_gates
+from utils.validation_utils import anti_recursion_guard, run_compliance_gates
 
 # Progress bar with graceful fallback
 try:
@@ -1438,6 +1438,7 @@ class AutonomousDatabaseHealthOptimizer:
         return results
 
 
+@anti_recursion_guard
 def main() -> Dict[str, Any]:
     """Execute autonomous database optimization.
 

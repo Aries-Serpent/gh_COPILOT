@@ -19,9 +19,6 @@ from datetime import datetime
 from pathlib import Path
 
 from monitoring.health_monitor import gather_metrics
-from scripts.utilities.unified_session_management_system import (
-    UnifiedSessionManagementSystem,
-)
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
@@ -156,6 +153,10 @@ def collect_metrics(session_id: str | None = None) -> dict[str, float]:
     ``monitoring_metrics`` table.
     """
     # Start a session and generate an ID if none supplied
+    from scripts.utilities.unified_session_management_system import (
+        UnifiedSessionManagementSystem,
+    )
+
     session_manager = UnifiedSessionManagementSystem()
     session_manager.start_session()
     sid = session_id or str(uuid.uuid4())
@@ -205,9 +206,16 @@ def collect_metrics(session_id: str | None = None) -> dict[str, float]:
     return {"session_id": sid, **metrics}
 
 
-def quantum_hook(metrics: dict[str, float]) -> None:
-    """Placeholder for future quantum metric processing."""
-    _ = metrics
+from quantum_algorithm_library_expansion import quantum_score_stub
+
+
+def quantum_hook(metrics: dict[str, float]) -> float:
+    """Compute a quantum-inspired score for unified metrics."""
+
+    values = [metrics.get("cpu_percent", 0.0), metrics.get("memory_percent", 0.0), metrics.get("disk_percent", 0.0)]
+    score = quantum_score_stub(values)
+    metrics["quantum_score"] = score
+    return score
 
 
 def main():

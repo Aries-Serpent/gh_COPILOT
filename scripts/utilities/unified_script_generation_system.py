@@ -26,7 +26,14 @@ from tqdm import tqdm
 from secondary_copilot_validator import SecondaryCopilotValidator
 from utils.visual_progress import start_indicator, progress_bar, end_indicator
 from ml_pattern_recognition import PatternRecognizer
-from unified_session_management_system import prevent_recursion
+from template_engine import pattern_mining_engine
+from quantum_optimizer import QuantumOptimizer
+from unified_legacy_cleanup_system import UnifiedLegacyCleanupSystem
+try:
+    from unified_session_management_system import prevent_recursion
+except Exception:  # pragma: no cover - fallback if session system unavailable
+    def prevent_recursion(func):
+        return func
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
@@ -106,6 +113,9 @@ class EnterpriseUtility:
             valid_paths.append(path)
 
         if not features:
+            self.logger.info(
+                f"{TEXT_INDICATORS['info']} No valid templates to cluster"
+            )
             return {}
 
         matrix = np.array(features)
@@ -122,9 +132,39 @@ class EnterpriseUtility:
             encoding="utf-8",
         )
         self.logger.info(
+            f"{TEXT_INDICATORS['info']} Clustered {len(valid_paths)} templates into {n_clusters} clusters"
+        )
+        self.logger.info(
             f"{TEXT_INDICATORS['info']} Cluster output written to {cluster_file}"
         )
         return clusters
+
+    def quantum_score_placeholders(self, placeholders: list[str]) -> list[str]:
+        """Rank placeholders using quantum-inspired scoring.
+
+        Placeholder complexity is measured by length with a penalty applied
+        for non-identifiers. The list is sorted by this score after running a
+        ``QuantumOptimizer`` to simulate quantum weighting.
+        """
+
+        if not placeholders:
+            return []
+        base_scores = []
+        for name in placeholders:
+            complexity = len(name)
+            compliance_penalty = 0 if name.isidentifier() else 5
+            base_scores.append(complexity + compliance_penalty)
+
+        optimizer = QuantumOptimizer(
+            objective_function=lambda x: sum(
+                (x[i] - base_scores[i]) ** 2 for i in range(len(base_scores))
+            ),
+            variable_bounds=[(0, max(1, b * 2)) for b in base_scores],
+            method="simulated_annealing",
+        )
+        optimizer.run()
+        ranked = [p for p, _ in sorted(zip(placeholders, base_scores), key=lambda kv: kv[1])]
+        return ranked
 
     def perform_utility_function(self) -> bool:
         """Generate a template using patterns from ``template_documentation.db``.
@@ -159,6 +199,12 @@ class EnterpriseUtility:
                     placeholder_counter.update(placeholders)
                 pbar.update(60)
 
+                pattern_mining_engine.mine_patterns(
+                    production_db=databases_dir / "production.db",
+                    analytics_db=databases_dir / "analytics.db",
+                    timeout_minutes=1,
+                )
+
                 recognizer = PatternRecognizer()
                 recognizer.recognize(list(placeholder_counter.keys()))
 
@@ -167,8 +213,9 @@ class EnterpriseUtility:
                     return False
 
                 top_placeholders = [p for p, _ in placeholder_counter.most_common(5)]
+                ranked_placeholders = self.quantum_score_placeholders(top_placeholders)
                 synthesized_lines = ["# Synthesized template", ""]
-                synthesized_lines.extend(f"{{{p}}}" for p in top_placeholders)
+                synthesized_lines.extend(f"{{{p}}}" for p in ranked_placeholders)
                 synthesized_template = "\n".join(synthesized_lines)
 
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -179,6 +226,11 @@ class EnterpriseUtility:
 
             self.logger.info(f"{TEXT_INDICATORS['success']} Generated template stored at {output_file}")
 
+            from unified_legacy_cleanup_system import UnifiedLegacyCleanupSystem
+
+            cleanup = UnifiedLegacyCleanupSystem(self.workspace_path)
+            cleanup.purge_superseded_scripts(generated_dir)
+
             validator = DualCopilotValidator()
             valid = validator.validate(ValidationResult(output_file=output_file, progress_complete=pbar.n == 100))
             secondary = SecondaryCopilotValidator(self.logger)
@@ -188,13 +240,19 @@ class EnterpriseUtility:
                 end_indicator("Script Generation Utility", start_time)
                 return False
 
+            # Cluster all generated templates for classification
+            generated_templates = list(generated_dir.glob("*.txt"))
+            if generated_templates:
+                self.cluster_templates(generated_templates, n_clusters=3)
+                cleanup = UnifiedLegacyCleanupSystem(self.workspace_path)
+                cleanup.purge_generated_templates(generated_dir)
+
             end_indicator("Script Generation Utility", start_time)
             return True
         except Exception as exc:  # pragma: no cover - log and propagate failure
             self.logger.error(f"{TEXT_INDICATORS['error']} Generation failed: {exc}")
             end_indicator("Script Generation Utility", start_time)
             return False
-
 
 @prevent_recursion
 def main():

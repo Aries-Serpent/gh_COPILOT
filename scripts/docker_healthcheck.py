@@ -10,7 +10,7 @@ from __future__ import annotations
 import os
 from urllib.request import urlopen
 
-from utils.validation_utils import validate_enterprise_environment
+from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
 
 
 def check_health() -> bool:
@@ -24,6 +24,7 @@ def check_health() -> bool:
         return False
 
 
+@anti_recursion_guard
 def main() -> int:
     """Run the health check and return an exit code."""
     return 0 if check_health() else 1

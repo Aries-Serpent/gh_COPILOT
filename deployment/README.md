@@ -1,0 +1,47 @@
+# Staging Deployment Guide
+
+This directory contains configuration and helper scripts for launching a staging
+environment.
+
+## Prerequisites
+
+1. Activate the project virtual environment:
+   ```bash
+   source .venv/bin/activate
+   ```
+2. Export the workspace path so helper utilities can locate `production.db`:
+   ```bash
+   export GH_COPILOT_WORKSPACE=/workspace/gh_COPILOT
+   ```
+
+## Staging Deployment
+
+Run the staging deployment utility:
+
+```bash
+python -m scripts.deployment.ENHANCED_ML_STAGING_DEPLOYMENT_MISSION_COMPLETE \
+  >/tmp/gh_copilot_backups/staging.log 2>&1
+```
+
+The script attempts to copy a random template from `databases/production.db`
+into `generated_scripts/`. On non-Windows systems, update the script's
+`workspace_path` to your local path; otherwise it logs:
+`[ERROR] Generation failed: unable to open database file`.
+
+For an additional validation step, run the deployment validator:
+
+```bash
+python -m scripts.deployment.comprehensive_deployment_validator \
+  >/tmp/gh_copilot_backups/deploy.log 2>&1
+```
+
+## Post-Deployment Testing
+
+After deployment, run the full test suite:
+
+```bash
+pytest
+```
+
+Logs from deployment attempts are stored under `/tmp/gh_copilot_backups/`.
+

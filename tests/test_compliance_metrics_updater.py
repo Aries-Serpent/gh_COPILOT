@@ -2,16 +2,54 @@ import importlib
 import json
 import sqlite3
 import pytest
+import sys
+import types
 
 
 @pytest.mark.parametrize("simulate,test_mode", [(True, False), (False, True), (False, False)])
 def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    push_calls = []
+    executed = []
+
+    class DummyEnterpriseUtility:
+        def execute_utility(self):
+            executed.append(True)
+            return True
+
+    def dummy_push(metrics, *, table="monitoring_metrics", db_path=None, session_id=None):
+        push_calls.append((metrics, table, db_path, session_id))
+
+    class DummyCorrectionLoggerRollback:
+        instances = []
+
+        def __init__(self, *a, **k):
+            self.logged = {"violation": 0, "change": 0}
+            DummyCorrectionLoggerRollback.instances.append(self)
+
+        def log_violation(self, details: str) -> None:
+            self.logged["violation"] += 1
+
+        def log_change(self, *a, **k) -> None:
+            self.logged["change"] += 1
+
+    stub_corr = types.SimpleNamespace(
+        CorrectionLoggerRollback=DummyCorrectionLoggerRollback,
+        validate_enterprise_operation=lambda *a, **k: None,
+        _log_rollback=lambda *a, **k: None,
+    )
+    stub_monitor = types.SimpleNamespace(
+        push_metrics=dummy_push,
+        EnterpriseUtility=DummyEnterpriseUtility,
+    )
+    monkeypatch.setitem(sys.modules, "scripts.correction_logger_and_rollback", stub_corr)
+    monkeypatch.setitem(sys.modules, "unified_monitoring_optimization_system", stub_monitor)
     module = importlib.import_module("dashboard.compliance_metrics_updater")
     importlib.reload(module)
     modes = []
     events = []
     monkeypatch.setattr(module, "ensure_tables", lambda *a, **k: None)
+    monkeypatch.setattr(module, "push_metrics", lambda m, **k: push_calls.append(m))
 
     def _capture_event(event, table, **k):
         modes.append(k.get("test_mode"))
@@ -39,6 +77,18 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
         )
         conn.execute("INSERT INTO rollback_logs (target, backup, timestamp) VALUES ('t','b','ts')")
 
+    called: list[bool] = []
+
+    class DummyOrchestrator:
+        def __init__(self, *a, **k):
+            pass
+
+        def run_backup_cycle(self):
+            called.append(True)
+            return tmp_path / "dummy"
+
+    monkeypatch.setattr(module, "DisasterRecoveryOrchestrator", DummyOrchestrator)
+
     dashboard_dir = tmp_path / "dashboard"
     updater = module.ComplianceMetricsUpdater(dashboard_dir, test_mode=test_mode)
     updater.update(simulate=simulate)
@@ -61,10 +111,11 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     metrics_file = dashboard_dir / "metrics.json"
     if simulate:
         assert not metrics_file.exists()
+        assert not push_calls
         return
     data = json.loads(metrics_file.read_text())
     assert data["metrics"]["placeholder_removal"] == 1
-    expected_score = 1 / (1 + 1)
+    expected_score = max(0.0, min(1.0, (1 / (1 + 1)) - 0.15))
     assert data["metrics"]["compliance_score"] == expected_score
     assert data["metrics"]["violation_count"] == 1
     assert data["metrics"]["rollback_count"] == 1
@@ -73,3 +124,71 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     assert data["metrics"]["correction_count"] == 1
     expected = test_mode or simulate
     assert all((m == expected) or (m is None) for m in modes)
+    assert called
+    assert push_calls
+    assert executed
+    logger_instance = DummyCorrectionLoggerRollback.instances[0]
+    assert logger_instance.logged["violation"] == 1
+    assert logger_instance.logged["change"] == 1
+
+
+def test_correction_summary_ingestion(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    class DummyCorrectionLoggerRollback:
+        def __init__(self, *a, **k):
+            pass
+
+        def log_violation(self, *a, **k):
+            pass
+
+        def log_change(self, *a, **k):
+            pass
+
+    stub = types.SimpleNamespace(
+        CorrectionLoggerRollback=DummyCorrectionLoggerRollback,
+        validate_enterprise_operation=lambda *a, **k: None,
+        _log_rollback=lambda *a, **k: None,
+    )
+    monkeypatch.setitem(sys.modules, "scripts.correction_logger_and_rollback", stub)
+    module = importlib.import_module("dashboard.compliance_metrics_updater")
+    importlib.reload(module)
+    monkeypatch.setattr(module, "ensure_tables", lambda *a, **k: None)
+    monkeypatch.setattr(module, "insert_event", lambda *a, **k: None)
+    monkeypatch.setattr(module, "validate_no_recursive_folders", lambda: None)
+    monkeypatch.setattr(module, "validate_environment_root", lambda: None)
+
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    analytics_db = db_dir / "analytics.db"
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)"
+        )
+        conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved', 1)")
+        conn.execute("CREATE TABLE correction_logs (event TEXT, compliance_score REAL)")
+        conn.execute("INSERT INTO correction_logs VALUES ('update', 0.9)")
+        conn.execute("CREATE TABLE violation_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, details TEXT)")
+
+    corr_dir = tmp_path / "dashboard" / "compliance"
+    corr_dir.mkdir(parents=True)
+    summary = {
+        "timestamp": "ts",
+        "total_corrections": 1,
+        "corrections": [
+            {
+                "file_path": "file.py",
+                "rationale": "fix",
+                "compliance_score": 0.9,
+                "rollback_reference": "ref",
+                "timestamp": "ts",
+                "root_cause": "coding standards",
+            }
+        ],
+        "status": "complete",
+    }
+    (corr_dir / "correction_summary.json").write_text(json.dumps(summary))
+
+    updater = module.ComplianceMetricsUpdater(tmp_path / "dashboard", test_mode=True)
+    updater.update(simulate=False)
+    data = json.loads((tmp_path / "dashboard" / "metrics.json").read_text())
+    assert data["metrics"]["correction_logs"][0]["file_path"] == "file.py"

@@ -1,9 +1,12 @@
 """Utilities for the Unified Monitoring Optimization System.
 
-This module exposes :class:`EnterpriseUtility` from
-``scripts.monitoring.unified_monitoring_optimization_system`` and provides a
-``push_metrics`` helper used by tests and lightweight integrations to store
-arbitrary monitoring metrics in ``analytics.db``.
+This module re-exports :class:`EnterpriseUtility` and :func:`collect_metrics`
+from ``scripts.monitoring.unified_monitoring_optimization_system`` and
+provides a ``push_metrics`` helper used by tests and lightweight integrations
+to store arbitrary monitoring metrics in ``analytics.db``.  It also exposes
+``auto_heal_session`` which couples anomaly detection with the session
+management subsystem to restart sessions when system metrics deviate
+significantly from learned baselines.
 """
 
 from __future__ import annotations
@@ -14,20 +17,31 @@ import sqlite3
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
+import numpy as np
+import psutil
 from sklearn.ensemble import IsolationForest
+from scripts.monitoring.unified_monitoring_optimization_system import (
+    EnterpriseUtility,
+)
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:  # pragma: no cover
-    from scripts.monitoring.unified_monitoring_optimization_system import EnterpriseUtility as _EnterpriseUtility  # noqa: F401
+try:  # pragma: no cover - optional quantum library
+    from quantum_algorithm_library_expansion import quantum_score_stub
+except Exception:  # pragma: no cover - library may be missing
+    quantum_score_stub = None
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "databases" / "analytics.db"
 
 __all__ = [
+    "EnterpriseUtility",
+    "collect_metrics",
     "push_metrics",
     "detect_anomalies",
+    "collect_metrics",
     "QuantumInterface",
+    "collect_metrics",
+    "auto_heal_session",
+    "record_quantum_score",
 ]
 
 
@@ -112,6 +126,35 @@ def push_metrics(
         conn.commit()
 
 
+def collect_metrics(
+    *, session_id: Optional[str] = None, db_path: Optional[Path] = None
+) -> Dict[str, float]:
+    """Collect system metrics and persist them.
+
+    Parameters
+    ----------
+    session_id:
+        Optional identifier to associate metrics with a session.
+    db_path:
+        Optional database override. Defaults to :data:`DB_PATH`.
+
+    Returns
+    -------
+    dict
+        Mapping of collected metric names to values.
+    """
+
+    metrics = {
+        "cpu_percent": psutil.cpu_percent(interval=1),
+        "memory_percent": psutil.virtual_memory().percent,
+        "disk_percent": psutil.disk_usage("/").percent,
+        "net_bytes_sent": psutil.net_io_counters().bytes_sent,
+        "net_bytes_recv": psutil.net_io_counters().bytes_recv,
+    }
+    push_metrics(metrics, db_path=db_path, session_id=session_id)
+    return metrics
+
+
 def detect_anomalies(
     history: Iterable[Dict[str, float]], *, contamination: float = 0.1
 ) -> List[Dict[str, float]]:
@@ -140,6 +183,50 @@ def detect_anomalies(
     preds = model.fit_predict(data)
     return [m for m, pred in zip(history_list, preds) if pred == -1]
 
+
+def auto_heal_session(
+    history: Iterable[Dict[str, float]],
+    *,
+    contamination: float = 0.1,
+    manager: Optional["UnifiedSessionManagementSystem"] = None,
+) -> bool:
+    """Restart the session when metric anomalies are detected.
+
+    Parameters
+    ----------
+    history:
+        Iterable of metric mappings ordered chronologically.
+    contamination:
+        Proportion of outliers passed to :func:`detect_anomalies`.
+    manager:
+        Optional session manager.  When omitted a new
+        :class:`scripts.utilities.unified_session_management_system.UnifiedSessionManagementSystem`
+        instance is created.
+
+    Returns
+    -------
+    bool
+        ``True`` when a restart was attempted due to detected anomalies.
+    """
+
+    anomalies = detect_anomalies(history, contamination=contamination)
+    if not anomalies:
+        return False
+    if manager is None:
+        from scripts.utilities.unified_session_management_system import (
+            UnifiedSessionManagementSystem,
+        )
+
+        manager = UnifiedSessionManagementSystem()
+    try:
+        try:
+            manager.end_session()
+        except Exception:
+            pass
+        manager.start_session()
+        return True
+    except Exception:
+        return False
 
 class QuantumInterface:
     """Placeholder interface for quantum metric processing."""

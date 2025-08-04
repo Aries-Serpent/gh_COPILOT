@@ -13,3 +13,16 @@ from scripts.file_management.autonomous_file_manager import AutonomousFileManage
 manager = AutonomousFileManager(Path('databases/production.db'))
 manager.organize_files(Path('workspace'))
 ```
+
+## Workflow Integration
+
+1. Generate templates using the unified script generation utility. The
+   utility now classifies templates by clustering placeholder counts
+   (KMeans) and records the mapping in ``cluster_output.json``.
+2. Regenerate or create new templates with ``CompleteTemplateGenerator``.
+   When template metadata becomes stale, call
+   ``cleanup_legacy_assets()`` to purge records older than your
+   retention window.
+3. After generation and cleanup, run ``AutonomousFileManager`` as shown
+   above to organize files in the workspace based on the latest
+   database state.

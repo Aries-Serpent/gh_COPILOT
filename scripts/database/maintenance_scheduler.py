@@ -12,7 +12,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from utils.validation_utils import validate_enterprise_environment
+from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
 
 from .cross_database_sync_logger import log_sync_operation
 from .database_sync_scheduler import synchronize_databases
@@ -87,6 +87,7 @@ def run_cycle(workspace: Path, *, timeout: int | None = None) -> None:
         log_sync_operation(log_db, f"cycle_status_{status}", start_time=start_dt)
 
 
+@anti_recursion_guard
 def main(workspace: Path, interval: int, once: bool = False, timeout: int | None = None) -> None:
     """Run maintenance cycles at a fixed interval."""
     validate_enterprise_environment()
