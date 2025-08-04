@@ -20,7 +20,12 @@ SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS violation_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT NOT NULL,
-    details TEXT NOT NULL
+    event TEXT,
+    details TEXT NOT NULL,
+    cause TEXT,
+    remediation_path TEXT,
+    rollback_trigger TEXT,
+    count INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_violation_logs_timestamp
     ON violation_logs(timestamp);

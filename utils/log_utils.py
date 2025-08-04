@@ -35,6 +35,9 @@ TABLE_SCHEMAS: Dict[str, str] = {
             timestamp TEXT NOT NULL,
             event TEXT,
             details TEXT NOT NULL,
+            cause TEXT,
+            remediation_path TEXT,
+            rollback_trigger TEXT,
             count INTEGER
         );
         CREATE INDEX IF NOT EXISTS idx_violation_logs_timestamp
@@ -45,6 +48,10 @@ TABLE_SCHEMAS: Dict[str, str] = {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             target TEXT NOT NULL,
             backup TEXT,
+            violation_id INTEGER,
+            outcome TEXT,
+            event TEXT,
+            count INTEGER,
             timestamp TEXT NOT NULL
         );
         CREATE INDEX IF NOT EXISTS idx_rollback_logs_timestamp

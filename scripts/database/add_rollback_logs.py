@@ -21,6 +21,10 @@ CREATE TABLE IF NOT EXISTS rollback_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     target TEXT NOT NULL,
     backup TEXT,
+    violation_id INTEGER,
+    outcome TEXT,
+    event TEXT,
+    count INTEGER,
     timestamp TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_rollback_logs_timestamp
