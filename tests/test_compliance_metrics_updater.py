@@ -9,8 +9,18 @@ import types
 @pytest.mark.parametrize("simulate,test_mode", [(True, False), (False, True), (False, False)])
 def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    push_calls: list[dict] = []
+    clr_calls: list[bool] = []
+
+    class DummyCLR:
+        def __init__(self, *a, **k):
+            pass
+
+        def summarize_corrections(self):
+            clr_calls.append(True)
+
     stub = types.SimpleNamespace(
-        CorrectionLoggerRollback=object,
+        CorrectionLoggerRollback=DummyCLR,
         validate_enterprise_operation=lambda *a, **k: None,
         _log_rollback=lambda *a, **k: None,
     )
@@ -20,6 +30,7 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     modes = []
     events = []
     monkeypatch.setattr(module, "ensure_tables", lambda *a, **k: None)
+    monkeypatch.setattr(module, "push_metrics", lambda m, **k: push_calls.append(m))
 
     def _capture_event(event, table, **k):
         modes.append(k.get("test_mode"))
@@ -94,12 +105,25 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     expected = test_mode or simulate
     assert all((m == expected) or (m is None) for m in modes)
     assert called
+    if simulate:
+        assert not push_calls
+        assert not clr_calls
+    else:
+        assert push_calls
+        assert clr_calls
 
 
 def test_correction_summary_ingestion(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    class DummyCLR:
+        def __init__(self, *a, **k):
+            pass
+
+        def summarize_corrections(self):
+            return {}
+
     stub = types.SimpleNamespace(
-        CorrectionLoggerRollback=object,
+        CorrectionLoggerRollback=DummyCLR,
         validate_enterprise_operation=lambda *a, **k: None,
         _log_rollback=lambda *a, **k: None,
     )

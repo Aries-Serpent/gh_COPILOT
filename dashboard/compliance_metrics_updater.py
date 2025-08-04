@@ -26,6 +26,7 @@ from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
 from enterprise_modules.compliance import validate_enterprise_operation
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
+from unified_monitoring_optimization_system import push_metrics
 
 
 # Enterprise logging setup
@@ -349,6 +350,28 @@ class ComplianceMetricsUpdater:
             test_mode=test_mode,
         )
 
+    def _sync_external_systems(self, metrics: Dict[str, Any]) -> None:
+        """Link metrics to monitoring and correction subsystems."""
+        try:
+            push_metrics(
+                {
+                    "compliance_score": metrics.get("compliance_score", 0.0),
+                    "violation_count": float(metrics.get("violation_count", 0)),
+                    "rollback_count": float(metrics.get("rollback_count", 0)),
+                },
+                db_path=ANALYTICS_DB,
+            )
+        except Exception as exc:  # pragma: no cover - best effort
+            logging.error(f"Monitoring sync failed: {exc}")
+
+        if metrics.get("violation_count") or metrics.get("rollback_count"):
+            try:
+                from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
+
+                CorrectionLoggerRollback(ANALYTICS_DB).summarize_corrections()
+            except Exception as exc:  # pragma: no cover - best effort
+                logging.error(f"Correction summary sync failed: {exc}")
+
     def update(self, simulate: bool = False) -> None:
         """Update compliance metrics for the web dashboard with full compliance and validation.
 
@@ -360,7 +383,7 @@ class ComplianceMetricsUpdater:
         validate_enterprise_operation(str(self.dashboard_dir))
         self.status = "UPDATING"
         start_time = time.time()
-        with tqdm(total=3, desc="Updating Compliance Metrics", unit="step") as pbar:
+        with tqdm(total=4, desc="Updating Compliance Metrics", unit="step") as pbar:
             pbar.set_description("Fetching Metrics")
             metrics = self._fetch_compliance_metrics(test_mode=self.test_mode or simulate)
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
@@ -378,12 +401,16 @@ class ComplianceMetricsUpdater:
                 pbar.set_description("Logging Update Event")
                 self._log_update_event(metrics, test_mode=self.test_mode)
                 pbar.update(1)
+
+                pbar.set_description("Syncing External Systems")
+                self._sync_external_systems(metrics)
+                pbar.update(1)
             else:
                 pbar.set_description("Simulation Mode")
-                pbar.update(2)
+                pbar.update(3)
 
         elapsed = time.time() - start_time
-        etc = self._calculate_etc(elapsed, 3, 3)
+        etc = self._calculate_etc(elapsed, 4, 4)
         logging.info(f"Compliance metrics update completed in {elapsed:.2f}s | ETC: {etc}")
         insert_event(
             {"event": "update_complete", "duration": elapsed},
