@@ -119,6 +119,26 @@ class TemplateWorkflowEnhancer:
         logging.info(f"Average compliance score: {avg_score:.4f}")
         return avg_score
 
+    def generate_compliance_report(
+        self, templates: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """Generate a compliance report for the provided templates.
+
+        Clusters templates, mines patterns, and calculates the average
+        compliance score. The resulting dictionary can be consumed by
+        analytics or dashboard modules for further processing.
+        """
+        clusters = self.cluster_templates(templates)
+        compliance_score = self.score_compliance(templates)
+        patterns = self.mine_patterns(templates)
+        report = {
+            "total_templates": len(templates),
+            "cluster_count": len(clusters),
+            "patterns_mined": patterns,
+            "average_compliance_score": compliance_score,
+        }
+        return report
+
     def generate_modular_report(
         self,
         templates: List[Dict[str, Any]],

@@ -20,6 +20,7 @@ import re
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import silhouette_score
 
 from tqdm import tqdm
 
@@ -120,22 +121,46 @@ def _cluster_templates(templates: dict[str, str], n_clusters: int = 2) -> dict[s
         texts = list(templates.values())
         names = list(templates.keys())
         vectorizer = TfidfVectorizer()
-        matrix = vectorizer.fit_transform(texts).toarray()
+        matrix = vectorizer.fit_transform(texts)
         n_clusters = min(n_clusters, len(texts))
         model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=42)
-        model.fit(matrix)
+        labels = model.fit_predict(matrix)
+        inertia = float(model.inertia_)
+        silhouette = 0.0
+        if n_clusters > 1 and matrix.shape[0] > 1:
+            silhouette = float(silhouette_score(matrix, labels))
         reps: dict[str, str] = {}
+        arr = matrix.toarray()
         for label in range(n_clusters):
-            members = [i for i, lbl in enumerate(model.labels_) if lbl == label]
+            members = [i for i, lbl in enumerate(labels) if lbl == label]
             if not members:
                 continue
             center = model.cluster_centers_[label]
             best_idx = min(
                 members,
-                key=lambda idx: float(np.linalg.norm(matrix[idx] - center)),
+                key=lambda idx: float(np.linalg.norm(arr[idx] - center)),
             )
             name = names[best_idx]
             reps[name] = templates[name]
+        if _can_write_analytics():
+            with sqlite3.connect(ANALYTICS_DB) as conn:
+                conn.execute(
+                    """CREATE TABLE IF NOT EXISTS template_sync_cluster_metrics (
+                        inertia REAL,
+                        silhouette REAL,
+                        n_clusters INTEGER,
+                        ts TEXT
+                    )""",
+                )
+                conn.execute(
+                    "INSERT INTO template_sync_cluster_metrics (inertia, silhouette, n_clusters, ts) VALUES (?,?,?,?)",
+                    (inertia, silhouette, n_clusters, datetime.utcnow().isoformat()),
+                )
+                conn.commit()
+            _log_audit_real(
+                str(ANALYTICS_DB),
+                f"sync_clusters={n_clusters},inertia={inertia:.2f},silhouette={silhouette:.4f}",
+            )
         return reps
     except Exception:
         # If clustering fails, fallback to original templates
