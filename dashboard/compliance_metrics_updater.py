@@ -161,6 +161,7 @@ class ComplianceMetricsUpdater:
             "open_placeholders": 0,
             "resolved_placeholders": 0,
             "auto_resolved_placeholders": 0,
+            "ticketed_placeholders": 0,
             "compliance_score": 1.0,
             "violation_count": 0,
             "rollback_count": 0,
@@ -191,6 +192,8 @@ class ComplianceMetricsUpdater:
                     metrics["resolved_placeholders"] = cur.fetchone()[0]
                     cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
                     metrics["open_placeholders"] = cur.fetchone()[0]
+                    cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='ticketed'")
+                    metrics["ticketed_placeholders"] = cur.fetchone()[0]
                 metrics["placeholder_removal"] = metrics["resolved_placeholders"]
 
                 open_ph = metrics["open_placeholders"]
