@@ -17,6 +17,7 @@ def noop_operation(*args: object, **kwargs: object) -> None:
 
 
 auto_generator.validate_no_recursive_folders = no_recursive_folders
+dbgen.validate_no_recursive_folders = no_recursive_folders
 dbgen.validate_enterprise_operation = noop_operation
 
 
@@ -193,6 +194,7 @@ def test_integration_ready_runs_validator(tmp_path: Path, monkeypatch) -> None:
     analytics = tmp_path / "analytics.db"
 
     os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     with sqlite3.connect(prod_db) as conn:
         conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT, default_value TEXT)")
         conn.execute("INSERT INTO template_placeholders VALUES ('{{NAME}}', 'World')")
@@ -209,7 +211,9 @@ def test_integration_ready_runs_validator(tmp_path: Path, monkeypatch) -> None:
     def secondary_copilot_validator() -> D:
         return dummy
 
-    monkeypatch.setattr(dbgen, "SecondaryCopilotValidator", secondary_copilot_validator)
+    monkeypatch.setattr(
+        dbgen.secondary_copilot_validator, "SecondaryCopilotValidator", secondary_copilot_validator
+    )
     gen = DBFirstCodeGenerator(prod_db, doc_db, tpl_db, analytics)
 
     def select_template(*_: object) -> str:
@@ -217,4 +221,30 @@ def test_integration_ready_runs_validator(tmp_path: Path, monkeypatch) -> None:
 
     gen.select_best_template = select_template
     gen.generate_integration_ready_code("Obj")
+    assert dummy.called
+
+
+def test_validate_scores_runs_validator(tmp_path: Path, monkeypatch) -> None:
+    analytics = tmp_path / "analytics.db"
+    analytics.parent.mkdir(exist_ok=True, parents=True)
+    with sqlite3.connect(analytics) as conn:
+        conn.execute("CREATE TABLE generator_events (event TEXT)")
+        conn.execute("INSERT INTO generator_events VALUES ('a')")
+    gen = DBFirstCodeGenerator(
+        tmp_path / "prod.db",
+        tmp_path / "docs.db",
+        tmp_path / "tpl.db",
+        analytics,
+    )
+    dummy = type(
+        "D",
+        (),
+        {"called": False, "validate_corrections": lambda self, files: setattr(self, "called", True) or True},
+    )()
+    import template_engine.db_first_code_generator as mod
+
+    monkeypatch.setattr(
+        mod.secondary_copilot_validator, "SecondaryCopilotValidator", lambda: dummy
+    )
+    assert gen.validate_scores(1)
     assert dummy.called
