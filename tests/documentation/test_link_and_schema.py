@@ -1,6 +1,7 @@
 import json
 import re
 from pathlib import Path
+from urllib.parse import unquote
 
 DOC_DIRS = [Path("docs"), Path("documentation")]
 
@@ -9,7 +10,7 @@ _link_re = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 
 def _local_links(text):
     for match in _link_re.finditer(text):
-        link = match.group(1).strip()
+        link = unquote(match.group(1).strip()).strip("<>")
         if (
             link.startswith(("http://", "https://", "#", "file://"))
             or "commit/" in link

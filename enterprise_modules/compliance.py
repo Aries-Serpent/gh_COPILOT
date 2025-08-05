@@ -35,20 +35,30 @@ PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
 F = TypeVar("F", bound=Callable[..., Any])
 _ACTIVE_PIDS: set[int] = set()
 _PID_DEPTHS: dict[int, int] = {}
+_PID_PARENTS: dict[int, int] = {}
+_PID_CHILDREN: dict[int, set[int]] = {}
 _GUARD_LOCK = threading.Lock()
 
 
 def anti_recursion_guard(func: F) -> F:
-    """Decorator tracking recursion depth and active PIDs.
+    """Decorator tracking recursion depth and parent/child PID relationships.
 
-    Aborts when ``MAX_RECURSION_DEPTH`` is exceeded or when the current PID
-    attempts to re-enter while still active.
+    Aborts when ``MAX_RECURSION_DEPTH`` is exceeded, when the current PID
+    attempts to re-enter while still active, or when a PID loop is detected
+    via parent/child tracking.
     """
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
         pid = os.getpid()
+        ppid = os.getppid()
         with _GUARD_LOCK:
+            ancestor = ppid
+            while ancestor:
+                if ancestor == pid:
+                    raise RuntimeError("PID loop detected")
+                ancestor = _PID_PARENTS.get(ancestor)
+
             depth = _PID_DEPTHS.get(pid, 0)
             if depth >= MAX_RECURSION_DEPTH:
                 raise RuntimeError("Recursion depth exceeded")
@@ -56,6 +66,8 @@ def anti_recursion_guard(func: F) -> F:
                 raise RuntimeError("PID already active")
             _PID_DEPTHS[pid] = depth + 1
             _ACTIVE_PIDS.add(pid)
+            _PID_PARENTS[pid] = ppid
+            _PID_CHILDREN.setdefault(ppid, set()).add(pid)
 
         try:
             return func(*args, **kwargs)
@@ -65,6 +77,13 @@ def anti_recursion_guard(func: F) -> F:
                 if remaining <= 0:
                     _PID_DEPTHS.pop(pid, None)
                     _ACTIVE_PIDS.discard(pid)
+                    parent = _PID_PARENTS.pop(pid, None)
+                    if parent is not None:
+                        children = _PID_CHILDREN.get(parent)
+                        if children is not None:
+                            children.discard(pid)
+                            if not children:
+                                _PID_CHILDREN.pop(parent, None)
                 else:
                     _PID_DEPTHS[pid] = remaining
 
@@ -270,16 +289,16 @@ def calculate_compliance_score(
 ) -> float:
     """Return overall code-quality score on a ``0..100`` scale.
 
-    The score is the mean of three component scores:
+    The score is a weighted sum of three component scores:
 
-    ``lint_score``
+    ``lint_score`` (30%)
         ``max(0, 100 - ruff_issues)``
 
-    ``test_score``
+    ``test_score`` (50%)
         ``(tests_passed / total_tests) * 100`` where ``total_tests`` is the sum
         of passed and failed tests. If no tests ran, this component is ``0``.
 
-    ``placeholder_score``
+    ``placeholder_score`` (20%)
         ``(placeholders_resolved / total_placeholders) * 100`` where
         ``total_placeholders`` is the sum of open and resolved placeholders. If
         no placeholders were found the component defaults to ``100``.
@@ -294,7 +313,8 @@ def calculate_compliance_score(
         if total_placeholders
         else 100.0
     )
-    return round((lint_score + test_score + placeholder_score) / 3, 2)
+    weighted_score = 0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score
+    return round(weighted_score, 2)
 
 
 def calculate_composite_score(
@@ -356,8 +376,9 @@ def calculate_code_quality_score(
     ``placeholders_open``/``placeholders_resolved``
         Used to determine how many TODO/FIXME markers have been resolved.
 
-    The final score is the arithmetic mean of the lint score, test pass ratio
-    and placeholder resolution ratio, expressed on a ``0..100`` scale.
+    The final score is a weighted sum of the lint score (30%), test pass ratio
+    (50%), and placeholder resolution ratio (20%), expressed on a ``0..100``
+    scale.
     """
 
     total_tests = tests_passed + tests_failed
@@ -369,7 +390,7 @@ def calculate_code_quality_score(
     lint_score = max(0.0, 100 - ruff_issues)
     test_score = pass_ratio * 100
     placeholder_score = resolution_ratio * 100
-    composite = round((lint_score + test_score + placeholder_score) / 3, 2)
+    composite = round(0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score, 2)
     return composite, {
         "lint_score": round(lint_score, 2),
         "test_pass_ratio": round(pass_ratio, 2),
