@@ -36,6 +36,15 @@ Refer to [README.md](../README.md) for a high-level overview of how these placeh
 - [quantum\_superposition\_search](../scripts/quantum_placeholders/quantum_superposition_search.py)
   – expand into comprehensive superposition search routines.
 
+## Migration Milestones
+
+| Module | Milestone toward Hardware Execution | Potential Backend Providers |
+| --- | --- | --- |
+| `quantum_placeholder_algorithm.py` | Prototype on IBM Quantum simulators and target IonQ hardware for early field tests by Q4 2025 | IBM Quantum, IonQ |
+| `quantum_annealing.py` | Replace toy annealer with D-Wave Ocean SDK integration; evaluate Advantage system in 2026 | D-Wave |
+| `quantum_entanglement_correction.py` | Implement error-correction routines using Rigetti QCS and IBM entanglement APIs by 2025 | Rigetti, IBM Quantum |
+| `quantum_superposition_search.py` | Deploy superposition search on IonQ trapped-ion devices after Qiskit backend validation in 2025 | IonQ, IBM Quantum |
+
 This document tracks the placeholder status and will be updated as the
 quantum roadmap progresses.
 
