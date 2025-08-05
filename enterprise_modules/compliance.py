@@ -35,20 +35,30 @@ PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
 F = TypeVar("F", bound=Callable[..., Any])
 _ACTIVE_PIDS: set[int] = set()
 _PID_DEPTHS: dict[int, int] = {}
+_PID_PARENTS: dict[int, int] = {}
+_PID_CHILDREN: dict[int, set[int]] = {}
 _GUARD_LOCK = threading.Lock()
 
 
 def anti_recursion_guard(func: F) -> F:
-    """Decorator tracking recursion depth and active PIDs.
+    """Decorator tracking recursion depth and parent/child PID relationships.
 
-    Aborts when ``MAX_RECURSION_DEPTH`` is exceeded or when the current PID
-    attempts to re-enter while still active.
+    Aborts when ``MAX_RECURSION_DEPTH`` is exceeded, when the current PID
+    attempts to re-enter while still active, or when a PID loop is detected
+    via parent/child tracking.
     """
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
         pid = os.getpid()
+        ppid = os.getppid()
         with _GUARD_LOCK:
+            ancestor = ppid
+            while ancestor:
+                if ancestor == pid:
+                    raise RuntimeError("PID loop detected")
+                ancestor = _PID_PARENTS.get(ancestor)
+
             depth = _PID_DEPTHS.get(pid, 0)
             if depth >= MAX_RECURSION_DEPTH:
                 raise RuntimeError("Recursion depth exceeded")
@@ -56,6 +66,8 @@ def anti_recursion_guard(func: F) -> F:
                 raise RuntimeError("PID already active")
             _PID_DEPTHS[pid] = depth + 1
             _ACTIVE_PIDS.add(pid)
+            _PID_PARENTS[pid] = ppid
+            _PID_CHILDREN.setdefault(ppid, set()).add(pid)
 
         try:
             return func(*args, **kwargs)
@@ -65,6 +77,13 @@ def anti_recursion_guard(func: F) -> F:
                 if remaining <= 0:
                     _PID_DEPTHS.pop(pid, None)
                     _ACTIVE_PIDS.discard(pid)
+                    parent = _PID_PARENTS.pop(pid, None)
+                    if parent is not None:
+                        children = _PID_CHILDREN.get(parent)
+                        if children is not None:
+                            children.discard(pid)
+                            if not children:
+                                _PID_CHILDREN.pop(parent, None)
                 else:
                     _PID_DEPTHS[pid] = remaining
 
