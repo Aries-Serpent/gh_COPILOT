@@ -19,7 +19,8 @@ session wrap-up.
 *Phase&nbsp;5 advanced AI features are partially integrated and not yet production ready.*
 
 Module completion status and outstanding tasks are tracked in
-[PHASE5_TASKS_STARTED.md](PHASE5_TASKS_STARTED.md).
+[PHASE5_TASKS_STARTED.md](PHASE5_TASKS_STARTED.md). Detailed stub progress is
+available in [STUB_MODULE_STATUS.md](STUB_MODULE_STATUS.md).
 
 ### **Core Technical Architecture**
 - **Unified Enterprise Systems**: Gradual consolidation of legacy scripts into modular packages
