@@ -2,15 +2,21 @@
 
 This project includes an automated placeholder audit to keep the codebase compliant.
 
-1. Run `scripts/code_placeholder_audit.py` to scan the workspace. It logs unresolved
-   placeholders to `analytics.db` and updates `dashboard/compliance/placeholder_summary.json`.
-2. When placeholders are removed from the codebase, rerun the audit with
+1. Run `scripts/code_placeholder_audit.py --task-report reports/placeholder_tasks.json`
+   to scan the workspace. It logs unresolved placeholders to `analytics.db`, writes a
+   task report (JSON or Markdown), and updates
+   `dashboard/compliance/placeholder_summary.json`.
+2. Use `scripts/placeholder_enforcer.py --report reports/placeholder_tasks.json` to
+   open tracking tickets or PR stubs for each unresolved placeholder. The enforcer
+   marks matching entries in `analytics.db.todo_fixme_tracking` and refreshes the
+   dashboard metrics.
+3. When placeholders are removed from the codebase, rerun the audit with
    `--update-resolutions` to automatically purge resolved entries from the tracking table.
-3. Pass `--apply-fixes` to remove placeholder comments directly from source files. The
+4. Pass `--apply-fixes` to remove placeholder comments directly from source files. The
    audit also cleans up any placeholder metadata that is no longer needed.
-4. `dashboard/compliance_metrics_updater.py` reads `analytics.db` and recomputes the
-   `compliance_score` based on remaining open placeholders. Run it to refresh the
-   dashboard after each audit.
+5. `dashboard/compliance_metrics_updater.py` reads `analytics.db` and recomputes the
+   `compliance_score` based on remaining open or ticketed placeholders. Run it to
+   refresh the dashboard after each audit/enforcement.
 
 The `DatabaseComplianceChecker` now corrects common issues automatically. Its
 `correct_file` routine removes placeholder markers (such as `TODO` or

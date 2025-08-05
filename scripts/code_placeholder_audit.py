@@ -111,15 +111,39 @@ def fetch_db_placeholders(production_db: Path) -> List[str]:
 
 
 # Generate human-readable tasks for removing placeholders
-def generate_removal_tasks(results: List[Dict]) -> List[str]:
-    """Return actionable tasks for each detected placeholder."""
+def generate_removal_tasks(results: List[Dict]) -> List[Dict[str, str]]:
+    """Return structured tasks for each detected placeholder.
 
-    tasks: List[str] = []
+    Each task includes the human readable description along with the
+    original placeholder metadata so downstream tooling can parse it.
+    """
+
+    tasks: List[Dict[str, str]] = []
     for item in results:
-        tasks.append(
+        description = (
             f"Remove {item['pattern']} in {item['file']}:{item['line']} - {item['context']}"
         )
+        tasks.append(
+            {
+                "task": description,
+                "file": item["file"],
+                "line": str(item["line"]),
+                "pattern": item["pattern"],
+                "context": item["context"],
+            }
+        )
     return tasks
+
+
+def write_tasks_report(tasks: List[Dict[str, str]], report_path: Path) -> None:
+    """Write placeholder removal tasks to JSON or Markdown."""
+
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    if report_path.suffix.lower() == ".md":
+        lines = [f"- [ ] {t['task']}" for t in tasks]
+        report_path.write_text("\n".join(lines), encoding="utf-8")
+    else:
+        report_path.write_text(json.dumps(tasks, indent=2), encoding="utf-8")
 
 
 # Insert findings into analytics.db.code_audit_log
@@ -622,6 +646,7 @@ def main(
     update_resolutions: bool = False,
     apply_fixes: bool = False,
     export: Optional[Path] = None,
+    task_report: Optional[Path] = None,
     summary_json: Optional[str] = None,
     fail_on_findings: bool = False,
 ) -> bool:
@@ -723,7 +748,9 @@ def main(
         export.write_text(json.dumps(results, indent=2), encoding="utf-8")
     tasks = generate_removal_tasks(results)
     for task in tasks:
-        log_message(__name__, f"[TASK] {task}")
+        log_message(__name__, f"[TASK] {task['task']}")
+    if task_report:
+        write_tasks_report(tasks, task_report)
     if apply_fixes and not simulate:
         auto_remove_placeholders(results, production, analytics)
     secondary_copilot_validator.run_flake8([r["file"] for r in results])
@@ -811,6 +838,11 @@ def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
     parser.add_argument("--rollback-id", type=int, help="Rollback a specific entry id")
     parser.add_argument("--export", type=Path, help="Export audit results to JSON")
     parser.add_argument(
+        "--task-report",
+        type=Path,
+        help="Write unresolved placeholder tasks to JSON or Markdown",
+    )
+    parser.add_argument(
         "--summary-json",
         type=str,
         help="Explicit path for placeholder_summary.json output",
@@ -854,6 +886,7 @@ if __name__ == "__main__":
         update_resolutions=args.update_resolutions,
         apply_fixes=args.apply_fixes,
         export=args.export,
+        task_report=args.task_report,
         summary_json=args.summary_json,
         fail_on_findings=args.fail_on_findings,
     )
