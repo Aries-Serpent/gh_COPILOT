@@ -332,8 +332,51 @@ def calculate_composite_score(
             if (placeholders_open + placeholders_resolved)
             else 100.0
         ),
-    }
+    } 
     return score, breakdown
+
+
+def calculate_code_quality_score(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+    placeholders_open: int,
+    placeholders_resolved: int,
+) -> tuple[float, dict[str, float]]:
+    """Return a composite code quality score and ratios.
+
+    The helper combines three sources of information:
+
+    ``ruff_issues``
+        Total lint findings from ``ruff``. Fewer issues yield higher scores.
+
+    ``tests_passed``/``tests_failed``
+        Used to compute a pytest pass ratio. If no tests ran the ratio is ``0``.
+
+    ``placeholders_open``/``placeholders_resolved``
+        Used to determine how many TODO/FIXME markers have been resolved.
+
+    The final score is the arithmetic mean of the lint score, test pass ratio
+    and placeholder resolution ratio, expressed on a ``0..100`` scale.
+    """
+
+    total_tests = tests_passed + tests_failed
+    pass_ratio = tests_passed / total_tests if total_tests else 0.0
+    total_placeholders = placeholders_open + placeholders_resolved
+    resolution_ratio = (
+        placeholders_resolved / total_placeholders if total_placeholders else 1.0
+    )
+    lint_score = max(0.0, 100 - ruff_issues)
+    test_score = pass_ratio * 100
+    placeholder_score = resolution_ratio * 100
+    composite = round((lint_score + test_score + placeholder_score) / 3, 2)
+    return composite, {
+        "lint_score": round(lint_score, 2),
+        "test_pass_ratio": round(pass_ratio, 2),
+        "placeholder_resolution_ratio": round(resolution_ratio, 2),
+        "test_score": round(test_score, 2),
+        "placeholder_score": round(placeholder_score, 2),
+    }
 
 
 def persist_compliance_score(score: float, db_path: Path | None = None) -> None:
@@ -624,6 +667,7 @@ __all__ = [
     "calculate_compliance_score",
     "persist_compliance_score",
     "calculate_composite_score",
+    "calculate_code_quality_score",
     "record_code_quality_metrics",
     "get_latest_compliance_score",
     "calculate_and_persist_compliance_score",

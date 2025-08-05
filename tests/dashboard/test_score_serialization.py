@@ -48,7 +48,8 @@ def test_metrics_include_composite_score(tmp_path, monkeypatch):
     _, ed_module = _prepare_metrics(tmp_path, monkeypatch)
     data = ed_module._load_metrics()["metrics"]
     assert data["compliance_score"] == 84.0
-    assert data["composite_score"] == pytest.approx(84.0, rel=1e-3)
+    assert data["code_quality_score"] == pytest.approx(81.67, rel=1e-3)
+    assert data["composite_score"] == pytest.approx(81.67, rel=1e-3)
     assert data["score_breakdown"]["placeholder_score"] == pytest.approx(70.0, rel=1e-3)
 
 
@@ -56,5 +57,5 @@ def test_dashboard_compliance_route(tmp_path, monkeypatch):
     client, _ = _prepare_metrics(tmp_path, monkeypatch)
     resp = client.get("/dashboard/compliance")
     data = resp.get_json()["metrics"]
-    assert data["composite_score"] == pytest.approx(84.0, rel=1e-3)
+    assert data["code_quality_score"] == pytest.approx(81.67, rel=1e-3)
     assert data["score_breakdown"]["lint_score"] == pytest.approx(95.0, rel=1e-3)

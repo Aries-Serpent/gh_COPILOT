@@ -20,12 +20,12 @@ import time
 
 from flask import Flask, Response, jsonify, render_template, request
 
-from utils.validation_utils import (
-    validate_enterprise_environment,
-    calculate_composite_compliance_score,
-)
+from utils.validation_utils import validate_enterprise_environment
 from database_first_synchronization_engine import list_events
-from enterprise_modules.compliance import get_latest_compliance_score
+from enterprise_modules.compliance import (
+    get_latest_compliance_score,
+    calculate_code_quality_score,
+)
 
 
 # Paths to metrics and rollback data
@@ -66,14 +66,16 @@ def _load_metrics() -> dict[str, Any]:
             )
             row = cur.fetchone()
             if row:
-                scores = calculate_composite_compliance_score(
+                score, breakdown = calculate_code_quality_score(
                     row["ruff_issues"],
                     row["tests_passed"],
                     row["tests_failed"],
                     row["placeholders_open"],
+                    row["placeholders_resolved"],
                 )
-                metrics["composite_score"] = scores["composite"]
-                metrics["score_breakdown"] = scores
+                metrics["code_quality_score"] = score
+                metrics["composite_score"] = score
+                metrics["score_breakdown"] = breakdown
     except sqlite3.Error as exc:  # pragma: no cover - log and continue
         logging.error("Composite fetch error: %s", exc)
     return {"metrics": metrics, "notes": []}
