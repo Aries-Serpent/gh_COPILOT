@@ -3,10 +3,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from scripts.database.cross_database_sync_logger import (
-    log_sync_operation,
-    log_sync_operation_with_analytics,
-)
+from scripts.database.cross_database_sync_logger import log_sync_operation
 from scripts.database.unified_database_initializer import initialize_database
 
 
