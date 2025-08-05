@@ -145,7 +145,14 @@ class ComplianceMetricsUpdater:
                 except websockets.ConnectionClosed:
                     self._ws_clients.discard(ws)
 
-        asyncio.run(_send())
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            # No running event loop, safe to use asyncio.run()
+            asyncio.run(_send())
+        else:
+            # Already in an event loop, schedule the coroutine
+            loop.create_task(_send())
 
     def _fetch_compliance_metrics(self, *, test_mode: bool = False) -> Dict[str, Any]:
         """Fetch compliance metrics from analytics.db."""
