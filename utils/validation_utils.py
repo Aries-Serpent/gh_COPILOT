@@ -30,13 +30,14 @@ def calculate_composite_compliance_score(
     tests_failed: int
         Number of tests that failed.
     placeholders: int
-        Remaining TODO/FIXME markers in the repository.
+        Remaining placeholder markers in the repository.
 
     Returns
     -------
     Dict[str, float]
         Dictionary containing ``lint_score``, ``test_score``,
-        ``placeholder_score`` and ``composite``.
+        ``placeholder_score`` and ``composite``. The composite score is
+        weighted at 40% lint, 40% tests, and 20% placeholders.
     """
 
     total_tests = tests_passed + tests_failed
@@ -44,7 +45,8 @@ def calculate_composite_compliance_score(
     lint_score = max(0.0, 100 - ruff_issues)
     placeholder_score = max(0.0, 100 - (10 * placeholders))
     composite = round(
-        0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score, 2
+        0.4 * lint_score + 0.4 * test_score + 0.2 * placeholder_score,
+        2,
     )
     return {
         "lint_score": round(lint_score, 2),

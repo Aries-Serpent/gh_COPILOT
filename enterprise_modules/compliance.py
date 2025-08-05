@@ -115,11 +115,13 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
     setattr(_detect_recursion, "last_pid", pid)
     setattr(_detect_recursion, "max_depth_reached", 0)
     setattr(_detect_recursion, "aborted", False)
+    setattr(_detect_recursion, "aborted_path", None)
 
     # Abort immediately if the working directory itself exceeds ``max_depth``
     root_depth = len(root.relative_to(root.anchor).parts)
     if root_depth > max_depth:
         setattr(_detect_recursion, "aborted", True)
+        setattr(_detect_recursion, "aborted_path", root)
         _record_recursion_pid(root, pid)
         return True
 
@@ -133,13 +135,18 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
             "max_depth_reached",
             max(getattr(_detect_recursion, "max_depth_reached"), depth),
         )
-        if depth > max_depth:
-            setattr(_detect_recursion, "aborted", True)
-            return True
         try:
             current_resolved = current.resolve()
         except OSError:
             return False
+
+        _record_recursion_pid(current_resolved, pid)
+
+        if depth > max_depth:
+            setattr(_detect_recursion, "aborted", True)
+            setattr(_detect_recursion, "aborted_path", current_resolved)
+            return True
+
         if current_resolved in visited:
             return True
         visited.add(current_resolved)
@@ -147,9 +154,14 @@ def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bo
         for child in current.iterdir():
             if not child.is_dir():
                 continue
+            try:
+                child_resolved = child.resolve()
+            except OSError:
+                continue
             if child.name == root.name and child != root:
+                _record_recursion_pid(child_resolved, pid)
                 try:
-                    child.resolve().relative_to(root)
+                    child_resolved.relative_to(root)
                 except ValueError:
                     pass
                 else:

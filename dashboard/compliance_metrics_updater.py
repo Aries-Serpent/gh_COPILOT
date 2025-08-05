@@ -26,11 +26,11 @@ from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
 from enterprise_modules.compliance import (
     validate_enterprise_operation,
-    calculate_composite_score,
     record_code_quality_metrics,
     _run_ruff,
     _run_pytest,
 )
+from utils.validation_utils import calculate_composite_compliance_score
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
 from unified_monitoring_optimization_system import (
     EnterpriseUtility,
@@ -306,12 +306,11 @@ class ComplianceMetricsUpdater:
         else:
             ruff_issues = _run_ruff()
             tests_passed, tests_failed = _run_pytest()
-        composite, breakdown = calculate_composite_score(
+        scores = calculate_composite_compliance_score(
             ruff_issues,
             tests_passed,
             tests_failed,
             metrics.get("open_placeholders", 0),
-            metrics.get("resolved_placeholders", 0),
         )
         metrics["composite_score"] = composite
         metrics["composite_compliance_score"] = composite
@@ -322,7 +321,7 @@ class ComplianceMetricsUpdater:
             tests_failed,
             metrics.get("open_placeholders", 0),
             metrics.get("resolved_placeholders", 0),
-            composite,
+            scores["composite"],
             db_path=ANALYTICS_DB,
             test_mode=test_mode,
         )

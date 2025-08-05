@@ -14,7 +14,7 @@ def test_composite_score_mixed_inputs():
     assert scores["lint_score"] == 90.0
     assert scores["test_score"] == 80.0
     assert scores["placeholder_score"] == 70.0
-    assert scores["composite"] == 81.0
+    assert scores["composite"] == 82.0
 
 
 def test_composite_score_handles_zero_tests():
@@ -22,4 +22,4 @@ def test_composite_score_handles_zero_tests():
     assert scores["lint_score"] == 95.0
     assert scores["test_score"] == 0.0
     assert scores["placeholder_score"] == 80.0
-    assert scores["composite"] == 44.5
+    assert scores["composite"] == 54.0

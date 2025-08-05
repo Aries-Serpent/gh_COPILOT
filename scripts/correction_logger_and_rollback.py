@@ -233,17 +233,21 @@ class CorrectionLoggerRollback:
     ) -> None:
         """Record a compliance violation in ``violation_logs``."""
         with sqlite3.connect(self.analytics_db) as conn:
-            conn.execute(
-                "INSERT INTO violation_logs (timestamp, event, details, cause, remediation_path, rollback_trigger) VALUES (?, ?, ?, ?, ?, ?)",
-                (
-                    datetime.now().isoformat(),
-                    "violation",
-                    details,
-                    cause,
-                    remediation_path,
-                    rollback_trigger,
-                ),
+            columns = {row[1] for row in conn.execute("PRAGMA table_info(violation_logs)")}
+            values_map = {
+                "timestamp": datetime.now().isoformat(),
+                "event": "violation",
+                "details": details,
+                "cause": cause,
+                "remediation_path": remediation_path,
+                "rollback_trigger": rollback_trigger,
+            }
+            insert_cols = [col for col in values_map if col in columns]
+            placeholders = ", ".join(["?"] * len(insert_cols))
+            sql = (
+                f"INSERT INTO violation_logs ({', '.join(insert_cols)}) VALUES ({placeholders})"
             )
+            conn.execute(sql, tuple(values_map[col] for col in insert_cols))
             conn.commit()
         _log_event(
             {
