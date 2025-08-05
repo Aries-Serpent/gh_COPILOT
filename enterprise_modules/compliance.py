@@ -31,6 +31,11 @@ FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
 MAX_RECURSION_DEPTH = 5
 PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
 
+# Weights for the composite compliance score components
+LINT_WEIGHT = 0.3
+TEST_WEIGHT = 0.5
+PLACEHOLDER_WEIGHT = 0.2
+
 
 F = TypeVar("F", bound=Callable[..., Any])
 _ACTIVE_PIDS: set[int] = set()
@@ -313,8 +318,12 @@ def calculate_compliance_score(
         if total_placeholders
         else 100.0
     )
-    weighted_score = 0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score
-    return round(weighted_score, 2)
+    score = (
+        LINT_WEIGHT * lint_score
+        + TEST_WEIGHT * test_score
+        + PLACEHOLDER_WEIGHT * placeholder_score
+    )
+    return round(score, 2)
 
 
 def calculate_composite_score(
@@ -324,8 +333,17 @@ def calculate_composite_score(
     placeholders_open: int,
     placeholders_resolved: int,
 ) -> tuple[float, dict]:
-    """Return composite score and component breakdown on a 0–100 scale."""
+    """Return composite score and weighted component breakdown on a 0–100 scale."""
 
+    total_tests = tests_passed + tests_failed
+    total_placeholders = placeholders_open + placeholders_resolved
+    lint_score = max(0.0, 100 - ruff_issues)
+    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+    placeholder_score = (
+        placeholders_resolved / total_placeholders * 100
+        if total_placeholders
+        else 100.0
+    )
     score = calculate_compliance_score(
         ruff_issues,
         tests_passed,
@@ -339,20 +357,13 @@ def calculate_composite_score(
         "tests_failed": tests_failed,
         "placeholders_open": placeholders_open,
         "placeholders_resolved": placeholders_resolved,
-        "lint_score": max(0.0, 100 - ruff_issues),
-        "test_score": (
-            tests_passed / (tests_passed + tests_failed) * 100
-            if (tests_passed + tests_failed)
-            else 0.0
-        ),
-        "placeholder_score": (
-            placeholders_resolved
-            / (placeholders_open + placeholders_resolved)
-            * 100
-            if (placeholders_open + placeholders_resolved)
-            else 100.0
-        ),
-    } 
+        "lint_score": round(lint_score, 2),
+        "test_score": round(test_score, 2),
+        "placeholder_score": round(placeholder_score, 2),
+        "lint_weighted": round(LINT_WEIGHT * lint_score, 2),
+        "test_weighted": round(TEST_WEIGHT * test_score, 2),
+        "placeholder_weighted": round(PLACEHOLDER_WEIGHT * placeholder_score, 2),
+    }
     return score, breakdown
 
 
