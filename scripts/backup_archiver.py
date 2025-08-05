@@ -13,7 +13,10 @@ import py7zr
 from enterprise_modules.compliance import validate_enterprise_operation
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import anti_recursion_guard
-from secondary_copilot_validator import SecondaryCopilotValidator
+from secondary_copilot_validator import (
+    SecondaryCopilotValidator,
+    run_dual_copilot_validation,
+)
 
 
 @anti_recursion_guard
@@ -38,7 +41,16 @@ def archive_backups() -> Path:
                 zf.write(item, item.relative_to(backup_root))
 
     logging.info("Archived backups to %s", archive_path)
-    SecondaryCopilotValidator().validate_corrections([], primary_success=True)
+
+    validator = SecondaryCopilotValidator()
+
+    def _primary() -> bool:
+        return archive_path.exists()
+
+    def _secondary() -> bool:
+        return validator.validate_corrections([], primary_success=True)
+
+    run_dual_copilot_validation(_primary, _secondary)
     return archive_path
 
 
