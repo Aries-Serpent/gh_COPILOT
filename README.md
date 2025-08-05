@@ -75,7 +75,10 @@ score = (lint_score + test_score + placeholder_score) / 3
 ```
 
 This value is persisted to `analytics.db` and surfaced via
-`dashboard/enterprise_dashboard.py`.
+`dashboard/enterprise_dashboard.py`. Anti-recursion guards such as
+`validate_enterprise_operation` and `anti_recursion_guard` run alongside these
+calculations; runs that trigger recursion violations are excluded from
+scoring.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1,679 scripts synchronized
