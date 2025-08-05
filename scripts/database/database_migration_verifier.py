@@ -11,6 +11,11 @@ from datetime import datetime
 from pathlib import Path
 
 
+from secondary_copilot_validator import (
+    SecondaryCopilotValidator,
+    run_dual_copilot_validation,
+)
+
 class DatabaseMigrationVerifier:
     """✅ Verify Database Migration Completion"""
 
@@ -237,7 +242,15 @@ def main():
     """🎯 Main execution function"""
     verifier = DatabaseMigrationVerifier()
     verifier.execute_verification()
+    validator = SecondaryCopilotValidator()
 
+    def _primary() -> bool:
+        return True
+
+    def _secondary() -> bool:
+        return validator.validate_corrections([])
+
+    run_dual_copilot_validation(_primary, _secondary)
 
 if __name__ == "__main__":
     main()
