@@ -1,8 +1,8 @@
-# Quantum Hardware Setup
+# Quantum Simulation Setup
 
 > **Status:** Hardware execution is not supported. This guide is retained for
 future reference. Current modules always use local simulators and ignore all
-hardware flags.
+hardware flags; tokens and backend selections are treated as placeholders.
 
 This document outlines prospective configuration steps for IBM Quantum
 integration. At present, modules run exclusively in simulation mode.
@@ -18,8 +18,8 @@ integration. At present, modules run exclusively in simulation mode.
    ```json
    {"QISKIT_IBM_TOKEN": "your_token_here"}
    ```
-   Tokens are currently unused but will be required once hardware
-   integration lands.
+   Tokens are currently unused and act solely as placeholders until
+   hardware integration lands.
 
 ## 2. Backend Selection (Future)
 Specify a backend name via `IBM_BACKEND`:
@@ -29,7 +29,7 @@ export IBM_BACKEND="ibm_nairobi"
 Backend variables are ignored today; the system always uses `aer_simulator`.
 
 ## 3. CLI Usage
-Hardware flags are accepted but currently have no effect. Example commands run
+Hardware flags are accepted but have no effect. Example commands run
 in simulation regardless of the parameters:
 ```bash
 python -m quantum.cli.executor_cli --use-hardware --backend ibm_nairobi --token "$QISKIT_IBM_TOKEN"

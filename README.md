@@ -22,11 +22,11 @@
 The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality operates solely through simulators; hardware execution is not yet available.
 
 > **Note**
-> Modules accept backend-selection environment variables such as `QUANTUM_USE_HARDWARE`, `QUANTUM_BACKEND`, and `QISKIT_IBM_TOKEN`, but these flags are no-ops until hardware support lands.
+> Modules accept backend-selection environment variables such as `QUANTUM_USE_HARDWARE`, `QUANTUM_BACKEND`, and `QISKIT_IBM_TOKEN`, but these flags are ignored and the simulator is always used.
 > **Roadmap**
-> Hardware integration is planned for future phases; current builds always use simulators.
+> Hardware integration is planned for future phases; current builds forcibly select simulator backends regardless of configuration.
 > **Phase 5 AI**
-> Advanced AI integration features operate in simulation mode by default and only attempt hardware execution when explicitly configured.
+> Advanced AI integration features operate in simulation mode by default and ignore hardware execution flags.
 
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** sessions automatically apply lessons from `learning_monitor.db`
