@@ -1,3 +1,4 @@
+import os
 import threading
 import time
 
@@ -37,3 +38,31 @@ def test_guard_aborts_on_duplicate_pid():
     with pytest.raises(RuntimeError):
         slow_call()
     t.join()
+
+
+def test_guard_allows_single_invocation():
+    """Single invocation proceeds normally and records parent-child PID."""
+
+    @anti_recursion_guard
+    def hello():
+        return "ok"
+
+    assert hello() == "ok"
+
+
+def test_guard_aborts_on_pid_loop():
+    """Artificial parent/child PID loop triggers early abort."""
+
+    @anti_recursion_guard
+    def invoke():
+        return True
+
+    import enterprise_modules.compliance as comp
+
+    parent = os.getppid()
+    comp._PID_PARENTS[parent] = os.getpid()
+    try:
+        with pytest.raises(RuntimeError):
+            invoke()
+    finally:
+        comp._PID_PARENTS.pop(parent, None)
