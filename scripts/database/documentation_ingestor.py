@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import os
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -13,6 +14,9 @@ from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from template_engine.learning_templates import get_dataset_sources
+
+from secondary_copilot_validator import SecondaryCopilotValidator
+from utils.log_utils import log_event
 
 from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes
@@ -45,8 +49,12 @@ def ingest_documentation(
     """
     validate_enterprise_operation()
 
+    validator = SecondaryCopilotValidator()
+
     db_dir = workspace / "databases"
     db_path = db_dir / "enterprise_assets.db"
+    analytics_db = Path(os.getenv("ANALYTICS_DB", str(db_dir / "analytics.db")))
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
 
     if not db_path.exists():
         initialize_database(db_path)
@@ -56,7 +64,8 @@ def ingest_documentation(
 
     dataset_dbs = get_dataset_sources(str(workspace))
     existing_docs: set[str] = set()
-    existing_hashes: set[str] = set()
+    existing_sha256: set[str] = set()
+    existing_md5: set[str] = set()
 
     if db_path.exists():
         try:
@@ -68,7 +77,7 @@ def ingest_documentation(
                             "SELECT doc_path FROM documentation_assets"
                         )
                     )
-                    existing_hashes.update(
+                    existing_sha256.update(
                         row[0]
                         for row in conn.execute(
                             "SELECT content_hash FROM documentation_assets"
@@ -76,7 +85,7 @@ def ingest_documentation(
                     )
         except sqlite3.Error:
             existing_docs = set()
-            existing_hashes = set()
+            existing_sha256 = set()
 
     primary_db = dataset_dbs[0] if dataset_dbs else None
     if primary_db and primary_db.exists() and primary_db != db_path:
@@ -89,7 +98,7 @@ def ingest_documentation(
                             "SELECT doc_path FROM documentation_assets"
                         )
                     )
-                    existing_hashes.update(
+                    existing_sha256.update(
                         row[0]
                         for row in prod_conn.execute(
                             "SELECT content_hash FROM documentation_assets"
@@ -97,6 +106,15 @@ def ingest_documentation(
                     )
         except sqlite3.Error:
             pass
+
+    for doc_path in existing_docs:
+        full_path = workspace / doc_path
+        if full_path.exists():
+            try:
+                content = full_path.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            existing_md5.add(hashlib.md5(content.encode()).hexdigest())
 
     start_time = datetime.now(timezone.utc)
     logger.info("Starting documentation ingestion at %s", start_time.isoformat())
@@ -107,12 +125,12 @@ def ingest_documentation(
             conn.close()
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
-        existing_hashes = {
+        existing_sha256.update(
             row[0]
             for row in conn.execute(
                 "SELECT content_hash FROM documentation_assets"
             )
-        }
+        )
 
         with conn, tqdm(total=len(files), desc="Docs", unit="file") as bar:
             for path in files:
@@ -122,47 +140,86 @@ def ingest_documentation(
                     raise TimeoutError("Documentation ingestion timed out")
 
                 rel_path = str(path.relative_to(workspace))
+                status = "SUCCESS"
+                digest_sha256 = ""
+                digest_md5 = ""
+
                 if path.stat().st_size == 0:
+                    status = "SKIPPED"
                     logger.warning("Skipping zero-byte file: %s", path)
                     conn.commit()
                     log_sync_operation(
                         db_path,
                         "documentation_ingestion",
-                        status="SKIPPED",
+                        status=status,
                         start_time=file_start,
+                    )
+                    log_event(
+                        {
+                            "module": "documentation_ingestor",
+                            "level": "INFO",
+                            "doc_path": rel_path,
+                            "status": status,
+                        },
+                        db_path=analytics_db,
                     )
                     bar.update(1)
                     continue
 
                 content = path.read_text(encoding="utf-8")
-                digest = hashlib.sha256(content.encode()).hexdigest()
-                if digest in existing_hashes:
+                digest_sha256 = hashlib.sha256(content.encode()).hexdigest()
+                digest_md5 = hashlib.md5(content.encode()).hexdigest()
+                if digest_sha256 in existing_sha256 or digest_md5 in existing_md5:
+                    status = "DUPLICATE"
                     logger.info(
-                        "Duplicate content detected: %s (hash=%s)",
+                        "Duplicate content detected: %s (sha256=%s md5=%s)",
                         path,
-                        digest,
+                        digest_sha256,
+                        digest_md5,
                     )
                     conn.commit()
                     log_sync_operation(
                         db_path,
                         "documentation_ingestion",
-                        status="DUPLICATE",
+                        status=status,
                         start_time=file_start,
+                    )
+                    log_event(
+                        {
+                            "module": "documentation_ingestor",
+                            "level": "INFO",
+                            "doc_path": rel_path,
+                            "status": status,
+                            "sha256": digest_sha256,
+                            "md5": digest_md5,
+                        },
+                        db_path=analytics_db,
                     )
                     bar.update(1)
                     continue
                 if rel_path in existing_docs:
+                    status = "EXISTS"
                     logger.info("Skipping existing document: %s", path)
                     conn.commit()
                     log_sync_operation(
                         db_path,
                         "documentation_ingestion",
-                        status="EXISTS",
+                        status=status,
                         start_time=file_start,
+                    )
+                    log_event(
+                        {
+                            "module": "documentation_ingestor",
+                            "level": "INFO",
+                            "doc_path": rel_path,
+                            "status": status,
+                            "sha256": digest_sha256,
+                            "md5": digest_md5,
+                        },
+                        db_path=analytics_db,
                     )
                     bar.update(1)
                     continue
-                existing_hashes.add(digest)
                 modified_at = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
                 conn.execute(
                     (
@@ -172,7 +229,7 @@ def ingest_documentation(
                     ),
                     (
                         rel_path,
-                        digest,
+                        digest_sha256,
                         datetime.now(timezone.utc).isoformat(),
                         modified_at,
                     ),
@@ -181,12 +238,25 @@ def ingest_documentation(
                 log_sync_operation(
                     db_path,
                     "documentation_ingestion",
-                    status="SUCCESS",
+                    status=status,
                     start_time=file_start,
+                )
+                validator.validate_corrections([str(path)])
+                log_event(
+                    {
+                        "module": "documentation_ingestor",
+                        "level": "INFO",
+                        "doc_path": rel_path,
+                        "status": status,
+                        "sha256": digest_sha256,
+                        "md5": digest_md5,
+                    },
+                    db_path=analytics_db,
                 )
                 bar.update(1)
                 existing_docs.add(rel_path)
-                existing_hashes.add(digest)
+                existing_sha256.add(digest_sha256)
+                existing_md5.add(digest_md5)
     finally:
         conn.commit()
         conn.close()
