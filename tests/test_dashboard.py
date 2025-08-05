@@ -29,7 +29,6 @@ def test_websocket_broadcast(monkeypatch, tmp_path: Path):
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
 
     updater = cmu.ComplianceMetricsUpdater(tmp_path, test_mode=True)
-    import time
     time.sleep(0.2)
 
     async def receive() -> str:
