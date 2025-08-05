@@ -361,12 +361,10 @@ def calculate_composite_score(
         if total_placeholders
         else 100.0
     )
-    score = calculate_compliance_score(
-        ruff_issues,
-        tests_passed,
-        tests_failed,
-        placeholders_open,
-        placeholders_resolved,
+    score = (
+        LINT_WEIGHT * lint_score
+        + TEST_WEIGHT * test_score
+        + PLACEHOLDER_WEIGHT * placeholder_score
     )
     breakdown = {
         "ruff_issues": ruff_issues,
@@ -381,7 +379,7 @@ def calculate_composite_score(
         "test_weighted": round(TEST_WEIGHT * test_score, 2),
         "placeholder_weighted": round(PLACEHOLDER_WEIGHT * placeholder_score, 2),
     }
-    return score, breakdown
+    return round(score, 2), breakdown
 
 
 def calculate_code_quality_score(
