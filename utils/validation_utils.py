@@ -30,7 +30,7 @@ def calculate_composite_compliance_score(
     tests_failed: int
         Number of tests that failed.
     placeholders: int
-        Remaining TODO/FIXME markers in the repository.
+        Remaining placeholder markers in the repository.
 
     Returns
     -------
