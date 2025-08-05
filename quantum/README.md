@@ -5,8 +5,9 @@ gh_COPILOT toolkit.
 
 > **Note**
 > Modules automatically attempt hardware execution when IBM Quantum credentials
-> are supplied. Set `QISKIT_IBM_TOKEN` or pass a token directly to APIs. If
-> hardware access is unavailable the local simulator is used.
+> are supplied. Set `QISKIT_IBM_TOKEN` or pass a token directly to APIs. The
+> `QUANTUM_USE_HARDWARE` environment variable forces hardware mode when set to
+> `"1"`. If hardware access is unavailable the local simulator is used.
 
 ## Optimizers
 - `optimizers.quantum_optimizer.QuantumOptimizer` – classical/quantum hybrid
