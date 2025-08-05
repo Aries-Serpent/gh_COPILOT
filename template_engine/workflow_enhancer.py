@@ -292,6 +292,7 @@ class TemplateWorkflowEnhancer:
         with open(report_file, "r", encoding="utf-8") as f:
             data = json.load(f)
         actual_count = data.get("total_templates", 0)
+        SecondaryCopilotValidator().validate_corrections([str(report_file)])
         return actual_count >= expected_count
 
 

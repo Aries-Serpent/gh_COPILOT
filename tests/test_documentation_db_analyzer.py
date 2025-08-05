@@ -62,3 +62,18 @@ def test_analyzer_runs_validator_and_logs(tmp_path: Path, monkeypatch) -> None:
     with sqlite3.connect(analytics) as conn:
         count = conn.execute("SELECT COUNT(*) FROM doc_analysis").fetchone()[0]
     assert count == 1
+
+
+def test_validate_analysis_runs_validator(tmp_path: Path, monkeypatch) -> None:
+    analytics = tmp_path / "analytics.db"
+    with sqlite3.connect(analytics) as conn:
+        conn.execute("CREATE TABLE doc_audit (id INTEGER)")
+        conn.execute("INSERT INTO doc_audit VALUES (1)")
+    dummy = type(
+        "D", (), {"called": False, "validate_corrections": lambda self, files: setattr(self, "called", True) or True}
+    )()
+    import scripts.database.documentation_db_analyzer as mod
+
+    monkeypatch.setattr(mod, "SecondaryCopilotValidator", lambda: dummy)
+    assert validate_analysis(analytics, 1)
+    assert dummy.called
