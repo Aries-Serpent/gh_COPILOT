@@ -9,8 +9,11 @@ import sqlite3
 import subprocess
 import sys
 import json
+import threading
 from datetime import datetime
+from functools import wraps
 from pathlib import Path
+from typing import Any, Callable, TypeVar, cast
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.log_utils import send_dashboard_alert
@@ -27,6 +30,45 @@ class ComplianceError(Exception):
 FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
 MAX_RECURSION_DEPTH = 5
 PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
+
+
+F = TypeVar("F", bound=Callable[..., Any])
+_ACTIVE_PIDS: set[int] = set()
+_PID_DEPTHS: dict[int, int] = {}
+_GUARD_LOCK = threading.Lock()
+
+
+def anti_recursion_guard(func: F) -> F:
+    """Decorator tracking recursion depth and active PIDs.
+
+    Aborts when ``MAX_RECURSION_DEPTH`` is exceeded or when the current PID
+    attempts to re-enter while still active.
+    """
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any):
+        pid = os.getpid()
+        with _GUARD_LOCK:
+            depth = _PID_DEPTHS.get(pid, 0)
+            if depth >= MAX_RECURSION_DEPTH:
+                raise RuntimeError("Recursion depth exceeded")
+            if pid in _ACTIVE_PIDS:
+                raise RuntimeError("PID already active")
+            _PID_DEPTHS[pid] = depth + 1
+            _ACTIVE_PIDS.add(pid)
+
+        try:
+            return func(*args, **kwargs)
+        finally:
+            with _GUARD_LOCK:
+                remaining = _PID_DEPTHS.get(pid, 0) - 1
+                if remaining <= 0:
+                    _PID_DEPTHS.pop(pid, None)
+                    _ACTIVE_PIDS.discard(pid)
+                else:
+                    _PID_DEPTHS[pid] = remaining
+
+    return cast(F, wrapper)
 
 
 def _load_forbidden_paths() -> list[str]:
@@ -577,6 +619,7 @@ __all__ = [
     "run_final_validation",
     "validate_environment",
     "enforce_anti_recursion",
+    "anti_recursion_guard",
     "generate_compliance_summary",
     "calculate_compliance_score",
     "persist_compliance_score",
