@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.1.21] - 2025-08-11
+- Resolved hard-coded workspace path in `EnterpriseUtility` to honor
+  `GH_COPILOT_WORKSPACE`, restoring cross-platform compatibility.
+- Updated compliance dashboard tests for revised code quality scoring.
+
 ## [4.1.20] - 2025-08-10
 - Audited README, docs, and whitepaper to clarify simulation-only quantum modules and partial module completion.
 - Updated compliance metrics descriptions and fixed progress checklist in PHASE5_TASKS_STARTED.md.
