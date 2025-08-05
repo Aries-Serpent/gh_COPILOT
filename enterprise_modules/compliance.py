@@ -10,6 +10,7 @@ import subprocess
 import sys
 import json
 import threading
+import logging
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
@@ -45,6 +46,9 @@ _PID_CHILDREN: dict[int, set[int]] = {}
 _GUARD_LOCK = threading.Lock()
 _PID_LOG_LOCK = threading.Lock()
 _PID_THREADS: dict[int, set[int]] = {}
+# Track simple call depth per process ID to prevent excessive recursion
+_PROCESS_DEPTHS: dict[int, int] = {}
+_PROCESS_DEPTH_LOCK = threading.Lock()
 
 
 def anti_recursion_guard(func: F) -> F:
@@ -117,6 +121,45 @@ def anti_recursion_guard(func: F) -> F:
                                 _PID_CHILDREN.pop(parent, None)
                 else:
                     _PID_DEPTHS[pid] = remaining
+
+    return cast(F, wrapper)
+
+
+def pid_recursion_guard(func: F) -> F:
+    """Guard against excessive recursion per process ID.
+
+    Each process ID maintains its own call depth counter. When the
+    counter exceeds ``MAX_RECURSION_DEPTH`` the call is aborted and a
+    compliance violation is logged with the offending PID for auditing.
+    """
+
+    logger = logging.getLogger(__name__)
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any):
+        pid = os.getpid()
+        with _PROCESS_DEPTH_LOCK:
+            current = _PROCESS_DEPTHS.get(pid, 0)
+            next_depth = current + 1
+            if next_depth > MAX_RECURSION_DEPTH:
+                logger.error(
+                    "Recursion depth %s exceeded for PID %s", next_depth, pid
+                )
+                _log_violation(f"recursion_violation:pid={pid}:depth={next_depth}")
+                raise ComplianceError(
+                    f"Recursion depth {next_depth} exceeded for PID {pid}"
+                )
+            _PROCESS_DEPTHS[pid] = next_depth
+
+        try:
+            return func(*args, **kwargs)
+        finally:
+            with _PROCESS_DEPTH_LOCK:
+                remaining = _PROCESS_DEPTHS.get(pid, 0) - 1
+                if remaining <= 0:
+                    _PROCESS_DEPTHS.pop(pid, None)
+                else:
+                    _PROCESS_DEPTHS[pid] = remaining
 
     return cast(F, wrapper)
 
@@ -742,6 +785,7 @@ __all__ = [
     "validate_environment",
     "enforce_anti_recursion",
     "anti_recursion_guard",
+    "pid_recursion_guard",
     "generate_compliance_summary",
     "calculate_compliance_score",
     "persist_compliance_score",
