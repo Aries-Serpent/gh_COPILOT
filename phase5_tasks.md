@@ -13,3 +13,5 @@ score = 0.3 * L + 0.5 * T + 0.2 * P
 ```
 
 This applies weights of **30%** to lint results, **50%** to tests, and **20%** to placeholder cleanup. The score is stored in `analytics.db` and surfaced at `/dashboard/compliance`.
+
+Implemented in [`calculate_composite_score`](enterprise_modules/compliance.py), the function returns the overall score and a breakdown of each weighted component for dashboard use.

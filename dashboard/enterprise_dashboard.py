@@ -24,7 +24,7 @@ from utils.validation_utils import validate_enterprise_environment
 from database_first_synchronization_engine import list_events
 from enterprise_modules.compliance import (
     get_latest_compliance_score,
-    calculate_code_quality_score,
+    calculate_composite_score,
 )
 
 
@@ -66,7 +66,7 @@ def _load_metrics() -> dict[str, Any]:
             )
             row = cur.fetchone()
             if row:
-                score, breakdown = calculate_code_quality_score(
+                score, breakdown = calculate_composite_score(
                     row["ruff_issues"],
                     row["tests_passed"],
                     row["tests_failed"],

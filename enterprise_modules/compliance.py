@@ -547,10 +547,18 @@ def calculate_and_persist_compliance_score() -> float:
     issues = _run_ruff()
     passed, failed = _run_pytest()
     placeholders_open = _count_placeholders()
-    score = calculate_compliance_score(
+    score, _ = calculate_composite_score(
         issues, passed, failed, placeholders_open, 0
     )
     persist_compliance_score(score)
+    record_code_quality_metrics(
+        issues,
+        passed,
+        failed,
+        placeholders_open,
+        0,
+        score,
+    )
     send_dashboard_alert({"event": "compliance_score", "score": score})
     return score
 
