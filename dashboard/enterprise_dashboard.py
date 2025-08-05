@@ -20,12 +20,12 @@ import time
 
 from flask import Flask, Response, jsonify, render_template, request
 
-from utils.validation_utils import validate_enterprise_environment
-from database_first_synchronization_engine import list_events
-from enterprise_modules.compliance import (
-    calculate_compliance_score,
-    get_latest_compliance_score,
+from utils.validation_utils import (
+    validate_enterprise_environment,
+    calculate_composite_compliance_score,
 )
+from database_first_synchronization_engine import list_events
+from enterprise_modules.compliance import get_latest_compliance_score
 
 
 # Paths to metrics and rollback data
@@ -66,29 +66,14 @@ def _load_metrics() -> dict[str, Any]:
             )
             row = cur.fetchone()
             if row:
-                total_tests = row["tests_passed"] + row["tests_failed"]
-                total_ph = row["placeholders_open"] + row["placeholders_resolved"]
-                metrics["composite_score"] = calculate_compliance_score(
+                scores = calculate_composite_compliance_score(
                     row["ruff_issues"],
                     row["tests_passed"],
                     row["tests_failed"],
                     row["placeholders_open"],
-                    row["placeholders_resolved"],
                 )
-                metrics["score_breakdown"] = {
-                    "ruff_issues": row["ruff_issues"],
-                    "tests_passed": row["tests_passed"],
-                    "tests_failed": row["tests_failed"],
-                    "placeholders_open": row["placeholders_open"],
-                    "placeholders_resolved": row["placeholders_resolved"],
-                    "test_score": row["tests_passed"] / total_tests * 100 if total_tests else 0.0,
-                    "lint_score": max(0, 100 - row["ruff_issues"]),
-                    "placeholder_score": (
-                        row["placeholders_resolved"] / total_ph * 100
-                        if total_ph
-                        else 100.0
-                    ),
-                }
+                metrics["composite_score"] = scores["composite"]
+                metrics["score_breakdown"] = scores
     except sqlite3.Error as exc:  # pragma: no cover - log and continue
         logging.error("Composite fetch error: %s", exc)
     return {"metrics": metrics, "notes": []}

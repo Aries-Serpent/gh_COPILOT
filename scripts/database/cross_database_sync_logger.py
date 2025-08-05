@@ -23,7 +23,6 @@ from enterprise_modules.compliance import validate_enterprise_operation
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.log_utils import log_event
 from utils.logging_utils import setup_enterprise_logging
-from utils.log_utils import log_event
 
 logger = logging.getLogger(__name__)
 

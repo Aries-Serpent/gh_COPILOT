@@ -1,12 +1,14 @@
 import threading
 import time
 import importlib
+import sqlite3
 import sys
 import types
 
 import py7zr
 import pytest
 
+from enterprise_modules import compliance
 from utils.validation_utils import anti_recursion_guard
 import utils.validation_utils as validation_utils_module
 from scripts.validation.semantic_search_reference_validator import (
@@ -91,3 +93,43 @@ def test_guard_applied_to_semantic_validator(monkeypatch, tmp_path):
     with pytest.raises(RuntimeError):
         validate_no_recursive_folders()
     t.join()
+
+
+def test_detect_recursion_records_pid_for_nested_paths(monkeypatch, tmp_path):
+    root = tmp_path / "root"
+    root.mkdir()
+    nested = root / "root"
+    nested.mkdir()
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(root))
+
+    assert compliance._detect_recursion(root) is True
+
+    with sqlite3.connect(root / "databases" / "analytics.db") as conn:
+        rows = conn.execute("SELECT path, pid FROM recursion_pid_log").fetchall()
+
+    paths = {row[0] for row in rows}
+    assert str(root.resolve()) in paths
+    assert str(nested.resolve()) in paths
+    pids = {row[1] for row in rows}
+    assert compliance._detect_recursion.last_pid in pids
+
+
+def test_detect_recursion_aborts_on_depth(monkeypatch, tmp_path):
+    root = tmp_path / "root"
+    root.mkdir()
+    current = root
+    for i in range(compliance.MAX_RECURSION_DEPTH + 2):
+        current = current / f"lvl{i}"
+        current.mkdir()
+
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(root))
+
+    assert compliance._detect_recursion(root) is True
+    assert compliance._detect_recursion.aborted is True
+
+    aborted_path = compliance._detect_recursion.aborted_path
+    with sqlite3.connect(root / "databases" / "analytics.db") as conn:
+        paths = {row[0] for row in conn.execute("SELECT path FROM recursion_pid_log")}
+
+    assert str(root.resolve()) in paths
+    assert str(aborted_path.resolve()) in paths
