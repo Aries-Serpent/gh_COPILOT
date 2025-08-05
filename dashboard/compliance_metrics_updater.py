@@ -88,19 +88,64 @@ class ComplianceMetricsUpdater:
         self.process_id = os.getpid()
         self.timeout_seconds = 1800  # 30 minutes
         self.status = "INITIALIZED"
+        self.recursion_status = "unknown"
         validate_no_recursive_folders()
+        self.recursion_status = "clear"
         validate_environment_root()
         logging.info("PROCESS STARTED: Compliance Metrics Update")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
         ensure_tables(
             ANALYTICS_DB,
-            ["violation_logs", "rollback_logs", "correction_logs"],
+            ["violation_logs", "rollback_logs", "correction_logs", "event_log"],
             test_mode=self.test_mode,
         )
         self.forbidden_phrases = ["rm -rf", "sudo", "wget "]
         self.monitoring_utility = EnterpriseUtility()
         self.correction_logger = CorrectionLoggerRollback(ANALYTICS_DB)
+        self._ws_clients: set[Any] = set()
+        if os.environ.get("LOG_WEBSOCKET_ENABLED") == "1":
+            threading.Thread(target=self._run_ws_server, daemon=True).start()
+
+    def _run_ws_server(self) -> None:
+        try:
+            import asyncio
+            import websockets
+        except ImportError:  # pragma: no cover - optional dependency
+            logging.warning("websockets package not available - skipping metrics broadcast")
+            return
+
+        async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
+            self._ws_clients.add(websocket)
+            try:
+                await websocket.wait_closed()
+            finally:
+                self._ws_clients.discard(websocket)
+
+        async def main() -> None:
+            async with websockets.serve(handler, "localhost", 8765):
+                await asyncio.Future()
+
+        asyncio.run(main())
+
+    def _broadcast_ws(self, metrics: Dict[str, Any]) -> None:
+        if not self._ws_clients:
+            return
+        try:
+            import asyncio
+            import websockets
+        except ImportError:  # pragma: no cover - optional dependency
+            return
+
+        async def _send() -> None:
+            message = json.dumps(metrics)
+            for ws in list(self._ws_clients):
+                try:
+                    await ws.send(message)
+                except websockets.ConnectionClosed:
+                    self._ws_clients.discard(ws)
+
+        asyncio.run(_send())
 
     def _fetch_compliance_metrics(self, *, test_mode: bool = False) -> Dict[str, Any]:
         """Fetch compliance metrics from analytics.db."""
@@ -262,6 +307,7 @@ class ComplianceMetricsUpdater:
             metrics.get("resolved_placeholders", 0),
         )
         metrics["composite_score"] = composite
+        metrics["composite_compliance_score"] = composite
         metrics["score_breakdown"] = breakdown
         record_code_quality_metrics(
             ruff_issues,
@@ -366,12 +412,16 @@ class ComplianceMetricsUpdater:
                 break
             try:
                 validate_no_recursive_folders()
+                self.recursion_status = "clear"
                 self._check_forbidden_operations()
             except Exception as exc:  # DualCopilotOrchestrator validation
+                self.recursion_status = "violation"
                 logging.exception("Streaming validation failed: %s", exc)
                 raise
 
             metrics = self._fetch_compliance_metrics()
+            metrics["recursion_status"] = self.recursion_status
+            metrics["composite_compliance_score"] = metrics.get("composite_score", 0.0)
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
             yield metrics
             count += 1
@@ -392,6 +442,8 @@ class ComplianceMetricsUpdater:
             "metrics": metrics,
             "status": metrics.get("progress_status", "updated"),
             "timestamp": datetime.now().isoformat(),
+            "composite_compliance_score": metrics.get("composite_compliance_score", 0.0),
+            "recursion_status": metrics.get("recursion_status", "unknown"),
         }
         dashboard_file.write_text(json.dumps(dashboard_content, indent=2), encoding="utf-8")
         rollback_file.write_text(
@@ -411,11 +463,18 @@ class ComplianceMetricsUpdater:
             logf.write(log_entry)
         logging.info("Update event logged.")
         insert_event(
-            {"event": "dashboard_update", "metrics": metrics},
+            {
+                "timestamp": timestamp,
+                "module": "dashboard",
+                "level": "INFO",
+                "description": "dashboard_update",
+                "details": json.dumps(metrics),
+            },
             "event_log",
             db_path=ANALYTICS_DB,
             test_mode=test_mode,
         )
+        self._broadcast_ws(metrics)
         if metrics.get("violation_count"):
             insert_event(
                 {"event": "violation", "count": metrics["violation_count"]},
