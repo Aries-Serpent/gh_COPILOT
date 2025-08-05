@@ -4,22 +4,21 @@ from __future__ import annotations
 
 import logging
 import os
+import shutil
 from datetime import datetime
 from pathlib import Path
 
 from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import _log_event
 from validation.protocols.session import SessionProtocolValidator
-from utils.validation_utils import anti_recursion_guard
+from utils.validation_utils import anti_recursion_guard, validate_enterprise_environment
 
 
 class EnterpriseUtility:
     """Simplified executor for session consolidation tests."""
 
     def __init__(self, workspace_path: str | Path | None = None) -> None:
-        self.workspace_path = Path(
-            workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
-        )
+        self.workspace_path = Path(workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
         validate_enterprise_operation()
         self.logger = logging.getLogger(__name__)
         self.validator = SessionProtocolValidator(str(self.workspace_path))
@@ -28,12 +27,45 @@ class EnterpriseUtility:
         self.pid_file = backup_root / "session_management_consolidation_executor.pid"
 
     def _validate_environment(self) -> bool:
-        valid = bool(os.getenv("GH_COPILOT_WORKSPACE")) and bool(os.getenv("GH_COPILOT_BACKUP_ROOT"))
+        """Ensure workspace and backup paths are set and non-recursive."""
+        try:
+            validate_enterprise_environment()
+            valid = True
+        except EnvironmentError as exc:  # pragma: no cover - explicit logging
+            self.logger.error("[ERROR] %s", exc)
+            valid = False
+        _log_event({"event": "environment_check", "valid": valid}, db_path=self.analytics_db)
+        return valid
+
+    def _backup_analytics_db(self) -> None:
+        """Back up analytics database and record rollback log."""
+        backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp")).resolve()
+        workspace = self.workspace_path.resolve()
+        if workspace in backup_root.parents or backup_root == workspace:
+            self.logger.error("[ERROR] Backup root inside workspace: %s", backup_root)
+            _log_event(
+                {"event": "backup_failed", "target": str(self.analytics_db)},
+                table="rollback_logs",
+                db_path=self.analytics_db,
+            )
+            return
+        backup_root.mkdir(parents=True, exist_ok=True)
+        backup_file = backup_root / f"{self.analytics_db.name}.bak"
+        try:
+            shutil.copy2(self.analytics_db, backup_file)
+        except OSError as exc:  # pragma: no cover - rare filesystem error
+            self.logger.error("[ERROR] Backup failed: %s", exc)
+            _log_event(
+                {"event": "backup_failed", "target": str(self.analytics_db)},
+                table="rollback_logs",
+                db_path=self.analytics_db,
+            )
+            return
         _log_event(
-            {"event": "environment_check", "valid": valid},
+            {"event": "backup_created", "target": str(self.analytics_db), "backup": str(backup_file)},
+            table="rollback_logs",
             db_path=self.analytics_db,
         )
-        return valid
 
     def perform_utility_function(self) -> bool:
         """Return ``False`` if any zero-byte files are present."""
@@ -52,6 +84,8 @@ class EnterpriseUtility:
             self.logger.info("[START] Utility started: %s", datetime.now().isoformat())
             _log_event({"event": "utility_start"}, db_path=self.workspace_path / "analytics.db")
             env_ok = self._validate_environment()
+            if env_ok:
+                self._backup_analytics_db()
             validation = self.validator.validate_startup()
             success = env_ok and validation.is_success and self.perform_utility_function()
             if success:
