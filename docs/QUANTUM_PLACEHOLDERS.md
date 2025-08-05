@@ -48,4 +48,13 @@ Refer to [README.md](../README.md) for a high-level overview of how these placeh
 This document tracks the placeholder status and will be updated as the
 quantum roadmap progresses.
 
+### Staged Roadmap
+
+| Module | Stage 0 – Current Stub | Stage 1 – Simulator Parity | Stage 2 – Hardware Pilot | Stage 3 – Production |
+| --- | --- | --- | --- | --- |
+| `quantum_placeholder_algorithm.py` | pass-through mock | Q1 2025 | Q4 2025 | 2026 |
+| `quantum_annealing.py` | toy annealer | Q2 2025 | 2026 (D-Wave) | 2027 |
+| `quantum_entanglement_correction.py` | bell pair demo | Q1 2025 | Q4 2025 (Rigetti/IBM) | 2026 |
+| `quantum_superposition_search.py` | uniform distribution | Q1 2025 | Q4 2025 (IonQ) | 2026 |
+
 Progress on clarifying these placeholders is tracked in [PHASE5_TASKS_STARTED.md](PHASE5_TASKS_STARTED.md#19-clarify-quantum-placeholder-features).
