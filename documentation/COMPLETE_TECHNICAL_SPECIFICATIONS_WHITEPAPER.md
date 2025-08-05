@@ -27,7 +27,12 @@ The gh_COPILOT Toolkit v4.0 represents a revolutionary enterprise-grade automati
 - **Web Interface**: Flask dashboard with basic endpoints and templates
 - **Advanced AI Integration**: tooling supports further automation efforts
 - **Quantum-Enhanced Processing**: placeholder algorithms under exploration
- - *All Qiskit-based functions run in simulation mode only. Installing `qiskit-ibm-provider` and setting `QISKIT_IBM_TOKEN` has no effect because IBM Quantum hardware integration is not yet available and several quantum modules remain stubs.*
+ - *All Qiskit-based functions run in simulation mode only. Installing
+   `qiskit-ibm-provider` and setting `QISKIT_IBM_TOKEN` has no effect because
+   IBM Quantum hardware integration is not yet available and several quantum
+   modules remain stubs. Environment variables like `QUANTUM_USE_HARDWARE` and
+   `IBM_BACKEND` are retained for future compatibility but are currently
+   ignored.*
  - Module completion and placeholder tracking are detailed in [../docs/STUB_MODULE_STATUS.md](../docs/STUB_MODULE_STATUS.md).
 - **Enterprise Security Framework**: Zero-tolerance anti-recursion and comprehensive session integrity
  - *Note: earlier drafts referenced a 32+ database ecosystem. The current repository contains **27** SQLite databases for testing.*

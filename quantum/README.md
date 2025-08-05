@@ -4,32 +4,32 @@ This package provides experimental quantum-inspired utilities used across the
 gh_COPILOT toolkit.
 
 > **Note**
-> Modules automatically attempt hardware execution when IBM Quantum credentials
-> are supplied. Set `QISKIT_IBM_TOKEN` or pass a token directly to APIs. If
-> hardware access is unavailable the local simulator is used.
+> All utilities currently run **exclusively** on local Qiskit simulators.
+> Environment variables such as `QISKIT_IBM_TOKEN`, `QUANTUM_USE_HARDWARE`, and
+> `IBM_BACKEND` are accepted for future compatibility but are treated as
+> no-ops. Hardware execution is not yet supported.
 
 ## Optimizers
 - `optimizers.quantum_optimizer.QuantumOptimizer` – classical/quantum hybrid
   optimizer with progress logging. Events are recorded using
   `utils.log_utils._log_event` when executed via higher-level workflows.
-  Use `configure_backend()` for consistent configuration; credentials may be
-  supplied via argument or environment variable. Hardware backends are used
-  when available, otherwise the local simulator is selected.
+Use `configure_backend()` for consistent configuration; credentials may be
+supplied via argument or environment variable. The function always selects the
+local simulator and ignores hardware-specific settings.
 
 ## Database Search
 - `quantum.quantum_database_search` – lightweight helpers for SQL, NoSQL and
   hybrid search. All queries are logged to `analytics.db` for compliance.
 
-These modules run on IBM Quantum hardware when credentials are provided and the
-environment supports the provider. The `--hardware` flag in
+These modules always execute on simulators regardless of command-line flags or
+environment variables. The `--hardware` flag in
 `quantum_integration_orchestrator.py` and the `QUANTUM_USE_HARDWARE` environment
-variable enable hardware execution with automatic simulator fallback.
+variable are placeholders for future hardware support.
 
 ## IBM Quantum Access
 
-Set `QISKIT_IBM_TOKEN` or provide a token argument to enable hardware use. When
-no token is supplied or the provider fails to initialize, the system falls back
-to simulation.
+Setting `QISKIT_IBM_TOKEN` or providing a token argument has no effect today;
+the system always runs in simulation mode.
 
 ## Algorithms
 
@@ -42,8 +42,8 @@ to simulation.
 
 ## Backend utilities
 
-  - `utils.backend_provider.get_backend` – selects an IBM Quantum backend when
-    credentials are available, otherwise returns the local `Aer` simulator.
+  - `utils.backend_provider.get_backend` – returns the local `Aer` simulator.
+    Backend selection logic for real hardware is reserved for future phases.
 
 ## Pattern Recognition
 

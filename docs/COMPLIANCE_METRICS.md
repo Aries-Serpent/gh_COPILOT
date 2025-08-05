@@ -5,7 +5,9 @@ This document describes how compliance scores are calculated for the dashboard.
 ## Compliance Score
 
 The compliance score measures progress resolving placeholders while
-accounting for outstanding issues. It is computed as:
+accounting for outstanding issues. Anti-recursion validation via
+`enterprise_modules.compliance.enforce_anti_recursion` must succeed before
+any score is recorded. The score is computed as:
 
 ```
 base = resolved_placeholders / (resolved_placeholders + open_placeholders)
@@ -50,3 +52,29 @@ The helper computes three component scores:
 
 The final compliance score is the arithmetic mean of these components and is
 persisted to ``analytics.db`` for dashboard visualization.
+
+## Code Quality Score Helper
+
+The dashboard exposes a richer breakdown via
+``enterprise_modules.compliance.calculate_code_quality_score``:
+
+```python
+from enterprise_modules.compliance import calculate_code_quality_score
+score, breakdown = calculate_code_quality_score(
+    ruff_issues,
+    tests_passed,
+    tests_failed,
+    placeholders_open,
+    placeholders_resolved,
+)
+```
+
+This helper returns the composite score along with the ratios used to derive
+it:
+
+- ``lint_score`` – ``max(0, 100 - ruff_issues)``
+- ``test_pass_ratio`` – ``tests_passed / (tests_passed + tests_failed)``
+- ``placeholder_resolution_ratio`` – ``placeholders_resolved / total_placeholders``
+
+The final ``score`` is the mean of ``lint_score``, ``test_pass_ratio * 100`` and
+``placeholder_resolution_ratio * 100``.

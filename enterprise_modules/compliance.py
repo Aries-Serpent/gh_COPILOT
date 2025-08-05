@@ -9,8 +9,11 @@ import sqlite3
 import subprocess
 import sys
 import json
+import threading
 from datetime import datetime
+from functools import wraps
 from pathlib import Path
+from typing import Any, Callable, TypeVar, cast
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.log_utils import send_dashboard_alert
@@ -27,6 +30,45 @@ class ComplianceError(Exception):
 FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
 MAX_RECURSION_DEPTH = 5
 PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
+
+
+F = TypeVar("F", bound=Callable[..., Any])
+_ACTIVE_PIDS: set[int] = set()
+_PID_DEPTHS: dict[int, int] = {}
+_GUARD_LOCK = threading.Lock()
+
+
+def anti_recursion_guard(func: F) -> F:
+    """Decorator tracking recursion depth and active PIDs.
+
+    Aborts when ``MAX_RECURSION_DEPTH`` is exceeded or when the current PID
+    attempts to re-enter while still active.
+    """
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any):
+        pid = os.getpid()
+        with _GUARD_LOCK:
+            depth = _PID_DEPTHS.get(pid, 0)
+            if depth >= MAX_RECURSION_DEPTH:
+                raise RuntimeError("Recursion depth exceeded")
+            if pid in _ACTIVE_PIDS:
+                raise RuntimeError("PID already active")
+            _PID_DEPTHS[pid] = depth + 1
+            _ACTIVE_PIDS.add(pid)
+
+        try:
+            return func(*args, **kwargs)
+        finally:
+            with _GUARD_LOCK:
+                remaining = _PID_DEPTHS.get(pid, 0) - 1
+                if remaining <= 0:
+                    _PID_DEPTHS.pop(pid, None)
+                    _ACTIVE_PIDS.discard(pid)
+                else:
+                    _PID_DEPTHS[pid] = remaining
+
+    return cast(F, wrapper)
 
 
 def _load_forbidden_paths() -> list[str]:
@@ -290,8 +332,51 @@ def calculate_composite_score(
             if (placeholders_open + placeholders_resolved)
             else 100.0
         ),
-    }
+    } 
     return score, breakdown
+
+
+def calculate_code_quality_score(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+    placeholders_open: int,
+    placeholders_resolved: int,
+) -> tuple[float, dict[str, float]]:
+    """Return a composite code quality score and ratios.
+
+    The helper combines three sources of information:
+
+    ``ruff_issues``
+        Total lint findings from ``ruff``. Fewer issues yield higher scores.
+
+    ``tests_passed``/``tests_failed``
+        Used to compute a pytest pass ratio. If no tests ran the ratio is ``0``.
+
+    ``placeholders_open``/``placeholders_resolved``
+        Used to determine how many TODO/FIXME markers have been resolved.
+
+    The final score is the arithmetic mean of the lint score, test pass ratio
+    and placeholder resolution ratio, expressed on a ``0..100`` scale.
+    """
+
+    total_tests = tests_passed + tests_failed
+    pass_ratio = tests_passed / total_tests if total_tests else 0.0
+    total_placeholders = placeholders_open + placeholders_resolved
+    resolution_ratio = (
+        placeholders_resolved / total_placeholders if total_placeholders else 1.0
+    )
+    lint_score = max(0.0, 100 - ruff_issues)
+    test_score = pass_ratio * 100
+    placeholder_score = resolution_ratio * 100
+    composite = round((lint_score + test_score + placeholder_score) / 3, 2)
+    return composite, {
+        "lint_score": round(lint_score, 2),
+        "test_pass_ratio": round(pass_ratio, 2),
+        "placeholder_resolution_ratio": round(resolution_ratio, 2),
+        "test_score": round(test_score, 2),
+        "placeholder_score": round(placeholder_score, 2),
+    }
 
 
 def persist_compliance_score(score: float, db_path: Path | None = None) -> None:
@@ -577,10 +662,12 @@ __all__ = [
     "run_final_validation",
     "validate_environment",
     "enforce_anti_recursion",
+    "anti_recursion_guard",
     "generate_compliance_summary",
     "calculate_compliance_score",
     "persist_compliance_score",
     "calculate_composite_score",
+    "calculate_code_quality_score",
     "record_code_quality_metrics",
     "get_latest_compliance_score",
     "calculate_and_persist_compliance_score",

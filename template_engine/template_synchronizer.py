@@ -287,7 +287,7 @@ def run_migrations(db: Path, *, dry_run: bool = False) -> None:
 
 
 def _compliance_check(conn: sqlite3.Connection) -> bool:
-    """Check that all templates in DB are compliant (PEP8/flake8 placeholder)."""
+    """Check that all templates in DB meet PEP8 and flake8 compliance."""
     try:
         rows = conn.execute("SELECT template_content FROM templates").fetchall()
         for (content,) in rows:
@@ -536,8 +536,8 @@ def synchronize_templates_real(
                         db_path=ANALYTICS_DB,
                         test_mode=True,
                     )
-                except sqlite3.Error:  # pragma: no cover - rollback best effort
-                    pass
+                except sqlite3.Error as rollback_exc:  # pragma: no cover - rollback best effort
+                    logger.warning("Rollback failed for %s: %s", db, rollback_exc)
                 conn.close()
             _log_audit_real(str(db), str(exc))
             insert_event(

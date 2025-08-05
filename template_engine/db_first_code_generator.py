@@ -481,3 +481,25 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
             raise
 
         return path
+
+    def validate_scores(self, expected: int) -> bool:
+        """Validate that ranking analytics contain at least ``expected`` rows.
+
+        This secondary check enforces the dual-copilot pattern by
+        delegating to :class:`SecondaryCopilotValidator` after reading the
+        analytics database.
+        """
+        if not self.analytics_db.exists():
+            return False
+        with sqlite3.connect(self.analytics_db) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT COUNT(*) FROM generator_events"
+                )
+                count = cur.fetchone()[0]
+            except sqlite3.Error:
+                return False
+        secondary_copilot_validator.SecondaryCopilotValidator().validate_corrections(
+            [str(self.analytics_db)]
+        )
+        return count >= expected
