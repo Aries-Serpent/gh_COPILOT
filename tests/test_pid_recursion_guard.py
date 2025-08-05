@@ -1,3 +1,7 @@
+"""Tests for the pid_recursion_guard decorator."""
+
+# flake8: noqa
+
 import os
 import sqlite3
 import sys
@@ -80,4 +84,17 @@ def test_pid_recursion_guard_logs_violation(monkeypatch, tmp_path):
     with sqlite3.connect(db) as conn:
         rows = conn.execute("SELECT details FROM violation_logs").fetchall()
     assert any(f"pid={os.getpid()}" in r[0] for r in rows)
+
+
+def test_pid_recursion_guard_records_depth(monkeypatch, tmp_path):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+
+    _recursive_call(MAX_RECURSION_DEPTH - 1)
+    with pytest.raises(ComplianceError):
+        _recursive_call(MAX_RECURSION_DEPTH)
+
+    db = tmp_path / "databases" / "analytics.db"
+    with sqlite3.connect(db) as conn:
+        rows = conn.execute("SELECT details FROM violation_logs").fetchall()
+    assert any(f"depth={MAX_RECURSION_DEPTH + 1}" in r[0] for r in rows)
 

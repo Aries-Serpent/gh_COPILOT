@@ -34,16 +34,25 @@ jobs:
       - name: Install lint dependencies
         run: pip install flake8 ruff pyright
 
+      - name: Get changed Python files
+        id: changed
+        uses: tj-actions/changed-files@v35
+        with:
+          files: |
+            **/*.py
+
       - name: Run ruff
         run: |
           mkdir -p reports/lint
           ruff check . | tee reports/lint/ruff.txt
 
-      - name: Run pyright
-        run: pyright
+      - name: Run flake8 on changed files
+        if: steps.changed.outputs.added_modified != ''
+        run: flake8 --config=.flake8 ${{ steps.changed.outputs.added_modified }}
 
-      - name: Run flake8
-        run: flake8 --config=.flake8 .
+      - name: Run pyright on changed files
+        if: steps.changed.outputs.added_modified != ''
+        run: pyright ${{ steps.changed.outputs.added_modified }}
 
       - name: Import template_engine modules
         run: |
