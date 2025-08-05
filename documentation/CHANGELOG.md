@@ -1,5 +1,10 @@
 # CHANGELOG - gh_COPILOT Enterprise Toolkit
 
+## [4.1.5] - 2025-07-27
+### Changed
+- Documentation updates to clarify simulation-only quantum modules and reflect
+  new compliance scoring and anti-recursion safeguards.
+
 ## [4.1.4] - 2025-07-27
 ### Added
 - Script `ensure_enhanced_lessons_learned_table.py` validates defaults and creates

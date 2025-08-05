@@ -5,14 +5,20 @@
 - **QuantumExecutor**: manages backend selection and executes registered algorithms.
 - **QuantumIntegrationOrchestrator**: high level interface that coordinates algorithm execution using the registry and executor.
 
-## Simulation Fallback
-- Hardware execution is not implemented; even with `QISKIT_IBM_TOKEN` the system uses `qasm_simulator` from `qiskit`.
-- Interfaces mirror potential hardware usage for future parity.
-- Maintains identical interfaces so future hardware support can plug in without API changes.
+## Simulation Only
+- Hardware execution is not implemented; the integration always uses
+  `qasm_simulator` from `qiskit`.
+- Interfaces mirror potential hardware usage for future parity but currently
+  ignore hardware-specific settings.
+- Maintains identical interfaces so future hardware support can plug in without
+  API changes.
 
 ## Hardware Requirements
-- Future hardware execution will require `qiskit` plus `qiskit-ibm-provider` and a valid IBM Quantum token provided via the `QISKIT_IBM_TOKEN` environment variable.
-- Setting `QUANTUM_USE_HARDWARE=1` enables hardware mode; when these prerequisites are missing the integration continues to run on simulators.
+- Future hardware execution will require `qiskit` plus `qiskit-ibm-provider`
+  and a valid IBM Quantum token provided via the `QISKIT_IBM_TOKEN` environment
+  variable.
+- Environment variables such as `QUANTUM_USE_HARDWARE` and `IBM_BACKEND` are
+  currently **no-ops**; the system always runs on simulators.
 
 ## Placeholder Modules
 
