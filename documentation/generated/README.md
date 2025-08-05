@@ -53,6 +53,9 @@ The gh_COPILOT Toolkit is an enterprise-grade system following database-first ar
 3. **Documentation Access**: Use web-GUI dashboard or database queries
 4. **Script Execution**: All scripts enterprise-validated and database-tracked
 
+### 📅 Daily White‑Paper Updates
+See [daily state index](daily_state_index.md) for links to daily white‑paper PDFs and their Markdown versions.
+
 For detailed instructions, see the generated documentation files in this directory.
 
 ---
