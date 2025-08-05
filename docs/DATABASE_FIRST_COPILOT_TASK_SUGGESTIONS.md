@@ -82,8 +82,8 @@ Recent updates:
 - **Action:** Run `template_engine/auto_generator.py` to populate the
   `template_usage_tracking` table with cluster data.
 
-## 8. TODO Audit Logging
- - Search the codebase for `TODO` and `FIXME` comments using `scripts/code_placeholder_audit.py`.
+## 8. Audit Logging
+ - Search the codebase for placeholder comments using `scripts/code_placeholder_audit.py`.
  - After corrections, run `scripts/code_placeholder_audit.py --update-resolutions` and update `/dashboard/compliance`.
  - Provide rollback utilities for automated cleanup scripts.
  - **Status:** In progress
