@@ -110,11 +110,23 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
 
         with conn, tqdm(total=len(files), desc="Templates", unit="file") as bar:
             for path in files:
+                file_start = datetime.now(timezone.utc)
                 rel_path = str(path.relative_to(workspace))
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
                 if digest in existing_hashes:
-                    logger.info("Skipping duplicate content: %s", path)
+                    logger.info(
+                        "Duplicate content detected: %s (hash=%s)",
+                        path,
+                        digest,
+                    )
+                    conn.commit()
+                    log_sync_operation(
+                        db_path,
+                        "template_ingestion",
+                        status="DUPLICATE",
+                        start_time=file_start,
+                    )
                     bar.update(1)
                     continue
                 existing_hashes.add(digest)
@@ -131,6 +143,13 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
                 conn.execute(
                     ("INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)"),
                     (content[:1000], datetime.now(timezone.utc).isoformat()),
+                )
+                conn.commit()
+                log_sync_operation(
+                    db_path,
+                    "template_ingestion",
+                    status="SUCCESS",
+                    start_time=file_start,
                 )
                 bar.update(1)
                 existing_paths.add(rel_path)

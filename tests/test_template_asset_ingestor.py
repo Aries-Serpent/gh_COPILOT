@@ -1,3 +1,5 @@
+import hashlib
+import logging
 import os
 import sqlite3
 from pathlib import Path
@@ -43,6 +45,32 @@ def test_duplicate_templates_skipped(tmp_path: Path) -> None:
     (templates_dir / "a.md").write_text("Sample")
     (templates_dir / "b.md").write_text("Sample")
     ingest_templates(workspace, templates_dir)
+    with sqlite3.connect(db_path) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM template_assets").fetchone()[0]
+    assert count == 1
+
+
+def test_reingest_template_logs_duplicate(tmp_path: Path, caplog, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    workspace = tmp_path
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    db_dir = workspace / "databases"
+    db_dir.mkdir()
+    db_path = db_dir / "enterprise_assets.db"
+    initialize_database(db_path)
+    templates_dir = workspace / "prompts"
+    templates_dir.mkdir()
+    temp_file = templates_dir / "sample.md"
+    content = "Sample"
+    temp_file.write_text(content)
+    ingest_templates(workspace, templates_dir)
+    caplog.clear()
+    caplog.set_level(logging.INFO)
+    ingest_templates(workspace, templates_dir)
+    digest = hashlib.sha256(content.encode()).hexdigest()
+    messages = " ".join(caplog.messages)
+    assert digest in messages
+    assert str(temp_file) in messages
     with sqlite3.connect(db_path) as conn:
         count = conn.execute("SELECT COUNT(*) FROM template_assets").fetchone()[0]
     assert count == 1
