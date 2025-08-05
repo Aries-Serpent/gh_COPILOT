@@ -327,6 +327,7 @@ def update_dashboard(
         "findings": open_count,
         "resolved_count": resolved,
         "compliance_score": compliance,
+        "progress": resolved / denominator if denominator else 1.0,
         "progress_status": status,
         "compliance_status": compliance_status,
         "placeholder_counts": placeholder_counts,
@@ -334,6 +335,50 @@ def update_dashboard(
     }
     path = summary_json or dashboard_dir / "placeholder_summary.json"
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+    # Persist metrics to analytics.db and metrics.json for dashboard consumption
+    dashboard_metrics = {
+        "open_placeholders": open_count,
+        "resolved_placeholders": resolved,
+        "compliance_score": compliance,
+        "progress": data["progress"],
+        "auto_removal_count": auto_removal_count,
+    }
+
+    if analytics_db.exists():
+        with sqlite3.connect(analytics_db) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS placeholder_metrics (
+                    timestamp TEXT,
+                    open_placeholders INTEGER,
+                    resolved_placeholders INTEGER,
+                    compliance_score REAL,
+                    progress REAL,
+                    auto_removal_count INTEGER
+                )
+                """
+            )
+            conn.execute(
+                "INSERT INTO placeholder_metrics VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    data["timestamp"],
+                    open_count,
+                    resolved,
+                    compliance,
+                    data["progress"],
+                    auto_removal_count,
+                ),
+            )
+            conn.commit()
+
+    metrics_path = dashboard_dir / "metrics.json"
+    metrics_payload = {
+        "metrics": dashboard_metrics,
+        "status": "updated",
+        "timestamp": data["timestamp"],
+    }
+    metrics_path.write_text(json.dumps(metrics_payload, indent=2), encoding="utf-8")
 
 
 # Scan a single file for placeholder patterns

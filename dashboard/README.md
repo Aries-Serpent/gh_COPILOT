@@ -137,7 +137,10 @@ The `/dashboard/compliance` endpoint returns compliance information as JSON, com
 {
   "metrics": {
     "placeholder_removal": 0,
+    "open_placeholders": 0,
+    "resolved_placeholders": 0,
     "compliance_score": 0.0,
+    "progress": 0.0,
     "violation_count": 0,
     "rollback_count": 0,
     "progress_status": "unknown",
@@ -164,7 +167,7 @@ The `/dashboard/compliance` endpoint returns compliance information as JSON, com
 }
 ```
 
-- `metrics` — Aggregated compliance metrics (e.g., placeholder removal count, compliance score); includes `progress_status` to summarize placeholder resolution progress
+- `metrics` — Aggregated compliance metrics (e.g., placeholder removal count, open and resolved placeholder totals, compliance score, remediation progress); includes `progress_status` to summarize placeholder resolution progress
 - `rollbacks` — List of correction and rollback events
 - `notes` — Array of status messages using text tags like `[SUCCESS]`
 
