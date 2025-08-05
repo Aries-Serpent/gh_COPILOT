@@ -1184,6 +1184,9 @@ Set these variables in your `.env` file or shell before running scripts:
 ## 🛠️ Troubleshooting
 
 - **Setup script fails** – ensure network access and rerun `bash setup.sh`.
+- **ImportError in `setup_environment.py`** – the script now adds the repository root to
+  `sys.path` when executed directly. Update to the latest commit if you see
+  `attempted relative import` errors.
 - **`clw` not found** – run `tools/install_clw.sh` to install and then `clw --help`.
 - **Database errors** – verify `GH_COPILOT_WORKSPACE` is configured correctly.
 
