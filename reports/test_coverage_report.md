@@ -23,3 +23,21 @@ Key failing suites include:
 - `tests/test_maintenance_scheduler.py`
 
 These failures indicate gaps in coverage or functionality that need to be addressed.
+
+## Latest Lint and Test Results
+
+### flake8
+Running `flake8` across the repository produced an internal recursion error in a dependency:
+
+```
+./.venv/lib/python3.12/site-packages/sympy/polys/numberfields/resolvent_lookup.py: "pyflakes[F]" failed during execution due to RecursionError('maximum recursion depth exceeded')
+```
+
+### pytest
+A focused run of new tests completed successfully:
+
+```
+4 passed, 4 warnings in 6.05s
+```
+
+An attempt to execute the full test suite was made, but it exceeded time limits and was terminated.
