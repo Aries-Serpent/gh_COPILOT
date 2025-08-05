@@ -15,7 +15,7 @@ Compliance and audit metrics are logged to `analytics.db` via the
 placeholder metrics before being computed by the `WLC_SESSION_MANAGER` during
 session wrap-up.
 
-*All quantum modules run exclusively in simulation mode; any hardware configuration is currently ignored until future integration lands.*
+*All quantum modules run exclusively in simulation mode; any hardware configuration is currently ignored until future integration lands. Hardware flags and tokens are retained for interface parity but have no effect.*
 *Phase&nbsp;5 advanced AI features are partially integrated and not yet production ready.*
 
 Module completion status and outstanding tasks are tracked in
@@ -27,7 +27,7 @@ available in [STUB_MODULE_STATUS.md](STUB_MODULE_STATUS.md).
 - **Multiple SQLite Databases**: `production.db` and related databases provide a central data source
 - **Web Interface**: planned Flask dashboard (implementation pending)
 - **Advanced AI Integration**: tooling supports further automation efforts
-- **Quantum-Inspired Processing**: placeholder routines for annealing and search operate in simulation mode; the `use_hardware` flag is currently ignored.
+- **Quantum-Inspired Processing**: placeholder routines for annealing and search operate in simulation mode; `use_hardware` flags and IBM tokens are ignored.
 - **Quantum-Inspired Communication**: prototype modules simulate secure channels and query encryption; real quantum encryption is not implemented.
 - **Compliance & Audit Framework**: `EnterpriseComplianceValidator` records code audits, rollback history, and compliance metrics in `analytics.db`.
 - **Enterprise Security Framework**: Zero-tolerance anti-recursion and comprehensive session integrity
