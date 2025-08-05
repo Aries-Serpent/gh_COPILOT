@@ -16,6 +16,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from enterprise_modules.compliance import (
+    anti_recursion_guard,
+    validate_enterprise_operation,
+)
+
 ANALYTICS_DB = Path("databases/analytics.db")
 
 
@@ -25,6 +30,7 @@ def _hash_payload(payload: Any) -> str:
     return hashlib.sha256(repr(payload).encode("utf-8")).hexdigest()
 
 
+@anti_recursion_guard
 def log_quantum_audit(
     algorithm_used: str, input_data: Any, output_data: Any, *, compliance_validated: bool = False
 ) -> None:
@@ -44,6 +50,8 @@ def log_quantum_audit(
 
     if not ANALYTICS_DB.exists():  # Database is optional in test environments
         return
+    if not validate_enterprise_operation(str(ANALYTICS_DB)):
+        raise RuntimeError("Invalid target path")
 
     try:
         with sqlite3.connect(ANALYTICS_DB) as conn:

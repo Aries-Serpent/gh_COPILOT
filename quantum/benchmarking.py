@@ -8,6 +8,11 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, Dict
 
+from enterprise_modules.compliance import (
+    anti_recursion_guard,
+    validate_enterprise_operation,
+)
+
 # Imports are deferred in functions to avoid heavy dependencies at import time
 
 try:
@@ -34,9 +39,12 @@ __all__ = [
 ]
 
 
+@anti_recursion_guard
 def load_metrics(path: str | Path = "production_performance_validation.json") -> Dict[str, Any]:
     """Load production performance metrics from a JSON file."""
     metrics_path = Path(path)
+    if not validate_enterprise_operation(str(metrics_path)):
+        raise RuntimeError("Invalid target path")
     with metrics_path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
