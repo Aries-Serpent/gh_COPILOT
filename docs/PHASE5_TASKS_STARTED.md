@@ -70,9 +70,8 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ## 17. Implement Anti-Recursion Guards
 - **Statement Excerpt:** "Integrity Checks: Implement zero‑byte detection, wrap‑up validation and anti‑recursion safeguards."
-- **Status:** Completed – validator tests enforce external backup roots. (100%)
-- **Status:** Started – anti-recursion decorator and PID tracking drafted.
-- **Progress:** [ ] 50% – anti-recursion guard decorator tests expanded and imports validated.
+- **Status:** Completed – depth-based aborts and PID tracking now enforced. (100%)
+- [x] **Progress:** 100% – guard decorator and database logging verified by tests.
 
 ## 18. Standardize Dual-Copilot Validation
 - **Statement Excerpt:** "Session Management Tie‑in: Link metrics to session lifecycle for full visibility" and "Comprehensive Tests" for validation.
@@ -94,9 +93,10 @@ These task stubs originate from the gap analysis report and have been formally s
 
 ### Progress Checklist
 
- - [x] 7. Align Documentation with Implementation — 100% complete
+- [x] 7. Align Documentation with Implementation — 100% complete
 - [x] 12. Update Changelog and User Prompts — 100% complete
-- [ ] 17. Implement Anti-Recursion Guards — 50% complete
-- [ ] 18. Standardize Dual-Copilot Validation — 40% complete
-- [ ] 19. Clarify Quantum Placeholder Features — 90% complete
-- [ ] 20. Implement Compliance Metrics Calculations — 40% complete
+- [x] 17. Implement Anti-Recursion Guards — 100% complete
+ - [x] 18. Standardize Dual-Copilot Validation — 100% complete
+ - [x] 19. Clarify Quantum Placeholder Features — 100% complete
+ - [ ] 20. Implement Compliance Metrics Calculations — 40% complete
+- [x] Dual-copilot hooks added to `docs_metrics_validator.py` and `backup_archiver.py`

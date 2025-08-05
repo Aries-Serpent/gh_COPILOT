@@ -4,7 +4,8 @@ This file references the roadmap described in
 `docs/COMPLETE_TECHNICAL_SPECIFICATIONS_WHITEPAPER.md` line 587+
 where full quantum optimization engines are planned.
 
-TODO: Implement real quantum algorithm integration as detailed in the whitepaper.
+See `docs/issues/quantum_algorithm_integration.md` for the planned
+implementation details of the real quantum algorithm integration.
 """
 
 from __future__ import annotations

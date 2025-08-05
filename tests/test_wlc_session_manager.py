@@ -1,5 +1,7 @@
 import pytest
 
+from pathlib import Path
+
 import scripts.wlc_session_manager as wsm
 from unified_session_management_system import prevent_recursion
 
@@ -49,7 +51,9 @@ def test_main_skips_side_effects_with_test_mode(unified_wrapup_session_db, tmp_p
 def test_orchestrator_called(unified_wrapup_session_db, tmp_path, monkeypatch):
     monkeypatch.setattr(wsm, "DB_PATH", unified_wrapup_session_db)
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backups"))
+    backup_root = tmp_path / "backups"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
     monkeypatch.setenv("TEST_MODE", "1")
 
     class DummyOrchestrator:
@@ -122,6 +126,39 @@ def test_missing_environment(monkeypatch):
     monkeypatch.delenv("TEST_MODE", raising=False)
     with pytest.raises(EnvironmentError):
         wsm.run_session(1, wsm.DB_PATH, False)
+
+
+def test_internal_backup_root_invalid(tmp_path, monkeypatch):
+    """Ensure backup root inside workspace triggers EnvironmentError."""
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    backup_root = tmp_path / "backups"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+    monkeypatch.delenv("TEST_MODE", raising=False)
+    with pytest.raises(EnvironmentError):
+        wsm.validate_environment()
+
+
+def test_backup_logging_records_entry(tmp_path, monkeypatch):
+    """Execute utility and confirm rollback log entry recorded."""
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    backup_root = tmp_path.parent / "backups"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+    analytics_db = tmp_path / "databases" / "analytics.db"
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    analytics_db.touch()
+    from session_management_consolidation_executor import EnterpriseUtility
+
+    util = EnterpriseUtility(str(tmp_path))
+    util.execute_utility()
+
+    import sqlite3
+
+    with sqlite3.connect(analytics_db) as conn:
+        rows = conn.execute("SELECT target, backup FROM rollback_logs").fetchall()
+    assert rows
+    assert Path(rows[0][1]).parent == backup_root
 
 
 def test_prevent_recursion_blocks_nested_calls():

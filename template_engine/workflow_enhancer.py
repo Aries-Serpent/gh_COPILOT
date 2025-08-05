@@ -89,14 +89,22 @@ class TemplateWorkflowEnhancer:
         """Cluster templates using KMeans for workflow optimization."""
         if not templates:
             return {}
-        feature_matrix = np.array([t["features"] for t in templates if t["features"]])
-        if feature_matrix.shape[0] < n_clusters:
-            n_clusters = max(1, feature_matrix.shape[0])
+        feature_matrix: list[list[float]] = []
+        valid_templates: list[Dict[str, Any]] = []
+        for tmpl in templates:
+            if tmpl["features"]:
+                feature_matrix.append(tmpl["features"])
+                valid_templates.append(tmpl)
+        if not feature_matrix:
+            return {}
+        matrix = np.array(feature_matrix)
+        if matrix.shape[0] < n_clusters:
+            n_clusters = max(1, matrix.shape[0])
         kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-        labels = kmeans.fit_predict(feature_matrix)
+        labels = kmeans.fit_predict(matrix)
         clusters = {i: [] for i in range(n_clusters)}
         for idx, label in enumerate(labels):
-            clusters[label].append(templates[idx])
+            clusters[label].append(valid_templates[idx])
         logging.info(f"Clustered templates into {n_clusters} clusters")
         return clusters
 
@@ -284,6 +292,7 @@ class TemplateWorkflowEnhancer:
         with open(report_file, "r", encoding="utf-8") as f:
             data = json.load(f)
         actual_count = data.get("total_templates", 0)
+        SecondaryCopilotValidator().validate_corrections([str(report_file)])
         return actual_count >= expected_count
 
 

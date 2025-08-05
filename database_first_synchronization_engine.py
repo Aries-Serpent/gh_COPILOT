@@ -108,9 +108,9 @@ class SyncManager:
     @staticmethod
     def _upsert(conn: sqlite3.Connection, table: str, row: Dict[str, Any]) -> None:
         cols = ", ".join(row.keys())
-        placeholders = ", ".join("?" for _ in row)
+        marks = ", ".join("?" for _ in row)
         conn.execute(
-            f"REPLACE INTO {table} ({cols}) VALUES ({placeholders})",
+            f"REPLACE INTO {table} ({cols}) VALUES ({marks})",
             tuple(row.values()),
         )
 

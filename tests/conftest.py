@@ -9,7 +9,17 @@ from zipfile import ZipFile
 
 import pytest
 import sqlite3
-import scripts.wlc_session_manager as wsm
+try:
+    import scripts.wlc_session_manager as wsm
+except Exception:  # pragma: no cover - fallback when optional deps missing
+    class _WsmStub:
+        @staticmethod
+        def ensure_session_table(conn):
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS unified_wrapup_sessions (id INTEGER)"
+            )
+
+    wsm = _WsmStub()
 
 # Enable test mode to prevent side effects such as database writes.
 os.environ.setdefault("TEST_MODE", "1")
@@ -22,6 +32,12 @@ def enforce_test_mode(monkeypatch):
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 logger = logging.getLogger(__name__)
+
+
+@pytest.fixture(autouse=True)
+def set_workspace_env(monkeypatch):
+    """Provide a default workspace path for modules expecting it."""
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(REPO_ROOT))
 
 
 @pytest.fixture(scope="session")

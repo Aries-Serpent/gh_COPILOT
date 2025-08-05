@@ -4,11 +4,13 @@ import sqlite3
 from scripts.code_placeholder_audit import main
 from tools import automation_setup as setup
 from web_gui import dashboard_actionable_gui as gui
+import secondary_copilot_validator
+from types import SimpleNamespace
 
 os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
 
 
-def test_full_scan_includes_all(tmp_path):
+def test_full_scan_includes_all(tmp_path, monkeypatch):
     workspace = tmp_path / "ws"
     workspace.mkdir()
     (workspace / "builds").mkdir()
@@ -19,6 +21,20 @@ def test_full_scan_includes_all(tmp_path):
     analytics = tmp_path / "analytics.db"
     dash_dir = tmp_path / "dashboard"
 
+    monkeypatch.setattr(
+        secondary_copilot_validator,
+        "run_flake8",
+        lambda *a, **k: True,
+    )
+    monkeypatch.setattr(
+        secondary_copilot_validator,
+        "SecondaryCopilotValidator",
+        lambda: SimpleNamespace(validate_corrections=lambda *a, **k: True),
+    )
+    monkeypatch.setattr(
+        "scripts.code_placeholder_audit.ComplianceMetricsUpdater",
+        lambda *a, **k: SimpleNamespace(update=lambda *a, **k: None, validate_update=lambda *a, **k: None),
+    )
     assert main(
         workspace_path=str(workspace),
         analytics_db=str(analytics),

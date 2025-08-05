@@ -22,6 +22,10 @@ from flask import Flask, Response, jsonify, render_template, request
 
 from utils.validation_utils import validate_enterprise_environment
 from database_first_synchronization_engine import list_events
+from enterprise_modules.compliance import (
+    get_latest_compliance_score,
+    calculate_code_quality_score,
+)
 
 
 # Paths to metrics and rollback data
@@ -37,13 +41,44 @@ app = Flask(
 
 
 def _load_metrics() -> dict[str, Any]:
-    """Load dashboard metrics from ``metrics.json``."""
+    """Load dashboard metrics from ``metrics.json`` and analytics.db."""
+    metrics: dict[str, Any] = {}
     if METRICS_FILE.exists():
         try:
-            return json.loads(METRICS_FILE.read_text())
+            metrics = json.loads(METRICS_FILE.read_text()).get("metrics", {})
         except json.JSONDecodeError as exc:  # pragma: no cover - log and fall back
             logging.error("Metrics decode error: %s", exc)
-    return {"metrics": {}, "notes": []}
+    try:
+        metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
+    except sqlite3.Error as exc:  # pragma: no cover - missing table
+        logging.error("Compliance score fetch error: %s", exc)
+        metrics["compliance_score"] = 0.0
+    try:
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.execute(
+                """
+                SELECT ruff_issues, tests_passed, tests_failed,
+                       placeholders_open, placeholders_resolved
+                FROM code_quality_metrics
+                ORDER BY id DESC LIMIT 1
+                """
+            )
+            row = cur.fetchone()
+            if row:
+                score, breakdown = calculate_code_quality_score(
+                    row["ruff_issues"],
+                    row["tests_passed"],
+                    row["tests_failed"],
+                    row["placeholders_open"],
+                    row["placeholders_resolved"],
+                )
+                metrics["code_quality_score"] = score
+                metrics["composite_score"] = score
+                metrics["score_breakdown"] = breakdown
+    except sqlite3.Error as exc:  # pragma: no cover - log and continue
+        logging.error("Composite fetch error: %s", exc)
+    return {"metrics": metrics, "notes": []}
 
 
 def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:

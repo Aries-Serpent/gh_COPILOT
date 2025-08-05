@@ -62,6 +62,14 @@ def _create_simple_pdf(path: Path, text: str) -> None:
     path.write_bytes(pdf_bytes)
 
 
+def _ensure_accessible_formats(formats: Iterable[str]) -> List[str]:
+    """Return output formats ensuring PDFs have a text companion."""
+    fmt_list = list(formats)
+    if "pdf" in fmt_list and not any(f in {"md", "html"} for f in fmt_list):
+        fmt_list.append("md")
+    return fmt_list
+
+
 TEXT_INDICATORS = {
     "start": "[START]",
     "success": "[SUCCESS]",
@@ -121,8 +129,12 @@ class EnterpriseDocumentationManager:
 
     # ------------------------------------------------------------------
     def generate_files(self, doc_type: str, output_formats: Iterable[str] | None = None) -> List[Path]:
-        """Generate documentation files for ``doc_type`` in multiple formats."""
-        formats = list(output_formats or ["md"])  # default markdown for backward compat
+        """Generate documentation files for ``doc_type`` in multiple formats.
+
+        If ``pdf`` is requested without a text-based format, a Markdown copy is
+        automatically produced to preserve accessible structure.
+        """
+        formats = _ensure_accessible_formats(output_formats or ["md"])  # default markdown for backward compat
         docs = self.query_documentation(doc_type)
         if not docs:
             return []

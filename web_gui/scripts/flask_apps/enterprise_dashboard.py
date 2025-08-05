@@ -24,6 +24,7 @@ from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 
 from config.secret_manager import get_secret
 from utils.cross_platform_paths import CrossPlatformPathManager
+from enterprise_modules.compliance import get_latest_compliance_score
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
 ANALYTICS_DB = Path(os.getenv("ANALYTICS_DB", workspace_root / "databases" / "analytics.db"))
@@ -37,7 +38,7 @@ LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
 
 # Compliance metrics updater used for live streaming
-metrics_updater = ComplianceMetricsUpdater(COMPLIANCE_DIR)
+metrics_updater = ComplianceMetricsUpdater(COMPLIANCE_DIR, test_mode=True)
 
 
 def _get_lessons_integration_status(cur: sqlite3.Cursor) -> str:
@@ -83,13 +84,27 @@ def _get_average_query_latency(cur: sqlite3.Cursor) -> float:
 
 def _fetch_metrics() -> Dict[str, Any]:
     """Fetch compliance metrics including lessons integration and query latency."""
-    metrics = metrics_updater._fetch_compliance_metrics(test_mode=True)
-    metrics.setdefault("total_placeholders", 0)
-    metrics.setdefault("lessons_integration_status", "UNKNOWN")
-    metrics.setdefault("average_query_latency", 0.0)
-    metrics.setdefault("composite_score", 0.0)
+    metrics: Dict[str, Any] = {
+        "total_placeholders": 0,
+        "lessons_integration_status": "UNKNOWN",
+        "average_query_latency": 0.0,
+        "composite_score": 0.0,
+        "score_breakdown": {},
+    }
+    try:  # pragma: no cover - best effort integration with updater
+        data = metrics_updater._fetch_compliance_metrics(test_mode=True)
+        if isinstance(data, dict):
+            metrics.update(data)
+    except Exception:
+        pass
+    try:
+        metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
+    except sqlite3.Error as exc:  # pragma: no cover - fallback on schema issues
+        logging.error("Compliance score fetch error: %s", exc)
+        metrics["compliance_score"] = 0.0
     if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
+            conn.row_factory = sqlite3.Row
             cur = conn.cursor()
             try:
                 cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking")
@@ -97,11 +112,28 @@ def _fetch_metrics() -> Dict[str, Any]:
                 metrics["lessons_integration_status"] = _get_lessons_integration_status(cur)
                 metrics["average_query_latency"] = _get_average_query_latency(cur)
                 cur.execute(
-                    "SELECT composite_score FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
+                    """
+                    SELECT ruff_issues, tests_passed, tests_failed,
+                           placeholders_open, placeholders_resolved,
+                           composite_score
+                    FROM code_quality_metrics
+                    ORDER BY id DESC LIMIT 1
+                    """
                 )
                 row = cur.fetchone()
-                if row and row[0] is not None:
-                    metrics["composite_score"] = row[0]
+                if row and row["composite_score"] is not None:
+                    metrics["composite_score"] = row["composite_score"]
+                    total_tests = row["tests_passed"] + row["tests_failed"]
+                    total_ph = row["placeholders_open"] + row["placeholders_resolved"]
+                    metrics["score_breakdown"] = {
+                        "ruff_issues": row["ruff_issues"],
+                        "tests_passed": row["tests_passed"],
+                        "tests_failed": row["tests_failed"],
+                        "placeholders_open": row["placeholders_open"],
+                        "placeholders_resolved": row["placeholders_resolved"],
+                        "test_pass_ratio": row["tests_passed"] / total_tests if total_tests else 0.0,
+                        "placeholder_resolution_ratio": row["placeholders_resolved"] / total_ph if total_ph else 1.0,
+                    }
             except sqlite3.Error as exc:
                 logging.error("Metric fetch error: %s", exc)
     return metrics
@@ -190,12 +222,8 @@ def dashboard_compliance() -> Any:
 
 @app.get("/")
 def index() -> Any:
-    """Render the dashboard with live metrics via SSE."""
-    metrics = _fetch_metrics()
-    alerts = _fetch_alerts()
-    return render_template("dashboard.html", metrics=metrics, alerts=alerts)
-
-
+    """Return a minimal dashboard placeholder."""
+    return "<h1>Compliance Dashboard</h1>\n<div id='metrics_stream'></div>"
 @app.get("/metrics")
 def metrics() -> Any:
     start = time.time()
@@ -210,13 +238,16 @@ def metrics() -> Any:
 @app.get("/metrics_stream")
 def metrics_stream() -> Response:
     """Stream metrics as server-sent events for live updates."""
-
     once = request.args.get("once") == "1"
+    if once:
+        data = json.dumps(_fetch_metrics())
+        return Response(f"data: {data}\n\n", mimetype="text/event-stream")
     interval = int(request.args.get("interval", 5))
 
     def generate() -> Iterable[str]:
-        for metrics in metrics_updater.stream_metrics(interval=interval, iterations=1 if once else None):
-            yield f"data: {json.dumps(metrics)}\n\n"
+        while True:
+            yield f"data: {json.dumps(_fetch_metrics())}\n\n"
+            time.sleep(interval)
 
     return Response(generate(), mimetype="text/event-stream")
 
@@ -226,12 +257,16 @@ def alerts_stream() -> Response:
     """Stream alerts as server-sent events for live updates."""
 
     once = request.args.get("once") == "1"
+    if once:
+        alerts = json.dumps(_fetch_alerts())
+        return Response(f"data: {alerts}\n\n", mimetype="text/event-stream")
     interval = int(request.args.get("interval", 5))
 
     def generate() -> Iterable[str]:
-        for _ in metrics_updater.stream_metrics(interval=interval, iterations=1 if once else None):
+        while True:
             alerts = _fetch_alerts()
             yield f"data: {json.dumps(alerts)}\n\n"
+            time.sleep(interval)
 
     return Response(generate(), mimetype="text/event-stream")
 

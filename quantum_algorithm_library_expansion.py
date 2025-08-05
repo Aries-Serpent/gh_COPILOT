@@ -7,6 +7,7 @@ only and are simplified versions of their quantum counterparts.
 
 from __future__ import annotations
 
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -30,6 +31,22 @@ from quantum.advanced_quantum_algorithms import (
 from quantum.utils.backend_provider import get_backend
 
 ANALYTICS_DB = Path("databases/analytics.db")
+
+
+def configure_backend(
+    backend_name: str = "ibmq_qasm_simulator",
+    use_hardware: bool | None = None,
+    token: str | None = None,
+):
+    """Return a configured backend for Qiskit operations.
+
+    Parameters mirror :func:`quantum.utils.backend_provider.get_backend` and
+    allow supplying an IBM Quantum API ``token``. The function returns ``None``
+    when no backend is available.
+    """
+    if token:
+        os.environ.setdefault("QISKIT_IBM_TOKEN", token)
+    return get_backend(backend_name, use_hardware=use_hardware)
 
 
 def log_quantum_event(name: str, details: str) -> None:
@@ -78,6 +95,7 @@ __all__ = [
     "quantum_similarity_score",
     "quantum_pattern_match_stub",
     "quantum_text_score",
+    "configure_backend",
     "grover_search_qiskit",
     "phase_estimation_qiskit",
 ]
@@ -300,18 +318,24 @@ def quantum_pattern_match_stub(pattern: Iterable[int], data: Iterable[int]) -> b
     return False
 
 
-def quantum_text_score(text: str, use_hardware: bool | None = None) -> float:
+def quantum_text_score(
+    text: str,
+    use_hardware: bool | None = None,
+    backend_name: str = "ibmq_qasm_simulator",
+    token: str | None = None,
+) -> float:
     """Return a quantum-inspired text score.
 
-    When Qiskit is available, the function attempts to obtain a backend using
-    :func:`get_backend` which prefers IBM Quantum hardware when
+    When Qiskit is available, the function obtains a backend via
+    :func:`configure_backend`, which prefers IBM Quantum hardware when
     ``use_hardware`` is True. If no backend is available or Qiskit is not
-    installed, the function falls back to a simple classical heuristic.
-    The execution path is logged to ``analytics.db`` via
-    :func:`log_quantum_event`.
+    installed, the function falls back to a simple classical heuristic. The
+    execution path is logged to ``analytics.db`` via :func:`log_quantum_event`.
     """
     if QISKIT_AVAILABLE:
-        backend = get_backend(use_hardware=use_hardware)
+        backend = configure_backend(
+            backend_name=backend_name, use_hardware=use_hardware, token=token
+        )
         if backend is not None:
             circ = QuantumCircuit(1, 1)
             theta = (sum(map(ord, text)) % 360) * np.pi / 180

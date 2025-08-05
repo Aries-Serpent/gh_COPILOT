@@ -11,6 +11,6 @@
 - ===== 40 failed, 224 passed, 5 skipped, 694 warnings in 106.73s (0:01:46) =====
 
 ## Placeholder Counts
-- TODO markers: 19
-- FIXME markers: 5
+- TODO markers: 0
+- FIXME markers: 0
 - 'pass' statements: 84

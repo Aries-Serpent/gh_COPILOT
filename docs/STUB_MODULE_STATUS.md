@@ -22,7 +22,6 @@ The file `DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md` lists pending tasks marked
 | STUB-010 | Update task suggestion files with cross-references | [docs/DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md](DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md)<br>logs/<br>validation/ | complete | Documentation Team |
 | STUB-011 | Record outputs to analytics.db across modules | various modules | complete | DataOps Team |
 | STUB-012 | Display placeholder removal progress on dashboard | [dashboard/compliance_metrics_updater.py](../dashboard/compliance_metrics_updater.py) | complete | Web Team |
-| STUB-013 | Implement legacy cleanup workflow | [scripts/unified_legacy_cleanup_system.py](../scripts/unified_legacy_cleanup_system.py) | complete | Compliance Team |
 
 
 ## Integration Status Summary

@@ -4,16 +4,62 @@ import os
 import re
 import argparse
 import binascii
+import sqlite3
+from pathlib import Path
+from datetime import datetime
+
+from secondary_copilot_validator import (
+    SecondaryCopilotValidator,
+    run_dual_copilot_validation,
+)
 
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QPushButton,
     QFileDialog, QTextEdit, QLabel, QTabWidget, QHBoxLayout,
     QMessageBox, QProgressBar, QLineEdit, QFormLayout
 )
-from PyQt6.QtGui import QPixmap, QDragEnterEvent, QDropEvent, QDragLeaveEvent, QMouseEvent, QResizeEvent, QIntValidator
+from PyQt6.QtGui import (
+    QPixmap,
+    QDragEnterEvent,
+    QDropEvent,
+    QDragLeaveEvent,
+    QResizeEvent,
+    QIntValidator,
+)
 from PyQt6.QtCore import Qt, QByteArray, QMimeData, QUrl, QSize, QObject, QThread, pyqtSignal
 
 from typing import Optional, List, Tuple
+
+TEXT_INDICATORS = {
+    "success": "[SUCCESS]",
+    "error": "[ERROR]",
+    "validation": "[VALIDATION]",
+}
+
+
+def log_metrics(event: str, status: str) -> None:
+    """Record encode/decode metrics in ``analytics.db``."""
+
+    analytics = Path(__file__).resolve().parents[2] / "databases" / "analytics.db"
+    analytics.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(analytics) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS script_metrics (script TEXT, event TEXT, status TEXT, ts TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO script_metrics VALUES (?, ?, ?, ?)",
+            (
+                "Base64ImageTransformer",
+                event,
+                status,
+                datetime.utcnow().isoformat(),
+            ),
+        )
+
+
+def _run_secondary_validation() -> bool:
+    validator = SecondaryCopilotValidator()
+    return validator.validate_corrections([__file__])
 
 
 class EncodeWorker(QObject):
@@ -354,11 +400,27 @@ class Base64ImageTransformer(QWidget):
     def _handle_encoding_success(self, b64_string: str) -> None:
         """Handles successful file encoding."""
         self.txt_b64_output.setPlainText(b64_string)
+        try:
+            result = run_dual_copilot_validation(lambda: True, _run_secondary_validation)
+            if result:
+                print(f"{TEXT_INDICATORS['validation']} Encoding validated")
+                log_metrics("encode", "success")
+            else:
+                print(f"{TEXT_INDICATORS['error']} Secondary validation failed")
+                log_metrics("encode", "validation_failed")
+        except RuntimeError as exc:
+            print(f"{TEXT_INDICATORS['error']} Validation error: {exc}")
+            log_metrics("encode", "validation_error")
 
     def _handle_encoding_failure(self, error_message: str) -> None:
         """Handles failed file encoding."""
         QMessageBox.critical(self, self.UI_STRINGS.ERR_ENCODE_FAILED_TITLE, error_message)
         self.txt_b64_output.clear()
+        try:
+            run_dual_copilot_validation(lambda: False, _run_secondary_validation)
+        except RuntimeError as exc:
+            print(f"{TEXT_INDICATORS['error']} Validation error: {exc}")
+        log_metrics("encode", "failure")
 
 
     def copy_b64(self) -> None:
@@ -474,17 +536,33 @@ class Base64ImageTransformer(QWidget):
         self.original_decoded_pixmap = pixmap
 
         if self.original_decoded_pixmap is None or self.original_decoded_pixmap.isNull():
-            # This indicates the Base64 was valid, but the data wasn't a recognized image format by QPixmap 
+            # This indicates the Base64 was valid, but the data wasn't a recognized image format by QPixmap
             self._handle_decoding_failure("Base64 decoded, but data is not a recognized image format for preview.")
             return
         self._update_displayed_image()
+        try:
+            result = run_dual_copilot_validation(lambda: True, _run_secondary_validation)
+            if result:
+                print(f"{TEXT_INDICATORS['validation']} Decoding validated")
+                log_metrics("decode", "success")
+            else:
+                print(f"{TEXT_INDICATORS['error']} Secondary validation failed")
+                log_metrics("decode", "validation_failed")
+        except RuntimeError as exc:
+            print(f"{TEXT_INDICATORS['error']} Validation error: {exc}")
+            log_metrics("decode", "validation_error")
 
     def _handle_decoding_failure(self, error_message: str) -> None:
         """Handles failed Base64 decoding."""
         QMessageBox.critical(self, self.UI_STRINGS.ERR_DECODE_FAILED_TITLE, error_message)
         self.decoded_image_data = None
         self.original_decoded_pixmap = None
-        self.lbl_image.clear() 
+        self.lbl_image.clear()
+        try:
+            run_dual_copilot_validation(lambda: False, _run_secondary_validation)
+        except RuntimeError as exc:
+            print(f"{TEXT_INDICATORS['error']} Validation error: {exc}")
+        log_metrics("decode", "failure")
 
     def _update_displayed_image(self) -> None:
         """Updates the displayed image preview, scaling it appropriately."""

@@ -20,7 +20,7 @@
 - ✅ **Web-GUI Integration**: Flask dashboard operational
 
 #### **⚛️ QUANTUM PERFORMANCE**
-- **Quantum Algorithms**: 5 algorithms integrated (planned)
+- **Quantum Algorithms**: 5 simulation-only algorithms integrated (planned; hardware not supported)
 - **Processing Enhancement**: Database-driven optimization
 - **Index Coverage**: 52.3% quantum-indexed
 

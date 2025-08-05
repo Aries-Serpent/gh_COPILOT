@@ -2,15 +2,17 @@ import shutil
 import sqlite3
 from pathlib import Path
 
-from scripts.database.documentation_db_analyzer import audit_placeholders
-
 
 def test_audit_placeholders(tmp_path: Path) -> None:
     db = tmp_path / "doc.db"
     with sqlite3.connect(db) as conn:
         conn.execute("CREATE TABLE enterprise_documentation (content TEXT)")
         conn.executemany("INSERT INTO enterprise_documentation VALUES (?)", [("todo fix",), ("ok",)])
-    count = audit_placeholders(db)
+    import importlib
+
+    module = importlib.import_module("scripts.database.documentation_db_analyzer")
+    module.ANALYTICS_DB = tmp_path / "analytics.db"
+    count = module.audit_placeholders(db)
     assert count == 1
 
 

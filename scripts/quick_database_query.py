@@ -16,6 +16,11 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
+from secondary_copilot_validator import (
+    SecondaryCopilotValidator,
+    run_dual_copilot_validation,
+)
+
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -23,6 +28,7 @@ TEXT_INDICATORS = {
     "error": "[ERROR]",
     "database": "[DATABASE]",
     "info": "[INFO]",
+    "validation": "[VALIDATION]",
 }
 
 
@@ -67,17 +73,48 @@ class EnterpriseDatabaseProcessor:
             return False
 
 
+def log_metrics(status: str) -> None:
+    """Record execution metrics in ``analytics.db``."""
+
+    analytics = Path(__file__).resolve().parents[1] / "databases" / "analytics.db"
+    analytics.parent.mkdir(parents=True, exist_ok=True)
+
+    with sqlite3.connect(analytics) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS script_metrics (script TEXT, status TEXT, ts TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO script_metrics VALUES (?, ?, ?)",
+            ("quick_database_query", status, datetime.utcnow().isoformat()),
+        )
+
+
 def main():
     """Main execution function"""
     processor = EnterpriseDatabaseProcessor()
-    success = processor.execute_processing()
+    print(f"{TEXT_INDICATORS['info']} Primary processing initiated")
 
-    if success:
-        print(f"{TEXT_INDICATORS['success']} Database processing completed")
-    else:
-        print(f"{TEXT_INDICATORS['error']} Database processing failed")
+    def primary() -> bool:
+        return processor.execute_processing()
 
-    return success
+    def secondary() -> bool:
+        validator = SecondaryCopilotValidator()
+        return validator.validate_corrections([__file__])
+
+    try:
+        success = run_dual_copilot_validation(primary, secondary)
+        if success:
+            print(f"{TEXT_INDICATORS['success']} Database processing completed")
+            print(f"{TEXT_INDICATORS['validation']} Secondary validation passed")
+            log_metrics("success")
+        else:
+            print(f"{TEXT_INDICATORS['error']} Processing or validation failed")
+            log_metrics("failure")
+        return success
+    except RuntimeError as exc:
+        print(f"{TEXT_INDICATORS['error']} Validation error: {exc}")
+        log_metrics("validation_error")
+        return False
 
 
 if __name__ == "__main__":

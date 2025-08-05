@@ -44,3 +44,16 @@ def test_regenerate_templates(tmp_path):
     templates1 = gen.create_templates()
     templates2 = gen.regenerate_templates()
     assert templates1 == templates2
+
+
+def test_create_templates_handles_extra_templates(tmp_path):
+    analytics, completion, production = create_dbs(tmp_path)
+    # Insert an additional completion template to ensure templates outnumber
+    # analytics patterns, reproducing the previously failing scenario.
+    with sqlite3.connect(completion) as conn:
+        conn.execute(
+            "INSERT INTO templates (template_content) VALUES ('def bar():\n    return 42')"
+        )
+    gen = CompleteTemplateGenerator(analytics, completion, production)
+    templates = gen.create_templates()
+    assert len(templates) >= 2

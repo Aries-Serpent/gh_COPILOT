@@ -34,3 +34,50 @@ def test_archive_backups_disallows_internal_backup(tmp_path, monkeypatch):
 
     with pytest.raises(RuntimeError):
         backup_archiver.archive_backups()
+
+
+def test_archive_backups_runs_secondary_validator(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    backup_root = tmp_path / "bk"
+    backup_root.mkdir()
+    (backup_root / "file.txt").write_text("x")
+
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+
+    from scripts import backup_archiver
+
+    called: dict[str, object] = {}
+
+    def fake_validation(primary, secondary):
+        called["called"] = True
+        return primary() and secondary()
+
+    monkeypatch.setattr(backup_archiver, "run_dual_copilot_validation", fake_validation)
+
+    archive_path = backup_archiver.archive_backups()
+
+    assert archive_path.exists()
+    assert called["called"] is True
+
+
+def test_archive_backups_validator_failure(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    backup_root = tmp_path / "bk"
+    backup_root.mkdir()
+    (backup_root / "file.txt").write_text("x")
+
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+
+    from scripts import backup_archiver
+
+    def fake_validation(primary, secondary):
+        raise RuntimeError("validation failed")
+
+    monkeypatch.setattr(backup_archiver, "run_dual_copilot_validation", fake_validation)
+
+    with pytest.raises(RuntimeError, match="validation failed"):
+        backup_archiver.archive_backups()

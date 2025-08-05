@@ -61,7 +61,9 @@ def test_app(tmp_path: Path, monkeypatch):
     monkeypatch.setattr(cmu, "ensure_tables", lambda *a, **k: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
     monkeypatch.setattr(cmu, "insert_event", lambda *a, **k: None)
+    import importlib
     from web_gui.scripts.flask_apps import enterprise_dashboard as ed
+    ed = importlib.reload(ed)
 
     monkeypatch.setattr(ed, "ANALYTICS_DB", db)
     monkeypatch.setattr(
@@ -79,6 +81,7 @@ def test_additional_metrics_present(test_app):
     metrics = resp.get_json()["metrics"]
     assert metrics["lessons_integration_status"] == "FULLY_INTEGRATED"
     assert metrics["average_query_latency"] == pytest.approx(12.5)
+    assert metrics["compliance_score"] == 0.0
 
 
 def test_metrics_endpoint_additional_metrics(test_app):
@@ -88,4 +91,5 @@ def test_metrics_endpoint_additional_metrics(test_app):
     metrics = resp.get_json()
     assert metrics["lessons_integration_status"] == "FULLY_INTEGRATED"
     assert metrics["average_query_latency"] == pytest.approx(12.5)
+    assert metrics["compliance_score"] == 0.0
 

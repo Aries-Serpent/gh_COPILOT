@@ -112,6 +112,17 @@ class CompleteTemplateGenerator:
         lessons = fetch_lessons_by_tag("template")
         lesson_snippets = [lesson["description"] for lesson in lessons if self._validate_template(lesson["description"]) ]
 
+        # ``TemplateAutoGenerator`` clusters a combined corpus of templates,
+        # analytics patterns and production patterns. Recreate the same corpus
+        # order here to map cluster labels back to their corresponding text
+        # without risking index errors when one section is shorter than the
+        # others.
+        corpus = (
+            self.generator.templates
+            + patterns
+            + self.generator._load_production_patterns()
+        )
+
         with sqlite3.connect(self.production_db) as conn:
             data_to_insert = []
             generated_records = []
@@ -121,8 +132,8 @@ class CompleteTemplateGenerator:
                     if not indices:
                         bar.update(1)
                         continue
-                    cluster_patterns = [patterns[i] for i in indices]
-                    candidate = max(cluster_patterns, key=len)
+                    cluster_texts = [corpus[i] for i in indices]
+                    candidate = max(cluster_texts, key=len)
                     if self._validate_template(candidate):
                         templates.append(candidate)
                         timestamp = datetime.utcnow().isoformat()

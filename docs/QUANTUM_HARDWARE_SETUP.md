@@ -1,8 +1,13 @@
 # Quantum Hardware Setup
 
-Hardware execution is not yet supported. This guide documents the preparatory steps for future IBM Quantum integration. All operations currently run on simulators even when tokens or backend names are provided.
+> **Status:** Hardware execution is not supported. This guide is retained for
+future reference. Current modules always use local simulators and ignore all
+hardware flags.
 
-## 1. Acquire a Token
+This document outlines prospective configuration steps for IBM Quantum
+integration. At present, modules run exclusively in simulation mode.
+
+## 1. Acquire a Token (Future)
 1. Create an IBM Quantum account.
 2. Generate an API token from the account dashboard.
 3. Set the token as an environment variable:
@@ -13,24 +18,31 @@ Hardware execution is not yet supported. This guide documents the preparatory st
    ```json
    {"QISKIT_IBM_TOKEN": "your_token_here"}
    ```
+   Tokens are currently unused but will be required once hardware
+   integration lands.
 
-## 2. Optional Backend Selection *(placeholder)*
+## 2. Backend Selection (Future)
 Specify a backend name via `IBM_BACKEND`:
 ```bash
-export IBM_BACKEND="ibmq_qasm_simulator"
+export IBM_BACKEND="ibm_nairobi"
 ```
-The value is recorded for future use, but all executions fall back to the default simulator regardless of this setting.
+Backend variables are ignored today; the system always uses `aer_simulator`.
 
-## 3. CLI Usage *(flags are inert)*
-Use the executor CLI or orchestrator to demonstrate where hardware flags will eventually apply:
+## 3. CLI Usage
+Hardware flags are accepted but currently have no effect. Example commands run
+in simulation regardless of the parameters:
 ```bash
-python -m quantum.cli.executor_cli --use-hardware --backend ibm_nairobi  # no-op
-python quantum_integration_orchestrator.py --hardware  # no-op
+python -m quantum.cli.executor_cli --use-hardware --backend ibm_nairobi --token "$QISKIT_IBM_TOKEN"
+python quantum_integration_orchestrator.py --hardware --backend ibm_nairobi --token "$QISKIT_IBM_TOKEN"
 ```
-These options merely check for `QISKIT_IBM_TOKEN` and always execute on simulators; backend selection is ignored.
+All executions log that the simulator was used.
 
 ## 4. Expected Outputs
-Hardware backends are not invoked. Logs always reflect simulator usage, emitting a warning when hardware options are requested.
+Logs currently always show `[QUANTUM_BACKEND] aer_simulator`; hardware backends
+are not reachable.
 
 ## 5. Roadmap
-Future releases will introduce a `QuantumExecutor` module to enable real hardware execution once IBM backend support is finalized.
+Future releases will expand hardware provider support beyond IBM Quantum and add
+automated credential management. Track progress in
+[STUB_MODULE_STATUS.md](STUB_MODULE_STATUS.md) and
+[QUANTUM_PLACEHOLDERS.md](QUANTUM_PLACEHOLDERS.md).

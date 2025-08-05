@@ -24,7 +24,13 @@ import threading
 
 from tqdm import tqdm
 from utils.log_utils import ensure_tables, insert_event
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules.compliance import (
+    validate_enterprise_operation,
+    record_code_quality_metrics,
+    _run_ruff,
+    _run_pytest,
+)
+from utils.validation_utils import calculate_composite_compliance_score
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
 from unified_monitoring_optimization_system import (
     EnterpriseUtility,
@@ -76,24 +82,77 @@ class ComplianceMetricsUpdater:
 
     def __init__(self, dashboard_dir: Path, *, test_mode: bool = False) -> None:
         self.dashboard_dir = dashboard_dir
+        self.dashboard_dir.mkdir(parents=True, exist_ok=True)
         self.test_mode = test_mode
         self.start_time = datetime.now()
         self.process_id = os.getpid()
         self.timeout_seconds = 1800  # 30 minutes
         self.status = "INITIALIZED"
+        self.recursion_status = "unknown"
         validate_no_recursive_folders()
+        self.recursion_status = "clear"
         validate_environment_root()
         logging.info("PROCESS STARTED: Compliance Metrics Update")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {self.process_id}")
         ensure_tables(
             ANALYTICS_DB,
-            ["violation_logs", "rollback_logs", "correction_logs"],
+            ["violation_logs", "rollback_logs", "correction_logs", "event_log"],
             test_mode=self.test_mode,
         )
         self.forbidden_phrases = ["rm -rf", "sudo", "wget "]
         self.monitoring_utility = EnterpriseUtility()
         self.correction_logger = CorrectionLoggerRollback(ANALYTICS_DB)
+        self._ws_clients: set[Any] = set()
+        if os.environ.get("LOG_WEBSOCKET_ENABLED") == "1":
+            threading.Thread(target=self._run_ws_server, daemon=True).start()
+
+    def _run_ws_server(self) -> None:
+        try:
+            import asyncio
+            import websockets
+        except ImportError:  # pragma: no cover - optional dependency
+            logging.warning("websockets package not available - skipping metrics broadcast")
+            return
+
+        async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
+            self._ws_clients.add(websocket)
+            try:
+                await websocket.wait_closed()
+            finally:
+                self._ws_clients.discard(websocket)
+
+        async def main() -> None:
+            async with websockets.serve(handler, "localhost", 8765):
+                await asyncio.Event().wait()
+
+        asyncio.run(main())
+
+    def _broadcast_ws(self, metrics: Dict[str, Any]) -> None:
+        if not self._ws_clients:
+            return
+        try:
+            import asyncio
+            import websockets
+        except ImportError:  # pragma: no cover - optional dependency
+            return
+
+        async def _send() -> None:
+            message = json.dumps(metrics)
+            for ws in list(self._ws_clients):
+                try:
+                    await ws.send(message)
+                except websockets.ConnectionClosed:
+                    self._ws_clients.discard(ws)
+
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            # No running event loop, safe to use asyncio.run()
+            asyncio.run(_send())
+        else:
+            # Already in an event loop, schedule the coroutine
+            loop.create_task(_send())
 
     def _fetch_compliance_metrics(self, *, test_mode: bool = False) -> Dict[str, Any]:
         """Fetch compliance metrics from analytics.db."""
@@ -109,6 +168,8 @@ class ComplianceMetricsUpdater:
             "last_update": datetime.now().isoformat(),
             "placeholder_breakdown": {},
             "compliance_trend": [],
+            "composite_score": 0.0,
+            "score_breakdown": {},
         }
         if not ANALYTICS_DB.exists():
             logging.warning("analytics.db not found, using default metrics.")
@@ -180,7 +241,7 @@ class ComplianceMetricsUpdater:
                     ]
                     cur.execute("SELECT COUNT(*) FROM rollback_logs")
                     metrics["rollback_count"] = cur.fetchone()[0]
-                    if metrics["rollback_count"]:
+                    if metrics["rollback_count"] and not test_mode:
                         DisasterRecoveryOrchestrator().run_backup_cycle()
                 else:
                     metrics["recent_rollbacks"] = []
@@ -238,6 +299,35 @@ class ComplianceMetricsUpdater:
             metrics["progress"] = metrics["resolved_placeholders"] / float(total_ph)
         else:
             metrics["progress"] = 1.0
+
+        if test_mode:
+            ruff_issues = 0
+            tests_passed, tests_failed = 1, 0
+        else:
+            ruff_issues = _run_ruff()
+            tests_passed, tests_failed = _run_pytest()
+        scores = calculate_composite_compliance_score(
+            ruff_issues,
+            tests_passed,
+            tests_failed,
+            metrics.get("open_placeholders", 0),
+        )
+        # ``calculate_composite_compliance_score`` returns a dictionary of
+        # individual scores along with the combined ``composite`` value. Use
+        # those values directly rather than undefined temporary variables.
+        metrics["composite_score"] = scores["composite"]
+        metrics["composite_compliance_score"] = scores["composite"]
+        metrics["score_breakdown"] = scores
+        record_code_quality_metrics(
+            ruff_issues,
+            tests_passed,
+            tests_failed,
+            metrics.get("open_placeholders", 0),
+            metrics.get("resolved_placeholders", 0),
+            scores["composite"],
+            db_path=ANALYTICS_DB,
+            test_mode=test_mode,
+        )
         if metrics["violation_count"] or metrics["rollback_count"] or metrics["open_placeholders"]:
             metrics["progress_status"] = "issues_pending"
         else:
@@ -331,12 +421,16 @@ class ComplianceMetricsUpdater:
                 break
             try:
                 validate_no_recursive_folders()
+                self.recursion_status = "clear"
                 self._check_forbidden_operations()
             except Exception as exc:  # DualCopilotOrchestrator validation
+                self.recursion_status = "violation"
                 logging.exception("Streaming validation failed: %s", exc)
                 raise
 
             metrics = self._fetch_compliance_metrics()
+            metrics["recursion_status"] = self.recursion_status
+            metrics["composite_compliance_score"] = metrics.get("composite_score", 0.0)
             metrics["suggestion"] = self._cognitive_compliance_suggestion(metrics)
             yield metrics
             count += 1
@@ -357,6 +451,8 @@ class ComplianceMetricsUpdater:
             "metrics": metrics,
             "status": metrics.get("progress_status", "updated"),
             "timestamp": datetime.now().isoformat(),
+            "composite_compliance_score": metrics.get("composite_compliance_score", 0.0),
+            "recursion_status": metrics.get("recursion_status", "unknown"),
         }
         dashboard_file.write_text(json.dumps(dashboard_content, indent=2), encoding="utf-8")
         rollback_file.write_text(
@@ -376,11 +472,18 @@ class ComplianceMetricsUpdater:
             logf.write(log_entry)
         logging.info("Update event logged.")
         insert_event(
-            {"event": "dashboard_update", "metrics": metrics},
+            {
+                "timestamp": timestamp,
+                "module": "dashboard",
+                "level": "INFO",
+                "description": "dashboard_update",
+                "details": json.dumps(metrics),
+            },
             "event_log",
             db_path=ANALYTICS_DB,
             test_mode=test_mode,
         )
+        self._broadcast_ws(metrics)
         if metrics.get("violation_count"):
             insert_event(
                 {"event": "violation", "count": metrics["violation_count"]},
@@ -503,6 +606,10 @@ class ComplianceMetricsUpdater:
         else:
             logging.error("DUAL COPILOT validation failed: Dashboard metrics file missing or zero-byte.")
         return valid
+
+    def _sync_external_systems(self, metrics: Dict[str, Any]) -> None:
+        """Placeholder for external system synchronization."""
+        return None
 
 
 def main(simulate: bool = False, stream: bool = False, test_mode: bool = False) -> None:

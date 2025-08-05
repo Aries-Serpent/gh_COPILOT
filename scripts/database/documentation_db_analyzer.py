@@ -163,6 +163,7 @@ def analyze_documentation_gaps(db_paths: list[Path], analytics: Path, log_dir: P
                 (str(db), gaps, datetime.utcnow().isoformat()),
             )
             conn.commit()
+    SecondaryCopilotValidator().validate_corrections([str(p) for p in db_paths])
     return results
 
 
@@ -192,12 +193,17 @@ def analyze_documentation_tables(db_paths: list[Path], analytics: Path) -> list[
 
 
 def validate_analysis(analytics_db: Path, expected: int) -> bool:
-    """Check that at least ``expected`` records exist in ``doc_audit``."""
+    """Check that at least ``expected`` records exist in ``doc_audit``.
+
+    A secondary validator confirms the analytics database was touched,
+    aligning with the dual-copilot requirement.
+    """
     if not analytics_db.exists():
         return False
     with sqlite3.connect(analytics_db) as conn:
         cur = conn.execute("SELECT COUNT(*) FROM doc_audit")
         count = cur.fetchone()[0]
+    SecondaryCopilotValidator().validate_corrections([str(analytics_db)])
     return count >= expected
 
 

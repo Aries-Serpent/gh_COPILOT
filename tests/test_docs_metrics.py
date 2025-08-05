@@ -48,17 +48,24 @@ def test_docs_metrics_validator_wrapper(tmp_path, monkeypatch):
     db_path = _setup_db(tmp_path)
     from scripts import docs_metrics_validator
 
-    def validate(path: Path) -> bool:
-        return path == db_path
+    called: dict[str, object] = {}
 
-    monkeypatch.setattr(
-        docs_metrics_validator,
-        "validate",
-        validate,
-    )
+    def validate(path: Path) -> bool:
+        assert path == db_path
+        called["primary"] = True
+        return True
+
+    class DummyValidator:
+        def validate_corrections(self, files, primary_success=None):
+            called["secondary"] = (files, primary_success)
+            return True
+
+    monkeypatch.setattr(docs_metrics_validator, "validate", validate)
+    monkeypatch.setattr(docs_metrics_validator, "SecondaryCopilotValidator", lambda: DummyValidator())
 
     result = docs_metrics_validator.main(["--db-path", str(db_path)])
     assert result == 0
+    assert called["secondary"] == ([], True)
 
 
 def test_docs_metrics_validator_as_script(tmp_path, monkeypatch):
@@ -125,3 +132,34 @@ def test_generate_and_validate_round_trip(tmp_path, monkeypatch):
 
     generate_docs_metrics.main(["--db-path", str(db_path), "--analytics-db", str(tmp_path / "analytics.db")])
     assert validate_docs_metrics.validate(db_path)
+
+
+def test_generate_metrics_invokes_dual_copilot(tmp_path, monkeypatch):
+    db_path = _setup_db(tmp_path)
+    db_list = tmp_path / "DATABASE_LIST.md"
+    db_list.write_text("- a.db\n")
+    readme = tmp_path / "README.md"
+    readme.write_text(
+        "*Generated on 2000-01-01 00:00:00*\n"
+        "Script Validation: 0 scripts\n"
+        "0 Synchronized Databases\n"
+    )
+
+    monkeypatch.setattr(generate_docs_metrics, "DATABASE_LIST", db_list)
+    monkeypatch.setattr(generate_docs_metrics, "README_PATHS", [readme])
+
+    called = {}
+
+    def fake_run(primary, secondary):
+        called["primary"] = primary
+        called["secondary"] = secondary
+        return True
+
+    monkeypatch.setattr(generate_docs_metrics, "run_dual_copilot_validation", fake_run)
+    generate_docs_metrics.main([
+        "--db-path",
+        str(db_path),
+        "--analytics-db",
+        str(tmp_path / "analytics.db"),
+    ])
+    assert "primary" in called and "secondary" in called

@@ -12,21 +12,21 @@
 
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
-> Quantum modules run **exclusively** in simulation mode. Hardware flags and IBM Quantum credentials are accepted but ignored for now. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Compliance auditing remains in progress.
+> Quantum modules run exclusively in simulation mode; hardware flags are currently ignored. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Module completion status is tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
 > Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards.
 
 ---
 
 ## 📊 SYSTEM OVERVIEW
 
-The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality exists only as placeholder modules operating in simulation mode. Hooks for real hardware are planned but are not yet fully integrated, even when `qiskit-ibm-provider` is configured.
+The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file analysis with comprehensive learning pattern integration, autonomous operations, and advanced GitHub Copilot collaboration capabilities. Many core modules are implemented, while others remain in development. Quantum functionality operates solely through simulators; hardware execution is not yet available.
 
 > **Note**
-> Qiskit-based operations currently run in **simulation mode** only. Hardware tokens and backend flags are accepted for future use but are ignored; real hardware execution is not yet implemented.
+> Modules accept backend-selection environment variables such as `QUANTUM_USE_HARDWARE`, `QUANTUM_BACKEND`, and `QISKIT_IBM_TOKEN`, but these flags are no-ops until hardware support lands.
 > **Roadmap**
-> A dedicated `QuantumExecutor` module will enable IBM Quantum hardware in a future release. Until then, all hardware options are inert and default to simulator backends.
+> Hardware integration is planned for future phases; current builds always use simulators.
 > **Phase 5 AI**
-> Advanced AI integration features are fully integrated. They default to simulation mode unless real hardware is configured.
+> Advanced AI integration features operate in simulation mode by default and only attempt hardware execution when explicitly configured.
 
 ### 🎯 **Recent Milestones**
 - **Lessons Learned Integration:** sessions automatically apply lessons from `learning_monitor.db`
@@ -61,6 +61,24 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 - **Phase 6 Quantum Demo:** `quantum_integration_orchestrator.py` demonstrates a simulated quantum
   database search. Hardware backend flags are accepted but remain no-ops until
   future phases implement real execution.
+
+### Compliance Scoring
+
+The enterprise dashboard reports an overall code quality score derived from
+lint, test and placeholder metrics:
+
+```
+lint_score = max(0, 100 - ruff_issues)
+test_score = (tests_passed / total_tests) * 100
+placeholder_score = (placeholders_resolved / total_placeholders) * 100
+score = (lint_score + test_score + placeholder_score) / 3
+```
+
+This value is persisted to `analytics.db` and surfaced via
+`dashboard/enterprise_dashboard.py`. Anti-recursion guards such as
+`validate_enterprise_operation` and `anti_recursion_guard` run alongside these
+calculations; runs that trigger recursion violations are excluded from
+scoring.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1,679 scripts synchronized
@@ -97,11 +115,12 @@ The gh_COPILOT toolkit is an enterprise-grade system for HTTP Archive (HAR) file
 ## 🚀 QUICK START
 
 ### **Prerequisites**
-- Python 1,679.8+
+- Python 3.8+
 - PowerShell (for Windows automation)
 - SQLite3
 - Required packages: `pip install -r requirements.txt` (includes `py7zr` for 7z archive support)
-- Optional for IBM Quantum hardware: install `qiskit-ibm-provider` and set `QUANTUM_USE_HARDWARE=1` with a valid `QISKIT_IBM_TOKEN`; otherwise the toolkit runs in simulator mode
+- Quantum routines run on Qiskit simulators; hardware execution is not
+  yet supported, and any provider credentials are ignored
 
 ### **Installation & Setup**
 ```bash
@@ -136,6 +155,16 @@ tools/install_clw.sh
 ls -l /usr/local/bin/clw
 /usr/local/bin/clw --help
 
+```
+
+### Reclone a Repository
+Use `scripts/reclone_repo.py` to create a fresh clone of any Git repository.
+This is helpful when a working copy becomes corrupted or when a clean
+re-clone is required. The utility can back up or remove an existing
+destination directory before cloning. See
+[docs/RECLONE_REPO_GUIDE.md](docs/RECLONE_REPO_GUIDE.md) for detailed
+instructions and examples.
+
 ### Add Lessons After a Run
 Store new insights directly from the gap analyzer:
 
@@ -155,6 +184,7 @@ rate limiting and retry behavior. The client now respects `Retry-After` headers
 for HTTP 429 responses and surfaces the message from 4xx errors like invalid
 credentials.
 
+```bash
 # 3. Initialize databases
 python scripts/database/unified_database_initializer.py
 
@@ -227,8 +257,9 @@ python archive/consolidated_scripts/enterprise_database_driven_documentation_man
 ```
 This script pulls templates from both `documentation.db` and `production.db` and outputs Markdown, HTML and JSON files under `logs/template_rendering/`. Each render is logged to `analytics.db` and progress appears under `dashboard/compliance`.
 Both ``session_protocol_validator.py`` and ``session_management_consolidation_executor.py``
-are thin CLI wrappers. They delegate to the core implementations under
-``validation.protocols.session`` and ``session_management_consolidation_executor``.
+are stable CLI wrappers. They delegate to the core implementations under
+``validation.protocols.session`` and ``session_management_consolidation_executor`` and can
+be used directly in automation scripts.
 - ``unified_session_management_system.py`` starts new sessions via enterprise compliance checks.
 - ``continuous_operation_monitor.py`` records uptime and resource usage to ``analytics.db``.
 Import these modules directly in your own scripts for easier maintenance.
@@ -275,14 +306,20 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 python simplified_quantum_integration_orchestrator.py
 ```
 
-By default the orchestrator uses the simulator. Flags `--hardware` and `--backend` are placeholders that currently have no effect; they will enable IBM Quantum backends once the planned `QuantumExecutor` module arrives.
+The orchestrator always uses the simulator. Flags `--hardware` and
+`--backend` are placeholders for future IBM Quantum device selection and are
+currently ignored.
 
 ```bash
-# placeholder flags; still executes on simulators
+# hardware flags are no-ops; simulator always used
 python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
-Set `QISKIT_IBM_TOKEN` for future hardware execution. The value is ignored today and the orchestrator always falls back to simulation. See [docs/QUANTUM_HARDWARE_SETUP.md](docs/QUANTUM_HARDWARE_SETUP.md) for the integration roadmap.
+IBM Quantum tokens and the `--token` flag are currently ignored; hardware
+execution is not implemented. See
+[docs/QUANTUM_HARDWARE_SETUP.md](docs/QUANTUM_HARDWARE_SETUP.md) for future
+configuration notes and [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md)
+for module status.
 
 ### Quantum Placeholder Modules
 
@@ -445,6 +482,9 @@ validation through the `SecondaryCopilotValidator`. It records each session in
 Each run inserts a row into the `unified_wrapup_sessions` table with a
 compliance score for audit purposes. Ensure all command output is piped through
 `/usr/local/bin/clw` to avoid exceeding the line length limit.
+The scoring formula blends Ruff issues, pytest pass ratios and placeholder
+resolution statistics. See
+[docs/COMPLIANCE_METRICS.md](docs/COMPLIANCE_METRICS.md) for details.
 The table stores `session_id`, timestamps, status, compliance score, and
 optional error details so administrators can audit every session.
 The test suite includes `tests/test_wlc_session_manager.py` to verify this behavior.
@@ -809,6 +849,21 @@ The `summarize_corrections()` routine now keeps only the most recent entries
 (configurable via the `max_entries` argument). Existing summary files are moved
 to `dashboard/compliance/archive/` before new summaries are written. The main
 report remains `dashboard/compliance/correction_summary.json`.
+
+### Composite Compliance Score
+
+Lint warnings, test results, and remaining placeholders are combined into a
+single weighted score:
+
+```
+L = max(0, 100 - lint_warnings)
+T = passed / (passed + failed) * 100
+P = max(0, 100 - 10 * placeholders)
+score = 0.3 * L + 0.5 * T + 0.2 * P
+```
+
+The composite score is stored in `code_quality_metrics` within `analytics.db`
+and displayed on the dashboard.
 Set `GH_COPILOT_WORKSPACE` before running these utilities:
 
 ```bash
@@ -1113,8 +1168,9 @@ Set these variables in your `.env` file or shell before running scripts:
 - `OPENAI_API_KEY` – enables optional OpenAI features.
 - `FLASK_SECRET_KEY` – Flask dashboard secret.
 - `FLASK_RUN_PORT` – dashboard port (default `5000`).
-- `QISKIT_IBM_TOKEN` – optional IBM Quantum token.
-- `IBM_BACKEND` – optional IBM Quantum backend name (default `ibmq_qasm_simulator`).
+ - `QISKIT_IBM_TOKEN` – placeholder for a future IBM Quantum API token; currently ignored.
+ - `IBM_BACKEND` – preferred hardware backend for future use; defaults to `ibmq_qasm_simulator`.
+ - `QUANTUM_USE_HARDWARE` – no-op flag reserved for eventual hardware execution.
 - `LOG_WEBSOCKET_ENABLED` – set to `1` to stream logs.
 - `CLW_MAX_LINE_LENGTH` – max line length for the `clw` wrapper (default `1550`).
 
@@ -1169,6 +1225,19 @@ Several small modules provide common helpers:
   ```
 - `tools.cleanup.cleanup_obsolete_entries` – remove rows from `obsolete_table` in `production.db`.
   - `artifact_manager.py` – package modified files from the temporary directory into the location specified by `session_artifact_dir` (defaults to `codex_sessions`). Run `python artifact_manager.py --package` to create an archive, `--recover` to extract the latest one, use `--tmp-dir` to choose a different temporary directory, and `--sync-gitattributes` to refresh LFS rules.
+
+### Reclone Repository Utility
+
+The `reclone_repo.py` script downloads a fresh clone of a Git repository. It is
+useful for replacing a corrupted working copy or for disaster recovery
+scenarios.
+
+```bash
+python reclone_repo.py --repo-url <REPO_URL> --dest /path/to/clone --clean
+```
+
+Use `--backup-existing` to move any pre-existing destination directory to
+`$GH_COPILOT_BACKUP_ROOT/<name>_TIMESTAMP` before cloning.
 
 ## Future Roadmap
 

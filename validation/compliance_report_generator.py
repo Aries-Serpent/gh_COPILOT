@@ -14,6 +14,8 @@ from typing import Dict, Any
 
 from tqdm import tqdm
 
+PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
+
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
@@ -61,6 +63,19 @@ def _parse_pytest(path: Path) -> Dict[str, Any]:
         "passed": summary.get("passed", 0),
         "failed": summary.get("failed", 0),
     }
+
+
+def _count_placeholders(workspace: Path) -> int:
+    """Return count of TODO/FIXME markers in ``workspace``."""
+    count = 0
+    for file in workspace.rglob("*.py"):
+        try:
+            text = file.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        for pattern in PLACEHOLDER_PATTERNS:
+            count += text.count(pattern)
+    return count
 
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
@@ -129,15 +144,19 @@ def generate_compliance_report(
             raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
 
         timestamp = datetime.utcnow().isoformat()
+        workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+        placeholder_count = _count_placeholders(workspace_root)
         scores = calculate_composite_compliance_score(
             ruff_metrics["issues"],
             pytest_metrics["passed"],
             pytest_metrics["failed"],
+            placeholder_count,
         )
         summary = {
             "timestamp": timestamp,
             "ruff": ruff_metrics,
             "pytest": pytest_metrics,
+            "placeholders": placeholder_count,
             "scores": scores,
             "composite_score": scores["composite"],
             "process_id": process_id,
@@ -157,6 +176,7 @@ def generate_compliance_report(
             md.write(
                 f"## Pytest Results: {pytest_metrics['passed']} passed / {pytest_metrics['failed']} failed of {pytest_metrics['total']} total\n"
             )
+            md.write(f"## Placeholder Count: {placeholder_count}\n")
             md.write(
                 f"## Composite Compliance Score: {scores['composite']:.2f}\n"
             )
@@ -176,6 +196,7 @@ def generate_compliance_report(
                     ruff_issues INTEGER,
                     tests_passed INTEGER,
                     tests_failed INTEGER,
+                    placeholders INTEGER,
                     composite_score REAL,
                     ts TEXT,
                     process_id INTEGER
@@ -183,6 +204,10 @@ def generate_compliance_report(
             )
             try:
                 conn.execute("ALTER TABLE code_quality_metrics ADD COLUMN composite_score REAL")
+            except sqlite3.OperationalError:
+                pass
+            try:
+                conn.execute("ALTER TABLE code_quality_metrics ADD COLUMN placeholders INTEGER")
             except sqlite3.OperationalError:
                 pass
             conn.execute(
@@ -193,11 +218,12 @@ def generate_compliance_report(
                 )"""
             )
             conn.execute(
-                "INSERT INTO code_quality_metrics (ruff_issues, tests_passed, tests_failed, composite_score, ts, process_id) VALUES (?, ?, ?, ?, ?, ?)",
+                "INSERT INTO code_quality_metrics (ruff_issues, tests_passed, tests_failed, placeholders, composite_score, ts, process_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 (
                     ruff_metrics["issues"],
                     pytest_metrics["passed"],
                     pytest_metrics["failed"],
+                    placeholder_count,
                     scores["composite"],
                     summary["timestamp"],
                     process_id,

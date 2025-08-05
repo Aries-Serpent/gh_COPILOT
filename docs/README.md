@@ -63,8 +63,8 @@ For validation details see [validation/Database_First_Validation.md](validation/
 The `docs/quantum_template_generator.py` script demonstrates the production
 workflow for generating documentation templates using quantum-inspired scoring.
 It queries `databases/production.db` for representative templates with
-`TemplateAutoGenerator`. When quantum components are available, the script ranks
-templates via `QuantumExecutor`; otherwise a classical fallback score is used.
+`TemplateAutoGenerator`. Quantum components run in simulation mode via
+`QuantumExecutor`, and hardware flags are ignored until future integration.
 Run the script with `python docs/quantum_template_generator.py` to produce
 scored templates. The underlying `TemplateAutoGenerator` clusters templates
 using `sklearn.cluster.KMeans` and exposes a
@@ -86,6 +86,13 @@ optimisation. It clusters stored templates, mines common patterns and writes
 a compliance report to ``dashboard/compliance``. Use
 ``enhance()`` to process a database of templates and generate metrics.
 
+### Documentation DB Analyzer
+
+``scripts/database/documentation_db_analyzer`` audits documentation
+databases for placeholder gaps and table statistics. Results are recorded in
+``analytics.db`` and every run triggers ``SecondaryCopilotValidator`` to
+enforce the dual-copilot review pattern.
+
 ## Quantum Placeholder Modules
 
 Modules under `scripts/quantum_placeholders/` act as stubs for upcoming
@@ -94,3 +101,5 @@ utilities detect this marker to skip the modules so they are never included
 in production builds. Importing them while `GH_COPILOT_ENV` is set to
 `"production"` raises a `RuntimeError` via `ensure_not_production`.
 They remain importable for experimentation and planning.
+Progress on these placeholders and other pending modules is tracked in
+[STUB_MODULE_STATUS.md](STUB_MODULE_STATUS.md).

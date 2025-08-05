@@ -5,7 +5,9 @@ This document describes how compliance scores are calculated for the dashboard.
 ## Compliance Score
 
 The compliance score measures progress resolving placeholders while
-accounting for outstanding issues. It is computed as:
+accounting for outstanding issues. Anti-recursion validation via
+`enterprise_modules.compliance.enforce_anti_recursion` must succeed before
+any score is recorded. The score is computed as:
 
 ```
 base = resolved_placeholders / (resolved_placeholders + open_placeholders)
@@ -28,17 +30,51 @@ reported alongside compliance metrics.
 
 ## Code Quality Composite Score
 
-Lint and test outcomes are summarized using
-``utils.validation_utils.calculate_composite_compliance_score``:
+Lint, test and placeholder results are combined into a single score using
+``enterprise_modules.compliance.calculate_compliance_score``:
 
 ```
-from utils.validation_utils import calculate_composite_compliance_score
-scores = calculate_composite_compliance_score(ruff_issues, tests_passed, tests_failed)
+from enterprise_modules.compliance import calculate_compliance_score
+score = calculate_compliance_score(
+    ruff_issues,
+    tests_passed,
+    tests_failed,
+    placeholders_open,
+    placeholders_resolved,
+)
 ```
 
-This returns a dictionary with:
+The helper computes three component scores:
 
-- ``lint_score = max(0, 100 - ruff_issues)`` derived from Ruff issue counts.
-- ``test_score = (tests_passed / total_tests) * 100`` from Pytest JSON reports.
-- ``composite`` = average of the two, stored in ``analytics.db`` under
-  ``code_quality_metrics`` for dashboard use.
+- ``lint_score = max(0, 100 - ruff_issues)``
+- ``test_score = (tests_passed / total_tests) * 100``
+- ``placeholder_score = (placeholders_resolved / total_placeholders) * 100``
+
+The final compliance score is the arithmetic mean of these components and is
+persisted to ``analytics.db`` for dashboard visualization.
+
+## Code Quality Score Helper
+
+The dashboard exposes a richer breakdown via
+``enterprise_modules.compliance.calculate_code_quality_score``:
+
+```python
+from enterprise_modules.compliance import calculate_code_quality_score
+score, breakdown = calculate_code_quality_score(
+    ruff_issues,
+    tests_passed,
+    tests_failed,
+    placeholders_open,
+    placeholders_resolved,
+)
+```
+
+This helper returns the composite score along with the ratios used to derive
+it:
+
+- ``lint_score`` – ``max(0, 100 - ruff_issues)``
+- ``test_pass_ratio`` – ``tests_passed / (tests_passed + tests_failed)``
+- ``placeholder_resolution_ratio`` – ``placeholders_resolved / total_placeholders``
+
+The final ``score`` is the mean of ``lint_score``, ``test_pass_ratio * 100`` and
+``placeholder_resolution_ratio * 100``.
