@@ -3,6 +3,9 @@
 
 *Generated from Documentation Database on 2025-07-10 12:58:26*
 
+> **Accessibility Reminder:** When adding PDFs here, also generate a Markdown
+> or HTML version using the automated converter so content remains accessible.
+
 ### 📊 **RECENT AGENT INSIGHTS**
 
 #### 🚀 ENVIRONMENT EFFICIENCY OPTIMIZATION: 86.3% → 100%

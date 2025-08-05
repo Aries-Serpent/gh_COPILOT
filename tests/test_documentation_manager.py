@@ -81,6 +81,41 @@ def test_generate_files(tmp_path, monkeypatch):
         assert len(data) > 0
 
 
+def test_pdf_also_generates_markdown(tmp_path, monkeypatch):
+    workspace = tmp_path
+    db_dir = workspace / "databases"
+    doc_dir = workspace / "documentation"
+    db_dir.mkdir()
+    doc_dir.mkdir()
+    db_path = db_dir / "documentation.db"
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            "CREATE TABLE enterprise_documentation (doc_id TEXT, doc_type TEXT, content TEXT, source_path TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO enterprise_documentation VALUES (?,?,?,?)",
+            ("1", "README", "# Heading\nAlpha", "src/1.py"),
+        )
+    analytics_db, completion_db = create_template_dbs(tmp_path)
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("DOCUMENTATION_DB_PATH", str(db_path))
+    monkeypatch.setattr(TemplateAutoGenerator, "select_best_template", lambda *a, **k: "{content}")
+    monkeypatch.setattr(EnterpriseDocumentationManager, "calculate_compliance", lambda *a, **k: 100.0)
+    manager = EnterpriseDocumentationManager(
+        workspace=workspace,
+        db_path=db_path,
+        analytics_db=analytics_db,
+        completion_db=completion_db,
+    )
+    files = manager.generate_files("README", output_formats=("pdf",))
+    pdf_path = workspace / "documentation" / "generated" / "enterprise_docs" / "1.pdf"
+    md_path = workspace / "documentation" / "generated" / "enterprise_docs" / "1.md"
+    assert pdf_path in files
+    assert md_path in files
+    md_text = md_path.read_text(encoding="utf-8")
+    assert "# Heading" in md_text
+
+
 def test_generate_files_records_status(tmp_path, monkeypatch):
     workspace = tmp_path
     db_dir = workspace / "databases"
