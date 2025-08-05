@@ -124,7 +124,7 @@ class ComplianceMetricsUpdater:
 
         async def main() -> None:
             async with websockets.serve(handler, "localhost", 8765):
-                await asyncio.Future()
+                await asyncio.Event().wait()
 
         asyncio.run(main())
 
