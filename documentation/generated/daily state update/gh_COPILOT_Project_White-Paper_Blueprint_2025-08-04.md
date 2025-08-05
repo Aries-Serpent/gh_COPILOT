@@ -1,7 +1,7 @@
-# gh_COPILOT Project White-Paper Blueprint Summary (2025-08-04)
+# gh_COPILOT Project White-Paper Blueprint Summary (2025-08-05)
 
 ## Objectives
-- Update the enterprise whitepaper to reflect current architecture and feature maturity.
+- Update the enterprise whitepaper to reflect current architecture and feature maturity, clarifying that all quantum components are simulation-only.
 - Complete anti-recursion safeguards, composite compliance scoring, and placeholder remediation.
 - Align documentation with the latest code and commit milestones.
 
@@ -16,6 +16,6 @@
 - Extend recursion checks and implement PID tracking in `compliance.py` to fully operationalize anti-recursion guards.
 - Define compliance scoring formula in `phase5_tasks.md` to implement composite compliance score.
 - Run `code_placeholder_audit` to remove remaining TODO/FIXME placeholders.
-- Update documentation and whitepapers to align with current codebase and simulation-only quantum features.
+- Update documentation and whitepapers to align with current codebase and explicitly mark quantum features as simulation-only.
 - Fix failing tests and resolve Ruff/Pyright issues to stabilise CI.
 

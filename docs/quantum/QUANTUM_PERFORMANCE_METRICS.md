@@ -2,7 +2,7 @@
 ## Comprehensive Performance Analysis
 
 > **Note**
-> All benchmarks are generated using the simulator unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+> All benchmarks are generated using the simulator. Installing `qiskit-ibm-provider` or configuring an IBM Quantum token has no effect because hardware execution is not supported.
 
 ### Baseline Performance Comparison
 

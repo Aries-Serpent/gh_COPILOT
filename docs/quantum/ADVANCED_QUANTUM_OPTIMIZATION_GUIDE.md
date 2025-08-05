@@ -3,7 +3,7 @@
 This guide outlines how to extend the existing quantum module with an advanced optimization algorithm. It assumes familiarity with the repository's quantum package and the base `QuantumAlgorithmBase` class.
 
 > **Note**
-> All quantum functionality runs in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+> All quantum functionality runs in simulation mode only. Installing `qiskit-ibm-provider` or configuring an IBM Quantum token has no effect because hardware execution is not supported.
 
 ## 1. Create the Module
 1. Navigate to `quantum/algorithms/`.
@@ -13,7 +13,7 @@ This guide outlines how to extend the existing quantum module with an advanced o
 
 ## 2. Implement the Algorithm Logic
 1. Prepare your quantum circuit using Qiskit or another supported framework.
-2. Configure a suitable backend (simulator or hardware if available).
+2. Configure a simulator backend; hardware execution is not available.
 3. Encode the problem instance into the circuit using variational forms or oracle-based methods.
 4. Apply iterative optimization (e.g., variational quantum eigensolver or quantum annealing) while logging progress via the base class utilities.
 5. Record execution statistics with fidelity and performance metrics for later analysis.
