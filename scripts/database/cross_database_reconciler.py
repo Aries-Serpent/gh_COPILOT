@@ -45,7 +45,7 @@ def _fetch_operations(conn: sqlite3.Connection) -> List[Tuple]:
 
 
 def reconcile_once(db_paths: Sequence[Path]) -> None:
-    """Run a single reconciliation pass across ``db_paths``.
+    """Run a single reconciliation cycle across ``db_paths``.
 
     Any rows missing from a database are copied from the first database in the
     list.  Schema mismatches are reported via the enterprise logging system.
