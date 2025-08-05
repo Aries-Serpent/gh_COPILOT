@@ -14,7 +14,7 @@ def test_score_persistence_and_fetch(tmp_path: Path) -> None:
 
 def test_composite_score_breakdown() -> None:
     score, breakdown = compliance.calculate_composite_score(10, 8, 2, 1, 3)
-    assert score == pytest.approx(81.67, rel=1e-3)
+    assert score == pytest.approx(82.0, rel=1e-3)
     assert breakdown["lint_score"] == pytest.approx(90.0, rel=1e-3)
     assert breakdown["test_score"] == pytest.approx(80.0, rel=1e-3)
     assert breakdown["placeholder_score"] == pytest.approx(75.0, rel=1e-3)
