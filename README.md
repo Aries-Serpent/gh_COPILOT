@@ -12,7 +12,7 @@
 
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
-> Quantum modules run exclusively in simulation mode; hardware flags are currently ignored. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
+> Quantum modules run exclusively in simulation mode; hardware flags are currently ignored. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Module completion status is tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
 > Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards.
 
 ---
@@ -303,20 +303,20 @@ print(f"[SUCCESS] Generated with {result.confidence_score}% confidence")
 python simplified_quantum_integration_orchestrator.py
 ```
 
-By default the orchestrator uses the simulator. Flags `--hardware` and
-`--backend` enable IBM Quantum devices when credentials are available and
-transparently fall back to the simulator otherwise.
+The orchestrator always uses the simulator. Flags `--hardware` and
+`--backend` are placeholders for future IBM Quantum device selection and are
+currently ignored.
 
 ```bash
-# request hardware; falls back to simulator if unavailable
+# hardware flags are no-ops; simulator always used
 python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
 ```
 
-Provide an IBM Quantum token via the `QISKIT_IBM_TOKEN` environment variable or
-`--token` flag to enable hardware execution. Without credentials or when devices
-are unreachable, the orchestrator automatically falls back to simulation.
-See [docs/QUANTUM_HARDWARE_SETUP.md](docs/QUANTUM_HARDWARE_SETUP.md) for
-configuration details.
+IBM Quantum tokens and the `--token` flag are currently ignored; hardware
+execution is not implemented. See
+[docs/QUANTUM_HARDWARE_SETUP.md](docs/QUANTUM_HARDWARE_SETUP.md) for future
+configuration notes and [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md)
+for module status.
 
 ### Quantum Placeholder Modules
 
@@ -1162,9 +1162,9 @@ Set these variables in your `.env` file or shell before running scripts:
 - `OPENAI_API_KEY` – enables optional OpenAI features.
 - `FLASK_SECRET_KEY` – Flask dashboard secret.
 - `FLASK_RUN_PORT` – dashboard port (default `5000`).
- - `QISKIT_IBM_TOKEN` – IBM Quantum API token for hardware execution.
- - `IBM_BACKEND` – preferred hardware backend; defaults to `ibmq_qasm_simulator`.
- - `QUANTUM_USE_HARDWARE` – set to `1` to attempt hardware use when a token is available.
+ - `QISKIT_IBM_TOKEN` – placeholder for a future IBM Quantum API token; currently ignored.
+ - `IBM_BACKEND` – preferred hardware backend for future use; defaults to `ibmq_qasm_simulator`.
+ - `QUANTUM_USE_HARDWARE` – no-op flag reserved for eventual hardware execution.
 - `LOG_WEBSOCKET_ENABLED` – set to `1` to stream logs.
 - `CLW_MAX_LINE_LENGTH` – max line length for the `clw` wrapper (default `1550`).
 

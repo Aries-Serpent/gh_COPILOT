@@ -101,3 +101,5 @@ utilities detect this marker to skip the modules so they are never included
 in production builds. Importing them while `GH_COPILOT_ENV` is set to
 `"production"` raises a `RuntimeError` via `ensure_not_production`.
 They remain importable for experimentation and planning.
+Progress on these placeholders and other pending modules is tracked in
+[STUB_MODULE_STATUS.md](STUB_MODULE_STATUS.md).
