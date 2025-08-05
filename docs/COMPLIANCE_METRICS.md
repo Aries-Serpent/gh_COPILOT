@@ -5,7 +5,9 @@ This document describes how compliance scores are calculated for the dashboard.
 ## Compliance Score
 
 The compliance score measures progress resolving placeholders while
-accounting for outstanding issues. It is computed as:
+accounting for outstanding issues. Anti-recursion validation via
+`enterprise_modules.compliance.enforce_anti_recursion` must succeed before
+any score is recorded. The score is computed as:
 
 ```
 base = resolved_placeholders / (resolved_placeholders + open_placeholders)
