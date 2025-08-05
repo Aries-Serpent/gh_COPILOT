@@ -312,9 +312,12 @@ class ComplianceMetricsUpdater:
             tests_failed,
             metrics.get("open_placeholders", 0),
         )
-        metrics["composite_score"] = composite
-        metrics["composite_compliance_score"] = composite
-        metrics["score_breakdown"] = breakdown
+        # ``calculate_composite_compliance_score`` returns a dictionary of
+        # individual scores along with the combined ``composite`` value. Use
+        # those values directly rather than undefined temporary variables.
+        metrics["composite_score"] = scores["composite"]
+        metrics["composite_compliance_score"] = scores["composite"]
+        metrics["score_breakdown"] = scores
         record_code_quality_metrics(
             ruff_issues,
             tests_passed,
