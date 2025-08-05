@@ -182,7 +182,10 @@ class CorrectionLoggerRollback:
                 (str(file_path),),
             )
             row = cur.fetchone()
-            prev_score = row[0] if row else None
+            try:
+                prev_score = float(row[0]) if row and row[0] is not None else None
+            except (TypeError, ValueError):
+                prev_score = None
             compliance_delta = (
                 compliance_score - prev_score if prev_score is not None else compliance_score
             )

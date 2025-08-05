@@ -12,11 +12,12 @@ The script ingests documentation and templates, then invokes the internal
 placeholder audit. Findings are written to `databases/analytics.db` in the
 `placeholder_audit` table.
 
-The audit now prints a list of actionable tasks for every unresolved
-placeholder so developers can quickly remove them. Example output:
+The audit prints a list of actionable tasks for every unresolved
+placeholder so developers can quickly remove them. When the codebase is
+clean, the output confirms that no work remains:
 
 ```
-[TASK] Remove TODO in path/to/file.py:42 - refactor needed
+[SUCCESS] No TODO or FIXME placeholders found
 ```
 
 ## Viewing Results

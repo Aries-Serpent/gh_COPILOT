@@ -7,6 +7,9 @@
 <h1>Compliance Metrics</h1>
 <p><strong>Compliance Score:</strong> {{ metrics.compliance_score | default(0) }}</p>
 <p><strong>Composite Score:</strong> {{ metrics.composite_score | default(0) }}</p>
+<p><strong>Open Placeholders:</strong> {{ metrics.open_placeholders | default(0) }}</p>
+<p><strong>Resolved Placeholders:</strong> {{ metrics.resolved_placeholders | default(0) }}</p>
+<p><strong>Remediation Progress:</strong> {{ ((metrics.progress or 0) * 100) | round(1) }}%</p>
 
 <h2>Correction Logs</h2>
 <ul>

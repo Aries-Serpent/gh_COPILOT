@@ -19,7 +19,7 @@
 ### **System Classification**
 The gh_COPILOT Toolkit v4.0 represents a revolutionary enterprise-grade automation platform that implements a database-first, unified system architecture with advanced AI integration capabilities, comprehensive security protocols, and enterprise-scale deployment readiness.
 
-*This whitepaper describes planned capabilities. Several features, including quantum optimization and full enterprise deployment, remain experimental or under development.*
+*This whitepaper describes planned capabilities. Several features, including quantum optimization and full enterprise deployment, remain experimental or under development. All quantum components operate through simulators; hardware backends are not supported.*
 
 ### **Core Technical Architecture**
 - **Unified Enterprise Systems**: Gradual consolidation of legacy scripts into modular packages
@@ -88,7 +88,7 @@ class UnifiedMonitoringOptimizationSystem:
 #### **Database Integration**
 - **Primary Database**: production.db for operational metrics
 - **Analytics Database**: analytics.db for performance data
-- **Optimization Database**: optimization_metrics.db for optimization tracking
+- **Optimization Database**: *(deprecated)* `optimization_metrics.db`
 - **Cross-Database Intelligence**: Aggregation across available development databases
 
 ### **2. Unified Script Generation System**
@@ -990,12 +990,16 @@ test success, and placeholder backlog:
 ```
 L = max(0, 100 - lint_warnings)
 T = passed / (passed + failed) * 100
-P = max(0, 100 - 10 * placeholders)
+P = (placeholders_resolved / (placeholders_open + placeholders_resolved)) * 100
 score = 0.3 * L + 0.5 * T + 0.2 * P
 ```
 
 This composite score is persisted to `code_quality_metrics` in `analytics.db`
 and exposed on the compliance dashboard.
+
+Compliance checks also prohibit destructive commands such as `rm -rf`, `mkfs`,
+`shutdown`, `reboot`, and `dd if=` while flagging unresolved `TODO` or `FIXME`
+placeholders, mirroring `enterprise_modules/compliance.py` guidelines.
 
 ### **Quantum Optimization Engine (Placeholder)**
 *Planned placeholder – algorithms not yet implemented.*

@@ -5,7 +5,7 @@
 This documentation suite provides comprehensive information about the quantum optimization features integrated into the PIS (Plan Issued Statement) Framework.
 
 > **Note**
-> All quantum functionality operates in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+> All quantum functionality operates in simulation mode only. Installing `qiskit-ibm-provider` or configuring an IBM Quantum token has no effect because hardware execution is not supported.
 
 ### Available Documents
 1. **[Quantum Optimization Overview](QUANTUM_OPTIMIZATION_OVERVIEW.md)**

@@ -31,6 +31,11 @@ FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
 MAX_RECURSION_DEPTH = 5
 PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
 
+# Weights for the composite compliance score components
+LINT_WEIGHT = 0.3
+TEST_WEIGHT = 0.5
+PLACEHOLDER_WEIGHT = 0.2
+
 
 F = TypeVar("F", bound=Callable[..., Any])
 _ACTIVE_PIDS: set[int] = set()
@@ -38,45 +43,71 @@ _PID_DEPTHS: dict[int, int] = {}
 _PID_PARENTS: dict[int, int] = {}
 _PID_CHILDREN: dict[int, set[int]] = {}
 _GUARD_LOCK = threading.Lock()
+_PID_LOG_LOCK = threading.Lock()
+_PID_THREADS: dict[int, set[int]] = {}
 
 
 def anti_recursion_guard(func: F) -> F:
     """Decorator tracking recursion depth and parent/child PID relationships.
 
-    Aborts when ``MAX_RECURSION_DEPTH`` is exceeded, when the current PID
-    attempts to re-enter while still active, or when a PID loop is detected
-    via parent/child tracking.
+    Aborts when ``MAX_RECURSION_DEPTH`` is exceeded or when a PID loop is
+    detected via parent/child tracking. Each PID entry and exit is recorded
+    for analytics, and recursion depth is enforced across threads.
     """
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
         pid = os.getpid()
         ppid = os.getppid()
+        tid = threading.get_ident()
         with _GUARD_LOCK:
             ancestor = ppid
             while ancestor:
                 if ancestor == pid:
                     raise RuntimeError("PID loop detected")
                 ancestor = _PID_PARENTS.get(ancestor)
+            threads = _PID_THREADS.setdefault(pid, set())
+            if threads and tid not in threads:
+                raise RuntimeError("Duplicate PID execution")
 
             depth = _PID_DEPTHS.get(pid, 0)
             if depth >= MAX_RECURSION_DEPTH:
                 raise RuntimeError("Recursion depth exceeded")
-            if pid in _ACTIVE_PIDS:
-                raise RuntimeError("PID already active")
-            _PID_DEPTHS[pid] = depth + 1
+            depth += 1
+            _PID_DEPTHS[pid] = depth
             _ACTIVE_PIDS.add(pid)
+            threads.add(tid)
             _PID_PARENTS[pid] = ppid
             _PID_CHILDREN.setdefault(ppid, set()).add(pid)
+            _record_recursion_pid(Path(f"{func.__qualname__}/entry"), pid, ppid, depth)
 
         try:
+            target: Path | None = None
+            if args:
+                candidate = args[0]
+                if isinstance(candidate, (str, os.PathLike)):
+                    target = Path(candidate)
+            if target is None and "path" in kwargs:
+                candidate = kwargs["path"]
+                if isinstance(candidate, (str, os.PathLike)):
+                    target = Path(candidate)
+            if target is not None and _detect_recursion(target):
+                raise RuntimeError("Path recursion detected")
             return func(*args, **kwargs)
         finally:
             with _GUARD_LOCK:
                 remaining = _PID_DEPTHS.get(pid, 0) - 1
+                _record_recursion_pid(
+                    Path(f"{func.__qualname__}/exit"), pid, ppid, remaining
+                )
                 if remaining <= 0:
                     _PID_DEPTHS.pop(pid, None)
                     _ACTIVE_PIDS.discard(pid)
+                    threads = _PID_THREADS.get(pid)
+                    if threads is not None:
+                        threads.discard(tid)
+                        if not threads:
+                            _PID_THREADS.pop(pid, None)
                     parent = _PID_PARENTS.pop(pid, None)
                     if parent is not None:
                         children = _PID_CHILDREN.get(parent)
@@ -142,23 +173,38 @@ def _ensure_recursion_pid_log(db_path: Path) -> None:
     """Ensure the ``recursion_pid_log`` table exists."""
     with sqlite3.connect(db_path) as conn:
         conn.execute(
-            "CREATE TABLE IF NOT EXISTS recursion_pid_log (path TEXT, pid INTEGER, timestamp TEXT)"
+            """
+            CREATE TABLE IF NOT EXISTS recursion_pid_log (
+                path TEXT,
+                pid INTEGER,
+                parent_pid INTEGER,
+                depth INTEGER,
+                timestamp TEXT
+            )
+            """
         )
         conn.commit()
 
 
-def _record_recursion_pid(path: Path, pid: int) -> None:
-    """Record ``pid`` executions against ``path`` for recursion tracking."""
+def _record_recursion_pid(
+    path: Path, pid: int, parent_pid: int | None = None, depth: int | None = None
+) -> None:
+    """Record PID activity against ``path`` for recursion tracking."""
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     analytics_db = workspace / "databases" / "analytics.db"
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     _ensure_recursion_pid_log(analytics_db)
-    with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            "INSERT INTO recursion_pid_log (path, pid, timestamp) VALUES (?, ?, ?)",
-            (str(path.resolve()), pid, datetime.now().isoformat()),
-        )
-        conn.commit()
+    try:
+        path_str = str(path.resolve())
+    except Exception:
+        path_str = str(path)
+    with _PID_LOG_LOCK:
+        with sqlite3.connect(analytics_db) as conn:
+            conn.execute(
+                "INSERT INTO recursion_pid_log (path, pid, parent_pid, depth, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (path_str, pid, parent_pid, depth, datetime.now().isoformat()),
+            )
+            conn.commit()
 
 
 def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bool:
@@ -313,8 +359,12 @@ def calculate_compliance_score(
         if total_placeholders
         else 100.0
     )
-    weighted_score = 0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score
-    return round(weighted_score, 2)
+    score = (
+        LINT_WEIGHT * lint_score
+        + TEST_WEIGHT * test_score
+        + PLACEHOLDER_WEIGHT * placeholder_score
+    )
+    return round(score, 2)
 
 
 def calculate_composite_score(
@@ -324,14 +374,21 @@ def calculate_composite_score(
     placeholders_open: int,
     placeholders_resolved: int,
 ) -> tuple[float, dict]:
-    """Return composite score and component breakdown on a 0–100 scale."""
+    """Return composite score and weighted component breakdown on a 0–100 scale."""
 
-    score = calculate_compliance_score(
-        ruff_issues,
-        tests_passed,
-        tests_failed,
-        placeholders_open,
-        placeholders_resolved,
+    total_tests = tests_passed + tests_failed
+    total_placeholders = placeholders_open + placeholders_resolved
+    lint_score = max(0.0, 100 - ruff_issues)
+    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+    placeholder_score = (
+        placeholders_resolved / total_placeholders * 100
+        if total_placeholders
+        else 100.0
+    )
+    score = (
+        LINT_WEIGHT * lint_score
+        + TEST_WEIGHT * test_score
+        + PLACEHOLDER_WEIGHT * placeholder_score
     )
     breakdown = {
         "ruff_issues": ruff_issues,
@@ -339,21 +396,14 @@ def calculate_composite_score(
         "tests_failed": tests_failed,
         "placeholders_open": placeholders_open,
         "placeholders_resolved": placeholders_resolved,
-        "lint_score": max(0.0, 100 - ruff_issues),
-        "test_score": (
-            tests_passed / (tests_passed + tests_failed) * 100
-            if (tests_passed + tests_failed)
-            else 0.0
-        ),
-        "placeholder_score": (
-            placeholders_resolved
-            / (placeholders_open + placeholders_resolved)
-            * 100
-            if (placeholders_open + placeholders_resolved)
-            else 100.0
-        ),
-    } 
-    return score, breakdown
+        "lint_score": round(lint_score, 2),
+        "test_score": round(test_score, 2),
+        "placeholder_score": round(placeholder_score, 2),
+        "lint_weighted": round(LINT_WEIGHT * lint_score, 2),
+        "test_weighted": round(TEST_WEIGHT * test_score, 2),
+        "placeholder_weighted": round(PLACEHOLDER_WEIGHT * placeholder_score, 2),
+    }
+    return round(score, 2), breakdown
 
 
 def calculate_code_quality_score(

@@ -12,7 +12,7 @@
 
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
-> Quantum modules run exclusively in simulation mode; hardware flags are currently ignored. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Module completion status is tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
+> Quantum modules run exclusively in simulation mode; hardware flags are currently ignored. Documentation and guides now clearly mark these components as simulation-only. See [docs/QUANTUM_PLACEHOLDERS.md](docs/QUANTUM_PLACEHOLDERS.md) and [docs/PHASE5_TASKS_STARTED.md](docs/PHASE5_TASKS_STARTED.md) for progress details. Module completion status is tracked in [docs/STUB_MODULE_STATUS.md](docs/STUB_MODULE_STATUS.md). Compliance auditing is enforced via `EnterpriseComplianceValidator`, and composite scores combine lint, test, and placeholder metrics stored in `analytics.db`.
 > Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards.
 
 ---
@@ -68,10 +68,10 @@ The enterprise dashboard reports an overall code quality score derived from
 lint, test and placeholder metrics:
 
 ```
-lint_score = max(0, 100 - ruff_issues)
-test_score = (tests_passed / total_tests) * 100
-placeholder_score = (placeholders_resolved / total_placeholders) * 100
-score = (lint_score + test_score + placeholder_score) / 3
+L = max(0, 100 - ruff_issues)
+T = (tests_passed / total_tests) * 100
+P = (placeholders_resolved / (placeholders_open + placeholders_resolved)) * 100
+score = 0.3 * L + 0.5 * T + 0.2 * P
 ```
 
 This value is persisted to `analytics.db` and surfaced via
@@ -79,6 +79,11 @@ This value is persisted to `analytics.db` and surfaced via
 `validate_enterprise_operation` and `anti_recursion_guard` run alongside these
 calculations; runs that trigger recursion violations are excluded from
 scoring.
+
+Compliance enforcement also blocks destructive commands (`rm -rf`, `mkfs`,
+`shutdown`, `reboot`, `dd if=`) and flags unresolved `TODO` or `FIXME`
+placeholders in accordance with `enterprise_modules/compliance.py` and the
+Phase 5 scoring guidelines.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1,679 scripts synchronized
@@ -97,7 +102,9 @@ scoring.
 - **Script Validation**: automated checks available
 - **Self-Healing Systems:** correction scripts
 - **Autonomous File Management:** see [Using AutonomousFileManager](docs/USING_AUTONOMOUS_FILE_MANAGER.md)
- - **Continuous Operation Mode:** optional monitoring utilities
+- **Quantum Modules:** all quantum features execute on Qiskit simulators; hardware
+  backends are currently disabled.
+- **Continuous Operation Mode:** optional monitoring utilities
    - **Simulated Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
     `scripts/monitoring/enterprise_compliance_monitor.py`, and
     `scripts/monitoring/unified_monitoring_optimization_system.py`.
@@ -1177,6 +1184,9 @@ Set these variables in your `.env` file or shell before running scripts:
 ## 🛠️ Troubleshooting
 
 - **Setup script fails** – ensure network access and rerun `bash setup.sh`.
+- **ImportError in `setup_environment.py`** – the script now adds the repository root to
+  `sys.path` when executed directly. Update to the latest commit if you see
+  `attempted relative import` errors.
 - **`clw` not found** – run `tools/install_clw.sh` to install and then `clw --help`.
 - **Database errors** – verify `GH_COPILOT_WORKSPACE` is configured correctly.
 

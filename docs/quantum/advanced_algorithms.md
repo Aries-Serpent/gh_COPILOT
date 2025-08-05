@@ -3,6 +3,9 @@
 This guide documents the Qiskit-based reference implementations
 available in `quantum/advanced_quantum_algorithms.py`.
 
+> **Note**
+> All examples run on simulator backends only. Installing `qiskit-ibm-provider` or supplying IBM Quantum tokens has no effect because hardware execution is not supported.
+
 ## Grover Search
 
 ```python
@@ -22,4 +25,4 @@ print(phase)
 ```
 
 Both functions use Qiskit's simulator backend and require the
-`qiskit` package to be installed.
+`qiskit` package to be installed; real hardware backends are ignored.
