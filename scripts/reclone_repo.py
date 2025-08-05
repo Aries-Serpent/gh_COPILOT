@@ -14,6 +14,11 @@ import subprocess
 import sys
 from datetime import datetime
 
+from enterprise_modules.compliance import (
+    anti_recursion_guard,
+    validate_enterprise_operation,
+)
+
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -57,25 +62,37 @@ def validate_paths(dest: str, backup: bool) -> None:
             raise RuntimeError("GH_COPILOT_BACKUP_ROOT must be outside the destination path")
 
 
+@anti_recursion_guard
 def backup_existing(dest: str) -> str:
     """Move the existing destination to the backup root and return the backup path."""
     dest_abs = os.path.abspath(dest)
+    if not validate_enterprise_operation(dest_abs):
+        raise RuntimeError("Invalid destination path")
     backup_root = os.path.abspath(os.environ["GH_COPILOT_BACKUP_ROOT"])
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     base = os.path.basename(dest_abs.rstrip(os.sep))
     backup_path = os.path.join(backup_root, f"{base}_{timestamp}")
+    if not validate_enterprise_operation(backup_path):
+        raise RuntimeError("Invalid destination path")
     shutil.move(dest_abs, backup_path)
     return backup_path
 
 
+@anti_recursion_guard
 def remove_existing(dest: str) -> None:
     """Remove the destination directory if it exists."""
     if os.path.exists(dest):
+        if not validate_enterprise_operation(dest):
+            raise RuntimeError("Invalid destination path")
         shutil.rmtree(dest)
 
 
+@anti_recursion_guard
 def clone_repository(repo_url: str, dest: str, branch: str) -> str:
     """Clone the repository and return the latest commit hash."""
+    command = f"git clone --branch {branch} {repo_url} {dest}"
+    if not validate_enterprise_operation(command=command):
+        raise RuntimeError("forbidden command")
     subprocess.run(["git", "clone", "--branch", branch, repo_url, dest], check=True)
     result = subprocess.run(
         ["git", "-C", dest, "rev-parse", "HEAD"], check=True, capture_output=True, text=True
@@ -90,6 +107,8 @@ def main() -> None:
         if args.backup_existing and args.clean:
             raise RuntimeError("--clean cannot be used with --backup-existing")
         validate_paths(args.dest, args.backup_existing)
+        if not validate_enterprise_operation(args.dest):
+            raise RuntimeError("Invalid destination path")
 
         if os.path.exists(args.dest):
             if args.backup_existing:
