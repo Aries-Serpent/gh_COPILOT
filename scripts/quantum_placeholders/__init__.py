@@ -2,7 +2,9 @@
 
 These modules are stubs referencing planned quantum capabilities
 outlined in the whitepaper. They are excluded from production paths
-and serve only as importable placeholders for future work.
+and serve only as importable placeholders for future work. The package
+will be deprecated as real implementations graduate to the `quantum`
+namespace starting in Q4 2025.
 """
 
 from __future__ import annotations

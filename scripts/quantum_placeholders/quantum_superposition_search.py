@@ -1,4 +1,7 @@
-"""Uniform superposition generator with optional hardware execution."""
+"""Uniform superposition generator with optional hardware execution.
+
+Planned promotion to a hardware-backed search routine after the IonQ pilot
+completes in late 2025."""
 
 from __future__ import annotations
 
