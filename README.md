@@ -68,10 +68,10 @@ The enterprise dashboard reports an overall code quality score derived from
 lint, test and placeholder metrics:
 
 ```
-lint_score = max(0, 100 - ruff_issues)
-test_score = (tests_passed / total_tests) * 100
-placeholder_score = (placeholders_resolved / total_placeholders) * 100
-score = (lint_score + test_score + placeholder_score) / 3
+L = max(0, 100 - ruff_issues)
+T = (tests_passed / total_tests) * 100
+P = (placeholders_resolved / (placeholders_open + placeholders_resolved)) * 100
+score = 0.3 * L + 0.5 * T + 0.2 * P
 ```
 
 This value is persisted to `analytics.db` and surfaced via
@@ -79,6 +79,11 @@ This value is persisted to `analytics.db` and surfaced via
 `validate_enterprise_operation` and `anti_recursion_guard` run alongside these
 calculations; runs that trigger recursion violations are excluded from
 scoring.
+
+Compliance enforcement also blocks destructive commands (`rm -rf`, `mkfs`,
+`shutdown`, `reboot`, `dd if=`) and flags unresolved `TODO` or `FIXME`
+placeholders in accordance with `enterprise_modules/compliance.py` and the
+Phase 5 scoring guidelines.
 
 ### 🏆 **Enterprise Achievements**
  - ✅ **Script Validation**: 1,679 scripts synchronized
@@ -97,7 +102,9 @@ scoring.
 - **Script Validation**: automated checks available
 - **Self-Healing Systems:** correction scripts
 - **Autonomous File Management:** see [Using AutonomousFileManager](docs/USING_AUTONOMOUS_FILE_MANAGER.md)
- - **Continuous Operation Mode:** optional monitoring utilities
+- **Quantum Modules:** all quantum features execute on Qiskit simulators; hardware
+  backends are currently disabled.
+- **Continuous Operation Mode:** optional monitoring utilities
    - **Simulated Quantum Monitoring Scripts:** `scripts/monitoring/continuous_operation_monitor.py`,
     `scripts/monitoring/enterprise_compliance_monitor.py`, and
     `scripts/monitoring/unified_monitoring_optimization_system.py`.
