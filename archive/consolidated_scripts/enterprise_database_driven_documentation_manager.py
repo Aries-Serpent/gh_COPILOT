@@ -93,7 +93,7 @@ class DocumentationManager:
                 if "metrics" in data:
                     metrics.update(data["metrics"])
             except json.JSONDecodeError:
-                pass
+                logger.warning("Invalid dashboard metrics file: %s", dashboard_file)
         metrics["documentation_generated"] = metrics.get("documentation_generated", 0) + rendered
         dashboard_file.write_text(
             json.dumps({"metrics": metrics, "status": "updated", "timestamp": metrics["last_update"]}, indent=2),
