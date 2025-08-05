@@ -12,7 +12,6 @@ def test_dashboard_metrics_complete(tmp_path: Path, monkeypatch) -> None:
         conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved')")
         conn.execute("CREATE TABLE correction_logs (compliance_score REAL)")
         conn.execute("INSERT INTO correction_logs VALUES (1.0)")
-        conn.execute("CREATE TABLE violation_logs (id INTEGER)")
     monkeypatch.setattr(cmu, "ANALYTICS_DB", analytics_db)
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)

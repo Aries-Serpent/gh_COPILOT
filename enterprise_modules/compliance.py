@@ -270,16 +270,16 @@ def calculate_compliance_score(
 ) -> float:
     """Return overall code-quality score on a ``0..100`` scale.
 
-    The score is the mean of three component scores:
+    The score is a weighted sum of three component scores:
 
-    ``lint_score``
+    ``lint_score`` (30%)
         ``max(0, 100 - ruff_issues)``
 
-    ``test_score``
+    ``test_score`` (50%)
         ``(tests_passed / total_tests) * 100`` where ``total_tests`` is the sum
         of passed and failed tests. If no tests ran, this component is ``0``.
 
-    ``placeholder_score``
+    ``placeholder_score`` (20%)
         ``(placeholders_resolved / total_placeholders) * 100`` where
         ``total_placeholders`` is the sum of open and resolved placeholders. If
         no placeholders were found the component defaults to ``100``.
@@ -294,7 +294,8 @@ def calculate_compliance_score(
         if total_placeholders
         else 100.0
     )
-    return round((lint_score + test_score + placeholder_score) / 3, 2)
+    weighted_score = 0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score
+    return round(weighted_score, 2)
 
 
 def calculate_composite_score(
@@ -356,8 +357,9 @@ def calculate_code_quality_score(
     ``placeholders_open``/``placeholders_resolved``
         Used to determine how many TODO/FIXME markers have been resolved.
 
-    The final score is the arithmetic mean of the lint score, test pass ratio
-    and placeholder resolution ratio, expressed on a ``0..100`` scale.
+    The final score is a weighted sum of the lint score (30%), test pass ratio
+    (50%), and placeholder resolution ratio (20%), expressed on a ``0..100``
+    scale.
     """
 
     total_tests = tests_passed + tests_failed
@@ -369,7 +371,7 @@ def calculate_code_quality_score(
     lint_score = max(0.0, 100 - ruff_issues)
     test_score = pass_ratio * 100
     placeholder_score = resolution_ratio * 100
-    composite = round((lint_score + test_score + placeholder_score) / 3, 2)
+    composite = round(0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score, 2)
     return composite, {
         "lint_score": round(lint_score, 2),
         "test_pass_ratio": round(pass_ratio, 2),
