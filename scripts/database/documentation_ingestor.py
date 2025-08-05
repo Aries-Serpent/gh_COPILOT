@@ -116,21 +116,50 @@ def ingest_documentation(
 
         with conn, tqdm(total=len(files), desc="Docs", unit="file") as bar:
             for path in files:
+                file_start = datetime.now(timezone.utc)
                 if timeout_seconds and (datetime.now(timezone.utc) - start_time).total_seconds() > timeout_seconds:
                     logger.error("Ingestion timed out")
                     raise TimeoutError("Documentation ingestion timed out")
 
                 rel_path = str(path.relative_to(workspace))
-                if path.stat().st_size == 0 or rel_path in existing_docs:
-                    if path.stat().st_size == 0:
-                        logger.warning("Skipping zero-byte file: %s", path)
+                if path.stat().st_size == 0:
+                    logger.warning("Skipping zero-byte file: %s", path)
+                    conn.commit()
+                    log_sync_operation(
+                        db_path,
+                        "documentation_ingestion",
+                        status="SKIPPED",
+                        start_time=file_start,
+                    )
                     bar.update(1)
                     continue
 
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
                 if digest in existing_hashes:
-                    logger.info("Skipping duplicate content: %s", path)
+                    logger.info(
+                        "Duplicate content detected: %s (hash=%s)",
+                        path,
+                        digest,
+                    )
+                    conn.commit()
+                    log_sync_operation(
+                        db_path,
+                        "documentation_ingestion",
+                        status="DUPLICATE",
+                        start_time=file_start,
+                    )
+                    bar.update(1)
+                    continue
+                if rel_path in existing_docs:
+                    logger.info("Skipping existing document: %s", path)
+                    conn.commit()
+                    log_sync_operation(
+                        db_path,
+                        "documentation_ingestion",
+                        status="EXISTS",
+                        start_time=file_start,
+                    )
                     bar.update(1)
                     continue
                 existing_hashes.add(digest)
@@ -147,6 +176,13 @@ def ingest_documentation(
                         datetime.now(timezone.utc).isoformat(),
                         modified_at,
                     ),
+                )
+                conn.commit()
+                log_sync_operation(
+                    db_path,
+                    "documentation_ingestion",
+                    status="SUCCESS",
+                    start_time=file_start,
                 )
                 bar.update(1)
                 existing_docs.add(rel_path)
