@@ -2,6 +2,9 @@
 
 This roadmap outlines upcoming steps for extending quantum capabilities.
 
+> **Note**
+> Current quantum modules operate in simulation mode only. Hardware connectivity remains a future roadmap item.
+
 ## Roadmap
 
 1. **Stabilize Simulator Infrastructure** – ensure deterministic fallbacks for

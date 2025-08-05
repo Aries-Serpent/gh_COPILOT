@@ -1,6 +1,6 @@
 # 🚀 gh_COPILOT Enterprise Toolkit v4.0
 
-**Notice: ** Quantum optimization and other advanced capabilities mentioned in earlier drafts are ** not ** implemented in this repository. The toolkit currently consists of standard Python scripts for deployment, monitoring, and basic template automation.
+**Notice:** Quantum optimization and other advanced capabilities operate through simulation-only placeholders. The toolkit currently consists of standard Python scripts for deployment, monitoring, and basic template automation; no quantum hardware integration is available.
 
 # Current Status
 
@@ -10,9 +10,7 @@
 
 - **Algorithm Performance: ** modest improvements over baseline
 - **Template Completion: ** automation scripts demonstrate partial coverage
-- **Quantum Optimization: ** implemented via a Qiskit-based optimizer
-  leveraging rotation-angle search. The `_deploy_quantum_algorithms()`
-  method now generates functional scripts providing this capability.
+- **Quantum Optimization:** simulation stubs demonstrate rotation-angle search concepts. The `_deploy_quantum_algorithms()` method generates placeholder scripts for demonstration only.
 - **Enterprise Systems: ** monitoring and validation modules operational
 - **Security Compliance: ** Anti-recursion, zero-byte protection, DUAL COPILOT pattern
 - **Performance Monitoring: ** monitoring scripts available
@@ -44,8 +42,8 @@
 # 🌌 Quantum-Enhanced Features (Planned)
 
 - These items describe aspirational functionality and are gradually being implemented.
-- **Quantum Algorithm Optimization**: basic optimization implemented using Qiskit rotation search
-- **Quantum Optimizer Scripts: ** `QuantumOptimizer` and related functions provide a working example
+- **Quantum Algorithm Optimization**: simulation-only examples using Qiskit rotation search
+- **Quantum Optimizer Scripts:** `QuantumOptimizer` and related functions provide simulation-only examples
 - **Ultra-Aggressive Template Completion**: target completion rate subject to future development
 - **Real-time Performance Monitoring**: conceptual self-learning analytics
 - **Substantial Algorithm Boost**: planned quantum-inspired performance enhancements

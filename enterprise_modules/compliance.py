@@ -43,6 +43,8 @@ _PID_DEPTHS: dict[int, int] = {}
 _PID_PARENTS: dict[int, int] = {}
 _PID_CHILDREN: dict[int, set[int]] = {}
 _GUARD_LOCK = threading.Lock()
+_PID_LOG_LOCK = threading.Lock()
+_PID_THREADS: dict[int, set[int]] = {}
 
 
 def anti_recursion_guard(func: F) -> F:
@@ -57,12 +59,16 @@ def anti_recursion_guard(func: F) -> F:
     def wrapper(*args: Any, **kwargs: Any):
         pid = os.getpid()
         ppid = os.getppid()
+        tid = threading.get_ident()
         with _GUARD_LOCK:
             ancestor = ppid
             while ancestor:
                 if ancestor == pid:
                     raise RuntimeError("PID loop detected")
                 ancestor = _PID_PARENTS.get(ancestor)
+            threads = _PID_THREADS.setdefault(pid, set())
+            if threads and tid not in threads:
+                raise RuntimeError("Duplicate PID execution")
 
             depth = _PID_DEPTHS.get(pid, 0)
             if depth >= MAX_RECURSION_DEPTH:
@@ -70,11 +76,23 @@ def anti_recursion_guard(func: F) -> F:
             depth += 1
             _PID_DEPTHS[pid] = depth
             _ACTIVE_PIDS.add(pid)
+            threads.add(tid)
             _PID_PARENTS[pid] = ppid
             _PID_CHILDREN.setdefault(ppid, set()).add(pid)
             _record_recursion_pid(Path(f"{func.__qualname__}/entry"), pid, ppid, depth)
 
         try:
+            target: Path | None = None
+            if args:
+                candidate = args[0]
+                if isinstance(candidate, (str, os.PathLike)):
+                    target = Path(candidate)
+            if target is None and "path" in kwargs:
+                candidate = kwargs["path"]
+                if isinstance(candidate, (str, os.PathLike)):
+                    target = Path(candidate)
+            if target is not None and _detect_recursion(target):
+                raise RuntimeError("Path recursion detected")
             return func(*args, **kwargs)
         finally:
             with _GUARD_LOCK:
@@ -85,6 +103,11 @@ def anti_recursion_guard(func: F) -> F:
                 if remaining <= 0:
                     _PID_DEPTHS.pop(pid, None)
                     _ACTIVE_PIDS.discard(pid)
+                    threads = _PID_THREADS.get(pid)
+                    if threads is not None:
+                        threads.discard(tid)
+                        if not threads:
+                            _PID_THREADS.pop(pid, None)
                     parent = _PID_PARENTS.pop(pid, None)
                     if parent is not None:
                         children = _PID_CHILDREN.get(parent)
@@ -175,12 +198,13 @@ def _record_recursion_pid(
         path_str = str(path.resolve())
     except Exception:
         path_str = str(path)
-    with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            "INSERT INTO recursion_pid_log (path, pid, parent_pid, depth, timestamp) VALUES (?, ?, ?, ?, ?)",
-            (path_str, pid, parent_pid, depth, datetime.now().isoformat()),
-        )
-        conn.commit()
+    with _PID_LOG_LOCK:
+        with sqlite3.connect(analytics_db) as conn:
+            conn.execute(
+                "INSERT INTO recursion_pid_log (path, pid, parent_pid, depth, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (path_str, pid, parent_pid, depth, datetime.now().isoformat()),
+            )
+            conn.commit()
 
 
 def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bool:
@@ -361,12 +385,10 @@ def calculate_composite_score(
         if total_placeholders
         else 100.0
     )
-    score = calculate_compliance_score(
-        ruff_issues,
-        tests_passed,
-        tests_failed,
-        placeholders_open,
-        placeholders_resolved,
+    score = (
+        LINT_WEIGHT * lint_score
+        + TEST_WEIGHT * test_score
+        + PLACEHOLDER_WEIGHT * placeholder_score
     )
     breakdown = {
         "ruff_issues": ruff_issues,
@@ -381,7 +403,7 @@ def calculate_composite_score(
         "test_weighted": round(TEST_WEIGHT * test_score, 2),
         "placeholder_weighted": round(PLACEHOLDER_WEIGHT * placeholder_score, 2),
     }
-    return score, breakdown
+    return round(score, 2), breakdown
 
 
 def calculate_code_quality_score(

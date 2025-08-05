@@ -38,3 +38,25 @@ def test_calculate_composite_score_surfaces_weighted_components() -> None:
         == score
     )
 
+
+def test_calculate_composite_score_handles_no_tests_or_placeholders() -> None:
+    """Score should fall back to lint and placeholder defaults when data missing."""
+
+    score, breakdown = calculate_composite_score(0, 0, 0, 0, 0)
+
+    assert score == 50.0
+    assert breakdown["lint_weighted"] == 30.0
+    assert breakdown["test_weighted"] == 0.0
+    assert breakdown["placeholder_weighted"] == 20.0
+
+
+def test_calculate_composite_score_perfect_results() -> None:
+    """A spotless run should yield a perfect composite score."""
+
+    score, breakdown = calculate_composite_score(0, 10, 0, 0, 0)
+
+    assert score == 100.0
+    assert breakdown["lint_weighted"] == 30.0
+    assert breakdown["test_weighted"] == 50.0
+    assert breakdown["placeholder_weighted"] == 20.0
+

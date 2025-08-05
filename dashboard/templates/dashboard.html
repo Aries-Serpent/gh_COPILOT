@@ -11,6 +11,10 @@
             if(data.composite_score !== undefined){
                 document.getElementById('composite_score').textContent = data.composite_score.toFixed(2);
             }
+            document.getElementById('open_placeholders').textContent = data.open_placeholders || 0;
+            document.getElementById('resolved_placeholders').textContent = data.resolved_placeholders || 0;
+            const prog = data.progress !== undefined ? (data.progress * 100).toFixed(1) + '%' : '0%';
+            document.getElementById('remediation_progress').textContent = prog;
             document.getElementById('lessons_integration_status').textContent = data.lessons_integration_status || 'UNKNOWN';
             document.getElementById('lessons_hook_coverage').textContent =
                 data.lessons_hook_coverage !== undefined ? (data.lessons_hook_coverage * 100).toFixed(1) + '%' : '0%';
@@ -77,6 +81,9 @@
     <strong>Placeholder Removals:</strong> <span id="placeholder_removal">{{ metrics.placeholder_removal | default(0) }}</span><br>
     <strong>Compliance Score:</strong> <span id="compliance_score">{{ metrics.compliance_score | default(0) }}</span><br>
     <strong>Composite Score:</strong> <span id="composite_score">{{ metrics.composite_score | default(0) }}</span><br>
+    <strong>Open Placeholders:</strong> <span id="open_placeholders">{{ metrics.open_placeholders | default(0) }}</span><br>
+    <strong>Resolved Placeholders:</strong> <span id="resolved_placeholders">{{ metrics.resolved_placeholders | default(0) }}</span><br>
+    <strong>Remediation Progress:</strong> <span id="remediation_progress">{{ ((metrics.progress or 0) * 100) | round(1) }}%</span><br>
     <strong>Lessons Integration Status:</strong> <span id="lessons_integration_status">UNKNOWN</span><br>
     <strong>Lessons Hook Coverage:</strong> <span id="lessons_hook_coverage">0%</span><br>
     <strong>Missing Lesson Hooks:</strong> <span id="missing_lesson_hooks">none</span><br>

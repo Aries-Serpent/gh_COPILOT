@@ -5,6 +5,9 @@
 
 From the semantic search, I've identified **46 production database tables** and multiple database schemas that need to be integrated into our comprehensive PIS framework for true database-first functionality.
 
+> **Note**
+> Quantum-related fields in this plan are placeholders for simulation-only algorithms. Hardware execution is not supported.
+
 **Existing Database Infrastructure:**
 - **production.db**: 46 tables including compliance_events, script_metadata, template_patterns
 - **analytics.db**: Template management and usage analytics
@@ -29,7 +32,7 @@ CREATE TABLE pis_framework_sessions (
     completed_phases INTEGER DEFAULT 0,
     overall_success_rate REAL DEFAULT 0.0,
     enterprise_enhancements_active BOOLEAN DEFAULT TRUE,
-    quantum_optimization_enabled BOOLEAN DEFAULT TRUE,
+    quantum_optimization_enabled BOOLEAN DEFAULT TRUE, -- simulation placeholder
     continuous_operation_mode BOOLEAN DEFAULT TRUE,
     anti_recursion_active BOOLEAN DEFAULT TRUE,
     dual_copilot_enabled BOOLEAN DEFAULT TRUE,
@@ -184,7 +187,7 @@ CREATE TABLE quantum_algorithms_registry (
 ```
 
 The migration to replace the legacy `PLACEHOLDER` implementation status has been executed.
-All rows in `quantum_algorithms_registry` now store `IMPLEMENTED` to reflect production-ready algorithms.
+All rows in `quantum_algorithms_registry` now store `SIMULATION_ONLY` to reflect placeholder algorithms.
 
 #### **C. Web-GUI Integration Metrics**
 ```sql

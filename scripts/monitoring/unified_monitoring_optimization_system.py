@@ -30,12 +30,22 @@ __all__ = ["EnterpriseUtility", "collect_metrics", "quantum_hook"]
 
 
 class EnterpriseUtility:
-    """Enterprise utility class"""
+    """Enterprise utility class.
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
-        log_dir = Path(os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path)) / "logs"
-        log_dir.mkdir(exist_ok=True)
+    Parameters
+    ----------
+    workspace_path:
+        Optional path to the workspace root. When ``None`` (default), the
+        location is resolved from ``GH_COPILOT_WORKSPACE`` and falls back to
+        the current working directory. This avoids hard-coded paths and
+        keeps the utility portable across platforms.
+    """
+
+    def __init__(self, workspace_path: str | Path | None = None):
+        resolved = workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
+        self.workspace_path = Path(resolved)
+        log_dir = self.workspace_path / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
         if not logging.getLogger(__name__).handlers:
             logging.basicConfig(
                 level=logging.INFO,
