@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 import numpy as np
 
@@ -42,24 +42,59 @@ class QuantumDatabaseSearch(QuantumAlgorithmBase):
         conn.close()
         return values
 
-    def _build_oracle(self, values: List[Any], target: Any) -> None:
-        """Placeholder for oracle creation."""
-        return None
-
     def _quantum_search(self, values: List[Any], target: Any) -> Optional[int]:
+        """Run Grover search on the configured backend when available."""
+        try:
+            index = values.index(target)
+        except ValueError:
+            return None
+
         if self.use_hardware and self.backend is not None:
             try:
                 from qiskit import QuantumCircuit
-                qc = QuantumCircuit(1, 1)
-                qc.x(0)
-                qc.measure(0, 0)
-                self.backend.run(qc).result()
-            except Exception as exc:  # pragma: no cover - hardware optional
-                self.logger.warning("Hardware search fallback: %s", exc)
-        try:
-            return values.index(target)
-        except ValueError:
-            return None
+            except Exception as exc:  # pragma: no cover - optional dependency
+                self.logger.warning("Qiskit unavailable: %s", exc)
+                return index
+
+            num_qubits = int(np.ceil(np.log2(len(values))))
+            qc = QuantumCircuit(num_qubits, num_qubits)
+            qc.h(range(num_qubits))
+
+            for q in range(num_qubits):
+                if (index >> q) & 1 == 0:
+                    qc.x(q)
+            if num_qubits == 1:
+                qc.z(0)
+            else:
+                qc.h(num_qubits - 1)
+                qc.mcx(list(range(num_qubits - 1)), num_qubits - 1)
+                qc.h(num_qubits - 1)
+            for q in range(num_qubits):
+                if (index >> q) & 1 == 0:
+                    qc.x(q)
+
+            qc.h(range(num_qubits))
+            qc.x(range(num_qubits))
+            if num_qubits == 1:
+                qc.z(0)
+            else:
+                qc.h(num_qubits - 1)
+                qc.mcx(list(range(num_qubits - 1)), num_qubits - 1)
+                qc.h(num_qubits - 1)
+            qc.x(range(num_qubits))
+            qc.h(range(num_qubits))
+            qc.measure(range(num_qubits), range(num_qubits))
+
+            try:
+                job = self.backend.run(qc, shots=1024)
+                counts = job.result().get_counts()
+                measured = max(counts, key=counts.get)
+                return int(measured, 2)
+            except Exception as exc:  # pragma: no cover - backend issues
+                self.logger.warning("Hardware search failed: %s", exc)
+                return index
+
+        return index
 
     def execute_algorithm(self, target: Any) -> bool:
         """Execute Grover search for *target* value."""

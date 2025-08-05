@@ -45,7 +45,8 @@ class QuantumExecutor:
         self.backend_name = backend_name or env_backend
         self.backend = None
         self.token = token or os.getenv("QISKIT_IBM_TOKEN")
-        self.use_hardware = use_hardware or bool(self.token)
+        env_use = os.getenv("QUANTUM_USE_HARDWARE", "0") == "1"
+        self.use_hardware = use_hardware or bool(self.token) or env_use
         if self.use_hardware and not HAS_IBM_PROVIDER:
             self.logger.warning("IBM provider unavailable; using simulator")
             self.use_hardware = False
