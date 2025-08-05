@@ -39,3 +39,10 @@ def test_perform_utility_function_inserts_metrics(tmp_path, monkeypatch):
     with sqlite3.connect(tmp_path / "databases" / "optimization_metrics.db") as conn:
         count = conn.execute("SELECT COUNT(*) FROM optimization_metrics").fetchone()[0]
     assert count == 1
+
+
+def test_default_workspace_uses_env(tmp_path, monkeypatch):
+    """Ensure EnterpriseUtility defaults to the workspace environment variable."""
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    util = EnterpriseUtility()
+    assert util.workspace_path == Path(tmp_path)
