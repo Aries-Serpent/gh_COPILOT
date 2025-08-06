@@ -126,12 +126,17 @@ def generate_removal_tasks(
     processing the context through :func:`remove_unused_placeholders`.
     """
 
+    def _suggest_fix(text: str) -> str:
+        """Return a simple suggestion for TODO/FIXME style comments."""
+
+        return re.sub(r"\b(?:TODO|FIXME)\b:?[ ]*", "", text).strip()
+
     tasks: List[Dict[str, str]] = []
     for item in results:
         description = (
             f"Remove {item['pattern']} in {item['file']}:{item['line']} - {item['context']}"
         )
-        suggestion = item["context"]
+        suggestion = _suggest_fix(item["context"])
         if production_db and analytics_db:
             try:
                 suggestion = remove_unused_placeholders(
@@ -143,6 +148,7 @@ def generate_removal_tasks(
                 )
             except Exception:
                 suggestion = item["context"]
+        suggestion = _suggest_fix(suggestion)
         tasks.append(
             {
                 "task": description,
@@ -454,6 +460,80 @@ def log_findings(
                     inserted += 1
         conn.commit()
     return inserted
+
+
+def record_unresolved_placeholders(
+    tasks: List[Dict[str, str]], analytics_db: Path, simulate: bool = False
+) -> int:
+    """Store unresolved placeholder locations in analytics.db."""
+
+    if simulate:
+        return 0
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS unresolved_placeholders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file TEXT NOT NULL,
+                line INTEGER NOT NULL,
+                suggestion TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        cur = conn.cursor()
+        for task in tasks:
+            cur.execute(
+                "INSERT INTO unresolved_placeholders (file, line, suggestion) VALUES (?, ?, ?)",
+                (task["file"], int(task["line"]), task["suggestion"]),
+            )
+        conn.commit()
+        return len(tasks)
+
+
+def apply_suggestions_to_files(
+    tasks: List[Dict[str, str]], analytics_db: Path, simulate: bool = False
+) -> List[Dict[str, str]]:
+    """Apply generated suggestions to source files.
+
+    Returns a list of tasks that could not be applied and remain unresolved."""
+
+    if simulate:
+        return tasks
+    unresolved: List[Dict[str, str]] = []
+    author = os.getenv("GH_COPILOT_USER", getpass.getuser())
+    for task in tasks:
+        suggestion = task.get("suggestion", "").strip()
+        if not suggestion or suggestion == task["context"].strip():
+            unresolved.append(task)
+            continue
+        path = Path(task["file"])
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except Exception:
+            unresolved.append(task)
+            continue
+        idx = int(task["line"]) - 1
+        if 0 <= idx < len(lines):
+            lines[idx] = suggestion
+            path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            with sqlite3.connect(analytics_db) as conn:
+                conn.execute(
+                    "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, resolved_by=?, status='resolved' WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=?",
+                    (
+                        datetime.now().isoformat(),
+                        author,
+                        task["file"],
+                        int(task["line"]),
+                        task["pattern"],
+                        task["context"],
+                    ),
+                )
+                conn.commit()
+        else:
+            unresolved.append(task)
+    return unresolved
 
 
 # Update dashboard/compliance with summary JSON
@@ -811,14 +891,14 @@ def auto_remove_placeholders(
                 logger.log_change(
                     path,
                     "Auto placeholder cleanup",
-                    compliance_score=1.0,
+                    correction_type="placeholder_cleanup",
                     rollback_reference=str(backup_path),
                 )
             else:
                 logger.log_change(
                     path,
                     "Auto placeholder cleanup failed validation",
-                    compliance_score=0.0,
+                    correction_type="placeholder_cleanup_failed",
                     rollback_reference=str(backup_path),
                 )
                 logger.auto_rollback(path, backup_path)
@@ -910,6 +990,7 @@ def main(
     exclude_dirs: Optional[List[str]] = None,
     update_resolutions: bool = False,
     apply_fixes: bool = False,
+    apply_suggestions: bool = False,
     auto_resolve: bool = False,
     export: Optional[Path] = None,
     task_report: Optional[Path] = None,
@@ -1013,8 +1094,11 @@ def main(
     if export:
         export.write_text(json.dumps(results, indent=2), encoding="utf-8")
     tasks = generate_removal_tasks(results, production, analytics)
+    if apply_suggestions and not simulate:
+        tasks = apply_suggestions_to_files(tasks, analytics)
     if not simulate:
         log_placeholder_tasks(tasks, analytics)
+        record_unresolved_placeholders(tasks, analytics)
     for task in tasks:
         log_message(__name__, f"[TASK] {task['task']}")
     if task_report:
@@ -1104,6 +1188,12 @@ def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
         help="Automatically remove placeholders and log corrections",
     )
     parser.add_argument(
+        "--apply-suggestions",
+        action="store_true",
+        dest="apply_suggestions",
+        help="Apply generated suggestions for simple placeholders",
+    )
+    parser.add_argument(
         "--auto-resolve",
         action="store_true",
         dest="auto_resolve",
@@ -1164,6 +1254,7 @@ if __name__ == "__main__":
         exclude_dirs=args.exclude_dirs,
         update_resolutions=args.update_resolutions,
         apply_fixes=args.apply_fixes,
+        apply_suggestions=args.apply_suggestions,
         auto_resolve=args.auto_resolve,
         export=args.export,
         task_report=args.task_report,
