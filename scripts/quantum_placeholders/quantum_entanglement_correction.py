@@ -1,4 +1,7 @@
-"""Demonstration of simple entanglement error detection and correction."""
+"""Demonstration of simple entanglement error detection and correction.
+
+This placeholder will be superseded by full error-correction utilities once
+Rigetti and IBM hardware APIs are available (target 2025–2026)."""
 
 from __future__ import annotations
 

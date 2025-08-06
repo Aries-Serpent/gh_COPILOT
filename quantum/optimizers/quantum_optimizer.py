@@ -123,6 +123,8 @@ class QuantumOptimizer:
     - Provides QAOA and VQE stubs if Qiskit is available
     - Unified run interface with progress reporting
     - Logs optimization metrics for compliance and reproducibility
+    - Refer to ``documentation/quantum_placeholder_roadmap.md`` for hardware migration milestones
+    - Operates with simulators by default; real backend execution depends on future provider availability
     """
 
     def __init__(

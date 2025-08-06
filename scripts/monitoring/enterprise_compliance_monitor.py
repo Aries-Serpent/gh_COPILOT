@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """Enterprise Compliance Monitor - placeholder."""
 
+from __future__ import annotations
+
 import argparse
 import logging
 import time
 from pathlib import Path
 
 from tqdm import tqdm
+
+from enterprise_modules.compliance import (
+    anti_recursion_guard,
+    validate_enterprise_operation,
+)
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 
 def parse_args() -> argparse.Namespace:
@@ -16,6 +24,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+@anti_recursion_guard
 def setup_logger(workspace: Path) -> logging.Logger:
     log_dir = workspace / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -27,15 +36,26 @@ def setup_logger(workspace: Path) -> logging.Logger:
     return logger
 
 
+@anti_recursion_guard
+def validate_logs(files: list[Path]) -> None:
+    """Run secondary validator on the provided log files."""
+
+    validator = SecondaryCopilotValidator()
+    validator.validate_corrections([str(f) for f in files])
+
+
 def run_monitor(logger: logging.Logger, cycles: int) -> None:
+    log_file = Path(logger.handlers[0].baseFilename)
     for _ in tqdm(range(cycles), desc="Compliance Check"):
         logger.info("compliance check")
+        validate_logs([log_file])
         time.sleep(0.1)
     logger.info("Compliance monitoring complete")
 
 
 def main() -> int:
     args = parse_args()
+    validate_enterprise_operation(str(args.workspace))
     logger = setup_logger(args.workspace)
     run_monitor(logger, args.cycles)
     return 0

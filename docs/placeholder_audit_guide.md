@@ -20,6 +20,23 @@ clean, the output confirms that no work remains:
 [SUCCESS] No TODO or FIXME placeholders found
 ```
 
+### Applying Suggestions Automatically
+
+Use the `--apply-suggestions` flag to apply simple fixes generated for
+each TODO or FIXME. Lines are updated in place and resolved entries are
+removed from the audit:
+
+```bash
+python scripts/code_placeholder_audit.py --apply-suggestions \
+  --workspace-path "$GH_COPILOT_WORKSPACE" \
+  --analytics-db databases/analytics.db \
+  --production-db databases/production.db \
+  --dashboard-dir dashboard/compliance
+```
+
+Unresolved placeholders are recorded in `analytics.db` under the
+`unresolved_placeholders` table with their file paths and line numbers.
+
 ## Viewing Results
 
 The dashboard exposes audit findings via the `/placeholder-audit` route:

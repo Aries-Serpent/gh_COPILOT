@@ -1,3 +1,5 @@
+import hashlib
+import logging
 import os
 import sqlite3
 from pathlib import Path
@@ -89,6 +91,31 @@ def test_duplicate_content_skipped(tmp_path: Path, monkeypatch) -> None:
     (docs_dir / "a.md").write_text("# Guide")
     (docs_dir / "b.md").write_text("# Guide")
     ingest_documentation(workspace, docs_dir)
+    db_path = db_dir / "enterprise_assets.db"
+    with sqlite3.connect(db_path) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
+    assert count == 1
+
+
+def test_reingest_logs_duplicate(tmp_path: Path, caplog, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    workspace = tmp_path
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    db_dir = workspace / "databases"
+    db_dir.mkdir()
+    docs_dir = workspace / "documentation"
+    docs_dir.mkdir()
+    doc = docs_dir / "guide.md"
+    content = "# Guide"
+    doc.write_text(content)
+    ingest_documentation(workspace, docs_dir)
+    caplog.clear()
+    caplog.set_level(logging.INFO)
+    ingest_documentation(workspace, docs_dir)
+    digest = hashlib.sha256(content.encode()).hexdigest()
+    messages = " ".join(caplog.messages)
+    assert digest in messages
+    assert str(doc) in messages
     db_path = db_dir / "enterprise_assets.db"
     with sqlite3.connect(db_path) as conn:
         count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]

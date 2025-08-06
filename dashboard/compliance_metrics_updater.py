@@ -29,6 +29,7 @@ from enterprise_modules.compliance import (
     record_code_quality_metrics,
     _run_ruff,
     _run_pytest,
+    pid_recursion_guard,
 )
 from utils.validation_utils import calculate_composite_compliance_score
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
@@ -37,6 +38,7 @@ from unified_monitoring_optimization_system import (
     push_metrics,
 )
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 
 # Enterprise logging setup
@@ -161,9 +163,11 @@ class ComplianceMetricsUpdater:
             "open_placeholders": 0,
             "resolved_placeholders": 0,
             "auto_resolved_placeholders": 0,
+            "ticketed_placeholders": 0,
             "compliance_score": 1.0,
             "violation_count": 0,
             "rollback_count": 0,
+            "recent_rollbacks": [],
             "progress_status": "unknown",
             "last_update": datetime.now().isoformat(),
             "placeholder_breakdown": {},
@@ -177,8 +181,44 @@ class ComplianceMetricsUpdater:
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.cursor()
             try:
-                # Placeholder removals recorded in todo_fixme_tracking or correction_history
+                # Prefer placeholder_tasks table if available, otherwise fall
+                # back to todo_fixme_tracking which provides similar
+                # information.
                 if cur.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'"
+                ).fetchone():
+                    cur.execute(
+                        "SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'"
+                    )
+                    metrics["open_placeholders"] = cur.fetchone()[0]
+                    cur.execute(
+                        "SELECT COUNT(*) FROM placeholder_tasks WHERE status='resolved'"
+                    )
+                    metrics["resolved_placeholders"] = cur.fetchone()[0]
+                    cur.execute(
+                        "SELECT pattern, COUNT(*) FROM placeholder_tasks WHERE status='open' GROUP BY pattern"
+                    )
+                    metrics["placeholder_breakdown"] = {
+                        row[0]: row[1] for row in cur.fetchall() if row[0]
+                    }
+                elif cur.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='todo_fixme_tracking'"
+                ).fetchone():
+                    cur.execute(
+                        "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
+                    )
+                    metrics["open_placeholders"] = cur.fetchone()[0]
+                    cur.execute(
+                        "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
+                    )
+                    metrics["resolved_placeholders"] = cur.fetchone()[0]
+                    cur.execute(
+                        "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type"
+                    )
+                    metrics["placeholder_breakdown"] = {
+                        row[0]: row[1] for row in cur.fetchall() if row[0]
+                    }
+                elif cur.execute(
                     "SELECT name FROM sqlite_master WHERE type='table' AND name='correction_history'"
                 ).fetchone():
                     cur.execute(
@@ -186,11 +226,24 @@ class ComplianceMetricsUpdater:
                     )
                     metrics["resolved_placeholders"] = cur.fetchone()[0]
                     metrics["open_placeholders"] = 0
+                    metrics["placeholder_breakdown"] = {}
                 else:
                     cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
                     metrics["resolved_placeholders"] = cur.fetchone()[0]
                     cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'")
                     metrics["open_placeholders"] = cur.fetchone()[0]
+                    cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='ticketed'")
+                    metrics["ticketed_placeholders"] = cur.fetchone()[0]
+                    try:
+                        cur.execute(
+                            "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking GROUP BY placeholder_type"
+                        )
+                        metrics["placeholder_breakdown"] = {
+                            row[0]: row[1] for row in cur.fetchall() if row[0]
+                        }
+                    except sqlite3.Error:
+                        metrics["placeholder_breakdown"] = {}
+
                 metrics["placeholder_removal"] = metrics["resolved_placeholders"]
 
                 open_ph = metrics["open_placeholders"]
@@ -198,17 +251,6 @@ class ComplianceMetricsUpdater:
                 denominator = resolved_ph + open_ph
                 base_score = resolved_ph / denominator if denominator else 1.0
                 metrics["compliance_score"] = base_score
-
-                # Placeholder type breakdown
-                try:
-                    cur.execute(
-                        "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking GROUP BY placeholder_type"
-                    )
-                    metrics["placeholder_breakdown"] = {
-                        row[0]: row[1] for row in cur.fetchall() if row[0]
-                    }
-                except sqlite3.Error:
-                    metrics["placeholder_breakdown"] = {}
 
                 try:
                     cur.execute(
@@ -230,22 +272,38 @@ class ComplianceMetricsUpdater:
 
                 cur.execute("SELECT COUNT(*) FROM correction_logs")
                 metrics["correction_count"] = cur.fetchone()[0]
+                try:
+                    cur.execute("SELECT COUNT(*) FROM violation_logs")
+                    metrics["violation_count"] = cur.fetchone()[0]
+                    if metrics["violation_count"] == 0:
+                        msg = "violation_logs table has no entries"
+                        logging.warning(msg)
+                        if not test_mode:
+                            raise ValueError(msg)
+                except sqlite3.Error:
+                    metrics["violation_count"] = 0
+                    logging.warning("violation_logs table missing")
 
-                cur.execute("SELECT COUNT(*) FROM violation_logs")
-                metrics["violation_count"] = cur.fetchone()[0]
-
-                if cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='rollback_logs'").fetchone():
-                    cur.execute("SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT 5")
+                try:
+                    cur.execute("SELECT COUNT(*) FROM rollback_logs")
+                    metrics["rollback_count"] = cur.fetchone()[0]
+                    if metrics["rollback_count"] == 0:
+                        msg = "rollback_logs table has no entries"
+                        logging.warning(msg)
+                        if not test_mode:
+                            raise ValueError(msg)
+                    cur.execute(
+                        "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT 5"
+                    )
                     metrics["recent_rollbacks"] = [
                         {"target": r[0], "backup": r[1], "timestamp": r[2]} for r in cur.fetchall()
                     ]
-                    cur.execute("SELECT COUNT(*) FROM rollback_logs")
-                    metrics["rollback_count"] = cur.fetchone()[0]
                     if metrics["rollback_count"] and not test_mode:
                         DisasterRecoveryOrchestrator().run_backup_cycle()
-                else:
+                except sqlite3.Error:
                     metrics["recent_rollbacks"] = []
                     metrics["rollback_count"] = 0
+                    logging.warning("rollback_logs table missing")
                 penalty = 0.1 * metrics["violation_count"] + 0.05 * metrics["rollback_count"]
                 metrics["compliance_score"] = max(0.0, min(1.0, base_score - penalty))
 
@@ -312,11 +370,20 @@ class ComplianceMetricsUpdater:
             tests_failed,
             metrics.get("open_placeholders", 0),
         )
-        # ``calculate_composite_compliance_score`` returns a dictionary of
-        # individual scores along with the combined ``composite`` value. Use
-        # those values directly rather than undefined temporary variables.
-        metrics["composite_score"] = scores["composite"]
-        metrics["composite_compliance_score"] = scores["composite"]
+        # ``calculate_composite_compliance_score`` returns individual scores
+        # along with a combined ``composite`` value. Apply additional penalties
+        # based on violation and rollback counts to surface these issues in the
+        # final composite score.
+        violation_penalty = metrics["violation_count"] * 10
+        rollback_penalty = metrics["rollback_count"] * 5
+        composite = max(
+            0.0,
+            scores["composite"] - violation_penalty - rollback_penalty,
+        )
+        scores["violation_penalty"] = violation_penalty
+        scores["rollback_penalty"] = rollback_penalty
+        metrics["composite_score"] = composite
+        metrics["composite_compliance_score"] = composite
         metrics["score_breakdown"] = scores
         record_code_quality_metrics(
             ruff_issues,
@@ -334,20 +401,36 @@ class ComplianceMetricsUpdater:
             metrics["progress_status"] = "complete"
         if metrics["violation_count"]:
             insert_event(
-                {"event": "violation_detected", "count": metrics["violation_count"]},
-                "violation_logs",
+                {
+                    "timestamp": datetime.now().isoformat(),
+                    "module": "dashboard",
+                    "level": "INFO",
+                    "description": "violation_detected",
+                    "details": str(metrics["violation_count"]),
+                },
+                "event_log",
                 db_path=ANALYTICS_DB,
                 test_mode=test_mode,
             )
         if metrics["rollback_count"]:
             insert_event(
-                {"event": "rollback_detected", "count": metrics["rollback_count"]},
-                "rollback_logs",
+                {
+                    "timestamp": datetime.now().isoformat(),
+                    "module": "dashboard",
+                    "level": "INFO",
+                    "description": "rollback_detected",
+                    "details": str(metrics["rollback_count"]),
+                },
+                "event_log",
                 db_path=ANALYTICS_DB,
                 test_mode=test_mode,
             )
         insert_event(
-            {"event": "correction", "score": metrics.get("compliance_score", 0.0)},
+            {
+                "timestamp": datetime.now().isoformat(),
+                "event": "correction",
+                "compliance_score": metrics.get("compliance_score", 0.0),
+            },
             "correction_logs",
             db_path=ANALYTICS_DB,
             test_mode=test_mode,
@@ -513,6 +596,9 @@ class ComplianceMetricsUpdater:
             "rollback_count": float(metrics.get("rollback_count", 0.0)),
         }
         push_metrics(monitoring_metrics, table="enterprise_metrics", db_path=ANALYTICS_DB)
+        score_breakdown = metrics.get("score_breakdown", {})
+        for component, value in score_breakdown.items():
+            push_metrics({component: float(value)}, table="compliance_score_breakdown", db_path=ANALYTICS_DB)
         if monitoring_metrics["compliance_score"] < 0.8:
             self.monitoring_utility.execute_utility()
 
@@ -612,15 +698,18 @@ class ComplianceMetricsUpdater:
         return None
 
 
+@pid_recursion_guard
 def main(simulate: bool = False, stream: bool = False, test_mode: bool = False) -> None:
     """Command-line entry point."""
     dashboard_dir = DASHBOARD_DIR
     updater = ComplianceMetricsUpdater(dashboard_dir, test_mode=test_mode)
+    orchestrator = DualCopilotOrchestrator(logging.getLogger(__name__))
     if stream:
         for metrics in updater.stream_metrics():
             print(metrics)
     else:
         updater.update(simulate=simulate)
+        orchestrator.validator.validate_corrections([str(updater.dashboard_dir / "metrics.json")])
         updater.validate_update()
 
 

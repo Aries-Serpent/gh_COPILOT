@@ -9,6 +9,7 @@ from flask import Flask, jsonify, render_template, request
 from tqdm import tqdm
 
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
+from utils.validation_utils import calculate_composite_compliance_score
 
 METRICS_PATH = Path("dashboard/compliance/metrics.json")
 CORRECTIONS_DIR = Path("dashboard/compliance")
@@ -34,12 +35,22 @@ def fetch_db_metrics() -> dict:
         cur = conn.cursor()
         try:
             cur.execute(
-                "SELECT composite_score, ts FROM code_quality_metrics ORDER BY id DESC LIMIT 1"
+                """
+                SELECT ruff_issues, tests_passed, tests_failed, placeholders,
+                       composite_score, ts
+                FROM code_quality_metrics
+                ORDER BY id DESC LIMIT 1
+                """
             )
             row = cur.fetchone()
             if row:
-                data["score"] = row[0]
-                data["last_audit_date"] = row[1]
+                ruff, passed, failed, placeholders, stored_score, ts = row
+                scores = calculate_composite_compliance_score(
+                    ruff, passed, failed, placeholders
+                )
+                data["compliance_score"] = scores["composite"]
+                data["score"] = stored_score
+                data["last_audit_date"] = ts
         except sqlite3.Error:
             pass
         try:

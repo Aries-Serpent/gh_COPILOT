@@ -1,4 +1,7 @@
-"""Simplified quantum annealing routine with simulator/hardware support."""
+"""Simplified quantum annealing routine with simulator/hardware support.
+
+The module is a stopgap and will migrate to a D-Wave backed implementation
+once hardware access is approved (planned 2026)."""
 
 from __future__ import annotations
 

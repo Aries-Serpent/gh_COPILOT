@@ -11,6 +11,8 @@ from pathlib import Path
 from typing import Iterable
 import logging
 
+from utils.validation_utils import anti_recursion_guard
+
 # When executed directly, ensure the repository root is on ``sys.path`` so that
 # imports from the ``scripts`` package resolve correctly.
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -92,6 +94,7 @@ def verify_migrations() -> None:
     print("Migrations verified")
 
 
+@anti_recursion_guard
 def main() -> None:
     """Bootstrap environment and install test requirements."""
     ensure_env()

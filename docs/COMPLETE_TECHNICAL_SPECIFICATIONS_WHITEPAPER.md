@@ -14,6 +14,8 @@ Compliance and audit metrics are logged to `analytics.db` via the
 `EnterpriseComplianceValidator`, and compliance scores combine lint, test, and
 placeholder metrics before being computed by the `WLC_SESSION_MANAGER` during
 session wrap-up.
+Daily compliance and test summaries are written to
+`documentation/generated/daily_state_update/`.
 
 *All quantum modules run exclusively in simulation mode; any hardware configuration is currently ignored until future integration lands. Hardware flags and tokens are retained for interface parity but have no effect.*
 *Phase&nbsp;5 advanced AI features are partially integrated and not yet production ready.*

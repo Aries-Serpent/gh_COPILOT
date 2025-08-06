@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Enterprise automation skeleton for setup, ingestion, and audit."""
+"""Enterprise automation skeleton for setup, ingestion, audit, and dual-copilot enforcement."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from scripts.database.unified_database_initializer import initialize_database
 from scripts.database.documentation_ingestor import ingest_documentation
 from scripts.database.template_asset_ingestor import ingest_templates
 from scripts.code_placeholder_audit import main as run_audit
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 
 LOG = logging.getLogger(__name__)
@@ -62,6 +63,11 @@ def main() -> None:
     ensure_databases(workspace)
     ingest_assets(workspace)
     run_placeholder_audit(workspace)
+
+    validator = SecondaryCopilotValidator()
+    analytics = workspace / "databases" / "analytics.db"
+    production = workspace / "databases" / "production.db"
+    validator.validate_corrections([str(analytics), str(production)])
 
 
 if __name__ == "__main__":

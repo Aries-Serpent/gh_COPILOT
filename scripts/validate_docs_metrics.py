@@ -9,6 +9,8 @@ import sqlite3
 import sys
 from pathlib import Path
 
+from utils.validation_utils import anti_recursion_guard
+
 ROOT = Path(__file__).resolve().parents[1]
 # Default to the production database stored under the ``databases`` directory.
 # A previous path pointed to ``ROOT / 'production.db'``, which created an empty
@@ -99,7 +101,8 @@ def validate(db_path: Path = DB_PATH) -> bool:
     return success
 
 
-if __name__ == "__main__":
+@anti_recursion_guard
+def main() -> int:
     parser = argparse.ArgumentParser(description="Validate documentation metrics against the database.")
     parser.add_argument(
         "--db-path",
@@ -108,4 +111,8 @@ if __name__ == "__main__":
         help="Path to the production database",
     )
     args = parser.parse_args()
-    sys.exit(0 if validate(args.db_path) else 1)
+    return 0 if validate(args.db_path) else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

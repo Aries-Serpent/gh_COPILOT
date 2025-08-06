@@ -71,7 +71,25 @@ class CorrectionLoggerRollback:
         ensure_violation_logs(self.analytics_db)
         ensure_rollback_logs(self.analytics_db)
         ensure_rollback_strategy_history(self.analytics_db)
+        self._ensure_placeholder_audit()
         self.history_cache: Dict[str, int] = {}
+
+    def _ensure_placeholder_audit(self) -> None:
+        """Create placeholder_audit table if missing."""
+        with sqlite3.connect(self.analytics_db) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS placeholder_audit (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    file_path TEXT,
+                    line_number INTEGER,
+                    placeholder_type TEXT,
+                    context TEXT,
+                    timestamp TEXT
+                )
+                """
+            )
+            conn.commit()
 
     def _derive_root_cause(self, rationale: str) -> str:
         """Very simple root-cause analysis based on rationale text."""
@@ -205,6 +223,17 @@ class CorrectionLoggerRollback:
                     datetime.now().isoformat(),
                 ),
             )
+            if correction_type.lower().startswith("placeholder"):
+                conn.execute(
+                    "INSERT INTO placeholder_audit (file_path, line_number, placeholder_type, context, timestamp) VALUES (?, ?, ?, ?, ?)",
+                    (
+                        str(file_path),
+                        None,
+                        correction_type,
+                        rationale,
+                        datetime.utcnow().isoformat(),
+                    ),
+                )
             conn.commit()
         logging.info(
             f"Correction logged for {file_path} | Rationale: {rationale} | Type: {correction_type} | Compliance: {compliance_score} | Delta: {compliance_delta}"

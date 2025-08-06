@@ -11,12 +11,12 @@ from typing import Optional
 
 from tqdm import tqdm
 
-from secondary_copilot_validator import SecondaryCopilotValidator
 from scripts.code_placeholder_audit import main as placeholder_audit
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from template_engine.template_synchronizer import _compliance_score
 from utils.log_utils import _log_event, TABLE_SCHEMAS
 from utils.lessons_learned_integrator import load_lessons, apply_lessons
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 
 LOGGER = logging.getLogger(__name__)
@@ -378,8 +378,8 @@ def main() -> None:
 
     run_audit(workspace, analytics_db, production_db, dashboard_dir)
 
-    validator = SecondaryCopilotValidator()
-    valid = validator.validate_corrections([__file__])
+    orchestrator = DualCopilotOrchestrator()
+    valid = orchestrator.validator.validate_corrections([__file__])
     _log_event({"event": "secondary_validation", "result": valid}, table="correction_logs", db_path=analytics_db)
 
     LOGGER.info("Automation complete")

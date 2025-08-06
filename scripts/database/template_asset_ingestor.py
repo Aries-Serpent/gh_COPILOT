@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import sqlite3
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -16,6 +17,8 @@ from template_engine.learning_templates import get_dataset_sources, get_lesson_t
 from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+from utils.log_utils import log_event
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -57,18 +60,8 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
         try:
             with sqlite3.connect(db_path) as conn:
                 if _table_exists(conn, "template_assets"):
-                    existing_paths.update(
-                        row[0]
-                        for row in conn.execute(
-                            "SELECT template_path FROM template_assets"
-                        )
-                    )
-                    existing_hashes.update(
-                        row[0]
-                        for row in conn.execute(
-                            "SELECT content_hash FROM template_assets"
-                        )
-                    )
+                    existing_paths.update(row[0] for row in conn.execute("SELECT template_path FROM template_assets"))
+                    existing_hashes.update(row[0] for row in conn.execute("SELECT content_hash FROM template_assets"))
         except sqlite3.Error:
             existing_paths = set()
             existing_hashes = set()
@@ -79,21 +72,18 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
             with sqlite3.connect(primary_db) as prod_conn:
                 if _table_exists(prod_conn, "template_assets"):
                     existing_paths.update(
-                        row[0]
-                        for row in prod_conn.execute(
-                            "SELECT template_path FROM template_assets"
-                        )
+                        row[0] for row in prod_conn.execute("SELECT template_path FROM template_assets")
                     )
                     existing_hashes.update(
-                        row[0]
-                        for row in prod_conn.execute(
-                            "SELECT content_hash FROM template_assets"
-                        )
+                        row[0] for row in prod_conn.execute("SELECT content_hash FROM template_assets")
                     )
         except sqlite3.Error:
             pass
 
     start_time = datetime.now(timezone.utc)
+    analytics_db = db_dir / "analytics.db"
+    new_count = 0
+    dup_count = 0
 
     conn = sqlite3.connect(db_path)
     try:
@@ -101,27 +91,39 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
             conn.close()
             initialize_database(db_path)
             conn = sqlite3.connect(db_path)
-        existing_hashes = {
-            row[0]
-            for row in conn.execute(
-                "SELECT content_hash FROM template_assets"
-            )
-        }
+        existing_hashes = {row[0] for row in conn.execute("SELECT content_hash FROM template_assets")}
 
         with conn, tqdm(total=len(files), desc="Templates", unit="file") as bar:
             for path in files:
+                file_start = datetime.now(timezone.utc)
                 rel_path = str(path.relative_to(workspace))
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
-                if digest in existing_hashes:
-                    logger.info("Skipping duplicate content: %s", path)
+                status = "DUPLICATE" if digest in existing_hashes else "NEW"
+                logger.info(
+                    json.dumps(
+                        {
+                            "template_hash": digest,
+                            "status": status,
+                            "db_path": str(db_path),
+                        }
+                    )
+                )
+                if status == "DUPLICATE":
+                    dup_count += 1
+                    conn.commit()
+                    log_sync_operation(
+                        db_path,
+                        "template_ingestion",
+                        status="DUPLICATE",
+                        start_time=file_start,
+                    )
                     bar.update(1)
                     continue
+                new_count += 1
                 existing_hashes.add(digest)
                 conn.execute(
-                    (
-                        "INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)"
-                    ),
+                    ("INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)"),
                     (
                         rel_path,
                         digest,
@@ -132,23 +134,25 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
                     ("INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)"),
                     (content[:1000], datetime.now(timezone.utc).isoformat()),
                 )
+                conn.commit()
+                log_sync_operation(
+                    db_path,
+                    "template_ingestion",
+                    status="SUCCESS",
+                    start_time=file_start,
+                )
                 bar.update(1)
                 existing_paths.add(rel_path)
                 existing_hashes.add(digest)
         lesson_templates = get_lesson_templates()
         existing_lessons = {
-            row[0]
-            for row in conn.execute(
-                "SELECT lesson_name FROM pattern_assets WHERE lesson_name IS NOT NULL"
-            )
+            row[0] for row in conn.execute("SELECT lesson_name FROM pattern_assets WHERE lesson_name IS NOT NULL")
         }
         for name, content in lesson_templates.items():
             if name in existing_lessons:
                 continue
             conn.execute(
-                (
-                    "INSERT INTO pattern_assets (pattern, usage_count, lesson_name, created_at) VALUES (?, 0, ?, ?)"
-                ),
+                ("INSERT INTO pattern_assets (pattern, usage_count, lesson_name, created_at) VALUES (?, 0, ?, ?)"),
                 (
                     content[:1000],
                     name,
@@ -161,8 +165,24 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
 
     log_sync_operation(db_path, "template_ingestion", start_time=start_time)
 
+    summary = {
+        "description": "template_dedup_summary",
+        "details": json.dumps(
+            {
+                "db_path": str(db_path),
+                "new": new_count,
+                "duplicates": dup_count,
+            }
+        ),
+    }
+    log_event(summary, db_path=analytics_db)
+    logger.info(json.dumps({"event": "template_dedup_summary", **json.loads(summary["details"])}))
+
     if not check_database_sizes(db_dir):
         raise RuntimeError("Database size limit exceeded")
+
+    orchestrator = DualCopilotOrchestrator()
+    orchestrator.validator.validate_corrections([str(db_path)])
 
 
 if __name__ == "__main__":
