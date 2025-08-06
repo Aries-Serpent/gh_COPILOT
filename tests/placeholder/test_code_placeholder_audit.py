@@ -33,6 +33,19 @@ def test_generate_fix_suggestions(tmp_path, monkeypatch):
     assert tasks[0]["suggestion"].strip() == "# placeholder"
 
 
+def test_generate_todo_suggestion():
+    results = [
+        {
+            "file": "a.py",
+            "line": 1,
+            "pattern": "TODO",
+            "context": "# TODO: implement",
+        }
+    ]
+    tasks = audit.generate_removal_tasks(results)
+    assert tasks[0]["suggestion"] == "# implement"
+
+
 def test_apply_fixes_updates_db_and_file(tmp_path, monkeypatch):
     workspace = tmp_path / "ws"
     workspace.mkdir()
@@ -66,3 +79,70 @@ def test_apply_fixes_updates_db_and_file(tmp_path, monkeypatch):
     assert status == "resolved" and resolved == 1
     resolved_file = dashboard / "resolved_placeholders.json"
     assert resolved_file.exists()
+
+
+def test_apply_suggestions_updates_file_and_db(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    src = workspace / "example.py"
+    src.write_text("# FIXME: adjust\n", encoding="utf-8")
+    prod_db, analytics_db = _prepare_dbs(tmp_path)
+    dashboard = workspace / "dashboard" / "compliance"
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backups"))
+    audit.main(
+        workspace_path=str(workspace),
+        analytics_db=str(analytics_db),
+        production_db=str(prod_db),
+        dashboard_dir=str(dashboard),
+        timeout_minutes=1,
+        simulate=False,
+        exclude_dirs=None,
+        update_resolutions=False,
+        apply_fixes=False,
+        apply_suggestions=True,
+        auto_resolve=False,
+        export=None,
+        task_report=None,
+        summary_json=None,
+        fail_on_findings=False,
+    )
+    assert "FIXME" not in src.read_text()
+    with sqlite3.connect(analytics_db) as conn:
+        unresolved = conn.execute(
+            "SELECT COUNT(*) FROM unresolved_placeholders"
+        ).fetchone()[0]
+    assert unresolved == 0
+
+
+def test_unresolved_placeholders_logged(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    src = workspace / "sample.py"
+    src.write_text("# TODO: later\n", encoding="utf-8")
+    prod_db, analytics_db = _prepare_dbs(tmp_path)
+    dashboard = workspace / "dashboard" / "compliance"
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backups"))
+    audit.main(
+        workspace_path=str(workspace),
+        analytics_db=str(analytics_db),
+        production_db=str(prod_db),
+        dashboard_dir=str(dashboard),
+        timeout_minutes=1,
+        simulate=False,
+        exclude_dirs=None,
+        update_resolutions=False,
+        apply_fixes=False,
+        apply_suggestions=False,
+        auto_resolve=False,
+        export=None,
+        task_report=None,
+        summary_json=None,
+        fail_on_findings=False,
+    )
+    with sqlite3.connect(analytics_db) as conn:
+        row = conn.execute(
+            "SELECT file, line FROM unresolved_placeholders"
+        ).fetchone()
+    assert row == (str(src), 1)
