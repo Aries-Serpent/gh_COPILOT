@@ -8,6 +8,8 @@ import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from utils.validation_utils import anti_recursion_guard
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -44,6 +46,7 @@ def cleanup_legacy_assets(cluster_file: Path, dry_run: bool = True) -> list[Path
     return removed
 
 
+@anti_recursion_guard
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Cleanup legacy assets using clusters")
     parser.add_argument("--clusters", type=Path, default=Path("cluster_output.json"))
