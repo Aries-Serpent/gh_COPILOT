@@ -3,7 +3,7 @@ from pathlib import Path
 
 from scripts.database.template_asset_ingestor import ingest_templates
 from scripts.database.documentation_ingestor import ingest_documentation
-from scripts.database.cross_database_sync_logger import _table_exists
+from scripts.database.cross_database_sync_logger import _table_exists, log_sync_operation
 from scripts.database.ingestion_validator import IngestionValidator
 
 
@@ -28,11 +28,23 @@ def test_ingestion_pipeline(tmp_path, monkeypatch):
 
     ingest_templates(workspace, prompts_dir)
     ingest_documentation(workspace, docs_dir)
-
     db_path = db_dir / "enterprise_assets.db"
+
+    with sqlite3.connect(analytics_db) as conn:
+        assert _table_exists(conn, "event_log")
+        event_count_before = conn.execute(
+            "SELECT COUNT(*) FROM event_log"
+        ).fetchone()[0]
+
+    log_sync_operation(db_path, "manual_operation", status="MANUAL")
+
     with sqlite3.connect(db_path) as conn:
-        template_count = conn.execute("SELECT COUNT(*) FROM template_assets").fetchone()[0]
-        doc_count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
+        template_count = conn.execute(
+            "SELECT COUNT(*) FROM template_assets"
+        ).fetchone()[0]
+        doc_count = conn.execute(
+            "SELECT COUNT(*) FROM documentation_assets"
+        ).fetchone()[0]
         statuses = {
             row[0]
             for row in conn.execute(
@@ -40,15 +52,16 @@ def test_ingestion_pipeline(tmp_path, monkeypatch):
             ).fetchall()
         }
         assert _table_exists(conn, "cross_database_sync_operations")
+
     assert template_count == 1
     assert doc_count == 1
-    assert "DUPLICATE" in statuses
-    assert "SUCCESS" in statuses
+    assert {"DUPLICATE", "SUCCESS", "MANUAL"}.issubset(statuses)
 
     with sqlite3.connect(analytics_db) as conn:
-        assert _table_exists(conn, "event_log")
-        event_count = conn.execute("SELECT COUNT(*) FROM event_log").fetchone()[0]
-    assert event_count > 0
+        event_count_after = conn.execute(
+            "SELECT COUNT(*) FROM event_log"
+        ).fetchone()[0]
+    assert event_count_after == event_count_before + 1
 
     validator = IngestionValidator(workspace, db_path, analytics_db)
     assert validator.validate() is True
