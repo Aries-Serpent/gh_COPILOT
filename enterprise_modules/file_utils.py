@@ -10,7 +10,10 @@ Usage:
     from enterprise_modules.file_utils import read_file_with_encoding_detection, write_file_safely
 """
 
-import chardet
+try:
+    import chardet  # type: ignore
+except Exception:  # pragma: no cover - chardet is optional
+    chardet = None
 from pathlib import Path
 from typing import Optional, Tuple
 from datetime import datetime
@@ -44,16 +47,19 @@ def read_file_with_encoding_detection(
         with open(file_path_obj, 'rb') as f:
             raw_data = f.read()
 
-        # Detect encoding
-        detected = chardet.detect(raw_data)
-        encoding = detected.get('encoding', fallback_encoding)
-        confidence = detected.get('confidence', 0.0)
+        # Detect encoding if library available
+        detected_encoding: Optional[str] = None
+        confidence: float = 0.0
+        if chardet is not None:
+            result = chardet.detect(raw_data)
+            detected_encoding = result.get('encoding')
+            confidence = result.get('confidence', 0.0)
 
         # Use detected encoding if confidence is high enough
-        if confidence > 0.7 and encoding:
+        if confidence > 0.7 and detected_encoding:
             try:
-                content = raw_data.decode(encoding)
-                return content, f"SUCCESS_DETECTED_{encoding}"
+                content = raw_data.decode(detected_encoding)
+                return content, f"SUCCESS_DETECTED_{detected_encoding}"
             except UnicodeDecodeError:
                 pass
 

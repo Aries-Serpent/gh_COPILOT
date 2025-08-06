@@ -684,9 +684,19 @@ def _auto_fill_with_templates(
         with target.open("a", encoding="utf-8") as handle:
             handle.write("\n" + content)
         if secondary_copilot_validator.run_flake8([str(target)]):
-            logger.log_change(target, "Auto fill missing sections", 1.0, str(backup_path))
+            logger.log_change(
+                target,
+                "Auto fill missing sections",
+                compliance_score=1.0,
+                rollback_reference=str(backup_path),
+            )
         else:
-            logger.log_change(target, "Auto fill failed validation", 0.0, str(backup_path))
+            logger.log_change(
+                target,
+                "Auto fill failed validation",
+                compliance_score=0.0,
+                rollback_reference=str(backup_path),
+            )
             logger.auto_rollback(target, backup_path)
 
 
@@ -729,9 +739,19 @@ def auto_remove_placeholders(
         if new_text != text:
             path.write_text(new_text, encoding="utf-8")
             if secondary_copilot_validator.run_flake8([str(path)]):
-                logger.log_change(path, "Auto placeholder cleanup", 1.0, str(backup_path))
+                logger.log_change(
+                    path,
+                    "Auto placeholder cleanup",
+                    compliance_score=1.0,
+                    rollback_reference=str(backup_path),
+                )
             else:
-                logger.log_change(path, "Auto placeholder cleanup failed validation", 0.0, str(backup_path))
+                logger.log_change(
+                    path,
+                    "Auto placeholder cleanup failed validation",
+                    compliance_score=0.0,
+                    rollback_reference=str(backup_path),
+                )
                 logger.auto_rollback(path, backup_path)
             _auto_fill_with_templates(path, logger, backup_path)
 
