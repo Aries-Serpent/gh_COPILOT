@@ -1,0 +1,8 @@
+<!doctype html>
+<title>Rollback Logs</title>
+<h1>Rollback Logs</h1>
+<ul>
+    {% for log in logs %}
+    <li>{{ log.timestamp }} - {{ log.event }}</li>
+    {% endfor %}
+</ul>
