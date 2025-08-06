@@ -180,8 +180,25 @@ class ComplianceMetricsUpdater:
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.cursor()
             try:
-                # Placeholder removals recorded in todo_fixme_tracking or correction_history
+                # Prefer placeholder_tasks table if available
                 if cur.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'"
+                ).fetchone():
+                    cur.execute(
+                        "SELECT COUNT(*) FROM placeholder_tasks WHERE status='open'"
+                    )
+                    metrics["open_placeholders"] = cur.fetchone()[0]
+                    cur.execute(
+                        "SELECT COUNT(*) FROM placeholder_tasks WHERE status='resolved'"
+                    )
+                    metrics["resolved_placeholders"] = cur.fetchone()[0]
+                    cur.execute(
+                        "SELECT pattern, COUNT(*) FROM placeholder_tasks WHERE status='open' GROUP BY pattern"
+                    )
+                    metrics["placeholder_breakdown"] = {
+                        row[0]: row[1] for row in cur.fetchall() if row[0]
+                    }
+                elif cur.execute(
                     "SELECT name FROM sqlite_master WHERE type='table' AND name='correction_history'"
                 ).fetchone():
                     cur.execute(
@@ -189,6 +206,7 @@ class ComplianceMetricsUpdater:
                     )
                     metrics["resolved_placeholders"] = cur.fetchone()[0]
                     metrics["open_placeholders"] = 0
+                    metrics["placeholder_breakdown"] = {}
                 else:
                     cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'")
                     metrics["resolved_placeholders"] = cur.fetchone()[0]
@@ -196,6 +214,16 @@ class ComplianceMetricsUpdater:
                     metrics["open_placeholders"] = cur.fetchone()[0]
                     cur.execute("SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='ticketed'")
                     metrics["ticketed_placeholders"] = cur.fetchone()[0]
+                    try:
+                        cur.execute(
+                            "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking GROUP BY placeholder_type"
+                        )
+                        metrics["placeholder_breakdown"] = {
+                            row[0]: row[1] for row in cur.fetchall() if row[0]
+                        }
+                    except sqlite3.Error:
+                        metrics["placeholder_breakdown"] = {}
+
                 metrics["placeholder_removal"] = metrics["resolved_placeholders"]
 
                 open_ph = metrics["open_placeholders"]
@@ -203,17 +231,6 @@ class ComplianceMetricsUpdater:
                 denominator = resolved_ph + open_ph
                 base_score = resolved_ph / denominator if denominator else 1.0
                 metrics["compliance_score"] = base_score
-
-                # Placeholder type breakdown
-                try:
-                    cur.execute(
-                        "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking GROUP BY placeholder_type"
-                    )
-                    metrics["placeholder_breakdown"] = {
-                        row[0]: row[1] for row in cur.fetchall() if row[0]
-                    }
-                except sqlite3.Error:
-                    metrics["placeholder_breakdown"] = {}
 
                 try:
                     cur.execute(
