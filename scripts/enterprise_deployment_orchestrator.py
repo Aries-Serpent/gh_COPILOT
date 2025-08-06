@@ -211,6 +211,21 @@ class EnterpriseDeploymentOrchestrator:
 
         run_dual_copilot_validation(_primary_start, _secondary_start)
 
+        def _run_phase(step_func):
+            phase_result: Dict[str, Any] = {}
+
+            def _primary():
+                nonlocal phase_result
+                phase_result = step_func()
+                return phase_result.get("status") != "FAILED"
+
+            def _secondary():
+                return self.secondary_validate() and validator.validate_corrections([__file__])
+
+            if not run_dual_copilot_validation(_primary, _secondary):
+                raise RuntimeError(f"{step_func.__name__} failed validation")
+            return phase_result
+
         # 🚀 MANDATORY: Visual processing indicators
         logging.info(f"🚀 ENTERPRISE DEPLOYMENT STARTED: {self.session_id}")
 
@@ -246,19 +261,19 @@ class EnterpriseDeploymentOrchestrator:
             try:
                 # Execute deployment phase
                 if "Pre-Deployment" in phase_name:
-                    phase_result = self._execute_pre_deployment_validation()
+                    phase_result = _run_phase(self._execute_pre_deployment_validation)
                 elif "Core Systems" in phase_name:
-                    phase_result = self._deploy_core_systems()
+                    phase_result = _run_phase(self._deploy_core_systems)
                 elif "Database Systems" in phase_name:
-                    phase_result = self._deploy_database_systems()
+                    phase_result = _run_phase(self._deploy_database_systems)
                 elif "Integration Systems" in phase_name:
-                    phase_result = self._deploy_integration_systems()
+                    phase_result = _run_phase(self._deploy_integration_systems)
                 elif "Security Systems" in phase_name:
-                    phase_result = self._deploy_security_systems()
+                    phase_result = _run_phase(self._deploy_security_systems)
                 elif "Monitoring Systems" in phase_name:
-                    phase_result = self._deploy_monitoring_systems()
+                    phase_result = _run_phase(self._deploy_monitoring_systems)
                 elif "Post-Deployment" in phase_name:
-                    phase_result = self._execute_post_deployment_validation()
+                    phase_result = _run_phase(self._execute_post_deployment_validation)
                 else:
                     phase_result = {"status": "COMPLETED", "score": 95.0}
 
@@ -278,6 +293,7 @@ class EnterpriseDeploymentOrchestrator:
                 print(f"\rStatus: ❌ FAILED - {str(e)}")
                 logging.error(f"Phase failed: {phase_name} - {e}")
                 phase_results[phase_name] = {"status": "FAILED", "score": 0.0, "error": str(e)}
+                raise
 
         # Calculate deployment excellence
         deployment_results["phase_results"] = phase_results
