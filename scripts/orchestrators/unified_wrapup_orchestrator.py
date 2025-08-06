@@ -30,7 +30,7 @@ from tqdm import tqdm
 
 from scripts.wlc_session_manager import run_session
 from enterprise_modules.compliance import validate_enterprise_operation
-from secondary_copilot_validator import run_dual_copilot_validation
+from secondary_copilot_validator import SecondaryCopilotValidator, run_dual_copilot_validation
 
 # Configure enterprise logging
 logging.basicConfig(
@@ -245,13 +245,15 @@ class UnifiedWrapUpOrchestrator:
         result = WrapUpResult(session_id=self.session_id, start_time=self.start_time)
 
         try:
+            validator = SecondaryCopilotValidator()
+
             def _primary_start() -> bool:
                 logger.info("🔍 PRIMARY VALIDATION")
                 return self.primary_validate()
 
             def _secondary_start() -> bool:
                 logger.info("🔍 SECONDARY VALIDATION")
-                return self.secondary_validate()
+                return self.secondary_validate() and validator.validate_corrections([__file__])
 
             run_dual_copilot_validation(_primary_start, _secondary_start)
 
@@ -297,7 +299,10 @@ class UnifiedWrapUpOrchestrator:
 
             logger.info("✅ UNIFIED WRAP-UP ORCHESTRATOR COMPLETED SUCCESSFULLY")
 
-            run_dual_copilot_validation(self.primary_validate, self.secondary_validate)
+            run_dual_copilot_validation(
+                self.primary_validate,
+                lambda: self.secondary_validate() and validator.validate_corrections([__file__]),
+            )
 
         except Exception as e:
             result.status = "FAILED"

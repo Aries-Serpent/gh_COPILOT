@@ -45,6 +45,7 @@ from typing import Any, Dict, List, Optional
 from enterprise_modules import compliance
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import run_dual_copilot_validation
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 
 # 🚨 CRITICAL: Anti-recursion validation
@@ -198,13 +199,15 @@ class EnterpriseDeploymentOrchestrator:
 
         compliance.validate_enterprise_operation()
 
+        validator = SecondaryCopilotValidator()
+
         def _primary_start():
             logging.info("🔍 PRIMARY VALIDATION")
             return primary_validate()
 
         def _secondary_start():
             logging.info("🔍 SECONDARY VALIDATION")
-            return self.secondary_validate()
+            return self.secondary_validate() and validator.validate_corrections([__file__])
 
         run_dual_copilot_validation(_primary_start, _secondary_start)
 
@@ -291,7 +294,7 @@ class EnterpriseDeploymentOrchestrator:
 
         def _secondary():
             logging.info("🔍 SECONDARY VALIDATION")
-            return self.secondary_validate()
+            return self.secondary_validate() and validator.validate_corrections([__file__])
 
         validation_passed = run_dual_copilot_validation(_primary, _secondary)
         deployment_results["primary_validation"] = validation_passed
