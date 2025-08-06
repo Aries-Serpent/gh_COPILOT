@@ -20,7 +20,7 @@ def test_placeholder_task_persistence(tmp_path: Path) -> None:
     assert inserted == 1
     with sqlite3.connect(db) as conn:
         row = conn.execute(
-            "SELECT file, line, pattern, context, suggestion, status FROM placeholder_tasks"
+            "SELECT file_path, line_number, placeholder_type, context, suggestion, status FROM todo_fixme_tracking"
         ).fetchone()
     assert row == ("foo.py", 10, "TODO", "TODO", "fix", "open")
 
