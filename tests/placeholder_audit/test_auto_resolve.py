@@ -31,6 +31,24 @@ def test_auto_resolve_updates_db_and_file(tmp_path, monkeypatch):
         "scripts.code_placeholder_audit.ComplianceMetricsUpdater",
         lambda *a, **k: SimpleNamespace(update=lambda *a, **k: None, validate_update=lambda *a, **k: None),
     )
+    monkeypatch.setattr(
+        "scripts.database.add_violation_logs.ensure_violation_logs", lambda *a, **k: None
+    )
+    monkeypatch.setattr(
+        "enterprise_modules.compliance.ensure_violation_logs", lambda *a, **k: None
+    )
+    monkeypatch.setattr(
+        "scripts.correction_logger_and_rollback.ensure_violation_logs", lambda *a, **k: None
+    )
+    monkeypatch.setattr(
+        "scripts.database.add_rollback_logs.ensure_rollback_logs", lambda *a, **k: None
+    )
+    monkeypatch.setattr(
+        "enterprise_modules.compliance.ensure_rollback_logs", lambda *a, **k: None
+    )
+    monkeypatch.setattr(
+        "scripts.correction_logger_and_rollback.ensure_rollback_logs", lambda *a, **k: None
+    )
 
     assert main(
         workspace_path=str(workspace),
