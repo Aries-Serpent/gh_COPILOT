@@ -29,6 +29,7 @@ from enterprise_modules.compliance import (
     record_code_quality_metrics,
     _run_ruff,
     _run_pytest,
+    pid_recursion_guard,
 )
 from utils.validation_utils import calculate_composite_compliance_score
 from disaster_recovery_orchestrator import DisasterRecoveryOrchestrator
@@ -595,6 +596,9 @@ class ComplianceMetricsUpdater:
             "rollback_count": float(metrics.get("rollback_count", 0.0)),
         }
         push_metrics(monitoring_metrics, table="enterprise_metrics", db_path=ANALYTICS_DB)
+        score_breakdown = metrics.get("score_breakdown", {})
+        for component, value in score_breakdown.items():
+            push_metrics({component: float(value)}, table="compliance_score_breakdown", db_path=ANALYTICS_DB)
         if monitoring_metrics["compliance_score"] < 0.8:
             self.monitoring_utility.execute_utility()
 
@@ -694,6 +698,7 @@ class ComplianceMetricsUpdater:
         return None
 
 
+@pid_recursion_guard
 def main(simulate: bool = False, stream: bool = False, test_mode: bool = False) -> None:
     """Command-line entry point."""
     dashboard_dir = DASHBOARD_DIR

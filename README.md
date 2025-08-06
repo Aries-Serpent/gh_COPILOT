@@ -10,6 +10,7 @@
 
 **Status:** Active development with incremental improvements. Disaster recovery now enforces external backup roots and has verified restore tests, while session-management enhancements remain under construction.
 
+> Combined checks: run `python scripts/run_checks.py` to execute `ruff` and `pytest` sequentially.
 > Tests: run `pytest` before committing. Current repository tests report multiple failures.
 > Lint: run `ruff check .` before committing.
 > Compliance: run `python secondary_copilot_validator.py --validate` after critical changes to enforce dual-copilot and EnterpriseComplianceValidator checks.

@@ -14,12 +14,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from enterprise_modules.compliance import pid_recursion_guard
 from unified_disaster_recovery_system import UnifiedDisasterRecoverySystem
 
 
 class DisasterRecoveryOrchestrator:
     """Coordinate backup scheduling and recovery execution."""
 
+    @pid_recursion_guard
     def __init__(self, workspace_root: str | None = None) -> None:
         self._system = UnifiedDisasterRecoverySystem(workspace_root)
 

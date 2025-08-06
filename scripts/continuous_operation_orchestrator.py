@@ -45,6 +45,7 @@ from tqdm import tqdm
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 from enterprise_modules import compliance
+from enterprise_modules.compliance import pid_recursion_guard
 from utils.validation_utils import run_dual_copilot_validation
 from secondary_copilot_validator import SecondaryCopilotValidator
 
@@ -610,6 +611,7 @@ class EnterpriseSystemMonitor:
         logging.info("🏢 Enterprise System Monitor initialized")
 
 
+@pid_recursion_guard
 def main() -> int:
     """🚀 Main execution function"""
     parser = argparse.ArgumentParser(description="Continuous operation orchestrator")

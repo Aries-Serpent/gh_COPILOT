@@ -1,6 +1,0 @@
-digraph migrations {
-    rankdir=LR;
-    node [shape=box];
-    "add_placeholder_removals.sql" -> "create_todo_fixme_tracking.sql";
-    "create_todo_fixme_tracking.sql" -> "extend_todo_fixme_tracking.sql";
-}

@@ -11,7 +11,9 @@ from utils.log_utils import ensure_tables
 def _prepare_db(path: str) -> None:
     """Initialize required tables for analytics DB."""
     with sqlite3.connect(path) as conn:
-        conn.execute("CREATE TABLE IF NOT EXISTS todo_fixme_tracking (status TEXT)")
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS todo_fixme_tracking (status TEXT, placeholder_type TEXT)"
+        )
         conn.execute(
             "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
             (datetime.utcnow().isoformat(), "violation"),
@@ -20,8 +22,12 @@ def _prepare_db(path: str) -> None:
             "INSERT INTO rollback_logs (target, timestamp) VALUES (?, ?)",
             ("target", datetime.utcnow().isoformat()),
         )
-        conn.execute("INSERT INTO todo_fixme_tracking (status) VALUES ('resolved')")
-        conn.execute("INSERT INTO todo_fixme_tracking (status) VALUES ('open')")
+        conn.execute(
+            "INSERT INTO todo_fixme_tracking (status, placeholder_type) VALUES ('resolved', 'type1')"
+        )
+        conn.execute(
+            "INSERT INTO todo_fixme_tracking (status, placeholder_type) VALUES ('open', 'type1')"
+        )
 
 
 def test_violation_and_rollback_counts_affect_composite(tmp_path, monkeypatch):
@@ -31,6 +37,17 @@ def test_violation_and_rollback_counts_affect_composite(tmp_path, monkeypatch):
     monkeypatch.setattr(cmu, "DASHBOARD_DIR", dash_dir)
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
+    class DummyCorrectionLoggerRollback:
+        def __init__(self, *a, **k):
+            pass
+
+        def log_violation(self, *a, **k):
+            pass
+
+        def log_change(self, *a, **k):
+            pass
+
+    monkeypatch.setattr(cmu, "CorrectionLoggerRollback", DummyCorrectionLoggerRollback)
     ensure_tables(db, ["violation_logs", "rollback_logs", "correction_logs", "event_log"], test_mode=False)
     updater = cmu.ComplianceMetricsUpdater(dash_dir, test_mode=True)
     _prepare_db(str(db))
@@ -50,10 +67,23 @@ def test_warn_when_tables_empty(tmp_path, monkeypatch, caplog):
     monkeypatch.setattr(cmu, "DASHBOARD_DIR", dash_dir)
     monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
+    class DummyCorrectionLoggerRollback:
+        def __init__(self, *a, **k):
+            pass
+
+        def log_violation(self, *a, **k):
+            pass
+
+        def log_change(self, *a, **k):
+            pass
+
+    monkeypatch.setattr(cmu, "CorrectionLoggerRollback", DummyCorrectionLoggerRollback)
     ensure_tables(db, ["violation_logs", "rollback_logs", "correction_logs", "event_log"], test_mode=False)
     updater = cmu.ComplianceMetricsUpdater(dash_dir, test_mode=True)
     with sqlite3.connect(db) as conn:
-        conn.execute("CREATE TABLE IF NOT EXISTS todo_fixme_tracking (status TEXT)")
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS todo_fixme_tracking (status TEXT, placeholder_type TEXT)"
+        )
 
     with caplog.at_level(logging.WARNING):
         metrics = updater._fetch_compliance_metrics(test_mode=True)

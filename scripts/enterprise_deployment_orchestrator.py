@@ -43,6 +43,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from enterprise_modules import compliance
+from enterprise_modules.compliance import pid_recursion_guard
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.validation_utils import run_dual_copilot_validation
 from secondary_copilot_validator import SecondaryCopilotValidator
@@ -608,6 +609,7 @@ class EnterpriseDeploymentOrchestrator:
         return {"score": 99.5, "status": "SECURE"}
 
 
+@pid_recursion_guard
 def main():
     """🚀 Main enterprise deployment function"""
 
