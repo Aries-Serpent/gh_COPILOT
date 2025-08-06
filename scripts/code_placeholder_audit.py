@@ -684,6 +684,69 @@ def auto_remove_placeholders(
     )
 
 
+def auto_resolve_placeholders(
+    tasks: List[Dict[str, str]],
+    production_db: Path,
+    analytics_db: Path,
+) -> None:
+    """Resolve placeholders using :func:`remove_unused_placeholders`.
+
+    Each task is logged via ``CorrectionLoggerRollback`` and the corresponding
+    entry in ``todo_fixme_tracking`` is marked as resolved.
+    """
+    logger = CorrectionLoggerRollback(analytics_db)
+    author = os.getenv("GH_COPILOT_USER", getpass.getuser())
+    for task in tasks:
+        path = Path(task["file"])
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        try:
+            idx = int(task["line"]) - 1
+        except (TypeError, ValueError):
+            idx = -1
+        if 0 <= idx < len(lines):
+            lines[idx] = re.sub(r"#\s*(TODO|FIXME).*", "", lines[idx])
+        new_text = "\n".join(lines)
+        backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
+        backup_dir = backup_root / "auto_resolve_backups"
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        backup_path = backup_dir / f"{path.name}.{int(time.time())}.bak"
+        shutil.copy2(path, backup_path)
+        new_text = remove_unused_placeholders(
+            new_text,
+            production_db,
+            analytics_db,
+            timeout_minutes=1,
+            source_path=path,
+            logger=logger,
+            backup_path=backup_path,
+        )
+        if new_text != text:
+            path.write_text(new_text, encoding="utf-8")
+        logger.log_change(
+            path,
+            task["task"],
+            correction_type="placeholder_auto_resolve",
+            rollback_reference=str(backup_path),
+        )
+        with sqlite3.connect(analytics_db) as conn:
+            conn.execute(
+                "UPDATE todo_fixme_tracking SET resolved=1, resolved_timestamp=?, resolved_by=?, status='resolved' WHERE file_path=? AND line_number=? AND placeholder_type=? AND context=?",
+                (
+                    datetime.now().isoformat(),
+                    author,
+                    task["file"],
+                    int(task["line"]),
+                    task["pattern"],
+                    task["context"],
+                ),
+            )
+            conn.commit()
+    logger.summarize_corrections()
+
+
 def main(
     workspace_path: Optional[str] = None,
     analytics_db: Optional[str] = None,
@@ -696,6 +759,7 @@ def main(
     exclude_dirs: Optional[List[str]] = None,
     update_resolutions: bool = False,
     apply_fixes: bool = False,
+    auto_resolve: bool = False,
     export: Optional[Path] = None,
     task_report: Optional[Path] = None,
     summary_json: Optional[str] = None,
@@ -802,7 +866,9 @@ def main(
         log_message(__name__, f"[TASK] {task['task']}")
     if task_report:
         write_tasks_report(tasks, task_report)
-    if apply_fixes and not simulate:
+    if auto_resolve and not simulate:
+        auto_resolve_placeholders(tasks, production, analytics)
+    elif apply_fixes and not simulate:
         auto_remove_placeholders(results, production, analytics)
     secondary_copilot_validator.run_flake8([r["file"] for r in results])
     # Update dashboard/compliance
@@ -883,6 +949,12 @@ def parse_args(argv: Optional[List[str]] | None = None) -> argparse.Namespace:
         help="Automatically remove placeholders and log corrections",
     )
     parser.add_argument(
+        "--auto-resolve",
+        action="store_true",
+        dest="auto_resolve",
+        help="Automatically resolve placeholders and mark them resolved",
+    )
+    parser.add_argument(
         "--rollback-last",
         action="store_true",
         help="Rollback the most recent audit entry",
@@ -937,6 +1009,7 @@ if __name__ == "__main__":
         exclude_dirs=args.exclude_dirs,
         update_resolutions=args.update_resolutions,
         apply_fixes=args.apply_fixes,
+        auto_resolve=args.auto_resolve,
         export=args.export,
         task_report=args.task_report,
         summary_json=args.summary_json,
