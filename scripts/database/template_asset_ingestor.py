@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import sqlite3
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -17,6 +18,7 @@ from .cross_database_sync_logger import _table_exists, log_sync_operation
 from .size_compliance_checker import check_database_sizes
 from .unified_database_initializer import initialize_database
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
+from utils.log_utils import log_event
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -79,6 +81,9 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
             pass
 
     start_time = datetime.now(timezone.utc)
+    analytics_db = db_dir / "analytics.db"
+    new_count = 0
+    dup_count = 0
 
     conn = sqlite3.connect(db_path)
     try:
@@ -94,12 +99,18 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
                 rel_path = str(path.relative_to(workspace))
                 content = path.read_text(encoding="utf-8")
                 digest = hashlib.sha256(content.encode()).hexdigest()
-                if digest in existing_hashes:
-                    logger.info(
-                        "Duplicate content detected: %s (hash=%s)",
-                        path,
-                        digest,
+                status = "DUPLICATE" if digest in existing_hashes else "NEW"
+                logger.info(
+                    json.dumps(
+                        {
+                            "template_hash": digest,
+                            "status": status,
+                            "db_path": str(db_path),
+                        }
                     )
+                )
+                if status == "DUPLICATE":
+                    dup_count += 1
                     conn.commit()
                     log_sync_operation(
                         db_path,
@@ -109,6 +120,7 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
                     )
                     bar.update(1)
                     continue
+                new_count += 1
                 existing_hashes.add(digest)
                 conn.execute(
                     ("INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)"),
@@ -152,6 +164,19 @@ def ingest_templates(workspace: Path, template_dir: Path | None = None) -> None:
         conn.close()
 
     log_sync_operation(db_path, "template_ingestion", start_time=start_time)
+
+    summary = {
+        "description": "template_dedup_summary",
+        "details": json.dumps(
+            {
+                "db_path": str(db_path),
+                "new": new_count,
+                "duplicates": dup_count,
+            }
+        ),
+    }
+    log_event(summary, db_path=analytics_db)
+    logger.info(json.dumps({"event": "template_dedup_summary", **json.loads(summary["details"])}))
 
     if not check_database_sizes(db_dir):
         raise RuntimeError("Database size limit exceeded")
