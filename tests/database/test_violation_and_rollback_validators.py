@@ -35,7 +35,7 @@ def test_violation_logs_validators(monkeypatch, tmp_path: Path) -> None:
     _setup_mocks(av, monkeypatch, calls)
     db = tmp_path / "analytics.db"
     av.add_table(db)
-    assert calls["validate"] == str(db)
+    assert calls["validate"] == str(db.parent)
     assert calls["dual"] == [str(db)]
 
 
@@ -44,6 +44,6 @@ def test_rollback_logs_validators(monkeypatch, tmp_path: Path) -> None:
     _setup_mocks(ar, monkeypatch, calls)
     db = tmp_path / "analytics.db"
     ar.add_table(db)
-    assert calls["validate"] == str(db)
+    assert calls["validate"] == str(db.parent)
     assert calls["dual"] == [str(db)]
 

@@ -189,7 +189,7 @@ def _log_violation(details: str) -> None:
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     analytics_db = workspace / "databases" / "analytics.db"
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
-    ensure_violation_logs(analytics_db)
+    ensure_violation_logs(analytics_db, validate=False)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
@@ -203,7 +203,7 @@ def _log_rollback(target: str, backup: str | None = None) -> None:
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     analytics_db = workspace / "databases" / "analytics.db"
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
-    ensure_rollback_logs(analytics_db)
+    ensure_rollback_logs(analytics_db, validate=False)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             "INSERT INTO rollback_logs (target, backup, timestamp) VALUES (?, ?, ?)",

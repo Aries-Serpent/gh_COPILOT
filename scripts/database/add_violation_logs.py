@@ -32,15 +32,17 @@ CREATE INDEX IF NOT EXISTS idx_violation_logs_timestamp
 """
 
 
-def add_table(db_path: Path) -> None:
+def add_table(db_path: Path, *, validate: bool = True) -> None:
     """Create ``violation_logs`` table in ``db_path``."""
     start_time = datetime.now()
     logger.info("[START] add_table for %s", db_path)
     logger.info("Process ID: %s", os.getpid())
-    from enterprise_modules.compliance import validate_enterprise_operation
 
-    if not validate_enterprise_operation(str(db_path)):
-        return
+    if validate:
+        from enterprise_modules.compliance import validate_enterprise_operation
+
+        if not validate_enterprise_operation(str(db_path.parent)):
+            return
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(db_path, timeout=5) as conn, tqdm(total=1, desc="create-table", unit="step") as bar:
         conn.executescript(SCHEMA_SQL)
@@ -57,9 +59,9 @@ def add_table(db_path: Path) -> None:
     logger.info("[SUCCESS] Completed in %s", str(elapsed))
 
 
-def ensure_violation_logs(db_path: Path) -> None:
+def ensure_violation_logs(db_path: Path, *, validate: bool = True) -> None:
     """Ensure ``violation_logs`` table exists."""
-    add_table(db_path)
+    add_table(db_path, validate=validate)
 
 
 def main() -> None:
