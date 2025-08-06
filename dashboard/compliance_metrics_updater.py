@@ -166,6 +166,7 @@ class ComplianceMetricsUpdater:
             "compliance_score": 1.0,
             "violation_count": 0,
             "rollback_count": 0,
+            "recent_rollbacks": [],
             "progress_status": "unknown",
             "last_update": datetime.now().isoformat(),
             "placeholder_breakdown": {},
@@ -235,11 +236,16 @@ class ComplianceMetricsUpdater:
                 cur.execute("SELECT COUNT(*) FROM correction_logs")
                 metrics["correction_count"] = cur.fetchone()[0]
 
-                cur.execute("SELECT COUNT(*) FROM violation_logs")
-                metrics["violation_count"] = cur.fetchone()[0]
+                try:
+                    cur.execute("SELECT COUNT(*) FROM violation_logs")
+                    metrics["violation_count"] = cur.fetchone()[0]
+                except sqlite3.Error:
+                    metrics["violation_count"] = 0
 
-                if cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='rollback_logs'").fetchone():
-                    cur.execute("SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT 5")
+                try:
+                    cur.execute(
+                        "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT 5"
+                    )
                     metrics["recent_rollbacks"] = [
                         {"target": r[0], "backup": r[1], "timestamp": r[2]} for r in cur.fetchall()
                     ]
@@ -247,7 +253,7 @@ class ComplianceMetricsUpdater:
                     metrics["rollback_count"] = cur.fetchone()[0]
                     if metrics["rollback_count"] and not test_mode:
                         DisasterRecoveryOrchestrator().run_backup_cycle()
-                else:
+                except sqlite3.Error:
                     metrics["recent_rollbacks"] = []
                     metrics["rollback_count"] = 0
                 penalty = 0.1 * metrics["violation_count"] + 0.05 * metrics["rollback_count"]
