@@ -24,6 +24,23 @@ def test_ingestion_pipeline(tmp_path, monkeypatch):
     _create_duplicate_files(docs_dir)
 
     analytics_db = db_dir / "analytics.db"
+    db_dir.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            """
+            CREATE TABLE event_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT,
+                module TEXT,
+                level TEXT,
+                doc_path TEXT,
+                status TEXT,
+                sha256 TEXT,
+                md5 TEXT,
+                description TEXT
+            )
+            """
+        )
     monkeypatch.setenv("ANALYTICS_DB", str(analytics_db))
     monkeypatch.setenv("TEST_MODE", "1")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
@@ -32,11 +49,17 @@ def test_ingestion_pipeline(tmp_path, monkeypatch):
     ingest_documentation(workspace, docs_dir)
     db_path = db_dir / "enterprise_assets.db"
 
+    digest = hashlib.sha256("duplicate".encode()).hexdigest()
+    rel_doc2 = str((docs_dir / "second.md").relative_to(workspace))
     with sqlite3.connect(analytics_db) as conn:
         assert _table_exists(conn, "event_log")
+        duplicate_rows = conn.execute(
+            "SELECT doc_path, sha256 FROM event_log WHERE status='DUPLICATE' AND module='documentation_ingestor'",
+        ).fetchall()
         event_count_before = conn.execute(
-            "SELECT COUNT(*) FROM event_log"
+            "SELECT COUNT(*) FROM event_log",
         ).fetchone()[0]
+    assert duplicate_rows == [(rel_doc2, digest)]
 
     log_sync_operation(db_path, "manual_operation", status="MANUAL")
 
