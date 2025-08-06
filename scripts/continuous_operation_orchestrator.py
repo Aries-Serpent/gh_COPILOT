@@ -46,6 +46,7 @@ from tqdm import tqdm
 from utils.cross_platform_paths import CrossPlatformPathManager
 from enterprise_modules import compliance
 from utils.validation_utils import run_dual_copilot_validation
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 # 🚨 CRITICAL: Anti-recursion validation
 
@@ -224,13 +225,15 @@ class ContinuousOperationOrchestrator:
         self._log_cycle_completion_summary(cycle_results)
 
         # Dual Copilot validation
+        validator = SecondaryCopilotValidator()
+
         def _primary():
             logging.info("🔍 PRIMARY VALIDATION")
             return self.primary_validate()
 
         def _secondary():
             logging.info("🔍 SECONDARY VALIDATION")
-            return self.secondary_validate()
+            return self.secondary_validate() and validator.validate_corrections([__file__])
 
         validation_passed = run_dual_copilot_validation(_primary, _secondary)
         cycle_results["primary_validation"] = validation_passed
@@ -381,13 +384,15 @@ class ContinuousOperationOrchestrator:
         logging.info(f"Duration: {duration_hours} hours")
         logging.info(f"Target Excellence: {self.target_excellence:.1%}")
 
+        validator = SecondaryCopilotValidator()
+
         def _primary_start():
             logging.info("🔍 PRIMARY VALIDATION")
             return primary_validate()
 
         def _secondary_start():
             logging.info("🔍 SECONDARY VALIDATION")
-            return self.secondary_validate()
+            return self.secondary_validate() and validator.validate_corrections([__file__])
 
         run_dual_copilot_validation(_primary_start, _secondary_start)
 
