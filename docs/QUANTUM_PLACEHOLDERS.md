@@ -27,6 +27,20 @@ Refer to [README.md](../README.md) for a high-level overview of how these placeh
   ignored.
 - Placeholder modules are excluded from production builds.
 
+## Simulation Limits
+
+These placeholders operate entirely in simulation and therefore have important
+limitations:
+
+- **No hardware acceleration** – all routines run on classical CPUs and provide
+  no quantum speed‑up.
+- **Deterministic results** – randomized behaviors use fixed seeds for
+  reproducibility and should not be used for benchmarking.
+- **Simplified error models** – noise, decoherence, and other hardware effects
+  are ignored.
+- **Educational use only** – the modules exist to reserve interfaces and guide
+  future development rather than provide accurate performance metrics.
+
 ## `quantum/` Package Placeholders
 
 The primary `quantum/` package contains additional stubs and simulator-only
