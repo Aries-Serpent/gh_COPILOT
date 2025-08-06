@@ -235,27 +235,38 @@ class ComplianceMetricsUpdater:
 
                 cur.execute("SELECT COUNT(*) FROM correction_logs")
                 metrics["correction_count"] = cur.fetchone()[0]
-
                 try:
                     cur.execute("SELECT COUNT(*) FROM violation_logs")
                     metrics["violation_count"] = cur.fetchone()[0]
+                    if metrics["violation_count"] == 0:
+                        msg = "violation_logs table has no entries"
+                        logging.warning(msg)
+                        if not test_mode:
+                            raise ValueError(msg)
                 except sqlite3.Error:
                     metrics["violation_count"] = 0
+                    logging.warning("violation_logs table missing")
 
                 try:
+                    cur.execute("SELECT COUNT(*) FROM rollback_logs")
+                    metrics["rollback_count"] = cur.fetchone()[0]
+                    if metrics["rollback_count"] == 0:
+                        msg = "rollback_logs table has no entries"
+                        logging.warning(msg)
+                        if not test_mode:
+                            raise ValueError(msg)
                     cur.execute(
                         "SELECT target, backup, timestamp FROM rollback_logs ORDER BY timestamp DESC LIMIT 5"
                     )
                     metrics["recent_rollbacks"] = [
                         {"target": r[0], "backup": r[1], "timestamp": r[2]} for r in cur.fetchall()
                     ]
-                    cur.execute("SELECT COUNT(*) FROM rollback_logs")
-                    metrics["rollback_count"] = cur.fetchone()[0]
                     if metrics["rollback_count"] and not test_mode:
                         DisasterRecoveryOrchestrator().run_backup_cycle()
                 except sqlite3.Error:
                     metrics["recent_rollbacks"] = []
                     metrics["rollback_count"] = 0
+                    logging.warning("rollback_logs table missing")
                 penalty = 0.1 * metrics["violation_count"] + 0.05 * metrics["rollback_count"]
                 metrics["compliance_score"] = max(0.0, min(1.0, base_score - penalty))
 
@@ -322,11 +333,20 @@ class ComplianceMetricsUpdater:
             tests_failed,
             metrics.get("open_placeholders", 0),
         )
-        # ``calculate_composite_compliance_score`` returns a dictionary of
-        # individual scores along with the combined ``composite`` value. Use
-        # those values directly rather than undefined temporary variables.
-        metrics["composite_score"] = scores["composite"]
-        metrics["composite_compliance_score"] = scores["composite"]
+        # ``calculate_composite_compliance_score`` returns individual scores
+        # along with a combined ``composite`` value. Apply additional penalties
+        # based on violation and rollback counts to surface these issues in the
+        # final composite score.
+        violation_penalty = metrics["violation_count"] * 10
+        rollback_penalty = metrics["rollback_count"] * 5
+        composite = max(
+            0.0,
+            scores["composite"] - violation_penalty - rollback_penalty,
+        )
+        scores["violation_penalty"] = violation_penalty
+        scores["rollback_penalty"] = rollback_penalty
+        metrics["composite_score"] = composite
+        metrics["composite_compliance_score"] = composite
         metrics["score_breakdown"] = scores
         record_code_quality_metrics(
             ruff_issues,
