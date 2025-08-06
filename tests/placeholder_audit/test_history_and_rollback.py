@@ -1,18 +1,31 @@
 import sqlite3
 
 
-
 def test_history_and_rollback(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     from scripts import code_placeholder_audit as audit
+
     monkeypatch.setattr(
-        "scripts.code_placeholder_audit.SecondaryCopilotValidator.validate_corrections",
+        "secondary_copilot_validator.SecondaryCopilotValidator.validate_corrections",
         lambda self, files: True,
     )
     monkeypatch.setattr(
-        "scripts.correction_logger_and_rollback.validate_enterprise_operation",
+        "secondary_copilot_validator.run_flake8", lambda files: None
+    )
+    import types
+    monkeypatch.setattr(
+        "scripts.code_placeholder_audit.ComplianceMetricsUpdater",
+        lambda dashboard, test_mode=False: types.SimpleNamespace(
+            update=lambda **kwargs: None, validate_update=lambda: None
+        ),
+    )
+    import scripts.correction_logger_and_rollback as clr
+    monkeypatch.setattr(
+        clr,
+        "validate_enterprise_operation",
         lambda: None,
+        raising=False,
     )
     ws = tmp_path / "ws"
     ws.mkdir()
@@ -59,13 +72,17 @@ def test_export_option(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     from scripts import code_placeholder_audit as audit
+
     monkeypatch.setattr(
-        "scripts.code_placeholder_audit.SecondaryCopilotValidator.validate_corrections",
+        "secondary_copilot_validator.SecondaryCopilotValidator.validate_corrections",
         lambda self, files: True,
     )
+    import scripts.correction_logger_and_rollback as clr
     monkeypatch.setattr(
-        "scripts.correction_logger_and_rollback.validate_enterprise_operation",
+        clr,
+        "validate_enterprise_operation",
         lambda: None,
+        raising=False,
     )
     ws = tmp_path / "ws"
     ws.mkdir()

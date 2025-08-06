@@ -1,6 +1,9 @@
 import numpy as np
+import pytest
 
 from quantum.optimizers.quantum_optimizer import QuantumOptimizer
+
+pytestmark = pytest.mark.timeout(60)
 
 
 def test_simulated_annealing_runs():
@@ -11,3 +14,47 @@ def test_simulated_annealing_runs():
     result = optimizer.run(x0=np.array([0.0, 0.0]), max_iter=10)
     assert "best_result" in result["result"]
     assert isinstance(result["result"]["best_value"], float)
+
+
+def test_set_backend_fallback(monkeypatch):
+    monkeypatch.setattr("quantum.optimizers.quantum_optimizer.init_ibm_backend", lambda **_: (object(), False))
+    opt = QuantumOptimizer(lambda x: 0, [(0, 1)])
+    opt.set_backend(None, use_hardware=True)
+    assert opt.use_hardware is False
+
+
+@pytest.mark.hardware
+def test_set_backend_hardware(monkeypatch):
+    backend = object()
+    monkeypatch.setattr(
+        "quantum.optimizers.quantum_optimizer.init_ibm_backend",
+        lambda **_: (backend, True),
+    )
+    opt = QuantumOptimizer(lambda x: 0, [(0, 1)], use_hardware=True)
+    opt.set_backend(None, use_hardware=True)
+    assert opt.use_hardware is True
+    assert opt.backend is backend
+
+
+def test_qaoa_runs_with_progress():
+    pytest.importorskip("qiskit_algorithms")
+    def obj(x):
+        return float(np.sum(x))
+
+    optimizer = QuantumOptimizer(obj, [(0, 1)], method="qaoa")
+    summary = optimizer.run(n_qubits=1, reps=1, max_iter=2)
+    events = [e["event"] for e in summary["history"]]
+    assert "qaoa_complete" in events
+    assert any(e == "qaoa_progress" for e in events)
+
+
+def test_vqe_runs_with_progress():
+    pytest.importorskip("qiskit_algorithms")
+    def obj(x):
+        return float(np.sum(x))
+
+    optimizer = QuantumOptimizer(obj, [(0, 1)], method="vqe")
+    summary = optimizer.run(n_qubits=1, reps=1, max_iter=2)
+    events = [e["event"] for e in summary["history"]]
+    assert "vqe_complete" in events
+    assert any(e == "vqe_progress" for e in events)

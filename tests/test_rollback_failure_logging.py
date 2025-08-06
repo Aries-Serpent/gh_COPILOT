@@ -13,15 +13,17 @@ def test_rollback_failure_logged(tmp_path, monkeypatch):
     with sqlite3.connect(analytics_db) as conn:
         conn.execute("CREATE TABLE event_log (event TEXT)")
         conn.commit()
+
     def _ensure(db_path):
         with sqlite3.connect(db_path) as conn:
             conn.execute(
-                "CREATE TABLE IF NOT EXISTS rollback_logs (target TEXT, backup TEXT, timestamp TEXT)"
+                "CREATE TABLE IF NOT EXISTS rollback_logs (target TEXT, backup TEXT, violation_id INTEGER, outcome TEXT, event TEXT, count INTEGER, timestamp TEXT)"
             )
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS rollback_failures (target TEXT, details TEXT, timestamp TEXT)"
             )
             conn.commit()
+
     monkeypatch.setattr("enterprise_modules.compliance.ensure_rollback_logs", _ensure)
     logger = CorrectionLoggerRollback(analytics_db)
     monkeypatch.setattr(logger, "_record_strategy_history", lambda *a, **k: None)

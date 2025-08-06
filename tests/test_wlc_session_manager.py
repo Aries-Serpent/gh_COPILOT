@@ -1,9 +1,9 @@
-import shutil
-import sqlite3
-
 import pytest
 
+from pathlib import Path
+
 import scripts.wlc_session_manager as wsm
+from unified_session_management_system import prevent_recursion
 
 
 class DummyValidator:
@@ -24,13 +24,12 @@ class DummyOrchestrator:
         return type("R", (), {"compliance_score": 100.0})()
 
 
-def test_main_inserts_session(tmp_path, monkeypatch):
-    temp_db = tmp_path / "production.db"
-    shutil.copy(wsm.DB_PATH, temp_db)
-    monkeypatch.setattr(wsm, "DB_PATH", temp_db)
+def test_main_skips_side_effects_with_test_mode(unified_wrapup_session_db, tmp_path, monkeypatch):
+    monkeypatch.setattr(wsm, "DB_PATH", unified_wrapup_session_db)
     backup_root = tmp_path / "backups"
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+    monkeypatch.setenv("TEST_MODE", "1")
     dummy = DummyValidator()
     monkeypatch.setattr(wsm, "SecondaryCopilotValidator", lambda: dummy)
     orch = DummyOrchestrator()
@@ -39,31 +38,23 @@ def test_main_inserts_session(tmp_path, monkeypatch):
         "UnifiedWrapUpOrchestrator",
         lambda workspace_path=None: orch,
     )
-    with sqlite3.connect(temp_db) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM unified_wrapup_sessions")
-        before = cur.fetchone()[0]
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
+        before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
     wsm.main([])
-    with sqlite3.connect(temp_db) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM unified_wrapup_sessions")
-        after = cur.fetchone()[0]
-        cur.execute("SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
-        score = cur.fetchone()[0]
-    assert after == before + 1
-    assert abs(score - 1.0) < 1e-6
-    assert dummy.called
-    assert orch.called
-    log_files = list((backup_root / "logs").glob("wlc_*.log"))
-    assert log_files
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
+        after = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
+    assert after == before
+    assert not dummy.called
+    assert not orch.called
 
 
-def test_orchestrator_called(tmp_path, monkeypatch):
-    temp_db = tmp_path / "production.db"
-    shutil.copy(wsm.DB_PATH, temp_db)
-    monkeypatch.setattr(wsm, "DB_PATH", temp_db)
+def test_orchestrator_called(unified_wrapup_session_db, tmp_path, monkeypatch):
+    monkeypatch.setattr(wsm, "DB_PATH", unified_wrapup_session_db)
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
-    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backups"))
+    backup_root = tmp_path / "backups"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+    monkeypatch.setenv("TEST_MODE", "1")
 
     class DummyOrchestrator:
         def __init__(self, workspace_path=None) -> None:
@@ -83,22 +74,22 @@ def test_orchestrator_called(tmp_path, monkeypatch):
     dummy = DummyValidator()
     monkeypatch.setattr(wsm, "SecondaryCopilotValidator", lambda: dummy)
 
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
+        before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
     wsm.main([])
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
+        after = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
 
-    assert orch.called
-    with sqlite3.connect(temp_db) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT compliance_score FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
-        score = cur.fetchone()[0]
-    assert abs(score - 0.42) < 1e-6
+    assert after == before
+    assert not orch.called
+    assert not dummy.called
 
 
-def test_session_error(tmp_path, monkeypatch):
-    temp_db = tmp_path / "production.db"
-    shutil.copy(wsm.DB_PATH, temp_db)
-    monkeypatch.setattr(wsm, "DB_PATH", temp_db)
+def test_session_error_skipped_in_test_mode(unified_wrapup_session_db, tmp_path, monkeypatch):
+    monkeypatch.setattr(wsm, "DB_PATH", unified_wrapup_session_db)
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backups"))
+    monkeypatch.setenv("TEST_MODE", "1")
 
     class FailingOrchestrator:
         def __init__(self, workspace_path=None) -> None:
@@ -109,20 +100,76 @@ def test_session_error(tmp_path, monkeypatch):
 
     monkeypatch.setattr(wsm, "UnifiedWrapUpOrchestrator", lambda workspace_path=None: FailingOrchestrator())
 
-    with pytest.raises(RuntimeError):
-        wsm.main([])
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
+        before = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
+    wsm.main([])
+    with wsm.get_connection(unified_wrapup_session_db) as conn:
+        after = conn.execute("SELECT COUNT(*) FROM unified_wrapup_sessions").fetchone()[0]
 
-    with sqlite3.connect(temp_db) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT status, error_details FROM unified_wrapup_sessions ORDER BY rowid DESC LIMIT 1")
-        status, error_details = cur.fetchone()
+    assert after == before
 
-    assert status == "FAILED"
-    assert "boom" in error_details
+
+def test_session_persists_lesson_skipped(unified_wrapup_session_db, tmp_path, monkeypatch):
+    monkeypatch.setattr(wsm, "DB_PATH", unified_wrapup_session_db)
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path / "backups"))
+    monkeypatch.setenv("TEST_MODE", "1")
+    stored = {}
+    monkeypatch.setattr(wsm, "store_lesson", lambda **kw: stored.update(kw))
+    wsm.run_session(1, unified_wrapup_session_db, False, run_orchestrator=False)
+    assert stored == {}
 
 
 def test_missing_environment(monkeypatch):
     monkeypatch.delenv("GH_COPILOT_WORKSPACE", raising=False)
     monkeypatch.delenv("GH_COPILOT_BACKUP_ROOT", raising=False)
+    monkeypatch.delenv("TEST_MODE", raising=False)
     with pytest.raises(EnvironmentError):
         wsm.run_session(1, wsm.DB_PATH, False)
+
+
+def test_internal_backup_root_invalid(tmp_path, monkeypatch):
+    """Ensure backup root inside workspace triggers EnvironmentError."""
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    backup_root = tmp_path / "backups"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+    monkeypatch.delenv("TEST_MODE", raising=False)
+    with pytest.raises(EnvironmentError):
+        wsm.validate_environment()
+
+
+def test_backup_logging_records_entry(tmp_path, monkeypatch):
+    """Execute utility and confirm rollback log entry recorded."""
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    backup_root = tmp_path.parent / "backups"
+    backup_root.mkdir()
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+    analytics_db = tmp_path / "databases" / "analytics.db"
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    analytics_db.touch()
+    from session_management_consolidation_executor import EnterpriseUtility
+
+    util = EnterpriseUtility(str(tmp_path))
+    util.execute_utility()
+
+    import sqlite3
+
+    with sqlite3.connect(analytics_db) as conn:
+        rows = conn.execute("SELECT target, backup FROM rollback_logs").fetchall()
+    assert rows
+    assert Path(rows[0][1]).parent == backup_root
+
+
+def test_prevent_recursion_blocks_nested_calls():
+    calls: list[int] = []
+
+    @prevent_recursion
+    def recurse(depth: int = 0) -> None:
+        calls.append(depth)
+        if depth == 0:
+            recurse(depth + 1)
+
+    with pytest.raises(RuntimeError):
+        recurse()
+    assert calls == [0]

@@ -1,11 +1,19 @@
+import os
 import sqlite3
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
+
+import pytest
 
 from enterprise_modules.compliance import (
     validate_enterprise_operation,
     _log_rollback,
     _detect_recursion,
+    validate_environment,
+    enforce_anti_recursion,
+    ComplianceError,
+    MAX_RECURSION_DEPTH,
 )
 
 
@@ -57,3 +65,91 @@ def test_detect_recursion_true(tmp_path: Path) -> None:
 def test_detect_recursion_false(tmp_path: Path) -> None:
     """``_detect_recursion`` should return False without matching folders."""
     assert not _detect_recursion(tmp_path)
+
+
+def test_validate_environment(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    with pytest.raises(ComplianceError):
+        validate_environment()
+    (tmp_path / "production.db").touch()
+    assert validate_environment() is True
+
+
+def test_enforce_anti_recursion() -> None:
+    enforce_anti_recursion(SimpleNamespace(recursion_depth=1))
+    with pytest.raises(ComplianceError):
+        enforce_anti_recursion(SimpleNamespace(recursion_depth=10))
+
+
+def test_enforce_anti_recursion_nested_limit() -> None:
+    ctx = SimpleNamespace()
+    for _ in range(MAX_RECURSION_DEPTH):
+        assert enforce_anti_recursion(ctx) is True
+        assert ctx.parent_pid == os.getppid()
+        assert ctx.pid == os.getpid()
+
+    with pytest.raises(ComplianceError):
+        enforce_anti_recursion(ctx)
+
+
+def test_enforce_anti_recursion_pid_mismatch() -> None:
+    ctx = SimpleNamespace(recursion_depth=0, pid=-1)
+    with pytest.raises(ComplianceError):
+        enforce_anti_recursion(ctx)
+
+
+def test_detect_recursion_depth_abort(tmp_path: Path) -> None:
+    current = tmp_path
+    for i in range(MAX_RECURSION_DEPTH + 1):
+        current = current / f"d{i}"
+        current.mkdir()
+    assert _detect_recursion(tmp_path)
+    assert getattr(_detect_recursion, "aborted") is True
+    assert (
+        getattr(_detect_recursion, "max_depth_reached") >= MAX_RECURSION_DEPTH + 1
+    )
+
+
+def test_detect_recursion_pid_record(tmp_path: Path) -> None:
+    _detect_recursion(tmp_path)
+    assert getattr(_detect_recursion, "last_pid") == os.getpid()
+
+
+def test_pid_logged_to_db(tmp_path: Path) -> None:
+    """``_detect_recursion`` should log PID information to analytics.db."""
+    with patch.dict("os.environ", {"GH_COPILOT_WORKSPACE": str(tmp_path)}):
+        target = tmp_path / "sub"
+        target.mkdir()
+        _detect_recursion(target)
+        db = tmp_path / "databases" / "analytics.db"
+        with sqlite3.connect(db) as conn:
+            row = conn.execute(
+                "SELECT path, pid FROM recursion_pid_log"
+            ).fetchone()
+    assert row == (str(target.resolve()), os.getpid())
+
+
+def test_validate_operation_depth_logs(tmp_path: Path) -> None:
+    current = tmp_path
+    for i in range(MAX_RECURSION_DEPTH + 1):
+        current = current / f"d{i}"
+        current.mkdir()
+    with patch.dict("os.environ", {"GH_COPILOT_WORKSPACE": str(tmp_path)}):
+        assert not validate_enterprise_operation(str(tmp_path))
+        db = tmp_path / "databases" / "analytics.db"
+        with sqlite3.connect(db) as conn:
+            details = {
+                row[0]
+                for row in conn.execute("SELECT details FROM violation_logs")
+            }
+        assert "recursive_workspace" in details or "recursive_target" in details
+
+
+def test_detect_recursion_root_depth(tmp_path: Path) -> None:
+    """Abort immediately if path depth exceeds ``MAX_RECURSION_DEPTH``."""
+    deep = tmp_path
+    for i in range(MAX_RECURSION_DEPTH + 1):
+        deep = deep / f"d{i}"
+    deep.mkdir(parents=True)
+    assert _detect_recursion(deep)
+    assert getattr(_detect_recursion, "aborted") is True

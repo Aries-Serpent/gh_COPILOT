@@ -1,12 +1,17 @@
+import hashlib
+import logging
+import os
 import sqlite3
 from pathlib import Path
 
 from scripts.database.documentation_ingestor import ingest_documentation
+from scripts.database.unified_database_initializer import initialize_database
 
 
 def test_ingest_documentation(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     workspace = tmp_path
+    os.environ["GH_COPILOT_WORKSPACE"] = str(workspace)
     db_dir = workspace / "databases"
     db_dir.mkdir()
     db_path = db_dir / "enterprise_assets.db"
@@ -16,12 +21,8 @@ def test_ingest_documentation(tmp_path: Path, monkeypatch) -> None:
     doc.write_text("# Guide")
     ingest_documentation(workspace, docs_dir)
     with sqlite3.connect(db_path) as conn:
-        row = conn.execute(
-            "SELECT doc_path, modified_at FROM documentation_assets"
-        ).fetchone()
-        ops = conn.execute(
-            "SELECT COUNT(*) FROM cross_database_sync_operations"
-        ).fetchone()[0]
+        row = conn.execute("SELECT doc_path, modified_at FROM documentation_assets").fetchone()
+        ops = conn.execute("SELECT COUNT(*) FROM cross_database_sync_operations").fetchone()[0]
     assert row[0].endswith("guide.md")
     assert row[1] is not None
     assert ops >= 1
@@ -30,34 +31,92 @@ def test_ingest_documentation(tmp_path: Path, monkeypatch) -> None:
 def test_zero_byte_file_skipped(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     workspace = tmp_path
+    os.environ["GH_COPILOT_WORKSPACE"] = str(workspace)
     db_dir = workspace / "databases"
     db_dir.mkdir()
+    db_path = db_dir / "enterprise_assets.db"
+    initialize_database(db_path)
     docs_dir = workspace / "documentation"
     docs_dir.mkdir()
     (docs_dir / "empty.md").write_text("")
     ingest_documentation(workspace, docs_dir)
+    with sqlite3.connect(db_path) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
+        ops = conn.execute("SELECT COUNT(*) FROM cross_database_sync_operations").fetchone()[0]
+    assert count == 0
+    assert ops >= 1
+
+
+def test_duplicate_document_skipped(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    workspace = tmp_path
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    db_dir = workspace / "databases"
+    db_dir.mkdir()
+    docs_dir = workspace / "documentation"
+    docs_dir.mkdir()
+    (docs_dir / "a.md").write_text("# Guide")
+    (docs_dir / "b.md").write_text("# Guide")
+    ingest_documentation(workspace, docs_dir)
     db_path = db_dir / "enterprise_assets.db"
     with sqlite3.connect(db_path) as conn:
         count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
-        ops = conn.execute(
-            "SELECT COUNT(*) FROM cross_database_sync_operations"
-        ).fetchone()[0]
-    assert count == 0
-    assert ops >= 1
+    assert count == 1
 
 
 def test_missing_directory(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     workspace = tmp_path
+    os.environ["GH_COPILOT_WORKSPACE"] = str(workspace)
     db_dir = workspace / "databases"
     db_dir.mkdir()
     docs_dir = workspace / "missing"
     ingest_documentation(workspace, docs_dir)
     db_path = db_dir / "enterprise_assets.db"
     with sqlite3.connect(db_path) as conn:
-        ops = conn.execute(
-            "SELECT COUNT(*) FROM cross_database_sync_operations"
-        ).fetchone()[0]
+        ops = conn.execute("SELECT COUNT(*) FROM cross_database_sync_operations").fetchone()[0]
         count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
     assert ops >= 1
     assert count == 0
+
+
+def test_duplicate_content_skipped(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    workspace = tmp_path
+    os.environ["GH_COPILOT_WORKSPACE"] = str(workspace)
+    db_dir = workspace / "databases"
+    db_dir.mkdir()
+    docs_dir = workspace / "documentation"
+    docs_dir.mkdir()
+    (docs_dir / "a.md").write_text("# Guide")
+    (docs_dir / "b.md").write_text("# Guide")
+    ingest_documentation(workspace, docs_dir)
+    db_path = db_dir / "enterprise_assets.db"
+    with sqlite3.connect(db_path) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
+    assert count == 1
+
+
+def test_reingest_logs_duplicate(tmp_path: Path, caplog, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+    workspace = tmp_path
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(workspace))
+    db_dir = workspace / "databases"
+    db_dir.mkdir()
+    docs_dir = workspace / "documentation"
+    docs_dir.mkdir()
+    doc = docs_dir / "guide.md"
+    content = "# Guide"
+    doc.write_text(content)
+    ingest_documentation(workspace, docs_dir)
+    caplog.clear()
+    caplog.set_level(logging.INFO)
+    ingest_documentation(workspace, docs_dir)
+    digest = hashlib.sha256(content.encode()).hexdigest()
+    messages = " ".join(caplog.messages)
+    assert digest in messages
+    assert str(doc) in messages
+    db_path = db_dir / "enterprise_assets.db"
+    with sqlite3.connect(db_path) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM documentation_assets").fetchone()[0]
+    assert count == 1

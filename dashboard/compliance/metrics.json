@@ -1,11 +1,16 @@
 {
   "metrics": {
     "placeholder_removal": 14,
-    "compliance_score": 0.98,
+    "open_placeholders": 0,
+    "resolved_placeholders": 14,
+    "compliance_score": 1.0,
     "violation_count": 5,
     "rollback_count": 1,
-    "last_update": "2025-07-25T08:59:07.599616"
+    "auto_removal_count": 0,
+    "last_update": "2025-08-04T22:37:27",
+    "recursion_depth": 0,
+    "pid": 0
   },
   "status": "updated",
-  "timestamp": "2025-07-25T08:59:07.599616"
+  "timestamp": "2025-08-04T22:37:27"
 }

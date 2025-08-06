@@ -22,6 +22,7 @@ from typing import Dict, List
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
+from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 
 DEFAULT_FILES = [
     "DATABASE_FIRST_COPILOT_TASK_SUGGESTIONS.md",
@@ -35,9 +36,7 @@ def fetch_checklist_patterns(production_db: Path) -> List[str]:
     if not production_db.exists():
         return []
     with sqlite3.connect(production_db) as conn:
-        conn.execute(
-            "CREATE TABLE IF NOT EXISTS checklist_patterns (pattern TEXT)"
-        )
+        conn.execute("CREATE TABLE IF NOT EXISTS checklist_patterns (pattern TEXT)")
         rows = conn.execute("SELECT pattern FROM checklist_patterns").fetchall()
         return [row[0] for row in rows]
 
@@ -58,9 +57,7 @@ def log_audit(results: List[Dict[str, str]], analytics_db: Path) -> None:
     """Store audit results in ``analytics.db``."""
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(analytics_db) as conn:
-        conn.execute(
-            "CREATE TABLE IF NOT EXISTS file_audit (file_path TEXT, status TEXT, ts TEXT)"
-        )
+        conn.execute("CREATE TABLE IF NOT EXISTS file_audit (file_path TEXT, status TEXT, ts TEXT)")
         for row in results:
             conn.execute(
                 "INSERT INTO file_audit (file_path, status, ts) VALUES (?, ?, ?)",
@@ -117,4 +114,6 @@ def main(
 
 
 if __name__ == "__main__":
-    raise SystemExit(0 if main() else 1)
+    exit_code = 0 if main() else 1
+    SecondaryCopilotValidator().validate_corrections([__file__])
+    raise SystemExit(exit_code)

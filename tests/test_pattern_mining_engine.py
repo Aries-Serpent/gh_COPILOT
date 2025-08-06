@@ -5,6 +5,7 @@ from pathlib import Path
 import template_engine.pattern_mining_engine as pme
 from template_engine.pattern_mining_engine import (
     extract_patterns,
+    cluster_templates,
     mine_patterns,
     get_clusters,
     validate_mining,
@@ -28,6 +29,12 @@ def test_extract_patterns():
     end_time = datetime.now()
     duration = (end_time - start_time).total_seconds()
     print(f"TEST COMPLETED: test_extract_patterns in {duration:.2f}s")
+
+
+def test_cluster_templates_basic():
+    features = [[1.0, 0.0], [0.0, 1.0]]
+    labels = cluster_templates(features, n_clusters=2)
+    assert sorted(set(labels)) == [0, 1]
 
 
 def test_mine_patterns(tmp_path: Path, monkeypatch) -> None:
@@ -158,6 +165,15 @@ def test_mine_patterns_metrics(tmp_path: Path, monkeypatch) -> None:
     assert metrics["inertia"] >= 0
     assert -1.0 <= metrics["silhouette"] <= 1.0
     assert metrics["n_clusters"] > 0
+
+
+def test_rank_patterns_quantum(monkeypatch) -> None:
+    patterns = ["alpha beta gamma", "foo bar baz"]
+    scores = {"alpha beta gamma": 0.2, "foo bar baz": 0.8, "foo bar baz qux": 0.9}
+    monkeypatch.setattr(pme, "quantum_text_score", lambda text: scores[text])
+    ranked = pme.rank_patterns_quantum(patterns, "foo bar baz qux")
+    assert ranked[0][0] == "foo bar baz"
+    assert ranked[0][1] > ranked[1][1]
 
 
 def test_log_pattern_audit_and_compliance(tmp_path: Path, monkeypatch) -> None:

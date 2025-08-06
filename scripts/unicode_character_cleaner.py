@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import sys
 
 import logging
@@ -15,12 +16,7 @@ from pathlib import Path
 from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -41,8 +37,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -58,9 +53,7 @@ class EnterpriseUtility:
             source = self.workspace_path / "README.md"
             target = self.workspace_path / "README_clean.md"
             if source.resolve() == target.resolve():
-                self.logger.error(
-                    f"{TEXT_INDICATORS['error']} Input and output paths must differ"
-                )
+                self.logger.error(f"{TEXT_INDICATORS['error']} Input and output paths must differ")
                 return False
 
             with open(source, "r", encoding="utf-8", errors="ignore") as f:
@@ -74,14 +67,10 @@ class EnterpriseUtility:
                     cleaned.append("?")
             with open(target, "w", encoding="utf-8") as f:
                 f.write("".join(cleaned))
-            self.logger.info(
-                f"{TEXT_INDICATORS['success']} Cleaned file written to {target}"
-            )
+            self.logger.info(f"{TEXT_INDICATORS['success']} Cleaned file written to {target}")
             return True
         except Exception as exc:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Unicode cleaning failed: {exc}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Unicode cleaning failed: {exc}")
             return False
 
 
@@ -99,6 +88,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

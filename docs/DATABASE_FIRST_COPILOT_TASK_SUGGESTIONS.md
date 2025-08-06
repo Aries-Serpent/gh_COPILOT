@@ -12,7 +12,7 @@ Recent updates:
 - Expand `DatabaseFirstCopilotEnhancer` with anti-recursion checks and query similarity scoring.
 - Ensure all operations query the databases (`production.db`, `documentation.db`, `template_documentation.db`) before interacting with the filesystem.
 - Provide unit tests validating the scoring logic and environment adaptation.
-- **Status:** In progress
+- **Status:** In progress (guards enhanced in session modules)
 - **Owner:** DataOps Team
 - **Action:** Update `scripts/database/database_first_copilot_enhancer.py` to call
   `validate_enterprise_operation()` before any file writes and read from the
@@ -82,8 +82,8 @@ Recent updates:
 - **Action:** Run `template_engine/auto_generator.py` to populate the
   `template_usage_tracking` table with cluster data.
 
-## 8. TODO Audit Logging
- - Search the codebase for `TODO` and `FIXME` comments using `scripts/code_placeholder_audit.py`.
+## 8. Audit Logging
+ - Search the codebase for placeholder comments using `scripts/code_placeholder_audit.py`.
  - After corrections, run `scripts/code_placeholder_audit.py --update-resolutions` and update `/dashboard/compliance`.
  - Provide rollback utilities for automated cleanup scripts.
  - **Status:** In progress

@@ -18,12 +18,8 @@ def create_dbs(tmp_path: Path):
             [("print('x')",), ("print('y')",)],
         )
     with sqlite3.connect(completion) as conn:
-        conn.execute(
-            "CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO templates (template_content) VALUES ('def foo():\n    pass')"
-        )
+        conn.execute("CREATE TABLE templates (id INTEGER PRIMARY KEY, template_content TEXT)")
+        conn.execute("INSERT INTO templates (template_content) VALUES ('def foo():\n    pass')")
     return analytics, completion
 
 

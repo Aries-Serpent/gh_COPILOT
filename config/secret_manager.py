@@ -10,6 +10,3 @@ def get_secret(name: str, default: Optional[str] = None) -> Optional[str]:
     """Retrieve secret from environment variables securely."""
     value = os.getenv(name, default)
     return value
-
-
-

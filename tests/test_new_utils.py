@@ -19,6 +19,7 @@ from utils.validation_utils import (
 def test_operations_main(capsys):
     def _main():
         return "ok"
+
     operations_main(_main)
     assert "ok" in capsys.readouterr().out
 
@@ -42,7 +43,6 @@ def test_generate_text_report(tmp_path):
     text = out.read_text()
     assert text.splitlines()[0] == "MyReport"
     assert "a: 1" in text
-
 
 
 def test_detect_zero_byte_files(tmp_path):
@@ -133,4 +133,3 @@ def test_validate_enterprise_environment_rejects_workspace_path(tmp_path, monkey
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(bk))
     with pytest.raises(EnvironmentError):
         validate_enterprise_environment()
-

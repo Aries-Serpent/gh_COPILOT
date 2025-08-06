@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import argparse
 import hashlib
-import os
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -9,6 +9,11 @@ from pathlib import Path
 from tqdm import tqdm
 
 from utils.log_utils import _log_event, DEFAULT_ANALYTICS_DB
+from scripts.database.cross_database_sync_logger import (
+    log_sync_operation_with_analytics,
+)
+from secondary_copilot_validator import SecondaryCopilotValidator
+from scripts.code_placeholder_audit import main as placeholder_audit
 
 DB_PATH = Path("databases/production.db")
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
@@ -92,8 +97,7 @@ def ingest_assets() -> None:
             content = path.read_text(encoding="utf-8")
             digest = hashlib.sha256(content.encode()).hexdigest()
             cur.execute(
-                "INSERT INTO template_assets (template_path, content_hash, created_at)"
-                " VALUES (?, ?, ?)",
+                "INSERT INTO template_assets (template_path, content_hash, created_at) VALUES (?, ?, ?)",
                 (
                     str(path),
                     digest,
@@ -101,27 +105,94 @@ def ingest_assets() -> None:
                 ),
             )
             cur.execute(
-                "INSERT INTO pattern_assets (pattern, usage_count, created_at)"
-                " VALUES (?, 0, ?)",
+                "INSERT INTO pattern_assets (pattern, usage_count, created_at) VALUES (?, 0, ?)",
                 (content[:1000], datetime.now(timezone.utc).isoformat()),
             )
             bar.update(1)
     conn.commit()
     conn.close()
     _log_event({"event": "templates_ingested", "count": len(tmpl_files)}, db_path=ANALYTICS_DB)
-    _log_event({"event": "ingestion_completed", "docs": len(doc_files), "templates": len(tmpl_files)}, db_path=ANALYTICS_DB)
+    _log_event(
+        {"event": "ingestion_completed", "docs": len(doc_files), "templates": len(tmpl_files)}, db_path=ANALYTICS_DB
+    )
+
+    SecondaryCopilotValidator().validate_corrections([str(p) for p in doc_files + tmpl_files])
 
 
-def run_audit() -> None:
-    os.system('python scripts/code_placeholder_audit.py')
+def run_placeholder_audit() -> None:
+    placeholder_audit(
+        workspace_path=str(Path.cwd()),
+        analytics_db=str(ANALYTICS_DB),
+        production_db=str(DB_PATH),
+        dashboard_dir=str(Path("dashboard/compliance")),
+    )
+
+    with sqlite3.connect(ANALYTICS_DB) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS placeholder_audit (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file_path TEXT,
+                line_number INTEGER,
+                placeholder_type TEXT,
+                context TEXT,
+                timestamp TEXT
+            )
+            """
+        )
+        cur = conn.execute(
+            "SELECT file_path, line_number, placeholder_type, context, timestamp FROM todo_fixme_tracking WHERE status='open'"
+        )
+        rows = cur.fetchall()
+        conn.execute("DELETE FROM placeholder_audit")
+        conn.executemany(
+            "INSERT INTO placeholder_audit (file_path, line_number, placeholder_type, context, timestamp) VALUES (?, ?, ?, ?, ?)",
+            rows,
+        )
+        conn.commit()
 
 
-if __name__ == '__main__':
+def sync_databases(source: str, target: str) -> None:
+    """Copy all data from ``source`` SQLite database into ``target``.
+
+    The operation is logged via :func:`log_sync_operation_with_analytics` to
+    maintain an audit trail.
+    """
+
+    src = Path(source)
+    dst = Path(target)
+    with sqlite3.connect(src) as src_conn, sqlite3.connect(dst) as dst_conn:
+        src_conn.backup(dst_conn)
+    log_sync_operation_with_analytics([src, dst], "sync_databases")
+
+
+def run_automation_setup() -> None:
     start = datetime.now(timezone.utc)
     _log_event({"event": "automation_setup_start"}, db_path=ANALYTICS_DB)
     init_databases()
     ingest_assets()
-    run_audit()
+    run_placeholder_audit()
     duration = (datetime.now(timezone.utc) - start).total_seconds()
     _log_event({"event": "automation_setup_end", "duration": duration}, db_path=ANALYTICS_DB)
     print(f"Automation finished in {duration}s")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Automation utilities")
+    sub = parser.add_subparsers(dest="command")
+
+    sync_parser = sub.add_parser("sync-db", help="Synchronize two SQLite databases")
+    sync_parser.add_argument("source", help="Source database path")
+    sync_parser.add_argument("target", help="Target database path")
+
+    args = parser.parse_args()
+
+    if args.command == "sync-db":
+        sync_databases(args.source, args.target)
+        return
+
+    run_automation_setup()
+
+
+if __name__ == "__main__":
+    main()

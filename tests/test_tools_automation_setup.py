@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime, timezone
 from pathlib import Path
 
 from tools import automation_setup
@@ -16,6 +17,17 @@ def test_ingest_assets(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(tmp_path.parent / "backups"))
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+
+    called = {"v": False}
+
+    def dummy_validate(self, files):
+        called["v"] = True
+        return True
+
+    monkeypatch.setattr(
+        "secondary_copilot_validator.SecondaryCopilotValidator.validate_corrections",
+        dummy_validate,
+    )
 
     docs_dir = tmp_path / "documentation"
     docs_dir.mkdir()
@@ -44,3 +56,29 @@ def test_ingest_assets(tmp_path: Path, monkeypatch) -> None:
     assert doc_count == 1
     assert template_count == 1
     assert pattern_count == 1
+    assert called["v"]
+
+
+def test_sync_databases(tmp_path: Path, monkeypatch) -> None:
+    src = tmp_path / "src.db"
+    dst = tmp_path / "dst.db"
+    with sqlite3.connect(src) as conn:
+        conn.execute("CREATE TABLE t (id INTEGER)")
+        conn.execute("INSERT INTO t VALUES (1)")
+
+    logged = {"called": False}
+
+    def fake_log(paths, operation, **kwargs):  # pragma: no cover - simple spy
+        logged["called"] = operation == "sync_databases"
+        return datetime.now(timezone.utc)
+
+    monkeypatch.setattr(
+        automation_setup, "log_sync_operation_with_analytics", fake_log
+    )
+    automation_setup.sync_databases(str(src), str(dst))
+
+    with sqlite3.connect(dst) as conn:
+        count = conn.execute("SELECT COUNT(*) FROM t").fetchone()[0]
+
+    assert count == 1
+    assert logged["called"]

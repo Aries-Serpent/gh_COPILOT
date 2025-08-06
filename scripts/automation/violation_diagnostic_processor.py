@@ -17,11 +17,8 @@ from typing import Dict, Any
 # Configure diagnostic logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('violation_diagnostic.log', encoding='utf-8'),
-        logging.StreamHandler(sys.stdout)
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("violation_diagnostic.log", encoding="utf-8"), logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
 
@@ -83,11 +80,11 @@ class ViolationDiagnosticProcessor:
                 file_violations = cursor.fetchall()
 
                 analysis = {
-                    'status_counts': status_counts,
-                    'pending_by_code': pending_by_code,
-                    'sample_violations': sample_violations,
-                    'file_violations': file_violations,
-                    'total_pending': status_counts.get('pending', 0)
+                    "status_counts": status_counts,
+                    "pending_by_code": pending_by_code,
+                    "sample_violations": sample_violations,
+                    "file_violations": file_violations,
+                    "total_pending": status_counts.get("pending", 0),
                 }
 
                 return analysis
@@ -100,51 +97,49 @@ class ViolationDiagnosticProcessor:
         """📄 Check actual file content for violation"""
         try:
             if not Path(file_path).exists():
-                return {'exists': False, 'error': 'File not found'}
+                return {"exists": False, "error": "File not found"}
 
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
 
             if line_number <= len(lines):
                 line_content = lines[line_number - 1] if line_number > 0 else ""
                 return {
-                    'exists': True,
-                    'line_content': repr(line_content),
-                    'has_trailing_whitespace': line_content.rstrip() != line_content.rstrip('\n'),
-                    'is_blank_with_whitespace': line_content.strip() == '' \
-    and line_content.rstrip('\n') != '',
-                    'total_lines': len(lines)
+                    "exists": True,
+                    "line_content": repr(line_content),
+                    "has_trailing_whitespace": line_content.rstrip() != line_content.rstrip("\n"),
+                    "is_blank_with_whitespace": line_content.strip() == "" and line_content.rstrip("\n") != "",
+                    "total_lines": len(lines),
                 }
             else:
-                return {'exists': True,
-                    'error': f'Line {line_number} out of range (file has {len(lines)} lines)'}
+                return {"exists": True, "error": f"Line {line_number} out of range (file has {len(lines)} lines)"}
 
         except Exception as e:
-            return {'exists': True, 'error': f'File read error: {e}'}
+            return {"exists": True, "error": f"File read error: {e}"}
 
     def run_diagnostic(self):
         """# # 🔍 Run comprehensive diagnostic"""
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info("# # 🔍 VIOLATION DIAGNOSTIC ANALYSIS")
-        logger.info("="*80)
+        logger.info("=" * 80)
 
         # Analyze database
         analysis = self.analyze_violation_status()
 
         print("\n# # 📊 VIOLATION STATUS COUNTS:")
-        for status, count in analysis.get('status_counts', {}).items():
+        for status, count in analysis.get("status_counts", {}).items():
             print(f"   {status}: {count}")
 
         print("\n📋 PENDING VIOLATIONS BY ERROR CODE:")
-        for code, count in analysis.get('pending_by_code', {}).items():
+        for code, count in analysis.get("pending_by_code", {}).items():
             print(f"   {code}: {count}")
 
         print("\n📄 FILES WITH MOST PENDING VIOLATIONS:")
-        for file_path, count in analysis.get('file_violations', []):
+        for file_path, count in analysis.get("file_violations", []):
             print(f"   {Path(file_path).name}: {count} violations")
 
         print("\n# # 🔍 SAMPLE VIOLATION ANALYSIS:")
-        for violation in analysis.get('sample_violations', []):
+        for violation in analysis.get("sample_violations", []):
             id, file_path, line_number, error_code, message = violation
             print(f"\n   Violation ID: {id}")
             print(f"   File: {Path(file_path).name}")
@@ -154,23 +149,23 @@ class ViolationDiagnosticProcessor:
 
             # Check actual file content
             file_check = self.check_file_content(file_path, line_number)
-            if file_check.get('exists'):
-                if 'error' in file_check:
+            if file_check.get("exists"):
+                if "error" in file_check:
                     print(f"   Status: ❌ {file_check['error']}")
                 else:
-                    line_content = file_check['line_content']
+                    line_content = file_check["line_content"]
                     print(f"   Line Content: {line_content}")
 
-                    if error_code == 'W291':
-                        has_trailing = file_check.get('has_trailing_whitespace', False)
+                    if error_code == "W291":
+                        has_trailing = file_check.get("has_trailing_whitespace", False)
                         print(f"   Has trailing whitespace: {has_trailing}")
                         if not has_trailing:
                             print("   Status: # # ✅ Already fixed (no trailing whitespace)")
                         else:
                             print("   Status: # # ⚠️ Still needs fixing")
 
-                    elif error_code == 'W293':
-                        has_whitespace_blank = file_check.get('is_blank_with_whitespace', False)
+                    elif error_code == "W293":
+                        has_whitespace_blank = file_check.get("is_blank_with_whitespace", False)
                         print(f"   Is blank line with whitespace: {has_whitespace_blank}")
                         if not has_whitespace_blank:
                             print("   Status: # # ✅ Already fixed (blank line is clean)")
@@ -180,9 +175,9 @@ class ViolationDiagnosticProcessor:
                 print("   Status: ❌ File not found")
 
         # Summary
-        total_pending = analysis.get('total_pending', 0)
-        w291_count = analysis.get('pending_by_code', {}).get('W291', 0)
-        w293_count = analysis.get('pending_by_code', {}).get('W293', 0)
+        total_pending = analysis.get("total_pending", 0)
+        w291_count = analysis.get("pending_by_code", {}).get("W291", 0)
+        w293_count = analysis.get("pending_by_code", {}).get("W293", 0)
 
         print("\n📈 DIAGNOSTIC SUMMARY:")
         print(f"   Total pending violations: {total_pending}")

@@ -9,6 +9,16 @@ This module is designed to meet enterprise auditability and compliance standards
 
 ---
 
+## Setup
+
+1. Run `bash setup.sh` to install dependencies. If the script reports an error, ensure required system packages and Python
+   dependencies are installed.
+2. Activate the virtual environment:
+   `source .venv/bin/activate`.
+3. Launch the dashboard with `python dashboard/enterprise_dashboard.py`.
+
+---
+
 ## FEATURES
 
 | Feature                      | Description                                                                                  |
@@ -20,6 +30,7 @@ This module is designed to meet enterprise auditability and compliance standards
 | Backup and Recovery          | Initiate enterprise backup jobs, view logs, run restores, manage backup retention           |
 | Visual Processing Indicators | Progress bars, phase indicators, detailed execution status                                   |
 | Quantum Monitoring           | Extensible hooks for quantum and advanced analytics                                         |
+| Monitoring Integration       | Pushes compliance metrics to unified monitoring and correction systems for remediation      |
 
 ---
 
@@ -76,18 +87,27 @@ python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
 ```
 
 Visit [http://localhost:5000](http://localhost:5000) in your browser. The dashboard will auto-discover and display current session, database, and compliance data. All metrics update in real time.
-The dashboard HTML template lives in `dashboard/templates/dashboard.html` and automatically refreshes metrics via Server-Sent Events. If SSE is not supported, a JavaScript fallback polls `/metrics` and `/rollback_alerts` every five seconds.
+The dashboard HTML template lives in `dashboard/templates/dashboard.html` and automatically refreshes metrics via Server-Sent Events. If SSE is not supported, a JavaScript fallback polls `/dashboard/compliance` every five seconds.
 
 Example screenshot:
 
 ![Dashboard Screenshot](static/dashboard_screenshot.png)
+
+### Manual QA
+
+1. Start the dashboard: `python dashboard/enterprise_dashboard.py`.
+2. Visit [http://localhost:5000/](http://localhost:5000/) and verify the dashboard renders.
+3. Open `/metrics/view` to confirm metrics are displayed.
+4. Open `/rollback-logs/view` to confirm rollback entries are shown.
+5. Open `/sync-events/view` to confirm synchronization events are shown.
+6. Ensure styling from `dashboard/static/style.css` is applied.
 
 ### Live Metrics
 
 The dashboard templates consume `/metrics_stream` via Server-Sent Events (SSE).
 Metrics are retrieved from `analytics.db` and include placeholder removal totals,
 open placeholder counts, and the average compliance score. If SSE is
-unavailable, a JavaScript fallback polls `/metrics` and `/alerts` every five
+unavailable, a JavaScript fallback polls `/dashboard/compliance` every five
 seconds. Alerts combine rollback and violation logs so operators can react to
 compliance issues immediately.
 
@@ -117,9 +137,13 @@ The `/dashboard/compliance` endpoint returns compliance information as JSON, com
 {
   "metrics": {
     "placeholder_removal": 0,
+    "open_placeholders": 0,
+    "resolved_placeholders": 0,
     "compliance_score": 0.0,
+    "progress": 0.0,
     "violation_count": 0,
     "rollback_count": 0,
+    "progress_status": "unknown",
     "last_update": "ISO8601 timestamp"
   },
   "status": "updated",
@@ -143,7 +167,7 @@ The `/dashboard/compliance` endpoint returns compliance information as JSON, com
 }
 ```
 
-- `metrics` — Aggregated compliance metrics (e.g., placeholder removal count, compliance score)
+- `metrics` — Aggregated compliance metrics (e.g., placeholder removal count, open and resolved placeholder totals, compliance score, remediation progress); includes `progress_status` to summarize placeholder resolution progress
 - `rollbacks` — List of correction and rollback events
 - `notes` — Array of status messages using text tags like `[SUCCESS]`
 

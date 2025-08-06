@@ -11,15 +11,15 @@ from __future__ import annotations
 
 import logging
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
 
 from tqdm import tqdm
 
-from template_engine.auto_generator import (DEFAULT_ANALYTICS_DB,
-                                            DEFAULT_COMPLETION_DB,
-                                            TemplateAutoGenerator)
+DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
+DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
+from utils.lessons_learned_integrator import fetch_lessons_by_tag
 
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -44,7 +44,7 @@ class CompleteTemplateGenerator:
         self.analytics_db = analytics_db
         self.completion_db = completion_db
         self.production_db = production_db
-        self.generator = TemplateAutoGenerator(analytics_db, completion_db)
+        self.generator = None
         self._ensure_stats_table()
         self._ensure_generated_table()
 
@@ -99,24 +99,41 @@ class CompleteTemplateGenerator:
     # ------------------------------------------------------------------
     def create_templates(self) -> List[str]:
         """Synthesize new templates from known patterns."""
+        if self.generator is None:
+            from template_engine.auto_generator import TemplateAutoGenerator
+            self.generator = TemplateAutoGenerator(self.analytics_db, self.completion_db)
+
         templates: List[str] = []
         clusters = self.generator.cluster_model
         patterns = self.generator.patterns
         if not patterns or clusters is None:
             return templates
 
+        lessons = fetch_lessons_by_tag("template")
+        lesson_snippets = [lesson["description"] for lesson in lessons if self._validate_template(lesson["description"]) ]
+
+        # ``TemplateAutoGenerator`` clusters a combined corpus of templates,
+        # analytics patterns and production patterns. Recreate the same corpus
+        # order here to map cluster labels back to their corresponding text
+        # without risking index errors when one section is shorter than the
+        # others.
+        corpus = (
+            self.generator.templates
+            + patterns
+            + self.generator._load_production_patterns()
+        )
+
         with sqlite3.connect(self.production_db) as conn:
             data_to_insert = []
             generated_records = []
-            with tqdm(total=clusters.n_clusters, \
-                desc=f"{TEXT_INDICATORS['progress']} create") as bar:
+            with tqdm(total=clusters.n_clusters, desc=f"{TEXT_INDICATORS['progress']} create") as bar:
                 for cluster_id in range(clusters.n_clusters):
                     indices = [i for i, label in enumerate(clusters.labels_) if label == cluster_id]
                     if not indices:
                         bar.update(1)
                         continue
-                    cluster_patterns = [patterns[i] for i in indices]
-                    candidate = max(cluster_patterns, key=len)
+                    cluster_texts = [corpus[i] for i in indices]
+                    candidate = max(cluster_texts, key=len)
                     if self._validate_template(candidate):
                         templates.append(candidate)
                         timestamp = datetime.utcnow().isoformat()
@@ -124,6 +141,7 @@ class CompleteTemplateGenerator:
                         template_id = f"cluster_{cluster_id}_{len(candidate)}"
                         generated_records.append((template_id, candidate, timestamp))
                     bar.update(1)
+            templates.extend(lesson_snippets)
             if data_to_insert:
                 conn.executemany(
                     "INSERT INTO template_generation_stats"
@@ -142,8 +160,43 @@ class CompleteTemplateGenerator:
     def regenerate_templates(self) -> List[str]:
         """Reinitialize generator and regenerate templates."""
         logger.info(f"{TEXT_INDICATORS['info']} regenerating templates")
+        from template_engine.auto_generator import TemplateAutoGenerator
         self.generator = TemplateAutoGenerator(self.analytics_db, self.completion_db)
         return self.create_templates()
+
+    # ------------------------------------------------------------------
+    def cleanup_legacy_assets(self, retention_days: int = 30) -> int:
+        """Remove template records older than ``retention_days``.
+
+        Parameters
+        ----------
+        retention_days:
+            Number of days to retain generated template metadata.
+
+        Returns
+        -------
+        int
+            Total number of records removed from ``production.db``.
+        """
+
+        cutoff = datetime.utcnow() - timedelta(days=retention_days)
+        removed = 0
+        with sqlite3.connect(self.production_db) as conn:
+            cur1 = conn.execute(
+                "DELETE FROM template_generation_stats WHERE generated_at < ?",
+                (cutoff.isoformat(),),
+            )
+            cur2 = conn.execute(
+                "DELETE FROM generated_templates WHERE generated_at < ?",
+                (cutoff.isoformat(),),
+            )
+            removed = (cur1.rowcount or 0) + (cur2.rowcount or 0)
+            conn.commit()
+
+        logger.info(
+            f"{TEXT_INDICATORS['info']} cleaned {removed} legacy template records"
+        )
+        return removed
 
 
 if __name__ == "__main__":  # pragma: no cover - manual execution

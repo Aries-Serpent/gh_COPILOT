@@ -10,6 +10,7 @@ def test_main_triggers_wlc(monkeypatch):
         called["yes"] = True
 
     monkeypatch.setattr(uwo, "run_session", fake_run_session)
+    monkeypatch.setenv("TEST_MODE", "1")
 
     def fake_execute(self):
         return uwo.WrapUpResult(session_id="id", start_time=datetime.now(), status="COMPLETED")

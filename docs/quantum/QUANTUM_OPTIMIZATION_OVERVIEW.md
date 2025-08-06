@@ -2,7 +2,10 @@
 ## Enterprise-Grade PIS Framework Quantum Integration
 
 > **Note**
-> All quantum features operate in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+> All quantum features operate in simulation only. Installing `qiskit-ibm-provider` or setting IBM Quantum tokens has no effect because hardware execution is not yet supported.
+
+### Hardware Requirements
+Hardware execution is not supported. The library always uses the local Aer simulator and ignores `QISKIT_IBM_TOKEN` and `QUANTUM_USE_HARDWARE` settings.
 
 ### Executive Summary
 The PIS (Plan Issued Statement) Framework integrates quantum optimization algorithms to achieve unprecedented performance improvements in code analysis, error detection, and compliance validation. The latest update introduces the **Quantum Database Search** module for Grover-based queries.
@@ -14,10 +17,7 @@ The PIS (Plan Issued Statement) Framework integrates quantum optimization algori
 - **Quantum Phase Estimation**: Performance optimization
 
 ### Performance Metrics
-- **Quantum Fidelity**: 98.7% (Industry Leading)
-- **Quantum Efficiency**: 95.7% (Enterprise Grade)
-- **Classical Speedup**: 2.5x average improvement
-- **Error Detection**: 99.2% accuracy
+Simulation results are logged to `analytics.db` for audit purposes. No real hardware benchmarking has been performed.
 
 ### Enterprise Benefits
 1. **Unprecedented Speed**: Quantum algorithms provide exponential speedup for complex optimization problems
@@ -30,7 +30,7 @@ The PIS (Plan Issued Statement) Framework integrates quantum optimization algori
 - **Phase 2**: Database integration complete ✅
 - **Phase 3**: Performance monitoring operational ✅
 - **Phase 4**: Production deployment finalized ✅
-- **Phase 5**: Hardware-ready quantum integration ✅
+- **Phase 5**: Hardware integration pending
 
 ### New Algorithms
 - **Grover's Search Optimization**: Accelerated database queries

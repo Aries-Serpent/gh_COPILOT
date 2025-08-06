@@ -11,11 +11,12 @@ from typing import Optional
 
 from tqdm import tqdm
 
-from secondary_copilot_validator import SecondaryCopilotValidator
 from scripts.code_placeholder_audit import main as placeholder_audit
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from template_engine.template_synchronizer import _compliance_score
 from utils.log_utils import _log_event, TABLE_SCHEMAS
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 
 LOGGER = logging.getLogger(__name__)
@@ -27,6 +28,20 @@ def init_database(db_path: Path) -> None:
         conn = sqlite3.connect(db_path)
         conn.close()
         LOGGER.info("Created database %s", db_path)
+
+
+def load_lesson_dataset(db_path: Path) -> list[dict[str, str]]:
+    """Load lessons from the database and log their application.
+
+    Parameters
+    ----------
+    db_path:
+        Path to the SQLite database containing the ``enhanced_lessons_learned``
+        table.
+    """
+    lessons = load_lessons(db_path)
+    apply_lessons(LOGGER, lessons)
+    return lessons
 
 
 def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
@@ -113,6 +128,17 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
             ")"
         )
         conn.execute(
+            "CREATE TABLE IF NOT EXISTS correction_history ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "user_id INTEGER NOT NULL,"
+            "session_id TEXT NOT NULL,"
+            "file_path TEXT NOT NULL,"
+            "action TEXT NOT NULL,"
+            "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,"
+            "details TEXT"
+            ")"
+        )
+        conn.execute(
             "CREATE TABLE IF NOT EXISTS violation_logs ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "timestamp TEXT NOT NULL,"
@@ -193,7 +219,7 @@ def ingest_assets(doc_path: Path, template_path: Path, db_path: Path) -> None:
                     ),
                 )
                 audit_conn.execute(
-                    "INSERT INTO correction_history (user_id, session_id, file_path, action, timestamp) VALUES (1, 'ingest_assets', ?, 'ingest', ?, ?)",
+                    "INSERT INTO correction_history (user_id, session_id, file_path, action, timestamp, details) VALUES (1, 'ingest_assets', ?, 'ingest', ?, ?)",
                     (
                         str(path.relative_to(doc_path.parent)),
                         datetime.now(timezone.utc).isoformat(),
@@ -341,12 +367,19 @@ def main() -> None:
     init_database(analytics_db)
     init_database(production_db)
 
+    lessons = load_lesson_dataset(production_db)
+    _log_event(
+        {"event": "lessons_loaded", "count": len(lessons)},
+        table="correction_logs",
+        db_path=analytics_db,
+    )
+
     ingest_assets(workspace / "documentation", workspace / "template_engine", production_db)
 
     run_audit(workspace, analytics_db, production_db, dashboard_dir)
 
-    validator = SecondaryCopilotValidator()
-    valid = validator.validate_corrections([__file__])
+    orchestrator = DualCopilotOrchestrator()
+    valid = orchestrator.validator.validate_corrections([__file__])
     _log_event({"event": "secondary_validation", "result": valid}, table="correction_logs", db_path=analytics_db)
 
     LOGGER.info("Automation complete")

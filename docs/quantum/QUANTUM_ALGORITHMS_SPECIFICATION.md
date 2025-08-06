@@ -2,7 +2,7 @@
 ## Technical Implementation Details
 
 > **Note**
-> All quantum algorithms are executed in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+> All quantum algorithms run in simulation mode only. Installing `qiskit-ibm-provider` or configuring an IBM Quantum token has no effect because hardware execution is not supported.
 
 ### Algorithm Architecture
 

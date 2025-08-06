@@ -25,7 +25,7 @@ from typing import Dict, List, Optional, Set
 from tqdm import tqdm
 
 from enterprise_modules.compliance import validate_enterprise_operation
-from utils.log_utils import _log_event
+from utils.log_utils import _log_event, ensure_tables, log_event
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 workspace_root = CrossPlatformPathManager.get_workspace_path()
@@ -57,7 +57,6 @@ class CrossReferenceValidator:
         analytics_db: Path = ANALYTICS_DB,
         dashboard_dir: Path = DASHBOARD_DIR,
         task_suggestions_file: Path = TASK_SUGGESTIONS_FILE,
-        backup_root: Path | None = None,
     ) -> None:
         self.production_db = production_db
         self.analytics_db = analytics_db
@@ -148,7 +147,7 @@ class CrossReferenceValidator:
                 validate_enterprise_operation(str(d))
                 for path in d.rglob(file_name):
                     try:
-                        path.relative_to(self.backup_root)
+                        path.relative_to(backup_root)
                     except ValueError:
                         related_paths.add(path)
             for path in sorted(related_paths):

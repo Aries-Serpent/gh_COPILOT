@@ -8,20 +8,19 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import sys
 
 import logging
 from pathlib import Path
 from datetime import datetime
 import sqlite3
+from scripts.validation.secondary_copilot_validator import (
+    SecondaryCopilotValidator,
+)
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -42,8 +41,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -82,10 +80,11 @@ def main():
     else:
         print(f"{TEXT_INDICATORS['error']} Utility failed")
 
+    SecondaryCopilotValidator(logging.getLogger(__name__)).validate_corrections([__file__])
+
     return success
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

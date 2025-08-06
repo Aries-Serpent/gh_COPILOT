@@ -36,6 +36,14 @@ def generate_script_from_repository(workspace: Path, output_name: str) -> bool:
             logger.error("%s Missing script at %s", TEXT_INDICATORS["error"], src_file)
             return False
 
+        content = src_file.read_text(encoding="utf-8")
+        if "PLACEHOLDER_ONLY" in content:
+            logger.error(
+                "%s Placeholder modules are excluded from packaging",
+                TEXT_INDICATORS["error"],
+            )
+            return False
+
         output_file = output_dir / output_name
         shutil.copy(src_file, output_file)
         logger.info("%s Generated %s", TEXT_INDICATORS["success"], output_file)

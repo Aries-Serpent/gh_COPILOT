@@ -8,6 +8,7 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import logging
 import os
 import sys
@@ -16,12 +17,7 @@ from datetime import datetime
 from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -42,8 +38,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -57,9 +52,7 @@ class EnterpriseUtility:
         """Perform the utility function"""
         db_path = self.workspace_path / "databases" / "production.db"
         if not db_path.exists():
-            self.logger.info(
-                f"{TEXT_INDICATORS['info']} Database not found: {db_path}"
-            )
+            self.logger.info(f"{TEXT_INDICATORS['info']} Database not found: {db_path}")
             return True
 
         try:
@@ -67,14 +60,10 @@ class EnterpriseUtility:
                 cur = conn.cursor()
                 cur.execute("SELECT COUNT(*) FROM code_templates")
                 count = cur.fetchone()[0]
-                self.logger.info(
-                    f"{TEXT_INDICATORS['info']} Template count: {count}"
-                )
+                self.logger.info(f"{TEXT_INDICATORS['info']} Template count: {count}")
             return True
         except sqlite3.Error as e:
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Database error: {e}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Database error: {e}")
             return False
 
 
@@ -99,6 +88,5 @@ def test_execute_utility(tmp_path, monkeypatch):
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

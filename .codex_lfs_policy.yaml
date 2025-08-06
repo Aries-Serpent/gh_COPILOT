@@ -1,0 +1,25 @@
+# Enable or disable the automatic Git LFS tracking logic
+enable_autolfs: true
+# Directory where temporary session archives are stored
+session_artifact_dir: "codex_sessions/"
+# Any file larger than this size (in megabytes) will be moved to Git LFS
+size_threshold_mb: 50
+# File extensions that should always be committed via Git LFS
+binary_extensions:
+  - .db
+  - .7z
+  - .zip
+  - .bak
+  - .dot
+  - .sqlite
+  - .exe
+# Template used when generating .gitattributes automatically
+gitattributes_template: |
+  codex_sessions/*.zip filter=lfs diff=lfs merge=lfs -text
+  *.db filter=lfs diff=lfs merge=lfs -text
+  *.7z filter=lfs diff=lfs merge=lfs -text
+  *.zip filter=lfs diff=lfs merge=lfs -text
+  *.bak filter=lfs diff=lfs merge=lfs -text
+  *.sqlite filter=lfs diff=lfs merge=lfs -text
+  *.exe filter=lfs diff=lfs merge=lfs -text
+  *.dot filter=lfs diff=lfs merge=lfs -text

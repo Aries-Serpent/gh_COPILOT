@@ -8,20 +8,17 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import sys
 
 import logging
 import shutil
+import sqlite3
 from pathlib import Path
 from datetime import datetime
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -42,8 +39,7 @@ class EnterpriseUtility:
 
             if success:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -56,17 +52,25 @@ class EnterpriseUtility:
     def perform_utility_function(self) -> bool:
         """Perform the utility function"""
         try:
+            db_path = self.workspace_path / "databases" / "production.db"
             deploy_dir = self.workspace_path / "builds" / "production"
             deploy_dir.mkdir(parents=True, exist_ok=True)
-            files = [self.workspace_path / "README.md"]
-
-            for f in files:
-                if not f.exists():
-                    self.logger.error(f"{TEXT_INDICATORS['error']} Missing file {f}")
-                    return False
-                shutil.copy2(f, deploy_dir)
-                self.logger.info(f"{TEXT_INDICATORS['info']} Deployed {f.name}")
-
+            with sqlite3.connect(db_path) as conn:
+                row = conn.execute(
+                    "SELECT script_path FROM script_repository ORDER BY RANDOM() LIMIT 1"
+                ).fetchone()
+            if not row:
+                self.logger.error(
+                    f"{TEXT_INDICATORS['error']} No scripts found in repository"
+                )
+                return False
+            src = self.workspace_path / row[0]
+            if not src.exists():
+                self.logger.error(f"{TEXT_INDICATORS['error']} Missing file {src}")
+                return False
+            dst = deploy_dir / Path(row[0]).name
+            shutil.copy2(src, dst)
+            self.logger.info(f"{TEXT_INDICATORS['info']} Deployed {dst.name}")
             self.logger.info(
                 f"{TEXT_INDICATORS['success']} Production deployment finished"
             )
@@ -92,6 +96,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

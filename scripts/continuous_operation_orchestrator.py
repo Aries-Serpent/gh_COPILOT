@@ -5,8 +5,8 @@
 Enterprise-Grade 24/7 Continuous Operation System with Advanced AI Integration
 
 🚀 MISSION STATEMENT:
-Building on our excellent validation achievements (96.4% scores), this system 
-implements continuous operation mode with Phase 4 continuous optimization 
+Building on our excellent validation achievements (96.4% scores), this system
+implements continuous operation mode with Phase 4 continuous optimization
 (94.95% excellence) and Phase 5 advanced AI integration (98.47% excellence).
 
 🏆 ACHIEVEMENT STATUS:
@@ -32,7 +32,6 @@ Created: July 17, 2025
 import argparse
 import logging
 import os
-import shutil
 import sys
 import time
 import traceback
@@ -45,25 +44,29 @@ import numpy as np
 from tqdm import tqdm
 
 from utils.cross_platform_paths import CrossPlatformPathManager
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules import compliance
+from enterprise_modules.compliance import pid_recursion_guard
+from utils.validation_utils import run_dual_copilot_validation
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 # 🚨 CRITICAL: Anti-recursion validation
 
 
 # Validate environment compliance before proceeding
 if os.getenv("GH_COPILOT_DISABLE_VALIDATION") != "1":
-    validate_enterprise_operation()
+    compliance.validate_enterprise_operation()
 
 
 def primary_validate() -> bool:
     """Run primary environment validation."""
     logging.info("PRIMARY VALIDATION: continuous operation environment")
-    return validate_enterprise_operation()
+    return compliance.validate_enterprise_operation()
 
 
 @dataclass
 class ContinuousOperationMetrics:
     """📊 Continuous Operation Performance Metrics"""
+
     session_id: str
     start_time: datetime
     uptime_seconds: float = 0.0
@@ -80,6 +83,7 @@ class ContinuousOperationMetrics:
 @dataclass
 class AIIntelligenceReport:
     """🧠 Advanced AI Intelligence Analysis"""
+
     analysis_timestamp: datetime
     intelligence_category: str
     confidence_score: float
@@ -95,7 +99,7 @@ class ContinuousOperationOrchestrator:
 
     🚀 ENTERPRISE FEATURES:
     - 24/7 Continuous Monitoring and Optimization
-    - Advanced AI-Powered Decision Making  
+    - Advanced AI-Powered Decision Making
     - Quantum-Enhanced Processing Integration
     - Real-Time Intelligence Gathering
     - Autonomous System Management
@@ -116,33 +120,26 @@ class ContinuousOperationOrchestrator:
 
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler(f'logs/continuous_operation_{self.session_id}.log'),
-                logging.StreamHandler()
-            ]
+            format="%(asctime)s - %(levelname)s - %(message)s",
+            handlers=[logging.FileHandler(f"logs/continuous_operation_{self.session_id}.log"), logging.StreamHandler()],
         )
 
-        logging.info("="*80)
+        logging.info("=" * 80)
         logging.info("🔄 CONTINUOUS OPERATION ORCHESTRATOR INITIALIZED")
         logging.info(f"Session ID: {self.session_id}")
         logging.info(f"Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process ID: {os.getpid()}")
-        logging.info("="*80)
+        logging.info("=" * 80)
 
         # Initialize workspace
         self.workspace_path = Path(
-            workspace_path or os.getenv("GH_COPILOT_WORKSPACE")
-            or CrossPlatformPathManager.get_workspace_path()
+            workspace_path or os.getenv("GH_COPILOT_WORKSPACE") or CrossPlatformPathManager.get_workspace_path()
         )
         self.production_db = self.workspace_path / "production.db"
 
         # 🏗️ Initialize continuous operation components
         self.operation_active = True
-        self.metrics = ContinuousOperationMetrics(
-            session_id=self.session_id,
-            start_time=self.start_time
-        )
+        self.metrics = ContinuousOperationMetrics(session_id=self.session_id, start_time=self.start_time)
 
         # 🧠 Advanced AI Integration
         self.ai_intelligence_engine = AdvancedAIIntelligenceEngine()
@@ -167,7 +164,7 @@ class ContinuousOperationOrchestrator:
     def primary_validate(self) -> bool:
         """Primary validation step for continuous operation."""
         logging.info("PRIMARY VALIDATION: continuous operation environment")
-        return validate_enterprise_operation()
+        return compliance.validate_enterprise_operation()
 
     def secondary_validate(self) -> bool:
         """Run secondary validation after continuous operation."""
@@ -188,12 +185,15 @@ class ContinuousOperationOrchestrator:
             ("🧠 AI Intelligence Analysis", "Advanced AI-powered intelligence gathering", 25),
             ("⚡ Performance Optimization", "Continuous performance optimization", 25),
             ("⚛️ Quantum Enhancement", "Quantum-enhanced processing integration", 20),
-            ("📊 Enterprise Reporting", "Generating enterprise intelligence reports", 10)
+            ("📊 Enterprise Reporting", "Generating enterprise intelligence reports", 10),
         ]
 
-        with tqdm(total=100, desc="🔄 Continuous Operation", unit="%",
-                  bar_format="{l_bar}{bar}| {n:.1f}/{total}{unit} [{elapsed}<{remaining}]") as pbar:
-
+        with tqdm(
+            total=100,
+            desc="🔄 Continuous Operation",
+            unit="%",
+            bar_format="{l_bar}{bar}| {n:.1f}/{total}{unit} [{elapsed}<{remaining}]",
+        ) as pbar:
             for phase_name, phase_description, weight in phases:
                 # MANDATORY: Update phase description
                 pbar.set_description(f"{phase_name}")
@@ -226,15 +226,21 @@ class ContinuousOperationOrchestrator:
         self._log_cycle_completion_summary(cycle_results)
 
         # Dual Copilot validation
-        logging.info("🔍 PRIMARY VALIDATION")
-        primary_ok = self.primary_validate()
-        logging.info("🔍 SECONDARY VALIDATION")
-        secondary_ok = self.secondary_validate()
-        cycle_results["primary_validation"] = primary_ok
-        cycle_results["secondary_validation"] = secondary_ok
+        validator = SecondaryCopilotValidator()
+
+        def _primary():
+            logging.info("🔍 PRIMARY VALIDATION")
+            return self.primary_validate()
+
+        def _secondary():
+            logging.info("🔍 SECONDARY VALIDATION")
+            return self.secondary_validate() and validator.validate_corrections([__file__])
+
+        validation_passed = run_dual_copilot_validation(_primary, _secondary)
+        cycle_results["primary_validation"] = validation_passed
+        cycle_results["secondary_validation"] = validation_passed
 
         return cycle_results
-
 
     def _execute_system_health_monitoring(self) -> Dict[str, Any]:
         """🔍 Execute comprehensive system health monitoring"""
@@ -246,7 +252,7 @@ class ContinuousOperationOrchestrator:
             "file_system_health": self._check_file_system_health(),
             "script_system_health": self._check_script_system_health(),
             "enterprise_compliance": self._check_enterprise_compliance(),
-            "overall_health_score": 0.0
+            "overall_health_score": 0.0,
         }
 
         # Calculate overall health score
@@ -254,14 +260,13 @@ class ContinuousOperationOrchestrator:
             health_metrics["database_health"]["score"],
             health_metrics["file_system_health"]["score"],
             health_metrics["script_system_health"]["score"],
-            health_metrics["enterprise_compliance"]["score"]
+            health_metrics["enterprise_compliance"]["score"],
         ]
 
         health_metrics["overall_health_score"] = np.mean(health_scores)
         self.metrics.system_health_score = health_metrics["overall_health_score"]
 
-        logging.info(
-            f"✅ System health monitoring complete: {health_metrics['overall_health_score']:.1f}% health")
+        logging.info(f"✅ System health monitoring complete: {health_metrics['overall_health_score']:.1f}% health")
 
         return health_metrics
 
@@ -275,7 +280,7 @@ class ContinuousOperationOrchestrator:
             "operational_intelligence": self._analyze_operational_patterns(),
             "predictive_intelligence": self._generate_predictive_insights(),
             "decision_intelligence": self._make_autonomous_decisions(),
-            "ai_confidence_score": 0.0
+            "ai_confidence_score": 0.0,
         }
 
         # Calculate AI confidence score
@@ -283,14 +288,13 @@ class ContinuousOperationOrchestrator:
             ai_analysis["performance_intelligence"]["confidence"],
             ai_analysis["operational_intelligence"]["confidence"],
             ai_analysis["predictive_intelligence"]["confidence"],
-            ai_analysis["decision_intelligence"]["confidence"]
+            ai_analysis["decision_intelligence"]["confidence"],
         ]
 
         ai_analysis["ai_confidence_score"] = np.mean(confidence_scores)
         self.metrics.ai_decisions_made += len(ai_analysis["decision_intelligence"]["decisions"])
 
-        logging.info(
-            f"✅ AI intelligence analysis complete: {ai_analysis['ai_confidence_score']:.1f}% confidence")
+        logging.info(f"✅ AI intelligence analysis complete: {ai_analysis['ai_confidence_score']:.1f}% confidence")
 
         return ai_analysis
 
@@ -304,7 +308,7 @@ class ContinuousOperationOrchestrator:
             "script_optimization": self._optimize_script_performance(),
             "system_optimization": self._optimize_system_performance(),
             "enterprise_optimization": self._optimize_enterprise_performance(),
-            "optimization_effectiveness": 0.0
+            "optimization_effectiveness": 0.0,
         }
 
         # Calculate optimization effectiveness
@@ -312,7 +316,7 @@ class ContinuousOperationOrchestrator:
             optimization_results["database_optimization"]["improvement"],
             optimization_results["script_optimization"]["improvement"],
             optimization_results["system_optimization"]["improvement"],
-            optimization_results["enterprise_optimization"]["improvement"]
+            optimization_results["enterprise_optimization"]["improvement"],
         ]
 
         optimization_results["optimization_effectiveness"] = np.mean(effectiveness_scores)
@@ -336,7 +340,7 @@ class ContinuousOperationOrchestrator:
             "quantum_intelligence": self._apply_quantum_intelligence(),
             "quantum_performance": self._measure_quantum_performance(),
             "quantum_integration": self._integrate_quantum_systems(),
-            "quantum_effectiveness": 0.0
+            "quantum_effectiveness": 0.0,
         }
 
         # Calculate quantum effectiveness
@@ -344,14 +348,13 @@ class ContinuousOperationOrchestrator:
             quantum_results["quantum_optimization"]["effectiveness"],
             quantum_results["quantum_intelligence"]["effectiveness"],
             quantum_results["quantum_performance"]["effectiveness"],
-            quantum_results["quantum_integration"]["effectiveness"]
+            quantum_results["quantum_integration"]["effectiveness"],
         ]
 
         quantum_results["quantum_effectiveness"] = np.mean(effectiveness_scores)
         self.metrics.quantum_operations += 1
 
-        logging.info(
-            f"✅ Quantum enhancement complete: {quantum_results['quantum_effectiveness']:.1f}% effectiveness")
+        logging.info(f"✅ Quantum enhancement complete: {quantum_results['quantum_effectiveness']:.1f}% effectiveness")
 
         return quantum_results
 
@@ -365,7 +368,7 @@ class ContinuousOperationOrchestrator:
             "operational_metrics": self._generate_operational_metrics(),
             "performance_analysis": self._generate_performance_analysis(),
             "predictive_insights": self._generate_predictive_insights_report(),
-            "enterprise_status": "OPERATIONAL"
+            "enterprise_status": "OPERATIONAL",
         }
 
         # Save reports to database
@@ -382,7 +385,17 @@ class ContinuousOperationOrchestrator:
         logging.info(f"Duration: {duration_hours} hours")
         logging.info(f"Target Excellence: {self.target_excellence:.1%}")
 
-        primary_validate()
+        validator = SecondaryCopilotValidator()
+
+        def _primary_start():
+            logging.info("🔍 PRIMARY VALIDATION")
+            return primary_validate()
+
+        def _secondary_start():
+            logging.info("🔍 SECONDARY VALIDATION")
+            return self.secondary_validate() and validator.validate_corrections([__file__])
+
+        run_dual_copilot_validation(_primary_start, _secondary_start)
 
         end_time = self.start_time + timedelta(hours=duration_hours)
         operation_results = {
@@ -390,7 +403,7 @@ class ContinuousOperationOrchestrator:
             "successful_cycles": 0,
             "total_uptime": 0.0,
             "average_performance": 0.0,
-            "enterprise_compliance": "PENDING"
+            "enterprise_compliance": "PENDING",
         }
 
         try:
@@ -429,8 +442,7 @@ class ContinuousOperationOrchestrator:
             operation_results["enterprise_compliance"] = self._validate_enterprise_compliance()
 
             # Final excellence calculation
-            self.metrics.continuous_excellence = self._calculate_continuous_excellence(
-                operation_results)
+            self.metrics.continuous_excellence = self._calculate_continuous_excellence(operation_results)
 
         except KeyboardInterrupt:
             logging.info("🛑 Continuous operation stopped by user")
@@ -457,10 +469,9 @@ class ContinuousOperationOrchestrator:
         # Calculate continuous excellence
         excellence_factors = [
             min(operation_results["total_uptime"] / (24 * 3600), 1.0),  # Uptime factor
-            operation_results["successful_cycles"] /
-            max(operation_results["total_cycles"], 1),  # Success rate
+            operation_results["successful_cycles"] / max(operation_results["total_cycles"], 1),  # Success rate
             self.metrics.system_health_score / 100,  # Health factor
-            self.metrics.performance_improvement / 100  # Performance factor
+            self.metrics.performance_improvement / 100,  # Performance factor
         ]
 
         self.metrics.continuous_excellence = np.mean(excellence_factors) * 100
@@ -474,7 +485,7 @@ class ContinuousOperationOrchestrator:
             # 25%
             "success_rate": (operation_results["successful_cycles"] / max(operation_results["total_cycles"], 1)) * 25,
             "system_health": self.metrics.system_health_score * 0.25,  # 25%
-            "performance_improvement": self.metrics.performance_improvement * 0.25  # 25%
+            "performance_improvement": self.metrics.performance_improvement * 0.25,  # 25%
         }
 
         total_excellence = sum(excellence_components.values())
@@ -491,18 +502,14 @@ class ContinuousOperationOrchestrator:
 
         duration = (datetime.now() - self.start_time).total_seconds()
 
-        logging.info("="*80)
+        logging.info("=" * 80)
         logging.info("🏆 CONTINUOUS OPERATION SUMMARY")
-        logging.info("="*80)
+        logging.info("=" * 80)
         logging.info(f"Session ID: {self.session_id}")
-        logging.info(f"Duration: {duration:.1f} seconds ({duration/3600:.1f} hours)")
+        logging.info(f"Duration: {duration:.1f} seconds ({duration / 3600:.1f} hours)")
         logging.info(f"Total Cycles: {operation_results['total_cycles']}")
         logging.info(f"Successful Cycles: {operation_results['successful_cycles']}")
-        success_rate = (
-            operation_results["successful_cycles"]
-            / max(operation_results["total_cycles"], 1)
-            * 100
-        )
+        success_rate = operation_results["successful_cycles"] / max(operation_results["total_cycles"], 1) * 100
         logging.info("Success Rate: %.1f%%", success_rate)
         logging.info(f"System Health Score: {self.metrics.system_health_score:.1f}%")
         logging.info(f"Performance Improvement: {self.metrics.performance_improvement:.1f}%")
@@ -510,7 +517,7 @@ class ContinuousOperationOrchestrator:
         logging.info(f"Quantum Operations: {self.metrics.quantum_operations}")
         logging.info(f"Continuous Excellence: {self.metrics.continuous_excellence:.1f}%")
         logging.info(f"Enterprise Compliance: {operation_results['enterprise_compliance']}")
-        logging.info("="*80)
+        logging.info("=" * 80)
 
     # Additional helper methods (database operations, AI analysis, quantum processing, etc.)
     # These would be implemented with full enterprise functionality
@@ -604,6 +611,7 @@ class EnterpriseSystemMonitor:
         logging.info("🏢 Enterprise System Monitor initialized")
 
 
+@pid_recursion_guard
 def main() -> int:
     """🚀 Main execution function"""
     parser = argparse.ArgumentParser(description="Continuous operation orchestrator")
@@ -611,10 +619,10 @@ def main() -> int:
     args = parser.parse_args()
 
     print("🔄 CONTINUOUS OPERATION ORCHESTRATOR - PHASE 6")
-    print("="*60)
+    print("=" * 60)
     print("🎯 Target: 99.5% Continuous Excellence")
     print("🏆 Building on 96.4% Validation Achievement")
-    print("="*60)
+    print("=" * 60)
 
     try:
         # Initialize orchestrator
@@ -625,14 +633,10 @@ def main() -> int:
         cycle_results = orchestrator.execute_continuous_operation_cycle()
 
         print("\n✅ CYCLE COMPLETED")
-        print(
-            f"System Health: {cycle_results.get('system_health', {}).get('overall_health_score', 0):.1f}%")
-        print(
-            f"AI Confidence: {cycle_results.get('ai_intelligence', {}).get('ai_confidence_score', 0):.1f}%")
-        print(
-            f"Optimization: {cycle_results.get('optimization', {}).get('optimization_effectiveness', 0):.1f}%")
-        print(
-            f"Quantum Enhancement: {cycle_results.get('quantum', {}).get('quantum_effectiveness', 0):.1f}%")
+        print(f"System Health: {cycle_results.get('system_health', {}).get('overall_health_score', 0):.1f}%")
+        print(f"AI Confidence: {cycle_results.get('ai_intelligence', {}).get('ai_confidence_score', 0):.1f}%")
+        print(f"Optimization: {cycle_results.get('optimization', {}).get('optimization_effectiveness', 0):.1f}%")
+        print(f"Quantum Enhancement: {cycle_results.get('quantum', {}).get('quantum_effectiveness', 0):.1f}%")
         print(f"Continuous Excellence: {orchestrator.metrics.continuous_excellence:.1f}%")
 
         # Option to start continuous operation
@@ -645,8 +649,7 @@ def main() -> int:
         if response.lower() == "y":
             print("🚀 Starting 1-hour continuous operation demonstration...")
             operation_results = orchestrator.start_continuous_operation(duration_hours=1)
-            print(
-                f"✅ Continuous operation completed with {operation_results['enterprise_compliance']} status")
+            print(f"✅ Continuous operation completed with {operation_results['enterprise_compliance']} status")
 
     except Exception as e:
         print(f"❌ Error: {e}")

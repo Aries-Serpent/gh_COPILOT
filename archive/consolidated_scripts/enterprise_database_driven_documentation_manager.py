@@ -17,7 +17,7 @@ from tqdm import tqdm
 from template_engine.auto_generator import TemplateAutoGenerator, calculate_etc
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
 
-RENDER_LOG_DIR = Path("logs/template_rendering")
+RENDER_LOG_DIR = Path("artifacts/logs/template_rendering")
 LOG_FILE = RENDER_LOG_DIR / "documentation_render.log"
 ANALYTICS_DB = DEFAULT_ANALYTICS_DB
 
@@ -39,9 +39,7 @@ class DocumentationManager:
     def _select_template_from_documentation_db(self, title: str) -> str:
         """Return template from documentation.db matching ``title``."""
         query = (
-            "SELECT template_content FROM documentation_templates "
-            "WHERE template_name = ? OR template_type = ? "
-            "LIMIT 1"
+            "SELECT template_content FROM documentation_templates WHERE template_name = ? OR template_type = ? LIMIT 1"
         )
         try:
             with sqlite3.connect(self.documentation_db) as conn:
@@ -95,10 +93,8 @@ class DocumentationManager:
                 if "metrics" in data:
                     metrics.update(data["metrics"])
             except json.JSONDecodeError:
-                pass
-        metrics["documentation_generated"] = (
-            metrics.get("documentation_generated", 0) + rendered
-        )
+                logger.warning("Invalid dashboard metrics file: %s", dashboard_file)
+        metrics["documentation_generated"] = metrics.get("documentation_generated", 0) + rendered
         dashboard_file.write_text(
             json.dumps({"metrics": metrics, "status": "updated", "timestamp": metrics["last_update"]}, indent=2),
             encoding="utf-8",

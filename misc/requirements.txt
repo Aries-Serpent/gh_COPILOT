@@ -1,0 +1,4 @@
+PyQt6>=6.6.0
+Pillow>=10.0.0  # Only required for image preview variant
+typing-extensions>=4.8.0
+# zipfile is part of the Python standard library; no extra dependency needed

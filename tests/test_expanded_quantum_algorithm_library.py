@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from scripts.utilities.expanded_quantum_algorithm_library import EnterpriseUtility
-import logging
 
 
 def test_perform_utility_function_runs():

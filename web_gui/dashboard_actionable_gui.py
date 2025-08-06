@@ -5,12 +5,13 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 from tqdm import tqdm
 
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
+from utils.validation_utils import calculate_composite_compliance_score
 
-METRICS_PATH = Path("dashboard/metrics.json")
+METRICS_PATH = Path("dashboard/compliance/metrics.json")
 CORRECTIONS_DIR = Path("dashboard/compliance")
 ANALYTICS_DB = Path("databases/analytics.db")
 
@@ -25,11 +26,33 @@ def fetch_db_metrics() -> dict:
         "violation_count": 0,
         "rollback_count": 0,
         "timestamp": datetime.utcnow().isoformat(),
+        "score": 0.0,
+        "last_audit_date": None,
     }
     if not ANALYTICS_DB.exists():
         return data
     with sqlite3.connect(ANALYTICS_DB) as conn:
         cur = conn.cursor()
+        try:
+            cur.execute(
+                """
+                SELECT ruff_issues, tests_passed, tests_failed, placeholders,
+                       composite_score, ts
+                FROM code_quality_metrics
+                ORDER BY id DESC LIMIT 1
+                """
+            )
+            row = cur.fetchone()
+            if row:
+                ruff, passed, failed, placeholders, stored_score, ts = row
+                scores = calculate_composite_compliance_score(
+                    ruff, passed, failed, placeholders
+                )
+                data["compliance_score"] = scores["composite"]
+                data["score"] = stored_score
+                data["last_audit_date"] = ts
+        except sqlite3.Error:
+            pass
         try:
             cur.execute("SELECT COUNT(*) FROM placeholder_audit")
             data["violation_count"] = cur.fetchone()[0]
@@ -83,6 +106,29 @@ def get_violations():
     return jsonify({"violations": logs})
 
 
+@app.get("/placeholder-audit")
+def get_placeholder_audit():
+    entries = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT file_path, line_number, placeholder_type, context FROM placeholder_audit ORDER BY id DESC LIMIT 100"
+                )
+                entries = [
+                    {
+                        "file_path": row[0],
+                        "line_number": row[1],
+                        "placeholder_type": row[2],
+                        "context": row[3],
+                    }
+                    for row in cur.fetchall()
+                ]
+            except sqlite3.Error:
+                pass
+    return jsonify({"results": entries})
+
+
 @app.post("/rollback")
 def trigger_rollback():
     payload = request.get_json(force=True) or {}
@@ -93,6 +139,33 @@ def trigger_rollback():
         ok = rollbacker.auto_rollback(target, Path(backup) if backup else None)
         bar.update(1)
     return jsonify({"status": "ok" if ok else "failed"})
+
+
+@app.get("/dashboard/compliance")
+def compliance_dashboard():
+    """Render compliance metrics page."""
+    metrics = fetch_db_metrics()
+    return render_template("compliance_metrics.html", metrics=metrics)
+
+
+@app.get("/dashboard/rollback")
+def rollback_dashboard():
+    """Render rollback logs page."""
+    logs = []
+    if ANALYTICS_DB.exists():
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.cursor()
+            try:
+                cur.execute(
+                    "SELECT timestamp, target, backup FROM rollback_logs ORDER BY timestamp DESC LIMIT 50"
+                )
+                logs = [
+                    {"timestamp": row[0], "target": row[1], "backup": row[2]}
+                    for row in cur.fetchall()
+                ]
+            except sqlite3.Error:
+                pass
+    return render_template("rollback_logs.html", logs=logs)
 
 
 __all__ = ["app"]

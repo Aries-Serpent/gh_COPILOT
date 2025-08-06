@@ -1,5 +1,47 @@
 # Changelog
 
+## [4.1.21] - 2025-08-11
+- Resolved hard-coded workspace path in `EnterpriseUtility` to honor
+  `GH_COPILOT_WORKSPACE`, restoring cross-platform compatibility.
+- Updated compliance dashboard tests for revised code quality scoring.
+
+## [4.1.20] - 2025-08-10
+- Audited README, docs, and whitepaper to clarify simulation-only quantum modules and partial module completion.
+- Updated compliance metrics descriptions and fixed progress checklist in PHASE5_TASKS_STARTED.md.
+- Regenerated technical whitepaper to reflect current metrics.
+
+## [4.1.19] - 2025-08-09
+- Enforced content-hash deduplication for documentation and template ingestion.
+
+## [4.1.18] - 2025-08-08
+- Documented disaster recovery enforcement and verified restore procedures.
+- Clarified simulation-only behavior of quantum placeholders.
+- Regenerated documentation metrics to match production data.
+
+## [4.1.17] - 2025-08-07
+- Added unit tests for `AntiRecursionValidator` to enforce external backup roots.
+- Updated user prompts with backup root guidance.
+- Documented anti-recursion guards in README.
+- Clarified quantum placeholder status in README and docs.
+- Updated changelog and user prompts to reflect current implementation.
+
+## [4.1.16] - 2025-08-02
+- Added IBM provider availability flag and hardware fallback handling in `QuantumExecutor`.
+- Introduced stub backend for scoring tests and stabilized quantum test simulations.
+- Expanded `TABLE_SCHEMAS` with correction and audit tables for asset ingestion routines.
+- Adjusted tests to avoid persistent environment mutations.
+
+## [4.1.15] - 2025-08-06
+- Added migration script to ensure `enhanced_lessons_learned` table exists in `production.db` using schema from `learning_monitor.db`.
+
+## [4.1.14] - 2025-08-05
+- Updated README to report current lint status and failing tests.
+- Noted outstanding tasks tracked in `docs/STUB_MODULE_STATUS.md`.
+
+## [4.1.13] - 2025-08-04
+- Updated README and technical whitepaper to remove outdated warnings about DBFirstCodeGenerator, documentation_db_analyzer, and workflow_enhancer.
+ - Updated project status to reflect expanded dual-copilot coverage; test failures remain.
+
 ## [4.1.12] - 2025-08-03
 - Audited wrapper modules and documented status in whitepaper.
 - Marked quantum performance claims as future goals.

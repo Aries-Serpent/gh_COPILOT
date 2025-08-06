@@ -3,11 +3,18 @@ from __future__ import annotations
 """Enterprise compliance helpers and enforcement routines."""
 
 import os
+import re
 import shutil
 import sqlite3
+import subprocess
+import sys
 import json
+import threading
+import logging
 from datetime import datetime
+from functools import wraps
 from pathlib import Path
+from typing import Any, Callable, TypeVar, cast
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 from utils.log_utils import send_dashboard_alert
@@ -15,8 +22,146 @@ from utils.log_utils import send_dashboard_alert
 from scripts.database.add_violation_logs import ensure_violation_logs
 from scripts.database.add_rollback_logs import ensure_rollback_logs
 
+
+class ComplianceError(Exception):
+    """Raised when enterprise compliance checks fail."""
+
+
 # Forbidden command patterns that must not appear in operations
 FORBIDDEN_COMMANDS = ["rm -rf", "mkfs", "shutdown", "reboot", "dd if="]
+MAX_RECURSION_DEPTH = 5
+PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
+
+# Weights for the composite compliance score components
+LINT_WEIGHT = 0.3
+TEST_WEIGHT = 0.5
+PLACEHOLDER_WEIGHT = 0.2
+
+
+F = TypeVar("F", bound=Callable[..., Any])
+_ACTIVE_PIDS: set[int] = set()
+_PID_DEPTHS: dict[int, int] = {}
+_PID_PARENTS: dict[int, int] = {}
+_PID_CHILDREN: dict[int, set[int]] = {}
+_GUARD_LOCK = threading.Lock()
+_PID_LOG_LOCK = threading.Lock()
+_PID_THREADS: dict[int, set[int]] = {}
+# Track simple call depth per process ID to prevent excessive recursion
+_PROCESS_DEPTHS: dict[int, int] = {}
+_PROCESS_DEPTH_LOCK = threading.Lock()
+
+
+def anti_recursion_guard(func: F) -> F:
+    """Decorator tracking recursion depth and parent/child PID relationships.
+
+    Aborts when ``MAX_RECURSION_DEPTH`` is exceeded or when a PID loop is
+    detected via parent/child tracking. Each PID entry and exit is recorded
+    for analytics, and recursion depth is enforced across threads.
+    """
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any):
+        pid = os.getpid()
+        ppid = os.getppid()
+        tid = threading.get_ident()
+        with _GUARD_LOCK:
+            ancestor = ppid
+            while ancestor:
+                if ancestor == pid:
+                    raise RuntimeError("PID loop detected")
+                ancestor = _PID_PARENTS.get(ancestor)
+            threads = _PID_THREADS.setdefault(pid, set())
+            if threads and tid not in threads:
+                raise RuntimeError("Duplicate PID execution")
+
+            depth = _PID_DEPTHS.get(pid, 0)
+            if depth >= MAX_RECURSION_DEPTH:
+                raise RuntimeError("Recursion depth exceeded")
+            depth += 1
+            _PID_DEPTHS[pid] = depth
+            _ACTIVE_PIDS.add(pid)
+            threads.add(tid)
+            _PID_PARENTS[pid] = ppid
+            _PID_CHILDREN.setdefault(ppid, set()).add(pid)
+            _record_recursion_pid(Path(f"{func.__qualname__}/entry"), pid, ppid, depth)
+
+        try:
+            target: Path | None = None
+            if args:
+                candidate = args[0]
+                if isinstance(candidate, (str, os.PathLike)):
+                    target = Path(candidate)
+            if target is None and "path" in kwargs:
+                candidate = kwargs["path"]
+                if isinstance(candidate, (str, os.PathLike)):
+                    target = Path(candidate)
+            if target is not None and _detect_recursion(target):
+                raise RuntimeError("Path recursion detected")
+            return func(*args, **kwargs)
+        finally:
+            with _GUARD_LOCK:
+                remaining = _PID_DEPTHS.get(pid, 0) - 1
+                _record_recursion_pid(
+                    Path(f"{func.__qualname__}/exit"), pid, ppid, remaining
+                )
+                if remaining <= 0:
+                    _PID_DEPTHS.pop(pid, None)
+                    _ACTIVE_PIDS.discard(pid)
+                    threads = _PID_THREADS.get(pid)
+                    if threads is not None:
+                        threads.discard(tid)
+                        if not threads:
+                            _PID_THREADS.pop(pid, None)
+                    parent = _PID_PARENTS.pop(pid, None)
+                    if parent is not None:
+                        children = _PID_CHILDREN.get(parent)
+                        if children is not None:
+                            children.discard(pid)
+                            if not children:
+                                _PID_CHILDREN.pop(parent, None)
+                else:
+                    _PID_DEPTHS[pid] = remaining
+
+    return cast(F, wrapper)
+
+
+def pid_recursion_guard(func: F) -> F:
+    """Guard against excessive recursion per process ID.
+
+    Each process ID maintains its own call depth counter. When the
+    counter exceeds ``MAX_RECURSION_DEPTH`` the call is aborted and a
+    compliance violation is logged with the offending PID for auditing.
+    """
+
+    logger = logging.getLogger(__name__)
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any):
+        pid = os.getpid()
+        with _PROCESS_DEPTH_LOCK:
+            current = _PROCESS_DEPTHS.get(pid, 0)
+            next_depth = current + 1
+            if next_depth > MAX_RECURSION_DEPTH:
+                logger.error(
+                    "Recursion depth %s exceeded for PID %s", next_depth, pid
+                )
+                _log_violation(f"recursion_violation:pid={pid}:depth={next_depth}")
+                raise ComplianceError(
+                    f"Recursion depth {next_depth} exceeded for PID {pid}"
+                )
+            _PROCESS_DEPTHS[pid] = next_depth
+
+        try:
+            return func(*args, **kwargs)
+        finally:
+            with _PROCESS_DEPTH_LOCK:
+                remaining = _PROCESS_DEPTHS.get(pid, 0) - 1
+                if remaining <= 0:
+                    _PROCESS_DEPTHS.pop(pid, None)
+                else:
+                    _PROCESS_DEPTHS[pid] = remaining
+
+    return cast(F, wrapper)
 
 
 def _load_forbidden_paths() -> list[str]:
@@ -44,7 +189,7 @@ def _log_violation(details: str) -> None:
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     analytics_db = workspace / "databases" / "analytics.db"
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
-    ensure_violation_logs(analytics_db)
+    ensure_violation_logs(analytics_db, validate=False)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             "INSERT INTO violation_logs (timestamp, details) VALUES (?, ?)",
@@ -58,7 +203,7 @@ def _log_rollback(target: str, backup: str | None = None) -> None:
     workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
     analytics_db = workspace / "databases" / "analytics.db"
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
-    ensure_rollback_logs(analytics_db)
+    ensure_rollback_logs(analytics_db, validate=False)
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             "INSERT INTO rollback_logs (target, backup, timestamp) VALUES (?, ?, ?)",
@@ -67,17 +212,469 @@ def _log_rollback(target: str, backup: str | None = None) -> None:
         conn.commit()
 
 
-def _detect_recursion(path: Path) -> bool:
-    """Return True if ``path`` contains a nested folder matching itself."""
+def _ensure_recursion_pid_log(db_path: Path) -> None:
+    """Ensure the ``recursion_pid_log`` table exists."""
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS recursion_pid_log (
+                path TEXT,
+                pid INTEGER,
+                parent_pid INTEGER,
+                depth INTEGER,
+                timestamp TEXT
+            )
+            """
+        )
+        conn.commit()
+
+
+def _record_recursion_pid(
+    path: Path, pid: int, parent_pid: int | None = None, depth: int | None = None
+) -> None:
+    """Record PID activity against ``path`` for recursion tracking."""
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    analytics_db = workspace / "databases" / "analytics.db"
+    analytics_db.parent.mkdir(parents=True, exist_ok=True)
+    _ensure_recursion_pid_log(analytics_db)
+    try:
+        path_str = str(path.resolve())
+    except Exception:
+        path_str = str(path)
+    with _PID_LOG_LOCK:
+        with sqlite3.connect(analytics_db) as conn:
+            conn.execute(
+                "INSERT INTO recursion_pid_log (path, pid, parent_pid, depth, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (path_str, pid, parent_pid, depth, datetime.now().isoformat()),
+            )
+            conn.commit()
+
+
+def _detect_recursion(path: Path, *, max_depth: int = MAX_RECURSION_DEPTH) -> bool:
+    """Return True if ``path`` contains a nested folder matching itself or
+    exceeds ``max_depth`` during traversal.
+
+    The search records the process ID of the caller to ``last_pid`` for
+    diagnostic purposes. It also tracks the deepest level visited via
+    ``max_depth_reached`` and sets an ``aborted`` flag when the traversal
+    exceeds ``max_depth``. This prevents runaway recursive scans across nested
+    directories and exposes diagnostic information for tests.
+    """
     root = path.resolve()
-    for folder in path.rglob(path.name):
-        if folder.is_dir() and folder != path:
-            try:
-                folder.resolve().relative_to(root)
-            except ValueError:
-                continue
+    pid = os.getpid()
+    setattr(_detect_recursion, "last_pid", pid)
+    setattr(_detect_recursion, "max_depth_reached", 0)
+    setattr(_detect_recursion, "aborted", False)
+    setattr(_detect_recursion, "aborted_path", None)
+
+    # Abort immediately if the working directory itself exceeds ``max_depth``
+    root_depth = len(root.relative_to(root.anchor).parts)
+    if root_depth > max_depth:
+        setattr(_detect_recursion, "aborted", True)
+        setattr(_detect_recursion, "aborted_path", root)
+        _record_recursion_pid(root, pid)
+        return True
+
+    _record_recursion_pid(root, pid)
+
+    visited: set[Path] = set()
+
+    def _walk(current: Path, depth: int) -> bool:
+        setattr(
+            _detect_recursion,
+            "max_depth_reached",
+            max(getattr(_detect_recursion, "max_depth_reached"), depth),
+        )
+        try:
+            current_resolved = current.resolve()
+        except OSError:
+            return False
+
+        _record_recursion_pid(current_resolved, pid)
+
+        if depth > max_depth:
+            setattr(_detect_recursion, "aborted", True)
+            setattr(_detect_recursion, "aborted_path", current_resolved)
             return True
-    return False
+
+        if current_resolved in visited:
+            return True
+        visited.add(current_resolved)
+
+        for child in current.iterdir():
+            if not child.is_dir():
+                continue
+            try:
+                child_resolved = child.resolve()
+            except OSError:
+                continue
+            if child.name == root.name and child != root:
+                _record_recursion_pid(child_resolved, pid)
+                try:
+                    child_resolved.relative_to(root)
+                except ValueError:
+                    pass
+                else:
+                    return True
+            if _walk(child, depth + 1):
+                return True
+        return False
+
+    return _walk(root, 0)
+
+
+def _run_ruff() -> int:
+    """Return the number of lint issues reported by Ruff."""
+    try:
+        result = subprocess.run(
+            ["ruff", ".", "--output-format", "json"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        return len(json.loads(result.stdout or "[]"))
+    except Exception:  # pragma: no cover - lint fallback
+        return 0
+
+
+def _run_pytest() -> tuple[int, int]:
+    """Return numbers of passed and failed tests from pytest."""
+    try:
+        result = subprocess.run(
+            ["pytest", "-q"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        m_pass = re.search(r"(\d+) passed", result.stdout)
+        m_fail = re.search(r"(\d+) failed", result.stdout)
+        passed = int(m_pass.group(1)) if m_pass else 0
+        failed = int(m_fail.group(1)) if m_fail else 0
+        return passed, failed
+    except Exception:  # pragma: no cover - test fallback
+        return 0, 0
+
+
+def _count_placeholders() -> int:
+    """Return count of placeholder patterns (TODO/FIXME) in repository."""
+    workspace = CrossPlatformPathManager.get_workspace_path()
+    count = 0
+    for path in workspace.rglob("*.py"):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        for pat in PLACEHOLDER_PATTERNS:
+            count += text.count(pat)
+    return count
+
+
+def calculate_compliance_score(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+    placeholders_open: int,
+    placeholders_resolved: int,
+) -> float:
+    """Return overall code-quality score on a ``0..100`` scale.
+
+    The score is a weighted sum of three component scores:
+
+    ``lint_score`` (30%)
+        ``max(0, 100 - ruff_issues)``
+
+    ``test_score`` (50%)
+        ``(tests_passed / total_tests) * 100`` where ``total_tests`` is the sum
+        of passed and failed tests. If no tests ran, this component is ``0``.
+
+    ``placeholder_score`` (20%)
+        ``(placeholders_resolved / total_placeholders) * 100`` where
+        ``total_placeholders`` is the sum of open and resolved placeholders. If
+        no placeholders were found the component defaults to ``100``.
+    """
+
+    lint_score = max(0.0, 100 - ruff_issues)
+    total_tests = tests_passed + tests_failed
+    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+    total_placeholders = placeholders_open + placeholders_resolved
+    placeholder_score = (
+        placeholders_resolved / total_placeholders * 100
+        if total_placeholders
+        else 100.0
+    )
+    score = (
+        LINT_WEIGHT * lint_score
+        + TEST_WEIGHT * test_score
+        + PLACEHOLDER_WEIGHT * placeholder_score
+    )
+    return round(score, 2)
+
+
+def calculate_composite_score(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+    placeholders_open: int,
+    placeholders_resolved: int,
+) -> tuple[float, dict]:
+    """Return composite score and weighted component breakdown on a 0–100 scale."""
+
+    total_tests = tests_passed + tests_failed
+    total_placeholders = placeholders_open + placeholders_resolved
+    lint_score = max(0.0, 100 - ruff_issues)
+    test_score = (tests_passed / total_tests * 100) if total_tests else 0.0
+    placeholder_score = (
+        placeholders_resolved / total_placeholders * 100
+        if total_placeholders
+        else 100.0
+    )
+    score = (
+        LINT_WEIGHT * lint_score
+        + TEST_WEIGHT * test_score
+        + PLACEHOLDER_WEIGHT * placeholder_score
+    )
+    breakdown = {
+        "ruff_issues": ruff_issues,
+        "tests_passed": tests_passed,
+        "tests_failed": tests_failed,
+        "placeholders_open": placeholders_open,
+        "placeholders_resolved": placeholders_resolved,
+        "lint_score": round(lint_score, 2),
+        "test_score": round(test_score, 2),
+        "placeholder_score": round(placeholder_score, 2),
+        "lint_weighted": round(LINT_WEIGHT * lint_score, 2),
+        "test_weighted": round(TEST_WEIGHT * test_score, 2),
+        "placeholder_weighted": round(PLACEHOLDER_WEIGHT * placeholder_score, 2),
+    }
+    return round(score, 2), breakdown
+
+
+def calculate_code_quality_score(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+    placeholders_open: int,
+    placeholders_resolved: int,
+) -> tuple[float, dict[str, float]]:
+    """Return a composite code quality score and ratios.
+
+    The helper combines three sources of information:
+
+    ``ruff_issues``
+        Total lint findings from ``ruff``. Fewer issues yield higher scores.
+
+    ``tests_passed``/``tests_failed``
+        Used to compute a pytest pass ratio. If no tests ran the ratio is ``0``.
+
+    ``placeholders_open``/``placeholders_resolved``
+        Used to determine how many TODO/FIXME markers have been resolved.
+
+    The final score is a weighted sum of the lint score (30%), test pass ratio
+    (50%), and placeholder resolution ratio (20%), expressed on a ``0..100``
+    scale.
+    """
+
+    total_tests = tests_passed + tests_failed
+    pass_ratio = tests_passed / total_tests if total_tests else 0.0
+    total_placeholders = placeholders_open + placeholders_resolved
+    resolution_ratio = (
+        placeholders_resolved / total_placeholders if total_placeholders else 1.0
+    )
+    lint_score = max(0.0, 100 - ruff_issues)
+    test_score = pass_ratio * 100
+    placeholder_score = resolution_ratio * 100
+    composite = round(0.3 * lint_score + 0.5 * test_score + 0.2 * placeholder_score, 2)
+    return composite, {
+        "lint_score": round(lint_score, 2),
+        "test_pass_ratio": round(pass_ratio, 2),
+        "placeholder_resolution_ratio": round(resolution_ratio, 2),
+        "test_score": round(test_score, 2),
+        "placeholder_score": round(placeholder_score, 2),
+    }
+
+
+def persist_compliance_score(score: float, db_path: Path | None = None) -> None:
+    """Persist ``score`` to the ``compliance_scores`` table in analytics.db."""
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    db = db_path or (workspace / "databases" / "analytics.db")
+    db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS compliance_scores (timestamp TEXT, score REAL)"
+        )
+        conn.execute(
+            "INSERT INTO compliance_scores (timestamp, score) VALUES (?, ?)",
+            (datetime.now().isoformat(), float(score)),
+        )
+        conn.commit()
+
+
+def record_code_quality_metrics(
+    ruff_issues: int,
+    tests_passed: int,
+    tests_failed: int,
+    placeholders_open: int,
+    placeholders_resolved: int,
+    composite_score: float,
+    db_path: Path | None = None,
+    *,
+    test_mode: bool = False,
+) -> None:
+    """Store code quality metrics in ``code_quality_metrics`` table."""
+
+    if test_mode:
+        return
+
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    db = db_path or (workspace / "databases" / "analytics.db")
+    db.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS code_quality_metrics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ruff_issues INTEGER,
+                tests_passed INTEGER,
+                tests_failed INTEGER,
+                placeholders_open INTEGER,
+                placeholders_resolved INTEGER,
+                composite_score REAL,
+                ts TEXT
+            )"""
+        )
+        try:
+            conn.execute(
+                "ALTER TABLE code_quality_metrics ADD COLUMN placeholders_open INTEGER"
+            )
+        except sqlite3.OperationalError:
+            pass
+        try:
+            conn.execute(
+                "ALTER TABLE code_quality_metrics ADD COLUMN placeholders_resolved INTEGER"
+            )
+        except sqlite3.OperationalError:
+            pass
+        conn.execute(
+            """INSERT INTO code_quality_metrics (
+                ruff_issues, tests_passed, tests_failed,
+                placeholders_open, placeholders_resolved,
+                composite_score, ts
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (
+                int(ruff_issues),
+                int(tests_passed),
+                int(tests_failed),
+                int(placeholders_open),
+                int(placeholders_resolved),
+                float(composite_score),
+                datetime.now().isoformat(),
+            ),
+        )
+        conn.commit()
+
+def get_latest_compliance_score(db_path: Path | None = None) -> float:
+    """Return the most recent compliance score from analytics.db."""
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    db = db_path or (workspace / "databases" / "analytics.db")
+    if not db.exists():
+        return 0.0
+    with sqlite3.connect(db) as conn:
+        cur = conn.execute(
+            "SELECT score FROM compliance_scores ORDER BY timestamp DESC LIMIT 1"
+        )
+        row = cur.fetchone()
+        return float(row[0]) if row else 0.0
+
+
+def calculate_and_persist_compliance_score() -> float:
+    """Run lint, tests and placeholder scan to compute and store score."""
+    issues = _run_ruff()
+    passed, failed = _run_pytest()
+    placeholders_open = _count_placeholders()
+    score, _ = calculate_composite_score(
+        issues, passed, failed, placeholders_open, 0
+    )
+    persist_compliance_score(score)
+    record_code_quality_metrics(
+        issues,
+        passed,
+        failed,
+        placeholders_open,
+        0,
+        score,
+    )
+    send_dashboard_alert({"event": "compliance_score", "score": score})
+    return score
+
+
+def generate_compliance_summary() -> dict:
+    """Aggregate violation and rollback metrics for dashboards.
+
+    Returns a dictionary with counts of logged compliance violations and
+    rollbacks sourced from ``analytics.db``. A dashboard alert is emitted to
+    expose the current compliance posture.
+    """
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    analytics_db = workspace / "databases" / "analytics.db"
+    if not analytics_db.exists():
+        summary = {"violations": 0, "rollbacks": 0}
+        send_dashboard_alert({"event": "compliance_summary", **summary})
+        return summary
+
+    with sqlite3.connect(analytics_db) as conn:
+        cur = conn.execute("SELECT COUNT(*) FROM violation_logs")
+        violations = cur.fetchone()[0]
+        cur = conn.execute("SELECT COUNT(*) FROM rollback_logs")
+        rollbacks = cur.fetchone()[0]
+
+    summary = {"violations": violations, "rollbacks": rollbacks}
+    send_dashboard_alert({"event": "compliance_summary", **summary})
+    return summary
+
+
+def validate_environment() -> bool:
+    """Run baseline environment checks.
+
+    The workspace must contain ``production.db`` and be readable and writable.
+    """
+
+    def check_python_version() -> bool:
+        return sys.version_info >= (3, 8)
+
+    def check_required_files() -> bool:
+        workspace = CrossPlatformPathManager.get_workspace_path()
+        return (workspace / "production.db").exists()
+
+    def check_permissions() -> bool:
+        workspace = CrossPlatformPathManager.get_workspace_path()
+        return os.access(workspace, os.R_OK | os.W_OK)
+
+    checks = [check_python_version, check_required_files, check_permissions]
+    for check in checks:
+        if not check():
+            raise ComplianceError(
+                f"Compliance validation failed: {check.__name__}"
+            )
+    return True
+
+
+def enforce_anti_recursion(context: object) -> bool:
+    """Ensure recursion depth does not exceed ``MAX_RECURSION_DEPTH``.
+
+    Records the parent process ID on the context and increments the
+    ``recursion_depth`` attribute for nested invocations.
+    """
+    depth = getattr(context, "recursion_depth", 0)
+    if depth >= MAX_RECURSION_DEPTH:
+        raise ComplianceError("Recursion limit exceeded.")
+    pid = os.getpid()
+    previous_pid = getattr(context, "pid", pid)
+    if previous_pid != pid:
+        raise ComplianceError("PID mismatch detected.")
+
+    setattr(context, "recursion_depth", depth + 1)
+    setattr(context, "parent_pid", os.getppid())
+    setattr(context, "pid", pid)
+    return True
 
 
 def validate_enterprise_operation(
@@ -98,18 +695,31 @@ def validate_enterprise_operation(
             if pat in lower:
                 violations.append(f"forbidden_command:{pat}")
                 break
-
+    recursion_flag = False
     if _detect_recursion(workspace):
         _log_violation("recursive_workspace")
         send_dashboard_alert({"event": "recursive_workspace", "path": str(workspace)})
         violations.append("recursive_workspace")
+        recursion_flag = True
+
+    if _detect_recursion(path):
+        _log_violation("recursive_target")
+        send_dashboard_alert({"event": "recursive_target", "path": str(path)})
+        violations.append("recursive_target")
+        recursion_flag = True
+
+    if recursion_flag:
+        return False
 
     # Disallow backup directories inside the workspace
     # Ensure the backup root is truly outside the workspace. Using
-    # ``Path.is_relative_to`` avoids issues with naive string-prefix
-    # comparisons that can misclassify paths such as ``/opt/gh_COPILOT`` and
-    # ``/opt/gh_COPILOT_backup``.
-    if backup_root.resolve().is_relative_to(workspace.resolve()):
+    # ``Path.is_relative_to`` is available in Python 3.9+. Use a fallback so
+    # the check works on Python 3.8 as well.
+    try:
+        backup_root.resolve().relative_to(workspace.resolve())
+    except ValueError:
+        pass
+    else:
         violations.append("backup_root_inside_workspace")
 
     if path.resolve().as_posix().startswith(backup_root.resolve().as_posix()):
@@ -124,11 +734,6 @@ def validate_enterprise_operation(
             break
         if parent.name.lower().startswith("backup"):
             violations.append(f"forbidden_subpath:{parent}")
-
-    if _detect_recursion(path):
-        _log_violation("recursive_target")
-        send_dashboard_alert({"event": "recursive_target", "path": str(path)})
-        violations.append("recursive_target")
 
     # Cleanup forbidden backup folders within workspace
     venv_path = workspace / ".venv"
@@ -160,4 +765,34 @@ def validate_enterprise_operation(
     return not violations
 
 
-__all__ = ["validate_enterprise_operation", "_log_rollback"]
+def run_final_validation(primary_callable, targets) -> tuple[bool, bool, dict]:
+    """Run DualCopilotOrchestrator and expose detailed validator metrics."""
+    from scripts.validation.dual_copilot_orchestrator import (
+        DualCopilotOrchestrator,
+    )
+
+    orchestrator = DualCopilotOrchestrator()
+    primary_success, validation_success, metrics = orchestrator.run(
+        primary_callable, targets
+    )
+    return primary_success, validation_success, metrics
+
+
+__all__ = [
+    "validate_enterprise_operation",
+    "_log_rollback",
+    "run_final_validation",
+    "validate_environment",
+    "enforce_anti_recursion",
+    "anti_recursion_guard",
+    "pid_recursion_guard",
+    "generate_compliance_summary",
+    "calculate_compliance_score",
+    "persist_compliance_score",
+    "calculate_composite_score",
+    "calculate_code_quality_score",
+    "record_code_quality_metrics",
+    "get_latest_compliance_score",
+    "calculate_and_persist_compliance_score",
+    "ComplianceError",
+]

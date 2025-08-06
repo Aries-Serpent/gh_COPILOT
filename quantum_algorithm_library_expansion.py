@@ -7,6 +7,7 @@ only and are simplified versions of their quantum counterparts.
 
 from __future__ import annotations
 
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -14,7 +15,6 @@ from typing import Iterable, List
 
 try:
     from qiskit import QuantumCircuit
-    from qiskit_aer import AerSimulator
 
     QISKIT_AVAILABLE = True
 except Exception:  # pragma: no cover - qiskit optional
@@ -24,7 +24,29 @@ import numpy as np
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 
+from quantum.advanced_quantum_algorithms import (
+    grover_search_qiskit,
+    phase_estimation_qiskit,
+)
+from quantum.utils.backend_provider import get_backend
+
 ANALYTICS_DB = Path("databases/analytics.db")
+
+
+def configure_backend(
+    backend_name: str = "ibmq_qasm_simulator",
+    use_hardware: bool | None = None,
+    token: str | None = None,
+):
+    """Return a configured backend for Qiskit operations.
+
+    Parameters mirror :func:`quantum.utils.backend_provider.get_backend` and
+    allow supplying an IBM Quantum API ``token``. The function returns ``None``
+    when no backend is available.
+    """
+    if token:
+        os.environ.setdefault("QISKIT_IBM_TOKEN", token)
+    return get_backend(backend_name, use_hardware=use_hardware)
 
 
 def log_quantum_event(name: str, details: str) -> None:
@@ -73,6 +95,9 @@ __all__ = [
     "quantum_similarity_score",
     "quantum_pattern_match_stub",
     "quantum_text_score",
+    "configure_backend",
+    "grover_search_qiskit",
+    "phase_estimation_qiskit",
 ]
 
 
@@ -157,40 +182,78 @@ def demo_quantum_phase_estimation(theta: float = 0.25, precision: int = 3) -> fl
 
 
 def quantum_cluster_stub(data: Iterable[float]) -> List[int]:
-    """Return cluster labels using a placeholder algorithm."""
-    seq = list(data)
-    log_quantum_event("cluster_stub", f"len={len(seq)}")
-    labels: List[int] = []
-    for i, _ in enumerate(tqdm(seq, desc="cluster", unit="item")):
-        labels.append(i % 2)
-    return labels
+    """Cluster one-dimensional ``data`` using :class:`~sklearn.cluster.KMeans`.
+
+    The function groups the values into two clusters using a classical
+    KMeans algorithm.  It mirrors the behaviour of a simple quantum
+    clustering routine while remaining lightweight for testing
+    environments that may not have access to quantum hardware.  The
+    resulting cluster labels are returned in the order of the input
+    sequence.
+    """
+
+    seq = np.fromiter(data, dtype=float).reshape(-1, 1)
+    if seq.size == 0:
+        return []
+    log_quantum_event("cluster_stub", f"len={seq.size}")
+    model = KMeans(n_clusters=min(2, len(seq)), n_init="auto", random_state=0)
+    labels = model.fit_predict(seq)
+    return labels.tolist()
 
 
 def quantum_cluster_representatives(data: Iterable[str], n_clusters: int) -> List[str]:
-    """Return representative strings for each cluster (placeholder)."""
+    """Return representative strings for each cluster using KMeans."""
     log_quantum_event("cluster_reps", f"n={n_clusters}")
     items = list(data)
     if not items:
         return []
-    step = max(1, len(items) // n_clusters)
-    return [items[i] for i in range(0, len(items), step)][:n_clusters]
+    n_clusters = min(n_clusters, len(items))
+    # Encode each string by length and average character ordinal
+    features = np.array(
+        [[len(s), float(np.mean([ord(c) for c in s]))] for s in items],
+        dtype=float,
+    )
+    model = KMeans(n_clusters=n_clusters, n_init="auto", random_state=0)
+    labels = model.fit_predict(features)
+    representatives: List[str] = []
+    for i in range(n_clusters):
+        idx = np.where(labels == i)[0]
+        center = model.cluster_centers_[i]
+        cluster_features = features[idx]
+        distances = np.linalg.norm(cluster_features - center, axis=1)
+        representatives.append(items[idx[np.argmin(distances)]])
+    return representatives
 
 
 def quantum_similarity_score(a: Iterable[float], b: Iterable[float]) -> float:
     """Return simple normalized dot product as quantum-inspired score."""
     arr_a = np.fromiter(a, dtype=float)
     arr_b = np.fromiter(b, dtype=float)
-    if arr_a.size == 0 or arr_b.size == 0:
+    min_len = min(arr_a.size, arr_b.size)
+    if min_len == 0:
         return 0.0
-    score = float(np.dot(arr_a, arr_b) / (np.linalg.norm(arr_a) * np.linalg.norm(arr_b)))
+    arr_a = arr_a[:min_len]
+    arr_b = arr_b[:min_len]
+    denom = np.linalg.norm(arr_a) * np.linalg.norm(arr_b)
+    if denom == 0:
+        return 0.0
+    score = float(np.dot(arr_a, arr_b) / denom)
     log_quantum_event("similarity_score", str(score))
     return score
 
 
 def quantum_score_stub(values: Iterable[float]) -> float:
-    """Return a fake quantum-inspired score."""
+    """Return a normalized Euclidean norm of ``values``.
+
+    Values are interpreted as amplitudes of a simulated quantum state.
+    The score is the L2 norm of the vector divided by its length,
+    providing a scale-invariant measure of magnitude.
+    """
+
     arr = np.fromiter(values, dtype=float)
-    score = float(np.sum(arr) / (len(arr) + 1))
+    if arr.size == 0:
+        return 0.0
+    score = float(np.linalg.norm(arr) / arr.size)
     log_quantum_event("score_stub", str(score))
     return score
 
@@ -217,35 +280,72 @@ def demo_quantum_neural_network(data: Iterable[float]) -> List[float]:
 
 
 def quantum_pattern_match_stub(pattern: Iterable[int], data: Iterable[int]) -> bool:
-    """Return True if pattern is found in data."""
-    seq = list(data)
+    """Return ``True`` if ``pattern`` is found in ``data`` using KMP.
+
+    The Knuth–Morris–Pratt algorithm is employed to locate the pattern
+    efficiently within the data sequence.  This provides a more
+    algorithmically meaningful implementation than the previous
+    placeholder.
+    """
+
     pat = list(pattern)
-    for i in range(len(seq) - len(pat) + 1):
-        if seq[i : i + len(pat)] == pat:
-            log_quantum_event("pattern_match", "found")
-            return True
+    seq = list(data)
+    if not pat:
+        log_quantum_event("pattern_match", "trivial")
+        return True
+
+    # Pre-compute longest-prefix-suffix table
+    lps = [0] * len(pat)
+    j = 0
+    for i in range(1, len(pat)):
+        while j > 0 and pat[i] != pat[j]:
+            j = lps[j - 1]
+        if pat[i] == pat[j]:
+            j += 1
+            lps[i] = j
+
+    # Scan the data using the prefix table
+    j = 0
+    for val in seq:
+        while j > 0 and val != pat[j]:
+            j = lps[j - 1]
+        if val == pat[j]:
+            j += 1
+            if j == len(pat):
+                log_quantum_event("pattern_match", "found")
+                return True
     log_quantum_event("pattern_match", "not_found")
     return False
 
 
-def quantum_text_score(text: str) -> float:
+def quantum_text_score(
+    text: str,
+    use_hardware: bool | None = None,
+    backend_name: str = "ibmq_qasm_simulator",
+    token: str | None = None,
+) -> float:
     """Return a quantum-inspired text score.
 
-    Uses ``qiskit`` when available, otherwise falls back to a
-    simple classical heuristic. In either case the execution path
-    is logged to ``analytics.db`` via :func:`log_quantum_event`.
+    When Qiskit is available, the function obtains a backend via
+    :func:`configure_backend`, which prefers IBM Quantum hardware when
+    ``use_hardware`` is True. If no backend is available or Qiskit is not
+    installed, the function falls back to a simple classical heuristic. The
+    execution path is logged to ``analytics.db`` via :func:`log_quantum_event`.
     """
     if QISKIT_AVAILABLE:
-        circ = QuantumCircuit(1, 1)
-        theta = (sum(map(ord, text)) % 360) * np.pi / 180
-        circ.ry(theta, 0)
-        circ.measure(0, 0)
-        backend = AerSimulator()
-        result = backend.run(circ, shots=256).result()
-        counts = result.get_counts()
-        score = counts.get("1", 0) / 256
-        log_quantum_event("text_score", "qiskit")
-        return float(score)
+        backend = configure_backend(
+            backend_name=backend_name, use_hardware=use_hardware, token=token
+        )
+        if backend is not None:
+            circ = QuantumCircuit(1, 1)
+            theta = (sum(map(ord, text)) % 360) * np.pi / 180
+            circ.ry(theta, 0)
+            circ.measure(0, 0)
+            result = backend.run(circ, shots=256).result()
+            counts = result.get_counts()
+            score = counts.get("1", 0) / 256
+            log_quantum_event("text_score", "qiskit")
+            return float(score)
 
     arr = np.fromiter((ord(c) for c in text), dtype=float)
     score = float(np.linalg.norm(arr) / ((arr.size or 1) * 255))

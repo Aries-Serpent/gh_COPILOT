@@ -7,6 +7,7 @@
 # - Query and result monitoring for audit/compliance
 # - Thread-safe execution
 
+import json
 import logging
 import os
 import sqlite3
@@ -16,6 +17,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Union
 
 from utils.log_utils import _log_event
+from quantum.algorithms import QuantumEncryptedCommunication
 
 logger = logging.getLogger(__name__)
 DEFAULT_DB_PATH = Path(os.environ.get("QUANTUM_DB_PATH", "databases/quantum.db"))
@@ -35,10 +37,20 @@ def _log_search_event(
         "query": query,
         "db_path": str(db_path),
         "result_count": result_count,
-        "params": params or {},
+        "params": json.dumps(params) if params else "{}",
         "error": error,
     }
-    _log_event(event, table=SEARCH_LOG_TABLE, db_path=DEFAULT_DB_PATH, echo=True if error else False)
+    with sqlite3.connect(DEFAULT_DB_PATH) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS quantum_search_events (timestamp TEXT, query TEXT, db_path TEXT, result_count INTEGER, params TEXT, error TEXT)"
+        )
+        conn.commit()
+    _log_event(
+        event,
+        table=SEARCH_LOG_TABLE,
+        db_path=DEFAULT_DB_PATH,
+        echo=True if error else False,
+    )
 
 def _connect_sqlite(db_path: Path):
     db_path = Path(db_path)
@@ -53,6 +65,7 @@ def quantum_search_sql(
     *,
     use_hardware: bool = False,
     backend_name: str | None = None,
+    token: str | None = None,
 ) -> List[Dict[str, Any]]:
     """
     Perform a quantum-accelerated SQL search.
@@ -67,7 +80,7 @@ def quantum_search_sql(
         try:
             from qiskit_ibm_provider import IBMProvider
             from qiskit import QuantumCircuit
-            provider = IBMProvider()
+            provider = IBMProvider(token=token) if token else IBMProvider()
             backend = provider.get_backend(backend_name)
             qc = QuantumCircuit(1, 1)
             qc.h(0)
@@ -108,6 +121,7 @@ def quantum_search_nosql(
     *,
     use_hardware: bool = False,
     backend_name: str | None = None,
+    token: str | None = None,
 ) -> List[Dict[str, Any]]:
     """
     Simulate a quantum-accelerated NoSQL search for audit/testing.
@@ -123,7 +137,7 @@ def quantum_search_nosql(
         try:
             from qiskit_ibm_provider import IBMProvider
             from qiskit import QuantumCircuit
-            provider = IBMProvider()
+            provider = IBMProvider(token=token) if token else IBMProvider()
             backend = provider.get_backend(backend_name)
             qc = QuantumCircuit(1, 1)
             qc.h(0)
@@ -131,6 +145,7 @@ def quantum_search_nosql(
             backend.run(qc).result()
         except Exception as exc:  # pragma: no cover - hardware optional
             logger.warning("Hardware execution fallback: %s", exc)
+            use_hardware = False
     results = []
     error = None
     try:
@@ -160,6 +175,19 @@ def quantum_search_nosql(
         _lock.release()
     return results
 
+
+def quantum_secure_search(
+    query: str,
+    db_path: Union[str, Path] = DEFAULT_DB_PATH,
+    params: Optional[Dict[str, Any]] = None,
+    key: str | None = None,
+    token: str | None = None,
+) -> List[str]:
+    """Execute a SQL search and return encrypted JSON rows."""
+    rows = quantum_search_sql(query, db_path, params, token=token)
+    engine = QuantumEncryptedCommunication(key)
+    return [engine.encrypt_message(json.dumps(row)) for row in rows]
+
 def quantum_search_hybrid(
     search_type: str,
     query: Any,
@@ -169,6 +197,7 @@ def quantum_search_hybrid(
     *,
     use_hardware: bool = False,
     backend_name: str | None = None,
+    token: str | None = None,
 ) -> List[Dict[str, Any]]:
     """
     Perform a hybrid quantum database search (SQL/NoSQL).
@@ -181,13 +210,29 @@ def quantum_search_hybrid(
     """
     logger.info("Hybrid quantum search: type=%s query=%s", search_type, query)
     if search_type == "sql":
-        return quantum_search_sql(query, db_path, extra, limit, use_hardware=use_hardware, backend_name=backend_name)
+        return quantum_search_sql(
+            query,
+            db_path,
+            extra,
+            limit,
+            use_hardware=use_hardware,
+            backend_name=backend_name,
+            token=token,
+        )
     elif search_type == "nosql":
         if not extra or "collection" not in extra or not isinstance(extra["collection"], str):
             logger.error("Quantum hybrid search error: 'collection' must be provided as a string in 'extra'")
             _log_search_event(str(query), db_path, 0, extra, "'collection' missing or invalid for NoSQL search")
             return []
-        return quantum_search_nosql(extra["collection"], query, db_path, limit, use_hardware=use_hardware, backend_name=backend_name)
+        return quantum_search_nosql(
+            extra["collection"],
+            query,
+            db_path,
+            limit,
+            use_hardware=use_hardware,
+            backend_name=backend_name,
+            token=token,
+        )
     else:
         logger.error("Unknown hybrid quantum search type: %s", search_type)
         _log_search_event(str(query), db_path, 0, extra, f"Unknown type: {search_type}")
@@ -199,11 +244,21 @@ def main():
     parser.add_argument("--type", choices=["sql", "nosql", "hybrid"], required=True, help="Search type")
     parser.add_argument("--db", type=str, default=str(DEFAULT_DB_PATH), help="Database file path")
     parser.add_argument("--query", type=str, required=True, help="SQL query string or filter JSON")
-    parser.add_argument("--collection", type=str, help="NoSQL collection/table")
+    parser.add_argument(
+        "--collection",
+        type=str,
+        help="NoSQL collection/table (required for NoSQL and hybrid NoSQL mode)",
+    )
     parser.add_argument("--limit", type=int, default=None, help="Limit results")
     parser.add_argument("--hardware", action="store_true", help="Use quantum hardware backend")
     parser.add_argument("--backend", type=str, default="ibmq_qasm_simulator", help="Backend name")
+    parser.add_argument("--token", type=str, help="IBM Quantum API token")
     parser.add_argument("--params", type=str, help="Params as JSON string")
+    parser.add_argument(
+        "--mode",
+        choices=["sql", "nosql"],
+        help="Hybrid search mode; defaults to 'nosql' when --collection is provided",
+    )
     args = parser.parse_args()
 
     db_path = Path(args.db)
@@ -212,23 +267,57 @@ def main():
         import json
         params = json.loads(args.params)
 
+    token = args.token
+
     if args.type == "sql":
-        results = quantum_search_sql(args.query, db_path, params, args.limit, use_hardware=args.hardware, backend_name=args.backend)
+        results = quantum_search_sql(
+            args.query,
+            db_path,
+            params,
+            args.limit,
+            use_hardware=args.hardware,
+            backend_name=args.backend,
+            token=token,
+        )
     elif args.type == "nosql":
         import json
         filter_query = json.loads(args.query)
-        results = quantum_search_nosql(args.collection, filter_query, db_path, args.limit, use_hardware=args.hardware, backend_name=args.backend)
+        results = quantum_search_nosql(
+            args.collection,
+            filter_query,
+            db_path,
+            args.limit,
+            use_hardware=args.hardware,
+            backend_name=args.backend,
+            token=token,
+        )
     elif args.type == "hybrid":
         import json
-        if args.collection:
-            extra = {"collection": args.collection}
-        else:
-            extra = {}
-        if args.type == "sql":
-            results = quantum_search_hybrid("sql", args.query, db_path, args.limit, params, use_hardware=args.hardware, backend_name=args.backend)
+        extra = {"collection": args.collection} if args.collection else {}
+        mode = args.mode or ("nosql" if args.collection else "sql")
+        if mode == "sql":
+            results = quantum_search_hybrid(
+                "sql",
+                args.query,
+                db_path,
+                args.limit,
+                params,
+                use_hardware=args.hardware,
+                backend_name=args.backend,
+                token=token,
+            )
         else:
             filter_query = json.loads(args.query)
-            results = quantum_search_hybrid("nosql", filter_query, db_path, args.limit, extra, use_hardware=args.hardware, backend_name=args.backend)
+            results = quantum_search_hybrid(
+                "nosql",
+                filter_query,
+                db_path,
+                args.limit,
+                extra,
+                use_hardware=args.hardware,
+                backend_name=args.backend,
+                token=token,
+            )
     else:
         results = []
 

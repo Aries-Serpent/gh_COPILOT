@@ -50,7 +50,7 @@
 - ✅ **Dual Copilot Pattern**: Implementation required
 - ✅ **Visual Processing Indicators**: Mandatory for all operations
 - ✅ **Database-First Architecture**: All data in databases
-- ✅ **Quantum Enhancement**: Advanced optimization enabled
+- ✅ **Quantum Enhancement**: Simulation-based optimization enabled; hardware modules absent
 - ✅ **Anti-Recursion Protection**: Zero tolerance enforcement
 - ✅ **Web-GUI Integration**: Enterprise dashboard ready
 
@@ -59,6 +59,13 @@
 2. **Standardize Templates**: Use enterprise-compliant templates
 3. **Regular Compliance Audits**: Monthly compliance validation
 4. **Training Integration**: Ensure all documentation follows patterns
+
+### 🔍 **FINAL VALIDATION FLOW**
+The `DualCopilotOrchestrator` now reports detailed metrics from the
+`SecondaryCopilotValidator` whenever a primary operation fails. Metrics
+include the list of failed files, command output, and execution time,
+providing clearer insight into compliance issues discovered during the
+secondary validation phase.
 
 ---
 *Enterprise Compliance maintained by Database-Driven Management System*

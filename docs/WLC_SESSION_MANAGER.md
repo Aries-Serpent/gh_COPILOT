@@ -8,12 +8,19 @@ The Wrapping, Logging, and Compliance (WLC) methodology provides a structured ap
 
 This file documents how `scripts/wlc_session_manager.py` implements the WLC methodology with dual-copilot validation and tqdm progress indicators.
 
+## Enhanced Session Integrity
+
+- Lifecycle states are logged at the start and end of each session.
+- The session manager detects zero-byte files before and after cleanup using `ensure_no_zero_byte_files`.
+- Critical lifecycle functions are protected by `anti_recursion_guard` to prevent recursive execution.
+
 ## Environment Setup
 
 Ensure the following environment variables are configured before running the session manager:
 
 - `GH_COPILOT_WORKSPACE` – absolute path to the project root.
 - `GH_COPILOT_BACKUP_ROOT` – external directory for logs and backups.
+- `TEST_MODE` – when set to any value, the session manager exits immediately, skipping logging, delays, and database writes. This is useful for tests.
 
 Both paths must exist or the tool will raise an `EnvironmentError`.
 
@@ -22,6 +29,15 @@ session completes.
 
 The script accepts an optional `--db-path` argument to specify an alternate
 database, and `--orchestrate` to run the orchestrator inline.
+
+### Session Integrity
+
+`unified_session_management_system.py` wraps session startup and cleanup within
+`ensure_no_zero_byte_files(path)` to verify that the workspace is free of
+zero-byte files both before and after wrap-up. The module also exposes a
+`prevent_recursion` decorator that guards against recursive invocations of the
+session workflow. Any attempt to re-enter the session logic from the same
+process raises a `RuntimeError`.
 
 ## Example Usage
 

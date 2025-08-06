@@ -1,4 +1,5 @@
 """Workspace optimizer that logs optimization metrics."""
+
 from __future__ import annotations
 
 import logging
@@ -71,18 +72,24 @@ class WorkspaceOptimizer:
                 (str(file_path), original_size, new_size),
             )
 
-    def optimize(self, workspace: Path) -> None:
-        """Archive rarely used files under ``workspace`` and log metrics."""
+    def optimize(self, workspace: Path) -> list[Path]:
+        """Archive rarely used files under ``workspace`` and log metrics.
+
+        Returns the list of archived files.
+        """
         validate_enterprise_environment()
         workspace = workspace.resolve()
         archive_root = CrossPlatformPathManager.get_backup_root() / "workspace_archive"
         files = self._get_old_files(workspace)
+        processed: list[Path] = []
         with tqdm(files, desc="Optimizing", unit="file") as bar:
             for f in bar:
                 bar.set_postfix(file=f.name)
                 orig, new = self._archive_file(f, archive_root)
                 self._log_metric(f, orig, new)
+                processed.append(f)
         self.logger.info("Optimization run complete on %d files", len(files))
+        return processed
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -99,8 +106,14 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     optimizer = WorkspaceOptimizer()
+    targets: list[str] = []
+
+    def primary() -> bool:
+        targets.extend(str(p) for p in optimizer.optimize(args.workspace))
+        return True
+
     orchestrator = DualCopilotOrchestrator()
-    orchestrator.run(lambda: (optimizer.optimize(args.workspace) or True), [])
+    orchestrator.run(primary, targets)
     return 0
 
 

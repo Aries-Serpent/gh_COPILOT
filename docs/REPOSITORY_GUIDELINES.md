@@ -3,7 +3,7 @@
 
 ## OBJECTIVE
 
-This file defines the standard operating procedures (SOPs) for contributing to the **gh_COPILOT** project, maintaining repository health, and ensuring compliance with enterprise and team guidelines.
+This file defines the standard operating procedures (SOPs) for contributing to the **gh_COPILOT** project, maintaining repository health, and ensuring compliance with enterprise and team guidelines. Review the [Governance Standards](GOVERNANCE_STANDARDS.md) for overarching policies and coding conventions.
 
 ## AGENTS RESPONSIBILITY
 
@@ -135,16 +135,27 @@ bash setup.sh
 source .venv/bin/activate
 ```
 
-2. Run tests with appropriate tools:
+2. Run `make lint` to ensure formatting and Ruff checks pass.
+
+3. Run tests with appropriate tools:
 ```bash
+make lint   # Run Ruff formatting and lint checks
 make test   # Preferred test aggregator, combines unit and integration tests
 pytest -v   # Alternative for verbose test output
 ```
 
+The default configuration halts after the first failure
+(`--maxfail=10 --exitfirst`) and applies a 120 s per-test timeout via
+the `pytest-timeout` plugin (`timeout = 120` in `pytest.ini`). For tests
+needing more time, adjust the `timeout` value or decorate specific
+tests with `@pytest.mark.timeout(<seconds>)`.
+
 ### Lint Configuration
 The `.flake8` file at the repository root is the single source of lint rules.
 `pyproject.toml` mirrors these settings for Ruff. When adjusting lint
-preferences, update `.flake8` first and sync `pyproject.toml` accordingly.
+preferences, update `.flake8` first and sync `pyproject.toml` accordingly. The
+directory lists in both files **must remain identical** to avoid inconsistent
+linting results.
 
 ---
 
@@ -175,8 +186,8 @@ Follow these standards to keep the codebase consistent:
 
 All contributions must go through the following review workflow:
 
-1. Run `make test` (or `pytest -v`) to ensure the test suite passes.
-2. Run `ruff check .` to validate lint rules and formatting.
+1. Run `make lint` to format code and run Ruff checks.
+2. Run `make test` (or `pytest -v`) to ensure the test suite passes.
 3. Run `pyright` for static type analysis.
 4. Execute `scripts/check_zero_logs.sh` to verify no zero-byte logs remain.
 5. Open a pull request that references the relevant issue and wait for at least one senior reviewer to approve.

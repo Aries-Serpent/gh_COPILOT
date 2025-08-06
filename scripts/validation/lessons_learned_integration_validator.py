@@ -17,6 +17,7 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from tqdm import tqdm
 import logging
+from utils.lessons_learned_integrator import load_lessons
 
 # MANDATORY: Text indicators for cross-platform compatibility
 TEXT_INDICATORS = {
@@ -63,8 +64,15 @@ class LessonsLearnedIntegrationValidator:
     Implements DUAL COPILOT pattern with secondary validation
     """
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
+    def __init__(self, workspace_path: str | None = None):
+        """Initialize validator with dynamic workspace path.
+
+        Falls back to the ``GH_COPILOT_WORKSPACE`` environment variable and
+        ultimately the current working directory to avoid hard-coded platform
+        paths.
+        """
+        workspace_env = workspace_path or os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
+        self.workspace_path = Path(workspace_env)
         self.validation_id = f"LLI_VAL_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.start_time = datetime.now()
         self.process_id = os.getpid()
@@ -111,11 +119,13 @@ class LessonsLearnedIntegrationValidator:
 
     def setup_logging(self):
         """Setup comprehensive logging with visual indicators"""
+        log_dir = self.workspace_path / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s - %(levelname)s - %(message)s",
             handlers=[
-                logging.FileHandler(self.workspace_path / "logs" / f"integration_validation_{self.validation_id}.log"),
+                logging.FileHandler(log_dir / f"integration_validation_{self.validation_id}.log"),
                 logging.StreamHandler(sys.stdout),
             ],
         )
@@ -124,14 +134,22 @@ class LessonsLearnedIntegrationValidator:
     def validate_environment_compliance(self):
         """CRITICAL: Validate workspace environment compliance"""
         try:
-            # Check for recursive backup violations
-            forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
+            # Check for recursive backup or temporary directory violations
             violations = []
 
-            for pattern in forbidden_patterns:
-                for folder in self.workspace_path.rglob(pattern):
-                    if folder.is_dir() and folder != self.workspace_path:
-                        violations.append(str(folder))
+            for folder in self.workspace_path.rglob("*"):
+                if not folder.is_dir() or folder == self.workspace_path:
+                    continue
+
+                # Skip virtual environment, VCS, and expected temp directories
+                if ".venv" in folder.parts or ".git" in folder.parts:
+                    continue
+                if folder == self.workspace_path / "tmp":
+                    continue
+
+                name = folder.name.lower()
+                if "backup" in name or name in {"temp", "tmp"}:
+                    violations.append(str(folder))
 
             if violations:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Recursive violations detected:")
@@ -329,17 +347,19 @@ class LessonsLearnedIntegrationValidator:
                 self.check_visual_processing_standards(),
                 self.check_session_integrity_systems(),
                 self.check_database_integration(),
+                self.check_lessons_dataset_usage(),
+                self.audit_module_hooks(),
             ]
-
             compliance_score = sum(compliance_checks) / len(compliance_checks)
             is_compliant = compliance_score >= 0.8
-
-            self.logger.info(f"{TEXT_INDICATORS['validation']} Enterprise compliance: {compliance_score:.1%}")
-
+            self.logger.info(
+                f"{TEXT_INDICATORS['validation']} Enterprise compliance: {compliance_score:.1%}"
+            )
             return is_compliant
-
         except Exception as e:
-            self.logger.error(f"{TEXT_INDICATORS['error']} Enterprise compliance validation failed: {str(e)}")
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Enterprise compliance validation failed: {str(e)}"
+            )
             return False
 
     def validate_dual_copilot_pattern(self) -> bool:
@@ -383,9 +403,57 @@ class LessonsLearnedIntegrationValidator:
             "comprehensive_session"
         )
 
+    def check_lessons_dataset_usage(self) -> bool:
+        """Confirm curated lessons dataset is present and non-empty."""
+        try:
+            lessons = load_lessons()
+            count = len(lessons)
+            if count:
+                self.logger.info(
+                    f"{TEXT_INDICATORS['info']} Lessons dataset entries: {count}"
+                )
+                return True
+            self.logger.warning(f"{TEXT_INDICATORS['warning']} Lessons dataset empty")
+            return False
+        except Exception as exc:  # pragma: no cover - unexpected errors
+            self.logger.error(
+                f"{TEXT_INDICATORS['error']} Lessons dataset check failed: {exc}"
+            )
+            return False
+
     def check_database_integration(self) -> bool:
         """Check database integration implementation"""
         return self.search_pattern_evidence("production.db") or self.search_pattern_evidence("database_first")
+
+    def audit_module_hooks(self) -> bool:
+        """Audit scripts and template_engine modules for lessons learned hooks."""
+        target_dirs = ["template_engine"]
+        missing_modules: List[str] = []
+        for directory in target_dirs:
+            dir_path = self.workspace_path / directory
+            if not dir_path.exists():
+                continue
+            for path in dir_path.rglob("*.py"):
+                try:
+                    content = path.read_text(encoding="utf-8")
+                except Exception as exc:  # pragma: no cover - unexpected errors
+                    self.logger.warning(
+                        f"{TEXT_INDICATORS['warning']} Could not read {path}: {exc}"
+                    )
+                    continue
+                if "lessons_learned_integrator" not in content:
+                    missing_modules.append(path.relative_to(self.workspace_path).as_posix())
+        if missing_modules:
+            self.logger.warning(
+                f"{TEXT_INDICATORS['warning']} Missing lessons learned hooks: {len(missing_modules)} modules"
+            )
+            for module in missing_modules:
+                self.logger.warning(f"  - {module}")
+            return False
+        self.logger.info(
+            f"{TEXT_INDICATORS['success']} All modules include lessons learned hooks"
+        )
+        return True
 
     def log_validation_summary(self, result: IntegrationValidationResult):
         """Log comprehensive validation summary"""

@@ -15,7 +15,9 @@ errors discovered.
 from __future__ import annotations
 
 import os
+import threading
 from pathlib import Path
+from time import sleep
 from typing import Iterable, Optional
 
 from utils.log_utils import _log_event
@@ -23,7 +25,9 @@ from utils.log_utils import _log_event
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "analytics.db"
 
-__all__ = ["monitor_logs", "notify"]
+LOG_ERROR_ALERT_THRESHOLD = 10
+
+__all__ = ["monitor_logs", "notify", "schedule_log_monitoring", "LOG_ERROR_ALERT_THRESHOLD"]
 
 
 def monitor_logs(log_files: Iterable[Path], db_path: Optional[Path] = None) -> int:
@@ -71,12 +75,55 @@ def notify(error_count: int, db_path: Optional[Path] = None) -> None:
     """Record a notification event for ``error_count`` errors."""
 
     path = db_path or DB_PATH
+    severity = "ALERT" if error_count > LOG_ERROR_ALERT_THRESHOLD else "INFO"
     _log_event(
-        {"errors_found": error_count},
+        {"errors_found": error_count, "severity": severity},
         table="log_notifications",
         db_path=path,
         test_mode=False,
     )
+
+
+def schedule_log_monitoring(
+    log_files: Iterable[Path],
+    interval: float,
+    db_path: Optional[Path] = None,
+    stop_event: Optional[threading.Event] = None,
+) -> threading.Thread:
+    """Periodically scan ``log_files`` and push metrics to ``analytics.db``.
+
+    A background thread runs :func:`monitor_logs` every ``interval`` seconds
+    until ``stop_event`` is set.
+
+    Parameters
+    ----------
+    log_files:
+        Files to monitor for error lines.
+    interval:
+        Number of seconds between scans.
+    db_path:
+        Optional path to the analytics database. Defaults to
+        ``analytics.db`` in the workspace.
+    stop_event:
+        Optional :class:`threading.Event` used to signal the thread to stop.
+
+    Returns
+    -------
+    threading.Thread
+        The started daemon thread.
+    """
+
+    def _loop() -> None:
+        while stop_event is None or not stop_event.is_set():
+            monitor_logs(log_files, db_path=db_path)
+            if stop_event is None:
+                sleep(interval)
+            else:
+                stop_event.wait(interval)
+
+    thread = threading.Thread(target=_loop, daemon=True)
+    thread.start()
+    return thread
 
 
 if __name__ == "__main__":  # pragma: no cover - manual invocation

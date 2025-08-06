@@ -1,6 +1,8 @@
 # Enterprise Backup Guide
 
 This guide describes how to use the data backup feature in the gh_COPILOT toolkit.
+The current implementation enforces an external `GH_COPILOT_BACKUP_ROOT` and
+verifies restore operations; misconfigured paths abort with an error.
 
 ## Prerequisites
 - Ensure the `GH_COPILOT_BACKUP_ROOT` environment variable points to an external directory outside the repository workspace. When running the Docker container, map a host folder to `/backup` so the volume persists:
@@ -27,5 +29,26 @@ This guide describes how to use the data backup feature in the gh_COPILOT toolki
    This compresses all files under `$GH_COPILOT_BACKUP_ROOT` into a `.7z` file
    placed in `archive/` at the repository root.
 4. Backups remain stored within `$GH_COPILOT_BACKUP_ROOT` by default.
+
+## Programmatic Backups
+
+The `create_external_backup()` helper ensures backups are written outside
+`GH_COPILOT_WORKSPACE` and raises an error if the target directory is inside the
+repository:
+
+```python
+from pathlib import Path
+from scripts.database.complete_consolidation_orchestrator import create_external_backup
+
+source = Path("databases/enterprise_assets.db")
+backup = create_external_backup(source, "enterprise_backup")
+```
+
+Attempting to back up inside the workspace fails:
+
+```python
+create_external_backup(source, "invalid", backup_dir=Path("disaster_recovery"))
+# RuntimeError: CRITICAL: Backup location inside workspace: ...
+```
 
 For more details on advanced options and restoration procedures, see the documentation in `disaster_recovery/`.

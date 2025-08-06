@@ -1,4 +1,3 @@
-import os
 import sqlite3
 from pathlib import Path
 
@@ -13,19 +12,18 @@ def _setup_db(path: Path) -> None:
         conn.execute("CREATE TABLE items(name TEXT)")
         conn.executemany("INSERT INTO items VALUES (?)", [("a",), ("b",)])
 
-
-def test_quantum_search_sql_simulation(tmp_path: Path):
+def test_quantum_search_sql_simulation(tmp_path: Path, monkeypatch):
     db = tmp_path / "db.sqlite"
     _setup_db(db)
-    os.environ["GH_COPILOT_TEST_MODE"] = "1"
+    monkeypatch.setenv("GH_COPILOT_TEST_MODE", "1")
     results = quantum_search_sql("SELECT name FROM items", db, use_hardware=False)
     assert {"name": "a"} in results and {"name": "b"} in results
 
 
-def test_quantum_search_hybrid_simulation(tmp_path: Path):
+def test_quantum_search_hybrid_simulation(tmp_path: Path, monkeypatch):
     db = tmp_path / "db.sqlite"
     _setup_db(db)
-    os.environ["GH_COPILOT_TEST_MODE"] = "1"
+    monkeypatch.setenv("GH_COPILOT_TEST_MODE", "1")
     results = quantum_search_hybrid("sql", "SELECT name FROM items", db, use_hardware=False)
     assert len(results) == 2
 

@@ -8,7 +8,13 @@ directly by automation scripts.
 
 from __future__ import annotations
 
-from typing import Dict
+import logging
+import os
+from pathlib import Path
+from typing import Dict, List
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 LESSON_TEMPLATES: Dict[str, str] = {
     "database_first": """
@@ -49,6 +55,21 @@ class SelfHealingSystem:
         return self.apply_general_healing_strategy(error_type)
 """,
 }
+
+
+def get_dataset_sources(workspace_path: str | None = None) -> List[Path]:
+    """Return database paths ordered by priority.
+
+    ``production.db`` is always first to satisfy the database-first mandate.
+    Additional ``*.db`` files located in the workspace ``databases``
+    directory are appended in alphabetical order.
+    """
+
+    workspace = Path(workspace_path or os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
+    db_dir = workspace / "databases"
+    production = db_dir / "production.db"
+    others = sorted(p for p in db_dir.glob("*.db") if p.name != "production.db")
+    return [production, *others]
 
 
 def get_lesson_templates() -> Dict[str, str]:

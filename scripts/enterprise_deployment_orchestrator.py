@@ -42,8 +42,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from enterprise_modules.compliance import validate_enterprise_operation
+from enterprise_modules import compliance
+from enterprise_modules.compliance import pid_recursion_guard
 from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.validation_utils import run_dual_copilot_validation
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 
 # 🚨 CRITICAL: Anti-recursion validation
@@ -133,21 +136,21 @@ class EnterpriseDeploymentOrchestrator:
 
     def __init__(self, workspace_path: Optional[str] = None):
         # Validate enterprise operation before initializing
-        validate_enterprise_operation()
+        compliance.validate_enterprise_operation()
 
         # 🚀 MANDATORY: Start time logging with enterprise formatting
         self.start_time = datetime.now()
         self.session_id = f"DEPLOY_{self.start_time.strftime('%Y%m%d_%H%M%S')}"
 
         # Setup enterprise logging
-        log_dir = Path("logs")
-        log_dir.mkdir(exist_ok=True)
+        log_dir = Path("artifacts/logs")
+        log_dir.mkdir(parents=True, exist_ok=True)
 
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s - %(levelname)s - %(message)s",
             handlers=[
-                logging.FileHandler(f"logs/enterprise_deployment_{self.session_id}.log"),
+                logging.FileHandler(f"artifacts/logs/enterprise_deployment_{self.session_id}.log"),
                 logging.StreamHandler(),
             ],
         )
@@ -195,8 +198,34 @@ class EnterpriseDeploymentOrchestrator:
     def execute_enterprise_deployment(self) -> Dict[str, Any]:
         """🚀 Execute comprehensive enterprise deployment"""
 
-        validate_enterprise_operation()
-        primary_validate()
+        compliance.validate_enterprise_operation()
+
+        validator = SecondaryCopilotValidator()
+
+        def _primary_start():
+            logging.info("🔍 PRIMARY VALIDATION")
+            return primary_validate()
+
+        def _secondary_start():
+            logging.info("🔍 SECONDARY VALIDATION")
+            return self.secondary_validate() and validator.validate_corrections([__file__])
+
+        run_dual_copilot_validation(_primary_start, _secondary_start)
+
+        def _run_phase(step_func):
+            phase_result: Dict[str, Any] = {}
+
+            def _primary():
+                nonlocal phase_result
+                phase_result = step_func()
+                return phase_result.get("status") != "FAILED"
+
+            def _secondary():
+                return self.secondary_validate() and validator.validate_corrections([__file__])
+
+            if not run_dual_copilot_validation(_primary, _secondary):
+                raise RuntimeError(f"{step_func.__name__} failed validation")
+            return phase_result
 
         # 🚀 MANDATORY: Visual processing indicators
         logging.info(f"🚀 ENTERPRISE DEPLOYMENT STARTED: {self.session_id}")
@@ -233,19 +262,19 @@ class EnterpriseDeploymentOrchestrator:
             try:
                 # Execute deployment phase
                 if "Pre-Deployment" in phase_name:
-                    phase_result = self._execute_pre_deployment_validation()
+                    phase_result = _run_phase(self._execute_pre_deployment_validation)
                 elif "Core Systems" in phase_name:
-                    phase_result = self._deploy_core_systems()
+                    phase_result = _run_phase(self._deploy_core_systems)
                 elif "Database Systems" in phase_name:
-                    phase_result = self._deploy_database_systems()
+                    phase_result = _run_phase(self._deploy_database_systems)
                 elif "Integration Systems" in phase_name:
-                    phase_result = self._deploy_integration_systems()
+                    phase_result = _run_phase(self._deploy_integration_systems)
                 elif "Security Systems" in phase_name:
-                    phase_result = self._deploy_security_systems()
+                    phase_result = _run_phase(self._deploy_security_systems)
                 elif "Monitoring Systems" in phase_name:
-                    phase_result = self._deploy_monitoring_systems()
+                    phase_result = _run_phase(self._deploy_monitoring_systems)
                 elif "Post-Deployment" in phase_name:
-                    phase_result = self._execute_post_deployment_validation()
+                    phase_result = _run_phase(self._execute_post_deployment_validation)
                 else:
                     phase_result = {"status": "COMPLETED", "score": 95.0}
 
@@ -265,6 +294,7 @@ class EnterpriseDeploymentOrchestrator:
                 print(f"\rStatus: ❌ FAILED - {str(e)}")
                 logging.error(f"Phase failed: {phase_name} - {e}")
                 phase_results[phase_name] = {"status": "FAILED", "score": 0.0, "error": str(e)}
+                raise
 
         # Calculate deployment excellence
         deployment_results["phase_results"] = phase_results
@@ -275,12 +305,17 @@ class EnterpriseDeploymentOrchestrator:
         self._log_deployment_summary(deployment_results)
 
         # Dual Copilot validation steps
-        logging.info("🔍 PRIMARY VALIDATION")
-        primary_ok = self.primary_validate()
-        logging.info("🔍 SECONDARY VALIDATION")
-        secondary_ok = self.secondary_validate()
-        deployment_results["primary_validation"] = primary_ok
-        deployment_results["secondary_validation"] = secondary_ok
+        def _primary():
+            logging.info("🔍 PRIMARY VALIDATION")
+            return self.primary_validate()
+
+        def _secondary():
+            logging.info("🔍 SECONDARY VALIDATION")
+            return self.secondary_validate() and validator.validate_corrections([__file__])
+
+        validation_passed = run_dual_copilot_validation(_primary, _secondary)
+        deployment_results["primary_validation"] = validation_passed
+        deployment_results["secondary_validation"] = validation_passed
 
         return deployment_results
 
@@ -574,6 +609,7 @@ class EnterpriseDeploymentOrchestrator:
         return {"score": 99.5, "status": "SECURE"}
 
 
+@pid_recursion_guard
 def main():
     """🚀 Main enterprise deployment function"""
 

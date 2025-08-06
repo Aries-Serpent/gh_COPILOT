@@ -24,9 +24,7 @@ class OpenAIClient:
 
     def __post_init__(self) -> None:
         self.api_key = self.api_key or os.environ.get("OPENAI_API_KEY", "")
-        self.base_url = self.base_url or os.environ.get(
-            "OPENAI_BASE_URL", "https://api.openai.com/v1"
-        )
+        self.base_url = self.base_url or os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
         self.rate_limit = float(os.environ.get("OPENAI_RATE_LIMIT", self.rate_limit))
         self.max_retries = int(os.environ.get("OPENAI_MAX_RETRIES", self.max_retries))
         self.session = requests.Session()
@@ -50,9 +48,7 @@ class OpenAIClient:
             self._wait_rate_limit()
             self._last_request = time.time()
             try:
-                resp = self.session.request(
-                    method, url, headers=self._headers(), json=payload, timeout=30
-                )
+                resp = self.session.request(method, url, headers=self._headers(), json=payload, timeout=30)
             except requests.RequestException as exc:  # pragma: no cover - network failure
                 self.logger.warning("Request error on attempt %s: %s", attempt, exc)
                 if attempt == self.max_retries:
@@ -68,9 +64,7 @@ class OpenAIClient:
                 except ValueError:
                     retry_after_sec = 0
                 delay = max(2 ** (attempt - 1), retry_after_sec)
-                self.logger.warning(
-                    "Rate limited on attempt %s, sleeping %s", attempt, delay
-                )
+                self.logger.warning("Rate limited on attempt %s, sleeping %s", attempt, delay)
                 time.sleep(delay)
                 continue
 
@@ -79,9 +73,7 @@ class OpenAIClient:
                     detail = resp.json().get("error", {}).get("message", "")
                 except ValueError:
                     detail = resp.text
-                raise requests.HTTPError(
-                    f"{resp.status_code} client error: {detail}", response=resp
-                )
+                raise requests.HTTPError(f"{resp.status_code} client error: {detail}", response=resp)
 
             if resp.status_code >= 500 and attempt < self.max_retries:
                 time.sleep(attempt)

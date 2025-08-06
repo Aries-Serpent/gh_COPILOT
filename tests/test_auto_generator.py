@@ -4,11 +4,16 @@ from pathlib import Path
 
 from template_engine.auto_generator import TemplateAutoGenerator
 import template_engine.auto_generator as auto_generator
+from utils.lessons_learned_integrator import ensure_lessons_table
+
+os.environ.setdefault("GH_COPILOT_DISABLE_VALIDATION", "1")
 
 
 def create_test_dbs(tmp_path: Path):
-    analytics_db = tmp_path / "analytics.db"
-    completion_db = tmp_path / "template_completion.db"
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    analytics_db = db_dir / "analytics.db"
+    completion_db = db_dir / "template_completion.db"
     with sqlite3.connect(analytics_db) as conn:
         conn.execute("CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, replacement_template TEXT)")
         conn.execute(
@@ -42,6 +47,32 @@ def test_pattern_templates_loaded(tmp_path: Path) -> None:
     analytics_db, completion_db = create_test_dbs(tmp_path)
     generator = TemplateAutoGenerator(analytics_db, completion_db)
     assert any("DatabaseFirstOperator" in t for t in generator.templates)
+
+
+def test_lesson_templates_ranked(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    gen = TemplateAutoGenerator(analytics_db, completion_db)
+    monkeypatch.setattr(auto_generator, "compute_similarity_scores", lambda *a, **k: [])
+    monkeypatch.setattr(auto_generator, "quantum_similarity_score", lambda *a, **k: 0.0)
+    monkeypatch.setattr(auto_generator, "quantum_cluster_score", lambda *a, **k: 0.0)
+    monkeypatch.setattr(gen, "_quantum_similarity", lambda *a, **k: 0.0)
+    monkeypatch.setattr(gen, "_quantum_score", lambda *a, **k: 0.0)
+    ranked = gen.rank_templates("DatabaseFirstOperator")
+    assert any("DatabaseFirstOperator" in t for t in ranked)
+
+
+def test_lessons_dataset_integrated(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    monkeypatch.setattr(
+        auto_generator,
+        "load_lessons",
+        lambda: [{"description": "Lesson template"}],
+    )
+    monkeypatch.setattr(auto_generator, "apply_lessons", lambda *a, **k: None)
+    gen = TemplateAutoGenerator(analytics_db, completion_db)
+    assert any("Lesson template" in t for t in gen.templates)
 
 
 def test_cluster_rep_no_dimension_error(tmp_path: Path, monkeypatch) -> None:
@@ -203,9 +234,54 @@ def test_quantum_import_failure(monkeypatch):
     monkeypatch.setattr(importlib, "import_module", fake_import_module)
     monkeypatch.setattr(builtins, "__import__", fake_builtin)
     import sys
+
     sys.modules.pop("template_engine.auto_generator", None)
     auto_gen = importlib.import_module("template_engine.auto_generator")
 
     assert auto_gen.quantum_text_score("hi") == 0.0
     assert auto_gen.quantum_similarity_score([1.0], [1.0]) == 0.0
     assert auto_gen.quantum_cluster_score(np.array([[1.0]])) == 0.0
+
+
+def test_lessons_applied_during_generation(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    analytics_db, completion_db = create_test_dbs(tmp_path)
+    learning_db = tmp_path / "learning_monitor.db"
+    ensure_lessons_table(learning_db)
+    with sqlite3.connect(learning_db) as conn:
+        conn.execute(
+            "INSERT INTO enhanced_lessons_learned VALUES (?,?,?,?,?)",
+            (
+                "integrate tests",
+                "unit",
+                "2024-01-01T00:00:00Z",
+                "validated",
+                "testing",
+            ),
+        )
+    original_load = auto_generator.load_lessons
+    monkeypatch.setattr(
+        auto_generator, "load_lessons", lambda: original_load(db_path=learning_db)
+    )
+    applied = {"called": False}
+
+    original_apply = auto_generator.apply_lessons
+
+    def tracking_apply(logger, lessons):
+        applied["called"] = True
+        original_apply(logger, lessons)
+
+    monkeypatch.setattr(auto_generator, "apply_lessons", tracking_apply)
+
+    gen = TemplateAutoGenerator(analytics_db, completion_db)
+    gen.generate_template({"action": "print"})
+
+    assert applied["called"]
+    assert any("integrate tests" in t for t in gen.templates)
+
+
+def test_validate_no_recursive_folders_ignores_venv(tmp_path: Path, monkeypatch) -> None:
+    """Virtual environments may contain backup-like paths that should be ignored."""
+    (tmp_path / ".venv/lib/python/backupsearch").mkdir(parents=True)
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    auto_generator.validate_no_recursive_folders()  # Should not raise

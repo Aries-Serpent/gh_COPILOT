@@ -13,12 +13,7 @@ from ..core.validators import BaseValidator, ValidationResult, ValidationStatus
 from ..core.rules import NoZeroByteFilesRule, RuleBasedValidator
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class SessionProtocolValidator(BaseValidator):
@@ -43,28 +38,22 @@ class SessionProtocolValidator(BaseValidator):
 
     def validate_startup(self) -> ValidationResult:
         """Return validation result for workspace integrity on startup."""
-        self.logger.info(
-            f"{TEXT_INDICATORS['start']} Validating {self.workspace_path}")
-        
+        self.logger.info(f"{TEXT_INDICATORS['start']} Validating {self.workspace_path}")
+
         # Use rule-based validation
-        rules = [
-            NoZeroByteFilesRule(self.workspace_path)
-        ]
-        
+        rules = [NoZeroByteFilesRule(self.workspace_path)]
+
         rule_validator = RuleBasedValidator("workspace_integrity", rules)
         result = rule_validator.run_validation(self.workspace_path)
-        
+
         # Add session-specific details
-        result.details.update({
-            'workspace_path': str(self.workspace_path),
-            'validation_type': 'session_startup'
-        })
-        
+        result.details.update({"workspace_path": str(self.workspace_path), "validation_type": "session_startup"})
+
         if result.is_success:
             self.logger.info(f"{TEXT_INDICATORS['success']} Session validation passed")
         else:
             self.logger.error(f"{TEXT_INDICATORS['error']} Session validation failed")
-            
+
         return result
 
     def validate_session_cleanup(self) -> ValidationResult:
@@ -73,38 +62,33 @@ class SessionProtocolValidator(BaseValidator):
             temp_files = list(self.workspace_path.glob("*.tmp"))
             lock_files = list(self.workspace_path.glob("*.lock"))
             cache_files = list(self.workspace_path.rglob("__pycache__"))
-            
+
             cleanup_issues = []
-            
+
             if temp_files:
                 cleanup_issues.append(f"Found {len(temp_files)} temporary files")
             if lock_files:
                 cleanup_issues.append(f"Found {len(lock_files)} lock files")
             if cache_files:
                 cleanup_issues.append(f"Found {len(cache_files)} cache directories")
-            
+
             if cleanup_issues:
                 return ValidationResult(
                     status=ValidationStatus.WARNING,
                     message="Session cleanup recommended",
                     warnings=cleanup_issues,
                     details={
-                        'temp_files': len(temp_files),
-                        'lock_files': len(lock_files),
-                        'cache_files': len(cache_files)
-                    }
+                        "temp_files": len(temp_files),
+                        "lock_files": len(lock_files),
+                        "cache_files": len(cache_files),
+                    },
                 )
             else:
-                return ValidationResult(
-                    status=ValidationStatus.PASSED,
-                    message="Session cleanup validation passed"
-                )
-                
+                return ValidationResult(status=ValidationStatus.PASSED, message="Session cleanup validation passed")
+
         except Exception as e:
             return ValidationResult(
-                status=ValidationStatus.ERROR,
-                message=f"Session cleanup validation failed: {str(e)}",
-                errors=[str(e)]
+                status=ValidationStatus.ERROR, message=f"Session cleanup validation failed: {str(e)}", errors=[str(e)]
             )
 
     def validate_session_permissions(self) -> ValidationResult:
@@ -118,53 +102,44 @@ class SessionProtocolValidator(BaseValidator):
                 write_permission = True
             except Exception:
                 write_permission = False
-            
+
             # Test read permissions
             try:
                 list(self.workspace_path.iterdir())
                 read_permission = True
             except Exception:
                 read_permission = False
-            
+
             issues = []
             if not write_permission:
                 issues.append("No write permission in workspace")
             if not read_permission:
                 issues.append("No read permission in workspace")
-            
+
             if issues:
                 return ValidationResult(
                     status=ValidationStatus.FAILED,
                     message="Session permission validation failed",
                     errors=issues,
-                    details={
-                        'write_permission': write_permission,
-                        'read_permission': read_permission
-                    }
+                    details={"write_permission": write_permission, "read_permission": read_permission},
                 )
             else:
                 return ValidationResult(
                     status=ValidationStatus.PASSED,
                     message="Session permission validation passed",
-                    details={
-                        'write_permission': write_permission,
-                        'read_permission': read_permission
-                    }
+                    details={"write_permission": write_permission, "read_permission": read_permission},
                 )
-                
+
         except Exception as e:
             return ValidationResult(
                 status=ValidationStatus.ERROR,
                 message=f"Session permission validation failed: {str(e)}",
-                errors=[str(e)]
+                errors=[str(e)],
             )
 
     def validate_credential_sanitization(self) -> ValidationResult:
         """Check for sensitive credentials in environment variables."""
-        sensitive_keys = [
-            k for k in os.environ
-            if any(sub in k.lower() for sub in ["password", "secret", "token"])
-        ]
+        sensitive_keys = [k for k in os.environ if any(sub in k.lower() for sub in ["password", "secret", "token"])]
         leaked = {k: os.environ[k] for k in sensitive_keys if os.environ.get(k)}
 
         if leaked:
@@ -223,11 +198,12 @@ class SessionProtocolValidator(BaseValidator):
         validators = [
             self,  # Startup validation
         ]
-        
+
         # Create composite validator for comprehensive check
         from ..core.validators import CompositeValidator
+
         CompositeValidator("comprehensive_session", validators)
-        
+
         # Add additional checks
         startup_result = self.validate_startup()
         cleanup_result = self.validate_session_cleanup()
@@ -235,7 +211,7 @@ class SessionProtocolValidator(BaseValidator):
         credential_result = self.validate_credential_sanitization()
         timeout_result = self.validate_session_timeout()
         secure_result = self.validate_secure_connection()
-        
+
         # Aggregate results
         all_results = [
             startup_result,
@@ -248,16 +224,16 @@ class SessionProtocolValidator(BaseValidator):
         errors = []
         warnings = []
         details = {}
-        
+
         for i, result in enumerate(all_results):
             errors.extend(result.errors)
             warnings.extend(result.warnings)
             details[f"check_{i}"] = result.details
-        
+
         # Determine overall status
         failed_count = sum(1 for r in all_results if r.is_failure)
         warning_count = sum(1 for r in all_results if r.status == ValidationStatus.WARNING)
-        
+
         if failed_count > 0:
             status = ValidationStatus.FAILED
             message = f"Comprehensive session validation failed: {failed_count} checks failed"
@@ -267,21 +243,15 @@ class SessionProtocolValidator(BaseValidator):
         else:
             status = ValidationStatus.PASSED
             message = "Comprehensive session validation passed"
-        
-        return ValidationResult(
-            status=status,
-            message=message,
-            details=details,
-            errors=errors,
-            warnings=warnings
-        )
+
+        return ValidationResult(status=status, message=message, details=details, errors=errors, warnings=warnings)
 
 
 def main():
     """Main execution function - maintains backward compatibility"""
     validator = SessionProtocolValidator()
     result = validator.validate_startup()
-    
+
     if result.is_success:
         _log_plain(f"{TEXT_INDICATORS['success']} Session protocol validation passed")
         return True
@@ -294,5 +264,6 @@ def main():
 
 if __name__ == "__main__":
     import sys
+
     success = main()
     sys.exit(0 if success else 1)

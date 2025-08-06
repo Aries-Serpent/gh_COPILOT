@@ -1,6 +1,7 @@
 import sqlite3
 import logging
 import threading
+import time
 import pytest
 from dashboard import compliance_metrics_updater as cmu
 
@@ -15,8 +16,12 @@ def test_scheduler_and_stream(tmp_path, monkeypatch):
         conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved')")
         conn.execute("CREATE TABLE correction_logs (compliance_score REAL)")
         conn.execute("INSERT INTO correction_logs VALUES (1.0)")
-        conn.execute("CREATE TABLE violation_logs (timestamp TEXT, details TEXT)")
-        conn.execute("CREATE TABLE rollback_logs (target TEXT, backup TEXT, timestamp TEXT)")
+        conn.execute(
+            "CREATE TABLE violation_logs (timestamp TEXT, event TEXT, details TEXT, cause TEXT, remediation_path TEXT, rollback_trigger TEXT, count INTEGER)"
+        )
+        conn.execute(
+            "CREATE TABLE rollback_logs (target TEXT, backup TEXT, violation_id INTEGER, outcome TEXT, event TEXT, count INTEGER, timestamp TEXT)"
+        )
 
     monkeypatch.setattr(cmu, "ANALYTICS_DB", analytics_db)
     monkeypatch.setattr(cmu, "ensure_tables", lambda *a, **k: None)
@@ -57,6 +62,7 @@ def test_stream_metrics_violation(tmp_path, monkeypatch, caplog):
     monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
 
     monkeypatch.setattr(cmu, "validate_enterprise_operation", lambda *a, **k: None)
+
     def _raise_violation(self) -> None:
         raise RuntimeError("Forbidden operation detected")
 
@@ -98,3 +104,41 @@ def test_stream_metrics_stop_event(tmp_path, monkeypatch):
     stop.set()
     with pytest.raises(StopIteration):
         next(gen)
+
+
+def test_stream_metrics_stop_event_during_wait(tmp_path, monkeypatch):
+    monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    analytics_db = db_dir / "analytics.db"
+    with sqlite3.connect(analytics_db) as conn:
+        conn.execute("CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT)")
+        conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved')")
+        conn.execute("CREATE TABLE correction_logs (compliance_score REAL)")
+        conn.execute("INSERT INTO correction_logs VALUES (1.0)")
+
+    monkeypatch.setattr(cmu, "ANALYTICS_DB", analytics_db)
+    monkeypatch.setattr(cmu, "ensure_tables", lambda *a, **k: None)
+    monkeypatch.setattr(cmu, "insert_event", lambda *a, **k: None)
+    monkeypatch.setattr(cmu, "validate_no_recursive_folders", lambda: None)
+    monkeypatch.setattr(cmu, "validate_environment_root", lambda: None)
+    monkeypatch.setattr(cmu, "validate_enterprise_operation", lambda *a, **k: None)
+
+    dash = tmp_path / "dashboard"
+    updater = cmu.ComplianceMetricsUpdater(dash)
+    stop = threading.Event()
+    gen = updater.stream_metrics(interval=1, stop_event=stop)
+
+    results = []
+
+    def consume() -> None:
+        for m in gen:
+            results.append(m)
+
+    t = threading.Thread(target=consume)
+    t.start()
+    time.sleep(0.1)
+    stop.set()
+    t.join(0.5)
+    assert not t.is_alive()
+    assert results

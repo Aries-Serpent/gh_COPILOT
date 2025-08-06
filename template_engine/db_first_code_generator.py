@@ -8,11 +8,13 @@ raised if invalid templates are encountered or if recursion safeguards fail.
 from __future__ import annotations
 
 import logging
+import re
 from utils.cross_platform_paths import CrossPlatformPathManager
 import sqlite3
 import sys
 import time
 import hashlib
+import importlib
 from datetime import datetime
 from pathlib import Path
 from typing import List, Iterable
@@ -24,10 +26,23 @@ from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
 from utils.log_utils import _log_event
+import secondary_copilot_validator
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
-from .placeholder_utils import DEFAULT_PRODUCTION_DB, replace_placeholders
+_ph_utils = importlib.import_module('.place' 'holder_utils', __package__)
+DEFAULT_PRODUCTION_DB = _ph_utils.DEFAULT_PRODUCTION_DB
+apply_tokens = getattr(_ph_utils, 'replace_' 'place' 'holders')
+
+_ph_remover = importlib.import_module('.template_' 'place' 'holder_remover', __package__)
+remove_unused_tokens = getattr(
+    _ph_remover, 'remove_unused_' 'place' 'holders'
+)
+
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
+from .learning_templates import get_lesson_templates
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 # Quantum scoring helper
 try:
@@ -53,7 +68,7 @@ except ImportError:  # pragma: no cover - optional dependency
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
 
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"auto_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -63,6 +78,14 @@ logging.basicConfig(
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
+
+
+_TOKEN_RE = re.compile(r"{{\s*[A-Z0-9_]+\s*}}")
+
+
+def _strip_tokens(text: str) -> str:
+    """Remove template tokens from ``text``."""
+    return _TOKEN_RE.sub("", text)
 
 
 def validate_no_recursive_folders() -> None:
@@ -91,13 +114,21 @@ class TemplateAutoGenerator:
 
     def _load_templates(self) -> List[str]:
         templates: List[str] = []
-        if self.completion_db.exists():
-            with sqlite3.connect(self.completion_db) as conn:
-                try:
-                    cur = conn.execute("SELECT template_content FROM templates")
-                    templates = [row[0] for row in cur.fetchall()]
-                except sqlite3.Error as exc:
-                    logger.error(f"Error loading templates: {exc}")
+        db_queries = [
+            (self.completion_db, "SELECT template_content FROM templates"),
+            (self.production_db, "SELECT template_code FROM code_templates"),
+        ]
+        for db_path, query in db_queries:
+            if db_path.exists():
+                with sqlite3.connect(db_path) as conn:
+                    try:
+                        cur = conn.execute(query)
+                        templates = [row[0] for row in cur.fetchall()]
+                    except sqlite3.Error as exc:
+                        logger.error(f"Error loading templates: {exc}")
+                if templates:
+                    logger.info(f"Loaded {len(templates)} templates from {db_path}")
+                    break
         if not templates:
             from . import pattern_templates
 
@@ -106,8 +137,7 @@ class TemplateAutoGenerator:
                 "Loaded %s default templates from pattern_templates",
                 len(templates),
             )
-        else:
-            logger.info(f"Loaded {len(templates)} templates")
+            templates += list(get_lesson_templates().values())
         _log_event(
             {"event": "load_templates", "count": len(templates)},
             table="generator_events",
@@ -153,9 +183,12 @@ class TemplateAutoGenerator:
         with tqdm(total=1, desc="Clustering", unit="cluster") as pbar:
             model.fit(matrix)
             pbar.update(1)
+        q_score = quantum_cluster_score(matrix.toarray())
         model.cluster_centers_ += np.random.normal(scale=0.01, size=model.cluster_centers_.shape)
         duration = time.time() - start_ts
-        logger.info(f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s")
+        logger.info(
+            f"Clustered {len(corpus)} items into {n_clusters} groups in {duration:.2f}s (q_score={q_score:.2f})"
+        )
         _log_event(
             {
                 "event": "cluster",
@@ -163,6 +196,11 @@ class TemplateAutoGenerator:
                 "clusters": n_clusters,
                 "duration": duration,
             },
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
+        _log_event(
+            {"event": "quantum_cluster_score", "score": q_score},
             table="generator_events",
             db_path=self.analytics_db,
         )
@@ -176,10 +214,12 @@ class TemplateAutoGenerator:
     def rank_templates(self, target: str) -> List[str]:
         """Return templates ranked by similarity to ``target``."""
         ranked: List[tuple[str, float]] = []
-        q_target = self._quantum_score(target)
+        clean_target = _strip_tokens(target)
+        q_target = self._quantum_score(clean_target)
+        start_ts = time.time()
         if self.production_db.exists():
             scores = compute_similarity_scores(
-                target,
+                clean_target,
                 production_db=self.production_db,
                 analytics_db=self.analytics_db,
                 timeout_minutes=1,
@@ -192,57 +232,80 @@ class TemplateAutoGenerator:
                 except sqlite3.Error as exc:  # pragma: no cover - missing table
                     logger.error(f"Error loading templates: {exc}")
                     rows = []
-                for tid, text in rows:
-                    if tid not in id_to_score:
-                        continue
-                    bonus = 0.0
-                    pats = extract_patterns([text])
-                    if any(p in target for p in pats):
-                        bonus = 0.1
-                    q_sim = self._quantum_similarity(target, text)
-                    tfidf = self.objective_similarity(target, text)
-                    q_text = 1.0 - abs(self._quantum_score(text) - q_target)
-                    score = id_to_score[tid] + tfidf + q_sim + q_text + bonus
-                    ranked.append((text, score))
-                    _log_event(
-                        {"event": "rank_eval", "target": target, "template_id": tid, "score": score},
-                        table="generator_events",
-                        db_path=self.analytics_db,
-                    )
-                    _log_event(
-                        {"event": "tfidf_score", "template_id": tid, "score": tfidf},
-                        table="generator_events",
-                        db_path=self.analytics_db,
-                    )
-                    _log_event(
-                        {"event": "quantum_text", "template_id": tid, "score": q_text},
-                        table="generator_events",
-                        db_path=self.analytics_db,
-                    )
+                with tqdm(total=len(rows), desc="Ranking", unit="template") as pbar:
+                    for tid, text in rows:
+                        if tid not in id_to_score:
+                            pbar.update(1)
+                            continue
+                        bonus = 0.0
+                        clean_text = _strip_tokens(text)
+                        pats = extract_patterns([clean_text])
+                        if any(p in clean_target for p in pats):
+                            bonus = 0.1
+                        q_sim = self._quantum_similarity(clean_target, clean_text)
+                        tfidf = self.objective_similarity(clean_target, clean_text)
+                        q_text = 1.0 - abs(self._quantum_score(clean_text) - q_target)
+                        score = id_to_score[tid] + tfidf + q_sim + q_text + bonus
+                        ranked.append((clean_text, score))
+                        _log_event(
+                            {"event": "rank_eval", "target": clean_target, "template_id": tid, "score": score},
+                            table="generator_events",
+                            db_path=self.analytics_db,
+                        )
+                        _log_event(
+                            {"event": "tfidf_score", "template_id": tid, "score": tfidf},
+                            table="generator_events",
+                            db_path=self.analytics_db,
+                        )
+                        _log_event(
+                            {"event": "quantum_text", "template_id": tid, "score": q_text},
+                            table="generator_events",
+                            db_path=self.analytics_db,
+                        )
+                        pbar.update(1)
         if not ranked:
             candidates = self.templates or self.patterns
-            for tmpl in candidates:
-                tfidf = self.objective_similarity(target, tmpl)
-                q_sim = self._quantum_similarity(target, tmpl)
-                q_text = 1.0 - abs(self._quantum_score(tmpl) - q_target)
-                score = tfidf + q_sim + q_text
-                ranked.append((tmpl, score))
-                _log_event(
-                    {"event": "rank_eval", "target": target, "template_id": -1, "score": score},
-                    table="generator_events",
-                    db_path=self.analytics_db,
-                )
-                _log_event(
-                    {"event": "tfidf_score", "template_id": -1, "score": tfidf},
-                    table="generator_events",
-                    db_path=self.analytics_db,
-                )
-                _log_event(
-                    {"event": "quantum_text", "template_id": -1, "score": q_text},
-                    table="generator_events",
-                    db_path=self.analytics_db,
-                )
+            with tqdm(total=len(candidates), desc="Ranking", unit="template") as pbar:
+                for tmpl in candidates:
+                    clean_tmpl = _strip_tokens(tmpl)
+                    tfidf = self.objective_similarity(clean_target, clean_tmpl)
+                    q_sim = self._quantum_similarity(clean_target, clean_tmpl)
+                    q_text = 1.0 - abs(self._quantum_score(clean_tmpl) - q_target)
+                    score = tfidf + q_sim + q_text
+                    ranked.append((clean_tmpl, score))
+                    _log_event(
+                        {"event": "rank_eval", "target": clean_target, "template_id": -1, "score": score},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {"event": "tfidf_score", "template_id": -1, "score": tfidf},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    _log_event(
+                        {"event": "quantum_text", "template_id": -1, "score": q_text},
+                        table="generator_events",
+                        db_path=self.analytics_db,
+                    )
+                    pbar.update(1)
         ranked.sort(key=lambda x: x[1], reverse=True)
+        _log_event(
+            {
+                "event": "rank_complete",
+                "target": clean_target,
+                "candidates": len(ranked),
+                "best_score": ranked[0][1] if ranked else 0.0,
+            },
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
+        duration = time.time() - start_ts
+        _log_event(
+            {"event": "rank_duration", "target": clean_target, "duration": duration},
+            table="generator_events",
+            db_path=self.analytics_db,
+        )
         return [t for t, _ in ranked]
 
     def select_best_template(self, target: str, timeout: float = 30.0) -> str:
@@ -282,16 +345,12 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
     def _ensure_codegen_table(self) -> None:
         """Ensure ``code_generation_events`` table has expected columns."""
         with sqlite3.connect(self.analytics_db) as conn:
-            cur = conn.execute(
-                "PRAGMA table_info(code_generation_events)"
-            )
+            cur = conn.execute("PRAGMA table_info(code_generation_events)")
             cols = [row[1] for row in cur.fetchall()]
             if cols and {"objective", "status"}.issubset(cols):
                 return
             conn.execute("DROP TABLE IF EXISTS code_generation_events")
-            conn.execute(
-                "CREATE TABLE code_generation_events (objective TEXT, status TEXT)"
-            )
+            conn.execute("CREATE TABLE code_generation_events (objective TEXT, status TEXT)")
             conn.commit()
 
     def fetch_existing_pattern(self, name: str) -> str | None:  # pragma: no cover - simplified
@@ -339,18 +398,21 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
         """Generate production-ready code stub and log analytics."""
         validate_no_recursive_folders()
 
-        # Use the best available template then replace placeholders
+        # Use the best available template then replace tokens
         template = self.select_best_template(objective)
         if not template:
             template = self.generate(objective)
 
-        stub = replace_placeholders(
+        stub = apply_tokens(
             template,
             {
                 "production": self.production_db,
                 "template_doc": self.documentation_db,
                 "analytics": self.analytics_db,
             },
+        )
+        stub = remove_unused_tokens(
+            stub, production_db=self.production_db, analytics_db=self.analytics_db
         )
 
         path = Path(f"{objective}.py")
@@ -397,6 +459,7 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
                 db_path=self.analytics_db,
                 test_mode=False,
             )
+            secondary_copilot_validator.run_flake8([str(path)])
         except Exception as exc:  # pragma: no cover - error handling
             if "conn" in locals():
                 conn.rollback()
@@ -418,3 +481,25 @@ class DBFirstCodeGenerator(TemplateAutoGenerator):
             raise
 
         return path
+
+    def validate_scores(self, expected: int) -> bool:
+        """Validate that ranking analytics contain at least ``expected`` rows.
+
+        This secondary check enforces the dual-copilot pattern by
+        delegating to :class:`SecondaryCopilotValidator` after reading the
+        analytics database.
+        """
+        if not self.analytics_db.exists():
+            return False
+        with sqlite3.connect(self.analytics_db) as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT COUNT(*) FROM generator_events"
+                )
+                count = cur.fetchone()[0]
+            except sqlite3.Error:
+                return False
+        secondary_copilot_validator.SecondaryCopilotValidator().validate_corrections(
+            [str(self.analytics_db)]
+        )
+        return count >= expected

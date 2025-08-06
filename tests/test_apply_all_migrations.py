@@ -1,6 +1,7 @@
 import sqlite3
 from pathlib import Path
 
+
 def test_apply_all_migrations(tmp_path: Path) -> None:
     db_file = tmp_path / "analytics.db"
     migrations = [
@@ -24,9 +25,7 @@ def test_apply_all_migrations(tmp_path: Path) -> None:
                 # Some migrations may reapply columns; ignore duplicate errors
                 pass
     with sqlite3.connect(db_file) as conn:
-        tables = {row[0] for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        )}
+        tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     expected = {
         "code_audit_log",
         "correction_history",

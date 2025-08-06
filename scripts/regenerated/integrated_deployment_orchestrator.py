@@ -8,24 +8,20 @@ Enterprise Standards Compliance:
 - Emoji-free code (text-based indicators only)
 - Visual processing indicators
 """
+
 import sys
 
 import logging
-import os
 from pathlib import Path
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 from datetime import datetime
 
 from scripts.utilities.production_template_utils import generate_script_from_repository
+from utils.validation_utils import run_dual_copilot_validation
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -44,13 +40,20 @@ class EnterpriseUtility:
         try:
             # Utility implementation
             success = self.perform_utility_function()
-            self.primary_validate()
-            self.secondary_validate()
 
-            if success:
+            def _primary():
+                self.logger.info("[INFO] PRIMARY VALIDATION")
+                return self.primary_validate()
+
+            def _secondary():
+                self.logger.info("[INFO] SECONDARY VALIDATION")
+                return self.secondary_validate()
+
+            validation_passed = run_dual_copilot_validation(_primary, _secondary)
+
+            if success and validation_passed:
                 duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(
-                    f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
+                self.logger.info(f"{TEXT_INDICATORS['success']} Utility completed in {duration:.1f}s")
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -90,6 +93,5 @@ def main():
 
 
 if __name__ == "__main__":
-
     success = main()
     sys.exit(0 if success else 1)

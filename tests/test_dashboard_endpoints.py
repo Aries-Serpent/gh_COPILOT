@@ -1,8 +1,32 @@
 #!/usr/bin/env python3
+import sys
+import types
+
+
+class DummyCorrectionLoggerRollback:
+    def __init__(self, *args, **kwargs):
+        pass
+
+
+sys.modules.setdefault(
+    "scripts.correction_logger_and_rollback",
+    types.SimpleNamespace(CorrectionLoggerRollback=DummyCorrectionLoggerRollback),
+)
 from dashboard import compliance_metrics_updater as cmu
 
-cmu.validate_no_recursive_folders = lambda: None
-cmu.validate_environment_root = lambda: None
+
+def _stub_no_recursive_folders() -> None:
+    return None
+
+
+def _stub_no_environment_root() -> None:
+    return None
+
+
+cmu.validate_no_recursive_folders = _stub_no_recursive_folders
+cmu.validate_environment_root = _stub_no_environment_root
+import web_gui.scripts.flask_apps.enterprise_dashboard as ed
+ed._fetch_metrics = lambda: {"metrics": {"composite_score": 0.0, "score_breakdown": {}}}
 from web_gui.scripts.flask_apps.enterprise_dashboard import app
 
 
@@ -21,6 +45,9 @@ def test_metrics_endpoint():
     assert resp.status_code == 200
     data = resp.get_json()
     assert isinstance(data, dict)
+    metrics = data.get("metrics", {})
+    assert "composite_score" in metrics
+    assert "score_breakdown" in metrics
 
 
 def test_compliance_endpoint():
@@ -34,7 +61,9 @@ def test_dashboard_compliance_endpoint():
     client = app.test_client()
     resp = client.get("/dashboard/compliance")
     assert resp.status_code == 200
-    assert isinstance(resp.get_json(), dict)
+    data = resp.get_json()
+    assert "metrics" in data
+    assert "rollbacks" in data
 
 
 def test_rollback_alerts_endpoint():

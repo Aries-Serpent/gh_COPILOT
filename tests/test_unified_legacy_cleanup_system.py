@@ -46,3 +46,26 @@ def test_logging(tmp_path: Path, monkeypatch):
     system.run_cleanup(dry_run=False)
     assert any(e.get("event") == "legacy_cleanup_start" for e in events)
     assert any(e.get("event") == "archive_success" for e in events)
+
+
+def test_optimize_workspace_moves_files(tmp_path: Path, monkeypatch):
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    class_db = db_dir / "file_classification.db"
+    with sqlite3.connect(class_db) as conn:
+        conn.execute(
+            "CREATE TABLE intelligent_file_classification (file_path TEXT, file_category TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO intelligent_file_classification VALUES ('note.txt', 'docs')"
+        )
+    (tmp_path / "note.txt").write_text("hello\n")
+    events: list = []
+    monkeypatch.setattr(
+        "scripts.unified_legacy_cleanup_system._log_event", lambda e, **_: events.append(e)
+    )
+    system = UnifiedLegacyCleanupSystem(workspace_path=tmp_path)
+    system.optimize_workspace()
+    dest = tmp_path / "organized" / "docs" / "note.txt"
+    assert dest.exists()
+    assert any(e.get("event") == "optimize_workspace_complete" for e in events)

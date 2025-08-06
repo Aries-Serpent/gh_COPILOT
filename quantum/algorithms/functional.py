@@ -4,7 +4,7 @@ Refactored from original quantum_algorithms_functional.py with enhanced modulari
 """
 
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -124,11 +124,13 @@ class QuantumFunctional(QuantumAlgorithmBase):
         runtime = time.perf_counter() - start_time
         return {"index": int(measured, 2), "time": runtime, "iterations": iterations}
 
-    def run_kmeans_clustering(self, samples: int = 100, clusters: int = 2) -> Dict[str, Any]:
+    def run_kmeans_clustering(
+        self, samples: int = 100, clusters: int = 2, n_init: Union[int, str] = 10
+    ) -> Dict[str, Any]:
         """Run ``KMeans`` clustering and return inertia and runtime."""
         features, _ = make_blobs(n_samples=samples, centers=clusters, random_state=42)
         start = time.perf_counter()
-        model = KMeans(n_clusters=clusters, n_init="auto", random_state=42)
+        model = KMeans(n_clusters=clusters, n_init=n_init, random_state=42)
         
         with tqdm(total=1, desc=f"{TEXT_INDICATORS['progress']} kmeans", leave=False) as bar:
             model.fit(features)

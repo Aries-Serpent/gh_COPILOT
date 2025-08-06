@@ -5,11 +5,14 @@ This script delegates to :mod:`validate_docs_metrics` to ensure
 backwards compatibility with existing CI workflows expecting
 ``docs_metrics_validator.py``.
 """
+
 from __future__ import annotations
 
 import argparse
 import sys
 from pathlib import Path
+
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 if __package__ in {None, ""}:
     # Allow running as a script directly without module context
@@ -37,6 +40,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     success = validate(args.db_path)
+    SecondaryCopilotValidator().validate_corrections([], primary_success=success)
     return 0 if success else 1
 
 

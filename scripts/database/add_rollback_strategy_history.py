@@ -71,4 +71,3 @@ if __name__ == "__main__":
     main()
 
 __all__ = ["add_table", "ensure_rollback_strategy_history"]
-

@@ -63,9 +63,35 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
    - Backup: http://localhost:5000/backup
    - Migration: http://localhost:5000/migration
 
+5. **Metrics & Compliance Endpoints**:
+   - Metrics JSON: http://localhost:5000/metrics
+   - Compliance data (metrics + rollback logs): http://localhost:5000/compliance
+   - HTML Metrics Table: http://localhost:5000/metrics_table
+
+   These routes read from `databases/analytics.db`. Ensure this database exists before starting the dashboard.
+
 5. **API Endpoints**:
    - Health Check: http://localhost:5000/api/health
    - Scripts Data: http://localhost:5000/api/scripts
+   - Compliance Summary: http://localhost:5000/api/compliance
+   - Rollback Logs: http://localhost:5000/api/rollbacks
+   - Correction History: http://localhost:5000/api/corrections
+   - Compliance Stream (SSE): http://localhost:5000/api/compliance_stream
+   - Trigger Ingestion: POST http://localhost:5000/api/ingest
+   - Trigger Rollback: POST http://localhost:5000/api/rollback
+   - Trigger Backup: POST http://localhost:5000/api/backup
+
+### 🛠 Deployment Instructions
+
+1. Backup existing databases and configuration files.
+2. Install dependencies and generate the dashboard script as shown above.
+3. Start the Flask dashboard with `python flask_apps/enterprise_dashboard.py`.
+4. Verify metrics at `/dashboard/compliance` and rollback logs at `/dashboard/rollback`.
+
+### 📸 Deployment Screenshots
+
+![Dashboard View](deployment/screenshots/dashboard.png)
+![Metrics Page](deployment/screenshots/metrics.png)
 
 ### 📊 Database Integration
 

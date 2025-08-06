@@ -20,9 +20,7 @@ def test_run_migration_creates_db(tmp_path: Path) -> None:
     db_path = databases / "enterprise_assets.db"
     assert db_path.exists()
     with sqlite3.connect(db_path) as conn:
-        tables = [row[0] for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        )]
+        tables = [row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")]
     assert "cross_database_sync_operations" in tables
 
 

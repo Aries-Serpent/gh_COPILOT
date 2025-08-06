@@ -18,12 +18,15 @@ Ensure the development environment is correctly configured **before** making any
   ```
 * **Python & Tools**: Use **Python 3.8+** (already provided in Codex). The setup will install necessary system packages (development headers, build tools, SQLite, etc.) and Python packages as specified by the project. Do **not** install additional packages beyond those listed in `requirements.txt` (and optional `requirements-web.txt`, `requirements-ml.txt`, etc.). **Only use** the dependencies declared by the project. If you believe a new package is required, **do not install it yourself** – instead, mention the need in the PR description for maintainers.
 * **Virtual Environment**: Always activate the Python virtual environment after running setup. For example, use `source .venv/bin/activate` to ensure you’re using the project’s isolated environment and packages.
+* **Git LFS Pre-commit Hook**: Install `tools/pre-commit-lfs.sh` as a local pre-commit hook (e.g., `cp tools/pre-commit-lfs.sh .git/hooks/pre-commit-lfs && chmod +x .git/hooks/pre-commit-lfs`) and run it before committing to verify all `.db` files are tracked by Git LFS.
 * **Environment Variables**: Certain environment variables must be set for the toolkit to function correctly. In particular:
 
   * **GH\_COPILOT\_WORKSPACE** – Absolute path to the repository’s root workspace. This should point to the project root (in the Codex container it defaults to `/app`, but set it explicitly). Many scripts use this to locate files and databases.
   * **GH\_COPILOT\_BACKUP\_ROOT** – Path to an **external** backup directory (must be outside the workspace). This enforces anti-recursion: backups **must not** be stored under the project root. If not set, the toolkit defaults to a temp directory (e.g. `/tmp/<user>/gh_COPILOT_Backups` on Linux). It’s recommended to set this to a dedicated folder.
+  * **TEST_MODE** – Set to "1" in test environments to disable side effects (e.g., database writes) in scripts like `scripts/wlc_session_manager.py`.
   * *Optional variables:* **WORKSPACE\_ROOT** (alias for `GH_COPILOT_WORKSPACE`), **FLASK\_SECRET\_KEY** (for the optional Flask web UI, default `'your_secret_key'` – replace in production), **FLASK\_RUN\_PORT** (Flask dev server port, default 5000), **CONFIG\_PATH** (path to a custom config file if not using the default `config/enterprise.json`), **WEB\_DASHBOARD\_ENABLED** (`"1"` or `"0"` to toggle logging of performance metrics with `[DASHBOARD]` tags). Configure these as needed if using those features.
 * After installing dependencies and setting variables, **run the test suite** (see [Testing and Validation](#testing-and-validation)) to verify the environment is correctly set up.
+* For procedures on restoring Git LFS-managed files, consult [docs/git_lfs_recovery.md](docs/git_lfs_recovery.md).
 
 ## Output Safety and `clw`
 
@@ -33,6 +36,17 @@ The terminal enforces a **1600-byte per-line limit**. Lines longer than this wil
 * When unsure, redirect command output to a log file and inspect it using `clw` or chunked reads (`head`, `tail`).
 * If `clw` is missing, recreate it from `tools/clw.py`, place it at `/usr/local/bin/clw`, and make it executable.
 * On any line-length error, start a new session, re-run setup, and retry the command using `clw` or log chunking.
+
+## Large Output Handling
+
+The console cannot reliably display lines longer than **4096 bytes**. Use standard utilities to inspect logs in small pieces:
+
+- `head <file>` – show the beginning of a file. Example: `head -n 20 build.log`
+- `tail <file>` – show the end of a file. Example: `tail -n 20 build.log`
+- `cut -c 1-4096 <file>` – trim each line to the first 4096 bytes. Example: `cut -c 1-4096 build.log | head`
+- `grep -n "pattern" <file>` – search with line numbers. Example: `grep -n "ERROR" build.log | head`
+
+If output might exceed the limit, redirect it to a log file and review it in chunks with these commands to prevent line overflows.
 
 ## Allowed Tools and Commands (Agent Behavior)
 
@@ -140,7 +154,7 @@ In the **gh\_COPILOT** toolkit, multiple agent components work together. These r
 The gh\_COPILOT project adheres to several core protocols and standards that the agent must follow in its solutions:
 
 1. **Database-First Operations** – Always query or utilize `production.db` (and related databases) as the primary source of truth before making filesystem changes. Database files must remain under **99.9 MB** each (monitor sizes if your task involves DB migrations or insertions).
-2. **Dual Copilot Pattern** – Implement a dual-phase approach for critical workflows: a primary action followed by a validation or review step by a secondary process. This ensures every major operation is verified by an independent check within the automation.
+2. **Dual Copilot Pattern** – Implement a dual-phase approach for critical workflows: a primary action followed by a validation or review step by a secondary process. This ensures every major operation is verified by an independent check within the automation. Use `secondary_copilot_validator.py` for the secondary review and confirm results with the `EnterpriseComplianceValidator`.
 3. **Visual Processing Indicators** – Any long-running script should include user-friendly indicators (progress bars, timestamps for start/end, ETA calculations, and real-time status updates). This aligns with enterprise UI/UX standards for long processes.
 4. **Anti-Recursion & Backup Rules** – Absolutely no recursive copying of the workspace. Backups must be stored in the external backup directory (never inside the workspace). Always validate paths and use provided safety checks (e.g., `validate_enterprise_operation()` if available) before file operations to enforce this.
 5. **Session Integrity & Continuous Operation** – Each session or run should begin and end with integrity checks (e.g., ensure no zero-byte files introduced, all expected processes completed). The system is expected to run continuously 24/7, so any automation should be robust to long uptimes and not degrade over time.

@@ -8,9 +8,10 @@ This update finalizes the remaining pieces of STUB-002, STUB-004 and STUB-009.
   validation hooks are included via `_ensure_codegen_table()` and the
   `validate_scores` helper.
 * **STUB-004** – `documentation_db_analyzer` logs cleanup metrics and rollback
-  history to `analytics.db`. Validation functions confirm that analysis events
-  have been recorded.
+  history to `analytics.db`. Both gap analysis and table audits now invoke
+  `SecondaryCopilotValidator` to confirm that analysis events have been recorded.
 * **STUB-009** – `workflow_enhancer` integrates analytics logging and provides a
-  validation step confirming report integrity.
+  validation step confirming report integrity. Clustering logic ignores templates
+  missing feature vectors to align with database-first expectations.
 
 See module docstrings for usage details.

@@ -19,7 +19,6 @@ from typing import Any, Dict
 from tqdm import tqdm
 
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
-from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from importlib import import_module
 
 # Text-based indicators (cross-platform)
@@ -875,5 +874,5 @@ def main():
 if __name__ == "__main__":
     pkg = import_module("scripts.optimization.optimize_to_100_percent")
     orchestrator = DualCopilotOrchestrator()
-    success, validated = orchestrator.run(pkg.main, [pkg.__file__])
+    success, validated, _ = orchestrator.run(pkg.main, [pkg.__file__])
     sys.exit(0 if success and validated else 1)

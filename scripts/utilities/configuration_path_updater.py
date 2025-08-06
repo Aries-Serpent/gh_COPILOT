@@ -15,8 +15,8 @@ from tqdm import tqdm
 import logging
 
 # Configure logging to route to logs folder
-logs_folder = Path("logs")
-logs_folder.mkdir(exist_ok=True)
+logs_folder = Path("artifacts/logs")
+logs_folder.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     filename=logs_folder / f"config_path_updates_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
     level=logging.INFO,

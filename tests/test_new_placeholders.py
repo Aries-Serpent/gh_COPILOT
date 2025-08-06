@@ -1,14 +1,13 @@
-import importlib
 import os
 import shutil
 import sqlite3
 from pathlib import Path
-from unittest.mock import patch
 import pytest
 
 from scripts.session.COMPREHENSIVE_WORKSPACE_MANAGER import ComprehensiveWorkspaceManager
 from scripts.file_management.autonomous_file_manager import AutonomousFileManager
 from scripts.file_management.intelligent_file_classifier import IntelligentFileClassifier
+
 try:
     from scripts.file_management.autonomous_backup_manager import AutonomousBackupManager
 except Exception:  # pragma: no cover - module may have syntax errors
@@ -22,6 +21,7 @@ from scripts.quantum.quantum_algorithm_suite import QuantumAlgorithmSuite
 import logging
 from web_gui.scripts.flask_apps.web_gui_integrator import WebGUIIntegrator
 from scripts.documentation.documentation_validator import DocumentationValidator
+
 try:
     from scripts.orchestration.UNIFIED_DEPLOYMENT_ORCHESTRATOR_CONSOLIDATED import (
         UnifiedDeploymentOrchestrator,
@@ -55,7 +55,7 @@ def test_placeholders_importable(tmp_path, caplog):
     with sqlite3.connect(db / "production.db") as conn:
         conn.execute(
             "INSERT INTO enhanced_script_tracking (script_path, script_content, script_hash, script_type) VALUES (?, ?, 'x', 'test')",
-            (str(sample), 'print(\'hi\')'),
+            (str(sample), "print('hi')"),
         )
     file_manager.organize_files(workspace)
     dest = workspace / "organized" / "test" / "sample.py"

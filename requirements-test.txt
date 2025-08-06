@@ -1,5 +1,7 @@
 requests
 pytest
+pytest-cov
+pytest-timeout
 psutil
 tqdm
 numpy

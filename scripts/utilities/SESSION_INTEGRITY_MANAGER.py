@@ -441,4 +441,7 @@ def main():
 
 if __name__ == "__main__":
     success = main()
+    from secondary_copilot_validator import SecondaryCopilotValidator
+
+    SecondaryCopilotValidator().validate_corrections([__file__])
     sys.exit(0 if success else 1)

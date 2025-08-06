@@ -12,8 +12,10 @@ raise :class:`ValueError`.
 
 from __future__ import annotations
 
+import logging
 from importlib import import_module
 from typing import TYPE_CHECKING
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 if TYPE_CHECKING:  # pragma: no cover
     from . import (
@@ -23,6 +25,7 @@ if TYPE_CHECKING:  # pragma: no cover
         objective_similarity_scorer,  # noqa: F401
         pattern_clustering_sync,  # noqa: F401
         pattern_mining_engine,  # noqa: F401
+        template_curation_pipeline,  # noqa: F401
         pattern_templates,  # noqa: F401
         placeholder_utils,  # noqa: F401
         template_placeholder_remover,  # noqa: F401
@@ -37,12 +40,15 @@ __all__ = [
     "objective_similarity_scorer",
     "pattern_clustering_sync",
     "pattern_mining_engine",
+     "template_curation_pipeline",
     "placeholder_utils",
     "template_placeholder_remover",
     "template_synchronizer",
     "workflow_enhancer",
     "pattern_templates",
 ]
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 
 def __getattr__(name: str):

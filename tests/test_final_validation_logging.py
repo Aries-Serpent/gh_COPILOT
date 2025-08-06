@@ -1,31 +1,39 @@
-import importlib
-import sqlite3
+"""Tests for final validation logging with dual copilot orchestrator."""
+
+from __future__ import annotations
+
 from pathlib import Path
 
-import pytest
-
-MODULES = [
-    "builds.final.production.builds.artifacts.validation.test_quantum_deploy",
-    "builds.final.production.builds.artifacts.validation.quantum_performance_integration_tester",
-    "builds.final.production.builds.artifacts.validation.FINAL_COMPREHENSIVE_PRODUCTION_TEST",
-    "builds.final.production.builds.artifacts.validation.UNIFIED_DEPLOYMENT_ORCHESTRATOR_TEST_SUITE",
-    "builds.final.production.builds.artifacts.validation.comprehensive_production_capability_tester",
-]
+from enterprise_modules.compliance import run_final_validation
+from scripts.validation import primary_copilot_executor
 
 
-@pytest.mark.parametrize("module_name", MODULES)
-def test_final_validation_logs(tmp_path: Path, module_name: str) -> None:
-    module = importlib.import_module(module_name)
-    db_dir = tmp_path / "databases"
-    db_dir.mkdir()
-    prod_db = db_dir / "production.db"
-    an_db = tmp_path / "analytics.db"
-    with sqlite3.connect(prod_db) as conn:
-        conn.execute("CREATE TABLE script_repository (script_path TEXT)")
-        conn.execute("INSERT INTO script_repository (script_path) VALUES ('dummy.py')")
-    (tmp_path / 'dummy.py').write_text('print("hi")')
-    util = module.EnterpriseUtility(workspace_path=str(tmp_path))
-    assert util.perform_utility_function() is True
-    with sqlite3.connect(an_db) as conn:
-        count = conn.execute("SELECT COUNT(*) FROM validation_log").fetchone()[0]
-    assert count == 1
+def test_final_validation_logging(tmp_path: Path, monkeypatch) -> None:
+    """Ensure metrics capture failing primary paths and flake8 details."""
+
+    bad_file = tmp_path / "bad.py"
+    bad_file.write_text("def bad(:\n    pass\n")
+
+    monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
+
+    def fake_execute(self, phases, func):
+        return 0, func()
+
+    monkeypatch.setattr(
+        primary_copilot_executor.PrimaryCopilotExecutor,
+        "execute_with_monitoring",
+        fake_execute,
+    )
+
+    def failing_primary() -> bool:
+        return False
+
+    primary_ok, validation_ok, metrics = run_final_validation(
+        failing_primary, [str(bad_file)]
+    )
+
+    assert primary_ok is False
+    assert validation_ok is False
+    assert metrics["primary_success"] is False
+    assert metrics["failed_files"] == [str(bad_file)]
+    assert metrics["returncode"] != 0

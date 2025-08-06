@@ -10,11 +10,18 @@ Usage:
     from enterprise_modules.database_utils import get_enterprise_database_connection, execute_safe_query
 """
 
+import os
 import sqlite3
 import logging
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any, Tuple, Union
 from contextlib import contextmanager
+
+from enterprise_modules.compliance import (
+    ComplianceError,
+    anti_recursion_guard,
+    validate_enterprise_operation,
+)
 
 
 def get_enterprise_database_connection(
@@ -111,34 +118,39 @@ def execute_safe_query(
         return None
 
 
+@anti_recursion_guard
 def execute_safe_insert(
     connection: sqlite3.Connection,
     table_name: str,
     data: Dict[str, Any],
     commit: bool = True
 ) -> bool:
-    """
-    Execute safe insert operation
-    """
+    """Execute safe insert operation with enterprise validation."""
+    db_file = Path(
+        connection.execute("PRAGMA database_list").fetchone()[2]
+    )
+    if not validate_enterprise_operation(str(db_file)):
+        raise ComplianceError(f"Forbidden database write: {db_file}")
+
     try:
         columns = list(data.keys())
         placeholders = ['?' for _ in columns]
         values = list(data.values())
-        
+
         query = f"""
         INSERT INTO {table_name} ({', '.join(columns)})
         VALUES ({', '.join(placeholders)})
         """
-        
+
         cursor = connection.cursor()
         cursor.execute(query, values)
-        
+
         if commit:
             connection.commit()
-        
+
         logging.info(f"Inserted record into {table_name}")
         return True
-        
+
     except Exception as e:
         logging.error(f"Error inserting into {table_name}: {e}")
         connection.rollback()
@@ -204,6 +216,48 @@ def check_table_exists(
         return False
 
 
+def fetch_template(
+    name: str,
+    db_path: Union[str, Path, None] = None,
+) -> Optional[str]:
+    """Return template body from ``production.db`` if present.
+
+    Parameters
+    ----------
+    name:
+        Template identifier to fetch.
+    db_path:
+        Optional path to the database. When not provided, defaults to
+        ``<GH_COPILOT_WORKSPACE>/databases/production.db``.
+    """
+
+    workspace = Path(
+        os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd()))
+    )
+    db_file = Path(db_path) if db_path else workspace / "databases" / "production.db"
+
+    with enterprise_database_context(str(db_file)) as conn:
+        row = execute_safe_query(
+            conn,
+            "SELECT template_content FROM template_repository WHERE template_name = ?",
+            (name,),
+            fetch_all=False,
+        )
+        if row:
+            return row["template_content"]
+
+        row = execute_safe_query(
+            conn,
+            "SELECT base_template FROM script_templates WHERE template_name = ?",
+            (name,),
+            fetch_all=False,
+        )
+        if row:
+            return row["base_template"]
+
+    return None
+
+
 def get_table_schema(
     connection: sqlite3.Connection,
     table_name: str
@@ -233,31 +287,33 @@ def get_table_schema(
         return []
 
 
+@anti_recursion_guard
 def backup_database(
     source_db_path: str,
     backup_db_path: str
 ) -> bool:
-    """
-    Create database backup
-    """
+    """Create database backup with enterprise validation."""
+    backup_path = Path(backup_db_path)
+    if not validate_enterprise_operation(str(backup_path)):
+        raise ComplianceError(f"Forbidden backup target: {backup_path}")
+
     try:
         source_path = Path(source_db_path)
-        backup_path = Path(backup_db_path)
-        
+
         if not source_path.exists():
             logging.error(f"Source database does not exist: {source_db_path}")
             return False
-        
+
         # Create backup directory
         backup_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Copy database
         import shutil
         shutil.copy2(source_path, backup_path)
-        
+
         logging.info(f"Database backup created: {backup_db_path}")
         return True
-        
+
     except Exception as e:
         logging.error(f"Error creating database backup: {e}")
         return False

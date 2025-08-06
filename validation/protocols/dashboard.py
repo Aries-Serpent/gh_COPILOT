@@ -22,9 +22,7 @@ class DashboardMetricsValidator(BaseValidator):
         try:
             data = json.loads(self.dashboard_file.read_text(encoding="utf-8"))
             status_str = data.get("status")
-            result_status = (
-                ValidationStatus.PASSED if status_str == "complete" else ValidationStatus.WARNING
-            )
+            result_status = ValidationStatus.PASSED if status_str == "complete" else ValidationStatus.WARNING
             return ValidationResult(
                 status=result_status,
                 message=f"dashboard status: {status_str}",

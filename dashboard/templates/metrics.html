@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+    <title>Compliance Metrics</title>
+</head>
+<body>
+<h1>Compliance Metrics</h1>
+<p><strong>Compliance Score:</strong> {{ metrics.compliance_score | default(0) }}</p>
+<p><strong>Composite Score:</strong> {{ metrics.composite_score | default(0) }}</p>
+<p><strong>Open Placeholders:</strong> {{ metrics.open_placeholders | default(0) }}</p>
+<p><strong>Resolved Placeholders:</strong> {{ metrics.resolved_placeholders | default(0) }}</p>
+<p><strong>Remediation Progress:</strong> {{ ((metrics.progress or 0) * 100) | round(1) }}%</p>
+
+<h2>Correction Logs</h2>
+<ul>
+{% for entry in metrics.correction_logs or [] %}
+    <li>
+        {{ entry.timestamp }} - {{ entry.file_path }}<br>
+        Rationale: {{ entry.rationale }}<br>
+        Score: {{ entry.compliance_score }}
+    </li>
+{% endfor %}
+</ul>
+
+</body>
+</html>
+

@@ -7,8 +7,18 @@ from template_engine.db_first_code_generator import DBFirstCodeGenerator
 from template_engine import auto_generator
 import template_engine.db_first_code_generator as dbgen
 
-auto_generator.validate_no_recursive_folders = lambda: None
-dbgen.validate_enterprise_operation = lambda *a, **k: None
+
+def no_recursive_folders() -> None:
+    return None
+
+
+def noop_operation(*args: object, **kwargs: object) -> None:
+    return None
+
+
+auto_generator.validate_no_recursive_folders = no_recursive_folders
+dbgen.validate_no_recursive_folders = no_recursive_folders
+dbgen.validate_enterprise_operation = noop_operation
 
 
 def test_auto_generation_logs_event(tmp_path: Path) -> None:
@@ -20,7 +30,11 @@ def test_auto_generation_logs_event(tmp_path: Path) -> None:
 
     os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
     os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
-    dbgen._log_event = lambda *a, **k: None
+
+    def log_event(*a: object, **k: object) -> None:
+        return None
+
+    dbgen._log_event = log_event
     gen = DBFirstCodeGenerator(prod_db, doc_db, tpl_db, analytics)
     result = gen.generate("TestObjective")
     assert "Auto-generated template" in result
@@ -58,7 +72,11 @@ def test_generate_integration_ready_code(tmp_path: Path) -> None:
     dbgen._log_event = fake_log
 
     gen = DBFirstCodeGenerator(prod_db, doc_db, tpl_db, analytics)
-    gen.select_best_template = lambda *_: "print('{{NAME}}')"
+
+    def select_template(*_: object) -> str:
+        return "print('{{NAME}}')"
+
+    gen.select_best_template = select_template
     path = gen.generate_integration_ready_code("Obj")
     assert path.exists()
     assert path.read_text() == "print('World')"
@@ -92,7 +110,11 @@ def test_integration_ready_updates_tracking(tmp_path: Path) -> None:
     dbgen._log_event = fake_log
 
     gen = DBFirstCodeGenerator(prod_db, doc_db, tpl_db, analytics)
-    gen.select_best_template = lambda *_: "print('{{NAME}}')"
+
+    def select_template(*_: object) -> str:
+        return "print('{{NAME}}')"
+
+    gen.select_best_template = select_template
     path = gen.generate_integration_ready_code("Obj")
     assert path.exists()
 
@@ -129,8 +151,16 @@ def test_integration_ready_rollback_on_failure(tmp_path: Path, monkeypatch) -> N
             conn.commit()
 
     monkeypatch.setattr(dbgen, "_log_event", fake_log)
-    monkeypatch.setattr(dbgen.DBFirstCodeGenerator, "generate", lambda self, *_: "print('{{NAME}}')")
-    monkeypatch.setattr(Path, "write_text", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("fail")))
+
+    def generate(self, *_: object) -> str:
+        return "print('{{NAME}}')"
+
+    monkeypatch.setattr(dbgen.DBFirstCodeGenerator, "generate", generate)
+
+    def write_text(*a: object, **k: object) -> None:
+        raise RuntimeError("fail")
+
+    monkeypatch.setattr(Path, "write_text", write_text)
 
     gen = DBFirstCodeGenerator(prod_db, doc_db, tpl_db, analytics)
     with pytest.raises(RuntimeError):
@@ -147,11 +177,74 @@ def test_integration_ready_rollback_on_failure(tmp_path: Path, monkeypatch) -> N
         except sqlite3.Error:
             enhanced = 0
     with sqlite3.connect(analytics) as conn:
-        fails = conn.execute(
-            "SELECT COUNT(*) FROM generator_events WHERE event='integration_ready_failed'"
-        ).fetchone()[0]
+        fails = conn.execute("SELECT COUNT(*) FROM generator_events WHERE event='integration_ready_failed'").fetchone()[
+            0
+        ]
         rollbacks = conn.execute(
             "SELECT COUNT(*) FROM rollback_logs WHERE event='integration_ready_rollback'"
         ).fetchone()[0]
 
     assert tracking == 0 and enhanced == 0 and fails == 1 and rollbacks == 1
+
+
+def test_integration_ready_runs_validator(tmp_path: Path, monkeypatch) -> None:
+    prod_db = tmp_path / "production.db"
+    doc_db = tmp_path / "documentation.db"
+    tpl_db = tmp_path / "template.db"
+    analytics = tmp_path / "analytics.db"
+
+    os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
+    os.environ["GH_COPILOT_WORKSPACE"] = str(tmp_path)
+    with sqlite3.connect(prod_db) as conn:
+        conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT, default_value TEXT)")
+        conn.execute("INSERT INTO template_placeholders VALUES ('{{NAME}}', 'World')")
+
+    class D:
+        called = False
+
+        def validate_corrections(self, files: object) -> bool:  # noqa: ANN001
+            self.called = True
+            return True
+
+    dummy = D()
+
+    def secondary_copilot_validator() -> D:
+        return dummy
+
+    monkeypatch.setattr(
+        dbgen.secondary_copilot_validator, "SecondaryCopilotValidator", secondary_copilot_validator
+    )
+    gen = DBFirstCodeGenerator(prod_db, doc_db, tpl_db, analytics)
+
+    def select_template(*_: object) -> str:
+        return "print('{{NAME}}')"
+
+    gen.select_best_template = select_template
+    gen.generate_integration_ready_code("Obj")
+    assert dummy.called
+
+
+def test_validate_scores_runs_validator(tmp_path: Path, monkeypatch) -> None:
+    analytics = tmp_path / "analytics.db"
+    analytics.parent.mkdir(exist_ok=True, parents=True)
+    with sqlite3.connect(analytics) as conn:
+        conn.execute("CREATE TABLE generator_events (event TEXT)")
+        conn.execute("INSERT INTO generator_events VALUES ('a')")
+    gen = DBFirstCodeGenerator(
+        tmp_path / "prod.db",
+        tmp_path / "docs.db",
+        tmp_path / "tpl.db",
+        analytics,
+    )
+    dummy = type(
+        "D",
+        (),
+        {"called": False, "validate_corrections": lambda self, files: setattr(self, "called", True) or True},
+    )()
+    import template_engine.db_first_code_generator as mod
+
+    monkeypatch.setattr(
+        mod.secondary_copilot_validator, "SecondaryCopilotValidator", lambda: dummy
+    )
+    assert gen.validate_scores(1)
+    assert dummy.called

@@ -25,9 +25,7 @@ def load_templates() -> List[str]:
     if not DB_PATH.exists():
         return []
     with sqlite3.connect(DB_PATH) as conn:
-        rows = conn.execute(
-            "SELECT template_code FROM code_templates WHERE template_code != ''"
-        ).fetchall()
+        rows = conn.execute("SELECT template_code FROM code_templates WHERE template_code != ''").fetchall()
     return [row[0] for row in rows]
 
 

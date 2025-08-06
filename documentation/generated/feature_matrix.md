@@ -2,7 +2,7 @@
 | --- | --- |
 | **Algorithm Performance: ** modest improvements over baseline | Implemented |
 | **Template Completion: ** automation scripts demonstrate partial coverage | Implemented |
-| **Quantum Optimization: ** implemented via a Qiskit-based optimizer | Implemented |
+| **Quantum Optimization: ** simulation-based via Qiskit; hardware integration pending | Simulation-only |
 | **Enterprise Systems: ** monitoring and validation modules operational | Implemented |
 | **Security Compliance: ** Anti-recursion, zero-byte protection, DUAL COPILOT pattern | Implemented |
 | **Performance Monitoring: ** monitoring scripts available | Implemented |
@@ -27,7 +27,7 @@
 | Zero-byte file prevention | Implemented |
 | DUAL COPILOT validation pattern | Implemented |
 | Enterprise compliance protocols | Implemented |
-| Quantum algorithm optimizer implemented with Qiskit | Implemented |
+| Quantum algorithm optimizer implemented with Qiskit (simulation only) | Simulation-only |
 | Real-time monitoring and analytics | Implemented |
 | Advanced self-learning capabilities | Implemented |
 | Predictive performance optimization | Implemented |

@@ -7,18 +7,20 @@ Implements database-first validation for safe file operations and logs
 key events to ``analytics.db`` via :func:`utils.log_utils._log_event`.
 """
 
-
 from __future__ import annotations
 
 import argparse
 import logging
 import os
+import sqlite3
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
 from db_tools.core.connection import DatabaseConnection
 from db_tools.core.models import DatabaseConfig
+from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import _log_event
 
 logger = logging.getLogger(__name__)
@@ -39,6 +41,9 @@ class UnifiedLegacyCleanupSystem:
     def __init__(self, workspace_path: str | Path | None = None) -> None:
         if workspace_path is None:
             workspace_path = os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
+        os.environ["GH_COPILOT_WORKSPACE"] = str(workspace_path)
+        os.environ.setdefault("GH_COPILOT_TEST_MODE", "1")
+        validate_enterprise_operation(str(workspace_path))
         self.config = CleanupConfig(
             workspace_path=Path(workspace_path),
             legacy_db=Path(workspace_path) / "databases" / "legacy_cleanup.db",
@@ -88,6 +93,7 @@ class UnifiedLegacyCleanupSystem:
             )
             return True
         try:
+            validate_enterprise_operation(str(target))
             script.rename(target)
             _log_event({"event": "archive_success", "path": str(script)})
             return True
@@ -100,18 +106,57 @@ class UnifiedLegacyCleanupSystem:
             return False
 
     def optimize_workspace(self, dry_run: bool = False) -> None:
-        """Placeholder workspace optimization step."""
+        """Organize files based on classification database."""
         logger.info("Optimizing workspace layout")
         _log_event({"event": "optimize_workspace_start"}, db_path=self.analytics_db)
-        if dry_run:
-            _log_event({"event": "optimize_workspace_dry_run"}, db_path=self.analytics_db)
+        class_db = self.config.class_db
+        if not class_db.exists():
+            _log_event({"event": "optimize_workspace_no_db"}, db_path=self.analytics_db)
             return
-        # Currently a no-op; real implementation would reorganize files
+        try:
+            with sqlite3.connect(class_db) as conn:
+                rows = conn.execute(
+                    "SELECT file_path, file_category FROM intelligent_file_classification"
+                ).fetchall()
+        except Exception as exc:  # pragma: no cover - database might not exist
+            logger.warning(f"Classification query failed: {exc}")
+            _log_event(
+                {"event": "optimize_workspace_query_failed", "error": str(exc)},
+                db_path=self.analytics_db,
+            )
+            return
+        for path_str, category in rows:
+            src = self.config.workspace_path / path_str
+            if not src.exists():
+                continue
+            dest_dir = self.config.workspace_path / "organized" / str(category)
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            dest = dest_dir / src.name
+            _log_event(
+                {"event": "optimize_workspace_move", "source": str(src), "dest": str(dest)},
+                db_path=self.analytics_db,
+            )
+            if dry_run:
+                continue
+            try:
+                validate_enterprise_operation(str(dest_dir))
+                shutil.move(str(src), str(dest))
+            except Exception as exc:  # pragma: no cover - file system errors
+                logger.error(f"Optimization move failed: {exc}")
+                _log_event(
+                    {
+                        "event": "optimize_workspace_move_failed",
+                        "error": str(exc),
+                        "source": str(src),
+                    },
+                    db_path=self.analytics_db,
+                )
         _log_event({"event": "optimize_workspace_complete"}, db_path=self.analytics_db)
         return
 
     def run_cleanup(self, dry_run: bool = False) -> None:
         """Run archival and optimization."""
+        validate_enterprise_operation(str(self.config.workspace_path))
         _log_event({"event": "legacy_cleanup_start"}, db_path=self.analytics_db)
         scripts = self.discover_legacy_scripts()
         logger.info(f"Discovered {len(scripts)} legacy scripts")

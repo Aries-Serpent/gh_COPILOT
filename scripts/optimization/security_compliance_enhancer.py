@@ -24,7 +24,6 @@ from typing import Any, Dict
 from tqdm import tqdm
 
 from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
-from scripts.validation.secondary_copilot_validator import SecondaryCopilotValidator
 from importlib import import_module
 
 from utils.db_utils import get_validated_connection
@@ -514,5 +513,5 @@ def main():
 if __name__ == "__main__":
     pkg = import_module("scripts.optimization.security_compliance_enhancer")
     orchestrator = DualCopilotOrchestrator()
-    success, validated = orchestrator.run(pkg.main, [pkg.__file__])
+    success, validated, _ = orchestrator.run(pkg.main, [pkg.__file__])
     sys.exit(0 if success and validated else 1)

@@ -5,51 +5,112 @@ from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from utils.cross_platform_paths import CrossPlatformPathManager
+from pathlib import Path
 import os
 
 import numpy as np
 
-try:
-    from qiskit import Aer, QuantumCircuit, execute
+try:  # pragma: no cover - import check
+    from qiskit import Aer
+    from qiskit.primitives import Estimator
+    from qiskit.quantum_info import SparsePauliOp
+    from qiskit.circuit.library import TwoLocal
+    try:
+        from qiskit.algorithms.minimum_eigensolvers import QAOA, VQE
+        from qiskit.algorithms.optimizers import COBYLA
+    except Exception:
+        from qiskit_algorithms.minimum_eigensolvers import QAOA, VQE  # type: ignore
+        from qiskit_algorithms.optimizers import COBYLA  # type: ignore
     QISKIT_AVAILABLE = True
-except ImportError:
+except Exception:  # pragma: no cover - qiskit optional
     QISKIT_AVAILABLE = False
+    Aer = Estimator = SparsePauliOp = TwoLocal = QAOA = VQE = COBYLA = None  # type: ignore
+
+from quantum.utils.backend_provider import get_backend
 
 # --- Anti-Recursion Validation ---
 
-def chunk_anti_recursion_validation():
-    """CRITICAL: Validate workspace before chunk execution"""
-    if not validate_no_recursive_folders():
-        raise RuntimeError("CRITICAL: Recursive violations prevent chunk execution")
-    if detect_c_temp_violations():
-        raise RuntimeError("CRITICAL: E:/temp/ violations prevent chunk execution")
+def chunk_anti_recursion_validation() -> bool:
+    """Run all anti-recursion checks.
+
+    Returns ``True`` when the workspace and backup paths are safe.
+    Raises ``RuntimeError`` with details on failure.
+    """
+
+    validate_no_recursive_folders()
+    offending = detect_c_temp_violations()
+    if offending:
+        raise RuntimeError(f"CRITICAL: E:/temp/ violations prevent chunk execution: {offending}")
     return True
 
-def validate_no_recursive_folders():
-    # Placeholder: Implement workspace root and backup root recursion checks
-    workspace = CrossPlatformPathManager.get_workspace_path()
-    backup_root = CrossPlatformPathManager.get_backup_root()
-    real_workspace = workspace.resolve()
-    real_backup = backup_root.resolve()
-    if real_workspace == real_backup:
-        return False
-    for root, dirs, files in os.walk(workspace):
-        for d in dirs:
-            dpath = os.path.realpath(os.path.join(root, d))
-            if dpath == real_workspace or dpath == real_backup:
-                return False
-    return True
 
-def detect_c_temp_violations():
+def validate_workspace() -> bool:
+    """Public entry point to trigger anti-recursion validation."""
+
+    return chunk_anti_recursion_validation()
+
+
+def validate_no_recursive_folders() -> None:
+    """Ensure workspace and backup directories are distinct and non-nesting.
+
+    Walks both roots resolving symlinks and comparing inodes so that no
+    subdirectory can link back to either root.
+    """
+
+    workspace = CrossPlatformPathManager.get_workspace_path().resolve()
+    backup_root = CrossPlatformPathManager.get_backup_root().resolve()
+
+    if workspace == backup_root:
+        raise RuntimeError(f"Workspace and backup root are identical: {workspace}")
+    if workspace in backup_root.parents:
+        raise RuntimeError(
+            f"Backup root {backup_root} cannot reside within workspace {workspace}"
+        )
+    if backup_root in workspace.parents:
+        raise RuntimeError(
+            f"Workspace {workspace} cannot reside within backup root {backup_root}"
+        )
+
+    workspace_inode = workspace.stat().st_ino
+    backup_inode = backup_root.stat().st_ino
+
+    def is_nested(child: Path, parent: Path) -> bool:
+        try:
+            child.relative_to(parent)
+            return True
+        except ValueError:
+            return False
+
+    for base, target in ((workspace, backup_root), (backup_root, workspace)):
+        for root, dirs, _ in os.walk(base, followlinks=True):
+            for d in dirs:
+                path = Path(root) / d
+                try:
+                    resolved = path.resolve()
+                    inode = resolved.stat().st_ino
+                except OSError:
+                    continue
+                if inode in {workspace_inode, backup_inode} or resolved in {
+                    workspace,
+                    backup_root,
+                }:
+                    raise RuntimeError(f"Subdirectory {path} links back to {resolved}")
+                if is_nested(resolved, target):
+                    raise RuntimeError(
+                        f"Subdirectory {path} nests within {target}: {resolved}"
+                    )
+
+
+def detect_c_temp_violations() -> Optional[str]:
     forbidden = ["E:/temp/", "E:\\temp\\"]
     workspace = str(CrossPlatformPathManager.get_workspace_path())
     backup_root = str(CrossPlatformPathManager.get_backup_root())
     for forbidden_path in forbidden:
-        if workspace.startswith(forbidden_path) or backup_root.startswith(forbidden_path):
-            return True
-    return False
-
-chunk_anti_recursion_validation()
+        if workspace.startswith(forbidden_path):
+            return workspace
+        if backup_root.startswith(forbidden_path):
+            return backup_root
+    return None
 
 # --- Quantum Optimizer Class ---
 
@@ -62,6 +123,8 @@ class QuantumOptimizer:
     - Provides QAOA and VQE stubs if Qiskit is available
     - Unified run interface with progress reporting
     - Logs optimization metrics for compliance and reproducibility
+    - Refer to ``documentation/quantum_placeholder_roadmap.md`` for hardware migration milestones
+    - Operates with simulators by default; real backend execution depends on future provider availability
     """
 
     def __init__(
@@ -70,23 +133,77 @@ class QuantumOptimizer:
         variable_bounds: List[Tuple[float, float]],
         method: str = "simulated_annealing",
         options: Optional[Dict[str, Any]] = None,
+        backend: Any = None,
+        use_hardware: bool = False,
+        validate_workspace: bool = False,
     ):
-        """
-        Initialize optimizer.
-
-        Args:
-            objective_function: Callable function to minimize or maximize.
-            variable_bounds: List of (min, max) tuples for each variable.
-            method: Optimization routine ("simulated_annealing", "basin_hopping", "qaoa", "vqe").
-            options: Dictionary of additional optimizer options.
-        """
+        """Initialize optimizer."""
         self.objective_function = objective_function
         self.variable_bounds = variable_bounds
         self.method = method
         self.options = options or {}
-        self.history = []
-        self.metrics = {}
+        self.history: List[Dict[str, Any]] = []
+        self.metrics: Dict[str, Any] = {}
+        self.backend = backend
+        self.use_hardware = use_hardware
+        if validate_workspace:
+            chunk_anti_recursion_validation()
         self._validate_init()
+
+    def set_backend(
+        self,
+        backend: Any | None,
+        use_hardware: bool = False,
+        backend_name: str = "ibmq_qasm_simulator",
+    ) -> None:
+        """Set quantum backend for optimizers.
+
+        When ``backend`` is ``None`` this method acquires a backend via
+        :func:`quantum.utils.backend_provider.get_backend`, preferring IBM
+        Quantum hardware when ``use_hardware`` is ``True``.  If hardware access
+        is unavailable the local simulator is used.  The resolved backend is
+        logged with a ``[QUANTUM_BACKEND]`` tag and ``self.use_hardware`` is
+        updated to reflect whether a real device was selected.
+        """
+        if backend is None:
+            backend = get_backend(backend_name, use_hardware=use_hardware)
+            is_hardware = False
+            if backend is not None and use_hardware:
+                try:
+                    is_hardware = not backend.configuration().simulator
+                except Exception:  # pragma: no cover - backend may lack config
+                    is_hardware = False
+            self.backend = backend
+            self.use_hardware = is_hardware
+        else:
+            self.backend = backend
+            self.use_hardware = use_hardware
+        backend_label = getattr(self.backend, "name", str(self.backend))
+        self.log_event(
+            "[QUANTUM_BACKEND]",
+            {"backend": backend_label, "hardware": self.use_hardware},
+        )
+
+    def configure_backend(
+        self,
+        backend_name: str = "ibmq_qasm_simulator",
+        use_hardware: bool = False,
+        token: Optional[str] = None,
+    ) -> Any:
+        """Acquire and configure a quantum backend.
+
+        Credentials may be supplied via ``token`` or the ``QISKIT_IBM_TOKEN``
+        environment variable.  When ``use_hardware`` is True the function
+        requests an IBM Quantum backend and otherwise returns the local
+        simulator.  ``ImportError`` is raised if no backend can be obtained.
+        """
+        backend = get_backend(
+            backend_name, use_hardware=use_hardware, token=token
+        )
+        self.set_backend(backend, use_hardware)
+        if backend is not None:
+            return backend
+        raise ImportError("No quantum backend available")
 
     def _validate_init(self):
         if not callable(self.objective_function):
@@ -117,11 +234,23 @@ class QuantumOptimizer:
 
         Args:
             x0: Initial guess for variables (if required by method).
+            backend_name: Optional IBM backend name when requesting hardware.
+            token: Optional IBM Quantum API token.
             kwargs: Additional arguments passed to optimizer.
 
         Returns:
             Dictionary containing result, metrics, and full history.
         """
+        backend_name = kwargs.pop("backend_name", "ibmq_qasm_simulator")
+        token = kwargs.pop("token", None)
+        if self.use_hardware and self.backend is None:
+            try:
+                self.configure_backend(
+                    backend_name=backend_name, use_hardware=True, token=token
+                )
+            except Exception:
+                self.use_hardware = False
+
         self.log_event("optimization_start", {"method": self.method, "bounds": self.variable_bounds})
         start_time = datetime.utcnow()
         result = None
@@ -222,38 +351,64 @@ class QuantumOptimizer:
                     self.log_event("basin_hopping_progress", {"iteration": i, "current_best": best_val})
             return {"best_result": best_x.tolist(), "best_value": float(best_val)}
 
+    def _get_estimator(self) -> Any:
+        """Create an estimator for the current backend with hardware fallback."""
+        if not QISKIT_AVAILABLE:
+            raise ImportError("Qiskit is required for quantum estimators")
+        if self.backend is not None:
+            try:
+                return Estimator(backend=self.backend)
+            except Exception:
+                backend_name = getattr(self.backend, "name", str(self.backend))
+                self.log_event("backend_fallback", {"backend": backend_name})
+                self.backend = Aer.get_backend("statevector_simulator")
+                self.use_hardware = False
+                return Estimator(backend=self.backend)
+        return Estimator()
+
     def _run_qaoa(self, **kwargs) -> Dict[str, Any]:
-        """Stub: QAOA optimizer (requires Qiskit)."""
-        # Implementation here would depend on Qiskit and problem encoding
-        n_qubits = kwargs.get("n_qubits", 3)
-        depth = kwargs.get("depth", 2)
-        qc = QuantumCircuit(n_qubits)
-        for q in range(n_qubits):
-            qc.h(q)
-        for d in range(depth):
-            for q in range(n_qubits):
-                qc.rx(np.pi / (d + 1), q)
-        backend = Aer.get_backend("statevector_simulator")
-        job = execute(qc, backend)
-        result = job.result()
-        statevector = result.get_statevector()
-        norm = np.sum(np.abs(statevector) ** 2)
-        self.log_event("qaoa_complete", {"n_qubits": n_qubits, "depth": depth, "norm": float(norm)})
-        return {"statevector_norm": float(norm), "statevector": statevector.tolist()}
+        """Run QAOA using Qiskit's minimum eigensolver API."""
+        n_qubits = kwargs.get("n_qubits", len(self.variable_bounds) or 2)
+        reps = kwargs.get("reps", 1)
+        max_iter = kwargs.get("max_iter", 100)
+        estimator = self._get_estimator()
+        optimizer = COBYLA(maxiter=max_iter)
+        ansatz = TwoLocal(n_qubits, "ry", "cz", reps=reps)
+        interval = max(1, max_iter // 10)
+
+        def callback(eval_count, params, mean, _):
+            if eval_count % interval == 0:
+                self.log_event("qaoa_progress", {"eval_count": eval_count, "mean": float(mean)})
+
+        qaoa = QAOA(ansatz=ansatz, optimizer=optimizer, estimator=estimator, callback=callback)
+        hamiltonian = SparsePauliOp.from_list([("Z" * n_qubits, 1.0)])
+        self.log_event("qaoa_start", {"n_qubits": n_qubits, "reps": reps})
+        result = qaoa.compute_minimum_eigenvalue(hamiltonian)
+        energy = float(result.eigenvalue.real)
+        self.log_event("qaoa_complete", {"energy": energy})
+        return {"eigenvalue": energy}
 
     def _run_vqe(self, **kwargs) -> Dict[str, Any]:
-        """Stub: VQE optimizer (requires Qiskit)."""
-        n_qubits = kwargs.get("n_qubits", 2)
-        qc = QuantumCircuit(n_qubits)
-        for q in range(n_qubits):
-            qc.h(q)
-        backend = Aer.get_backend("statevector_simulator")
-        job = execute(qc, backend)
-        result = job.result()
-        statevector = result.get_statevector()
-        norm = np.sum(np.abs(statevector) ** 2)
-        self.log_event("vqe_complete", {"n_qubits": n_qubits, "norm": float(norm)})
-        return {"statevector_norm": float(norm), "statevector": statevector.tolist()}
+        """Run VQE using Qiskit's minimum eigensolver API."""
+        n_qubits = kwargs.get("n_qubits", len(self.variable_bounds) or 2)
+        reps = kwargs.get("reps", 1)
+        max_iter = kwargs.get("max_iter", 100)
+        estimator = self._get_estimator()
+        optimizer = COBYLA(maxiter=max_iter)
+        ansatz = TwoLocal(n_qubits, "ry", "cz", reps=reps)
+        interval = max(1, max_iter // 10)
+
+        def callback(eval_count, params, mean, _):
+            if eval_count % interval == 0:
+                self.log_event("vqe_progress", {"eval_count": eval_count, "mean": float(mean)})
+
+        vqe = VQE(ansatz=ansatz, optimizer=optimizer, estimator=estimator, callback=callback)
+        hamiltonian = SparsePauliOp.from_list([("Z" * n_qubits, 1.0)])
+        self.log_event("vqe_start", {"n_qubits": n_qubits, "reps": reps})
+        result = vqe.compute_minimum_eigenvalue(hamiltonian)
+        energy = float(result.eigenvalue.real)
+        self.log_event("vqe_complete", {"energy": energy})
+        return {"eigenvalue": energy}
 
 # --- Example Usage ---
 

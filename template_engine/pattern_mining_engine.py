@@ -26,13 +26,23 @@ from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
+import numpy as np
 
 from .template_synchronizer import _log_audit_real
 from utils.log_utils import _log_event
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
+
+# Quantum scoring helper
+try:  # pragma: no cover - optional dependency
+    from quantum_algorithm_library_expansion import quantum_text_score
+except ImportError:  # pragma: no cover - dependency not installed
+    def quantum_text_score(text: str) -> float:
+        """Return a default score when quantum library is unavailable."""
+        return 0.0
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"pattern_mining_engine_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -41,6 +51,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 
 def validate_no_recursive_folders() -> None:
@@ -102,6 +114,59 @@ def extract_patterns(templates: List[str]) -> List[str]:
         for i in range(len(words) - 2):
             patterns.add(" ".join(words[i : i + 3]))
     return list(patterns)
+
+
+def rank_patterns_quantum(patterns: List[str], target: str) -> List[tuple[str, float]]:
+    """Rank patterns against ``target`` using quantum-inspired scoring.
+
+    Each pattern receives a score based on the absolute difference between
+    its quantum text score and that of ``target``. Patterns with scores
+    closer to the target are ranked higher.
+
+    Parameters
+    ----------
+    patterns:
+        Mined pattern strings to rank.
+    target:
+        Reference string for comparison.
+
+    Returns
+    -------
+    List[tuple[str, float]]
+        List of ``(pattern, score)`` tuples sorted by descending score.
+    """
+
+    target_score = quantum_text_score(target)
+    scored = []
+    for pat in patterns:
+        score = 1.0 - abs(quantum_text_score(pat) - target_score)
+        scored.append((pat, score))
+    scored.sort(key=lambda x: x[1], reverse=True)
+    return scored
+
+
+def cluster_templates(features: List[List[float]], n_clusters: int = 5) -> List[int]:
+    """Cluster templates based on numeric features using KMeans.
+
+    Parameters
+    ----------
+    features: List[List[float]]
+        Feature vectors representing templates.
+    n_clusters: int, optional
+        Desired number of clusters, default is 5.
+
+    Returns
+    -------
+    List[int]
+        Cluster label for each feature vector. Returns an empty list when
+        ``features`` is empty.
+    """
+    if not features:
+        return []
+    data = np.array(features)
+    k = min(len(data), n_clusters)
+    model = KMeans(n_clusters=k, n_init="auto", random_state=0)
+    return model.fit_predict(data).tolist()
 
 
 def _log_patterns(patterns: List[str], analytics_db: Path) -> None:
@@ -203,9 +268,7 @@ def mine_patterns(
                 _log_audit_real(str(analytics_db), f"pattern_mined:{pat}")
                 etc = calculate_etc(start_ts, idx, total_steps)
                 if time.time() - start_ts > timeout_seconds:
-                    raise TimeoutError(
-                        f"Process exceeded {timeout_minutes} minute timeout"
-                    )
+                    raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
                 if idx % 10 == 0 or idx == total_steps:
                     logging.info(f"Pattern {idx}/{total_steps} stored | ETC: {etc}")
             conn.commit()
@@ -238,9 +301,7 @@ def mine_patterns(
             )
             for pat, label in zip(patterns, labels):
                 if time.time() - start_ts > timeout_seconds:
-                    raise TimeoutError(
-                        f"Process exceeded {timeout_minutes} minute timeout"
-                    )
+                    raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
                 conn.execute(
                     "INSERT INTO pattern_clusters (pattern, cluster, ts) VALUES (?,?,?)",
                     (pat, int(label), datetime.utcnow().isoformat()),
@@ -250,10 +311,7 @@ def mine_patterns(
                 (inertia, silhouette, cluster_count, datetime.utcnow().isoformat()),
             )
             conn.commit()
-    _log_audit_real(
-        str(analytics_db),
-        f"clusters={cluster_count},inertia={inertia:.2f},silhouette={silhouette:.4f}"
-    )
+    _log_audit_real(str(analytics_db), f"clusters={cluster_count},inertia={inertia:.2f},silhouette={silhouette:.4f}")
     logging.info(
         "Pattern mining completed in %.2fs | ETC: %s",
         time.time() - start_ts,
@@ -324,9 +382,7 @@ def aggregate_cross_references(analytics_db: Path = DEFAULT_ANALYTICS_DB) -> Dic
                 ts TEXT
             )"""
         )
-        rows = conn.execute(
-            "SELECT file_path, COUNT(*) FROM cross_link_events GROUP BY file_path"
-        ).fetchall()
+        rows = conn.execute("SELECT file_path, COUNT(*) FROM cross_link_events GROUP BY file_path").fetchall()
         for path, num in rows:
             counts[path] = int(num)
             conn.execute(
@@ -356,6 +412,8 @@ def validate_mining(expected_count: int, analytics_db: Path = DEFAULT_ANALYTICS_
 
 __all__ = [
     "extract_patterns",
+    "rank_patterns_quantum",
+    "cluster_templates",
     "mine_patterns",
     "get_clusters",
     "get_cluster_metrics",

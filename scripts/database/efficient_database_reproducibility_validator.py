@@ -13,7 +13,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, Optional, Any
 import logging
 
 # Configure logging with ASCII-safe format

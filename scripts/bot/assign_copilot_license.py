@@ -87,7 +87,7 @@ def main() -> None:
     def _primary() -> bool:
         return assign_license(args.username, not args.revoke)
 
-    primary_success, validation_success = orchestrator.run(_primary, [__file__])
+    primary_success, validation_success, _ = orchestrator.run(_primary, [__file__])
 
     duration = (datetime.now() - start).total_seconds()
     if primary_success and validation_success:

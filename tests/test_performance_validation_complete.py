@@ -9,8 +9,7 @@ from scripts.validation.performance_validation_complete import benchmark
 
 def test_benchmark_runs():
     results = benchmark()
-    assert set(results.keys()) >= {"grover_time", "kmeans_time",
-                                   "qnn_time", "template_time", "flake8_time"}
+    assert set(results.keys()) >= {"grover_time", "kmeans_time", "qnn_time", "template_time", "flake8_time"}
     for value in results.values():
         assert value >= 0
 
@@ -42,9 +41,7 @@ def test_metrics_are_stored(tmp_path, monkeypatch):
 
     benchmark(db_path=db_file)
     with sqlite3.connect(db_file) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM performance_metrics"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM performance_metrics").fetchone()[0]
     assert count == 1
 
 

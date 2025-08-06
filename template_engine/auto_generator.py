@@ -27,8 +27,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
 from utils.log_utils import _log_event
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
 
 from .pattern_templates import get_pattern_templates
+from .learning_templates import get_lesson_templates
 from .placeholder_utils import DEFAULT_PRODUCTION_DB
 from .objective_similarity_scorer import compute_similarity_scores
 from .pattern_mining_engine import extract_patterns
@@ -49,6 +51,7 @@ except ImportError:  # pragma: no cover - optional dependency
         _qal = None
 
     if _qal is not None:
+
         def quantum_text_score(text: str) -> float:
             """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
             return _qal.quantum_text_score(text)
@@ -61,6 +64,7 @@ except ImportError:  # pragma: no cover - optional dependency
             """Fallback invoking :mod:`quantum_algorithm_library_expansion`."""
             return _qal.quantum_cluster_score(matrix)
     else:
+
         def quantum_text_score(text: str) -> float:
             """Return a default score when quantum library is unavailable."""
             return 0.0
@@ -77,7 +81,7 @@ except ImportError:  # pragma: no cover - optional dependency
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
 DEFAULT_COMPLETION_DB = Path("databases/template_completion.db")
 
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"auto_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -91,12 +95,19 @@ logger = logging.getLogger(__name__)
 
 def validate_no_recursive_folders() -> None:
     workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", str(Path.cwd())))
-    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
-    for pattern in forbidden_patterns:
-        for folder in workspace_root.rglob(pattern):
-            if folder.is_dir() and folder != workspace_root:
-                logger.error(f"Recursive folder detected: {folder}")
-                raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+    # Flag directories that are obvious recursion risks
+    forbidden_substrings = ["backup"]
+    forbidden_exact = {"temp"}
+    excluded_names = {".venv", "tmp"}
+    for folder in workspace_root.rglob("*"):
+        if not folder.is_dir() or folder == workspace_root:
+            continue
+        if any(name in folder.parts for name in excluded_names):
+            continue
+        name_lower = folder.name.lower()
+        if name_lower in forbidden_exact or any(sub in name_lower for sub in forbidden_substrings):
+            logger.error(f"Recursive folder detected: {folder}")
+            raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
 
 
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
@@ -134,9 +145,17 @@ class TemplateAutoGenerator:
         logger.info(f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"Process ID: {os.getpid()}")
         validate_no_recursive_folders()
-        # DB-first loading of patterns and templates
+        # DB-first loading of patterns, lessons, and templates
+        self.lessons = load_lessons()
+        apply_lessons(logger, self.lessons)
         self.patterns = self._load_patterns()
-        self.templates = self._load_templates() + get_pattern_templates()
+        lesson_descriptions = [lesson["description"] for lesson in self.lessons]
+        self.templates = (
+            lesson_descriptions
+            + self._load_templates()
+            + get_pattern_templates()
+            + list(get_lesson_templates().values())
+        )
         self.cluster_vectorizer = None
         self.cluster_model = self._cluster_patterns()
         self._last_objective: dict[str, Any] | None = None
@@ -344,7 +363,9 @@ class TemplateAutoGenerator:
                         db_path=self.analytics_db,
                     )
         if not ranked:
-            candidates = self.templates or self.patterns
+            lesson_templates = list(get_lesson_templates().values())
+            base_candidates = self.templates or self.patterns
+            candidates = base_candidates + lesson_templates
             for tmpl in candidates:
                 vecs = vectorizer.fit_transform([target, tmpl]).toarray()
                 tfidf = float(cosine_similarity([vecs[0]], [vecs[1]])[0][0])

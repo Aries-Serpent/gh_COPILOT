@@ -15,15 +15,21 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from tqdm import tqdm
-from utils.log_utils import ensure_tables
+from utils.log_utils import ensure_tables, _log_event
 from utils.cross_platform_paths import CrossPlatformPathManager
+from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
+from secondary_copilot_validator import SecondaryCopilotValidator
+import shutil
+from utils.lessons_learned_integrator import load_lessons, apply_lessons
+from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
+from unified_script_generation_system import EnterpriseUtility
 
 DEFAULT_PRODUCTION_DB = Path("databases/production.db")
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"template_placeholder_remover_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
@@ -32,6 +38,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
+
+apply_lessons(logging.getLogger(__name__), load_lessons())
 
 _PLACEHOLDER_RE = re.compile(r"{{\s*([A-Z0-9_]+)\s*}}")
 
@@ -87,11 +95,29 @@ def remove_unused_placeholders(
     production_db: Path = DEFAULT_PRODUCTION_DB,
     analytics_db: Path = DEFAULT_ANALYTICS_DB,
     timeout_minutes: int = 30,
+    *,
+    source_path: Optional[Path] = None,
+    logger: Optional[CorrectionLoggerRollback] = None,
+    backup_path: Optional[Path] = None,
+    update_compliance: bool = False,
+    auto_remediate: bool = False,
+    workspace_path: Optional[Path] = None,
+    dashboard_dir: Optional[Path] = None,
+    simulate: bool = False,
 ) -> str:
     """
     Remove placeholders not defined in production DB from the template string.
     Includes visual processing indicators, start time logging, timeout, ETC, and status updates.
     Logs all removals to analytics.db and /logs/template_rendering.
+
+    Parameters
+    ----------
+    source_path:
+        When provided, path of the file being modified. Enables rollback logging.
+    logger:
+        ``CorrectionLoggerRollback`` instance used to record removals.
+    backup_path:
+        Optional path to a backup of ``source_path`` for rollback purposes.
     """
     validate_no_recursive_folders()
     start_time = datetime.now()
@@ -105,9 +131,22 @@ def remove_unused_placeholders(
     result = template
     analytics_db.parent.mkdir(parents=True, exist_ok=True)
     total_steps = len(found)
+    removed_count = sum(1 for ph in found if ph not in valid)
     elapsed = 0.0
     ensure_tables(analytics_db, ["placeholder_removals", "todo_fixme_tracking"], test_mode=False)
+    # Ensure backup exists when logging
+    if source_path and logger:
+        if backup_path is None and source_path.exists():
+            backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
+            backup_dir = backup_root / "template_removals"
+            backup_dir.mkdir(parents=True, exist_ok=True)
+            backup_path = backup_dir / f"{source_path.name}.{int(time.time())}.bak"
+            shutil.copy2(source_path, backup_path)
     with sqlite3.connect(analytics_db) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS placeholder_removal_events (event TEXT, placeholder TEXT, removal_id INTEGER, removed INTEGER, timestamp TEXT, level TEXT, module TEXT)"
+        )
+        conn.commit()
         etc = "N/A"
         with tqdm(total=total_steps, desc="Removing Placeholders", unit="ph") as bar:
             for idx, ph in enumerate(found, 1):
@@ -126,6 +165,21 @@ def remove_unused_placeholders(
                         " WHERE placeholder_type=? AND resolved=0",
                         (datetime.utcnow().isoformat(), removal_id, ph),
                     )
+                    conn.commit()
+                    _log_event(
+                        {"event": "placeholder_removed", "placeholder": ph, "removal_id": removal_id},
+                        table="placeholder_removal_events",
+                        db_path=analytics_db,
+                        test_mode=False,
+                    )
+                    if source_path and logger:
+                        logger.log_change(
+                            source_path,
+                            f"Removed placeholder {ph}",
+                            compliance_score=1.0,
+                            rollback_reference=str(backup_path) if backup_path else None,
+                        )
+                        SecondaryCopilotValidator().validate_corrections([str(source_path)])
                 elapsed = time.time() - start_time.timestamp()
                 etc = calculate_etc(start_time.timestamp(), idx, total_steps)
                 bar.set_postfix(ETC=etc)
@@ -135,6 +189,27 @@ def remove_unused_placeholders(
         conn.commit()
     logging.info(f"Placeholder removal completed in {elapsed:.2f}s | ETC: {etc}")
     _write_log(found, valid, result)
+    _log_event(
+        {"event": "placeholder_removal_summary", "removed": removed_count},
+        table="placeholder_removal_events",
+        db_path=analytics_db,
+        test_mode=False,
+    )
+    if update_compliance:
+        try:
+            updater = ComplianceMetricsUpdater(
+                dashboard_dir or Path("dashboard/compliance"), test_mode=simulate
+            )
+            updater.update(simulate=simulate)
+            updater.validate_update()
+        except Exception as exc:  # pragma: no cover - dashboard errors
+            logging.error("Compliance metrics update failed: %s", exc)
+    if auto_remediate:
+        try:
+            utility = EnterpriseUtility(str(workspace_path or Path.cwd()))
+            utility.execute_utility()
+        except Exception as exc:  # pragma: no cover - generation errors
+            logging.error("Script generation failed: %s", exc)
     return result
 
 

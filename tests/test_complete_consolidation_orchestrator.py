@@ -88,9 +88,12 @@ def test_create_external_backup(tmp_path: Path, monkeypatch) -> None:
 
     from scripts.database import complete_consolidation_orchestrator as cco
 
-    cco.WORKSPACE_PATH = workspace
     with pytest.raises(RuntimeError):
         cco.create_external_backup(source, "unit_test", backup_dir=internal_backup)
+
+    sneaky_backup = workspace / ".." / "ws" / "backups"
+    with pytest.raises(RuntimeError):
+        cco.create_external_backup(source, "unit_test", backup_dir=sneaky_backup)
 
     external_root = tmp_path / "external_backups"
     backup = cco.create_external_backup(source, "unit_test", backup_dir=external_root)

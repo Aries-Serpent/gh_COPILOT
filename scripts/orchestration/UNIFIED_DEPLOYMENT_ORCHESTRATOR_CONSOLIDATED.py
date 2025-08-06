@@ -1,4 +1,5 @@
 """Unified deployment orchestrator integrating all systems."""
+
 from __future__ import annotations
 
 import argparse
@@ -70,6 +71,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("Specify exactly one of --start, --stop, or --status")
 
     if args.start:
+
         def operation() -> bool:
             manager.start_session()
             UnifiedDeploymentOrchestrator(Path(os.getenv("GH_COPILOT_WORKSPACE", "."))).run()

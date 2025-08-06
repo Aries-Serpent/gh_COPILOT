@@ -14,7 +14,6 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
-from tqdm import tqdm
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {
@@ -25,7 +24,7 @@ TEXT_INDICATORS = {
     'info': '[INFO]'
 }
 
-RENDER_LOG_DIR = Path("logs") / "template_rendering"
+RENDER_LOG_DIR = Path("artifacts/logs") / "template_rendering"
 
 
 class EnterpriseDatabaseProcessor:

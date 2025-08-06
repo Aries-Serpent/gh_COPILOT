@@ -3,7 +3,9 @@
 
 This module provides :func:`log_sync_operation` which records an operation name,
 status, caller supplied start time, calculated duration and a timestamp to the
-``cross_database_sync_operations`` table.  The
+``cross_database_sync_operations`` table in one or more databases.  In addition,
+each call emits an analytics event via :func:`utils.log_utils.log_event` so that
+sync activity is captured by the unified logging pipeline.  The
 ``validate_enterprise_operation`` guard is executed before any write occurs and
 CLI usage displays a progress bar when logging multiple operations.
 """
@@ -11,11 +13,15 @@ CLI usage displays a progress bar when logging multiple operations.
 from __future__ import annotations
 
 import logging
+import os
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Iterable
 
 from enterprise_modules.compliance import validate_enterprise_operation
+from utils.cross_platform_paths import CrossPlatformPathManager
+from utils.log_utils import log_event
 from utils.logging_utils import setup_enterprise_logging
 
 logger = logging.getLogger(__name__)
@@ -31,13 +37,17 @@ def _table_exists(conn: sqlite3.Connection, table: str) -> bool:
 
 
 def log_sync_operation(
-    db_path: Path,
+    db_paths: Path | Iterable[Path],
     operation: str,
     *,
     status: str = "SUCCESS",
     start_time: datetime | None = None,
-) -> datetime:
+    ) -> datetime:
     """Insert a sync operation record and return the start timestamp.
+
+    ``db_paths`` may be a single path or an iterable of paths.  The operation
+    entry is written to each database in a best-effort atomic transaction.  If
+    any insert fails, all previous inserts are rolled back.
 
     ``start_time`` should be the timestamp captured when the operation began.
     If ``None`` it is set to the current time so callers can reuse the returned
@@ -46,34 +56,102 @@ def log_sync_operation(
     """
     validate_enterprise_operation()
 
-    if not db_path.exists():
-        from .unified_database_initializer import initialize_database
-        initialize_database(db_path)
+    paths: list[Path] = (
+        [db_paths] if isinstance(db_paths, Path) else [Path(p) for p in db_paths]
+    )
 
+    if start_time is not None and start_time.tzinfo is None:
+        start_time = start_time.replace(tzinfo=timezone.utc)
     start_dt = start_time or datetime.now(timezone.utc)
     end_dt = datetime.now(timezone.utc)
     duration = (end_dt - start_dt).total_seconds()
     timestamp = end_dt.isoformat()
 
-    with sqlite3.connect(db_path) as conn:
-        if not _table_exists(conn, "cross_database_sync_operations"):
-            conn.close()
-            from .unified_database_initializer import initialize_database
-            initialize_database(db_path)
+    connections: list[sqlite3.Connection] = []
+    try:
+        for db_path in paths:
+            if not db_path.exists():
+                from .unified_database_initializer import initialize_database
+
+                initialize_database(db_path)
+
             conn = sqlite3.connect(db_path)
-        with conn:
+            if not _table_exists(conn, "cross_database_sync_operations"):
+                conn.close()
+                from .unified_database_initializer import initialize_database
+
+                initialize_database(db_path)
+                conn = sqlite3.connect(db_path)
+            connections.append(conn)
+
+        for conn in connections:
             conn.execute(
                 "INSERT INTO cross_database_sync_operations (operation, status, start_time, duration, timestamp)"
                 " VALUES (?, ?, ?, ?, ?)",
                 (operation, status, start_dt.isoformat(), duration, timestamp),
             )
+
+        for conn in connections:
             conn.commit()
+    except Exception:
+        for conn in connections:
+            conn.rollback()
+        raise
+    finally:
+        for conn in connections:
+            conn.close()
+
     logger.info(
         "Logged sync operation %s at %s with status %s",
         operation,
         timestamp,
         status,
     )
+    try:
+        analytics_db = Path(os.getenv("ANALYTICS_DB", "databases/analytics.db"))
+        log_event(
+            {
+                "module": "cross_database_sync_logger",
+                "level": "INFO",
+                "description": operation,
+                "status": status,
+                "duration": duration,
+                "timestamp": timestamp,
+            },
+            db_path=analytics_db,
+        )
+    except Exception as exc:  # pragma: no cover - best effort analytics logging
+        logger.error("Failed to log analytics event: %s", exc)
+    return start_dt
+
+
+def log_sync_operation_with_analytics(
+    db_paths: Path | Iterable[Path],
+    operation: str,
+    *,
+    status: str = "SUCCESS",
+    start_time: datetime | None = None,
+    analytics_db: Path | None = None,
+) -> datetime:
+    """Log a sync operation and record an analytics event.
+
+    This helper combines :func:`log_sync_operation` with :func:`log_event` to
+    provide an audit-grade trail of synchronization activity.  ``analytics_db``
+    defaults to ``databases/analytics.db`` under the current workspace.
+    """
+
+    start_dt = log_sync_operation(
+        db_paths, operation, status=status, start_time=start_time
+    )
+    event = {
+        "source": operation,
+        "target": status,
+        "ts": datetime.now(timezone.utc).isoformat(),
+    }
+    db_path = analytics_db or (
+        CrossPlatformPathManager.get_workspace_path() / "databases" / "analytics.db"
+    )
+    log_event(event, table="sync_events_log", db_path=db_path)
     return start_dt
 
 
@@ -83,9 +161,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Log a sync operation")
     parser.add_argument(
         "--database",
-        default=Path(__file__).resolve().parents[1] / "databases" / "enterprise_assets.db",
+        default=[Path(__file__).resolve().parents[1] / "databases" / "enterprise_assets.db"],
         type=Path,
-        help="Path to enterprise_assets.db",
+        nargs="+",
+        help="Path(s) to enterprise_assets.db",
     )
     parser.add_argument(
         "--status",
@@ -107,11 +186,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     setup_enterprise_logging()
 
-    start_dt = (
-        datetime.fromisoformat(args.start_time)
-        if args.start_time
-        else datetime.now(timezone.utc)
-    )
+    start_dt = datetime.fromisoformat(args.start_time) if args.start_time else datetime.now(timezone.utc)
     ops = args.operation
     if len(ops) > 1:
         from tqdm import tqdm

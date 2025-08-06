@@ -12,11 +12,18 @@ import json
 import logging
 import sqlite3
 from datetime import datetime
+import argparse
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from tqdm import tqdm
 import uuid
+
+from template_engine.learning_templates import (
+    get_lesson_templates,
+    get_dataset_sources,
+)
+from utils.lessons_learned_integrator import store_lesson
 
 
 # 🚨 CRITICAL: Anti-recursion workspace validation
@@ -73,6 +80,7 @@ class GapAnalysisResult:
     overall_integration_score_impact: float
     gaps_by_category: Dict[str, List[LessonsLearnedGap]]
     remediation_roadmap: List[Dict[str, Any]]
+    dataset_coverage_ok: bool
     analysis_passed: bool
     recommendations: List[str] = field(default_factory=list)
 
@@ -92,6 +100,7 @@ class LessonsLearnedGapAnalyzer:
 
         # Database and file paths
         self.production_db = self.workspace_path / "production.db"
+        self.dataset_sources = get_dataset_sources(str(self.workspace_path))
         self.reports_dir = self.workspace_path / "reports" / "gap_analysis"
         self.logs_dir = self.workspace_path / "logs" / "gap_analysis"
 
@@ -193,10 +202,46 @@ class LessonsLearnedGapAnalyzer:
         self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
 
+    def _dataset_lesson_keys(self) -> set[str]:
+        """Collect lesson identifiers from available dataset sources."""
+        lessons: set[str] = set()
+        for db in self.dataset_sources:
+            if not db.exists():
+                continue
+            try:
+                with sqlite3.connect(db) as conn:
+                    try:
+                        cur = conn.execute(
+                            "SELECT lesson_name FROM pattern_assets WHERE lesson_name IS NOT NULL"
+                        )
+                        lessons.update(row[0] for row in cur.fetchall())
+                    except sqlite3.Error:
+                        pass
+                    try:
+                        cur = conn.execute("SELECT lesson_key FROM lessons_learned")
+                        lessons.update(row[0] for row in cur.fetchall())
+                    except sqlite3.Error:
+                        pass
+            except sqlite3.Error:
+                continue
+        return lessons
+
+    def validate_dataset_coverage(self) -> bool:
+        """Verify all lesson templates are represented in the dataset."""
+        expected = set(get_lesson_templates().keys())
+        available = self._dataset_lesson_keys()
+        missing = expected - available
+        if missing:
+            self.logger.warning("Missing lessons in dataset: %s", ", ".join(sorted(missing)))
+            return False
+        return True
+
     def execute_comprehensive_gap_analysis(self) -> GapAnalysisResult:
         """🎯 Execute comprehensive lessons learned gap analysis with visual indicators"""
 
         self.logger.info("🚀 STARTING COMPREHENSIVE GAP ANALYSIS")
+
+        coverage_ok = self.validate_dataset_coverage()
 
         # MANDATORY: Visual processing with tqdm
         gaps_found = []
@@ -246,6 +291,8 @@ class LessonsLearnedGapAnalyzer:
             pbar.set_description("🗺️ Remediation Roadmap")
             self._check_timeout()
             analysis_result = self._generate_comprehensive_analysis_result(gaps_found)
+            analysis_result.dataset_coverage_ok = coverage_ok
+            analysis_result.analysis_passed = analysis_result.analysis_passed and coverage_ok
             pbar.update(16.6)
 
         # Log completion summary
@@ -515,6 +562,7 @@ class LessonsLearnedGapAnalyzer:
             overall_integration_score_impact=total_impact,
             gaps_by_category=gaps_by_category,
             remediation_roadmap=remediation_roadmap,
+            dataset_coverage_ok=True,
             analysis_passed=analysis_passed,
             recommendations=recommendations,
         )
@@ -672,17 +720,27 @@ class LessonsLearnedGapAnalyzer:
             raise TimeoutError(f"Gap analysis exceeded {self.timeout_minutes} minute timeout")
 
 
-def main():
+def main(argv: list[str] | None = None):
     """🎯 Main execution function for gap analysis"""
 
+    parser = argparse.ArgumentParser(description="Run gap analysis or append a lesson")
+    parser.add_argument("--lesson", help="Append a new lesson and exit")
+    args = parser.parse_args(argv)
+
+    if args.lesson:
+        store_lesson(
+            description=args.lesson,
+            source="gap_analyzer",
+            timestamp=datetime.utcnow().isoformat(),
+            validation_status="pending",
+            tags="gap",
+        )
+        print("Lesson stored")
+        return 0
+
     try:
-        # Initialize gap analyzer
         analyzer = LessonsLearnedGapAnalyzer()
-
-        # Execute comprehensive gap analysis
         result = analyzer.execute_comprehensive_gap_analysis()
-
-        # Display results summary
         print("\n" + "=" * 80)
         print("🔍 LESSONS LEARNED GAP ANALYSIS SUMMARY")
         print("=" * 80)
@@ -692,14 +750,11 @@ def main():
         print(f"📉 Integration Score Impact: {result.overall_integration_score_impact:.1f}%")
         print(f"✅ Analysis Status: {'PASSED' if result.analysis_passed else 'FAILED'}")
         print("=" * 80)
-
         if result.recommendations:
             print("\n📋 KEY RECOMMENDATIONS:")
             for i, recommendation in enumerate(result.recommendations, 1):
                 print(f"{i}. {recommendation}")
-
         return 0 if result.analysis_passed else 1
-
     except Exception as e:
         print(f"❌ Gap analysis failed: {str(e)}")
         return 1

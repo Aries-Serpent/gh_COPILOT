@@ -56,10 +56,12 @@ def test_update_template_content_failure_logs(tmp_path, monkeypatch):
     monkeypatch.setattr(ts, "_log_rollback", lambda target, backup=None: rollbacks.append(target))
 
     orig_connect = sqlite3.connect
+
     def connect_patched(*args, **kwargs):
         if args[0] == db:
             kwargs["factory"] = FailingConn
         return orig_connect(*args, **kwargs)
+
     monkeypatch.setattr(sqlite3, "connect", connect_patched)
 
     ts.update_template_content([db], "name", file_path)
@@ -82,10 +84,12 @@ def test_run_migrations_failure_logs(tmp_path, monkeypatch):
     script.write_text("CREATE TABLE foo(id INTEGER);")
 
     orig_glob = Path.glob
+
     def glob_patched(self, pattern):
         if self == Path("databases/migrations"):
             return [script]
         return orig_glob(self, pattern)
+
     monkeypatch.setattr(Path, "glob", glob_patched)
 
     audits = []
@@ -94,10 +98,12 @@ def test_run_migrations_failure_logs(tmp_path, monkeypatch):
     monkeypatch.setattr(ts, "_log_rollback", lambda target, backup=None: rollbacks.append(target))
 
     orig_connect = sqlite3.connect
+
     def connect_patched(*args, **kwargs):
         if args[0] == db:
             kwargs["factory"] = FailingConn
         return orig_connect(*args, **kwargs)
+
     monkeypatch.setattr(sqlite3, "connect", connect_patched)
 
     ts.run_migrations(db)

@@ -21,6 +21,7 @@ from scripts.monitoring.unified_monitoring_optimization_system import (
 
 # --- Anti-Recursion Validation (MANDATORY) ---
 
+
 def chunk_anti_recursion_validation():
     """CRITICAL: Validate workspace before chunk execution"""
     if not validate_no_recursive_folders():
@@ -28,6 +29,7 @@ def chunk_anti_recursion_validation():
     if detect_c_temp_violations():
         raise RuntimeError("CRITICAL: E:/temp/ violations prevent chunk execution")
     return True
+
 
 def validate_no_recursive_folders():
     workspace = os.environ.get("GH_COPILOT_WORKSPACE", os.getcwd())
@@ -43,6 +45,7 @@ def validate_no_recursive_folders():
                 return False
     return True
 
+
 def detect_c_temp_violations():
     forbidden = ["E:/temp/", "E:\\temp\\"]
     workspace = os.environ.get("GH_COPILOT_WORKSPACE", os.getcwd())
@@ -52,9 +55,11 @@ def detect_c_temp_violations():
             return True
     return False
 
+
 chunk_anti_recursion_validation()
 
 # --- Monitor Class ---
+
 
 class ContinuousOperationMonitor:
     """
@@ -118,7 +123,7 @@ class ContinuousOperationMonitor:
             "open_fds": 0,
             "status": "UNKNOWN",
             "anomaly": 0,
-            "note": ""
+            "note": "",
         }
         try:
             # Uptime (since script start)
@@ -130,14 +135,18 @@ class ContinuousOperationMonitor:
             # CPU load (system load average)
             try:
                 import psutil
-                metrics["cpu_load"] = psutil.getloadavg()[0] if hasattr(psutil, "getloadavg") else psutil.cpu_percent(interval=1) / 100.0
+
+                metrics["cpu_load"] = (
+                    psutil.getloadavg()[0] if hasattr(psutil, "getloadavg") else psutil.cpu_percent(interval=1) / 100.0
+                )
             except (ImportError, AttributeError):
                 metrics["cpu_load"] = 0.0
 
             # Memory stats
             if sys.platform == "linux" or sys.platform == "darwin":
                 import resource
-                with open('/proc/meminfo', 'r') as f:
+
+                with open("/proc/meminfo", "r") as f:
                     meminfo = f.read()
                 total_mem = int([x for x in meminfo.splitlines() if "MemTotal" in x][0].split()[1])
                 avail_mem = int([x for x in meminfo.splitlines() if "MemAvailable" in x][0].split()[1])
@@ -146,6 +155,7 @@ class ContinuousOperationMonitor:
                 metrics["open_fds"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
             elif sys.platform == "win32":
                 import psutil
+
                 mem = psutil.virtual_memory()
                 metrics["total_mem_mb"] = mem.total / 1024 / 1024
                 metrics["available_mem_mb"] = mem.available / 1024 / 1024
@@ -174,22 +184,25 @@ class ContinuousOperationMonitor:
         try:
             with sqlite3.connect(self.analytics_db) as conn:
                 cur = conn.cursor()
-                cur.execute(f"""
+                cur.execute(
+                    f"""
                     INSERT INTO {self.monitoring_table}
                     (session_id, timestamp, uptime_seconds, cpu_load, total_mem_mb, available_mem_mb, open_fds, status, anomaly, note)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    self.session_id,
-                    datetime.utcnow().isoformat() + "Z",
-                    metrics.get("uptime_seconds", 0.0),
-                    metrics.get("cpu_load", 0.0),
-                    metrics.get("total_mem_mb", 0.0),
-                    metrics.get("available_mem_mb", 0.0),
-                    metrics.get("open_fds", 0),
-                    metrics.get("status", ""),
-                    metrics.get("anomaly", 0),
-                    metrics.get("note", "")
-                ))
+                """,
+                    (
+                        self.session_id,
+                        datetime.utcnow().isoformat() + "Z",
+                        metrics.get("uptime_seconds", 0.0),
+                        metrics.get("cpu_load", 0.0),
+                        metrics.get("total_mem_mb", 0.0),
+                        metrics.get("available_mem_mb", 0.0),
+                        metrics.get("open_fds", 0),
+                        metrics.get("status", ""),
+                        metrics.get("anomaly", 0),
+                        metrics.get("note", ""),
+                    ),
+                )
                 conn.commit()
             self._log_event("metrics_logged", metrics)
         except Exception as e:
@@ -205,11 +218,13 @@ class ContinuousOperationMonitor:
                     metrics = self._get_system_metrics()
                     self._write_metrics(metrics)
                     self.last_metrics = metrics
-                    pbar.set_postfix({
-                        "status": metrics["status"],
-                        "load": f"{metrics['cpu_load']:.2f}",
-                        "mem_avail": f"{metrics['available_mem_mb']:.1f}MB"
-                    })
+                    pbar.set_postfix(
+                        {
+                            "status": metrics["status"],
+                            "load": f"{metrics['cpu_load']:.2f}",
+                            "mem_avail": f"{metrics['available_mem_mb']:.1f}MB",
+                        }
+                    )
                     pbar.update(1)
                     if metrics["anomaly"]:
                         print(f"[ALERT] Anomaly detected: {metrics['note']}")
@@ -218,20 +233,19 @@ class ContinuousOperationMonitor:
             print("\n[STOP] Monitor interrupted by user.")
             self._log_event("monitor_stopped", {"status": "USER_INTERRUPT"})
 
+
 def main():
     import argparse
+
     EnterpriseUtility().execute_utility()
     parser = argparse.ArgumentParser(description="Enterprise Continuous Operation Monitor for gh_COPILOT Toolkit")
     parser.add_argument("--interval", type=int, default=60, help="Monitor interval in seconds")
     parser.add_argument("--log-db", type=str, default=None, help="Path to analytics.db (default: workspace)")
     parser.add_argument("--quiet", action="store_true", help="Suppress detailed console output")
     args = parser.parse_args()
-    monitor = ContinuousOperationMonitor(
-        monitor_interval=args.interval,
-        log_db=args.log_db,
-        verbose=not args.quiet
-    )
+    monitor = ContinuousOperationMonitor(monitor_interval=args.interval, log_db=args.log_db, verbose=not args.quiet)
     monitor.monitor_loop()
+
 
 if __name__ == "__main__":
     EnterpriseUtility().execute_utility()

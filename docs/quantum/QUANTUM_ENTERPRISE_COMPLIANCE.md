@@ -4,14 +4,13 @@
 ## Regulatory and Security Compliance
 
 > **Note**
-> All quantum capabilities operate in simulation unless `qiskit-ibm-provider` is installed and configured with a valid IBM Quantum token.
+> All quantum capabilities operate in simulation only. Installing `qiskit-ibm-provider` or configuring IBM Quantum tokens has no effect because hardware execution is not supported.
 
 ### Simulation Mode
 The PIS Framework defaults to a high‑fidelity simulator. All quantum features
-mirror production logic but run classically unless a hardware backend is
-explicitly configured. This ensures deterministic results for testing and
-compliance audits. Hardware support can be enabled as described in the
-**Optional Hardware Setup** section below.
+mirror production logic and run classically for deterministic testing and
+compliance audits. Hardware support is not yet available; the steps in the
+**Optional Hardware Setup** section are placeholders for future integration.
 
 ### Compliance Framework
 The quantum-enhanced PIS Framework meets all enterprise compliance requirements:
@@ -34,9 +33,25 @@ The quantum-enhanced PIS Framework meets all enterprise compliance requirements:
 4. **Quantum Error Correction**: Data integrity assurance
 
 ### Implemented Quantum Routines
-- **Quantum Annealing Optimization** *(placeholder)*
-- **Quantum Superposition Search** *(placeholder)*
-- **Quantum Entanglement Correction** *(placeholder)*
+- **Quantum Annealing Optimization**: Transverse-field Ising model that flips
+  qubits when given negative costs. Simulation uses Qiskit's Aer backend and
+  the `use_hardware` parameter is ignored. Example:
+  ```python
+  from quantum.quantum_annealing import run_quantum_annealing
+  run_quantum_annealing([1, -1])
+  ```
+- **Quantum Superposition Search**: Builds a uniform superposition and returns
+  a probability distribution for all basis states. Example:
+  ```python
+  from quantum.quantum_superposition_search import run_quantum_superposition_search
+  run_quantum_superposition_search(2)
+  ```
+- **Quantum Entanglement Correction**: Creates a Bell pair, injects a bit-flip
+  error and corrects it using a simple circuit. Example:
+  ```python
+  from quantum.quantum_entanglement_correction import run_entanglement_correction
+  run_entanglement_correction()
+  ```
 - **Quantum Phase Estimation** *(planned)*
 - **Grover's Search Optimization** *(simulation only)*
 - **Shor's Cryptographic Analyzer** *(simulation only)*
@@ -74,16 +89,17 @@ CREATE TABLE quantum_audit_log (
 - **Quantum Secure**: ✅ Compliant
 - **Audit Ready**: ✅ Documentation Complete
 
-### Optional Hardware Setup
-To execute routines on IBM Quantum hardware:
+### Optional Hardware Setup *(placeholder)
+Hardware execution is not yet supported. The steps below outline the future flow:
 1. Install `qiskit-ibm-provider` in the project virtual environment.
 2. Set the environment variable `QISKIT_IBM_TOKEN` with your IBM Quantum API key.
 3. Launch the orchestrator with the desired backend:
    ```bash
+   # placeholder; still runs on simulators
    python quantum_integration_orchestrator.py --hardware --backend ibm_oslo
    ```
-If the backend or token is unavailable, the toolkit automatically falls back to
-simulation mode.
+The toolkit ignores backend selection and token values and always operates in
+simulation mode. Hardware integration will arrive with the upcoming `QuantumExecutor` module.
 
 ---
 *Compliance Report v1.0*

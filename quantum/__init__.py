@@ -21,6 +21,7 @@ from .algorithms.functional import QuantumFunctional
 from .algorithms.expansion import QuantumLibraryExpansion
 from .orchestration.registry import QuantumAlgorithmRegistry, get_global_registry
 from .orchestration.executor import QuantumExecutor
+from .quantum_integration_orchestrator import QuantumIntegrationOrchestrator
 
 import logging
 
@@ -37,5 +38,6 @@ __all__ = [
     "QuantumAlgorithmRegistry",
     "get_global_registry",
     "QuantumExecutor",
+    "QuantumIntegrationOrchestrator",
     "QuantumOptimizer",
 ]

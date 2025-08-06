@@ -3,6 +3,7 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
+import template_engine.template_placeholder_remover as tpr
 from template_engine.template_placeholder_remover import (
     remove_unused_placeholders,
     validate_removals,
@@ -21,18 +22,10 @@ def test_remove_unused_placeholders(tmp_path: Path) -> None:
     prod = tmp_path / "production.db"
     analytics = tmp_path / "analytics.db"
     with sqlite3.connect(prod) as conn:
-        conn.execute(
-            "CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)"
-        )
-        conn.execute(
-            "CREATE TABLE template_placeholders (placeholder_name TEXT)"
-        )
-        conn.execute(
-            "INSERT INTO code_templates (id, template_code) VALUES (1, 'def foo(): {{PLACE}}')"
-        )
-        conn.execute(
-            "INSERT INTO template_placeholders (placeholder_name) VALUES ('VALID_PLACEHOLDER')"
-        )
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT)")
+        conn.execute("INSERT INTO code_templates (id, template_code) VALUES (1, 'def foo(): {{PLACE}}')")
+        conn.execute("INSERT INTO template_placeholders (placeholder_name) VALUES ('VALID_PLACEHOLDER')")
     with sqlite3.connect(analytics) as conn:
         conn.execute(
             "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT, resolved INTEGER, resolved_timestamp TEXT, status TEXT, removal_id INTEGER)"
@@ -40,18 +33,14 @@ def test_remove_unused_placeholders(tmp_path: Path) -> None:
 
     # Remove unused placeholders from template string
     with sqlite3.connect(prod) as conn:
-        code = conn.execute(
-            "SELECT template_code FROM code_templates WHERE id=1"
-        ).fetchone()[0]
+        code = conn.execute("SELECT template_code FROM code_templates WHERE id=1").fetchone()[0]
     result = remove_unused_placeholders(code, prod, analytics, timeout_minutes=1)
     assert "{{" not in result, "Placeholder not removed from template"
 
     # Validate DUAL COPILOT pattern: check analytics for removal records
     assert validate_removals(1, analytics), "DUAL COPILOT validation failed"
     with sqlite3.connect(analytics) as conn:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM placeholder_removals"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM placeholder_removals").fetchone()[0]
     assert count == 1
 
     # Completion summary
@@ -75,4 +64,53 @@ def test_no_placeholders_returns_same(tmp_path: Path) -> None:
     result = remove_unused_placeholders(code, prod, analytics, timeout_minutes=1)
     assert result == code
     assert validate_removals(0, analytics)
-    
+
+
+def test_updates_and_generation(tmp_path: Path, monkeypatch) -> None:
+    prod = tmp_path / "production.db"
+    analytics = tmp_path / "analytics.db"
+    with sqlite3.connect(prod) as conn:
+        conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
+        conn.execute("INSERT INTO code_templates VALUES (1, 'print(\"{{MISSING}}\")')")
+        conn.execute("CREATE TABLE template_placeholders (placeholder_name TEXT)")
+    with sqlite3.connect(analytics) as conn:
+        conn.execute(
+            "CREATE TABLE todo_fixme_tracking (file_path TEXT, line_number INTEGER, placeholder_type TEXT, context TEXT, timestamp TEXT, resolved INTEGER, resolved_timestamp TEXT, status TEXT, removal_id INTEGER)"
+        )
+
+    called = {"dashboard": False, "utility": False}
+
+    class DummyUpdater:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def update(self, simulate: bool = False) -> None:
+            called["dashboard"] = True
+
+        def validate_update(self) -> None:
+            pass
+
+    class DummyUtility:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def execute_utility(self) -> bool:
+            called["utility"] = True
+            return True
+
+    monkeypatch.setattr(tpr, "ComplianceMetricsUpdater", DummyUpdater)
+    monkeypatch.setattr(tpr, "EnterpriseUtility", DummyUtility)
+
+    code = "print(\"{{MISSING}}\")"
+    remove_unused_placeholders(
+        code,
+        prod,
+        analytics,
+        timeout_minutes=1,
+        update_compliance=True,
+        auto_remediate=True,
+        workspace_path=tmp_path,
+        dashboard_dir=tmp_path,
+    )
+    assert called["dashboard"]
+    assert called["utility"]

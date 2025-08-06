@@ -10,18 +10,14 @@ Enterprise Standards Compliance:
 """
 
 import logging
+
 # import os
 import sys
 from datetime import datetime
 from pathlib import Path
 
 # Text-based indicators (NO Unicode emojis)
-TEXT_INDICATORS = {
-    'start': '[START]',
-    'success': '[SUCCESS]',
-    'error': '[ERROR]',
-    'info': '[INFO]'
-}
+TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 
 class EnterpriseUtility:
@@ -42,9 +38,12 @@ class EnterpriseUtility:
 
             if success:
                 __duration = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"{TEXT_INDICATORS['success']} Uti"
-                                 " \
-                                  "                  "ity completed in {duration:.1f}s")
+                self.logger.info(
+                    f"{TEXT_INDICATORS['success']} Uti"
+                    " \
+                                  "
+                    "ity completed in {duration:.1f}s"
+                )
                 return True
             else:
                 self.logger.error(f"{TEXT_INDICATORS['error']} Utility failed")
@@ -57,9 +56,7 @@ class EnterpriseUtility:
     def perform_utility_function(self) -> bool:
         """Validate the workspace and check for required documentation."""
         if not self.workspace_path.exists():
-            self.logger.error(
-                f"{TEXT_INDICATORS['error']} Workspace missing: {self.workspace_path}"
-            )
+            self.logger.error(f"{TEXT_INDICATORS['error']} Workspace missing: {self.workspace_path}")
             return False
 
         readme = self.workspace_path / "README.md"
@@ -67,9 +64,7 @@ class EnterpriseUtility:
             self.logger.info(f"{TEXT_INDICATORS['info']} README found")
             return True
 
-        self.logger.warning(
-            f"{TEXT_INDICATORS['error']} README not found in {self.workspace_path}"
-        )
+        self.logger.warning(f"{TEXT_INDICATORS['error']} README not found in {self.workspace_path}")
         return False
 
 

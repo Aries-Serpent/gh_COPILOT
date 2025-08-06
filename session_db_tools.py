@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from utils.log_utils import _log_event, log_message
+from utils.lessons_learned_integrator import store_lesson
+from utils.validation_utils import anti_recursion_guard
 import logging
 
 TEXT_INDICATORS = {
@@ -31,6 +33,16 @@ TEXT_INDICATORS = {
 }
 
 
+__all__ = [
+    "discover_active_sessions",
+    "consolidate_sessions_atomic",
+    "get_session_by_id",
+    "list_all_sessions",
+    "record_lesson",
+]
+
+
+@anti_recursion_guard
 def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
     """
     Discover and return all active sessions in the session database.
@@ -54,14 +66,16 @@ def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
                         meta_obj = json.loads(metadata)
                     except Exception:
                         meta_obj = metadata if metadata else {}
-                    sessions.append({
-                        "session_id": session_id,
-                        "user_id": user_id,
-                        "state": state,
-                        "created_at": created_at,
-                        "last_updated": last_updated,
-                        "metadata": meta_obj,
-                    })
+                    sessions.append(
+                        {
+                            "session_id": session_id,
+                            "user_id": user_id,
+                            "state": state,
+                            "created_at": created_at,
+                            "last_updated": last_updated,
+                            "metadata": meta_obj,
+                        }
+                    )
         except Exception as e:
             _log_event({"event": "session_discovery_failed", "error": str(e)})
             log_message(
@@ -116,11 +130,12 @@ def discover_active_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
         return []
 
 
+@anti_recursion_guard
 def consolidate_sessions_atomic(
     session_list: List[Dict[str, Any]],
     output_db: Union[str, Path],
     overwrite: bool = True,
-    backup_dir: Optional[Union[str, Path]] = None
+    backup_dir: Optional[Union[str, Path]] = None,
 ) -> None:
     """
     Atomically consolidates given session records to the output SQLite database.
@@ -167,17 +182,20 @@ def consolidate_sessions_atomic(
         conn.execute("BEGIN TRANSACTION;")
         for session in session_list:
             try:
-                cur.execute("""
+                cur.execute(
+                    """
                     INSERT OR REPLACE INTO sessions (session_id, user_id, state, created_at, last_updated, metadata)
                     VALUES (?, ?, ?, ?, ?, ?)
-                """, (
-                    session.get("session_id"),
-                    session.get("user_id"),
-                    session.get("state"),
-                    session.get("created_at"),
-                    session.get("last_updated"),
-                    json.dumps(session.get("metadata", {})),
-                ))
+                """,
+                    (
+                        session.get("session_id"),
+                        session.get("user_id"),
+                        session.get("state"),
+                        session.get("created_at"),
+                        session.get("last_updated"),
+                        json.dumps(session.get("metadata", {})),
+                    ),
+                )
             except Exception as e:
                 _log_event(
                     {
@@ -291,14 +309,16 @@ def list_all_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
                         meta_obj = json.loads(metadata)
                     except Exception:
                         meta_obj = metadata if metadata else {}
-                    sessions.append({
-                        "session_id": session_id,
-                        "user_id": user_id,
-                        "state": state,
-                        "created_at": created_at,
-                        "last_updated": last_updated,
-                        "metadata": meta_obj,
-                    })
+                    sessions.append(
+                        {
+                            "session_id": session_id,
+                            "user_id": user_id,
+                            "state": state,
+                            "created_at": created_at,
+                            "last_updated": last_updated,
+                            "metadata": meta_obj,
+                        }
+                    )
         except Exception as e:
             _log_event({"event": "list_all_sessions_failed", "error": str(e)})
             log_message(
@@ -348,9 +368,47 @@ def list_all_sessions(db_file: Union[str, Path]) -> List[Dict[str, Any]]:
     return sessions
 
 
+def record_lesson(
+    db_path: Union[str, Path],
+    description: str,
+    source: str,
+    timestamp: str,
+    validation_status: str,
+    tags: str = "",
+) -> bool:
+    """Store a lesson and log the outcome.
+
+    Returns ``True`` on success, otherwise ``False``.
+    """
+
+    try:
+        store_lesson(
+            description,
+            source=source,
+            timestamp=timestamp,
+            validation_status=validation_status,
+            tags=tags or None,
+            db_path=Path(db_path),
+        )
+        log_message(
+            "session_db_tools",
+            f"Recorded lesson: {description}",
+            level=logging.INFO,
+        )
+        return True
+    except Exception as e:  # pragma: no cover - defensive logging
+        log_message(
+            "session_db_tools",
+            f"Failed to record lesson: {e}",
+            level=logging.ERROR,
+        )
+        return False
+
+
 # Example entrypoint for CLI usage
 def main():
     import argparse
+
     parser = argparse.ArgumentParser(description="Unified Session Management System")
     parser.add_argument("--list", action="store_true", help="List all sessions")
     parser.add_argument("--discover-active", action="store_true", help="Discover all active sessions")

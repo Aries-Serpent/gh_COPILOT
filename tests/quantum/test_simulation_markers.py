@@ -1,0 +1,42 @@
+import logging
+
+from quantum.utils.backend_provider import get_backend
+from quantum.algorithms.hardware_aware import HardwareAwareAlgorithm
+from quantum.quantum_compliance_engine import QuantumComplianceEngine
+
+
+def test_get_backend_warns_when_aer_missing(monkeypatch, caplog):
+    """get_backend should warn when Qiskit's Aer is absent."""
+    monkeypatch.setattr("quantum.utils.backend_provider.Aer", None)
+    with caplog.at_level(logging.WARNING):
+        backend = get_backend()
+    assert backend is None
+    assert any("Qiskit Aer not available" in rec.message for rec in caplog.records)
+
+
+def test_hardware_aware_algorithm_warns_no_backend(monkeypatch, caplog):
+    """HardwareAwareAlgorithm emits a warning when no backend is available."""
+    monkeypatch.setattr(
+        "quantum.algorithms.hardware_aware.get_backend", lambda **_: None
+    )
+    algo = HardwareAwareAlgorithm(use_hardware=True)
+    with caplog.at_level(logging.WARNING):
+        result = algo.execute_algorithm()
+    assert result is False
+    assert any(
+        "No backend available" in rec.message or "Qiskit not available" in rec.message
+        for rec in caplog.records
+    )
+
+
+def test_compliance_engine_warns_without_qiskit(monkeypatch, caplog):
+    """_quantum_field_redundancy warns and returns classical score when Qiskit is missing."""
+    monkeypatch.setattr(
+        "quantum.quantum_compliance_engine.validate_no_recursive_folders", lambda: None
+    )
+    engine = QuantumComplianceEngine()
+    monkeypatch.setattr("quantum.quantum_compliance_engine.QISKIT_AVAILABLE", False)
+    with caplog.at_level(logging.WARNING):
+        score = engine._quantum_field_redundancy(0.5)
+    assert score == 0.5
+    assert any("Qiskit not available" in rec.message for rec in caplog.records)

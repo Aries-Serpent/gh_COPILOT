@@ -35,8 +35,8 @@ from typing import Any, Dict, List, Optional
 
 from tqdm import tqdm
 import psutil
-from enterprise_modules.compliance import validate_enterprise_operation
 from utils.log_utils import _log_event
+import secondary_copilot_validator
 
 # Unicode-compatible file handler (fallback implementation)
 
@@ -71,21 +71,22 @@ class AntiRecursionValidator:
         self.backup_root = Path(os.getenv("GH_COPILOT_BACKUP_ROOT", "/tmp"))
 
     def validate_workspace_integrity(self) -> bool:
-        """Return True if backup path is not within the workspace."""
+        """Return ``True`` when workspace and backup paths are disjoint."""
         try:
-            return not str(self.backup_root).startswith(str(self.workspace))
+            workspace = self.workspace.resolve()
+            backup = self.backup_root.resolve()
         except Exception:
             return False
+        if workspace == backup:
+            return False
+        if backup in workspace.parents or workspace in backup.parents:
+            return False
+        return True
 
 
 class EnterpriseLoggingManager:
     def __init__(self, analytics_db: Path | None = None) -> None:
-        self.analytics_db = (
-            analytics_db
-            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
-            / "databases"
-            / "analytics.db"
-        )
+        self.analytics_db = analytics_db or Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
         self.logger = logging.getLogger("enterprise")
         if not self.logger.handlers:
             handler = logging.StreamHandler()
@@ -126,12 +127,7 @@ ENTERPRISE_INDICATORS = {
 
 class DatabaseDrivenCorrectionEngine:
     def __init__(self, analytics_db: Path | None = None) -> None:
-        self.analytics_db = (
-            analytics_db
-            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
-            / "databases"
-            / "analytics.db"
-        )
+        self.analytics_db = analytics_db or Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
         self.session_id: str | None = None
 
     def start_correction_session(self) -> str:
@@ -217,12 +213,7 @@ class ExecutionMetrics:
 
 class EnterpriseProgressManager:
     def __init__(self, analytics_db: Path | None = None) -> None:
-        self.analytics_db = (
-            analytics_db
-            or Path(os.getenv("GH_COPILOT_WORKSPACE", "."))
-            / "databases"
-            / "analytics.db"
-        )
+        self.analytics_db = analytics_db or Path(os.getenv("GH_COPILOT_WORKSPACE", ".")) / "databases" / "analytics.db"
         self.current_metrics: ExecutionMetrics | None = None
         self._task_name = ""
         self._start = datetime.now()
@@ -954,6 +945,15 @@ class EnterpriseOrchestrator:
                 pbar.update(100)
 
                 orchestration_result["primary_execution"] = primary_results
+
+                file_list: list[str] = []
+                for result in primary_results.values():
+                    if isinstance(result, dict):
+                        files = result.get("file_list", [])
+                        if isinstance(files, list):
+                            file_list.extend(str(f) for f in files)
+                if file_list:
+                    secondary_copilot_validator.run_flake8(file_list)
 
                 # Extract execution metrics for validation
                 execution_metrics = ExecutionMetrics(

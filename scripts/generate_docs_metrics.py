@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import re
 import sqlite3
 from datetime import datetime
@@ -15,7 +16,18 @@ ROOT = Path(__file__).resolve().parents[1]
 # directly as ``python scripts/generate_docs_metrics.py``.
 sys.path.append(str(ROOT))
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 from utils.log_utils import DEFAULT_ANALYTICS_DB, _log_event
+from secondary_copilot_validator import SecondaryCopilotValidator, run_dual_copilot_validation
+
+if __package__ in {None, ""}:
+    SCRIPT_DIR = Path(__file__).resolve().parent
+    sys.path.insert(0, str(SCRIPT_DIR))
+    import validate_docs_metrics  # type: ignore
+else:  # pragma: no cover
+    from . import validate_docs_metrics
 
 # The production database resides under ``databases/``. Using this path avoids
 # accidental creation of an empty database when ``production.db`` does not exist
@@ -90,12 +102,26 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
+    logger.info("gathering documentation metrics")
     metrics = get_metrics(args.db_path)
     _log_event({"event": "generate_docs_metrics", "metrics": metrics}, db_path=args.analytics_db)
     for path in README_PATHS:
         if path.exists():
+            logger.info("updating %s", path)
             update_file(path, metrics)
     _log_event({"event": "generate_docs_metrics_complete"}, db_path=args.analytics_db)
+
+    validator = SecondaryCopilotValidator()
+
+    def _primary() -> bool:
+        return validate_docs_metrics.validate(args.db_path)
+
+    def _secondary() -> bool:
+        files = [str(path) for path in README_PATHS if path.exists()]
+        return validator.validate_corrections(files)
+
+    run_dual_copilot_validation(_primary, _secondary)
+    logger.info("documentation metrics generation complete")
 
 
 if __name__ == "__main__":

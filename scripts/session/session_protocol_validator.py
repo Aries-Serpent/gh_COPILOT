@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """CLI wrapper for :class:`validation.protocols.session.SessionProtocolValidator`."""
+
 from validation.protocols.session import SessionProtocolValidator
 
 __all__ = ["SessionProtocolValidator"]

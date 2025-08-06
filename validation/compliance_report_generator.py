@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from utils.log_utils import _log_plain
+from utils.validation_utils import calculate_composite_compliance_score
 import os
 import sqlite3
 import sys
@@ -13,28 +14,29 @@ from typing import Dict, Any
 
 from tqdm import tqdm
 
+PLACEHOLDER_PATTERNS = ["TODO", "FIXME"]
+
 DEFAULT_ANALYTICS_DB = Path("databases/analytics.db")
-LOGS_DIR = Path("logs/template_rendering")
+LOGS_DIR = Path("artifacts/logs/template_rendering")
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOGS_DIR / f"compliance_report_generator_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
 )
 
+
 def validate_no_recursive_folders() -> None:
-    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", "e:/gh_COPILOT"))
-    forbidden_patterns = ['*backup*', '*_backup_*', 'backups', '*temp*']
+    workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    forbidden_patterns = ["*backup*", "*_backup_*", "backups", "*temp*"]
     for pattern in forbidden_patterns:
         for folder in workspace_root.rglob(pattern):
             if folder.is_dir() and folder != workspace_root:
                 logging.error(f"Recursive folder detected: {folder}")
                 raise RuntimeError(f"CRITICAL: Recursive folder violation: {folder}")
+
 
 def _parse_ruff(path: Path) -> Dict[str, Any]:
     """
@@ -46,6 +48,7 @@ def _parse_ruff(path: Path) -> Dict[str, Any]:
             if line.strip():
                 issues += 1
     return {"issues": issues}
+
 
 def _parse_pytest(path: Path) -> Dict[str, Any]:
     """
@@ -61,6 +64,20 @@ def _parse_pytest(path: Path) -> Dict[str, Any]:
         "failed": summary.get("failed", 0),
     }
 
+
+def _count_placeholders(workspace: Path) -> int:
+    """Return count of TODO/FIXME markers in ``workspace``."""
+    count = 0
+    for file in workspace.rglob("*.py"):
+        try:
+            text = file.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        for pattern in PLACEHOLDER_PATTERNS:
+            count += text.count(pattern)
+    return count
+
+
 def calculate_etc(start_time: float, current_progress: int, total_work: int) -> str:
     elapsed = time.time() - start_time
     if current_progress > 0:
@@ -68,6 +85,7 @@ def calculate_etc(start_time: float, current_progress: int, total_work: int) -> 
         remaining = total_estimated - elapsed
         return f"{remaining:.2f}s remaining"
     return "N/A"
+
 
 def generate_compliance_report(
     ruff_file: Path,
@@ -126,10 +144,21 @@ def generate_compliance_report(
             raise TimeoutError(f"Process exceeded {timeout_minutes} minute timeout")
 
         timestamp = datetime.utcnow().isoformat()
+        workspace_root = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+        placeholder_count = _count_placeholders(workspace_root)
+        scores = calculate_composite_compliance_score(
+            ruff_metrics["issues"],
+            pytest_metrics["passed"],
+            pytest_metrics["failed"],
+            placeholder_count,
+        )
         summary = {
             "timestamp": timestamp,
             "ruff": ruff_metrics,
             "pytest": pytest_metrics,
+            "placeholders": placeholder_count,
+            "scores": scores,
+            "composite_score": scores["composite"],
             "process_id": process_id,
             "start_time": start_time_dt.isoformat(),
         }
@@ -147,6 +176,10 @@ def generate_compliance_report(
             md.write(
                 f"## Pytest Results: {pytest_metrics['passed']} passed / {pytest_metrics['failed']} failed of {pytest_metrics['total']} total\n"
             )
+            md.write(f"## Placeholder Count: {placeholder_count}\n")
+            md.write(
+                f"## Composite Compliance Score: {scores['composite']:.2f}\n"
+            )
         bar.update(1)
         elapsed = time.time() - start_time
         etc = calculate_etc(start_time, 3, total_steps)
@@ -163,19 +196,43 @@ def generate_compliance_report(
                     ruff_issues INTEGER,
                     tests_passed INTEGER,
                     tests_failed INTEGER,
+                    placeholders INTEGER,
+                    composite_score REAL,
                     ts TEXT,
                     process_id INTEGER
                 )"""
             )
+            try:
+                conn.execute("ALTER TABLE code_quality_metrics ADD COLUMN composite_score REAL")
+            except sqlite3.OperationalError:
+                pass
+            try:
+                conn.execute("ALTER TABLE code_quality_metrics ADD COLUMN placeholders INTEGER")
+            except sqlite3.OperationalError:
+                pass
             conn.execute(
-                "INSERT INTO code_quality_metrics (ruff_issues, tests_passed, tests_failed, ts, process_id) VALUES (?, ?, ?, ?, ?)",
+                """CREATE TABLE IF NOT EXISTS violation_stats (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    violation_count INTEGER,
+                    ts TEXT
+                )"""
+            )
+            conn.execute(
+                "INSERT INTO code_quality_metrics (ruff_issues, tests_passed, tests_failed, placeholders, composite_score, ts, process_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 (
                     ruff_metrics["issues"],
                     pytest_metrics["passed"],
                     pytest_metrics["failed"],
+                    placeholder_count,
+                    scores["composite"],
                     summary["timestamp"],
                     process_id,
                 ),
+            )
+            total_violations = ruff_metrics["issues"] + pytest_metrics["failed"]
+            conn.execute(
+                "INSERT INTO violation_stats (violation_count, ts) VALUES (?, ?)",
+                (total_violations, summary["timestamp"]),
             )
             conn.commit()
         bar.update(1)
@@ -187,6 +244,7 @@ def generate_compliance_report(
     _log_plain(f"Compliance report generation completed in {elapsed:.2f}s | ETC: {etc}")
     return summary
 
+
 def validate_report(output_dir: Path) -> bool:
     """
     Validate that compliance report JSON exists and is non-zero-byte.
@@ -194,27 +252,21 @@ def validate_report(output_dir: Path) -> bool:
     json_path = output_dir / "compliance_report.json"
     return json_path.exists() and json_path.stat().st_size > 0
 
+
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate compliance report")
     parser.add_argument("--ruff", type=Path, required=True, help="Ruff output file")
     parser.add_argument("--pytest", type=Path, required=True, help="Pytest JSON report")
-    parser.add_argument(
-        "--output", type=Path, default=Path("validation"), help="Output directory"
-    )
+    parser.add_argument("--output", type=Path, default=Path("validation"), help="Output directory")
     parser.add_argument(
         "--db",
         type=Path,
         default=Path("databases") / "analytics.db",
         help="Analytics database path",
     )
-    parser.add_argument(
-        "--timeout",
-        type=int,
-        default=30,
-        help="Timeout in minutes"
-    )
+    parser.add_argument("--timeout", type=int, default=30, help="Timeout in minutes")
     args = parser.parse_args()
 
     _log_plain("[START] Generating compliance report")

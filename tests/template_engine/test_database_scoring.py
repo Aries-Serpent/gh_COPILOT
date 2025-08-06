@@ -1,4 +1,3 @@
-import os
 import sqlite3
 from pathlib import Path
 
@@ -9,11 +8,20 @@ import template_engine.db_first_code_generator as dbgen
 
 
 def create_test_dbs(tmp_path: Path):
-    analytics_db = tmp_path / "analytics.db"
-    completion_db = tmp_path / "template_completion.db"
+    db_dir = tmp_path / "databases"
+    db_dir.mkdir()
+    analytics_db = db_dir / "analytics.db"
+    completion_db = db_dir / "template_completion.db"
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
             "CREATE TABLE ml_pattern_optimization (id INTEGER PRIMARY KEY, replacement_template TEXT)"
+        )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS generator_events ("
+            "event TEXT, template_id INTEGER, score REAL, target TEXT,"
+            "timestamp TEXT, module TEXT, level TEXT, duration REAL,"
+            "count INTEGER, items INTEGER, clusters INTEGER, best_template TEXT"
+            ")"
         )
         conn.execute(
             "INSERT INTO ml_pattern_optimization (replacement_template) VALUES (?)",
@@ -30,9 +38,7 @@ def create_production_db(tmp_path: Path, text: str = "db_template") -> Path:
     with sqlite3.connect(db) as conn:
         conn.execute("CREATE TABLE code_templates (id INTEGER PRIMARY KEY, template_code TEXT)")
         conn.execute("INSERT INTO code_templates (template_code) VALUES (?)", (text,))
-        conn.execute(
-            "CREATE TABLE script_template_patterns (pattern_name TEXT PRIMARY KEY, template_content TEXT)"
-        )
+        conn.execute("CREATE TABLE script_template_patterns (pattern_name TEXT PRIMARY KEY, template_content TEXT)")
         conn.execute(
             "INSERT INTO script_template_patterns (pattern_name, template_content) VALUES ('pat', ?)",
             (text,),
@@ -74,15 +80,14 @@ def test_similarity_scoring_hooks_used(tmp_path: Path, monkeypatch) -> None:
 def test_db_first_generation_output(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
     prod = create_production_db(tmp_path, "print('hi')")
-    dbgen.validate_enterprise_operation = lambda *a, **k: True
+    def _always_true(*args, **kwargs):
+        return True
+
+    dbgen.validate_enterprise_operation = _always_true
     gen = DBFirstCodeGenerator(prod, tmp_path / "doc.db", tmp_path / "tpl.db", tmp_path / "analytics.db")
 
-    monkeypatch.setattr(
-        auto_generator, "compute_similarity_scores", lambda *a, **k: [(1, 1.0)]
-    )
-    monkeypatch.setattr(
-        auto_generator, "quantum_similarity_score", lambda *a, **k: 1.0
-    )
+    monkeypatch.setattr(auto_generator, "compute_similarity_scores", lambda *a, **k: [(1, 1.0)])
+    monkeypatch.setattr(auto_generator, "quantum_similarity_score", lambda *a, **k: 1.0)
 
     result = gen.generate("print")
     assert "print('hi')" in result

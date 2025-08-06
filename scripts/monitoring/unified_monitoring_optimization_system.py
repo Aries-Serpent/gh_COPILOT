@@ -18,20 +18,34 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
+from monitoring.health_monitor import gather_metrics
+
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
 
 # Weight applied to memory usage when computing performance delta
 MEMORY_WEIGHT = 0.5
 
+__all__ = ["EnterpriseUtility", "collect_metrics", "quantum_hook"]
+
 
 class EnterpriseUtility:
-    """Enterprise utility class"""
+    """Enterprise utility class.
 
-    def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
-        self.workspace_path = Path(workspace_path)
-        log_dir = Path(os.getenv("GH_COPILOT_WORKSPACE", self.workspace_path)) / "logs"
-        log_dir.mkdir(exist_ok=True)
+    Parameters
+    ----------
+    workspace_path:
+        Optional path to the workspace root. When ``None`` (default), the
+        location is resolved from ``GH_COPILOT_WORKSPACE`` and falls back to
+        the current working directory. This avoids hard-coded paths and
+        keeps the utility portable across platforms.
+    """
+
+    def __init__(self, workspace_path: str | Path | None = None):
+        resolved = workspace_path or os.getenv("GH_COPILOT_WORKSPACE", Path.cwd())
+        self.workspace_path = Path(resolved)
+        log_dir = self.workspace_path / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
         if not logging.getLogger(__name__).handlers:
             logging.basicConfig(
                 level=logging.INFO,
@@ -139,6 +153,79 @@ class EnterpriseUtility:
         except Exception as exc:
             self.logger.error(f"{TEXT_INDICATORS['error']} Unexpected error: {exc}")
             raise
+
+
+def collect_metrics(session_id: str | None = None) -> dict[str, float]:
+    """Collect system metrics and persist them with a session ID.
+
+    The session ID is generated via the session management system if not
+    provided. Metrics are stored in ``analytics.db`` under the
+    ``monitoring_metrics`` table.
+    """
+    # Start a session and generate an ID if none supplied
+    from scripts.utilities.unified_session_management_system import (
+        UnifiedSessionManagementSystem,
+    )
+
+    session_manager = UnifiedSessionManagementSystem()
+    session_manager.start_session()
+    sid = session_id or str(uuid.uuid4())
+
+    metrics = gather_metrics()
+    workspace = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
+    db_path = workspace / "analytics.db"
+
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS monitoring_metrics (
+                session_id TEXT,
+                timestamp TEXT,
+                cpu_percent REAL,
+                memory_percent REAL,
+                disk_percent REAL,
+                net_bytes_sent INTEGER,
+                net_bytes_recv INTEGER
+            )
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO monitoring_metrics (
+                session_id,
+                timestamp,
+                cpu_percent,
+                memory_percent,
+                disk_percent,
+                net_bytes_sent,
+                net_bytes_recv
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                sid,
+                datetime.utcnow().isoformat(),
+                metrics["cpu_percent"],
+                metrics["memory_percent"],
+                metrics["disk_percent"],
+                metrics["net_bytes_sent"],
+                metrics["net_bytes_recv"],
+            ),
+        )
+        conn.commit()
+
+    return {"session_id": sid, **metrics}
+
+
+from quantum_algorithm_library_expansion import quantum_score_stub
+
+
+def quantum_hook(metrics: dict[str, float]) -> float:
+    """Compute a quantum-inspired score for unified metrics."""
+
+    values = [metrics.get("cpu_percent", 0.0), metrics.get("memory_percent", 0.0), metrics.get("disk_percent", 0.0)]
+    score = quantum_score_stub(values)
+    metrics["quantum_score"] = score
+    return score
 
 
 def main():
