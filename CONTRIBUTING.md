@@ -5,6 +5,7 @@ Thank you for considering a contribution to gh_COPILOT. Please follow these guid
 - Review and follow the [Governance Standards](docs/GOVERNANCE_STANDARDS.md).
 - Run `bash setup.sh`, activate the virtual environment, and execute `ruff`, `pytest`, and `tools/pre-commit-lfs.sh` before committing.
 - Use conventional commit messages and reference these standards in your pull requests.
+- Follow the [Git LFS recovery guide](docs/git_lfs_recovery.md) when restoring large binary files.
 
 ## Documentation Workflow Checklist
 
