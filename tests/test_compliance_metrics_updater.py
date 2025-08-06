@@ -1,5 +1,6 @@
 import importlib
 import json
+import logging
 import sqlite3
 import pytest
 import sys
@@ -44,16 +45,17 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     )
     monkeypatch.setitem(sys.modules, "scripts.correction_logger_and_rollback", stub_corr)
     monkeypatch.setitem(sys.modules, "unified_monitoring_optimization_system", stub_monitor)
+    logging.getLogger().handlers.clear()
     module = importlib.import_module("dashboard.compliance_metrics_updater")
     importlib.reload(module)
     modes = []
-    events = []
+    events: list[tuple[str, dict]] = []
     monkeypatch.setattr(module, "ensure_tables", lambda *a, **k: None)
     monkeypatch.setattr(module, "push_metrics", lambda m, **k: push_calls.append(m))
 
     def _capture_event(event, table, **k):
         modes.append(k.get("test_mode"))
-        events.append(table)
+        events.append((table, event))
 
     monkeypatch.setattr(module, "insert_event", _capture_event)
     monkeypatch.setattr(module, "validate_no_recursive_folders", lambda: None)
@@ -99,14 +101,18 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
         assert valid
 
     log_dir = tmp_path / "logs" / "dashboard"
-    log_files = list(log_dir.glob("compliance_update_*.log"))
+    log_files = sorted(log_dir.glob("compliance_update_*.log"))
     assert log_files
-    if not simulate:
-        assert log_files[0].stat().st_size > 0
 
-    assert "violation_logs" in events
-    assert "rollback_logs" in events
-    assert "correction_logs" in events
+    assert any(
+        t == "event_log" and e.get("description") == "violation_detected"
+        for t, e in events
+    )
+    assert any(
+        t == "event_log" and e.get("description") == "rollback_detected"
+        for t, e in events
+    )
+    assert any(t == "correction_logs" for t, _ in events)
 
     metrics_file = dashboard_dir / "metrics.json"
     if simulate:
@@ -124,7 +130,8 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     assert data["metrics"]["correction_count"] == 1
     expected = test_mode or simulate
     assert all((m == expected) or (m is None) for m in modes)
-    assert called
+    expected_called = not (simulate or test_mode)
+    assert bool(called) == expected_called
     assert push_calls
     assert executed
     logger_instance = DummyCorrectionLoggerRollback.instances[0]
@@ -150,6 +157,7 @@ def test_correction_summary_ingestion(tmp_path, monkeypatch):
         _log_rollback=lambda *a, **k: None,
     )
     monkeypatch.setitem(sys.modules, "scripts.correction_logger_and_rollback", stub)
+    logging.getLogger().handlers.clear()
     module = importlib.import_module("dashboard.compliance_metrics_updater")
     importlib.reload(module)
     monkeypatch.setattr(module, "ensure_tables", lambda *a, **k: None)

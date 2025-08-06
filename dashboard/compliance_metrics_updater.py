@@ -400,20 +400,36 @@ class ComplianceMetricsUpdater:
             metrics["progress_status"] = "complete"
         if metrics["violation_count"]:
             insert_event(
-                {"event": "violation_detected", "count": metrics["violation_count"]},
-                "violation_logs",
+                {
+                    "timestamp": datetime.now().isoformat(),
+                    "module": "dashboard",
+                    "level": "INFO",
+                    "description": "violation_detected",
+                    "details": str(metrics["violation_count"]),
+                },
+                "event_log",
                 db_path=ANALYTICS_DB,
                 test_mode=test_mode,
             )
         if metrics["rollback_count"]:
             insert_event(
-                {"event": "rollback_detected", "count": metrics["rollback_count"]},
-                "rollback_logs",
+                {
+                    "timestamp": datetime.now().isoformat(),
+                    "module": "dashboard",
+                    "level": "INFO",
+                    "description": "rollback_detected",
+                    "details": str(metrics["rollback_count"]),
+                },
+                "event_log",
                 db_path=ANALYTICS_DB,
                 test_mode=test_mode,
             )
         insert_event(
-            {"event": "correction", "score": metrics.get("compliance_score", 0.0)},
+            {
+                "timestamp": datetime.now().isoformat(),
+                "event": "correction",
+                "compliance_score": metrics.get("compliance_score", 0.0),
+            },
             "correction_logs",
             db_path=ANALYTICS_DB,
             test_mode=test_mode,
