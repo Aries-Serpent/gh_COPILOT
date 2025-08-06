@@ -25,6 +25,7 @@ Ensure the development environment is correctly configured **before** making any
   * **TEST_MODE** – Set to "1" in test environments to disable side effects (e.g., database writes) in scripts like `scripts/wlc_session_manager.py`.
   * *Optional variables:* **WORKSPACE\_ROOT** (alias for `GH_COPILOT_WORKSPACE`), **FLASK\_SECRET\_KEY** (for the optional Flask web UI, default `'your_secret_key'` – replace in production), **FLASK\_RUN\_PORT** (Flask dev server port, default 5000), **CONFIG\_PATH** (path to a custom config file if not using the default `config/enterprise.json`), **WEB\_DASHBOARD\_ENABLED** (`"1"` or `"0"` to toggle logging of performance metrics with `[DASHBOARD]` tags). Configure these as needed if using those features.
 * After installing dependencies and setting variables, **run the test suite** (see [Testing and Validation](#testing-and-validation)) to verify the environment is correctly set up.
+* For procedures on restoring Git LFS-managed files, consult [docs/git_lfs_recovery.md](docs/git_lfs_recovery.md).
 
 ## Output Safety and `clw`
 
