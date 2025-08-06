@@ -66,10 +66,14 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     analytics_db = db_dir / "analytics.db"
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
-            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)"
+            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER, placeholder_type TEXT)"
         )
-        conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved', 1)")
-        conn.execute("INSERT INTO todo_fixme_tracking VALUES (0, 'open', 2)")
+        conn.execute(
+            "INSERT INTO todo_fixme_tracking VALUES (1, 'resolved', 1, 'type1')"
+        )
+        conn.execute(
+            "INSERT INTO todo_fixme_tracking VALUES (0, 'open', 2, 'type1')"
+        )
         conn.execute("CREATE TABLE correction_logs (compliance_score REAL)")
         conn.execute("INSERT INTO correction_logs VALUES (0.9)")
         conn.execute("CREATE TABLE violation_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, details TEXT)")
@@ -133,6 +137,8 @@ def test_compliance_metrics_updater(tmp_path, monkeypatch, simulate, test_mode):
     expected_called = not (simulate or test_mode)
     assert bool(called) == expected_called
     assert push_calls
+    keys = {k for call in push_calls for k in call}
+    assert {"lint_score", "test_score", "placeholder_score"}.issubset(keys)
     assert executed
     logger_instance = DummyCorrectionLoggerRollback.instances[0]
     assert logger_instance.logged["violation"] == 1
@@ -170,9 +176,11 @@ def test_correction_summary_ingestion(tmp_path, monkeypatch):
     analytics_db = db_dir / "analytics.db"
     with sqlite3.connect(analytics_db) as conn:
         conn.execute(
-            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)"
+            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER, placeholder_type TEXT)"
         )
-        conn.execute("INSERT INTO todo_fixme_tracking VALUES (1, 'resolved', 1)")
+        conn.execute(
+            "INSERT INTO todo_fixme_tracking VALUES (1, 'resolved', 1, 'type1')"
+        )
         conn.execute("CREATE TABLE correction_logs (event TEXT, compliance_score REAL)")
         conn.execute("INSERT INTO correction_logs VALUES ('update', 0.9)")
         conn.execute("CREATE TABLE violation_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, details TEXT)")
