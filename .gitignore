@@ -31,3 +31,11 @@ analytics.db
 database_cleanup.log
 artifacts/logs/
 .coverage*
+misc/main.py
+misc/README.md
+misc/legacy/Base64ImageTransformer.py
+misc/resources/app_config.json
+misc/resources/dark_theme.qss
+misc/src/enhanced_base64_transformer/__main__.py
+misc/src/enhanced_base64_transformer/ui/enhanced_transformer.py
+misc/src/enhanced_base64_transformer/ui/working_main_window.py
