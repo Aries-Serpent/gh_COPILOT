@@ -180,7 +180,9 @@ class ComplianceMetricsUpdater:
         with sqlite3.connect(ANALYTICS_DB) as conn:
             cur = conn.cursor()
             try:
-                # Prefer placeholder_tasks table if available
+                # Prefer placeholder_tasks table if available, otherwise fall
+                # back to todo_fixme_tracking which provides similar
+                # information.
                 if cur.execute(
                     "SELECT name FROM sqlite_master WHERE type='table' AND name='placeholder_tasks'"
                 ).fetchone():
@@ -194,6 +196,23 @@ class ComplianceMetricsUpdater:
                     metrics["resolved_placeholders"] = cur.fetchone()[0]
                     cur.execute(
                         "SELECT pattern, COUNT(*) FROM placeholder_tasks WHERE status='open' GROUP BY pattern"
+                    )
+                    metrics["placeholder_breakdown"] = {
+                        row[0]: row[1] for row in cur.fetchall() if row[0]
+                    }
+                elif cur.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='todo_fixme_tracking'"
+                ).fetchone():
+                    cur.execute(
+                        "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='open'"
+                    )
+                    metrics["open_placeholders"] = cur.fetchone()[0]
+                    cur.execute(
+                        "SELECT COUNT(*) FROM todo_fixme_tracking WHERE status='resolved'"
+                    )
+                    metrics["resolved_placeholders"] = cur.fetchone()[0]
+                    cur.execute(
+                        "SELECT placeholder_type, COUNT(*) FROM todo_fixme_tracking WHERE status='open' GROUP BY placeholder_type"
                     )
                     metrics["placeholder_breakdown"] = {
                         row[0]: row[1] for row in cur.fetchall() if row[0]
@@ -381,20 +400,36 @@ class ComplianceMetricsUpdater:
             metrics["progress_status"] = "complete"
         if metrics["violation_count"]:
             insert_event(
-                {"event": "violation_detected", "count": metrics["violation_count"]},
-                "violation_logs",
+                {
+                    "timestamp": datetime.now().isoformat(),
+                    "module": "dashboard",
+                    "level": "INFO",
+                    "description": "violation_detected",
+                    "details": str(metrics["violation_count"]),
+                },
+                "event_log",
                 db_path=ANALYTICS_DB,
                 test_mode=test_mode,
             )
         if metrics["rollback_count"]:
             insert_event(
-                {"event": "rollback_detected", "count": metrics["rollback_count"]},
-                "rollback_logs",
+                {
+                    "timestamp": datetime.now().isoformat(),
+                    "module": "dashboard",
+                    "level": "INFO",
+                    "description": "rollback_detected",
+                    "details": str(metrics["rollback_count"]),
+                },
+                "event_log",
                 db_path=ANALYTICS_DB,
                 test_mode=test_mode,
             )
         insert_event(
-            {"event": "correction", "score": metrics.get("compliance_score", 0.0)},
+            {
+                "timestamp": datetime.now().isoformat(),
+                "event": "correction",
+                "compliance_score": metrics.get("compliance_score", 0.0),
+            },
             "correction_logs",
             db_path=ANALYTICS_DB,
             test_mode=test_mode,

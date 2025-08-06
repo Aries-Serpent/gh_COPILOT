@@ -15,7 +15,7 @@ os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
 def test_generate_removal_tasks():
     results = [{"file": "f.py", "line": 1, "pattern": "TODO", "context": "fix"}]
     tasks = audit.generate_removal_tasks(results)
-    assert tasks == ["Remove TODO in f.py:1 - fix"]
+    assert tasks[0]["task"] == "Remove TODO in f.py:1 - fix"
 
 
 def test_fail_on_findings(tmp_path, monkeypatch):
