@@ -5,7 +5,6 @@ import sys
 import types
 
 
-from enterprise_modules import compliance
 import enterprise_modules.compliance as compliance_module
 
 
@@ -31,7 +30,7 @@ def test_violation_rollback_dashboard_output(tmp_path, monkeypatch):
             "INSERT INTO rollback_logs (target, backup, timestamp) VALUES ('t', 'b', 'ts')"
         )
         conn.execute(
-            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER)"
+            "CREATE TABLE todo_fixme_tracking (resolved INTEGER, status TEXT, removal_id INTEGER, placeholder_type TEXT)"
         )
         conn.execute(
             "CREATE TABLE correction_logs (compliance_score REAL)"
