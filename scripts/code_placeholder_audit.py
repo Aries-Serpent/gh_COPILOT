@@ -42,6 +42,7 @@ import secondary_copilot_validator
 from utils.log_utils import log_message
 from dashboard.compliance_metrics_updater import ComplianceMetricsUpdater
 from unified_script_generation_system import EnterpriseUtility
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 # Visual processing indicator constants
 TEXT = {
@@ -824,8 +825,8 @@ def main(
     valid = validate_results(len(results), analytics)
     if fail_on_findings and results:
         valid = False
-    secondary = secondary_copilot_validator.SecondaryCopilotValidator()
-    secondary.validate_corrections([r["file"] for r in results])
+    orchestrator = DualCopilotOrchestrator()
+    orchestrator.validator.validate_corrections([r["file"] for r in results])
     if valid:
         log_message(__name__, f"{TEXT['success']} audit logged {len(results)} findings")
     else:

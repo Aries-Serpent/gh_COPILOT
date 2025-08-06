@@ -37,6 +37,7 @@ from unified_monitoring_optimization_system import (
     push_metrics,
 )
 from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 
 # Enterprise logging setup
@@ -619,11 +620,13 @@ def main(simulate: bool = False, stream: bool = False, test_mode: bool = False) 
     """Command-line entry point."""
     dashboard_dir = DASHBOARD_DIR
     updater = ComplianceMetricsUpdater(dashboard_dir, test_mode=test_mode)
+    orchestrator = DualCopilotOrchestrator(logging.getLogger(__name__))
     if stream:
         for metrics in updater.stream_metrics():
             print(metrics)
     else:
         updater.update(simulate=simulate)
+        orchestrator.validator.validate_corrections([str(updater.dashboard_dir / "metrics.json")])
         updater.validate_update()
 
 
