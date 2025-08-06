@@ -21,6 +21,7 @@ from tqdm import tqdm
 
 from scripts.database.add_code_audit_log import ensure_code_audit_log
 from secondary_copilot_validator import SecondaryCopilotValidator
+from scripts.validation.dual_copilot_orchestrator import DualCopilotOrchestrator
 
 DEFAULT_TOKENS = ["TODO", "FIXME", "pass"]
 
@@ -37,9 +38,7 @@ def load_canonical_tokens(db_path: Path) -> List[str]:
             return []
 
 
-def log_placeholder_event(
-    db_path: Path, file_path: Path, line_number: int, token: str, context: str
-) -> None:
+def log_placeholder_event(db_path: Path, file_path: Path, line_number: int, token: str, context: str) -> None:
     """Insert a placeholder finding into ``analytics.db``."""
     ensure_code_audit_log(db_path)
     with sqlite3.connect(db_path) as conn:
@@ -57,9 +56,7 @@ def log_placeholder_event(
         conn.commit()
 
 
-def scan_file_for_placeholders(
-    file_path: Path, tokens: Iterable[str]
-) -> List[tuple[int, str, str]]:
+def scan_file_for_placeholders(file_path: Path, tokens: Iterable[str]) -> List[tuple[int, str, str]]:
     """Return list of (line_number, token, context) for placeholders."""
     findings: List[tuple[int, str, str]] = []
     with file_path.open("r", encoding="utf-8", errors="ignore") as handle:
@@ -70,9 +67,7 @@ def scan_file_for_placeholders(
     return findings
 
 
-def audit_path(
-    path: Path, analytics_db: Path, production_db: Path
-) -> int:
+def audit_path(path: Path, analytics_db: Path, production_db: Path) -> int:
     """Scan ``path`` recursively and log all placeholder findings."""
     tokens = DEFAULT_TOKENS + load_canonical_tokens(production_db)
     files = [f for f in path.rglob("*") if f.is_file()]
@@ -117,10 +112,11 @@ def main(argv: List[str] | None = None) -> int:
         total = audit_path(path.parent, args.analytics_db, args.production_db)
     else:
         total = audit_path(path, args.analytics_db, args.production_db)
+    orchestrator = DualCopilotOrchestrator()
+    orchestrator.validator.validate_corrections([str(path)])
     print(f"Logged {total} placeholder entries")
     return 0
 
 
 if __name__ == "__main__":  # pragma: no cover - simple CLI
     raise SystemExit(main())
-
