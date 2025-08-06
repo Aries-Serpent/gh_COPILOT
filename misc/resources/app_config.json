@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "app_info": {
     "name": "Enhanced Base64 Image Transformer",
@@ -40,3 +41,47 @@
     "help": "F1"
   }
 }
+=======
+{
+  "app_info": {
+    "name": "Enhanced Base64 Image Transformer",
+    "version": "2.0.0",
+    "description": "Modern PyQt6-based application for Base64 file encoding/decoding"
+  },
+  "supported_formats": {
+    "images": [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff", ".webp", ".ico"],
+    "text": [".txt", ".json", ".xml", ".csv", ".log", ".md", ".py", ".js", ".html", ".css"],
+    "encodings": ["utf-8", "ascii", "latin-1"]
+  },
+  "ui_strings": {
+    "drag_drop": "📄 Drag & drop a file here or click 'Select File'",
+    "drag_drop_active": "📄 Release to encode file",
+    "encoding": "🔄 Encoding file...",
+    "decoding": "🔄 Decoding Base64...",
+    "image_preview": "🖼️ Decoded image will appear here",
+    "batch_processing": "🚀 Processing files...",
+    "completed": "✅ Operation completed successfully!",
+    "error": "❌ An error occurred"
+  },
+  "file_filters": {
+    "all_files": "All Files (*.*)",
+    "images": "Image Files (*.png *.jpg *.jpeg *.bmp *.gif *.tiff *.webp *.ico)",
+    "text_files": "Text Files (*.txt)",
+    "json_files": "JSON Files (*.json)",
+    "save_image": "PNG Files (*.png);;JPEG Files (*.jpg *.jpeg);;BMP Files (*.bmp);;All Files (*.*)"
+  },
+  "shortcuts": {
+    "open": "Ctrl+O",
+    "save": "Ctrl+S",
+    "save_as": "Ctrl+Shift+S",
+    "copy": "Ctrl+C",
+    "paste": "Ctrl+V",
+    "clear": "Ctrl+Shift+C",
+    "validate": "Ctrl+T",
+    "batch": "Ctrl+B",
+    "settings": "Ctrl+,",
+    "quit": "Ctrl+Q",
+    "help": "F1"
+  }
+}
+>>>>>>> a129e6744e1b47cc89dc5c3c88d9a831f377652b

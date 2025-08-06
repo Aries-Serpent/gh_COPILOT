@@ -21,6 +21,7 @@ def _create_unique_files(directory: Path) -> None:
     (directory / "alpha.md").write_text("alpha", encoding="utf-8")
     (directory / "beta.md").write_text("beta", encoding="utf-8")
 
+
 def test_ingestion_pipeline(tmp_path, monkeypatch):
     workspace = tmp_path
     db_dir = workspace / "databases"
