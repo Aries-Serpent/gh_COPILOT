@@ -35,6 +35,17 @@ The terminal enforces a **1600-byte per-line limit**. Lines longer than this wil
 * If `clw` is missing, recreate it from `tools/clw.py`, place it at `/usr/local/bin/clw`, and make it executable.
 * On any line-length error, start a new session, re-run setup, and retry the command using `clw` or log chunking.
 
+## Large Output Handling
+
+The console cannot reliably display lines longer than **4096 bytes**. Use standard utilities to inspect logs in small pieces:
+
+- `head <file>` – show the beginning of a file. Example: `head -n 20 build.log`
+- `tail <file>` – show the end of a file. Example: `tail -n 20 build.log`
+- `cut -c 1-4096 <file>` – trim each line to the first 4096 bytes. Example: `cut -c 1-4096 build.log | head`
+- `grep -n "pattern" <file>` – search with line numbers. Example: `grep -n "ERROR" build.log | head`
+
+If output might exceed the limit, redirect it to a log file and review it in chunks with these commands to prevent line overflows.
+
 ## Allowed Tools and Commands (Agent Behavior)
 
 When using the terminal or editing files, the agent must adhere to the following rules:
