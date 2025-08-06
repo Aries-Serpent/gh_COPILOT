@@ -1,4 +1,5 @@
 import hashlib
+import json
 import logging
 import os
 import sqlite3
@@ -68,9 +69,10 @@ def test_reingest_template_logs_duplicate(tmp_path: Path, caplog, monkeypatch) -
     caplog.set_level(logging.INFO)
     ingest_templates(workspace, templates_dir)
     digest = hashlib.sha256(content.encode()).hexdigest()
-    messages = " ".join(caplog.messages)
-    assert digest in messages
-    assert str(temp_file) in messages
+    messages = [json.loads(m) for m in caplog.messages if m.startswith("{")]
+    event = next(m for m in messages if m.get("template_hash") == digest)
+    assert event["status"] == "DUPLICATE"
+    assert event["db_path"] == str(db_path)
     with sqlite3.connect(db_path) as conn:
         count = conn.execute("SELECT COUNT(*) FROM template_assets").fetchone()[0]
     assert count == 1
