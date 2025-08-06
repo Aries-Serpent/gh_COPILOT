@@ -15,15 +15,13 @@ def _create_duplicate_files(directory: Path) -> None:
     (directory / "second.md").write_text("duplicate", encoding="utf-8")
 
 
-<<<<<<< HEAD
 def _create_unique_files(directory: Path) -> None:
     """Create two markdown files with distinct content."""
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "alpha.md").write_text("alpha", encoding="utf-8")
     (directory / "beta.md").write_text("beta", encoding="utf-8")
 
-=======
->>>>>>> a129e6744e1b47cc89dc5c3c88d9a831f377652b
+
 def test_ingestion_pipeline(tmp_path, monkeypatch):
     workspace = tmp_path
     db_dir = workspace / "databases"
@@ -171,7 +169,6 @@ def test_cross_db_duplicate_detection(tmp_path: Path, monkeypatch) -> None:
             "SELECT doc_path, sha256 FROM event_log WHERE status='DUPLICATE' AND module='documentation_ingestor'"
         ).fetchall()
     assert set(rows) == {(rel_doc1, digest), (rel_doc2, digest)}
-<<<<<<< HEAD
 
 
 def test_multi_db_distinct_records_ingested_once(tmp_path: Path, monkeypatch) -> None:
@@ -312,5 +309,3 @@ def test_multi_db_overlapping_records_detect_duplicates(tmp_path: Path, monkeypa
             "SELECT doc_path, sha256 FROM event_log WHERE status='DUPLICATE' AND module='documentation_ingestor'"
         ).fetchall()
     assert set(rows) == {(rel_doc1, digest), (rel_doc2, digest)}
-=======
->>>>>>> a129e6744e1b47cc89dc5c3c88d9a831f377652b
