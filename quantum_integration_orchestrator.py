@@ -6,9 +6,11 @@ import argparse
 import os
 import sys
 
+from enterprise_modules.compliance import pid_recursion_guard
 from scripts.automation.quantum_integration_orchestrator import EnterpriseUtility
 
 
+@pid_recursion_guard
 def main(argv: list[str] | None = None) -> int:
     """Run the orchestrator with optional hardware support."""
     parser = argparse.ArgumentParser(description="Quantum Integration Orchestrator")

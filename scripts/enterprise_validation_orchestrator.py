@@ -61,6 +61,7 @@ import psutil
 from tqdm import tqdm
 
 from enterprise_modules import compliance
+from enterprise_modules.compliance import pid_recursion_guard
 from utils.validation_utils import run_dual_copilot_validation
 from secondary_copilot_validator import SecondaryCopilotValidator
 
@@ -1147,6 +1148,7 @@ class EnterpriseValidationOrchestrator:
         return self.validation_metrics.overall_score >= 80.0
 
 
+@pid_recursion_guard
 def main():
     """Main execution function with comprehensive command line interface"""
     parser = argparse.ArgumentParser(description="Enterprise Validation Orchestrator - Comprehensive Script Validation")

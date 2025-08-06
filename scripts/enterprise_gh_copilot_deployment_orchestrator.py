@@ -18,6 +18,7 @@ from datetime import datetime
 from scripts.utilities.production_template_utils import generate_script_from_repository
 from utils.validation_utils import run_dual_copilot_validation
 from secondary_copilot_validator import SecondaryCopilotValidator
+from enterprise_modules.compliance import pid_recursion_guard
 
 # Text-based indicators (NO Unicode emojis)
 TEXT_INDICATORS = {"start": "[START]", "success": "[SUCCESS]", "error": "[ERROR]", "info": "[INFO]"}
@@ -78,6 +79,7 @@ class EnterpriseUtility:
         return self.primary_validate()
 
 
+@pid_recursion_guard
 def main():
     """Main execution function"""
     utility = EnterpriseUtility()
