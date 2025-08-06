@@ -10,6 +10,10 @@ from enterprise_modules.database_utils import (
     execute_safe_insert,
     execute_safe_query,
 )
+from enterprise_modules.compliance import (
+    ComplianceError,
+    validate_enterprise_operation,
+)
 
 
 def setup_enterprise_logging(level: str = "INFO", log_file: str = None) -> logging.Logger:
@@ -71,22 +75,10 @@ def log_session_event(
     *,
     db_path: Path = ANALYTICS_DB,
 ) -> bool:
-    """Record a session event in ``analytics.db``.
+    """Record a session event in ``analytics.db`` with compliance checks."""
+    if not validate_enterprise_operation(str(db_path)):
+        raise ComplianceError(f"Forbidden database write: {db_path}")
 
-    Parameters
-    ----------
-    session_id:
-        Identifier for the active session.
-    event:
-        Description of the event to record.
-    db_path:
-        Path to the analytics database. Defaults to :data:`ANALYTICS_DB`.
-
-    Returns
-    -------
-    bool
-        ``True`` if the insert succeeded, ``False`` otherwise.
-    """
     timestamp = datetime.now(UTC).isoformat()
     with enterprise_database_context(str(db_path)) as conn:
         conn.execute(

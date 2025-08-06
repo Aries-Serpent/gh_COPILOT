@@ -17,6 +17,12 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple, Union
 from contextlib import contextmanager
 
+from enterprise_modules.compliance import (
+    ComplianceError,
+    anti_recursion_guard,
+    validate_enterprise_operation,
+)
+
 
 def get_enterprise_database_connection(
     db_path: str = "production.db",
@@ -112,34 +118,39 @@ def execute_safe_query(
         return None
 
 
+@anti_recursion_guard
 def execute_safe_insert(
     connection: sqlite3.Connection,
     table_name: str,
     data: Dict[str, Any],
     commit: bool = True
 ) -> bool:
-    """
-    Execute safe insert operation
-    """
+    """Execute safe insert operation with enterprise validation."""
+    db_file = Path(
+        connection.execute("PRAGMA database_list").fetchone()[2]
+    )
+    if not validate_enterprise_operation(str(db_file)):
+        raise ComplianceError(f"Forbidden database write: {db_file}")
+
     try:
         columns = list(data.keys())
         placeholders = ['?' for _ in columns]
         values = list(data.values())
-        
+
         query = f"""
         INSERT INTO {table_name} ({', '.join(columns)})
         VALUES ({', '.join(placeholders)})
         """
-        
+
         cursor = connection.cursor()
         cursor.execute(query, values)
-        
+
         if commit:
             connection.commit()
-        
+
         logging.info(f"Inserted record into {table_name}")
         return True
-        
+
     except Exception as e:
         logging.error(f"Error inserting into {table_name}: {e}")
         connection.rollback()
@@ -276,31 +287,33 @@ def get_table_schema(
         return []
 
 
+@anti_recursion_guard
 def backup_database(
     source_db_path: str,
     backup_db_path: str
 ) -> bool:
-    """
-    Create database backup
-    """
+    """Create database backup with enterprise validation."""
+    backup_path = Path(backup_db_path)
+    if not validate_enterprise_operation(str(backup_path)):
+        raise ComplianceError(f"Forbidden backup target: {backup_path}")
+
     try:
         source_path = Path(source_db_path)
-        backup_path = Path(backup_db_path)
-        
+
         if not source_path.exists():
             logging.error(f"Source database does not exist: {source_db_path}")
             return False
-        
+
         # Create backup directory
         backup_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Copy database
         import shutil
         shutil.copy2(source_path, backup_path)
-        
+
         logging.info(f"Database backup created: {backup_db_path}")
         return True
-        
+
     except Exception as e:
         logging.error(f"Error creating database backup: {e}")
         return False
