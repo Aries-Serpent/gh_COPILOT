@@ -1,6 +1,18 @@
 # Resolving Git LFS Pointer Mismatch
 
-When a file tracked by Git LFS is replaced by its binary contents instead of the expected pointer, you may see a "pointer mismatch" error. Follow these steps using `production.db` as an example. Ensure `ALLOW_AUTOLFS=1` is set so large files remain LFS-managed.
+When a file tracked by Git LFS is replaced by its binary contents instead of the expected pointer, you may see a "pointer mismatch" error. Ensure `ALLOW_AUTOLFS=1` is set so large files remain LFS-managed.
+
+## Detecting a mismatch
+
+Compare the pointer metadata with the file's SHA hash:
+
+```bash
+git lfs pointer --file production.db
+sha256sum production.db
+```
+
+If the `oid sha256` shown by `git lfs pointer` does not match the `sha256sum`
+output, the file has been replaced by binary content.
 
 ## 1. Remove the mismatched file
 
@@ -34,3 +46,14 @@ file production.db
 ```
 
 If the output lists `production.db` and the `file` command reports a valid SQLite database, the pointer mismatch has been resolved.
+
+## Helper script
+
+The [`lfs_restore.sh`](../../scripts/lfs_restore.sh) helper automates steps 1–3:
+
+```bash
+../../scripts/lfs_restore.sh production.db
+```
+
+Use this script to quickly remove the bad file, check out the pointer, and
+download the correct LFS object.
