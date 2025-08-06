@@ -16,6 +16,11 @@ from typing import Optional, Tuple
 from datetime import datetime
 import logging
 
+from enterprise_modules.compliance import (
+    ComplianceError,
+    validate_enterprise_operation,
+)
+
 
 def read_file_with_encoding_detection(
     file_path: str,
@@ -100,17 +105,13 @@ def write_file_safely(
     create_parents: bool = True,
     backup_existing: bool = False
 ) -> bool:
-    """
-    Write file safely with error handling and optional backup
+    """Write file safely with enterprise validation and optional backup."""
+    file_path_obj = Path(file_path)
 
-    Extracted from scripts:
-    - unicode_flake8_master_controller.py
-    - phase12_e999_syntax_error_specialist.py
-    - enterprise_dual_copilot_validator.py
-    """
+    if not validate_enterprise_operation(str(file_path_obj)):
+        raise ComplianceError(f"Forbidden write operation: {file_path_obj}")
+
     try:
-        file_path_obj = Path(file_path)
-
         # Create parent directories if needed
         if create_parents:
             file_path_obj.parent.mkdir(parents=True, exist_ok=True)
@@ -144,15 +145,16 @@ def copy_file_safely(
     destination_path: str,
     overwrite: bool = False
 ) -> bool:
-    """
-    Copy file safely with validation
-    """
+    """Copy file safely with enterprise validation."""
     import shutil
 
-    try:
-        source = Path(source_path)
-        destination = Path(destination_path)
+    source = Path(source_path)
+    destination = Path(destination_path)
 
+    if not validate_enterprise_operation(str(destination)):
+        raise ComplianceError(f"Forbidden copy destination: {destination}")
+
+    try:
         if not source.exists():
             logging.error(f"Source file does not exist: {source_path}")
             return False
@@ -170,7 +172,9 @@ def copy_file_safely(
         return True
 
     except Exception as e:
-        logging.error(f"Error copying file from {source_path} to {destination_path}: {e}")
+        logging.error(
+            f"Error copying file from {source_path} to {destination_path}: {e}"
+        )
         return False
 
 
