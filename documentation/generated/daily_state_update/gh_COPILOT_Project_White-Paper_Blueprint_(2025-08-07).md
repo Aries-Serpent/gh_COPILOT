@@ -284,6 +284,41 @@ The gh_COPILOT repository is an enterprise‑grade HAR analysis toolkit with dat
 | Quantum integration delays             | Low         | Low      | Maintain simulation fallback; adjust roadmap as needed         |
 ```
 
+## References
+
+[[1]]: `production.db`, `analytics.db`, and `monitoring.db` serve as the core SQLite databases for state, analytics, and health data.
+[[2]]: ER diagrams and database migration guides.
+[[3]]: `DualCopilotOrchestrator` executes tasks with secondary validation for compliance.
+[[4]]: Unified `_log_event` helper that records events into `analytics.db`.
+[[5]]: Flask dashboard exposing endpoints for monitoring, database access, backups, migrations, deployment, scripts API, health, and metrics.
+[[6]]: `scripts/quantum_placeholders` modules run on simulators and are excluded from production builds.
+[[7]]: Development standards requiring PEP 8, peer review, Ruff, and pytest before commits.
+[[8]]: Validated database‑first and dual‑copilot architectural patterns.
+[[9]]: Roadmap for future quantum hardware integration.
+[[10]]: Phase 5 task log tracking documentation alignment, anti‑recursion guards, and validation progress.
+[[11]]: Outstanding tests for template generation, archive scripts, and cross‑database logging.
+[[12]]: KMeans clustering implemented for template selection.
+[[13]]: `SecondaryCopilotValidator` logs metrics after primary execution.
+[[14]]: `scripts/code_placeholder_audit.py` records unresolved TODO/FIXME entries to `analytics.db`.
+[[15]]: Compliance scoring formula combining lint, test, and placeholder metrics.
+[[16]]: Forbidden operations are blocked and recursion checks run before scoring.
+[[17]]: Composite metrics aggregation still under development.
+[[18]]: `UnifiedDisasterRecoverySystem` enforces external backup roots with checksum verification.
+[[19]]: Database synchronisation engine logging events and preparing real‑time conflict resolution.
+[[20]]: Monitoring scripts with self‑healing; ML‑enhanced monitoring in progress.
+[[21]]: Dashboard enhancements for real‑time metrics, correction logs, and placeholder progress.
+[[22]]: Simulation‑only quantum routines in `quantum/` and `scripts/quantum_placeholders`.
+[[23]]: Ruff linting and Pyright indicate unresolved issues; many pytest modules fail.
+[[25]]: Cross‑database reconciliation script heals drift among databases.
+[[26]]: Event rate monitoring and snapshot utilities for `analytics.db`.
+[[27]]: Placeholder auditing with correction history and EnterpriseComplianceValidator integration.
+[[28]]: `validate_enterprise_operation` decorator enforcing anti‑recursion safeguards.
+[[29]]: Outstanding lint errors and failing tests.
+[[30]]: Compliance safeguards blocking destructive command execution.
+[[31]]: Rollback log tables feeding into compliance metrics.
+[[32]]: Documentation notes that quantum modules run exclusively in simulation mode.
+[[33]]: Daily whitepaper summaries synchronise documentation with repository status.
+
 ## Notes
 
 ### Prerequisites
