@@ -58,6 +58,7 @@ __all__ = [
     "detect_anomalies",
     "QuantumInterface",
     "auto_heal_session",
+    "anomaly_detection_loop",
     "record_quantum_score",
 ]
 
@@ -146,10 +147,12 @@ def push_metrics(
                 (session_id, json.dumps(metrics)),
             )
         conn.commit()
-    try:
-        train_anomaly_model(db_path=path)
-    except Exception:
-        pass
+        count = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+    if count >= 5:
+        try:
+            train_anomaly_model(db_path=path)
+        except Exception:
+            pass
 
 
 def collect_metrics(
@@ -238,9 +241,12 @@ def train_anomaly_model(
     model_file = model_path or MODEL_PATH
 
     with sqlite3.connect(db_file) as conn:
-        rows = conn.execute(
-            "SELECT metrics_json FROM monitoring_metrics ORDER BY id"
-        ).fetchall()
+        try:
+            rows = conn.execute(
+                "SELECT metrics_json FROM monitoring_metrics ORDER BY id"
+            ).fetchall()
+        except sqlite3.Error:
+            return None
     if not rows:
         return None
 
@@ -490,6 +496,7 @@ def auto_heal_session(
         )
     else:
         anomalies = list(anomalies)
+    anomalies = [a for a in anomalies if a.get("anomaly_score", 0) > 0.5]
     if not anomalies:
         return False
     if manager is None:
@@ -507,6 +514,56 @@ def auto_heal_session(
         return True
     except Exception:
         return False
+
+
+def anomaly_detection_loop(
+    interval: float = 5.0,
+    *,
+    iterations: Optional[int] = None,
+    contamination: float = 0.1,
+    manager: Optional[UnifiedSessionManagementSystem] = None,
+    db_path: Optional[Path] = None,
+    model_path: Optional[Path] = None,
+    collector=collect_metrics,
+) -> None:
+    """Continuously collect metrics and restart sessions on anomalies.
+
+    Parameters
+    ----------
+    interval:
+        Seconds to wait between metric collections.
+    iterations:
+        Optional maximum number of iterations. ``None`` runs indefinitely.
+    contamination:
+        Proportion of outliers passed to :func:`detect_anomalies`.
+    manager:
+        Optional session manager instance used by :func:`auto_heal_session`.
+    db_path:
+        Optional analytics database path forwarded to collectors and detectors.
+    model_path:
+        Optional persisted model path forwarded to :func:`detect_anomalies`.
+    collector:
+        Metric collection callable. Defaults to :func:`collect_metrics`.
+    """
+
+    history: List[Dict[str, float]] = []
+    count = 0
+    while iterations is None or count < iterations:
+        metrics = collector(db_path=db_path)
+        history.append(metrics)
+        anomalies = detect_anomalies(
+            history,
+            contamination=contamination,
+            db_path=db_path,
+            model_path=model_path,
+        )
+        if anomalies:
+            auto_heal_session(
+                anomalies=anomalies, manager=manager, db_path=db_path
+            )
+        count += 1
+        if iterations is None or count < iterations:
+            time.sleep(interval)
 
 class QuantumInterface:
     """Concrete interface for quantum metric processing."""
