@@ -5,6 +5,7 @@ import sqlite3
 from typing import Dict
 
 from analytics.user_behavior import log_user_action
+from web_gui.monitoring.compliance_monitoring import check_compliance
 
 ANALYTICS_DB = Path("databases/analytics.db")
 
@@ -13,8 +14,8 @@ ACTION_LOG: Dict[str, int] = {}
 
 
 def get_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, int]:
-    """Return basic security analytics."""
-    metrics = {"open_issues": 0, "views": 0}
+    """Return security analytics with compliance status."""
+    metrics = {"open_issues": 0, "views": 0, "compliant": 0}
     if db_path.exists():
         try:
             with sqlite3.connect(db_path) as conn:
@@ -26,6 +27,7 @@ def get_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, int]:
         except sqlite3.Error:
             pass
     metrics["views"] = log_user_action("security_dashboard", ACTION_LOG)["security_dashboard"]
+    metrics["compliant"] = 1 if check_compliance({"policy": "default", "status": "ok"}) else 0
     return metrics
 
 

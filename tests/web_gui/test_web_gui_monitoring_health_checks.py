@@ -54,14 +54,13 @@ def test_get_service_uptime_positive() -> None:
 
 
 def test_trigger_alert_returns_level() -> None:
-    messages = []
-    routed = []
-    level = trigger_alert(
-        "hello",
-        "critical",
-        messages.append,
+    messages: list[str] = []
+    routed: list[tuple[str, str]] = []
+    pipeline = [
+        lambda lvl, msg: messages.append(f"[{lvl.upper()}] {msg}"),
         lambda lvl, msg: routed.append((lvl, msg)),
-    )
+    ]
+    level = trigger_alert("hello", "critical", pipeline=pipeline)
     assert level == "high"
     assert messages and messages[0].startswith("[HIGH]")
     assert routed == [("high", "hello")]
