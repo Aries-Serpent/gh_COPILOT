@@ -18,6 +18,7 @@
 > Integration plan: [docs/quantum_integration_plan.md](docs/quantum_integration_plan.md) outlines staged hardware enablement while current builds remain simulator-only.
 > Governance: see [docs/GOVERNANCE_STANDARDS.md](docs/GOVERNANCE_STANDARDS.md) for organizational rules and coding standards.
 > Documentation: quantum preparation, executive guides, and certification workflows live under [`web_gui/documentation`](web_gui/documentation) — see [web_gui/documentation/quantum_preparation/README.md](web_gui/documentation/quantum_preparation/README.md), [web_gui/documentation/executive_guides/README.md](web_gui/documentation/executive_guides/README.md), and [web_gui/documentation/certification/README.md](web_gui/documentation/certification/README.md).
+> White-paper summary: [documentation/generated/daily_state_update/gh_COPILOT_Project_White-Paper_Blueprint_Summary_(2025-08-06).md](documentation/generated/daily_state_update/gh_COPILOT_Project_White-Paper_Blueprint_Summary_(2025-08-06).md)
 
 ---
 
