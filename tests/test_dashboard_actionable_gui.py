@@ -2,7 +2,7 @@ import json
 import os
 
 os.environ["GH_COPILOT_DISABLE_VALIDATION"] = "1"
-from web_gui import dashboard_actionable_gui as gui
+from dashboard import integrated_dashboard as gui
 
 
 class DummyRollback:
@@ -24,6 +24,7 @@ def test_dashboard_endpoints(tmp_path, monkeypatch):
     monkeypatch.setattr(gui, "ANALYTICS_DB", tmp_path / "analytics.db")
     monkeypatch.setattr(gui, "CorrectionLoggerRollback", DummyRollback)
     client = gui.app.test_client()
+    assert client.get("/").status_code == 200
     assert client.get("/metrics").status_code == 200
     assert client.get("/corrections").status_code == 200
     assert client.get("/compliance").status_code == 200

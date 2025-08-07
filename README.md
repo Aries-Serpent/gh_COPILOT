@@ -930,7 +930,7 @@ gh_COPILOT/
 - **`scripts/utilities/init_and_audit.py`** - Initialize databases and run placeholder audit
  - **`dashboard/enterprise_dashboard.py`** - Wrapper for Flask dashboard app
 - **`validation/compliance_report_generator.py`** - Summarize lint and test results
-- **`web_gui/dashboard_actionable_gui.py`** - Actionable compliance dashboard
+- **`dashboard/integrated_dashboard.py`** - Unified compliance dashboard
 - **`scripts/monitoring/continuous_operation_monitor.py`** - Continuous operation utility
 - **`scripts/monitoring/enterprise_compliance_monitor.py`** - Compliance monitoring utility
 - **`scripts/monitoring/unified_monitoring_optimization_system.py`** - Aggregates performance metrics

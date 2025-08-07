@@ -1,9 +1,16 @@
 from utils import log_utils
+import unified_session_management_system as usm
 
 
 def test_compliance_logging_and_zero_byte(tmp_path, monkeypatch):
     monkeypatch.setenv("GH_COPILOT_DISABLE_VALIDATION", "1")
     monkeypatch.setenv("GH_COPILOT_WORKSPACE", str(tmp_path))
+    backup_root = tmp_path.parent / "backups"
+    backup_root.mkdir(exist_ok=True)
+    monkeypatch.setenv("GH_COPILOT_BACKUP_ROOT", str(backup_root))
+    monkeypatch.chdir(tmp_path)
+    db_file = tmp_path / "databases" / "analytics.db"
+    monkeypatch.setattr(usm, "ANALYTICS_DB", db_file)
     from session_management_consolidation_executor import EnterpriseUtility
 
     events = []

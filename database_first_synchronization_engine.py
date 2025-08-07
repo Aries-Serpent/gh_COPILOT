@@ -1,16 +1,18 @@
 """Bidirectional database synchronization utilities.
 
-This module provides two main classes:
+This module provides three main classes:
 
 ``SchemaMapper``
     Ensures tables present in one database exist in the other.
 
 ``SyncManager``
     Performs bidirectional synchronization using explicit transactions and
-    pluggable conflict-resolution policies.  Synchronization results and
-    conflicts are recorded in ``analytics.db`` with success or failure
-    statuses.  A background :meth:`SyncManager.watch` helper can trigger
-    synchronization automatically when the source databases change.
+    pluggable conflict-resolution policies. Synchronization results and
+    conflicts are recorded in ``analytics.db``.
+
+``SyncWatcher``
+    Observes one or more database pairs and triggers :meth:`SyncManager.sync`
+    when changes are detected.
 """
 
 from __future__ import annotations
@@ -63,6 +65,10 @@ class TimestampConflictPolicy(ConflictPolicy):
         return row_a if ts_a >= ts_b else row_b
 
 
+class LastWriteWinsPolicy(TimestampConflictPolicy):
+    """Resolve conflicts by keeping the row with the latest timestamp."""
+
+
 class SyncManager:
     """Synchronize two SQLite databases in both directions."""
 
@@ -94,6 +100,14 @@ class SyncManager:
 
         db_a = Path(db_a)
         db_b = Path(db_b)
+
+        if isinstance(policy, str):
+            key = policy.lower()
+            if key in {"last-write-wins", "timestamp"}:
+                policy = LastWriteWinsPolicy()
+            else:
+                raise ValueError(f"Unknown conflict policy: {policy}")
+
         if policy is None:
             resolver = resolver or self._default_resolver
             policy = ResolverPolicy(resolver)

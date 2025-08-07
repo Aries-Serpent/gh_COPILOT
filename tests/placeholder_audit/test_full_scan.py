@@ -3,7 +3,7 @@ import sqlite3
 
 from scripts.code_placeholder_audit import main
 from tools import automation_setup as setup
-from web_gui import dashboard_actionable_gui as gui
+from dashboard import integrated_dashboard as gui
 import secondary_copilot_validator
 from types import SimpleNamespace
 
