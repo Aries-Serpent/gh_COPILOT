@@ -104,13 +104,25 @@ def validate_no_recursive_folders() -> None:
 
 
 def detect_c_temp_violations() -> Optional[str]:
+    """Detect forbidden Windows ``E:/temp`` paths.
+
+    The legacy ``E:/temp`` directory is disallowed for both the workspace
+    and the backup root.  When either path begins with this location the
+    offending path is returned and the incident is recorded via
+    :func:`_log_violation`.
+
+    Returns ``None`` when no violation is present.
+    """
+
     forbidden = ["E:/temp/", "E:\\temp\\"]
     workspace = str(CrossPlatformPathManager.get_workspace_path())
     backup_root = str(CrossPlatformPathManager.get_backup_root())
     for forbidden_path in forbidden:
         if workspace.startswith(forbidden_path):
+            _log_violation(workspace)
             return workspace
         if backup_root.startswith(forbidden_path):
+            _log_violation(backup_root)
             return backup_root
     return None
 
