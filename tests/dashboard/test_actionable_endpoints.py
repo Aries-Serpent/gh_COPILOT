@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from web_gui import dashboard_actionable_gui as gui
+from dashboard import enterprise_dashboard as gui
 
 
 @pytest.fixture()
@@ -18,14 +18,11 @@ def gui_app(tmp_path: Path, monkeypatch):
         conn.execute("CREATE TABLE violation_logs(timestamp TEXT, details TEXT)")
         conn.execute("INSERT INTO violation_logs VALUES ('2024-01-02', 'violation')")
     metrics = tmp_path / "metrics.json"
-    metrics.write_text(json.dumps({"placeholder_removal": 0}))
-    comp_dir = tmp_path / "compliance"
-    comp_dir.mkdir()
-    comp_dir.joinpath("correction_summary.json").write_text(
-        json.dumps({"corrections": [{"file": "file.py"}]})
-    )
-    monkeypatch.setattr(gui, "METRICS_PATH", metrics)
-    monkeypatch.setattr(gui, "CORRECTIONS_DIR", comp_dir)
+    metrics.write_text(json.dumps({"metrics": {"placeholder_removal": 0}}))
+    comp_file = tmp_path / "correction_summary.json"
+    comp_file.write_text(json.dumps({"corrections": [{"file": "file.py"}]}))
+    monkeypatch.setattr(gui, "METRICS_FILE", metrics)
+    monkeypatch.setattr(gui, "CORRECTIONS_FILE", comp_file)
     monkeypatch.setattr(gui, "ANALYTICS_DB", db)
     return gui.app
 
@@ -33,8 +30,8 @@ def gui_app(tmp_path: Path, monkeypatch):
 def test_metrics_reflect_database(gui_app):
     client = gui_app.test_client()
     data = client.get("/metrics").get_json()
-    assert data["violation_count"] == 1
-    assert data["rollback_count"] == 1
+    assert data["metrics"]["violation_count"] == 1
+    assert data["metrics"]["rollback_count"] == 1
 
 
 def test_corrections_endpoint(gui_app):

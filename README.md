@@ -248,7 +248,7 @@ python scripts/database/complete_consolidation_orchestrator.py \
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all
 
 # 5. Start enterprise dashboard
-python dashboard/enterprise_dashboard.py  # imports app from web_gui package
+python dashboard/enterprise_dashboard.py
 ```
 
 ### **Documentation Update Workflow**
@@ -837,7 +837,7 @@ class SelfHealingSelfLearningSystem:
 ### **Access Dashboard**
 ```bash
 # Start enterprise dashboard
-python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
+python dashboard/enterprise_dashboard.py
 
 # Access at: http://localhost:5000
 # Features: Real-time metrics, database visualization, system monitoring
@@ -917,7 +917,7 @@ gh_COPILOT/
 │   ├── database/            # Database management
 │   └── automation/          # Autonomous operations
 ├── databases/               # 27 synchronized databases
-├── web_gui/                 # Flask enterprise dashboard
+├── web_gui/                 # Legacy dashboard shim
 ├── documentation/           # Comprehensive documentation
 ├── .github/instructions/    # GitHub Copilot instruction modules
 └── docs/                   # Learning pattern integration docs
@@ -928,9 +928,9 @@ gh_COPILOT/
 - **`scripts/validation/enterprise_dual_copilot_validator.py`** - DUAL COPILOT validation
 - **`scripts/utilities/unified_script_generation_system.py`** - Database-first generation
 - **`scripts/utilities/init_and_audit.py`** - Initialize databases and run placeholder audit
- - **`dashboard/enterprise_dashboard.py`** - Wrapper for Flask dashboard app
-- **`validation/compliance_report_generator.py`** - Summarize lint and test results
-- **`web_gui/dashboard_actionable_gui.py`** - Actionable compliance dashboard
+ - **`dashboard/enterprise_dashboard.py`** - Unified Flask dashboard app
+ - **`validation/compliance_report_generator.py`** - Summarize lint and test results
+ - **`web_gui/dashboard_actionable_gui.py`** - Compatibility shim for legacy imports
 - **`scripts/monitoring/continuous_operation_monitor.py`** - Continuous operation utility
 - **`scripts/monitoring/enterprise_compliance_monitor.py`** - Compliance monitoring utility
 - **`scripts/monitoring/unified_monitoring_optimization_system.py`** - Aggregates performance metrics
@@ -1102,7 +1102,7 @@ python scripts/utilities/self_healing_self_learning_system.py --continuous
 python scripts/validation/lessons_learned_integration_validator.py
 
 # Enterprise dashboard
-python dashboard/enterprise_dashboard.py  # wrapper for web_gui Flask app
+python dashboard/enterprise_dashboard.py
 
 # DUAL COPILOT validation
 python scripts/validation/enterprise_dual_copilot_validator.py --validate-all

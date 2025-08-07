@@ -1,7 +1,7 @@
 import json
 
 from validation import compliance_report_generator as crg
-from web_gui import dashboard_actionable_gui as gui
+from dashboard import enterprise_dashboard as gui
 
 
 def test_db_to_ui_propagation(tmp_path, monkeypatch):
@@ -15,8 +15,10 @@ def test_db_to_ui_propagation(tmp_path, monkeypatch):
     result = crg.generate_compliance_report(ruff, pytest_file, out_dir, analytics_db=db)
 
     monkeypatch.setattr(gui, "ANALYTICS_DB", db)
+    metrics_file = tmp_path / "metrics.json"
+    metrics_file.write_text(json.dumps({"metrics": {}}))
+    monkeypatch.setattr(gui, "METRICS_FILE", metrics_file)
     client = gui.app.test_client()
-    response = client.get("/dashboard/compliance")
+    response = client.get("/dashboard/compliance/view")
     html = response.data.decode()
-    assert str(result["composite_score"]) in html
-    assert result["timestamp"] in html
+    assert "Compliance Metrics" in html

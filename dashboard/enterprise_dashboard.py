@@ -13,23 +13,24 @@ import json
 import logging
 import os
 import sqlite3
+import time
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import time
-
 from flask import Flask, Response, jsonify, render_template, request
+from tqdm import tqdm
 
-from utils.validation_utils import validate_enterprise_environment
+from scripts.correction_logger_and_rollback import CorrectionLoggerRollback
 from database_first_synchronization_engine import list_events
-from enterprise_modules.compliance import (
-    get_latest_compliance_score,
-    calculate_composite_score,
-)
+from enterprise_modules.compliance import calculate_composite_score
+from utils.validation_utils import validate_enterprise_environment
 
 
 # Paths to metrics and rollback data
-METRICS_FILE = Path(__file__).with_name("metrics.json")
+COMPLIANCE_DIR = Path(__file__).parent / "compliance"
+METRICS_FILE = COMPLIANCE_DIR / "metrics.json"
+CORRECTIONS_FILE = COMPLIANCE_DIR / "correction_summary.json"
 ANALYTICS_DB = Path("databases/analytics.db")
 
 
@@ -48,37 +49,54 @@ def _load_metrics() -> dict[str, Any]:
             metrics = json.loads(METRICS_FILE.read_text()).get("metrics", {})
         except json.JSONDecodeError as exc:  # pragma: no cover - log and fall back
             logging.error("Metrics decode error: %s", exc)
-    try:
-        metrics["compliance_score"] = get_latest_compliance_score(ANALYTICS_DB)
-    except sqlite3.Error as exc:  # pragma: no cover - missing table
-        logging.error("Compliance score fetch error: %s", exc)
-        metrics["compliance_score"] = 0.0
-    try:
+    if ANALYTICS_DB.exists():
         with sqlite3.connect(ANALYTICS_DB) as conn:
             conn.row_factory = sqlite3.Row
-            cur = conn.execute(
-                """
-                SELECT ruff_issues, tests_passed, tests_failed,
-                       placeholders_open, placeholders_resolved
-                FROM code_quality_metrics
-                ORDER BY id DESC LIMIT 1
-                """
-            )
-            row = cur.fetchone()
-            if row:
-                score, breakdown = calculate_composite_score(
-                    row["ruff_issues"],
-                    row["tests_passed"],
-                    row["tests_failed"],
-                    row["placeholders_open"],
-                    row["placeholders_resolved"],
+            try:
+                cur = conn.execute(
+                    """
+                    SELECT ruff_issues, tests_passed, tests_failed,
+                           placeholders_open, placeholders_resolved, ts
+                    FROM code_quality_metrics
+                    ORDER BY id DESC LIMIT 1
+                    """
                 )
-                metrics["code_quality_score"] = score
-                metrics["composite_score"] = score
-                metrics["score_breakdown"] = breakdown
-    except sqlite3.Error as exc:  # pragma: no cover - log and continue
-        logging.error("Composite fetch error: %s", exc)
+                row = cur.fetchone()
+                if row:
+                    score, breakdown = calculate_composite_score(
+                        row["ruff_issues"],
+                        row["tests_passed"],
+                        row["tests_failed"],
+                        row["placeholders_open"],
+                        row["placeholders_resolved"],
+                    )
+                    metrics["compliance_score"] = score
+                    metrics["composite_score"] = score
+                    metrics["score_breakdown"] = breakdown
+                    metrics["last_audit_date"] = row["ts"]
+            except sqlite3.Error as exc:  # pragma: no cover - log and continue
+                logging.error("Composite fetch error: %s", exc)
+            try:
+                cur = conn.execute("SELECT COUNT(*) FROM placeholder_audit")
+                metrics["violation_count"] = cur.fetchone()[0]
+                cur = conn.execute("SELECT COUNT(*) FROM rollback_logs")
+                metrics["rollback_count"] = cur.fetchone()[0]
+            except sqlite3.Error as exc:  # pragma: no cover - log and continue
+                logging.error("Count fetch error: %s", exc)
+    metrics.setdefault("violation_count", 0)
+    metrics.setdefault("rollback_count", 0)
+    metrics.setdefault("timestamp", datetime.utcnow().isoformat())
     return {"metrics": metrics, "notes": []}
+
+
+def _load_corrections() -> dict[str, Any]:
+    """Return correction summary data."""
+    if CORRECTIONS_FILE.exists():
+        try:
+            return json.loads(CORRECTIONS_FILE.read_text())
+        except json.JSONDecodeError as exc:  # pragma: no cover - log and continue
+            logging.error("Corrections decode error: %s", exc)
+    return {}
 
 
 def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
@@ -96,6 +114,48 @@ def get_rollback_logs(limit: int = 10) -> list[dict[str, Any]]:
     except sqlite3.Error as exc:  # pragma: no cover - log and continue
         logging.error("Rollback fetch error: %s", exc)
     return records
+
+
+def _get_violation_logs(limit: int = 50) -> list[dict[str, Any]]:
+    """Return recent violation log entries from ``analytics.db``."""
+    rows: list[dict[str, Any]] = []
+    if not ANALYTICS_DB.exists():
+        return rows
+    try:
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT timestamp, details FROM violation_logs ORDER BY timestamp DESC LIMIT ?",
+                (limit,),
+            )
+            rows = [dict(timestamp=r[0], details=r[1]) for r in cur.fetchall()]
+    except sqlite3.Error as exc:  # pragma: no cover - log and continue
+        logging.error("Violation fetch error: %s", exc)
+    return rows
+
+
+def _get_placeholder_audit(limit: int = 100) -> list[dict[str, Any]]:
+    """Return placeholder audit entries from ``analytics.db``."""
+    rows: list[dict[str, Any]] = []
+    if not ANALYTICS_DB.exists():
+        return rows
+    try:
+        with sqlite3.connect(ANALYTICS_DB) as conn:
+            cur = conn.execute(
+                "SELECT file_path, line_number, placeholder_type, context FROM placeholder_audit ORDER BY id DESC LIMIT ?",
+                (limit,),
+            )
+            rows = [
+                {
+                    "file_path": r[0],
+                    "line_number": r[1],
+                    "placeholder_type": r[2],
+                    "context": r[3],
+                }
+                for r in cur.fetchall()
+            ]
+    except sqlite3.Error as exc:  # pragma: no cover - log and continue
+        logging.error("Placeholder audit fetch error: %s", exc)
+    return rows
 
 
 def _load_sync_events(limit: int = 10) -> list[dict[str, Any]]:
@@ -180,6 +240,45 @@ def sync_events() -> Any:
     return jsonify(_load_sync_events())
 
 
+@app.route("/corrections")
+def corrections() -> Any:
+    """Return correction summary data as JSON."""
+    return jsonify(_load_corrections())
+
+
+@app.route("/compliance")
+def compliance() -> Any:
+    """Return combined metrics and correction summary as JSON."""
+    metrics = _load_metrics().get("metrics", {})
+    corrections = _load_corrections().get("corrections", [])
+    return jsonify({"metrics": metrics, "corrections": corrections})
+
+
+@app.route("/violations")
+def violations() -> Any:
+    """Return recent violation log entries as JSON."""
+    return jsonify({"violations": _get_violation_logs()})
+
+
+@app.route("/placeholder-audit")
+def placeholder_audit() -> Any:
+    """Return placeholder audit entries as JSON."""
+    return jsonify({"results": _get_placeholder_audit()})
+
+
+@app.post("/rollback")
+def trigger_rollback() -> Any:
+    """Trigger an automatic rollback via ``CorrectionLoggerRollback``."""
+    payload = request.get_json(force=True) or {}
+    target = Path(payload.get("target", ""))
+    backup = payload.get("backup")
+    rollbacker = CorrectionLoggerRollback(ANALYTICS_DB)
+    with tqdm(total=1, desc="rollback", unit="step") as bar:
+        ok = rollbacker.auto_rollback(target, Path(backup) if backup else None)
+        bar.update(1)
+    return jsonify({"status": "ok" if ok else "failed"})
+
+
 @app.route("/dashboard/compliance")
 def dashboard_compliance() -> Any:
     """Return combined metrics and rollback logs."""
@@ -213,6 +312,13 @@ def audit_results_view() -> str:
 def sync_events_view() -> str:
     """Render an HTML view of synchronization events."""
     return render_template("sync_events.html", events=_load_sync_events())
+
+
+@app.route("/dashboard/compliance/view")
+def dashboard_compliance_view() -> str:
+    """Render an HTML view of compliance metrics."""
+    metrics_data = _load_metrics().get("metrics", {})
+    return render_template("metrics.html", metrics=metrics_data)
 
 
 def _validate_environment() -> None:

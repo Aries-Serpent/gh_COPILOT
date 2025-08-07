@@ -77,6 +77,11 @@
 </head>
 <body>
 <h1>Compliance Dashboard</h1>
+<p>
+    <a href="/metrics/view">Compliance Metrics</a> |
+    <a href="/rollback-logs/view">Rollback Logs</a> |
+    <a href="/sync-events/view">Sync Events</a>
+</p>
 <div>
     <strong>Placeholder Removals:</strong> <span id="placeholder_removal">{{ metrics.placeholder_removal | default(0) }}</span><br>
     <strong>Compliance Score:</strong> <span id="compliance_score">{{ metrics.compliance_score | default(0) }}</span><br>
