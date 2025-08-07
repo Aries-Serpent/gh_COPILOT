@@ -16,6 +16,7 @@ from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from .performance_metrics import collect_performance_metrics
 from .compliance_monitoring import check_compliance
 from .quantum_metrics import quantum_metric
+from .alerting.alert_manager import trigger_alert
 
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "databases" / "production.db"
@@ -27,6 +28,7 @@ __all__ = [
     "check_system_resources",
     "check_compliance_status",
     "check_quantum_score",
+    "run_all_checks",
 ]
 
 
@@ -77,3 +79,21 @@ def check_compliance_status(data: Dict[str, str]) -> bool:
 def check_quantum_score(values: Iterable[float], threshold: float = 0.0) -> bool:
     """Return ``True`` if the quantum score meets ``threshold``."""
     return quantum_metric(values) >= threshold
+
+
+def run_all_checks() -> Dict[str, bool]:
+    """Run a basic suite of health checks.
+
+    Failed checks trigger a warning-level alert via the alert manager.
+    The resulting mapping indicates the success status of each check.
+    """
+
+    results = {
+        "database": check_database_connection(),
+        "templates": check_template_rendering(),
+        "resources": check_system_resources(),
+    }
+    for name, ok in results.items():
+        if not ok:
+            trigger_alert(f"{name} check failed", alert_type="warning")
+    return results

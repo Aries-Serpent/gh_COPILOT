@@ -6,10 +6,12 @@ from web_gui.monitoring.health_checks import (
     check_quantum_score,
     check_system_resources,
     check_template_rendering,
+    run_all_checks,
 )
 from web_gui.monitoring.performance_metrics import collect_performance_metrics
 from web_gui.monitoring.alerting.escalation_rules import get_escalation_level
 from web_gui.monitoring.alerting.alert_manager import trigger_alert
+from web_gui.monitoring.alerting.notification_engine import NOTIFICATION_LOG
 
 
 def test_check_database_connection():
@@ -47,3 +49,14 @@ def test_trigger_alert_returns_level() -> None:
     level = trigger_alert("hello", "critical", messages.append)
     assert level == "high"
     assert messages and messages[0].startswith("[HIGH]")
+
+
+def test_run_all_checks_triggers_alert(monkeypatch) -> None:
+    NOTIFICATION_LOG.clear()
+    monkeypatch.setattr(
+        "web_gui.monitoring.health_checks.check_database_connection",
+        lambda db_path=None: False,
+    )
+    result = run_all_checks()
+    assert result["database"] is False
+    assert NOTIFICATION_LOG and NOTIFICATION_LOG[0].startswith("[MEDIUM]")

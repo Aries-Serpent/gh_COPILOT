@@ -1,4 +1,13 @@
-"""High-level API for interacting with quantum services."""
+"""High-level API for interacting with quantum services.
+
+This module exposes a very small facade used throughout the tests to
+simulate execution of quantum tasks.  The real project integrates with
+various backends, but for unit testing we only need a deterministic and
+side‑effect free implementation.  The :func:`execute_quantum_task` function
+therefore wires together the template and websocket helpers defined in the
+same package and returns a simple dictionary describing the result of the
+operation.
+"""
 
 from typing import Any, Dict
 

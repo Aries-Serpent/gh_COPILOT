@@ -1,4 +1,4 @@
-"""Template management for quantum operations."""
+"""Template management for quantum operations.
 
 from typing import Dict
 

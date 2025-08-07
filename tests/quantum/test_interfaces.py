@@ -1,5 +1,4 @@
 """Tests for quantum interface simulation placeholders."""
-
 from quantum.interfaces import quantum_api, quantum_templates, quantum_websocket
 
 

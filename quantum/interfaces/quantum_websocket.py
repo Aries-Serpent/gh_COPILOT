@@ -1,7 +1,8 @@
-"""WebSocket interface for quantum communication channels."""
+"""WebSocket interface for quantum communication channels.
 
 from typing import Any, Dict
 
+from dataclasses import dataclass
 
 class QuantumWebSocket:
     """Very small WebSocket simulator for real-time interactions."""
