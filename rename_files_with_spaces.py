@@ -136,7 +136,24 @@ class FileRenamer:
         # Generate and return summary
         summary = self.generate_summary()
         self.log_summary(summary)
-        
+
+        try:
+            from tools.convert_daily_whitepaper import (
+                convert_pdfs,
+                fetch_lfs_objects,
+            )
+            from scripts.documentation.update_daily_state_index import update_index
+
+            # Ensure Git LFS objects are available before conversion
+            fetch_lfs_objects()
+            for message in convert_pdfs(self.target_directory):
+                logger.info(message)
+            index_path = self.target_directory.parent / "daily_state_index.md"
+            update_index(source_dir=self.target_directory, index_path=index_path)
+        except Exception as e:  # noqa: BLE001
+            logger.error(f"❌ Conversion step failed: {e}")
+            self.errors.append(f"Conversion error: {e}")
+
         return summary
     
     def generate_summary(self) -> dict:

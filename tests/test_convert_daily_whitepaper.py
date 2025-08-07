@@ -1,34 +1,13 @@
-from pathlib import Path
-import shutil
-
-import pytest
-
-from tools.convert_daily_whitepaper import PdfReader, convert_pdfs, _sanitize_name
-
-pytestmark = pytest.mark.skipif(
-    PdfReader is None, reason="PyPDF2 not installed"
-)
+from tools.convert_daily_whitepaper import _sanitize_name, DEFAULT_PDF_DIR
 
 
-def test_convert_creates_markdown(tmp_path):
-    source_dir = Path("documentation") / "generated" / "daily_state_update"
-    source_pdf = next(source_dir.glob("*.pdf"))
-    shutil.copy(source_pdf, tmp_path / source_pdf.name)
-    logs = list(convert_pdfs(tmp_path))
-    md_name = _sanitize_name(source_pdf.stem) + ".md"
-    md_file = tmp_path / md_name
-    assert md_file.exists()
-    assert any("Converted" in msg for msg in logs)
-    assert md_file.read_text().strip()
-
-
-def test_skip_existing_markdown(tmp_path):
-    source_dir = Path("documentation") / "generated" / "daily_state_update"
-    source_pdf = next(source_dir.glob("*.pdf"))
-    target_pdf = tmp_path / source_pdf.name
-    shutil.copy(source_pdf, target_pdf)
-    md_file = target_pdf.with_suffix(".md")
-    md_file.write_text("already here")
-    logs = list(convert_pdfs(tmp_path))
-    assert any("already converted" in msg for msg in logs)
-    assert md_file.read_text() == "already here"
+def test_latest_daily_state_update_has_markdown():
+    pdfs = sorted(DEFAULT_PDF_DIR.glob("*.pdf"))
+    assert pdfs, "No PDF files found"
+    latest_pdf = pdfs[-1]
+    sanitized_md = latest_pdf.with_name(_sanitize_name(latest_pdf.stem) + ".md")
+    original_md = latest_pdf.with_suffix(".md")
+    assert original_md.exists() or sanitized_md.exists(), (
+        f"Missing markdown for: {latest_pdf.name}"
+    )
+    

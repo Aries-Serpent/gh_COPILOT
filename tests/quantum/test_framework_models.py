@@ -21,3 +21,14 @@ def test_model_run_uses_simulator(monkeypatch):
     model = _DummyModel()
     result = model.run()
     assert result == {"simulated": True, "circuit": "test-circuit"}
+
+
+def test_demo_model(monkeypatch):
+    """DemoModel should execute using the simulator backend."""
+
+    monkeypatch.setattr(fw_backend, "init_ibm_backend", lambda token=None: (None, False))
+    from quantum.models import DemoModel
+
+    model = DemoModel()
+    result = model.run()
+    assert result["simulated"] is True
