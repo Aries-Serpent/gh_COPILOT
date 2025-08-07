@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = ROOT / "databases" / "analytics.db"
-OUTPUT_DIR = ROOT / "documentation" / "generated" / "daily_state_update"
+OUTPUT_DIR = ROOT / "documentation" / "generated" / "daily state update"
 
 
 def _query_counts(db: Path) -> dict[str, int]:
