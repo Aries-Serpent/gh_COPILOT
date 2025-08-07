@@ -11,8 +11,38 @@ from typing import Iterator
 from utils.cross_platform_paths import CrossPlatformPathManager
 
 
+CODEX_LOG_DB = Path("databases/codex_log.db")
 DB_NAME = "codex_log.db"
 TABLE_NAME = "codex_log"
+
+
+def init_db() -> None:
+    """Initialize the Codex log database and create required tables."""
+    CODEX_LOG_DB.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(CODEX_LOG_DB) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS codex_actions(
+                id INTEGER PRIMARY KEY,
+                session_id TEXT,
+                ts TEXT,
+                action TEXT,
+                statement TEXT,
+                metadata TEXT
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS codex_log (
+                session_id TEXT,
+                event TEXT,
+                summary TEXT,
+                ts TEXT
+            )
+            """
+        )
+        conn.commit()
 
 
 @contextmanager
@@ -43,6 +73,22 @@ def codex_log_cursor(db_name: str = DB_NAME) -> Iterator[sqlite3.Cursor]:
         conn.close()
 
 
+def log_codex_action(
+    session_id: str, action: str, statement: str, metadata: str = ""
+) -> None:
+    """Log a Codex action to the database."""
+    init_db()
+    with sqlite3.connect(CODEX_LOG_DB) as conn:
+        conn.execute(
+            """
+            INSERT INTO codex_actions (session_id, ts, action, statement, metadata)
+            VALUES (?, datetime('now'), ?, ?, ?)
+            """,
+            (session_id, action, statement, metadata),
+        )
+        conn.commit()
+
+
 def log_codex_start(session_id: str) -> None:
     """Record the start of a Codex session."""
     with codex_log_cursor() as cursor:
@@ -61,5 +107,4 @@ def log_codex_end(session_id: str, summary: str) -> None:
         )
 
 
-__all__ = ["codex_log_cursor", "log_codex_start", "log_codex_end"]
-
+__all__ = ["init_db", "codex_log_cursor", "log_codex_action", "log_codex_start", "log_codex_end"]
