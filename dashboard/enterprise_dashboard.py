@@ -27,11 +27,60 @@ def anomaly_metrics(db_path: Path = ANALYTICS_DB) -> Dict[str, float]:
     return metrics
 
 
-@dashboard_bp.route("/anomalies")
+def compliance_metrics(limit: int = 10, db_path: Path | None = None) -> Dict[str, Any]:
+    """Return latest compliance score and recent trend data."""
+
+    db = db_path or ANALYTICS_DB
+    results: Dict[str, Any] = {"latest": None, "trend": []}
+    if db.exists():
+        with sqlite3.connect(db) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.execute(
+                """
+                SELECT timestamp, composite_score, lint_score, test_score, placeholder_score
+                FROM compliance_scores
+                ORDER BY timestamp DESC
+                LIMIT ?
+                """,
+                (limit,),
+            )
+            rows = cur.fetchall()
+            trend = [
+                {
+                    "timestamp": row["timestamp"],
+                    "composite_score": row["composite_score"],
+                    "breakdown": {
+                        "lint_score": row["lint_score"],
+                        "test_score": row["test_score"],
+                        "placeholder_score": row["placeholder_score"],
+                    },
+                }
+                for row in rows
+            ]
+            if trend:
+                results["latest"] = trend[0]
+            results["trend"] = trend
+    return results
+
+
+@app.route("/anomalies")
 def anomalies() -> Dict[str, list]:
     """Expose recent anomaly summaries."""
 
     return {"anomalies": get_anomaly_summary(db_path=ANALYTICS_DB)}
 
 
-__all__ = ["app", "dashboard_bp", "create_app", "anomaly_metrics"]
+@app.route("/compliance-metrics")
+def get_compliance_metrics() -> Any:
+    """Expose compliance score breakdown and trend."""
+
+    return jsonify(compliance_metrics())
+
+
+__all__ = [
+    "app",
+    "dashboard_bp",
+    "create_app",
+    "anomaly_metrics",
+    "compliance_metrics",
+]
