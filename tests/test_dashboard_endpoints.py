@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import types
+import pytest
 
 
 class DummyCorrectionLoggerRollback:
@@ -26,8 +27,16 @@ def _stub_no_environment_root() -> None:
 cmu.validate_no_recursive_folders = _stub_no_recursive_folders
 cmu.validate_environment_root = _stub_no_environment_root
 import web_gui.scripts.flask_apps.enterprise_dashboard as ed
-ed._fetch_metrics = lambda: {"metrics": {"composite_score": 0.0, "score_breakdown": {}}}
 from web_gui.scripts.flask_apps.enterprise_dashboard import app
+
+
+@pytest.fixture(autouse=True)
+def _stub_fetch_metrics(monkeypatch):
+    monkeypatch.setattr(
+        ed,
+        "_fetch_metrics",
+        lambda: {"metrics": {"composite_score": 0.0, "score_breakdown": {}}},
+    )
 
 
 def test_index_endpoint():
