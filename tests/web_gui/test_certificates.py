@@ -2,11 +2,13 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from hashlib import sha3_256
+
+from secondary_copilot_validator import SecondaryCopilotValidator
 
 from web_gui.certificates import certificate_manager as cm
 from web_gui.certificates import quantum_crypto as qc
 from web_gui.certificates import ssl_config
-from hashlib import sha3_256
 
 
 def test_load_certificate_and_key_roundtrip():
@@ -35,3 +37,16 @@ def test_quantum_safe_hash_and_key_generation():
     key = qc.generate_quantum_safe_key(16)
     assert isinstance(key, bytes)
     assert len(key) == 16
+
+
+def test_certificate_dual_copilot(monkeypatch):
+    validator = SecondaryCopilotValidator()
+    calls: list[list[object]] = []
+    monkeypatch.setattr(
+        validator, "validate_corrections", lambda items, primary_success=True: calls.append(items) or True
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        cert_path = Path(tmp) / "cert.pem"
+        cert_path.write_text("cert")
+        cm.load_certificate(str(cert_path), validator=validator)
+    assert calls
