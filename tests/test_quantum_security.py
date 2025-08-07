@@ -8,3 +8,9 @@ def test_quantum_security_interop() -> None:
     assert isinstance(QISKIT_AVAILABLE, bool)
     assert isinstance(checker.policy, dict)
 
+
+def test_validate_operation_returns_bool() -> None:
+    """validate_operation should return a boolean result."""
+    checker = ComplianceChecker()
+    assert isinstance(checker.validate_operation(command="echo"), bool)
+

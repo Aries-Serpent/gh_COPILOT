@@ -6,3 +6,9 @@ def test_orchestrator_lists_algorithms() -> None:
     orchestrator = QuantumIntegrationOrchestrator()
     assert isinstance(orchestrator.available_algorithms(), list)
 
+
+def test_execution_summary_is_dict() -> None:
+    """Execution summary should return a dictionary."""
+    orchestrator = QuantumIntegrationOrchestrator()
+    assert isinstance(orchestrator.execution_summary(), dict)
+
