@@ -52,6 +52,9 @@ def _load_metrics() -> dict[str, Any]:
         "timestamp": datetime.utcnow().isoformat(),
         "score": 0.0,
         "last_audit_date": None,
+        "latest_anomaly_score": 0.0,
+        "latest_anomaly_composite": 0.0,
+        "latest_quantum_score": 0.0,
     }
     if METRICS_FILE.exists():
         try:
@@ -89,29 +92,49 @@ def _load_metrics() -> dict[str, Any]:
                         metrics["score_breakdown"] = breakdown
                         metrics["last_audit_date"] = row["ts"]
                 except sqlite3.Error:
+                    try:
+                        cur = conn.execute(
+                            """
+                            SELECT ruff_issues, tests_passed, tests_failed,
+                                   placeholders, composite_score, ts
+                            FROM code_quality_metrics
+                            ORDER BY id DESC LIMIT 1
+                            """,
+                        )
+                        row = cur.fetchone()
+                        if row:
+                            scores = calculate_composite_compliance_score(
+                                row["ruff_issues"],
+                                row["tests_passed"],
+                                row["tests_failed"],
+                                row["placeholders"],
+                            )
+                            metrics["compliance_score"] = scores["composite"]
+                            metrics["composite_score"] = row["composite_score"]
+                            metrics["last_audit_date"] = row["ts"]
+                    except sqlite3.Error:
+                        pass
+                try:
                     cur = conn.execute(
-                        """
-                        SELECT ruff_issues, tests_passed, tests_failed,
-                               placeholders, composite_score, ts
-                        FROM code_quality_metrics
-                        ORDER BY id DESC LIMIT 1
-                        """,
+                        "SELECT anomaly_score, quantum_score, composite_score FROM anomaly_results ORDER BY id DESC LIMIT 1"
                     )
                     row = cur.fetchone()
                     if row:
-                        scores = calculate_composite_compliance_score(
-                            row["ruff_issues"],
-                            row["tests_passed"],
-                            row["tests_failed"],
-                            row["placeholders"],
-                        )
-                        metrics["compliance_score"] = scores["composite"]
-                        metrics["composite_score"] = row["composite_score"]
-                        metrics["last_audit_date"] = row["ts"]
-        except sqlite3.Error:
-            pass
-        try:
-            with sqlite3.connect(ANALYTICS_DB) as conn:
+                        metrics["latest_anomaly_score"] = row[0]
+                        if row[1] is not None:
+                            metrics["latest_quantum_score"] = row[1]
+                        metrics["latest_anomaly_composite"] = row[2]
+                except sqlite3.Error:
+                    pass
+                try:
+                    cur = conn.execute(
+                        "SELECT score FROM quantum_scores ORDER BY id DESC LIMIT 1"
+                    )
+                    row = cur.fetchone()
+                    if row:
+                        metrics["latest_quantum_score"] = row[0]
+                except sqlite3.Error:
+                    pass
                 cur = conn.cursor()
                 cur.execute("SELECT COUNT(*) FROM placeholder_audit")
                 metrics["violation_count"] = cur.fetchone()[0]

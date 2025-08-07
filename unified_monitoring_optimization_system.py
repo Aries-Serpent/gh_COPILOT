@@ -16,6 +16,7 @@ import os
 import pickle
 import sqlite3
 import time
+import logging
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, TYPE_CHECKING
 
@@ -39,6 +40,15 @@ except Exception:  # pragma: no cover - library may be missing
 WORKSPACE_ROOT = Path(os.getenv("GH_COPILOT_WORKSPACE", Path.cwd()))
 DB_PATH = WORKSPACE_ROOT / "databases" / "analytics.db"
 MODEL_PATH = WORKSPACE_ROOT / "artifacts" / "anomaly_iforest.pkl"
+WEB_DASHBOARD_ENABLED = os.getenv("WEB_DASHBOARD_ENABLED") == "1"
+logger = logging.getLogger(__name__)
+
+
+def _update_dashboard(payload: Dict[str, float]) -> None:
+    """Emit payload to the dashboard when enabled."""
+
+    if WEB_DASHBOARD_ENABLED:
+        logger.info("[DASHBOARD] %s", payload)
 
 __all__ = [
     "EnterpriseUtility",
@@ -136,6 +146,10 @@ def push_metrics(
                 (session_id, json.dumps(metrics)),
             )
         conn.commit()
+    try:
+        train_anomaly_model(db_path=path)
+    except Exception:
+        pass
 
 
 def collect_metrics(
@@ -372,6 +386,7 @@ def detect_anomalies(
                 composite = anomaly_score
             anomaly["composite_score"] = composite
             anomalies.append(anomaly)
+            _update_dashboard(anomaly)
             conn.execute(
                 """
                 INSERT INTO anomaly_results (
@@ -428,6 +443,7 @@ def record_quantum_score(
             (json.dumps(metrics), score),
         )
         conn.commit()
+    _update_dashboard({"quantum_score": score})
     return score
 
 
@@ -493,14 +509,14 @@ def auto_heal_session(
         return False
 
 class QuantumInterface:
-    """Placeholder interface for quantum metric processing."""
+    """Concrete interface for quantum metric processing."""
 
     @staticmethod
-    def analyze(metrics: Dict[str, float]) -> None:
-        """Forward metrics to the quantum hook."""
+    def analyze(
+        metrics: Dict[str, float], *, db_path: Optional[Path] = None
+    ) -> float:
+        """Record and return a quantum score for ``metrics``."""
 
-        from scripts.monitoring.unified_monitoring_optimization_system import (
-            quantum_hook as _quantum_hook,
-        )
-
-        _quantum_hook(metrics)
+        score = record_quantum_score(metrics, db_path=db_path)
+        metrics["quantum_score"] = score
+        return score
