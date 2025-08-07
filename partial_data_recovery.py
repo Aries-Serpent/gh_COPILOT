@@ -4,7 +4,6 @@
 Attempts to recover readable content from partial/corrupted data
 """
 
-import re
 from pathlib import Path
 
 def analyze_raw_data(file_path: str):

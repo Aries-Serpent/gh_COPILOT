@@ -5,7 +5,6 @@ Provides a comprehensive overview of the analytics.db database
 """
 
 import sqlite3
-import json
 from pathlib import Path
 
 def inspect_database():
@@ -76,7 +75,7 @@ def inspect_database():
                     sample_data = cursor.fetchall()
                     if sample_data:
                         print(f"      Sample: {len(sample_data)} rows")
-                except:
+                except Exception:
                     pass
         
         # Check for recent activity
@@ -97,7 +96,7 @@ def inspect_database():
                         latest = cursor.fetchone()[0]
                         if latest:
                             print(f"   • {table_name}: Latest entry at {latest}")
-                except:
+                except Exception:
                     pass
         
         # Enterprise features

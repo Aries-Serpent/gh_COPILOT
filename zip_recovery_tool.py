@@ -98,7 +98,7 @@ def manual_zip_extraction(data: bytes) -> dict:
                             try:
                                 decompressed = zlib.decompress(compressed_data, -15)
                                 print(f"   ✅ Decompressed using standard deflate: {len(decompressed)} bytes")
-                            except:
+                            except Exception:
                                 pass
                             
                             # Method 2: Raw deflate
@@ -106,7 +106,7 @@ def manual_zip_extraction(data: bytes) -> dict:
                                 try:
                                     decompressed = zlib.decompress(compressed_data)
                                     print(f"   ✅ Decompressed using raw deflate: {len(decompressed)} bytes")
-                                except:
+                                except Exception:
                                     pass
                             
                             # Method 3: Inflate
@@ -115,7 +115,7 @@ def manual_zip_extraction(data: bytes) -> dict:
                                     inflater = zlib.decompressobj()
                                     decompressed = inflater.decompress(compressed_data)
                                     print(f"   ✅ Decompressed using inflater: {len(decompressed)} bytes")
-                                except:
+                                except Exception:
                                     pass
                             
                             if decompressed is None:
