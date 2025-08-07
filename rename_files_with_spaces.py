@@ -138,9 +138,14 @@ class FileRenamer:
         self.log_summary(summary)
 
         try:
-            from tools.convert_daily_whitepaper import convert_pdfs
+            from tools.convert_daily_whitepaper import (
+                convert_pdfs,
+                fetch_lfs_objects,
+            )
             from scripts.documentation.update_daily_state_index import update_index
 
+            # Ensure Git LFS objects are available before conversion
+            fetch_lfs_objects()
             for message in convert_pdfs(self.target_directory):
                 logger.info(message)
             index_path = self.target_directory.parent / "daily_state_index.md"
