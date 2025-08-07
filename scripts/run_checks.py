@@ -13,6 +13,19 @@ if str(ROOT) not in sys.path:
 from utils.validation_utils import anti_recursion_guard
 
 
+def ensure_codex_log_tracked() -> None:
+    """Ensure ``codex_log.db`` is tracked by Git LFS."""
+    result = subprocess.run(
+        ["git", "lfs", "ls-files"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if "codex_log.db" not in result.stdout:
+        msg = "codex_log.db must be managed by Git LFS"
+        raise RuntimeError(msg)
+
+
 @anti_recursion_guard
 def main() -> int:
     """Run ``ruff`` and ``pytest`` sequentially.
@@ -21,10 +34,9 @@ def main() -> int:
     commands succeed.
     """
 
-    commands = [
-        ["ruff", "check", "."],
-        ["pytest"],
-    ]
+    ensure_codex_log_tracked()
+
+    commands = [["ruff", "check", "."], ["pytest"]]
 
     for cmd in commands:
         result = subprocess.run(cmd)
