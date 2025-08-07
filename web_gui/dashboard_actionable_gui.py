@@ -63,6 +63,13 @@ def fetch_db_metrics() -> dict:
     return data
 
 
+@app.get("/")
+def dashboard():
+    """Render main dashboard page with key metrics."""
+    metrics = fetch_db_metrics()
+    return render_template("dashboard.html", metrics=metrics)
+
+
 @app.get("/metrics")
 def get_metrics():
     data = fetch_db_metrics()
