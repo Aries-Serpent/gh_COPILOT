@@ -1,1 +1,3 @@
-Placeholder icons
+# Icons
+
+Placeholder for icon assets.
