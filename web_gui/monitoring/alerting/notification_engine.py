@@ -7,15 +7,13 @@ append information to in-memory logs so tests can assert on side effects.
 
 from __future__ import annotations
 
-from typing import List, Tuple
+from typing import List
 
-__all__ = [
-    "send_notification",
-    "route_to_dashboard",
-    "NOTIFICATION_LOG",
-    "ROUTE_LOG",
-]
+NOTIFICATION_LOG: List[str] = []
 
+__all__ = ["send_notification", "route_to_dashboard", "NOTIFICATION_LOG"]
+
+NOTIFICATION_LOG: List[str] = []
 
 # In-memory logs used for test assertions
 NOTIFICATION_LOG: List[str] = []

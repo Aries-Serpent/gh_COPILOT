@@ -58,6 +58,12 @@ The `template_engine.auto_generator` module clusters stored patterns using KMean
 
 For validation details see [validation/Database_First_Validation.md](validation/Database_First_Validation.md). Copilot-specific notes are available under [.github/docs/Database_First_Copilot.md](../.github/docs/Database_First_Copilot.md).
 
+## Quantum Preparation, Executive Guides, and Certification
+
+- [quantum_preparation/README.md](quantum_preparation/README.md) – steps to prime the toolkit for quantum-enabled features
+- [executive_guides/README.md](executive_guides/README.md) – quick references for leadership teams
+- [certification/README.md](certification/README.md) – procedures for issuing and validating certificates
+
 ## Quantum Template Generation
 
 The `docs/quantum_template_generator.py` script demonstrates the production
