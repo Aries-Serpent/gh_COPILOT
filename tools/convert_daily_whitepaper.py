@@ -12,10 +12,8 @@ import logging
 from pathlib import Path
 from typing import Iterable
 
-try:  # pragma: no cover - optional dependency
-    from PyPDF2 import PdfReader
-except Exception:  # pragma: no cover - import guarding
-    PdfReader = None  # type: ignore
+import PyPDF2  # noqa: F401
+from PyPDF2 import PdfReader
 
 
 def convert_pdfs(pdf_dir: Path) -> Iterable[str]:
@@ -38,18 +36,10 @@ def convert_pdfs(pdf_dir: Path) -> Iterable[str]:
             messages.append(f"Skipping {pdf_path.name}: already converted")
             continue
 
-        if PdfReader is None:
-            messages.append(
-                f"Cannot convert {pdf_path.name}: PyPDF2 not installed"
-            )
-            continue
-
         reader = PdfReader(str(pdf_path))
         text = "\n".join(page.extract_text() or "" for page in reader.pages)
         md_path.write_text(text)
-        messages.append(
-            f"Converted {pdf_path.name} -> {md_path.name}"
-        )
+        messages.append(f"Converted {pdf_path.name} -> {md_path.name}")
     return messages
 
 
