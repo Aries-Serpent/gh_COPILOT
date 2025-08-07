@@ -14,6 +14,7 @@ from utils.validation_utils import detect_zero_byte_files
 from scripts.session.anti_recursion_enforcer import anti_recursion_guard
 from enterprise_modules.compliance import validate_environment, ComplianceError
 from utils.logging_utils import ANALYTICS_DB
+from utils.codex_log_db import log_codex_action
 
 logger = logging.getLogger(__name__)
 
@@ -149,16 +150,28 @@ def main() -> int:
 
     system = UnifiedSessionManagementSystem()
     logger.info("Lifecycle start")
+    log_codex_action(system.session_id, "session_start", "Unified session lifecycle start")
     success = False
     with ensure_no_zero_byte_files(system.workspace_root, system.session_id):
+        log_codex_action(system.session_id, "start_session_begin", "Starting session")
         success = system.start_session()
+        log_codex_action(system.session_id, "start_session_complete", "Session started")
+        log_codex_action(system.session_id, "end_session_begin", "Ending session")
         system.end_session()
-        finalize_session(
+        log_codex_action(system.session_id, "end_session_complete", "Session ended")
+        log_codex_action(system.session_id, "finalize_session_begin", "Finalizing session logs")
+        hash_value = finalize_session(
             Path(system.workspace_root) / "logs",
             system.workspace_root,
             system.session_id,
         )
+        log_codex_action(
+            system.session_id,
+            "finalize_session_complete",
+            f"Session finalized with hash {hash_value}",
+        )
     logger.info("Lifecycle end")
+    log_codex_action(system.session_id, "session_end", "Unified session lifecycle end")
     print("Valid" if success else "Invalid")
     return 0 if success else 1
 
