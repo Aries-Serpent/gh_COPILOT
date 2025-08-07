@@ -5,8 +5,11 @@ services:
     command: gunicorn app:app -c deployment/gunicorn_config.py
     volumes:
       - ..:/app
+      - ../quantum:/app/quantum:ro
     ports:
       - "8000:8000"
+    environment:
+      QUANTUM_ENABLED: "true"
   nginx:
     image: nginx:1.25-alpine
     volumes:
