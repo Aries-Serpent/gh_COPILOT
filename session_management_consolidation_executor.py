@@ -13,9 +13,9 @@ from utils.log_utils import _log_event
 from validation.protocols.session import SessionProtocolValidator
 from utils.validation_utils import (
     anti_recursion_guard,
-    detect_zero_byte_files,
     validate_enterprise_environment,
 )
+from unified_session_management_system import ensure_no_zero_byte_files
 
 
 class EnterpriseUtility:
@@ -72,15 +72,17 @@ class EnterpriseUtility:
         )
 
     def perform_utility_function(self) -> bool:
-        """Return ``False`` if any zero-byte files are present."""
-        zero_files = detect_zero_byte_files(self.workspace_path)
-        for file in zero_files:
-            self.logger.error("[ERROR] zero byte file detected: %s", file)
+        """Check workspace for zero-byte files and log any findings."""
+        try:
+            with ensure_no_zero_byte_files(self.workspace_path):
+                return True
+        except RuntimeError as exc:
+            self.logger.error("[ERROR] %s", exc)
             _log_event(
-                {"event": "zero_byte_detected", "file": str(file)},
+                {"description": "zero_byte_detected", "details": str(exc)},
                 db_path=self.analytics_db,
             )
-        return not zero_files
+            return False
 
     @anti_recursion_guard
     def execute_utility(self) -> bool:
