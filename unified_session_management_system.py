@@ -25,7 +25,7 @@ __all__ = [
 ]
 
 
-def _record_zero_byte_findings(paths: list[Path], phase: str) -> None:
+def _record_zero_byte_findings(paths: list[Path], phase: str, session_id: str) -> None:
     """Persist zero-byte scan results to ``analytics.db``."""
     timestamp = datetime.utcnow().isoformat()
     with sqlite3.connect(ANALYTICS_DB) as conn:
@@ -34,29 +34,30 @@ def _record_zero_byte_findings(paths: list[Path], phase: str) -> None:
             CREATE TABLE IF NOT EXISTS zero_byte_files (
                 path TEXT NOT NULL,
                 phase TEXT NOT NULL,
+                session_id TEXT NOT NULL,
                 ts   TEXT NOT NULL
             )
             """
         )
         conn.executemany(
-            "INSERT INTO zero_byte_files (path, phase, ts) VALUES (?, ?, ?)",
-            [(str(p), phase, timestamp) for p in paths] or [],
+            "INSERT INTO zero_byte_files (path, phase, session_id, ts) VALUES (?, ?, ?, ?)",
+            [(str(p), phase, session_id, timestamp) for p in paths] or [],
         )
 
 
 @contextmanager
-def ensure_no_zero_byte_files(root: str | Path):
+def ensure_no_zero_byte_files(root: str | Path, session_id: str) -> None:
     """Verify the workspace is free of zero-byte files before and after the block."""
     root_path = Path(root)
     before = detect_zero_byte_files(root_path)
-    _record_zero_byte_findings(before, "before")
+    _record_zero_byte_findings(before, "before", session_id)
     if before:
         for path in before:
             path.unlink(missing_ok=True)
         raise RuntimeError(f"Zero-byte files detected: {before}")
     yield
     after = detect_zero_byte_files(root_path)
-    _record_zero_byte_findings(after, "after")
+    _record_zero_byte_findings(after, "after", session_id)
     if after:
         for path in after:
             path.unlink(missing_ok=True)
@@ -134,8 +135,9 @@ def main() -> int:
 
     system = UnifiedSessionManagementSystem()
     logger.info("Lifecycle start")
-    success = system.start_session()
-    with ensure_no_zero_byte_files(system.workspace_root):
+    success = False
+    with ensure_no_zero_byte_files(system.workspace_root, system.session_id):
+        success = system.start_session()
         system.end_session()
         finalize_session(Path(system.workspace_root) / "logs")
     logger.info("Lifecycle end")
