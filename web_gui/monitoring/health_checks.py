@@ -201,11 +201,20 @@ def run_all_checks(
         results["quantum"] = check_quantum_score(
             quantum_values, quantum_threshold, validator=validator
         )
+    pipeline_handlers: list[Callable[[str, str], None]] | None = None
+    if notifier or dashboard_router:
+        pipeline_handlers = []
+        if notifier is not None:
+            pipeline_handlers.append(lambda _level, msg: notifier(msg))
+        if dashboard_router is not None:
+            pipeline_handlers.append(dashboard_router)
 
     if alert:
         for name, passed in results.items():
             if not passed:
-                trigger_alert(f"{name} check failed", "critical", pipeline=pipeline)
+                trigger_alert(
+                    f"{name} check failed", "critical", pipeline=pipeline_handlers
+                )
 
     logger.debug("Health check results: %s", results)
     validator.validate_corrections([str(results)])
