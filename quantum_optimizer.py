@@ -12,6 +12,9 @@ from pathlib import Path
 from utils.lessons_learned_integrator import fetch_lessons_by_tag
 from quantum.utils.backend_provider import get_backend
 
+from tqdm import tqdm
+from quantum.algorithms.base import TEXT_INDICATORS
+
 try:
     from qiskit import QuantumCircuit, Aer, execute
 
@@ -303,7 +306,13 @@ class QuantumOptimizer:
         best_x = x.copy()
         best_val = self.objective_function(x)
         current_temp = temp
-        for i in range(max_iter):
+        for i in tqdm(
+            range(max_iter),
+            desc=f"{TEXT_INDICATORS['progress']} annealing",
+            unit="iter",
+            leave=False,
+            dynamic_ncols=True,
+        ):
             x_new = x + np.random.uniform(-0.1, 0.1, size=dim)
             for j, (a, b) in enumerate(self.variable_bounds):
                 x_new[j] = np.clip(x_new[j], a, b)
@@ -336,7 +345,13 @@ class QuantumOptimizer:
             dim = len(self.variable_bounds)
             best_x = None
             best_val = float("inf")
-            for i in range(niter):
+            for i in tqdm(
+                range(niter),
+                desc=f"{TEXT_INDICATORS['progress']} basin-hop",
+                unit="iter",
+                leave=False,
+                dynamic_ncols=True,
+            ):
                 x = np.array([np.random.uniform(a, b) for a, b in self.variable_bounds])
                 val = self.objective_function(x)
                 if val < best_val:
