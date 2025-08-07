@@ -5,6 +5,7 @@ import numpy as np
 from typing import Callable, Optional, Any, Dict, List, Tuple
 from datetime import datetime
 from importlib import import_module
+import logging
 
 from utils.cross_platform_paths import CrossPlatformPathManager
 import os
@@ -14,6 +15,8 @@ from quantum.utils.backend_provider import get_backend
 
 from tqdm import tqdm
 from quantum.algorithms.base import TEXT_INDICATORS
+
+logger = logging.getLogger(__name__)
 
 try:
     from qiskit import QuantumCircuit, Aer, execute
@@ -419,11 +422,11 @@ if __name__ == "__main__":
     bounds = [(-5, 5), (-5, 5)]
     optimizer = QuantumOptimizer(objective_function=quad_obj, variable_bounds=bounds, method="simulated_annealing")
     summary = optimizer.run()
-    print("Optimization result:")
-    print(summary["result"])
-    print("History:")
+    logger.info("Optimization result:")
+    logger.info(summary["result"])
+    logger.info("History:")
     for event in summary["history"]:
-        print(event)
+        logger.info(event)
 
 
 def run_quantum_routine(name: str, *args, use_hardware: bool = False, **kwargs):
