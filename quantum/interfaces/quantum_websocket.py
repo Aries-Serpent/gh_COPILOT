@@ -1,43 +1,32 @@
 """WebSocket interface for quantum communication channels.
 
-The production system exposes websocket endpoints for streaming quantum
-results.  For testing purposes we emulate a very small portion of that
-behaviour with an in-memory object that mimics the necessary attributes.
-"""
+from typing import Any, Dict
 
 from dataclasses import dataclass
 
-
-@dataclass
 class QuantumWebSocket:
-    """Minimal representation of an opened websocket connection."""
+    """Very small WebSocket simulator for real-time interactions."""
 
-    url: str
-    messages: list[str] = None
+    def __init__(self) -> None:
+        self.connected = False
 
-    def __post_init__(self) -> None:  # pragma: no cover - trivial
-        if self.messages is None:
-            self.messages = []
+    def connect(self, url: str) -> None:
+        """Pretend to establish a connection."""
 
-    def send(self, message: str) -> None:
-        """Store ``message`` in the internal buffer."""
+        self.connected = True
+        self.url = url
 
-        self.messages.append(message)
+    def send(self, message: str) -> Dict[str, Any]:
+        """Echo ``message`` back as a simulated response."""
 
-    def close(self) -> None:  # pragma: no cover - trivial
-        """Close the websocket (no-op for the stub)."""
+        if not self.connected:  # pragma: no cover - defensive
+            raise ConnectionError("WebSocket not connected")
+        return {"url": self.url, "echo": message, "simulated": True}
 
 
 def open_quantum_socket(url: str) -> QuantumWebSocket:
-    """Open a websocket connection to ``url``.
+    """Return a connected :class:`QuantumWebSocket` instance."""
 
-    The function performs basic validation to ensure a websocket URL is
-    provided and returns a :class:`QuantumWebSocket` instance.
-    """
-
-    if not url.startswith("ws://") and not url.startswith("wss://"):
-        raise ValueError("url must start with 'ws://' or 'wss://'")
-    return QuantumWebSocket(url)
-
-
-__all__ = ["QuantumWebSocket", "open_quantum_socket"]
+    ws = QuantumWebSocket()
+    ws.connect(url)
+    return ws
