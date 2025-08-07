@@ -16,9 +16,21 @@ def _stub_score(values):
     return sum(vals) / len(vals)
 
 
-sys.modules["quantum_algorithm_library_expansion"] = SimpleNamespace(
-    quantum_score_stub=_stub_score
-)
+@pytest.fixture(autouse=True)
+def _stub_quantum_module(monkeypatch):
+    """Provide a quantum score stub for tests."""
+    monkeypatch.setitem(
+        sys.modules,
+        "quantum_algorithm_library_expansion",
+        SimpleNamespace(quantum_score_stub=_stub_score),
+    )
+    monkeypatch.setattr(
+        sys.modules["quantum_algorithm_library_expansion"],
+        "quantum_score_stub",
+        _stub_score,
+    )
+
+
 quantum_score_stub = _stub_score
 
 from unified_monitoring_optimization_system import (

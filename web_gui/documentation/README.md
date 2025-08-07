@@ -30,6 +30,19 @@ This comprehensive documentation covers all aspects of the gh_COPILOT Toolkit we
 - **Backup/Restore**: Data protection tools
 - **Migration**: Environment migration tools
 - **Deployment**: Deployment pipeline management
+- **Components** (in `templates/components/`):
+  - `navigation.html` – renders navigation links from `links`
+  - `metrics_widgets.html` – displays metric widgets via `widgets`
+  - `security_indicators.html` – shows security statuses from `indicators`
+  - `quantum_indicators.html` – visualizes quantum metrics from `indicators`
+
+#### Quantum Enhanced Framework
+- **File**: `web_gui/scripts/flask_apps/quantum_enhanced_framework.py`
+- **Features**: Simulated quantum endpoints for future integration
+
+#### Configuration Modules
+- **Location**: `web_gui/scripts/config/`
+- **Environments**: development, staging, production
 
 ### 🎯 Enterprise Compliance Features
 

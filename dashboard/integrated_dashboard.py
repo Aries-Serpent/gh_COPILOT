@@ -204,6 +204,8 @@ def index() -> str:
         "dashboard.html",
         metrics=_load_metrics(),
         rollbacks=get_rollback_logs(),
+        sync_events=_load_sync_events(),
+        audit_results=_load_audit_results(),
     )
 
 
@@ -246,6 +248,13 @@ def sync_events() -> Any:
 @_dashboard.get("/corrections")
 def get_corrections() -> Any:
     return jsonify(_load_corrections())
+
+
+@_dashboard.get("/corrections/view")
+def corrections_view() -> Any:
+    """Render correction history using HTML template."""
+    data = _load_corrections()
+    return render_template("corrections.html", corrections=data.get("corrections", []))
 
 
 @_dashboard.get("/compliance")
@@ -334,6 +343,9 @@ def create_app() -> Flask:
         __name__,
         template_folder=str(Path(__file__).parent / "templates"),
         static_folder=str(Path(__file__).parent / "static"),
+    )
+    app.jinja_loader.searchpath.append(
+        str(Path(__file__).resolve().parents[1] / "web_gui" / "templates")
     )
     app.register_blueprint(_dashboard)
     return app

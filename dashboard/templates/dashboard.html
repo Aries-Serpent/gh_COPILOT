@@ -48,6 +48,15 @@
                 list.appendChild(li);
             });
         }
+        function updateCorrections(logs){
+            const list = document.getElementById('corrections');
+            list.innerHTML = '';
+            logs.forEach(c => {
+                const li = document.createElement('li');
+                li.textContent = c.timestamp + ' - ' + c.path + ' (' + c.status + ')';
+                list.appendChild(li);
+            });
+        }
         function updateSyncEvents(events){
             const list = document.getElementById('sync_events');
             list.innerHTML = '';
@@ -78,8 +87,9 @@
             fetch('/dashboard/compliance').then(r=>r.json()).then(updateCompliance);
         }
         function pollExtras(){
-            fetch('/sync-events').then(r=>r.json()).then(updateSyncEvents);
-            fetch('/audit-results').then(r=>r.json()).then(updateAuditResults);
+            fetch('/sync_events').then(r=>r.json()).then(updateSyncEvents);
+            fetch('/audit_results').then(r=>r.json()).then(updateAuditResults);
+            fetch('/corrections').then(r=>r.json()).then(updateCorrections);
         }
         window.onload = function(){
             if(!!window.EventSource){
@@ -101,6 +111,9 @@
 </head>
 <body>
 <h1>Compliance Dashboard</h1>
+<nav>
+    <a href="/corrections/view">Corrections</a>
+</nav>
 <div>
     <strong>Placeholder Removals:</strong> <span id="placeholder_removal">{{ metrics.placeholder_removal | default(0) }}</span><br>
     <strong>Compliance Score:</strong> <span id="compliance_score">{{ metrics.compliance_score | default(0) }}</span><br>
@@ -119,6 +132,13 @@
     <h3>Compliance Trend</h3>
     <ul id="compliance_trend"></ul>
 </div>
+<h2>Recent Corrections</h2>
+<ul id="corrections">
+{% for corr in corrections %}
+    <li>{{ corr.timestamp }} - {{ corr.path }} ({{ corr.status }})</li>
+{% endfor %}
+</ul>
+
 <h2>Recent Rollbacks</h2>
 <ul id="rollbacks">
 {% for log in rollbacks %}
