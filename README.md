@@ -1208,6 +1208,7 @@ The repository uses GitHub Actions to automate linting, testing, and compliance 
 - **ci.yml** runs Ruff linting, executes the test suite on multiple Python versions, builds the Docker image, and performs a CodeQL scan.
 - **compliance-audit.yml** validates placeholder cleanup and fails if unresolved TODO markers remain.
 - **docs-validation.yml** checks documentation metrics on docs changes and weekly.
+- The CI workflow also triggers on documentation updates so linting and tests run for doc-focused pull requests.
 
 To mimic CI locally, run:
 

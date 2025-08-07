@@ -333,6 +333,12 @@ def metrics_table() -> Any:
     return render_template("metrics_table.html", metrics=metrics)
 
 
+@app.get("/compliance_metrics")
+def compliance_metrics_page() -> Any:
+    metrics = _fetch_metrics()
+    return render_template("html/compliance_metrics.html", metrics=metrics)
+
+
 @app.get("/health")
 def health() -> Any:
     start = time.time()
