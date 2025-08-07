@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
-from flask import Flask, Response, request
+import logging
+from typing import Iterable
+
+from flask import Flask
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 logger = logging.getLogger(__name__)
 
+
 def init_app(app: Flask) -> None:
-    """Log each request and response status code when enabled."""
+    """Configure audit logging for *app*."""
+
     app.config.setdefault("AUDIT_LOGGING", False)
+
 
 def log_event(
     user: str,
@@ -23,8 +29,9 @@ def log_event(
     if "auditor" not in set(roles):
         logger.warning("Audit log denied for user %s", user)
         raise PermissionError("missing auditor role")
-    logger.info("AUDIT %s: %s", user, action)
-    (validator or SecondaryCopilotValidator()).validate_corrections([f"{user}:{action}"])
+    message = f"AUDIT {user}: {action}"
+    logger.info(message)
+    (validator or SecondaryCopilotValidator()).validate_corrections([message])
 
 
-__all__ = ["init_app"]
+__all__ = ["init_app", "log_event"]

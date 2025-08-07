@@ -2,20 +2,24 @@
 
 from __future__ import annotations
 
-from flask import Flask, Response, request
+import logging
+from typing import Mapping, MutableMapping
+
+from flask import Flask
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 logger = logging.getLogger(__name__)
 
-def init_app(app: Flask) -> None:
-    """Register a simple authentication check on *app*.
+UserDB = Mapping[str, Mapping[str, object]]
 
-    The check is enabled when ``AUTH_REQUIRED`` is ``True``. Incoming requests
-    must include an ``Authorization`` header matching ``Bearer <AUTH_TOKEN>``.
-    """
+
+def init_app(app: Flask) -> None:
+    """Configure authentication defaults for *app*."""
+
     app.config.setdefault("AUTH_REQUIRED", False)
     app.config.setdefault("AUTH_TOKEN", "")
+
 
 def authenticate_user(
     username: str,
@@ -24,7 +28,7 @@ def authenticate_user(
     required_role: str | None = None,
     validator: SecondaryCopilotValidator | None = None,
 ) -> bool:
-    """Authenticate ``username`` and optionally enforce ``required_role``."""
+    """Return ``True`` if credentials are valid and ``required_role`` matches."""
 
     record = user_db.get(username)
     if not record or record.get("password") != password:
@@ -33,7 +37,7 @@ def authenticate_user(
     else:
         roles = set(record.get("roles", []))
         if required_role and required_role not in roles:
-            logger.warning("User %s lacks role %s", username, required_role)
+            logger.warning("User %s lacks required role %s", username, required_role)
             result = False
         else:
             logger.info("User %s authenticated", username)
@@ -43,4 +47,4 @@ def authenticate_user(
     return result
 
 
-__all__ = ["init_app"]
+__all__ = ["init_app", "authenticate_user"]
