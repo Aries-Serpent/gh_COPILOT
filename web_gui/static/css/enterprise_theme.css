@@ -3,6 +3,7 @@
  * Bootstrap 5 customizations for the enterprise dashboard.
  */
 
+/* Color palette */
 :root {
   --bs-primary: #0056b3;
   --bs-secondary: #6c757d;

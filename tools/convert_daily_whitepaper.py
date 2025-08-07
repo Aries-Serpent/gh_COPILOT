@@ -9,8 +9,11 @@ from __future__ import annotations
 
 import argparse
 import logging
+import sys
 from pathlib import Path
 from typing import Iterable
+
+DEFAULT_PDF_DIR = Path("documentation") / "generated" / "daily_state_update"
 
 # Some PDFs were produced with non-breaking hyphens in the filename.  The
 # Markdown files should use plain ASCII hyphens so downstream tooling can
@@ -26,6 +29,12 @@ def _sanitize_name(name: str) -> str:
 
 import PyPDF2  # noqa: F401
 from PyPDF2 import PdfReader
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.documentation.update_daily_state_index import update_index
 
 
 def convert_pdfs(pdf_dir: Path) -> Iterable[str]:
@@ -64,9 +73,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Convert daily whitepaper PDFs to Markdown"
     )
-    default_dir = (
-        Path("documentation") / "generated" / "daily_state_update"
-    )
+    default_dir = DEFAULT_PDF_DIR
     parser.add_argument(
         "--pdf-dir",
         default=default_dir,
@@ -78,6 +85,7 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     for message in convert_pdfs(args.pdf_dir):
         logging.info(message)
+    update_index(source_dir=args.pdf_dir)
 
 
 if __name__ == "__main__":  # pragma: no cover

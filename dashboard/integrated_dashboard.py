@@ -25,6 +25,8 @@ from enterprise_modules.compliance import (
     get_latest_compliance_score,
 )
 from utils.validation_utils import calculate_composite_compliance_score
+from web_gui import middleware, security
+from web_gui.certificates import init_app as init_certificates
 
 # Paths and database locations
 METRICS_FILE = Path(__file__).with_name("metrics.json")
@@ -315,7 +317,7 @@ def metrics_view() -> str:
 
 @_dashboard.get("/rollback-logs/view")
 def rollback_logs_view() -> str:
-    return render_template("rollback_logs.html", logs=get_rollback_logs())
+    return render_template("html/rollback_logs.html", logs=get_rollback_logs())
 
 
 @_dashboard.get("/audit-results/view")
@@ -335,10 +337,10 @@ def dashboard_compliance() -> Any:
 
 @_dashboard.get("/dashboard/rollback")
 def dashboard_rollback() -> str:
-    return render_template("rollback_logs.html", logs=get_rollback_logs())
+    return render_template("html/rollback_logs.html", logs=get_rollback_logs())
 
 
-def create_app() -> Flask:
+def create_app(config: dict | None = None) -> Flask:
     app = Flask(
         __name__,
         template_folder=str(Path(__file__).parent / "templates"),
@@ -347,6 +349,15 @@ def create_app() -> Flask:
     app.jinja_loader.searchpath.append(
         str(Path(__file__).resolve().parents[1] / "web_gui" / "templates")
     )
+
+    if config:
+        app.config.update(config)
+
+    # Initialize subsystems
+    init_certificates(app)
+    security.init_app(app)
+    middleware.init_app(app)
+
     app.register_blueprint(_dashboard)
     return app
 

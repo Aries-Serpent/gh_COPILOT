@@ -16,6 +16,7 @@ from utils.cross_platform_paths import (
     CrossPlatformPathManager,
     verify_environment_variables,
 )
+from web_gui import middleware
 
 TEXT_INDICATORS = {
     "start": "[START]",
@@ -29,6 +30,7 @@ def create_app() -> Flask:
     """Create configured Flask app."""
     verify_environment_variables()
     app = Flask(__name__)
+    middleware.init_app(app)
     secret = os.environ.get("GITHUB_WEBHOOK_SECRET", "")
 
     backup_root = CrossPlatformPathManager.get_backup_root()

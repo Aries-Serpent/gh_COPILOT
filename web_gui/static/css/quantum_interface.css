@@ -3,11 +3,13 @@
  * Bootstrap 5 overrides tailored for quantum modules.
  */
 
+/* Color palette */
 :root {
   --quantum-bg: #1a0033;
   --quantum-accent: #e0b3ff;
 }
 
+/* Page background */
 body.quantum {
   background: var(--quantum-bg);
   color: var(--quantum-accent);
@@ -17,6 +19,7 @@ body.quantum {
   background-color: var(--quantum-bg);
 }
 
+/* Links */
 a {
   color: var(--quantum-accent);
 }
@@ -25,6 +28,7 @@ a:hover {
   color: #b37dff;
 }
 
+/* Responsive adjustments */
 @media (max-width: 767.98px) {
   .quantum-sidebar {
     display: none;

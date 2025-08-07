@@ -16,7 +16,7 @@ tqdm==4.67.1                # Progress bar for CLI and batch tasks
 PyYAML==6.0.2               # YAML config parsing
 toml==0.10.2                # TOML config parsing
 Jinja2==3.1.6               # Template generation for configs
-PyPDF2==3.0.1              # PDF processing
+PyPDF2==3.0.1               # PDF processing
 
 # --- Optional platform support (install only on Windows) ---
 wmi==1.5.1; sys_platform == "win32"    # Hardware info on Windows
