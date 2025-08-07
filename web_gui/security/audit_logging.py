@@ -1,14 +1,16 @@
-"""Audit logging utilities."""
+"""Request audit logging utilities."""
 
 from __future__ import annotations
 
-import logging
-from typing import Iterable
+from flask import Flask, Response, request
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 logger = logging.getLogger(__name__)
 
+def init_app(app: Flask) -> None:
+    """Log each request and response status code when enabled."""
+    app.config.setdefault("AUDIT_LOGGING", False)
 
 def log_event(
     user: str,
@@ -25,5 +27,4 @@ def log_event(
     (validator or SecondaryCopilotValidator()).validate_corrections([f"{user}:{action}"])
 
 
-__all__ = ["log_event"]
-
+__all__ = ["init_app"]

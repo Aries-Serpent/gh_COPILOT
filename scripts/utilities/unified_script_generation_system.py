@@ -15,6 +15,7 @@ import logging
 import re
 import sqlite3
 import json
+import subprocess
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
@@ -71,6 +72,29 @@ class EnterpriseUtility:
     def __init__(self, workspace_path: str = "e:/gh_COPILOT"):
         self.workspace_path = Path(workspace_path)
         self.logger = logging.getLogger(__name__)
+
+    def _ensure_lfs_files(self) -> bool:
+        """Fetch and check out required Git LFS files."""
+        try:
+            subprocess.run(["git", "lfs", "fetch"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(["git", "lfs", "checkout"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except subprocess.CalledProcessError as exc:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Git LFS fetch failed: {exc}")
+            return False
+
+        required = [
+            self.workspace_path / "databases" / "template_documentation.db",
+            self.workspace_path / "databases" / "production.db",
+            self.workspace_path / "databases" / "analytics.db",
+        ]
+        missing = [str(p) for p in required if not p.exists()]
+        if missing:
+            self.logger.error(f"{TEXT_INDICATORS['error']} Missing LFS files: {', '.join(missing)}")
+            return False
+
+        for path in required:
+            self.logger.info(f"{TEXT_INDICATORS['info']} Fetched LFS file: {path}")
+        return True
 
     def execute_utility(self) -> bool:
         """Execute utility function"""
@@ -186,6 +210,7 @@ class EnterpriseUtility:
         The method scans all template content for placeholder patterns and
         synthesizes a new template using the most common placeholders.
         ``tqdm`` is used to log progress while scanning the database.
+        Required Git LFS assets are fetched and verified before processing.
 
         Returns
         -------
@@ -194,6 +219,10 @@ class EnterpriseUtility:
         """
         try:
             start_time = start_indicator("Script Generation Utility")
+
+            if not self._ensure_lfs_files():
+                end_indicator("Script Generation Utility", start_time)
+                return False
 
             databases_dir = self.workspace_path / "databases"
             db_path = databases_dir / "template_documentation.db"

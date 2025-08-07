@@ -3,6 +3,18 @@
 This directory contains configuration and helper scripts for launching a staging
 environment.
 
+## Container and Orchestration Configurations
+
+The `deployment` directory now includes baseline configuration for running the
+application with Nginx, Gunicorn, Docker Compose, and Kubernetes:
+
+- `nginx_config.conf` – reverse proxy configuration for Nginx.
+- `gunicorn_config.py` – basic Gunicorn settings.
+- `docker_compose.yml` – Compose file wiring the application and Nginx.
+- `k8s/deployment.yaml` – Kubernetes Deployment definition.
+- `k8s/service.yaml` – Kubernetes Service exposing the pod.
+- `k8s/ingress.yaml` – Kubernetes Ingress routing external traffic.
+
 ## Prerequisites
 
 1. Activate the project virtual environment:

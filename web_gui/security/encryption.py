@@ -1,9 +1,10 @@
-"""Minimal encryption utilities with role enforcement."""
+"""Lightweight symmetric encryption helpers."""
 
 from __future__ import annotations
 
-import logging
-from typing import Iterable
+from base64 import b64decode, b64encode
+from itertools import cycle
+from typing import ByteString
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 
@@ -25,7 +26,16 @@ def xor_encrypt(
     result = bytes(b ^ key for b in data)
     (validator or SecondaryCopilotValidator()).validate_corrections([result.hex()])
     return result
+from flask import Flask
 
+
+def init_app(app: Flask) -> None:
+    """Ensure ``ENCRYPTION_KEY`` is configured."""
+    app.config.setdefault("ENCRYPTION_KEY", b"supersecretkey")
+
+
+def _xor(data: ByteString, key: ByteString) -> bytes:
+    return bytes(a ^ b for a, b in zip(data, cycle(key)))
 
 def xor_decrypt(
     data: bytes,
@@ -38,5 +48,9 @@ def xor_decrypt(
     return xor_encrypt(data, key, roles, validator)
 
 
-__all__ = ["xor_encrypt", "xor_decrypt"]
+def decrypt(token: str, key: bytes) -> bytes:
+    """Decrypt *token* produced by :func:`encrypt`."""
+    return _xor(b64decode(token.encode("ascii")), key)
 
+
+__all__ = ["init_app", "encrypt", "decrypt"]

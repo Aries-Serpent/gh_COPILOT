@@ -12,6 +12,8 @@ import logging
 from pathlib import Path
 from typing import Iterable
 
+DEFAULT_PDF_DIR = Path("documentation") / "generated" / "daily_state_update"
+
 # Some PDFs were produced with non-breaking hyphens in the filename.  The
 # Markdown files should use plain ASCII hyphens so downstream tooling can
 # reference them consistently.
@@ -64,9 +66,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Convert daily whitepaper PDFs to Markdown"
     )
-    default_dir = (
-        Path("documentation") / "generated" / "daily_state_update"
-    )
+    default_dir = DEFAULT_PDF_DIR
     parser.add_argument(
         "--pdf-dir",
         default=default_dir,

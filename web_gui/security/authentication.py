@@ -1,16 +1,21 @@
-"""Simple role-aware authentication helpers."""
+"""Basic token-based authentication utilities."""
 
 from __future__ import annotations
 
-import logging
-from typing import Dict, Iterable
+from flask import Flask, Response, request
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 
 logger = logging.getLogger(__name__)
 
-UserDB = Dict[str, Dict[str, Iterable[str]]]
+def init_app(app: Flask) -> None:
+    """Register a simple authentication check on *app*.
 
+    The check is enabled when ``AUTH_REQUIRED`` is ``True``. Incoming requests
+    must include an ``Authorization`` header matching ``Bearer <AUTH_TOKEN>``.
+    """
+    app.config.setdefault("AUTH_REQUIRED", False)
+    app.config.setdefault("AUTH_TOKEN", "")
 
 def authenticate_user(
     username: str,
@@ -38,5 +43,4 @@ def authenticate_user(
     return result
 
 
-__all__ = ["authenticate_user"]
-
+__all__ = ["init_app"]

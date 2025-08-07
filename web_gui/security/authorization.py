@@ -1,9 +1,9 @@
-"""Authorization helpers with role checks."""
+"""Simple role-based authorization helpers."""
 
 from __future__ import annotations
 
-import logging
-from typing import Iterable
+from functools import wraps
+from typing import Callable, Iterable
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 
@@ -24,5 +24,19 @@ def has_role(
     return allowed
 
 
-__all__ = ["has_role"]
+def requires_role(role: str) -> Callable[[Callable[..., Response]], Callable[..., Response]]:
+    """Decorator that ensures the current user has *role*."""
 
+    def decorator(func: Callable[..., Response]) -> Callable[..., Response]:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if role not in getattr(g, "current_roles", set()):
+                return Response("Forbidden", status=403)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+__all__ = ["init_app", "requires_role"]

@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import logging
-import secrets
-from typing import Iterable
+from flask import Flask
 
 from secondary_copilot_validator import SecondaryCopilotValidator
 
@@ -25,6 +23,9 @@ def generate_quantum_token(
     (validator or SecondaryCopilotValidator()).validate_corrections([token])
     return token
 
+def generate_token(length: int) -> str:
+    """Return a random hexadecimal token generated using quantum-safe methods."""
+    return quantum_crypto.generate_quantum_safe_key(length).hex()
 
-__all__ = ["generate_quantum_token"]
 
+__all__ = ["init_app", "generate_token"]
