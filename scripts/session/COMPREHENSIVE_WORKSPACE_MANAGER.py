@@ -20,6 +20,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Iterable, List
 
+from utils.validation_utils import detect_zero_byte_files
+
 from tqdm import tqdm
 
 from scripts.monitoring.unified_monitoring_optimization_system import (
@@ -67,11 +69,8 @@ class ComprehensiveWorkspaceManager:
         Path(backup_root).mkdir(parents=True, exist_ok=True)
 
     def _scan_zero_byte_files(self) -> List[Path]:
-        files: List[Path] = []
-        for path in self.workspace.rglob("*"):
-            if path.is_file() and path.stat().st_size == 0:
-                files.append(path)
-        return files
+        """Return zero-byte files under the workspace using shared util."""
+        return detect_zero_byte_files(self.workspace)
 
     def _scan_recursive_folders(self) -> List[Path]:
         folders: List[Path] = []
