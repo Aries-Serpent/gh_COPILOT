@@ -64,6 +64,8 @@ After adding new PDFs to `daily_state_update/`, run:
 
 ```bash
 python tools/convert_daily_whitepaper.py
+# or convert a single file
+python tools/convert_daily_whitepaper.py --pdf-file path/to/report.pdf
 ```
 
 This generates Markdown copies of each PDF, skips files already converted, and

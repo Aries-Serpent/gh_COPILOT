@@ -6,6 +6,7 @@ import pytest
 from tools.convert_daily_whitepaper import (
     PdfReader,
     convert_pdfs,
+    convert_pdf,
     _sanitize_name,
     verify_lfs_pdfs,
 )
@@ -44,3 +45,15 @@ def test_verify_lfs_pdfs_detects_pointer(tmp_path):
     pointer.write_text("version https://git-lfs.github.com/spec/v1\n")
     with pytest.raises(FileNotFoundError):
         verify_lfs_pdfs(tmp_path)
+
+
+def test_convert_pdf_single_file(tmp_path):
+    source_dir = Path("documentation") / "generated" / "daily_state_update"
+    source_pdf = next(source_dir.glob("*.pdf"))
+    target_pdf = tmp_path / source_pdf.name
+    shutil.copy(source_pdf, target_pdf)
+    message = convert_pdf(target_pdf)
+    md_name = _sanitize_name(source_pdf.stem) + ".md"
+    md_file = tmp_path / md_name
+    assert md_file.exists()
+    assert "Converted" in message
